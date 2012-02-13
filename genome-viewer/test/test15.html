@@ -1,0 +1,87 @@
+<html>
+
+	<head>
+		<!--  NO SE CARGAN LOS FICHEROS USANDO JQUERY 1.6 -->
+		<script src="http://code.jquery.com/jquery-1.5.1.min.js"></script>
+		 
+		<!--INFRARED-->
+		<script type="text/javascript" src="../infrared-js-client/js/infrared-js-core.js"  ></script>
+		   
+		<!--DATA-->
+		<script type="text/javascript" src="../commons/data/dataset/dataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataset/featuredataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/dataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/infrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/regioninfrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/vcflocalregiondataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/ruleregiondataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/generegioninfraredataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/karyotypeinfraredataadapter.js"  ></script>
+		
+		 <!--DATAADAPTERS-->
+        <script type="text/javascript" src="../commons/data/dataadapter/file/filedataadapter.js"  ></script>
+        <script type="text/javascript" src="../commons/data/dataadapter/file/vcffiledataadapter.js"  ></script>
+		
+		
+		<!--TRACKS-->
+		<script type="text/javascript" src="js/tracks/track.js"  ></script>
+		<script type="text/javascript" src="js/tracks/featuretrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/snpfeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/vcffeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/genefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/trackcanvas.js"  ></script>
+		<script type="text/javascript" src="js/tracks/sequencefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/rulefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/manager/geneblockmanager.js"  ></script>
+		<script type="text/javascript" src="js/tracks/multifeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/cytobandfeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/histogramfeaturetrack.js"  ></script>
+		
+		<!--TRACKS KARYOTYPE-->
+		<script type="text/javascript" src="../karyotype-viewer/js/chromosome-track.js"  ></script>
+		<script type="text/javascript" src="../karyotype-viewer/js/karyotypepanel.js"  ></script>
+		
+		<!--FORMS-->
+		<script type="text/javascript" src="../forms/genomic/exon/js/snpwindow.js"  ></script>
+		<script type="text/javascript" src="../forms/genomic/exon/js/exonwindow.js"  ></script>
+		<script type="text/javascript" src="../forms/genomic/exon/js/transcriptwindow.js"  ></script>
+		<script type="text/javascript" src="../forms/genomic/exon/js/genewindow.js"  ></script>
+		
+		<!--FORMATTERS-->
+			<script type="text/javascript" src="js/formatters/featureformatter.js"  ></script>
+		<script type="text/javascript" src="js/formatters/genomemapfeatureformatter.js"  ></script>
+		
+		<!--GENOME MAP CANVAS-->
+		<script type="text/javascript" src="js/widget/genomewidget.js"  ></script>
+		<script type="text/javascript" src="js/widget/genomewidgetproperties.js"  ></script>
+		<script type="text/javascript" src="js/widget/sequencegenomewidget.js"  ></script>
+		<script type="text/javascript" src="js/widget/masterslavegenomewidget.js"  ></script>
+		<script type="text/javascript" src="js/widget/karyotypehorizontalmarkerwidget.js"  ></script>
+		
+		<!--UTILS-->
+		<script type="text/javascript" src="../dependencies/event.js"  ></script>
+		<script type="text/javascript" src="../dependencies/dom-utils.js"  ></script>
+		<script type="text/javascript" src="../dependencies/graphics/graphics_svg.js"  ></script> 
+
+		<!--VIEWER-->
+		<script type="text/javascript" src="js/viewer/genomeviewer.js"  ></script>
+		
+		<!--EXTJS-->
+		<link rel="stylesheet" type="text/css" href="http://dev.sencha.com/deploy/ext-4.0.2a/resources/css/ext-all.css">
+		<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext/sencha/4.0.2/ext-all.js"></script>
+
+<script>
+	var genome;
+ 	Ext.require(['*']);
+    Ext.onReady(function(){
+            genome = new KaryotypeHorizontalMarkerWidget();
+            genome.draw(1, 24000000);
+        });
+  
+	
+    </script> 
+    
+</head>
+<body>
+</body>
+</html>

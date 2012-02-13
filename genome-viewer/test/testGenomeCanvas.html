@@ -1,0 +1,182 @@
+<html>
+
+<head>
+
+
+
+<script src="../dependencies/resources/js/jquery/jquery-1.5.1.min.js"></script>
+ 
+   
+<!--DATA-->
+<script type="text/javascript" src="../commons/data/dataset/dataset.js"  ></script>
+<script type="text/javascript" src="../commons/data/dataset/featuredataset.js"  ></script>
+<script type="text/javascript" src="../commons/data/dataset/snpfeaturedataset.js"  ></script>
+
+	<!--INFRARED-->
+		<script type="text/javascript" src="../infrared-js-client/js/infrared-js-core.js"  ></script>
+
+<!--TRACKS-->
+<script type="text/javascript" src="js/tracks/track.js"  ></script>
+<script type="text/javascript" src="js/tracks/featuretrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/genefeaturetrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/snpfeaturetrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/namestrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/snpnamestrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/genenamestrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/rulertrack.js"  ></script>
+
+<!--GENOME MAP CANVAS-->
+<script type="text/javascript" src="js/genomemapcanvas.js"  ></script>
+
+<!--UTILS-->
+<script type="text/javascript" src="../dependencies/event.js"></script> 
+<script type="text/javascript" src="../dependencies/dom-utils.js"  ></script>
+<script type="text/javascript" src="js/genomemapcanvas.js"  ></script>
+<script type="text/javascript" src="../dependencies/graphics/graphics_svg.js"  ></script> 
+
+
+
+<script>
+
+
+
+</script>
+
+
+</head>
+<body>
+<h2>BioGenomeMap Alpha</h2>
+
+
+
+<!--	Contenedor del genome map-->
+<div id = "button_menu"  style="top:0; display:block;color:#212121; border: 1px solid #aaaaaa; height:25px; position:relative; width:200px; background-color:#DADADA;">
+	
+<!--	<div id = "button_menu"  style="top:-250; display:block;color:#212121; border: 1px solid #aaaaaa; height:25px; position:relative; width1000px; background-color:#cc0000;">-->
+		<input type="button" onclick='left();left();' style="float:left;" value="<<"  />
+		<input type="button" onclick='left()' style="float:left;" value="<"  />
+		
+		<input type="button" onclick='right();right();' style="float:right;" value=">>" />
+		<input type="button" onclick='right()' style="float:right;" value=">" />
+	</div>
+
+	
+
+
+
+
+	
+	
+
+
+
+<!--	Contenedor del genome map-->
+	<div id = "map" style="top:150; position:relative;display:block;">
+		<div id = "container_map"></div>
+	</div>
+	
+	
+	
+	
+
+
+</body>
+
+<script>
+
+function drawGenes(data){
+
+	var features = new Array();
+	var objects = data[0];
+	
+	for (var i = 0; i < objects.length; i++){
+		var feature = new GeneFeatureTrack(objects[i]);	
+		features.push(feature);
+	}
+	
+
+	var track =  new featureTrack( "track3", "containertrack3", 
+	{
+		coords: {top:0, left:0, right:1100,  width:1100, height:30}, 
+		track:  {start:start, end:end },
+		features:(features), //[{name:"exon1", start:650, end:800}, {name:"exon2", start:500, end:550},  {name:"exon3", start:1000, end:1300}]) ,
+		optional:{backgroundcolor: "white", textcolor:"orange", color:"blue", labeled:false, featureheight:10, title:"Genes"}
+	});
+	genomeMap.addTrack(track);	
+}
+
+
+
+function drawSNP(data){
+
+	var features = new Array();
+	var objects = data[0];
+	
+	for (var i = 0; i < objects.length; i++){
+		var feature = new SNPFeature(objects[i]);	
+		features.push(feature);
+	}
+	
+
+	var track3 =  new svgsnptrack( "track4", "containertrack4", 
+	{
+		coords: {top:0, left:0, right:1100,  width:1100, height:400}, 
+		track:  {start:start, end:end },
+		features:(features), //[{name:"exon1", start:650, end:800}, {name:"exon2", start:500, end:550},  {name:"exon3", start:1000, end:1300}]) ,
+		optional:{backgroundcolor: "white", textcolor:"orange", color:"blue", labeled:false, featureheight:10, title:"SNP"}
+	});
+	genomeMap.addTrack(track3);	
+
+}
+
+function getData(){
+	
+	var infrared = new InfraredManager()
+	var startDB = 9060000;
+	var endDB = 10060000;
+	infrared.get("genomic", "chregion", "1:"+startDB+":"+endDB, "gene", drawGenes);
+	infrared.get("genomic", "chregion", "1:"+startDB+":"+endDB, "snp", drawSNP);	
+}
+
+function left(){
+	genomeMap.moveLeft();
+}
+
+function right(){
+	genomeMap.moveRight();
+}
+
+
+var start = 9229000;
+var end =  start + 20150;
+
+$("#startPosition").val(start);
+$("#endPosition").val(end);
+
+var height = 40;
+var top = 25;
+
+
+var ruler2 =  new RuleTrack( "ruler2", "container2", 
+			{
+				coords: {top:0,left:0, right:1100,  width:1100, height: height}, 
+				rule:{start:start, end:end, inc:400, mediumDivisionInterval:5, bigDivisionInterval:10, startView:start, endView:end },
+				optional:{backgroundcolor: "#FFFFFF", textcolor:"#000000", labelBigIntervals: true, labelMediumIntervals: true, linecolor:"#000000"}
+			});
+
+
+var genomeMap = new genomemapcanvas("container_map", {coords: {top:12,left:0, right:1000,  width:800,start:start, end:end }} );
+
+genomeMap.addRule(ruler2);
+
+$(document).ready(function() {
+    getData();
+  });
+
+
+
+
+</script>
+
+
+</html>

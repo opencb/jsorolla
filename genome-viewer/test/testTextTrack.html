@@ -1,0 +1,240 @@
+<html>
+
+	<head>
+
+		<script src="../dependencies/resources/js/jquery/jquery-1.5.1.min.js"></script>
+		<script src="../dependencies/resources/js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
+		<link rel="stylesheet" href="../graph-editor/css/jquery-ui-1.8.11.custom.css" type="text/css" media="all" /> 
+		 
+		<!--INFRARED-->
+		<script type="text/javascript" src="../infrared-js-client/js/infrared-js-core.js"  ></script>
+		   
+		<!--DATA-->
+		<script type="text/javascript" src="../commons/data/dataset/dataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataset/featuredataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataset/snpfeaturedataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/dataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/infrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/featureinfrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/regioninfrareddataadapter.js"  ></script>
+		
+		<!--TRACKS-->
+		<script type="text/javascript" src="js/tracks/track.js"  ></script>
+		<script type="text/javascript" src="js/tracks/featuretrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/genefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/snpfeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/namestrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/snpnamestrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/genenamestrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/rulertrack.js"  ></script>
+		
+		<!--UTILS-->
+		<script type="text/javascript" src="../dependencies/event.js"  ></script>
+		<script type="text/javascript" src="../dependencies/dom-utils.js"  ></script>
+		<script type="text/javascript" src="../dependencies/graphics/graphics_svg.js"  ></script> 
+
+
+
+
+<script>
+	$(function() {
+		$( "#zoomIn" ).button({
+			text: false,
+			icons: {
+				primary: "ui-icon-zoomin"
+			}
+		}).click(function() {
+				rule.zoomIn();
+			});
+		$( "#zoomOut" ).button({
+			text: false,
+			icons: {
+				primary: "ui-icon-zoomout"
+			}
+		}).click(function() {
+			rule.zoomOut();
+		});
+	});
+	</script>
+
+
+
+</head>
+<body>
+	<h3>Tracks Example</h3>
+	<br />
+	<br />
+	<h4 >FeatureDataAdapter</h4>
+	<br />
+	<div id = "container1"></div>
+	<br />
+	<div id = "container2"></div>
+	<br />
+	<h4 >SNPFeatureDataAdapter</h4>
+	<br />
+	<div id = "container3"></div>
+	<br />
+	<br />
+	<div id = "container6"></div>
+	<h4 >GeneFeatureDataAdapter</h4>
+	<br />
+	<div id = "container4"></div>
+	<br />
+	<div id = "container5"></div>
+	<br />
+	
+	<h4 >Ruler</h4>
+	<span id="toolbar" class="ui-widget-header ui-corner-all">
+	<button id="zoomOut">-</button>
+	<button id="zoomIn">+</button>
+</span>
+	
+	<div id = "ruler"></div>
+</body>
+
+<script>
+
+var track;
+var nametrack;
+
+function drawSNP(data){
+	
+	var objects = JSON.parse($("#dataBox").val());
+	
+	var featureDataSet = new FeatureDataSet();
+	featureDataSet.loadFromJSON(objects);
+
+
+	track =  new FeatureTrack( "idTrack1", document.getElementById("container1"), {
+		top:0, 
+		left:200, 
+		bottom: 30, 
+		right:1100,  
+		width:1100, 
+		height:50, 
+		start:start, 
+		end:end,
+		backgroundColor: "#FFFFFF", 
+		titleColor:"#728FCE", 
+		titleFontSize:12, 
+		featureHeight:10, title:"Feature Track"
+	});
+	track.draw(featureDataSet);
+
+
+	
+	nametrack =  new NamesFeatureTrack( "idTrack2", document.getElementById("container2"), 
+			{
+				top:0, left:100, bottom: 30, right:1100,  width:1100, height:50, start:start, end:end,
+				backgroundColor: "white", titleColor:"black", titleFontSize:12, featureHeight:10, title:"F. Name Track"
+			});
+	nametrack.draw(featureDataSet);
+
+	
+
+
+	
+	var snpFeatureDataSet = new SNPFeatureDataSet();
+	snpFeatureDataSet.loadFromJSON(objects);
+	
+
+	snpNamesFeatureTrack =  new SNPNamesFeatureTrack( "idTrack3", document.getElementById("container3"), 
+			{
+				top:0, left:100, bottom: 30, right:1100,  width:1100, height:50, start:start, end:end,
+				backgroundColor: "white", titleColor:"black", titleFontSize:12, featureHeight:10, title:"SNP Names Track"
+			});
+	
+	snpNamesFeatureTrack.draw(snpFeatureDataSet);
+	
+
+	snpFeatureTrack =  new SNPFeatureTrack( "idTrack6", document.getElementById("container6"), 
+			{
+				top:0, left:100, bottom: 30, right:1100,  width:1100, height:50, start:start, end:end,
+				backgroundColor: "white", titleColor:"black", titleFontSize:12, featureHeight:10, title:"SNPFeatureTrack"
+			});
+	
+	snpFeatureTrack.draw(snpFeatureDataSet);
+
+
+	
+
+
+	var geneNamesFeatureTrack =  new GeneNamesFeatureTrack( "idTrack4", document.getElementById("container4"), 
+			{
+				top:0, left:100, bottom: 30, right:1100,  width:1100, height:50, start:start, end:end,
+				backgroundColor: "white", titleColor:"black", titleFontSize:12, featureHeight:10, title:"Gene Names Track"
+			});
+	geneNamesFeatureTrack.draw(snpFeatureDataSet);
+
+
+
+	var geneFeatureTrack =  new GeneFeatureTrack( "idTrack5", document.getElementById("container5"), 
+			{
+				top:0, left:100, bottom: 30, right:1100,  width:1100, height:50, start:start, end:end,
+				backgroundColor: "white", titleColor:"black", titleFontSize:12, featureHeight:10, title:"Gene Features Track"
+			});
+	geneFeatureTrack.draw(snpFeatureDataSet);
+	
+
+
+	
+	
+	
+
+	nametrack2 =  new SNPNamesFeatureTrack( "idTrack3", document.getElementById("container3"), 
+			{
+				top:0, left:100, bottom: 30, right:900,  width:1100, height:20, start:start, end:end,
+				backgroundColor: "white", titleColor:"black", overflow:true, featureHeight:10, title:"SNPNamesFeatureTrack"
+			});
+	nametrack2.draw(snpFeatureDataSet);
+
+
+	
+	rule =  new RuleTrack( "ruler", document.getElementById("ruler"), 
+			{
+				top:0, left:100, bottom: 30, right:1100,  width:1100, height:50,
+				backgroundColor: "white", titleColor:"black", titleFontSize:12, featureHeight:10, title:"Gene Features Track",
+				rule:{start:1, end:100, inc:1, mediumDivisionInterval:1, bigDivisionInterval:5, startView:20, endView:60, zoom:10 },
+			});
+	rule.draw();
+
+	
+}
+
+var rule;
+/*
+function getData(){
+	
+	var infrared = new InfraredManager()
+	var startDB = 9060000;
+	var endDB = 10060000;
+	infrared.get("genomic", "chregion", "1:"+startDB+":"+endDB, "gene", drawSNP);	
+}
+
+
+
+
+var start = 9229000;
+var end =  start + 1000105;
+
+$("#startPosition").val(start);
+$("#endPosition").val(end);
+*/
+
+var start = 9229000;
+var end =  start + 1000105;
+$(document).ready(function() {
+	drawSNP();
+  });
+
+
+
+
+</script>
+
+<br /><br /><br /><br /><br /><br />
+<textarea rows="25" cols="200" id="dataBox">
+[{"geneName":"H6PD","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9294863,"end":9331396,"strand":"1","sequence":"NA","id":"ENSG00000049239"},{"geneName":"SLC2A5","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9095166,"end":9148537,"strand":"-1","sequence":"NA","id":"ENSG00000142583"},{"geneName":"LZIC","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9982171,"end":10003465,"strand":"-1","sequence":"NA","id":"ENSG00000162441"},{"geneName":"RBP7","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":10057255,"end":10076078,"strand":"1","sequence":"NA","id":"ENSG00000162444"},{"geneName":"CLSTN1","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9789084,"end":9884584,"strand":"-1","sequence":"NA","id":"ENSG00000171603"},{"geneName":"PIK3CD","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9711803,"end":9788977,"strand":"1","sequence":"NA","id":"ENSG00000171608"},{"geneName":"SLC25A33","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9599541,"end":9642831,"strand":"1","sequence":"NA","id":"ENSG00000171612"},{"geneName":"SPSB1","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9352939,"end":9429591,"strand":"1","sequence":"NA","id":"ENSG00000171621"},{"geneName":"NMNAT1","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":10003486,"end":10045559,"strand":"1","sequence":"NA","id":"ENSG00000173614"},{"geneName":"CTNNBIP1","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9908334,"end":9970394,"strand":"-1","sequence":"NA","id":"ENSG00000178585"},{"geneName":"C1orf200","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9712668,"end":9714644,"strand":"-1","sequence":"NA","id":"ENSG00000179840"},{"geneName":"GPR157","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9160364,"end":9189250,"strand":"-1","sequence":"NA","id":"ENSG00000180758"},{"geneName":"TMEM201","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9648977,"end":9674935,"strand":"1","sequence":"NA","id":"ENSG00000188807"},{"geneName":"SLC2A7","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9063359,"end":9086404,"strand":"-1","sequence":"NA","id":"ENSG00000197241"},{"geneName":"7SK","biotype":"misc_RNA","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":10007376,"end":10007694,"strand":"1","sequence":"NA","id":"ENSG00000202415"},{"geneName":"hsa-mir-34a","biotype":"miRNA","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9211727,"end":9211836,"strand":"-1","sequence":"NA","id":"ENSG00000207865"},{"geneName":"SCARNA16","biotype":"misc_RNA","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9142755,"end":9142938,"strand":"1","sequence":"NA","id":"ENSG00000212602"},{"geneName":"AL357140.4","biotype":"processed_transcript","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9908376,"end":9910212,"strand":"1","sequence":"NA","id":"ENSG00000223989"},{"geneName":"AL357140.5","biotype":"protein_coding","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9887909,"end":9888292,"strand":"-1","sequence":"NA","id":"ENSG00000226077"},{"geneName":"AL357140.2","biotype":"processed_transcript","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":10002981,"end":10010032,"strand":"1","sequence":"NA","id":"ENSG00000228150"},{"geneName":"Z98044.2","biotype":"processed_transcript","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9228327,"end":9262678,"strand":"-1","sequence":"NA","id":"ENSG00000228526"},{"geneName":"AL954705.1","biotype":"pseudogene","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9636485,"end":9637043,"strand":"1","sequence":"NA","id":"ENSG00000231181"},{"geneName":"AL691449.1","biotype":"processed_transcript","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9739858,"end":9747632,"strand":"-1","sequence":"NA","id":"ENSG00000231789"},{"geneName":"AL691449.2","biotype":"pseudogene","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9720892,"end":9722686,"strand":"-1","sequence":"NA","id":"ENSG00000233268"},{"geneName":"AL357140.1","biotype":"processed_transcript","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9961518,"end":9962174,"strand":"1","sequence":"NA","id":"ENSG00000234374"},{"geneName":"Z98044.1","biotype":"processed_transcript","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9242271,"end":9243855,"strand":"1","sequence":"NA","id":"ENSG00000234546"},{"geneName":"AL928921.2","biotype":"processed_transcript","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9561151,"end":9563530,"strand":"-1","sequence":"NA","id":"ENSG00000235263"},{"geneName":"AL928921.1","biotype":"rRNA_pseudogene","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":9497767,"end":9497837,"strand":"-1","sequence":"NA","id":"ENSG00000239244"},{"geneName":"AL603962.1","biotype":"processed_transcript","transcripts":null,"exons":null,"snps":null,"xrefs":null,"chromosome":"1","start":10043199,"end":10044626,"strand":"1","sequence":"NA","id":"ENSG00000241326"}]
+</textarea>
+
+</html>

@@ -1,0 +1,338 @@
+<html>
+
+	<head>
+
+		<script src="../dependencies/resources/js/jquery/jquery-1.5.1.min.js"></script>
+		<script src="../dependencies/resources/js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
+		<link rel="stylesheet" href="../graph-editor/css/jquery-ui-1.8.11.custom.css" type="text/css" media="all" /> 
+		 
+		<!--INFRARED-->
+		<script type="text/javascript" src="../infrared-js-client/js/infrared-js-core.js"  ></script>
+		   
+		<!--DATA-->
+		<script type="text/javascript" src="../commons/data/dataset/dataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataset/featuredataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataset/snpfeaturedataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/dataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/infrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/featureinfrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/regioninfrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/generegioninfrareddataadapter.js"  ></script>
+		
+		<!--TRACKS-->
+		<script type="text/javascript" src="js/tracks/track.js"  ></script>
+		<script type="text/javascript" src="js/tracks/featuretrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/genefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/snpfeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/trackcanvas.js"  ></script>
+		<script type="text/javascript" src="js/tracks/sequencefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/rulefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/transcriptfeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/exonfeaturetrack.js"  ></script>
+
+		<script type="text/javascript" src="js/manager/geneblockmanager.js"  ></script>
+		<script type="text/javascript" src="js/tracks/multifeaturetrack.js"  ></script>
+		
+		
+		<!--FORMATTERS-->
+		<script type="text/javascript" src="js/formatters/featureformatter.js"  ></script>
+		<script type="text/javascript" src="js/formatters/genefeatureformatter.js"  ></script>
+		
+		<!--GENOME MAP CANVAS-->
+		<script type="text/javascript" src="js/widget/genomeviewer.js"  ></script>
+		<script type="text/javascript" src="js/widget/detailgenomeviewer.js"  ></script>
+		<script type="text/javascript" src="js/widget/masterslavegenomeviewer.js"  ></script>
+
+		<!--UTILS-->
+		<script type="text/javascript" src="../dependencies/event.js"  ></script>
+		<script type="text/javascript" src="../dependencies/dom-utils.js"  ></script>
+		<script type="text/javascript" src="../dependencies/graphics/graphics_svg.js"  ></script> 
+
+		<!--EXTJS-->
+		<link rel="stylesheet" type="text/css" href="http://dev.sencha.com/deploy/ext-4.0.2a/resources/css/ext-all.css">
+		<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext/sencha/4.0.2/ext-all.js"></script>
+
+<script>
+ Ext.require(['*']);
+ 
+    Ext.onReady(function(){
+
+    	 
+        // sample static data for the store
+        var myData = [
+            ['3m Co',                               71.72, 0.02,  0.03,  '9/1 12:00am'],
+            ['Alcoa Inc',                           29.01, 0.42,  1.47,  '9/1 12:00am'],
+            ['Altria Group Inc',                    83.81, 0.28,  0.34,  '9/1 12:00am'],
+            ['American Express Company',            52.55, 0.01,  0.02,  '9/1 12:00am'],
+            ['American International Group, Inc.',  64.13, 0.31,  0.49,  '9/1 12:00am'],
+            ['AT&T Inc.',                           31.61, -0.48, -1.54, '9/1 12:00am'],
+            ['Boeing Co.',                          75.43, 0.53,  0.71,  '9/1 12:00am'],
+            ['Caterpillar Inc.',                    67.27, 0.92,  1.39,  '9/1 12:00am'],
+            ['Citigroup, Inc.',                     49.37, 0.02,  0.04,  '9/1 12:00am'],
+            ['E.I. du Pont de Nemours and Company', 40.48, 0.51,  1.28,  '9/1 12:00am'],
+            ['Exxon Mobil Corp',                    68.1,  -0.43, -0.64, '9/1 12:00am'],
+            ['General Electric Company',            34.14, -0.08, -0.23, '9/1 12:00am'],
+            ['General Motors Corporation',          30.27, 1.09,  3.74,  '9/1 12:00am'],
+            ['Hewlett-Packard Co.',                 36.53, -0.03, -0.08, '9/1 12:00am'],
+            ['Honeywell Intl Inc',                  38.77, 0.05,  0.13,  '9/1 12:00am'],
+            ['Intel Corporation',                   19.88, 0.31,  1.58,  '9/1 12:00am'],
+            ['International Business Machines',     81.41, 0.44,  0.54,  '9/1 12:00am'],
+            ['Johnson & Johnson',                   64.72, 0.06,  0.09,  '9/1 12:00am'],
+            ['JP Morgan & Chase & Co',              45.73, 0.07,  0.15,  '9/1 12:00am'],
+            ['McDonald\'s Corporation',             36.76, 0.86,  2.40,  '9/1 12:00am'],
+            ['Merck & Co., Inc.',                   40.96, 0.41,  1.01,  '9/1 12:00am'],
+            ['Microsoft Corporation',               25.84, 0.14,  0.54,  '9/1 12:00am'],
+            ['Pfizer Inc',                          27.96, 0.4,   1.45,  '9/1 12:00am'],
+            ['The Coca-Cola Company',               45.07, 0.26,  0.58,  '9/1 12:00am'],
+            ['The Home Depot, Inc.',                34.64, 0.35,  1.02,  '9/1 12:00am'],
+            ['The Procter & Gamble Company',        61.91, 0.01,  0.02,  '9/1 12:00am'],
+            ['United Technologies Corporation',     63.26, 0.55,  0.88,  '9/1 12:00am'],
+            ['Verizon Communications',              35.57, 0.39,  1.11,  '9/1 12:00am'],
+            ['Wal-Mart Stores, Inc.',               45.45, 0.73,  1.63,  '9/1 12:00am']
+        ];
+ 
+        /**
+         * Custom function used for column renderer
+         * @param {Object} val
+         */
+        function change(val) {
+            if (val > 0) {
+                return '<span style="color:green;">' + val + '</span>';
+            } else if (val < 0) {
+                return '<span style="color:red;">' + val + '</span>';
+            }
+            return val;
+        }
+ 
+        /**
+         * Custom function used for column renderer
+         * @param {Object} val
+         */
+        function pctChange(val) {
+            if (val > 0) {
+                return '<span style="color:green;">' + val + '%</span>';
+            } else if (val < 0) {
+                return '<span style="color:red;">' + val + '%</span>';
+            }
+            return val;
+        }
+ 
+        // create the data store
+        var store = Ext.create('Ext.data.ArrayStore', {
+            fields: [
+               {name: 'company'},
+               {name: 'price',      type: 'float'},
+               {name: 'change',     type: 'float'},
+               {name: 'pctChange',  type: 'float'},
+               {name: 'lastChange', type: 'date', dateFormat: 'n/j h:ia'}
+            ],
+            data: myData
+        });
+ 
+        // create the Grid
+        var grid = Ext.create('Ext.grid.Panel', {
+            hideCollapseTool: true,
+            store: store,
+            columnLines: true,
+            columns: [
+                {
+                    text     : 'Company',
+                    flex     : 1,
+                    sortable : false,
+                    dataIndex: 'company'
+                },
+                {
+                    text     : 'Price',
+                    width    : 75,
+                    sortable : true,
+                    renderer : 'usMoney',
+                    dataIndex: 'price'
+                },
+                {
+                    text     : 'Change',
+                    width    : 75,
+                    sortable : true,
+                    renderer : change,
+                    dataIndex: 'change'
+                },
+                {
+                    text     : '% Change',
+                    width    : 75,
+                    sortable : true,
+                    renderer : pctChange,
+                    dataIndex: 'pctChange'
+                },
+                {
+                    text     : 'Last Updated',
+                    width    : 85,
+                    sortable : true,
+                    renderer : Ext.util.Format.dateRenderer('m/d/Y'),
+                    dataIndex: 'lastChange'
+                },
+                {
+                    xtype: 'actioncolumn',
+                    width: 50,
+                    items: [{
+                        icon   : '../shared/icons/fam/delete.gif',  // Use a URL in the icon config
+                        tooltip: 'Sell stock',
+                        handler: function(grid, rowIndex, colIndex) {
+                            var rec = store.getAt(rowIndex);
+                            alert("Sell " + rec.get('company'));
+                        }
+                    }, {
+                        getClass: function(v, meta, rec) {          // Or return a class from a function
+                            if (rec.get('change') < 0) {
+                                this.items[1].tooltip = 'Hold stock';
+                                return 'alert-col';
+                            } else {
+                                this.items[1].tooltip = 'Buy stock';
+                                return 'buy-col';
+                            }
+                        },
+                        handler: function(grid, rowIndex, colIndex) {
+                            var rec = store.getAt(rowIndex);
+                            alert((rec.get('change') < 0 ? "Hold " : "Buy ") + rec.get('company'));
+                        }
+                    }]
+                }
+            ],
+            title: 'Array Grid (Click header to collapse)',
+            viewConfig: {
+                stripeRows: true
+            }
+        });
+ 
+        var item1 = grid;
+ 
+            var item2 = Ext.create('Ext.Panel', {
+                title: 'Accordion Item 2',
+                html: '&lt;empty panel&gt;',
+                cls:'empty'
+            });
+ 
+            var item3 = Ext.create('Ext.Panel', {
+                title: 'Accordion Item 3',
+                html: '&lt;empty panel&gt;',
+                cls:'empty'
+            });
+ 
+            var item4 = Ext.create('Ext.Panel', {
+                title: 'Accordion Item 4',
+                html: '&lt;empty panel&gt;',
+                cls:'empty'
+            });
+ 
+            var item5 = Ext.create('Ext.Panel', {
+                title: 'Accordion Item 5',
+                html: '&lt;empty panel&gt;',
+                cls:'empty'
+            });
+ 
+            var accordion = Ext.create('Ext.Panel', {
+               region:'east',
+                margins:'5 0 5 5',
+                split:true,
+                width: 210,
+                layout:'accordion',
+                items: [item1, item2, item3, item4, item5]
+            });
+            
+            var centerPanel = Ext.create('Ext.panel.Panel', {
+                width: 500,
+                height: 400,
+                //region: 'south',
+                layout: 'border',
+                items: [{
+                   // title: 'South Region is resizable',
+                    region: 'center',     // position for region
+                    xtype: 'panel',
+                    height: 100,
+                    split: true,         // enable resizing
+                    margins: '0 5 5 5'
+                },{
+                  //  title: 'Center Region',
+                    region: 'center',     // center region is required, no width/height specified
+                    xtype: 'panel',
+                    layout: 'fit',
+                    margins: '5 5 0 0',
+                    bodyStyle:'background:#f1f1f1',
+                    html:'<div id = "container_map"></div>'
+                }],
+               // renderTo: Ext.getBody()
+            });
+               /*        
+           
+            var centerPanel = Ext.create('Ext.Panel', {
+                
+            	region:'south',
+            	margins:'5 5 0 5',
+            	cls:'empty',
+            	bodyStyle:'background:white;',
+            	html:'<div id = "fghfghf">fghfghgf</div>'
+            });
+            */
+ 
+            var viewport = Ext.create('Ext.Viewport', {
+                layout:'border',
+                items:[
+                    accordion,
+                    centerPanel,
+                    {
+                        region:'center',
+                        margins:'5 5 5 0',
+                        cls:'empty',
+                        bodyStyle:'background:#f1f1f1',
+                        html:'<div id = "container_map"></div>'
+                    },
+                    {
+                        //region:'center',
+                        margins:'5 5 5 0',
+                        cls:'empty',
+                        bodyStyle:'background:#f1f1f1',
+                        html:'<div id = "asdasd">asdasda</div>'
+                    }
+                    
+                    //,             centerPanel
+                	]
+            });
+
+            var genomeViewer = new MasterSlaveGenomeViewer("id", "container_map");
+        	genomeViewer.draw(1, 25000000);
+            
+        });
+
+ 
+    </script> 
+    
+</head>
+<body>
+	
+	
+<!--	<div id = "container_map"></div>-->
+
+
+</span>
+	
+</body>
+
+<script>
+
+
+
+
+
+
+
+var detailViewer;
+var viewer;
+
+$(document).ready(function() {
+	
+    
+
+	 
+  });
+var region;
+</script>
+
+</html>

@@ -1,0 +1,106 @@
+<html>
+
+<head>
+
+
+
+<script type="text/javascript" src="../commons/objects/feature.js"  ></script>
+<script type="text/javascript" src="../commons/objects/snpfeature.js"  ></script>
+<script type="text/javascript" src="../commons/objects/genefeature.js"  ></script>
+
+ <script type="text/javascript" src="dependencies/jquery1-4-4.js"  ></script> 
+ 
+
+<!--    <link href="css/blitzer/jquery-ui-1.8.9.custom.css" rel="stylesheet" type="text/css"/>-->
+   <link href="css/map-viz-widget.css" rel="stylesheet" type="text/css"/>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+   
+
+
+<script type="text/javascript" src="js/track.js"  ></script>
+<script type="text/javascript" src="js/svgsnptrack.js"  ></script>
+<script type="text/javascript" src="js/svgruler.js"  ></script>
+<script type="text/javascript" src="dependencies/event.js"  ></script>
+<script type="text/javascript" src="dependencies/dom-utils.js"  ></script>
+<script type="text/javascript" src="js/genomemapcanvas.js"  ></script>
+<script type="text/javascript" src="dependencies/graphics_svg.js"  ></script>
+<script type="text/javascript" src="dependencies/infrared-js-core.js"  ></script>
+<script type="text/javascript" src="../widget-tool/js/floatwindow.js"  ></script>
+
+
+
+<script>
+	
+	function test(){
+				alert("hello");
+		}
+	
+
+function widget(id){
+	this.id = id;
+
+	this.execute = function(sender ){
+		console.log(sender.id);
+	}
+
+
+	
+	this.renderStatic = function(targetID){
+		var _this = this;
+		for (var i = 0; i< 2; i++){
+			var buttonID = 'id_'+this.id+"_"+ i;
+			$("#"+targetID).append( "<input id="+ buttonID + " type='button' value='++++' />");
+			$("#"+buttonID).click(function(){_this.execute(this);});
+		}
+		
+	}
+
+}
+
+
+</script>
+
+
+</head>
+<body>
+<h2>BioGenomeMap Alpha</h2>
+
+
+
+	
+
+	<div id = "button_menu"></div>
+	<div id = "button_menu2"></div>
+
+
+
+
+	
+	
+
+
+
+<!--	Contenedor del genome map-->
+	<div id = "map" style="top:150; position:relative;display:block;">
+		<div id = "container_map"></div>
+	</div>
+	
+	
+	
+	
+
+
+</body>
+
+<script>
+
+
+var w = new widget("id1");
+w.renderStatic("button_menu");
+
+var w1 = new widget("id2");
+w1.renderStatic("button_menu2");
+</script>
+
+
+</html>

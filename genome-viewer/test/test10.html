@@ -1,0 +1,106 @@
+<html>
+
+	<head>
+
+		<script src="../dependencies/resources/js/jquery/jquery-1.5.1.min.js"></script>
+		<script src="../dependencies/resources/js/jquery/jquery-ui-1.8.6.custom.min.js"></script>
+		<link rel="stylesheet" href="../graph-editor/css/jquery-ui-1.8.11.custom.css" type="text/css" media="all" /> 
+		 
+		<!--INFRARED-->
+		<script type="text/javascript" src="../infrared-js-client/js/infrared-js-core.js"  ></script>
+		   
+		<!--DATA-->
+		<script type="text/javascript" src="../commons/data/dataset/dataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataset/featuredataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataset/snpfeaturedataset.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/dataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/infrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/featureinfrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/regioninfrareddataadapter.js"  ></script>
+		<script type="text/javascript" src="../commons/data/dataadapter/generegioninfrareddataadapter.js"  ></script>
+		
+		<!--TRACKS-->
+		<script type="text/javascript" src="js/tracks/track.js"  ></script>
+		<script type="text/javascript" src="js/tracks/featuretrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/genefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/snpfeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/trackcanvas.js"  ></script>
+		<script type="text/javascript" src="js/tracks/sequencefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/rulefeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/transcriptfeaturetrack.js"  ></script>
+		<script type="text/javascript" src="js/tracks/exonfeaturetrack.js"  ></script>
+
+		<script type="text/javascript" src="js/manager/geneblockmanager.js"  ></script>
+		<script type="text/javascript" src="js/tracks/multifeaturetrack.js"  ></script>
+		
+		
+		<!--FORMATTERS-->
+		<script type="text/javascript" src="js/formatters/featureformatter.js"  ></script>
+		<script type="text/javascript" src="js/formatters/genefeatureformatter.js"  ></script>
+		
+		<!--GENOME MAP CANVAS-->
+		<script type="text/javascript" src="js/widget/genomeviewer.js"  ></script>
+		<script type="text/javascript" src="js/widget/detailgenomeviewer.js"  ></script>
+		<script type="text/javascript" src="js/widget/masterslavegenomeviewer.js"  ></script>
+
+		<!--UTILS-->
+		<script type="text/javascript" src="../dependencies/event.js"  ></script>
+		<script type="text/javascript" src="../dependencies/dom-utils.js"  ></script>
+		<script type="text/javascript" src="../dependencies/graphics/graphics_svg.js"  ></script> 
+
+
+
+
+</head>
+<body>
+	
+	
+	<h5>Tracks Example</h5>
+	<div id = "container_map" style="border: 1px black solid; width:1150"></div>
+	<br />
+
+<div id = "detail_map"  style="border: 1px black solid; height:100; width:1150"></div>
+	<br />
+
+</span>
+	
+</body>
+
+<script>
+
+
+
+
+
+
+
+var detailViewer;
+var viewer;
+
+$(document).ready(function() {
+		var position = 36184000;
+		
+		
+		
+		//viewer = new DetailGenomeViewer("DetailGenomeViewer", "container_map", {"start":50000, "end":50510, "width":1100});
+		//viewer = new DetailGenomeViewer("DetailGenomeViewer", "container_map", {"start":3000000, "end":3000510, "width":1100});
+		//viewer = new GenomeViewer("GenomeViewer", "container_map", {"chromosome":1, "start":35184124, "end":39530030, "width":1100, "height":500});
+		//viewer = new GenomeViewer("GenomeViewer", "container_map", {"chromosome":1, "start":35184124, "end":36730030, "width":1100, "height":500});
+		viewer = new GenomeViewer("GenomeViewer", "container_map", {"chromosome":5, "start":position - 4000000, "end":position + 4000000, "width":1150, "height":500});
+		//viewer = new GenomeViewer("GenomeViewer", "container_map", {"chromosome":1, "start":32784124, "end":33230030, "width":1150, "height":500});
+		viewer.draw();
+		
+		detailViewer = new DetailGenomeViewer("DetailGenomeViewer", "detail_map", {"chromosome":1, "start":position - 10000, "end":position + 10000, "width":1150});
+		detailViewer.draw();
+
+
+   
+
+    
+
+	 
+  });
+var region;
+</script>
+
+</html>

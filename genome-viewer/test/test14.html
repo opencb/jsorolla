@@ -1,0 +1,44 @@
+<html>
+
+	<head>
+		<script src="http://code.jquery.com/jquery-1.5.1.min.js"></script>
+		 
+		<!--INFRARED-->
+		<script type="text/javascript" src="../infrared-js-client/js/infrared-js-core.js"  ></script>
+		   
+		
+		
+
+		<!--UTILS-->
+		<script type="text/javascript" src="../dependencies/event.js"  ></script>
+
+
+<script>
+	var infrared = new InfraredManager();
+
+	var query = "ENST00000320583,ENST00000467680,ENST00000489320,ENST00000452314,ENST00000416144,ENST00000252713,ENST00000454654,ENST00000412636,ENST00000486324,ENST00000423973,ENST00000449244,ENST00000493947,ENST00000455905,ENST00000425063,ENST00000493277,ENST00000422422,ENST00000488751,ENST00000422164,ENST00000422647,ENST00000427931,ENST00000440391,ENST00000394163,ENST00000494357,ENST00000419215,ENST00000424881,ENST00000357864,ENST00000431679,ENST00000453227,ENST00000429679,ENST00000481424,ENST00000394150,ENST00000394152,ENST00000473646,ENST00000493443,ENST00000431485,ENST00000466948,ENST00000485586,ENST00000334715,ENST00000262941";
+	query = query +"," + query +"," + query +"," + query +"," + query;
+	query = query +"," + query +"," + query +"," + query +"," + query;
+
+	  infrared.get("feature", "transcript", query, "exon");
+
+	  infrared.successed.attach(function (evt, data){
+		  	console.log(data.length);
+			console.log(data);
+			var query = new Array();;
+			for ( var i = 0; i < data.length; i++) {
+				for ( var j = 0; j < data[i].length; j++) {
+					query.push((data[i][j].stableId));
+				}
+				
+			}
+			console.log(query)
+			console.log(query.length)
+	  });	
+	
+    </script> 
+    
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<html>
+
+<head>
+
+
+
+
+
+<!--JQUERY-->
+		<script src="../dependencies/resources/js/jquery/jquery-1.5.1.min.js"></script>
+ 
+<!--INFRARED-->
+		<script type="text/javascript" src="../infrared-js-client/js/infrared-js-core.js"  ></script>
+   
+<!--DATA-->
+<script type="text/javascript" src="../commons/data/dataset/dataset.js"  ></script>
+<script type="text/javascript" src="../commons/data/dataset/featuredataset.js"  ></script>
+<script type="text/javascript" src="../commons/data/dataset/snpfeaturedataset.js"  ></script>
+<script type="text/javascript" src="../commons/data/dataadapter/dataadapter.js"  ></script>
+<script type="text/javascript" src="../commons/data/dataadapter/infrareddataadapter.js"  ></script>
+<script type="text/javascript" src="../commons/data/dataadapter/featureinfrareddataadapter.js"  ></script>
+<script type="text/javascript" src="../commons/data/dataadapter/regioninfrareddataadapter.js"  ></script>
+
+<!--TRACKS-->
+<script type="text/javascript" src="js/tracks/track.js"  ></script>
+<script type="text/javascript" src="js/tracks/featuretrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/genefeaturetrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/snpfeaturetrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/namestrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/snpnamestrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/genenamestrack.js"  ></script>
+<script type="text/javascript" src="js/tracks/rulertrack.js"  ></script>
+
+<!--UTILS-->
+		<script type="text/javascript" src="../dependencies/event.js"  ></script>
+		<script type="text/javascript" src="../dependencies/dom-utils.js"  ></script>
+		<script type="text/javascript" src="../dependencies/graphics/graphics_svg.js"  ></script> 
+		<script type="text/javascript" src="../dependencies/normalization.js"  ></script> 
+		<script type="text/javascript" src="../dependencies/colors.js"  ></script> 
+		<script type="text/javascript" src="../dependencies/geometry.js"  ></script> 
+
+
+
+
+
+</head>
+<body>
+	<h3>Genome Canvas Example</h3>
+	<br />
+	<br />
+	<h4 >FeatureDataAdapter</h4>
+	<br />
+	<div id = "container1"></div>
+	<br />
+	<div id = "container2"></div>
+	<br />
+
+</body>
+
+<script>
+
+var track;
+var nametrack;
+
+function drawSNP(){
+
+	var featureInfraredDataAdapter = new FeatureListInfraredDataAdapter();
+	featureInfraredDataAdapter.fill("gene", $("#dataBox").val());
+	
+	featureInfraredDataAdapter.successed.attach(function (evt){
+		
+		console.log(featureInfraredDataAdapter.toJSON());
+
+		var nametrack =  new NamesFeatureTrack( "idTrack2", document.getElementById("container2"), {
+						top:0, left:100, bottom: 30, right:1100,  width:1100, height:50, start:start, end:end,
+						backgroundColor: "white", titleColor:"black", titleFontSize:12, featureHeight:10, title:"F. Name Track"
+		});
+		
+		nametrack.draw(featureInfraredDataAdapter);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+		
+
+		track =  new FeatureTrack( "idTrack1", document.getElementById("container1"), {
+			top:10, 
+=======
+>>>>>>> 326dbd26b40571b1d47130361ce35e73ec27a1d1
+
+
+		track =  new FeatureTrack( "idTrack1", document.getElementById("container1"), {
+			top:20, 
+<<<<<<< HEAD
+=======
+>>>>>>> de718b2ff3bdfd61ed88a130c7e6eaeeb1322ead
+>>>>>>> 326dbd26b40571b1d47130361ce35e73ec27a1d1
+			left:100, 
+			bottom: 30, 
+			right:1000,  
+			width:1100, 
+			height:50, 
+			start:start, 
+			end:end,
+			backgroundColor: "#728FCE", 
+			titleColor:"#cc8FCE", 
+			titleFontSize:12, 
+			featureHeight:10, title:"Feature Track"
+		});
+		track.draw(featureInfraredDataAdapter);
+	
+
+		
+	});
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> de718b2ff3bdfd61ed88a130c7e6eaeeb1322ead
+>>>>>>> 326dbd26b40571b1d47130361ce35e73ec27a1d1
+}
+
+
+var start = 9229000;
+var end = 9814644;
+$(document).ready(function() {
+	drawSNP();
+  });
+
+
+
+
+</script>
+
+<br /><br /><br /><br /><br /><br />
+<textarea rows="3" cols="80" id="dataBox">
+ENSG00000049239,ENSG00000162441,ENSG00000162444,ENSG00000171603,ENSG00000171608,ENSG00000171612,ENSG00000171621,ENSG00000173614,ENSG00000178585,ENSG00000179840
+</textarea>
+
+</html>

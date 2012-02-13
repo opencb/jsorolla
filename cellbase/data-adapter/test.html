@@ -1,0 +1,116 @@
+<html>
+
+<head>
+
+<script type="text/javascript" src="../../../dependencies/jquery/jquery1-4-4.js"  ></script>
+<script type="text/javascript" src="../../../dependencies/event.js"  ></script>
+<script type="text/javascript" src="../../../infrared-js-client/js/infrared-js-core.js"  ></script>
+
+<script type="text/javascript" src="../dataset/dataset.js"  ></script>
+<script type="text/javascript" src="../dataset/featuredataset.js"  ></script>
+
+<script type="text/javascript" src="dataadapter.js"  ></script>
+<script type="text/javascript" src="infrareddataadapter.js"  ></script>
+<script type="text/javascript" src="featureinfrareddataadapter.js"  ></script>
+<script type="text/javascript" src="regioninfrareddataadapter.js"  ></script>
+
+
+
+
+
+<script>
+var infraredDataAdapter;
+function load(){
+	
+	infraredDataAdapter = new InfraredDataAdapter();
+	infraredDataAdapter.fill("feature", "gene", "ENSG00000157168", "info");
+
+	infraredDataAdapter.successed.attach(function (evt){
+		console.log("--  InfraredDataAdapter" );
+		console.log(infraredDataAdapter.toJSON());
+	});
+
+
+
+
+
+
+
+	
+	var featureInfraredDataAdapter = new FeatureListInfraredDataAdapter();
+	featureInfraredDataAdapter.fill("gene", "ENSG00000157168");
+
+	featureInfraredDataAdapter.successed.attach(function (evt){
+		console.log("--  featureInfraredDataAdapter" );
+		console.log(featureInfraredDataAdapter.toJSON());
+	});
+
+
+	var featureSNPInfraredDataAdapter = new FeatureListInfraredDataAdapter();
+	featureSNPInfraredDataAdapter.fill("snp", "rs4908803");
+
+	featureSNPInfraredDataAdapter.successed.attach(function (evt){
+		console.log("--  featureInfraredDataAdapter" );
+		console.log(featureInfraredDataAdapter.toJSON());
+	});
+
+
+	var regionInfraredDataAdapter = new RegionInfraredDataAdapter();
+	regionInfraredDataAdapter.fill("1", "1", "1100000", "gene");
+
+	regionInfraredDataAdapter.successed.attach(function (evt){
+		console.log("--  regionInfraredDataAdapter" );
+		console.log(regionInfraredDataAdapter.toJSON());
+	});
+
+	console.log(regionInfraredDataAdapter);
+	
+	/*
+	var snpFeatureInfraredDataAdapter = new SNPFeatureListInfraredDataAdapter();
+	snpFeatureInfraredDataAdapter.fill("rs4908803, rgs4908803");
+	InfraredSNPDataAdapter.load("rs4908803, rgs4908803");
+	InfraredSNPDataAdapter.loadByRegion("rs4908803, rgs4908803");
+
+	InfraredRegionDataAdapter.fill("12", 121, 234234234);
+
+	FeatureDASDataAdapter.fill("12", 121, 234234234);
+
+
+	FileFeatureDataAdapter.fill("12", 121, 234234234, "gff");
+
+	
+	TextFeatureDataAdapter.fill("12", 121, 234234234, "gff");
+	
+	
+
+	snpFeatureInfraredDataAdapter.successed.attach(function (evt){
+		console.log("--  snpFeatureInfraredDataAdapter" );
+		console.log(snpFeatureInfraredDataAdapter.toJSON());
+	});
+
+
+	
+	var geneFeatureInfraredDataAdapter = new GeneFeatureListInfraredDataAdapter();
+	geneFeatureInfraredDataAdapter.fill("ENSG00000157168");
+
+	geneFeatureInfraredDataAdapter.successed.attach(function (evt){
+		console.log("--  geneFeatureInfraredDataAdapter" );
+		console.log(geneFeatureInfraredDataAdapter.toJSON());
+	});
+
+
+*/
+
+
+
+
+	
+}
+
+
+
+</script>
+<h2>Infrared DataAdapter Test</h2>
+<br></br>
+<button type="button" onclick="load()">Test me</button><br />
+</html>
