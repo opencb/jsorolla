@@ -148,10 +148,12 @@ GenomeViewer.prototype._getPanel = function(width,height) {
 	return this._panel;
 };
 
-GenomeViewer.prototype.setWidth = function(width) {
+GenomeViewer.prototype.setSize = function(width,height) {
 	if(width<500){width=500;}
 	if(width>2400){width=2400;}//if bigger does not work TODO why?
 	this.width=width;
+	this.height=height;
+	this._getPanel().setHeight(height);
 	this._getPanel().setWidth(width);
 	this.draw();
 };
