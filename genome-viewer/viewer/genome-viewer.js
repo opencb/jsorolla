@@ -353,6 +353,8 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
 GenomeViewer.prototype._getNavigationBar = function() {
 	var _this = this;
 	
+
+	
 	var menu = Ext.create('Ext.toolbar.Toolbar', {
 		cls:"bio-toolbar",
 		height:35,
@@ -739,7 +741,7 @@ GenomeViewer.prototype._getWindowsSize = function() {
 };
 GenomeViewer.prototype._drawMasterGenomeViewer = function() {
 		var _this = this;
-//		this._getPanel().setLoading("Retrieving data");
+		this._getPanel().setLoading("Retrieving data");
 //		this.updateTracksMenu();
 
 		
@@ -752,6 +754,8 @@ GenomeViewer.prototype._drawMasterGenomeViewer = function() {
 
 		var zoom = this.genomeWidgetProperties.getZoom();
 
+		console.log(this.genomeWidgetProperties.getTrackByZoom(zoom).length);
+		
 		if (this.genomeWidgetProperties.getTrackByZoom(zoom).length > 0){
 			for ( var i = 0; i < this.genomeWidgetProperties.getTrackByZoom(zoom).length; i++) {
 				var track =  this.genomeWidgetProperties.getTrackByZoom(zoom)[i];
@@ -778,14 +782,16 @@ GenomeViewer.prototype._drawMasterGenomeViewer = function() {
 				_this._getPanel().setLoading(false);
 				_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
 				
-				
+
 			 });
 			 
 			this.genomeWidget.draw(this.chromosome, start, end);
 			this._setPositionField(this.chromosome, this.position);
+
+			
 		}
 		else{
-//			_this._getPanel().setLoading("No tracks to display");
+			_this._getPanel().setLoading("No tracks to display");
 		}
 };
 
