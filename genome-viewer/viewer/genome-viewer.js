@@ -767,15 +767,15 @@ GenomeViewer.prototype._drawMasterGenomeViewer = function() {
 			
 			if (start < 0){ start = 0;}
 			
-			this.genomeWidget.markerChanged.addEventListener(function (evt, middlePosition){
+			this.genomeWidget.onMarkerChange.addEventListener(function (evt, middlePosition){
 				var window = _this.genomeWidgetProperties.windowSize/2;
 				var start = middlePosition.middle - window;
 				if (start < 0 ){start = 0;}
 				_this.updateRegionMarked(_this.chromosome, middlePosition.middle);
 			});
 			 
-			this.genomeWidget.rendered.addEventListener(function (evt){
-//				_this._getPanel().setLoading(false);
+			this.genomeWidget.onRender.addEventListener(function (evt){
+				_this._getPanel().setLoading(false);
 				_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
 				
 				
@@ -869,7 +869,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 
 GenomeViewer.prototype.addVCFTrack = function(title, dataadapter) {
 	var _this = this;
-//	this._getPanel().setLoading();
+	this._getPanel().setLoading();
 	if (dataadapter != null) {
 		
 		var vcfTrack = new HistogramFeatureTrack("vcf", null, this.species,{

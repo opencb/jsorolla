@@ -48,10 +48,10 @@ function GenomeWidget(trackerID, targetId,  args) {
 	this.trackCanvas = null;
 	
 	/** EVENTS **/
-	this.markerChanged = new Event(this);
+	this.onMarkerChange = new Event(this);
 	this.onClick = new Event(this);
-	this.rendered = new Event(this);
-	this.onMoving = new Event(this);
+	this.onRender = new Event(this);
+	this.onMove = new Event(this);
 	
 };
 
@@ -118,7 +118,7 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
 	});
     
     this.trackCanvas.onMoving.addEventListener(function (evt, data){
-    	_this.markerChanged.notify(data);
+    	_this.onMarkerChange.notify(data);
 	});
    
     
@@ -132,7 +132,7 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
     
     var _this = this;
     this.trackCanvas.rendered.addEventListener(function (evt){
-		 _this.rendered.notify();
+		 _this.onRender.notify();
 	 });
     
 //    console.log(this.getviewBoxModule());
