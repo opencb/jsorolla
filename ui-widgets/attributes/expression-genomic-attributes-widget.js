@@ -1,7 +1,7 @@
 ExpressionGenomicAttributesWidget.prototype.draw = GenomicAttributesWidget.prototype.draw;
+ExpressionGenomicAttributesWidget.prototype.getMainPanel = GenomicAttributesWidget.prototype.getMainPanel;
 ExpressionGenomicAttributesWidget.prototype.render = GenomicAttributesWidget.prototype.render;
 ExpressionGenomicAttributesWidget.prototype.drawKaryotype = GenomicAttributesWidget.prototype.drawKaryotype;
-ExpressionGenomicAttributesWidget.prototype.render = GenomicAttributesWidget.prototype.render;
 ExpressionGenomicAttributesWidget.prototype.makeGrid = GenomicAttributesWidget.prototype.makeGrid;
 ExpressionGenomicAttributesWidget.prototype.getKaryotypePanelId = GenomicAttributesWidget.prototype.getKaryotypePanelId;
 ExpressionGenomicAttributesWidget.prototype.onAdditionalInformationClick = GenomicAttributesWidget.prototype.onAdditionalInformationClick;

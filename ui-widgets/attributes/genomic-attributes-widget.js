@@ -104,6 +104,67 @@ GenomicAttributesWidget.prototype.draw = function (){
 		
 };
 
+GenomicAttributesWidget.prototype.getMainPanel = function (){
+	var _this=this;
+	if (this.panel == null){
+		
+		this.karyotypePanel  = Ext.create('Ext.panel.Panel', {
+			height:350,
+			maxHeight:350,
+			border:0,
+			bodyPadding: 15,
+			padding:'0 0 0 0',
+			html:'<div id="' + this.getKaryotypePanelId() +'" ><div>'
+		});
+		
+		this.filtersButton = Ext.create('Ext.button.Button', {
+			 text: 'Additional Filters',
+			 disabled:true,
+			 listeners: {
+			       scope: this,
+			       click: function(){this.onAdditionalInformationClick();}
+	        }
+		});
+		
+		this.addTrackButton = Ext.create('Ext.button.Button', {
+			text:'Add Track',
+			disabled:true,
+			handler: function(){ 
+				_this.onTrackAddAction.notify({"features":_this.features,"trackName":_this.attributesPanel.fileName});
+				}
+		});
+		
+//		this.panel  = Ext.create('Ext.ux.Window', {
+//			title : this.title,
+//			resizable: false,
+//			minimizable :true,
+//			constrain:true,
+//			closable:true,
+//			items: [this.attributesPanel.getPanel(),this.karyotypePanel],
+//			width: 1035,
+//		    height: 653,
+//		    buttonAlign:'left',
+//			buttons:[this.addTrackButton,'->',
+//			         {text:'Close', handler: function(){_this.panel.close();}}],
+//	 		listeners: {
+//		    	scope: this,
+//		    	minimize:function(){
+//					this.panel.hide();
+//		       	},
+//		      	destroy: function(){
+//		       		delete this.panel;
+//		      	}
+//	    	}
+//		});
+		this.attributesPanel.getPanel();
+		this.attributesPanel.barField.add(this.filtersButton);
+//		this.panel.setLoading();
+		this.drawKaryotype();
+	}	
+	return [this.attributesPanel.getPanel(),this.karyotypePanel];
+		
+};
+
 GenomicAttributesWidget.prototype.fill = function (queryNames){
 	
 	var _this = this;
@@ -160,7 +221,7 @@ GenomicAttributesWidget.prototype.drawKaryotype = function (){
 		
 		karyotypeCellBaseDataAdapter.successed.addEventListener(function(evt, data){
 			_this.karyotypeWidget.onRendered.addEventListener(function(evt, data){
-				_this.panel.setLoading(false);
+//				_this.panel.setLoading(false);
 			});
 			
 			_this.karyotypeWidget.onClick.addEventListener(function(evt, data){

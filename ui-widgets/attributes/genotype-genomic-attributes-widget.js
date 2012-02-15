@@ -1,7 +1,6 @@
 GenotypeGenomicAttributesWidget.prototype.draw = GenomicAttributesWidget.prototype.draw;
 GenotypeGenomicAttributesWidget.prototype.render = GenomicAttributesWidget.prototype.render;
 GenotypeGenomicAttributesWidget.prototype.drawKaryotype = GenomicAttributesWidget.prototype.drawKaryotype;
-GenotypeGenomicAttributesWidget.prototype.render = GenomicAttributesWidget.prototype.render;
 GenotypeGenomicAttributesWidget.prototype.makeGrid = GenomicAttributesWidget.prototype.makeGrid;
 GenotypeGenomicAttributesWidget.prototype.getKaryotypePanelId = GenomicAttributesWidget.prototype.getKaryotypePanelId;
 GenotypeGenomicAttributesWidget.prototype.dataChange = GenomicAttributesWidget.prototype.dataChange;
