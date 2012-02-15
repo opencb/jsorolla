@@ -9,6 +9,8 @@ function GenomicListWidget(args) {
 	this.onSelected = this.listPanel.onSelected;
 	this.onFilterResult = this.listPanel.onFilterResult;
 	
+	this.args = args;
+	
 	this.onTrackAddAction = new Event();
 	
 	
@@ -40,6 +42,7 @@ GenomicListWidget.prototype._render = function() {
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
+			taskbar:Ext.getCmp(this.args.genomeViewerId+'uxTaskbar'),
 			resizable: false,
 			constrain:true,
 			closable:true,

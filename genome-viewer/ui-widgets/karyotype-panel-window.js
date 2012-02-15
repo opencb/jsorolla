@@ -5,6 +5,7 @@ function KaryotypePanelWindow(species,args){
 	this.karyotypeWidget = new KaryotypePanel(this.getKaryotypePanelId(), species, {"top":10, "width":1000, "height": 300, "trackWidth":15});
 	this.karyotypeCellBaseDataAdapter = new KaryotypeCellBaseDataAdapter(species);
 	
+	this.args = args;
 	
 	this.onRendered = new Event();
 	this.onMarkerChanged = new Event();
@@ -68,6 +69,7 @@ KaryotypePanelWindow.prototype.render = function(){
 	this.panel = Ext.create('Ext.ux.Window', {
 		title: 'Karyotype',
 		resizable:false,
+		taskbar:Ext.getCmp(this.args.genomeViewerId+'uxTaskbar'),
 		constrain:true,
 		animCollapse: true,
 		width: 1050,
