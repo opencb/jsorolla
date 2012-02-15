@@ -6,8 +6,7 @@
 		collapsible:true,
 		initComponent: function () {
 			this.callParent();
-			this.taskbar = Ext.getCmp('uxTaskbar');//si no existe, las ventanas funcionan como hasta ahora
-			if(this.taskbar!=null){
+			if(this.taskbar!=null){//si no existe, las ventanas funcionan como hasta ahora
 				this.zIndexManager = this.taskbar.winMgr;
 				this.iconCls='icon-grid';
 				this.button=Ext.create('Ext.button.Button', {

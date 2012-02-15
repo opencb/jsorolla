@@ -94,7 +94,9 @@ function GenomeViewer(targetId, species, args) {
 	this.chromosome = 13;
 	this.position = 32889611;
 };
-
+GenomeViewer.prototype.setMenuBar = function(menuBar){
+	this.menuBar = menuBar;
+};
 
 GenomeViewer.prototype.draw = function(){
 	if(this.targetId!=null){
@@ -153,8 +155,7 @@ GenomeViewer.prototype.setSize = function(width,height) {
 	if(width>2400){width=2400;}//if bigger does not work TODO why?
 	this.width=width;
 	this.height=height;
-	this._getPanel().setHeight(height);
-	this._getPanel().setWidth(width);
+	this._getPanel().setSize(width,height);
 	this.draw();
 };
 
@@ -254,7 +255,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
 GenomeViewer.prototype._showKaryotypeWindow = function() {
 	var _this = this;
 	
-	var karyotypePanelWindow = new KaryotypePanelWindow(this.species);
+	var karyotypePanelWindow = new KaryotypePanelWindow(this.species,{genomeViewerId:this.id});
 	
 	/** Events i listen **/
 	karyotypePanelWindow.onRendered.addEventListener(function(evt, feature) {
@@ -307,7 +308,7 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
     	this.setZoom(args);
     }
     if (action == 'GoToGene'){
-        var geneName = Ext.getCmp('tbGene').getValue();
+        var geneName = Ext.getCmp(this.id+'tbGene').getValue();
         this._openGeneListWidget(geneName);
         
     }
@@ -355,10 +356,10 @@ GenomeViewer.prototype._getNavigationBar = function() {
 	
 
 	
-	var menu = Ext.create('Ext.toolbar.Toolbar', {
+	var toolbar = Ext.create('Ext.toolbar.Toolbar', {
 		cls:"bio-toolbar",
 		height:35,
-		enableOverflow:true,
+//		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
 		border:0,
 		items : [
 		         {
@@ -402,7 +403,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		         },'->',{
 		        	 xtype : 'label',
 		        	 text : 'Position:',
-		        	 margins : '0 15 0 10'
+		        	 margins : '0 0 0 10'
 		         },{
 		        	 xtype : 'textfield',
 		        	 id : this.id+'tbCoordinate',
@@ -421,11 +422,12 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        	 }
 		         },{
 		        	 xtype : 'label',
-		        	 text : 'Transcript/Protein:',
-		        	 margins : '0 15 0 5'
+		        	 text : 'Search:',
+		        	 margins : '0 0 0 10'
 		         },{
 		        	 xtype : 'textfield',
-		        	 id : 'tbGene',
+		        	 id : this.id+'tbGene',
+		        	 emptyText:'gene, protein, transcript',
 		        	 name : 'field1',
 		        	 listeners:{
 		        		 specialkey: function(field, e){
@@ -441,7 +443,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        	 }
 		         }]
 	});
-	return menu;
+	return toolbar;
 };
 //NAVIGATION BAR
 
@@ -547,7 +549,7 @@ GenomeViewer.prototype._getBottomBar = function() {
 	});
 //	scale.surface.items.items[0].setAttributes({text:'num'},true);
 	var taskbar = Ext.create('Ext.toolbar.Toolbar', {
-		id:'uxTaskbar',
+		id:this.id+'uxTaskbar',
 		winMgr: new Ext.ZIndexManager(),
 		enableOverflow:true,
 		cls: 'bio-hiddenbar',
@@ -584,7 +586,7 @@ GenomeViewer.prototype._openListWidget = function(category, subcategory, query, 
 	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
 	cellBaseDataAdapter.successed.addEventListener(function(evt, data) {
 		
-		var genomicListWidget = new GenomicListWidget({title:title, gridFields:gridField});
+		var genomicListWidget = new GenomicListWidget({title:title, gridFields:gridField,genomeViewerId:_this.id});
 		genomicListWidget.draw(cellBaseDataAdapter.dataset.toJSON(), query );
 		
 		genomicListWidget.onSelected.addEventListener(function(evt, feature) {
@@ -708,8 +710,8 @@ GenomeViewer.prototype.setZoom = function(value) {
 GenomeViewer.prototype.setLocation = function(chromosome, position) {
 	this.chromosome = chromosome;
 	this.position = Math.ceil(position);
-	this.refreshMasterGenomeViewer();
 	
+	this.refreshMasterGenomeViewer();
 	this.drawChromosome(this.chromosome, 1, 26000000);
 };
 
@@ -740,6 +742,7 @@ GenomeViewer.prototype._getWindowsSize = function() {
 	return this.genomeWidgetProperties.getWindowSize(zoom);
 };
 GenomeViewer.prototype._drawMasterGenomeViewer = function() {
+		
 		var _this = this;
 		this._getPanel().setLoading("Retrieving data");
 //		this.updateTracksMenu();
@@ -754,7 +757,7 @@ GenomeViewer.prototype._drawMasterGenomeViewer = function() {
 
 		var zoom = this.genomeWidgetProperties.getZoom();
 
-		console.log(this.genomeWidgetProperties.getTrackByZoom(zoom).length);
+//		console.log(this.genomeWidgetProperties.getTrackByZoom(zoom).length);
 		
 		if (this.genomeWidgetProperties.getTrackByZoom(zoom).length > 0){
 			for ( var i = 0; i < this.genomeWidgetProperties.getTrackByZoom(zoom).length; i++) {
@@ -785,8 +788,8 @@ GenomeViewer.prototype._drawMasterGenomeViewer = function() {
 
 			 });
 			 
-			this.genomeWidget.draw(this.chromosome, start, end);
 			this._setPositionField(this.chromosome, this.position);
+			this.genomeWidget.draw(this.chromosome, start, end);
 
 			
 		}
@@ -873,7 +876,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 //TODO aqui estaba getDasMenu
 
 
-GenomeViewer.prototype.addVCFTrack = function(title, dataadapter) {
+GenomeViewer.prototype.addFeatureTrack = function(title, dataadapter) {
 	var _this = this;
 	this._getPanel().setLoading();
 	if (dataadapter != null) {
@@ -963,7 +966,7 @@ GenomeViewer.prototype.addTrackFromFeatures = function(features, trackName) {
 	
 	if(trackName==null){trackName="";}
 	
-	this.addVCFTrack( trackName.substr(0,20) + " #" +this.customTracksAddedCount,localRegionAdapter);
+	this.addFeatureTrack( trackName.substr(0,20) + " #" +this.customTracksAddedCount,localRegionAdapter);
 	this.customTracksAddedCount++;
 };
 
@@ -977,8 +980,6 @@ GenomeViewer.prototype.addTrackFromFeaturesList = function(data) {
 	}
 	this.addTrackFromFeatures(features, data.trackName);
 };
-
-
 
 
 ////TODO DEPRECATED
