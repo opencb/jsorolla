@@ -474,7 +474,7 @@ GenomeViewer.prototype._getChromosomePanel = function() {
 	});
 	var svg = Ext.create('Ext.container.Container', {
 		id:this._getChromosomeContainerID(),
-		margin:10,
+		margin:10
 	});
 	return Ext.create('Ext.container.Container', {
 		height : 70,
