@@ -1,0 +1,6 @@
+cellbase-data-adapter.js
+region-cellbase-data-adapter.js
+gene-region-cellbase-data-adapter.js
+karyotype-cellbase-data-adapter.js
+feature-list-cellbase-data-adapter.js
+xref-feature-list-cellbase-data-adapter.js
