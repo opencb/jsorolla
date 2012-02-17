@@ -114,10 +114,10 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
 	
     this.trackCanvas.init();
     
-    this.trackCanvas.stopDragging.addEventListener(function (evt, data){
+    this.trackCanvas.afterDrag.addEventListener(function (evt, data){
 	});
     
-    this.trackCanvas.onMoving.addEventListener(function (evt, data){
+    this.trackCanvas.onMove.addEventListener(function (evt, data){
     	_this.onMarkerChange.notify(data);
 	});
    
@@ -131,7 +131,7 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
 	}
     
     var _this = this;
-    this.trackCanvas.rendered.addEventListener(function (evt){
+    this.trackCanvas.onRender.addEventListener(function (evt){
 		 _this.onRender.notify();
 	 });
     

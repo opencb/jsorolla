@@ -6,6 +6,8 @@ function InputListWidget(args) {
 	this.height = 350;
 	this.headerInfo = 'Write a list separated only by lines';
 	
+	this.args=args;
+	
 	if (args != null){
         if (args.title!= null){
         	this.title = args.title;       
@@ -80,6 +82,7 @@ InputListWidget.prototype.draw = function(text){
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
+			taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
 			layout: 'fit',
 			resizable: false,
 			collapsible:true,
@@ -105,4 +108,4 @@ InputListWidget.prototype.validate = function (){
 	}else{
 		this.okButton.disable();
 	}
-}
+};

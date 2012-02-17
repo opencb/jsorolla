@@ -110,11 +110,11 @@ function TrackCanvas(trackerID, targetNode, args) {
 //	this.ruleTracks = new Array();
 
 	/** Events */
-	this.click = new Event(this);
-	this.onMoving = new Event(this);
-	this.selecting = new Event(this);
-	this.stopDragging = new Event(this);
-	this.rendered = new Event(this);
+//	this.click = new Event(this);//NOT USED
+//	this.selecting = new Event(this);//NOT USED
+	this.onMove = new Event(this);
+	this.afterDrag = new Event(this);
+	this.onRender = new Event(this);
 
 };
 
@@ -161,7 +161,7 @@ TrackCanvas.prototype.mouseDown = function(event) {
 };
 TrackCanvas.prototype.mouseUp = function(event) {
 	if (this.allowDragging){
-		this._stopDragging(event);
+		this._afterDrag(event);
 		
 	}
 	
@@ -413,7 +413,7 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 	
 			});
 	
-			this.onMoving.addEventListener(function(evt, data) {
+			this.onMove.addEventListener(function(evt, data) {
 				data.middle = Math.ceil(data.middle) + 1;
 				regionAdapter.setIntervalView(chromosome, Math.ceil(data.middle));
 				if (regionAdapter instanceof RuleRegionDataAdapter){
@@ -464,7 +464,7 @@ TrackCanvas.prototype.drawRules = function(chromosome, start, end) {
 			this._drawTitle(i);
 	}
 	this._goToCoordinateX(this.start);
-	this.rendered.notify();
+	this.onRender.notify();
 };
 
 TrackCanvas.prototype._drawTitle = function(i) {
@@ -538,7 +538,7 @@ TrackCanvas.prototype._goToCoordinateX = function(position) {
 		this.middle = this.start + ((this.width / this.pixelRatio) / 2);
 	}
 
-	this.onMoving.notify( {
+	this.onMove.notify( {
 		"chromosome" : this.chromosome,
 		"start" : this.start,
 		"end" : this.end,
@@ -588,11 +588,11 @@ TrackCanvas.prototype._startDragging = function(evt) {
 	};
 };
 
-TrackCanvas.prototype._stopDragging = function(evt) {
+TrackCanvas.prototype._afterDrag = function(evt) {
 	this.isDragging = false;
 	this.dragPoint = null;
 	this.moveY = this.realMove;
-	this.stopDragging.notify(this.middle);
+	this.afterDrag.notify(this.middle);
 	
 	
 	

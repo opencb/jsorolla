@@ -5,6 +5,8 @@ function FileWidget(args){
 	this.wum = true;
 	this.tags = [];
 	
+	this.args = args;
+	
 	if (args != null){
 		if (args.targetId!= null){
 			this.targetId = args.targetId;       
@@ -172,6 +174,7 @@ FileWidget.prototype.draw = function(){
 		
 		this.openDialog = Ext.create('Ext.ux.Window', {
 			title : 'Open '+this.title+' file',
+			taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
 			width : 800,
 	//		bodyPadding : 10,
 			resizable:false,
