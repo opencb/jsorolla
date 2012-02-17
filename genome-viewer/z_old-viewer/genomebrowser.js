@@ -126,7 +126,7 @@ GenomeBrowser.prototype.draw = function(){
     layout: 'border',
     items: [
     	center,
-    	west,
+    	west
     ]
 	});
 

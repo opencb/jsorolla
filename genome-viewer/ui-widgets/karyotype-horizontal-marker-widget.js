@@ -185,7 +185,7 @@ KaryotypeHorizontalMarkerWidget.prototype.draw = function(chromosome, position){
 		margins:'0 0 0 5',
 		items:[
 //		       this.getMainMenu(),
-		       this.getTopPanel(),
+		       this.getTopPanel()
 //		       this.getMiddleMenu(),
 //		       this.getBotPanel()
 		      ]
@@ -195,7 +195,7 @@ KaryotypeHorizontalMarkerWidget.prototype.draw = function(chromosome, position){
 	var port = Ext.create('Ext.container.Viewport', {
 		layout: 'border',
 		items: [
-		        center,
+		        center
 		        ]
 	});
 

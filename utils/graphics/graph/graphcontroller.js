@@ -438,7 +438,7 @@ GraphController.prototype = {
     
     zoomIn : function(){
     	for (var nodeID in interactomeViewerViz.controller._coordenates) {
-    		this._coordenates[nodeID]= [ this._coordenates[nodeID][0]*2, this._coordenates[nodeID][1]*2, ];
+    		this._coordenates[nodeID]= [ this._coordenates[nodeID][0]*2, this._coordenates[nodeID][1]*2 ];
     	}
 		
 		this.draw();
@@ -446,7 +446,7 @@ GraphController.prototype = {
     
     zoomOut : function(){
     	for (var nodeID in interactomeViewerViz.controller._coordenates) {
-    		this._coordenates[nodeID]= [ this._coordenates[nodeID][0]/2, this._coordenates[nodeID][1]/2, ];
+    		this._coordenates[nodeID]= [ this._coordenates[nodeID][0]/2, this._coordenates[nodeID][1]/2 ];
     	}
 		
 		this.draw();

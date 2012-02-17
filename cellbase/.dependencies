@@ -1,0 +1,12 @@
+data-adapter/cellbase-data-adapter.js
+data-adapter/region-cellbase-data-adapter.js
+data-adapter/gene-region-cellbase-data-adapter.js
+data-adapter/karyotype-cellbase-data-adapter.js
+data-adapter/xref-feature-list-cellbase-data-adapter.js
+ui-widgets/info-widget.js
+ui-widgets/gene-info-widget.js
+ui-widgets/protein-info-widget.js
+ui-widgets/snp-info-widget.js
+ui-widgets/transcript-info-widget.js
+ui-widgets/vcf-variant-info-widget.js
+cellbase-manager.js
