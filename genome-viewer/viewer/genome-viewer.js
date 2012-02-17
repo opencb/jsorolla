@@ -255,7 +255,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
 GenomeViewer.prototype._showKaryotypeWindow = function() {
 	var _this = this;
 	
-	var karyotypePanelWindow = new KaryotypePanelWindow(this.species,{genomeViewerId:this.id});
+	var karyotypePanelWindow = new KaryotypePanelWindow(this.species,{genomeViewer:this});
 	
 	/** Events i listen **/
 	karyotypePanelWindow.onRendered.addEventListener(function(evt, feature) {
@@ -309,7 +309,7 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
     }
     if (action == 'GoToGene'){
         var geneName = Ext.getCmp(this.id+'tbGene').getValue();
-        this._openGeneListWidget(geneName);
+        this.openGeneListWidget(geneName);
         
     }
     if (action == '+'){
@@ -581,12 +581,12 @@ GenomeViewer.prototype._getBottomBar = function() {
 
 
 
-GenomeViewer.prototype._openListWidget = function(category, subcategory, query, resource, title, gridField) {
+GenomeViewer.prototype.openListWidget = function(category, subcategory, query, resource, title, gridField) {
 	var _this = this;
 	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
 	cellBaseDataAdapter.successed.addEventListener(function(evt, data) {
 		
-		var genomicListWidget = new GenomicListWidget({title:title, gridFields:gridField,genomeViewerId:_this.id});
+		var genomicListWidget = new GenomicListWidget({title:title, gridFields:gridField,genomeViewer:_this});
 		genomicListWidget.draw(cellBaseDataAdapter.dataset.toJSON(), query );
 		
 		genomicListWidget.onSelected.addEventListener(function(evt, feature) {
@@ -611,11 +611,15 @@ GenomeViewer.prototype._openListWidget = function(category, subcategory, query, 
 
 
 
-GenomeViewer.prototype._openGeneListWidget = function(geneName) {
-	this._openListWidget("feature", "gene", geneName.toString(), "info", "Gene List");
+GenomeViewer.prototype.openGeneListWidget = function(geneName) {
+	this.openListWidget("feature", "gene", geneName.toString(), "info", "Gene List");
 };
 
-GenomeViewer.prototype._openExonListWidget = function(geneName) {
+GenomeViewer.prototype.openTranscriptListWidget = function(name) {
+	this.openListWidget("feature", "transcript", name.toString(), "info", "Transcript List", ["externalName","stableId", "biotype", "chromosome", "start", "end", "strand", "description"]);
+};
+
+GenomeViewer.prototype.openExonListWidget = function(geneName) {
 	var _this = this;
 	var cellBase = new CellBaseDataAdapter(this.species);
 	cellBase.successed.addEventListener(function(evt, data) {
@@ -636,25 +640,23 @@ GenomeViewer.prototype._openExonListWidget = function(geneName) {
 	cellBase.fill("feature", "exon", geneName.toString(), "info");
 };
 
-GenomeViewer.prototype._openSNPListWidget = function(snpName) {
-	this._openListWidget("feature", "snp", snpName.toString(), "info", "SNP List", ["name", "variantAlleles", "ancestralAllele", "mapWeight",  "position", "sequence"]);
+GenomeViewer.prototype.openSNPListWidget = function(snpName) {
+	this.openListWidget("feature", "snp", snpName.toString(), "info", "SNP List", ["name", "variantAlleles", "ancestralAllele", "mapWeight",  "position", "sequence"]);
 };
 
-GenomeViewer.prototype._openGOListWidget = function(goList) {
+GenomeViewer.prototype.openGOListWidget = function(goList) {
 	var _this = this;
 	var cellBase = new CellBaseDataAdapter(this.species);
 	cellBase.successed.addEventListener(function(evt, data) {
+		
 		var geneNames = new Array();
 		for (var i = 0; i < cellBase.dataset.toJSON()[0].length; i++){
 			geneNames.push(cellBase.dataset.toJSON()[0][i].displayId);
 		}
-		_this._openGeneListWidget(geneNames);
+		_this.openGeneListWidget(geneNames);
 	});
 	cellBase.fill("feature", "id", goList.toString(), "xref?dbname=ensembl_gene&");
 };
-
-
-
 
 
 

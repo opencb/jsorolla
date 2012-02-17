@@ -7,9 +7,11 @@ function ListWidget(args) {
 	this.action = 'localize';
 	this.title='';
 	
-	if (args == null){
-		args = {};
-	}
+	this.args = args;
+	
+//	if (args == null){
+//		args = {};
+//	}
 		
 	if (args != null){
         if (args.title!= null){
@@ -58,6 +60,7 @@ ListWidget.prototype._render = function() {
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
+			taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
 			resizable: false,
 			constrain:true,
 			closable:true,

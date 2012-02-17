@@ -3,7 +3,6 @@ function InfoWidget(targetId, species, args){
 	this.targetId = null;
 	
 	this.species=species;
-	console.log(this.species);
 	
 	this.title = null;
 	this.featureId = null;
