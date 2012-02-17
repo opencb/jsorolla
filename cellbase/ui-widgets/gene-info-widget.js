@@ -30,7 +30,7 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	                { text: "Jaspar"},
 	                { text: "miRNA"}
 	            ] },
-	            {text: "3D protein",}
+	            {text: "3D protein"}
 	        ];
 };
 
@@ -162,7 +162,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
       		cls:'panel-border-left',
       		flex:3,
 //    		bodyPadding:5,
-      		autoScroll:true,
+      		autoScroll:true
 //      		items:items
       	});
     	

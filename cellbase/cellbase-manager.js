@@ -6,9 +6,9 @@ function CellBaseManager(species, args) {
 	this.version = "v1";
 	this.species = species;
 	
-	if(args != null) {
-		
-	}
+//	if(args != null) {
+//		
+//	}
 //		this.host = 'http://localhost:8080/celldb/rest';
 
 	CELLBASEHOST=this.host;
