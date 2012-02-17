@@ -38,7 +38,6 @@ function GenomeViewer(targetId, species, args) {
 			this.pluginsMenu = args.pluginsMenu;
 		}
 	}
-	//TODO Capturar el width al cambiar de tamaño y drawChromosome aver q pasa
 
 	
 	
@@ -47,9 +46,6 @@ function GenomeViewer(targetId, species, args) {
 	this.onSpeciesChange = new Event();
 	
 	console.log(this.width+"x"+this.height);
-	
-	
-	
 	console.log(this.targetId);
 	console.log(this.id);
 
