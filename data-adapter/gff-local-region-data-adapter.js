@@ -19,7 +19,7 @@ GFFLocalRegionDataAdapter.prototype.loadFromFileDataAdapter = function(fileDataA
 	for ( var i = 0; i < fileDataAdapter.lines.length; i++) {
 		var chromosome = fileDataAdapter.lines[i][0].replace("chr", "");
 		
-		if (fileDataAdapter.lines[i][3] == 57649472 ){debugger}
+		if (fileDataAdapter.lines[i][3] == 57649472 ){debugger;}
 		//NAME  SOURCE  TYPE  START  END  SCORE  STRAND  FRAME  GROUP
 		var feature = {
 						"chromosome": chromosome, 

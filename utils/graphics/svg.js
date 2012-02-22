@@ -107,7 +107,7 @@ var SVG =
 				var line = SVG.createLine(x1, y1, x2, y2, attributes);
 				nodeSVG.appendChild(line);
 		}catch(e){
-			debugger
+			debugger;
 		}
 				return line;
 	},

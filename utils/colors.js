@@ -9,7 +9,7 @@ var Colors = new function()
 	   for (var i = 0; i< arrayScore.length; i++)
 	   {
 		
-		   var color = this.getColorByScoreValue(arrayScore[i])
+		   var color = this.getColorByScoreValue(arrayScore[i]);
 		   array.push( color);
 		
 	   }

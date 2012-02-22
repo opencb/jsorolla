@@ -102,7 +102,7 @@ ExpressionMatrixDataSet.prototype.getStatisticMatrix = function(){
 
 
 ExpressionMatrixDataSet.prototype.getRowNames = function(){
-	return this.json.dataMatrix.rowNames
+	return this.json.dataMatrix.rowNames;
 };
 
 ExpressionMatrixDataSet.prototype.getColumnNames = function(){
@@ -122,7 +122,7 @@ ExpressionMatrixDataSet.prototype.getClassesName = function(){
 			var classes = this.getClasses();
 			var aux = new Array();
 			aux.push(classes[0]);
-			this._classMinInterval[0] = 0
+			this._classMinInterval[0] = 0;
 			
 			for ( var i = 1; i < classes.length; i++) {
 				if (classes[i]!=aux[aux.length-1]){

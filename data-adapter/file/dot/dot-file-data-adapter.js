@@ -127,7 +127,7 @@ DotFileDataAdapter.prototype.parseLines = function(lineBreak) {
 			edge["target"] = fields[2];
 
 			if (field == ""){
-				continue
+				continue;
 				}
 			
 			if ((field.indexOf("[")!= -1)&&(field.indexOf("];")==-1)){

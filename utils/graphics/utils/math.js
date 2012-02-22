@@ -24,7 +24,7 @@
      // add length (in bits) into final pair of 32-bit integers (big-endian) [5.1.1]
      // note: most significant word would be (len-1)*8 >>> 32, but since JS converts
      // bitwise-op args to 32 bits, we need to simulate this by arithmetic operators
-     M[N-1][14] = ((msg.length-1)*8) / Math.pow(2, 32); M[N-1][14] = Math.floor(M[N-1][14])
+     M[N-1][14] = ((msg.length-1)*8) / Math.pow(2, 32); M[N-1][14] = Math.floor(M[N-1][14]);
      M[N-1][15] = ((msg.length-1)*8) & 0xffffffff;
 
      // set initial hash value [§5.3.1]
@@ -66,7 +66,7 @@
      }
 
      return H0.toHexStr() + H1.toHexStr() + H2.toHexStr() + H3.toHexStr() + H4.toHexStr();
- }
+ };
 
  //
  // function 'f' [§4.1.1]
@@ -79,7 +79,7 @@
      case 2: return (x & y) ^ (x & z) ^ (y & z);  // Maj()
      case 3: return x ^ y ^ z;                    // Parity()
      }
- }
+ };
 
  //
  // rotate left (circular left shift) value x by n positions [§3.2.5]

@@ -1138,7 +1138,7 @@ GenomicListWidget.prototype._render = function() {
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
-			taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
+			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
 			resizable: false,
 			constrain:true,
 			closable:true,
@@ -1226,7 +1226,7 @@ ListWidget.prototype._render = function() {
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
-			taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
+			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
 			resizable: false,
 			constrain:true,
 			closable:true,
@@ -1236,7 +1236,8 @@ ListWidget.prototype._render = function() {
 			height:this.height,
 			items : [ this.listPanel.grid ],
 			buttonAlign:'right',
-			buttons:[{text:'aaa', handler: function(){},margin:"0 50 0 0 "},
+			buttons:[
+//			         {text:'aaa', handler: function(){},margin:"0 50 0 0 "},
 			         this.getActionButton(this.action),
 					{text:'Close', handler: function(){_this.panel.close();}}
 			],
@@ -1725,7 +1726,7 @@ InputListWidget.prototype.draw = function(text){
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
-			taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
+			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
 			layout: 'fit',
 			resizable: false,
 			collapsible:true,

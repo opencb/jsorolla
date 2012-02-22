@@ -1,5 +1,9 @@
 ../data-adapter
-../dataset
+../dataset/dataset.js
+../dataset/feature-dataset.js
+../dataset/gene-feature-dataset.js
+../dataset/matrix-dataset.js
+../dataset/snp-feature-dataset.js
 ../cellbase/data-adapter/cellbase-data-adapter.js
 ../cellbase/data-adapter/region-cellbase-data-adapter.js
 ../cellbase/data-adapter/gene-region-cellbase-data-adapter.js
@@ -14,10 +18,6 @@
 ../cellbase/cellbase-manager.js
 ../ui-widgets
 ../utils
-viewer
-config
-ui-widgets
-manager
 tracks/track.js
 tracks/feature-track.js
 tracks/snp-feature-track.js
@@ -34,3 +34,6 @@ tracks/vcf-feature-track.js
 tracks/chromosome-feature-track.js
 formatters/feature-formatter.js
 formatters/genome-map-feature-formatter.js
+manager
+ui-widgets
+genome-viewer.js
