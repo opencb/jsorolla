@@ -82,7 +82,7 @@ InputListWidget.prototype.draw = function(text){
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
-			taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
+			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
 			layout: 'fit',
 			resizable: false,
 			collapsible:true,

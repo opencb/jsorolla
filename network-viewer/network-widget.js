@@ -1,5 +1,5 @@
 function NetworkWidget(args){
-	this.id = "NetworkWidget#"+ Math.round(Math.random()*10000) +"#";
+	this.id = "NetworkWidget"+ Math.round(Math.random()*10000);
 	this.label = true;
 	if (args != null){
 		if (args.targetId != null){

@@ -617,6 +617,13 @@ GraphCanvas.prototype.setBackgroundImage = function(){
 		if (this.NodeSVGbackgroundImage != null){
 			this.NodeSVGbackgroundImage.parentNode.removeChild(this.NodeSVGbackgroundImage);
 		} 
+		
+		/**/
+//		console.log(document.getElementById(this.targetID));
+//		console.log($('#' + this.targetID));
+//		console.log(this.targetID);
+		/**/
+		
 		$('#' + this.targetID).svg();
 		$('#' + this.targetID).svg("get");
 		

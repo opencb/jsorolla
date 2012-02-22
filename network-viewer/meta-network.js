@@ -1,8 +1,9 @@
-function MetaNetwork(){
+function MetaNetwork(species,args){
 	this.json = new Object();
 	this.vertices = new Object();
 	this.verticesIndex = new Object(); // verticesIndex[name][]
-	this.species = "hsa";
+//	this.species = "hsa";
+	this.species = species;
 	this.store = null;
 	this.dataset = null;
 	this.onInfoRetrieved = new Event(this);
@@ -16,7 +17,6 @@ function MetaNetwork(){
 	
 	this.createStores();
 	this.events();
-	
 };
 
 MetaNetwork.prototype.events = function(){
@@ -28,7 +28,7 @@ MetaNetwork.prototype.events = function(){
 				_this.getVertexById(idVertex).setFilled(true);
 			}
 			//_this.filled = true;
-			console.log("entro onGOsRetrieved")
+			console.log("entro onGOsRetrieved");
 			_this.onInfoRetrieved.notify(_this);
 		}
 	});
@@ -39,7 +39,7 @@ MetaNetwork.prototype.events = function(){
 				_this.getVertexById(idVertex).setFilled(true);
 			}
 			//_this.filled = true;
-			console.log("entro onInfoRetrieved")
+			console.log("entro onInfoRetrieved");
 			_this.onInfoRetrieved.notify(_this);
 		}
 	});

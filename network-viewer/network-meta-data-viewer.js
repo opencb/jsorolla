@@ -1,12 +1,14 @@
-function NetworkMetaDataViewer(args){
-	this.species = "hsa";
-	
+function NetworkMetaDataViewer(species,args){
+//	this.species = "hsa";
+	this.species = species;
 	
 	/** URL **/ 
 	this.servletURL = "http://bioinfo.cipf.es/commons/ws/rest/utils/file/save";
 	this.servletPNGURL = "http://bioinfo.cipf.es/commons/ws/rest/io/svg/topng";
 	this.width = 1000;
 	this.height = 1000;
+	
+
 	
 	if(args!=null){
 		if(args.width != null)
@@ -16,7 +18,7 @@ function NetworkMetaDataViewer(args){
 	}
 	
 	/** Network **/
-	this.metaNetwork = new MetaNetwork();
+	this.metaNetwork = new MetaNetwork(this.species);
 	
 	/** Visualization network objects **/
 	this.formatter = this.getNewFormatter();
@@ -87,6 +89,7 @@ NetworkMetaDataViewer.prototype.getSpecies = function(){
 };
 
 NetworkMetaDataViewer.prototype.setSpecies = function(specie){
+	this.species=specie;
 	this.getMetaNetwork().setSpecies(specie);
 };
 

@@ -1,14 +1,12 @@
 function NetworkViewer(targetId, species, args) {
 	var _this = this;
-	this.id = "NetworkViewer#"+ Math.round(Math.random()*10000) +"#";
+	this.id = "NetworkViewer"+ Math.round(Math.random()*10000);
 	
 	this.menuBar = null;
 	
 	// if not provided on instatiation
 	this.width =  $(document).width();
 	this.height = $(document).height();
-	this.drawZoneWidth = this.width-12;
-	this.drawZoneHeight = this.height-148;
 	this.targetId=null;
 	
 	//Default species
@@ -41,6 +39,13 @@ function NetworkViewer(targetId, species, args) {
 		}
 	}
 	
+
+	
+	this.drawZoneWidth = this.width-12;
+//	this.drawZoneHeight = this.height-148;
+//	this.drawZoneHeight = this.height-140;//menu
+	this.drawZoneHeight = this.height-112;//SBGN
+	
 	//Events i send
 	this.onSpeciesChange = new Event();
 	
@@ -50,12 +55,15 @@ function NetworkViewer(targetId, species, args) {
 	
 	//Events i listen
 	this.onSpeciesChange.addEventListener(function(sender,data){
+		_this.species=data.species;
+		_this.speciesName=data.name;
+		Ext.getCmp(_this.id+"speciesMenuButton").setText(_this.speciesName);
+		Ext.getCmp(_this.id+"specieInfoLabel").setText(data.species);
+		Ext.example.msg('Species', _this.speciesName+' selected.');
 		
+		_this.networkMetaDataViewer.setSpecies(data.species);
+//		_this.pathwayTreeViewer.setSpecies(data.species);
 	});
-	
-//	this.id = "canvasName"+args.targetId;
-//	this.targetNode = document.getElementById("containerUI");
-//	this.graphCanvasName = this.id +"_";
 	
 	
 //	if (args != null){
@@ -68,13 +76,10 @@ function NetworkViewer(targetId, species, args) {
 	
 	
 	
-	/** Persitencia del viewer **/
-	this.metaNetworkViewer = new NetworkMetaDataViewer({"width":this.drawZoneWidth,"height":this.drawZoneHeight});
-	
 	this.settingsInteractomeViewer = new SettingsInteractomeViewer();
-	this.settingsInteractomeViewer.specieChanged.addEventListener(function(sender, specie){
-		_this.setSpecies(specie);
-	});
+//	this.settingsInteractomeViewer.specieChanged.addEventListener(function(sender, specie){
+//		_this.setSpecies(specie);
+//	});
 	
 	
 //	if (this.wum){
@@ -85,9 +90,6 @@ function NetworkViewer(targetId, species, args) {
 //		this.headerWidget.onLogout.addEventListener(function (sender){
 //		});
 //	}
-	
-	
-	
 
 };
 
@@ -101,8 +103,12 @@ NetworkViewer.prototype.draw = function(){
 
 NetworkViewer.prototype.render = function(){
 	var _this = this;
+
+	/** Persitencia del viewer **/
+	this.networkMetaDataViewer = new NetworkMetaDataViewer(this.species,{"width":this.drawZoneWidth,"height":this.drawZoneHeight});
+	
 	var dataset = new GraphDataset();
-	var formatter = this.metaNetworkViewer.getFormatter();
+	var formatter = this.networkMetaDataViewer.getFormatter();
 	var layout = new LayoutDataset();
 	
 	formatter.dataBind(dataset);
@@ -112,7 +118,7 @@ NetworkViewer.prototype.render = function(){
 //	this.searcherViewer.onSelectedNodes.addEventListener(function (sender, idNodes){
 //		_this.selectVertices(idNodes);
 //	});
-	this.metaNetworkViewer.getMetaNetwork().onInfoRetrieved.addEventListener(function (sender){
+	this.networkMetaDataViewer.getMetaNetwork().onInfoRetrieved.addEventListener(function (sender){
 	    //	_this.onInfoRetrieved.notify();
 	    	if(_this.openViewer == "searcherViewer")
 	        	_this.showSearcherViewer();
@@ -128,13 +134,15 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 	var _this=this;
 	if(this._panel == null){
 		
-
+		
+		//TODO PARA TEST, esto debe ser llamado por cellbrowser
+		this.menuBar = this.getMenu();
+		
 		this.networkEditorBarWidget = new NetworkEditorBarWidget();
 		this.networkSBGNBarWidget = new NetworkSBGNBarWidget();
 		
-		
 		this.container = Ext.create('Ext.container.Container', {
-			id:this.id+"containerParaGraphCanvas",
+//			id:this.getGraphCanvasId(),
 			padding:5,
 			flex:1,
 			style:"background: whiteSmoke;",
@@ -153,11 +161,15 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 		var items = [];
 		if(this.menuBar!=null){
 			items.push(this.menuBar);
+			this.drawZoneHeight = this.drawZoneHeight-28;
 		}
-//		items.push(this.getMenu());
 		items.push(this.getOptionBar());
 		items.push(this.networkEditorBarWidget.getBar());
-		items.push(this.networkSBGNBarWidget.getBar());
+		
+//		//SBGN BAR
+//		items.push(this.networkSBGNBarWidget.getBar());
+//		this.drawZoneHeight = this.drawZoneHeight-this.networkSBGNBarWidget.height;
+		
 		items.push(this.container);
 		items.push(this.getInfoBar());
 		
@@ -180,6 +192,49 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 
 	
 };
+//NetworkViewer.prototype.setSize = function(width,height) {
+//	this.width=width;
+//	this.height=height;
+//	this._getPanel().setSize(width,height);
+//	this.draw();
+//};
+
+
+//Creates the species empty menu if not exist and returns it
+NetworkViewer.prototype._getSpeciesMenu = function() {
+	//items must be added by using  setSpecieMenu()
+	if(this._specieMenu == null){
+		this._specieMenu = Ext.create('Ext.menu.Menu', {
+			margin : '0 0 10 0',
+			floating : true,
+			items : []
+		});
+	}
+	return this._specieMenu;
+};
+//Sets the species buttons in the menu
+NetworkViewer.prototype.setSpeciesMenu = function(speciesObj) {
+	var _this = this;
+	//Auto generate menu items depending of AVAILABLE_SPECIES config
+	var menu = this._getSpeciesMenu();
+	menu.hide();//Hide the menu panel before remove
+	menu.removeAll(); // Remove the old species
+	for ( var i = 0; i < speciesObj.length; i++) {
+		menu.add({
+					text:speciesObj[i].name,
+					species:speciesObj[i].species,
+					handler:function(este){
+						//can't use the i from the FOR so i create the object again
+						_this.setSpecies({name: este.text, species: este.species});
+				}
+		});
+	};
+};
+//Sets the new specie and fires an event
+NetworkViewer.prototype.setSpecies = function(text){
+	this.onSpeciesChange.notify(text);
+};
+
 /** For testing pathways **/
 //function test(arg){
 //	if (arg != null){
@@ -219,16 +274,10 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 /** En testing pathways **/	
 
 
-NetworkViewer.prototype.getSpecies = function(){
-	return this.metaNetworkViewer.getSpecies();
-};
+//NetworkViewer.prototype.getSpecies = function(){
+//	return this.networkMetaDataViewer.getSpecies();
+//};
 
-NetworkViewer.prototype.setSpecies = function(specie){
-	this.metaNetworkViewer.setSpecies(specie);
-	this.pathwayTreeViewer.setSpecies(specie);
-	this.setSpecieInfoLabel(this.metaNetworkViewer.getSpecies());
-	this.showTopMessage("Working with " + specie, "");
-};
 	
 NetworkViewer.prototype.drawUI = function(){
 	this.drawMenuBar(this.width, this.height);
@@ -238,18 +287,22 @@ NetworkViewer.prototype.drawUI = function(){
 NetworkViewer.prototype.drawNetwork = function(dataset, formatter, layout){
 	var _this = this;
 	
-	this.metaNetworkViewer.setDataset(dataset);
-	this.metaNetworkViewer.setFormatter(formatter);
-	this.metaNetworkViewer.setLayout(layout);
+//	console.log(dataset);
+//	console.log(formatter);
+//	console.log(layout);
 	
-	this.metaNetworkViewer.getMetaNetwork().dataBind(this.metaNetworkViewer.getDataset());
+	this.networkMetaDataViewer.setDataset(dataset);
+	this.networkMetaDataViewer.setFormatter(formatter);
+	this.networkMetaDataViewer.setLayout(layout);
+	
+	this.networkMetaDataViewer.getMetaNetwork().dataBind(this.networkMetaDataViewer.getDataset());
 	
 	document.getElementById(this.getGraphCanvasId()).innerHTML ="";
 	
-	var newHeight = this.height - 27;//this.tbMenu.getHeight();
+//	var newHeight = this.height - 27;//this.tbMenu.getHeight();
 	
 	this.networkWidget = new NetworkWidget({targetId: this.getGraphCanvasId()});
-	this.networkWidget.draw(this.metaNetworkViewer.getDataset(), this.metaNetworkViewer.getFormatter(), this.metaNetworkViewer.getLayout());
+	this.networkWidget.draw(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
 	
 	this.networkWidget.onVertexOver.addEventListener(function(sender, nodeID){
 		_this.setNodeInfoLabel(_this.networkWidget.getDataset().getVertexById(nodeID).getName());
@@ -264,21 +317,21 @@ NetworkViewer.prototype.drawNetwork = function(dataset, formatter, layout){
 	
 	
 	// With attach the two events and with this variable=false we say that we want to retrieve all the information from cellBase again
-	this.metaNetworkViewer.getDataset().newVertex.addEventListener(function (sender, node){
-		_this.metaNetworkViewer.getMetaNetwork().setInformationRetrieved(false);
-		_this.metaNetworkViewer.getMetaNetwork().addNode(node);
+	this.networkMetaDataViewer.getDataset().newVertex.addEventListener(function (sender, node){
+		_this.networkMetaDataViewer.getMetaNetwork().setInformationRetrieved(false);
+		_this.networkMetaDataViewer.getMetaNetwork().addNode(node);
 	});
-	this.metaNetworkViewer.getDataset().vertexNameChanged.addEventListener(function (sender, args){
+	this.networkMetaDataViewer.getDataset().vertexNameChanged.addEventListener(function (sender, args){
 		var item = args.item;
-		_this.metaNetworkViewer.getMetaNetwork().getVertexById(item.id).setName(item.name);
-		_this.metaNetworkViewer.getMetaNetwork().getVertexById(item.id).setFilled(false);
-		_this.metaNetworkViewer.getMetaNetwork().setInformationRetrieved(false);
+		_this.networkMetaDataViewer.getMetaNetwork().getVertexById(item.id).setName(item.name);
+		_this.networkMetaDataViewer.getMetaNetwork().getVertexById(item.id).setFilled(false);
+		_this.networkMetaDataViewer.getMetaNetwork().setInformationRetrieved(false);
 	});
 };	
 
 NetworkViewer.prototype.loadSif = function(sifdataadapter){
-	this.metaNetworkViewer.loadSif(sifdataadapter);
-	this.drawNetwork(this.metaNetworkViewer.getDataset(), this.metaNetworkViewer.getFormatter(), this.metaNetworkViewer.getLayout());
+	this.networkMetaDataViewer.loadSif(sifdataadapter);
+	this.drawNetwork(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
 };
 
 
@@ -289,22 +342,23 @@ NetworkViewer.prototype.loadSif = function(sifdataadapter){
 //};
 
 NetworkViewer.prototype.loadJSON = function(content){
-	this.metaNetworkViewer.loadJSON(content);
-	this.drawNetwork(this.metaNetworkViewer.getDataset(), this.metaNetworkViewer.getFormatter(), this.metaNetworkViewer.getLayout());
+	this.networkMetaDataViewer.loadJSON(content);
+	this.drawNetwork(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
 };
 
 
 NetworkViewer.prototype.drawConvertPNGDialog = function(content, type){
 	var html = new StringBuffer();
 
-	html.append("<form id='"+this.graphCanvasName+"_topng_dialog' name='input' action='" + this.metaNetworkViewer.servletPNGURL + "' method='post'>");
+	html.append("<form id='"+this.id+"_topng_dialog' name='input' action='" + this.networkMetaDataViewer.servletPNGURL + "' method='post'>");
 	html.append("	<input type='hidden' name='filename' value='image.'"+type+"/>");
 	html.append("	<input type='hidden' name='content'  value = '" + content+"' />");
 	html.append("	<input type='hidden' name='type' value='"+type+"' /> ");
 	html.append("</form>");
 
-	$("#"+this.targetNode.id).append(html.toString());
-	$("#"+this.graphCanvasName+"_topng_dialog").submit();
+	$("#"+this.networkWidget.id).append(html.toString());
+	$("#"+this.id+"_topng_dialog").submit();
+
 };
 
 
@@ -312,7 +366,7 @@ NetworkViewer.prototype.drawConvertPNGDialog = function(content, type){
 //	if(node!=null){
 //		var _this = this;
 //		var id = node.getId();
-//		var metaNode = this.metaNetworkViewer.getMetaNetwork().getVertexById(id);
+//		var metaNode = this.networkMetaDataViewer.getMetaNetwork().getVertexById(id);
 //		if(!metaNode.isFilled()){
 //			metaNode.fillXref();
 //			metaNode.onInfoRetrieved.addEventListener(function (sender){
@@ -333,8 +387,8 @@ NetworkViewer.prototype.drawConvertPNGDialog = function(content, type){
 
 NetworkViewer.prototype.loadMetaData = function(){
 	var _this = this;
-    if(!this.metaNetworkViewer.getMetaNetwork().isInformationRetrieved()){
-    	this.metaNetworkViewer.getMetaNetwork().loadData();
+    if(!this.networkMetaDataViewer.getMetaNetwork().isInformationRetrieved()){
+    	this.networkMetaDataViewer.getMetaNetwork().loadData();
     }
     else{
     	if(this.openViewer == "searcherViewer")
@@ -345,7 +399,7 @@ NetworkViewer.prototype.loadMetaData = function(){
 };
 NetworkViewer.prototype.showSearcherViewer = function(){
 	var _this = this;
-	this.searcherViewer.setStore(this.metaNetworkViewer.getMetaNetwork().store);
+	this.searcherViewer.setStore(this.networkMetaDataViewer.getMetaNetwork().store);
 	this.searcherViewer.render();
 };
 
@@ -607,8 +661,8 @@ NetworkViewer.prototype.drawMenuBar = function(){
 //									var expression = split[1];
 ////									
 //									
-//									if (_this.metaNetworkViewer.getDataset().getVertexByName(name)!= null){
-//										_this.expressionValues[_this.metaNetworkViewer.getDataset().getVertexByName(name).getId()] = expression;
+//									if (_this.networkMetaDataViewer.getDataset().getVertexByName(name)!= null){
+//										_this.expressionValues[_this.networkMetaDataViewer.getDataset().getVertexByName(name).getId()] = expression;
 //									}
 //									else{
 //										console.log(name + " not found");
@@ -621,8 +675,8 @@ NetworkViewer.prototype.drawMenuBar = function(){
 									var expression = split[1];
 //									
 									
-									if (_this.metaNetworkViewer.getDataset().getVertexByName(name)!= null){
-										_this.expressionValues[_this.metaNetworkViewer.getDataset().getVertexByName(name).getId()] = expression;
+									if (_this.networkMetaDataViewer.getDataset().getVertexByName(name)!= null){
+										_this.expressionValues[_this.networkMetaDataViewer.getDataset().getVertexByName(name).getId()] = expression;
 									}
 									else{
 										console.log(name + " not found");
@@ -708,7 +762,7 @@ NetworkViewer.prototype.drawMenuBar = function(){
 //		            	
 //					            	var colors = _this.expressionColors;
 //					        		for ( var vertex in _this.expressionColors) {
-//					        			_this.metaNetworkViewer.getFormatter().getVertexById(vertex).getDefault().setFill(_this.expressionColors[vertex]);
+//					        			_this.networkMetaDataViewer.getFormatter().getVertexById(vertex).getDefault().setFill(_this.expressionColors[vertex]);
 //					        			_this.graphEditorWidget.zoomFormatter.getVertexById(vertex).getDefault().setFill(_this.expressionColors[vertex]);
 //					        		}
 //		   					}
@@ -970,7 +1024,7 @@ NetworkViewer.prototype.getMenu = function(){
 			},
 			
 			{
-				text:'Analysis',
+				text:'Plugins',
 				menu:this.getAnalysisMenu()
 
 			}
@@ -1101,7 +1155,7 @@ NetworkViewer.prototype.handleActionMenu = function(action, args) {
 };
 NetworkViewer.prototype.getInfoBar = function() {
 	var taskbar = Ext.create('Ext.toolbar.Toolbar', {
-		id:'uxTaskbar',
+		id:this.id+'uxTaskbar',
 		winMgr: new Ext.ZIndexManager(),
 		enableOverflow:true,
 		cls: 'bio-hiddenbar',
@@ -1111,14 +1165,15 @@ NetworkViewer.prototype.getInfoBar = function() {
 	this.nodeInfoLabel = Ext.create('Ext.toolbar.TextItem', {
 		html:''
 	});
-	this.specieInfoLabel = Ext.create('Ext.toolbar.TextItem', {
+	var specieInfoLabel = Ext.create('Ext.toolbar.TextItem', {
+		id:this.id+"specieInfoLabel",
 		html:'hsa'
 	});
 	var infobar = Ext.create('Ext.toolbar.Toolbar', {
 		cls:'bio-hiddenbar',
 		width:300,
 		height:28,
-		items:['-',this.nodeInfoLabel,'->','-',this.specieInfoLabel]
+		items:['-',this.nodeInfoLabel,'->','-',specieInfoLabel]
 	});
 	
 	this.bottomBar = Ext.create('Ext.container.Container', {
@@ -1132,9 +1187,6 @@ NetworkViewer.prototype.getInfoBar = function() {
 };
 NetworkViewer.prototype.setNodeInfoLabel = function(text) {
 	this.nodeInfoLabel.setText(text,false);
-};
-NetworkViewer.prototype.setSpecieInfoLabel = function(text) {
-	this.specieInfoLabel.setText(text,false);
 };
 
 /** Option bar **/
@@ -1166,6 +1218,11 @@ NetworkViewer.prototype.getOptionBar = function() {
 		height : 35,
 		border : 0,
 		items : [ 
+		{
+			id:this.id+"speciesMenuButton",
+			text : this.speciesName,
+			menu : this._getSpeciesMenu()
+		},
 		{
 			xtype : 'button',
 			iconCls : 'icon-select',
@@ -1261,7 +1318,14 @@ NetworkViewer.prototype.getOptionBar = function() {
 		}, {
 			xtype : 'textfield',
 			id : 'tbSearch',
-			name : 'field1'
+			name : 'field1',
+			listeners:{
+				specialkey: function(field, e){
+					if (e.getKey() == e.ENTER) {
+						_this.handleActionMenu('GO');
+					}
+				}
+			}
 		}, {
 			xtype : 'button',
 			text : 'Go',
@@ -1357,7 +1421,7 @@ NetworkViewer.prototype.getSearchMenu = function() {
 		items : [{
 					text : 'Xref',
 					handler : function() {
-						var inputListWidget = new InputListWidget();
+						var inputListWidget = new InputListWidget({viewer:this});
 						//var geneNames = "BRCA2";
 						inputListWidget.onOk.addEventListener(function(evt, xref) {
 							_this.openGeneListWidget(xref);
@@ -1383,9 +1447,9 @@ NetworkViewer.prototype.getSearchMenu = function() {
 };
 NetworkViewer.prototype.openGeneListWidget = function(geneName) {
 	var _this = this;
-	var cellBase = new CellBaseDataAdapter();
+	var cellBase = new CellBaseDataAdapter(this.species);
 	cellBase.successed.addEventListener(function(evt, data) {
-		var listWidget = new ListWidget();
+		var listWidget = new ListWidget({gridFields:null,viewer:_this});
 		listWidget.draw(cellBase.dataset.toJSON(), geneName );
 		/** onOk **/
 		listWidget.onSelected.addEventListener(function(evt, feature) {
@@ -1485,7 +1549,7 @@ NetworkViewer.prototype.getEditMenu = function() {
 			        {
 			        	text: 'Background',
 			        	handler: function(){
-			        		_this.settingsInteractomeViewer.draw(_this.metaNetworkViewer.getFormatter());
+			        		_this.settingsInteractomeViewer.draw(_this.networkMetaDataViewer.getFormatter());
 			        	}
 			        }
 			        ]
@@ -1505,7 +1569,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			  group: 'layout',
 			  checked: true,
 			handler : function() {
-				_this.metaNetworkViewer.setLayout(new LayoutDataset());
+				_this.networkMetaDataViewer.setLayout(new LayoutDataset());
 				_this.graphEditorWidget.mainGraphCanvas.render();
 			}
 		},
@@ -1515,7 +1579,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			checked: false,
 			handler : function() {
 				
-				_this.metaNetworkViewer.getLayout().getLayout("dot");
+				_this.networkMetaDataViewer.getLayout().getLayout("dot");
 			}
 		},
 		{
@@ -1524,7 +1588,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			group: 'layout',
 			checked: false,
 			handler : function() {
-				_this.metaNetworkViewer.getLayout().getLayout("neato");
+				_this.networkMetaDataViewer.getLayout().getLayout("neato");
 			}
 		},
 		{
@@ -1533,7 +1597,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			group: 'layout',
 			checked: false,
 			handler : function() {
-				_this.metaNetworkViewer.getLayout().getLayout("twopi");
+				_this.networkMetaDataViewer.getLayout().getLayout("twopi");
 				
 			}
 		},
@@ -1543,7 +1607,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			group: 'layout',
 			checked: false,
 			handler : function() {
-				_this.metaNetworkViewer.getLayout().getLayout("circo");
+				_this.networkMetaDataViewer.getLayout().getLayout("circo");
 			}
 		},
 		{
@@ -1552,7 +1616,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			group: 'layout',
 			checked: false,
 			handler : function() {
-				_this.metaNetworkViewer.getLayout().getLayout("fdp");
+				_this.networkMetaDataViewer.getLayout().getLayout("fdp");
 			}
 		},
 		{
@@ -1561,7 +1625,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			group: 'layout',
 			checked: false,
 			handler : function() {
-				_this.metaNetworkViewer.getLayout().getLayout("sfdp");
+				_this.networkMetaDataViewer.getLayout().getLayout("sfdp");
 			}
 		},
 		"-",
@@ -1571,7 +1635,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			group: 'layout',
 			checked: false,
 			handler : function() {
-				_this.metaNetworkViewer.getLayout().getLayout("RANDOM");
+				_this.networkMetaDataViewer.getLayout().getLayout("RANDOM");
 			}
 		},
 		{
@@ -1580,7 +1644,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			group: 'layout',
 			checked: false,
 			handler : function() {
-				_this.metaNetworkViewer.getLayout().getLayout("CIRCLE");
+				_this.networkMetaDataViewer.getLayout().getLayout("CIRCLE");
 			}
 		},
 		{
@@ -1589,7 +1653,7 @@ NetworkViewer.prototype.getLayoutViewMenu = function() {
 			group: 'layout',
 			checked: false,
 			handler : function() {
-				_this.metaNetworkViewer.getLayout().getLayout("SQUARE");
+				_this.networkMetaDataViewer.getLayout().getLayout("SQUARE");
 			}
 		}
 		]

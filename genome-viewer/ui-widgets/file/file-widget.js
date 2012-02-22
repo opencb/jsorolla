@@ -174,7 +174,7 @@ FileWidget.prototype.draw = function(){
 		
 		this.openDialog = Ext.create('Ext.ux.Window', {
 			title : 'Open '+this.title+' file',
-			taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
+			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
 			width : 800,
 	//		bodyPadding : 10,
 			resizable:false,

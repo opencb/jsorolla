@@ -2,7 +2,7 @@ function NetworkSBGNBarWidget(networkWidget){
 	this.networkWidget = networkWidget;
 //	console.log(this.networkWidget );
 	
-	
+	this.height = 34;
 };
 
 NetworkSBGNBarWidget.prototype.changeEdgeShape = function(value){
@@ -404,7 +404,7 @@ NetworkSBGNBarWidget.prototype.getBar = function(){
 		
 		var bar = Ext.create('Ext.toolbar.Toolbar', {
 			cls : "bio-toolbar-bot",
-			height : 35,
+			height : this.height,
 			border : 0,
 			items : [sbgnLink, this.entityNodeButton, this.processNodeButton,this.connectingArcsButton]
 		});

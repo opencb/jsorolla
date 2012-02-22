@@ -69,7 +69,7 @@ KaryotypePanelWindow.prototype.render = function(){
 	this.panel = Ext.create('Ext.ux.Window', {
 		title: 'Karyotype',
 		resizable:false,
-		taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
+		taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
 		constrain:true,
 		animCollapse: true,
 		width: 1050,

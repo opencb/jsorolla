@@ -47,11 +47,11 @@ GraphDataset.prototype.getMinClass = function(){
 
 GraphDataset.prototype.getVertexByName = function(nodeName){
 		var results = new Array();
-		//TODO COMENTADO PARA TEST
 		for (var vertexId in this.verticesIndex[nodeName]){
 			var vertexByid = this.getVertexById(this.verticesIndex[nodeName][vertexId]);
 			results.push(vertexByid);
-//			//* añadido nuevo porque fallaba el anterior codigo
+			//* añadido nuevo porque fallaba el anterior codigo
+			//TODO PAKO COMENTADO PARA TEST
 //			return vertexByid;
 		}
 	
