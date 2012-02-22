@@ -2,7 +2,8 @@ function CellBaseManager(species, args) {
 //	console.log(species);
 
 	// these 3 parameters can be modified 
-	this.host = "http://ws.bioinfo.cipf.es/celldb/rest";
+//	this.host = "http://ws.bioinfo.cipf.es/celldb/rest";
+	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
 	this.version = "v1";
 	this.species = species;
 	
@@ -158,7 +159,7 @@ function CellBaseManager(species, args) {
 			type : "GET",
 			async : this.async,
 			data : {
-				contentformat : this.contentformat,
+				of : this.contentformat,
 				outputcompress : this.outputcompress,
 				callbackParam :  "response"
 			},
