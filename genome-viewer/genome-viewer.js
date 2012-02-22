@@ -1,6 +1,6 @@
 function GenomeViewer(targetId, species, args) {
 	var _this=this;
-	this.id = "GenomeViewer#"+ Math.round(Math.random()*10000) +"#";
+	this.id = "GenomeViewer:"+ Math.round(Math.random()*10000);
 	
 	this.menuBar = null;
 	
@@ -38,18 +38,11 @@ function GenomeViewer(targetId, species, args) {
 			this.pluginsMenu = args.pluginsMenu;
 		}
 	}
-	//TODO Capturar el width al cambiar de tamaño y drawChromosome aver q pasa
 
-	
-	
-	
 	//Events i send
 	this.onSpeciesChange = new Event();
 	
 	console.log(this.width+"x"+this.height);
-	
-	
-	
 	console.log(this.targetId);
 	console.log(this.id);
 
@@ -62,7 +55,6 @@ function GenomeViewer(targetId, species, args) {
 				pixelRatio : 0.0005,
 				id:this.id
 	});
-	
 	
 	//Events i listen
 	this.onSpeciesChange.addEventListener(function(sender,data){
@@ -93,6 +85,9 @@ function GenomeViewer(targetId, species, args) {
 	//TODO check first if chromosome exists on the new specie
 	this.chromosome = 13;
 	this.position = 32889611;
+	
+	
+	this.drawing=0;
 };
 GenomeViewer.prototype.setMenuBar = function(menuBar){
 	this.menuBar = menuBar;
@@ -102,19 +97,19 @@ GenomeViewer.prototype.draw = function(){
 	if(this.targetId!=null){
 		this._getPanel(this.width,this.height);
 	}
-	this._render(this.chromosome,this.position);
+	this._render();
 	
 	//this.setZoom(70);
 	//this.setLocation(1, 211615616);
 };
 
-GenomeViewer.prototype._render = function(chromosome, position) {
-	this.chromosome = chromosome;
-	this.position = position;
+GenomeViewer.prototype._render = function() {
 	var start = this.position - (this.genomeWidgetProperties.windowSize);
 	var end = this.position + (this.genomeWidgetProperties.windowSize);
-	this._drawMasterGenomeViewer(this.chromosome, start, end);
-	this.drawChromosome(chromosome, start, end);
+	
+	this._drawGenomeViewer();
+	
+	this.drawChromosome(this.chromosome, start, end);
 	this._setScaleLabels();
 };
 
@@ -163,7 +158,7 @@ GenomeViewer.prototype.setSize = function(width,height) {
 //NAVIGATION BAR
 //Creates the species empty menu if not exist and returns it
 GenomeViewer.prototype._getSpeciesMenu = function() {
-	//items must be added by using  setSpecieMenu()
+	//items must be added by using  setSpeciesMenu()
 	if(this._specieMenu == null){
 		this._specieMenu = Ext.create('Ext.menu.Menu', {
 			margin : '0 0 10 0',
@@ -174,7 +169,7 @@ GenomeViewer.prototype._getSpeciesMenu = function() {
 	return this._specieMenu;
 };
 //Sets the species buttons in the menu
-GenomeViewer.prototype.setSpecieMenu = function(speciesObj) {
+GenomeViewer.prototype.setSpeciesMenu = function(speciesObj) {
 	var _this = this;
 	//Auto generate menu items depending of AVAILABLE_SPECIES config
 	var menu = this._getSpeciesMenu();
@@ -186,13 +181,13 @@ GenomeViewer.prototype.setSpecieMenu = function(speciesObj) {
 					species:speciesObj[i].species,
 					handler:function(este){
 						//can't use the i from the FOR so i create the object again
-						_this.setSpecie({name: este.text, species: este.species});
+						_this.setSpecies({name: este.text, species: este.species});
 				}
 		});
 	};
 };
 //Sets the new specie and fires an event
-GenomeViewer.prototype.setSpecie = function(text){
+GenomeViewer.prototype.setSpecies = function(text){
 	this.onSpeciesChange.notify(text);
 };
 
@@ -255,7 +250,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
 GenomeViewer.prototype._showKaryotypeWindow = function() {
 	var _this = this;
 	
-	var karyotypePanelWindow = new KaryotypePanelWindow(this.species,{genomeViewer:this});
+	var karyotypePanelWindow = new KaryotypePanelWindow(this.species,{viewer:this});
 	
 	/** Events i listen **/
 	karyotypePanelWindow.onRendered.addEventListener(function(evt, feature) {
@@ -586,7 +581,7 @@ GenomeViewer.prototype.openListWidget = function(category, subcategory, query, r
 	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
 	cellBaseDataAdapter.successed.addEventListener(function(evt, data) {
 		
-		var genomicListWidget = new GenomicListWidget({title:title, gridFields:gridField,genomeViewer:_this});
+		var genomicListWidget = new GenomicListWidget({title:title, gridFields:gridField,viewer:_this});
 		genomicListWidget.draw(cellBaseDataAdapter.dataset.toJSON(), query );
 		
 		genomicListWidget.onSelected.addEventListener(function(evt, feature) {
@@ -713,11 +708,9 @@ GenomeViewer.prototype.setLocation = function(chromosome, position) {
 	this.chromosome = chromosome;
 	this.position = Math.ceil(position);
 	
-	this.refreshMasterGenomeViewer();
 	this.drawChromosome(this.chromosome, 1, 26000000);
+	this.refreshMasterGenomeViewer();
 };
-
-
 
 
 GenomeViewer.prototype._setPositionField = function(chromosome, position) {
@@ -732,73 +725,91 @@ GenomeViewer.prototype._setPositionField = function(chromosome, position) {
 	}
 };
 
-GenomeViewer.prototype.refreshMasterGenomeViewer = function() {
-	this.genomeWidget.clear();
-	this.updateRegionMarked(this.chromosome, this.position);
-	this._drawMasterGenomeViewer();
-	
-};
+
 
 GenomeViewer.prototype._getWindowsSize = function() {
 	var zoom = this.genomeWidgetProperties.getZoom();
 	return this.genomeWidgetProperties.getWindowSize(zoom);
 };
-GenomeViewer.prototype._drawMasterGenomeViewer = function() {
-		
-		var _this = this;
-		this._getPanel().setLoading("Retrieving data");
-//		this.updateTracksMenu();
 
-		
-		this.genomeWidget = new GenomeWidget(this.id + "master", this._getTracksPanelID(), {
-		                pixelRatio: this.genomeWidgetProperties.getPixelRatio(),
-		                width:this.width-15,
-//		                height:  this.height
-		                height:  2000
-		        });
-
-		var zoom = this.genomeWidgetProperties.getZoom();
-
-//		console.log(this.genomeWidgetProperties.getTrackByZoom(zoom).length);
-		
-		if (this.genomeWidgetProperties.getTrackByZoom(zoom).length > 0){
-			for ( var i = 0; i < this.genomeWidgetProperties.getTrackByZoom(zoom).length; i++) {
-				var track =  this.genomeWidgetProperties.getTrackByZoom(zoom)[i];
-				track.top = track.originalTop;
-				track.height = track.originalHeight;
-				track.clear();
-				this.genomeWidgetProperties.getDataAdapterByZoom(zoom)[i].datasets = new Object();
-				this.genomeWidget.addTrack(track, this.genomeWidgetProperties.getDataAdapterByZoom(zoom)[i]);
-			}
-			
-			var start = Math.ceil(this.position - (this._getWindowsSize()));// - (this._getWindowsSize()/6);
-			var end = Math.ceil(this.position +   (this._getWindowsSize()));// - (this._getWindowsSize()/6);
-			
-			if (start < 0){ start = 0;}
-			
-			this.genomeWidget.onMarkerChange.addEventListener(function (evt, middlePosition){
-				var window = _this.genomeWidgetProperties.windowSize/2;
-				var start = middlePosition.middle - window;
-				if (start < 0 ){start = 0;}
-				_this.updateRegionMarked(_this.chromosome, middlePosition.middle);
-			});
-			 
-			this.genomeWidget.onRender.addEventListener(function (evt){
-				_this._getPanel().setLoading(false);
-				_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
-				
-
-			 });
-			 
-			this._setPositionField(this.chromosome, this.position);
-			this.genomeWidget.draw(this.chromosome, start, end);
-
-			
-		}
-		else{
-			_this._getPanel().setLoading("No tracks to display");
-		}
+GenomeViewer.prototype.refreshMasterGenomeViewer = function() {
+	this.updateRegionMarked(this.chromosome, this.position);
+	this._drawGenomeViewer();
+	
 };
+
+
+GenomeViewer.prototype._drawGenomeViewer = function() {
+	//This method filters repetitive calls to _drawOnceGenomeViewer
+	var _this = this;
+	_this.drawing += 1;
+	setTimeout(function() {
+		_this.drawing -= 1;
+		if(_this.drawing==0){
+			_this._drawOnceGenomeViewer();
+		}
+	},300);
+};
+GenomeViewer.prototype._drawOnceGenomeViewer = function() {
+	var _this = this;
+	this._getPanel().setLoading("Retrieving data");
+//	this.updateTracksMenu();
+
+	if(this.genomeWidget!=null){
+		this.genomeWidget.clear();
+	}
+	
+	this.genomeWidget = new GenomeWidget(this.id + "master", this._getTracksPanelID(), {
+	                pixelRatio: this.genomeWidgetProperties.getPixelRatio(),
+	                width:this.width-15,
+//	                height:  this.height
+	                height:  2000
+	        });
+
+	var zoom = this.genomeWidgetProperties.getZoom();
+
+//	console.log(this.genomeWidgetProperties.getTrackByZoom(zoom).length);
+	
+	if (this.genomeWidgetProperties.getTrackByZoom(zoom).length > 0){
+		for ( var i = 0; i < this.genomeWidgetProperties.getTrackByZoom(zoom).length; i++) {
+			var track =  this.genomeWidgetProperties.getTrackByZoom(zoom)[i];
+			track.top = track.originalTop;
+			track.height = track.originalHeight;
+			track.clear();
+			this.genomeWidgetProperties.getDataAdapterByZoom(zoom)[i].datasets = new Object();
+			this.genomeWidget.addTrack(track, this.genomeWidgetProperties.getDataAdapterByZoom(zoom)[i]);
+		}
+		
+		var start = Math.ceil(this.position - (this._getWindowsSize()));// - (this._getWindowsSize()/6);
+		var end = Math.ceil(this.position +   (this._getWindowsSize()));// - (this._getWindowsSize()/6);
+		
+		if (start < 0){ start = 0;}
+		
+		this.genomeWidget.onMarkerChange.addEventListener(function (evt, middlePosition){
+			var window = _this.genomeWidgetProperties.windowSize/2;
+			var start = middlePosition.middle - window;
+			if (start < 0 ){start = 0;}
+			_this.updateRegionMarked(_this.chromosome, middlePosition.middle);
+		});
+		 
+		this.genomeWidget.onRender.addEventListener(function (evt){
+			_this._getPanel().setLoading(false);
+			_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
+			
+
+		 });
+		 
+		this._setPositionField(this.chromosome, this.position);
+		this.genomeWidget.draw(this.chromosome, start, end);
+
+		
+	}
+	else{
+		_this._getPanel().setLoading("No tracks to display");
+	}
+	
+};
+
 
 GenomeViewer.prototype.updateRegionMarked = function(chromosome, middlePosition) {
 	var window = this.genomeWidgetProperties.windowSize / 2;
@@ -951,7 +962,8 @@ GenomeViewer.prototype.addFeatureTrack = function(title, dataadapter) {
 		});
 		_this.genomeWidgetProperties.addCustomTrackByZoom(100, 100, vcfTrack100, dataadapter);
 		
-		_this._drawMasterGenomeViewer();
+		_this._drawGenomeViewer();
+		
 	}
 };
 

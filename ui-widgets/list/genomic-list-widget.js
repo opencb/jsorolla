@@ -41,7 +41,7 @@ GenomicListWidget.prototype._render = function() {
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
-			taskbar:Ext.getCmp(this.args.genomeViewer.id+'uxTaskbar'),
+			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
 			resizable: false,
 			constrain:true,
 			closable:true,

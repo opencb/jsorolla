@@ -47,20 +47,20 @@ GraphDataset.prototype.getMinClass = function(){
 
 GraphDataset.prototype.getVertexByName = function(nodeName){
 		var results = new Array();
-		
 		for (var vertexId in this.verticesIndex[nodeName]){
 			var vertexByid = this.getVertexById(this.verticesIndex[nodeName][vertexId]);
 			results.push(vertexByid);
 			//* añadido nuevo porque fallaba el anterior codigo
-			return vertexByid
+			//TODO PAKO COMENTADO PARA TEST
+//			return vertexByid;
 		}
 	
-		if (results <= 1){
-			return this.getVertexById(this.verticesIndex[nodeName]);
-		}
-		else{
+//		if (results <= 1){
+//			return this.getVertexById(this.verticesIndex[nodeName]);
+//		}
+//		else{
 			return results;
-		}
+//		}
 };
 
 GraphDataset.prototype.getVertexById = function(id){
@@ -202,10 +202,10 @@ GraphDataset.prototype._connectVerticesByName = function(nodeNameSource, nodeNam
 	}
 	else{
 		if (source == null){
-			console.log("No encontrado: " + nodeNameSource)
+			console.log("No encontrado: " + nodeNameSource);
 		}
 		if (target == null){
-			console.log("No encontrado: " + nodeNameTarget)
+			console.log("No encontrado: " + nodeNameTarget);
 		}
 	}
 };
@@ -296,7 +296,7 @@ function labels(){
 	}
 	
 	var sorted = (names.sort());
-	console.log(sorted)
+	console.log(sorted);
 	var distance =  0.01;
 	var altura = 0.6;
 	for ( var i = 0; i < names.length; i++) {
