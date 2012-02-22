@@ -756,7 +756,6 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 //	this.updateTracksMenu();
 
 	if(this.genomeWidget!=null){
-		console.log("notnull");
 		this.genomeWidget.clear();
 	}
 	
@@ -785,18 +784,18 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 		var end = Math.ceil(this.position +   (this._getWindowsSize()));// - (this._getWindowsSize()/6);
 		
 		if (start < 0){ start = 0;}
-		
 		this.genomeWidget.onMarkerChange.addEventListener(function (evt, middlePosition){
 			var window = _this.genomeWidgetProperties.windowSize/2;
 			var start = middlePosition.middle - window;
 			if (start < 0 ){start = 0;}
 			_this.updateRegionMarked(_this.chromosome, middlePosition.middle);
+			console.log("test");
 		});
 		 
 		this.genomeWidget.onRender.addEventListener(function (evt){
 			_this._getPanel().setLoading(false);
 			_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
-			
+			console.log("test");
 
 		 });
 		 
