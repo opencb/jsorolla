@@ -105,51 +105,61 @@ GeneInfoWidget.prototype.getTranscriptGrid = function(data){
 
 GeneInfoWidget.prototype.getXrefGrid = function(data, dbname){
     if(this[dbname+"Grid"]==null){
-    	var groupField = '';
-    	var modelName = dbname;
-	    var fields = ['description','displayId'];
-		var columns = [
-		               	{header : 'Display Id',dataIndex: 'displayId',flex:1},
-		               	{header : 'Description',dataIndex: 'description',flex:3}
-		             ];
-		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
-		this[dbname+"Grid"].store.loadData(data);
+    	if(data.length<=0){
+    		this[dbname+"Grid"]= Ext.create('Ext.panel.Panel',{
+    			cls:'panel-border-left',
+    			border:false,
+    			flex:3,
+    			bodyPadding:'40',
+    			html:'No results found'
+    		});
+    	}else{
+    		var groupField = '';
+    		var modelName = dbname;
+    		var fields = ['description','displayId'];
+    		var columns = [
+    		               {header : 'Display Id',dataIndex: 'displayId',flex:1},
+    		               {header : 'Description',dataIndex: 'description',flex:3}
+    		               ];
+    		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
+    		this[dbname+"Grid"].store.loadData(data);
+    	}
     }
     return this[dbname+"Grid"];
 };
 
-GeneInfoWidget.prototype.getGoGrid = function(){
-    var _this = this;
-    if(this.goGrid==null){
-    	var groupField = 'namespace';
-    	var modelName = 'GO';
-	    var fields = ['id','name','description','level','directNumberOfGenes','namespace','parents','propagatedNumberOfGenes','score'];
-		var columns = [ {header : 'Database id',dataIndex: 'id',flex:2},
-						{header : 'Name',dataIndex: 'name',flex:1},
-						{header : 'Description',dataIndex: 'description',flex:2},
-		                {
-		                	xtype: 'actioncolumn',
-		                	header : '+info',
-		                    flex:1,
-		                    items: [{
-		                        iconCls: 'icon-blue-box',  // Use a URL in the icon config
-		                        tooltip: '+info',    
-		                        handler: function(grid, rowIndex, colIndex) {
-		                            var rec = _this.goStore.getAt(rowIndex);
-		                            Ext.Msg.alert(rec.get('name'), rec.get('description'));
-		                        }
-		                    }]
-		                 },
-		                {header : 'Direct genes',dataIndex: 'directNumberOfGenes',flex:2},
-						{header : 'Level',dataIndex: 'level',flex:1},
-						{header : 'Namespace',dataIndex: 'namespace',flex:2},
-						{header : 'Propagated genes',dataIndex: 'propagatedNumberOfGenes',flex:2.5}
-		             ];
-		this.goGrid = this.doGrid(columns,fields,modelName,groupField);
-		
-    }
-    return this.goGrid;
-};
+//GeneInfoWidget.prototype.getGoGrid = function(){
+//    var _this = this;
+//    if(this.goGrid==null){
+//    	var groupField = 'namespace';
+//    	var modelName = 'GO';
+//	    var fields = ['id','name','description','level','directNumberOfGenes','namespace','parents','propagatedNumberOfGenes','score'];
+//		var columns = [ {header : 'Database id',dataIndex: 'id',flex:2},
+//						{header : 'Name',dataIndex: 'name',flex:1},
+//						{header : 'Description',dataIndex: 'description',flex:2},
+//		                {
+//		                	xtype: 'actioncolumn',
+//		                	header : '+info',
+//		                    flex:1,
+//		                    items: [{
+//		                        iconCls: 'icon-blue-box',  // Use a URL in the icon config
+//		                        tooltip: '+info',    
+//		                        handler: function(grid, rowIndex, colIndex) {
+//		                            var rec = _this.goStore.getAt(rowIndex);
+//		                            Ext.Msg.alert(rec.get('name'), rec.get('description'));
+//		                        }
+//		                    }]
+//		                 },
+//		                {header : 'Direct genes',dataIndex: 'directNumberOfGenes',flex:2},
+//						{header : 'Level',dataIndex: 'level',flex:1},
+//						{header : 'Namespace',dataIndex: 'namespace',flex:2},
+//						{header : 'Propagated genes',dataIndex: 'propagatedNumberOfGenes',flex:2.5}
+//		             ];
+//		this.goGrid = this.doGrid(columns,fields,modelName,groupField);
+//		
+//    }
+//    return this.goGrid;
+//};
 
 GeneInfoWidget.prototype.get3Dprotein = function(data){
 	var _this=this;
@@ -186,7 +196,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
       	    			var pan = Ext.create('Ext.panel.Panel',{
       	    				title:pdb_name,
       	    				bodyCls:'background-black',
-      	    				html:'<canvas class="ChemDoodleWebComponent" id="pdb_canvas_'+pdb_name+'" width="600" height="600" style="width: 600px; height: 600px; ">This browser does not support HTML5/Canvas.</canvas>',
+      	    				html:'<center><canvas class="ChemDoodleWebComponent" id="pdb_canvas_'+pdb_name+'" width="600" height="600" style="width: 600px; height: 600px; ">This browser does not support HTML5/Canvas.</canvas></center>',
       	    				listeners:{
       	    					afterrender:function(este){
       	    						// JavaScript Document

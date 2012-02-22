@@ -756,6 +756,7 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 //	this.updateTracksMenu();
 
 	if(this.genomeWidget!=null){
+		console.log("notnull");
 		this.genomeWidget.clear();
 	}
 	
@@ -768,7 +769,7 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 
 	var zoom = this.genomeWidgetProperties.getZoom();
 
-//	console.log(this.genomeWidgetProperties.getTrackByZoom(zoom).length);
+	console.log(this.genomeWidgetProperties.getTrackByZoom(zoom).length);
 	
 	if (this.genomeWidgetProperties.getTrackByZoom(zoom).length > 0){
 		for ( var i = 0; i < this.genomeWidgetProperties.getTrackByZoom(zoom).length; i++) {
@@ -824,9 +825,6 @@ GenomeViewer.prototype.updateRegionMarked = function(chromosome, middlePosition)
 	
 //	this.chromosomeFeatureTrack.mark({chromosome:this.chromosome, start:this.position, end:this.position}, "red");
 };
-
-
-
 
 
 
