@@ -20,6 +20,8 @@ function GenomeViewer(targetId, species, args) {
 	if (species != null) {
 		this.species = species.species;
 		this.speciesName = species.name;
+		this.chromosome=species.chromosome;
+		this.position=species.position;
 	}
 	if (args != null){
 		if(args.description != null){
@@ -58,6 +60,7 @@ function GenomeViewer(targetId, species, args) {
 	
 	//Events i listen
 	this.onSpeciesChange.addEventListener(function(sender,data){
+		_this.setLocation(data.chromosome,data.position);
 		_this.species=data.species;
 		_this.speciesName=data.name;
 		Ext.getCmp(_this.id+"speciesMenuButton").setText(_this.speciesName);
@@ -178,10 +181,10 @@ GenomeViewer.prototype.setSpeciesMenu = function(speciesObj) {
 	for ( var i = 0; i < speciesObj.length; i++) {
 		menu.add({
 					text:speciesObj[i].name,
-					species:speciesObj[i].species,
+					speciesObj:speciesObj[i],
 					handler:function(este){
 						//can't use the i from the FOR so i create the object again
-						_this.setSpecies({name: este.text, species: este.species});
+						_this.setSpecies(este.speciesObj);
 				}
 		});
 	};
@@ -738,7 +741,6 @@ GenomeViewer.prototype.refreshMasterGenomeViewer = function() {
 	
 };
 
-
 GenomeViewer.prototype._drawGenomeViewer = function() {
 	//This method filters repetitive calls to _drawOnceGenomeViewer
 	var _this = this;
@@ -768,7 +770,6 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 
 	var zoom = this.genomeWidgetProperties.getZoom();
 
-	console.log(this.genomeWidgetProperties.getTrackByZoom(zoom).length);
 	
 	if (this.genomeWidgetProperties.getTrackByZoom(zoom).length > 0){
 		for ( var i = 0; i < this.genomeWidgetProperties.getTrackByZoom(zoom).length; i++) {
@@ -789,13 +790,12 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 			var start = middlePosition.middle - window;
 			if (start < 0 ){start = 0;}
 			_this.updateRegionMarked(_this.chromosome, middlePosition.middle);
-			console.log("test");
 		});
 		 
 		this.genomeWidget.onRender.addEventListener(function (evt){
+//			 console.log("test");
 			_this._getPanel().setLoading(false);
 			_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
-			console.log("test");
 
 		 });
 		 
