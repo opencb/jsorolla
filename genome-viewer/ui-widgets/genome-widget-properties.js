@@ -219,6 +219,7 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 	this.addMirnaTargetTracks();
 	
 	this.addConservedRegionsTracks();
+	this.addStructuralVariationTracks();
 	
 	/** Set visibility **/
 	this.tracks["SNP"] = false;
@@ -232,6 +233,7 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 	this.tracks["miRNA targets"] = false;
 	//TODO doing
 	this.tracks["Conserved regions"] = false;
+	this.tracks["Structural variation"] = false;
 };
 
 
@@ -824,6 +826,23 @@ GenomeWidgetProperties.prototype.addConservedRegionsTracks = function(){
 };
 
 
+/** STRUCTURAL VARIATION REGIONS **/
+GenomeWidgetProperties.prototype.addStructuralVariationTracks = function(){
+	var structuralVariationTrack = new FeatureTrack(this.id + "_structuralvariation", this.tracksPanel, this.species,{
+		top : 10,
+		height : 20,
+		labelHeight : this.labelHeight,
+		featureHeight : this.featureHeight,
+		labelSize : this.labelSize,
+		allowDuplicates : true,
+		label : false,
+		titleWidth : 92,
+		pixelSpaceBetweenBlocks : 0,
+		avoidOverlapping : true,
+		title : 'Structural variation'
+	});
+	this.addTrackByZoom(0, 100, structuralVariationTrack,new RegionCellBaseDataAdapter(this.species,{resource : "structuralvariation"}));
+};
 
 
 /** MULTIFEATURE TRACKS **/

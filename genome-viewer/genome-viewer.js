@@ -357,7 +357,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 	var toolbar = Ext.create('Ext.toolbar.Toolbar', {
 		cls:"bio-toolbar",
 		height:35,
-//		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
+		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
 		border:0,
 		items : [
 		         {

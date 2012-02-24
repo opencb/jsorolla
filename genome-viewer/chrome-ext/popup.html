@@ -62,9 +62,18 @@
 	
 	Ext.onReady(run);
 	var genomeMaps;
+	var AVAILABLE_SPECIES = [{"name":"Homo sapiens", "species":"hsa", "icon":"","chromosome":"13","position":"32889611"},
+	                         {"name":"Mus musculus", "species":"mmu", "icon":"","chromosome":"1","position":"18422009"},
+	                         {"name":"Danio rerio", "species":"dre", "icon":"","chromosome":"1","position":"1570040"},
+	                         {"name":"Rattus norvegicus", "species":"rno", "icon":"","chromosome":"1","position":"1570040"},
+	                         {"name":"Drosophila melanogaster", "species":"dme", "icon":"","chromosome":"2L","position":"158597"},
+	                         {"name":"Saccharomyces cerevisiae", "species":"sce", "icon":"","chromosome":"I","position":"111532"},
+	                         {"name":"Caenorhabditis elegans", "species":"cel", "icon":"","chromosome":"I","position":"111532"}
+	                         ];
 	function run(){
 		var gv = new GenomeViewer("gv_div",null,{width:800,height:480});
 		gv.draw();
+		gv.setSpeciesMenu(AVAILABLE_SPECIES);
 	}
 	</script>
 
