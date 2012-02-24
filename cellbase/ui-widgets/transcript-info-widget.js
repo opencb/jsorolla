@@ -125,15 +125,25 @@ TranscriptInfoWidget.prototype.getExonsGrid = function(data){
 
 TranscriptInfoWidget.prototype.getXrefGrid = function(data, dbname){
     if(this[dbname+"Grid"]==null){
-    	var groupField = '';
-    	var modelName = dbname;
-	    var fields = ['description','displayId'];
-		var columns = [
-		               	{header : 'Display Id',dataIndex: 'displayId',flex:1},
-		               	{header : 'Description',dataIndex: 'description',flex:3}
-		             ];
-		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
-		this[dbname+"Grid"].store.loadData(data);
+    	if(data.length<=0){
+    		this[dbname+"Grid"]= Ext.create('Ext.panel.Panel',{
+    			cls:'panel-border-left',
+    			border:false,
+    			flex:3,
+    			bodyPadding:'40',
+    			html:'No results found'
+    		});
+    	}else{
+    		var groupField = '';
+    		var modelName = dbname;
+    		var fields = ['description','displayId'];
+    		var columns = [
+    		               {header : 'Display Id',dataIndex: 'displayId',flex:1},
+    		               {header : 'Description',dataIndex: 'description',flex:3}
+    		               ];
+    		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
+    		this[dbname+"Grid"].store.loadData(data);
+    	}
     }
     return this[dbname+"Grid"];
 };

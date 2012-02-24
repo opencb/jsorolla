@@ -164,11 +164,6 @@ TrackCanvas.prototype.mouseUp = function(event) {
 		this._afterDrag(event);
 		
 	}
-	
-	
-	
-	
-	
 };
 
 TrackCanvas.prototype.init = function() {
@@ -191,8 +186,6 @@ TrackCanvas.prototype.init = function() {
 //		_this.mouseUp(event, _this);
 //	}, false);
 	
-
-
 };
 
 TrackCanvas.prototype._getTrackFromInternalRegionId = function(internalRegionId) {
@@ -391,15 +384,16 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 		track.viewBoxModule = this.viewBoxModule;
 	
 		if (track.isAvalaible){
+			 
 			regionAdapter.successed.addEventListener(function(evt, data) {
 				 _this._formatData(regionAdapter);
-				 
 				/** trackRender es una array donde indico con true/track ha sido renderizado o false que no lo ha sido
 				 * de esta manera controlo cuando todos los track hayan sido renderizados porder dibujar la regla **/
+				 
 				_this.trackRenderedName.push(regionAdapter);
 				_this._trackRendered();
-
 				/** Si todos han sido rendrizados dibujo la regla **/
+				
 				if (_this._areAllTracksRendered()) {
 					_this.drawRules(chromosome, start, end);
 				}
@@ -429,21 +423,26 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 		else{
 			_this.trackRenderedName.push(regionAdapter);
 			_this._trackRendered();
+			
+			if (_this._areAllTracksRendered()) {
+				_this.drawRules(chromosome, start, end);
+			}
+//			console.log(_this._areAllTracksRendered());
 		}
 };
 
 TrackCanvas.prototype.selectPaintOnRules = function(middle) {
-	for ( var i = 0; i < this.getRuleTracks().length; i++) {
+	for ( var i = 0; i < this.getRulerTrack().length; i++) {
 		if (this.pixelRatio < 1){
-			this.getRuleTracks()[i].select(middle);
+			this.getRulerTrack()[i].select(middle);
 		}
 		else{
-			this.getRuleTracks()[i].select(middle, {width:this.pixelRatio});
+			this.getRulerTrack()[i].select(middle, {width:this.pixelRatio});
 		}
 	}
 };
 
-TrackCanvas.prototype.getRuleTracks = function(middle) {
+TrackCanvas.prototype.getRulerTrack = function() {
 	var rules = new Array();
 	for ( var i = 0; i < this.trackList.length; i++) {
 		if (this.trackList[i] instanceof RuleFeatureTrack){

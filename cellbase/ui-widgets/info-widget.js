@@ -139,6 +139,8 @@ InfoWidget.prototype.getTreePanel = function (){
 		return treePan;
 };
 
+
+
 InfoWidget.prototype.doGrid = function (columns,fields,modelName,groupField){
 		var groupFeature = Ext.create('Ext.grid.feature.Grouping',{
 			groupHeaderTpl: groupField+' ({rows.length} Item{[values.rows.length > 1 ? "s" : ""]})'
@@ -207,8 +209,8 @@ InfoWidget.prototype.getData = function (){
 InfoWidget.prototype.getGeneTemplate = function (){
 	return  new Ext.XTemplate(
 		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
-			' &nbsp; <a target="_blank" href="http://www.ensembl.org/Multi/Search/Results?species='+this.ensemblSpecie+';idx=;q={stableId}">Ensembl</a>',
-		    '</p><br>',
+			' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Location/View?g={stableId}">Ensembl</a>',
+			'</p><br>',
 		    '<p><span class="w75 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
 		    '<p><span class="w75 dis s90">Biotype: </span> {biotype}</p>',
 		    '<p><span class="w75 dis s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></p>',
@@ -220,7 +222,9 @@ InfoWidget.prototype.getGeneTemplate = function (){
 };
 InfoWidget.prototype.getTranscriptTemplate = function (){
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span></p><br>',
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
+		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Transcript/Transcript?t={stableId}">Ensembl</a>',
+		    '</p><br>',
 		    '<p><span class="w100 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
 		    '<p><span class="w100 dis s90">Biotype: </span> {biotype}</p>',
 		    '<p><span class="w100 dis s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></p>',
@@ -233,7 +237,9 @@ InfoWidget.prototype.getTranscriptTemplate = function (){
 };
 InfoWidget.prototype.getSnpTemplate = function (){
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span></span></p><br>',
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span></span>',
+		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Variation/Summary?v={name}">Ensembl</a>',
+		    '</p><br>',
 		    '<p><span class="w140 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
 		    '<p><span class="w140 dis s90">Source: </span> <span class="s110">{source}</span></p>',
 		    '<br>',

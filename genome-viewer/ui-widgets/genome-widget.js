@@ -80,18 +80,12 @@ GenomeWidget.prototype.getMiddlePoint = function(){
 	return this.trackCanvas.getMiddlePoint();
 };
 
-
-
 GenomeWidget.prototype.addTrack = function(track, dataAdapter){
     this.trackList.push(track);
     this.dataAdapterList.push(dataAdapter);
 };
 
-
-
-
 GenomeWidget.prototype.draw = function(chromosome, start, end){
-	
 	this.chromosome = chromosome;
 	this.start = start;
 	this.end = end;
@@ -99,17 +93,17 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
 	var _this = this;
 	this.init();
 	this.trackCanvas =  new TrackCanvas(this.id + "_canvas", document.getElementById(this.targetId), {
-			top:0, 
-			left:0, 
-			right:this.width,  
-			width:this.width, 
-			height:this.height, 
-			start: this.start, 
-			end: this.end,
-			backgroundColor: "#FFCCFF", 
-			pixelRatio:this.pixelRatio,
-			viewBoxModule: this.getviewBoxModule(),
-			allowDragging :this.allowDragging
+		top:0, 
+		left:0, 
+		right:this.width,  
+		width:this.width, 
+		height:this.height, 
+		start: this.start, 
+		end: this.end,
+		backgroundColor: "#FFCCFF", 
+		pixelRatio:this.pixelRatio,
+		viewBoxModule: this.getviewBoxModule(),
+		allowDragging :this.allowDragging
 	});
 	
     this.trackCanvas.init();
@@ -120,7 +114,6 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
     this.trackCanvas.onMove.addEventListener(function (evt, data){
     	_this.onMarkerChange.notify(data);
 	});
-   
     
     for ( var i = 0; i < this.trackList.length; i++) {
     	this.trackList[i].viewBoxModule = this.getviewBoxModule();
@@ -136,7 +129,6 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
 	 });
     
 //    console.log(this.getviewBoxModule());
-    
     this.trackCanvas.draw(this.chromosome, this.start, this.end);
     
    
