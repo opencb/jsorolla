@@ -1,7 +1,7 @@
 function GenomeViewer(targetId, species, args) {
 	var _this=this;
 	this.id = "GenomeViewer:"+ Math.round(Math.random()*10000);
-	
+	console.log(args);
 	this.menuBar = null;
 	
 	// if not provided on instatiation
@@ -9,7 +9,7 @@ function GenomeViewer(targetId, species, args) {
 	this.height = $(document).height();
 	this.targetId=null;
 	
-	//Default species
+	//Default values
 	this.species="hsa";
 	this.speciesName="Homo sapiens";
 	
@@ -20,8 +20,8 @@ function GenomeViewer(targetId, species, args) {
 	if (species != null) {
 		this.species = species.species;
 		this.speciesName = species.name;
-		this.chromosome=species.chromosome;
-		this.position=species.position;
+		this.chromosome = parseInt(species.chromosome);//parseInt is important for genomeWidgetProperties
+		this.position = parseInt(species.position);
 	}
 	if (args != null){
 		if(args.description != null){
@@ -39,6 +39,12 @@ function GenomeViewer(targetId, species, args) {
 		if (args.pluginsMenu != null) {
 			this.pluginsMenu = args.pluginsMenu;
 		}
+		if (args.chromosome != null) {
+			this.chromosome = parseInt(args.chromosome);
+		}
+		if (args.position != null) {
+			this.position = parseInt(args.position);
+		}
 	}
 
 	//Events i send
@@ -47,11 +53,11 @@ function GenomeViewer(targetId, species, args) {
 	console.log(this.width+"x"+this.height);
 	console.log(this.targetId);
 	console.log(this.id);
-
 	
 	
 	this.genomeWidget = null;// new GenomeWidget(this.id + "id",
 //	this.chromosomeGenomeWidget = null;
+	
 	this.genomeWidgetProperties = new GenomeWidgetProperties(this.species,{
 				windowSize : 1000000,
 				pixelRatio : 0.0005,
@@ -81,15 +87,11 @@ function GenomeViewer(targetId, species, args) {
 	
 	this.customTracksAddedCount = 1;
 	/** position molona 1: 211615616 **/
-	$(window).resize(function(ev,width,height) {
-
-	});	
+//	$(window).resize(function(ev,width,height) {
+//
+//	});	
 	
-	//TODO check first if chromosome exists on the new specie
-	this.chromosome = 13;
-	this.position = 32889611;
-	
-	
+	//used to know if the method _drawGenomeViewer is already called
 	this.drawing=0;
 };
 GenomeViewer.prototype.setMenuBar = function(menuBar){
