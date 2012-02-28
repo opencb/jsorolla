@@ -3,9 +3,9 @@ GenomicListWidget.prototype.draw 				=       ListWidget.prototype.draw;
 GenomicListWidget.prototype.getActionButton 			=       ListWidget.prototype.getActionButton;
 
 
-function GenomicListWidget(args) {
-	ListWidget.prototype.constructor.call(this, args);
-	this.listPanel = new GenomicListPanel({title:false,gridFields:args.gridFields});
+function GenomicListWidget(species, args) {
+	ListWidget.prototype.constructor.call(this, species, args);
+//	this.listPanel = new GenomicListPanel({title:false,gridFields:args.gridFields,viewer:this.viewer});
 	this.onSelected = this.listPanel.onSelected;
 	this.onFilterResult = this.listPanel.onFilterResult;
 	

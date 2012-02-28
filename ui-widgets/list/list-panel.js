@@ -1,7 +1,10 @@
-function ListPanel(args) {
+function ListPanel(species, args) {
 	this.targetId = null;
 	this.id = "ListPanel_" + Math.round(Math.random()*10000000);
-		
+	this.species=species;
+	
+	this.args=args;
+	
 	this.title = "List of Genes";
 	this.width = 1000;
 	this.height = 500;
@@ -104,7 +107,7 @@ ListPanel.prototype._getGeneGrid = function() {
 		this.exportButton = Ext.create('Ext.button.Button', {
 			text : 'Export to Text',
 			handler : function() {
-    	 		new InputListWidget({width:1100, title:"VCS content", headerInfo:"Export results"}).draw(_this._getStoreContent());
+    	 		new InputListWidget({width:1100, title:"VCS content", headerInfo:"Export results",viewer:_this.args.viewer}).draw(_this._getStoreContent());
      		}
 		});
 		this.localizeButton = Ext.create('Ext.button.Button', {
@@ -130,7 +133,7 @@ ListPanel.prototype._getGeneGrid = function() {
 ListPanel.prototype._localize = function() {
 	var _this = this;
 	
-	var karyotypePanelWindow = new KaryotypePanelWindow();
+	var karyotypePanelWindow = new KaryotypePanelWindow(this.species,{viewer:this.args.viewer});
 	karyotypePanelWindow.onRendered.addEventListener(function(evt, feature) {
 		var results = new Array();
 		for ( var i = 0; i < _this.original.length; i++) {

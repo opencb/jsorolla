@@ -586,7 +586,7 @@ GenomeViewer.prototype.openListWidget = function(category, subcategory, query, r
 	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
 	cellBaseDataAdapter.successed.addEventListener(function(evt, data) {
 		
-		var genomicListWidget = new GenomicListWidget({title:title, gridFields:gridField,viewer:_this});
+		var genomicListWidget = new GenomicListWidget(_this.species,{title:title, gridFields:gridField,viewer:_this});
 		genomicListWidget.draw(cellBaseDataAdapter.dataset.toJSON(), query );
 		
 		genomicListWidget.onSelected.addEventListener(function(evt, feature) {

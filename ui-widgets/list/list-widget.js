@@ -1,7 +1,8 @@
-function ListWidget(args) {
+function ListWidget(species, args) {
 	this.targetId = null;
 	this.id = "ListWidget_" + Math.round(Math.random()*10000000);
-		
+	this.species=species;
+	
 	this.width = 1000;
 	this.height = 500;
 	this.action = 'localize';
@@ -31,7 +32,8 @@ function ListWidget(args) {
         }
     }
 	
-	this.listPanel = new ListPanel({title:false,gridFields:args.gridFields});
+
+	this.listPanel = new ListPanel(this.species,{title:false,gridFields:args.gridFields,viewer:this.args.viewer});
 	this.onSelected=this.listPanel.onSelected;
 	this.onFilterResult=this.listPanel.onFilterResult;
 	

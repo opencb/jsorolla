@@ -3,6 +3,7 @@ function KaryotypePanelWindow(species,args){
 	var _this = this;
 	this.id = "KaryotypePanelWindow_" + Math.random();
 	this.karyotypeWidget = new KaryotypePanel(this.getKaryotypePanelId(), species, {"top":10, "width":1000, "height": 300, "trackWidth":15});
+	
 	this.karyotypeCellBaseDataAdapter = new KaryotypeCellBaseDataAdapter(species);
 	
 	this.args = args;

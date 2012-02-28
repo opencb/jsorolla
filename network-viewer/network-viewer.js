@@ -139,7 +139,7 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 		this.menuBar = this.getMenu();
 		
 		this.networkEditorBarWidget = new NetworkEditorBarWidget();
-		this.networkSBGNBarWidget = new NetworkSBGNBarWidget();
+//		this.networkSBGNBarWidget = new NetworkSBGNBarWidget();
 		
 		this.container = Ext.create('Ext.container.Container', {
 //			id:this.getGraphCanvasId(),
