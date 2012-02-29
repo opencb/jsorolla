@@ -138,8 +138,8 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 		//TODO PARA TEST, esto debe ser llamado por cellbrowser
 		this.menuBar = this.getMenu();
 		
-		this.networkEditorBarWidget = new NetworkEditorBarWidget();
-//		this.networkSBGNBarWidget = new NetworkSBGNBarWidget();
+		this.networkEditorBarWidget = new NetworkEditorBarWidget(this);
+		var editorBar = this.networkEditorBarWidget.getBar();
 		
 		this.container = Ext.create('Ext.container.Container', {
 //			id:this.getGraphCanvasId(),
@@ -164,11 +164,8 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 			this.drawZoneHeight = this.drawZoneHeight-28;
 		}
 		items.push(this.getOptionBar());
-		items.push(this.networkEditorBarWidget.getBar());
+		items.push(editorBar);
 		
-//		//SBGN BAR
-//		items.push(this.networkSBGNBarWidget.getBar());
-//		this.drawZoneHeight = this.drawZoneHeight-this.networkSBGNBarWidget.height;
 		
 		items.push(this.container);
 		items.push(this.getInfoBar());
@@ -858,14 +855,14 @@ NetworkViewer.prototype.drawMenuBar = function(){
 				        	       			
 				        	       			
 			        	       		}
-			        	       	},
-			        	       	"-",
-			        	       	{
-			        	       		text: 'Collapse',
-			        	       		handler: function(){
-			        	       			_this.collapse();
-			        	       		}
 			        	       	}
+//			        	       	,"-",
+//			        	       	{
+//			        	       		text: 'Collapse',
+//			        	       		handler: function(){
+//			        	       			_this.collapse();
+//			        	       		}
+//			        	       	}
 						]
 //					}]
 		});
@@ -987,14 +984,16 @@ NetworkViewer.prototype.getMenu = function(){
 			this.tbMenu.add({
 				text:'File',
 				menu: fileMenu  // assign menu by instance
-			},{
-				text:'Edit',
-				menu: this.getEditMenu()
-			},
-			{
-				text:'View',
-				menu: _this.getViewMenu()
-			},
+			}
+//			,{
+//				text:'Edit',
+//				menu: this.getEditMenu()
+//			}
+			,
+//			{
+//				text:'View',
+//				menu: _this.getViewMenu()
+//			},
 			{
 				text:'Search',
 				menu: _this.getSearchMenu()
@@ -1018,10 +1017,10 @@ NetworkViewer.prototype.getMenu = function(){
 					
 				}
 			},
-			{
-				text:'Layout',
-				menu: this.getLayoutViewMenu()
-			},
+//			{
+//				text:'Layout',
+//				menu: this.getLayoutViewMenu()
+//			},
 			
 			{
 				text:'Plugins',
@@ -1064,49 +1063,6 @@ NetworkViewer.prototype.getMenu = function(){
 /*****************************************************************************************************************************/
 /*****************************************************************************************************************************/
 
-//
-//NetworkViewer.prototype.getPanel = function(){
-//	var _this = this;
-//	
-//
-//	if(this.panel==null){
-//		this.networkEditorBarWidget = new NetworkEditorBarWidget();
-//		this.networkSBGNBarWidget = new NetworkSBGNBarWidget();
-//		this.container = Ext.create('Ext.container.Container', {
-//			padding:5,
-//			flex:1,
-//			style:"background: whiteSmoke;",
-////			id: this.getGraphCanvasId(),
-//			cls:'x-unselectable',
-////			html:'<div class="x-unselectable" style="width:'+this.width+'px;height:800px;" id="'+this.getGraphCanvasId()+'"></div>'
-//			html:'<div id="'+this.getGraphCanvasId()+'" style="border:1px solid #bbb;"></div>',
-//			listeners:{
-//				resize: function ( cont, adjWidth, adjHeight){
-////					console.log(adjWidth);
-////					console.log(adjHeight);
-//				}
-//			}
-//		});
-//		
-//		this.panel =  Ext.create('Ext.panel.Panel', {
-//			border : false,
-//			region: 'center',
-//			layout: { type: 'vbox',align: 'stretch'},
-//			items:[
-//			       this.getOptionBar(),
-//			       this.networkEditorBarWidget.getBar(),
-////			       this.networkSBGNBarWidget.getBar(),
-//			       this.container,
-//			       this.getInfoBar()
-//			      ]
-//		});
-//	}
-//	return this.panel;
-//};
-
-//NetworkViewer.prototype.getMenu = function(){
-//	return this.tbMenu;
-//};
 
 
 
@@ -1193,7 +1149,6 @@ NetworkViewer.prototype.setNodeInfoLabel = function(text) {
 NetworkViewer.prototype.getOptionBar = function() {
 	var _this = this;
 
-
 	this.slider = Ext.create('Ext.slider.Single', {
 				id : this.id + '_zoomSlider',
 				width : 200,
@@ -1223,65 +1178,15 @@ NetworkViewer.prototype.getOptionBar = function() {
 			text : this.speciesName,
 			menu : this._getSpeciesMenu()
 		},
-		{
-			xtype : 'button',
-			iconCls : 'icon-select',
-			text : 'Select',
-			listeners : {
-				scope : this,
-				'click' : function() {
-						_this.handleActionMenu("select");
-				}
-			}
-		},
-		{
-			xtype : 'button',
-			iconCls : 'icon-drag',
-			text : 'Drag',
-			listeners : {
-				scope : this,
-				'click' : function() {
-						_this.handleActionMenu("drag");
-				}
-			}
-		},'-',
-		{
-			xtype : 'button',
-			iconCls : 'icon-add',
-			text : 'Add',
-			listeners : {
-				scope : this,
-				'click' : function() {
-						_this.handleActionMenu("add");
-				}
-			}
-		},
-		{
-			xtype : 'button',
-			iconCls : 'icon-delete',
-			text : 'Delete',
-			listeners : {
-				scope : this,
-				'click' : function() {
-						_this.handleActionMenu("delete");
-				}
-			}
-		},'-',
-		{
-			xtype : 'button',
-			iconCls : 'icon-link',
-			text : 'Join',
-			listeners : {
-				scope : this,
-				'click' : function() {
-						_this.handleActionMenu("join");
-				}
-			}
-		},
+		'-',
+        this.networkEditorBarWidget.collapseButton,
+        this.networkEditorBarWidget.layoutButton,
+        this.networkEditorBarWidget.labelSizeButton,
+        this.networkEditorBarWidget.selectButton,
+        '-',
 		{
 			xtype : 'button',
 			iconCls : 'icon-zoom-out',
-			margins : '0 0 0 20',
 			listeners : {
 				scope : this,
 				'click' : function() {
@@ -1341,74 +1246,6 @@ NetworkViewer.prototype.getOptionBar = function() {
 };
 
 
-
-/** View Menu **/
-NetworkViewer.prototype.getZoomMenu = function(chromosome, position) {
-	var _this = this;
-	var menu = Ext.create('Ext.menu.Menu', {
-				margin : '0 0 10 0',
-				floating : true,
-				items : []
-			});
-	for ( var i = 0; i <= 100; i=i+10) {
-		menu.add({text : i + '%', group : 'zoom', checked : false, handler : function() {
-				var zoom = this.text.replace("%", "");
-				_this.handleActionMenu("ZOOM", zoom);
-				_this.slider.setValue(zoom);
-			}
-		});
-	}
-	
-	return menu;
-
-};
-
-/** label Menu **/
-NetworkViewer.prototype.getLabelMenu = function() {
-	var _this = this;
-	var menu = Ext.create('Ext.menu.Menu', {
-				margin : '0 0 10 0',
-				floating : true,
-				items : [
-				         {
-				        	 text:'None',
-				        	 handler : function() {
-				        	 	_this.networkWidget.setVerticesFontSize(0);
-				        	 	
-				         	}
-				         },
-				         {
-				        	 text:'Small',
-				        	 handler : function() {
-				        		_this.networkWidget.setVerticesFontSize(8);
-					         	}
-				         },
-				         {
-				        	 text:'Medium',
-				        	 handler : function() {
-				        		_this.networkWidget.setVerticesFontSize(10);
-					         	}
-				         },
-				         {
-				        	 text:'Large',
-				        	 handler : function() {
-				        		_this.networkWidget.setVerticesFontSize(12);
-					         	}
-				         },
-				         {
-				        	 text:'x-Large',
-				        	 handler : function() {
-				        		_this.networkWidget.setVerticesFontSize(16);
-					         	}
-				         }
-				         ]
-			});
-	
-	
-	return menu;
-
-};
-
 NetworkViewer.prototype.getGraphCanvas = function() {
 	return this.mainGraphCanvas;
 };
@@ -1449,7 +1286,7 @@ NetworkViewer.prototype.openGeneListWidget = function(geneName) {
 	var _this = this;
 	var cellBase = new CellBaseDataAdapter(this.species);
 	cellBase.successed.addEventListener(function(evt, data) {
-		var listWidget = new ListWidget({gridFields:null,viewer:_this});
+		var listWidget = new ListWidget(this.species,{gridFields:null,viewer:_this});
 		listWidget.draw(cellBase.dataset.toJSON(), geneName );
 		/** onOk **/
 		listWidget.onSelected.addEventListener(function(evt, feature) {
@@ -1464,202 +1301,7 @@ NetworkViewer.prototype.openGeneListWidget = function(geneName) {
 
 	cellBase.fill("feature", "gene", geneName.toString(), "info");
 };
-NetworkViewer.prototype.getViewMenu = function() {
-		var viewMenu = Ext.create('Ext.menu.Menu', {
-			margin : '0 0 10 0',
-			floating : true,
-			items : [{
-						text : 'Zoom',
-						menu : this.getZoomMenu()
-					}, 
-					{
-						text : 'Label',
-						menu : this.getLabelMenu()
-					}
-		
-			]
-		});
-		return viewMenu;
-};
 
-/** EDIT MENU **/
-NetworkViewer.prototype.getEditMenu = function() {
-	var _this=this;
-		var editMenu = new Ext.create('Ext.menu.Menu',{
-			floating: true,
-			items: [
-			        {
-			        	text: 'Select',
-			        	menu:{
-			        	 	items:[
-		    	 	       {
-					        	text: 'All Vertices',
-					        	handler: function(){
-					        		_this.networkWidget.selectAllNodes();
-					        	}
-					        },
-					        {
-					        	text: 'All Edges',
-					        	handler: function(){
-					        		_this.networkWidget.selectAllEdges();
-					        	}
-					        },
-					        {
-					        	text: 'Everything',
-					        	handler: function(){
-					        		_this.networkWidget.selectAll();
-					        	}
-					        },
-					        '-',
-					        {
-					        	text: 'Adjacent Vertices',
-					        	handler: function(){
-					        		_this.networkWidget.selectAdjacent();
-					        	}
-					        },
-					        {
-					        	text: 'Neighbourhood',
-					        	handler: function(){
-					        		_this.networkWidget.selectNeighbourhood();
-					        	
-					        		
-					        		
-					        	}
-					        },
-					        {
-					        	text: 'Connected Component',
-					        	handler: function(){
-					        		_this.networkWidget.selectConnectedComponent();
-					        	}
-					        }
-					        
-					        
-					        ]
-			        	}
-			        },
-			        {
-			        	text: 'Collapse',
-			        	handler: function(){
-			        		_this.networkWidget.collapse();
-			        	}
-			        },
-			        
-			        '-'
-			        ,
-			        {
-			        	text: 'Background',
-			        	handler: function(){
-			        		_this.settingsInteractomeViewer.draw(_this.networkMetaDataViewer.getFormatter());
-			        	}
-			        }
-			        ]
-		});
-		return editMenu;
-};
-
-
-/** LAYOUT MENU **/
-NetworkViewer.prototype.getLayoutViewMenu = function() {
-	var _this = this;
-	var layoutViewMenu = new Ext.create('Ext.menu.Menu', {
-		floating: true,
-		items: [{
-			text: 'Custom',
-			//xtype: 'menucheckitem',
-			  group: 'layout',
-			  checked: true,
-			handler : function() {
-				_this.networkMetaDataViewer.setLayout(new LayoutDataset());
-				_this.graphEditorWidget.mainGraphCanvas.render();
-			}
-		},
-		{
-			text: 'dot',
-			group: 'layout',
-			checked: false,
-			handler : function() {
-				
-				_this.networkMetaDataViewer.getLayout().getLayout("dot");
-			}
-		},
-		{
-			text: 'neato',
-			xtype: 'menucheckitem',
-			group: 'layout',
-			checked: false,
-			handler : function() {
-				_this.networkMetaDataViewer.getLayout().getLayout("neato");
-			}
-		},
-		{
-			text: 'twopi',
-			xtype: 'menucheckitem',
-			group: 'layout',
-			checked: false,
-			handler : function() {
-				_this.networkMetaDataViewer.getLayout().getLayout("twopi");
-				
-			}
-		},
-		{
-			text: 'circo',
-			xtype: 'menucheckitem',
-			group: 'layout',
-			checked: false,
-			handler : function() {
-				_this.networkMetaDataViewer.getLayout().getLayout("circo");
-			}
-		},
-		{
-			text: 'fdp',
-			xtype: 'menucheckitem',
-			group: 'layout',
-			checked: false,
-			handler : function() {
-				_this.networkMetaDataViewer.getLayout().getLayout("fdp");
-			}
-		},
-		{
-			text: 'sfdp',
-			xtype: 'menucheckitem',
-			group: 'layout',
-			checked: false,
-			handler : function() {
-				_this.networkMetaDataViewer.getLayout().getLayout("sfdp");
-			}
-		},
-		"-",
-		{
-			text: 'random',
-			xtype: 'menucheckitem',
-			group: 'layout',
-			checked: false,
-			handler : function() {
-				_this.networkMetaDataViewer.getLayout().getLayout("RANDOM");
-			}
-		},
-		{
-			text: 'circle',
-			xtype: 'menucheckitem',
-			group: 'layout',
-			checked: false,
-			handler : function() {
-				_this.networkMetaDataViewer.getLayout().getLayout("CIRCLE");
-			}
-		},
-		{
-			text: 'square',
-			xtype: 'menucheckitem',
-			group: 'layout',
-			checked: false,
-			handler : function() {
-				_this.networkMetaDataViewer.getLayout().getLayout("SQUARE");
-			}
-		}
-		]
-	});
-	return layoutViewMenu;
-};
 
 NetworkViewer.prototype.getAnalysisMenu = function() {
 	var _this=this;
@@ -1686,6 +1328,73 @@ NetworkViewer.prototype.getAnalysisMenu = function() {
 		]
 	});
 	return analysisMenu;
+};
+
+
+/*******************/
+NetworkViewer.prototype.getSBGNToolBar = function() {
+/*SBGN*/
+    this.entityNodeButton = Ext.create('Ext.button.Button',{
+	text : 'Add Entity Node',
+	menu: new Ext.menu.Menu({
+		items: [
+			{text: 'unspecified entity',disabled:true,iconCls:'icon-sbgn-en1',handler: function(button){/*call*/}},
+			{text: 'simple chemical',disabled:true,iconCls:'icon-sbgn-en2',handler: function(button){/*call*/}},
+			{text: 'macromolecule',disabled:true,iconCls:'icon-sbgn-en3',handler: function(button){/*call*/}},
+			{text: 'nucleic acid feature',disabled:true,iconCls:'icon-sbgn-en4',handler: function(button){/*call*/}},
+			{text: 'perturbing agent',disabled:true,iconCls:'icon-sbgn-en5',handler: function(button){/*call*/}},
+			{text: 'source sink',disabled:true,iconCls:'icon-sbgn-en6',handler: function(button){/*call*/}}
+			]
+	})
+    });
+	
+    this.processNodeButton = Ext.create('Ext.button.Button',{
+    	    text : 'Add Process Node',
+    	    menu: new Ext.menu.Menu({
+		items: [
+		        {text: 'process',disabled:true,iconCls:'icon-sbgn-pn1',handler: function(button){/*call*/}},
+		        {text: 'omitted process',disabled:true,iconCls:'icon-sbgn-pn2',handler: function(button){/*call*/}},
+		        {text: 'uncertain process',disabled:true,iconCls:'icon-sbgn-pn3',handler: function(button){/*call*/}},
+		        {text: 'association',disabled:true,iconCls:'icon-sbgn-pn4',handler: function(button){/*call*/}},
+		        {text: 'dissociation',disabled:true,iconCls:'icon-sbgn-pn5',handler: function(button){/*call*/}},
+		        {text: 'phenotype',disabled:true,iconCls:'icon-sbgn-pn6',handler: function(button){/*call*/}}
+		        ]
+    	   })
+    });
+
+    this.connectingArcsButton = Ext.create('Ext.button.Button',{
+    	    text : 'Connecting arcs',
+    	    menu: new Ext.menu.Menu({
+                items: [
+                        {text: 'consumption',disabled:true,iconCls:'icon-sbgn-ca1',handler: function(button){/*call*/}},
+                        {text: 'production',disabled:true,iconCls:'icon-sbgn-ca2',handler: function(button){/*call*/}},
+                        {text: 'modulation',disabled:true,iconCls:'icon-sbgn-ca3',handler: function(button){/*call*/}},
+                        {text: 'stimulation',disabled:true,iconCls:'icon-sbgn-ca4',handler: function(button){/*call*/}},
+                   	{text: 'catalysis',disabled:true,iconCls:'icon-sbgn-ca5',handler: function(button){/*call*/}},
+                   	{text: 'inhibition',disabled:true,iconCls:'icon-sbgn-ca6',handler: function(button){/*call*/}},
+                   	{text: 'necessary stimulation',disabled:true,iconCls:'icon-sbgn-ca7',handler: function(button){/*call*/}}
+                   	]
+    	    })
+    });
+    
+    var sbgnLink = Ext.create('Ext.button.Button', {
+    	width:43,
+    	height:20,
+    	margin:'0 3 0 1',
+    	cls:'img-sbgn-logo',
+    	handler:function(){
+    		window.open('http://www.sbgn.org/');
+    	}
+    });
+	
+    var bar = Ext.create('Ext.toolbar.Toolbar', {
+        cls : "bio-toolbar-bot",
+        height : this.height,
+        border : 0,
+        items : [sbgnLink, this.entityNodeButton, this.processNodeButton,this.connectingArcsButton]
+        });
+    return bar;
+
 };
 
 NetworkViewer.prototype.expressionSelected = function() {

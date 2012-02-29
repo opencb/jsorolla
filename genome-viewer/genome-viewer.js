@@ -204,7 +204,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
 	});
 	/*Chromolendar*/
  	var chrView = Ext.create('Ext.view.View', {
-	    store : chrStore,
+	store : chrStore,
         selModel: {
             mode: 'SINGLE',
             listeners: {
@@ -220,7 +220,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
         itemSelector: '.chromosome-item', 
         tpl: '<tpl for="."><div style="float:left" class="chromosome-item">{name}</div></tpl>'
 //	        tpl: '<tpl for="."><div class="chromosome-item">chr {name}</div></tpl>'
-    });
+ 	});
  	var chrContainer = Ext.create('Ext.container.Container', {
  		width:125,
 //	 		height:300,

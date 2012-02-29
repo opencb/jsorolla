@@ -5,8 +5,8 @@ function LayoutDataset(){
 	this.layoutDone = new Event(this);
 	this.args = new Object();
 	
-	//RANDOM, CIRCLE
-	this.args.type = "CIRCLE";
+	//Random, Circle
+	this.args.type = "Circle";
 };
 
 LayoutDataset.prototype.loadFromJSON = function(dataset, json){
@@ -66,7 +66,7 @@ LayoutDataset.prototype.getType = function(){
 
 LayoutDataset.prototype._calculateLayoutVertices = function(type, count){
 	
-	if (type == "CIRCLE"){
+	if (type == "Circle"){
 			var radius = 0.4;
 			var centerX = 0.5;
 			var centerY = 0.5;
@@ -83,7 +83,7 @@ LayoutDataset.prototype._calculateLayoutVertices = function(type, count){
 
 LayoutDataset.prototype._calculateLayout = function(){
 	var _this = this;
-	if (this.getType() == "RANDOM"){
+	if (this.getType() == "Random"){
 		for ( var vertex in this.dataset.getVertices()) {
 			if (this.vertices[vertex] == null){
 				this.vertices[vertex] = new NodeLayout(vertex, 0, 0);
@@ -95,7 +95,7 @@ LayoutDataset.prototype._calculateLayout = function(){
 		}
 	}
 	
-	if ( this.getType() == "CIRCLE"){
+	if ( this.getType() == "Circle"){
 		
 		var count = this.dataset._getVerticesCount();
 		var verticesCoordinates = this._calculateLayoutVertices(this.getType(), count);
@@ -114,7 +114,7 @@ LayoutDataset.prototype._calculateLayout = function(){
 	}
 	
 	
-	if (this.getType() == "SQUARE"){
+	if (this.getType() == "Square"){
 		
 		var count = this.dataset._getVerticesCount();
 		var xMin = 0.1;
@@ -170,20 +170,20 @@ LayoutDataset.prototype.getVerticesByArea = function(x1, y1, x2, y2){
 
 LayoutDataset.prototype.getLayout = function(type){
 	
-	if (type == "CIRCLE"){
-		this.args.type = "CIRCLE";
+	if (type == "Circle"){
+		this.args.type = "Circle";
 		this._calculateLayout();
 		return;
 	}
 	
-	if (type == "SQUARE"){
-		this.args.type = "SQUARE";
+	if (type == "Square"){
+		this.args.type = "Square";
 		this._calculateLayout();
 		return;
 	}
 	
-	if (type == "RANDOM"){
-		this.args.type = "RANDOM";
+	if (type == "Random"){
+		this.args.type = "Random";
 		this._calculateLayout();
 		return;
 	}
