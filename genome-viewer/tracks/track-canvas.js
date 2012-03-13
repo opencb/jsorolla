@@ -115,7 +115,7 @@ function TrackCanvas(trackerID, targetNode, args) {
 	this.onMove = new Event(this);
 	this.afterDrag = new Event(this);
 	this.onRender = new Event(this);
-
+	
 };
 
 TrackCanvas.prototype.createSVGDom = function(targetID, id, width, height, backgroundColor) {
@@ -304,7 +304,6 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 		
 
 		if (regionAdapter.resource == "snp") {
-
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
 				formatters.push(new SNPFeatureFormatter(
@@ -313,7 +312,6 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 		}
 
 		if (regionAdapter.resource == "cytoband") {
-
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
 				formatters.push(new CytobandFeatureFormatter(
@@ -342,6 +340,15 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 				formatters.push(new GenericFeatureFormatter(regionAdapter.dataset.json[0][i]));
 			}
 		}
+		
+		if (regionAdapter.resource == "mutation") {
+			var formatters = new Array();
+			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
+				formatters.push(new MutationFeatureFormatter(
+						regionAdapter.dataset.json[0][i]));
+			}
+		}
+		
 		
 		if (regionAdapter.resource == "sequence") {
 			var formatters = new Array();
@@ -408,8 +415,17 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 			});
 	
 			this.onMove.addEventListener(function(evt, data) {
+//				//original
 				data.middle = Math.ceil(data.middle) + 1;
-				regionAdapter.setIntervalView(chromosome, Math.ceil(data.middle));
+				
+				
+				//TODO doing pako borrar
+//				console.log(regionAdapter);
+//				data.middle =  Math.floor(data.middle);
+//				console.log(data.middle);
+				/**/
+				
+				regionAdapter.setIntervalView(chromosome, data.middle);
 				if (regionAdapter instanceof RuleRegionDataAdapter){
 					_this.selectPaintOnRules(data.middle);
 				}
@@ -453,7 +469,11 @@ TrackCanvas.prototype.getRulerTrack = function() {
 };
 
 TrackCanvas.prototype.getMiddlePoint = function() {
+	//orig
 	return Math.ceil(this.middle) + 1;
+	
+	//TODO doing pako borrar
+//	return Math.floor(this.middle);
 };
 
 TrackCanvas.prototype.drawRules = function(chromosome, start, end) {
@@ -484,10 +504,12 @@ TrackCanvas.prototype._drawTitle = function(i) {
 TrackCanvas.prototype.draw = function(chromosome, start, end) {
 	this.start = start;
 	this.end = end;
+//	console.log(start+":"+end);
 	this.chromosome = chromosome;
 	this.startViewBox = (start * this.pixelRatio) % this.viewBoxModule;
 	this.endViewBox = (end * this.pixelRatio) % this.viewBoxModule;
-
+//	console.log(this.startViewBox+":"+this.endViewBox);
+	
 	for ( var i = 0; i < this.regionAdapterList.length; i++) {
 			var track = this.trackList[i];
 			var regionAdapter = this.regionAdapterList[i];
@@ -523,11 +545,13 @@ TrackCanvas.prototype._getTopTrack = function(track) {
 
 /** DRAGGING **/
 TrackCanvas.prototype._goToCoordinateX = function(position) {
+//	debugger
 	this.start = position;
 	var startZoom = (this.start * this.pixelRatio) % this.viewBoxModule;
 	var viewBox = startZoom + " " + "10 " + this.width + " " + this.height;
 	this._svg.setAttribute("viewBox", viewBox);
-
+	
+	
 	/** He cambiado esto por el slave **/
 	if (this.isBeenRenderized){
 		this.middle = this.start + (this.end - this.start)/2;
@@ -537,13 +561,20 @@ TrackCanvas.prototype._goToCoordinateX = function(position) {
 		this.middle = this.start + ((this.width / this.pixelRatio) / 2);
 	}
 
-	this.onMove.notify( {
+////	//TODO doing pako borrar
+//	this.middle = this.start + ((this.width / this.pixelRatio) / 2);
+//	
+//	
+//	console.log((this.width / this.pixelRatio)/2);
+//	
+	
+	//
+	this.onMove.notify({
 		"chromosome" : this.chromosome,
 		"start" : this.start,
 		"end" : this.end,
 		"middle" : this.middle
 	});
-
 };
 
 TrackCanvas.prototype._moveCoordinateX = function(move) {
@@ -592,8 +623,6 @@ TrackCanvas.prototype._afterDrag = function(evt) {
 	this.dragPoint = null;
 	this.moveY = this.realMove;
 	this.afterDrag.notify(this.middle);
-	
-	
 	
 };
 

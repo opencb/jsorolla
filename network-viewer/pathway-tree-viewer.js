@@ -1,6 +1,9 @@
-function PathwayTreeViewer(){
+function PathwayTreeViewer(species){
 	this.data = null;
 	this.species = "hsap";
+	if (species != null) {
+		this.species = species;
+	}
 	
 	this.title = "Loading data";
 	

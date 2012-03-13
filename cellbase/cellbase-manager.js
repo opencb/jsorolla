@@ -3,7 +3,9 @@ function CellBaseManager(species, args) {
 
 	// these 3 parameters can be modified 
 //	this.host = "http://ws.bioinfo.cipf.es/celldb/rest";
-	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+//	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+	this.host = "http://localhost:8080/cellbase/rest";
+	
 	this.version = "v1";
 	this.species = species;
 	
@@ -11,7 +13,6 @@ function CellBaseManager(species, args) {
 //		
 //	}
 //		this.host = 'http://localhost:8080/celldb/rest';
-
 	CELLBASEHOST=this.host;
 	
 	
@@ -152,7 +153,7 @@ function CellBaseManager(species, args) {
 
 
 	this._callServer = function(url, batchID, callbackFunction) {
-//		console.log(url+"?contentformat="+this.contentformat+"&outputcompress="+this.outputcompress+"&callbackParam=reponse");
+		console.log(url+"?of="+this.contentformat+"&outputcompress="+this.outputcompress+"&callbackParam=response");
 		var _this = this;
 		$.ajax( {
 			url : url,

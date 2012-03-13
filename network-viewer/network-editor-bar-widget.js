@@ -257,64 +257,70 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 		})
 	});
 
-
-
-
-	this.comboSize = this._createViewMenuButton({
-		data : [{name:"1"},{name:"2"},{name:"3"},{name:"4"},{name:"5"},{name:"6"},{name:"7"},{name:"8"},
-		        {name:"10"},{name:"12"},{name:"14"},{name:"16"},{name:"18"},{name:"22"},{name:"28"},{name:"36"},{name:"72"}],
-		        iconCls:'icon-node-size',
-		        tooltip:"Size"
+	
+	this.comboSizeId = "Size";
+	var buttons = this._createButtons({
+		group:this.comboSizeId,
+		data:[{text:"1"},{text:"2"},{text:"3"},{text:"4"},{text:"5"},{text:"6"},{text:"7"},{text:"8"},
+		      {text:"10"},{text:"12"},{text:"14"},{text:"16"},{text:"18"},{text:"22"},{text:"28"},{text:"36"},{text:"72"}]
 	});
-	this.comboSize.view.getSelectionModel().on("selectionchange",function(este,selNodes){
-		_this.changeSize(selNodes[0].data.name);
-		_this.comboSize.menu.hide();
+	this.comboSize = Ext.create('Ext.button.Button', {
+		iconCls : 'icon-node-size',
+		tooltip:this.comboSizeId,
+		menu : {items:buttons,plain:true}
 	});
-
-	this.comboStrokeWidth = this._createViewMenuButton({
-		data : [{name:"1"},{name:"2"},{name:"3"},{name:"4"},{name:"5"},{name:"6"},{name:"7"},{name:"8"},
-		        {name:"10"},{name:"12"},{name:"14"},{name:"16"},{name:"18"},{name:"22"},{name:"28"},{name:"36"},{name:"72"}],
-		        iconCls:'icon-stroke-size',
-		        tooltip:"Stroke size"
+	
+	
+	this.comboStrokeWidthId = "Stroke size";
+	var buttons = this._createButtons({
+		group:this.comboStrokeWidthId,
+		data:[{text:"1"},{text:"2"},{text:"3"},{text:"4"},{text:"5"},{text:"6"},{text:"7"},{text:"8"},
+		      {text:"10"},{text:"12"},{text:"14"},{text:"16"},{text:"18"},{text:"22"},{text:"28"},{text:"36"},{text:"72"}]
 	});
-	this.comboStrokeWidth.view.getSelectionModel().on("selectionchange",function(este,selNodes){
-		_this.changeStrokeWidth(selNodes[0].data.name);
-//		chromosomeMenu.hide();
+	this.comboStrokeWidth = Ext.create('Ext.button.Button', {
+		iconCls : 'icon-stroke-size',
+		tooltip:this.comboStrokeWidthId,
+		menu : {items:buttons,plain:true}
 	});
-
-
-	this.comboBoxOpacity = this._createViewMenuButton({
-		data : [{name:"none"},{name:"low"},{name:"medium"},{name:"high"},{name:"invisible"}],
-		iconCls:'icon-node-opacity',
-		tooltip:"Opacity"
+	
+	
+	this.comboBoxOpacityId = "Opacity";
+	var buttons = this._createButtons({
+		group:this.comboBoxOpacityId,
+		data:[{text:"none"},{text:"low"},{text:"medium"},{text:"high"},{text:"invisible"}]
 	});
-	this.comboBoxOpacity.view.getSelectionModel().on("selectionchange",function(este,selNodes){
-		_this.changeOpacity(selNodes[0].data.name);
-//		chromosomeMenu.hide();
-	});
-
-
-	this.comboBoxEdge = this._createViewMenuButton({
-		data : [{name:"directed"},{name:"odirected"},{name:"undirected"},{name:"inhibited"},{name:"dot"},{name:"odot"}],
-		iconCls:'icon-edge-type',
-		tooltip:"Edge type",
-	});
-	this.comboBoxEdge.view.getSelectionModel().on("selectionchange",function(este,selNodes){
-		_this.changeEdgeShape(selNodes[0].data.name);
-//		chromosomeMenu.hide();
+	this.comboBoxOpacity = Ext.create('Ext.button.Button', {
+		iconCls : 'icon-node-opacity',
+		tooltip:this.comboBoxOpacityId,
+		menu : {items:buttons,plain:true}
 	});
 
 
-	this.comboBoxNode = this._createViewMenuButton({
-		data : [{name:"circle"},{name:"square"},{name:"ellipse"},{name:"rectangle"},{name:"rounded"}],
-		iconCls:'icon-node-shape',
-		tooltip:"Node shape",
-	});
-	this.comboBoxNode.view.getSelectionModel().on("selectionchange",function(este,selNodes){
-		_this.changeShape(selNodes[0].data.name);
-//		chromosomeMenu.hide();
-	});
 
+	this.comboBoxEdgeId = "Edge type";
+	var buttons = this._createButtons({
+		group:this.comboBoxEdgeId,
+		data:[{text:"directed"},{text:"odirected"},{text:"undirected"},{text:"inhibited"},{text:"dot"},{text:"odot"}]
+	});
+	this.comboBoxEdge = Ext.create('Ext.button.Button', {
+		iconCls : 'icon-edge-type',
+		tooltip:this.comboBoxEdgeId,
+		menu : {items:buttons,plain:true}
+	});
+	
+
+	this.comboBoxNodeId = "Node shape";
+	var buttons = this._createButtons({
+		group:this.comboBoxNodeId,
+		data:[{text:"circle"},{text:"square"},{text:"ellipse"},{text:"rectangle"},{text:"rounded"}]
+	});
+	this.comboBoxNode = Ext.create('Ext.button.Button', {
+		iconCls : 'icon-node-shape',
+		tooltip:this.comboBoxNodeId,
+		menu : {items:buttons,plain:true}
+	});
+	
+	
 	var backgroundButton = Ext.create('Ext.button.Button',{
 		iconCls : 'icon-background-option',
 		tooltip:"Background settings...",
@@ -323,33 +329,31 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 		}
 	});
 
-	this.labelSizeButton = this._createViewMenuButton({
-		data : [{name:"None"},{name:"Small"},{name:"Medium"},{name:"Large"},{name:"x-Large"}],
+
+	this.labelSizeButtonId = "Label size";
+	var buttons = this._createButtons({
+		group:this.labelSizeButtonId,
+		data:[{text:"None"},{text:"Small"},{text:"Medium"},{text:"Large"},{text:"x-Large"}]
+	});
+	this.labelSizeButton = Ext.create('Ext.button.Button', {
 		iconCls : 'icon-label-size',
-		tooltip:"Label size..."
-	});
-	this.labelSizeButton.view.getSelectionModel().on("selectionchange",function(este,selNodes){
-		var hash = {"None":0,"Small":8,"Medium":10,"Large":12,"x-Large":16};
-		_this.networkViewer.networkWidget.setVerticesFontSize(hash[selNodes[0].data.name]);
-//		chromosomeMenu.hide();
+		tooltip:this.labelSizeButtonId,
+		menu : {items:buttons,plain:true}
 	});
 
-	this.layoutButton = this._createViewMenuButton({
-		//TODO
-		data : [/*{name:"Custom"},*/{name:"dot"},{name:"neato"},{name:"twopi"},{name:"circo"},{name:"fdp"},{name:"sfdp"},{name:"Random"},{name:"Circle"},{name:"Square"}],
+	
+	this.layoutButtonId = "Layout";
+	var buttons = this._createButtons({
+		group:this.layoutButtonId,
+		data:[/*{text:"Custom"},*/{text:"dot"},{text:"neato"},{text:"twopi"},{text:"circo"},{text:"fdp"},{text:"sfdp"},{text:"Random"},{text:"Circle"},{text:"Square"}]
+	});
+	this.layoutButton = Ext.create('Ext.button.Button', {
 		iconCls : 'icon-layout',
-		tooltip:"Layout"
+		tooltip:this.layoutButtonId,
+		menu : {items:buttons,plain:true}
 	});
-	this.layoutButton.view.getSelectionModel().on("selectionchange",function(este,selNodes){
-		if(selNodes[0].data.name=="Custom"){
-			_this.networkViewer.networkMetaDataViewer.setLayout(new LayoutDataset());
-			_this.networkViewer.graphEditorWidget.mainGraphCanvas.render();
-		}else{
-			_this.networkViewer.networkMetaDataViewer.getLayout().getLayout(selNodes[0].data.name);
-		}
-//		chromosomeMenu.hide();
-	});
-
+	
+	
 	this.collapseButton = Ext.create('Ext.button.Button',{
 		iconCls : 'icon-collapse',
 		tooltip:"Collapse",
@@ -358,33 +362,26 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 		}
 	});
 
-	this.selectButton = this._createViewMenuButton({
-		//TODO
-		data : [{name:"All Vertices"},{name:"All Edges"},{name:"Everything"},{name:"Adjacent"},{name:"Neighbourhood"},{name:"Connected"}],
+
+	
+	this.selectButtonId = "Select";
+	var buttons = this._createButtons({
+		group:this.selectButtonId,
+		data:[{text:"All Vertices"},{text:"All Edges"},{text:"Everything"},{text:"Adjacent"},{text:"Neighbourhood"},{text:"Connected"}]
+	});
+	this.selectButton = Ext.create('Ext.button.Button', {
 		iconCls : 'icon-auto-select',
-		tooltip:"Select"
-	});
-	this.selectButton.view.getSelectionModel().on("selectionchange",function(este,selNodes){
-		switch(selNodes[0].data.name){
-		case 'All Vertices': _this.networkViewer.networkWidget.selectAllNodes();break;
-		case 'All Edges': _this.networkViewer.networkWidget.selectAllEdges();break;
-		case 'Everything': _this.networkViewer.networkWidget.selectAll();break;
-		case 'Adjacent': _this.networkViewer.networkWidget.selectAdjacent();break;
-		case 'Neighbourhood': _this.networkViewer.networkWidget.selectNeighbourhood();break;
-		case 'Connected': _this.networkViewer.networkWidget.selectConnectedComponent();break;
-		}
-
-
-//		chromosomeMenu.hide();
+		tooltip:this.selectButtonId,
+		menu : {items:buttons,plain:true}
 	});
 
 
-	var nameLabel = Ext.create('Ext.toolbar.TextItem', {html:'Name:'});
-	var sizeLabel = Ext.create('Ext.toolbar.TextItem', {html:'Size:'});
-	var strokeWidthLabel = Ext.create('Ext.toolbar.TextItem', {html:'Stroke Width:'});
-	var opacityLabel = Ext.create('Ext.toolbar.TextItem', {html:'Opacity:'});
-	var edgeLabel = Ext.create('Ext.toolbar.TextItem', {html:'Edge:'});
-	var nodeLabel = Ext.create('Ext.toolbar.TextItem', {html:'Node:'});
+//	var nameLabel = Ext.create('Ext.toolbar.TextItem', {html:'Name:'});
+//	var sizeLabel = Ext.create('Ext.toolbar.TextItem', {html:'Size:'});
+//	var strokeWidthLabel = Ext.create('Ext.toolbar.TextItem', {html:'Stroke Width:'});
+//	var opacityLabel = Ext.create('Ext.toolbar.TextItem', {html:'Opacity:'});
+//	var edgeLabel = Ext.create('Ext.toolbar.TextItem', {html:'Edge:'});
+//	var nodeLabel = Ext.create('Ext.toolbar.TextItem', {html:'Node:'});
 
 	var editionBar = Ext.create('Ext.toolbar.Toolbar', {
 		cls : "bio-toolbar-bot",
@@ -432,40 +429,68 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 		         this.comboBoxEdge,
 		         this.textBoxName,
 		         "-",
-		         backgroundButton,
+		         backgroundButton
 		         ]
 	});
 	return editionBar;
 };
 
-NetworkEditorBarWidget.prototype._createViewMenuButton = function(config){
-	var storeView= Ext.create('Ext.data.Store', {
-		fields: ["name"],
-		data : config.data
-	});
-	var view = Ext.create('Ext.view.View', {
-		store : storeView,
-		selModel: {
-			mode: 'SINGLE',
-		},
-		cls: 'list',
-		trackOver: true,
-		overItemCls: 'list-item-hover',
-		itemSelector: '.chromosome-item', 
-		tpl: '<tpl for="."><div style="text-align:left" class="chromosome-item"><span style="margin-left:15px">{name}</span></div></tpl>'
-	});
-	var container = Ext.create('Ext.container.Container', {
-//		width:100,
-//		height:300,
-		autoScroll:true,
-		style:'background-color:#fff',
-		items : [view]
-	});
-	var button = Ext.create('Ext.button.Button', {
-		view:view,
-		iconCls:config.iconCls,
-		tooltip:config.tooltip,
-		menu : {items:[container]}
-	});
-	return button;
+NetworkEditorBarWidget.prototype._createButtons = function(config){
+	var _this=this;
+	var buttons = new Array();
+	for ( var i = 0; i < config.data.length; i++) {
+		var btn = {
+//			xtype:'button',
+//			xtype: 'menucheckitem',
+			text : config.data[i].text,
+			checked:false,
+//			cls:"bio-toolbar greyborder",
+//			overCls:"list-item-hover",
+			group:config.group, //only one pressed
+			handler: function(este){
+				_this._handleButtons({text:este.text,parent:config.group});
+			}
+		};
+		buttons.push(btn);
+	}
+	return buttons;
+};
+
+NetworkEditorBarWidget.prototype._handleButtons = function(config){
+	var _this=this;
+	switch(config.parent){
+		case this.selectButtonId:
+			switch(config.text){
+				case 'All Vertices': _this.networkViewer.networkWidget.selectAllNodes();break;
+				case 'All Edges': _this.networkViewer.networkWidget.selectAllEdges();break;
+				case 'Everything': _this.networkViewer.networkWidget.selectAll();break;
+				case 'Adjacent': _this.networkViewer.networkWidget.selectAdjacent();break;
+				case 'Neighbourhood': _this.networkViewer.networkWidget.selectNeighbourhood();break;
+				case 'Connected': _this.networkViewer.networkWidget.selectConnectedComponent();break;
+				default: console.log(config.text+" not yet defined");
+			}
+		break;
+				
+		case this.layoutButtonId:
+			if(config.text=="Custom"){
+				_this.networkViewer.networkMetaDataViewer.setLayout(new LayoutDataset());
+				_this.networkViewer.graphEditorWidget.mainGraphCanvas.render();
+			}else{
+				_this.networkViewer.networkMetaDataViewer.getLayout().getLayout(config.text);
+			}
+		break;
+		case this.labelSizeButtonId:
+			var hash = {"None":0,"Small":8,"Medium":10,"Large":12,"x-Large":16};
+			_this.networkViewer.networkWidget.setVerticesFontSize(hash[config.text]);
+//			chromosomeMenu.hide();
+		break;
+		
+		case this.comboBoxNodeId:		_this.changeShape(config.text);	break;
+		case this.comboBoxEdgeId:		_this.changeEdgeShape(config.text);	break;
+		case this.comboSizeId:			_this.changeSize(config.text);	break;
+		case this.comboStrokeWidthId:	_this.changeStrokeWidth(config.text);	break;
+		case this.comboBoxOpacityId:	_this.changeOpacity(config.text);	break;
+		
+		default: console.log(config.parent+" not yet defined");
+	}
 };

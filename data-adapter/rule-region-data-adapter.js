@@ -72,24 +72,24 @@ RuleRegionDataAdapter.prototype.fill = function(chromosome, start, end, resource
 	if ((chromosome == null)|| (start == null) || (end == null)){
 		throw "Missing value in a not optional parameter: chromosome, start or end";
 	}
+	
+	
+	if (!this.isRegionAvalaible(chromosome, start, end)){
+				var result = new Array();
+				var data = new Array();
+				result = this._getFeaturesFromRegion(start, end);
+				data.push(result);
+				
+				if (!_this.lockSuccessEventNotify){
+					_this.getFinished(data, chromosome, start, end);
+				}
+				else{
+					_this.anticipateRegionRetrieved(data, chromosome, start, end);
+				}
+	}
 	else{
-		if (!this.isRegionAvalaible(chromosome, start, end)){
-					var result = new Array();
-					var data = new Array();
-					result = this._getFeaturesFromRegion(start, end);
-					data.push(result);
-					
-					if (!_this.lockSuccessEventNotify){
-						_this.getFinished(data, chromosome, start, end);
-					}
-					else{
-						_this.anticipateRegionRetrieved(data, chromosome, start, end);
-					}
-		}
-		else{
-			this.lockSuccessEventNotify = false;
-			
-		}
+		this.lockSuccessEventNotify = false;
+		
 	}
 };
 

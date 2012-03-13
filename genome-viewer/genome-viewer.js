@@ -59,6 +59,7 @@ function GenomeViewer(targetId, species, args) {
 //	this.chromosomeGenomeWidget = null;
 	
 	this.genomeWidgetProperties = new GenomeWidgetProperties(this.species,{
+				width:this.width,
 				windowSize : 1000000,
 				pixelRatio : 0.0005,
 				id:this.id
@@ -111,6 +112,8 @@ GenomeViewer.prototype.draw = function(){
 GenomeViewer.prototype._render = function() {
 	var start = this.position - (this.genomeWidgetProperties.windowSize);
 	var end = this.position + (this.genomeWidgetProperties.windowSize);
+	
+//	console.log(start+":"+end);
 	
 	this._drawGenomeViewer();
 	
@@ -763,12 +766,14 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 		this.genomeWidget.clear();
 	}
 	
+	var pixelRatio = this.genomeWidgetProperties.getPixelRatio();
+	
 	this.genomeWidget = new GenomeWidget(this.id + "master", this._getTracksPanelID(), {
-	                pixelRatio: this.genomeWidgetProperties.getPixelRatio(),
+	                pixelRatio: pixelRatio,
 	                width:this.width-15,
 //	                height:  this.height
 	                height:  2000
-	        });
+	});
 
 	var zoom = this.genomeWidgetProperties.getZoom();
 
@@ -783,20 +788,33 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 			this.genomeWidget.addTrack(track, this.genomeWidgetProperties.getDataAdapterByZoom(zoom)[i]);
 		}
 		
+		/*orig*/
 		var start = Math.ceil(this.position - (this._getWindowsSize()));// - (this._getWindowsSize()/6);
 		var end = Math.ceil(this.position +   (this._getWindowsSize()));// - (this._getWindowsSize()/6);
 		
+//		/*TODO*/
+//		var halfBases = (this.width-15) / pixelRatio / 2;
+//		var start =  Math.ceil(this.position - halfBases);
+//		var end = Math.ceil(this.position + halfBases);
+//		/**/
+		
+//		console.log(this.position);
+//		console.log(start+"-"+end);
+		
 		if (start < 0){ start = 0;}
 		this.genomeWidget.onMarkerChange.addEventListener(function (evt, middlePosition){
+//			console.log(middlePosition);
 			var window = _this.genomeWidgetProperties.windowSize/2;
+//			console.log(window);
 			var start = middlePosition.middle - window;
 			if (start < 0 ){start = 0;}
 			_this.updateRegionMarked(_this.chromosome, middlePosition.middle);
 		});
 		 
 		this.genomeWidget.onRender.addEventListener(function (evt){
-//			 console.log("test");
 			_this._getPanel().setLoading(false);
+			
+			//TODO pako doing descomentar para el funcionamiento anterior
 			_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
 
 		 });

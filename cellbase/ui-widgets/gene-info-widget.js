@@ -43,7 +43,7 @@ GeneInfoWidget.prototype.optionClick = function (item){
 		}
 		switch (item.text){
 			case "Information": this.panel.add(this.getInfoPanel(this.data).show()); break;
-			case "Transcripts": this.panel.add(this.getTranscriptGrid(this.data.transcripts).show());  break;
+			case "Transcripts": this.panel.add(this.getTranscriptPanel(this.data.transcripts).show());  break;
 //			case "GO": this.panel.add(this.getGoGrid().show()); break;
 			case "GO": this.panel.add(this.getXrefGrid(this.data.go, "GO").show());  break;
 			case "Interpro": this.panel.add(this.getXrefGrid(this.data.interpro, "Interpro").show());  break;
@@ -74,7 +74,7 @@ GeneInfoWidget.prototype.getInfoPanel = function(data){
     return this.infoPanel;
 };
 
-GeneInfoWidget.prototype.getTranscriptGrid = function(data){
+GeneInfoWidget.prototype.getTranscriptPanel = function(data){
     if(this.transcriptGrid==null){
     	
     	var tpl = this.getTranscriptTemplate();
@@ -181,7 +181,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
     	var pdbs = [];
     	$.ajax({
 //    		  url: 'http://ws.bioinfo.cipf.es/celldb/rest/v1/hsa/feature/id/brca2/xref?dbname=pdb',
-    		  url: 'http://ws.bioinfo.cipf.es/celldb/rest/v1/hsa/feature/id/'+this.feature.feature.stableId+'/xref?dbname=pdb',
+    		  url: 'http://ws.bioinfo.cipf.es/cellbase/rest/v1/hsa/feature/id/'+this.feature.feature.stableId+'/xref?dbname=pdb',
 //    		  data: data,
 //    		  dataType: dataType,
     		  async:false,
@@ -289,11 +289,13 @@ GeneInfoWidget.prototype.getData = function (){
 //	category, subcategory, query, resource, callbackFunction
 	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
 	cellBaseDataAdapter.successed.addEventListener(function (evt){
+		
 		_this.dataReceived(JSON.parse(cellBaseDataAdapter.toJSON()));//TODO
 	});
 	cellBaseDataAdapter.fill("feature","gene", this.feature.feature.stableId, "fullinfo");
 };
 GeneInfoWidget.prototype.dataReceived = function (data){
+	console.log(data);
 	this.data=data[0];
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();

@@ -28,7 +28,9 @@ function GenomeWidgetProperties(species,args) {
 		if (args._pixelRatio != null){
 			this._pixelRatio = args._pixelRatio;
 		}
-		
+		if (args.width != null){
+			this.width = args.width;
+		}
 		if (args.showTrancsripts != null){
 			this.showTrancsripts = args.showTranscripts;
 		}
@@ -78,7 +80,7 @@ GenomeWidgetProperties.prototype.init = function(){
 //	this._windowSizeLevels[30] = 750000;
 	this._windowSizeLevels[20] = 750000;
 	this._windowSizeLevels[30] = 750000;
-	this._windowSizeLevels[40] = 750000/4;
+	this._windowSizeLevels[40] = 750000/4;// 750000/4; //apaño
 	this._windowSizeLevels[50] = 750000/8;
 	this._windowSizeLevels[60] = 750000/16;
 	this._windowSizeLevels[70] = 750000/32;
@@ -86,9 +88,16 @@ GenomeWidgetProperties.prototype.init = function(){
 	this._windowSizeLevels[90] = 750000/128;
 	this._windowSizeLevels[100] = 100;
 	
-	this._zoom =  40;
+	this._zoom =  100;
 	this._pixelRatio = this._zoomLevels[this._zoom];
 	this.windowSize = this._windowSizeLevels[this._zoom];
+	
+	/**/
+//	console.log('width: '+ this.width);
+//	console.log('pixelRatio: '+ this._pixelRatio);
+//	console.log('windowSize: '+ this.windowSize);
+	/**/
+	
 
 	
 	for ( var i = 0; i <= 100; i = i + 10) {
@@ -219,6 +228,8 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 	this.addMirnaTargetTracks();
 	
 	this.addConservedRegionsTracks();
+	this.addCpgIslandsTracks();
+	this.addMutationTracks();
 	
 	/** Set visibility **/
 	this.tracks["SNP"] = false;
@@ -230,8 +241,11 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 	this.tracks["Polymerase"] = false;
 	this.tracks["TFBS"] = false;
 	this.tracks["miRNA targets"] = false;
+	
 	//TODO doing
 	this.tracks["Conserved regions"] = false;
+	this.tracks["CpG islands"] = false;
+	this.tracks["Mutation"] = false;
 };
 
 
@@ -804,26 +818,78 @@ GenomeWidgetProperties.prototype.addConservedRegionsTracks = function(){
 		avoidOverlapping : true,
 		title : 'Conserved regions'
 	});
-	this.addTrackByZoom(0, 50, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
+	this.addTrackByZoom(0, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_conservedregion", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				allowDuplicates : true,
-				label : true,
-				titleWidth : 92,
-				pixelSpaceBetweenBlocks : 0,
-				avoidOverlapping : true,
-				title : 'Conserved regions'
-			});
-	this.addTrackByZoom(60, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
+//	var cytobandTrack3 = new FeatureTrack(this.id + "_conservedregion", this.tracksPanel, this.species,{
+//		top : 10,
+//		height : 20,
+//		labelHeight : this.labelHeight,
+//		featureHeight : this.featureHeight,
+//		labelSize : this.labelSize,
+//		allowDuplicates : true,
+//		label : false,
+//		titleWidth : 92,
+//		pixelSpaceBetweenBlocks : 0,
+//		avoidOverlapping : true,
+//		title : 'Conserved regions'
+//	});
+//	this.addTrackByZoom(60, 100, cytobandTrack3,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
 	
 };
 
+/** CPG REGIONS **/  //TODO
+GenomeWidgetProperties.prototype.addCpgIslandsTracks = function(){
+	var cpgIslands = new FeatureTrack(this.id + "_CpgIslands", this.tracksPanel, this.species,{
+		top : 10,
+		height : 20,
+		labelHeight : this.labelHeight,
+		featureHeight : this.featureHeight,
+		labelSize : this.labelSize,
+		allowDuplicates : true,
+		label : false,
+		titleWidth : 92,
+		pixelSpaceBetweenBlocks : 0,
+		avoidOverlapping : true,
+		title : 'CpG islands'
+	});
+	this.addTrackByZoom(0, 50, cpgIslands,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
+	
+	
+};
 
+/** Mutation REGIONS **/  //TODO
+GenomeWidgetProperties.prototype.addMutationTracks = function(){
+//	var mutation = new SNPFeatureTrack(this.id + "_Mutation", this.tracksPanel, this.species,{
+//		top : 10,
+//		height : 20,
+//		labelHeight : this.labelHeight,
+//		featureHeight : this.featureHeight,
+//		labelSize : this.labelSize,
+//		allowDuplicates : true,
+//		label : false,
+//		titleWidth : 92,
+//		pixelSpaceBetweenBlocks : 0,
+//		avoidOverlapping : true,
+//		title : 'Mutation'
+//	});
+//	this.addTrackByZoom(0, 100, mutation,new RegionCellBaseDataAdapter(this.species,{resource : "mutation"}));
+	var snpTrack = new SNPFeatureTrack(this.id + "mutation",this.tracksPanel, this.species,{
+		top : 5,
+		left : 0,
+		label : true,
+		title : "Mutation",
+		height : 20,
+		labelHeight : this.labelHeight,
+		featureHeight : 10,
+		labelSize : this.labelSize,
+		pixelSpaceBetweenBlocks : 150,
+		avoidOverlapping : true,
+		backgroundColor : '#555555'
+	});
+	this.addTrackByZoom(0, 100, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "mutation"}));
+	
+	
+};
 
 
 /** MULTIFEATURE TRACKS **/

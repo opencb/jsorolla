@@ -135,8 +135,8 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 	if(this._panel == null){
 		
 		
-		//TODO PARA TEST, esto debe ser llamado por cellbrowser
-		this.menuBar = this.getMenu();
+//		//TODO PARA TEST, esto debe ser llamado por cellbrowser
+//		this.menuBar = this.getMenu();
 		
 		this.networkEditorBarWidget = new NetworkEditorBarWidget(this);
 		var editorBar = this.networkEditorBarWidget.getBar();
@@ -149,7 +149,7 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 //			id: this.getGraphCanvasId(),
 			cls:'x-unselectable',
 //			html:'<div class="x-unselectable" style="width:'+this.width+'px;height:800px;" id="'+this.getGraphCanvasId()+'"></div>'
-			html:'<div id="'+this.getGraphCanvasId()+'" style="border:1px solid #bbb;"></div>',
+			html:'<div id="'+this.getGraphCanvasId()+'" style="border:1px solid #bbb;"></div>'
 //			listeners:{
 //				resize: function ( cont, adjWidth, adjHeight){
 ////					console.log(adjWidth);
@@ -296,7 +296,7 @@ NetworkViewer.prototype.drawNetwork = function(dataset, formatter, layout){
 	
 	document.getElementById(this.getGraphCanvasId()).innerHTML ="";
 	
-//	var newHeight = this.height - 27;//this.tbMenu.getHeight();
+//	var newHeight = this.height - 27;//this.menuToolbar.getHeight();
 	
 	this.networkWidget = new NetworkWidget({targetId: this.getGraphCanvasId()});
 	this.networkWidget.draw(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
@@ -383,6 +383,7 @@ NetworkViewer.prototype.drawConvertPNGDialog = function(content, type){
 //};
 
 NetworkViewer.prototype.loadMetaData = function(){
+	console.log(this.openViewer);
 	var _this = this;
     if(!this.networkMetaDataViewer.getMetaNetwork().isInformationRetrieved()){
     	this.networkMetaDataViewer.getMetaNetwork().loadData();
@@ -870,174 +871,7 @@ NetworkViewer.prototype.drawMenuBar = function(){
 
 };
 
-NetworkViewer.prototype.getMenu = function(){
-	var _this = this;
-	
-	if (this.tbMenu == null){
-		
-		var ExportToMeu = Ext.create('Ext.menu.Menu', {
-			
-			items :[
-							{
-								text:"PNG",
-								iconCls:'icon-blue-box',
-								handler:function(){
-									var content = _this.networkWidget.getGraphCanvas().toHTML();
-									_this.drawConvertPNGDialog(content,"png");
-								}
-							},{
-								text:"JPG", 
-								iconCls:'icon-blue-box',
-								handler:function(){
-									var content = _this.networkWidget.getGraphCanvas().toHTML();
-									_this.drawConvertPNGDialog(content,"jpg");
-								}
-							},
-							{
-								text:"SVG (recommended)",
-								iconCls:'icon-blue-box',
-								handler:function(){
-										var content = _this.networkWidget.getGraphCanvas().toHTML();
-										var clienSideDownloaderWindowWidget = new ClienSideDownloaderWindowWidget();
-										clienSideDownloaderWindowWidget.draw(content, content);
-								}
-							}
-					]
 
-		});
-		
-//		var importLocalNetwork = new Ext.create('Ext.menu.Menu', {
-//			floating: true,
-//			items: [
-//				{
-//					text: 'SIF',
-//					handler : function() {
-//						openSIFDialog.show();
-//					}
-//				}
-//			]
-//		});
-		var importLocalNetwork = new Ext.create('Ext.menu.Menu', {
-			floating: true,
-			items: [
-				{
-					text: 'SIF',
-					handler : function() {
-						var sifNetworkFileWidget =  new SIFNetworkFileWidget();
-						sifNetworkFileWidget.draw();	
-						sifNetworkFileWidget.onOk.addEventListener(function(sender,data){
-							_this.loadSif(data);
-						});
-					}
-				}
-			]
-		});
-		
-		
-			var fileMenu = new Ext.create('Ext.menu.Menu', {
-				floating: true,
-//				width: menuItemWidth,
-				items: [
-	//			{
-	//				text: 'New'
-	//			},
-				{
-					text: 'Open...',
-					handler: function() {
-						var networkFileWidget =  new NetworkFileWidget();
-						networkFileWidget.draw();	
-						networkFileWidget.onOk.addEventListener(function(sender,data){
-							_this.loadJSON(data);
-						});
-					}
-				},
-				{
-					text: 'Save as',
-					handler: function(){
-						var content = JSON.stringify(_this.networkWidget.getGraphCanvas().toJSON());
-						var clienSideDownloaderWindowWidget = new ClienSideDownloaderWindowWidget();
-						clienSideDownloaderWindowWidget.draw(content, content);
-					}
-				}
-				,'-',
-				{
-					text: 'Import',
-					menu: importLocalNetwork
-				},
-				{
-	//				text: 'Export',
-					text : 'Download as',
-					iconCls:'icon-box',
-					menu: ExportToMeu//exportFileMenu
-					
-				}]
-			});
-		
-			
-			
-		
-			this.tbMenu = Ext.create('Ext.toolbar.Toolbar',{
-				cls:'bio-menubar',
-				height:27,
-				padding:'0 0 0 10'
-			});
-			this.tbMenu.add({
-				text:'File',
-				menu: fileMenu  // assign menu by instance
-			}
-//			,{
-//				text:'Edit',
-//				menu: this.getEditMenu()
-//			}
-			,
-//			{
-//				text:'View',
-//				menu: _this.getViewMenu()
-//			},
-			{
-				text:'Search',
-				menu: _this.getSearchMenu()
-			},
-			{
-				text:'Attributes',
-				handler: function(){
-					var networkAttributesWidget = new NetworkAttributesWidget({title:'Attributes',wum:true,width:_this.width,height:_this.height});
-					networkAttributesWidget.draw(_this.networkWidget.getDataset(), _this.networkWidget.getFormatter(),_this.networkWidget.getLayout());
-					
-					networkAttributesWidget.verticesSelected.addEventListener(function(sender, vertices){
-						_this.networkWidget.deselectNodes();
-						_this.networkWidget.selectVerticesByName(vertices);
-					});
-					
-					
-					_this.networkWidget.onVertexOver.addEventListener(function(sender, nodeId){
-						var name = _this.networkWidget.getDataset().getVertexById(nodeId).getName();
-						_this.setNodeInfoLabel(networkAttributesWidget.getVertexAttributesByName(name).toString());
-					});
-					
-				}
-			},
-//			{
-//				text:'Layout',
-//				menu: this.getLayoutViewMenu()
-//			},
-			
-			{
-				text:'Plugins',
-				menu:this.getAnalysisMenu()
-
-			}
-		//	{
-		//		text:'Layout',
-		//		menu: layoutViewMenu
-		//	},{
-		//		text:'Analysis',
-		//		menu: extensionsMenu
-		//	}
-			);
-	}
-	 return _this.tbMenu;
-};
 
 
 /** Este código es necesario por un bug que hay en extjs: Cuando se utiliza el scopeResetCSS: true, necesario para que convivan las css de ExtJs con otras css(babelomics.css), 
@@ -1250,38 +1084,7 @@ NetworkViewer.prototype.getGraphCanvas = function() {
 	return this.mainGraphCanvas;
 };
 
-NetworkViewer.prototype.getSearchMenu = function() {
-	var _this = this;
-	var viewMenu = Ext.create('Ext.menu.Menu', {
-		margin : '0 0 10 0',
-		floating : true,
-		items : [{
-					text : 'Xref',
-					handler : function() {
-						var inputListWidget = new InputListWidget({viewer:this});
-						//var geneNames = "BRCA2";
-						inputListWidget.onOk.addEventListener(function(evt, xref) {
-							_this.openGeneListWidget(xref);
-						});
-						inputListWidget.draw();
-					}
-				}, 
-				{
-					text : 'ID'
-//					menu : this.getLabelMenu()
-				}, 
-				{
-					text : 'Functional term',
-					handler: function(){
-		        		_this.openViewer = "searcherViewer";
-		        		_this.loadMetaData();
-					}
-				}
-	
-		]
-	});
-	return viewMenu;
-};
+
 NetworkViewer.prototype.openGeneListWidget = function(geneName) {
 	var _this = this;
 	var cellBase = new CellBaseDataAdapter(this.species);
@@ -1303,32 +1106,7 @@ NetworkViewer.prototype.openGeneListWidget = function(geneName) {
 };
 
 
-NetworkViewer.prototype.getAnalysisMenu = function() {
-	var _this=this;
-	var analysisMenu = Ext.create('Ext.menu.Menu', {
-		margin : '0 0 10 0',
-		floating : true,
-		items : [{
-					text : 'Expression',
-					handler: function(){
-						_this.expressionSelected();
-					}
-				}, 
-				{
-					text : 'Interactome browser',
-					handler: function(){
-					}
-				},
-				{
-					text : 'Reactome browser',
-					handler: function(){
-						_this.reactomeSelected();
-					}
-				}
-		]
-	});
-	return analysisMenu;
-};
+
 
 
 /*******************/
@@ -1426,6 +1204,6 @@ NetworkViewer.prototype.expressionSelected = function() {
 };
 
 NetworkViewer.prototype.reactomeSelected = function() {
-	pathwayTreeViewer = new PathwayTreeViewer();
+	pathwayTreeViewer = new PathwayTreeViewer(this.species);
 	pathwayTreeViewer.draw();
 };

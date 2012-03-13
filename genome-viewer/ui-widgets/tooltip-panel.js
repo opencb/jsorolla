@@ -38,11 +38,21 @@ TooltipPanel.prototype.destroy = function(){
 TooltipPanel.prototype._getItemInfo = function(item){
 //	console.log(item);
 	var str = "";
+	
+	if(item instanceof GenericFeatureFormatter){
+		str = 
+		'start: <span class="emph">'+item.start+'</span><br>'+
+		'end:  <span class="emph">'+item.end+'</span><br>'+
+		'length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
+	}
+	
 	if(item instanceof GeneFeatureFormatter || 
 	   item instanceof TranscriptFeatureFormatter || 
 	   item instanceof ExonFeatureFormatter || 
 	   item instanceof SNPFeatureFormatter|| 
-	   item instanceof TfbsFeatureFormatter ){
+	   item instanceof TfbsFeatureFormatter ||
+	   item instanceof MutationFeatureFormatter
+	){
 		str = '<span class="ssel">'+item.getName()+'</span><br>'+
 		'start: <span class="emph">'+item.start+'</span><br>'+
 		'end:  <span class="emph">'+item.end+'</span><br>'+
