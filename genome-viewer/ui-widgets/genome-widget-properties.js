@@ -228,7 +228,7 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 	this.addMirnaTargetTracks();
 	
 	this.addConservedRegionsTracks();
-	this.addCpgIslandsTracks();
+	this.addCpgIslandTracks();
 	this.addMutationTracks();
 	this.addStructuralVariationTracks();
 	
@@ -816,7 +816,7 @@ GenomeWidgetProperties.prototype.addConservedRegionsTracks = function(){
 		allowDuplicates : true,
 		label : false,
 		titleWidth : 92,
-		pixelSpaceBetweenBlocks : 0,
+		pixelSpaceBetweenBlocks : 10,
 		avoidOverlapping : true,
 		title : 'Conserved regions'
 	});
@@ -840,21 +840,21 @@ GenomeWidgetProperties.prototype.addConservedRegionsTracks = function(){
 };
 
 /** CPG REGIONS **/  //TODO
-GenomeWidgetProperties.prototype.addCpgIslandsTracks = function(){
-	var cpgIslands = new FeatureTrack(this.id + "_CpgIslands", this.tracksPanel, this.species,{
+GenomeWidgetProperties.prototype.addCpgIslandTracks = function(){
+	var cpgIsland = new FeatureTrack(this.id + "_CpgIsland", this.tracksPanel, this.species,{
 		top : 10,
 		height : 20,
 		labelHeight : this.labelHeight,
 		featureHeight : this.featureHeight,
 		labelSize : this.labelSize,
 		allowDuplicates : true,
-		label : false,
+		label : true,
 		titleWidth : 92,
-		pixelSpaceBetweenBlocks : 0,
+		pixelSpaceBetweenBlocks : 100,
 		avoidOverlapping : true,
 		title : 'CpG islands'
 	});
-	this.addTrackByZoom(0, 50, cpgIslands,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
+	this.addTrackByZoom(0, 100, cpgIsland,new RegionCellBaseDataAdapter(this.species,{resource : "cpgisland"}));
 	
 	
 };
@@ -900,9 +900,9 @@ GenomeWidgetProperties.prototype.addStructuralVariationTracks = function(){
 		featureHeight : this.featureHeight,
 		labelSize : this.labelSize,
 		allowDuplicates : true,
-		label : false,
+		label : true,
 		titleWidth : 92,
-		pixelSpaceBetweenBlocks : 0,
+		pixelSpaceBetweenBlocks : 100,
 		avoidOverlapping : true,
 		title : 'Structural variation'
 	});

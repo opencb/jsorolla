@@ -341,6 +341,14 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 			}
 		}
 		
+		if (regionAdapter.resource == "cpgisland") {
+			var formatters = new Array();
+			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
+				formatters.push(new CpgIslandFeatureFormatter(
+						regionAdapter.dataset.json[0][i]));
+			}
+		}
+		
 		if (regionAdapter.resource == "mutation") {
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
@@ -352,7 +360,7 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 		if (regionAdapter.resource == "structuralvariation") {
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
-				formatters.push(new MutationFeatureFormatter(
+				formatters.push(new StructuralVariationFeatureFormatter(
 						regionAdapter.dataset.json[0][i]));
 			}
 		}
