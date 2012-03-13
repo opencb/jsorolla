@@ -51,7 +51,9 @@ TooltipPanel.prototype._getItemInfo = function(item){
 	   item instanceof ExonFeatureFormatter || 
 	   item instanceof SNPFeatureFormatter|| 
 	   item instanceof TfbsFeatureFormatter ||
-	   item instanceof MutationFeatureFormatter
+	   item instanceof MutationFeatureFormatter ||
+	   item instanceof CpgIslandFeatureFormatter ||
+	   item instanceof StructuralVariationFeatureFormatter
 	){
 		str = '<span class="ssel">'+item.getName()+'</span><br>'+
 		'start: <span class="emph">'+item.start+'</span><br>'+
