@@ -21,7 +21,7 @@ function GenomicAttributesWidget(species, args){
         }
     }
     
-	this.listWidget = new ListWidget(args.listWidgetArgs);
+	this.listWidget = new ListWidget(this.species,args.listWidgetArgs);
 	
     this.karyotypeWidget = new KaryotypePanel(this.getKaryotypePanelId(), this.species, {"top":10, "width":1000, "height": 300, "trackWidth":15});
 	this.attributesPanel = new AttributesPanel({height: 240, columnsCount: this.columnsCount,wum:args.wum,tags:args.tags});

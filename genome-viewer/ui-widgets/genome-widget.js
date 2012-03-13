@@ -53,6 +53,8 @@ function GenomeWidget(trackerID, targetId,  args) {
 	this.onRender = new Event(this);
 	this.onMove = new Event(this);
 	
+//	console.log("widget width: "+this.width);
+	
 };
 
 GenomeWidget.prototype.clear = function() {
@@ -86,6 +88,15 @@ GenomeWidget.prototype.addTrack = function(track, dataAdapter){
 };
 
 GenomeWidget.prototype.draw = function(chromosome, start, end){
+//	start=32889528;
+//	end=32889695;
+//	var mid = start + (end-start)/2;
+//	var nw= this.width / this.pixelRatio / 2;
+//	start =  Math.ceil(mid - nw);
+//	end = Math.ceil(mid + nw);
+	
+	console.log(start+":"+end);
+	
 	this.chromosome = chromosome;
 	this.start = start;
 	this.end = end;

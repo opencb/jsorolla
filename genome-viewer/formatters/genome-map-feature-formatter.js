@@ -752,3 +752,117 @@ MiRNAFeatureFormatter.prototype.getLabel = function(feature) {
 };
 
 
+/** Mutation **/
+MutationFeatureFormatter.prototype.setProperties = FeatureFormatter.prototype.setProperties;
+MutationFeatureFormatter.prototype.getDefault = FeatureFormatter.prototype.getDefault;
+MutationFeatureFormatter.prototype.getSelected = FeatureFormatter.prototype.getSelected;
+MutationFeatureFormatter.prototype.getOver = FeatureFormatter.prototype.getOver;
+MutationFeatureFormatter.prototype.getDragging = FeatureFormatter.prototype.getDragging;
+MutationFeatureFormatter.prototype.getId = FeatureFormatter.prototype.getId;
+MutationFeatureFormatter.prototype.toJSON = FeatureFormatter.prototype.toJSON;
+MutationFeatureFormatter.prototype.loadFromJSON = FeatureFormatter.prototype.loadFromJSON;
+MutationFeatureFormatter.prototype._setEvents = FeatureFormatter.prototype._setEvents;
+
+function MutationFeatureFormatter(feature){
+		this.feature = feature;
+        this.start = feature.start;
+        this.end =  feature.end;
+        this.label = this.getLabel(feature);//exon.stableId;
+        this.base = feature.alt;
+        
+        this.args = new Object();
+        this.args.title = new Object();
+        this.args.hidden = false;
+        this.args.stroke = "#f55959";
+        this.args.strokeOpacity = 1;
+        this.args.strokeWidth = 1;
+        this.args.fill = "ffd700";
+        this.args.size = 1;
+        this.args.opacity = 1;
+
+        FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
+};
+MutationFeatureFormatter.prototype.getName = function(){
+	return this.feature.mutationPhenotypeId;
+};
+
+MutationFeatureFormatter.prototype.getLabel = function(feature) {
+	if (feature.externalName != null){
+		return feature.externalName;
+	}
+	
+	if (feature.stableId != null){
+		return feature.stableId;
+	}
+	
+	if (feature.name != null){
+		return feature.name;
+	}
+	
+	if (feature.label != null){
+		return feature.label;
+	}
+	if (feature.mutationCds != null){
+		return feature.mutationCds;
+	}
+	return feature.chromosome + ":" + feature.start + "-" + feature.end;
+	
+};
+
+/** StructuralVariation **/
+StructuralVariationFeatureFormatter.prototype.setProperties = FeatureFormatter.prototype.setProperties;
+StructuralVariationFeatureFormatter.prototype.getDefault = FeatureFormatter.prototype.getDefault;
+StructuralVariationFeatureFormatter.prototype.getSelected = FeatureFormatter.prototype.getSelected;
+StructuralVariationFeatureFormatter.prototype.getOver = FeatureFormatter.prototype.getOver;
+StructuralVariationFeatureFormatter.prototype.getDragging = FeatureFormatter.prototype.getDragging;
+StructuralVariationFeatureFormatter.prototype.getId = FeatureFormatter.prototype.getId;
+StructuralVariationFeatureFormatter.prototype.toJSON = FeatureFormatter.prototype.toJSON;
+StructuralVariationFeatureFormatter.prototype.loadFromJSON = FeatureFormatter.prototype.loadFromJSON;
+StructuralVariationFeatureFormatter.prototype._setEvents = FeatureFormatter.prototype._setEvents;
+
+function StructuralVariationFeatureFormatter(feature){
+		this.feature = feature;
+        this.start = feature.start;
+        this.end =  feature.end;
+        this.label = this.getLabel(feature);//exon.stableId;
+        this.base = feature.alt;
+        
+        this.args = new Object();
+        this.args.title = new Object();
+        this.args.hidden = false;
+        this.args.stroke = "#f55959";
+        this.args.strokeOpacity = 1;
+        this.args.strokeWidth = 1;
+        this.args.fill = "ffd700";
+        this.args.size = 1;
+        this.args.opacity = 1;
+
+        FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
+};
+StructuralVariationFeatureFormatter.prototype.getName = function(){
+	return this.feature.StructuralVariationPhenotypeId;
+};
+
+StructuralVariationFeatureFormatter.prototype.getLabel = function(feature) {
+	if (feature.externalName != null){
+		return feature.externalName;
+	}
+	
+	if (feature.stableId != null){
+		return feature.stableId;
+	}
+	
+	if (feature.name != null){
+		return feature.name;
+	}
+	
+	if (feature.label != null){
+		return feature.label;
+	}
+	if (feature.StructuralVariationCds != null){
+		return feature.StructuralVariationCds;
+	}
+	return feature.chromosome + ":" + feature.start + "-" + feature.end;
+	
+};
+

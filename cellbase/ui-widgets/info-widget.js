@@ -85,7 +85,7 @@ InfoWidget.prototype.render = function (){
 		this.panel = Ext.create('Ext.ux.Window', {
 		    title: this.title +" "+ this.feature.getName(),
 		    id : this.title +" "+ this.feature.getName(),
-		    resizable: false,
+//		    resizable: false,
 		    minimizable :true,
 			constrain:true,
 		    closable:true,
@@ -261,6 +261,17 @@ InfoWidget.prototype.getExonTemplate = function (){
 		);
 };
 
+InfoWidget.prototype.getProteinTemplate = function (){
+	return new Ext.XTemplate(
+			 '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {primaryAccession} </span></span></p>',
+			 '<br>',
+			 '<p><span class="w100 dis s90">Full name: </span> <span class="">{fullName}</span></p>',
+			 '<p><span class="w100 dis s90">Gene name: </span> <span class="">{geneName}</span></p>',
+			 '<p><span class="w100 dis s90">Organism: </span> <span class="">{organism}</span></p>'
+		);
+};
+
+
 InfoWidget.prototype.getVCFVariantTemplate = function (){
 	return new Ext.XTemplate(
 			'<p><span><span class="panel-border-bottom"><span class="ssel s130">{chromosome}:{start}-{alt}</span> &nbsp; <span class="emph s120"> {label} </span></span></span></p><br>',
@@ -270,5 +281,22 @@ InfoWidget.prototype.getVCFVariantTemplate = function (){
 			'<p><span class="w75 dis s90">Format: </span> {format}</p>',
 			'<p><span class="w75 dis s90">Samples: </span> {samples}</p>',
 			'<p><span class="w75 dis s90">Info: </span> {info}</p>'
+		);
+};
+
+InfoWidget.prototype.getPWMTemplate = function (){
+	return new Ext.XTemplate(
+			 '<p><span class="panel-border-bottom"><span class="ssel s130">{accession}</span> &nbsp; <span class="emph s120"> {tfName} </span></span></p>',
+			 '<br>',
+			 '<p><span class="w100 dis s90">Type: </span> <span class="">{source}</span></p>',
+			 '<p><span class="w100 dis s90">Source: </span> <span class="">{type}</span></p>',
+			 '<p><span class="w100 dis s90">Description: </span> <span class="">{description}</span></p>',
+			 '<p><span class="w100 dis s90">Length: </span> <span class="">{length}</span></p>',
+			 '<p><span class="w100 dis s90">Frequencies: </span> <span class="">{[this.parseFrequencies(values.frequencies)]}</span></p>',
+			 {
+				 parseFrequencies: function(values){
+					 return '<p>'+values.replace(/,/gi, '<br>')+"</p>";
+				 }
+			 }
 		);
 };
