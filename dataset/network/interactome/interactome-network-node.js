@@ -90,7 +90,7 @@ InteractomeVertex.prototype.fillGOs = function(arrayData){
 	if(gos!= ""){
 		managerGOs.get("annotation","go",gos, "info");
 		managerGOs.successed.addEventListener(function (evt, data){
-			console.log("entron gos")
+			console.log("entron gos");
 			_this._fillGOsArray(data);
 			_this.onGOsRetrieved.notify();
 		});

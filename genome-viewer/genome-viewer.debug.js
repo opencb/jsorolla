@@ -471,7 +471,7 @@ DotFileDataAdapter.prototype.parseLines = function(lineBreak) {
 			edge["target"] = fields[2];
 
 			if (field == ""){
-				continue
+				continue;
 				}
 			
 			if ((field.indexOf("[")!= -1)&&(field.indexOf("];")==-1)){
@@ -968,7 +968,7 @@ GFFLocalRegionDataAdapter.prototype.loadFromFileDataAdapter = function(fileDataA
 	for ( var i = 0; i < fileDataAdapter.lines.length; i++) {
 		var chromosome = fileDataAdapter.lines[i][0].replace("chr", "");
 		
-		if (fileDataAdapter.lines[i][3] == 57649472 ){debugger}
+		if (fileDataAdapter.lines[i][3] == 57649472 ){debugger;}
 		//NAME  SOURCE  TYPE  START  END  SCORE  STRAND  FRAME  GROUP
 		var feature = {
 						"chromosome": chromosome, 
@@ -1741,7 +1741,7 @@ ExpressionMatrixDataSet.prototype.getStatisticMatrix = function(){
 
 
 ExpressionMatrixDataSet.prototype.getRowNames = function(){
-	return this.json.dataMatrix.rowNames
+	return this.json.dataMatrix.rowNames;
 };
 
 ExpressionMatrixDataSet.prototype.getColumnNames = function(){
@@ -1761,7 +1761,7 @@ ExpressionMatrixDataSet.prototype.getClassesName = function(){
 			var classes = this.getClasses();
 			var aux = new Array();
 			aux.push(classes[0]);
-			this._classMinInterval[0] = 0
+			this._classMinInterval[0] = 0;
 			
 			for ( var i = 1; i < classes.length; i++) {
 				if (classes[i]!=aux[aux.length-1]){
@@ -2522,6 +2522,8 @@ InfoWidget.prototype.getTreePanel = function (){
 		return treePan;
 };
 
+
+
 InfoWidget.prototype.doGrid = function (columns,fields,modelName,groupField){
 		var groupFeature = Ext.create('Ext.grid.feature.Grouping',{
 			groupHeaderTpl: groupField+' ({rows.length} Item{[values.rows.length > 1 ? "s" : ""]})'
@@ -2590,8 +2592,8 @@ InfoWidget.prototype.getData = function (){
 InfoWidget.prototype.getGeneTemplate = function (){
 	return  new Ext.XTemplate(
 		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
-			' &nbsp; <a target="_blank" href="http://www.ensembl.org/Multi/Search/Results?species='+this.ensemblSpecie+';idx=;q={stableId}">Ensembl</a>',
-		    '</p><br>',
+			' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Location/View?g={stableId}">Ensembl</a>',
+			'</p><br>',
 		    '<p><span class="w75 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
 		    '<p><span class="w75 dis s90">Biotype: </span> {biotype}</p>',
 		    '<p><span class="w75 dis s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></p>',
@@ -2603,7 +2605,9 @@ InfoWidget.prototype.getGeneTemplate = function (){
 };
 InfoWidget.prototype.getTranscriptTemplate = function (){
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span></p><br>',
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
+		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Transcript/Transcript?t={stableId}">Ensembl</a>',
+		    '</p><br>',
 		    '<p><span class="w100 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
 		    '<p><span class="w100 dis s90">Biotype: </span> {biotype}</p>',
 		    '<p><span class="w100 dis s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></p>',
@@ -2616,7 +2620,9 @@ InfoWidget.prototype.getTranscriptTemplate = function (){
 };
 InfoWidget.prototype.getSnpTemplate = function (){
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span></span></p><br>',
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span></span>',
+		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Variation/Summary?v={name}">Ensembl</a>',
+		    '</p><br>',
 		    '<p><span class="w140 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
 		    '<p><span class="w140 dis s90">Source: </span> <span class="s110">{source}</span></p>',
 		    '<br>',
@@ -2755,51 +2761,61 @@ GeneInfoWidget.prototype.getTranscriptGrid = function(data){
 
 GeneInfoWidget.prototype.getXrefGrid = function(data, dbname){
     if(this[dbname+"Grid"]==null){
-    	var groupField = '';
-    	var modelName = dbname;
-	    var fields = ['description','displayId'];
-		var columns = [
-		               	{header : 'Display Id',dataIndex: 'displayId',flex:1},
-		               	{header : 'Description',dataIndex: 'description',flex:3}
-		             ];
-		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
-		this[dbname+"Grid"].store.loadData(data);
+    	if(data.length<=0){
+    		this[dbname+"Grid"]= Ext.create('Ext.panel.Panel',{
+    			cls:'panel-border-left',
+    			border:false,
+    			flex:3,
+    			bodyPadding:'40',
+    			html:'No results found'
+    		});
+    	}else{
+    		var groupField = '';
+    		var modelName = dbname;
+    		var fields = ['description','displayId'];
+    		var columns = [
+    		               {header : 'Display Id',dataIndex: 'displayId',flex:1},
+    		               {header : 'Description',dataIndex: 'description',flex:3}
+    		               ];
+    		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
+    		this[dbname+"Grid"].store.loadData(data);
+    	}
     }
     return this[dbname+"Grid"];
 };
 
-GeneInfoWidget.prototype.getGoGrid = function(){
-    var _this = this;
-    if(this.goGrid==null){
-    	var groupField = 'namespace';
-    	var modelName = 'GO';
-	    var fields = ['id','name','description','level','directNumberOfGenes','namespace','parents','propagatedNumberOfGenes','score'];
-		var columns = [ {header : 'Database id',dataIndex: 'id',flex:2},
-						{header : 'Name',dataIndex: 'name',flex:1},
-						{header : 'Description',dataIndex: 'description',flex:2},
-		                {
-		                	xtype: 'actioncolumn',
-		                	header : '+info',
-		                    flex:1,
-		                    items: [{
-		                        iconCls: 'icon-blue-box',  // Use a URL in the icon config
-		                        tooltip: '+info',    
-		                        handler: function(grid, rowIndex, colIndex) {
-		                            var rec = _this.goStore.getAt(rowIndex);
-		                            Ext.Msg.alert(rec.get('name'), rec.get('description'));
-		                        }
-		                    }]
-		                 },
-		                {header : 'Direct genes',dataIndex: 'directNumberOfGenes',flex:2},
-						{header : 'Level',dataIndex: 'level',flex:1},
-						{header : 'Namespace',dataIndex: 'namespace',flex:2},
-						{header : 'Propagated genes',dataIndex: 'propagatedNumberOfGenes',flex:2.5}
-		             ];
-		this.goGrid = this.doGrid(columns,fields,modelName,groupField);
-		
-    }
-    return this.goGrid;
-};
+//GeneInfoWidget.prototype.getGoGrid = function(){
+//    var _this = this;
+//    if(this.goGrid==null){
+//    	var groupField = 'namespace';
+//    	var modelName = 'GO';
+//	    var fields = ['id','name','description','level','directNumberOfGenes','namespace','parents','propagatedNumberOfGenes','score'];
+//		var columns = [ {header : 'Database id',dataIndex: 'id',flex:2},
+//						{header : 'Name',dataIndex: 'name',flex:1},
+//						{header : 'Description',dataIndex: 'description',flex:2},
+//		                {
+//		                	xtype: 'actioncolumn',
+//		                	header : '+info',
+//		                    flex:1,
+//		                    items: [{
+//		                        iconCls: 'icon-blue-box',  // Use a URL in the icon config
+//		                        tooltip: '+info',    
+//		                        handler: function(grid, rowIndex, colIndex) {
+//		                            var rec = _this.goStore.getAt(rowIndex);
+//		                            Ext.Msg.alert(rec.get('name'), rec.get('description'));
+//		                        }
+//		                    }]
+//		                 },
+//		                {header : 'Direct genes',dataIndex: 'directNumberOfGenes',flex:2},
+//						{header : 'Level',dataIndex: 'level',flex:1},
+//						{header : 'Namespace',dataIndex: 'namespace',flex:2},
+//						{header : 'Propagated genes',dataIndex: 'propagatedNumberOfGenes',flex:2.5}
+//		             ];
+//		this.goGrid = this.doGrid(columns,fields,modelName,groupField);
+//		
+//    }
+//    return this.goGrid;
+//};
 
 GeneInfoWidget.prototype.get3Dprotein = function(data){
 	var _this=this;
@@ -2836,7 +2852,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
       	    			var pan = Ext.create('Ext.panel.Panel',{
       	    				title:pdb_name,
       	    				bodyCls:'background-black',
-      	    				html:'<canvas class="ChemDoodleWebComponent" id="pdb_canvas_'+pdb_name+'" width="600" height="600" style="width: 600px; height: 600px; ">This browser does not support HTML5/Canvas.</canvas>',
+      	    				html:'<center><canvas class="ChemDoodleWebComponent" id="pdb_canvas_'+pdb_name+'" width="600" height="600" style="width: 600px; height: 600px; ">This browser does not support HTML5/Canvas.</canvas></center>',
       	    				listeners:{
       	    					afterrender:function(este){
       	    						// JavaScript Document
@@ -3198,15 +3214,25 @@ TranscriptInfoWidget.prototype.getExonsGrid = function(data){
 
 TranscriptInfoWidget.prototype.getXrefGrid = function(data, dbname){
     if(this[dbname+"Grid"]==null){
-    	var groupField = '';
-    	var modelName = dbname;
-	    var fields = ['description','displayId'];
-		var columns = [
-		               	{header : 'Display Id',dataIndex: 'displayId',flex:1},
-		               	{header : 'Description',dataIndex: 'description',flex:3}
-		             ];
-		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
-		this[dbname+"Grid"].store.loadData(data);
+    	if(data.length<=0){
+    		this[dbname+"Grid"]= Ext.create('Ext.panel.Panel',{
+    			cls:'panel-border-left',
+    			border:false,
+    			flex:3,
+    			bodyPadding:'40',
+    			html:'No results found'
+    		});
+    	}else{
+    		var groupField = '';
+    		var modelName = dbname;
+    		var fields = ['description','displayId'];
+    		var columns = [
+    		               {header : 'Display Id',dataIndex: 'displayId',flex:1},
+    		               {header : 'Description',dataIndex: 'description',flex:3}
+    		               ];
+    		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
+    		this[dbname+"Grid"].store.loadData(data);
+    	}
     }
     return this[dbname+"Grid"];
 };
@@ -5526,7 +5552,7 @@ var Colors = new function()
 	   for (var i = 0; i< arrayScore.length; i++)
 	   {
 		
-		   var color = this.getColorByScoreValue(arrayScore[i])
+		   var color = this.getColorByScoreValue(arrayScore[i]);
 		   array.push( color);
 		
 	   }
@@ -6326,7 +6352,7 @@ var SVG =
 				var line = SVG.createLine(x1, y1, x2, y2, attributes);
 				nodeSVG.appendChild(line);
 		}catch(e){
-			debugger
+			debugger;
 		}
 				return line;
 	},
@@ -6620,7 +6646,7 @@ Browser.getuserAgent = function() {
   	$.each($.browser, function(i, val){
 		
 		if (i == 'version'){
-			version=val
+			version=val;
 		}
 		if (val == true){
 			browser = i;
@@ -7471,7 +7497,7 @@ function renderFeeds(container){
      // add length (in bits) into final pair of 32-bit integers (big-endian) [5.1.1]
      // note: most significant word would be (len-1)*8 >>> 32, but since JS converts
      // bitwise-op args to 32 bits, we need to simulate this by arithmetic operators
-     M[N-1][14] = ((msg.length-1)*8) / Math.pow(2, 32); M[N-1][14] = Math.floor(M[N-1][14])
+     M[N-1][14] = ((msg.length-1)*8) / Math.pow(2, 32); M[N-1][14] = Math.floor(M[N-1][14]);
      M[N-1][15] = ((msg.length-1)*8) & 0xffffffff;
 
      // set initial hash value [§5.3.1]
@@ -7513,7 +7539,7 @@ function renderFeeds(container){
      }
 
      return H0.toHexStr() + H1.toHexStr() + H2.toHexStr() + H3.toHexStr() + H4.toHexStr();
- }
+ };
 
  //
  // function 'f' [§4.1.1]
@@ -7526,7 +7552,7 @@ function renderFeeds(container){
      case 2: return (x & y) ^ (x & z) ^ (y & z);  // Maj()
      case 3: return x ^ y ^ z;                    // Parity()
      }
- }
+ };
 
  //
  // rotate left (circular left shift) value x by n positions [§3.2.5]
@@ -10924,11 +10950,6 @@ TrackCanvas.prototype.mouseUp = function(event) {
 		this._afterDrag(event);
 		
 	}
-	
-	
-	
-	
-	
 };
 
 TrackCanvas.prototype.init = function() {
@@ -10951,8 +10972,6 @@ TrackCanvas.prototype.init = function() {
 //		_this.mouseUp(event, _this);
 //	}, false);
 	
-
-
 };
 
 TrackCanvas.prototype._getTrackFromInternalRegionId = function(internalRegionId) {
@@ -11151,15 +11170,16 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 		track.viewBoxModule = this.viewBoxModule;
 	
 		if (track.isAvalaible){
+			 
 			regionAdapter.successed.addEventListener(function(evt, data) {
 				 _this._formatData(regionAdapter);
-				 
 				/** trackRender es una array donde indico con true/track ha sido renderizado o false que no lo ha sido
 				 * de esta manera controlo cuando todos los track hayan sido renderizados porder dibujar la regla **/
+				 
 				_this.trackRenderedName.push(regionAdapter);
 				_this._trackRendered();
-
 				/** Si todos han sido rendrizados dibujo la regla **/
+				
 				if (_this._areAllTracksRendered()) {
 					_this.drawRules(chromosome, start, end);
 				}
@@ -11189,21 +11209,26 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 		else{
 			_this.trackRenderedName.push(regionAdapter);
 			_this._trackRendered();
+			
+			if (_this._areAllTracksRendered()) {
+				_this.drawRules(chromosome, start, end);
+			}
+//			console.log(_this._areAllTracksRendered());
 		}
 };
 
 TrackCanvas.prototype.selectPaintOnRules = function(middle) {
-	for ( var i = 0; i < this.getRuleTracks().length; i++) {
+	for ( var i = 0; i < this.getRulerTrack().length; i++) {
 		if (this.pixelRatio < 1){
-			this.getRuleTracks()[i].select(middle);
+			this.getRulerTrack()[i].select(middle);
 		}
 		else{
-			this.getRuleTracks()[i].select(middle, {width:this.pixelRatio});
+			this.getRulerTrack()[i].select(middle, {width:this.pixelRatio});
 		}
 	}
 };
 
-TrackCanvas.prototype.getRuleTracks = function(middle) {
+TrackCanvas.prototype.getRulerTrack = function() {
 	var rules = new Array();
 	for ( var i = 0; i < this.trackList.length; i++) {
 		if (this.trackList[i] instanceof RuleFeatureTrack){
@@ -16594,18 +16619,12 @@ GenomeWidget.prototype.getMiddlePoint = function(){
 	return this.trackCanvas.getMiddlePoint();
 };
 
-
-
 GenomeWidget.prototype.addTrack = function(track, dataAdapter){
     this.trackList.push(track);
     this.dataAdapterList.push(dataAdapter);
 };
 
-
-
-
 GenomeWidget.prototype.draw = function(chromosome, start, end){
-	
 	this.chromosome = chromosome;
 	this.start = start;
 	this.end = end;
@@ -16613,17 +16632,17 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
 	var _this = this;
 	this.init();
 	this.trackCanvas =  new TrackCanvas(this.id + "_canvas", document.getElementById(this.targetId), {
-			top:0, 
-			left:0, 
-			right:this.width,  
-			width:this.width, 
-			height:this.height, 
-			start: this.start, 
-			end: this.end,
-			backgroundColor: "#FFCCFF", 
-			pixelRatio:this.pixelRatio,
-			viewBoxModule: this.getviewBoxModule(),
-			allowDragging :this.allowDragging
+		top:0, 
+		left:0, 
+		right:this.width,  
+		width:this.width, 
+		height:this.height, 
+		start: this.start, 
+		end: this.end,
+		backgroundColor: "#FFCCFF", 
+		pixelRatio:this.pixelRatio,
+		viewBoxModule: this.getviewBoxModule(),
+		allowDragging :this.allowDragging
 	});
 	
     this.trackCanvas.init();
@@ -16634,7 +16653,6 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
     this.trackCanvas.onMove.addEventListener(function (evt, data){
     	_this.onMarkerChange.notify(data);
 	});
-   
     
     for ( var i = 0; i < this.trackList.length; i++) {
     	this.trackList[i].viewBoxModule = this.getviewBoxModule();
@@ -16650,7 +16668,6 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
 	 });
     
 //    console.log(this.getviewBoxModule());
-    
     this.trackCanvas.draw(this.chromosome, this.start, this.end);
     
    
@@ -16832,6 +16849,8 @@ LegendWidget.prototype.draw = function(legend){
 	if (species != null) {
 		this.species = species.species;
 		this.speciesName = species.name;
+		this.chromosome=species.chromosome;
+		this.position=species.position;
 	}
 	if (args != null){
 		if(args.description != null){
@@ -16870,6 +16889,7 @@ LegendWidget.prototype.draw = function(legend){
 	
 	//Events i listen
 	this.onSpeciesChange.addEventListener(function(sender,data){
+		_this.setLocation(data.chromosome,data.position);
 		_this.species=data.species;
 		_this.speciesName=data.name;
 		Ext.getCmp(_this.id+"speciesMenuButton").setText(_this.speciesName);
@@ -16990,10 +17010,10 @@ GenomeViewer.prototype.setSpeciesMenu = function(speciesObj) {
 	for ( var i = 0; i < speciesObj.length; i++) {
 		menu.add({
 					text:speciesObj[i].name,
-					species:speciesObj[i].species,
+					speciesObj:speciesObj[i],
 					handler:function(este){
 						//can't use the i from the FOR so i create the object again
-						_this.setSpecies({name: este.text, species: este.species});
+						_this.setSpecies(este.speciesObj);
 				}
 		});
 	};
@@ -17166,7 +17186,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 	var toolbar = Ext.create('Ext.toolbar.Toolbar', {
 		cls:"bio-toolbar",
 		height:35,
-//		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
+		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
 		border:0,
 		items : [
 		         {
@@ -17550,7 +17570,6 @@ GenomeViewer.prototype.refreshMasterGenomeViewer = function() {
 	
 };
 
-
 GenomeViewer.prototype._drawGenomeViewer = function() {
 	//This method filters repetitive calls to _drawOnceGenomeViewer
 	var _this = this;
@@ -17580,7 +17599,6 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 
 	var zoom = this.genomeWidgetProperties.getZoom();
 
-//	console.log(this.genomeWidgetProperties.getTrackByZoom(zoom).length);
 	
 	if (this.genomeWidgetProperties.getTrackByZoom(zoom).length > 0){
 		for ( var i = 0; i < this.genomeWidgetProperties.getTrackByZoom(zoom).length; i++) {
@@ -17596,7 +17614,6 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 		var end = Math.ceil(this.position +   (this._getWindowsSize()));// - (this._getWindowsSize()/6);
 		
 		if (start < 0){ start = 0;}
-		
 		this.genomeWidget.onMarkerChange.addEventListener(function (evt, middlePosition){
 			var window = _this.genomeWidgetProperties.windowSize/2;
 			var start = middlePosition.middle - window;
@@ -17605,9 +17622,9 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 		});
 		 
 		this.genomeWidget.onRender.addEventListener(function (evt){
+//			 console.log("test");
 			_this._getPanel().setLoading(false);
 			_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
-			
 
 		 });
 		 
@@ -17636,9 +17653,6 @@ GenomeViewer.prototype.updateRegionMarked = function(chromosome, middlePosition)
 	
 //	this.chromosomeFeatureTrack.mark({chromosome:this.chromosome, start:this.position, end:this.position}, "red");
 };
-
-
-
 
 
 

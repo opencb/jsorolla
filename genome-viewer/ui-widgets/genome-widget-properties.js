@@ -228,8 +228,9 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 	this.addMirnaTargetTracks();
 	
 	this.addConservedRegionsTracks();
-	this.addCpgIslandsTracks();
+	this.addCpgIslandTracks();
 	this.addMutationTracks();
+	this.addStructuralVariationTracks();
 	
 	/** Set visibility **/
 	this.tracks["SNP"] = false;
@@ -246,6 +247,7 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 	this.tracks["Conserved regions"] = false;
 	this.tracks["CpG islands"] = false;
 	this.tracks["Mutation"] = false;
+	this.tracks["Structural variation"] = false;
 };
 
 
@@ -838,21 +840,21 @@ GenomeWidgetProperties.prototype.addConservedRegionsTracks = function(){
 };
 
 /** CPG REGIONS **/  //TODO
-GenomeWidgetProperties.prototype.addCpgIslandsTracks = function(){
-	var cpgIslands = new FeatureTrack(this.id + "_CpgIslands", this.tracksPanel, this.species,{
+GenomeWidgetProperties.prototype.addCpgIslandTracks = function(){
+	var cpgIsland = new FeatureTrack(this.id + "_CpgIsland", this.tracksPanel, this.species,{
 		top : 10,
 		height : 20,
 		labelHeight : this.labelHeight,
 		featureHeight : this.featureHeight,
 		labelSize : this.labelSize,
 		allowDuplicates : true,
-		label : false,
+		label : true,
 		titleWidth : 92,
-		pixelSpaceBetweenBlocks : 0,
+		pixelSpaceBetweenBlocks : 100,
 		avoidOverlapping : true,
 		title : 'CpG islands'
 	});
-	this.addTrackByZoom(0, 50, cpgIslands,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
+	this.addTrackByZoom(0, 100, cpgIsland,new RegionCellBaseDataAdapter(this.species,{resource : "cpgisland"}));
 	
 	
 };
@@ -887,10 +889,25 @@ GenomeWidgetProperties.prototype.addMutationTracks = function(){
 		backgroundColor : '#555555'
 	});
 	this.addTrackByZoom(0, 100, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "mutation"}));
-	
-	
 };
 
+/** STRUCTURAL VARIATION REGIONS **/
+GenomeWidgetProperties.prototype.addStructuralVariationTracks = function(){
+	var structuralVariationTrack = new FeatureTrack(this.id + "_structuralvariation", this.tracksPanel, this.species,{
+		top : 10,
+		height : 20,
+		labelHeight : this.labelHeight,
+		featureHeight : this.featureHeight,
+		labelSize : this.labelSize,
+		allowDuplicates : true,
+		label : true,
+		titleWidth : 92,
+		pixelSpaceBetweenBlocks : 100,
+		avoidOverlapping : true,
+		title : 'Structural variation'
+	});
+	this.addTrackByZoom(0, 100, structuralVariationTrack,new RegionCellBaseDataAdapter(this.species,{resource : "structuralvariation"}));
+};
 
 /** MULTIFEATURE TRACKS **/
 GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
@@ -1086,8 +1103,3 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 	this.addTrackByZoom(100, 100, multitrack5,new GeneRegionCellBaseDataAdapter(this.species));
 	
 };
-
-
-
-
-

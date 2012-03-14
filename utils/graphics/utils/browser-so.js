@@ -52,7 +52,7 @@ Browser.getuserAgent = function() {
   	$.each($.browser, function(i, val){
 		
 		if (i == 'version'){
-			version=val
+			version=val;
 		}
 		if (val == true){
 			browser = i;

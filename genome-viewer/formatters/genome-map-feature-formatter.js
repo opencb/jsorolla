@@ -809,5 +809,116 @@ MutationFeatureFormatter.prototype.getLabel = function(feature) {
 	
 };
 
+/** StructuralVariation **/
+StructuralVariationFeatureFormatter.prototype.setProperties = FeatureFormatter.prototype.setProperties;
+StructuralVariationFeatureFormatter.prototype.getDefault = FeatureFormatter.prototype.getDefault;
+StructuralVariationFeatureFormatter.prototype.getSelected = FeatureFormatter.prototype.getSelected;
+StructuralVariationFeatureFormatter.prototype.getOver = FeatureFormatter.prototype.getOver;
+StructuralVariationFeatureFormatter.prototype.getDragging = FeatureFormatter.prototype.getDragging;
+StructuralVariationFeatureFormatter.prototype.getId = FeatureFormatter.prototype.getId;
+StructuralVariationFeatureFormatter.prototype.toJSON = FeatureFormatter.prototype.toJSON;
+StructuralVariationFeatureFormatter.prototype.loadFromJSON = FeatureFormatter.prototype.loadFromJSON;
+StructuralVariationFeatureFormatter.prototype._setEvents = FeatureFormatter.prototype._setEvents;
 
+function StructuralVariationFeatureFormatter(feature){
+		this.feature = feature;
+        this.start = feature.start;
+        this.end =  feature.end;
+        this.label = this.getLabel(feature);//exon.stableId;
+        this.base = feature.alt;
+        
+        this.args = new Object();
+        this.args.title = new Object();
+        this.args.hidden = false;
+        this.args.stroke = "#f55959";
+        this.args.strokeOpacity = 1;
+        this.args.strokeWidth = 1;
+        this.args.fill = "02599c";
+        this.args.size = 1;
+        this.args.opacity = 1;
 
+        FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
+};
+StructuralVariationFeatureFormatter.prototype.getName = function(){
+	return this.feature.displayId;
+};
+
+StructuralVariationFeatureFormatter.prototype.getLabel = function(feature) {
+	if (feature.externalName != null){
+		return feature.externalName;
+	}
+	
+	if (feature.displayId != null){
+		return feature.displayId;
+	}
+	
+	if (feature.name != null){
+		return feature.name;
+	}
+	
+	if (feature.label != null){
+		return feature.label;
+	}
+	if (feature.StructuralVariationCds != null){
+		return feature.StructuralVariationCds;
+	}
+	return feature.chromosome + ":" + feature.start + "-" + feature.end;
+	
+};
+
+/** CpgIsland **/
+CpgIslandFeatureFormatter.prototype.setProperties = FeatureFormatter.prototype.setProperties;
+CpgIslandFeatureFormatter.prototype.getDefault = FeatureFormatter.prototype.getDefault;
+CpgIslandFeatureFormatter.prototype.getSelected = FeatureFormatter.prototype.getSelected;
+CpgIslandFeatureFormatter.prototype.getOver = FeatureFormatter.prototype.getOver;
+CpgIslandFeatureFormatter.prototype.getDragging = FeatureFormatter.prototype.getDragging;
+CpgIslandFeatureFormatter.prototype.getId = FeatureFormatter.prototype.getId;
+CpgIslandFeatureFormatter.prototype.toJSON = FeatureFormatter.prototype.toJSON;
+CpgIslandFeatureFormatter.prototype.loadFromJSON = FeatureFormatter.prototype.loadFromJSON;
+CpgIslandFeatureFormatter.prototype._setEvents = FeatureFormatter.prototype._setEvents;
+
+function CpgIslandFeatureFormatter(feature){
+		this.feature = feature;
+        this.start = feature.start;
+        this.end =  feature.end;
+        this.label = this.getLabel(feature);//exon.stableId;
+        this.base = feature.alt;
+        
+        this.args = new Object();
+        this.args.title = new Object();
+        this.args.hidden = false;
+        this.args.stroke = "#f55959";
+        this.args.strokeOpacity = 1;
+        this.args.strokeWidth = 1;
+        this.args.fill = "76ee00";
+        this.args.size = 1;
+        this.args.opacity = 1;
+
+        FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
+};
+CpgIslandFeatureFormatter.prototype.getName = function(){
+	return this.feature.name;
+};
+
+CpgIslandFeatureFormatter.prototype.getLabel = function(feature) {
+	if (feature.externalName != null){
+		return feature.externalName;
+	}
+	
+	if (feature.stableId != null){
+		return feature.stableId;
+	}
+	
+	if (feature.name != null){
+		return feature.name;
+	}
+	
+	if (feature.label != null){
+		return feature.label;
+	}
+	if (feature.CpgIslandCds != null){
+		return feature.CpgIslandCds;
+	}
+	return feature.chromosome + ":" + feature.start + "-" + feature.end;
+	
+};
