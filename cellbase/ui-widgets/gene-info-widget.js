@@ -26,10 +26,10 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	                { text: "Reactome"},
 	                { text: "Interpro"}
 	            ] },
-	            { text: "Regulatory", children: [
-	                { text: "Jaspar"},
-	                { text: "miRNA"}
-	            ] },
+//	            { text: "Regulatory", children: [
+//	                { text: "Jaspar"},
+//	                { text: "miRNA"}
+//	            ] },
 	            {text: "3D protein"}
 	        ];
 };

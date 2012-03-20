@@ -2,19 +2,22 @@ function CellBaseManager(species, args) {
 //	console.log(species);
 
 	// these 3 parameters can be modified 
-//	this.host = "http://ws.bioinfo.cipf.es/celldb/rest";
+	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+//	this.host = "http://fsalavert:8080/cellbase/rest";
 //	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
-	this.host = "http://localhost:8080/cellbase/rest";
+	//XXX for deploy security
+	if (window.location.host.indexOf("bioinfo.cipf.es")!=-1 ||
+		window.location.host.indexOf("genomemaps.org")!=-1 ||
+		window.location.host.indexOf("cellbrowser.org")!=-1
+	){
+		this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+	}
 	
 	this.version = "v1";
 	this.species = species;
 	
-//	if(args != null) {
-//		
-//	}
 //		this.host = 'http://localhost:8080/celldb/rest';
 	CELLBASEHOST=this.host;
-	
 	
 	this.category = null;
 	this.subcategory = null;
@@ -153,21 +156,23 @@ function CellBaseManager(species, args) {
 
 
 	this._callServer = function(url, batchID, callbackFunction) {
-		console.log(url+"?of="+this.contentformat+"&outputcompress="+this.outputcompress+"&callbackParam=response");
 		var _this = this;
-		$.ajax( {
-			url : url,
-			type : "GET",
-			async : this.async,
-			data : {
+		
+		
+		var params  = {
 				of : this.contentformat,
 				outputcompress : this.outputcompress,
 				callbackParam :  "response"
-			},
+			};
+		
+		$.ajax({
+			url : url,
+			type : "GET",
+			async : this.async,
+			data : params,
 			dataType : this.dataType,
 			jsonp : "callback",
 			success : function() {
-				
 				if( typeof( response ) != 'undefined'  ){
 					if (callbackFunction!=null){
 						callbackFunction(response);
@@ -182,7 +187,6 @@ function CellBaseManager(species, args) {
 				else{
 					_this.error.notify();
 				}
-				
 			},
 			complete : function() {
 				_this.completed.notify();
@@ -193,5 +197,7 @@ function CellBaseManager(species, args) {
 				
 			}
 		});
+		
+		console.log(url);
 	};
 }

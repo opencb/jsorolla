@@ -451,18 +451,39 @@ function BEDFeatureFormatter(feature){
 		this.feature = feature;
         this.start = feature.start;
         this.end =  feature.end;
+        this.chromosome =  feature.chromosome;
         this.label = feature.label;//exon.stableId;
         this.score = feature.score;
+        this.thickStart = feature.thickStart;
+        this.thickEnd = feature.thickEnd;
+        this.strand = feature.strand;
+        this.itemRgb = feature.itemRgb;
+        this.blockCount = feature.blockCount;
+        this.blockSizes = feature.blockSizes;
+        this.blockStarts = feature.blockStarts;
+        
         if(this.score<0){this.score = 0;}
         if(this.score>1000){this.score = 1000;}
         var gray = Math.abs(Math.ceil(this.score*0.255)-255).toString(16);
+        
+        
+        //XXX convert RGB to Hex
+        var rgbColor = new Array();
+        rgbColor = this.itemRgb.split(",");
+        var hex = function (x) {
+        	var hexDigits = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
+            return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+        };
+        var hexColor = hex(rgbColor[0])+ hex(rgbColor[1]) + hex(rgbColor[2]);
+        
         
         this.args = new Object();
         this.args.title = new Object();
         this.args.hidden = false;
         this.args.strokeOpacity = 1;
         this.args.strokeWidth = 1;
-        this.args.fill =  "#"+gray+gray+gray;
+//        this.args.fill =  "#"+gray+gray+gray;
+        this.args.fill =  "#"+hexColor;
         this.args.stroke = '#000000';
         
         FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
@@ -726,7 +747,6 @@ MiRNAFeatureFormatter.prototype.loadFromJSON = FeatureFormatter.prototype.loadFr
 MiRNAFeatureFormatter.prototype._setEvents = FeatureFormatter.prototype._setEvents;
 
 function MiRNAFeatureFormatter(feature){
-	console.log(feature);
 		this.feature = feature;
         this.start = feature.start;
         this.end =  feature.end;
@@ -751,6 +771,10 @@ MiRNAFeatureFormatter.prototype.getLabel = function(feature) {
 	
 };
 
+MiRNAFeatureFormatter.prototype.getName = function() {
+	return this.feature.mirbaseId + "[" + this.feature.geneTargetName + "]";
+	
+};
 
 /** Mutation **/
 MutationFeatureFormatter.prototype.setProperties = FeatureFormatter.prototype.setProperties;

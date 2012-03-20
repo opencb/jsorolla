@@ -3,7 +3,7 @@ RegionCellBaseDataAdapter.prototype.setSpecies = CellBaseDataAdapter.prototype.s
 RegionCellBaseDataAdapter.prototype.toJSON = CellBaseDataAdapter.prototype.toJSON;
 
 function RegionCellBaseDataAdapter(species, args){
-	CellBaseDataAdapter.prototype.constructor.call(this, species);
+	CellBaseDataAdapter.prototype.constructor.call(this, species, args);
 	this.dataset = new FeatureDataSet();
 	this.category = "genomic";
 	this.subcategory = "region";
@@ -69,7 +69,7 @@ RegionCellBaseDataAdapter.prototype.getFinished = function(data, chromosome, sta
 //	debugger
 	this.dataset.loadFromJSON(data);
 	this.datasets[this._getHashMapKey(chromosome, start, end)] = this.dataset;
-	this.successed.notify();
+	this.successed.notify(data);
 };
 
 RegionCellBaseDataAdapter.prototype.anticipateRegionRetrieved = function(data, chromosome, start, end){
@@ -84,8 +84,9 @@ RegionCellBaseDataAdapter.prototype.anticipateRegionRetrieved = function(data, c
 RegionCellBaseDataAdapter.prototype.getFeaturesByPosition = function(position){
 	var features =  new Array();
 	var featuresKey = new Object();
+	console.log(this.datasets);
 	for (var dataset in this.datasets){
-		var features = this.datasets[dataset].toJSON();
+		features = this.datasets[dataset].toJSON();
 		for ( var g = 0; g < features.length; g++) {
 			var feature = features[g];
 			
@@ -95,7 +96,7 @@ RegionCellBaseDataAdapter.prototype.getFeaturesByPosition = function(position){
 			}
 		}
 	}
-	console.log(features.length);
+//	console.log(features.length);
 	return features;
 };
 

@@ -51,8 +51,8 @@ function TrackCanvas(trackerID, targetNode, args) {
 	/** Moving canvas provoke que los tracks con el flag showLabelsOnMiddleMarker se muevan **/
 	this.allowLabelMoving = true;
 	
-	/** Flag to solver marker bug */
-	this.isBeenRenderized = true; /** true si estoy renderizando por primera vez el trackcanvas **/
+	/** Flag to solve marker bug */
+//	this.isBeenRenderized = true; /** true si estoy renderizando por primera vez el trackcanvas **/
 	/** Processing optional parameters */
 	if (args != null) {
 		if (args.top != null) {
@@ -98,6 +98,9 @@ function TrackCanvas(trackerID, targetNode, args) {
 		if (args.zoom != null) {
 			this.zoom = args.zoom;
 		}
+		if (args.lastPosition != null) {
+			this.lastPosition = args.lastPosition;
+		}
 	}
 
 	/** Info Panel */
@@ -137,9 +140,16 @@ TrackCanvas.prototype.mouseClick = function(event) {
 };
 TrackCanvas.prototype.mouseMove = function(event) {
 	if (this.allowDragging){
-		this._dragging(event);
 		
-		this.moveLabelsFeatureSelected();
+		//XXX test - only when middle>=0, at this point start is a negative vaule, like middle, depending on mouse speed
+		if(this.middle>=0/*&& this.middle<=this.lastPosition*/){
+			this._dragging(event);
+			this.moveLabelsFeatureSelected();
+		}
+//		if(){
+//			this._dragging(event);
+//			this.moveLabelsFeatureSelected();
+//		}
 	}
 };
 
@@ -161,6 +171,18 @@ TrackCanvas.prototype.mouseDown = function(event) {
 };
 TrackCanvas.prototype.mouseUp = function(event) {
 	if (this.allowDragging){
+		
+		//XXX test - acutal negative start - actual negative middle + 1 gets the start position that situates middle on 0
+		if(this.middle<=0){
+			this._goToCoordinateX(this.start-Math.ceil(this.middle)+1);
+		}
+//		//XXX apaño, pensarlo mejor
+//		if(this.middle>=this.lastPosition){
+//			this._goToCoordinateX(this.start-Math.ceil(this.middle)+this.lastPosition);
+//		}
+		
+		
+		
 		this._afterDrag(event);
 		
 	}
@@ -281,14 +303,15 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 			}
 		}
 		
-		if (regionAdapter.resource == "regulatory?type=open chromatin") {
+		if (regionAdapter.resource == "regulatory?type=Open Chromatin") {
+			console.log("cromatin");
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
 				formatters.push(new GenericFeatureFormatter(regionAdapter.dataset.json[0][i]));
 			}
 		}
 		
-		if (regionAdapter.resource == "regulatory?type=HISTONE") {
+		if (regionAdapter.resource == "regulatory?type=Histone") {
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
 				formatters.push(new GenericFeatureFormatter(regionAdapter.dataset.json[0][i]));
@@ -431,12 +454,11 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 	
 			this.onMove.addEventListener(function(evt, data) {
 //				//original
-				data.middle = Math.ceil(data.middle) + 1;
-				
+//				data.middle = Math.ceil(data.middle) + 1;
 				
 				//TODO doing pako borrar
 //				console.log(regionAdapter);
-//				data.middle =  Math.floor(data.middle);
+				data.middle =  Math.floor(data.middle);
 //				console.log(data.middle);
 				/**/
 				
@@ -485,10 +507,10 @@ TrackCanvas.prototype.getRulerTrack = function() {
 
 TrackCanvas.prototype.getMiddlePoint = function() {
 	//orig
-	return Math.ceil(this.middle) + 1;
+//	return Math.ceil(this.middle) + 1;
 	
 	//TODO doing pako borrar
-//	return Math.floor(this.middle);
+	return Math.floor(this.middle);
 };
 
 TrackCanvas.prototype.drawRules = function(chromosome, start, end) {
@@ -516,13 +538,24 @@ TrackCanvas.prototype._drawTitle = function(i) {
 };
 
 
-TrackCanvas.prototype.draw = function(chromosome, start, end) {
-	this.start = start;
-	this.end = end;
+TrackCanvas.prototype.draw = function(chromosome, data_start, data_end, view_start, view_end) {
+	
+//	//XXX testing
+//	var position = view_start + (view_end - view_start)/2;
+//	var halfBases = (this.width) / this.pixelRatio / 2;
+//	var wstart =  Math.ceil(position - halfBases);
+//	var wend = Math.ceil(position + halfBases);
+//	console.log(this.width);
+//	console.log(position);
+//	console.log(wstart+":"+wend);
+	
+	
+	this.start = view_start;
+	this.end = view_end;
 //	console.log(start+":"+end);
 	this.chromosome = chromosome;
-	this.startViewBox = (start * this.pixelRatio) % this.viewBoxModule;
-	this.endViewBox = (end * this.pixelRatio) % this.viewBoxModule;
+	this.startViewBox = (view_start * this.pixelRatio) % this.viewBoxModule;
+	this.endViewBox = (view_end * this.pixelRatio) % this.viewBoxModule;
 //	console.log(this.startViewBox+":"+this.endViewBox);
 	
 	for ( var i = 0; i < this.regionAdapterList.length; i++) {
@@ -530,7 +563,7 @@ TrackCanvas.prototype.draw = function(chromosome, start, end) {
 			var regionAdapter = this.regionAdapterList[i];
 			regionAdapter.successed = new Event(regionAdapter);
 			regionAdapter.preloadSuccess = new Event(regionAdapter);
-			this._drawTrack(chromosome, start, end, track, regionAdapter);
+			this._drawTrack(chromosome, data_start, data_end, track, regionAdapter);
 	}
 };
 
@@ -560,27 +593,29 @@ TrackCanvas.prototype._getTopTrack = function(track) {
 
 /** DRAGGING **/
 TrackCanvas.prototype._goToCoordinateX = function(position) {
-//	debugger
+
 	this.start = position;
 	var startZoom = (this.start * this.pixelRatio) % this.viewBoxModule;
 	var viewBox = startZoom + " " + "10 " + this.width + " " + this.height;
+//	console.log("viewBox: "+viewBox);
 	this._svg.setAttribute("viewBox", viewBox);
 	
 	
-	/** He cambiado esto por el slave **/
-	if (this.isBeenRenderized){
-		this.middle = this.start + (this.end - this.start)/2;
-		this.isBeenRenderized = false;
-	}
-	else{
-		this.middle = this.start + ((this.width / this.pixelRatio) / 2);
-	}
+//	//orig
+//	/** He cambiado esto por el slave **/
+//	if (this.isBeenRenderized){
+//		this.middle = this.start + (this.end - this.start)/2;
+//		this.isBeenRenderized = false;
+//	}
+//	else{
+//		this.middle = this.start + ((this.width / this.pixelRatio) / 2);
+//	}
+
 
 ////	//TODO doing pako borrar
 //	this.middle = this.start + ((this.width / this.pixelRatio) / 2);
-//	
-//	
 //	console.log((this.width / this.pixelRatio)/2);
+	this.middle = this.start + ((this.width / this.pixelRatio) / 2);
 //	
 	
 	//
@@ -638,7 +673,6 @@ TrackCanvas.prototype._afterDrag = function(evt) {
 	this.dragPoint = null;
 	this.moveY = this.realMove;
 	this.afterDrag.notify(this.middle);
-	
 };
 
 TrackCanvas.prototype.setZoom = function(zoom) {
@@ -653,8 +687,9 @@ TrackCanvas.prototype._dragging = function(evt) {
 		
 		var moveX = this.dragPoint.x - actualPointSVG.x;
 		var moveY = this.dragPoint.y - actualPointSVG.y;
-		
+
 		this._moveCoordinateX(moveX);
+		
 		if(this.enableMovingY){
 			this._moveCoordinateY(Math.ceil(moveY));
 		}
