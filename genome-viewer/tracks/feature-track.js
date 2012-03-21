@@ -342,11 +342,11 @@ FeatureTrack.prototype._render = function() {
 
 FeatureTrack.prototype.moveTitle = function(movement) {
 	if (this.title){
-			
+
 			var movementOld = parseFloat(this.titleNodeGroup.getAttribute("moveX"));
 //			var desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
 			if (!movementOld){
-				desplazamiento = (movement);
+				desplazamiento = movement;
 			}
 			else{
 				desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
@@ -365,6 +365,7 @@ FeatureTrack.prototype.drawTitle = function(midlle, args){
 			widthLine = args.width;
 		}
 	}
+	this.titleNodeGroup.setAttribute("moveX", 0);
 	
 	var coordenateX = this._convertGenomePositionToPixelPosition(midlle);
 		
@@ -376,6 +377,7 @@ FeatureTrack.prototype.drawTitle = function(midlle, args){
 	if (this.titleText != null){
 		this.titleText.parentNode.removeChild(this.titleText);
 	}
+	
 	
 	if (this.isAvalaible){
 		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["id"]];

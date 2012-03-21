@@ -110,6 +110,7 @@ RuleFeatureTrack.prototype.select = function(midlle, args){
 
 
 RuleFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth, attributes, feature){
+	console.log('ruler');
 	if (this.trackNodeGroup != null){
 		if (feature.isLabeled){
 			SVG.drawText(Math.ceil(startPoint) + 2, top + 10 , this._prettyNumber(feature.start), this.labelNodeGroup, [["font-size", "10"]]);

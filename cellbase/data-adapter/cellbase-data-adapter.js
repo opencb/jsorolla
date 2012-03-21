@@ -1,10 +1,9 @@
 CellBaseDataAdapter.prototype.toJSON = DataAdapter.prototype.toJSON;
 
 
-function CellBaseDataAdapter(species){
-//	console.log(species);
+function CellBaseDataAdapter(species,args){
 	DataAdapter.prototype.constructor.call(this);
-	this.cellBaseManager = new CellBaseManager(species);
+	this.cellBaseManager = new CellBaseManager(species,args);
 	this.successed = new Event();
 	
 };
