@@ -429,7 +429,6 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 		track.viewBoxModule = this.viewBoxModule;
 	
 		if (track.isAvalaible){
-			 
 			regionAdapter.successed.addEventListener(function(evt, data) {
 				 _this._formatData(regionAdapter);
 				/** trackRender es una array donde indico con true/track ha sido renderizado o false que no lo ha sido

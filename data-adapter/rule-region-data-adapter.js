@@ -72,9 +72,8 @@ RuleRegionDataAdapter.prototype.fill = function(chromosome, start, end, resource
 	if ((chromosome == null)|| (start == null) || (end == null)){
 		throw "Missing value in a not optional parameter: chromosome, start or end";
 	}
-	
-	
 	if (!this.isRegionAvalaible(chromosome, start, end)){
+	
 				var result = new Array();
 				var data = new Array();
 				result = this._getFeaturesFromRegion(start, end);
@@ -118,10 +117,10 @@ RuleRegionDataAdapter.prototype.setIntervalView = function(chromosome,  middleVi
 				
 				var window = end - start;
 				var quarter = window/3;
-			
 				if (( (start -1) < 0 ) || ((parseFloat(end) + 1) > this.maxChromosomeSize ))
 				{
-					return;
+					//FIXME This return causes the rule not being updated properly
+//					return;
 				}
 
 				if ((middleView - start) < quarter){
