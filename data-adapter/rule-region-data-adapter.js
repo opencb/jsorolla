@@ -22,6 +22,7 @@ function RuleRegionDataAdapter(args){
 			this.pixelRatio = args.pixelRatio;
 		}
 		
+		
 	}
 	
 	this.dataset = new DataSet();
@@ -47,20 +48,32 @@ RuleRegionDataAdapter.prototype.isRegionAvalaible = function(chromosome, start, 
 RuleRegionDataAdapter.prototype._getFeaturesFromRegion = function(start, end){
 	var features = new Array();
 
-	for (var i = start ; i < end ; i = parseFloat(i) + parseFloat(this.ratio) ){
-			if ((i >=0)&&(i<this.maxChromosomeSize)){
-			
-				
-				for ( var j = 2; j < 9; j = j + 2) {
-					var start = parseFloat(i) + parseFloat(j* this.ratio/10);
+	var increment = 5;
+//	console.log("*****"+start+"--"+end+"******");
+//	var token = this.ratio/increment;
+//	console.log("Token: "+token);
+//	console.log("Ratio: "+this.ratio);
+	
+	for (var i = start ; i <= end ; i = parseFloat(i) + parseFloat(this.ratio) ){
+		if ((i >=0)&&(i<this.maxChromosomeSize)){
+
+//			var s = i;
+			for (var j=0; j<increment; j++) {
+
+				var start = parseFloat(i) + parseFloat(j*(this.ratio/increment));
+				if(start<this.maxChromosomeSize){
 					features.push({"start":  start, "end": i + start, "label":false});
 				}
-				if (Math.ceil(this.pixelRatio) == 1){
-					i = Math.ceil(i/1000) * 1000;
-				}
-				features.push({"start":  i, "end": i, "label":true});
-				
+
+//				s = s + token;
+//				console.log("Parcial: "+s);
+//				features.push({"start":  s, "end": s, "label":false});
 			}
+//			if (Math.ceil(this.pixelRatio) == 1){
+//			i = Math.ceil(i/1000) * 1000;
+//			}
+			features.push({"start":  i, "end": i, "label":true});
+		}
 	}
 	return features;
 };

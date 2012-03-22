@@ -562,9 +562,15 @@ TrackCanvas.prototype.draw = function(chromosome, data_start, data_end, view_sta
 			var regionAdapter = this.regionAdapterList[i];
 			regionAdapter.successed = new Event(regionAdapter);
 			regionAdapter.preloadSuccess = new Event(regionAdapter);
-			if(regionAdapter instanceof RuleRegionDataAdapter ){
+			
+			//Set lastPosition of the chromosome on the track and the adapter
+			if(regionAdapter instanceof RuleRegionDataAdapter){
 				regionAdapter.maxChromosomeSize = this.lastPosition;
+			} 
+			if(track instanceof RuleFeatureTrack){
+				track.lastPosition = this.lastPosition;
 			}
+			
 			this._drawTrack(chromosome, data_start, data_end, track, regionAdapter);
 	}
 };

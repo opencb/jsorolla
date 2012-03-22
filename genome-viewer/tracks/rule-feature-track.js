@@ -6,6 +6,7 @@ function RuleFeatureTrack (rulerID,targetID, species, args) {
 //	this.pixelRatio = 0.001;
 	this.ruleHeight = this.height;
 	this.expandRuleHeight = this.height;
+	this.lastPosition = 260000000;
 	/** Estos attributos tb tedeberia de tenerlo su dataadapter **/
 //	this.space = 100;
 //	this.maxChromosomeSize = 255000000;
@@ -20,6 +21,10 @@ function RuleFeatureTrack (rulerID,targetID, species, args) {
 		
 		if (args.space != null){
 			this.space = args.space;
+		}
+
+		if (args.lastPosition != null){
+			this.lastPosition = args.lastPosition;
 		}
 	}
 
@@ -122,8 +127,8 @@ RuleFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth
 		
 		if (!this.horizontalRuleDrawn){
 			var lastPositionRec = this.viewBoxModule;
-			if ((260000000*this.pixelRatio) < this.viewBoxModule){
-				lastPositionRec = 260000000*this.pixelRatio;
+			if ((this.lastPosition*this.pixelRatio) < this.viewBoxModule){
+				lastPositionRec = this.lastPosition*this.pixelRatio;
 			} 
 			SVG.drawRectangle(0, top, lastPositionRec, this.height, this.trackNodeGroup, [["fill", "gray"], ["stroke", "#000000"], ["opacity", 0.5]]);
 			this.horizontalRuleDrawn = true;
