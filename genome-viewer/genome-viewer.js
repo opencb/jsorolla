@@ -11,6 +11,7 @@ function GenomeViewer(targetId, species, args) {
 	//Default values
 	this.species="hsa";
 	this.speciesName="Homo sapiens";
+	this.increment = 5;
 	
 	//Setting paramaters
 	if (targetId != null){
@@ -61,7 +62,8 @@ function GenomeViewer(targetId, species, args) {
 				width:this.width,
 				windowSize : 1000000,
 				pixelRatio : 0.0005,
-				id:this.id
+				id:this.id,
+				increment:this.increment
 	});
 	
 	//Events i listen
@@ -78,7 +80,8 @@ function GenomeViewer(targetId, species, args) {
 			width:_this.width,
 			windowSize : 1000000,
 			pixelRatio : 0.0005,
-			id:_this.id
+			id:_this.id,
+			increment:_this.increment
 		});
 
 		if(_this.targetId!=null){
@@ -284,7 +287,7 @@ GenomeViewer.prototype._getZoomSlider = function() {
 			maxValue : 100,
 			value : _this.genomeWidgetProperties.getZoom(),
 			useTips : true,
-			increment : 10,
+			increment : this.increment,
 			tipText : function(thumb) {
 				return Ext.String.format('<b>{0}%</b>', thumb.value);
 			}
@@ -319,13 +322,13 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
     if (action == '+'){
     	   var zoom = this.genomeWidgetProperties.getZoom();
     	   if (zoom < 100){
-    		   this.setZoom(zoom + 10);
+    		   this.setZoom(zoom + this.increment);
     	   }
     }
     if (action == '-'){
     	 var zoom = this.genomeWidgetProperties.getZoom();
-  	   if (zoom >= 10){
-  		   this.setZoom(zoom - 10);
+  	   if (zoom >= 5){
+  		   this.setZoom(zoom - this.increment);
   	   }
     }
     
@@ -687,11 +690,11 @@ GenomeViewer.prototype.drawChromosome = function(chromosome, start, end) {
 			_this.lastPosition = data[0][data[0].length-1].end;
 //			console.log(_this.lastPosition);
 		}
-				_this.chromosomeFeatureTrack.draw(dataAdapter.dataset);
-				_this.chromosomeFeatureTrack.click.addEventListener(function(evt, data) {
-					_this.setLocation(_this.chromosome, data);
-				});
-			});
+		_this.chromosomeFeatureTrack.draw(dataAdapter.dataset);
+		_this.chromosomeFeatureTrack.click.addEventListener(function(evt, data) {
+			_this.setLocation(_this.chromosome, data);
+		});
+	});
 
 	dataAdapter.fill(chromosome, 1, 260000000, "cytoband");
 };
