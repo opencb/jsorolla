@@ -298,7 +298,7 @@ NetworkViewer.prototype.drawNetwork = function(dataset, formatter, layout){
 	
 //	var newHeight = this.height - 27;//this.menuToolbar.getHeight();
 	
-	this.networkWidget = new NetworkWidget({targetId: this.getGraphCanvasId()});
+	this.networkWidget = new NetworkWidget(this.species,{targetId: this.getGraphCanvasId()});
 	this.networkWidget.draw(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
 	
 	this.networkWidget.onVertexOver.addEventListener(function(sender, nodeID){

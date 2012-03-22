@@ -1,6 +1,9 @@
-function NetworkWidget(args){
+function NetworkWidget(species, args){
 	this.id = "NetworkWidget"+ Math.round(Math.random()*10000);
 	this.label = true;
+	
+	this.species=species;
+	
 	if (args != null){
 		if (args.targetId != null){
 			this.targetId = args.targetId;
@@ -17,7 +20,7 @@ function NetworkWidget(args){
 
 NetworkWidget.prototype.draw = function(dataset, formatter, layout){
 
-	this.graphCanvas = new GraphCanvas(this.id, document.getElementById(this.targetId), {"labeled":this.label,"multipleSelectionEnabled":true, "draggingCanvasEnabled":false});
+	this.graphCanvas = new GraphCanvas(this.id, document.getElementById(this.targetId), {species:this.species,"labeled":this.label,"multipleSelectionEnabled":true, "draggingCanvasEnabled":false});
 	this.graphCanvas.draw(dataset, formatter, layout);
 	
 	var _this = this;
@@ -68,13 +71,10 @@ NetworkWidget.prototype.selectNeighbourhood = function(){
     this.selectAdjacent();
 };
 
-
 /** DESELECT **/
 NetworkWidget.prototype.deselectNodes = function(){
 	this.graphCanvas.deselectNodes();
 };
-
-
 
 /** SELECT ALL NODES **/
 NetworkWidget.prototype.selectAllNodes = function(){

@@ -92,6 +92,9 @@ function GraphCanvas (componentID, targetNode,  args) {
     	if (args.labeled != null){
     		this.args.labeled = args.labeled;
     	}
+		if (args.species != null) {
+			this.species = args.species;
+		}
     	
     }
     
@@ -312,6 +315,7 @@ GraphCanvas.prototype.mouseMove = function(evt){
 };
 
 GraphCanvas.prototype.moveSelectedNodes = function(offsetX, offsetY){
+	
 	for ( var i = 0; i < this.getSelectedVertices().length; i++) {
 		
 		var nodeId =  this.getSelectedVertices()[i];
@@ -326,7 +330,7 @@ GraphCanvas.prototype.moveSelectedNodes = function(offsetX, offsetY){
 
 
 GraphCanvas.prototype.mouseDown = function(evt){
-	if (event.button == 0){
+	if (evt.button == 0){
 	
 		/** if !no interactive mouse events do anything **/
 		if (!this.args.interactive){return;}
@@ -384,7 +388,7 @@ GraphCanvas.prototype.mouseDown = function(evt){
 		}
 		
 	}
-	if (event.button == 1){
+	if (evt.button == 1){
 		this.setLinking(false);
 		this.setMultipleSelection(false);
 		this.selecting = false;
@@ -400,6 +404,9 @@ GraphCanvas.prototype.mouseUp = function(event){
 	if (!this.args.interactive){return;}
 	
 	if (this.dragging){
+		//XXX firefox fix, set to null causing some times on mouseup, infowidget is shown
+		this.actualLabelId=null;
+		
 		this._stopDragging(event);
 		if (this.isVertex(event.target)){
 			var vertexId = this.getVertexIdFromSVGId(event.target.id);
@@ -409,8 +416,14 @@ GraphCanvas.prototype.mouseUp = function(event){
 		}
 	}
 	
+	//XXX cheking if mouse is inside a label
+	if (this.actualLabelId!=null){
+		this.clickLabel(this.actualLabelId);
+	}
+	
 	if (this.selecting){
 		this.setSelecting(false);
+		
 		
 		var x1 = (parseFloat(this.selectorSVGNode.getAttribute("x")) - DOM.select(this.id).getAttribute("dragx"))/this.getFormatter().getWidth();
 		var y1 = (parseFloat(this.selectorSVGNode.getAttribute("y"))  - DOM.select(this.id).getAttribute("dragy"))/this.getFormatter().getHeight();
@@ -459,8 +472,10 @@ GraphCanvas.prototype._startDragging = function(evt){
  	 }
  
      if(this.isVertex(evt.target)|| (this.isNodeBackground(evt.target)&&(this.isDraggingCanvasEnabled())) ||(this.isNodeCanvas(evt.target)&&(this.isDraggingCanvasEnabled()))) {
+    	 evt.target.style.cursor="move";
     	 this.clearLabels();
     	 this.draggingElement = evt.target;
+    	 
     	 this.dragging = true;
          var p = this.getSVGCoordenates(evt);
          
@@ -480,6 +495,8 @@ GraphCanvas.prototype._startDragging = function(evt){
 	
 
 GraphCanvas.prototype._stopDragging = function(event){
+	event.target.style.cursor="";
+	
 	this.nMouseOffsetX = 0;
 	this.nMouseOffsetX = 0;
 	/** despues del evento up viene el evento click entonces acabo el dragging en el mouseclick **/
@@ -558,6 +575,7 @@ GraphCanvas.prototype.moveNode = function(vertexId){
 
 GraphCanvas.prototype._movingNode = function(svgNodeElement, x, y){
 	var vertexId = this.getVertexIdFromSVGId(svgNodeElement.getAttribute("id"));
+	
 	this.getLayout().getNodeById(vertexId).setCoordinates(x/this.getFormatter().getWidth(), y/this.getFormatter().getHeight());
 	this.desplazamientoX = 0;
 	this.desplazamientoY = 0;
@@ -580,10 +598,12 @@ GraphCanvas.prototype.init = function(){
 	}
 	/** SVG Events listener */
 	var _this = this;
-	this._svg.addEventListener("click", function(event) {_this.mouseClick(event); }, false);
+	this._svg.addEventListener("click", function(event) {_this.mouseClick(event);}, false);
     this._svg.addEventListener("mousemove", function(event) { _this.mouseMove(event, _this); }, false);
     this._svg.addEventListener("mousedown", function(event) { _this.mouseDown(event, _this); }, false);
-    this._svg.addEventListener("mouseup", function(event) { _this.mouseUp(event, _this); }, false);
+    this._svg.addEventListener("mouseup", function(event) { _this.mouseUp(event, _this);}, false);
+
+
 };
 
 /*
@@ -915,12 +935,27 @@ GraphCanvas.prototype.outNode = function(nodeId){
 	}
 };
 
+GraphCanvas.prototype.clickLabel = function(nodeId){
+	var vertex = this.getDataset().getVertexById(nodeId);
+	switch (vertex.type){
+		case "tf": new TFInfoWidget(null,this.species).draw(vertex); break;
+		case "mirna": new MirnaInfoWidget(null,this.species).draw(vertex); break;
+		case "gene": new GeneInfoWidget(null,this.species).draw(vertex); break;
+	}
+};
+
 GraphCanvas.prototype.overLabel = function(nodeId){
+	//XXX cheking if mouse is inside a label
+	this.actualLabelId=nodeId;
+	
 	this.overNode(nodeId);
-//	this.svgLabels[nodeId].setAttribute("cursor", "pointer");
+	this.svgLabels[nodeId].setAttribute("cursor", "pointer");
 };
 
 GraphCanvas.prototype.outLabel = function(nodeId){
+	//XXX cheking if mouse is inside a label
+	this.actualLabelId=null;
+	
 	this.outNode(nodeId);
 //	this.svgLabels[nodeId].setAttribute("cursor", "");
 };
@@ -1080,11 +1115,14 @@ GraphCanvas.prototype.renderLabel = function(nodeId){
 		
 		this.svgLabels[nodeId] = nodeSVG;
 		
+		//XXX if not set to true, the click event does not work	
+//		this.dragging = true;
 		/** Events for the SVG node **/
 		var _this = this;
 		if (nodeSVG != null){
-			nodeSVG.addEventListener("mouseover", function(){ _this.overLabel(nodeId);}, false);
-			nodeSVG.addEventListener("mouseout", function(){_this.outLabel(nodeId);}, false);
+//			nodeSVG.addEventListener("click", function(){ _this.clickLabel(nodeId);},false);
+			nodeSVG.addEventListener("mouseover", function(){ _this.overLabel(nodeId);} , false);
+			nodeSVG.addEventListener("mouseout", function() { _this.outLabel(nodeId);}, false);
 		}
 		
 };
@@ -1151,7 +1189,7 @@ GraphCanvas.prototype.renderNode = function(nodeId){
 					_this.onVertexOver.notify(nodeId); _this.overNode(nodeId); 
 		}, false);
 		nodeSVG.addEventListener("mouseout", function(){_this.onVertexOut.notify(nodeId); _this.outNode(nodeId);}, false);
-		//nodeSVG.addEventListener("click", function(){_this.clickNode(nodeId);}, false);
+//		nodeSVG.addEventListener("click", function(){_this.clickNode(nodeId);}, false);
 	}
 };
 

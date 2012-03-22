@@ -292,7 +292,7 @@ GeneInfoWidget.prototype.getData = function (){
 		
 		_this.dataReceived(JSON.parse(cellBaseDataAdapter.toJSON()));//TODO
 	});
-	cellBaseDataAdapter.fill("feature","gene", this.feature.feature.stableId, "fullinfo");
+	cellBaseDataAdapter.fill("feature","gene", this.feature.getName(), "fullinfo");
 };
 GeneInfoWidget.prototype.dataReceived = function (data){
 	console.log(data);

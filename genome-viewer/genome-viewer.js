@@ -709,7 +709,6 @@ GenomeViewer.prototype.setZoom = function(value) {
 	this.genomeWidgetProperties.setZoom(value);
 	
 	this.position = this.genomeWidget.getMiddlePoint();
-	console.log(this.position);
 	this._getZoomSlider().setValue(value);
 	
 	//TODO ORIG descomentar
@@ -796,8 +795,6 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 			this.genomeWidget.addTrack(track, this.genomeWidgetProperties.getDataAdapterByZoom(zoom)[i]);
 		}
 		
-		console.log(this.position);
-		console.log(this._getWindowsSize());
 		
 		/*orig*/
 		var data_start = Math.ceil(this.position - (this._getWindowsSize()));// - (this._getWindowsSize()/6);
@@ -815,9 +812,6 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 		var view_start=Math.ceil(this.position - halfBases);
 		var view_end= Math.ceil(this.position + halfBases);
 		
-		console.log(this.position);
-		console.log(halfBases);
-		console.log(view_start+"-"+view_end);
 		
 		if (data_start < 0){ 
 			data_start = 0;

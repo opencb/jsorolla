@@ -66,6 +66,12 @@ function InfoWidget(targetId, species, args){
 InfoWidget.prototype.draw = function (feature){
 //	this.featureId = feature.id;
 	this.feature = feature;
+	if(feature.getName()==null){
+		console.log("getName not defined");
+//		var feature = new Object();
+//		feature.getName = function(){return feature;};
+	}	
+	
 	console.log(feature.getName());
 //	this.feature.getName = function(){return "a";};
 	
