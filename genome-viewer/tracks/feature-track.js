@@ -340,25 +340,26 @@ FeatureTrack.prototype._render = function() {
 	}
 };
 
+//XXX DEPRECATED this function is now in track-canvas.js
 FeatureTrack.prototype.moveTitle = function(movement) {
-	if (this.title){
-
-			var movementOld = parseFloat(this.titleNodeGroup.getAttribute("moveX"));
-//			var desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
-			if (!movementOld){
-				desplazamiento = movement;
-			}
-			else{
-				desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
-			}
-			
-			this.titleNodeGroup.setAttribute("transform", "translate("+ -desplazamiento + ", 0)");
-			this.titleNodeGroup.setAttribute("moveX", desplazamiento);
-	}
+//	if (this.title){
+//
+//			var movementOld = parseFloat(this.titleNodeGroup.getAttribute("moveX"));
+////			var desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
+//			if (!movementOld){
+//				desplazamiento = movement;
+//			}
+//			else{
+//				desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
+//			}
+//			
+//			this.titleNodeGroup.setAttribute("transform", "translate("+ -desplazamiento + ", 0)");
+//			this.titleNodeGroup.setAttribute("moveX", desplazamiento);
+//	}
 };
 
 
-FeatureTrack.prototype.drawTitle = function(midlle, args){
+FeatureTrack.prototype.drawTitle = function(middle, args){
 	var widthLine = 1;
 	if (args != null){
 		if (args.width != null){
@@ -367,8 +368,8 @@ FeatureTrack.prototype.drawTitle = function(midlle, args){
 	}
 	this.titleNodeGroup.setAttribute("moveX", 0);
 	
-	var coordenateX = this._convertGenomePositionToPixelPosition(midlle);
-		
+	if(middle < 0) middle = 0;
+	var coordenateX = this._convertGenomePositionToPixelPosition(middle);
 		
 	if (this.titleRectangle != null){
 		this.titleRectangle.parentNode.removeChild(this.titleRectangle);
@@ -380,14 +381,14 @@ FeatureTrack.prototype.drawTitle = function(midlle, args){
 	
 	
 	if (this.isAvalaible){
-		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["id"]];
+		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["class", "trackTitleBox"]];
 		this.titleRectangle = SVG.drawRectangle(coordenateX , this.top, this.titleWidth , this.height, this.titleNodeGroup, attributes);
-		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize]]);
+		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"]]);
 	}
 	else{
-		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0]];
+		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0], ["class", "trackTitleBox"]];
 		SVG.drawRectangle(coordenateX , this.top, this.width , this.height, this.titleNodeGroup, attributes);
-		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize]]);
+		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"]]);
 	}
 };
 

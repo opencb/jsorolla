@@ -636,19 +636,35 @@ TrackCanvas.prototype._goToCoordinateX = function(position) {
 };
 
 TrackCanvas.prototype._moveCoordinateX = function(move) {
-	for ( var i = 0; i < this.trackList.length; i++) {
-		if ((this.trackList[i].title) != null) {
-//			if (parseFloat(this.pixelRatio) < 1){
-				this.trackList[i].moveTitle(-move);
-//			}
-//			else{
-//				this._drawTitle(i);
-//			}
-		}
-	}
+//	for ( var i = 0; i < this.trackList.length; i++) {
+//		if ((this.trackList[i].title) != null) {
+////			if (parseFloat(this.pixelRatio) < 1){
+//				this.trackList[i].moveTitle(-move);
+////			}
+////			else{
+////				this._drawTitle(i);
+////			}
+//		}
+//	}
 
 	var newStart = move / this.pixelRatio;
 	this._goToCoordinateX(Math.ceil(this.start + newStart));
+	this._moveTitle();
+};
+
+TrackCanvas.prototype._moveTitle = function() {
+	// Get svg elements
+	var titleBoxElements = $(".trackTitleBox");
+	var titleTextElements = $(".trackTitleText");
+	
+	var start = this.start;
+	if(start < 0) start = 0;
+	var coordenateX = ((start * this.pixelRatio) % this.viewBoxModule);
+
+	for ( var i = 0; i < titleBoxElements.length; i++) {
+		titleBoxElements[i].setAttribute("x", coordenateX);
+		titleTextElements[i].setAttribute("x", coordenateX+2);
+	}
 };
 
 TrackCanvas.prototype._moveCoordinateY = function(move) {

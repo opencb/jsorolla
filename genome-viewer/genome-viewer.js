@@ -677,7 +677,7 @@ GenomeViewer.prototype.drawChromosome = function(chromosome, start, end) {
 		left : 10,
 		right : width - 100,
 		width : width,
-		height : 40,
+		height : 50,
 		label : true,
 		"vertical" : false,
 		"rounded" : 4
