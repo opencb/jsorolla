@@ -4,8 +4,8 @@ function CellBaseManager(species, args) {
 	// these 3 parameters can be modified 
 	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
 //	this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
-//	this.host = "http://mem16:8080/cellbase/rest";
 //	this.host = "http://fsalavert:8080/cellbase/rest";
+//	this.host = "http://rsanchez:8080/cellbase/rest";
 //	this.host = "http://imedina:8080/cellbase/rest";
 	
 	//XXX for deploy security
