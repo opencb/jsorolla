@@ -62,6 +62,7 @@ function NetworkViewer(targetId, species, args) {
 		Ext.example.msg('Species', _this.speciesName+' selected.');
 		
 		_this.networkMetaDataViewer.setSpecies(data.species);
+		_this.networkWidget.setSpecies(data.species);
 //		_this.pathwayTreeViewer.setSpecies(data.species);
 	});
 	

@@ -3,8 +3,11 @@ function CellBaseManager(species, args) {
 
 	// these 3 parameters can be modified 
 	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+//	this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
+//	this.host = "http://mem16:8080/cellbase/rest";
 //	this.host = "http://fsalavert:8080/cellbase/rest";
-//	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+//	this.host = "http://imedina:8080/cellbase/rest";
+	
 	//XXX for deploy security
 	if (window.location.host.indexOf("bioinfo.cipf.es")!=-1 ||
 		window.location.host.indexOf("genomemaps.org")!=-1 ||
@@ -138,6 +141,8 @@ function CellBaseManager(species, args) {
 			for (var i = 0; i < queryArray.length; i=i+this.maxQuery){
 				pieces.push(queryArray.slice(i, i+(this.maxQuery)));
 			}
+		}else{
+			pieces.push(queryArray);
 		}
 		
 		this.numberQueries = pieces.length;

@@ -219,6 +219,12 @@ NetworkWidget.prototype.setVerticesFontSize = function(value){
 	}
 };
 
+NetworkWidget.prototype.setSpecies = function(species){
+	this.graphCanvas.species=species;
+	this.species=species;
+};
+
+
 /** GETTERS **/
 NetworkWidget.prototype.getFormatter = function(){
 	return this.getGraphCanvas().getFormatter();
@@ -234,3 +240,5 @@ NetworkWidget.prototype.getDataset = function(){
 NetworkWidget.prototype.getGraphCanvas = function(){
 	return this.graphCanvas;
 };
+
+

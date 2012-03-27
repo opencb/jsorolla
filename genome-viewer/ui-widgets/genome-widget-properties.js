@@ -10,7 +10,7 @@ function GenomeWidgetProperties(species,args) {
 	this._pixelRatio = 0.0005; 
 	this.showTranscripts = false;
 	
-	this._zoom = 0;
+	this._zoom = 100;
 	this.increment = 5;
     
 	/** General parameters TRACKS CONFIG **/
@@ -25,7 +25,6 @@ function GenomeWidgetProperties(species,args) {
 		if (args.id != null){
 			this.id = args.id;
 		}
-		
 		if (args._pixelRatio != null){
 			this._pixelRatio = args._pixelRatio;
 		}
@@ -39,6 +38,10 @@ function GenomeWidgetProperties(species,args) {
 		if (args.showExons != null){
 			this.showExons = args.showExons;
 		}
+		if (args.zoom != null){
+			this._zoom = args.zoom;
+		}
+		
 	}
 	
 	this._zoomLevels = new Object();
@@ -123,7 +126,7 @@ GenomeWidgetProperties.prototype.init = function(){
 	}
 	
 	
-	this._zoom =  100;
+//	this._zoom =  100;
 	this._pixelRatio = this._zoomLevels[this._zoom];
 	this.windowSize = this._windowSizeLevels[this._zoom];
 	

@@ -28,7 +28,6 @@ LegendPanel.prototype.getColorItems = function(legend){
 //		var cp = new Ext.picker.Color();
 //		cp.width = 20;
 //		cp.colors = [color];
-
 		var size=15;
 		var color = Ext.create('Ext.draw.Component', {
         width: size,

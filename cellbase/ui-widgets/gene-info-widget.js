@@ -181,7 +181,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
     	var pdbs = [];
     	$.ajax({
 //    		  url: 'http://ws.bioinfo.cipf.es/celldb/rest/v1/hsa/feature/id/brca2/xref?dbname=pdb',
-    		  url: 'http://ws.bioinfo.cipf.es/cellbase/rest/v1/hsa/feature/id/'+this.feature.feature.stableId+'/xref?dbname=pdb',
+    		  url: 'http://ws.bioinfo.cipf.es/cellbase/rest/v1/hsa/feature/id/'+this.feature.getName()+'/xref?dbname=pdb',
 //    		  data: data,
 //    		  dataType: dataType,
     		  async:false,
