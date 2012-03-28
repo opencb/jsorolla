@@ -428,7 +428,7 @@ ChromosomeFeatureTrack.prototype._drawCytoband = function (feature){
 		if (this.label){
 			var textAttr = [["fill", "black"],["id", this.id_ + "title"] ,["opacity", "1"],["font-size", "10"]];
 			var x = this.left + this.pixelInc  * ((feature.start + (feature.end - feature.start)/2) - this.start);
-			var y = this.height - 20;
+			var y = this.height - 23;
 			textAttr.push(["transform", "translate("+ x +", " + y + "), rotate(90)"]);
 			SVG.drawText(0, 0, feature.cytoband, this.labelNodeGroup, textAttr);
 		}

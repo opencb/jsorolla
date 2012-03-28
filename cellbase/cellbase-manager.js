@@ -2,8 +2,8 @@ function CellBaseManager(species, args) {
 //	console.log(species);
 
 	// these 3 parameters can be modified 
-	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
-//	this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
+//	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+	this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
 //	this.host = "http://fsalavert:8080/cellbase/rest";
 //	this.host = "http://rsanchez:8080/cellbase/rest";
 //	this.host = "http://imedina:8080/cellbase/rest";

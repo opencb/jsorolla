@@ -20,7 +20,7 @@ function Track(trackerID, targetNode,  args) {
 	this.top = 0;
 	this.left = 100;
 	this.right = 900;
-	this.width = 1100;
+	this.width = 400;
 	this.height = 50;
 	this.originalTop = this.top;
 	this.originalHeight = this.height;

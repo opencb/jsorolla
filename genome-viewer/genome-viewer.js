@@ -491,7 +491,7 @@ GenomeViewer.prototype._getChromosomePanel = function() {
 		margin:10
 	});
 	return Ext.create('Ext.container.Container', {
-		height : 70,
+		height : 80,
 	    layout: {type: 'table', columns: 2},
 		items:[label,svg]
 //		html : '<br/><table style="border:0px" ><tr><td id="'
@@ -704,12 +704,14 @@ GenomeViewer.prototype.drawChromosome = function(chromosome, start, end) {
 	dataAdapter.successed.addEventListener(function(evt, data) {
 		if (data!=null && data[0].length>0){
 			_this.lastPosition = data[0][data[0].length-1].end;
-			_this.position = _this.lastPosition/2;
 //			console.log(_this.lastPosition);
+			_this.position = _this.lastPosition/2;
 		}
 		_this.chromosomeFeatureTrack.draw(dataAdapter.dataset);
 		_this.chromosomeFeatureTrack.click.addEventListener(function(evt, data) {
-			_this.setLocation(_this.chromosome, data);
+//			_this.setLocation(_this.chromosome, data);
+			_this.position = Math.ceil(data);
+			_this.refreshMasterGenomeViewer();
 		});
 	});
 
