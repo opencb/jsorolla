@@ -6,12 +6,15 @@ function GenomeViewer(targetId, species, args) {
 	// if not provided on instatiation
 	this.width =  $(document).width();
 	this.height = $(document).height();
+	this.lastPosition=260000000;
 	this.targetId=null;
 	
 	//Default values
 	this.species="hsa";
 	this.speciesName="Homo sapiens";
 	this.increment = 5;
+	
+//	this.firstLoad=true;
 	
 	//Setting paramaters
 	if (targetId != null){
@@ -50,6 +53,7 @@ function GenomeViewer(targetId, species, args) {
 	//Events i send
 	this.onSpeciesChange = new Event();
 	this.onZoomChange = new Event();
+	this.onLastChrPosition = new Event();
 	
 	console.log(this.width+"x"+this.height);
 	console.log(this.targetId);
@@ -117,14 +121,19 @@ GenomeViewer.prototype.draw = function(){
 };
 
 GenomeViewer.prototype._render = function() {
+	var _this=this;
 	var start = this.position - (this.genomeWidgetProperties.windowSize);
 	var end = this.position + (this.genomeWidgetProperties.windowSize);
 	
 //	console.log(start+":"+end);
 	
-	this._drawGenomeViewer();
+	this.onLastChrPosition.addEventListener(function(sender,data){
+		_this._drawGenomeViewer();
+	});
 	
 	this.drawChromosome(this.chromosome, start, end);
+	
+	
 	this._setScaleLabels();
 };
 
@@ -705,7 +714,14 @@ GenomeViewer.prototype.drawChromosome = function(chromosome, start, end) {
 		if (data!=null && data[0].length>0){
 			_this.lastPosition = data[0][data[0].length-1].end;
 //			console.log(_this.lastPosition);
-			_this.position = _this.lastPosition/2;
+			
+			if(_this.position > _this.lastPosition){
+				_this.position = _this.lastPosition/2;
+			}
+//			_this.firstLoad=false;
+			
+			_this.onLastChrPosition.notify();
+//			_this._getPanel().setLoading(false);
 		}
 		_this.chromosomeFeatureTrack.draw(dataAdapter.dataset);
 		_this.chromosomeFeatureTrack.click.addEventListener(function(evt, data) {
@@ -716,6 +732,7 @@ GenomeViewer.prototype.drawChromosome = function(chromosome, start, end) {
 	});
 
 	dataAdapter.fill(chromosome, 1, 260000000, "cytoband");
+	this._getPanel().setLoading("Retrieving data");
 };
 
 
@@ -788,6 +805,7 @@ GenomeViewer.prototype._drawGenomeViewer = function() {
 		}
 	},300);
 };
+
 GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 	var _this = this;
 	this._getPanel().setLoading("Retrieving data");
@@ -924,7 +942,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 			pixelSpaceBetweenBlocks : 100,
 			allowDuplicates : true,
 			backgroundColor : "#FCFFFF",
-			isAvalaible : false
+			isAvalaible : true
 		});
 		this.genomeWidgetProperties.addCustomTrackByZoom(0, 50, dasTrack1,dasDataAdapter2);
 		var dasTrack = new FeatureTrack("vcf", null, this.species,{
@@ -941,7 +959,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 			pixelSpaceBetweenBlocks : 100,
 			allowDuplicates : true,
 			backgroundColor : "#FCFFFF",
-			isAvalaible : false
+			isAvalaible : true
 		});
 		this.genomeWidgetProperties.addCustomTrackByZoom(60, 100, dasTrack,dasDataAdapter2);
 	}
@@ -1029,11 +1047,6 @@ GenomeViewer.prototype.addFeatureTrack = function(title, dataadapter) {
 		
 	}
 };
-
-
-
-
-
 
 
 

@@ -71,9 +71,9 @@
 	                         {"name":"Caenorhabditis elegans", "species":"cel", "icon":"","chromosome":"I","position":"111532"}
 	                         ];
 	function run(){
-		var gv = new GenomeViewer("gv_div",null,{width:800,height:480});
-		gv.draw();
+		var gv = new GenomeViewer("gv_div",AVAILABLE_SPECIES[0],{width:800,height:480});
 		gv.setSpeciesMenu(AVAILABLE_SPECIES);
+		gv.draw();
 	}
 	</script>
 

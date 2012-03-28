@@ -24,6 +24,7 @@ function DasRegionDataAdapter(args){
 	
 	this.dataset = new DataSet();
 	this.resource = "das";
+	this.proxy = "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v1/utils/proxy?url=";
 	
 	
 //	/** Optimizadores **/
@@ -64,7 +65,8 @@ DasRegionDataAdapter.prototype.fill = function(chromosome, start, end, callbackF
 		throw "Missing value in a not optional parameter: chromosome, start or end";
 	}
 	else{
-		var fullURL = this.url + "?segment=" + chromosome + ":" + start + "," + end; 
+		var fullURL = this.proxy + this.url + "?segment=" + chromosome + ":" + start + "," + end;
+		console.log(fullURL);
 		if (!this.isRegionAvalaible(chromosome, start, end)){
 			
 				$.ajax({
@@ -77,43 +79,44 @@ DasRegionDataAdapter.prototype.fill = function(chromosome, start, end, callbackF
 					  },
 					  
 					  success: function(data){
-						  
-						  		try{
-								_this.xml =   (new XMLSerializer()).serializeToString(data);
-								var xmlStringified =  (new XMLSerializer()).serializeToString(data); //data.childNodes[2].nodeValue;
-								var data = xml2json.parser(xmlStringified);
-								var result = new Array();
-								if (data.dasgff.gff.segment.feature != null){
-									for ( var i = 0; i < array.length; i++) {
-										data.dasgff.gff.segment.feature[i]["chromosome"] = chromosome;
-									}
-									result.push(data.dasgff.gff.segment.feature);
-								}
-								else{
-									result.push([]);
-								}
-					
-					
-								/** Esto funciona **/
-//								console.log("Con jquery");
-//								console.log(new Date())
-//								var result = new Array();
-								//result.push($.xmlToJSON(data).GFF[0].SEGMENT[0].FEATURE);
-//								console.log(new Date())
-//								console.log(result)
-								
-								if (!_this.lockSuccessEventNotify){
-									_this.getFinished(result, chromosome, start, end);
-								}
-								else{
-									_this.anticipateRegionRetrieved(result, chromosome, start, end);
-								}
-						  		}
-						  		catch(e){
-						  			alert("There was a problem parsing the xml: " + e);
-						  			console.log(data);
-						  			
-						  		}
+						  console.log("DATA FROM DAS: ");
+						  console.log(data);
+						  try{
+							  _this.xml =   (new XMLSerializer()).serializeToString(data);
+							  var xmlStringified =  (new XMLSerializer()).serializeToString(data); //data.childNodes[2].nodeValue;
+							  var data = xml2json.parser(xmlStringified);
+							  var result = new Array();
+							  if (data.dasgff.gff.segment.feature != null){
+								  for ( var i = 0; i < array.length; i++) {
+									  data.dasgff.gff.segment.feature[i]["chromosome"] = chromosome;
+								  }
+								  result.push(data.dasgff.gff.segment.feature);
+							  }
+							  else{
+								  result.push([]);
+							  }
+
+
+							  /** Esto funciona **/
+//							  console.log("Con jquery");
+//							  console.log(new Date())
+//							  var result = new Array();
+							  //result.push($.xmlToJSON(data).GFF[0].SEGMENT[0].FEATURE);
+//							  console.log(new Date())
+//							  console.log(result)
+
+							  if (!_this.lockSuccessEventNotify){
+								  _this.getFinished(result, chromosome, start, end);
+							  }
+							  else{
+								  _this.anticipateRegionRetrieved(result, chromosome, start, end);
+							  }
+						  }
+						  catch(e){
+							  alert("There was a problem parsing the xml: " + e);
+							  console.log(data);
+
+						  }
 					  }
 					});
 				
