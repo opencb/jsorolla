@@ -56,7 +56,6 @@ RuleRegionDataAdapter.prototype._getFeaturesFromRegion = function(start, end){
 	
 	for (var i = start ; i <= end ; i = parseFloat(i) + parseFloat(this.ratio) ){
 		if ((i >=0)&&(i<this.maxChromosomeSize)){
-
 //			var s = i;
 			for (var j=0; j<increment; j++) {
 
