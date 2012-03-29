@@ -13,6 +13,7 @@ function GenomeViewer(targetId, species, args) {
 	this.species="hsa";
 	this.speciesName="Homo sapiens";
 	this.increment = 5;
+	this.zoom=100;
 	
 //	this.firstLoad=true;
 	
@@ -62,13 +63,13 @@ function GenomeViewer(targetId, species, args) {
 	
 	this.genomeWidget = null;// new GenomeWidget(this.id + "id",
 //	this.chromosomeGenomeWidget = null;
-	
+	console.log(this.zoom);
 	this.genomeWidgetProperties = new GenomeWidgetProperties(this.species,{
 				width:this.width,
 				windowSize : 1000000,
 				pixelRatio : 0.0005,
 				id:this.id,
-				zoom:100,
+				zoom:this.zoom,
 				increment:this.increment
 	});
 	
@@ -86,7 +87,7 @@ function GenomeViewer(targetId, species, args) {
 			windowSize : 1000000,
 			pixelRatio : 0.0005,
 			id:_this.id,
-			zoom:100,
+			zoom:_this.zoom,
 			increment:_this.increment
 		});
 		
@@ -301,7 +302,8 @@ GenomeViewer.prototype._getZoomSlider = function() {
 			minValue : 0,
 			hideLabel : false,
 			maxValue : 100,
-			value : _this.genomeWidgetProperties.getZoom(),
+//			value : _this.genomeWidgetProperties.getZoom(),
+			value : this.zoom,
 			useTips : true,
 			increment : this.increment,
 			tipText : function(thumb) {
@@ -336,13 +338,15 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
         
     }
     if (action == '+'){
-    	   var zoom = this.genomeWidgetProperties.getZoom();
-    	   if (zoom < 100){
-    		   this.setZoom(zoom + this.increment);
-    	   }
+//  	var zoom = this.genomeWidgetProperties.getZoom();
+    	var zoom = this.zoom;
+    	if (zoom < 100){
+    		this.setZoom(zoom + this.increment);
+    	}
     }
     if (action == '-'){
-    	 var zoom = this.genomeWidgetProperties.getZoom();
+//    	 var zoom = this.genomeWidgetProperties.getZoom();
+    	 var zoom = this.zoom;
   	   if (zoom >= 5){
   		   this.setZoom(zoom - this.increment);
   	   }
@@ -749,6 +753,7 @@ GenomeViewer.prototype.setZoom = function(value) {
 	
 	
 	this.genomeWidgetProperties.setZoom(value);
+	this.zoom = value;
 	
 	this.position = this.genomeWidget.getMiddlePoint();
 	this._getZoomSlider().setValue(value);
@@ -784,8 +789,8 @@ GenomeViewer.prototype._setPositionField = function(chromosome, position) {
 
 
 GenomeViewer.prototype._getWindowsSize = function() {
-	var zoom = this.genomeWidgetProperties.getZoom();
-	return this.genomeWidgetProperties.getWindowSize(zoom);
+//	var zoom = this.genomeWidgetProperties.getZoom();
+	return this.genomeWidgetProperties.getWindowSize(this.zoom);
 };
 
 GenomeViewer.prototype.refreshMasterGenomeViewer = function() {
@@ -803,7 +808,7 @@ GenomeViewer.prototype._drawGenomeViewer = function() {
 		if(_this.drawing==0){
 			_this._drawOnceGenomeViewer();
 		}
-	},300);
+	},500);
 };
 
 GenomeViewer.prototype._drawOnceGenomeViewer = function() {
@@ -825,8 +830,8 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 	                height:  2000
 	});
 
-	var zoom = this.genomeWidgetProperties.getZoom();
-
+//	var zoom = this.genomeWidgetProperties.getZoom();
+	var zoom = this.zoom;
 	
 	if (this.genomeWidgetProperties.getTrackByZoom(zoom).length > 0){
 		for ( var i = 0; i < this.genomeWidgetProperties.getTrackByZoom(zoom).length; i++) {
