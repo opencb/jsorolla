@@ -14,6 +14,7 @@ function GenomeViewer(targetId, species, args) {
 	this.speciesName="Homo sapiens";
 	this.increment = 5;
 	this.zoom=100;
+	this.version="";
 	
 //	this.firstLoad=true;
 	
@@ -50,6 +51,9 @@ function GenomeViewer(targetId, species, args) {
 		}
 		if (args.position != null) {
 			this.position = parseInt(args.position);
+		}
+		if (args.version != null) {
+			this.version = args.version;
 		}
 	}
 
@@ -586,6 +590,12 @@ GenomeViewer.prototype._getBottomBar = function() {
 		]
 	});
 //	scale.surface.items.items[0].setAttributes({text:'num'},true);
+	
+	var aboutLabel = Ext.create('Ext.form.Label', {
+		text: this.version,
+		margin: "3 5 0 5"
+	});
+	
 	var taskbar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'uxTaskbar',
 		winMgr: new Ext.ZIndexManager(),
@@ -609,7 +619,7 @@ GenomeViewer.prototype._getBottomBar = function() {
 		layout:'hbox',
 		cls:"bio-botbar x-unselectable",
 		height:30,
-		items : [taskbar,legendBar]
+		items : [aboutLabel,taskbar,legendBar]
 	});
 	return bottomBar;
 };
@@ -937,7 +947,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 		var dasTrack1 = new FeatureTrack("vcf", null, this.species,{
 			top : 10,
 			left : 0,
-			height : 10,
+			height : 15,
 //			labelHeight : 12,
 //			featureHeight : 12,
 			title : name,
@@ -949,9 +959,9 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 			pixelSpaceBetweenBlocks : 100,
 			allowDuplicates : true,
 			backgroundColor : "#FCFFFF",
-			isAvalaible : true
+			isAvalaible : false
 		});
-		this.genomeWidgetProperties.addCustomTrackByZoom(0, 50, dasTrack1,dasDataAdapter2);
+		this.genomeWidgetProperties.addCustomTrackByZoom(0, 55, dasTrack1,dasDataAdapter2);
 		var dasTrack = new FeatureTrack("vcf", null, this.species,{
 			top : 10,
 			left : 0,
@@ -960,7 +970,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 //			featureHeight :10,
 			title : name,
 			titleFontSize : 9,
-			forceColor : "#000000",
+			forceColor : "purple",
 			label : true,
 			avoidOverlapping : true,
 			pixelSpaceBetweenBlocks : 100,

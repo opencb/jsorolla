@@ -66,7 +66,6 @@ DasRegionDataAdapter.prototype.fill = function(chromosome, start, end, callbackF
 	}
 	else{
 		var fullURL = this.proxy + this.url + "?segment=" + chromosome + ":" + start + "," + end;
-		console.log(fullURL);
 		if (!this.isRegionAvalaible(chromosome, start, end)){
 			
 				$.ajax({
@@ -79,44 +78,52 @@ DasRegionDataAdapter.prototype.fill = function(chromosome, start, end, callbackF
 					  },
 					  
 					  success: function(data){
-						  console.log("DATA FROM DAS: ");
-						  console.log(data);
-						  try{
-							  _this.xml =   (new XMLSerializer()).serializeToString(data);
-							  var xmlStringified =  (new XMLSerializer()).serializeToString(data); //data.childNodes[2].nodeValue;
-							  var data = xml2json.parser(xmlStringified);
-							  var result = new Array();
-							  if (data.dasgff.gff.segment.feature != null){
-								  for ( var i = 0; i < array.length; i++) {
-									  data.dasgff.gff.segment.feature[i]["chromosome"] = chromosome;
+//						  try{
+						  _this.xml =   (new XMLSerializer()).serializeToString(data);
+						  var xmlStringified =  (new XMLSerializer()).serializeToString(data); //data.childNodes[2].nodeValue;
+						  var data = xml2json.parser(xmlStringified);
+						  var result = new Array();
+
+						  if (typeof(data.dasgff.gff.segment)  != 'undefined'){
+							  if (typeof(data.dasgff.gff.segment.feature)  != 'undefined'){	  
+								  result = data.dasgff.gff.segment.feature;	
+							  }
+							  else if (typeof(data.dasgff.gff.segment[0])  != 'undefined'){
+								  if (data.dasgff.gff.segment[0].feature != null){
+									  for ( var i = 0; i < data.dasgff.gff.segment.length; i++) {
+										  for ( var j = 0; j < data.dasgff.gff.segment[i].feature.length; j++) {
+											  data.dasgff.gff.segment[i].feature[j]["chromosome"] = chromosome;
+											  result.push(data.dasgff.gff.segment[i].feature[j]);
+										  }
+									  }
 								  }
-								  result.push(data.dasgff.gff.segment.feature);
-							  }
-							  else{
-								  result.push([]);
-							  }
-
-
-							  /** Esto funciona **/
-//							  console.log("Con jquery");
-//							  console.log(new Date())
-//							  var result = new Array();
-							  //result.push($.xmlToJSON(data).GFF[0].SEGMENT[0].FEATURE);
-//							  console.log(new Date())
-//							  console.log(result)
-
-							  if (!_this.lockSuccessEventNotify){
-								  _this.getFinished(result, chromosome, start, end);
-							  }
-							  else{
-								  _this.anticipateRegionRetrieved(result, chromosome, start, end);
+								  else{
+									  result.push([]);
+								  }
 							  }
 						  }
-						  catch(e){
-							  alert("There was a problem parsing the xml: " + e);
-							  console.log(data);
 
+
+						  /** Esto funciona **/
+//						  console.log("Con jquery");
+//						  console.log(new Date());
+//						  var result = new Array();
+//						  result.push($.xmlToJSON(data).GFF[0].SEGMENT[0].FEATURE[0]);
+//						  console.log(new Date());
+//						  console.log(result);
+
+						  if (!_this.lockSuccessEventNotify){
+							  _this.getFinished(result, chromosome, start, end);
 						  }
+						  else{
+							  _this.anticipateRegionRetrieved(result, chromosome, start, end);
+						  }
+//						  }
+//						  catch(e){
+//						  console.log("There was a problem parsing the xml: " + e);
+//						  console.log(data);
+
+//						  }
 					  }
 					});
 				
@@ -130,7 +137,7 @@ DasRegionDataAdapter.prototype.fill = function(chromosome, start, end, callbackF
 
 DasRegionDataAdapter.prototype.getFinished = function(data, chromosome, start, end){
 	this.dataset.loadFromJSON(data);
-	this.datasets[this._getHashMapKey(chromosome, start, end)] = this.dataset;
+	this.datasets[this._getHashMapKey(chromosome, start, end)] = this.dataset.json;
 	this.successed.notify();
 };
 

@@ -627,6 +627,10 @@ function DASFeatureFormatter(feature){
         FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
 };
 
+DASFeatureFormatter.prototype.getName = function(){
+	return this.feature.label;
+};
+
 
 GenericFeatureFormatter.prototype.setProperties = FeatureFormatter.prototype.setProperties;
 GenericFeatureFormatter.prototype.getDefault = FeatureFormatter.prototype.getDefault;
