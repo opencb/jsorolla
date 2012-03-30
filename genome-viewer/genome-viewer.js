@@ -1,6 +1,6 @@
 function GenomeViewer(targetId, species, args) {
 	var _this=this;
-	this.id = "GenomeViewer:"+ Math.round(Math.random()*10000);
+	this.id = "GenomeViewer"+ Math.round(Math.random()*10000);
 	this.menuBar = null;
 	
 	// if not provided on instatiation
@@ -53,8 +53,9 @@ function GenomeViewer(targetId, species, args) {
 
 	//Events i send
 	this.onSpeciesChange = new Event();
-	this.onZoomChange = new Event();
+	this.afterLoading = new Event();
 	this.onLastChrPosition = new Event();
+	
 	
 	console.log(this.width+"x"+this.height);
 	console.log(this.targetId);
@@ -106,6 +107,11 @@ function GenomeViewer(targetId, species, args) {
 	
 	//used to know if the method _drawGenomeViewer is already called
 	this.drawing=0;
+	this.loading=true;
+	this.afterLoading.addEventListener(function(sender,data){
+		_this.loading=false;
+	});
+	
 };
 GenomeViewer.prototype.setMenuBar = function(menuBar){
 	this.menuBar = menuBar;
@@ -297,7 +303,7 @@ GenomeViewer.prototype._getZoomSlider = function() {
 	var _this = this;
 	if(this._zoomSlider==null){
 		this._zoomSlider = Ext.create('Ext.slider.Single', {
-			id : this.id + ' zoomSlider',
+			id : this.id+'zoomSlider',
 			width : 200,
 			minValue : 0,
 			hideLabel : false,
@@ -371,6 +377,8 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
         var position = Ext.getCmp(this.id+'tbCoordinate').getValue();
         this.setLocation(this.chromosome, this.position + (this.genomeWidgetProperties.windowSize/2));
     }
+    
+    
 };
 
 
@@ -548,6 +556,7 @@ GenomeViewer.prototype._getTracksPanelID = function() {
 };
 
 GenomeViewer.prototype._getTracksPanel = function() {
+	var _this=this;
 	if (this._mainPanel == null) {
 		this._mainPanel = Ext.create('Ext.panel.Panel', {
 			autoScroll:true,
@@ -750,18 +759,19 @@ GenomeViewer.prototype._setScaleLabels = function() {
 };
 
 GenomeViewer.prototype.setZoom = function(value) {
-	
-	
-	this.genomeWidgetProperties.setZoom(value);
-	this.zoom = value;
-	
-	this.position = this.genomeWidget.getMiddlePoint();
-	this._getZoomSlider().setValue(value);
-	
-	//TODO ORIG descomentar
+	if(!this.loading){
+		this.loading=true;
+		this.genomeWidgetProperties.setZoom(value);
+		this.zoom = value;
+		
+		this.position = this.genomeWidget.getMiddlePoint();
+		this._getZoomSlider().setValue(value);
+		
+		//TODO ORIG descomentar
 //	this.genomeWidget.trackCanvas._goToCoordinateX(this.position- (this.genomeWidget.trackCanvas.width / 2)/ this.genomeWidgetProperties.getPixelRatio());
-	this._setScaleLabels();
-	this.refreshMasterGenomeViewer();
+		this._setScaleLabels();
+		this.refreshMasterGenomeViewer();
+	}
 };
 
 
@@ -813,6 +823,7 @@ GenomeViewer.prototype._drawGenomeViewer = function() {
 
 GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 	var _this = this;
+	this._getPanel().disable();
 	this._getPanel().setLoading("Retrieving data");
 //	this.updateTracksMenu();
 
@@ -826,6 +837,7 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 	                pixelRatio: pixelRatio,
 	                width:this.width-15,
 	                lastPosition : this.lastPosition,
+	                viewer:this,
 //	                height:  this.height
 	                height:  2000
 	});
@@ -880,7 +892,9 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 		});
 		 
 		this.genomeWidget.onRender.addEventListener(function (evt){
+			_this._getPanel().enable(false);
 			_this._getPanel().setLoading(false);
+			_this.afterLoading.notify();
 			
 			//TODO pako doing descomentar para el funcionamiento anterior
 //			_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);

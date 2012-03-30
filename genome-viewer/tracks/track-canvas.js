@@ -101,6 +101,9 @@ function TrackCanvas(trackerID, targetNode, args) {
 		if (args.lastPosition != null) {
 			this.lastPosition = args.lastPosition;
 		}
+		if (args.viewer != null) {
+			this.viewer = args.viewer;
+		}
 	}
 
 	/** Info Panel */
@@ -189,6 +192,7 @@ TrackCanvas.prototype.mouseUp = function(event) {
 };
 
 TrackCanvas.prototype.init = function() {
+	var _this=this;
 	this._svg = this.createSVGDom(this.targetID, this.id, this.width, this.height, this.backgroundColor);
 
 	/** SVG Events listener */
@@ -204,6 +208,40 @@ TrackCanvas.prototype.init = function() {
 		_this.mouseUp(event, _this);
 	}, false);
 	
+
+	
+	
+	this._svg.addEventListener("focusin", function(event) {
+		$("body").keyup(function(e) {
+			if(e.keyCode == 37){//left arrow
+				_this.moveX(-(10/_this.pixelRatio));
+			}
+			if(e.keyCode == 39){//right arrow
+				_this.moveX((10/_this.pixelRatio));
+			}
+			
+			if(e.keyCode == 37 && e.ctrlKey){//left arrow faster
+				_this.moveX(-(100/_this.pixelRatio));
+			}
+			if(e.keyCode == 39 && e.ctrlKey){//right arrow faster
+				_this.moveX((100/_this.pixelRatio));
+			}
+			
+			if(e.keyCode == 109 && e.shiftKey){//left arrow faster
+				_this.viewer._handleNavigationBar("-");
+			}
+			if(e.keyCode == 107 && e.shiftKey){//right arrow faster
+				_this.viewer._handleNavigationBar("+");
+			}
+		});
+	}, false);
+	
+	this._svg.addEventListener("focusout", function(event) {
+		$("body").off('keyup');
+	}, false);
+	
+	$("#"+this._svg.id).focus();
+
 //	this._svg.addEventListener("mouseout", function(event) {
 //		_this.mouseUp(event, _this);
 //	}, false);
@@ -651,6 +689,12 @@ TrackCanvas.prototype._moveCoordinateX = function(move) {
 	this._goToCoordinateX(Math.ceil(this.start + newStart));
 	this._moveTitle();
 };
+
+TrackCanvas.prototype.moveX = function(move) {
+	this._goToCoordinateX(Math.ceil(this.start + move));
+	this._moveTitle();
+};
+
 
 TrackCanvas.prototype._moveTitle = function() {
 	// Get svg elements

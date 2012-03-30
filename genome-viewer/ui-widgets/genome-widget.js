@@ -38,6 +38,9 @@ function GenomeWidget(trackerID, targetId,  args) {
 		if (args.lastPosition != null) {
 			this.lastPosition = args.lastPosition;
 		}
+		if (args.viewer != null) {
+			this.viewer = args.viewer;
+		}
 		
 //		if (args.ruleNotListenMoving != null){
 //			this.ruleNotListenMoving = args.ruleNotListenMoving;
@@ -115,12 +118,14 @@ GenomeWidget.prototype.draw = function(chromosome, data_start, data_end, view_st
 		end: this.end,
 		backgroundColor: "#FFCCFF", 
 		pixelRatio:this.pixelRatio,
+		viewer:this.viewer,
 		viewBoxModule: this.getviewBoxModule(),
 		allowDragging :this.allowDragging,
 		lastPosition : this.lastPosition
 	});
 	
     this.trackCanvas.init();
+    
     
     this.trackCanvas.afterDrag.addEventListener(function (evt, data){
 	});

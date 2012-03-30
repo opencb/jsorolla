@@ -6,7 +6,17 @@ function KaryotypePanelWindow(species,args){
 	
 	this.karyotypeCellBaseDataAdapter = new KaryotypeCellBaseDataAdapter(species);
 	
+	this.mode="window";
+	if (args!=null){
+		if (args.mode!=null){
+			this.mode = args.mode;
+		}
+		if (args.targetId!=null){//only if args.mode is panel
+			this.targetId = args.targetId;
+		}
+	}
 	this.args = args;
+	
 	
 	this.onRendered = new Event();
 	this.onMarkerChanged = new Event();
@@ -39,7 +49,9 @@ KaryotypePanelWindow.prototype.draw = function(){
 	if(this.panel==null){
 		this.render();
 	}
-	this.panel.show();
+	if(this.mode=="window"){
+		this.panel.show();
+	}
 };
 
 KaryotypePanelWindow.prototype.getKaryotypePanel = function(){
@@ -67,26 +79,40 @@ KaryotypePanelWindow.prototype.getKaryotypePanel = function(){
 KaryotypePanelWindow.prototype.render = function(){
 	var _this = this;
 	
-	this.panel = Ext.create('Ext.ux.Window', {
-		title: 'Karyotype',
-		resizable:false,
-		taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
-		constrain:true,
-		animCollapse: true,
-		width: 1050,
-		height: 412,
-		minWidth: 300,
-		minHeight: 200,
-		layout: 'fit',
-		items: [this.getKaryotypePanel()],
-		buttonAlign:'center',
-		buttons:[{ text: 'Close', handler: function(){_this.panel.close();}}],
- 		listeners: {
-	      	destroy: function(){
-	       		delete _this.panel;
-	      	}
-    	}
-	});
+	//Window is shown by default
+	if(this.mode=="window"){
+		this.panel = Ext.create('Ext.ux.Window', {
+			title: 'Karyotype',
+			resizable:false,
+			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
+			constrain:true,
+			animCollapse: true,
+			width: 1050,
+			height: 412,
+			minWidth: 300,
+			minHeight: 200,
+			layout: 'fit',
+			items: [this.getKaryotypePanel()],
+			buttonAlign:'center',
+			buttons:[{ text: 'Close', handler: function(){_this.panel.close();}}],
+			listeners: {
+				destroy: function(){
+					delete _this.panel;
+				}
+			}
+		});
+	}else{//panel inside a given div
+		this.panel = Ext.create('Ext.panel.Panel', {
+			renderTo:this.targetId,
+			title: 'Karyotype',
+			width: 1050,
+			height: 412,
+			minWidth: 300,
+			minHeight: 200,
+			layout: 'fit',
+			items: [this.getKaryotypePanel()]
+		});
+	}
 	this.karyotypeCellBaseDataAdapter.fill();
 };
 
