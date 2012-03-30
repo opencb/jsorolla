@@ -78,6 +78,7 @@ TooltipPanel.prototype._getItemInfo = function(item){
 	   item instanceof MutationFeatureFormatter ||
 	   item instanceof CpgIslandFeatureFormatter ||
 	   item instanceof StructuralVariationFeatureFormatter ||
+	   item instanceof DASFeatureFormatter ||
 	   item instanceof MiRNAFeatureFormatter
 	){
 		str = '<span class="ssel">'+item.getName()+'</span><br>'+

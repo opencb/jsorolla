@@ -262,20 +262,20 @@ TrackCanvas.prototype._getTrackFromInternalRegionId = function(internalRegionId)
 TrackCanvas.prototype._formatData = function(regionAdapter) {
 	/** DAS  **/
 	if (regionAdapter instanceof DasRegionDataAdapter) {
-		console.log("regionAdapter instanceof DasRegionDataAdapter");
+//		console.log("regionAdapter instanceof DasRegionDataAdapter");
 //		var formatters = new ArrayRegionCellBaseDataAdapter();
-//		for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
-//			formatters.push(new DASFeatureFormatter(regionAdapter.dataset.json[0][i]));
-//		}
-//		regionAdapter.dataset.json = formatters;
+		var formatters = new Array();
+		for ( var i = 0; i < regionAdapter.dataset.json.length; i++) {
+			formatters.push(new DASFeatureFormatter(regionAdapter.dataset.json[i]));
+		}
+		regionAdapter.dataset.json = formatters;
 	}
 	
-	
+	/** GENE REGION  **/
 	if (regionAdapter instanceof GeneRegionCellBaseDataAdapter) {
 		var geneBlockManager = new GeneBlockManager();
 		regionAdapter.dataset.json = geneBlockManager.toDatasetFormatter(regionAdapter.dataset.json);
 	}
-
 	
 	/** VCF  **/
 	if (regionAdapter instanceof VCFLocalRegionDataAdapter) {

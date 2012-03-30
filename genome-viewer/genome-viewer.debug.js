@@ -1052,6 +1052,7 @@ function RuleRegionDataAdapter(args){
 			this.pixelRatio = args.pixelRatio;
 		}
 		
+		
 	}
 	
 	this.dataset = new DataSet();
@@ -1077,20 +1078,31 @@ RuleRegionDataAdapter.prototype.isRegionAvalaible = function(chromosome, start, 
 RuleRegionDataAdapter.prototype._getFeaturesFromRegion = function(start, end){
 	var features = new Array();
 
-	for (var i = start ; i < end ; i = parseFloat(i) + parseFloat(this.ratio) ){
-			if ((i >=0)&&(i<this.maxChromosomeSize)){
-			
-				
-				for ( var j = 2; j < 9; j = j + 2) {
-					var start = parseFloat(i) + parseFloat(j* this.ratio/10);
+	var increment = 5;
+//	console.log("*****"+start+"--"+end+"******");
+//	var token = this.ratio/increment;
+//	console.log("Token: "+token);
+//	console.log("Ratio: "+this.ratio);
+	
+	for (var i = start ; i <= end ; i = parseFloat(i) + parseFloat(this.ratio) ){
+		if ((i >=0)&&(i<this.maxChromosomeSize)){
+//			var s = i;
+			for (var j=0; j<increment; j++) {
+
+				var start = parseFloat(i) + parseFloat(j*(this.ratio/increment));
+				if(start<this.maxChromosomeSize){
 					features.push({"start":  start, "end": i + start, "label":false});
 				}
-				if (Math.ceil(this.pixelRatio) == 1){
-					i = Math.ceil(i/1000) * 1000;
-				}
-				features.push({"start":  i, "end": i, "label":true});
-				
+
+//				s = s + token;
+//				console.log("Parcial: "+s);
+//				features.push({"start":  s, "end": s, "label":false});
 			}
+//			if (Math.ceil(this.pixelRatio) == 1){
+//			i = Math.ceil(i/1000) * 1000;
+//			}
+			features.push({"start":  i, "end": i, "label":true});
+		}
 	}
 	return features;
 };
@@ -1102,24 +1114,23 @@ RuleRegionDataAdapter.prototype.fill = function(chromosome, start, end, resource
 	if ((chromosome == null)|| (start == null) || (end == null)){
 		throw "Missing value in a not optional parameter: chromosome, start or end";
 	}
+	if (!this.isRegionAvalaible(chromosome, start, end)){
+	
+				var result = new Array();
+				var data = new Array();
+				result = this._getFeaturesFromRegion(start, end);
+				data.push(result);
+				
+				if (!_this.lockSuccessEventNotify){
+					_this.getFinished(data, chromosome, start, end);
+				}
+				else{
+					_this.anticipateRegionRetrieved(data, chromosome, start, end);
+				}
+	}
 	else{
-		if (!this.isRegionAvalaible(chromosome, start, end)){
-					var result = new Array();
-					var data = new Array();
-					result = this._getFeaturesFromRegion(start, end);
-					data.push(result);
-					
-					if (!_this.lockSuccessEventNotify){
-						_this.getFinished(data, chromosome, start, end);
-					}
-					else{
-						_this.anticipateRegionRetrieved(data, chromosome, start, end);
-					}
-		}
-		else{
-			this.lockSuccessEventNotify = false;
-			
-		}
+		this.lockSuccessEventNotify = false;
+		
 	}
 };
 
@@ -1148,10 +1159,10 @@ RuleRegionDataAdapter.prototype.setIntervalView = function(chromosome,  middleVi
 				
 				var window = end - start;
 				var quarter = window/3;
-			
 				if (( (start -1) < 0 ) || ((parseFloat(end) + 1) > this.maxChromosomeSize ))
 				{
-					return;
+					//FIXME This return causes the rule not being updated properly
+//					return;
 				}
 
 				if ((middleView - start) < quarter){
@@ -1260,6 +1271,7 @@ function DasRegionDataAdapter(args){
 	
 	this.dataset = new DataSet();
 	this.resource = "das";
+	this.proxy = "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v1/utils/proxy?url=";
 	
 	
 //	/** Optimizadores **/
@@ -1300,7 +1312,8 @@ DasRegionDataAdapter.prototype.fill = function(chromosome, start, end, callbackF
 		throw "Missing value in a not optional parameter: chromosome, start or end";
 	}
 	else{
-		var fullURL = this.url + "?segment=" + chromosome + ":" + start + "," + end; 
+		var fullURL = this.proxy + this.url + "?segment=" + chromosome + ":" + start + "," + end;
+		console.log(fullURL);
 		if (!this.isRegionAvalaible(chromosome, start, end)){
 			
 				$.ajax({
@@ -1313,43 +1326,44 @@ DasRegionDataAdapter.prototype.fill = function(chromosome, start, end, callbackF
 					  },
 					  
 					  success: function(data){
-						  
-						  		try{
-								_this.xml =   (new XMLSerializer()).serializeToString(data);
-								var xmlStringified =  (new XMLSerializer()).serializeToString(data); //data.childNodes[2].nodeValue;
-								var data = xml2json.parser(xmlStringified);
-								var result = new Array();
-								if (data.dasgff.gff.segment.feature != null){
-									for ( var i = 0; i < array.length; i++) {
-										data.dasgff.gff.segment.feature[i]["chromosome"] = chromosome;
-									}
-									result.push(data.dasgff.gff.segment.feature);
-								}
-								else{
-									result.push([]);
-								}
-					
-					
-								/** Esto funciona **/
-//								console.log("Con jquery");
-//								console.log(new Date())
-//								var result = new Array();
-								//result.push($.xmlToJSON(data).GFF[0].SEGMENT[0].FEATURE);
-//								console.log(new Date())
-//								console.log(result)
-								
-								if (!_this.lockSuccessEventNotify){
-									_this.getFinished(result, chromosome, start, end);
-								}
-								else{
-									_this.anticipateRegionRetrieved(result, chromosome, start, end);
-								}
-						  		}
-						  		catch(e){
-						  			alert("There was a problem parsing the xml: " + e);
-						  			console.log(data);
-						  			
-						  		}
+						  console.log("DATA FROM DAS: ");
+						  console.log(data);
+						  try{
+							  _this.xml =   (new XMLSerializer()).serializeToString(data);
+							  var xmlStringified =  (new XMLSerializer()).serializeToString(data); //data.childNodes[2].nodeValue;
+							  var data = xml2json.parser(xmlStringified);
+							  var result = new Array();
+							  if (data.dasgff.gff.segment.feature != null){
+								  for ( var i = 0; i < array.length; i++) {
+									  data.dasgff.gff.segment.feature[i]["chromosome"] = chromosome;
+								  }
+								  result.push(data.dasgff.gff.segment.feature);
+							  }
+							  else{
+								  result.push([]);
+							  }
+
+
+							  /** Esto funciona **/
+//							  console.log("Con jquery");
+//							  console.log(new Date())
+//							  var result = new Array();
+							  //result.push($.xmlToJSON(data).GFF[0].SEGMENT[0].FEATURE);
+//							  console.log(new Date())
+//							  console.log(result)
+
+							  if (!_this.lockSuccessEventNotify){
+								  _this.getFinished(result, chromosome, start, end);
+							  }
+							  else{
+								  _this.anticipateRegionRetrieved(result, chromosome, start, end);
+							  }
+						  }
+						  catch(e){
+							  alert("There was a problem parsing the xml: " + e);
+							  console.log(data);
+
+						  }
 					  }
 					});
 				
@@ -1855,10 +1869,9 @@ SNPFeatureDataSet.prototype.validate = function(json){
 CellBaseDataAdapter.prototype.toJSON = DataAdapter.prototype.toJSON;
 
 
-function CellBaseDataAdapter(species){
-//	console.log(species);
+function CellBaseDataAdapter(species,args){
 	DataAdapter.prototype.constructor.call(this);
-	this.cellBaseManager = new CellBaseManager(species);
+	this.cellBaseManager = new CellBaseManager(species,args);
 	this.successed = new Event();
 	
 };
@@ -1922,7 +1935,7 @@ RegionCellBaseDataAdapter.prototype.setSpecies = CellBaseDataAdapter.prototype.s
 RegionCellBaseDataAdapter.prototype.toJSON = CellBaseDataAdapter.prototype.toJSON;
 
 function RegionCellBaseDataAdapter(species, args){
-	CellBaseDataAdapter.prototype.constructor.call(this, species);
+	CellBaseDataAdapter.prototype.constructor.call(this, species, args);
 	this.dataset = new FeatureDataSet();
 	this.category = "genomic";
 	this.subcategory = "region";
@@ -1988,7 +2001,7 @@ RegionCellBaseDataAdapter.prototype.getFinished = function(data, chromosome, sta
 //	debugger
 	this.dataset.loadFromJSON(data);
 	this.datasets[this._getHashMapKey(chromosome, start, end)] = this.dataset;
-	this.successed.notify();
+	this.successed.notify(data);
 };
 
 RegionCellBaseDataAdapter.prototype.anticipateRegionRetrieved = function(data, chromosome, start, end){
@@ -2003,8 +2016,9 @@ RegionCellBaseDataAdapter.prototype.anticipateRegionRetrieved = function(data, c
 RegionCellBaseDataAdapter.prototype.getFeaturesByPosition = function(position){
 	var features =  new Array();
 	var featuresKey = new Object();
+	console.log(this.datasets);
 	for (var dataset in this.datasets){
-		var features = this.datasets[dataset].toJSON();
+		features = this.datasets[dataset].toJSON();
 		for ( var g = 0; g < features.length; g++) {
 			var feature = features[g];
 			
@@ -2014,7 +2028,7 @@ RegionCellBaseDataAdapter.prototype.getFeaturesByPosition = function(position){
 			}
 		}
 	}
-	console.log(features.length);
+//	console.log(features.length);
 	return features;
 };
 
@@ -2449,6 +2463,12 @@ XrefFeatureListCellBaseDataAdapter.prototype.fill = function(query, identifier/*
 InfoWidget.prototype.draw = function (feature){
 //	this.featureId = feature.id;
 	this.feature = feature;
+	if(feature.getName()==null){
+		console.log("getName not defined");
+//		var feature = new Object();
+//		feature.getName = function(){return feature;};
+	}	
+	
 	console.log(feature.getName());
 //	this.feature.getName = function(){return "a";};
 	
@@ -2468,7 +2488,7 @@ InfoWidget.prototype.render = function (){
 		this.panel = Ext.create('Ext.ux.Window', {
 		    title: this.title +" "+ this.feature.getName(),
 		    id : this.title +" "+ this.feature.getName(),
-		    resizable: false,
+//		    resizable: false,
 		    minimizable :true,
 			constrain:true,
 		    closable:true,
@@ -2644,6 +2664,17 @@ InfoWidget.prototype.getExonTemplate = function (){
 		);
 };
 
+InfoWidget.prototype.getProteinTemplate = function (){
+	return new Ext.XTemplate(
+			 '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {primaryAccession} </span></span></p>',
+			 '<br>',
+			 '<p><span class="w100 dis s90">Full name: </span> <span class="">{fullName}</span></p>',
+			 '<p><span class="w100 dis s90">Gene name: </span> <span class="">{geneName}</span></p>',
+			 '<p><span class="w100 dis s90">Organism: </span> <span class="">{organism}</span></p>'
+		);
+};
+
+
 InfoWidget.prototype.getVCFVariantTemplate = function (){
 	return new Ext.XTemplate(
 			'<p><span><span class="panel-border-bottom"><span class="ssel s130">{chromosome}:{start}-{alt}</span> &nbsp; <span class="emph s120"> {label} </span></span></span></p><br>',
@@ -2654,7 +2685,52 @@ InfoWidget.prototype.getVCFVariantTemplate = function (){
 			'<p><span class="w75 dis s90">Samples: </span> {samples}</p>',
 			'<p><span class="w75 dis s90">Info: </span> {info}</p>'
 		);
-};GeneInfoWidget.prototype.draw = InfoWidget.prototype.draw;
+};
+
+InfoWidget.prototype.getPWMTemplate = function (){
+	return new Ext.XTemplate(
+			 '<p><span class="panel-border-bottom"><span class="ssel s130">{accession}</span> &nbsp; <span class="emph s120"> {tfName} </span></span></p>',
+			 '<br>',
+			 '<p><span class="w100 dis s90">Type: </span> <span class="">{source}</span></p>',
+			 '<p><span class="w100 dis s90">Source: </span> <span class="">{type}</span></p>',
+			 '<p><span class="w100 dis s90">Description: </span> <span class="">{description}</span></p>',
+			 '<p><span class="w100 dis s90">Length: </span> <span class="">{length}</span></p>',
+			 '<p><span class="w100 dis s90">Frequencies: </span> <span class="">{[this.parseFrequencies(values.frequencies)]}</span></p>',
+			 {
+				 parseFrequencies: function(values){
+					 return '<p>'+values.replace(/,/gi, '<br>')+"</p>";
+				 }
+			 }
+		);
+};
+
+InfoWidget.prototype.getProteinXrefTemplate = function (){
+	return new Ext.XTemplate(
+			'<p><span class="w75 emph s100">{[values.source.toUpperCase()]}</span> &nbsp; <span class="emph w125 s100"> {[this.generateLink(values)]} <span class="info">&raquo;</span> </span></p>',
+			{
+				generateLink: function(values){
+					if(values.source!=null){
+						switch(values.source.toUpperCase()){
+						case "GO": 	return 		'<a TARGET="_blank" href="http://amigo.geneontology.org/cgi-bin/amigo/term_details?term='+values.name+'">'+values.name+'</a>'; break;
+						case "REACTOME": return '<a TARGET="_blank" href="http://www.reactome.org/cgi-bin/eventbrowser_st_id?ST_ID='+values.name+'">'+values.name+'</a>'; break;
+						case "KEGG": return 	'<a TARGET="_blank" href="http://www.genome.jp/dbget-bin/www_bget?'+values.name+'">'+values.name+'</a>'; break;
+						case "INTACT": return 	'<a TARGET="_blank" href="http://www.ebi.ac.uk/intact/pages/interactions/interactions.xhtml?query='+values.name+'">'+values.name+'</a>'; break;
+						case "MINT": return 	'<a TARGET="_blank" href="http://mint.bio.uniroma2.it/mint/search/search.do?queryType=protein&interactorAc='+values.name+'">'+values.name+'</a>'; break;
+						case "DIP": return 		'<a TARGET="_blank" href="http://dip.doe-mbi.ucla.edu/dip/Browse.cgi?ID='+values.name+'">'+values.name+'</a>'; break;
+						case "STRING": return 	'<a TARGET="_blank" href="http://string-db.org/newstring_cgi/show_network_section.pl?identifier=P51587">'+values.name+'</a>'; break;
+						case "MIM": return 		'<a TARGET="_blank" href="http://www.omim.org/entry/'+values.name+'">'+values.name+'</a>'; break;
+						case "PHARMGKB": return '<a TARGET="_blank" href="http://www.pharmgkb.org/do/serve?objId='+values.name+'&objCls=Gene">'+values.name+'</a>'; break;
+						case "ORPHANET": return '<a TARGET="_blank" href="http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert='+values.name+'">'+values.name+'</a>'; break;
+						}
+					}
+					else{
+						return "";
+					}
+				}
+			}
+		);
+};
+GeneInfoWidget.prototype.draw = InfoWidget.prototype.draw;
 GeneInfoWidget.prototype.render = InfoWidget.prototype.render;
 GeneInfoWidget.prototype.getTreePanel = InfoWidget.prototype.getTreePanel;
 GeneInfoWidget.prototype.checkDataTypes = InfoWidget.prototype.checkDataTypes;
@@ -2682,10 +2758,10 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	                { text: "Reactome"},
 	                { text: "Interpro"}
 	            ] },
-	            { text: "Regulatory", children: [
-	                { text: "Jaspar"},
-	                { text: "miRNA"}
-	            ] },
+//	            { text: "Regulatory", children: [
+//	                { text: "Jaspar"},
+//	                { text: "miRNA"}
+//	            ] },
 	            {text: "3D protein"}
 	        ];
 };
@@ -2699,7 +2775,7 @@ GeneInfoWidget.prototype.optionClick = function (item){
 		}
 		switch (item.text){
 			case "Information": this.panel.add(this.getInfoPanel(this.data).show()); break;
-			case "Transcripts": this.panel.add(this.getTranscriptGrid(this.data.transcripts).show());  break;
+			case "Transcripts": this.panel.add(this.getTranscriptPanel(this.data.transcripts).show());  break;
 //			case "GO": this.panel.add(this.getGoGrid().show()); break;
 			case "GO": this.panel.add(this.getXrefGrid(this.data.go, "GO").show());  break;
 			case "Interpro": this.panel.add(this.getXrefGrid(this.data.interpro, "Interpro").show());  break;
@@ -2730,7 +2806,7 @@ GeneInfoWidget.prototype.getInfoPanel = function(data){
     return this.infoPanel;
 };
 
-GeneInfoWidget.prototype.getTranscriptGrid = function(data){
+GeneInfoWidget.prototype.getTranscriptPanel = function(data){
     if(this.transcriptGrid==null){
     	
     	var tpl = this.getTranscriptTemplate();
@@ -2837,7 +2913,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
     	var pdbs = [];
     	$.ajax({
 //    		  url: 'http://ws.bioinfo.cipf.es/celldb/rest/v1/hsa/feature/id/brca2/xref?dbname=pdb',
-    		  url: 'http://ws.bioinfo.cipf.es/celldb/rest/v1/hsa/feature/id/'+this.feature.feature.stableId+'/xref?dbname=pdb',
+    		  url: 'http://ws.bioinfo.cipf.es/cellbase/rest/v1/hsa/feature/id/'+this.feature.getName()+'/xref?dbname=pdb',
 //    		  data: data,
 //    		  dataType: dataType,
     		  async:false,
@@ -2945,11 +3021,13 @@ GeneInfoWidget.prototype.getData = function (){
 //	category, subcategory, query, resource, callbackFunction
 	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
 	cellBaseDataAdapter.successed.addEventListener(function (evt){
+		
 		_this.dataReceived(JSON.parse(cellBaseDataAdapter.toJSON()));//TODO
 	});
-	cellBaseDataAdapter.fill("feature","gene", this.feature.feature.stableId, "fullinfo");
+	cellBaseDataAdapter.fill("feature","gene", this.feature.getName(), "fullinfo");
 };
 GeneInfoWidget.prototype.dataReceived = function (data){
+	console.log(data);
 	this.data=data[0];
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();
@@ -3275,7 +3353,7 @@ TranscriptInfoWidget.prototype.get3Dprotein = function(data){
     	var pdbs = [];
     	$.ajax({
 //    		  url: 'http://ws.bioinfo.cipf.es/celldb/rest/v1/hsa/feature/id/brca2/xref?dbname=pdb',
-    		  url: 'http://ws.bioinfo.cipf.es/celldb/rest/v1/hsa/feature/id/'+this.feature.feature.stableId+'/xref?dbname=pdb',
+    		  url: 'http://ws.bioinfo.cipf.es/cellbase/rest/v1/hsa/feature/id/'+this.feature.feature.stableId+'/xref?dbname=pdb',
 //    		  data: data,
 //    		  dataType: dataType,
     		  async:false,
@@ -3464,18 +3542,25 @@ function CellBaseManager(species, args) {
 //	console.log(species);
 
 	// these 3 parameters can be modified 
-//	this.host = "http://ws.bioinfo.cipf.es/celldb/rest";
 	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+//	this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
+//	this.host = "http://fsalavert:8080/cellbase/rest";
+//	this.host = "http://rsanchez:8080/cellbase/rest";
+//	this.host = "http://imedina:8080/cellbase/rest";
+	
+	//XXX for deploy security
+	if (window.location.host.indexOf("bioinfo.cipf.es")!=-1 ||
+		window.location.host.indexOf("genomemaps.org")!=-1 ||
+		window.location.host.indexOf("cellbrowser.org")!=-1
+	){
+		this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+	}
+	
 	this.version = "v1";
 	this.species = species;
 	
-//	if(args != null) {
-//		
-//	}
 //		this.host = 'http://localhost:8080/celldb/rest';
-
 	CELLBASEHOST=this.host;
-	
 	
 	this.category = null;
 	this.subcategory = null;
@@ -3596,6 +3681,8 @@ function CellBaseManager(species, args) {
 			for (var i = 0; i < queryArray.length; i=i+this.maxQuery){
 				pieces.push(queryArray.slice(i, i+(this.maxQuery)));
 			}
+		}else{
+			pieces.push(queryArray);
 		}
 		
 		this.numberQueries = pieces.length;
@@ -3614,21 +3701,23 @@ function CellBaseManager(species, args) {
 
 
 	this._callServer = function(url, batchID, callbackFunction) {
-//		console.log(url+"?contentformat="+this.contentformat+"&outputcompress="+this.outputcompress+"&callbackParam=reponse");
 		var _this = this;
-		$.ajax( {
-			url : url,
-			type : "GET",
-			async : this.async,
-			data : {
+		
+		
+		var params  = {
 				of : this.contentformat,
 				outputcompress : this.outputcompress,
 				callbackParam :  "response"
-			},
+			};
+		
+		$.ajax({
+			url : url,
+			type : "GET",
+			async : this.async,
+			data : params,
 			dataType : this.dataType,
 			jsonp : "callback",
 			success : function() {
-				
 				if( typeof( response ) != 'undefined'  ){
 					if (callbackFunction!=null){
 						callbackFunction(response);
@@ -3643,7 +3732,6 @@ function CellBaseManager(species, args) {
 				else{
 					_this.error.notify();
 				}
-				
 			},
 			complete : function() {
 				_this.completed.notify();
@@ -3654,6 +3742,8 @@ function CellBaseManager(species, args) {
 				
 			}
 		});
+		
+		console.log(url);
 	};
 }
 ExpressionGenomicAttributesWidget.prototype.draw = GenomicAttributesWidget.prototype.draw;
@@ -3863,7 +3953,7 @@ ExpressionNetworkAttributesWidget.prototype.onDataChanged = function (data){
         }
     }
     
-	this.listWidget = new ListWidget(args.listWidgetArgs);
+	this.listWidget = new ListWidget(this.species,args.listWidgetArgs);
 	
     this.karyotypeWidget = new KaryotypePanel(this.getKaryotypePanelId(), this.species, {"top":10, "width":1000, "height": 300, "trackWidth":15});
 	this.attributesPanel = new AttributesPanel({height: 240, columnsCount: this.columnsCount,wum:args.wum,tags:args.tags});
@@ -4758,9 +4848,9 @@ GenomicListWidget.prototype.draw 				=       ListWidget.prototype.draw;
 GenomicListWidget.prototype.getActionButton 			=       ListWidget.prototype.getActionButton;
 
 
-function GenomicListWidget(args) {
-	ListWidget.prototype.constructor.call(this, args);
-	this.listPanel = new GenomicListPanel({title:false,gridFields:args.gridFields});
+function GenomicListWidget(species, args) {
+	ListWidget.prototype.constructor.call(this, species, args);
+//	this.listPanel = new GenomicListPanel({title:false,gridFields:args.gridFields,viewer:this.viewer});
 	this.onSelected = this.listPanel.onSelected;
 	this.onFilterResult = this.listPanel.onFilterResult;
 	
@@ -4822,10 +4912,11 @@ GenomicListWidget.prototype._render = function() {
 	      }
 		});
 	}
-};function ListWidget(args) {
+};function ListWidget(species, args) {
 	this.targetId = null;
 	this.id = "ListWidget_" + Math.round(Math.random()*10000000);
-		
+	this.species=species;
+	
 	this.width = 1000;
 	this.height = 500;
 	this.action = 'localize';
@@ -4855,7 +4946,8 @@ GenomicListWidget.prototype._render = function() {
         }
     }
 	
-	this.listPanel = new ListPanel({title:false,gridFields:args.gridFields});
+
+	this.listPanel = new ListPanel(this.species,{title:false,gridFields:args.gridFields,viewer:this.args.viewer});
 	this.onSelected=this.listPanel.onSelected;
 	this.onFilterResult=this.listPanel.onFilterResult;
 	
@@ -4931,10 +5023,13 @@ ListWidget.prototype.getActionButton = function(action) {
 		case "localize": return this.localizeButton; break;
 		case "filter": this.listPanel.localizeButton.disable().hide(); return this.filterButton; break;
 	};
-};function ListPanel(args) {
+};function ListPanel(species, args) {
 	this.targetId = null;
 	this.id = "ListPanel_" + Math.round(Math.random()*10000000);
-		
+	this.species=species;
+	
+	this.args=args;
+	
 	this.title = "List of Genes";
 	this.width = 1000;
 	this.height = 500;
@@ -5037,7 +5132,7 @@ ListPanel.prototype._getGeneGrid = function() {
 		this.exportButton = Ext.create('Ext.button.Button', {
 			text : 'Export to Text',
 			handler : function() {
-    	 		new InputListWidget({width:1100, title:"VCS content", headerInfo:"Export results"}).draw(_this._getStoreContent());
+    	 		new InputListWidget({width:1100, title:"VCS content", headerInfo:"Export results",viewer:_this.args.viewer}).draw(_this._getStoreContent());
      		}
 		});
 		this.localizeButton = Ext.create('Ext.button.Button', {
@@ -5063,7 +5158,7 @@ ListPanel.prototype._getGeneGrid = function() {
 ListPanel.prototype._localize = function() {
 	var _this = this;
 	
-	var karyotypePanelWindow = new KaryotypePanelWindow();
+	var karyotypePanelWindow = new KaryotypePanelWindow(this.species,{viewer:this.args.viewer});
 	karyotypePanelWindow.onRendered.addEventListener(function(evt, feature) {
 		var results = new Array();
 		for ( var i = 0; i < _this.original.length; i++) {
@@ -5184,7 +5279,6 @@ TextWindowWidget.prototype.draw = function(text){
 	myRef.document.write(text);
 };
 
-
 function ClienSideDownloaderWindowWidget(args){
 	this.windows = new Array();
 };
@@ -5193,6 +5287,7 @@ ClienSideDownloaderWindowWidget.prototype.draw = function(text, content){
 //	myRef = window.open('data:text/csv,field1%2Cfield2%0Afoo%2Cbar%0Agoo%2Cgai%0A','mywin', 'left=20,top=20,width=500,height=200');
 	
 	myRef = window.open('data:text/csv,' + content,'mywin', 'left=20,top=20,width=500,height=200');
+//	myRef = window.open('data:image/svg+xml,' + content,'mywin', 'left=20,top=20,width=500,height=200');
 	
 	myRef.document.write(text);
 };	/*Nuevo tipo ventana*/
@@ -9870,7 +9965,7 @@ function Track(trackerID, targetNode,  args) {
 	this.top = 0;
 	this.left = 100;
 	this.right = 900;
-	this.width = 1100;
+	this.width = 400;
 	this.height = 50;
 	this.originalTop = this.top;
 	this.originalHeight = this.height;
@@ -10404,34 +10499,36 @@ FeatureTrack.prototype._render = function() {
 	}
 };
 
+//XXX DEPRECATED this function is now in track-canvas.js
 FeatureTrack.prototype.moveTitle = function(movement) {
-	if (this.title){
-			
-			var movementOld = parseFloat(this.titleNodeGroup.getAttribute("moveX"));
-//			var desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
-			if (!movementOld){
-				desplazamiento = (movement);
-			}
-			else{
-				desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
-			}
-			
-			this.titleNodeGroup.setAttribute("transform", "translate("+ -desplazamiento + ", 0)");
-			this.titleNodeGroup.setAttribute("moveX", desplazamiento);
-	}
+//	if (this.title){
+//
+//			var movementOld = parseFloat(this.titleNodeGroup.getAttribute("moveX"));
+////			var desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
+//			if (!movementOld){
+//				desplazamiento = movement;
+//			}
+//			else{
+//				desplazamiento = parseFloat((parseFloat(movement) + parseFloat(movementOld)));
+//			}
+//			
+//			this.titleNodeGroup.setAttribute("transform", "translate("+ -desplazamiento + ", 0)");
+//			this.titleNodeGroup.setAttribute("moveX", desplazamiento);
+//	}
 };
 
 
-FeatureTrack.prototype.drawTitle = function(midlle, args){
+FeatureTrack.prototype.drawTitle = function(middle, args){
 	var widthLine = 1;
 	if (args != null){
 		if (args.width != null){
 			widthLine = args.width;
 		}
 	}
+	this.titleNodeGroup.setAttribute("moveX", 0);
 	
-	var coordenateX = this._convertGenomePositionToPixelPosition(midlle);
-		
+	if(middle < 0) middle = 0;
+	var coordenateX = this._convertGenomePositionToPixelPosition(middle);
 		
 	if (this.titleRectangle != null){
 		this.titleRectangle.parentNode.removeChild(this.titleRectangle);
@@ -10441,15 +10538,16 @@ FeatureTrack.prototype.drawTitle = function(midlle, args){
 		this.titleText.parentNode.removeChild(this.titleText);
 	}
 	
+	
 	if (this.isAvalaible){
-		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["id"]];
+		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["class", "trackTitleBox"]];
 		this.titleRectangle = SVG.drawRectangle(coordenateX , this.top, this.titleWidth , this.height, this.titleNodeGroup, attributes);
-		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize]]);
+		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"]]);
 	}
 	else{
-		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0]];
+		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0], ["class", "trackTitleBox"]];
 		SVG.drawRectangle(coordenateX , this.top, this.width , this.height, this.titleNodeGroup, attributes);
-		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize]]);
+		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"]]);
 	}
 };
 
@@ -10837,8 +10935,8 @@ function TrackCanvas(trackerID, targetNode, args) {
 	/** Moving canvas provoke que los tracks con el flag showLabelsOnMiddleMarker se muevan **/
 	this.allowLabelMoving = true;
 	
-	/** Flag to solver marker bug */
-	this.isBeenRenderized = true; /** true si estoy renderizando por primera vez el trackcanvas **/
+	/** Flag to solve marker bug */
+//	this.isBeenRenderized = true; /** true si estoy renderizando por primera vez el trackcanvas **/
 	/** Processing optional parameters */
 	if (args != null) {
 		if (args.top != null) {
@@ -10884,6 +10982,9 @@ function TrackCanvas(trackerID, targetNode, args) {
 		if (args.zoom != null) {
 			this.zoom = args.zoom;
 		}
+		if (args.lastPosition != null) {
+			this.lastPosition = args.lastPosition;
+		}
 	}
 
 	/** Info Panel */
@@ -10901,7 +11002,7 @@ function TrackCanvas(trackerID, targetNode, args) {
 	this.onMove = new Event(this);
 	this.afterDrag = new Event(this);
 	this.onRender = new Event(this);
-
+	
 };
 
 TrackCanvas.prototype.createSVGDom = function(targetID, id, width, height, backgroundColor) {
@@ -10923,9 +11024,16 @@ TrackCanvas.prototype.mouseClick = function(event) {
 };
 TrackCanvas.prototype.mouseMove = function(event) {
 	if (this.allowDragging){
-		this._dragging(event);
 		
-		this.moveLabelsFeatureSelected();
+		//XXX test - only when middle>=0, at this point start is a negative vaule, like middle, depending on mouse speed
+		if(this.middle>=0/*&& this.middle<=this.lastPosition*/){
+			this._dragging(event);
+			this.moveLabelsFeatureSelected();
+		}
+//		if(){
+//			this._dragging(event);
+//			this.moveLabelsFeatureSelected();
+//		}
 	}
 };
 
@@ -10947,6 +11055,18 @@ TrackCanvas.prototype.mouseDown = function(event) {
 };
 TrackCanvas.prototype.mouseUp = function(event) {
 	if (this.allowDragging){
+		
+		//XXX test - acutal negative start - actual negative middle + 1 gets the start position that situates middle on 0
+		if(this.middle<=0){
+			this._goToCoordinateX(this.start-Math.ceil(this.middle)+1);
+		}
+//		//XXX apaño, pensarlo mejor
+//		if(this.middle>=this.lastPosition){
+//			this._goToCoordinateX(this.start-Math.ceil(this.middle)+this.lastPosition);
+//		}
+		
+		
+		
 		this._afterDrag(event);
 		
 	}
@@ -11067,14 +11187,15 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 			}
 		}
 		
-		if (regionAdapter.resource == "regulatory?type=open chromatin") {
+		if (regionAdapter.resource == "regulatory?type=Open Chromatin") {
+			console.log("cromatin");
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
 				formatters.push(new GenericFeatureFormatter(regionAdapter.dataset.json[0][i]));
 			}
 		}
 		
-		if (regionAdapter.resource == "regulatory?type=HISTONE") {
+		if (regionAdapter.resource == "regulatory?type=Histone") {
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
 				formatters.push(new GenericFeatureFormatter(regionAdapter.dataset.json[0][i]));
@@ -11090,7 +11211,6 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 		
 
 		if (regionAdapter.resource == "snp") {
-
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
 				formatters.push(new SNPFeatureFormatter(
@@ -11099,7 +11219,6 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 		}
 
 		if (regionAdapter.resource == "cytoband") {
-
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
 				formatters.push(new CytobandFeatureFormatter(
@@ -11126,6 +11245,30 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 			var formatters = new Array();
 			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
 				formatters.push(new GenericFeatureFormatter(regionAdapter.dataset.json[0][i]));
+			}
+		}
+		
+		if (regionAdapter.resource == "cpgisland") {
+			var formatters = new Array();
+			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
+				formatters.push(new CpgIslandFeatureFormatter(
+						regionAdapter.dataset.json[0][i]));
+			}
+		}
+		
+		if (regionAdapter.resource == "mutation") {
+			var formatters = new Array();
+			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
+				formatters.push(new MutationFeatureFormatter(
+						regionAdapter.dataset.json[0][i]));
+			}
+		}
+
+		if (regionAdapter.resource == "structuralvariation") {
+			var formatters = new Array();
+			for ( var i = 0; i < regionAdapter.dataset.json[0].length; i++) {
+				formatters.push(new StructuralVariationFeatureFormatter(
+						regionAdapter.dataset.json[0][i]));
 			}
 		}
 		
@@ -11170,7 +11313,6 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 		track.viewBoxModule = this.viewBoxModule;
 	
 		if (track.isAvalaible){
-			 
 			regionAdapter.successed.addEventListener(function(evt, data) {
 				 _this._formatData(regionAdapter);
 				/** trackRender es una array donde indico con true/track ha sido renderizado o false que no lo ha sido
@@ -11194,8 +11336,16 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 			});
 	
 			this.onMove.addEventListener(function(evt, data) {
-				data.middle = Math.ceil(data.middle) + 1;
-				regionAdapter.setIntervalView(chromosome, Math.ceil(data.middle));
+//				//original
+//				data.middle = Math.ceil(data.middle) + 1;
+				
+				//TODO doing pako borrar
+//				console.log(regionAdapter);
+				data.middle =  Math.floor(data.middle);
+//				console.log(data.middle);
+				/**/
+				
+				regionAdapter.setIntervalView(chromosome, data.middle);
 				if (regionAdapter instanceof RuleRegionDataAdapter){
 					_this.selectPaintOnRules(data.middle);
 				}
@@ -11239,7 +11389,11 @@ TrackCanvas.prototype.getRulerTrack = function() {
 };
 
 TrackCanvas.prototype.getMiddlePoint = function() {
-	return Math.ceil(this.middle) + 1;
+	//orig
+//	return Math.ceil(this.middle) + 1;
+	
+	//TODO doing pako borrar
+	return Math.floor(this.middle);
 };
 
 TrackCanvas.prototype.drawRules = function(chromosome, start, end) {
@@ -11267,19 +11421,41 @@ TrackCanvas.prototype._drawTitle = function(i) {
 };
 
 
-TrackCanvas.prototype.draw = function(chromosome, start, end) {
-	this.start = start;
-	this.end = end;
+TrackCanvas.prototype.draw = function(chromosome, data_start, data_end, view_start, view_end) {
+	
+//	//XXX testing
+//	var position = view_start + (view_end - view_start)/2;
+//	var halfBases = (this.width) / this.pixelRatio / 2;
+//	var wstart =  Math.ceil(position - halfBases);
+//	var wend = Math.ceil(position + halfBases);
+//	console.log(this.width);
+//	console.log(position);
+//	console.log(wstart+":"+wend);
+	
+	
+	this.start = view_start;
+	this.end = view_end;
+//	console.log(start+":"+end);
 	this.chromosome = chromosome;
-	this.startViewBox = (start * this.pixelRatio) % this.viewBoxModule;
-	this.endViewBox = (end * this.pixelRatio) % this.viewBoxModule;
-
+	this.startViewBox = (view_start * this.pixelRatio) % this.viewBoxModule;
+	this.endViewBox = (view_end * this.pixelRatio) % this.viewBoxModule;
+//	console.log(this.startViewBox+":"+this.endViewBox);
+	
 	for ( var i = 0; i < this.regionAdapterList.length; i++) {
 			var track = this.trackList[i];
 			var regionAdapter = this.regionAdapterList[i];
 			regionAdapter.successed = new Event(regionAdapter);
 			regionAdapter.preloadSuccess = new Event(regionAdapter);
-			this._drawTrack(chromosome, start, end, track, regionAdapter);
+			
+			//Set lastPosition of the chromosome on the track and the adapter
+			if(regionAdapter instanceof RuleRegionDataAdapter){
+				regionAdapter.maxChromosomeSize = this.lastPosition;
+			} 
+			if(track instanceof RuleFeatureTrack){
+				track.lastPosition = this.lastPosition;
+			}
+			
+			this._drawTrack(chromosome, data_start, data_end, track, regionAdapter);
 	}
 };
 
@@ -11309,43 +11485,70 @@ TrackCanvas.prototype._getTopTrack = function(track) {
 
 /** DRAGGING **/
 TrackCanvas.prototype._goToCoordinateX = function(position) {
+
 	this.start = position;
 	var startZoom = (this.start * this.pixelRatio) % this.viewBoxModule;
 	var viewBox = startZoom + " " + "10 " + this.width + " " + this.height;
+//	console.log("viewBox: "+viewBox);
 	this._svg.setAttribute("viewBox", viewBox);
+	
+	
+//	//orig
+//	/** He cambiado esto por el slave **/
+//	if (this.isBeenRenderized){
+//		this.middle = this.start + (this.end - this.start)/2;
+//		this.isBeenRenderized = false;
+//	}
+//	else{
+//		this.middle = this.start + ((this.width / this.pixelRatio) / 2);
+//	}
 
-	/** He cambiado esto por el slave **/
-	if (this.isBeenRenderized){
-		this.middle = this.start + (this.end - this.start)/2;
-		this.isBeenRenderized = false;
-	}
-	else{
-		this.middle = this.start + ((this.width / this.pixelRatio) / 2);
-	}
 
-	this.onMove.notify( {
+////	//TODO doing pako borrar
+//	this.middle = this.start + ((this.width / this.pixelRatio) / 2);
+//	console.log((this.width / this.pixelRatio)/2);
+	this.middle = this.start + ((this.width / this.pixelRatio) / 2);
+//	
+	
+	//
+	this.onMove.notify({
 		"chromosome" : this.chromosome,
 		"start" : this.start,
 		"end" : this.end,
 		"middle" : this.middle
 	});
-
 };
 
 TrackCanvas.prototype._moveCoordinateX = function(move) {
-	for ( var i = 0; i < this.trackList.length; i++) {
-		if ((this.trackList[i].title) != null) {
-//			if (parseFloat(this.pixelRatio) < 1){
-				this.trackList[i].moveTitle(-move);
-//			}
-//			else{
-//				this._drawTitle(i);
-//			}
-		}
-	}
+//	for ( var i = 0; i < this.trackList.length; i++) {
+//		if ((this.trackList[i].title) != null) {
+////			if (parseFloat(this.pixelRatio) < 1){
+//				this.trackList[i].moveTitle(-move);
+////			}
+////			else{
+////				this._drawTitle(i);
+////			}
+//		}
+//	}
 
 	var newStart = move / this.pixelRatio;
 	this._goToCoordinateX(Math.ceil(this.start + newStart));
+	this._moveTitle();
+};
+
+TrackCanvas.prototype._moveTitle = function() {
+	// Get svg elements
+	var titleBoxElements = $(".trackTitleBox");
+	var titleTextElements = $(".trackTitleText");
+	
+	var start = this.start;
+	if(start < 0) start = 0;
+	var coordenateX = ((start * this.pixelRatio) % this.viewBoxModule);
+
+	for ( var i = 0; i < titleBoxElements.length; i++) {
+		titleBoxElements[i].setAttribute("x", coordenateX);
+		titleTextElements[i].setAttribute("x", coordenateX+2);
+	}
 };
 
 TrackCanvas.prototype._moveCoordinateY = function(move) {
@@ -11378,9 +11581,6 @@ TrackCanvas.prototype._afterDrag = function(evt) {
 	this.dragPoint = null;
 	this.moveY = this.realMove;
 	this.afterDrag.notify(this.middle);
-	
-	
-	
 };
 
 TrackCanvas.prototype.setZoom = function(zoom) {
@@ -11395,8 +11595,9 @@ TrackCanvas.prototype._dragging = function(evt) {
 		
 		var moveX = this.dragPoint.x - actualPointSVG.x;
 		var moveY = this.dragPoint.y - actualPointSVG.y;
-		
+
 		this._moveCoordinateX(moveX);
+		
 		if(this.enableMovingY){
 			this._moveCoordinateY(Math.ceil(moveY));
 		}
@@ -11506,6 +11707,7 @@ function RuleFeatureTrack (rulerID,targetID, species, args) {
 //	this.pixelRatio = 0.001;
 	this.ruleHeight = this.height;
 	this.expandRuleHeight = this.height;
+	this.lastPosition = 260000000;
 	/** Estos attributos tb tedeberia de tenerlo su dataadapter **/
 //	this.space = 100;
 //	this.maxChromosomeSize = 255000000;
@@ -11520,6 +11722,10 @@ function RuleFeatureTrack (rulerID,targetID, species, args) {
 		
 		if (args.space != null){
 			this.space = args.space;
+		}
+
+		if (args.lastPosition != null){
+			this.lastPosition = args.lastPosition;
 		}
 	}
 
@@ -11622,8 +11828,8 @@ RuleFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth
 		
 		if (!this.horizontalRuleDrawn){
 			var lastPositionRec = this.viewBoxModule;
-			if ((260000000*this.pixelRatio) < this.viewBoxModule){
-				lastPositionRec = 260000000*this.pixelRatio;
+			if ((this.lastPosition*this.pixelRatio) < this.viewBoxModule){
+				lastPositionRec = this.lastPosition*this.pixelRatio;
 			} 
 			SVG.drawRectangle(0, top, lastPositionRec, this.height, this.trackNodeGroup, [["fill", "gray"], ["stroke", "#000000"], ["opacity", 0.5]]);
 			this.horizontalRuleDrawn = true;
@@ -12971,10 +13177,10 @@ ChromosomeFeatureTrack.prototype._drawCytoband = function (feature){
 		
 		
 		if (this.label){
-			var textAttr = [["fill", "black"],["id", this.id_ + "title"] ,["opacity", "1"],["font-size", "7"]];
+			var textAttr = [["fill", "black"],["id", this.id_ + "title"] ,["opacity", "1"],["font-size", "10"]];
 			var x = this.left + this.pixelInc  * ((feature.start + (feature.end - feature.start)/2) - this.start);
-			var y = this.height + 10;
-			textAttr.push(["transform", "translate("+ x +", " + y + "), rotate(270)"]);
+			var y = this.height - 23;
+			textAttr.push(["transform", "translate("+ x +", " + y + "), rotate(90)"]);
 			SVG.drawText(0, 0, feature.cytoband, this.labelNodeGroup, textAttr);
 		}
 	}
@@ -13753,18 +13959,39 @@ function BEDFeatureFormatter(feature){
 		this.feature = feature;
         this.start = feature.start;
         this.end =  feature.end;
+        this.chromosome =  feature.chromosome;
         this.label = feature.label;//exon.stableId;
         this.score = feature.score;
+        this.thickStart = feature.thickStart;
+        this.thickEnd = feature.thickEnd;
+        this.strand = feature.strand;
+        this.itemRgb = feature.itemRgb;
+        this.blockCount = feature.blockCount;
+        this.blockSizes = feature.blockSizes;
+        this.blockStarts = feature.blockStarts;
+        
         if(this.score<0){this.score = 0;}
         if(this.score>1000){this.score = 1000;}
         var gray = Math.abs(Math.ceil(this.score*0.255)-255).toString(16);
+        
+        
+        //XXX convert RGB to Hex
+        var rgbColor = new Array();
+        rgbColor = this.itemRgb.split(",");
+        var hex = function (x) {
+        	var hexDigits = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
+            return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+        };
+        var hexColor = hex(rgbColor[0])+ hex(rgbColor[1]) + hex(rgbColor[2]);
+        
         
         this.args = new Object();
         this.args.title = new Object();
         this.args.hidden = false;
         this.args.strokeOpacity = 1;
         this.args.strokeWidth = 1;
-        this.args.fill =  "#"+gray+gray+gray;
+//        this.args.fill =  "#"+gray+gray+gray;
+        this.args.fill =  "#"+hexColor;
         this.args.stroke = '#000000';
         
         FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
@@ -14028,7 +14255,6 @@ MiRNAFeatureFormatter.prototype.loadFromJSON = FeatureFormatter.prototype.loadFr
 MiRNAFeatureFormatter.prototype._setEvents = FeatureFormatter.prototype._setEvents;
 
 function MiRNAFeatureFormatter(feature){
-	console.log(feature);
 		this.feature = feature;
         this.start = feature.start;
         this.end =  feature.end;
@@ -14053,7 +14279,181 @@ MiRNAFeatureFormatter.prototype.getLabel = function(feature) {
 	
 };
 
+MiRNAFeatureFormatter.prototype.getName = function() {
+	return this.feature.mirbaseId + "[" + this.feature.geneTargetName + "]";
+	
+};
 
+/** Mutation **/
+MutationFeatureFormatter.prototype.setProperties = FeatureFormatter.prototype.setProperties;
+MutationFeatureFormatter.prototype.getDefault = FeatureFormatter.prototype.getDefault;
+MutationFeatureFormatter.prototype.getSelected = FeatureFormatter.prototype.getSelected;
+MutationFeatureFormatter.prototype.getOver = FeatureFormatter.prototype.getOver;
+MutationFeatureFormatter.prototype.getDragging = FeatureFormatter.prototype.getDragging;
+MutationFeatureFormatter.prototype.getId = FeatureFormatter.prototype.getId;
+MutationFeatureFormatter.prototype.toJSON = FeatureFormatter.prototype.toJSON;
+MutationFeatureFormatter.prototype.loadFromJSON = FeatureFormatter.prototype.loadFromJSON;
+MutationFeatureFormatter.prototype._setEvents = FeatureFormatter.prototype._setEvents;
+
+function MutationFeatureFormatter(feature){
+		this.feature = feature;
+        this.start = feature.start;
+        this.end =  feature.end;
+        this.label = this.getLabel(feature);//exon.stableId;
+        this.base = feature.alt;
+        
+        this.args = new Object();
+        this.args.title = new Object();
+        this.args.hidden = false;
+        this.args.stroke = "#f55959";
+        this.args.strokeOpacity = 1;
+        this.args.strokeWidth = 1;
+        this.args.fill = "ffd700";
+        this.args.size = 1;
+        this.args.opacity = 1;
+
+        FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
+};
+MutationFeatureFormatter.prototype.getName = function(){
+	return this.feature.mutationPhenotypeId;
+};
+
+MutationFeatureFormatter.prototype.getLabel = function(feature) {
+	if (feature.externalName != null){
+		return feature.externalName;
+	}
+	
+	if (feature.stableId != null){
+		return feature.stableId;
+	}
+	
+	if (feature.name != null){
+		return feature.name;
+	}
+	
+	if (feature.label != null){
+		return feature.label;
+	}
+	if (feature.mutationCds != null){
+		return feature.mutationCds;
+	}
+	return feature.chromosome + ":" + feature.start + "-" + feature.end;
+	
+};
+
+/** StructuralVariation **/
+StructuralVariationFeatureFormatter.prototype.setProperties = FeatureFormatter.prototype.setProperties;
+StructuralVariationFeatureFormatter.prototype.getDefault = FeatureFormatter.prototype.getDefault;
+StructuralVariationFeatureFormatter.prototype.getSelected = FeatureFormatter.prototype.getSelected;
+StructuralVariationFeatureFormatter.prototype.getOver = FeatureFormatter.prototype.getOver;
+StructuralVariationFeatureFormatter.prototype.getDragging = FeatureFormatter.prototype.getDragging;
+StructuralVariationFeatureFormatter.prototype.getId = FeatureFormatter.prototype.getId;
+StructuralVariationFeatureFormatter.prototype.toJSON = FeatureFormatter.prototype.toJSON;
+StructuralVariationFeatureFormatter.prototype.loadFromJSON = FeatureFormatter.prototype.loadFromJSON;
+StructuralVariationFeatureFormatter.prototype._setEvents = FeatureFormatter.prototype._setEvents;
+
+function StructuralVariationFeatureFormatter(feature){
+		this.feature = feature;
+        this.start = feature.start;
+        this.end =  feature.end;
+        this.label = this.getLabel(feature);//exon.stableId;
+        this.base = feature.alt;
+        
+        this.args = new Object();
+        this.args.title = new Object();
+        this.args.hidden = false;
+        this.args.stroke = "#f55959";
+        this.args.strokeOpacity = 1;
+        this.args.strokeWidth = 1;
+        this.args.fill = "02599c";
+        this.args.size = 1;
+        this.args.opacity = 1;
+
+        FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
+};
+StructuralVariationFeatureFormatter.prototype.getName = function(){
+	return this.feature.displayId;
+};
+
+StructuralVariationFeatureFormatter.prototype.getLabel = function(feature) {
+	if (feature.externalName != null){
+		return feature.externalName;
+	}
+	
+	if (feature.displayId != null){
+		return feature.displayId;
+	}
+	
+	if (feature.name != null){
+		return feature.name;
+	}
+	
+	if (feature.label != null){
+		return feature.label;
+	}
+	if (feature.StructuralVariationCds != null){
+		return feature.StructuralVariationCds;
+	}
+	return feature.chromosome + ":" + feature.start + "-" + feature.end;
+	
+};
+
+/** CpgIsland **/
+CpgIslandFeatureFormatter.prototype.setProperties = FeatureFormatter.prototype.setProperties;
+CpgIslandFeatureFormatter.prototype.getDefault = FeatureFormatter.prototype.getDefault;
+CpgIslandFeatureFormatter.prototype.getSelected = FeatureFormatter.prototype.getSelected;
+CpgIslandFeatureFormatter.prototype.getOver = FeatureFormatter.prototype.getOver;
+CpgIslandFeatureFormatter.prototype.getDragging = FeatureFormatter.prototype.getDragging;
+CpgIslandFeatureFormatter.prototype.getId = FeatureFormatter.prototype.getId;
+CpgIslandFeatureFormatter.prototype.toJSON = FeatureFormatter.prototype.toJSON;
+CpgIslandFeatureFormatter.prototype.loadFromJSON = FeatureFormatter.prototype.loadFromJSON;
+CpgIslandFeatureFormatter.prototype._setEvents = FeatureFormatter.prototype._setEvents;
+
+function CpgIslandFeatureFormatter(feature){
+		this.feature = feature;
+        this.start = feature.start;
+        this.end =  feature.end;
+        this.label = this.getLabel(feature);//exon.stableId;
+        this.base = feature.alt;
+        
+        this.args = new Object();
+        this.args.title = new Object();
+        this.args.hidden = false;
+        this.args.stroke = "#f55959";
+        this.args.strokeOpacity = 1;
+        this.args.strokeWidth = 1;
+        this.args.fill = "76ee00";
+        this.args.size = 1;
+        this.args.opacity = 1;
+
+        FeatureFormatter.prototype.constructor.call(this, feature.start, this.args);
+};
+CpgIslandFeatureFormatter.prototype.getName = function(){
+	return this.feature.name;
+};
+
+CpgIslandFeatureFormatter.prototype.getLabel = function(feature) {
+	if (feature.externalName != null){
+		return feature.externalName;
+	}
+	
+	if (feature.stableId != null){
+		return feature.stableId;
+	}
+	
+	if (feature.name != null){
+		return feature.name;
+	}
+	
+	if (feature.label != null){
+		return feature.label;
+	}
+	if (feature.CpgIslandCds != null){
+		return feature.CpgIslandCds;
+	}
+	return feature.chromosome + ":" + feature.start + "-" + feature.end;
+	
+};
 
 function GeneBlockManager () {
 	this.data = new Object();
@@ -14931,6 +15331,7 @@ function KaryotypePanelWindow(species,args){
 	var _this = this;
 	this.id = "KaryotypePanelWindow_" + Math.random();
 	this.karyotypeWidget = new KaryotypePanel(this.getKaryotypePanelId(), species, {"top":10, "width":1000, "height": 300, "trackWidth":15});
+	
 	this.karyotypeCellBaseDataAdapter = new KaryotypeCellBaseDataAdapter(species);
 	
 	this.args = args;
@@ -15176,12 +15577,11 @@ function TooltipPanel(args){
 
 TooltipPanel.prototype.getPanel = function(item){
 	var _this=this;
-	
 	if (this.panel == null){
 		this.panel = Ext.create('Ext.tip.Tip',{
 			html:this._getItemInfo(item)
 		});
-	}	
+	}
 	return this.panel;
 };
 
@@ -15192,11 +15592,49 @@ TooltipPanel.prototype.destroy = function(){
 TooltipPanel.prototype._getItemInfo = function(item){
 //	console.log(item);
 	var str = "";
+	
+	if(item instanceof GenericFeatureFormatter){
+		str = 
+		'start: <span class="emph">'+item.start+'</span><br>'+
+		'end:  <span class="emph">'+item.end+'</span><br>'+
+		'length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
+	}
+	
+	if(item instanceof BEDFeatureFormatter){
+		str = "";
+		if(item.score!=null){
+			str+='Score: <span class="ssel">'+item.score+'</span> &nbsp; &nbsp';
+		}
+		if(item.strand!=null){
+			str+='Strand:<span class="ok">'+item.strand+'</span><br>';
+		}
+		str+= 'Pos: <span class="emph">'+item.chromosome+':'+item.start+"-"+item.end+'</span><br>';
+		str+= 'Length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
+		if(item.thickStart != null && item.thickEnd != null){
+			str+='ThickPos: <span class="emph">'+item.thickStart+"-"+item.thickEnd+'</span><br>';
+			str+='ThickLength: <span class="info">'+(item.thickEnd-item.thickStart+1)+'</span><br>';
+		}
+		if(item.blockCount!=null){
+			str+='BlockCount: <span class="ok">'+item.blockCount+'</span><br>';
+		}
+		if(item.blockSizes!=null){
+			str+='BlockSizes: <span class="ok">'+item.blockSizes+'</span><br>';
+		}
+		if(item.blockStarts!=null){
+			str+='BlockStarts: <span class="ok">'+item.blockStarts+'</span><br>';
+		}
+	}
+	
 	if(item instanceof GeneFeatureFormatter || 
 	   item instanceof TranscriptFeatureFormatter || 
 	   item instanceof ExonFeatureFormatter || 
 	   item instanceof SNPFeatureFormatter|| 
-	   item instanceof TfbsFeatureFormatter ){
+	   item instanceof TfbsFeatureFormatter ||
+	   item instanceof MutationFeatureFormatter ||
+	   item instanceof CpgIslandFeatureFormatter ||
+	   item instanceof StructuralVariationFeatureFormatter ||
+	   item instanceof MiRNAFeatureFormatter
+	){
 		str = '<span class="ssel">'+item.getName()+'</span><br>'+
 		'start: <span class="emph">'+item.start+'</span><br>'+
 		'end:  <span class="emph">'+item.end+'</span><br>'+
@@ -15522,7 +15960,8 @@ function GenomeWidgetProperties(species,args) {
 	this._pixelRatio = 0.0005; 
 	this.showTranscripts = false;
 	
-	this._zoom = 0;
+	this._zoom = 100;
+	this.increment = 5;
     
 	/** General parameters TRACKS CONFIG **/
 	this.labelHeight = 10;
@@ -15536,11 +15975,12 @@ function GenomeWidgetProperties(species,args) {
 		if (args.id != null){
 			this.id = args.id;
 		}
-		
 		if (args._pixelRatio != null){
 			this._pixelRatio = args._pixelRatio;
 		}
-		
+		if (args.width != null){
+			this.width = args.width;
+		}
 		if (args.showTrancsripts != null){
 			this.showTrancsripts = args.showTranscripts;
 		}
@@ -15548,14 +15988,19 @@ function GenomeWidgetProperties(species,args) {
 		if (args.showExons != null){
 			this.showExons = args.showExons;
 		}
+		if (args.zoom != null){
+			this._zoom = args.zoom;
+		}
+		
 	}
 	
 	this._zoomLevels = new Object();
+	this._interval = new Object();
 	this._windowSizeLevels = new Object();
 	this._zoomTracks = new Object();
 	this._zoomDataAdapters = new Object();
 	
-	for ( var i = 0; i <= 100; i = i + 10) { 
+	for ( var i = 0; i <= 100; i = i + this.increment) { 
 		this._zoomTracks[i] = new Array();
 		this._zoomDataAdapters[i] = new Array();
 	}
@@ -15570,40 +16015,86 @@ GenomeWidgetProperties.prototype.getWindowSize = function(zoomFactor){
 	return this._windowSizeLevels[zoomFactor];
 };
 GenomeWidgetProperties.prototype.init = function(){
+	var _this=this;
+	
+//	this._zoomLevels[0] =  1/200000;
+//	this._zoomLevels[10] = 1/50000;
+////	this._zoomLevels[20] = 1/25000;
+////	this._zoomLevels[30] =  0.00005*16;
+//	this._zoomLevels[20] = 0.00005*16;
+//	this._zoomLevels[30] = 0.00005*16;
+//	this._zoomLevels[40] = 0.00005*64;
+//	this._zoomLevels[50] = 0.00005*128;
+//	this._zoomLevels[60] = 0.00005*256;
+//	this._zoomLevels[70] = 0.00005*512;
+//	this._zoomLevels[80] = 0.00005*1024;
+//	this._zoomLevels[90] = 0.00005*2048;
+//	this._zoomLevels[100] = 10;
+//	
+//	this._windowSizeLevels[0] = 130000000;
+//	this._windowSizeLevels[10] = 40000000;
+////	this._windowSizeLevels[20] = 20000000;
+////	this._windowSizeLevels[30] = 750000;
+//	this._windowSizeLevels[20] = 750000;
+//	this._windowSizeLevels[30] = 750000;
+//	this._windowSizeLevels[40] = 750000/4;// 750000/4; //apaño
+//	this._windowSizeLevels[50] = 750000/8;
+//	this._windowSizeLevels[60] = 750000/16;
+//	this._windowSizeLevels[70] = 750000/32;
+//	this._windowSizeLevels[80] = 750000/64;
+//	this._windowSizeLevels[90] = 750000/128;
+//	this._windowSizeLevels[100] = 100;
+	
+	//XXX
 	this._zoomLevels[0] =  1/200000;
+	this._zoomLevels[5] =  1/125000;
 	this._zoomLevels[10] = 1/50000;
 //	this._zoomLevels[20] = 1/25000;
 //	this._zoomLevels[30] =  0.00005*16;
+	this._zoomLevels[15] = 0.00005*8;
 	this._zoomLevels[20] = 0.00005*16;
+	this._zoomLevels[25] = 0.00005*16;
 	this._zoomLevels[30] = 0.00005*16;
+	this._zoomLevels[35] = 0.00005*32;
 	this._zoomLevels[40] = 0.00005*64;
+	this._zoomLevels[45] = 0.00005*96;
 	this._zoomLevels[50] = 0.00005*128;
+	this._zoomLevels[55] = 0.00005*192;
 	this._zoomLevels[60] = 0.00005*256;
+	this._zoomLevels[65] = 0.00005*384;
 	this._zoomLevels[70] = 0.00005*512;
+	this._zoomLevels[75] = 0.00005*768;
 	this._zoomLevels[80] = 0.00005*1024;
+	this._zoomLevels[85] = 0.00005*1536;
 	this._zoomLevels[90] = 0.00005*2048;
+	this._zoomLevels[95] = 0.00005*3072;
 	this._zoomLevels[100] = 10;
 	
-	this._windowSizeLevels[0] = 130000000;
-	this._windowSizeLevels[10] = 40000000;
-//	this._windowSizeLevels[20] = 20000000;
-//	this._windowSizeLevels[30] = 750000;
-	this._windowSizeLevels[20] = 750000;
-	this._windowSizeLevels[30] = 750000;
-	this._windowSizeLevels[40] = 750000/4;
-	this._windowSizeLevels[50] = 750000/8;
-	this._windowSizeLevels[60] = 750000/16;
-	this._windowSizeLevels[70] = 750000/32;
-	this._windowSizeLevels[80] = 750000/64;
-	this._windowSizeLevels[90] = 750000/128;
-	this._windowSizeLevels[100] = 100;
+	//XXX PAKO interval settings
+	for ( var i = 0; i <=100; i+=this.increment) {
+		this._windowSizeLevels[i] = this.width/this._zoomLevels[i];
+	}
 	
-	this._zoom =  40;
+	
+//	this._zoom =  100;
 	this._pixelRatio = this._zoomLevels[this._zoom];
 	this.windowSize = this._windowSizeLevels[this._zoom];
-
 	
-	for ( var i = 0; i <= 100; i = i + 10) {
+	
+	//XXX PAKO interval settings
+	for ( var i = 0; i <=100; i+=this.increment) {
+		this._interval[i]  = Math.ceil((1000/this._zoomLevels[i])/(this.width/5));
+	}
+	
+	
+	/**/
+//	console.log('width: '+ this.width);
+//	console.log('pixelRatio: '+ this._pixelRatio);
+//	console.log('windowSize: '+ this.windowSize);
+	/**/
+	
+	
+	for ( var i = 0; i <= 100; i = i + this.increment) {
 		  var rule = new RuleFeatureTrack( this.id + "_ruleTrack", this.tracksPanel, this.species,{
 				top:10, 
 				left:0, 
@@ -15636,7 +16127,6 @@ GenomeWidgetProperties.prototype.setLabelHeight = function(value){
 	
 };
 
-
 GenomeWidgetProperties.prototype.addCustomTrackByZoom = function(minZoom, maxZoom, track, dataAdapter){
 	if (track.titleName.length > 5) {
 		track.titleWidth = track.titleName.length * 5;
@@ -15659,10 +16149,12 @@ GenomeWidgetProperties.prototype.addTrackByZoom = function(minZoom, maxZoom, tra
 	if (this.tracks[track.titleName] == null){
 		this.tracks[track.titleName] = true;
 	}
-	
-	for ( var i = minZoom; i <= maxZoom; i = i + 10) { 
-		this._zoomTracks[i].push(track);
-		this._zoomDataAdapters[i].push(dataAdapter);
+
+	for ( var i = minZoom; i <= maxZoom; i = i + this.increment) {
+		if(this._zoomTracks[i]!=null){
+			this._zoomTracks[i].push(track);
+			this._zoomDataAdapters[i].push(dataAdapter);
+		}
 	}
 };
 
@@ -15720,10 +16212,11 @@ GenomeWidgetProperties.prototype.getCustomDataAdapters = function(){
 
 
 GenomeWidgetProperties.prototype.addNativeTracks = function(){
-	this.addSequenceTracks();
-	this.addSNPTracks();
+	
 	this.addCytobandTracks();
+	this.addSequenceTracks();
 	this.addMultifeatureTracks();
+	this.addSNPTracks();
 	this.addTFBSTracks();
 	this.addHistoneTracks();
 	this.addPolymeraseTracks();
@@ -15731,63 +16224,91 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 	this.addMirnaTargetTracks();
 	
 	this.addConservedRegionsTracks();
+	this.addCpgIslandTracks();
+	this.addMutationTracks();
+	this.addStructuralVariationTracks();
 	
 	/** Set visibility **/
+	this.tracks["Cytoband"] = false;
 	this.tracks["SNP"] = false;
 	this.tracks["Sequence"] = false;
-	this.tracks["Cytoband"] = false;
 	
 	this.tracks["Histone"] = false;
 	this.tracks["Open Chromatin"] = false;
 	this.tracks["Polymerase"] = false;
 	this.tracks["TFBS"] = false;
 	this.tracks["miRNA targets"] = false;
+	
 	//TODO doing
 	this.tracks["Conserved regions"] = false;
+	this.tracks["CpG islands"] = false;
+	this.tracks["Mutation"] = false;
+	this.tracks["Structural variation"] = false;
 };
 
 
 /** SNP TRACKS **/
 GenomeWidgetProperties.prototype.addSNPTracks = function(){
-		var snpTrack = new SNPFeatureTrack(this.id + "snp",this.tracksPanel, this.species, {
-			top : 5,
+	
+//	var snpTrack = new SNPFeatureTrack(this.id + "snp",this.tracksPanel, this.species, {
+//		top : 5,
+//		left : 0,
+//		label : true,
+//		title : "SNP",
+//		height : 20,
+//		isAvalaible : false
+//	});
+//	this.addTrackByZoom(0, 50, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp"}));
+	for ( var i = 0; i <= 80; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_snp",this.tracksPanel, this.species,{
+			top : 20,
 			left : 0,
-			label : true,
+			height : 40,
+			featureHeight : 40,
 			title : "SNP",
-			height : 20,
-			isAvalaible : false
-		});
-		this.addTrackByZoom(0, 80, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp"}));
-		
-		var snpTrack = new SNPFeatureTrack(this.id + "snp",this.tracksPanel, this.species,{
-			top : 5,
-			left : 0,
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
 			label : false,
-			title : "SNP",
-			height : 20,
-			labelHeight : this.labelHeight,
-			featureHeight : 10,
-			labelSize : this.labelSize,
-			pixelSpaceBetweenBlocks : 150,
-			avoidOverlapping : false,
-			backgroundColor : '#FFFFFF'
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "orange"
+//			intervalSize : 500000
 		});
-		this.addTrackByZoom(90, 90, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp"}));
-		
-		var snpTrack = new SNPFeatureTrack(this.id + "snp",this.tracksPanel, this.species,{
-			top : 5,
-			left : 0,
-			label : true,
-			title : "SNP",
-			height : 20,
-			labelHeight : this.labelHeight,
-			featureHeight : 10,
-			labelSize : this.labelSize,
-			pixelSpaceBetweenBlocks : 150,
-			avoidOverlapping : true,
-			backgroundColor : '#FFFFFF'
-		});
-		this.addTrackByZoom(100, 100, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp"}));
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp?histogram=true&interval="+this._interval[i]}));
+	}
+
+	var snpTrack = new SNPFeatureTrack(this.id + "snp",this.tracksPanel, this.species,{
+		top : 5,
+		left : 0,
+		label : false,
+		title : "SNP",
+		height : 20,
+		labelHeight : this.labelHeight,
+		featureHeight : 10,
+		labelSize : this.labelSize,
+		pixelSpaceBetweenBlocks : 150,
+		avoidOverlapping : false,
+		backgroundColor : '#FFFFFF'
+	});
+	this.addTrackByZoom(85, 95, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp"}));
+
+	var snpTrack = new SNPFeatureTrack(this.id + "snp",this.tracksPanel, this.species,{
+		top : 5,
+		left : 0,
+		label : true,
+		title : "SNP",
+		height : 20,
+		labelHeight : this.labelHeight,
+		featureHeight : 10,
+		labelSize : this.labelSize,
+		pixelSpaceBetweenBlocks : 150,
+		avoidOverlapping : true,
+		backgroundColor : '#FFFFFF'
+	});
+	this.addTrackByZoom(100, 100, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp"}));
 };
 
 /** SEQUENCE TRACKS **/
@@ -15801,7 +16322,7 @@ GenomeWidgetProperties.prototype.addSequenceTracks = function(){
 		backgroundColor : '#FFFFFF',
 		isAvalaible: false
 	});
-	this.addTrackByZoom(0, 90, sequenceTrack,new RegionCellBaseDataAdapter(this.species));
+	this.addTrackByZoom(0, 95, sequenceTrack,new RegionCellBaseDataAdapter(this.species));
 	
 	var sequenceTrack = new SequenceFeatureTrack(this.id + "sequence", this.tracksPanel, this.species,{
 				top : 20,
@@ -15827,7 +16348,7 @@ GenomeWidgetProperties.prototype.addCytobandTracks = function(){
 					allowDuplicates : true,
 					label : false
 			});
-	this.addTrackByZoom(0, 0, cytobandTrack,new RegionCellBaseDataAdapter(this.species,{resource : "cytoband"}));
+	this.addTrackByZoom(0, 5, cytobandTrack,new RegionCellBaseDataAdapter(this.species,{resource : "cytoband"}));
 	
 	var cytobandTrack2 = new FeatureTrack(this.id + "_cytoband", this.tracksPanel, this.species,{
 				top : 10,
@@ -15907,20 +16428,42 @@ GenomeWidgetProperties.prototype.addMirnaTargetTracks = function(){
 //	});
 //	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter({resource : "mirnatarget"}));
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs",this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				title : "miRNA targets",
-				allowDuplicates : false,
-				label : false,
-				pixelSpaceBetweenBlocks : 0,
-				avoidOverlapping : true,
-				isAvalaible : false
-			});
-	this.addTrackByZoom(0, 70, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "mirnatarget"}));
+//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs",this.tracksPanel, this.species,{
+//				top : 10,
+//				height : 20,
+//				labelHeight : this.labelHeight,
+//				featureHeight : this.featureHeight,
+//				labelSize : this.labelSize,
+//				title : "miRNA targets",
+//				allowDuplicates : false,
+//				label : false,
+//				pixelSpaceBetweenBlocks : 0,
+//				avoidOverlapping : true,
+//				isAvalaible : false
+//			});
+//	this.addTrackByZoom(0, 70, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "mirnatarget"}));
+	
+	for ( var i = 0; i <= 70; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_mirnatarget",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : 'miRNA targets',
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "#ff7f50"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "mirnatarget?histogram=true&interval="+this._interval[i]}));
+	}
+	
 	
 	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
 				top : 10,
@@ -15935,94 +16478,118 @@ GenomeWidgetProperties.prototype.addMirnaTargetTracks = function(){
 				avoidOverlapping : true,
 				showLabelsOnMiddleMarker :true
 			});
-	this.addTrackByZoom(80, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "mirnatarget"}));
+	this.addTrackByZoom(75, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "mirnatarget"}));
 };
 
 /** OPEN CHROMATIN **/
 GenomeWidgetProperties.prototype.addOpenChromatinTracks = function(){
-	var color = "#298A08";
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 20,
-		featureHeight : 18,
-		title : "Open Chromatin",
-		titleFontSize : 9,
-		titleWidth : 70,
-		showTranscripts : false,
-		allowDuplicates : true,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		showDetailGeneLabel : false,
-		forceColor : color,
-		intervalSize : 500000
-	});
-	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
 	
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
+	for ( var i = 0; i <= 80; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_open_chromatin",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : 'Open Chromatin',
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "#288B00"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Open Chromatin&histogram=true&interval="+this._interval[i]}));
+	}
+	
+	var cytobandTrack2 = new FeatureTrack(this.id + "_open_chromatin", this.tracksPanel, this.species,{
+		top : 10,
 		height : 20,
-		featureHeight : 18,
+		labelHeight : this.labelHeight,
+		featureHeight : this.featureHeight,
+		labelSize : this.labelSize,
 		title : "Open Chromatin",
-		titleFontSize : 9,
-		titleWidth : 70,
-		showTranscripts : false,
 		allowDuplicates : true,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		showDetailGeneLabel : false,
-		forceColor : color,
-		intervalSize : 250000
+		label : true,
+		pixelSpaceBetweenBlocks : 100,
+		avoidOverlapping : true,
+		showLabelsOnMiddleMarker :true
 	});
-	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
+	this.addTrackByZoom(85, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Open Chromatin"}));
+	
+//	var color = "#298A08";
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "Open Chromatin",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		showTranscripts : false,
+//		allowDuplicates : true,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		showDetailGeneLabel : false,
+//		forceColor : color,
+//		intervalSize : 500000
+//	});
+//	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
+//	
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "Open Chromatin",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		showTranscripts : false,
+//		allowDuplicates : true,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		showDetailGeneLabel : false,
+//		forceColor : color,
+//		intervalSize : 250000
+//	});
+//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
+//
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "Open Chromatin",
+//		titleFontSize : 9,
+//		titleWidth : 100,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		forceColor : color,
+//		intervalSize :125000/16
+//	});
+//	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
+//	
+//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
+//				top : 10,
+//				height : 20,
+//				labelHeight : this.labelHeight,
+//				featureHeight : this.featureHeight,
+//				labelSize : this.labelSize,
+//				title : "Open Chromatin",
+//				allowDuplicates : true,
+//				label : false,
+//				pixelSpaceBetweenBlocks : 0,
+//				avoidOverlapping : true
+//			});
+//	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
+	
 
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 20,
-		featureHeight : 18,
-		title : "Open Chromatin",
-		titleFontSize : 9,
-		titleWidth : 100,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		forceColor : color,
-		intervalSize :125000/16
-	});
-	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
-	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				title : "Open Chromatin",
-				allowDuplicates : true,
-				label : false,
-				pixelSpaceBetweenBlocks : 0,
-				avoidOverlapping : true
-			});
-	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
-	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				title : "Open Chromatin",
-				allowDuplicates : true,
-				label : true,
-				pixelSpaceBetweenBlocks : 100,
-				avoidOverlapping : true,
-				showLabelsOnMiddleMarker :true
-			});
-	this.addTrackByZoom(100, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
 	
 };
 
@@ -16031,89 +16598,127 @@ GenomeWidgetProperties.prototype.addOpenChromatinTracks = function(){
 
 /** Polymerasa **/
 GenomeWidgetProperties.prototype.addPolymeraseTracks = function(){
-	var color = "#298A08";
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
+	
+	for ( var i = 0; i <= 80; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_polymerase",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : 'Polymerase',
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "#2A9A14"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase&histogram=true&interval="+this._interval[i]}));
+	}
+	
+	
+	var cytobandTrack2 = new FeatureTrack(this.id + "_polymerase", this.tracksPanel, this.species,{
+		top : 10,
 		height : 20,
-		featureHeight : 18,
+		labelHeight : this.labelHeight,
+		featureHeight : this.featureHeight,
+		labelSize : this.labelSize,
 		title : "Polymerase",
-		titleFontSize : 9,
-		titleWidth : 70,
-		showTranscripts : false,
 		allowDuplicates : true,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		showDetailGeneLabel : false,
-		forceColor : color,
-		intervalSize : 500000
+		label : true,
+		pixelSpaceBetweenBlocks : 100,
+		avoidOverlapping : true
 	});
-	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
+	this.addTrackByZoom(85, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
 	
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 20,
-		featureHeight : 18,
-		title : "Polymerase",
-		titleFontSize : 9,
-		titleWidth : 70,
-		showTranscripts : false,
-		allowDuplicates : true,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		showDetailGeneLabel : false,
-		forceColor : color,
-		intervalSize : 250000
-	});
-	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
 	
-
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 20,
-		featureHeight : 18,
-		title : "Polymerase",
-		titleFontSize : 9,
-		titleWidth : 70,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		forceColor : color,
-		intervalSize :125000/16
-	});
-	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
-	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				title : "Polymerase",
-				allowDuplicates : true,
-				label : false,
-				pixelSpaceBetweenBlocks : 0,
-				avoidOverlapping : true
-			});
-	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
-	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				title : "Polymerase",
-				allowDuplicates : true,
-				label : true,
-				pixelSpaceBetweenBlocks : 100,
-				avoidOverlapping : true
-			});
-	this.addTrackByZoom(100, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
+//	var color = "#298A08";
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "Polymerase",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		showTranscripts : false,
+//		allowDuplicates : true,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		showDetailGeneLabel : false,
+//		forceColor : color,
+//		intervalSize : 500000
+//	});
+//	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
+//	
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "Polymerase",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		showTranscripts : false,
+//		allowDuplicates : true,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		showDetailGeneLabel : false,
+//		forceColor : color,
+//		intervalSize : 250000
+//	});
+//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
+//	
+//
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "Polymerase",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		forceColor : color,
+//		intervalSize :125000/16
+//	});
+//	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
+//	
+//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
+//				top : 10,
+//				height : 20,
+//				labelHeight : this.labelHeight,
+//				featureHeight : this.featureHeight,
+//				labelSize : this.labelSize,
+//				title : "Polymerase",
+//				allowDuplicates : true,
+//				label : false,
+//				pixelSpaceBetweenBlocks : 0,
+//				avoidOverlapping : true
+//			});
+//	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
+//	
+//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
+//				top : 10,
+//				height : 20,
+//				labelHeight : this.labelHeight,
+//				featureHeight : this.featureHeight,
+//				labelSize : this.labelSize,
+//				title : "Polymerase",
+//				allowDuplicates : true,
+//				label : true,
+//				pixelSpaceBetweenBlocks : 100,
+//				avoidOverlapping : true
+//			});
+//	this.addTrackByZoom(100, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
 	
 };
 
@@ -16122,180 +16727,244 @@ GenomeWidgetProperties.prototype.addPolymeraseTracks = function(){
 
 /** HISTONES **/
 GenomeWidgetProperties.prototype.addHistoneTracks = function(){
-	var color = "#298A08";
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 40,
-		featureHeight : 40,
-		title : "Histone",
-		titleFontSize : 9,
-		titleWidth : 70,
-		showTranscripts : false,
-		allowDuplicates : true,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		showDetailGeneLabel : false,
-		forceColor : color
-//		intervalSize : 500000
-	});
-//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter({resource : "gene?histogram=true&interval=125000"}));
-	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE&histogram=true&interval=250000"}));
 	
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 40,
-		featureHeight : 40,
-		title : "Histone",
-		titleFontSize : 9,
-		titleWidth : 70,
-		showTranscripts : false,
-		allowDuplicates : true,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		showDetailGeneLabel : false,
-		forceColor : color,
-		intervalSize : 250000
-	});
-//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter({resource : "regulatory?type=HISTONE"}));
-	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE&histogram=true&interval=125000"}));
+	for ( var i = 0; i <= 80; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_histones",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : 'Histone',
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "#298A08"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Histone&histogram=true&interval="+this._interval[i]}));
+	}
 	
-
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
+	var cytobandTrack2 = new FeatureTrack(this.id + "_histones", this.tracksPanel, this.species,{
+		top : 10,
 		height : 20,
-		featureHeight : 18,
+		labelHeight : this.labelHeight,
+		featureHeight : this.featureHeight,
+		labelSize : this.labelSize,
 		title : "Histone",
-		titleFontSize : 9,
-		titleWidth : 70,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		forceColor : color,
-		intervalSize :125000/16
+		allowDuplicates : true,
+		label : true,
+		pixelSpaceBetweenBlocks : 100,
+		avoidOverlapping : true
 	});
-	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE"}));
+	this.addTrackByZoom(85, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Histone"}));
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				title : "Histone",
-				allowDuplicates : true,
-				label : false,
-				pixelSpaceBetweenBlocks : 0,
-				avoidOverlapping : true
-			});
-	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE"}));
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				title : "Histone",
-				allowDuplicates : true,
-				label : true,
-				pixelSpaceBetweenBlocks : 100,
-				avoidOverlapping : true
-			});
-	this.addTrackByZoom(100, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE"}));
+//	var color = "#298A08";
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 40,
+//		featureHeight : 40,
+//		title : "Histone",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		showTranscripts : false,
+//		allowDuplicates : true,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		showDetailGeneLabel : false,
+//		forceColor : color
+////		intervalSize : 500000
+//	});
+////	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter({resource : "gene?histogram=true&interval=125000"}));
+//	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE&histogram=true&interval=250000"}));
+//	
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 40,
+//		featureHeight : 40,
+//		title : "Histone",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		showTranscripts : false,
+//		allowDuplicates : true,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		showDetailGeneLabel : false,
+//		forceColor : color,
+//		intervalSize : 250000
+//	});
+////	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter({resource : "regulatory?type=HISTONE"}));
+//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE&histogram=true&interval=125000"}));
+//	
+//
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "Histone",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		forceColor : color,
+//		intervalSize :125000/16
+//	});
+//	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE"}));
+//	
+//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
+//				top : 10,
+//				height : 20,
+//				labelHeight : this.labelHeight,
+//				featureHeight : this.featureHeight,
+//				labelSize : this.labelSize,
+//				title : "Histone",
+//				allowDuplicates : true,
+//				label : false,
+//				pixelSpaceBetweenBlocks : 0,
+//				avoidOverlapping : true
+//			});
+//	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE"}));
+//	
+
 	
 };
 
 /** TFBS TRACKS **/
 GenomeWidgetProperties.prototype.addTFBSTracks = function(){
-	var color = "#298A08";
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 20,
-		featureHeight : 18,
-		title : "TFBS",
-		titleFontSize : 9,
-		titleWidth : 70,
-		showTranscripts : false,
-		allowDuplicates : true,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		showDetailGeneLabel : false,
-		forceColor : color,
-		intervalSize : 500000
-	});
-	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
 	
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 20,
-		featureHeight : 18,
-		title : "TFBS",
-		titleFontSize : 9,
-		titleWidth : 70,
-		showTranscripts : false,
-		allowDuplicates : true,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		showDetailGeneLabel : false,
-		forceColor : color,
-		intervalSize : 250000
-	});
-	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
+	for ( var i = 0; i <= 70; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_tfbs",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : 'TFBS',
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "#02599c"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs?histogram=true&interval="+this._interval[i]}));
+	}
 	
+	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
+		top : 10,
+		height : 20,
+		labelHeight : this.labelHeight,
+		featureHeight : this.featureHeight,
+		labelSize : this.labelSize,
+		title : "TFBS",
+		allowDuplicates : true,
+		label : true,
+		pixelSpaceBetweenBlocks : 100,
+		avoidOverlapping : true
 
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 20,
-		featureHeight : 18,
-		title : "TFBS",
-		titleFontSize : 9,
-		titleWidth : 70,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		forceColor : color,
-		intervalSize :125000/16
 	});
-	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
+	this.addTrackByZoom(75, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
+
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				title : "TFBS",
-				allowDuplicates : true,
-				label : false,
-				pixelSpaceBetweenBlocks : 0,
-				avoidOverlapping : true
-			});
-	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				title : "TFBS",
-				allowDuplicates : true,
-				label : true,
-				pixelSpaceBetweenBlocks : 100,
-				avoidOverlapping : true
-			
-			});
-	this.addTrackByZoom(100, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
+//	var color = "#298A08";
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "TFBS",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		showTranscripts : false,
+//		allowDuplicates : true,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		showDetailGeneLabel : false,
+//		forceColor : color,
+//		intervalSize : 500000
+//	});
+//	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
+//	
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "TFBS",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		showTranscripts : false,
+//		allowDuplicates : true,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		showDetailGeneLabel : false,
+//		forceColor : color,
+//		intervalSize : 250000
+//	});
+//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
+//	
+//
+//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+//		top : 20,
+//		left : 0,
+//		height : 20,
+//		featureHeight : 18,
+//		title : "TFBS",
+//		titleFontSize : 9,
+//		titleWidth : 70,
+//		backgroundColor : '#FFFFFF',
+//		label : false,
+//		pixelSpaceBetweenBlocks : 1,
+//		forceColor : color,
+//		intervalSize :125000/16
+//	});
+//	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
+//	
+//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
+//				top : 10,
+//				height : 20,
+//				labelHeight : this.labelHeight,
+//				featureHeight : this.featureHeight,
+//				labelSize : this.labelSize,
+//				title : "TFBS",
+//				allowDuplicates : true,
+//				label : false,
+//				pixelSpaceBetweenBlocks : 0,
+//				avoidOverlapping : true
+//			});
+//	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
+//	
+//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
+//				top : 10,
+//				height : 20,
+//				labelHeight : this.labelHeight,
+//				featureHeight : this.featureHeight,
+//				labelSize : this.labelSize,
+//				title : "TFBS",
+//				allowDuplicates : true,
+//				label : true,
+//				pixelSpaceBetweenBlocks : 100,
+//				avoidOverlapping : true
+//			
+//			});
+//	this.addTrackByZoom(100, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
 	
 };
 
@@ -16303,61 +16972,222 @@ GenomeWidgetProperties.prototype.addTFBSTracks = function(){
 
 /** CONSERVED REGIONS **/  //TODO
 GenomeWidgetProperties.prototype.addConservedRegionsTracks = function(){
-	var cytobandTrack2 = new FeatureTrack(this.id + "_conservedregion", this.tracksPanel, this.species,{
+	for ( var i = 0; i <= 100; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_conservedregion",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : "Conserved regions",
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "purple"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion?histogram=true&interval="+this._interval[i]}));
+	}
+	
+	
+//	var cytobandTrack2 = new FeatureTrack(this.id + "_conservedregion", this.tracksPanel, this.species,{
+//		top : 10,
+//		height : 20,
+//		labelHeight : this.labelHeight,
+//		featureHeight : this.featureHeight,
+//		labelSize : this.labelSize,
+//		allowDuplicates : true,
+//		label : false,
+//		titleWidth : 92,
+//		pixelSpaceBetweenBlocks : 10,
+//		avoidOverlapping : true,
+//		title : 'Conserved regions'
+//	});
+//	this.addTrackByZoom(0, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
+//	
+//	var cytobandTrack3 = new FeatureTrack(this.id + "_conservedregion", this.tracksPanel, this.species,{
+//		top : 10,
+//		height : 20,
+//		labelHeight : this.labelHeight,
+//		featureHeight : this.featureHeight,
+//		labelSize : this.labelSize,
+//		allowDuplicates : true,
+//		label : false,
+//		titleWidth : 92,
+//		pixelSpaceBetweenBlocks : 0,
+//		avoidOverlapping : true,
+//		title : 'Conserved regions'
+//	});
+//	this.addTrackByZoom(60, 100, cytobandTrack3,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
+	
+};
+
+/** CPG REGIONS **/  //TODO
+GenomeWidgetProperties.prototype.addCpgIslandTracks = function(){
+	var cpgIsland = new FeatureTrack(this.id + "_CpgIsland", this.tracksPanel, this.species,{
 		top : 10,
 		height : 20,
 		labelHeight : this.labelHeight,
 		featureHeight : this.featureHeight,
 		labelSize : this.labelSize,
 		allowDuplicates : true,
-		label : false,
+		label : true,
 		titleWidth : 92,
-		pixelSpaceBetweenBlocks : 0,
+		pixelSpaceBetweenBlocks : 100,
 		avoidOverlapping : true,
-		title : 'Conserved regions'
+		title : 'CpG islands'
 	});
-	this.addTrackByZoom(0, 50, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
+	this.addTrackByZoom(75, 100, cpgIsland,new RegionCellBaseDataAdapter(this.species,{resource : "cpgisland"}));
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_conservedregion", this.tracksPanel, this.species,{
-				top : 10,
-				height : 20,
-				labelHeight : this.labelHeight,
-				featureHeight : this.featureHeight,
-				labelSize : this.labelSize,
-				allowDuplicates : true,
-				label : true,
-				titleWidth : 92,
-				pixelSpaceBetweenBlocks : 0,
-				avoidOverlapping : true,
-				title : 'Conserved regions'
-			});
-	this.addTrackByZoom(60, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
+	for ( var i = 0; i <= 70; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_CpGislands",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : 'CpG islands',
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "#76ee00"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "cpgisland?histogram=true&interval="+this._interval[i]}));
+	}
+	
 	
 };
 
+/** Mutation REGIONS **/  //TODO
+GenomeWidgetProperties.prototype.addMutationTracks = function(){
+//	var mutation = new SNPFeatureTrack(this.id + "_Mutation", this.tracksPanel, this.species,{
+//		top : 10,
+//		height : 20,
+//		labelHeight : this.labelHeight,
+//		featureHeight : this.featureHeight,
+//		labelSize : this.labelSize,
+//		allowDuplicates : true,
+//		label : false,
+//		titleWidth : 92,
+//		pixelSpaceBetweenBlocks : 0,
+//		avoidOverlapping : true,
+//		title : 'Mutation'
+//	});
+//	this.addTrackByZoom(0, 100, mutation,new RegionCellBaseDataAdapter(this.species,{resource : "mutation"}));
+	
+	for ( var i = 0; i <= 70; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_mutation",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : 'Mutation',
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "#00fa9a"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "mutation?histogram=true&interval="+this._interval[i]}));
+	}
+	
+	
+	var snpTrack = new SNPFeatureTrack(this.id + "mutation",this.tracksPanel, this.species,{
+		top : 5,
+		left : 0,
+		label : true,
+		title : "Mutation",
+		height : 20,
+		labelHeight : this.labelHeight,
+		featureHeight : 10,
+		labelSize : this.labelSize,
+		pixelSpaceBetweenBlocks : 150,
+		avoidOverlapping : true,
+		backgroundColor : '#555555'
+	});
+	this.addTrackByZoom(75, 100, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "mutation"}));
+};
 
-
+/** STRUCTURAL VARIATION REGIONS **/
+GenomeWidgetProperties.prototype.addStructuralVariationTracks = function(){
+	
+	for ( var i = 0; i <= 70; i+=this.increment) {
+		var histoTrack = new HistogramFeatureTrack(this.id + "_structuralvariation",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : 'Structural variation',
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "#a2b5cd"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "structuralvariation?histogram=true&interval="+this._interval[i]}));
+	}
+	
+	
+	var structuralVariationTrack = new FeatureTrack(this.id + "_structuralvariation", this.tracksPanel, this.species,{
+		top : 10,
+		height : 20,
+		labelHeight : this.labelHeight,
+		featureHeight : this.featureHeight,
+		labelSize : this.labelSize,
+		allowDuplicates : true,
+		label : true,
+		titleWidth : 92,
+		pixelSpaceBetweenBlocks : 100,
+		avoidOverlapping : true,
+		title : 'Structural variation'
+	});
+	this.addTrackByZoom(75, 100, structuralVariationTrack,new RegionCellBaseDataAdapter(this.species,{resource : "structuralvariation"}));
+};
 
 /** MULTIFEATURE TRACKS **/
 GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
-	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-		top : 20,
-		left : 0,
-		height : 40,
-		featureHeight : 40,
-		title : "Gene/Transcript",
-		titleFontSize : 9,
-		titleWidth : 70,
-		showTranscripts : false,
-		allowDuplicates : true,
-		backgroundColor : '#FFFFFF',
-		label : false,
-		pixelSpaceBetweenBlocks : 1,
-		showDetailGeneLabel : false,
-		forceColor : "blue"
-//		intervalSize : 500000
-	});
-	this.addTrackByZoom(0, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "gene?histogram=true&interval=250000"}));
+	
+	for ( var i = 0; i <= 10; i+=this.increment) {
+		var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+			top : 20,
+			left : 0,
+			height : 40,
+			featureHeight : 40,
+			title : "Gene/Transcript",
+			titleFontSize : 9,
+			titleWidth : 70,
+			showTranscripts : false,
+			allowDuplicates : true,
+			backgroundColor : '#FFFFFF',
+			label : false,
+			pixelSpaceBetweenBlocks : 1,
+			showDetailGeneLabel : false,
+			forceColor : "blue"
+//			intervalSize : 500000
+		});
+		this.addTrackByZoom(i, i, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "gene?histogram=true&interval="+this._interval[i]}));
+	}
+	
+
 //	this.addTrackByZoom(0, 0, multitrack,new GeneRegionCellBaseDataAdapter({obtainTranscripts : false}));
 	
 //	var multitrack1 = new HistogramFeatureTrack(this.id + "_multiTrack",
@@ -16402,7 +17232,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 				isAvalaible : true
 			});
 
-	this.addTrackByZoom(20, 20, multitrack2,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : false}));
+	this.addTrackByZoom(15, 25, multitrack2,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : false}));
 	
 	var multitrack2 = new MultiFeatureTrack(this.id + "_multiTrack", this.tracksPanel, this.species,{
 				top : 20,
@@ -16444,7 +17274,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 				showDetailGeneLabel : true
 			});
 
-	this.addTrackByZoom(50, 60, multitrack3,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : false}));
+	this.addTrackByZoom(45, 60, multitrack3,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : false}));
 
 	var multitrack4 = new MultiFeatureTrack(this.id + "_multiTrack", this.tracksPanel, this.species,{
 				top : 20,
@@ -16465,7 +17295,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 				showDetailGeneLabel : true
 			});
 
-	this.addTrackByZoom(70, 70, multitrack4,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : true}));
+	this.addTrackByZoom(65, 70, multitrack4,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : true}));
 	
 	var multitrack4 = new MultiFeatureTrack(this.id + "_multiTrack", this.tracksPanel, this.species,{
 				top : 20,
@@ -16486,7 +17316,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 				showDetailGeneLabel : true
 			});
 
-	this.addTrackByZoom(80, 80, multitrack4,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : true}));
+	this.addTrackByZoom(75, 80, multitrack4,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : true}));
 
 	var multitrack5 = new MultiFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
 		top : 10,
@@ -16506,7 +17336,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 		pixelSpaceBetweenBlocks : 200,
 		showDetailGeneLabel : true
 	});
-	this.addTrackByZoom(90, 90, multitrack5,new GeneRegionCellBaseDataAdapter(this.species));
+	this.addTrackByZoom(85, 90, multitrack5,new GeneRegionCellBaseDataAdapter(this.species));
 
 	var multitrack5 = new MultiFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
 				top : 10,
@@ -16529,14 +17359,9 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 				showExonLabel : true,
 				onMouseOverShitExonTranscriptLabel:true
 			});
-	this.addTrackByZoom(100, 100, multitrack5,new GeneRegionCellBaseDataAdapter(this.species));
+	this.addTrackByZoom(95, 100, multitrack5,new GeneRegionCellBaseDataAdapter(this.species));
 	
 };
-
-
-
-
-
 function GenomeWidget(trackerID, targetId,  args) {
 	this.id = trackerID;
 	this.targetId = targetId;
@@ -16574,6 +17399,9 @@ function GenomeWidget(trackerID, targetId,  args) {
 		if (args.allowDragging != null) {
 			this.allowDragging = args.allowDragging;
 		}
+		if (args.lastPosition != null) {
+			this.lastPosition = args.lastPosition;
+		}
 		
 //		if (args.ruleNotListenMoving != null){
 //			this.ruleNotListenMoving = args.ruleNotListenMoving;
@@ -16591,6 +17419,8 @@ function GenomeWidget(trackerID, targetId,  args) {
 	this.onClick = new Event(this);
 	this.onRender = new Event(this);
 	this.onMove = new Event(this);
+	
+//	console.log("widget width: "+this.width);
 	
 };
 
@@ -16624,10 +17454,18 @@ GenomeWidget.prototype.addTrack = function(track, dataAdapter){
     this.dataAdapterList.push(dataAdapter);
 };
 
-GenomeWidget.prototype.draw = function(chromosome, start, end){
+GenomeWidget.prototype.draw = function(chromosome, data_start, data_end, view_start, view_end){
+//	start=32889528;
+//	end=32889695;
+//	var mid = start + (end-start)/2;
+//	var nw= this.width / this.pixelRatio / 2;
+//	start =  Math.ceil(mid - nw);
+//	end = Math.ceil(mid + nw);
+	
+	
 	this.chromosome = chromosome;
-	this.start = start;
-	this.end = end;
+	this.start = data_start;
+	this.end = data_end;
 	
 	var _this = this;
 	this.init();
@@ -16642,7 +17480,8 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
 		backgroundColor: "#FFCCFF", 
 		pixelRatio:this.pixelRatio,
 		viewBoxModule: this.getviewBoxModule(),
-		allowDragging :this.allowDragging
+		allowDragging :this.allowDragging,
+		lastPosition : this.lastPosition
 	});
 	
     this.trackCanvas.init();
@@ -16668,7 +17507,7 @@ GenomeWidget.prototype.draw = function(chromosome, start, end){
 	 });
     
 //    console.log(this.getviewBoxModule());
-    this.trackCanvas.draw(this.chromosome, this.start, this.end);
+    this.trackCanvas.draw(this.chromosome, this.start, this.end, view_start, view_end);
     
    
 };function LegendPanel(args){
@@ -16701,7 +17540,6 @@ LegendPanel.prototype.getColorItems = function(legend){
 //		var cp = new Ext.picker.Color();
 //		cp.width = 20;
 //		cp.colors = [color];
-
 		var size=15;
 		var color = Ext.create('Ext.draw.Component', {
         width: size,
@@ -16830,17 +17668,23 @@ LegendWidget.prototype.draw = function(legend){
 };function GenomeViewer(targetId, species, args) {
 	var _this=this;
 	this.id = "GenomeViewer:"+ Math.round(Math.random()*10000);
-	
 	this.menuBar = null;
 	
 	// if not provided on instatiation
 	this.width =  $(document).width();
 	this.height = $(document).height();
+	this.lastPosition=260000000;
 	this.targetId=null;
 	
-	//Default species
+	//Default values
 	this.species="hsa";
 	this.speciesName="Homo sapiens";
+	this.increment = 5;
+	this.zoom=100;
+	
+//	this.firstLoad=true;
+	
+//	this.firstLoad=true;
 	
 	//Setting paramaters
 	if (targetId != null){
@@ -16849,8 +17693,8 @@ LegendWidget.prototype.draw = function(legend){
 	if (species != null) {
 		this.species = species.species;
 		this.speciesName = species.name;
-		this.chromosome=species.chromosome;
-		this.position=species.position;
+		this.chromosome = parseInt(species.chromosome);//parseInt is important for genomeWidgetProperties
+		this.position = parseInt(species.position);
 	}
 	if (args != null){
 		if(args.description != null){
@@ -16868,28 +17712,38 @@ LegendWidget.prototype.draw = function(legend){
 		if (args.pluginsMenu != null) {
 			this.pluginsMenu = args.pluginsMenu;
 		}
+		if (args.chromosome != null) {
+			this.chromosome = parseInt(args.chromosome);
+		}
+		if (args.position != null) {
+			this.position = parseInt(args.position);
+		}
 	}
 
 	//Events i send
 	this.onSpeciesChange = new Event();
+	this.onZoomChange = new Event();
+	this.onLastChrPosition = new Event();
 	
 	console.log(this.width+"x"+this.height);
 	console.log(this.targetId);
 	console.log(this.id);
-
 	
 	
 	this.genomeWidget = null;// new GenomeWidget(this.id + "id",
 //	this.chromosomeGenomeWidget = null;
+	console.log(this.zoom);
 	this.genomeWidgetProperties = new GenomeWidgetProperties(this.species,{
+				width:this.width,
 				windowSize : 1000000,
 				pixelRatio : 0.0005,
-				id:this.id
+				id:this.id,
+				zoom:this.zoom,
+				increment:this.increment
 	});
 	
 	//Events i listen
 	this.onSpeciesChange.addEventListener(function(sender,data){
-		_this.setLocation(data.chromosome,data.position);
 		_this.species=data.species;
 		_this.speciesName=data.name;
 		Ext.getCmp(_this.id+"speciesMenuButton").setText(_this.speciesName);
@@ -16898,10 +17752,15 @@ LegendWidget.prototype.draw = function(legend){
 		Ext.getCmp(_this.id + "chromosomeMenuButton").menu = _this._getChromosomeMenu();
 
 		_this.genomeWidgetProperties = new GenomeWidgetProperties(_this.species,{
+			width:_this.width,
 			windowSize : 1000000,
 			pixelRatio : 0.0005,
-			id:_this.id
+			id:_this.id,
+			zoom:_this.zoom,
+			increment:_this.increment
 		});
+		
+		_this.setLocation(data.chromosome,data.position);
 
 		if(_this.targetId!=null){
 			_this.draw();
@@ -16910,15 +17769,11 @@ LegendWidget.prototype.draw = function(legend){
 	
 	this.customTracksAddedCount = 1;
 	/** position molona 1: 211615616 **/
-	$(window).resize(function(ev,width,height) {
-
-	});	
+//	$(window).resize(function(ev,width,height) {
+//
+//	});	
 	
-	//TODO check first if chromosome exists on the new specie
-	this.chromosome = 13;
-	this.position = 32889611;
-	
-	
+	//used to know if the method _drawGenomeViewer is already called
 	this.drawing=0;
 };
 GenomeViewer.prototype.setMenuBar = function(menuBar){
@@ -16936,12 +17791,19 @@ GenomeViewer.prototype.draw = function(){
 };
 
 GenomeViewer.prototype._render = function() {
+	var _this=this;
 	var start = this.position - (this.genomeWidgetProperties.windowSize);
 	var end = this.position + (this.genomeWidgetProperties.windowSize);
 	
-	this._drawGenomeViewer();
+//	console.log(start+":"+end);
+	
+	this.onLastChrPosition.addEventListener(function(sender,data){
+		_this._drawGenomeViewer();
+	});
 	
 	this.drawChromosome(this.chromosome, start, end);
+	
+	
 	this._setScaleLabels();
 };
 
@@ -16983,6 +17845,9 @@ GenomeViewer.prototype.setSize = function(width,height) {
 	this.width=width;
 	this.height=height;
 	this._getPanel().setSize(width,height);
+	
+	Ext.getCmp(this.id+"windowSizePanel").update(this._getWindowSizeArrow());
+	
 	this.draw();
 };
 
@@ -17031,7 +17896,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
 	});
 	/*Chromolendar*/
  	var chrView = Ext.create('Ext.view.View', {
-	    store : chrStore,
+	store : chrStore,
         selModel: {
             mode: 'SINGLE',
             listeners: {
@@ -17047,7 +17912,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
         itemSelector: '.chromosome-item', 
         tpl: '<tpl for="."><div style="float:left" class="chromosome-item">{name}</div></tpl>'
 //	        tpl: '<tpl for="."><div class="chromosome-item">chr {name}</div></tpl>'
-    });
+ 	});
  	var chrContainer = Ext.create('Ext.container.Container', {
  		width:125,
 //	 		height:300,
@@ -17070,6 +17935,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
 		for (var i = 0; i < karyotypeCellBaseDataAdapter.chromosomeNames.length; i++) {
 			chromosomeData.push({'name':karyotypeCellBaseDataAdapter.chromosomeNames[i]});
 		}
+//		console.log(chromosomeData);
 		chrStore.loadData(chromosomeData);
 		
 	});
@@ -17105,9 +17971,10 @@ GenomeViewer.prototype._getZoomSlider = function() {
 			minValue : 0,
 			hideLabel : false,
 			maxValue : 100,
-			value : _this.genomeWidgetProperties.getZoom(),
+//			value : _this.genomeWidgetProperties.getZoom(),
+			value : this.zoom,
 			useTips : true,
-			increment : 10,
+			increment : this.increment,
 			tipText : function(thumb) {
 				return Ext.String.format('<b>{0}%</b>', thumb.value);
 			}
@@ -17140,15 +18007,17 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
         
     }
     if (action == '+'){
-    	   var zoom = this.genomeWidgetProperties.getZoom();
-    	   if (zoom < 100){
-    		   this.setZoom(zoom + 10);
-    	   }
+//  	var zoom = this.genomeWidgetProperties.getZoom();
+    	var zoom = this.zoom;
+    	if (zoom < 100){
+    		this.setZoom(zoom + this.increment);
+    	}
     }
     if (action == '-'){
-    	 var zoom = this.genomeWidgetProperties.getZoom();
-  	   if (zoom >= 10){
-  		   this.setZoom(zoom - 10);
+//    	 var zoom = this.genomeWidgetProperties.getZoom();
+    	 var zoom = this.zoom;
+  	   if (zoom >= 5){
+  		   this.setZoom(zoom - this.increment);
   	   }
     }
     
@@ -17304,7 +18173,7 @@ GenomeViewer.prototype._getChromosomePanel = function() {
 		margin:10
 	});
 	return Ext.create('Ext.container.Container', {
-		height : 70,
+		height : 80,
 	    layout: {type: 'table', columns: 2},
 		items:[label,svg]
 //		html : '<br/><table style="border:0px" ><tr><td id="'
@@ -17317,18 +18186,27 @@ GenomeViewer.prototype._getChromosomePanel = function() {
 
 
 //WINDOWSIZE PANEL
+GenomeViewer.prototype._getWindowSizeArrow = function() {
+	var trueWidth = this.width-15;
+	var trueWidth10 = trueWidth-10;
+	var halfWidth = (trueWidth/2)-60;
+	var svgItem ='<svg xmlns="http://www.w3.org/2000/svg" version="1.1">'+
+				 '<path fill="black" opacity="0.5" d="M0 15 L10 9 L10 21  Z" />'+
+				 '<path fill="black" opacity="0.5" d="M10 16 L10 14 L'+trueWidth10+' 14 L'+trueWidth10+' 16 Z" />'+
+				 '<path fill="black" opacity="0.5" d="M'+trueWidth+' 15 L'+trueWidth10+' 9 L'+trueWidth10+' 21 Z" />'+
+				 '<text id="'+this.id+"windowSizeLabel"+'" x="'+halfWidth+'" y="10" fill="blue">nt</text>'+
+				 '</svg>';
+	return svgItem;
+};
 GenomeViewer.prototype._getWindowSizePanel = function() {
-	var windowSizeLabel = Ext.create('Ext.toolbar.TextItem', {
-		id:this.id+"windowSizeLabel",
-		text:'window Size'
-	});
 	return Ext.create('Ext.container.Container', {
-		style:'text-align:center;',
-		height : 20,
-		items:windowSizeLabel
+		id:this.id+"windowSizePanel",
+		height : 22,
+		html:this._getWindowSizeArrow()
 	});
 };
 //WINDOWSIZE PANEL
+
 
 
 
@@ -17413,7 +18291,7 @@ GenomeViewer.prototype.openListWidget = function(category, subcategory, query, r
 	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
 	cellBaseDataAdapter.successed.addEventListener(function(evt, data) {
 		
-		var genomicListWidget = new GenomicListWidget({title:title, gridFields:gridField,viewer:_this});
+		var genomicListWidget = new GenomicListWidget(_this.species,{title:title, gridFields:gridField,viewer:_this});
 		genomicListWidget.draw(cellBaseDataAdapter.dataset.toJSON(), query );
 		
 		genomicListWidget.onSelected.addEventListener(function(evt, feature) {
@@ -17492,45 +18370,65 @@ GenomeViewer.prototype.drawChromosome = function(chromosome, start, end) {
 	DOM.removeChilds(this._getChromosomeContainerID());
 	var width = this.width - 100;
 	this.chromosomeFeatureTrack = new ChromosomeFeatureTrack(this.id + "chr", document.getElementById(this._getChromosomeContainerID()), this.species,{
-				top : 5,
-				bottom : 20,
-				left : 10,
-				right : width - 100,
-				width : width,
-				height : 40,
-				label : true,
-				"vertical" : false,
-				"rounded" : 4
-			});
+		top : 5,
+		bottom : 20,
+		left : 10,
+		right : width - 100,
+		width : width,
+		height : 50,
+		label : true,
+		"vertical" : false,
+		"rounded" : 4
+	});
 
 	var _this = this;
 	var dataAdapter = new RegionCellBaseDataAdapter(this.species,{resource : "cytoband"});
 	dataAdapter.successed.addEventListener(function(evt, data) {
-				_this.chromosomeFeatureTrack.draw(dataAdapter.dataset);
-				_this.chromosomeFeatureTrack.click.addEventListener(function(evt, data) {
-							_this.setLocation(_this.chromosome, data);
-						});
-			});
+		if (data!=null && data[0].length>0){
+			_this.lastPosition = data[0][data[0].length-1].end;
+//			console.log(_this.lastPosition);
+			
+			if(_this.position > _this.lastPosition){
+				_this.position = _this.lastPosition/2;
+			}
+//			_this.firstLoad=false;
+			
+			_this.onLastChrPosition.notify();
+//			_this._getPanel().setLoading(false);
+		}
+		_this.chromosomeFeatureTrack.draw(dataAdapter.dataset);
+		_this.chromosomeFeatureTrack.click.addEventListener(function(evt, data) {
+//			_this.setLocation(_this.chromosome, data);
+			_this.position = Math.ceil(data);
+			_this.refreshMasterGenomeViewer();
+		});
+	});
 
 	dataAdapter.fill(chromosome, 1, 260000000, "cytoband");
+	this._getPanel().setLoading("Retrieving data");
 };
 
 
 GenomeViewer.prototype._setScaleLabels = function() {
 	var value = Math.floor(100/this.genomeWidgetProperties.getPixelRatio()) + " nt ";
-	Ext.getCmp(this.id+"scaleLabel").surface.items.items[0].setAttributes({text:value},true);
+	var ntWidth = "Viewing "+Math.ceil((this.width-15)/this.genomeWidgetProperties.getPixelRatio()) + " nts ";
 	
-	var value10 = "Viewing "+Math.floor(100/this.genomeWidgetProperties.getPixelRatio())*10 + " nts ";
-	Ext.getCmp(this.id+"windowSizeLabel").setText(value10);
+	Ext.getCmp(this.id+"scaleLabel").surface.items.items[0].setAttributes({text:value},true);
+	//Change svg text 
+	Ext.getDom(this.id+"windowSizeLabel").firstChild.nodeValue=ntWidth;
 };
 
 GenomeViewer.prototype.setZoom = function(value) {
+	
+	
 	this.genomeWidgetProperties.setZoom(value);
+	this.zoom = value;
 	
 	this.position = this.genomeWidget.getMiddlePoint();
 	this._getZoomSlider().setValue(value);
 	
-	this.genomeWidget.trackCanvas._goToCoordinateX(this.position- (this.genomeWidget.trackCanvas.width / 2)/ this.genomeWidgetProperties.getPixelRatio());
+	//TODO ORIG descomentar
+//	this.genomeWidget.trackCanvas._goToCoordinateX(this.position- (this.genomeWidget.trackCanvas.width / 2)/ this.genomeWidgetProperties.getPixelRatio());
 	this._setScaleLabels();
 	this.refreshMasterGenomeViewer();
 };
@@ -17560,8 +18458,8 @@ GenomeViewer.prototype._setPositionField = function(chromosome, position) {
 
 
 GenomeViewer.prototype._getWindowsSize = function() {
-	var zoom = this.genomeWidgetProperties.getZoom();
-	return this.genomeWidgetProperties.getWindowSize(zoom);
+//	var zoom = this.genomeWidgetProperties.getZoom();
+	return this.genomeWidgetProperties.getWindowSize(this.zoom);
 };
 
 GenomeViewer.prototype.refreshMasterGenomeViewer = function() {
@@ -17579,8 +18477,9 @@ GenomeViewer.prototype._drawGenomeViewer = function() {
 		if(_this.drawing==0){
 			_this._drawOnceGenomeViewer();
 		}
-	},300);
+	},500);
 };
+
 GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 	var _this = this;
 	this._getPanel().setLoading("Retrieving data");
@@ -17590,15 +18489,18 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 		this.genomeWidget.clear();
 	}
 	
+	var pixelRatio = this.genomeWidgetProperties.getPixelRatio();
+	
 	this.genomeWidget = new GenomeWidget(this.id + "master", this._getTracksPanelID(), {
-	                pixelRatio: this.genomeWidgetProperties.getPixelRatio(),
+	                pixelRatio: pixelRatio,
 	                width:this.width-15,
+	                lastPosition : this.lastPosition,
 //	                height:  this.height
 	                height:  2000
-	        });
+	});
 
-	var zoom = this.genomeWidgetProperties.getZoom();
-
+//	var zoom = this.genomeWidgetProperties.getZoom();
+	var zoom = this.zoom;
 	
 	if (this.genomeWidgetProperties.getTrackByZoom(zoom).length > 0){
 		for ( var i = 0; i < this.genomeWidgetProperties.getTrackByZoom(zoom).length; i++) {
@@ -17610,26 +18512,53 @@ GenomeViewer.prototype._drawOnceGenomeViewer = function() {
 			this.genomeWidget.addTrack(track, this.genomeWidgetProperties.getDataAdapterByZoom(zoom)[i]);
 		}
 		
-		var start = Math.ceil(this.position - (this._getWindowsSize()));// - (this._getWindowsSize()/6);
-		var end = Math.ceil(this.position +   (this._getWindowsSize()));// - (this._getWindowsSize()/6);
 		
-		if (start < 0){ start = 0;}
+		/*orig*/
+		var data_start = Math.ceil(this.position - (this._getWindowsSize()));// - (this._getWindowsSize()/6);
+		var data_end = Math.ceil(this.position +   (this._getWindowsSize()));// - (this._getWindowsSize()/6);
+		
+////		/*TODO*/
+		
+		
+		
+//		var halfBases = (this.width-15) / pixelRatio / 2;
+//		var start =  Math.ceil(this.position - halfBases);
+//		var end = Math.ceil(this.position + halfBases);
+//		/**/
+		var halfBases = ((this.width-15) / pixelRatio) / 2;
+		var view_start=Math.ceil(this.position - halfBases);
+		var view_end= Math.ceil(this.position + halfBases);
+		
+		
+		if (data_start < 0){ 
+			data_start = 0;
+		}
+		
 		this.genomeWidget.onMarkerChange.addEventListener(function (evt, middlePosition){
+//			console.log(middlePosition.middle);
 			var window = _this.genomeWidgetProperties.windowSize/2;
+//			console.log(window);
+			
+			//TODO pako movido de la linea de abajo, asi se actualiza a la vez el textfield
+			_this.position = Math.floor(middlePosition.middle);
+			_this._setPositionField(_this.chromosome, Math.floor(middlePosition.middle));
+			
 			var start = middlePosition.middle - window;
 			if (start < 0 ){start = 0;}
 			_this.updateRegionMarked(_this.chromosome, middlePosition.middle);
 		});
 		 
 		this.genomeWidget.onRender.addEventListener(function (evt){
-//			 console.log("test");
 			_this._getPanel().setLoading(false);
-			_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
+			
+			//TODO pako doing descomentar para el funcionamiento anterior
+//			_this.genomeWidget.trackCanvas.selectPaintOnRules(_this.position);
 
 		 });
 		 
-		this._setPositionField(this.chromosome, this.position);
-		this.genomeWidget.draw(this.chromosome, start, end);
+		//TODO Orig descomentar
+//		this._setPositionField(this.chromosome, this.position);
+		this.genomeWidget.draw(this.chromosome, data_start, data_end, view_start, view_end);
 
 		
 	}
@@ -17687,7 +18616,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 			pixelSpaceBetweenBlocks : 100,
 			allowDuplicates : true,
 			backgroundColor : "#FCFFFF",
-			isAvalaible : false
+			isAvalaible : true
 		});
 		this.genomeWidgetProperties.addCustomTrackByZoom(0, 50, dasTrack1,dasDataAdapter2);
 		var dasTrack = new FeatureTrack("vcf", null, this.species,{
@@ -17704,7 +18633,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 			pixelSpaceBetweenBlocks : 100,
 			allowDuplicates : true,
 			backgroundColor : "#FCFFFF",
-			isAvalaible : false
+			isAvalaible : true
 		});
 		this.genomeWidgetProperties.addCustomTrackByZoom(60, 100, dasTrack,dasDataAdapter2);
 	}
@@ -17792,11 +18721,6 @@ GenomeViewer.prototype.addFeatureTrack = function(title, dataadapter) {
 		
 	}
 };
-
-
-
-
-
 
 
 
