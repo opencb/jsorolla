@@ -448,9 +448,9 @@ MultiFeatureTrack.prototype.getLabel = function (feature){
 
 MultiFeatureTrack.prototype.clickOn = function (feature){
 	
-	if (feature instanceof ExonFeatureFormatter){
-		//TODO por ahora no es necesario ExonInfoWidget
-	}
+//	if (feature instanceof ExonFeatureFormatter){
+//		//TODO por ahora no es necesario ExonInfoWidget
+//	}
 	
 	if (feature instanceof TranscriptFeatureFormatter){
 		new TranscriptInfoWidget(null,this.species).draw(feature);

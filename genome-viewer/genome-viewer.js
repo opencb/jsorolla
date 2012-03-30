@@ -173,7 +173,6 @@ GenomeViewer.prototype._getPanel = function(width,height) {
 			layout: { type: 'vbox',align: 'stretch'},
 			region : 'center',
 			margins : '0 0 0 0',
-			border : false,
 			items :items
 		});
 	}

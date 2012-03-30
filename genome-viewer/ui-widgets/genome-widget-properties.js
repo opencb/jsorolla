@@ -137,11 +137,9 @@ GenomeWidgetProperties.prototype.init = function(){
 	}
 	
 	
-	/**/
 //	console.log('width: '+ this.width);
 //	console.log('pixelRatio: '+ this._pixelRatio);
 //	console.log('windowSize: '+ this.windowSize);
-	/**/
 	
 	
 	for ( var i = 0; i <= 100; i = i + this.increment) {
