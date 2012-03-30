@@ -70,7 +70,6 @@ function GenomeViewer(targetId, species, args) {
 	
 	this.genomeWidget = null;// new GenomeWidget(this.id + "id",
 //	this.chromosomeGenomeWidget = null;
-	console.log(this.zoom);
 	this.genomeWidgetProperties = new GenomeWidgetProperties(this.species,{
 				width:this.width,
 				windowSize : 1000000,

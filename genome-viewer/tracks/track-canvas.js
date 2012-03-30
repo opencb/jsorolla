@@ -266,7 +266,9 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 //		var formatters = new ArrayRegionCellBaseDataAdapter();
 		var formatters = new Array();
 		for ( var i = 0; i < regionAdapter.dataset.json.length; i++) {
-			formatters.push(new DASFeatureFormatter(regionAdapter.dataset.json[i]));
+			if(regionAdapter.dataset.json[i].length>0){//else it tries to process a empty array
+				formatters.push(new DASFeatureFormatter(regionAdapter.dataset.json[i]));
+			}
 		}
 		regionAdapter.dataset.json = formatters;
 	}
