@@ -60,6 +60,13 @@ function InfoWidget(targetId, species, args){
 		break;
 	}
 	
+	this.notFoundPanel = Ext.create('Ext.panel.Panel',{
+		cls:'panel-border-left',
+		border:false,
+		flex:3,
+		bodyPadding:'40',
+		html:'No results found'
+	});
 	
 };
 
@@ -331,5 +338,73 @@ InfoWidget.prototype.getProteinXrefTemplate = function (){
 					}
 				}
 			}
+		);
+};
+
+InfoWidget.prototype.getSnpTranscriptTemplate = function (){
+	return new Ext.XTemplate(
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{[this.getStableId(values)]}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
+		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Transcript/Transcript?t={[this.getStableId(values)]}">Ensembl</a>',
+		    '</p><br>',
+		    '<p><span class="w140 dis s90">CDS &nbsp; (start : end): </span> {cdsStart} : {cdsEnd} <span style="margin-left:50px" class="w100 dis s90">cDNA (start : end): </span> {cdnaStart} : {cdnaEnd}</p>',
+		    '<p><span class="w140 dis s90">Translation (start : end): </span> {translationStart} : {translationEnd}</p>',
+		    '<p><span class="w140 dis s90">Peptide allele: </span> {peptideAlleleString}</p>',
+		    '<p><span class="w140 dis s90">Alt. peptide allele: </span> {alternativePeptideAlleleString}</p>',
+			'<p><span class="w140 dis s90">Codon: </span> {codon}</p>',
+			'<p><span class="w140 dis s90">Reference codon: </span> {referenceCodon}</p>',
+			'<p><span class="w140 dis s90">Polyphen prediction: </span> {polyphenPrediction}</p>',
+			'<p><span class="w140 dis s90">Polyphen score: </span> {polyphenScore}</p>',
+			'<p><span class="w140 dis s90">Sift prediction: </span> {siftPrediction}</p>',
+			'<p><span class="w140 dis s90">Sift score: </span> {siftScore}</p>',
+		    {
+		    	getStableId: function(values){
+		    		if(values.transcript!=""){
+		    			return values.transcript.stableId;
+		    		}
+		    		return "Intergenic SNP";
+		    	}
+		    }
+		);
+};
+InfoWidget.prototype.getConsequenceTypeTemplate = function (){
+	return new Ext.XTemplate(
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{transcript.stableId}</span> &nbsp; <span class="emph s120"> {consequenceType.description} </span></span><br><br>',
+		    '<p><span class="w100 dis s90">SO accesion: </span> {consequenceType.soAccession}</p>',
+		    '<p><span class="w100 dis s90">SO term: </span> {consequenceType.soTerm}</p>',
+		    '<p><span class="w100 dis s90">Feature So term: </span> {consequenceType.featureSoTerm}</p>',
+		    '<p><span class="w100 dis s90">NCBI term: </span> {consequenceType.ncbiTerm}</p>',
+		    '<p><span class="w100 dis s90">Rank: </span> {consequenceType.rank}</p><br>'
+		);
+};
+
+
+InfoWidget.prototype.getPhenotypeTemplate = function (){
+	return new Ext.XTemplate(
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{phenotypeDescription}</span> &nbsp; <span class="emph s120"> {source} </span></span><br><br>',
+			'<p><span class="w150 dis s90">PValue: </span>{PValue}</p>',
+			'<p><span class="w150 dis s90">Assoc. gene name: </span>{associatedGeneName}</p>',
+			'<p><span class="w150 dis s90">Assoc. variant risk allele: </span>{associatedVariantRiskAllele}</p>',
+			'<p><span class="w150 dis s90">Phenotype description: </span>{phenotypeDescription}</p>',
+			'<p><span class="w150 dis s90">Phenotype name: </span>{phenotypeName}</p>',
+			'<p><span class="w150 dis s90">Risk allele freq in controls: </span>{riskAlleleFrequencyInControls}</p>',
+			'<p><span class="w150 dis s90">Source: </span>{source}</p>',
+			'<p><span class="w150 dis s90">Study name: </span>{studyName}</p>',
+			'<p><span class="w150 dis s90">Study type: </span>{studyType}</p>',
+			'<p><span class="w150 dis s90">Study URL: </span>{studyUrl}</p>',
+			'<p><span class="w150 dis s90">Study description: </span>{studyDescription}</p>'
+		);
+};
+
+InfoWidget.prototype.getPopulationTemplate = function (){
+	return new Ext.XTemplate(
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{population}</span> &nbsp; <span class="emph s120"> {source} </span></span><br><br>',
+		    '<p><span class="w140 dis s90">Ref allele:  </span>{refAllele} ({refAlleleFrequency})</p>',
+		    '<p><span class="w140 dis s90">Other allele:  </span>{otherAllele} ({otherAlleleFrequency})</p>',
+		    '<p><span class="w140 dis s90">Ref allele homozygote:  </span>{refAlleleHomozygote} ({refAlleleHomozygoteFrequency})</p>',
+		    '<p><span class="w140 dis s90">Allele heterozygote:  </span>{alleleHeterozygote} ({alleleHeterozygoteFrequency})</p>',
+			 '<p><span class="w140 dis s90">Other allele homozygote:  </span>{otherAlleleHomozygote} ({otherAlleleHeterozygoteFrequency})</p>',
+//			 'TODO cuidado <p><span class="w140 dis s90">other allele heterozygote Frequency:  </span>{otherAlleleHeterozygoteFrequency}</p>',
+			 '<p><span class="w140 dis s90">Source:  </span>{source}</p>',
+			 '<p><span class="w140 dis s90">Population:  </span>{population}</p>'
 		);
 };

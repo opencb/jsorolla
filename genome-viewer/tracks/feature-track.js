@@ -318,7 +318,7 @@ FeatureTrack.prototype._renderLabel = function(start, top, label, attributes, fo
 //TODO  done
 //console.log(ev);
 		_this.tooltippanel = new TooltipPanel();
-		_this.tooltippanel.getPanel(formatter).showAt(ev.clientX,ev.clientY);
+		_this.tooltippanel.getPanel(formatter).showAt(ev.pageX,ev.pageY);
 	}, true);
 	SVGNode.addEventListener("mouseout", function() {
 //TODO done

@@ -2,21 +2,16 @@
 function KaryotypePanelWindow(species,args){
 	var _this = this;
 	this.id = "KaryotypePanelWindow_" + Math.random();
-	this.karyotypeWidget = new KaryotypePanel(this.getKaryotypePanelId(), species, {"top":10, "width":1000, "height": 300, "trackWidth":15});
 	
-	this.karyotypeCellBaseDataAdapter = new KaryotypeCellBaseDataAdapter(species);
-	
-	this.mode="window";
 	if (args!=null){
-		if (args.mode!=null){
-			this.mode = args.mode;
-		}
-		if (args.targetId!=null){//only if args.mode is panel
-			this.targetId = args.targetId;
+		if (args.width!=null){//only if args.mode is panel
+			this.width = args.width;
 		}
 	}
 	this.args = args;
 	
+	this.karyotypeWidget = new KaryotypePanel(this.getKaryotypePanelId(), species, {"top":10, "width":args.width, "height": args.height, "trackWidth":15});
+	this.karyotypeCellBaseDataAdapter = new KaryotypeCellBaseDataAdapter(species);
 	
 	this.onRendered = new Event();
 	this.onMarkerChanged = new Event();
@@ -46,31 +41,30 @@ KaryotypePanelWindow.prototype.mark = function(features){
 
 
 KaryotypePanelWindow.prototype.draw = function(){
-	if(this.panel==null){
-		this.render();
-	}
-	if(this.mode=="window"){
-		this.panel.show();
-	}
+	this.karyotypeCellBaseDataAdapter.fill();
+	
+	this.render();
+	this.panel.show();
 };
 
 KaryotypePanelWindow.prototype.getKaryotypePanel = function(){
 	if(this.karyotypePanel==null){
 		
-		var helpLabel = Ext.create('Ext.toolbar.TextItem', {
-			html:'<span class="dis">Click on chromosome to go</span>'
-		});
-		var infobar = Ext.create('Ext.toolbar.Toolbar',{dock: 'top'});
-		infobar.add(helpLabel);
+//		var helpLabel = Ext.create('Ext.toolbar.TextItem', {
+//			html:'<span class="dis">Click on chromosome to go</span>'
+//		});
+//		var infobar = Ext.create('Ext.toolbar.Toolbar',{dock: 'top'});
+//		infobar.add(helpLabel);
 		
 		this.karyotypePanel  = Ext.create('Ext.panel.Panel', {
-			height:350,
+			height:this.karyotypeWidget.height+10,
 			maxHeight:350,
+			width:this.karyotypeWidget.width+15,
 			border:false,
 			bodyPadding: 15,
 			padding:'0 0 0 0',
-			html:'<div id="' + this.getKaryotypePanelId() +'" ><div>',
-			dockedItems: [infobar]
+			html:'<div id="' + this.getKaryotypePanelId() +'" ><div>'
+//			dockedItems: [infobar]
 		});
 	}
 	return this.karyotypePanel;
@@ -80,41 +74,28 @@ KaryotypePanelWindow.prototype.render = function(){
 	var _this = this;
 	
 	//Window is shown by default
-	if(this.mode=="window"){
-		this.panel = Ext.create('Ext.ux.Window', {
-			title: 'Karyotype',
-			resizable:false,
-			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
-			constrain:true,
-			animCollapse: true,
-			width: 1050,
-			height: 412,
-			minWidth: 300,
-			minHeight: 200,
-			layout: 'fit',
-			items: [this.getKaryotypePanel()],
-			buttonAlign:'center',
-			buttons:[{ text: 'Close', handler: function(){_this.panel.close();}}],
-			listeners: {
-				destroy: function(){
-					delete _this.panel;
-				}
+	this.panel = Ext.create('Ext.ux.Window', {
+		title: 'Karyotype',
+		resizable:false,
+		taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
+		constrain:true,
+		animCollapse: true,
+		width: 1050,
+		height: 412,
+		minWidth: 300,
+		minHeight: 200,
+		layout: 'fit',
+		items: [this.getKaryotypePanel()],
+		buttonAlign:'center',
+		buttons:[{ text: 'Close', handler: function(){_this.panel.close();}}],
+		listeners: {
+			destroy: function(){
+				delete _this.panel;
 			}
-		});
-	}else{//panel inside a given div
-		this.panel = Ext.create('Ext.panel.Panel', {
-			renderTo:this.targetId,
-			title: 'Karyotype',
-			width: 1050,
-			height: 412,
-			minWidth: 300,
-			minHeight: 200,
-			layout: 'fit',
-			items: [this.getKaryotypePanel()]
-		});
-	}
-	this.karyotypeCellBaseDataAdapter.fill();
+		}
+	});
 };
+
 
 KaryotypePanelWindow.prototype.getKaryotypePanelId = function (){
 	return this.id+"_karyotypePanel";	

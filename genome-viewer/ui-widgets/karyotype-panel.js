@@ -5,7 +5,7 @@ function KaryotypePanel(targetID, species, args){
 	
 	this.species=species;
 	
-	this.width = 500;
+	this.width = 1000;
 	this.height = 300;
 	
 	

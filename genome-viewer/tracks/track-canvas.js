@@ -212,7 +212,7 @@ TrackCanvas.prototype.init = function() {
 	
 	
 	this._svg.addEventListener("focusin", function(event) {
-		$("body").keyup(function(e) {
+		$("body").keydown(function(e) {
 			if(e.keyCode == 37){//left arrow
 				_this.moveX(-(10/_this.pixelRatio));
 			}

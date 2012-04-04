@@ -100,5 +100,4 @@ LegendPanel.prototype.getButton = function(legend){
 	}	
 	return this.button;
 	
-	
 };

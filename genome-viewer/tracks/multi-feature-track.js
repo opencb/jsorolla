@@ -478,5 +478,5 @@ MultiFeatureTrack.prototype._featureOver = function(feature, node, ev){
 	node.setAttribute("opacity", "0.6");
 //TODO done
 	this.tooltippanel = new TooltipPanel();
-	this.tooltippanel.getPanel(feature).showAt(ev.clientX,ev.clientY);
+	this.tooltippanel.getPanel(feature).showAt(ev.pageX,ev.pageY);
 };

@@ -4,6 +4,10 @@ SnpInfoWidget.prototype.getTreePanel = InfoWidget.prototype.getTreePanel;
 SnpInfoWidget.prototype.checkDataTypes = InfoWidget.prototype.checkDataTypes;
 SnpInfoWidget.prototype.doGrid = InfoWidget.prototype.doGrid;
 SnpInfoWidget.prototype.getSnpTemplate = InfoWidget.prototype.getSnpTemplate;
+SnpInfoWidget.prototype.getSnpTranscriptTemplate = InfoWidget.prototype.getSnpTranscriptTemplate;
+SnpInfoWidget.prototype.getConsequenceTypeTemplate = InfoWidget.prototype.getConsequenceTypeTemplate;
+SnpInfoWidget.prototype.getPhenotypeTemplate = InfoWidget.prototype.getPhenotypeTemplate;
+SnpInfoWidget.prototype.getPopulationTemplate = InfoWidget.prototype.getPopulationTemplate;
 
 function SnpInfoWidget(targetId, species, args){
 	if (args == null){
@@ -18,10 +22,11 @@ SnpInfoWidget.prototype.getdataTypes = function (){
 	return dataTypes=[
 	            { text: "Genomic", children: [
 	                { text: "Information"},
-	                { text: "Gene"}
+	                { text: "Transcripts"}
 	            ] },
-	            { text: "Consequence Type"},
-	            { text: "Population"}
+	            { text: "Consequence type"},
+	            { text: "Annotated phenotype"},
+	            { text: "Population frequency"}
 	           
 	        ];
 };
@@ -34,15 +39,19 @@ SnpInfoWidget.prototype.optionClick = function (item){
 		}
 		switch (item.text){
 			case "Information":  this.panel.add(this.getInfoPanel(this.data).show()); break;
-			case "Consequence Type": break;
-			case "Population": break;
+			case "Transcripts": this.panel.add(this.getTranscriptPanel(this.data.snptotranscript).show()); break;
+			case "Consequence type": this.panel.add(this.getConsequenceTypePanel(this.data.snptotranscript).show()); break;
+			case "Annotated phenotype": this.panel.add(this.getPhenotypePanel(this.data.phenotype).show()); break;
+			case "Population frequency": this.panel.add(this.getPopulationPanel(this.data.population).show()); break;
 		}
 	}
 };
 
 SnpInfoWidget.prototype.getInfoPanel = function(data){
     if(this.infoPanel==null){
-
+    	if(data.length<=0){
+    		return this.notFoundPanel;
+    	}
     	var tpl = this.getSnpTemplate();
 
 		this.infoPanel = Ext.create('Ext.panel.Panel',{
@@ -58,6 +67,131 @@ SnpInfoWidget.prototype.getInfoPanel = function(data){
     }
     return this.infoPanel;
 };
+
+
+SnpInfoWidget.prototype.getTranscriptPanel = function(data){
+    if(this.transcriptGrid==null){
+    	if(data.length<=0){
+    		return this.notFoundPanel;
+    	}
+    	var tpl = this.getSnpTranscriptTemplate();
+    	
+    	var panels = [];
+    	for ( var i = 0; i < data.length; i++) {	
+			var transcriptPanel = Ext.create('Ext.panel.Panel',{
+		        border:false,
+				bodyPadding:5,
+				data:data[i],
+				tpl:tpl
+			});
+			panels.push(transcriptPanel);
+    	}
+		this.transcriptGrid = Ext.create('Ext.panel.Panel',{
+			title:"Transcripts ("+i+")",
+			border:false,
+			cls:'panel-border-left',
+			flex:3,    
+			bodyPadding:5,
+			autoScroll:true,
+			items:panels
+		});
+    }
+    return this.transcriptGrid;
+};
+
+SnpInfoWidget.prototype.getConsequenceTypePanel = function(data){
+    if(this.consequencePanel==null){
+    	if(data.length<=0){
+    		return this.notFoundPanel;
+    	}
+    	var tpl = this.getConsequenceTypeTemplate();
+    	
+    	var panels = [];
+    	for ( var i = 0; i < data.length; i++) {	
+			var consPanel = Ext.create('Ext.panel.Panel',{
+		        border:false,
+				bodyPadding:5,
+				data:data[i],
+				tpl:tpl
+			});
+			panels.push(consPanel);
+    	}
+		this.consequencePanel = Ext.create('Ext.panel.Panel',{
+			title:"Consequence type ("+i+")",
+			border:false,
+			cls:'panel-border-left',
+			flex:3,    
+			bodyPadding:5,
+			autoScroll:true,
+			items:panels
+		});
+    }
+    return this.consequencePanel;
+};
+
+
+SnpInfoWidget.prototype.getPhenotypePanel = function(data){
+    if(this.phenotypePanel==null){
+    	if(data.length<=0){
+    		return this.notFoundPanel;
+    	}
+    	var tpl = this.getPhenotypeTemplate();
+    	
+    	var panels = [];
+    	for ( var i = 0; i < data.length; i++) {	
+			var pan = Ext.create('Ext.panel.Panel',{
+		        border:false,
+				bodyPadding:5,
+				data:data[i],
+				tpl:tpl
+			});
+			panels.push(pan);
+    	}
+		this.phenotypePanel = Ext.create('Ext.panel.Panel',{
+			title:"Phenotype ("+i+")",
+			border:false,
+			cls:'panel-border-left',
+			flex:3,    
+			bodyPadding:5,
+			autoScroll:true,
+			items:panels
+		});
+    }
+    return this.phenotypePanel;
+};
+
+
+
+SnpInfoWidget.prototype.getPopulationPanel = function(data){
+    if(this.populationPanel==null){
+    	if(data.length<=0){
+    		return this.notFoundPanel;
+    	}
+    	var tpl = this.getPopulationTemplate();
+    	
+    	var panels = [];
+    	for ( var i = 0; i < data.length; i++) {	
+			var pan = Ext.create('Ext.panel.Panel',{
+		        border:false,
+				bodyPadding:5,
+				data:data[i],
+				tpl:tpl
+			});
+			panels.push(pan);
+    	}
+		this.populationPanel = Ext.create('Ext.panel.Panel',{
+			title:"Population ("+i+")",
+			border:false,
+			cls:'panel-border-left',
+			flex:3,    
+			bodyPadding:5,
+			autoScroll:true,
+			items:panels
+		});
+    }
+    return this.populationPanel;
+};
+
 
 SnpInfoWidget.prototype.getData = function (){
 	var _this = this;
