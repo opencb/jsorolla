@@ -47,11 +47,9 @@ KaryotypePanel.prototype.init = function(){
 KaryotypePanel.prototype.drawFeatures = function(){
 	var _this = this;
 	var size = this.width/this.features.length;
-	
 		this.panels = new Object();
 		for ( var i = 0; i < this.features.length; i++) {
 				var bottom = (this.chromosomeSize[i] * this.height) - 10;
-				
 				var verticalTrack =  new ChromosomeFeatureTrack(this.id + "chr" + this.chromosomesNames[i], document.getElementById( this.getTrackId(i)), this.species,{
 					top:10, 
 					bottom:bottom, 
@@ -89,8 +87,9 @@ KaryotypePanel.prototype.select = function(chromosome, start, end){
 	for ( var i = 0; i < this.chromosomesNames.length; i++) {
 		this.panels[this.chromosomesNames[i]].deselect();
 	}
-	
-	this.panels[chromosome].select(start, end);
+	if(this.panels[chromosome]!=null){
+		this.panels[chromosome].select(start, end);
+	}
 };
 
 KaryotypePanel.prototype.mark = function(features, color){

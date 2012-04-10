@@ -61,6 +61,7 @@ function InfoWidget(targetId, species, args){
 	}
 	
 	this.notFoundPanel = Ext.create('Ext.panel.Panel',{
+		id:this.id+"notFoundPanel",
 		cls:'panel-border-left',
 		border:false,
 		flex:3,

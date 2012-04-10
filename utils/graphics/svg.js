@@ -14,6 +14,17 @@ var SVG =
 	}, 
 	
 	createRectangle : function (x, y, width, height,  attributes){
+				//FIXME
+//				console.log("x:"+x+"   "+"y:"+y+"   "+"w:"+width+"   "+"h:"+height+"   "+"attr:"+attributes);
+				if(width<0){
+					console.log("Warn: on SVG.createRectangle: width is negative, will be set to 0");
+					width=0;
+				}
+				if(height<0){
+					console.log("Warn: on SVG.createRectangle: height is negative, will be set to 0");
+					height=0;
+				}
+				
 				var rect = document.createElementNS(this.svgns, "rect");
 				rect.setAttribute("x",x);		
 				rect.setAttribute("y",y);	

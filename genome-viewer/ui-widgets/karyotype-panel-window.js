@@ -56,13 +56,14 @@ KaryotypePanelWindow.prototype.getKaryotypePanel = function(){
 //		var infobar = Ext.create('Ext.toolbar.Toolbar',{dock: 'top'});
 //		infobar.add(helpLabel);
 		
-		this.karyotypePanel  = Ext.create('Ext.panel.Panel', {
+		this.karyotypePanel  = Ext.create('Ext.container.Container', {
+			id:this.id+"karyotypePanel",
 			height:this.karyotypeWidget.height+10,
 			maxHeight:350,
 			width:this.karyotypeWidget.width+15,
-			border:false,
-			bodyPadding: 15,
-			padding:'0 0 0 0',
+//			border:false,
+//			bodyPadding: 15,
+			padding:15,
 			html:'<div id="' + this.getKaryotypePanelId() +'" ><div>'
 //			dockedItems: [infobar]
 		});
@@ -75,6 +76,7 @@ KaryotypePanelWindow.prototype.render = function(){
 	
 	//Window is shown by default
 	this.panel = Ext.create('Ext.ux.Window', {
+		id:this.id+"karyotypeWindow",
 		title: 'Karyotype',
 		resizable:false,
 		taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
