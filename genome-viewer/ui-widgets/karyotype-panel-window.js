@@ -1,7 +1,7 @@
 // JavaScript Document
 function KaryotypePanelWindow(species,args){
 	var _this = this;
-	this.id = "KaryotypePanelWindow_" + Math.random();
+	this.id = "KaryotypePanelWindow" + Math.round(Math.random()*10000);
 	
 	if (args!=null){
 		if (args.width!=null){//only if args.mode is panel
@@ -49,7 +49,6 @@ KaryotypePanelWindow.prototype.draw = function(){
 
 KaryotypePanelWindow.prototype.getKaryotypePanel = function(){
 	if(this.karyotypePanel==null){
-		
 //		var helpLabel = Ext.create('Ext.toolbar.TextItem', {
 //			html:'<span class="dis">Click on chromosome to go</span>'
 //		});

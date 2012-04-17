@@ -32,7 +32,6 @@ VCFFileDataAdapter.prototype.parse = function(content){
 		}
 	}
 	
-	
 };
 
 

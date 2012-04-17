@@ -36,7 +36,6 @@ KaryotypePanel.prototype.getTrackId = function(index){
 
 
 KaryotypePanel.prototype.init = function(){
-	
 	this.containerTable = DOM.createNewElement("table", DOM.select(this.targetId), [["id", this.id+"_table"], ["width", this.width], ["height", this.height]]);
 	tr = DOM.createNewElement("tr", this.containerTable, [["width", this.width],["style", "vertical-align:bottom"]]);
 	for ( var i = 0; i < this.features.length; i++) {

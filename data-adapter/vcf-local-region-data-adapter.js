@@ -55,5 +55,39 @@ VCFLocalRegionDataAdapter.prototype.loadFromFileDataAdapter = function(fileDataA
 	}
 };
 
-
+//VCFLocalRegionDataAdapter.prototype.loadFromFileReader = function(fileReader){
+//	console.log("creating objects");
+//	var lineBreak = fileReader.result.split("\n");
+//	for (var i = 0; i < lineBreak.length; i++){
+//		var line = lineBreak[i].replace(/^\s+|\s+$/g,"");
+//		if ((line != null)&&(line.length > 0)){
+//			var fields = line.split("\t");
+//			if (fields[0].substr(0,1) != "#"){
+//				this.addQualityControl(fields[5]);
+//				
+//				var feature = {
+//						"id":  fields[2],
+//						"chromosome": fields[0],
+//						"start": parseFloat(fields[1]), 
+//						"end": parseFloat(fields[1]) + 1, 
+//						"ref": fields[3], 
+//						"alt": fields[4], 
+//						"quality": fields[5], 
+//						"filter": fields[6], 
+//						"info": fields[7], 
+//						"format": fields[8], 
+//						"all": fields,
+//						"label": this.getLabel(fields)
+//				} ;
+//				
+//				this.features.push(feature);
+//				if (this.featuresByChromosome[fields[0]] == null){
+//					this.featuresByChromosome[fields[0]] = new Array();
+//				}
+//				this.featuresByChromosome[fields[0]].push(feature);
+//			}
+//		}
+//	}
+//	console.log(this.featuresByChromosome["13"][0]);
+//};
 

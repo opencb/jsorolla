@@ -49,6 +49,9 @@ MirnaInfoWidget.prototype.optionClick = function (item){
 };
 
 MirnaInfoWidget.prototype.getMirnaPanel = function(data){
+	if(data.mirnaMature.length<=0 && data.mirnaGenes.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.mirnaPanel==null){
     	
     	console.log(data);
@@ -58,9 +61,8 @@ MirnaInfoWidget.prototype.getMirnaPanel = function(data){
 
     	var panels = [];
     	for ( var i = 0; i < data.mirnaMature.length; i++) {
-			var maturePan = Ext.create('Ext.panel.Panel',{
-		        border:false,
-				bodyPadding:5,
+			var maturePan = Ext.create('Ext.container.Container',{
+				padding:5,
 				data:data.mirnaMature[i],
 				tpl:tplMature
 			});
@@ -68,9 +70,8 @@ MirnaInfoWidget.prototype.getMirnaPanel = function(data){
     	}
     	
     	for ( var i = 0; i < data.mirnaGenes.length; i++) {
-			var genePan = Ext.create('Ext.panel.Panel',{
-		        border:false,
-				bodyPadding:5,
+			var genePan = Ext.create('Ext.container.Container',{
+				padding:5,
 				data:data.mirnaGenes[i],
 				tpl:tplGene
 			});
@@ -91,15 +92,17 @@ MirnaInfoWidget.prototype.getMirnaPanel = function(data){
 
 
 MirnaInfoWidget.prototype.getTranscriptPanel = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.transcriptGrid==null){
     	
     	var tpl = this.getTranscriptTemplate();
     	
     	var panels = [];
     	for ( var i = 0; i < data.length; i++) {	
-			var transcriptPanel = Ext.create('Ext.panel.Panel',{
-		        border:false,
-				bodyPadding:5,
+			var transcriptPanel = Ext.create('Ext.container.Container',{
+				padding:5,
 				data:data[i],
 				tpl:tpl
 			});
@@ -119,15 +122,17 @@ MirnaInfoWidget.prototype.getTranscriptPanel = function(data){
 };
 
 MirnaInfoWidget.prototype.getGenePanel = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.genePanel==null){
     	
     	var tpl = this.getGeneTemplate();
     	
     	var panels = [];
     	for ( var i = 0; i < data.length; i++) {	
-			var genePan = Ext.create('Ext.panel.Panel',{
-		        border:false,
-				bodyPadding:5,
+			var genePan = Ext.create('Ext.container.Container',{
+				padding:5,
 				data:data[i],
 				tpl:tpl
 			});
@@ -147,51 +152,36 @@ MirnaInfoWidget.prototype.getGenePanel = function(data){
 };
 
 MirnaInfoWidget.prototype.getTargetGenesGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.targetGenesGrid==null){
 //    	console.log(data);
-    	
-    	if(data.length<=0){
-    		this.targetGenesGrid= Ext.create('Ext.panel.Panel',{
-    			cls:'panel-border-left',
-    			border:false,
-    			flex:3,
-    			bodyPadding:'40',
-    			html:'No results found'
-    		});
-    	}else{
-    		var groupField = '';
-    		var modelName = "targetGenes";
-    		var fields = ['externalName','stableId','biotype','chromosome','start','end','strand','description'];
-    		var columns = [
-    		               {header : 'Name',dataIndex: 'externalName',flex:1},
-    		               {header : 'Stable Id',dataIndex: 'stableId',flex:2},
-    		               {header : 'Biotype',dataIndex: 'biotype',flex:1.5},
-    		               {header : 'Chr',dataIndex: 'chromosome',flex:0.5},
-    		               {header : 'Start',dataIndex: 'start',flex:1},
-    		               {header : 'End',dataIndex: 'end',flex:1},
-    		               {header : 'Strand',dataIndex: 'strand',flex:0.5},
-    		               {header : 'Description',dataIndex: 'description',flex:1}
-    		               ];
-    		this.targetGenesGrid = this.doGrid(columns,fields,modelName,groupField);
-    		this.targetGenesGrid.store.loadData(data);
-    	}
+    	var groupField = '';
+    	var modelName = "targetGenes";
+    	var fields = ['externalName','stableId','biotype','chromosome','start','end','strand','description'];
+    	var columns = [
+    	               {header : 'Name',dataIndex: 'externalName',flex:1},
+    	               {header : 'Stable Id',dataIndex: 'stableId',flex:2},
+    	               {header : 'Biotype',dataIndex: 'biotype',flex:1.5},
+    	               {header : 'Chr',dataIndex: 'chromosome',flex:0.5},
+    	               {header : 'Start',dataIndex: 'start',flex:1},
+    	               {header : 'End',dataIndex: 'end',flex:1},
+    	               {header : 'Strand',dataIndex: 'strand',flex:0.5},
+    	               {header : 'Description',dataIndex: 'description',flex:1}
+    	               ];
+    	this.targetGenesGrid = this.doGrid(columns,fields,modelName,groupField);
+    	this.targetGenesGrid.store.loadData(data);
     }
     return this.targetGenesGrid;
 };
 
 MirnaInfoWidget.prototype.getMirnaDiseasesGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.mirnaDiseasesGrid==null){
 //    	console.log(data);
-    	
-    	if(data.length<=0){
-    		this.mirnaDiseasesGrid= Ext.create('Ext.panel.Panel',{
-    			cls:'panel-border-left',
-    			border:false,
-    			flex:3,
-    			bodyPadding:'40',
-    			html:'No results found'
-    		});
-    	}else{
     		var groupField = '';
     		var modelName = "mirnaDiseases";
     		var fields = ['mirnaDiseaseId','mirnaGene','mirbaseId','diseaseName','pubmedId','description'];
@@ -203,7 +193,6 @@ MirnaInfoWidget.prototype.getMirnaDiseasesGrid = function(data){
     		               ];
     		this.mirnaDiseasesGrid = this.doGrid(columns,fields,modelName,groupField);
     		this.mirnaDiseasesGrid.store.loadData(data);
-    	}
     }
     return this.mirnaDiseasesGrid;
 };

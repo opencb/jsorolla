@@ -61,6 +61,9 @@ TFInfoWidget.prototype.optionClick = function (item){
 };
 
 TFInfoWidget.prototype.getProteinPanel = function(data){
+	if(data.length<=0 || data.length != null){
+		return this.notFoundPanel;
+	}
     if(this.proteinPanel==null){
 
     	var tpl = this.getProteinTemplate();
@@ -81,15 +84,17 @@ TFInfoWidget.prototype.getProteinPanel = function(data){
 
 
 TFInfoWidget.prototype.getTranscriptPanel = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.transcriptGrid==null){
     	
     	var tpl = this.getTranscriptTemplate();
     	
     	var panels = [];
     	for ( var i = 0; i < data.length; i++) {	
-			var transcriptPanel = Ext.create('Ext.panel.Panel',{
-		        border:false,
-				bodyPadding:5,
+			var transcriptPanel = Ext.create('Ext.container.Container',{
+				padding:5,
 				data:data[i],
 				tpl:tpl
 			});
@@ -109,6 +114,9 @@ TFInfoWidget.prototype.getTranscriptPanel = function(data){
 };
 
 TFInfoWidget.prototype.getGenePanel = function(data){
+	if(data.length<=0 || data.length != null){
+		return this.notFoundPanel;
+	}
     if(this.genePanel==null){
     	
     	var tpl = this.getGeneTemplate();
@@ -128,14 +136,16 @@ TFInfoWidget.prototype.getGenePanel = function(data){
 };
 
 TFInfoWidget.prototype.getPWMPanel = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.pwmPanel==null){
     	var tpl = this.getPWMTemplate();
     	
     	var panels = [];
     	for ( var i = 0; i < data.length; i++) {	
-			var pwmPan = Ext.create('Ext.panel.Panel',{
-		        border:false,
-				bodyPadding:5,
+			var pwmPan = Ext.create('Ext.container.Container',{
+				padding:5,
 				data:data[i],
 				tpl:tpl
 			});
@@ -155,40 +165,36 @@ TFInfoWidget.prototype.getPWMPanel = function(data){
 };
 
 TFInfoWidget.prototype.getTargetGenesGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.targetGenesGrid==null){
 //    	console.log(data);
     	
-    	if(data.length<=0){
-    		this.targetGenesGrid= Ext.create('Ext.panel.Panel',{
-    			cls:'panel-border-left',
-    			border:false,
-    			flex:3,
-    			bodyPadding:'40',
-    			html:'No results found'
-    		});
-    	}else{
-    		var groupField = '';
-    		var modelName = "targetGenes";
-    		var fields = ['externalName','stableId','biotype','chromosome','start','end','strand','description'];
-    		var columns = [
-    		               {header : 'Name',dataIndex: 'externalName',flex:1},
-    		               {header : 'Stable Id',dataIndex: 'stableId',flex:2},
-    		               {header : 'Biotype',dataIndex: 'biotype',flex:1.5},
-    		               {header : 'Chr',dataIndex: 'chromosome',flex:0.5},
-    		               {header : 'Start',dataIndex: 'start',flex:1},
-    		               {header : 'End',dataIndex: 'end',flex:1},
-    		               {header : 'Strand',dataIndex: 'strand',flex:0.5},
-    		               {header : 'Description',dataIndex: 'description',flex:1}
-    		               ];
-    		this.targetGenesGrid = this.doGrid(columns,fields,modelName,groupField);
-    		this.targetGenesGrid.store.loadData(data);
-    	}
+    	var groupField = '';
+    	var modelName = "targetGenes";
+    	var fields = ['externalName','stableId','biotype','chromosome','start','end','strand','description'];
+    	var columns = [
+    	               {header : 'Name',dataIndex: 'externalName',flex:1},
+    	               {header : 'Stable Id',dataIndex: 'stableId',flex:2},
+    	               {header : 'Biotype',dataIndex: 'biotype',flex:1.5},
+    	               {header : 'Chr',dataIndex: 'chromosome',flex:0.5},
+    	               {header : 'Start',dataIndex: 'start',flex:1},
+    	               {header : 'End',dataIndex: 'end',flex:1},
+    	               {header : 'Strand',dataIndex: 'strand',flex:0.5},
+    	               {header : 'Description',dataIndex: 'description',flex:1}
+    	               ];
+    	this.targetGenesGrid = this.doGrid(columns,fields,modelName,groupField);
+    	this.targetGenesGrid.store.loadData(data);
     }
     return this.targetGenesGrid;
 };
 
 
 TFInfoWidget.prototype.getProteinFeatureGrid = function(data, type){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this[type+"Grid"]==null){
 //    	console.log(data);
     	
@@ -212,34 +218,27 @@ TFInfoWidget.prototype.getProteinFeatureGrid = function(data, type){
     		}
     	}
     	
-    	if(data.length<=0){
-    		this[type+"Grid"] = Ext.create('Ext.panel.Panel',{
-    			cls:'panel-border-left',
-    			border:false,
-    			flex:3,
-    			bodyPadding:'40',
-    			html:'No results found'
-    		});
-    	}else{
-    		var groupField = '';
-    		var modelName = type;
-    		var fields = ['type','start','end','original','variation','description'];
-    		var columns = [
-    		               {header : 'Type',dataIndex: 'type',flex:1.5},
-    		               {header : 'Start',dataIndex: 'start',flex:0.5},
-    		               {header : 'End',dataIndex: 'end',flex:0.5},
-    		               {header : 'Original',dataIndex: 'original',flex:0.7},
-    		               {header : 'Variation',dataIndex: 'variation',flex:0.7},
-    		               {header : 'Description',dataIndex: 'description',flex:3}
-    		               ];
-    		this[type+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
-    		this[type+"Grid"].store.loadData(data);
-    	}
+    	var groupField = '';
+    	var modelName = type;
+    	var fields = ['type','start','end','original','variation','description'];
+    	var columns = [
+    	               {header : 'Type',dataIndex: 'type',flex:1.5},
+    	               {header : 'Start',dataIndex: 'start',flex:0.5},
+    	               {header : 'End',dataIndex: 'end',flex:0.5},
+    	               {header : 'Original',dataIndex: 'original',flex:0.7},
+    	               {header : 'Variation',dataIndex: 'variation',flex:0.7},
+    	               {header : 'Description',dataIndex: 'description',flex:3}
+    	               ];
+    	this[type+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
+    	this[type+"Grid"].store.loadData(data);
     }
     return this[type+"Grid"];
 };
 
 TFInfoWidget.prototype.getProteinXrefPanel = function(data, type){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this[type+"panel"]==null){
     	var tpl = this.getProteinXrefTemplate();
     	

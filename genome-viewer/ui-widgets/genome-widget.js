@@ -108,7 +108,7 @@ GenomeWidget.prototype.draw = function(chromosome, data_start, data_end, view_st
 	
 	var _this = this;
 	this.init();
-	this.trackCanvas =  new TrackCanvas(this.id + "_canvas", document.getElementById(this.targetId), {
+	this.trackCanvas = new TrackCanvas(this.id, $('#'+this.targetId)[0], {
 		top:0, 
 		left:0, 
 		right:this.width,  

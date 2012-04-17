@@ -224,6 +224,7 @@ InfoWidget.prototype.getGeneTemplate = function (){
 	return  new Ext.XTemplate(
 		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
 			' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Location/View?g={stableId}">Ensembl</a>',
+			' &nbsp; <a target="_blank" href="http://wikipathways.org//index.php?query={externalName}&species='+this.wikipathwaysSpecie+'&title=Special%3ASearchPathways&doSearch=1">Wikipathways</a>',
 			'</p><br>',
 		    '<p><span class="w75 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
 		    '<p><span class="w75 dis s90">Biotype: </span> {biotype}</p>',
@@ -238,6 +239,7 @@ InfoWidget.prototype.getTranscriptTemplate = function (){
 	return new Ext.XTemplate(
 		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
 		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Transcript/Transcript?t={stableId}">Ensembl</a>',
+		    ' &nbsp; <a target="_blank" href="http://wikipathways.org//index.php?query={externalName}&species='+this.wikipathwaysSpecie+'&title=Special%3ASearchPathways&doSearch=1">Wikipathways</a>',
 		    '</p><br>',
 		    '<p><span class="w100 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
 		    '<p><span class="w100 dis s90">Biotype: </span> {biotype}</p>',
@@ -407,5 +409,39 @@ InfoWidget.prototype.getPopulationTemplate = function (){
 //			 'TODO cuidado <p><span class="w140 dis s90">other allele heterozygote Frequency:  </span>{otherAlleleHeterozygoteFrequency}</p>',
 			 '<p><span class="w140 dis s90">Source:  </span>{source}</p>',
 			 '<p><span class="w140 dis s90">Population:  </span>{population}</p>'
+		);
+};
+
+InfoWidget.prototype.getVariantEffectTemplate = function (){
+	
+//	aaPosition: -1
+//	alternative: ""
+//	alternativeAllele: "T"
+//	aminoacidChange: ""
+//	ancestral: ""
+//	chromosome: "3"
+//	codonChange: ""
+//	consequenceType: "SO:0001627"
+//	consequenceTypeDesc: "In intron"
+//	consequenceTypeObo: "intron_variant"
+//	consequenceTypeType: "feature"
+//	featureBiotype: "nonsense_mediated_decay"
+//	featureChromosome: "3"
+//	featureEnd: 1262370
+//	featureId: ""
+//	featureName: "CNTN6"
+//	featureStart: 1134805
+//	featureStrand: "1"
+//	featureType: "intron"
+//	geneId: "ENSG00000134115"
+//	geneName: "CNTN6"
+//	position: 1255555
+//	referenceAllele: "A"
+//	snpId: ""
+//	transcriptId: "ENST00000397479"
+	
+	
+	return new Ext.XTemplate(
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{consequenceTypeObo}</span> &nbsp; <span class="emph s120"> {featureBiotype} </span></span><br><br>'
 		);
 };

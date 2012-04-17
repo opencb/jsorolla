@@ -1,7 +1,7 @@
 // JavaScript Document
 function Track(trackerID, targetNode,  args) {
 	this.args = args;
-	
+
 	/** Groups and layers */
 	this.trackNodeGroup = null;
 	this.mainNodeGroup = null;

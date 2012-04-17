@@ -7,6 +7,7 @@ function FileDataAdapter(){
 	
 	this.file = null;
 	this.content = null;
+	this.fileReader = null;
 	this.onRead = new Event(this);
 };
 
@@ -16,11 +17,12 @@ FileDataAdapter.prototype.loadFromFile = function(file){
 	this.file = file;
 	var _this = this;
 	 if(file){
+		 
 		var  reader = new FileReader();
-		reader.readAsText(file, "UTF-8");
 		reader.onload = function(evt) {
 			_this.loadFromContent(evt.target.result);
 		};
+		reader.readAsText(file, "UTF-8");
 	 }
 };
 

@@ -192,60 +192,59 @@ TrackCanvas.prototype.mouseUp = function(event) {
 };
 
 TrackCanvas.prototype.init = function() {
-	var _this=this;
-	this._svg = this.createSVGDom(this.targetID, this.id, this.width, this.height, this.backgroundColor);
-
-	/** SVG Events listener */
 	var _this = this;
-	//	this._svg.addEventListener("click", function(event) {_this.mouseClick(event); }, false);
-	this._svg.addEventListener("mousemove", function(event) {
-		_this.mouseMove(event, _this);
-	}, false);
-	this._svg.addEventListener("mousedown", function(event) {
-		_this.mouseDown(event, _this);
-	}, false);
-	this._svg.addEventListener("mouseup", function(event) {
-		_this.mouseUp(event, _this);
-	}, false);
-	
+	this._svg = this.createSVGDom(this.targetID, this.id+"svg", this.width, this.height, this.backgroundColor);
+	if (this.allowDragging){
 
-	
-	
-	this._svg.addEventListener("focusin", function(event) {
-		$("body").keydown(function(e) {
-			if(e.keyCode == 37){//left arrow
-				_this.moveX(-(10/_this.pixelRatio));
-			}
-			if(e.keyCode == 39){//right arrow
-				_this.moveX((10/_this.pixelRatio));
-			}
-			
-			if(e.keyCode == 37 && e.ctrlKey){//left arrow faster
-				_this.moveX(-(100/_this.pixelRatio));
-			}
-			if(e.keyCode == 39 && e.ctrlKey){//right arrow faster
-				_this.moveX((100/_this.pixelRatio));
-			}
-			
-			if(e.keyCode == 109 && e.shiftKey){//left arrow faster
-				_this.viewer._handleNavigationBar("-");
-			}
-			if(e.keyCode == 107 && e.shiftKey){//right arrow faster
-				_this.viewer._handleNavigationBar("+");
-			}
-		});
-	}, false);
-	
-	this._svg.addEventListener("focusout", function(event) {
-		$("body").off('keyup');
-	}, false);
-	
-	$("#"+this._svg.id).focus();
+		/** SVG Events listener */
+		//	this._svg.addEventListener("click", function(event) {_this.mouseClick(event); }, false);
+		this._svg.addEventListener("mousemove", function(event) {
+			_this.mouseMove(event, _this);
+		}, false);
+		this._svg.addEventListener("mousedown", function(event) {
+			_this.mouseDown(event, _this);
+		}, false);
+		this._svg.addEventListener("mouseup", function(event) {
+			_this.mouseUp(event, _this);
+		}, false);
 
-//	this._svg.addEventListener("mouseout", function(event) {
+
+
+
+		this._svg.addEventListener("focusin", function(event) {
+			$("body").keydown(function(e) {
+				if(e.keyCode == 37){//left arrow
+					_this.moveX(-(10/_this.pixelRatio));
+				}
+				if(e.keyCode == 39){//right arrow
+					_this.moveX((10/_this.pixelRatio));
+				}
+
+				if(e.keyCode == 37 && e.ctrlKey){//left arrow faster
+					_this.moveX(-(100/_this.pixelRatio));
+				}
+				if(e.keyCode == 39 && e.ctrlKey){//right arrow faster
+					_this.moveX((100/_this.pixelRatio));
+				}
+
+				if(e.keyCode == 109 && e.shiftKey){//left arrow faster
+					_this.viewer._handleNavigationBar("-");
+				}
+				if(e.keyCode == 107 && e.shiftKey){//right arrow faster
+					_this.viewer._handleNavigationBar("+");
+				}
+			});
+		}, false);
+
+		this._svg.addEventListener("focusout", function(event) {
+			$("body").off('keydown');
+		}, false);
+
+		$("#"+this._svg.id).focus();
+//		this._svg.addEventListener("mouseout", function(event) {
 //		_this.mouseUp(event, _this);
-//	}, false);
-	
+//		}, false);
+	}
 };
 
 TrackCanvas.prototype._getTrackFromInternalRegionId = function(internalRegionId) {
@@ -699,8 +698,8 @@ TrackCanvas.prototype.moveX = function(move) {
 
 TrackCanvas.prototype._moveTitle = function() {
 	// Get svg elements
-	var titleBoxElements = $(".trackTitleBox");
-	var titleTextElements = $(".trackTitleText");
+	var titleBoxElements = $(".trackTitleBox"+this.id);
+	var titleTextElements = $(".trackTitleText"+this.id);
 	
 	var start = this.start;
 	if(start < 0) start = 0;

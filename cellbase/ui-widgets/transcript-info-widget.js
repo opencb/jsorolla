@@ -59,6 +59,9 @@ TranscriptInfoWidget.prototype.optionClick = function (item){
 };
 
 TranscriptInfoWidget.prototype.getInfoPanel = function(data){
+	if(data.length<=0 || data.length != null){
+		return this.notFoundPanel;
+	}
 	if(this.infoPanel==null){
 		
     	var tpl = this.getTranscriptTemplate();
@@ -78,6 +81,9 @@ TranscriptInfoWidget.prototype.getInfoPanel = function(data){
 };
 
 TranscriptInfoWidget.prototype.getGenePanel = function(data){
+	if(data.length<=0 || data.length != null){
+		return this.notFoundPanel;
+	}
     if(this.genePanel==null){
     	
     	var tpl = this.getGeneTemplate();
@@ -96,15 +102,17 @@ TranscriptInfoWidget.prototype.getGenePanel = function(data){
 };
 
 TranscriptInfoWidget.prototype.getExonsGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.exonsGrid==null){
 
     	var tpl = this.getExonTemplate();
     	
     	var panels = [];
     	for ( var i = 0; i < data.length; i++) {	
-			var exonPanel = Ext.create('Ext.panel.Panel',{
-		        border:false,
-				bodyPadding:5,
+			var exonPanel = Ext.create('Ext.container.Container',{
+				padding:5,
 				data:data[i],
 				tpl:tpl
 			});
@@ -124,26 +132,19 @@ TranscriptInfoWidget.prototype.getExonsGrid = function(data){
 };
 
 TranscriptInfoWidget.prototype.getXrefGrid = function(data, dbname){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this[dbname+"Grid"]==null){
-    	if(data.length<=0){
-    		this[dbname+"Grid"]= Ext.create('Ext.panel.Panel',{
-    			cls:'panel-border-left',
-    			border:false,
-    			flex:3,
-    			bodyPadding:'40',
-    			html:'No results found'
-    		});
-    	}else{
-    		var groupField = '';
-    		var modelName = dbname;
-    		var fields = ['description','displayId'];
-    		var columns = [
-    		               {header : 'Display Id',dataIndex: 'displayId',flex:1},
-    		               {header : 'Description',dataIndex: 'description',flex:3}
-    		               ];
-    		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
-    		this[dbname+"Grid"].store.loadData(data);
-    	}
+    	var groupField = '';
+    	var modelName = dbname;
+    	var fields = ['description','displayId'];
+    	var columns = [
+    	               {header : 'Display Id',dataIndex: 'displayId',flex:1},
+    	               {header : 'Description',dataIndex: 'description',flex:3}
+    	               ];
+    	this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
+    	this[dbname+"Grid"].store.loadData(data);
     }
     return this[dbname+"Grid"];
 };
@@ -151,6 +152,9 @@ TranscriptInfoWidget.prototype.getXrefGrid = function(data, dbname){
 
 //TODO hay muchos y tarda
 TranscriptInfoWidget.prototype.getSnpsGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.snpsGrid==null){
     	var groupField = '';
     	var modelName = 'SNPs';

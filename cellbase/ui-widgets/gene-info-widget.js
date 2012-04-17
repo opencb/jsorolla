@@ -56,8 +56,10 @@ GeneInfoWidget.prototype.optionClick = function (item){
 };
 
 GeneInfoWidget.prototype.getInfoPanel = function(data){
+	if(data.length<=0 || data.length != null){
+		return this.notFoundPanel;
+	}
     if(this.infoPanel==null){
-    	
     	var tpl = this.getGeneTemplate();
     	
 		this.infoPanel = Ext.create('Ext.panel.Panel',{
@@ -69,21 +71,22 @@ GeneInfoWidget.prototype.getInfoPanel = function(data){
 			data:data,
 			tpl:tpl
 		});
-
     }
     return this.infoPanel;
 };
 
 GeneInfoWidget.prototype.getTranscriptPanel = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this.transcriptGrid==null){
     	
     	var tpl = this.getTranscriptTemplate();
     	
     	var panels = [];
     	for ( var i = 0; i < data.length; i++) {	
-			var transcriptPanel = Ext.create('Ext.panel.Panel',{
-		        border:false,
-				bodyPadding:5,
+			var transcriptPanel = Ext.create('Ext.container.Container',{
+				padding:5,
 				data:data[i],
 				tpl:tpl
 			});
@@ -104,26 +107,19 @@ GeneInfoWidget.prototype.getTranscriptPanel = function(data){
 
 
 GeneInfoWidget.prototype.getXrefGrid = function(data, dbname){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
     if(this[dbname+"Grid"]==null){
-    	if(data.length<=0){
-    		this[dbname+"Grid"]= Ext.create('Ext.panel.Panel',{
-    			cls:'panel-border-left',
-    			border:false,
-    			flex:3,
-    			bodyPadding:'40',
-    			html:'No results found'
-    		});
-    	}else{
-    		var groupField = '';
-    		var modelName = dbname;
-    		var fields = ['description','displayId'];
-    		var columns = [
-    		               {header : 'Display Id',dataIndex: 'displayId',flex:1},
-    		               {header : 'Description',dataIndex: 'description',flex:3}
-    		               ];
-    		this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
-    		this[dbname+"Grid"].store.loadData(data);
-    	}
+    	var groupField = '';
+    	var modelName = dbname;
+    	var fields = ['description','displayId'];
+    	var columns = [
+    	               {header : 'Display Id',dataIndex: 'displayId',flex:1},
+    	               {header : 'Description',dataIndex: 'description',flex:3}
+    	               ];
+    	this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
+    	this[dbname+"Grid"].store.loadData(data);
     }
     return this[dbname+"Grid"];
 };
@@ -295,7 +291,7 @@ GeneInfoWidget.prototype.getData = function (){
 	cellBaseDataAdapter.fill("feature","gene", this.feature.getName(), "fullinfo");
 };
 GeneInfoWidget.prototype.dataReceived = function (data){
-	console.log(data);
+//	console.log(data);
 	this.data=data[0];
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();

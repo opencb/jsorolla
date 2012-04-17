@@ -18,7 +18,6 @@ function FeatureTrack (trackerID, targetNode, species, args) {
 	Track.prototype.constructor.call(this, trackerID, targetNode, args);
 	
 	this.species = species;
-	
 	/** features */
 	this.features = null;
 	
@@ -308,6 +307,11 @@ FeatureTrack.prototype._renderLabel = function(start, top, label, attributes, fo
 				new VCFVariantInfoWidget(null, _this.species).draw(formatter);
 			}
 			
+			if (formatter instanceof GeneFeatureFormatter){
+				new GeneInfoWidget(null,_this.species).draw(formatter);
+			}
+			
+			
 		}catch(e){
 			console.log(e);
 		}
@@ -381,14 +385,14 @@ FeatureTrack.prototype.drawTitle = function(middle, args){
 	
 	
 	if (this.isAvalaible){
-		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["class", "trackTitleBox"]];
+		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["class", "trackTitleBox"+this.id]];
 		this.titleRectangle = SVG.drawRectangle(coordenateX , this.top, this.titleWidth , this.height, this.titleNodeGroup, attributes);
-		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"]]);
+		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"+this.id]]);
 	}
 	else{
-		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0], ["class", "trackTitleBox"]];
+		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0], ["class", "trackTitleBox"+this.id]];
 		SVG.drawRectangle(coordenateX , this.top, this.width , this.height, this.titleNodeGroup, attributes);
-		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"]]);
+		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"+this.id]]);
 	}
 };
 

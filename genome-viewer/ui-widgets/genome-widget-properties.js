@@ -23,7 +23,7 @@ function GenomeWidgetProperties(species,args) {
 			this.windowSize = args.windowSize;
 		}
 		if (args.id != null){
-			this.id = args.id;
+			this.id = args.id+"_master";
 		}
 		if (args._pixelRatio != null){
 			this._pixelRatio = args._pixelRatio;
@@ -67,61 +67,38 @@ GenomeWidgetProperties.prototype.getWindowSize = function(zoomFactor){
 GenomeWidgetProperties.prototype.init = function(){
 	var _this=this;
 	
-//	this._zoomLevels[0] =  1/200000;
-//	this._zoomLevels[10] = 1/50000;
-////	this._zoomLevels[20] = 1/25000;
-////	this._zoomLevels[30] =  0.00005*16;
-//	this._zoomLevels[20] = 0.00005*16;
-//	this._zoomLevels[30] = 0.00005*16;
-//	this._zoomLevels[40] = 0.00005*64;
-//	this._zoomLevels[50] = 0.00005*128;
-//	this._zoomLevels[60] = 0.00005*256;
-//	this._zoomLevels[70] = 0.00005*512;
-//	this._zoomLevels[80] = 0.00005*1024;
-//	this._zoomLevels[90] = 0.00005*2048;
-//	this._zoomLevels[100] = 10;
-//	
-//	this._windowSizeLevels[0] = 130000000;
-//	this._windowSizeLevels[10] = 40000000;
-////	this._windowSizeLevels[20] = 20000000;
-////	this._windowSizeLevels[30] = 750000;
-//	this._windowSizeLevels[20] = 750000;
-//	this._windowSizeLevels[30] = 750000;
-//	this._windowSizeLevels[40] = 750000/4;// 750000/4; //apaño
-//	this._windowSizeLevels[50] = 750000/8;
-//	this._windowSizeLevels[60] = 750000/16;
-//	this._windowSizeLevels[70] = 750000/32;
-//	this._windowSizeLevels[80] = 750000/64;
-//	this._windowSizeLevels[90] = 750000/128;
-//	this._windowSizeLevels[100] = 100;
-	
-	//XXX
-	this._zoomLevels[0] =  1/200000;
-	this._zoomLevels[5] =  1/125000;
-	this._zoomLevels[10] = 1/50000;
-//	this._zoomLevels[20] = 1/25000;
-//	this._zoomLevels[30] =  0.00005*16;
-	this._zoomLevels[15] = 0.00005*8;
-	this._zoomLevels[20] = 0.00005*16;
-	this._zoomLevels[25] = 0.00005*16;
-	this._zoomLevels[30] = 0.00005*16;
-	this._zoomLevels[35] = 0.00005*32;
-	this._zoomLevels[40] = 0.00005*64;
-	this._zoomLevels[45] = 0.00005*96;
-	this._zoomLevels[50] = 0.00005*128;
-	this._zoomLevels[55] = 0.00005*192;
-	this._zoomLevels[60] = 0.00005*256;
-	this._zoomLevels[65] = 0.00005*384;
-	this._zoomLevels[70] = 0.00005*512;
-	this._zoomLevels[75] = 0.00005*768;
-	this._zoomLevels[80] = 0.00005*1024;
-	this._zoomLevels[85] = 0.00005*1536;
-	this._zoomLevels[90] = 0.00005*2048;
-	this._zoomLevels[95] = 0.00005*3072;
+	this._zoomLevels[-40]= 0.00000476837158203125;
+	this._zoomLevels[-35]= 0.00000476837158203125;
+	this._zoomLevels[-30]= 0.00000476837158203125;
+	this._zoomLevels[-25]= 0.00000476837158203125;
+	this._zoomLevels[-20]= 0.00000476837158203125;
+	this._zoomLevels[-15]= 0.00000476837158203125;
+	this._zoomLevels[-10]= 0.00000476837158203125;
+	this._zoomLevels[-5] = 0.00000476837158203125;
+	this._zoomLevels[0]  = 0.0000095367431640625;
+	this._zoomLevels[5]  = 0.000019073486328125;
+	this._zoomLevels[10] = 0.00003814697265625;
+	this._zoomLevels[15] = 0.0000762939453125;
+	this._zoomLevels[20] = 0.000152587890625;
+	this._zoomLevels[25] = 0.00030517578125;
+	this._zoomLevels[30] = 0.0006103515625;
+	this._zoomLevels[35] = 0.001220703125;
+	this._zoomLevels[40] = 0.00244140625;
+	this._zoomLevels[45] = 0.0048828125;
+	this._zoomLevels[50] = 0.009765625;
+	this._zoomLevels[55] = 0.01953125;
+	this._zoomLevels[60] = 0.0390625;
+	this._zoomLevels[65] = 0.078125;
+	this._zoomLevels[70] = 0.15625;
+	this._zoomLevels[75] = 0.3125;
+	this._zoomLevels[80] = 0.625;
+	this._zoomLevels[85] = 1.25;
+	this._zoomLevels[90] = 2.5;
+	this._zoomLevels[95] = 5;
 	this._zoomLevels[100] = 10;
 	
 	//XXX PAKO interval settings
-	for ( var i = 0; i <=100; i+=this.increment) {
+	for ( var i = -40; i <=100; i+=this.increment) {
 		this._windowSizeLevels[i] = this.width/this._zoomLevels[i];
 	}
 	
@@ -276,6 +253,8 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 	this.addMutationTracks();
 	this.addStructuralVariationTracks();
 	
+
+	
 	/** Set visibility **/
 	this.tracks["Cytoband"] = false;
 	this.tracks["SNP"] = false;
@@ -298,7 +277,7 @@ GenomeWidgetProperties.prototype.addNativeTracks = function(){
 /** SNP TRACKS **/
 GenomeWidgetProperties.prototype.addSNPTracks = function(){
 	
-//	var snpTrack = new SNPFeatureTrack(this.id + "snp",this.tracksPanel, this.species, {
+//	var snpTrack = new SNPFeatureTrack(this.id,this.tracksPanel, this.species, {
 //		top : 5,
 //		left : 0,
 //		label : true,
@@ -308,7 +287,7 @@ GenomeWidgetProperties.prototype.addSNPTracks = function(){
 //	});
 //	this.addTrackByZoom(0, 50, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp"}));
 	for ( var i = 0; i <= 80; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_snp",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -328,7 +307,7 @@ GenomeWidgetProperties.prototype.addSNPTracks = function(){
 		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp?histogram=true&interval="+this._interval[i]}));
 	}
 
-	var snpTrack = new SNPFeatureTrack(this.id + "snp",this.tracksPanel, this.species,{
+	var snpTrack = new SNPFeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 5,
 		left : 0,
 		label : false,
@@ -343,7 +322,7 @@ GenomeWidgetProperties.prototype.addSNPTracks = function(){
 	});
 	this.addTrackByZoom(85, 95, snpTrack,new RegionCellBaseDataAdapter(this.species,{resource : "snp"}));
 
-	var snpTrack = new SNPFeatureTrack(this.id + "snp",this.tracksPanel, this.species,{
+	var snpTrack = new SNPFeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 5,
 		left : 0,
 		label : true,
@@ -361,7 +340,7 @@ GenomeWidgetProperties.prototype.addSNPTracks = function(){
 
 /** SEQUENCE TRACKS **/
 GenomeWidgetProperties.prototype.addSequenceTracks = function(){
-	var sequenceTrack = new SequenceFeatureTrack(this.id + "sequence", this.tracksPanel, this.species,{
+	var sequenceTrack = new SequenceFeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 20,
 		title : "Sequence",
 		height : 15,
@@ -372,7 +351,7 @@ GenomeWidgetProperties.prototype.addSequenceTracks = function(){
 	});
 	this.addTrackByZoom(0, 95, sequenceTrack,new RegionCellBaseDataAdapter(this.species));
 	
-	var sequenceTrack = new SequenceFeatureTrack(this.id + "sequence", this.tracksPanel, this.species,{
+	var sequenceTrack = new SequenceFeatureTrack(this.id, this.tracksPanel, this.species,{
 				top : 20,
 				title : "Sequence",
 				height : 15,
@@ -386,7 +365,7 @@ GenomeWidgetProperties.prototype.addSequenceTracks = function(){
 /** CYTOBAND TRACKS **/
 GenomeWidgetProperties.prototype.addCytobandTracks = function(){
 	
-	var cytobandTrack = new FeatureTrack(this.id + "_cytoband", this.tracksPanel, this.species,{
+	var cytobandTrack = new FeatureTrack(this.id, this.tracksPanel, this.species,{
 					top : 10,
 					height : 20,
 					labelHeight : this.labelHeight,
@@ -398,7 +377,7 @@ GenomeWidgetProperties.prototype.addCytobandTracks = function(){
 			});
 	this.addTrackByZoom(0, 5, cytobandTrack,new RegionCellBaseDataAdapter(this.species,{resource : "cytoband"}));
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_cytoband", this.tracksPanel, this.species,{
+	var cytobandTrack2 = new FeatureTrack(this.id, this.tracksPanel, this.species,{
 				top : 10,
 				height : 20,
 				labelHeight : this.labelHeight,
@@ -417,82 +396,8 @@ GenomeWidgetProperties.prototype.addCytobandTracks = function(){
 
 /** MIRNA TARGETS **/
 GenomeWidgetProperties.prototype.addMirnaTargetTracks = function(){
-	var color = "#298A08";
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, {
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "miRNA targets",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color,
-//		intervalSize : 500000,
-//		isAvalaible : false
-//		
-//	});
-//	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter({resource : "mirnatarget"}));
-//	
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, {
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "miRNA targets",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color,
-//		intervalSize : 250000,
-//		isAvalaible : false
-//	});
-//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter({resource : "mirnatarget"}));
-//
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, {
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "miRNA targets",
-//		titleFontSize : 9,
-//		titleWidth : 100,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		forceColor : color,
-//		intervalSize :125000/16,
-//		isAvalaible : false
-//	});
-//	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter({resource : "mirnatarget"}));
-	
-//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs",this.tracksPanel, this.species,{
-//				top : 10,
-//				height : 20,
-//				labelHeight : this.labelHeight,
-//				featureHeight : this.featureHeight,
-//				labelSize : this.labelSize,
-//				title : "miRNA targets",
-//				allowDuplicates : false,
-//				label : false,
-//				pixelSpaceBetweenBlocks : 0,
-//				avoidOverlapping : true,
-//				isAvalaible : false
-//			});
-//	this.addTrackByZoom(0, 70, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "mirnatarget"}));
-	
 	for ( var i = 0; i <= 70; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_mirnatarget",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -513,7 +418,7 @@ GenomeWidgetProperties.prototype.addMirnaTargetTracks = function(){
 	}
 	
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
+	var cytobandTrack2 = new FeatureTrack(this.id, this.tracksPanel, this.species,{
 				top : 10,
 				height : 20,
 				labelHeight : this.labelHeight,
@@ -533,7 +438,7 @@ GenomeWidgetProperties.prototype.addMirnaTargetTracks = function(){
 GenomeWidgetProperties.prototype.addOpenChromatinTracks = function(){
 	
 	for ( var i = 0; i <= 80; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_open_chromatin",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -553,7 +458,7 @@ GenomeWidgetProperties.prototype.addOpenChromatinTracks = function(){
 		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Open Chromatin&histogram=true&interval="+this._interval[i]}));
 	}
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_open_chromatin", this.tracksPanel, this.species,{
+	var cytobandTrack2 = new FeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 10,
 		height : 20,
 		labelHeight : this.labelHeight,
@@ -567,78 +472,6 @@ GenomeWidgetProperties.prototype.addOpenChromatinTracks = function(){
 		showLabelsOnMiddleMarker :true
 	});
 	this.addTrackByZoom(85, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Open Chromatin"}));
-	
-//	var color = "#298A08";
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "Open Chromatin",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color,
-//		intervalSize : 500000
-//	});
-//	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
-//	
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "Open Chromatin",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color,
-//		intervalSize : 250000
-//	});
-//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
-//
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "Open Chromatin",
-//		titleFontSize : 9,
-//		titleWidth : 100,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		forceColor : color,
-//		intervalSize :125000/16
-//	});
-//	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
-//	
-//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-//				top : 10,
-//				height : 20,
-//				labelHeight : this.labelHeight,
-//				featureHeight : this.featureHeight,
-//				labelSize : this.labelSize,
-//				title : "Open Chromatin",
-//				allowDuplicates : true,
-//				label : false,
-//				pixelSpaceBetweenBlocks : 0,
-//				avoidOverlapping : true
-//			});
-//	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=open chromatin"}));
-	
-
-	
 };
 
 
@@ -648,7 +481,7 @@ GenomeWidgetProperties.prototype.addOpenChromatinTracks = function(){
 GenomeWidgetProperties.prototype.addPolymeraseTracks = function(){
 	
 	for ( var i = 0; i <= 80; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_polymerase",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -669,7 +502,7 @@ GenomeWidgetProperties.prototype.addPolymeraseTracks = function(){
 	}
 	
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_polymerase", this.tracksPanel, this.species,{
+	var cytobandTrack2 = new FeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 10,
 		height : 20,
 		labelHeight : this.labelHeight,
@@ -683,91 +516,6 @@ GenomeWidgetProperties.prototype.addPolymeraseTracks = function(){
 	});
 	this.addTrackByZoom(85, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
 	
-	
-//	var color = "#298A08";
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "Polymerase",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color,
-//		intervalSize : 500000
-//	});
-//	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
-//	
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "Polymerase",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color,
-//		intervalSize : 250000
-//	});
-//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
-//	
-//
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "Polymerase",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		forceColor : color,
-//		intervalSize :125000/16
-//	});
-//	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
-//	
-//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-//				top : 10,
-//				height : 20,
-//				labelHeight : this.labelHeight,
-//				featureHeight : this.featureHeight,
-//				labelSize : this.labelSize,
-//				title : "Polymerase",
-//				allowDuplicates : true,
-//				label : false,
-//				pixelSpaceBetweenBlocks : 0,
-//				avoidOverlapping : true
-//			});
-//	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
-//	
-//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-//				top : 10,
-//				height : 20,
-//				labelHeight : this.labelHeight,
-//				featureHeight : this.featureHeight,
-//				labelSize : this.labelSize,
-//				title : "Polymerase",
-//				allowDuplicates : true,
-//				label : true,
-//				pixelSpaceBetweenBlocks : 100,
-//				avoidOverlapping : true
-//			});
-//	this.addTrackByZoom(100, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Polymerase"}));
-	
 };
 
 
@@ -777,7 +525,7 @@ GenomeWidgetProperties.prototype.addPolymeraseTracks = function(){
 GenomeWidgetProperties.prototype.addHistoneTracks = function(){
 	
 	for ( var i = 0; i <= 80; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_histones",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -794,10 +542,10 @@ GenomeWidgetProperties.prototype.addHistoneTracks = function(){
 			forceColor : "#298A08"
 //			intervalSize : 500000
 		});
-		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Histone&histogram=true&interval="+this._interval[i]}));
+		this.addTrackByZoom(i, i, histoTrack, new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Histone&histogram=true&interval="+this._interval[i]}));
 	}
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_histones", this.tracksPanel, this.species,{
+	var track = new FeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 10,
 		height : 20,
 		labelHeight : this.labelHeight,
@@ -809,82 +557,7 @@ GenomeWidgetProperties.prototype.addHistoneTracks = function(){
 		pixelSpaceBetweenBlocks : 100,
 		avoidOverlapping : true
 	});
-	this.addTrackByZoom(85, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Histone"}));
-	
-	
-//	var color = "#298A08";
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 40,
-//		featureHeight : 40,
-//		title : "Histone",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color
-////		intervalSize : 500000
-//	});
-////	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter({resource : "gene?histogram=true&interval=125000"}));
-//	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE&histogram=true&interval=250000"}));
-//	
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 40,
-//		featureHeight : 40,
-//		title : "Histone",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color,
-//		intervalSize : 250000
-//	});
-////	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter({resource : "regulatory?type=HISTONE"}));
-//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE&histogram=true&interval=125000"}));
-//	
-//
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "Histone",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		forceColor : color,
-//		intervalSize :125000/16
-//	});
-//	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE"}));
-//	
-//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-//				top : 10,
-//				height : 20,
-//				labelHeight : this.labelHeight,
-//				featureHeight : this.featureHeight,
-//				labelSize : this.labelSize,
-//				title : "Histone",
-//				allowDuplicates : true,
-//				label : false,
-//				pixelSpaceBetweenBlocks : 0,
-//				avoidOverlapping : true
-//			});
-//	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=HISTONE"}));
-//	
-
+	this.addTrackByZoom(85, 100, track, new RegionCellBaseDataAdapter(this.species,{resource : "regulatory?type=Histone"}));
 	
 };
 
@@ -892,7 +565,7 @@ GenomeWidgetProperties.prototype.addHistoneTracks = function(){
 GenomeWidgetProperties.prototype.addTFBSTracks = function(){
 	
 	for ( var i = 0; i <= 70; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_tfbs",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -912,7 +585,7 @@ GenomeWidgetProperties.prototype.addTFBSTracks = function(){
 		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs?histogram=true&interval="+this._interval[i]}));
 	}
 	
-	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
+	var cytobandTrack2 = new FeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 10,
 		height : 20,
 		labelHeight : this.labelHeight,
@@ -927,93 +600,6 @@ GenomeWidgetProperties.prototype.addTFBSTracks = function(){
 	});
 	this.addTrackByZoom(75, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
 
-	
-	
-//	var color = "#298A08";
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "TFBS",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color,
-//		intervalSize : 500000
-//	});
-//	this.addTrackByZoom(0, 0, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
-//	
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "TFBS",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		showTranscripts : false,
-//		allowDuplicates : true,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		showDetailGeneLabel : false,
-//		forceColor : color,
-//		intervalSize : 250000
-//	});
-//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
-//	
-//
-//	var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
-//		top : 20,
-//		left : 0,
-//		height : 20,
-//		featureHeight : 18,
-//		title : "TFBS",
-//		titleFontSize : 9,
-//		titleWidth : 70,
-//		backgroundColor : '#FFFFFF',
-//		label : false,
-//		pixelSpaceBetweenBlocks : 1,
-//		forceColor : color,
-//		intervalSize :125000/16
-//	});
-//	this.addTrackByZoom(20, 20, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
-//	
-//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-//				top : 10,
-//				height : 20,
-//				labelHeight : this.labelHeight,
-//				featureHeight : this.featureHeight,
-//				labelSize : this.labelSize,
-//				title : "TFBS",
-//				allowDuplicates : true,
-//				label : false,
-//				pixelSpaceBetweenBlocks : 0,
-//				avoidOverlapping : true
-//			});
-//	this.addTrackByZoom(30, 90, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
-//	
-//	var cytobandTrack2 = new FeatureTrack(this.id + "_tfbs", this.tracksPanel, this.species,{
-//				top : 10,
-//				height : 20,
-//				labelHeight : this.labelHeight,
-//				featureHeight : this.featureHeight,
-//				labelSize : this.labelSize,
-//				title : "TFBS",
-//				allowDuplicates : true,
-//				label : true,
-//				pixelSpaceBetweenBlocks : 100,
-//				avoidOverlapping : true
-//			
-//			});
-//	this.addTrackByZoom(100, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "tfbs"}));
-	
 };
 
 
@@ -1021,7 +607,7 @@ GenomeWidgetProperties.prototype.addTFBSTracks = function(){
 /** CONSERVED REGIONS **/  //TODO
 GenomeWidgetProperties.prototype.addConservedRegionsTracks = function(){
 	for ( var i = 0; i <= 100; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_conservedregion",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -1041,42 +627,12 @@ GenomeWidgetProperties.prototype.addConservedRegionsTracks = function(){
 		this.addTrackByZoom(i, i, histoTrack,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion?histogram=true&interval="+this._interval[i]}));
 	}
 	
-	
-//	var cytobandTrack2 = new FeatureTrack(this.id + "_conservedregion", this.tracksPanel, this.species,{
-//		top : 10,
-//		height : 20,
-//		labelHeight : this.labelHeight,
-//		featureHeight : this.featureHeight,
-//		labelSize : this.labelSize,
-//		allowDuplicates : true,
-//		label : false,
-//		titleWidth : 92,
-//		pixelSpaceBetweenBlocks : 10,
-//		avoidOverlapping : true,
-//		title : 'Conserved regions'
-//	});
-//	this.addTrackByZoom(0, 100, cytobandTrack2,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
-//	
-//	var cytobandTrack3 = new FeatureTrack(this.id + "_conservedregion", this.tracksPanel, this.species,{
-//		top : 10,
-//		height : 20,
-//		labelHeight : this.labelHeight,
-//		featureHeight : this.featureHeight,
-//		labelSize : this.labelSize,
-//		allowDuplicates : true,
-//		label : false,
-//		titleWidth : 92,
-//		pixelSpaceBetweenBlocks : 0,
-//		avoidOverlapping : true,
-//		title : 'Conserved regions'
-//	});
-//	this.addTrackByZoom(60, 100, cytobandTrack3,new RegionCellBaseDataAdapter(this.species,{resource : "conservedregion"}));
-	
+
 };
 
 /** CPG REGIONS **/  //TODO
 GenomeWidgetProperties.prototype.addCpgIslandTracks = function(){
-	var cpgIsland = new FeatureTrack(this.id + "_CpgIsland", this.tracksPanel, this.species,{
+	var cpgIsland = new FeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 10,
 		height : 20,
 		labelHeight : this.labelHeight,
@@ -1092,7 +648,7 @@ GenomeWidgetProperties.prototype.addCpgIslandTracks = function(){
 	this.addTrackByZoom(75, 100, cpgIsland,new RegionCellBaseDataAdapter(this.species,{resource : "cpgisland"}));
 	
 	for ( var i = 0; i <= 70; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_CpGislands",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -1117,23 +673,9 @@ GenomeWidgetProperties.prototype.addCpgIslandTracks = function(){
 
 /** Mutation REGIONS **/  //TODO
 GenomeWidgetProperties.prototype.addMutationTracks = function(){
-//	var mutation = new SNPFeatureTrack(this.id + "_Mutation", this.tracksPanel, this.species,{
-//		top : 10,
-//		height : 20,
-//		labelHeight : this.labelHeight,
-//		featureHeight : this.featureHeight,
-//		labelSize : this.labelSize,
-//		allowDuplicates : true,
-//		label : false,
-//		titleWidth : 92,
-//		pixelSpaceBetweenBlocks : 0,
-//		avoidOverlapping : true,
-//		title : 'Mutation'
-//	});
-//	this.addTrackByZoom(0, 100, mutation,new RegionCellBaseDataAdapter(this.species,{resource : "mutation"}));
 	
 	for ( var i = 0; i <= 70; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_mutation",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -1154,7 +696,7 @@ GenomeWidgetProperties.prototype.addMutationTracks = function(){
 	}
 	
 	
-	var snpTrack = new SNPFeatureTrack(this.id + "mutation",this.tracksPanel, this.species,{
+	var snpTrack = new SNPFeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 5,
 		left : 0,
 		label : true,
@@ -1174,7 +716,7 @@ GenomeWidgetProperties.prototype.addMutationTracks = function(){
 GenomeWidgetProperties.prototype.addStructuralVariationTracks = function(){
 	
 	for ( var i = 0; i <= 70; i+=this.increment) {
-		var histoTrack = new HistogramFeatureTrack(this.id + "_structuralvariation",this.tracksPanel, this.species,{
+		var histoTrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -1195,7 +737,7 @@ GenomeWidgetProperties.prototype.addStructuralVariationTracks = function(){
 	}
 	
 	
-	var structuralVariationTrack = new FeatureTrack(this.id + "_structuralvariation", this.tracksPanel, this.species,{
+	var structuralVariationTrack = new FeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 10,
 		height : 20,
 		labelHeight : this.labelHeight,
@@ -1215,7 +757,7 @@ GenomeWidgetProperties.prototype.addStructuralVariationTracks = function(){
 GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 	
 	for ( var i = 0; i <= 10; i+=this.increment) {
-		var multitrack = new HistogramFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+		var multitrack = new HistogramFeatureTrack(this.id, this.tracksPanel, this.species,{
 			top : 20,
 			left : 0,
 			height : 40,
@@ -1235,32 +777,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 		this.addTrackByZoom(i, i, multitrack,new RegionCellBaseDataAdapter(this.species,{resource : "gene?histogram=true&interval="+this._interval[i]}));
 	}
 	
-
-//	this.addTrackByZoom(0, 0, multitrack,new GeneRegionCellBaseDataAdapter({obtainTranscripts : false}));
-	
-//	var multitrack1 = new HistogramFeatureTrack(this.id + "_multiTrack",
-//			this.tracksPanel, {
-//				top : 20,
-//				left : 0,
-//				height : 40,
-//				featureHeight : 40,
-//				title : "Gene/Transcript",
-//				titleFontSize : 9,
-//				titleWidth : 70,
-//				showTranscripts : false,
-//				allowDuplicates : true,
-//				backgroundColor : '#FFFFFF',
-//				label : false,
-//				pixelSpaceBetweenBlocks : 1,
-//				showDetailGeneLabel : false,
-//				forceColor : "blue"
-////				intervalSize : 150000
-//			});
-//	this.addTrackByZoom(10, 10, multitrack,new RegionCellBaseDataAdapter({resource : "gene?histogram=true&interval=125000"}));
-//	this.addTrackByZoom(10, 10, multitrack1,new GeneRegionCellBaseDataAdapter({obtainTranscripts : false}));
-	
-	
-	var multitrack2 = new MultiFeatureTrack(this.id + "_multiTrack", this.tracksPanel, this.species,{
+	var multitrack2 = new MultiFeatureTrack(this.id, this.tracksPanel, this.species,{
 				top : 20,
 				left : 0,
 				height : 10,
@@ -1282,7 +799,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 
 	this.addTrackByZoom(15, 25, multitrack2,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : false}));
 	
-	var multitrack2 = new MultiFeatureTrack(this.id + "_multiTrack", this.tracksPanel, this.species,{
+	var multitrack2 = new MultiFeatureTrack(this.id, this.tracksPanel, this.species,{
 				top : 20,
 				left : 0,
 				height : 10,
@@ -1304,7 +821,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 
 	this.addTrackByZoom(30, 40, multitrack2,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : false}));
 
-	var multitrack3 = new MultiFeatureTrack(this.id + "_multiTrack", this.tracksPanel, this.species,{
+	var multitrack3 = new MultiFeatureTrack(this.id, this.tracksPanel, this.species,{
 				top : 20,
 				left : 0,
 				height : 10,
@@ -1324,7 +841,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 
 	this.addTrackByZoom(45, 60, multitrack3,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : false}));
 
-	var multitrack4 = new MultiFeatureTrack(this.id + "_multiTrack", this.tracksPanel, this.species,{
+	var multitrack4 = new MultiFeatureTrack(this.id, this.tracksPanel, this.species,{
 				top : 20,
 				left : 0,
 				height : 10,
@@ -1345,7 +862,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 
 	this.addTrackByZoom(65, 70, multitrack4,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : true}));
 	
-	var multitrack4 = new MultiFeatureTrack(this.id + "_multiTrack", this.tracksPanel, this.species,{
+	var multitrack4 = new MultiFeatureTrack(this.id, this.tracksPanel, this.species,{
 				top : 20,
 				left : 0,
 				height : 10,
@@ -1366,7 +883,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 
 	this.addTrackByZoom(75, 80, multitrack4,new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : true}));
 
-	var multitrack5 = new MultiFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+	var multitrack5 = new MultiFeatureTrack(this.id, this.tracksPanel, this.species,{
 		top : 10,
 		left : 0,
 		height : 10,
@@ -1386,7 +903,7 @@ GenomeWidgetProperties.prototype.addMultifeatureTracks = function(){
 	});
 	this.addTrackByZoom(85, 90, multitrack5,new GeneRegionCellBaseDataAdapter(this.species));
 
-	var multitrack5 = new MultiFeatureTrack(this.id + "_multiTrack",this.tracksPanel, this.species,{
+	var multitrack5 = new MultiFeatureTrack(this.id, this.tracksPanel, this.species,{
 				top : 10,
 				left : 0,
 				height : 10,

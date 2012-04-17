@@ -70,6 +70,10 @@ TooltipPanel.prototype._getItemInfo = function(item){
 		}
 	}
 	
+	if(item instanceof GeneFeatureFormatter){
+		str += '<span class="ok">'+item.getLabel()+'</span><br>';
+	}
+	
 	if(item instanceof GeneFeatureFormatter || 
 	   item instanceof TranscriptFeatureFormatter || 
 	   item instanceof ExonFeatureFormatter || 
@@ -81,7 +85,7 @@ TooltipPanel.prototype._getItemInfo = function(item){
 	   item instanceof DASFeatureFormatter ||
 	   item instanceof MiRNAFeatureFormatter
 	){
-		str = '<span class="ssel">'+item.getName()+'</span><br>'+
+		str += '<span class="ssel">'+item.getName()+'</span><br>'+
 		'start: <span class="emph">'+item.start+'</span><br>'+
 		'end:  <span class="emph">'+item.end+'</span><br>'+
 		'length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
