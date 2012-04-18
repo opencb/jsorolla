@@ -1,6 +1,3 @@
-
-
-
 function RuleTrack (rulerID,targetID,  args) {
 	
 	//Groups and layers
