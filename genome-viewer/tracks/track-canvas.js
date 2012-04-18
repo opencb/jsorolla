@@ -583,20 +583,10 @@ TrackCanvas.prototype._drawTitle = function(i) {
 
 
 TrackCanvas.prototype.draw = function(chromosome, data_start, data_end, view_start, view_end) {
-	
-//	//XXX testing
-//	var position = view_start + (view_end - view_start)/2;
-//	var halfBases = (this.width) / this.pixelRatio / 2;
-//	var wstart =  Math.ceil(position - halfBases);
-//	var wend = Math.ceil(position + halfBases);
-//	console.log(this.width);
-//	console.log(position);
-//	console.log(wstart+":"+wend);
-	
-	
+//	console.log(this.id);
 	this.start = view_start;
 	this.end = view_end;
-//	console.log(start+":"+end);
+//	console.log(view_start+":"+view_end);
 	this.chromosome = chromosome;
 	this.startViewBox = (view_start * this.pixelRatio) % this.viewBoxModule;
 	this.endViewBox = (view_end * this.pixelRatio) % this.viewBoxModule;
@@ -646,7 +636,6 @@ TrackCanvas.prototype._getTopTrack = function(track) {
 
 /** DRAGGING **/
 TrackCanvas.prototype._goToCoordinateX = function(position) {
-
 	this.start = position;
 	var startZoom = (this.start * this.pixelRatio) % this.viewBoxModule;
 	var viewBox = startZoom + " " + "10 " + this.width + " " + this.height;
@@ -681,40 +670,27 @@ TrackCanvas.prototype._goToCoordinateX = function(position) {
 };
 
 TrackCanvas.prototype._moveCoordinateX = function(move) {
-//	for ( var i = 0; i < this.trackList.length; i++) {
-//		if ((this.trackList[i].title) != null) {
-////			if (parseFloat(this.pixelRatio) < 1){
-//				this.trackList[i].moveTitle(-move);
-////			}
-////			else{
-////				this._drawTitle(i);
-////			}
-//		}
-//	}
-
 	var newStart = move / this.pixelRatio;
 	this._goToCoordinateX(Math.ceil(this.start + newStart));
 	this._moveTitle();
 };
 
 TrackCanvas.prototype.moveX = function(move) {
-	this._goToCoordinateX(Math.ceil(this.start + move));
-	this._moveTitle();
+	if(move!=0){
+		this._goToCoordinateX(Math.ceil(this.start + move));
+		this._moveTitle();
+	}
 };
 
-
 TrackCanvas.prototype._moveTitle = function() {
-	// Get svg elements
-	var titleBoxElements = $(".trackTitleBox"+this.id);
-	var titleTextElements = $(".trackTitleText"+this.id);
-	
 	var start = this.start;
 	if(start < 0) start = 0;
 	var coordenateX = ((start * this.pixelRatio) % this.viewBoxModule);
-
-	for ( var i = 0; i < titleBoxElements.length; i++) {
-		titleBoxElements[i].setAttribute("x", coordenateX);
-		titleTextElements[i].setAttribute("x", coordenateX+2);
+	
+	for ( var i = 0; i < this.trackList.length; i++) {
+		if ((this.trackList[i].title) != null) {
+			this.trackList[i].moveTitle(coordenateX);
+		}
 	}
 };
 

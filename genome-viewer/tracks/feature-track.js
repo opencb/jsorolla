@@ -344,8 +344,8 @@ FeatureTrack.prototype._render = function() {
 	}
 };
 
-//XXX DEPRECATED this function is now in track-canvas.js
-FeatureTrack.prototype.moveTitle = function(movement) {
+FeatureTrack.prototype.moveTitle = function(coordenateX) {
+//XXX 
 //	if (this.title){
 //
 //			var movementOld = parseFloat(this.titleNodeGroup.getAttribute("moveX"));
@@ -360,6 +360,14 @@ FeatureTrack.prototype.moveTitle = function(movement) {
 //			this.titleNodeGroup.setAttribute("transform", "translate("+ -desplazamiento + ", 0)");
 //			this.titleNodeGroup.setAttribute("moveX", desplazamiento);
 //	}
+	
+	// Get svg elements
+	var titleBoxElements = $("#trackTitleBox"+this.internalId);
+	var titleTextElements = $("#trackTitleText"+this.internalId);
+	
+	
+	titleBoxElements[0].setAttribute("x", coordenateX);
+	titleTextElements[0].setAttribute("x", coordenateX+2);
 };
 
 
@@ -385,14 +393,14 @@ FeatureTrack.prototype.drawTitle = function(middle, args){
 	
 	
 	if (this.isAvalaible){
-		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["class", "trackTitleBox"+this.id]];
+		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["id", "trackTitleBox"+this.internalId]];
 		this.titleRectangle = SVG.drawRectangle(coordenateX , this.top, this.titleWidth , this.height, this.titleNodeGroup, attributes);
-		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"+this.id]]);
+		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize], ["id", "trackTitleText"+this.internalId]]);
 	}
 	else{
-		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0], ["class", "trackTitleBox"+this.id]];
+		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0], ["id", "trackTitleBox"+this.internalId]];
 		SVG.drawRectangle(coordenateX , this.top, this.width , this.height, this.titleNodeGroup, attributes);
-		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize], ["class", "trackTitleText"+this.id]]);
+		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize], ["id", "trackTitleText"+this.internalId]]);
 	}
 };
 

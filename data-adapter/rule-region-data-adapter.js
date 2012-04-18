@@ -2,6 +2,7 @@ RuleRegionDataAdapter.prototype.toJSON = DataAdapter.prototype.toJSON;
 
 function RuleRegionDataAdapter(args){
 	DataAdapter.prototype.constructor.call(this);
+
 	this.resource = "rule";
 	this.lockSuccessEventNotify = false;
 	
@@ -129,7 +130,7 @@ RuleRegionDataAdapter.prototype.setIntervalView = function(chromosome,  middleVi
 				
 				var window = end - start;
 				var quarter = window/3;
-				if (( (start -1) < 0 ) || ((parseFloat(end) + 1) > this.maxChromosomeSize ))
+				if (( (start - 1) < 0 ) || ((parseFloat(end) + 1) > this.maxChromosomeSize ))
 				{
 					//FIXME This return causes the rule not being updated properly
 //					return;

@@ -1,8 +1,6 @@
-
 function RuleFeatureTrack (rulerID,targetID, species, args) {
 	FeatureTrack.prototype.constructor.call(this, rulerID,targetID, species,  args);
 	this.horizontalRuleDrawn = false;
-	
 //	this.pixelRatio = 0.001;
 	this.ruleHeight = this.height;
 	this.expandRuleHeight = this.height;
