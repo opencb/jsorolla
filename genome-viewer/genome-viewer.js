@@ -375,7 +375,17 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
         var position = value.split(":")[1];
         this.chromosome = value.split(":")[0];
         
-        this.setLocation(this.chromosome, position);
+        // Validate chromosome and position
+        if(isNaN(position) || position < 0){
+        	Ext.getCmp(this.id+'tbCoordinate').markInvalid("Position must be a positive number");
+        }
+        else if(Ext.getCmp(this.id+"chromosomeMenu").almacen.find("name", this.chromosome) == -1){
+        	Ext.getCmp(this.id+'tbCoordinate').markInvalid("Invalid chromosome");
+        }
+        else{
+        	this.setLocation(this.chromosome, position);
+        }
+        
     }
     
     
@@ -935,7 +945,7 @@ GenomeViewer.prototype.setLocation = function(chromosome, position) {
 
 
 GenomeViewer.prototype._setPositionField = function(chromosome, position) {
-	if (position == NaN){
+	if (isNaN(position)){
 		position = 1000000;
 	}
 	if (position < 0){
