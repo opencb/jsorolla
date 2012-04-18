@@ -54,6 +54,10 @@ function TrackCanvas(trackerID, targetNode, args) {
 	/** Flag to solve marker bug */
 //	this.isBeenRenderized = true; /** true si estoy renderizando por primera vez el trackcanvas **/
 	/** Processing optional parameters */
+	
+	
+	this.hasFocus = true;
+	
 	if (args != null) {
 		if (args.top != null) {
 			this.top = args.top;
@@ -103,6 +107,9 @@ function TrackCanvas(trackerID, targetNode, args) {
 		}
 		if (args.viewer != null) {
 			this.viewer = args.viewer;
+		}
+		if (args.hasFocus != null) {
+			this.hasFocus = args.hasFocus;
 		}
 	}
 
@@ -209,9 +216,8 @@ TrackCanvas.prototype.init = function() {
 		}, false);
 
 
-
-
 		this._svg.addEventListener("focusin", function(event) {
+			_this.hasFocus=true;
 			$("body").keydown(function(e) {
 				if(e.keyCode == 37){//left arrow
 					_this.moveX(-(10/_this.pixelRatio));
@@ -219,14 +225,12 @@ TrackCanvas.prototype.init = function() {
 				if(e.keyCode == 39){//right arrow
 					_this.moveX((10/_this.pixelRatio));
 				}
-
 				if(e.keyCode == 37 && e.ctrlKey){//left arrow faster
 					_this.moveX(-(100/_this.pixelRatio));
 				}
 				if(e.keyCode == 39 && e.ctrlKey){//right arrow faster
 					_this.moveX((100/_this.pixelRatio));
 				}
-
 				if(e.keyCode == 109 && e.shiftKey){//left arrow faster
 					_this.viewer._handleNavigationBar("-");
 				}
@@ -237,10 +241,13 @@ TrackCanvas.prototype.init = function() {
 		}, false);
 
 		this._svg.addEventListener("focusout", function(event) {
+			_this.hasFocus=false;
 			$("body").off('keydown');
 		}, false);
 
-		$("#"+this._svg.id).focus();
+		if(this.hasFocus){
+			$("#"+this._svg.id).focus();
+		}
 //		this._svg.addEventListener("mouseout", function(event) {
 //		_this.mouseUp(event, _this);
 //		}, false);

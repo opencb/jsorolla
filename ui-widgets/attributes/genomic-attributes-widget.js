@@ -3,7 +3,7 @@ function GenomicAttributesWidget(species, args){
 	this.id = "GenomicAttributesWidget_" + Math.random();
 	
 	this.species=species;
-	
+	this.args=args;
 	
 	this.title = "None";
 	this.featureType = "gene";
@@ -80,6 +80,7 @@ GenomicAttributesWidget.prototype.draw = function (){
 			minimizable :true,
 			constrain:true,
 			closable:true,
+			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
 			items: [this.attributesPanel.getPanel(),this.karyotypePanel],
 			width: 1035,
 		    height: 653,

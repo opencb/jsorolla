@@ -41,7 +41,9 @@ function GenomeWidget(trackerID, targetId,  args) {
 		if (args.viewer != null) {
 			this.viewer = args.viewer;
 		}
-		
+		if (args.hasFocus != null) {
+			this.hasFocus = args.hasFocus;
+		}
 //		if (args.ruleNotListenMoving != null){
 //			this.ruleNotListenMoving = args.ruleNotListenMoving;
 //		}
@@ -54,7 +56,6 @@ function GenomeWidget(trackerID, targetId,  args) {
 	this.trackCanvas = null;
 	
 	/** EVENTS **/
-	this.onMarkerChange = new Event(this);
 	this.onClick = new Event(this);
 	this.onRender = new Event(this);
 	this.onMove = new Event(this);
@@ -121,7 +122,8 @@ GenomeWidget.prototype.draw = function(chromosome, data_start, data_end, view_st
 		viewer:this.viewer,
 		viewBoxModule: this.getviewBoxModule(),
 		allowDragging :this.allowDragging,
-		lastPosition : this.lastPosition
+		lastPosition : this.lastPosition,
+		hasFocus:this.hasFocus,
 	});
 	
     this.trackCanvas.init();
@@ -131,7 +133,7 @@ GenomeWidget.prototype.draw = function(chromosome, data_start, data_end, view_st
 	});
     
     this.trackCanvas.onMove.addEventListener(function (evt, data){
-    	_this.onMarkerChange.notify(data);
+    	_this.onMove.notify(data);
 	});
     
     for ( var i = 0; i < this.trackList.length; i++) {
