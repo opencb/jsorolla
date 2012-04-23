@@ -63,35 +63,63 @@ VCFVariantInfoWidget.prototype.getEffectPanel = function(data){
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}
-    if(this.effectPanel==null){
-    	var tpl = this.getVariantEffectTemplate();
-    	//sort by consequenceTypeObo
-    	data.sort(function(a,b){
-    		if(a.consequenceTypeObo == b.consequenceTypeObo){return 0;}
-    		return (a.consequenceTypeObo < b.consequenceTypeObo) ? -1 : 1;
-    	});
-    	
-    	
-    	var panels = [];
-    	for ( var i = 0; i < data.length; i++) {
-			var transcriptPanel = Ext.create('Ext.container.Container',{
-				padding:5,
-				data:data[i],
-				tpl:tpl
-			});
-			panels.push(transcriptPanel);
-    	}
-		this.effectPanel = Ext.create('Ext.panel.Panel',{
-			title:"Effects ("+i+")",
-			border:false,
-			cls:'panel-border-left',
-			flex:3,    
-			bodyPadding:5,
-			autoScroll:true,
-			items:panels
-		});
+	for ( var i = 0; i < data.length; i++) {
+		data[i].consequence = data[i].consequenceType+" - "+data[i].consequenceTypeObo;
+		if(data[i].featureName == ""){data[i].featureName="-";}
+		if(data[i].geneId == ""){data[i].geneId="-";}
+		if(data[i].transcriptId == ""){data[i].transcriptId="-";}
+		if(data[i].featureBiotype == ""){data[i].featureBiotype="-";}
+		if(data[i].aaPosition == ""){data[i].aaPosition="-";}
+		if(data[i].aminoacidChange == ""){data[i].aminoacidChange="-";}
+
+	}
+	
+    if(this.effectGrid==null){
+    	var groupField = 'consequence';
+    	var modelName = "effectGridModel";
+    	var fields = ['featureName','geneId','transcriptId','featureBiotype','aaPosition','aminoacidChange','consequence'];
+    	var columns = [
+    	               {header : 'Feature',dataIndex: 'featureName',flex:1},
+    	               {header : 'Gene Id',dataIndex: 'geneId',flex:1.5},
+    	               {header : 'Transcript Id',dataIndex: 'transcriptId',flex:1.5},
+    	               {header : 'Feat.Biotype',dataIndex: 'featureBiotype',flex:1},
+    	               {header : 'aa Position',dataIndex: 'aaPosition',flex:1},
+    	               {header : 'aa Change',dataIndex: 'aminoacidChange',flex:1}
+    	               ];
+    	this.effectGrid = this.doGrid(columns,fields,modelName,groupField);
+    	this.effectGrid.store.loadData(data);
     }
-    return this.effectPanel;
+    return this.effectGrid;
+	
+//    if(this.effectPanel==null){
+//    	var tpl = this.getVariantEffectTemplate();
+//    	//sort by consequenceTypeObo
+//    	data.sort(function(a,b){
+//    		if(a.consequenceTypeObo == b.consequenceTypeObo){return 0;}
+//    		return (a.consequenceTypeObo < b.consequenceTypeObo) ? -1 : 1;
+//    	});
+//    	
+//    	
+//    	var panels = [];
+//    	for ( var i = 0; i < data.length; i++) {
+//			var transcriptPanel = Ext.create('Ext.container.Container',{
+//				padding:5,
+//				data:data[i],
+//				tpl:tpl
+//			});
+//			panels.push(transcriptPanel);
+//    	}
+//		this.effectPanel = Ext.create('Ext.panel.Panel',{
+//			title:"Effects ("+i+")",
+//			border:false,
+//			cls:'panel-border-left',
+//			flex:3,    
+//			bodyPadding:5,
+//			autoScroll:true,
+//			items:panels
+//		});
+//    }
+//    return this.effectPanel;
 };
 
 

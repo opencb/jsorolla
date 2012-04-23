@@ -300,6 +300,9 @@ FeatureTrack.prototype._renderLabel = function(start, top, label, attributes, fo
 			}
 //			var window = new ListWidget({title:formatter.label, gridFields:gridFields});
 //			window.draw([[formatter.feature]],[formatter.label]);
+			
+			console.log(formatter);
+			
 			if (formatter instanceof SNPFeatureFormatter){
 				new SnpInfoWidget(null, _this.species).draw(formatter);
 			}
@@ -310,7 +313,6 @@ FeatureTrack.prototype._renderLabel = function(start, top, label, attributes, fo
 			if (formatter instanceof GeneFeatureFormatter){
 				new GeneInfoWidget(null,_this.species).draw(formatter);
 			}
-			
 			
 		}catch(e){
 			console.log(e);

@@ -83,11 +83,13 @@ KaryotypePanel.prototype.drawFeatures = function(){
 };
 
 KaryotypePanel.prototype.select = function(chromosome, start, end){
-	for ( var i = 0; i < this.chromosomesNames.length; i++) {
-		this.panels[this.chromosomesNames[i]].deselect();
-	}
-	if(this.panels[chromosome]!=null){
-		this.panels[chromosome].select(start, end);
+	if(this.chromosomesNames!=null){
+		for ( var i = 0; i < this.chromosomesNames.length; i++) {
+			this.panels[this.chromosomesNames[i]].deselect();
+		}
+		if(this.panels[chromosome]!=null){
+			this.panels[chromosome].select(start, end);
+		}
 	}
 };
 

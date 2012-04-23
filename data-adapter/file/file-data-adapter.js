@@ -20,7 +20,14 @@ FileDataAdapter.prototype.loadFromFile = function(file){
 		 
 		var  reader = new FileReader();
 		reader.onload = function(evt) {
-			_this.loadFromContent(evt.target.result);
+			if(evt.target.result.length>52428800){
+				Ext.Msg.show({
+					title:'File is too big',
+					msg: 'Max file size is 50 Mbytes.'
+				});
+			}else{
+				_this.loadFromContent(evt.target.result);
+			}
 		};
 		reader.readAsText(file, "UTF-8");
 	 }

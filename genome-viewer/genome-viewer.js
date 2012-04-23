@@ -559,6 +559,7 @@ GenomeViewer.prototype._getKaryotypePanel = function(specieChanged) {
 		this._karyotypeCont = Ext.create('Ext.panel.Panel',{
 			title:'Karyotype',
 			border:false,
+			margin:'0 0 1 0',
 			cls:'border-bot panel-border-top',
 			id:this.id+"_karyotypeCont"
 		});
@@ -628,6 +629,7 @@ GenomeViewer.prototype._getChromosomePanel = function() {
 			height : 95,
 			title:'Chromosome',
 			border:false,
+			margin:'0 0 1 0',
 			cls:'border-bot panel-border-top',
 //			layout: {type: 'table', columns: 2},
 //			items:[label,svg]
@@ -687,6 +689,7 @@ GenomeViewer.prototype._getRegionPanel = function() {
 		this._regionCont = Ext.create('Ext.panel.Panel',{
 			id:this.id+"_regionPan",
 			border:false,
+			margin:'0 0 1 0',
 			title:'Region Overview',
 			cls:'border-bot panel-border-top',
 			items:[regionWindowSize,regionCont]
@@ -1109,7 +1112,7 @@ GenomeViewer.prototype._drawRegionGenomeWidget = function() {
 	if(contextZoom <=10){
 		this.genomeWidget2.addTrack(track2, new RegionCellBaseDataAdapter(this.species,{resource : "gene?histogram=true&interval="+this.genomeWidgetProperties._interval[contextZoom]}));
 	}else{
-		this.genomeWidget2.addTrack(track, new RegionCellBaseDataAdapter(this.species,{resource : "gene"}));
+		this.genomeWidget2.addTrack(track, new GeneRegionCellBaseDataAdapter(this.species,{obtainTranscripts : false}));
 	}
 
 	var data_start = Math.ceil(this.position - (this.genomeWidgetProperties.getWindowSize(contextZoom)));
@@ -1243,7 +1246,7 @@ GenomeViewer.prototype.addFeatureTrack = function(title, dataadapter) {
 			available = false;
 		}
 		
-		var track = new FeatureTrack(this.genomeWidget.id, null, this.species,{
+		var track = new FeatureTrack("", null, this.species,{
 			top : 20,
 			left : 0,
 			height : 20,
@@ -1260,7 +1263,7 @@ GenomeViewer.prototype.addFeatureTrack = function(title, dataadapter) {
 		
 		_this.genomeWidgetProperties.addCustomTrackByZoom(0, 20, track, dataadapter);
 		
-		var vcfTrack2 = new FeatureTrack(this.genomeWidget.id, null, this.species,{
+		var vcfTrack2 = new FeatureTrack("", null, this.species,{
 					top : 10,
 					left : 0,
 					height : 10,
@@ -1272,7 +1275,7 @@ GenomeViewer.prototype.addFeatureTrack = function(title, dataadapter) {
 				});
 		_this.genomeWidgetProperties.addCustomTrackByZoom(25, 80, vcfTrack2, dataadapter);
 
-		var vcfTrack2 = new FeatureTrack(this.genomeWidget.id, null, this.species,{
+		var vcfTrack2 = new FeatureTrack("", null, this.species,{
 					top : 10,
 					left : 0,
 					height : 10,
@@ -1285,7 +1288,7 @@ GenomeViewer.prototype.addFeatureTrack = function(title, dataadapter) {
 				});
 		_this.genomeWidgetProperties.addCustomTrackByZoom(85, 90, vcfTrack2, dataadapter);
 		
-		var vcfTrack100 = new SNPFeatureTrack(this.genomeWidget.id, null, this.species,{
+		var vcfTrack100 = new SNPFeatureTrack("", null, this.species,{
 			top : 10,
 			left : 0,
 			height : 20,

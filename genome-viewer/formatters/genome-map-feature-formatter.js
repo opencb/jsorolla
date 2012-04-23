@@ -36,7 +36,12 @@ GeneFeatureFormatter.prototype.getName = function(){
 };
 
 GeneFeatureFormatter.prototype.getLabel = function(){
-	var label = this.feature.externalName;
+	var label="";
+	if(this.feature.externalName!=""){
+		label = this.feature.externalName;
+	}else{
+		label = this.feature.stableId;
+	}
 	
 //	if (GENOMEMAPS_CONFIG.showFeatureStableId != null){
 //		if (GENOMEMAPS_CONFIG.showFeatureStableId == true){
