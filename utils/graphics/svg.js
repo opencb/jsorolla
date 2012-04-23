@@ -17,11 +17,11 @@ var SVG =
 				//FIXME
 //				console.log("x:"+x+"   "+"y:"+y+"   "+"w:"+width+"   "+"h:"+height+"   "+"attr:"+attributes);
 				if(width<0){
-					console.log("Warn: on SVG.createRectangle: width is negative, will be set to 0");
+					console.log("BIOINFO Warn: on SVG.createRectangle: width is negative, will be set to 0");
 					width=0;
 				}
 				if(height<0){
-					console.log("Warn: on SVG.createRectangle: height is negative, will be set to 0");
+					console.log("BIOINFO Warn: on SVG.createRectangle: height is negative, will be set to 0");
 					height=0;
 				}
 				

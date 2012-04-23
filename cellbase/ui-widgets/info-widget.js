@@ -157,7 +157,8 @@ InfoWidget.prototype.getTreePanel = function (){
 
 InfoWidget.prototype.doGrid = function (columns,fields,modelName,groupField){
 		var groupFeature = Ext.create('Ext.grid.feature.Grouping',{
-			groupHeaderTpl: groupField+' ({rows.length} Item{[values.rows.length > 1 ? "s" : ""]})'
+			groupHeaderTpl: '{[values.name]} ({rows.length} Item{[values.rows.length > 1 ? "s" : ""]})',
+			startCollapsed: true
 	    });
 		var filters = [];
 		for(var i=0; i<fields.length; i++){
@@ -355,10 +356,10 @@ InfoWidget.prototype.getSnpTranscriptTemplate = function (){
 		    '<p><span class="w140 dis s90">Alt. peptide allele: </span> {alternativePeptideAlleleString}</p>',
 			'<p><span class="w140 dis s90">Codon: </span> {codon}</p>',
 			'<p><span class="w140 dis s90">Reference codon: </span> {referenceCodon}</p>',
-			'<p><span class="w140 dis s90">Polyphen prediction: </span> {polyphenPrediction}</p>',
-			'<p><span class="w140 dis s90">Polyphen score: </span> {polyphenScore}</p>',
-			'<p><span class="w140 dis s90">Sift prediction: </span> {siftPrediction}</p>',
-			'<p><span class="w140 dis s90">Sift score: </span> {siftScore}</p>',
+			'<p><span class="w140 dis s90">Polyphen prediction: </span> {polyphenPrediction}',
+			'<span style="margin-left:50px" class="w140 dis s90">Polyphen score: </span> {polyphenScore}</p>',
+			'<p><span class="w140 dis s90">Sift prediction: </span> {siftPrediction}',
+			'<span style="margin-left:50px" class="w140 dis s90">Sift score: </span> {siftScore}</p>',
 		    {
 		    	getStableId: function(values){
 		    		if(values.transcript!=""){
@@ -412,35 +413,9 @@ InfoWidget.prototype.getPopulationTemplate = function (){
 		);
 };
 
+//not used
 InfoWidget.prototype.getVariantEffectTemplate = function (){
-	
-//	aaPosition: -1
-//	alternative: ""
-//	alternativeAllele: "T"
-//	aminoacidChange: ""
-//	ancestral: ""
-//	chromosome: "3"
-//	codonChange: ""
-//	consequenceType: "SO:0001627"
-//	consequenceTypeDesc: "In intron"
-//	consequenceTypeObo: "intron_variant"
-//	consequenceTypeType: "feature"
-//	featureBiotype: "nonsense_mediated_decay"
-//	featureChromosome: "3"
-//	featureEnd: 1262370
-//	featureId: ""
-//	featureName: "CNTN6"
-//	featureStart: 1134805
-//	featureStrand: "1"
-//	featureType: "intron"
-//	geneId: "ENSG00000134115"
-//	geneName: "CNTN6"
-//	position: 1255555
-//	referenceAllele: "A"
-//	snpId: ""
-//	transcriptId: "ENST00000397479"
-	
-	
+		
 	return new Ext.XTemplate(
 		    '<p><span class="panel-border-bottom"><span class="ssel s130">{consequenceTypeObo}</span> &nbsp; <span class="emph s120"> {featureBiotype} </span></span><br><br>'
 		);

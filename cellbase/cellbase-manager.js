@@ -1,20 +1,19 @@
 function CellBaseManager(species, args) {
 //	console.log(species);
-
-	// these 3 parameters can be modified 
-	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
-//	this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
-	this.host = "http://fsalavert:8080/cellbase/rest";
-//	this.host = "http://rsanchez:8080/cellbase/rest";
-//	this.host = "http://imedina:8080/cellbase/rest";
 	
-	//XXX for deploy security
-	if (window.location.host.indexOf("bioinfo.cipf.es")!=-1 ||
-		window.location.host.indexOf("genomemaps.org")!=-1 ||
-		window.location.host.indexOf("cellbrowser.org")!=-1
+	//This line never changes
+	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+	
+	if(window.location.host.indexOf("fsalavert")!=-1 ||
+	   window.location.host.indexOf("rsanchez")!=-1 ||
+	   window.location.host.indexOf("imedina")!=-1
 	){
-		this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+		this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
+//		this.host = "http://fsalavert:8080/cellbase/rest";
+//		this.host = "http://rsanchez:8080/cellbase/rest";
+//		this.host = "http://imedina:8080/cellbase/rest";
 	}
+	
 	
 	this.version = "v1";
 	this.species = species;

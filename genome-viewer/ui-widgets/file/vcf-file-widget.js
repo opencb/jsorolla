@@ -61,6 +61,7 @@ VCFFileWidget.prototype.loadFileFromLocal = function(file){
 
 VCFFileWidget.prototype._fileLoad = function(vcfAdapter){
 	var _this = this;
+	this.panel.setLoading();
 	vcfAdapter.onRead.addEventListener(function(sender, id) {
 		_this.dataAdapter = new VCFLocalRegionDataAdapter();
 		_this.dataAdapter.loadFromFileDataAdapter(sender);

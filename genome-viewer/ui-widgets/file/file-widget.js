@@ -76,6 +76,7 @@ FileWidget.prototype.getFileUpload = function(){
 					_this.trackNameField.setValue(file.fileName);
 					_this.fileNameLabel.setText('<span class="emph">'+ file.name +'</span> <span class="info">(local)</span>',false);
 					_this.loadFileFromLocal(file);
+					_this.panel.setLoading(false);
 
 				}
 			}

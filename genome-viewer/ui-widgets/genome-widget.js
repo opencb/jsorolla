@@ -123,7 +123,7 @@ GenomeWidget.prototype.draw = function(chromosome, data_start, data_end, view_st
 		viewBoxModule: this.getviewBoxModule(),
 		allowDragging :this.allowDragging,
 		lastPosition : this.lastPosition,
-		hasFocus:this.hasFocus,
+		hasFocus:this.hasFocus
 	});
 	
     this.trackCanvas.init();
