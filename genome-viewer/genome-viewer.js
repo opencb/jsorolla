@@ -1207,7 +1207,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 			backgroundColor : "#FCFFFF",
 			isAvalaible : false
 		});
-		this.genomeWidgetProperties.addCustomTrackByZoom(0, 55, dasTrack1,dasDataAdapter2);
+		this.genomeWidgetProperties.addCustomTrackByZoom(0, 25, dasTrack1,dasDataAdapter2);
 		var dasTrack = new FeatureTrack(this.genomeWidget.id, null, this.species,{
 			top : 10,
 			left : 0,
@@ -1224,7 +1224,7 @@ GenomeViewer.prototype.loadDASTrack = function(name, url) {
 			backgroundColor : "#FCFFFF",
 			isAvalaible : true
 		});
-		this.genomeWidgetProperties.addCustomTrackByZoom(60, 100, dasTrack,dasDataAdapter2);
+		this.genomeWidgetProperties.addCustomTrackByZoom(30, 100, dasTrack,dasDataAdapter2);
 	}
 	
 //	this.refreshMasterGenomeViewer();
