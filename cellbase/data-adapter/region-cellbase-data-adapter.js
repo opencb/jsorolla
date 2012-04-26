@@ -73,7 +73,6 @@ RegionCellBaseDataAdapter.prototype.getFinished = function(data, chromosome, sta
 };
 
 RegionCellBaseDataAdapter.prototype.anticipateRegionRetrieved = function(data, chromosome, start, end){
-	
 	this.dataset.loadFromJSON(data);
 	this.datasets[this._getHashMapKey(chromosome, start, end)] = data;
 	this.lockSuccessEventNotify = false;

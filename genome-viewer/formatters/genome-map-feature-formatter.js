@@ -547,9 +547,15 @@ CytobandFeatureFormatter.prototype.getColor = function(feature) {
 		if (value == 25){
 			return "silver";
 		}
+		if (value == 33){
+			return "lightgrey";
+		}
 		if (value == 50){
 			return "gray";
 		}
+		if (value == 66){
+			return "dimgray";
+		} 
 		if (value == 75){
 			return "darkgray";
 		}

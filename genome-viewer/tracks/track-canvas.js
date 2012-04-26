@@ -321,6 +321,15 @@ TrackCanvas.prototype._formatData = function(regionAdapter) {
 		regionAdapter.dataset.json = formatters;
 	}
 	
+	if (typeof DqsDataAdapter == 'function' && regionAdapter instanceof DqsDataAdapter) {
+		var formatters = new Array();
+		for ( var i = 0; i < regionAdapter.dataset.json.length; i++) {
+			formatters.push(new GenericFeatureFormatter(regionAdapter.dataset.json[i]));
+		}
+		regionAdapter.dataset.json = formatters;
+	}
+	
+	
 	if (regionAdapter instanceof RegionCellBaseDataAdapter) {
 		var formatters = new Array();
 
@@ -505,7 +514,8 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 //				console.log(regionAdapter);
 				data.middle =  Math.floor(data.middle);
 //				console.log(data.middle);
-				
+			
+//				console.log(this.zoom);
 				regionAdapter.setIntervalView(chromosome, data.middle);
 				if (regionAdapter instanceof RuleRegionDataAdapter){
 					_this.selectPaintOnRules(data.middle);

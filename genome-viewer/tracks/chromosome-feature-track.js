@@ -105,16 +105,28 @@ ChromosomeFeatureTrack.prototype.getColorByStain = function(feature) {
 		if (value == 25){
 			return "silver";
 		}
+		if (value == 33){
+			return "lightgrey";
+		}
 		if (value == 50){
 			return "gray";
 		}
+		if (value == 66){
+			return "dimgray";
+		} 
 		if (value == 75){
 			return "darkgray";
 		}
 		if (value == 100){
 			return "black";
 		}
+		if (value == ""){
+			return "gray";
+		}
 	}
+//	else{
+//		console.log(feature.stain);
+//	}
 	
 	if (feature.stain=="acen"){
 		return "blue";

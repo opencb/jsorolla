@@ -133,8 +133,11 @@ GenomeWidgetProperties.prototype.init = function(){
 		
 		  this.addTrackByZoom(i, i, rule, new RuleRegionDataAdapter({pixelRatio: this._zoomLevels[i]}));
 	}
+	
+	
+	
 	this.addNativeTracks();
-
+	
 };
 
 GenomeWidgetProperties.prototype.setLabelHeight = function(value){
