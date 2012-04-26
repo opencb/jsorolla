@@ -110,9 +110,6 @@ GenomeWidget.prototype.draw = function(chromosome, data_start, data_end, view_st
 	var _this = this;
 	this.init();
 	
-//	console.log(this.width);
-//	console.log(this.pixelRatio);
-	
 	this.trackCanvas = new TrackCanvas(this.id, $('#'+this.targetId)[0], {
 		top:0, 
 		left:0, 

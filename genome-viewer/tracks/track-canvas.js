@@ -515,8 +515,7 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 				data.middle =  Math.floor(data.middle);
 //				console.log(data.middle);
 			
-//				console.log(this.zoom);
-				regionAdapter.setIntervalView(chromosome, data.middle);
+				regionAdapter.setIntervalView(chromosome, data.middle, {width:_this.width,pixelRatio:_this.pixelRatio});
 				if (regionAdapter instanceof RuleRegionDataAdapter){
 					_this.selectPaintOnRules(data.middle);
 				}
