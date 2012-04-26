@@ -123,10 +123,7 @@ DqsDataAdapter.prototype.getFinished = function(data, chromosome, start, end){
 		var item = data[i];
 		var key = chromosome+"-"+Math.floor(item.start/this.chunkSize);
 		if(this.datasets[key] == null){
-			this.datasets[key] = new Object();
-		}
-		if(this.datasets[key]["data"]==null){
-			this.datasets[key]["data"] = new Array();
+			key = chromosome+"-"+Math.floor(item.end/this.chunkSize);
 		}
 		this.datasets[key]["data"].push(item);
 	}
@@ -153,10 +150,7 @@ DqsDataAdapter.prototype.anticipateRegionRetrieved = function(data, chromosome, 
 		var item = data[i];
 		var key = chromosome+"-"+Math.floor(item.start/this.chunkSize);
 		if(this.datasets[key] == null){
-			this.datasets[key] = new Object();
-		}
-		if(this.datasets[key]["data"]==null){
-			this.datasets[key]["data"] = new Array();
+			key = chromosome+"-"+Math.floor(item.end/this.chunkSize);
 		}
 		this.datasets[key]["data"].push(item);
 	}
@@ -213,17 +207,36 @@ DqsDataAdapter.prototype.setIntervalView = function(chromosome,  middleView, obj
 	chunkActualId = Math.floor(middleView/this.chunkSize);
 	
 	
-	//XXX no va
+	var needCall = false;
+	var callStart = 0;
+	var callEnd = 0;
+	var startFound = false;
+	
 	for ( var i = chunkStartId; i <= chunkEndId; i++) {
-		var key = chromosome+"-"+i;
-		if(this.datasets[key]==null){
-			this.lockSuccessEventNotify = true;
-			this.fill(chromosome, end, newEnd , this.resource);
-			//si lo tiene
+		if(i >= 0){
+			var key = chromosome+"-"+i;
+			if(this.datasets[key]==null){
+				needCall = true;
+				if(chunkStart > 0 && !startFound){
+					startFound = true;
+					callStart = i*this.chunkSize;
+				}
+				callEnd = ((i*this.chunkSize)+this.chunkSize)-1;
+				console.log("No tengo esta key: "+key);
+			}
+			else{
+				console.log("Ya tengo esta key: "+key);
+			}
 		}
 	}
 	
-	console.log(data_start+"-"+data_end);
+	if(needCall){
+		this.lockSuccessEventNotify = true;
+		console.log("Peticion: "+callStart+"--"+callEnd);
+		this.fill(chromosome, callStart, callEnd, this.resource);
+	}
+	
+//	console.log(data_start+"-"+data_end);
 	
 	
 	if (this.autoFill && !this.lockSuccessEventNotify){
@@ -232,29 +245,25 @@ DqsDataAdapter.prototype.setIntervalView = function(chromosome,  middleView, obj
 			var chromosome = id[0];
 			var start = id[1];
 			var end = id[2];
-			
+
 			if ((start < middleView) && (middleView < end)){
 				var tier = (end - start)/3;
-				
+
 				if (end - middleView <= tier){
 					this.lockSuccessEventNotify = true;
 					var newEnd = parseInt(end) + parseInt(end -start);
 					this.fill(chromosome, end, newEnd , this.resource);
 					return;
 				}
-				
+
 				if(middleView - start <= tier){
 					this.lockSuccessEventNotify = true;
 					var newstart = parseInt(start) - parseInt(end -start);
 					if (newstart < 0){ newstart = 1;}
 					this.fill(chromosome, newstart, start, this.resource);
 					return;
-					
 				}
-				
 			}
-			
-			
 		}
 	}
 };
