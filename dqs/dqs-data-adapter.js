@@ -64,16 +64,16 @@ DqsDataAdapter.prototype.fill = function(chromosome, start, end, resource, callb
 
 DqsDataAdapter.prototype.getFinished = function(data, chromosome, start, end){
 	this.dataset.loadFromJSON(data);
-//	this.datasets[this._getHashMapKey(chromosome, start, end)] = this.dataset;
-	this.datasets[this._getHashMapKey(chromosome, start, end)] = true;
+	this.datasets[this._getHashMapKey(chromosome, start, end)] = this.dataset;
+//	this.datasets[this._getHashMapKey(chromosome, start, end)] = true;
 	da=this.datasets;
 	this.successed.notify(data);
 };
 
 DqsDataAdapter.prototype.anticipateRegionRetrieved = function(data, chromosome, start, end){
 	this.dataset.loadFromJSON(data);
-//	this.datasets[this._getHashMapKey(chromosome, start, end)] = data;
-	this.datasets[this._getHashMapKey(chromosome, start, end)] = true;
+	this.datasets[this._getHashMapKey(chromosome, start, end)] = data;
+//	this.datasets[this._getHashMapKey(chromosome, start, end)] = true;
 	this.lockSuccessEventNotify = false;
 	this.preloadSuccess.notify();
 };
