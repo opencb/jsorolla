@@ -8,8 +8,8 @@ function DqsRestManager (){
 	   window.location.host.indexOf("imedina")!=-1
 	){
 //		this.host = "http://ws-beta.bioinfo.cipf.es/dqs/rest";
-		this.host = "http://fsalavert:8080/dqs/rest";
-//		this.host = "http://rsanchez:8080/dqs/rest";
+//		this.host = "http://fsalavert:8080/dqs/rest";
+		this.host = "http://rsanchez:8080/dqs/rest";
 //		this.host = "http://imedina:8080/dqs/rest";
 	}
 	
@@ -26,10 +26,10 @@ function DqsRestManager (){
 /**BAM**/
 DqsRestManager.prototype.bamList = function(queryParams){
 	var _this=this;
-	var url = this.getHost()+'/bam/list?'+this.getQuery(queryParams);;
+	var url = this.getHost()+'/bam/list'+this.getQuery(queryParams);;
 	
 	function success(data){
-		_this.onBamList.notify(data);
+		_this.onBamList.notify(JSON.parse(data));
 	}
 	
 	function error(data){
@@ -44,7 +44,7 @@ DqsRestManager.prototype.bamList = function(queryParams){
 
 DqsRestManager.prototype.bamRegion = function(filename, region, queryParams){
 	var _this=this;
-	var url = this.getHost()+'/bam/'+filename+'/'+region+'/region?'+this.getQuery(queryParams);
+	var url = this.getHost()+'/bam/'+filename+'/'+region+'/region'+this.getQuery(queryParams);
 	console.log(url);
 	function success(data){
 		_this.onBamRegion.notify(JSON.parse(data));
@@ -66,7 +66,7 @@ DqsRestManager.prototype.getQuery = function(paramsWS){
 			query+=key+"="+paramsWS[key]+"&";
 	}
 	if(query!="")
-		query = query.substring(0, query.length-1);
+		query = "?"+query.substring(0, query.length-1);
 	return query;
 };
 
