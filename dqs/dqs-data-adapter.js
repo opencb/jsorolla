@@ -31,73 +31,29 @@ function DqsDataAdapter(args){
 };
 
 DqsDataAdapter.prototype._getHashMapKey = function(chromosome, start, end){
-	var chunkNum = start/this.chunkSize;
-//	return chromosome + "-" + start + "-" + end;
-	return chromosome + "-" + chunkNum;
+	return chromosome + "-" + start + "-" + end;
 };
 DqsDataAdapter.prototype.isRegionAvalaible = function(chromosome, start, end){
 	return this.datasets[this._getHashMapKey(chromosome, start, end)] != null;
 };
 
-
-//DqsDataAdapter.prototype.fill = function(chromosome, start, end, resource){
-//	var _this = this;
-//	if ((chromosome == null)|| (start == null) || (end == null) || (resource == null)){
-//		throw "Missing value in a not optional parameter: chromosome, start or end";
-//	}
-//	
-//	var chunkStartId = Math.floor(start/this.chunkSize);
-//	var chunkEndId = Math.floor(end/this.chunkSize);
-//	var chunkStart = chunkStartId*this.chunkSize;
-//	var chunkEnd = (Math.ceil(end/this.chunkSize)*this.chunkSize)-1;
-//	
-//	
-//	
-////	console.log("primer fill "+ chunkStart +"--"+ chunkEnd)
-//	
-////	var startWs=chunkStart;
-////	var endWs=chunkEnd;
-////	for ( var i = chunkStartId; i <= chunkEndId; i++) {
-////		var key = chromosome+"-"+i;
-////		if(this.datasets[key]!=null){
-////			//si lo tiene
-////			startWs = startWs+this.chunkSize();
-////		}
-////	}
-//	this.dqsManager = new DqsManager();
-//	this.dqsManager.onBamRegion.addEventListener(function (evt, data){
-//			_this.getFinished(data, chromosome, chunkStart, chunkEnd);
-//	});
-//	var key = chromosome+"-"+chunkStart;
-//	if(this.datasets[key]==null){
-//		this.dqsManager.bamRegion(resource, chromosome+":"+chunkStart+"-"+chunkEnd);
-//	}
-//};
-
-
 DqsDataAdapter.prototype.fill = function(chromosome, start, end, resource, callbackFunction){
 	var _this = this;
 	this.resource = resource;
-	if ((chromosome == null)|| (start == null) || (end == null)){
+	if (chromosome == null|| start == null || end == null || resource == null){
 		throw "Missing value in a not optional parameter: chromosome, start or end";
 	}
-	var chunkStartId = Math.floor(start/this.chunkSize);
-	var chunkEndId = Math.floor(end/this.chunkSize);
-	var chunkStart = chunkStartId*this.chunkSize;
-	var chunkEnd = (Math.ceil(end/this.chunkSize)*this.chunkSize)-1;
-	
-		if (!this.isRegionAvalaible(chromosome, chunkStart, chunkEnd)){
-
+		if (!this.isRegionAvalaible(chromosome, start, end)){
 				this.dqsManager = new DqsManager();
 				this.dqsManager.onBamRegion.addEventListener(function (evt, data){
 					if (!_this.lockSuccessEventNotify){
-						_this.getFinished(data, chromosome, chunkStart, chunkEnd);
+						_this.getFinished(data, chromosome, start, end);
 					}
 					else{
-						_this.anticipateRegionRetrieved(data, chromosome, chunkStart, chunkEnd);
+						_this.anticipateRegionRetrieved(data, chromosome, start, end);
 					}
 				});
-				this.dqsManager.bamRegion(resource, chromosome+":"+chunkStart+"-"+chunkEnd);
+				this.dqsManager.bamRegion(resource, chromosome + ":" + Math.ceil(start) + "-" + Math.ceil(end));
 		}else{
 //				console.log("No need to go to the server: " + chromosome + ":" + start + "-" + end);
 				this.lockSuccessEventNotify = false;
@@ -107,62 +63,17 @@ DqsDataAdapter.prototype.fill = function(chromosome, start, end, resource, callb
 
 
 DqsDataAdapter.prototype.getFinished = function(data, chromosome, start, end){
-	da = this.datasets;
-	var chunkStart = start/this.chunkSize;
-	var chunkEnd = parseInt(end/this.chunkSize);
-	for ( var i = chunkStart; i <= chunkEnd; i++) {
-		var key = chromosome+"-"+i;
-		if(this.datasets[key] == null){
-			this.datasets[key] = new Object();
-		}
-		if(this.datasets[key]["data"]==null){
-			this.datasets[key]["data"] = new Array();
-		}
-	}
-	for ( var i = 0; i < data.length; i++) {
-		var item = data[i];
-		var key = chromosome+"-"+Math.floor(item.start/this.chunkSize);
-		if(this.datasets[key] == null){
-			this.datasets[key] = new Object();
-		}
-		if(this.datasets[key]["data"]==null){
-			this.datasets[key]["data"] = new Array();
-		}
-		this.datasets[key]["data"].push(item);
-	}
-	
 	this.dataset.loadFromJSON(data);
 //	this.datasets[this._getHashMapKey(chromosome, start, end)] = this.dataset;
+	this.datasets[this._getHashMapKey(chromosome, start, end)] = true;
+	da=this.datasets;
 	this.successed.notify(data);
 };
 
 DqsDataAdapter.prototype.anticipateRegionRetrieved = function(data, chromosome, start, end){
-	var chunkStart = start/this.chunkSize;
-	var chunkEnd = parseInt(end/this.chunkSize);
-	for ( var i = chunkStart; i <= chunkEnd; i++) {
-		var key = chromosome+"-"+i;
-		if(this.datasets[key] == null){
-			this.datasets[key] = new Object();
-		}
-		if(this.datasets[key]["data"]==null){
-			this.datasets[key]["data"] = new Array();
-		}
-	}
-	
-	for ( var i = 0; i < data.length; i++) {
-		var item = data[i];
-		var key = chromosome+"-"+Math.floor(item.start/this.chunkSize);
-		if(this.datasets[key] == null){
-			this.datasets[key] = new Object();
-		}
-		if(this.datasets[key]["data"]==null){
-			this.datasets[key]["data"] = new Array();
-		}
-		this.datasets[key]["data"].push(item);
-	}
-	
 	this.dataset.loadFromJSON(data);
 //	this.datasets[this._getHashMapKey(chromosome, start, end)] = data;
+	this.datasets[this._getHashMapKey(chromosome, start, end)] = true;
 	this.lockSuccessEventNotify = false;
 	this.preloadSuccess.notify();
 };
@@ -189,43 +100,7 @@ DqsDataAdapter.prototype.getFeaturesByPosition = function(position){
 };
 
 
-//DqsDataAdapter.prototype.setIntervalView = function(chromosome,  middleView, obj){
-//		console.log(obj.width);
-//		console.log(obj.pixelRatio);
-//		var windowSize = obj.width/obj.pixelRatio;
-//		var data_start = Math.ceil(middleView - windowSize);
-//		var data_end = Math.ceil(middleView +   windowSize);
-////		this.fill(chromosome, data_start, data_end, this.resource);
-//		console.log(data_start+"-"+data_end);
-//};
-
-
 DqsDataAdapter.prototype.setIntervalView = function(chromosome,  middleView, obj){
-	var windowSize = obj.width/obj.pixelRatio;
-	var data_start = Math.ceil(middleView - windowSize);
-	var data_end = Math.ceil(middleView + windowSize);
-	
-	var chunkStartId = Math.floor(data_start/this.chunkSize);
-	var chunkEndId = Math.floor(data_end/this.chunkSize);
-	var chunkStart = chunkStartId*this.chunkSize;
-	var chunkEnd = (Math.ceil(data_end/this.chunkSize)*this.chunkSize)-1;
-	
-	chunkActualId = Math.floor(middleView/this.chunkSize);
-	
-	
-	//XXX no va
-	for ( var i = chunkStartId; i <= chunkEndId; i++) {
-		var key = chromosome+"-"+i;
-		if(this.datasets[key]==null){
-			this.lockSuccessEventNotify = true;
-			this.fill(chromosome, end, newEnd , this.resource);
-			//si lo tiene
-		}
-	}
-	
-	console.log(data_start+"-"+data_end);
-	
-	
 	if (this.autoFill && !this.lockSuccessEventNotify){
 		for ( var iterable_element in this.datasets) {
 			var id = (iterable_element.split("-"));
