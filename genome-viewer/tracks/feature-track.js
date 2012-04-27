@@ -172,6 +172,7 @@ FeatureTrack.prototype.drawFeatures = function(features){
 	this.queues = new Array();
 	this.queues.push(new Array());
 
+	
 	for (var i = 0; i < features.length;  i++){
 		if (!this.allowDuplicates){
 			if (this.isFeatureDuplicated(features[i])){
@@ -181,6 +182,7 @@ FeatureTrack.prototype.drawFeatures = function(features){
 				this.featuresID[features[i].start + "_" + features[i].end] = true;
 			}
 		}
+		console.log(this.featuresID);
 		
 		var queueToDraw = 0;
 		if (this.avoidOverlapping){
