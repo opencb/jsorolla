@@ -10691,6 +10691,7 @@ FeatureTrack.prototype.drawFeatures = function(features){
 	this.queues = new Array();
 	this.queues.push(new Array());
 
+	
 	for (var i = 0; i < features.length;  i++){
 		if (!this.allowDuplicates){
 			if (this.isFeatureDuplicated(features[i])){
@@ -10700,6 +10701,7 @@ FeatureTrack.prototype.drawFeatures = function(features){
 				this.featuresID[features[i].start + "_" + features[i].end] = true;
 			}
 		}
+		console.log(this.featuresID);
 		
 		var queueToDraw = 0;
 		if (this.avoidOverlapping){
@@ -11773,8 +11775,7 @@ TrackCanvas.prototype._drawTrack = function(chromosome, start, end, track, regio
 				data.middle =  Math.floor(data.middle);
 //				console.log(data.middle);
 			
-//				console.log(this.zoom);
-				regionAdapter.setIntervalView(chromosome, data.middle);
+				regionAdapter.setIntervalView(chromosome, data.middle, {width:_this.width,pixelRatio:_this.pixelRatio});
 				if (regionAdapter instanceof RuleRegionDataAdapter){
 					_this.selectPaintOnRules(data.middle);
 				}
@@ -17471,9 +17472,6 @@ GenomeWidget.prototype.draw = function(chromosome, data_start, data_end, view_st
 	
 	var _this = this;
 	this.init();
-	
-//	console.log(this.width);
-//	console.log(this.pixelRatio);
 	
 	this.trackCanvas = new TrackCanvas(this.id, $('#'+this.targetId)[0], {
 		top:0, 

@@ -6,14 +6,13 @@ function DqsRestManager (){
 	if(window.location.host.indexOf("fsalavert")!=-1 ||
 	   window.location.host.indexOf("rsanchez")!=-1 ||
 	   window.location.host.indexOf("imedina")!=-1 ||
-	   window.location.href.indexOf("http://bioinfo.cipf.es/apps/genomemaps-beta")!=-1
+	   window.location.href.indexOf("http://bioinfo.cipf.es/apps")!=-1
 	){
-//		this.host = "http://ws-beta.bioinfo.cipf.es/dqs/rest";
+		this.host = "http://ws-beta.bioinfo.cipf.es/dqs/rest";
 //		this.host = "http://fsalavert:8080/dqs/rest";
-		this.host = "http://rsanchez:8080/dqs/rest";
+//		this.host = "http://rsanchez:8080/dqs/rest";
 //		this.host = "http://imedina:8080/dqs/rest";
 	}
-	this.host = "http://rsanchez:8080/dqs/rest";
 	DQSHOST = this.host;
 	
 	/** Events **/
