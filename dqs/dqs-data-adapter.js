@@ -107,29 +107,25 @@ DqsDataAdapter.prototype.setIntervalView = function(chromosome,  middleView, obj
 			var chromosome = id[0];
 			var start = id[1];
 			var end = id[2];
-			
+
 			if ((start < middleView) && (middleView < end)){
 				var tier = (end - start)/3;
-				
+
 				if (end - middleView <= tier){
 					this.lockSuccessEventNotify = true;
 					var newEnd = parseInt(end) + parseInt(end -start);
 					this.fill(chromosome, end, newEnd , this.resource);
 					return;
 				}
-				
+
 				if(middleView - start <= tier){
 					this.lockSuccessEventNotify = true;
 					var newstart = parseInt(start) - parseInt(end -start);
 					if (newstart < 0){ newstart = 1;}
 					this.fill(chromosome, newstart, start, this.resource);
 					return;
-					
 				}
-				
 			}
-			
-			
 		}
 	}
 };
