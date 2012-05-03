@@ -30,10 +30,6 @@ KaryotypeCellBaseDataAdapter.prototype.fill = function( callbackFunction) {
 
 
 
-
-
-
-
 KaryotypeCellBaseDataAdapter.prototype.sortfunction = function(a, b) {
 	var ValidChars = "0123456789.";
 	var IsNumber = true;

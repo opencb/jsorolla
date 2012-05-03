@@ -21,7 +21,7 @@ function GeneFeatureFormatter(gene){
 		this.args.stroke = "#000000";
 //		this.args.strokeOpacity = 0.8;
 		this.args.strokeWidth = 0.5;
-		this.args.fill = "#"+this._getColor(gene);
+		this.args.fill = this._getColor(gene);
 		this.args.opacity = 1;
 		FeatureFormatter.prototype.constructor.call(this, this.getId(), this.args);
 	}
@@ -71,15 +71,15 @@ GeneFeatureFormatter.prototype.getBioTypeColors = function(){
 	var colors = new Object();
 
 	//TODO buscar los colores en ensembl!
-	colors[new String("protein_coding")] = "a00000";
-	colors[new String("processed_transcript")] = "0000ff";
-	colors[new String("pseudogene")] = "666666";
-	colors[new String("miRNA")] = "8b668b";//TODO falta
-	colors[new String("snRNA")] = "8b668b";
-	colors[new String("snoRNA")] = "8b668b";//TODO falta
-	colors[new String("lincRNA")] = "8b668b";
+	colors[new String("protein_coding")] = "#a00000";
+	colors[new String("processed_transcript")] = "#0000ff";
+	colors[new String("pseudogene")] = "#666666";
+	colors[new String("miRNA")] = "#8b668b";//TODO falta
+	colors[new String("snRNA")] = "#8b668b";
+	colors[new String("snoRNA")] = "#8b668b";//TODO falta
+	colors[new String("lincRNA")] = "#8b668b";
 	
-	colors[new String("other")] = "ffffff";
+	colors[new String("other")] = "#ffffff";
 	return colors;
 };
 
@@ -121,7 +121,7 @@ function TranscriptFeatureFormatter(transcript){
 	this.args = new Object();
 	this.args.title = new Object();
 	this.args.hidden = false;
-	this.args.stroke = "black";//this.getBioTypeColors()[transcript.biotype.toUpperCase()];//"black";
+	this.args.stroke = "#000000";//this.getBioTypeColors()[transcript.biotype.toUpperCase()];//"black";
 	this.args.strokeWidth = 1;
 	this.args.fill = this.getBioTypeColors()[transcript.biotype.toUpperCase()];//"black";
 	this.args.size = 1;
@@ -147,13 +147,13 @@ TranscriptFeatureFormatter.prototype.getId = function(){
 
 TranscriptFeatureFormatter.prototype.getBioTypeColors = function(){
 	var colors = new Object();
-	colors[new String("protein_coding").toUpperCase()] = "21610B";
-	colors[new String("pseudogene").toUpperCase()] = "ffcc00";
-	colors[new String("snRNA").toUpperCase()] = "424242";
-	colors[new String("lincRNA").toUpperCase()] = "8A0886";
-	colors[new String("processed_transcript").toUpperCase()] = "ff9900";
+	colors[new String("protein_coding").toUpperCase()] = "#21610B";
+	colors[new String("pseudogene").toUpperCase()] = "#ffcc00";
+	colors[new String("snRNA").toUpperCase()] = "#424242";
+	colors[new String("lincRNA").toUpperCase()] = "#8A0886";
+	colors[new String("processed_transcript").toUpperCase()] = "#ff9900";
 	
-	colors[new String("other").toUpperCase()] = "FFFFFF";
+	colors[new String("other").toUpperCase()] = "#FFFFFF";
 	return colors;
 };
 
@@ -285,33 +285,33 @@ SNPFeatureFormatter.prototype.getFeatureColor = function(base){
 SNPFeatureFormatter.prototype.getBioTypeColors = function(){
 	//TODO
 	var colors = new Object();
-	colors[new String("2KB_upstream_variant")] = "a2b5cd";				//TODO done Upstream
-	colors[new String("5KB_upstream_variant")] = "a2b5cd";				//TODO done Upstream
-	colors[new String("500B_downstream_variant")] = "a2b5cd";			//TODO done Downstream
-	colors[new String("5KB_downstream_variant")] = "a2b5cd";			//TODO done Downstream
-	colors[new String("3_prime_UTR_variant")] = "7ac5cd";				//TODO done 3 prime UTR
-	colors[new String("5_prime_UTR_variant")] = "7ac5cd";				//TODO done 5 prime UTR
-	colors[new String("coding_sequence_variant")] = "458b00";			//TODO done Coding unknown
-	colors[new String("complex_change_in_transcript")] = "00fa9a";		//TODO done Complex in/del
-	colors[new String("frameshift_variant")] = "ff69b4";				//TODO done Frameshift coding
-	colors[new String("incomplete_terminal_codon_variant")] = "ff00ff";	//TODO done Partial codon
-	colors[new String("inframe_codon_gain")] = "ffd700";				//TODO done Non-synonymous coding
-	colors[new String("inframe_codon_loss")] = "ffd700";				//TODO done Non-synonymous coding
-	colors[new String("initiator_codon_change")] = "ffd700";			//TODO done Non-synonymous coding
-	colors[new String("non_synonymous_codon")] = "ffd700";				//TODO done Non-synonymous coding
-	colors[new String("intergenic_variant")] = "636363";				//TODO done Intergenic
-	colors[new String("intron_variant")] = "02599c";					//TODO done Intronic
-	colors[new String("mature_miRNA_variant")] = "458b00";				//TODO done Within mature miRNA
-	colors[new String("nc_transcript_variant")] = "32cd32";				//TODO done Within non-coding gene
-	colors[new String("splice_acceptor_variant")] = "ff7f50";			//TODO done Essential splice site
-	colors[new String("splice_donor_variant")] = "ff7f50";				//TODO done Essential splice site
-	colors[new String("splice_region_variant")] = "ff7f50";				//TODO done Splice site
-	colors[new String("stop_gained")] = "ff0000";						//TODO done Stop gained
-	colors[new String("stop_lost")] = "ff0000";							//TODO done Stop lost
-	colors[new String("stop_retained_variant")] = "76ee00";				//TODO done Synonymous coding
-	colors[new String("synonymous_codon")] = "76ee00";					//TODO done Synonymous coding
+	colors[new String("2KB_upstream_variant")] = "#a2b5cd";				//TODO done Upstream
+	colors[new String("5KB_upstream_variant")] = "#a2b5cd";				//TODO done Upstream
+	colors[new String("500B_downstream_variant")] = "#a2b5cd";			//TODO done Downstream
+	colors[new String("5KB_downstream_variant")] = "#a2b5cd";			//TODO done Downstream
+	colors[new String("3_prime_UTR_variant")] = "#7ac5cd";				//TODO done 3 prime UTR
+	colors[new String("5_prime_UTR_variant")] = "#7ac5cd";				//TODO done 5 prime UTR
+	colors[new String("coding_sequence_variant")] = "#458b00";			//TODO done Coding unknown
+	colors[new String("complex_change_in_transcript")] = "#00fa9a";		//TODO done Complex in/del
+	colors[new String("frameshift_variant")] = "#ff69b4";				//TODO done Frameshift coding
+	colors[new String("incomplete_terminal_codon_variant")] = "#ff00ff";	//TODO done Partial codon
+	colors[new String("inframe_codon_gain")] = "#ffd700";				//TODO done Non-synonymous coding
+	colors[new String("inframe_codon_loss")] = "#ffd700";				//TODO done Non-synonymous coding
+	colors[new String("initiator_codon_change")] = "#ffd700";			//TODO done Non-synonymous coding
+	colors[new String("non_synonymous_codon")] = "#ffd700";				//TODO done Non-synonymous coding
+	colors[new String("intergenic_variant")] = "#636363";				//TODO done Intergenic
+	colors[new String("intron_variant")] = "#02599c";					//TODO done Intronic
+	colors[new String("mature_miRNA_variant")] = "#458b00";				//TODO done Within mature miRNA
+	colors[new String("nc_transcript_variant")] = "#32cd32";				//TODO done Within non-coding gene
+	colors[new String("splice_acceptor_variant")] = "#ff7f50";			//TODO done Essential splice site
+	colors[new String("splice_donor_variant")] = "#ff7f50";				//TODO done Essential splice site
+	colors[new String("splice_region_variant")] = "#ff7f50";				//TODO done Splice site
+	colors[new String("stop_gained")] = "#ff0000";						//TODO done Stop gained
+	colors[new String("stop_lost")] = "#ff0000";							//TODO done Stop lost
+	colors[new String("stop_retained_variant")] = "#76ee00";				//TODO done Synonymous coding
+	colors[new String("synonymous_codon")] = "#76ee00";					//TODO done Synonymous coding
 	
-	colors[new String("other")] = "ffffff";
+	colors[new String("other")] = "#ffffff";
 	return colors;
 };
 
@@ -541,7 +541,7 @@ CytobandFeatureFormatter.prototype.getColor = function(feature) {
 		return "#CCCCCC";
 	}
 	
-	if (feature.stain.indexOf('gpos') != -1){
+	if (feature.stain.indexOf("gpos") != -1){
 		var value = feature.stain.replace("gpos", "");
 		
 		if (value == 25){
@@ -734,19 +734,19 @@ TfbsFeatureFormatter.prototype.getColors = function(){
 	var colors = new Object();
 
 	//TODO buscar los colores en ensembl!
-	colors[new String("CD4")] = "38610B";
-	colors[new String("GM06990")] = "4B8A08";
-	colors[new String("GM12878")] = "5FB404";
-	colors[new String("H1ESC")] = "74DF00";//TODO falta
-	colors[new String("HeLa-S3")] = "80FF00";
-	colors[new String("HepG2")] = "9AFE2E";//TODO falta
-	colors[new String("HUVEC")] = "ACFA58";
-	colors[new String("IMR90")] = "BEF781";//TODO falta
-	colors[new String("K562")] = "E1F5A9";
-	colors[new String("K562b")] = "ECF6CE";//TODO falta
-	colors[new String("NHEK")] = "F1F8E0";
+	colors[new String("CD4")] = "#38610B";
+	colors[new String("GM06990")] = "#4B8A08";
+	colors[new String("GM12878")] = "#5FB404";
+	colors[new String("H1ESC")] = "#74DF00";//TODO falta
+	colors[new String("HeLa-S3")] = "#80FF00";
+	colors[new String("HepG2")] = "#9AFE2E";//TODO falta
+	colors[new String("HUVEC")] = "#ACFA58";
+	colors[new String("IMR90")] = "#BEF781";//TODO falta
+	colors[new String("K562")] = "#E1F5A9";
+	colors[new String("K562b")] = "#ECF6CE";//TODO falta
+	colors[new String("NHEK")] = "#F1F8E0";
 	
-	colors[new String("other")] = "ffffff";
+	colors[new String("other")] = "#ffffff";
 	return colors;
 };
 
@@ -815,7 +815,7 @@ function MutationFeatureFormatter(feature){
         this.args.stroke = "#f55959";
         this.args.strokeOpacity = 1;
         this.args.strokeWidth = 1;
-        this.args.fill = "ffd700";
+        this.args.fill = "#ffd700";
         this.args.size = 1;
         this.args.opacity = 1;
 
@@ -872,7 +872,7 @@ function StructuralVariationFeatureFormatter(feature){
         this.args.stroke = "#f55959";
         this.args.strokeOpacity = 1;
         this.args.strokeWidth = 1;
-        this.args.fill = "02599c";
+        this.args.fill = "#02599c";
         this.args.size = 1;
         this.args.opacity = 1;
 
@@ -929,7 +929,7 @@ function CpgIslandFeatureFormatter(feature){
         this.args.stroke = "#f55959";
         this.args.strokeOpacity = 1;
         this.args.strokeWidth = 1;
-        this.args.fill = "76ee00";
+        this.args.fill = "#76ee00";
         this.args.size = 1;
         this.args.opacity = 1;
 

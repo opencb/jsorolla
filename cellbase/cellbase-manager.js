@@ -7,7 +7,8 @@ function CellBaseManager(species, args) {
 	if(window.location.host.indexOf("fsalavert")!=-1 ||
 	   window.location.host.indexOf("rsanchez")!=-1 ||
 	   window.location.host.indexOf("imedina")!=-1 ||
-	   window.location.href.indexOf("http://bioinfo.cipf.es/apps/genomemaps-beta")!=-1
+	   window.location.href.indexOf("http://bioinfo.cipf.es/apps/genomemaps-beta")!=-1 ||
+	   window.location.href.indexOf("172.24.76.48")!=-1
 	){
 		this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
 //		this.host = "http://fsalavert:8080/cellbase/rest";
@@ -26,7 +27,7 @@ function CellBaseManager(species, args) {
 	this.subcategory = null;
 
 	// commons query params
-	this.contentformat = "jsonp";
+	this.contentformat = "json";
 	this.fileformat = "";
 	this.outputcompress = false;
 	this.dataType = "script";
@@ -71,17 +72,17 @@ function CellBaseManager(species, args) {
 	 * Note that synchronous requests may temporarily lock the browser, disabling any actions while the request is active. **/
 	this.setAsync = function(async){
 		this.async = async;
-	},
+	};
 
 	this.getUrl = function() {
 		if (this.query != null) {
-		
+			
 			return this.host + "/" + this.version + "/" + this.species + "/"+ this.category + "/" + this.subcategory + "/" + this.query+ "/" + this.resource; // + "?contentformat=" + this.contentformat;
 		} else {
 			return this.host + "/" + this.version + "/" + this.species + "/"+ this.category + "/" + this.subcategory + "/"+ this.resource; // + "?contentformat=" +;
 		}
 
-	},
+	};
 
 	this.get = function(category, subcategory, query, resource, callbackFunction) {
 		if(query instanceof Array){
@@ -162,47 +163,93 @@ function CellBaseManager(species, args) {
 
 	this._callServer = function(url, batchID, callbackFunction) {
 		var _this = this;
-		
-		
 		var params  = {
 				of : this.contentformat,
-				outputcompress : this.outputcompress,
-				callbackParam :  "response"
+				outputcompress : this.outputcompress
 			};
-		
-		$.ajax({
-			url : url,
-			type : "GET",
-			async : this.async,
-			data : params,
-			dataType : this.dataType,
-			jsonp : "callback",
-			success : function() {
-				if( typeof( response ) != 'undefined'  ){
-					if (callbackFunction!=null){
-						callbackFunction(response);
+
+//			jQuery.support.cors = true;
+			url = url + this.getQuery(params,url);
+			$.ajax({
+				type : "GET",
+				url : url,
+				async : this.async,
+				success : function(data, textStatus, jqXHR) {
+					try{
+						if(data==null){response="[]";}
+						var jsonResponse = JSON.parse(data);
+//					console.log(jsonResponse);
+						if (_this.batching){
+							_this.batchSuccessed.notify({data:jsonResponse, id:batchID});
+						}else{
+							_this.successed.notify(jsonResponse);
+						}
+					}
+					catch(e){
+						console.log("CellBaseManager: data returned was not json: "+data+" END");
 					}
 					
-					if (_this.batching){
-						_this.batchSuccessed.notify({data:response, id:batchID});
-					}else{
-						_this.successed.notify(response);
-					}
-				}
-				else{
+				},
+				complete : function() {
+					_this.completed.notify();
+					
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					console.log("CellBaseManager: Ajax call returned : "+errorThrown+'\t'+textStatus+'\t'+jqXHR.statusText+" END");
 					_this.error.notify();
+					
 				}
-			},
-			complete : function() {
-				_this.completed.notify();
-				
-			},
-			error : function() {
-				_this.error.notify();
-				
-			}
-		});
+			});
+			
+		
+//		$.ajax({
+//			type : "GET",
+//			url : url,
+//			async : this.async,
+////			dataType : this.dataType,
+//			data : params,
+////			jsonp : "callback",
+//			success : function() {
+//				if( typeof( response ) != 'undefined'  ){
+////					if (callbackFunction!=null){
+////						callbackFunction(response);
+////					}
+//					
+//					if (_this.batching){
+//						_this.batchSuccessed.notify({data:response, id:batchID});
+//					}else{
+//						_this.successed.notify(response);
+//					}
+//				}
+//				else{
+//					_this.error.notify();
+//				}
+//			},
+//			complete : function() {
+//				_this.completed.notify();
+//				
+//			},
+//			error : function() {
+//				_this.error.notify();
+//				
+//			}
+//		});
 		
 		console.log(url);
 	};
 }
+
+CellBaseManager.prototype.getQuery = function(paramsWS,url){
+	var char = "?";
+	if(url.indexOf("?")!=-1){
+		char = "&";
+	}
+	var query = "";
+	for ( var key in paramsWS) {
+		if(paramsWS[key]!=null)
+			query+=key+"="+paramsWS[key]+"&";
+	}
+	if(query!="")
+		query = char+query.substring(0, query.length-1);
+	return query;
+};

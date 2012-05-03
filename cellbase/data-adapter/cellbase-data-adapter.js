@@ -38,7 +38,7 @@ CellBaseDataAdapter.prototype.fill = function(category, subcategory, query, reso
 
 CellBaseDataAdapter.prototype.getFinished = function(data){
 	this.dataset.loadFromJSON(data);
-	this.successed.notify();
+	this.successed.notify(data);
 };
 
 CellBaseDataAdapter.prototype.arrayToString = function(array, separator){

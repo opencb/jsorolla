@@ -182,7 +182,6 @@ FeatureTrack.prototype.drawFeatures = function(features){
 				this.featuresID[features[i].start + "_" + features[i].end] = true;
 			}
 		}
-		console.log(this.featuresID);
 		
 		var queueToDraw = 0;
 		if (this.avoidOverlapping){
