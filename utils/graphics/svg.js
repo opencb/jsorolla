@@ -1,22 +1,52 @@
+Element.prototype.addChildSVG = function(elementName, attributes, index){
+	var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
+	for ( var key in attributes){
+		el.setAttribute(key, attributes[key]);
+	}
+	
+	// insert child at requested index, or as last child if index is too high or no index is specified
+    if ( null == index ) {
+      this.appendChild( el );
+    }
+    else {
+      var targetIndex = index + 1;
+      if ( 0 == index ) {
+        targetIndex = 0;
+      }
+      var targetEl = this.childNodes[ targetIndex ];
+      if ( targetEl ) {
+        this.insertBefore( el, targetEl ); 
+      }
+      else {
+        this.appendChild( el );
+      }
+    }
+    return el;
+};
+Element.prototype.initSVG = function(attributes){
+	return this.addChildSVG("svg", attributes);
+};
+
+
 var SVG =
 {
 		svgns : 'http://www.w3.org/2000/svg',
 		xlinkns : "http://www.w3.org/1999/xlink",
 
-	createSVGCanvas: function(parentNode, attributes)
-	{
-//		attributes['xmlns'] = SVG.svgns;
-//		attributes['xmlns:xlink'] = SVG.xlinkns;
-//		attributes.push( ['xmlns', SVG.svgns], ['xmlns:xlink', 'http://www.w3.org/1999/xlink']);
-		var svg = document.createElementNS(SVG.svgns, "svg");
-		
-		for ( var key in attributes){
-			svg.setAttribute(key, attributes[key]);
-		}
-		
-		parentNode.appendChild(svg);
-		return svg;
-	}, 
+//	createSVGCanvas: function(parentNode, attributes)
+//	{
+////		attributes['xmlns'] = SVG.svgns;
+////		attributes['xmlns:xlink'] = SVG.xlinkns;
+////		attributes.push( ['xmlns', SVG.svgns], ['xmlns:xlink', 'http://www.w3.org/1999/xlink']);
+//		var svg = document.createElementNS(SVG.svgns, "svg");
+//		
+//		for ( var key in attributes){
+//			svg.setAttribute(key, attributes[key]);
+//		}
+//		
+//		parentNode.appendChild(svg);
+//		return svg;
+//	}, 
 	
 	//Shape types : rect, circle, ellipse, line, polyline, polygon , path
 	createElement : function (svgNode, shapeName, attributes) {
@@ -30,11 +60,10 @@ var SVG =
 				attributes.height=0;
 			}
 			
-			var shape = document.createElementNS(this.svgns, shapeName);
+			var shape = document.createElementNS('http://www.w3.org/2000/svg', shapeName);
 			for ( var key in attributes){
 				shape.setAttribute(key, attributes[key]);
 			}
-//			SVG._setProperties(shape, attributes);
 			svgNode.appendChild(shape);
 		}
 		catch(e){
