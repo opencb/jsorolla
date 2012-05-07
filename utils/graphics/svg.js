@@ -8,7 +8,7 @@ var SVG =
 		attributes.push( ['xmlns', SVG.svgns], ['xmlns:xlink', 'http://www.w3.org/1999/xlink']);
 		var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 		this._setProperties(svg, attributes);
-		parentNode.appendChild( svg);
+		parentNode.appendChild(svg);
 		return svg;
 		
 	}, 

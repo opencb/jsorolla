@@ -54,7 +54,6 @@ MirnaInfoWidget.prototype.getMirnaPanel = function(data){
 	}
     if(this.mirnaPanel==null){
     	
-    	console.log(data);
     	
     	var tplMature = this.getMirnaMatureTemplate();
     	var tplGene = this.getMirnaGeneTemplate();
@@ -213,6 +212,7 @@ MirnaInfoWidget.prototype.getData = function (){
 MirnaInfoWidget.prototype.dataReceived = function (data){
 	var parseData = JSON.parse(data);
 	this.data=parseData[0];
+	console.log(this.data);
 	this.optionClick({"text":"miRNA","leaf":"true"});
 	this.panel.enable();
 	this.panel.setLoading(false);

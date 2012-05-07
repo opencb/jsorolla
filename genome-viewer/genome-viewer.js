@@ -20,6 +20,9 @@ function GenomeViewer(targetId, species, args) {
 	
 //	this.firstLoad=true;
 	
+	this.hasFocus=true;
+	
+	
 	//Setting paramaters
 	if (targetId != null){
 		this.targetId=targetId;
@@ -54,6 +57,12 @@ function GenomeViewer(targetId, species, args) {
 		}
 		if (args.version != null) {
 			this.version = args.version;
+		}
+		if (args.version != null) {
+			this.version = args.version;
+		}
+		if (args.hasFocus != null) {
+			this.hasFocus = args.hasFocus;
 		}
 	}
 
@@ -999,6 +1008,7 @@ GenomeViewer.prototype._drawGenomeWidget = function() {
 	                pixelRatio: pixelRatio,
 	                width:this.width - 17,
 	                lastPosition : this.lastPosition,
+	                hasFocus:this.hasFocus,
 	                viewer:this,
 //	                height:  this.height
 	                height:  2000

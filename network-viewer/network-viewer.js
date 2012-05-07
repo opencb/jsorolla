@@ -174,14 +174,13 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 		
 		this._panel = Ext.create('Ext.panel.Panel', {
 			renderTo:this.targetId,
-	    	border:false,
+			border : false,
 	    	width:width,
 	    	height:height,
 			cls:'x-unselectable',
 			layout: { type: 'vbox',align: 'stretch'},
 			region : 'center',
 			margins : '0 0 0 0',
-			border : false,
 			items :items
 		});
 	}

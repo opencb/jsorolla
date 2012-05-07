@@ -61,7 +61,7 @@ TFInfoWidget.prototype.optionClick = function (item){
 };
 
 TFInfoWidget.prototype.getProteinPanel = function(data){
-	if(data.length<=0 || data.length != null){
+	if(data==null){
 		return this.notFoundPanel;
 	}
     if(this.proteinPanel==null){
@@ -114,7 +114,7 @@ TFInfoWidget.prototype.getTranscriptPanel = function(data){
 };
 
 TFInfoWidget.prototype.getGenePanel = function(data){
-	if(data.length<=0 || data.length != null){
+	if(data==null){
 		return this.notFoundPanel;
 	}
     if(this.genePanel==null){
@@ -192,9 +192,7 @@ TFInfoWidget.prototype.getTargetGenesGrid = function(data){
 
 
 TFInfoWidget.prototype.getProteinFeatureGrid = function(data, type){
-	if(data.length<=0){
-		return this.notFoundPanel;
-	}
+//	console.log(data.length)
     if(this[type+"Grid"]==null){
 //    	console.log(data);
     	
@@ -211,11 +209,14 @@ TFInfoWidget.prototype.getProteinFeatureGrid = function(data, type){
 		
     	if(type!=null){
     		if(type=="Protein profile"){
-    			data = notMutaData;
+    			var data = notMutaData;
     		}
     		if(type=="Mutation sites"){
-    			data = mutaData;
+    			var data = mutaData;
     		}
+    	}
+    	if(data.length<=0){
+    		return this.notFoundPanel;
     	}
     	
     	var groupField = '';

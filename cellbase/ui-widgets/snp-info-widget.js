@@ -48,7 +48,7 @@ SnpInfoWidget.prototype.optionClick = function (item){
 };
 
 SnpInfoWidget.prototype.getInfoPanel = function(data){
-	if(data.length<=0 || data.length != null){
+	if(data==null){
 		return this.notFoundPanel;
 	}
     if(this.infoPanel==null){

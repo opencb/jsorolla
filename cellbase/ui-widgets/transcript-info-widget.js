@@ -59,7 +59,7 @@ TranscriptInfoWidget.prototype.optionClick = function (item){
 };
 
 TranscriptInfoWidget.prototype.getInfoPanel = function(data){
-	if(data.length<=0 || data.length != null){
+	if(data==null){
 		return this.notFoundPanel;
 	}
 	if(this.infoPanel==null){
@@ -81,7 +81,7 @@ TranscriptInfoWidget.prototype.getInfoPanel = function(data){
 };
 
 TranscriptInfoWidget.prototype.getGenePanel = function(data){
-	if(data.length<=0 || data.length != null){
+	if(data==null){
 		return this.notFoundPanel;
 	}
     if(this.genePanel==null){

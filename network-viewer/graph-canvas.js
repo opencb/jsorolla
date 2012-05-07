@@ -638,11 +638,11 @@ GraphCanvas.prototype.setBackgroundImage = function(){
 			this.NodeSVGbackgroundImage.parentNode.removeChild(this.NodeSVGbackgroundImage);
 		} 
 		
-		/**/
+		/*XXX*/
 //		console.log(document.getElementById(this.targetID));
 //		console.log($('#' + this.targetID));
 //		console.log(this.targetID);
-		/**/
+		/*XXX*/
 		
 		$('#' + this.targetID).svg();
 		$('#' + this.targetID).svg("get");

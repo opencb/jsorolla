@@ -8,7 +8,9 @@ function CellBaseManager(species, args) {
 	   window.location.host.indexOf("rsanchez")!=-1 ||
 	   window.location.host.indexOf("imedina")!=-1 ||
 	   window.location.href.indexOf("http://bioinfo.cipf.es/apps/genomemaps-beta")!=-1 ||
-	   window.location.href.indexOf("172.24.76.48")!=-1
+	   window.location.href.indexOf("http://bioinfo.cipf.es/apps/renato-beta")!=-1 ||
+	   window.location.href.indexOf("http://bioinfo.cipf.es/apps/variant-beta")!=-1 ||
+	   window.location.host.indexOf("172.24.76.48")!=-1
 	){
 		this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
 //		this.host = "http://fsalavert:8080/cellbase/rest";
@@ -176,7 +178,7 @@ function CellBaseManager(species, args) {
 				async : this.async,
 				success : function(data, textStatus, jqXHR) {
 					try{
-						if(data==null){response="[]";}
+						if(data==""){console.log("data is empty");data="[]";}
 						var jsonResponse = JSON.parse(data);
 //					console.log(jsonResponse);
 						if (_this.batching){
@@ -186,7 +188,8 @@ function CellBaseManager(species, args) {
 						}
 					}
 					catch(e){
-						console.log("CellBaseManager: data returned was not json: "+data+" END");
+						console.log("CellBaseManager: data returned was not json: "+url+" :");
+						console.log(data+" END");
 					}
 					
 				},
@@ -240,9 +243,9 @@ function CellBaseManager(species, args) {
 }
 
 CellBaseManager.prototype.getQuery = function(paramsWS,url){
-	var char = "?";
+	var chr = "?";
 	if(url.indexOf("?")!=-1){
-		char = "&";
+		chr = "&";
 	}
 	var query = "";
 	for ( var key in paramsWS) {
@@ -250,6 +253,6 @@ CellBaseManager.prototype.getQuery = function(paramsWS,url){
 			query+=key+"="+paramsWS[key]+"&";
 	}
 	if(query!="")
-		query = char+query.substring(0, query.length-1);
+		query = chr+query.substring(0, query.length-1);
 	return query;
 };
