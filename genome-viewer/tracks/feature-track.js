@@ -281,6 +281,13 @@ FeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth, at
 			featureWidth = 2;
 		}
 		this.positions[Math.ceil(startPoint)] = true;
+		
+//		this.trackNodeGroup.addChildSVG("rect",{
+//			x: Math.ceil(startPoint),
+//			y: top,
+//			width: featureWidth,
+//			height: this.featureHeight
+//		});
 		var nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), top , featureWidth, this.featureHeight, this.trackNodeGroup, attributes);
 	
 		if (this.label) {

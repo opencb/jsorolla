@@ -177,7 +177,7 @@ function CellBaseManager(species, args) {
 				url : url,
 				async : this.async,
 				success : function(data, textStatus, jqXHR) {
-					try{
+//					try{
 						if(data==""){console.log("data is empty");data="[]";}
 						var jsonResponse = JSON.parse(data);
 //					console.log(jsonResponse);
@@ -186,11 +186,11 @@ function CellBaseManager(species, args) {
 						}else{
 							_this.successed.notify(jsonResponse);
 						}
-					}
-					catch(e){
-						console.log("CellBaseManager: data returned was not json: "+url+" :");
-						console.log(data+" END");
-					}
+//					}
+//					catch(e){
+//						console.log("CellBaseManager: data returned was not json: "+url+" :");
+//						console.log(data+" END");
+//					}
 					
 				},
 				complete : function() {
