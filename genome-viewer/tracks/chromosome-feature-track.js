@@ -322,7 +322,10 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 	}
 	
 	
-	var attributesClip = [["stroke", "black"],["stroke-width", "1"],["id", "clip"], ["fill", "pink"], ["rx", this.rounded], ["ry",  this.rounded], ["z-index", "0"]];
+//	var attributesClip = [["stroke", "black"],["stroke-width", "1"],["id", "clip"], ["fill", "pink"], ["rx", this.rounded], ["ry",  this.rounded], ["z-index", "0"]];
+	var attributesClip = {
+			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
+	};
 	
 	//Dibujamos la lineas del contenedor
 	if (this.vertical){
@@ -363,11 +366,25 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 		this.featureHeight = Math.ceil(this.bottom - this.top);
 		
-		var rect = SVG.createRectangle(this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
-		this.trackNodeGroup.appendChild(rect);
+//		var rect = SVG.createRectangle(this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
+//		this.trackNodeGroup.appendChild(rect);
+		//XXX falta attributesClip
+		this.trackNodeGroup.addChildSVG("rect",{
+			x: this.left,
+			y: this.top + 6,
+			width: endFirstCentromero,
+			height: this.featureHeight,
+		});
 		
-		rect = SVG.createRectangle( this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
-		this.trackNodeGroup.appendChild(rect);
+//		rect = SVG.createRectangle( this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
+//		this.trackNodeGroup.appendChild(rect);
+//		this.trackNodeGroup.addChildSVG("rect",{
+//			x: this.left,
+//			y: this.top + 6,
+//			width: endFirstCentromero,
+//			height: this.featureHeight,
+//		});
+		
 		
 		var clip = SVG.drawClip("clip_1"+this.id, rect, this.trackNodeGroup);
 		this.groupNodeFirstCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_1" +this.id+")"]]);

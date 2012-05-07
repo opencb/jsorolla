@@ -133,26 +133,27 @@ function TrackCanvas(trackerID, targetNode, args) {
 
 TrackCanvas.prototype.createSVGDom = function(targetID, id, width, height, backgroundColor) {
 	var container = DOM.select(targetID);
+	
 	this._svg = container.initSVG({
 		viewBox: "0 10 " + this.width + " " + this.height,
-		"preserveAspectRatio": "none", 
-		"id": id,
-		"height": this.height, 
-		"width": this.width, 
-		"background-color":"green"
+		preserveAspectRatio: "none",
+		id: id,
+		height: this.height,
+		width: this.width,
+		"background-color": "green"
 	});
-	/** Creating groups **/
+	
 	this.tracksGroup = this._svg.addChildSVG("g",{
-		"id": this.idMain,
-		"transform": "scale(" + this.zoom + ")"
+		id: this.idMain,
+		transform: "scale(" + this.zoom + ")"
 	});
 	
 	this.tracksGroup.addChildSVG("rect",{
-		x:"0", 
-		y:"0", 
-		width:this.viewBoxModule, 
-		height:this.height,
-		fill:"white"
+		x: "0",
+		y: "0",
+		width: this.viewBoxModule,
+		height: this.height,
+		fill: "white"
 	});
 	
 //	this._svg = SVG.createSVGCanvas(container, [
@@ -160,10 +161,11 @@ TrackCanvas.prototype.createSVGDom = function(targetID, id, width, height, backg
 //			[ "preserveAspectRatio", "none" ], [ "id", id ],
 //			[ "height", this.height ], [ "width", this.width ] , [ "background-color", "green" ]]);
 
-	/** Creating groups **/
+//	/** Creating groups **/
 //	this.tracksGroup = SVG.drawGroup(this._svg, [ [ "id", this.idMain ],[ "transform", "scale(" + this.zoom + ")" ] ]);
 	
 //	SVG.drawRectangle(0,0, this.viewBoxModule, this.height, this.tracksGroup, [["fill", "white"]]);
+	
 	return this._svg;
 };
 

@@ -159,17 +159,34 @@ Track.prototype._getViewBoxCoordenates  = function(id, width, height, background
 Track.prototype.createSVGDom = function(id, width, height, backgroundColor ) {
 	/** Si es null es porque estamos usando el track en modo standalone sin trackCanvas **/
 	if (this._svg == null){
-		this._svg = SVG.createSVGCanvas(DOM.select(this.targetID), [["viewBox", this._getViewBoxCoordenates()],["preserveAspectRatio", "none"],["id", id], ["height", this.height], ["width", this.width]]);
+		var container = DOM.select(this.targetID);
+		this._svg = container.initSVG({
+			viewBox: this._getViewBoxCoordenates(),
+			preserveAspectRatio: "none",
+			id: id,
+			height: this.height,
+			width: this.width
+		});
+		
+//		this._svg = SVG.createSVGCanvas(DOM.select(this.targetID), [["viewBox", this._getViewBoxCoordenates()],["preserveAspectRatio", "none"],["id", id], ["height", this.height], ["width", this.width]]);
 	}
 	
-	/** Creating groupds **/
-	this.mainNodeGroup = SVG.drawGroup(this._svg, [["id", this.idMain]]);
-	this.backgroundNodeGroup = SVG.drawGroup(this.mainNodeGroup, [["id", this.idBackground]]);
-	this.trackNodeGroup = SVG.drawGroup(this.mainNodeGroup, [["id", this.idTrack]]);
-	this.labelNodeGroup = SVG.drawGroup(this.mainNodeGroup, [["id", this.idNames]]);
-	this.titleNodeGroup = SVG.drawGroup(this.mainNodeGroup, [["id", this.idTitleGroup]]);
+	/** Creating groups **/
+	this.mainNodeGroup = this._svg.addChildSVG("g", {id: this.idMain});
+	this.backgroundNodeGroup = this.mainNodeGroup.addChildSVG("g", {id: this.idBackground});
+	this.trackNodeGroup = this.mainNodeGroup.addChildSVG("g", {id: this.idTrack});
+	this.labelNodeGroup = this.mainNodeGroup.addChildSVG("g", {id: this.idNames});
+	this.titleNodeGroup = this.mainNodeGroup.addChildSVG("g", {id: this.idTitleGroup});
+	
+	
+//	this.mainNodeGroup = SVG.drawGroup(this._svg, [["id", this.idMain]]);
+//	this.backgroundNodeGroup = SVG.drawGroup(this.mainNodeGroup, [["id", this.idBackground]]);
+//	this.trackNodeGroup = SVG.drawGroup(this.mainNodeGroup, [["id", this.idTrack]]);
+//	this.labelNodeGroup = SVG.drawGroup(this.mainNodeGroup, [["id", this.idNames]]);
+//	this.titleNodeGroup = SVG.drawGroup(this.mainNodeGroup, [["id", this.idTitleGroup]]);
 	
 	/** background rectangle for giving colors **/
+	//XXX Este ya estaba comentado
 //	var rect = SVG.drawRectangle(0, this.top, this.width , this.height, this.backgroundNodeGroup, [["fill", backgroundColor],[id, id + "_background"]]);
 	this.drawBackground();
 	return this._svg;

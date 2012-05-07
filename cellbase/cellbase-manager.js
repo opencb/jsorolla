@@ -188,9 +188,8 @@ function CellBaseManager(species, args) {
 						}
 //					}
 //					catch(e){
-//						data2 = $.trim(data);
 //						console.log("CellBaseManager: data returned was not json: "+url+" :");
-//						console.log(data+" END "+ data.length+" "+data2.length);
+//						console.log(data+" END");
 //					}
 					
 				},

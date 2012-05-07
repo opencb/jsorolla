@@ -73,8 +73,7 @@ var SVG =
 			console.log("-------------------- ");
 		}
 		return shape;
-	},
-	
+	}
 };
 
 
