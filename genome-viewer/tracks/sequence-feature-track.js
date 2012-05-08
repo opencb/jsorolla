@@ -70,7 +70,13 @@ SequenceFeatureTrack.prototype.getTextId = function(startPoint){
 };
 
 SequenceFeatureTrack.prototype._textId = function(startPoint, top, featureWidth, attributes, feature){
-	SVG.drawText(Math.ceil(startPoint) + 2, Math.ceil(top) + 8, feature.base, this.trackNodeGroup, [["font-size", "8"], ["id", this.getTextId(startPoint)]]);
+	attributes["x"] = Math.ceil(startPoint) + 2;
+	attributes["y"] = Math.ceil(top) + 8;
+	attributes["font-size"] = "8";
+	attributes["id"] = this.getTextId(startPoint);
+	this.trackNodeGroup.addChildSVG("text", attributes).textContent = feature.base;
+	
+//	SVG.drawText(Math.ceil(startPoint) + 2, Math.ceil(top) + 8, feature.base, this.trackNodeGroup, [["font-size", "8"], ["id", this.getTextId(startPoint)]]);
 };
 
 SequenceFeatureTrack.prototype._removeTextBase = function(startPoint, top, featureWidth, attributes, feature){
@@ -78,7 +84,13 @@ SequenceFeatureTrack.prototype._removeTextBase = function(startPoint, top, featu
 };
 
 SequenceFeatureTrack.prototype._drawTextBase = function(startPoint, top, featureWidth, attributes, feature){
-	SVG.drawText(Math.ceil(startPoint) + 2, Math.ceil(top) + 8, feature.base, this.trackNodeGroup, [["font-size", "8"], ["id", "id_seq_" + startPoint]]);
+	attributes["x"] = Math.ceil(startPoint) + 2;
+	attributes["y"] = Math.ceil(top) + 8;
+	attributes["font-size"] = "8";
+	attributes["id"] = "id_seq_" + startPoint;
+	this.trackNodeGroup.addChildSVG("text", attributes).textContent = feature.base;
+	
+//	SVG.drawText(Math.ceil(startPoint) + 2, Math.ceil(top) + 8, feature.base, this.trackNodeGroup, [["font-size", "8"], ["id", "id_seq_" + startPoint]]);
 };
 
 
