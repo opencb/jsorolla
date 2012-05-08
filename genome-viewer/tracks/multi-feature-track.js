@@ -425,7 +425,15 @@ MultiFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidt
 	var nodeSVG;
 	
 	if (feature instanceof TranscriptFeatureFormatter){
-		SVG.drawLine(startPoint, top + (this.featureHeight/2), startPoint + Math.ceil(featureWidth), top + (this.featureHeight/2), this.trackNodeGroup, this._setAttributes(feature));
+		
+//		SVG.drawLine(startPoint, top + (this.featureHeight/2), startPoint + Math.ceil(featureWidth), top + (this.featureHeight/2), this.trackNodeGroup, this._setAttributes(feature));
+	
+		var attr = this._setAttributes(feature);
+		attr["x1"] = startPoint;
+		attr["y1"] = top + (this.featureHeight/2);
+		attr["x2"] = startPoint + Math.ceil(featureWidth);
+		attr["y2"] = top + (this.featureHeight/2);
+		this.trackNodeGroup.addChildSVG("line",attr);
 	}
 	else{
 //		nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), Math.ceil(top), featureWidth, this.featureHeight, this.trackNodeGroup, attributes);
