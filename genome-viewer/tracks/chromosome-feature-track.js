@@ -335,8 +335,17 @@ ChromosomeFeatureTrack.prototype.select = function(start, end) {
 			
 			var left = this.left + start*pixelInc;
 			var width = Math.ceil((end - start)*pixelInc);
-			var attributes = [["stroke", "red"],["stroke-width", "1"],["id", this.selector.id], ["cursor", "move"], ["fill", this.selectcolor], ["fill-opacity", "0.1"]];
-			this.selector.selectorSVG = SVG.drawRectangle(left, this.top + 6 , width, (this.bottom - this.top), this.trackNodeGroup, attributes);
+			
+			this.selector.selectorSVG = this.trackNodeGroup.addChildSVG("rect",{
+				x: left,
+				y: this.top + 6,
+				width: width,
+				height: this.bottom - this.top,
+				"stroke": "red","stroke-width": "1","id": this.selector.id, "fill": this.selectcolor, "fill-opacity":  "0.1", "cursor": "move"
+			});
+			
+//			var attributes = [["stroke", "red"],["stroke-width", "1"],["id", this.selector.id], ["cursor", "move"], ["fill", this.selectcolor], ["fill-opacity", "0.1"]];
+//			this.selector.selectorSVG = SVG.drawRectangle(left, this.top + 6 , width, (this.bottom - this.top), this.trackNodeGroup, attributes);
 			
 //			this.selector.selectorBorder
 			
@@ -396,7 +405,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 //		var clip = SVG.drawClip("clip_1"+this.id, rect, this.trackNodeGroup);
 		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
-			id:"clip_1"+this.id,
+			id:"clip_1"+this.id
 		});
 		clip.appendChild(rect);
 		
@@ -427,7 +436,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 //		clip = SVG.drawClip("clip_2"+this.id, rect, this.trackNodeGroup);
 		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
-			id:"clip_2"+this.id,
+			id:"clip_2"+this.id
 		});
 		clip.appendChild(rect);
 		
@@ -466,7 +475,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 //		var clip = SVG.drawClip("clip_1"+this.id, rect, this.trackNodeGroup);
 		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
-			id:"clip_1"+this.id,
+			id:"clip_1"+this.id
 		});
 		clip.appendChild(rect);
 		
@@ -500,7 +509,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 //		clip = SVG.drawClip("clip_2"+this.id, rect, this.trackNodeGroup);
 		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
-			id:"clip_2"+this.id,
+			id:"clip_2"+this.id
 		});
 		clip.appendChild(rect);
 		
@@ -526,7 +535,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 						x:this.left,
 						y:this.height,
 						"id": this.id_ + "title" ,
-						"font-size": "9",
+						"font-size": "9"
 					}).textContent=feature.chromosome;
 					
 				}
