@@ -69,6 +69,7 @@ SequenceFeatureTrack.prototype._drawFeature = function(startPoint, top, featureW
 	attributes["y"] = Math.ceil(top); 
 	attributes["width"] = this.pixelRatio; 
 	attributes["height"] = this.featureHeight;
+	attributes["stroke-width"] = "1";
 	
 //	var nodeSVG = SVG.drawRectangle( startPoint , Math.ceil(top), this.pixelRatio, this.featureHeight, this.trackNodeGroup, attributes);
 	
