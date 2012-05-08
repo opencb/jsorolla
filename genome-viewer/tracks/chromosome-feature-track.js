@@ -194,9 +194,22 @@ ChromosomeFeatureTrack.prototype.mark = function(feature, color) {
 	if (this.vertical){
 		var top = this.top + start*pixelInc;
 		var height = (end - start)*pixelInc ;
-		var attributes = [["stroke", "black"],["stroke-width", "1"],["id", this.getMarkIDFromFeature(feature)], ["fill", this.markcolor], ["opacity", "1"],["cursor", "pointer"]];
 		
-		var node = SVG.drawPoligon([[this.right + 6, top - 3] , [this.right, top],  [this.right + 6, top + 3]], this.trackNodeGroup, attributes);
+		
+//		var attributes = [["stroke", "black"],["stroke-width", "1"],["id", this.getMarkIDFromFeature(feature)], ["fill", this.markcolor], ["opacity", "1"],["cursor", "pointer"]];
+//		var node = SVG.drawPoligon([[this.right + 6, top - 3] , [this.right, top],  [this.right + 6, top + 3]], this.trackNodeGroup, attributes);
+		
+		var node = this.trackNodeGroup.addChildSVG("polygon",{
+			"points": [[this.right + 6, top - 3] , [this.right, top],  [this.right + 6, top + 3]],
+			"stroke": "black",
+			"stroke-width": "1",
+			"id": this.getMarkIDFromFeature(feature),
+			"fill": this.markcolor,
+			"opacity": "1",
+			"cursor": "pointer"
+		});
+		
+		
 		
 		node.addEventListener("click", function(evt){ 
 			
@@ -215,10 +228,32 @@ ChromosomeFeatureTrack.prototype.mark = function(feature, color) {
 	}
 	else{
 		var left = this.left + start*pixelInc;
-		var attributes = [["id", this.markers.length], ["fill", this.markcolor], ["opacity", "1"]];
-		SVG.drawRectangle(left, this.top, width, (this.bottom - this.top) + this.radio + 5, this.trackNodeGroup, attributes);
-		var attributes = [["id", id], ["fill", this.markcolor], ["opacity", "1"],["stroke", "black"]];
-		SVG.drawCircle(left , (this.bottom) + this.radio + 5, this.radio, this.trackNodeGroup, attributes);
+//		var attributes = [["id", this.markers.length], ["fill", this.markcolor], ["opacity", "1"]];
+//		SVG.drawRectangle(left, this.top, width, (this.bottom - this.top) + this.radio + 5, this.trackNodeGroup, attributes);
+		
+		this.trackNodeGroup.addChildSVG("rect",{
+			"x":left,
+			"y":this.top,
+			"width":width,
+			"height":(this.bottom - this.top) + this.radio + 5,
+			"id": this.markers.length,
+			"fill": this.markcolor,
+			"opacity": "1"
+		});
+		
+		
+//		var attributes = [["id", id], ["fill", this.markcolor], ["opacity", "1"],["stroke", "black"]];
+//		SVG.drawCircle(left , (this.bottom) + this.radio + 5, this.radio, this.trackNodeGroup, attributes);
+		
+		this.trackNodeGroup.addChildSVG("circle",{
+			"cx":left,
+			"cy":(this.bottom) + this.radio + 5,
+			"radio":this.radio,
+			"id": id,
+			"fill": this.markcolor,
+			"opacity": "1",
+			"stroke": "black"
+		});
 	}
 };
 
