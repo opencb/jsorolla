@@ -283,13 +283,14 @@ FeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth, at
 		console.log(attributes)
 		this.positions[Math.ceil(startPoint)] = true;
 		
-//		this.trackNodeGroup.addChildSVG("rect",{
-//			x: Math.ceil(startPoint),
-//			y: top,
-//			width: featureWidth,
-//			height: this.featureHeight
-//		});
-		var nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), top , featureWidth, this.featureHeight, this.trackNodeGroup, attributes);
+		
+		attributes["x"] = Math.ceil(startPoint);
+		attributes["y"] = top;
+		attributes["width"] = featureWidth;
+		attributes["height"] = this.featureHeight;
+		this.trackNodeGroup.addChildSVG("rect", attributes);
+		
+//		var nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), top , featureWidth, this.featureHeight, this.trackNodeGroup, attributes);
 	
 		if (this.label) {
 			this._renderLabel(Math.ceil(startPoint) ,  Math.ceil(top) + (this.featureHeight + this.labelHeight) , feature.label, this._setTextAttributes(feature), feature);
@@ -299,7 +300,14 @@ FeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth, at
 
 FeatureTrack.prototype._renderLabel = function(start, top, label, attributes, formatter){
 	var _this = this;
-	var SVGNode = SVG.drawText(start , top , label, this.labelNodeGroup, attributes);
+	
+	attributes["x"] = start;
+	attributes["y"] = top;
+	var SVGNode = this.labelNodeGroup.addChildSVG("text", attributes);
+	SVGNode.textContent = label;
+	
+//	var SVGNode = SVG.drawText(start , top , label, this.labelNodeGroup, attributes);
+	
 	SVGNode.addEventListener("click", function() {
 		_this.onClick.notify(formatter);
 		try{
