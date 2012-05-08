@@ -404,9 +404,31 @@ FeatureTrack.prototype.drawTitle = function(middle, args){
 	
 	
 	if (this.isAvalaible){
-		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["id", "trackTitleBox"+this.internalId]];
-		this.titleRectangle = SVG.drawRectangle(coordenateX , this.top, this.titleWidth , this.height, this.titleNodeGroup, attributes);
-		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize], ["id", "trackTitleText"+this.internalId]]);
+		
+//		var attributes = [["fill", "#FFFFFF"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 4], ["ry", 4], ["id", "trackTitleBox"+this.internalId]];
+//		this.titleRectangle = SVG.drawRectangle(coordenateX , this.top, this.titleWidth , this.height, this.titleNodeGroup, attributes);
+		this.titleRectangle = this.titleNodeGroup.addChildSVG("rect",{
+			"x":coordenateX,
+			"y":this.top, 
+			"width":this.titleWidth, 
+			"height":this.height,
+			"rx": 4,
+			"ry": 4,
+			"fill": "#FFFFFF",
+			"stroke": "#000000",
+			"opacity": 0.7,
+			"id": "trackTitleBox"+this.internalId
+		});
+		
+//		this.titleText = SVG.drawText(coordenateX + 2, this.top + this.titleHeight - 3, this.titleName, this.titleNodeGroup, [["font-size", this.titleFontSize], ["id", "trackTitleText"+this.internalId]]);
+		this.titleText = this.titleNodeGroup.addChildSVG("text",{
+			"x":coordenateX + 2,
+			"y":this.top + this.titleHeight - 3,
+			"font-size": this.titleFontSize,
+			"id": "trackTitleText"+this.internalId
+		});
+		this.titleText.textContent=this.titleName;
+		
 	}
 	else{
 		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0], ["id", "trackTitleBox"+this.internalId]];

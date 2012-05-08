@@ -96,7 +96,9 @@ MultiFeatureTrack.prototype._renderLabel = function(start, top, label, attribute
 	attributes["x"]=start;
 	attributes["y"]=top;
 	attributes["font-size"]="10";
-	return this.labelNodeGroup.addChildSVG("text",attributes).textContent=label;
+	var lbl = this.labelNodeGroup.addChildSVG("text",attributes);
+	lbl.textContent=label;
+	return lbl;
 };
 
 MultiFeatureTrack.prototype._setTextAttributes = function(feature) {
