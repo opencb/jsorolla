@@ -27,6 +27,15 @@ Element.prototype.initSVG = function(attributes){
 	return this.addChildSVG("svg", attributes);
 };
 
+createSVG = function(elementName, attributes){
+	var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
+	for ( var key in attributes){
+		el.setAttribute(key, attributes[key]);
+	}
+	return el;
+};
+
+
 
 var SVG =
 {
