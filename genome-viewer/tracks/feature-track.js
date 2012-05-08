@@ -473,9 +473,9 @@ FeatureTrack.prototype.drawTitle = function(middle, args){
 			"id": "trackTitleText"+this.internalId
 		}).textContent = this.titleName + ": " + this.isNotAvalaibleMessage;
 		
-		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0], ["id", "trackTitleBox"+this.internalId]];
-		SVG.drawRectangle(coordenateX , this.top, this.width , this.height, this.titleNodeGroup, attributes);
-		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize], ["id", "trackTitleText"+this.internalId]]);
+//		var attributes = [["fill", "#FFFFCC"], ["stroke", "#000000"], ["opacity", 0.7], ["rx", 0], ["ry", 0], ["id", "trackTitleBox"+this.internalId]];
+//		SVG.drawRectangle(coordenateX , this.top, this.width , this.height, this.titleNodeGroup, attributes);
+//		SVG.drawText(coordenateX + 2, this.top + this.height - 4, this.titleName + ": " + this.isNotAvalaibleMessage, this.titleNodeGroup, [["font-size", this.titleFontSize], ["id", "trackTitleText"+this.internalId]]);
 	}
 };
 
