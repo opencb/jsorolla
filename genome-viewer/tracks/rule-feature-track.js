@@ -103,11 +103,28 @@ RuleFeatureTrack.prototype.select = function(midlle, args){
 	
 	if( this.trackNodeGroup != null){
 	
-		var attributes = [["fill", "green"],["stroke-width", "1"], ["opacity",0.5]];
+//		var attributes = [["fill", "green"],["stroke-width", "1"], ["opacity",0.5]];
 		var coordenateX = this._convertGenomePositionToPixelPosition(midlle);
-//		this.selectedMiddleLine = SVG.drawLine(Math.ceil(coordenateX),  this.top + this.horizontalRuleTop, Math.ceil(coordenateX), this.ruleHeight + 10000, this.trackNodeGroup, attributes);
-		this.selectedMiddleLine = SVG.drawRectangle((coordenateX)  ,  this.top + this.horizontalRuleTop, widthLine, this.ruleHeight + 10000, this.trackNodeGroup, attributes);
-		this.textMiddleLine = SVG.drawText(Math.ceil(coordenateX) - 15, this.top + this.horizontalRuleTop, this._prettyNumber(midlle), this.trackNodeGroup, [["font-size", "9"], ["fill", "green"]]);
+////		this.selectedMiddleLine = SVG.drawLine(Math.ceil(coordenateX),  this.top + this.horizontalRuleTop, Math.ceil(coordenateX), this.ruleHeight + 10000, this.trackNodeGroup, attributes);
+//		this.selectedMiddleLine = SVG.drawRectangle((coordenateX)  ,  this.top + this.horizontalRuleTop, widthLine, this.ruleHeight + 10000, this.trackNodeGroup, attributes);
+		
+		this.selectedMiddleLine = this.trackNodeGroup.addChildSVG("rect",{
+			"x": coordenateX,
+			"y": this.top + this.horizontalRuleTop,
+			"width": widthLine,
+			"height": this.ruleHeight + 10000,
+			"fill": "green",
+			"stroke-width": "1",
+			"opacity":0.5
+		});
+//		this.textMiddleLine = SVG.drawText(Math.ceil(coordenateX) - 15, this.top + this.horizontalRuleTop, this._prettyNumber(midlle), this.trackNodeGroup, [["font-size", "9"], ["fill", "green"]]);
+		this.textMiddleLine = this.trackNodeGroup.addChildSVG("text",{
+			"x":Math.ceil(coordenateX) - 15,
+			"y":this.top + this.horizontalRuleTop,
+			"font-size": "9",
+			"fill": "green"
+		});
+		this.textMiddleLine.textContent = this._prettyNumber(midlle);
 	}
 };
 
