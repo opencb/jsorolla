@@ -408,7 +408,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		var rect = this.trackNodeGroup.addChildSVG("rect",{
 			x: this.left,
 			y: rectTop,
-			width: this.featureHeight+2+10,
+			width: this.featureHeight+2+3,
 			height: rectHeight,
 			"stroke": "navy","stroke-width": "1","id": "clip", "fill": "none", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
 		});
@@ -420,7 +420,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		var rect = this.trackNodeGroup.addChildSVG("rect",{
 			x: this.left,
 			y: rectTop,
-			width: this.featureHeight+2+10,
+			width: this.featureHeight+2+3,
 			height: rectHeight-1,
 			"stroke": "navy","stroke-width": "1","id": "clip", "fill": "none", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
 		});		
@@ -521,7 +521,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 				if (this.vertical){
 //					SVG.drawText(this.left  , this.height, feature.chromosome, this.labelNodeGroup, textAttr);
 					this.labelNodeGroup.addChildSVG("text",{
-						x:this.left+7,
+						x:this.left+2,
 						y:this.height,
 						"id": this.id_ + "title" ,
 						"font-size": "9"
@@ -550,7 +550,7 @@ ChromosomeFeatureTrack.prototype._drawCytoband = function (feature){
 		var nodeAttr = {
 				x:Math.ceil(this.left),
 				y:Math.ceil(this.top + this.pixelInc  * (feature.start - this.start)),
-				width:Math.ceil(this.right-this.left)+10,
+				width:Math.ceil(this.right-this.left)+3,
 				height:Math.ceil(exonWidth),
 				"fill": color, "id": this.id+"_" + feature.cytoband, "z-index": "10", "stroke": stroke, "style": "cursor:pointer"
 		};

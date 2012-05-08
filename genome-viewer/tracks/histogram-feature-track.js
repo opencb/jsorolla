@@ -116,19 +116,29 @@ HistogramFeatureTrack.prototype._updateTop = function(){
 };
 
 HistogramFeatureTrack.prototype._setAttributes = function(feature){
-	var attributes = [["id", this.id + "_" + feature.start + "_" + feature.id]];
+//	var attributes = [["id", this.id + "_" + feature.start + "_" + feature.id]];
+	
+	var attributes = {
+		"id": this.id + "_" + feature.start + "_" + feature.id
+	};
+	
 	if (this.forceColor != null){
-		attributes.push(["fill", this.forceColor]);
+		attributes["fill"] = this.forceColor;
 	}
 	else{
-		attributes.push(["fill", "red"]);
+		attributes["fill"] = "red";
 	}
 	return attributes;
 };
 
 
 HistogramFeatureTrack.prototype._setTextAttributes = function(feature){
-	var attributes = [["fill", "black"],["id", this.id+"_" + feature.start], ["cursor", "pointer"]];
+//	var attributes = [["fill", "black"],["id", this.id+"_" + feature.start], ["cursor", "pointer"]];
+	var attributes = {
+			"fill" : "black",
+			"id": this.id+"_" + feature.start,
+			"cursor": "pointer"
+		};
 	return attributes;
 };
 
@@ -138,16 +148,29 @@ HistogramFeatureTrack.prototype._drawFeature = function(startPoint, top, feature
 	if (featureWidth < 0){featureWidth = 2;}
 	this.positions[Math.ceil(startPoint)] = true;
 	
-	var nodeSVG;
-	if (feature.value == null){
-		nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), top + (this.featureHeight - ( feature.value*Math.abs(this.featureHeight))), featureWidth , feature.value*Math.abs(this.featureHeight) , this.trackNodeGroup, attributes);
-	}
-	else{
-		nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), top + (this.featureHeight - ( feature.value*Math.abs(this.featureHeight))), featureWidth , feature.value*Math.abs(this.featureHeight) , this.trackNodeGroup, attributes);
-	}
+//	var nodeSVG;
+//	if (feature.value == null){
+//		nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), top + (this.featureHeight - ( feature.value*Math.abs(this.featureHeight))), featureWidth , feature.value*Math.abs(this.featureHeight) , this.trackNodeGroup, attributes);
+		
+		attributes["x"] = Math.ceil(startPoint);
+		attributes["y"] = top + (this.featureHeight - ( feature.value*Math.abs(this.featureHeight)));
+		attributes["width"] = featureWidth;
+		attributes["height"] = feature.value*Math.abs(this.featureHeight);
+		this.trackNodeGroup.addChildSVG("rect",attributes);
+//	}
+//	else{
+//		nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), top + (this.featureHeight - ( feature.value*Math.abs(this.featureHeight))), featureWidth , feature.value*Math.abs(this.featureHeight) , this.trackNodeGroup, attributes);
+//	}
 	
 	if (this.label){
-		var textSVG = SVG.drawText(Math.ceil(startPoint) + 12, Math.ceil(top) + this.featureHeight , feature.label, this.labelNodeGroup, this._setTextAttributes(feature));
+		
+//		var textSVG = SVG.drawText(Math.ceil(startPoint) + 12, Math.ceil(top) + this.featureHeight , feature.label, this.labelNodeGroup, this._setTextAttributes(feature));
+		var attr = this._setTextAttributes(feature);
+		attr["x"] = Math.ceil(startPoint) + 12;
+		attr["y"] = Math.ceil(top) + this.featureHeight;
+		var textSVG = this.labelNodeGroup.addChildSVG("text",attr);
+		textSVG.textContent=feature.label;
+		
 		textSVG.addEventListener("click", function(){ _this.onClick.notify(feature);}, true);
 	}
 	
