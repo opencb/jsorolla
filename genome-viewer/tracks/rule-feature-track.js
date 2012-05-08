@@ -115,12 +115,37 @@ RuleFeatureTrack.prototype.select = function(midlle, args){
 RuleFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth, attributes, feature){
 	if (this.trackNodeGroup != null){
 		if (feature.isLabeled){
-			SVG.drawText(Math.ceil(startPoint) + 2, top + 10 , this._prettyNumber(feature.start), this.labelNodeGroup, [["font-size", "10"]]);
-			SVG.drawLine(Math.ceil(startPoint), top, Math.ceil(startPoint), this.ruleHeight + 10000, this.trackNodeGroup, [["stroke", "#000000"], ["opacity",feature.getDefault().getOpacity()]]);
+//			SVG.drawText(Math.ceil(startPoint) + 2, top + 10 , this._prettyNumber(feature.start), this.labelNodeGroup, [["font-size", "10"]]);
+//			SVG.drawLine(Math.ceil(startPoint), top, Math.ceil(startPoint), this.ruleHeight + 10000, this.trackNodeGroup, [["stroke", "#000000"], ["opacity",feature.getDefault().getOpacity()]]);
+		
+		
+			this.labelNodeGroup.addChildSVG("text",{
+				"x":Math.ceil(startPoint) + 2,
+				"y":top + 10,
+				"font-size": "10"
+			}).textContent=this._prettyNumber(feature.start);
+			
+			this.trackNodeGroup.addChildSVG("line",{
+				"x1":Math.ceil(startPoint), 
+				"y1":top, 
+				"x2":Math.ceil(startPoint), 
+				"y2":this.ruleHeight + 10000,
+				"stroke": "#000000",
+				"opacity":feature.getDefault().getOpacity()
+			});
+			
 		}
 		else{
 			//Es una linea divisoria
-			SVG.drawLine(Math.ceil(startPoint),  top + this.horizontalRuleTop, Math.ceil(startPoint), this.ruleHeight + 10000, this.trackNodeGroup, [["stroke", "#000000"], ["opacity",feature.getDefault().getOpacity()]]);
+//			SVG.drawLine(Math.ceil(startPoint),  top + this.horizontalRuleTop, Math.ceil(startPoint), this.ruleHeight + 10000, this.trackNodeGroup, [["stroke", "#000000"], ["opacity",feature.getDefault().getOpacity()]]);
+			this.trackNodeGroup.addChildSVG("line",{
+				"x1":Math.ceil(startPoint), 
+				"y1":top + this.horizontalRuleTop, 
+				"x2":Math.ceil(startPoint), 
+				"y2":this.ruleHeight + 10000,
+				"stroke": "#000000",
+				"opacity":feature.getDefault().getOpacity()
+			});
 		}
 		
 		if (!this.horizontalRuleDrawn){
@@ -128,7 +153,17 @@ RuleFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth
 			if ((this.lastPosition*this.pixelRatio) < this.viewBoxModule){
 				lastPositionRec = this.lastPosition*this.pixelRatio;
 			} 
-			SVG.drawRectangle(0, top, lastPositionRec, this.height, this.trackNodeGroup, [["fill", "gray"], ["stroke", "#000000"], ["opacity", 0.5]]);
+//			SVG.drawRectangle(0, top, lastPositionRec, this.height, this.trackNodeGroup, [["fill", "gray"], ["stroke", "#000000"], ["opacity", 0.5]]);
+			this.trackNodeGroup.addChildSVG("rect",{
+				"x":0,
+				"y":top, 
+				"width":lastPositionRec, 
+				"height":this.height,
+				"fill": "gray",
+				"stroke": "#000000",
+				"opacity": 0.5
+			});
+			
 			this.horizontalRuleDrawn = true;
 		}
 	}

@@ -282,8 +282,18 @@ ChromosomeFeatureTrack.prototype.select = function(start, end) {
 			pixelInc = this.getPixelScale();
 			var top =   Math.ceil(this.top + pixelInc * (start)); //this.top + start*pixelInc;
 			var height = (end - start)*pixelInc ;
-			var attributes = [["stroke", "black"],["stroke-width", "1"],["id", this.selector.id], ["cursor", "move"], ["fill", this.selectcolor], ["opacity", "1"]];
-			this.selector.selectorSVG = SVG.drawPoligon([[0, top - 5] , [this.left, top],  [0, top + 5]], this.trackNodeGroup, attributes);
+//			var attributes = [["stroke", "black"],["stroke-width", "1"],["id", this.selector.id], ["cursor", "move"], ["fill", this.selectcolor], ["opacity", "1"]];
+//			this.selector.selectorSVG = SVG.drawPoligon([[0, top - 5] , [this.left, top],  [0, top + 5]], this.trackNodeGroup, attributes);
+			
+			this.selector.selectorSVG = this.trackNodeGroup.addChildSVG("polygon",{
+				"points":[[0, top - 5] , [this.left, top],  [0, top + 5]],
+				"stroke": "black",
+				"stroke-width": "1",
+				"id": this.selector.id,
+				"cursor": "move",
+				"fill": this.selectcolor, 
+				"opacity": "1"
+			});
 			
 		}
 		else{
@@ -335,31 +345,62 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		var rectTop = endFirstCentromero + this.top ;
 		var rectHeight = this.bottom - endFirstCentromero - this.top ;// this.bottom -  this.top ;// this.bottom -  this.top - border ;
 		
-		var rect = SVG.createRectangle( this.left, rectTop,  this.featureHeight, rectHeight, attributesClip);
-		this.trackNodeGroup.appendChild(rect);
+//		var rect = SVG.createRectangle( this.left, rectTop,  this.featureHeight, rectHeight, attributesClip);
+//		this.trackNodeGroup.appendChild(rect);
+		var rect = this.trackNodeGroup.addChildSVG("rect",{
+			x: this.left,
+			y: rectTop,
+			width: this.featureHeight,
+			height: rectHeight,
+			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
+		});
 		
 		
-		rect = SVG.createRectangle(this.left, rectTop, this.featureHeight, rectHeight, attributesClip);
-		this.trackNodeGroup.appendChild(rect);
+//		rect = SVG.createRectangle(this.left, rectTop, this.featureHeight, rectHeight, attributesClip);
+//		this.trackNodeGroup.appendChild(rect);
 		
-		var clip = SVG.drawClip("clip_1"+this.id, rect, this.trackNodeGroup);
-		this.groupNodeFirstCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_1" +this.id+")"]]);
+//		var clip = SVG.drawClip("clip_1"+this.id, rect, this.trackNodeGroup);
+		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
+			id:"clip_1"+this.id,
+		});
+		clip.appendChild(rect);
 		
+//		this.groupNodeFirstCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_1" +this.id+")"]]);
+		this.groupNodeFirstCentromero = this.trackNodeGroup.addChildSVG("g",{
+			"id": "clip_group", 
+			"clip-path": "url(#clip_1" +this.id+")"
+		});
 		
 		//Segundo Centromero
 		var rectTop = this.top;
 		var rectHeight =  endFirstCentromero;
 		
 		
-		rect = SVG.createRectangle(this.left, rectTop + 1,  this.featureHeight, rectHeight, attributesClip);
-		this.trackNodeGroup.appendChild(rect);
+//		rect = SVG.createRectangle(this.left, rectTop + 1,  this.featureHeight, rectHeight, attributesClip);
+//		this.trackNodeGroup.appendChild(rect);
+//		
+		var rect = this.trackNodeGroup.addChildSVG("rect",{
+			x: this.left,
+			y: rectTop + 1,
+			width: this.featureHeight,
+			height: rectHeight,
+			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
+		});
+//		
+//		rect = SVG.createRectangle(this.left, rectTop + 1, this.featureHeight, rectHeight, attributesClip);
+//		this.trackNodeGroup.appendChild(rect);
 		
+//		clip = SVG.drawClip("clip_2"+this.id, rect, this.trackNodeGroup);
+		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
+			id:"clip_2"+this.id,
+		});
+		clip.appendChild(rect);
 		
-		rect = SVG.createRectangle(this.left, rectTop + 1, this.featureHeight, rectHeight, attributesClip);
-		this.trackNodeGroup.appendChild(rect);
-		
-		clip = SVG.drawClip("clip_2"+this.id, rect, this.trackNodeGroup);
-		groupNodeSecondCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_2" +this.id+")"]]);
+//		groupNodeSecondCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_2" +this.id+")"]]);
+		this.groupNodeSecondCentromero = this.trackNodeGroup.addChildSVG("g",{
+			"id": "clip_group", 
+			"clip-path": "url(#clip_2" +this.id+")"
+		});
 	}
 	else
 	{
@@ -369,11 +410,12 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 //		var rect = SVG.createRectangle(this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
 //		this.trackNodeGroup.appendChild(rect);
 		//XXX falta attributesClip
-		this.trackNodeGroup.addChildSVG("rect",{
+		var rect = this.trackNodeGroup.addChildSVG("rect",{
 			x: this.left,
 			y: this.top + 6,
 			width: endFirstCentromero,
 			height: this.featureHeight,
+			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
 		});
 		
 //		rect = SVG.createRectangle( this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
@@ -386,8 +428,18 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 //		});
 		
 		
-		var clip = SVG.drawClip("clip_1"+this.id, rect, this.trackNodeGroup);
-		this.groupNodeFirstCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_1" +this.id+")"]]);
+		
+//		var clip = SVG.drawClip("clip_1"+this.id, rect, this.trackNodeGroup);
+		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
+			id:"clip_1"+this.id,
+		});
+		clip.appendChild(rect);
+		
+//		this.groupNodeFirstCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_1" +this.id+")"]]);
+		this.groupNodeFirstCentromero = this.trackNodeGroup.addChildSVG("g",{
+			"id": "clip_group", 
+			"clip-path": "url(#clip_1" +this.id+")"
+		});
 		
 		
 		//Segundo Centromero
@@ -395,15 +447,33 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		var rectWidth =  Math.ceil(this.right - endFirstCentromero - this.left - 2); //this.left + this.right - border;
 		
 		
-		rect = SVG.createRectangle(rectLeft, this.top + 6,  rectWidth, this.featureHeight, attributesClip);
-		this.trackNodeGroup.appendChild(rect);
+//		rect = SVG.createRectangle(rectLeft, this.top + 6,  rectWidth, this.featureHeight, attributesClip);
+//		this.trackNodeGroup.appendChild(rect);
+//		
+//		rect = SVG.createRectangle(rectLeft, this.top + 6, rectWidth, this.featureHeight, attributesClip);
+//		this.trackNodeGroup.appendChild(rect);
+		//XXX falta attributesClip
+		var rect = this.trackNodeGroup.addChildSVG("rect",{
+			x: rectLeft,
+			y: this.top + 6,
+			width: rectWidth,
+			height: this.featureHeight,
+			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
+		});
 		
-		rect = SVG.createRectangle(rectLeft, this.top + 6, rectWidth, this.featureHeight, attributesClip);
-		this.trackNodeGroup.appendChild(rect);
 		
-		clip = SVG.drawClip("clip_2"+this.id, rect, this.trackNodeGroup);
-		groupNodeSecondCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_2" +this.id+")"]]);
 		
+//		clip = SVG.drawClip("clip_2"+this.id, rect, this.trackNodeGroup);
+		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
+			id:"clip_2"+this.id,
+		});
+		clip.appendChild(rect);
+		
+//		groupNodeSecondCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_2" +this.id+")"]]);
+		this.groupNodeSecondCentromero = this.trackNodeGroup.addChildSVG("g",{
+			"id": "clip_group", 
+			"clip-path": "url(#clip_2" +this.id+")"
+		});
 	}
 	
 	
@@ -414,9 +484,16 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 		if (i == 0){
 			if (this.label){
-				var textAttr = [["id", this.id_ + "title"],["font-size", "9"]];
+//				var textAttr = [["id", this.id_ + "title"],["font-size", "9"]];
 				if (this.vertical){
-					SVG.drawText(this.left  , this.height, feature.chromosome, this.labelNodeGroup, textAttr);
+//					SVG.drawText(this.left  , this.height, feature.chromosome, this.labelNodeGroup, textAttr);
+					this.labelNodeGroup.addChildSVG("text",{
+						x:this.left,
+						y:this.height,
+						"id": this.id_ + "title" ,
+						"font-size": "9",
+					}).textContent=feature.chromosome;
+					
 				}
 			}
 		}
@@ -429,37 +506,62 @@ ChromosomeFeatureTrack.prototype._drawCytoband = function (feature){
 	var node = null;
 	var exonWidth = (this.pixelInc  * (feature.end - feature.start));
 	
-	var attributes = [["fill", color],["id", this.id+"_" + feature.cytoband] , ["z-index", "10"],["stroke", stroke], ["style", "cursor:pointer"]];
+//	var attributes = [["fill", color],["id", this.id+"_" + feature.cytoband] , ["z-index", "10"],["stroke", stroke], ["style", "cursor:pointer"]];
 
 	if (this.maxFeatureEnd < feature.end){
 		this.maxFeatureEnd = feature.end;
 	}
 	
 	if (this.vertical){
-		node = SVG.createRectangle( Math.ceil(this.left), Math.ceil(this.top + this.pixelInc  * (feature.start - this.start)) , Math.ceil(this.right-this.left) , Math.ceil(exonWidth) ,  attributes);
+//		node = SVG.createRectangle( Math.ceil(this.left), Math.ceil(this.top + this.pixelInc  * (feature.start - this.start)) , Math.ceil(this.right-this.left) , Math.ceil(exonWidth) ,  attributes);
+		var nodeAttr = {
+				x:Math.ceil(this.left),
+				y:Math.ceil(this.top + this.pixelInc  * (feature.start - this.start)),
+				width:Math.ceil(this.right-this.left),
+				height:Math.ceil(exonWidth),
+				"fill": color, "id": this.id+"_" + feature.cytoband, "z-index": "10", "stroke": stroke, "style": "cursor:pointer"
+		};
 		if (!this.centromerosVisited){
-			groupNodeSecondCentromero.appendChild(node);
+			var node = this.groupNodeFirstCentromero.addChildSVG("rect",nodeAttr);
 		}
 		else{
-			this.groupNodeFirstCentromero.appendChild(node);
+			var node = this.groupNodeSecondCentromero.addChildSVG("rect",nodeAttr);
 		}
 	}
 	else{
-		node = SVG.createRectangle(Math.ceil(this.left + this.pixelInc  * (feature.start - this.start)), this.top , exonWidth , Math.ceil(this.featureHeight) + 6  ,attributes);
+//		node = SVG.createRectangle(Math.ceil(this.left + this.pixelInc  * (feature.start - this.start)), this.top , exonWidth , Math.ceil(this.featureHeight) + 6  ,attributes);
+		var nodeAttr = {
+			x:Math.ceil(this.left + this.pixelInc  * (feature.start - this.start)),
+			y:this.top,
+			width:exonWidth,
+			height:Math.ceil(this.featureHeight) + 6,
+			"fill": color, "id": this.id+"_" + feature.cytoband, "z-index": "10", "stroke": stroke, "style": "cursor:pointer"
+		};
 		if (!this.centromerosVisited){
-			this.groupNodeFirstCentromero.appendChild(node);
+			var node = this.groupNodeFirstCentromero.addChildSVG("rect",nodeAttr);
 		}
 		else{
-			groupNodeSecondCentromero.appendChild(node);
+			var node = this.groupNodeSecondCentromero.addChildSVG("rect",nodeAttr);
 		}
 		
 		
 		if (this.label){
-			var textAttr = [["fill", "black"],["id", this.id_ + "title"] ,["opacity", "1"],["font-size", "10"]];
 			var x = this.left + this.pixelInc  * ((feature.start + (feature.end - feature.start)/2) - this.start);
 			var y = this.height - 23;
-			textAttr.push(["transform", "translate("+ x +", " + y + "), rotate(90)"]);
-			SVG.drawText(0, 0, feature.cytoband, this.labelNodeGroup, textAttr);
+//			var textAttr = {"fill": "black","id": this.id_ + "title" ,"opacity": "1", "font-size": "10",
+//					"transform": "translate("+ x +", " + y + "), rotate(90)"
+//			};
+//			textAttr.push(["transform", "translate("+ x +", " + y + "), rotate(90)"]);
+//			SVG.drawText(0, 0, feature.cytoband, this.labelNodeGroup, textAttr);
+			this.labelNodeGroup.addChildSVG("text",{
+				x:0,
+				y:0,
+				"fill": "black",
+				"id": this.id_ + "title" ,
+				"opacity": "1", 
+				"font-size": "10",
+				"transform": "translate("+ x +", " + y + "), rotate(90)"
+			}).textContent=feature.cytoband;
 		}
 	}
 

@@ -92,22 +92,33 @@ MultiFeatureTrack.prototype.moveTitle 	=       FeatureTrack.prototype.moveTitle;
 
 
 MultiFeatureTrack.prototype._renderLabel = function(start, top, label, attributes, formatter){
-	return SVG.drawText(start , top , label, this.labelNodeGroup, attributes);
+//	return SVG.drawText(start , top , label, this.labelNodeGroup, attributes);
+	attributes["x"]=start;
+	attributes["y"]=top;
+	attributes["font-size"]="10";
+	return this.labelNodeGroup.addChildSVG("text",attributes).textContent=label;
 };
 
 MultiFeatureTrack.prototype._setTextAttributes = function(feature) {
-	var attributes = [["fill", "black"],["id", this.id+"_" + feature.id],["cursor", "pointer"], ["font-size", this.labelSize]];
+//	var attributes = [["fill", "black"],["id", this.id+"_" + feature.id],["cursor", "pointer"], ["font-size", this.labelSize]];
+	
+	var attributes = {
+			"fill": "black",
+			"id": this.id+"_" + feature.id,
+			"cursor": "pointer",
+			"font-size": this.labelSize
+	};
 	
 	if ((feature instanceof TranscriptFeatureFormatter)&& this.showExonLabel){
-		attributes.push(["opacity", 0]);
+		attributes["opacity"] = 0;
 	}
 	
 	if ((feature instanceof ExonFeatureFormatter)&& this.onMouseOverShitExonTranscriptLabel){
-		attributes.push(["opacity", 0]);
+		attributes["opacity"] = 0;
 	}
 	
 	if ((feature instanceof ExonFeatureFormatter)&& !this.showExonLabell){
-		attributes.push(["opacity", 0]);
+		attributes["opacity"] = 0;
 	}
 	return attributes;
 };
@@ -204,22 +215,31 @@ MultiFeatureTrack.prototype._addFeatures = function(data){
 };
 
 MultiFeatureTrack.prototype._setAttributes = function(feature, filled){
-	var attributes = [["id", this.id+"_" + feature.name], ["style", "cursor:pointer"]];
-	attributes.push(["fill-opacity", feature.getDefault().getOpacity()]);
-	attributes.push(["stroke", feature.getDefault().getStroke()]);
-	attributes.push(["stroke-width", feature.getDefault().getStrokeWidth()]);
-	attributes.push(["stroke-opacity", feature.getDefault().getStrokeOpacity()]);
+//	var attributes = [["id", this.id+"_" + feature.name], ["style", "cursor:pointer"]];
+//	attributes.push(["fill-opacity", feature.getDefault().getOpacity()]);
+//	attributes.push(["stroke", feature.getDefault().getStroke()]);
+//	attributes.push(["stroke-width", feature.getDefault().getStrokeWidth()]);
+//	attributes.push(["stroke-opacity", feature.getDefault().getStrokeOpacity()]);
+	
+	attributes = {
+			"id": this.id+"_" + feature.name,
+			"style": "cursor:pointer",
+			"fill-opacity": feature.getDefault().getOpacity(),
+			"stroke": feature.getDefault().getStroke(),
+			"stroke-width": feature.getDefault().getStrokeWidth(),
+			"stroke-opacity": feature.getDefault().getStrokeOpacity()
+	};
 	
 	if (filled != null){
 		if(!filled){
-			attributes.push( [ "fill", "white" ]);
+			attributes["fill"] = "white";
 		}
 	}
 	else{
 		if (this.forceColor == null) {
-			attributes.push( [ "fill", feature.getDefault().getFill() ]);
+			attributes["fill"] = feature.getDefault().getFill();
 		} else {
-			attributes.push( [ "fill", this.forceColor ]);
+			attributes["fill"] = this.forceColor;
 		}
 	}
 	
@@ -406,7 +426,14 @@ MultiFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidt
 		SVG.drawLine(startPoint, top + (this.featureHeight/2), startPoint + Math.ceil(featureWidth), top + (this.featureHeight/2), this.trackNodeGroup, this._setAttributes(feature));
 	}
 	else{
-		nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), Math.ceil(top), featureWidth, this.featureHeight, this.trackNodeGroup, attributes);
+//		nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), Math.ceil(top), featureWidth, this.featureHeight, this.trackNodeGroup, attributes);
+	
+		attributes["x"]=Math.ceil(startPoint);
+		attributes["y"]=Math.ceil(top);
+		attributes["width"]=featureWidth;
+		attributes["height"]=this.featureHeight;
+		nodeSVG = this.trackNodeGroup.addChildSVG("rect",attributes);
+		
 		nodeSVG.addEventListener("mouseover", function(ev){_this._featureOver(feature, this, ev);}, true);
 		nodeSVG.addEventListener("mouseout", function(ev){_this._featureOut(feature, this, ev);}, true);
 		nodeSVG.addEventListener("click", function(ev){ _this.clickOn(feature, this, ev);}, true);
