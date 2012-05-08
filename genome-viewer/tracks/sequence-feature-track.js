@@ -65,9 +65,9 @@ SequenceFeatureTrack.prototype._setAttributes = function(feature){
 
 SequenceFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth, attributes, feature){
 	
-	attributes["x"] =startPoint;
+	attributes["x"] = startPoint;
 	attributes["y"] = Math.ceil(top); 
-	attributes["width"] =this.pixelRatio; 
+	attributes["width"] = this.pixelRatio; 
 	attributes["height"] = this.featureHeight;
 	attributes["fill"] = "gray";
 	attributes["stroke"] = "#000000";

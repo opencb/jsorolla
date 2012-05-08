@@ -69,9 +69,13 @@ SNPFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth,
 	
 	
 	this.positions[Math.ceil(startPoint)] = true;
-	var nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), top , featureWidth, this.featureHeight, this.trackNodeGroup, attributes);
+//	var nodeSVG = SVG.drawRectangle(Math.ceil(startPoint), top , featureWidth, this.featureHeight, this.trackNodeGroup, attributes);
 	
-	
+	attributes["x"] = Math.ceil(startPoint);
+	attributes["y"] = top; 
+	attributes["width"] = featureWidth; 
+	attributes["height"] = this.featureHeight;
+	var nodeSVG = this.trackNodeGroup.addChildSVG("rect",attributes);
 	
 	if (this.label) {
 		this._renderLabel(Math.ceil(startPoint) ,  Math.ceil(top) + (this.featureHeight + this.labelHeight) , feature.label, this._setTextAttributes(feature), feature);
