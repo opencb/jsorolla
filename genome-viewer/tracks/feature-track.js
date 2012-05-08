@@ -124,7 +124,13 @@ FeatureTrack.prototype._overlapBlocks = function(block1, block2){
 };
 
 FeatureTrack.prototype._setTextAttributes = function(feature) {
-	var attributes = [["fill", "black"],["id", this.id+"_" + feature.id],["cursor", "pointer"], ["font-size", this.labelSize]];
+	var attributes = {
+		"fill": "black",
+		"id": this.id+"_" + feature.id,
+		"cursor": "pointer",
+		"font-size": this.labelSize
+	};
+//	var attributes = [["fill", "black"],["id", this.id+"_" + feature.id],["cursor", "pointer"], ["font-size", this.labelSize]];
 	return attributes;
 };
 
@@ -259,17 +265,26 @@ FeatureTrack.prototype._convertGenomePositionToPixelPosition = function(position
 
 
 FeatureTrack.prototype._setAttributes = function(feature){
-	var attributes = [["id", this.id+"_" + feature.name], ["style", "cursor:pointer"]];
-	attributes.push(["fill-opacity", feature.getDefault().getOpacity()]);
+//	var attributes = [["id", this.id+"_" + feature.name], ["style", "cursor:pointer"]];
+//	attributes.push(["fill-opacity", feature.getDefault().getOpacity()]);
+//	
+//	attributes.push(["stroke", feature.getDefault().getStroke()]);
+//	attributes.push(["stroke-width", feature.getDefault().getStrokeWidth()]);
+//	attributes.push(["stroke-opacity", feature.getDefault().getStrokeOpacity()]);
 	
-	attributes.push(["stroke", feature.getDefault().getStroke()]);
-	attributes.push(["stroke-width", feature.getDefault().getStrokeWidth()]);
-	attributes.push(["stroke-opacity", feature.getDefault().getStrokeOpacity()]);
+	var attributes = {
+			"id": this.id+"_" + feature.name,
+			"style": "cursor:pointer",
+			"fill-opacity": feature.getDefault().getOpacity(),
+			"stroke": feature.getDefault().getStroke(),
+			"stroke-width": feature.getDefault().getStrokeWidth(),
+			"stroke-opacity": feature.getDefault().getStrokeOpacity()
+	};
 	
 	if (this.forceColor == null) {
-		attributes.push( [ "fill", feature.getDefault().getFill() ]);
+		attributes["fill"] = feature.getDefault().getFill();
 	} else {
-		attributes.push( [ "fill", this.forceColor ]);
+		attributes["fill"] = this.forceColor;
 	}
 	
 	return attributes;
@@ -280,7 +295,6 @@ FeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth, at
 		if (featureWidth <= 1) {
 			featureWidth = 2;
 		}
-		console.log(attributes)
 		this.positions[Math.ceil(startPoint)] = true;
 		
 		
