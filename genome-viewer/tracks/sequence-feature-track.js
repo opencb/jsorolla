@@ -49,8 +49,15 @@ SequenceFeatureTrack.prototype._addFeatures = function(data){
 
 SequenceFeatureTrack.prototype._setAttributes = function(feature){
 //	debugger
-	var attributes = [["fill", feature.getDefault().getFill()],["id", this.id+"_" + feature.start], ["font-size", "10"]];
-	attributes.push(["opacity", "1"]);
+//	var attributes = [["fill", feature.getDefault().getFill()],["id", this.id+"_" + feature.start], ["font-size", "10"]];
+//	attributes.push(["opacity", "1"]);
+	
+	var attributes = {
+			"fill": feature.getDefault().getFill(),
+			"id": this.id+"_" + feature.start,
+			"font-size": "10",
+			"opacity": "1"
+	};
 	return attributes;
 };
 
@@ -58,11 +65,26 @@ SequenceFeatureTrack.prototype._setAttributes = function(feature){
 
 SequenceFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth, attributes, feature){
 	
-	attributes.push(["opacity", 0.8]);
-	attributes.push(["stroke", "black"]);
+	attributes["x"] =startPoint;
+	attributes["y"] = Math.ceil(top); 
+	attributes["width"] =this.pixelRatio; 
+	attributes["height"] = this.featureHeight;
+	attributes["fill"] = "gray";
+	attributes["stroke"] = "#000000";
+	attributes["opacity"] = 0.5;
+	attributes["opacity"] =  0.8;
+	attributes["stroke"] = "black";
 	
-	var nodeSVG = SVG.drawRectangle( startPoint , Math.ceil(top), this.pixelRatio, this.featureHeight, this.trackNodeGroup, attributes);
-	SVG.drawText(startPoint + 2 , Math.ceil(top) + 8, feature.label, this.labelNodeGroup, [["font-size", "8"]]);
+//	var nodeSVG = SVG.drawRectangle( startPoint , Math.ceil(top), this.pixelRatio, this.featureHeight, this.trackNodeGroup, attributes);
+	
+	var nodeSVG =  this.trackNodeGroup.addChildSVG("rect",attributes);
+	
+//	SVG.drawText(startPoint + 2 , Math.ceil(top) + 8, feature.label, this.labelNodeGroup, [["font-size", "8"]]);
+	this.labelNodeGroup.addChildSVG("text",{
+		"x":startPoint + 2,
+		"y":Math.ceil(top) + 8,
+		"font-size": "8"
+	}).textContent=feature.label;
 };
 
 SequenceFeatureTrack.prototype.getTextId = function(startPoint){
