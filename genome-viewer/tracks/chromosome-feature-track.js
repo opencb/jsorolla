@@ -198,7 +198,7 @@ ChromosomeFeatureTrack.prototype.mark = function(feature, color) {
 		
 //		var attributes = [["stroke", "black"],["stroke-width", "1"],["id", this.getMarkIDFromFeature(feature)], ["fill", this.markcolor], ["opacity", "1"],["cursor", "pointer"]];
 //		var node = SVG.drawPoligon([[this.right + 6, top - 3] , [this.right, top],  [this.right + 6, top + 3]], this.trackNodeGroup, attributes);
-		
+//		
 		var node = this.trackNodeGroup.addChildSVG("polygon",{
 			"points": [[this.right + 6, top - 3] , [this.right, top],  [this.right + 6, top + 3]],
 			"stroke": "black",
@@ -341,7 +341,12 @@ ChromosomeFeatureTrack.prototype.select = function(start, end) {
 				y: this.top + 6,
 				width: width,
 				height: this.bottom - this.top,
-				"stroke": "red","stroke-width": "1","id": this.selector.id, "fill": this.selectcolor, "fill-opacity":  "0.1", "cursor": "move"
+				"stroke": "red",
+				"stroke-width": "1",
+				"id": this.selector.id, 
+				"fill": this.selectcolor, 
+				"fill-opacity":  "0.1", 
+				"cursor": "move"
 			});
 			
 //			var attributes = [["stroke", "red"],["stroke-width", "1"],["id", this.selector.id], ["cursor", "move"], ["fill", this.selectcolor], ["fill-opacity", "0.1"]];
@@ -399,6 +404,13 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
 		});
 		
+		var rect = this.trackNodeGroup.addChildSVG("rect",{
+			x: this.left,
+			y: rectTop,
+			width: this.featureHeight,
+			height: rectHeight,
+			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
+		});
 		
 //		rect = SVG.createRectangle(this.left, rectTop, this.featureHeight, rectHeight, attributesClip);
 //		this.trackNodeGroup.appendChild(rect);
@@ -430,6 +442,14 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 			height: rectHeight,
 			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
 		});
+		
+		var rect = this.trackNodeGroup.addChildSVG("rect",{
+			x: this.left,
+			y: rectTop + 1,
+			width: this.featureHeight,
+			height: rectHeight,
+			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
+		});
 //		
 //		rect = SVG.createRectangle(this.left, rectTop + 1, this.featureHeight, rectHeight, attributesClip);
 //		this.trackNodeGroup.appendChild(rect);
@@ -441,7 +461,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		clip.appendChild(rect);
 		
 //		groupNodeSecondCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_2" +this.id+")"]]);
-		this.groupNodeSecondCentromero = this.trackNodeGroup.addChildSVG("g",{
+		groupNodeSecondCentromero = this.trackNodeGroup.addChildSVG("g",{
 			"id": "clip_group", 
 			"clip-path": "url(#clip_2" +this.id+")"
 		});
@@ -453,7 +473,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 //		var rect = SVG.createRectangle(this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
 //		this.trackNodeGroup.appendChild(rect);
-		//XXX falta attributesClip
+
 		var rect = this.trackNodeGroup.addChildSVG("rect",{
 			x: this.left,
 			y: this.top + 6,
@@ -464,12 +484,14 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 //		rect = SVG.createRectangle( this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
 //		this.trackNodeGroup.appendChild(rect);
-//		this.trackNodeGroup.addChildSVG("rect",{
-//			x: this.left,
-//			y: this.top + 6,
-//			width: endFirstCentromero,
-//			height: this.featureHeight,
-//		});
+
+		var rect = this.trackNodeGroup.addChildSVG("rect",{
+			x: this.left,
+			y: this.top + 6,
+			width: endFirstCentromero,
+			height: this.featureHeight,
+			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
+		});
 		
 		
 		
@@ -496,7 +518,15 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 //		
 //		rect = SVG.createRectangle(rectLeft, this.top + 6, rectWidth, this.featureHeight, attributesClip);
 //		this.trackNodeGroup.appendChild(rect);
-		//XXX falta attributesClip
+		
+		var rect = this.trackNodeGroup.addChildSVG("rect",{
+			x: rectLeft,
+			y: this.top + 6,
+			width: rectWidth,
+			height: this.featureHeight,
+			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
+		});
+		
 		var rect = this.trackNodeGroup.addChildSVG("rect",{
 			x: rectLeft,
 			y: this.top + 6,
@@ -506,7 +536,6 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		});
 		
 		
-		
 //		clip = SVG.drawClip("clip_2"+this.id, rect, this.trackNodeGroup);
 		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
 			id:"clip_2"+this.id
@@ -514,7 +543,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		clip.appendChild(rect);
 		
 //		groupNodeSecondCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_2" +this.id+")"]]);
-		this.groupNodeSecondCentromero = this.trackNodeGroup.addChildSVG("g",{
+		groupNodeSecondCentromero = this.trackNodeGroup.addChildSVG("g",{
 			"id": "clip_group", 
 			"clip-path": "url(#clip_2" +this.id+")"
 		});
@@ -569,7 +598,7 @@ ChromosomeFeatureTrack.prototype._drawCytoband = function (feature){
 			var node = this.groupNodeFirstCentromero.addChildSVG("rect",nodeAttr);
 		}
 		else{
-			var node = this.groupNodeSecondCentromero.addChildSVG("rect",nodeAttr);
+			var node = groupNodeSecondCentromero.addChildSVG("rect",nodeAttr);
 		}
 	}
 	else{
@@ -585,7 +614,7 @@ ChromosomeFeatureTrack.prototype._drawCytoband = function (feature){
 			var node = this.groupNodeFirstCentromero.addChildSVG("rect",nodeAttr);
 		}
 		else{
-			var node = this.groupNodeSecondCentromero.addChildSVG("rect",nodeAttr);
+			var node = groupNodeSecondCentromero.addChildSVG("rect",nodeAttr);
 		}
 		
 		
