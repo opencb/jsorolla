@@ -80,7 +80,14 @@ SNPFeatureTrack.prototype._drawFeature = function(startPoint, top, featureWidth,
 			var snpLength = feature.base.length;
 			var snpSize = featureWidth/snpLength;
 			for ( var i = 0; i < snpLength; i++) {
-				SVG.drawText((i*snpSize) + startPoint + 2 , Math.ceil(top) + 8, feature.base[i], this.labelNodeGroup, [["font-size", "8"], ["fill", "black"]]);
+				this.labelNodeGroup.addChildSVG("text", {
+					"x" : (i*snpSize) + startPoint + 2,
+					"y" : Math.ceil(top) + 8,
+					"font-size" : "8",
+					"fill" : "black"
+				}).textContent = feature.base[i];
+				
+//				SVG.drawText((i*snpSize) + startPoint + 2 , Math.ceil(top) + 8, feature.base[i], this.labelNodeGroup, [["font-size", "8"], ["fill", "black"]]);
 			}
 		}
 	}
