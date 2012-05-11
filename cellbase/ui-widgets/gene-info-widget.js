@@ -292,7 +292,7 @@ GeneInfoWidget.prototype.getData = function (){
 };
 GeneInfoWidget.prototype.dataReceived = function (data){
 //	console.log(data);
-	this.data=data[0];
+	this.data=data[0][0];
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();
 	this.panel.setLoading(false);
