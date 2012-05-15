@@ -185,6 +185,10 @@ InfoWidget.prototype.doGrid = function (columns,fields,modelName,groupField){
 	        cls:'panel-border-left',
 			flex:3,        
 	        features: [groupFeature,filters],
+	        viewConfig: {
+//	            stripeRows: true,
+	            enableTextSelection: true
+	        },
 	        columns: columns,
 	        bbar  : ['->', {
 	            text:'Clear Grouping',
