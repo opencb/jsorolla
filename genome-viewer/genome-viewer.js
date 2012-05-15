@@ -117,7 +117,7 @@ GenomeViewer.prototype._changeSpecies = function(data){
 	Ext.getCmp(this.id + "chromosomeMenuButton").menu.destroy();
 	Ext.getCmp(this.id + "chromosomeMenuButton").menu = this._getChromosomeMenu();
 
-	
+
 	this.genomeWidgetProperties = new GenomeWidgetProperties(this.species,{
 		width:this.width,
 		windowSize : 1000000,
@@ -171,6 +171,8 @@ GenomeViewer.prototype._render = function() {
 GenomeViewer.prototype._getPanel = function(width,height) {
 	var _this=this;
 
+	
+	
 	if(this._panel == null){
 		var items = [];
 		if(this.menuBar!=null){
@@ -564,6 +566,19 @@ GenomeViewer.prototype._getNavigationBar = function() {
 
 GenomeViewer.prototype._getKaryotypePanel = function(specieChanged) {
 	var _this = this;
+	
+	// sencha 4.1 must be shown because must be in the dom, in sencha 4.1 hidden elements are not in the dom
+	if(this._karyotypeCont!= null ){
+		if( this._karyotypeCont.isHidden()){
+			this._karyotypeCont["wasHidden"] = true;
+			this._karyotypeCont.show();
+		}else{
+			this._karyotypeCont["wasHidden"] = false;
+		}
+	}
+	// end
+	
+	
 	if(this._karyotypeCont == null ){
 		this._karyotypeCont = Ext.create('Ext.panel.Panel',{
 			title:'Karyotype',
@@ -596,6 +611,14 @@ GenomeViewer.prototype._getKaryotypePanel = function(specieChanged) {
 //		Ext.getCmp(this.id+"karyotypeButton").toggle();
 //		Ext.getCmp(this.id+"karyotypeButton").toggle();
 	}
+	
+	// sencha 4.1 must be shown because must be in the dom, in sencha 4.1 hidden elements are not in the dom
+	if(this._karyotypeCont!= null && this._karyotypeCont["wasHidden"] == true){
+		this._karyotypeCont.hide();
+	}
+	// end 
+	
+	
 	return this._karyotypeCont;
 };
 

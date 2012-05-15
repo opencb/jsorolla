@@ -145,16 +145,16 @@ AttributesPanel.prototype.getPanel = function (){
 			
 		
 		this.helpLabel = Ext.create('Ext.toolbar.TextItem', {
-			html:'<span class="dis">Click on the header down arrow to filter by column</span>'
+			text:'<span class="dis">Click on the header down arrow to filter by column</span>'
 		});
 		this.fileNameLabel = Ext.create('Ext.toolbar.TextItem', {
-			html:'<span class="emph">Select a <span class="info">local</span> file or a <span class="info">server</span> file from your account.</span>'
+			text:'<span class="emph">Select a <span class="info">local</span> file or a <span class="info">server</span> file from your account.</span>'
 		});
 		this.infoLabel = Ext.create('Ext.toolbar.TextItem', {
-			html:'&nbsp;'
+			text:'&nbsp;'
 		});
 		this.infoLabel2 = Ext.create('Ext.toolbar.TextItem', {
-			html:'&nbsp;'//'<span class="info">No file selected</span>'
+			text:'&nbsp;'//'<span class="info">No file selected</span>'
 		});
 		
 		this.barField.add(this.expresionAnalysisUploadFieldFile);

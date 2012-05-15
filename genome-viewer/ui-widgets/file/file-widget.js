@@ -94,7 +94,7 @@ FileWidget.prototype.draw = function(){
 		/** Bar for the chart **/
 		var featureCountBar = Ext.create('Ext.toolbar.Toolbar');
 		this.featureCountLabel = Ext.create('Ext.toolbar.TextItem', {
-			html:'<span class="dis">No file loaded</span>'
+			text:'<span class="dis">No file loaded</span>'
 		});
 		featureCountBar.add([this.featureCountLabel]);
 		
@@ -157,7 +157,7 @@ FileWidget.prototype.draw = function(){
 		}
 		
 		this.fileNameLabel = Ext.create('Ext.toolbar.TextItem', {
-			html:'<span class="emph">Select a <span class="info">local</span> file or a <span class="info">server</span> file from your account.</span>'
+			text:'<span class="emph">Select a <span class="info">local</span> file or a <span class="info">server</span> file from your account.</span>'
 		});
 		browseBar.add(['->',this.fileNameLabel]);
 		

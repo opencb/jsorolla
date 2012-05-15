@@ -12,7 +12,6 @@ var DOM = {};
 
 DOM.createNewElement = function(type, nodeParent, attributes)
 {
-	
 	var node = document.createElement(type);
 	for (var i=0; i<attributes.length; i++)
 	{
