@@ -723,32 +723,43 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					//XXX SVG
 					
 					var div = $('#'+_this.id+"tracksSvg")[0];
-					var svg  = div.initSVG();
-					var track = svg.addChildSVG("g");
-					var rect = track.addChildSVG("rect",{
-						"x":50,
-						"y":50,
+					var svg  = div.initSVG({
+//						viewBox: "0 10 " + this.width + " " + this.height,
+//						preserveAspectRatio: "none",
+					});
+//					var track = svg.addChildSVG("g",{
+//						"style":"border:1px solid #e0e0e0;",
+//					});
+					var rect = svg.addChildSVG("rect",{
+						"x":100,
+						"y":100,
 						"width":200,
 						"height":10,
 						"fill":"red"
 					});
-					$(track).mousedown(function(event){
-//						var x = parseInt(track.getAttribute("x")) - event.offsetX;
-//						var y = parseInt(track.getAttribute("y")) - event.offsetY;
-//						$(svg).mousemove(function(event){
-//							track.setAttribute("x",x + event.offsetX);
-//							track.setAttribute("y",y + event.offsetY);
-//						});
-						
-						console.log(event.offsetX);
-						console.log(event.offsetY);
-						var x = event.offsetX;
-						var y = event.offsetY;
+					$(rect).mousedown(function(event){
+						var x = parseInt(rect.getAttribute("x")) - event.offsetX;
+						var y = parseInt(rect.getAttribute("y")) - event.offsetY;
 						$(svg).mousemove(function(event){
-							track.setAttribute("transform", "translate("+event.offsetX+","+event.offsetY+")");
+							rect.setAttribute("x",x + event.offsetX);
+							rect.setAttribute("y",y + event.offsetY);
 						});
+//						var x = event.offsetX;
+//						var y = event.offsetY;
+//						console.log(x);
+//						console.log(y);
+//						$(svg).mousemove(function(event){
+//							var a = event.offsetX-x;
+//							var b = event.offsetY-y;
+//							console.log("me muevo");
+//							console.log(a);
+//							console.log(b);
+//							track.setAttribute("transform", "translate("+a+","+b+")");
+//							rect.setAttribute("x",x + event.offsetX);
+//							rect.setAttribute("y",y + event.offsetY);
+//						});
 					});
-					$(track).mouseup(function(event){
+					$(rect).mouseup(function(event){
 						$(svg).off('mousemove');
 					});
 					$(svg).mouseup(function(event){
