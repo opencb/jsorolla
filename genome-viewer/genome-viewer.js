@@ -94,7 +94,7 @@ GenomeViewer.prototype.render = function(){
 		layout: { type: 'vbox',align: 'stretch'},
 		region : 'center',
 		margins : '0 0 0 0',
-		items :items,
+		items :items
 	});
 	
 	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
@@ -724,25 +724,57 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					
 					var div = $('#'+_this.id+"tracksSvg")[0];
 					var svg  = div.initSVG({
-//						viewBox: "0 10 " + this.width + " " + this.height,
-//						preserveAspectRatio: "none",
+						viewBox: "0 10 "+ _this.width + " " + _this.height,
+						preserveAspectRatio: "none"
 					});
-//					var track = svg.addChildSVG("g",{
+					var track = svg.addChildSVG("svg",{
 //						"style":"border:1px solid #e0e0e0;",
-//					});
-					var rect = svg.addChildSVG("rect",{
+						"x":0,
+						"y":0
+					});
+					var title = track.addChildSVG("rect",{
+						"x":0,
+						"y":0,
+						"width":15,
+						"height":300,
+						"opacity":"0",
+						"fill":"orange"
+					});
+					var cont = track.addChildSVG("rect",{
+						"x":0,
+						"y":0,
+						"width":500,
+						"height":300,
+						"opacity":"0",
+						"fill":"lightblue"
+					});
+					var rect = track.addChildSVG("rect",{
 						"x":100,
 						"y":100,
 						"width":200,
 						"height":10,
 						"fill":"red"
 					});
-					$(rect).mousedown(function(event){
-						var x = parseInt(rect.getAttribute("x")) - event.offsetX;
-						var y = parseInt(rect.getAttribute("y")) - event.offsetY;
+					var rect2 = track.addChildSVG("rect",{
+						"x":150,
+						"y":150,
+						"width":200,
+						"height":10,
+						"fill":"blue"
+					});
+					var rect3 = track.addChildSVG("rect",{
+						"x":200,
+						"y":200,
+						"width":200,
+						"height":10,
+						"fill":"green"
+					});
+					$(track).mousedown(function(event){
+						var x = parseInt(track.getAttribute("x")) - event.offsetX;
+						var y = parseInt(track.getAttribute("y")) - event.offsetY;
 						$(svg).mousemove(function(event){
-							rect.setAttribute("x",x + event.offsetX);
-							rect.setAttribute("y",y + event.offsetY);
+							track.setAttribute("x",x + event.offsetX);
+							track.setAttribute("y",y + event.offsetY);
 						});
 //						var x = event.offsetX;
 //						var y = event.offsetY;
@@ -759,8 +791,21 @@ GenomeViewer.prototype._getTracksPanel = function() {
 //							rect.setAttribute("y",y + event.offsetY);
 //						});
 					});
-					$(rect).mouseup(function(event){
+					$(track).mouseup(function(event){
 						$(svg).off('mousemove');
+					});
+					$(track).mouseenter(function(event){
+						cont.setAttribute("opacity","0.1");
+						cont.setAttribute("stroke","1");
+						cont.setAttribute("stroke-color","orange");
+						
+						title.setAttribute("opacity","1");
+					});
+					$(track).mouseleave(function(event){
+						cont.setAttribute("opacity","0");
+						cont.removeAttribute("stroke");
+						cont.removeAttribute("stroke-color");
+						title.setAttribute("opacity","0");
 					});
 					$(svg).mouseup(function(event){
 						$(svg).off('mousemove');
@@ -768,6 +813,95 @@ GenomeViewer.prototype._getTracksPanel = function() {
 //					$(rect).mouseout(function(event){
 //						$(svg).off('mousemove');
 //					});
+					
+					
+					
+					
+					
+					
+					var track2 = svg.addChildSVG("svg",{
+//						"style":"border:1px solid #e0e0e0;",
+						"x":0,
+						"y":0
+					});
+					var title2 = track2.addChildSVG("rect",{
+						"x":0,
+						"y":0,
+						"width":15,
+						"height":300,
+						"opacity":"0",
+						"fill":"orange"
+					});
+					var cont2 = track2.addChildSVG("rect",{
+						"x":0,
+						"y":0,
+						"width":500,
+						"height":300,
+						"opacity":"0",
+						"fill":"lightblue"
+					});
+					var rect = track2.addChildSVG("rect",{
+						"x":100,
+						"y":100,
+						"width":200,
+						"height":10,
+						"fill":"red"
+					});
+					var rect2 = track2.addChildSVG("rect",{
+						"x":150,
+						"y":150,
+						"width":200,
+						"height":10,
+						"fill":"blue"
+					});
+					var rect3 = track2.addChildSVG("rect",{
+						"x":200,
+						"y":200,
+						"width":200,
+						"height":10,
+						"fill":"green"
+					});
+					$(track2).mousedown(function(event){
+						var x = parseInt(track2.getAttribute("x")) - event.offsetX;
+						var y = parseInt(track2.getAttribute("y")) - event.offsetY;
+						$(svg).mousemove(function(event){
+							track2.setAttribute("x",x + event.offsetX);
+							track2.setAttribute("y",y + event.offsetY);
+						});
+//						var x = event.offsetX;
+//						var y = event.offsetY;
+//						console.log(x);
+//						console.log(y);
+//						$(svg).mousemove(function(event){
+//							var a = event.offsetX-x;
+//							var b = event.offsetY-y;
+//							console.log("me muevo");
+//							console.log(a);
+//							console.log(b);
+//							track2.setAttribute("transform", "translate("+a+","+b+")");
+//							rect.setAttribute("x",x + event.offsetX);
+//							rect.setAttribute("y",y + event.offsetY);
+//						});
+					});
+					$(track2).mouseup(function(event){
+						$(svg).off('mousemove');
+					});
+					$(track2).mouseenter(function(event){
+						cont2.setAttribute("opacity","0.1");
+						cont2.setAttribute("stroke","1");
+						cont2.setAttribute("stroke-color","orange");
+						
+						title2.setAttribute("opacity","1");
+					});
+					$(track2).mouseleave(function(event){
+						cont2.setAttribute("opacity","0");
+						cont2.removeAttribute("stroke");
+						cont2.removeAttribute("stroke-color");
+						title2.setAttribute("opacity","0");
+					});
+					$(svg).mouseup(function(event){
+						$(svg).off('mousemove');
+					});
 					
 					
 					
