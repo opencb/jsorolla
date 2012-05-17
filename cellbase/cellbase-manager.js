@@ -40,7 +40,7 @@ function CellBaseManager(species, args) {
 	this.async = true;
 	
 	//Queue of queries
-	this.maxQuery = 20;
+	this.maxQuery = 30;
 	this.numberQueries = 0;
 	this.results = new Array();
 	this.resultsCount = new Array();

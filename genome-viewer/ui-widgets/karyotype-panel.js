@@ -2,8 +2,6 @@
 function KaryotypePanel(targetID, species, args){
 	this.id = targetID+Math.round(Math.random()*10000);
 	this.targetId = targetID;
-	console.log(this.targetId)
-	console.log($('#'+this.targetId))
 	
 	this.species=species;
 	
