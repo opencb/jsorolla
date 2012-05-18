@@ -58,13 +58,16 @@ TrackLayout.prototype._reallocate = function(trackMainId){
 	if(i>0){
 		var underTrack=this.trackList[i];
 		var aboveTrack=this.trackList[i-1];
+		console.log(underTrack);
+		console.log(aboveTrack);
 		var y = parseInt(aboveTrack.main.getAttribute("y"));
 		var h = parseInt(underTrack.main.getAttribute("height"));
 		underTrack.main.setAttribute("y",y);
 		aboveTrack.main.setAttribute("y",y+h);
 		this.trackList[i] = aboveTrack;
 		this.trackList[i-1] = underTrack;
-		this.trackHash[underTrack.id]=i
+		this.trackHash[underTrack.id]=i;
+		this.trackHash[aboveTrack.id]=i-1;
 		//TODO
 //		console.log(_this.trackList);
 //		console.log(_this.trackList[i]);

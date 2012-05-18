@@ -5,8 +5,12 @@ function SvgTrack(parentNode, args) {
 
 	this.y = 0;
 	this.height = 100+Math.round(Math.random()*200);
-	
-	
+	this.title = "track";
+	if (args != null){
+		if(args.title != null){
+			this.title = args.title;
+		}
+	}
 };
 SvgTrack.prototype.setY = function(value){
 	this.y = value;
@@ -80,6 +84,14 @@ SvgTrack.prototype.draw = function(){
 		"height":10,
 		"fill":"green"
 	});
+	var text = main.addChildSVG("text",{
+		"x":15,
+		"y":80,
+		"fill":"black",
+		"transform":"rotate(-90 15,80)"
+	});
+	text.textContent = this.title;
+	
 	$(title).mousedown(function(event){
 		main.parentNode.appendChild(main); 
 //		var x = parseInt(track.getAttribute("x")) - event.offsetX;
