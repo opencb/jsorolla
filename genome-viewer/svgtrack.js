@@ -4,7 +4,7 @@ function SvgTrack(parentNode, args) {
 	this.parentNode = parentNode;
 
 	this.y = 0;
-	this.height = 100+Math.round(Math.random()*200);
+	this.height = 80+Math.round(Math.random()*100);
 	this.title = "track";
 	if (args != null){
 		if(args.title != null){
@@ -38,7 +38,7 @@ SvgTrack.prototype.draw = function(){
 		"stroke-width":"1",
 		"fill":"orange"
 	});
-	var title = main.addChildSVG("rect",{
+	var titlebar = main.addChildSVG("rect",{
 		"x":0,
 		"y":0,
 		"width":24,
@@ -92,12 +92,12 @@ SvgTrack.prototype.draw = function(){
 	});
 	text.textContent = this.title;
 	
-	$(title).mousedown(function(event){
+	$(titlebar).mousedown(function(event){
 		main.parentNode.appendChild(main); 
-//		var x = parseInt(track.getAttribute("x")) - event.offsetX;
+//		var x = parseInt(main.getAttribute("x")) - event.offsetX;
 		var y = parseInt(main.getAttribute("y")) - event.offsetY;
 		$(this.parentNode).mousemove(function(event){
-//			track.setAttribute("x",x + event.offsetX);
+//			main.setAttribute("x",x + event.offsetX);
 			main.setAttribute("y",y + event.offsetY);
 		});
 	});
@@ -109,11 +109,11 @@ SvgTrack.prototype.draw = function(){
 	});
 	$(main).mouseenter(function(event){
 		cont.setAttribute("opacity","0.1");
-		title.setAttribute("opacity","1");
+		titlebar.setAttribute("opacity","1");
 	});
 	$(main).mouseleave(function(event){
 		cont.setAttribute("opacity","0");
-		title.setAttribute("opacity","0");
+		titlebar.setAttribute("opacity","0");
 	});
 
 	$(upRect).mouseenter(function(event){

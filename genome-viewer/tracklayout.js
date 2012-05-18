@@ -32,6 +32,7 @@ TrackLayout.prototype.add = function(item){
 };
 
 TrackLayout.prototype.draw = function(){
+	console.log(this.trackHash);
 	var _this = this;
 	var track = null;
 	var lastY = 0;
@@ -40,10 +41,11 @@ TrackLayout.prototype.draw = function(){
 		track.setY(lastY);
 		track.draw();
 		
-//		$(track.upRect).off('click');
-		//track wants to move up 1 position, recieves i ITERARION
 		$(track.upRect).bind("click",function(event){
-			_this._reallocate(this.parentNode.id);
+			_this._reallocateAbove(this.parentNode.id);//"this" is the svg element
+		});
+		$(track.downRect).bind("click",function(event){
+			_this._reallocateUnder(this.parentNode.id);//"this" is the svg element
 		});
 		lastY += track.getHeight();
 	}
@@ -51,33 +53,43 @@ TrackLayout.prototype.draw = function(){
 
 
 //This routine is called when track order modified
-TrackLayout.prototype._reallocate = function(trackMainId){
-	
+TrackLayout.prototype._reallocateAbove = function(trackMainId){
 	var i = this.trackHash[trackMainId];
 	console.log(i+" quiere moverse 1 posicion arriba");
 	if(i>0){
-		var underTrack=this.trackList[i];
 		var aboveTrack=this.trackList[i-1];
-		console.log(underTrack);
-		console.log(aboveTrack);
+		var underTrack=this.trackList[i];
 		var y = parseInt(aboveTrack.main.getAttribute("y"));
 		var h = parseInt(underTrack.main.getAttribute("height"));
-		underTrack.main.setAttribute("y",y);
 		aboveTrack.main.setAttribute("y",y+h);
+		underTrack.main.setAttribute("y",y);
 		this.trackList[i] = aboveTrack;
 		this.trackList[i-1] = underTrack;
-		this.trackHash[underTrack.id]=i;
-		this.trackHash[aboveTrack.id]=i-1;
-		//TODO
-//		console.log(_this.trackList);
-//		console.log(_this.trackList[i]);
-//	_this._reallocate();
-//	console.log(_this.);
-		
+		this.trackHash[aboveTrack.id]=i;
+		this.trackHash[underTrack.id]=i-1;
 		
 	}else{
 		console.log("ya esta en la mas alta");
 	}
 };
-
+//This routine is called when track order modified
+TrackLayout.prototype._reallocateUnder = function(trackMainId){
+	var i = this.trackHash[trackMainId];
+	console.log(i+" quiere moverse 1 posicion arriba");
+	if(i+1<this.trackList.length){
+		var aboveTrack=this.trackList[i];
+		var underTrack=this.trackList[i+1];
+		var y = parseInt(aboveTrack.main.getAttribute("y"));
+		var h = parseInt(underTrack.main.getAttribute("height"));
+		aboveTrack.main.setAttribute("y",y+h);
+		underTrack.main.setAttribute("y",y);
+		this.trackList[i] = underTrack;
+		this.trackList[i+1] = aboveTrack;
+		this.trackHash[underTrack.id]=i;
+		this.trackHash[aboveTrack.id]=i+1;
+		
+	}else{
+		console.log("abajo del todo");
+	}
+};
 
