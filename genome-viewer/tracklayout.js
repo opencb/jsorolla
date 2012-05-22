@@ -1,10 +1,15 @@
-function TrackLayout(args) {
+function TrackLayout(svgNode, args) {
 	this.args = args;
 	this.id = Math.round(Math.random()*10000000);
+	this.svgNode = svgNode;
 	
 	this.trackList =  new Array();
 	this.trackHash = new Object();
-	
+	if (args != null){
+		if(args.clase != null){
+			this.clase = args.clase;
+		}
+	}
 	//XXX end SVG
 //	// move element "on top of" all others within the same grouping
 //	el.parentNode.appendChild(el); 
@@ -16,7 +21,8 @@ function TrackLayout(args) {
 //	el.ownerSVGElement.appendChild(el); 
 //
 //	// move element "underneath" all others in the entire document
-//	el.ownerSVGElement.appendChild(el,el.ownerSVGElement.firstChild); 
+//	el.ownerSVGElement.appendChild(el,el.ownerSVGElement.firstChild);
+	
 };
 
 
@@ -49,6 +55,28 @@ TrackLayout.prototype.draw = function(){
 		});
 		lastY += track.getHeight();
 	}
+	
+	
+	
+	$(this.svgNode).mousedown(function(event) {
+		var elements = $("."+_this.clase);
+		var x = event.offsetX;
+		$(this).mousemove(function(event){
+//			console.log(event.offsetX);
+//			console.log(elements.length);
+			var moveX = event.offsetX - x;
+			console.log(moveX);
+			for ( var i = 0; i < elements.length; i++) {
+				var ex = parseInt(elements[i].getAttribute("x"));
+//				elements[i].setAttribute("x",moveX);
+				elements[i].setAttribute("transform","translate("+moveX+")");
+			}
+		});
+	});
+	$(this.svgNode).mouseup(function(event) {
+		$(this).off('mousemove');
+	});
+	
 };
 
 

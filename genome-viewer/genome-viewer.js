@@ -724,11 +724,12 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					//XXX SVG
 					// createTrack(this.id+'tracksSvg', 'snp');
 					var div = $('#'+_this.id+"tracksSvg")[0];
-					var svg  = div.initSVG();
-					var track = new SvgTrack(svg,{title:"pim"});		
-					var track2 = new SvgTrack(svg,{title:"pam"});		
-					var track3 = new SvgTrack(svg,{title:"pum"});		
-					var trackLayout = new TrackLayout();
+					var svg  = div.initSVG({
+					});
+					var track = new SvgTrack(svg,{title:"pim",clase:"asdf"});		
+					var track2 = new SvgTrack(svg,{title:"pam",clase:"asdf"});		
+					var track3 = new SvgTrack(svg,{title:"pum",clase:"asdf"});		
+					var trackLayout = new TrackLayout(svg,{clase:"asdf"});
 					trackLayout.add(track);
 					trackLayout.add(track2);
 					trackLayout.add(track3);
