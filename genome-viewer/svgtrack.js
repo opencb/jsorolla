@@ -73,30 +73,26 @@ SvgTrack.prototype.draw = function(){
 	});
 	
 //XXX
-	var rect = SVG.addChild(features,"rect",{
-//		"class":this.clase,
-		"x":80,
-		"y":20,
-		"width":200,
-		"height":10,
-		"fill":"red"
-	});
-	var rect2 = SVG.addChild(features,"rect",{
-//		"class":this.clase,
-		"x":90,
-		"y":40,
-		"width":200,
-		"height":10,
-		"fill":"blue"
-	});
-	var rect3 = SVG.addChild(features,"rect",{
-//		"class":this.clase,
-		"x":100,
-		"y":60,
-		"width":200,
-		"height":10,
-		"fill":"green"
-	});
+	
+	for ( var i = 0; i < 150; i++) {
+		var rect = SVG.addChild(features,"line",{
+			"x1":80+i,
+			"y1":10+i,
+			"x2":80+i+200,
+			"y2":10+i,
+//			"width":200,
+//			"height":1,
+			"stroke-width":"1",
+			"stroke":"black"
+		});
+		var rect = SVG.addChild(features,"rect",{
+			"x":80+i,
+			"y":i,
+			"width":200,
+			"height":1,
+			"fill":"black"
+		});
+	}
 
 //XXX	
 	

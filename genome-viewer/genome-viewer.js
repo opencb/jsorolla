@@ -728,8 +728,9 @@ GenomeViewer.prototype._getTracksPanel = function() {
 //					});
 					var svg  = SVG.init(div,{
 						"width":_this.width,
-						"height":300
+						"height":700
 					});
+					
 					
 					var track = new SvgTrack(svg,{title:"pim",clase:"asdf"});		
 					var track2 = new SvgTrack(svg,{title:"pam",clase:"asdf"});		
