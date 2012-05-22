@@ -55,28 +55,6 @@ TrackLayout.prototype.draw = function(){
 		});
 		lastY += track.getHeight();
 	}
-	
-	
-	
-	$(this.svgNode).mousedown(function(event) {
-		var elements = $("."+_this.clase);
-		var x = event.offsetX;
-		$(this).mousemove(function(event){
-//			console.log(event.offsetX);
-//			console.log(elements.length);
-			var moveX = event.offsetX - x;
-			console.log(moveX);
-			for ( var i = 0; i < elements.length; i++) {
-				var ex = parseInt(elements[i].getAttribute("x"));
-//				elements[i].setAttribute("x",moveX);
-				elements[i].setAttribute("transform","translate("+moveX+")");
-			}
-		});
-	});
-	$(this.svgNode).mouseup(function(event) {
-		$(this).off('mousemove');
-	});
-	
 };
 
 

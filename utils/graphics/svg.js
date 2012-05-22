@@ -27,6 +27,39 @@ Element.prototype.initSVG = function(attributes){
 	return this.addChildSVG("svg", attributes);
 };
 
+var SVG = {
+
+	addChild : function(parent, elementName, attributes, index){
+		var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
+		for ( var key in attributes){
+			el.setAttribute(key, attributes[key]);
+		}
+		
+		// insert child at requested index, or as last child if index is too high or no index is specified
+	    if ( null == index ) {
+	    	parent.appendChild( el );
+	    }
+	    else {
+	      var targetIndex = index + 1;
+	      if ( 0 == index ) {
+	        targetIndex = 0;
+	      }
+	      var targetEl = parent.childNodes[ targetIndex ];
+	      if ( targetEl ) {
+	    	  parent.insertBefore( el, targetEl ); 
+	      }
+	      else {
+	    	  parent.appendChild( el );
+	      }
+	    }
+	    return el;
+	},
+	
+	init : function(parent, attributes){
+		return this.addChild(parent, "svg", attributes);
+	}
+};
+
 //createSVG = function(elementName, attributes){
 //	var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
 //	for ( var key in attributes){

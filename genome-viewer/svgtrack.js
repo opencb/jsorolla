@@ -22,7 +22,7 @@ SvgTrack.prototype.getHeight = function(){
 	return this.height;
 };
 SvgTrack.prototype.draw = function(){
-	var main = this.parent.addChildSVG("svg",{
+	var main = SVG.addChild(this.parent,"svg",{
 //		"style":"border:1px solid #e0e0e0;",
 		"id":this.id,
 		"x":0,
@@ -30,8 +30,11 @@ SvgTrack.prototype.draw = function(){
 		"width":1000,
 		"height":this.height
 	});
-		
-	var cont = main.addChildSVG("rect",{
+	var features = SVG.addChild(main,"svg",{
+		"x":0,
+		"class":this.clase,
+	});
+	var over = SVG.addChild(main,"rect",{
 		"x":0,
 		"y":0,
 		"width":1000,
@@ -41,17 +44,17 @@ SvgTrack.prototype.draw = function(){
 		"stroke-width":"1",
 		"fill":"orange"
 	});
-	var titlebar = main.addChildSVG("rect",{
+	var titlebar = SVG.addChild(main,"rect",{
 		"x":0,
 		"y":0,
 		"width":24,
 		"height":this.height,
-		"opacity":"0",
-		"stroke":"goldenrod",
-		"stroke-width":"1",
-		"fill":"orange"
+		"opacity":"1",
+//		"stroke":"goldenrod",
+//		"stroke-width":"1",
+		"fill":"white"
 	});
-	var upRect = main.addChildSVG("rect",{
+	var upRect = SVG.addChild(main,"rect",{
 		"id":this.id+"upRect",
 		"x":4,
 		"y":4,
@@ -59,7 +62,7 @@ SvgTrack.prototype.draw = function(){
 		"height":16,
 		"fill":"palegreen"
 	});
-	var downRect = main.addChildSVG("rect",{
+	var downRect = SVG.addChild(main,"rect",{
 		"x":4,
 		"y":25,
 		"width":16,
@@ -67,10 +70,8 @@ SvgTrack.prototype.draw = function(){
 		"fill":"skyblue"
 	});
 	
-	var features = main.addChildSVG("g",{
-		"class":this.clase,
-	});
-	var rect = features.addChildSVG("rect",{
+//XXX
+	var rect = SVG.addChild(features,"rect",{
 //		"class":this.clase,
 		"x":80,
 		"y":20,
@@ -78,7 +79,7 @@ SvgTrack.prototype.draw = function(){
 		"height":10,
 		"fill":"red"
 	});
-	var rect2 = features.addChildSVG("rect",{
+	var rect2 = SVG.addChild(features,"rect",{
 //		"class":this.clase,
 		"x":90,
 		"y":40,
@@ -86,7 +87,7 @@ SvgTrack.prototype.draw = function(){
 		"height":10,
 		"fill":"blue"
 	});
-	var rect3 = features.addChildSVG("rect",{
+	var rect3 = SVG.addChild(features,"rect",{
 //		"class":this.clase,
 		"x":100,
 		"y":60,
@@ -94,13 +95,18 @@ SvgTrack.prototype.draw = function(){
 		"height":10,
 		"fill":"green"
 	});
-	var text = main.addChildSVG("text",{
+
+//XXX	
+	
+	var text = SVG.addChild(main,"text",{
 		"x":15,
 		"y":80,
 		"fill":"black",
 		"transform":"rotate(-90 15,80)"
 	});
 	text.textContent = this.title;
+	
+	
 	
 	$(titlebar).mousedown(function(event){
 		main.parentNode.appendChild(main); 
@@ -114,16 +120,19 @@ SvgTrack.prototype.draw = function(){
 	$(main).mouseup(function(event){
 		$(this).off('mousemove');
 	});
-//	$(this.parentNode).mouseup(function(event){
-//		$(this.parentNode).off('mousemove');
-//	});
+	
+	
+	
+	
+	
+	
 	$(main).mouseenter(function(event){
-		cont.setAttribute("opacity","0.1");
-		titlebar.setAttribute("opacity","1");
+		over.setAttribute("opacity","0.1");
+		titlebar.setAttribute("fill","orange");
 	});
 	$(main).mouseleave(function(event){
-		cont.setAttribute("opacity","0");
-		titlebar.setAttribute("opacity","0");
+		over.setAttribute("opacity","0");
+		titlebar.setAttribute("fill","white");
 	});
 
 	$(upRect).mouseenter(function(event){
@@ -136,6 +145,17 @@ SvgTrack.prototype.draw = function(){
 	
 	
 	
+	
+	$(this.parent).mousedown(function(event) {
+		var x = parseInt(features.getAttribute("x")) - event.offsetX;
+		$(this).mousemove(function(event){
+			features.setAttribute("x",x + event.offsetX);
+		});
+	});
+	$(this.parent).mouseup(function(event) {
+		$(this).off('mousemove');
+	});
+	
 //	$(upRect).click(function(event){
 //		main.setAttribute("y",0);
 //	});
@@ -143,9 +163,8 @@ SvgTrack.prototype.draw = function(){
 //		main.setAttribute("y",500);
 //	});
 	
+	
 	this.main = main;
 	this.upRect = upRect;
 	this.downRect = downRect;
-	
-	
 };
