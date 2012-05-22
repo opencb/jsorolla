@@ -727,7 +727,8 @@ GenomeViewer.prototype._getTracksPanel = function() {
 //					var svg  = div.initSVG({
 //					});
 					var svg  = SVG.init(div,{
-						
+						"width":_this.width,
+						"height":300
 					});
 					
 					var track = new SvgTrack(svg,{title:"pim",clase:"asdf"});		

@@ -32,7 +32,9 @@ SvgTrack.prototype.draw = function(){
 	});
 	var features = SVG.addChild(main,"svg",{
 		"x":0,
-		"class":this.clase,
+		"width":1000,
+		"height":this.height,
+		"class":this.clase
 	});
 	var over = SVG.addChild(main,"rect",{
 		"x":0,
@@ -111,10 +113,10 @@ SvgTrack.prototype.draw = function(){
 	$(titlebar).mousedown(function(event){
 		main.parentNode.appendChild(main); 
 //		var x = parseInt(main.getAttribute("x")) - event.offsetX;
-		var y = parseInt(main.getAttribute("y")) - event.offsetY;
+		var y = parseInt(main.getAttribute("y")) - event.clientY;
 		$(this.parentNode).mousemove(function(event){
 //			main.setAttribute("x",x + event.offsetX);
-			main.setAttribute("y",y + event.offsetY);
+			main.setAttribute("y",y + event.clientY);
 		});
 	});
 	$(main).mouseup(function(event){
@@ -147,9 +149,9 @@ SvgTrack.prototype.draw = function(){
 	
 	
 	$(this.parent).mousedown(function(event) {
-		var x = parseInt(features.getAttribute("x")) - event.offsetX;
+		var x = parseInt(features.getAttribute("x")) - event.clientX;
 		$(this).mousemove(function(event){
-			features.setAttribute("x",x + event.offsetX);
+			features.setAttribute("x",x + event.clientX);
 		});
 	});
 	$(this.parent).mouseup(function(event) {
