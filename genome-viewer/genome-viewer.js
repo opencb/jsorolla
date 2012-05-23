@@ -721,26 +721,22 @@ GenomeViewer.prototype._getTracksPanel = function() {
 			html:'<div height=2000px; overflow-y="scroll"; id = "'+this.id+'tracksSvg"></div>',
 			listeners:{
 				afterrender:function(){
-					//XXX SVG
-					// createTrack(this.id+'tracksSvg', 'snp');
 					var div = $('#'+_this.id+"tracksSvg")[0];
-//					var svg  = div.initSVG({
-//					});
-					var svg  = SVG.init(div,{
-						"width":_this.width,
-						"height":700
-					});
+					_this.trackDataList = new TrackDataList();
+					var trackSvgLayout = new TrackSvgLayout(div,_this.trackDataList,{width:_this.width-18});
+//					trackSvgLayout.draw();
+					
+//					var chunkHash = new Object();
+//					chunk["chr1"]
+					
+					_this.trackDataList.addTrack({id:"track1"});
+					_this.trackDataList.addTrack({id:"track2"});
+					_this.trackDataList.addTrack({id:"track3"});
 					
 					
-					var track = new SvgTrack(svg,{title:"pim",clase:"asdf"});		
-					var track2 = new SvgTrack(svg,{title:"pam",clase:"asdf"});		
-					var track3 = new SvgTrack(svg,{title:"pum",clase:"asdf"});		
-					var trackLayout = new TrackLayout(svg,{clase:"asdf"});
-					trackLayout.add(track);
-					trackLayout.add(track2);
-					trackLayout.add(track3);
-					trackLayout.draw();
-					
+					setTimeout(function() {
+						_this.trackDataList.addTrack({id:"track4"});
+					},5000);
 				}
 			}
 		});
