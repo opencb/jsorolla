@@ -26,7 +26,7 @@ FileDataAdapter.prototype.loadFromFile = function(file){
 					msg: 'Max file size is 50 Mbytes.'
 				});
 			}else{
-				_this.loadFromContent(evt.target.result);
+				return evt.target.result;
 			}
 		};
 		reader.readAsText(file, "UTF-8");

@@ -150,6 +150,7 @@ SvgTrack.prototype.draw = function(){
 	
 	$(this.parent).mousedown(function(event) {
 		var x = parseInt(features.getAttribute("x")) - event.clientX;
+		console.log(event);
 		$(this).mousemove(function(event){
 			features.setAttribute("x",x + event.clientX);
 		});
