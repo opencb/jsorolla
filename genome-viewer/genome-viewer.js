@@ -416,7 +416,7 @@ GenomeViewer.prototype._updateChrStore = function(){
 	var chrView = Ext.getCmp(this.id+"chrView");
 	var cellBaseManager = new CellBaseManager(this.species);
  	cellBaseManager.get("feature", "karyotype", "none", "chromosome");
- 	cellBaseManager.successed.addEventListener(function(sender,data){
+ 	cellBaseManager.success.addEventListener(function(sender,data){
  		var chromosomeData = [];
  		var sortfunction = function(a, b) {
  			var IsNumber = true;
@@ -722,21 +722,16 @@ GenomeViewer.prototype._getTracksPanel = function() {
 			listeners:{
 				afterrender:function(){
 					var div = $('#'+_this.id+"tracksSvg")[0];
-					_this.trackDataList = new TrackDataList();
+					_this.trackDataList = new TrackDataList(_this.species);
 					var trackSvgLayout = new TrackSvgLayout(div,_this.trackDataList,{width:_this.width-18});
 //					trackSvgLayout.draw();
 					
-//					var chunkHash = new Object();
-//					chunk["chr1"]
+					_this.trackDataList.addTrack({id:"gene",resource:"gene"});
+					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
 					
-					_this.trackDataList.addTrack({id:"track1"});
-					_this.trackDataList.addTrack({id:"track2"});
-					_this.trackDataList.addTrack({id:"track3"});
-					
-					
-					setTimeout(function() {
-						_this.trackDataList.addTrack({id:"track4"});
-					},5000);
+//					setTimeout(function() {
+//						_this.trackDataList.addTrack({id:"track4"});
+//					},5000);
 				}
 			}
 		});

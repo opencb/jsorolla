@@ -47,10 +47,12 @@ TrackSvgLayout.prototype.setHeight = function(height){
 };
 
 TrackSvgLayout.prototype.draw = function(i){
-	console.log(i);
 	var _this = this;
+	
+	var trackData = this.trackDataList.getTrack(i);
+	
 	var trackSvg = new TrackSvg(this.svg,{
-		id:this.trackDataList.trackList[i].id,
+		id:trackData.id,
 		width:this.width
 	});
 	this.trackSvgList.push(trackSvg);
