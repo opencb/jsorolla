@@ -6,40 +6,30 @@ function TrackData(species,args) {
 	
 	this.featureCache =  new FeatureCache({chunkSize:1000});
 	
-	this.onCache = new Event();
+	this.onRetrieve = new Event();
 	
-	this.get({chromosome:13,start:32889511,end:32891522});
+//	this.retrieveData({chromosome:13,start:32889511,end:32891522});
 };
 
 //al moverse se va rellenando.
-TrackData.prototype.get = function(region){
+TrackData.prototype.retrieveData = function(region){
 	var _this = this;
 	
-	this.featureCache.get(region);
+	var features = this.featureCache.get(region);
+	if(features == null){
+		var query = region.chromosome+":"+region.start+"-"+region.end;
+		var cellBaseManager = new CellBaseManager(_this.species);
+		cellBaseManager.success.addEventListener(function(sender,data){
+			for(var i = 0; i < data.length; i++) {
+				_this.featureCache.put(data[i]);
+			}
+			_this.onRetrieve.notify(_this.featureCache.get(region));
+		});
+		cellBaseManager.get("genomic", "region", query, this.resource);
+	}else{
+		_this.onRetrieve.notify(features);
+	}
 	
-//	var query = region.chromosome+":"+region.start+"-"+region.end;
-//	var cellBaseManager = new CellBaseManager(_this.species);
-//	cellBaseManager.success.addEventListener(function(sender,data){
-//		for(var i = 0; i < data.length; i++) {
-//			_this.featureCache.put(data[i]);
-//			_this.onCache.notify(region);
-//		}
-//	});
-//	cellBaseManager.get("genomic", "region", query, this.resource);
 };
 
-//este método recoge exactamente los elementos de la región.
-TrackData.prototype._asdf = function(region){
-	var firstChunk = Math.floor(region.start/this.featureCache.chunkSize);
-	if (firstChunk > 0){
-		firstChunk -=1;
-	}
-	var lastChunk = Math.floor(region.end/this.featureCache.chunkSize) + 1;
-	
-	var keys = new Array();
-	for(i=firstChunk; i<=lastChunk; i++){
-		var key = region.chromosome+"-"+i;
-		keys.push(key);
-		console.log(this.featureCache.get(keys[i]));
-	}
-};
+

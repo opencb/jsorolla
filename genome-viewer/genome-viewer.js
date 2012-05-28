@@ -109,9 +109,9 @@ GenomeViewer.prototype.setSize = function(width,height) {
 };
 
 GenomeViewer.prototype.setLoc = function(data) {
-	console.log(data.sender);
+//	console.log(data.sender);
 	
-	this.chromosomeFeatureTrack.select(data.position-1000, data.position+1000);
+//	this.chromosomeFeatureTrack.select(data.position-1000, data.position+1000);
 	
 	switch(data.sender){
 	case "setSpecies": 
@@ -162,6 +162,11 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this.position = data.position;
 		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
 		this._karyotypePanel.select(this.chromosome, this.position, this.position);
+		break;
+	case "trackSvgLayout":
+		this.position = this.position+data.position;
+		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
+//		this._karyotypePanel.select(this.chromosome, this.position, this.position);
 		break;
 	default:
 	
@@ -463,7 +468,14 @@ GenomeViewer.prototype._getZoomSlider = function() {
 };
 
 
-
+GenomeViewer.prototype.setZoom = function(args) {
+	var _this = this;
+	this.zoom = args;
+	this._getZoomSlider().setValue(args);
+	if(this.trackSvgLayout!=null){
+		this.trackSvgLayout.setZoom(args);
+	}
+};
 
 //Action for buttons located in the NavigationBar
 GenomeViewer.prototype._handleNavigationBar = function(action, args) {
@@ -723,11 +735,17 @@ GenomeViewer.prototype._getTracksPanel = function() {
 				afterrender:function(){
 					var div = $('#'+_this.id+"tracksSvg")[0];
 					_this.trackDataList = new TrackDataList(_this.species);
-					var trackSvgLayout = new TrackSvgLayout(div,_this.trackDataList,{width:_this.width-18});
-//					trackSvgLayout.draw();
+					this.trackSvgLayout = new TrackSvgLayout(div,_this.trackDataList,{
+						width:_this.width-18,
+						position:_this.position,
+						zoom : _this.zoom
+					});
+					this.trackSvgLayout.onMove.addEventListener(function(sender,data){
+						_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
+					});
 					
 					_this.trackDataList.addTrack({id:"gene",resource:"gene"});
-					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
+//					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
 					
 //					setTimeout(function() {
 //						_this.trackDataList.addTrack({id:"track4"});

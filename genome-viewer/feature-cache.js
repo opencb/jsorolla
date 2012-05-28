@@ -22,18 +22,19 @@ FeatureCache.prototype._getChunk = function(position){
 
 FeatureCache.prototype.put = function(featureDataList){
 	var key,firstChunk,lastChunk;
-	for(var featureData in featureDataList) {
-		firstChunk = this._getChunk(featureData.start);
-		lastChunk = this._getChunk(featureData.end);
+	for(var index in featureDataList) {
+		feature = featureDataList[index];
+		firstChunk = this._getChunk(feature.start);
+		lastChunk = this._getChunk(feature.end);
 		for(var i=firstChunk; i<=lastChunk; i++) {
-			key = featureData.chromosome+":"+i;
+			key = feature.chromosome+":"+i;
 			if(this.cache[key]==null){
 				this.cache[key] = new Array();
 			}
 			if(this.gzip) {
-				this.cache[key].push(featureData);
+				this.cache[key].push(feature);
 			}else{
-				this.cache[key].push(featureData);
+				this.cache[key].push(feature);
 			}
 		}
 	}
@@ -54,14 +55,14 @@ FeatureCache.prototype.get = function(region){
 	for(var i=firstChunk; i<=lastChunk; i++){
 		key = region.chromosome+":"+i;
 		if(this.cache[key] != null && this.cache[key].length > 0) {
-			for ( var i = 0; i < this.cache[key].length; i++) {
+			for ( var j = 0; j < this.cache[key].length; j++) {
 				if(this.gzip) {
 //					feature = ;
 				}else{
-					feature = this.cache[key][i];
+					feature = this.cache[key][j];
 				}
 				// we only get those features in the region
-				if(feature.end > region.start && feature.start < region.end ){
+				if(feature.end > region.start && feature.start < region.end && feature.start > i*this.chunkSize){
 					features.push(feature);
 				}
 			}

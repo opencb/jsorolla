@@ -3,7 +3,7 @@ function TrackSvg(parent, args) {
 //	this.id = Math.round(Math.random()*10000000); // internal id for this class
 	this.parent = parent;
 
-	this.y = 0;
+	this.y = 25;
 	this.height = 200;
 	this.width = 200;
 	this.title = "track";
@@ -23,10 +23,20 @@ function TrackSvg(parent, args) {
 		if(args.height != null){
 			this.height = args.height;
 		}
+		if(args.position != null){
+			this.position = args.position;
+		}
+		if(args.zoom != null){
+			this.zoom = args.zoom;
+		}
+		if(args.pixelBase != null){
+			this.pixelBase = args.pixelBase;
+		}
 	}
 	
 	//flags
 	this.rendered = false;
+	this.cache = {};
 	
 };
 TrackSvg.prototype.setY = function(value){
@@ -52,7 +62,7 @@ TrackSvg.prototype.draw = function(){
 	});
 	var features = SVG.addChild(main,"svg",{
 		"x":0,
-		"width":this.width,
+		"width":7000000,
 		"height":this.height,
 		"class":this.clase
 	});
@@ -99,29 +109,29 @@ TrackSvg.prototype.draw = function(){
 		"fill":"plum"
 	});
 	
-//XXX
-	
-	for ( var i = 0; i < 150; i++) {
-		var rect = SVG.addChild(features,"line",{
-			"x1":80+i,
-			"y1":10+i,
-			"x2":80+i+200,
-			"y2":10+i,
+////XXX
+//	
+//	for ( var i = 0; i < 150; i++) {
+//		var rect = SVG.addChild(features,"line",{
+//			"x1":80+i,
+//			"y1":10+i,
+//			"x2":80+i+200,
+//			"y2":10+i,
+////			"width":200,
+////			"height":1,
+//			"stroke-width":"1",
+//			"stroke":"black"
+//		});
+//		var rect = SVG.addChild(features,"rect",{
+//			"x":80+i,
+//			"y":i,
 //			"width":200,
 //			"height":1,
-			"stroke-width":"1",
-			"stroke":"black"
-		});
-		var rect = SVG.addChild(features,"rect",{
-			"x":80+i,
-			"y":i,
-			"width":200,
-			"height":1,
-			"fill":"black"
-		});
-	}
-
-//XXX	
+//			"fill":"black"
+//		});
+//	}
+//
+////XXX	
 	
 	var text = SVG.addChild(main,"text",{
 		"x":15,
@@ -204,6 +214,41 @@ TrackSvg.prototype.draw = function(){
 	this.upRect = upRect;
 	this.downRect = downRect;
 	this.hideRect = hideRect;
+	this.features = features;
 	
 	this.rendered = true;
+};
+TrackSvg.prototype.addFeatures = function(featureList){
+//	console.log(this.position);
+//	console.log(featureList)
+	
+	var featureSvg;
+	var _this=this;
+	var middle = _this.width/2;
+	
+	
+	for ( var i = 0; i < featureList.length; i++) {
+		featureSvg = this.cache[featureList[i].chromosome+featureList[i].start+featureList[i].end];
+		if(featureSvg!=null){
+//			this.features.appendChild(featureSvg);
+		}else{
+			var width = (featureList[i].end-featureList[i].start)*this.pixelBase;
+			var color = "blue";
+			
+			if(width<0){
+				width=Math.abs(width);
+				color = "red";
+			}
+			var x = middle-((this.position-featureList[i].start)*this.pixelBase);
+			var rect = SVG.addChild(this.features,"rect",{
+				"x":x,
+				"y":i*3,
+				"width":width,
+				"height":10,
+				"fill":color
+			});
+			this.cache[featureList[i].chromosome+featureList[i].start+featureList[i].end]=rect;
+		}
+		
+	}
 };
