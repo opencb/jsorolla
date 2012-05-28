@@ -226,7 +226,7 @@ TrackSvg.prototype.addFeatures = function(featureList){
 	var _this=this;
 	var middle = _this.width/2;
 	
-	
+//	console.log(featureList)
 	for ( var i = 0; i < featureList.length; i++) {
 		featureSvg = this.cache[featureList[i].chromosome+featureList[i].start+featureList[i].end];
 		if(featureSvg!=null){
@@ -242,7 +242,7 @@ TrackSvg.prototype.addFeatures = function(featureList){
 			var x = middle-((this.position-featureList[i].start)*this.pixelBase);
 			var rect = SVG.addChild(this.features,"rect",{
 				"x":x,
-				"y":i*3,
+				"y":0,
 				"width":width,
 				"height":10,
 				"fill":color

@@ -20,8 +20,20 @@ FeatureCache.prototype._getChunk = function(position){
 	return Math.floor(position/this.chunkSize);
 };
 
-FeatureCache.prototype.put = function(featureDataList){
-	var key,firstChunk,lastChunk;
+FeatureCache.prototype.put = function(featureDataList,region){
+	var key,firstChunk,lastChunk,feature;
+	
+	//initialize region
+	firstChunk = this._getChunk(region.start);
+	lastChunk = this._getChunk(region.end);
+	for(var i=firstChunk; i<=lastChunk; i++){
+		key = region.chromosome+":"+i;
+		if(this.cache[key]==null){
+			this.cache[key] = new Array();
+		}
+	}
+	
+	//put features on his chunk
 	for(var index in featureDataList) {
 		feature = featureDataList[index];
 		firstChunk = this._getChunk(feature.start);
@@ -62,7 +74,7 @@ FeatureCache.prototype.get = function(region){
 					feature = this.cache[key][j];
 				}
 				// we only get those features in the region
-				if(feature.end > region.start && feature.start < region.end && feature.start > i*this.chunkSize){
+				if(feature.end > region.start && feature.start < region.end /*&& feature.start > i*this.chunkSize*/){
 					features.push(feature);
 				}
 			}
