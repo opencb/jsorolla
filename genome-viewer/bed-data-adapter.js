@@ -4,13 +4,12 @@ function BEDDataAdapter(dataSource){
 	this.featuresByChromosome = new Array();
 };
 
-BEDDataAdapter.prototype.getData = function(){
+BEDDataAdapter.prototype.getData = function(resource){
 	var _this = this;
-	console.log("creating objects");
 	this.dataSource.success.addEventListener(function(sender, data){
 		_this.parse(data);
 	});
-	dataSource.fetch();
+	this.dataSource.fetch(resource);
 };
 
 BEDDataAdapter.prototype.parse = function(data){

@@ -8,6 +8,11 @@ function FileDataSource() {
 	this.error = new Event();
 };
 
+FileDataSource.prototype.error = function(){
+	alert("File is too big. Max file size is 50 Mbytes.");
+};
+
+
 FileDataSource.prototype.fetch = function(file){
 	this.file = file;
 	var _this = this;
@@ -15,10 +20,7 @@ FileDataSource.prototype.fetch = function(file){
 		var  reader = new FileReader();
 		reader.onload = function(evt) {
 			if(evt.target.result.length>52428800){
-				Ext.Msg.show({
-					title:'File is too big',
-					msg: 'Max file size is 50 Mbytes.'
-				});
+				_this.error();
 				_this.error.notify();
 			}else{
 				_this.success.notify(evt.target.result);

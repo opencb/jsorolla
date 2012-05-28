@@ -4,13 +4,12 @@ function GFFDataAdapter(dataSource){
 	this.featuresByChromosome = new Array();
 };
 
-GFFDataAdapter.prototype.getData = function(){
+GFFDataAdapter.prototype.getData = function(resource){
 	var _this = this;
-	console.log("creating objects");
 	this.dataSource.success.addEventListener(function(sender, data){
 		_this.parse(data);
 	});
-	dataSource.fetch();
+	this.dataSource.fetch(resource);
 };
 
 GFFDataAdapter.prototype.parse = function(data){
