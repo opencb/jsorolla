@@ -36,7 +36,6 @@ function TrackSvg(parent, args) {
 	
 	//flags
 	this.rendered = false;
-	this.cache = {};
 	
 };
 TrackSvg.prototype.setY = function(value){
@@ -222,33 +221,36 @@ TrackSvg.prototype.addFeatures = function(featureList){
 //	console.log(this.position);
 //	console.log(featureList)
 	
-	var featureSvg;
 	var _this=this;
 	var middle = _this.width/2;
 	
 //	console.log(featureList)
 	for ( var i = 0; i < featureList.length; i++) {
-		featureSvg = this.cache[featureList[i].chromosome+featureList[i].start+featureList[i].end];
-		if(featureSvg!=null){
-//			this.features.appendChild(featureSvg);
-		}else{
-			var width = (featureList[i].end-featureList[i].start)*this.pixelBase;
-			var color = "blue";
-			
-			if(width<0){
-				width=Math.abs(width);
-				color = "red";
-			}
-			var x = middle-((this.position-featureList[i].start)*this.pixelBase);
-			var rect = SVG.addChild(this.features,"rect",{
-				"x":x,
-				"y":0,
-				"width":width,
-				"height":10,
-				"fill":color
-			});
-			this.cache[featureList[i].chromosome+featureList[i].start+featureList[i].end]=rect;
+		console.log(featureList[i])
+		var width = (featureList[i].end-featureList[i].start)+1;
+//		console.log(width)
+		var color = "blue";
+
+		//snps can be negative
+		if(width<0){
+			width=Math.abs(width);
+			color = "red";
 		}
+		//snps with same start - end
+		if(width==0){
+			width=1;
+			color = "orangered";
+		}
+		width= width*this.pixelBase;
+
+		var x = middle-((this.position-featureList[i].start)*this.pixelBase);
+		var rect = SVG.addChild(this.features,"rect",{
+			"x":x,
+			"y":0,
+			"width":width,
+			"height":10,
+			"fill":color
+		});
 		
 	}
 };
