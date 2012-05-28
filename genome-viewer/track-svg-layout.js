@@ -30,7 +30,6 @@ function TrackSvgLayout(parent, trackDataList, args) {
 	
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	
-	
 	this.svg = SVG.init(parent,{
 		"width":this.width,
 		"height":this.height
@@ -49,26 +48,6 @@ function TrackSvgLayout(parent, trackDataList, args) {
 		"fill":"green",
 	});
 	this.positionText.textContent = this.position;
-	
-	$(this.svg).mousedown(function(event) {
-		var move = event.clientX;
-		$(this).mousemove(function(event){
-			var moveDirection = move-event.clientX;
-			if(moveDirection<0){//left
-				_this.onMove.notify(_this.move-event.clientX);
-			}
-			if(moveDirection>0){//right
-				
-			}
-			
-			_this.position = _this.position+_this.move-event.clientX;
-			_this.positionText.textContent = _this.position;
-			_this.move = event.clientX;
-		});
-	});
-	$(this.svg).mouseup(function(event) {
-		$(this).off('mousemove');
-	});
 	
 	this.currentLine = SVG.addChild(this.svg,"line",{
 			"x1":mid,
@@ -93,7 +72,6 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.onZoomChange.notify();
 };
 
-
 TrackSvgLayout.prototype.draw = function(i){
 	var _this = this;
 	
@@ -106,9 +84,25 @@ TrackSvgLayout.prototype.draw = function(i){
 		id:trackData.id,
 		width:this.width
 	});
+	
+	//virtual window
+	var halfVirtualWidth = _this.width*3/2;
+	var virtualStart = parseInt(_this.position - halfVirtualWidth / _this.pixelBase);
+	var vitualEnd = parseInt(_this.position + halfVirtualWidth / _this.pixelBase);
+	trackData.retrieveData({chromosome:13,start:virtualStart,end:vitualEnd});
+	
+	//on zoom change set new virtual window and update track values
 	this.onZoomChange.addEventListener(function(sender,data){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
+		while ( trackSvg.features.childNodes.length >= 1 )
+	    {
+			trackSvg.features.removeChild( trackSvg.features.firstChild );       
+	    } 
+		trackSvg.cache={};
+		var virtualStart = parseInt(_this.position - halfVirtualWidth / _this.pixelBase);
+		var vitualEnd = parseInt(_this.position + halfVirtualWidth / _this.pixelBase);
+		trackData.retrieveData({chromosome:13,start:virtualStart,end:vitualEnd});
 	});
 	
 	this.trackSvgList.push(trackSvg);
@@ -127,21 +121,6 @@ TrackSvgLayout.prototype.draw = function(i){
 		_this._hideTrack(this.parentNode.id);//"this" is the svg element
 	});
 	
-	var halfVirtualWidth = _this.width*3/2;
-	var virtualStart = parseInt(_this.position - halfVirtualWidth / _this.pixelBase);
-	var vitualEnd = parseInt(_this.position + halfVirtualWidth / _this.pixelBase);
-	trackData.retrieveData({chromosome:13,start:virtualStart,end:vitualEnd});
-	$(this.svg).mousedown(function(event) {
-		$(this).mousemove(function(event){
-			trackSvg.position = _this.position;
-			var virtualStart = parseInt(_this.position - halfVirtualWidth / _this.pixelBase);
-			var vitualEnd = parseInt(_this.position + halfVirtualWidth / _this.pixelBase);
-			trackData.retrieveData({chromosome:13,start:virtualStart,end:vitualEnd});
-		});
-	});
-	$(this.svg).mouseup(function(event) {
-		$(this).off('mousemove');
-	});
 	
 	trackData.onRetrieve.addEventListener(function(sender,data){
 //		console.log(trackData.featureCache)

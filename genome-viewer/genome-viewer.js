@@ -735,17 +735,17 @@ GenomeViewer.prototype._getTracksPanel = function() {
 				afterrender:function(){
 					var div = $('#'+_this.id+"tracksSvg")[0];
 					_this.trackDataList = new TrackDataList(_this.species);
-					this.trackSvgLayout = new TrackSvgLayout(div,_this.trackDataList,{
+					_this.trackSvgLayout = new TrackSvgLayout(div,_this.trackDataList,{
 						width:_this.width-18,
 						position:_this.position,
 						zoom : _this.zoom
 					});
-					this.trackSvgLayout.onMove.addEventListener(function(sender,data){
+					_this.trackSvgLayout.onMove.addEventListener(function(sender,data){
 						_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 					});
 					
 					_this.trackDataList.addTrack({id:"gene",resource:"gene"});
-//					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
+					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
 					
 //					setTimeout(function() {
 //						_this.trackDataList.addTrack({id:"track4"});

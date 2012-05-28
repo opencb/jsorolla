@@ -14,14 +14,13 @@ function TrackData(species,args) {
 //al moverse se va rellenando.
 TrackData.prototype.retrieveData = function(region){
 	var _this = this;
-	
 	var features = this.featureCache.get(region);
 	if(features == null){
 		var query = region.chromosome+":"+region.start+"-"+region.end;
 		var cellBaseManager = new CellBaseManager(_this.species);
 		cellBaseManager.success.addEventListener(function(sender,data){
 			for(var i = 0; i < data.length; i++) {
-				_this.featureCache.put(data[i]);
+				_this.featureCache.put(data[i],region);
 			}
 			_this.onRetrieve.notify(_this.featureCache.get(region));
 		});
