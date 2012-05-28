@@ -19,7 +19,7 @@ function CellBaseManager(species, args) {
 	}
 	
 	
-	this.version = "v1";
+	this.version = "latest";
 	this.species = species;
 	
 //		this.host = 'http://localhost:8080/celldb/rest';
@@ -48,7 +48,7 @@ function CellBaseManager(species, args) {
 	
 	//Events
 	this.completed = new Event();
-	this.successed = new Event();
+	this.success = new Event();
 	this.batchSuccessed = new Event();
 	this.error = new Event();
 
@@ -184,7 +184,7 @@ function CellBaseManager(species, args) {
 						if (_this.batching){
 							_this.batchSuccessed.notify({data:jsonResponse, id:batchID});
 						}else{
-							_this.successed.notify(jsonResponse);
+							_this.success.notify(jsonResponse);
 						}
 //					}
 //					catch(e){

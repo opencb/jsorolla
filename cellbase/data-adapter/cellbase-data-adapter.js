@@ -30,7 +30,7 @@ CellBaseDataAdapter.prototype.setSpecies = function(specie){
 CellBaseDataAdapter.prototype.fill = function(category, subcategory, query, resource, callbackFunction){
 	this.cellBaseManager.get(category, subcategory, query, resource);
 	var _this = this;
-	this.cellBaseManager.successed.addEventListener(function (evt, data){
+	this.cellBaseManager.success.addEventListener(function (evt, data){
 		_this.getFinished(data);
 	});
 };

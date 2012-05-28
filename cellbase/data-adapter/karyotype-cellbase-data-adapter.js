@@ -65,7 +65,7 @@ KaryotypeCellBaseDataAdapter.prototype.getCytobandsByChromosome = function(chrom
 	var _this = this;
 	
 	var cellBaseDataAdapterChr = new CellBaseManager(this.species);
-	cellBaseDataAdapterChr.successed.addEventListener(function(evt, data) {
+	cellBaseDataAdapterChr.success.addEventListener(function(evt, data) {
 		_this.getFinished(data);
 	});
 	chromosomeName.sort(this.sortfunction);

@@ -109,9 +109,9 @@ GenomeViewer.prototype.setSize = function(width,height) {
 };
 
 GenomeViewer.prototype.setLoc = function(data) {
-	console.log(data.sender);
+//	console.log(data.sender);
 	
-	this.chromosomeFeatureTrack.select(data.position-1000, data.position+1000);
+//	this.chromosomeFeatureTrack.select(data.position-1000, data.position+1000);
 	
 	switch(data.sender){
 	case "setSpecies": 
@@ -162,6 +162,11 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this.position = data.position;
 		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
 		this._karyotypePanel.select(this.chromosome, this.position, this.position);
+		break;
+	case "trackSvgLayout":
+		this.position = this.position+data.position;
+		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
+//		this._karyotypePanel.select(this.chromosome, this.position, this.position);
 		break;
 	default:
 	
@@ -416,7 +421,7 @@ GenomeViewer.prototype._updateChrStore = function(){
 	var chrView = Ext.getCmp(this.id+"chrView");
 	var cellBaseManager = new CellBaseManager(this.species);
  	cellBaseManager.get("feature", "karyotype", "none", "chromosome");
- 	cellBaseManager.successed.addEventListener(function(sender,data){
+ 	cellBaseManager.success.addEventListener(function(sender,data){
  		var chromosomeData = [];
  		var sortfunction = function(a, b) {
  			var IsNumber = true;
@@ -463,7 +468,14 @@ GenomeViewer.prototype._getZoomSlider = function() {
 };
 
 
-
+GenomeViewer.prototype.setZoom = function(args) {
+	var _this = this;
+	this.zoom = args;
+	this._getZoomSlider().setValue(args);
+	if(this.trackSvgLayout!=null){
+		this.trackSvgLayout.setZoom(args);
+	}
+};
 
 //Action for buttons located in the NavigationBar
 GenomeViewer.prototype._handleNavigationBar = function(action, args) {
@@ -721,25 +733,23 @@ GenomeViewer.prototype._getTracksPanel = function() {
 			html:'<div height=2000px; overflow-y="scroll"; id = "'+this.id+'tracksSvg"></div>',
 			listeners:{
 				afterrender:function(){
-					//XXX SVG
-					// createTrack(this.id+'tracksSvg', 'snp');
 					var div = $('#'+_this.id+"tracksSvg")[0];
-//					var svg  = div.initSVG({
-//					});
-					var svg  = SVG.init(div,{
-						"width":_this.width,
-						"height":300
+					_this.trackDataList = new TrackDataList(_this.species);
+					this.trackSvgLayout = new TrackSvgLayout(div,_this.trackDataList,{
+						width:_this.width-18,
+						position:_this.position,
+						zoom : _this.zoom
+					});
+					this.trackSvgLayout.onMove.addEventListener(function(sender,data){
+						_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 					});
 					
-					var track = new SvgTrack(svg,{title:"pim",clase:"asdf"});		
-					var track2 = new SvgTrack(svg,{title:"pam",clase:"asdf"});		
-					var track3 = new SvgTrack(svg,{title:"pum",clase:"asdf"});		
-					var trackLayout = new TrackLayout(svg,{clase:"asdf"});
-					trackLayout.add(track);
-					trackLayout.add(track2);
-					trackLayout.add(track3);
-					trackLayout.draw();
+					_this.trackDataList.addTrack({id:"gene",resource:"gene"});
+//					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
 					
+//					setTimeout(function() {
+//						_this.trackDataList.addTrack({id:"track4"});
+//					},5000);
 				}
 			}
 		});
