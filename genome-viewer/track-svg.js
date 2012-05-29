@@ -60,10 +60,9 @@ TrackSvg.prototype.draw = function(){
 		"height":this.height
 	});
 	var features = SVG.addChild(main,"svg",{
-		"x":0,
+		"x":-3500000,
 		"width":7000000,
-		"height":this.height,
-		"class":this.clase
+		"height":this.height
 	});
 	var over = SVG.addChild(main,"rect",{
 		"x":0,
@@ -191,15 +190,19 @@ TrackSvg.prototype.draw = function(){
 	
 	
 	
-	$(this.parent).mousedown(function(event) {
-		var x = parseInt(features.getAttribute("x")) - event.clientX;
-		$(this).mousemove(function(event){
-			features.setAttribute("x",x + event.clientX);
-		});
-	});
-	$(this.parent).mouseup(function(event) {
-		$(this).off('mousemove');
-	});
+//	$(this.parent).mousedown(function(event) {
+//		var x = parseInt(features.getAttribute("x")) - event.clientX;
+//		$(this).mousemove(function(event){
+//			features.setAttribute("x",x + event.clientX);
+//		});
+//	});
+//	$(this.parent).mouseup(function(event) {
+//		$(this).off('mousemove');
+//	});
+	
+	
+	
+	
 	
 //	$(upRect).click(function(event){
 //		main.setAttribute("y",0);
@@ -226,7 +229,6 @@ TrackSvg.prototype.addFeatures = function(featureList){
 	
 //	console.log(featureList)
 	for ( var i = 0; i < featureList.length; i++) {
-		console.log(featureList[i])
 		var width = (featureList[i].end-featureList[i].start)+1;
 //		console.log(width)
 		var color = "blue";
@@ -243,14 +245,22 @@ TrackSvg.prototype.addFeatures = function(featureList){
 		}
 		width= width*this.pixelBase;
 
-		var x = middle-((this.position-featureList[i].start)*this.pixelBase);
+		var x = 3500000+middle-((this.position-featureList[i].start)*this.pixelBase);
 		var rect = SVG.addChild(this.features,"rect",{
 			"x":x,
 			"y":0,
 			"width":width,
-			"height":10,
+			"height":12,
+			"z-index":20000,
 			"fill":color
 		});
 		
+		var text = SVG.addChild(this.features,"text",{
+			"x":x,
+			"y":10,
+			"z-index":21000,
+			"fill":"white"
+		});
+		text.textContent = featureList[i].externalName;
 	}
 };

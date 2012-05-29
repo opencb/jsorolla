@@ -468,12 +468,12 @@ GenomeViewer.prototype._getZoomSlider = function() {
 };
 
 
-GenomeViewer.prototype.setZoom = function(args) {
+GenomeViewer.prototype.setZoom = function(zoom) {
 	var _this = this;
-	this.zoom = args;
-	this._getZoomSlider().setValue(args);
+	this.zoom = zoom;
+	this._getZoomSlider().setValue(zoom);
 	if(this.trackSvgLayout!=null){
-		this.trackSvgLayout.setZoom(args);
+		this.trackSvgLayout.setZoom(zoom);
 	}
 };
 
@@ -745,7 +745,7 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					});
 					
 					_this.trackDataList.addTrack({id:"gene",resource:"gene"});
-					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
+//					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
 					
 //					setTimeout(function() {
 //						_this.trackDataList.addTrack({id:"track4"});

@@ -64,6 +64,8 @@ FeatureCache.prototype.get = function(region){
 			return null;
 		}
 	}
+	
+	var addedHash = new Object();
 	for(var i=firstChunk; i<=lastChunk; i++){
 		key = region.chromosome+":"+i;
 		if(this.cache[key] != null && this.cache[key].length > 0) {
@@ -73,10 +75,15 @@ FeatureCache.prototype.get = function(region){
 				}else{
 					feature = this.cache[key][j];
 				}
-				// we only get those features in the region
-				if(feature.end > region.start && feature.start < region.end /*&& feature.start > i*this.chunkSize*/){
-					features.push(feature);
+				
+				if(addedHash[feature.chromosome+feature.start+feature.end]!=true){
+					// we only get those features in the region
+					if(feature.end > region.start && feature.start < region.end /*&& feature.start > i*this.chunkSize*/){
+						features.push(feature);
+					}
+					addedHash[feature.chromosome+feature.start+feature.end]=true;
 				}
+				
 			}
 		}
 		

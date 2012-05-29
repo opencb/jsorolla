@@ -27,6 +27,7 @@ function TrackSvgLayout(parent, trackDataList, args) {
 			this.zoom = args.zoom;
 		}
 	}
+	this._createPixelsbyBase();//create pixelByBase array
 	
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	
@@ -34,13 +35,7 @@ function TrackSvgLayout(parent, trackDataList, args) {
 		"width":this.width,
 		"height":this.height
 	});
-
-	trackDataList.onAddTrack.addEventListener(function(sender,index){
-		_this.draw(index);
-	});
 	
-	
-	this.onMove = new Event();
 	var mid = this.width/2;
 	this.positionText = SVG.addChild(this.svg,"text",{
 		"x":mid-30,
@@ -59,7 +54,11 @@ function TrackSvgLayout(parent, trackDataList, args) {
 	});
 	
 	this.onZoomChange = new Event();
+	this.onMove = new Event();
 	
+	trackDataList.onAddTrack.addEventListener(function(sender,index){
+		_this.draw(index);
+	});
 };
 
 TrackSvgLayout.prototype.setHeight = function(height){
@@ -74,7 +73,6 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 
 TrackSvgLayout.prototype.draw = function(i){
 	var _this = this;
-	
 	
 	var trackData = this.trackDataList.getTrack(i);
 	var trackSvg = new TrackSvg(this.svg,{
@@ -119,6 +117,20 @@ TrackSvgLayout.prototype.draw = function(i){
 	});
 	$(trackSvg.hideRect).bind("click",function(event){
 		_this._hideTrack(this.parentNode.id);//"this" is the svg element
+	});
+	
+	
+	$(this.svg).mousedown(function(event) {
+		var x = parseInt(trackSvg.features.getAttribute("x")) - event.clientX;
+		$(this).mousemove(function(event){
+//			console.log(x+event.clientX);
+//			if((x + event.clientX)%_this.pixelBase==0){
+				trackSvg.features.setAttribute("x",(x + event.clientX));
+//			}
+		});
+	});
+	$(this.svg).mouseup(function(event) {
+		$(this).off('mousemove');
 	});
 	
 	
@@ -226,38 +238,14 @@ TrackSvgLayout.prototype._showTrack = function(trackMainId){
 
 
 TrackSvgLayout.prototype._getPixelsbyBase = function(zoom){
-	var zoomLevels = new Array(); 
-	
-	zoomLevels[-40]= 0.00000476837158203125;
-	zoomLevels[-35]= 0.00000476837158203125;
-	zoomLevels[-30]= 0.00000476837158203125;
-	zoomLevels[-25]= 0.00000476837158203125;
-	zoomLevels[-20]= 0.00000476837158203125;
-	zoomLevels[-15]= 0.00000476837158203125;
-	zoomLevels[-10]= 0.00000476837158203125;
-	zoomLevels[-5] = 0.00000476837158203125;
-	zoomLevels[0]  = 0.0000095367431640625;
-	zoomLevels[5]  = 0.000019073486328125;
-	zoomLevels[10] = 0.00003814697265625;
-	zoomLevels[15] = 0.0000762939453125;
-	zoomLevels[20] = 0.000152587890625;
-	zoomLevels[25] = 0.00030517578125;
-	zoomLevels[30] = 0.0006103515625;
-	zoomLevels[35] = 0.001220703125;
-	zoomLevels[40] = 0.00244140625;
-	zoomLevels[45] = 0.0048828125;
-	zoomLevels[50] = 0.009765625;
-	zoomLevels[55] = 0.01953125;
-	zoomLevels[60] = 0.0390625;
-	zoomLevels[65] = 0.078125;
-	zoomLevels[70] = 0.15625;
-	zoomLevels[75] = 0.3125;
-	zoomLevels[80] = 0.625;
-	zoomLevels[85] = 1.25;
-	zoomLevels[90] = 2.5;
-	zoomLevels[95] = 5;
-	zoomLevels[100] = 10;
-	
-	return zoomLevels[zoom];
+	return this.zoomLevels[zoom];
 };
 
+TrackSvgLayout.prototype._createPixelsbyBase = function(){
+	this.zoomLevels = new Array(); 
+	var pixelsByBase = 10;
+	for ( var i = 100; i >= -40; i-=5) {
+		this.zoomLevels[i] = pixelsByBase;
+		pixelsByBase = pixelsByBase / 2;
+	}
+};
