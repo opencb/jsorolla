@@ -45,7 +45,7 @@ function TrackSvgLayout(parent, trackDataList, args) {
 	this.positionText = SVG.addChild(this.svg,"text",{
 		"x":mid-30,
 		"y":15,
-		"fill":"green",
+		"fill":"green"
 	});
 	this.positionText.textContent = this.position;
 	

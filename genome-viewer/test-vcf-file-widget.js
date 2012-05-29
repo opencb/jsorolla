@@ -30,7 +30,14 @@ TestVCFFileWidget.prototype.loadFileFromLocal = function(file){
 //	var vcfAdapter = new VCFFileDataAdapter();
 
 	var vcfAdapter = new VCFDataAdapter(new FileDataSource());
+	
+	vcfAdapter.completed.addEventListener(function(sender, data){
+		console.log(data);
+//		_this.trackDataList.addTrack({id:"snp",resource:"snp"});
+	});
+	
 	vcfAdapter.getData(file);
+	
 	
 //	this._fileLoad(vcfAdapter);
 	

@@ -11,6 +11,9 @@ function FeatureCache(args) {
 		if(args.chunkSize != null){
 			this.chunkSize = args.chunkSize;
 		}
+		if(args.gzip != null){
+			this.gzip = args.gzip;
+		}
 	}
 	
 	this.cache = new Object();
@@ -44,7 +47,7 @@ FeatureCache.prototype.put = function(featureDataList,region){
 				this.cache[key] = new Array();
 			}
 			if(this.gzip) {
-				this.cache[key].push(feature);
+				this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
 			}else{
 				this.cache[key].push(feature);
 			}
@@ -69,7 +72,7 @@ FeatureCache.prototype.get = function(region){
 		if(this.cache[key] != null && this.cache[key].length > 0) {
 			for ( var j = 0; j < this.cache[key].length; j++) {
 				if(this.gzip) {
-//					feature = ;
+					feature = JSON.parse(RawDeflate.inflate(this.cache[key][j]));
 				}else{
 					feature = this.cache[key][j];
 				}

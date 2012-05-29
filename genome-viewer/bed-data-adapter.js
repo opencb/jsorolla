@@ -2,6 +2,8 @@ function BEDDataAdapter(dataSource){
 	this.dataSource = dataSource;
 	this.features = new Array();
 	this.featuresByChromosome = new Array();
+	
+	this.completed = new Event();
 };
 
 BEDDataAdapter.prototype.getData = function(resource){
@@ -43,4 +45,5 @@ BEDDataAdapter.prototype.parse = function(data){
 			this.featuresByChromosome[fields[0]].push(feature);
 		}
 	}
+	_this.completed.notify(this.features);
 };

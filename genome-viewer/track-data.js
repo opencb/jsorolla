@@ -4,7 +4,7 @@ function TrackData(species,args) {
 	this.resource = args.resource;
 	this.species = species;
 	
-	this.featureCache =  new FeatureCache({chunkSize:1000});
+	this.featureCache =  new FeatureCache({chunkSize:1000, gzip:true});
 	
 	this.onRetrieve = new Event();
 	

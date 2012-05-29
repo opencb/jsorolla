@@ -2,6 +2,8 @@ function GFFDataAdapter(dataSource){
 	this.dataSource = dataSource;
 	this.features = new Array();
 	this.featuresByChromosome = new Array();
+	
+	this.completed = new Event();
 };
 
 GFFDataAdapter.prototype.getData = function(resource){
@@ -41,4 +43,5 @@ GFFDataAdapter.prototype.parse = function(data){
 			this.featuresByChromosome[chromosome].push(feature);
 		}
 	}
+	_this.completed.notify(this.features);
 };

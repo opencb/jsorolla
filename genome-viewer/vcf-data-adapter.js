@@ -2,12 +2,14 @@ function VCFDataAdapter(dataSource){
 	this.dataSource = dataSource;
 	this.features = new Array();
 	this.featuresByChromosome = new Array();
+	
+	this.completed = new Event();
 };
 
 VCFDataAdapter.prototype.getData = function(resource){
 	var _this = this;
 	this.dataSource.success.addEventListener(function(sender, data){
-		return _this.parse(data);
+		_this.parse(data);
 	});
 	this.dataSource.fetch(resource);
 };
@@ -25,18 +27,19 @@ VCFDataAdapter.prototype.parse = function(data){
 //				_this.addQualityControl(fields[5]);
 
 				var feature = {
-						"id":  fields[2],
-						"chromosome": fields[0],
-						"start": parseFloat(fields[1]), 
-						"position": parseFloat(fields[1]) + 1, 
-						"ref": fields[3], 
-						"alt": fields[4], 
-						"quality": fields[5], 
-						"filter": fields[6], 
-						"info": fields[7], 
-						"format": fields[8], 
-						"all": fields,
-						"label": fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5]
+						"chromosome": 	fields[0],
+						"position": 	parseFloat(fields[1]), 
+						"start": 		parseFloat(fields[1]), 
+						"end": 			parseFloat(fields[1]),
+						"id":  			fields[2],
+						"ref": 			fields[3], 
+						"alt": 			fields[4], 
+						"quality": 		fields[5], 
+						"filter": 		fields[6], 
+						"info": 		fields[7], 
+						"format": 		fields[8], 
+						"record":		fields,
+						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5]
 				};
 
 				this.features.push(feature);
@@ -47,6 +50,5 @@ VCFDataAdapter.prototype.parse = function(data){
 			}
 		}
 	}
-	console.log(this.features);
-	return this.features;
+	_this.completed.notify(this.features);
 };
