@@ -17,7 +17,7 @@ BEDLocalRegionDataAdapter.prototype.loadFromFileDataAdapter = function(fileDataA
 		
 		var feature = {
 						"label":fileDataAdapter.lines[i][3],
-						"chromosome": chromosome, 
+						"chromosome": chromosome,
 						"start": parseFloat(fileDataAdapter.lines[i][1]), 
 						"end": parseFloat(fileDataAdapter.lines[i][2]), 
 						"score":fileDataAdapter.lines[i][4],
