@@ -85,8 +85,9 @@ TrackSvgLayout.prototype.draw = function(i){
 	
 	//virtual window
 	var halfVirtualWidth = _this.width*3/2;
-	var virtualStart = parseInt(_this.position - halfVirtualWidth / _this.pixelBase);
-	var vitualEnd = parseInt(_this.position + halfVirtualWidth / _this.pixelBase);
+	var halfVirtualBase =  halfVirtualWidth / _this.pixelBase; 
+	var virtualStart = parseInt(_this.position - halfVirtualBase);
+	var vitualEnd = parseInt(_this.position + halfVirtualBase);
 	trackData.retrieveData({chromosome:13,start:virtualStart,end:vitualEnd});
 	
 	//on zoom change set new virtual window and update track values
@@ -98,8 +99,15 @@ TrackSvgLayout.prototype.draw = function(i){
 			trackSvg.features.removeChild( trackSvg.features.firstChild );       
 	    } 
 		trackSvg.cache={};
-		var virtualStart = parseInt(_this.position - halfVirtualWidth / _this.pixelBase);
-		var vitualEnd = parseInt(_this.position + halfVirtualWidth / _this.pixelBase);
+		var halfVirtualBase =  halfVirtualWidth / _this.pixelBase; 
+		var virtualStart = parseInt(_this.position - halfVirtualBase);
+		var vitualEnd = parseInt(_this.position + halfVirtualBase);
+		if(virtualStart<0){
+			virtualStart=1;
+		}		
+		if(vitualEnd>300000000){
+			vitualEnd=300000000;
+		}
 		trackData.retrieveData({chromosome:13,start:virtualStart,end:vitualEnd});
 	});
 	
