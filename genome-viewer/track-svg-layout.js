@@ -127,16 +127,32 @@ TrackSvgLayout.prototype.draw = function(i){
 		_this._hideTrack(this.parentNode.id);//"this" is the svg element
 	});
 	
-	
 	$(this.svg).mousedown(function(event) {
 		var x = parseInt(trackSvg.features.getAttribute("x")) - event.clientX;
+		var downX = event.clientX;
+		var lastX = 0;
 		$(this).mousemove(function(event){
-//			console.log(x+event.clientX);
-//			if((x + event.clientX)%_this.pixelBase==0){
-				trackSvg.features.setAttribute("x",(x + event.clientX));
-//			}
+			var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
+			
+//			console.log(lastX);
+			if(newX!=lastX){
+////				console.log(lastX-newX);
+////				if(newX-lastX>0){
+////					_this.onMove.notify(newX-lastX);
+////				}
+////				if(newX-lastX<0){
+////					_this.onMove.notify(-1);
+////				}
+				
+				trackSvg.features.setAttribute("x",x+event.clientX);
+//				lastX = newX;
+				console.log(lastX+" --- "+newX);
+				lastX = newX
+			}
+			console.log(lastX)
 		});
 	});
+	
 	$(this.svg).mouseup(function(event) {
 		$(this).off('mousemove');
 	});
