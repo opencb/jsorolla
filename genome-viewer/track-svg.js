@@ -7,6 +7,8 @@ function TrackSvg(parent, args) {
 	this.height = 200;
 	this.width = 200;
 	this.title = "track";
+	this.type = "generic";
+	
 	if (args != null){
 		if(args.title != null){
 			this.title = args.title;
@@ -31,6 +33,9 @@ function TrackSvg(parent, args) {
 		}
 		if(args.pixelBase != null){
 			this.pixelBase = args.pixelBase;
+		}
+		if(args.type != null){
+			this.type = args.type;
 		}
 	}
 	
@@ -222,45 +227,79 @@ TrackSvg.prototype.draw = function(){
 };
 TrackSvg.prototype.addFeatures = function(featureList){
 //	console.log(this.position);
-//	console.log(featureList)
+//	console.log(featureList);
 	
 	var _this=this;
 	var middle = _this.width/2;
 	
-//	console.log(featureList)
-	for ( var i = 0; i < featureList.length; i++) {
-		var width = (featureList[i].end-featureList[i].start)+1;
-//		console.log(width)
-		var color = "blue";
-
-		//snps can be negative
-		if(width<0){
-			width=Math.abs(width);
-			color = "red";
-		}
-		//snps with same start - end
-		if(width==0){
-			width=1;
-			color = "orangered";
-		}
-		width= width*this.pixelBase;
-
-		var x = 3500000+middle-((this.position-featureList[i].start)*this.pixelBase);
-		var rect = SVG.addChild(this.features,"rect",{
-			"x":x,
-			"y":0,
-			"width":width,
-			"height":12,
-			"z-index":20000,
-			"fill":color
-		});
+	if(this.type == "sequence"){
+		var seqString = featureList[0].sequence;
+		var width = 1*this.pixelBase;
+		var color = new Object();
+		color["A"] = "#90EE90";
+		color["C"] = "#B0C4DE";
+		color["G"] = "#FFEC8B";
+		color["T"] = "#E066FF";
 		
-		var text = SVG.addChild(this.features,"text",{
-			"x":x,
-			"y":10,
-			"z-index":21000,
-			"fill":"white"
-		});
-		text.textContent = featureList[i].externalName;
+		var start = featureList[0].start;
+		
+		for ( var i = 0; i < seqString.length; i++) {
+			var x = 3500000+middle-((this.position-start)*this.pixelBase);
+			start++;
+			var rect = SVG.addChild(this.features,"rect",{
+				"x":x,
+				"y":0,
+				"width":width,
+				"height":12,
+				"z-index":20000,
+				"fill":color[seqString.charAt(i)]
+			});
+			
+			var text = SVG.addChild(this.features,"text",{
+				"x":x,
+				"y":10,
+				"z-index":21000,
+				"fill":"black"
+			});
+			text.textContent = seqString.charAt(i);
+		}
+	}
+	else{
+		for ( var i = 0; i < featureList.length; i++) {
+			var width = (featureList[i].end-featureList[i].start)+1;
+//		console.log(width)
+			var color = "blue";
+			
+			//snps can be negative
+			if(width<0){
+				width=Math.abs(width);
+				color = "red";
+			}
+			//snps with same start - end
+			if(width==0){
+				width=1;
+				color = "orangered";
+			}
+			width= width*this.pixelBase;
+			
+			var x = 3500000+middle-((this.position-featureList[i].start)*this.pixelBase);
+			var rect = SVG.addChild(this.features,"rect",{
+				"x":x,
+				"y":0,
+				"width":width,
+				"height":12,
+				"z-index":20000,
+				"fill":color
+			});
+			
+			var text = SVG.addChild(this.features,"text",{
+				"x":x,
+				"y":10,
+				"z-index":21000,
+				"fill":"white"
+			});
+			text.textContent = featureList[i].externalName;
+		}
+		
 	}
 };

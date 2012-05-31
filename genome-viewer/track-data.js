@@ -1,10 +1,11 @@
 function TrackData(species,args) {
 	this.args = args;
 	this.id = args.id;
+	this.type = args.type;
 	this.resource = args.resource;
 	this.species = species;
 	
-	this.featureCache =  new FeatureCache({chunkSize:1000, gzip:true});
+	this.featureCache =  new FeatureCache({chunkSize:1000, gzip:false});
 	
 	this.onRetrieve = new Event();
 	
@@ -19,8 +20,14 @@ TrackData.prototype.retrieveData = function(region){
 		var query = region.chromosome+":"+region.start+"-"+region.end;
 		var cellBaseManager = new CellBaseManager(_this.species);
 		cellBaseManager.success.addEventListener(function(sender,data){
-			for(var i = 0; i < data.length; i++) {
-				_this.featureCache.put(data[i],region);
+			
+			if(_this.resource == "sequence"){
+				_this.featureCache.put(data,region);
+			}
+			else{
+				for(var i = 0; i < data.length; i++) {
+					_this.featureCache.put(data[i],region);
+				}
 			}
 			_this.onRetrieve.notify(_this.featureCache.get(region));
 		});

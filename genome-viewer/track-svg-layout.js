@@ -80,6 +80,7 @@ TrackSvgLayout.prototype.draw = function(i){
 		zoom:this.zoom,
 		pixelBase:this.pixelBase,
 		id:trackData.id,
+		type:trackData.type,
 		width:this.width
 	});
 	
