@@ -155,7 +155,6 @@ TrackSvgLayout.prototype.draw = function(i){
 	
 	trackData.onRetrieve.addEventListener(function(sender,data){
 //		console.log(trackData.featureCache)
-		console.log("data retrieved");
 		trackSvg.addFeatures(data);
 	});
 	
