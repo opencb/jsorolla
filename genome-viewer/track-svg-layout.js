@@ -94,11 +94,13 @@ TrackSvgLayout.prototype.draw = function(i){
 	this.onZoomChange.addEventListener(function(sender,data){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
+		
 		while ( trackSvg.features.childNodes.length >= 1 )
 	    {
 			trackSvg.features.removeChild( trackSvg.features.firstChild );       
 	    } 
 		trackSvg.cache={};
+		
 		var halfVirtualBase =  halfVirtualWidth / _this.pixelBase; 
 		var virtualStart = parseInt(_this.position - halfVirtualBase);
 		var vitualEnd = parseInt(_this.position + halfVirtualBase);
@@ -133,23 +135,15 @@ TrackSvgLayout.prototype.draw = function(i){
 		var lastX = 0;
 		$(this).mousemove(function(event){
 			var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
-			
-//			console.log(lastX);
 			if(newX!=lastX){
-////				console.log(lastX-newX);
-////				if(newX-lastX>0){
-////					_this.onMove.notify(newX-lastX);
-////				}
-////				if(newX-lastX<0){
-////					_this.onMove.notify(-1);
-////				}
-				
-				trackSvg.features.setAttribute("x",x+event.clientX);
-//				lastX = newX;
-				console.log(lastX+" --- "+newX);
-				lastX = newX
+				var desp = lastX-newX;
+				_this.onMove.notify(desp);
+				_this.position += desp;
+				_this.positionText.textContent = _this.position;
+				var r =  parseInt(trackSvg.features.getAttribute("x")) + (desp)*_this.pixelBase;
+				trackSvg.features.setAttribute("x",r);
+				lastX = newX;
 			}
-			console.log(lastX)
 		});
 	});
 	
@@ -160,6 +154,7 @@ TrackSvgLayout.prototype.draw = function(i){
 	
 	trackData.onRetrieve.addEventListener(function(sender,data){
 //		console.log(trackData.featureCache)
+		console.log("data retrieved");
 		trackSvg.addFeatures(data);
 	});
 	
