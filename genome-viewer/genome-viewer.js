@@ -746,6 +746,7 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					
 					_this.trackDataList.addTrack({id:"gene",resource:"gene"});
 //					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
+					_this.trackDataList.addTrack({id:"sequence",resource:"sequence",type:"sequence"});
 					
 //					setTimeout(function() {
 //						_this.trackDataList.addTrack({id:"track4"});
