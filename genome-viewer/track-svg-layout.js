@@ -73,7 +73,6 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 
 TrackSvgLayout.prototype.draw = function(i){
 	var _this = this;
-	
 	var trackData = this.trackDataList.getTrack(i);
 	var trackSvg = new TrackSvg(this.svg,{
 		position:this.position,

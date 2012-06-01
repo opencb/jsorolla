@@ -251,14 +251,15 @@ TrackSvg.prototype.addFeatures = function(featureList){
 				"y":0,
 				"width":width,
 				"height":12,
-				"z-index":20000,
+				"stroke":"black",
+				"opacity":0.8,
 				"fill":color[seqString.charAt(i)]
 			});
 			
 			var text = SVG.addChild(this.features,"text",{
-				"x":x,
+				"x":x+1,
 				"y":10,
-				"z-index":21000,
+				"font-size":10,
 				"fill":"black"
 			});
 			text.textContent = seqString.charAt(i);
@@ -267,7 +268,6 @@ TrackSvg.prototype.addFeatures = function(featureList){
 	else{
 		for ( var i = 0; i < featureList.length; i++) {
 			var width = (featureList[i].end-featureList[i].start)+1;
-//		console.log(width)
 			var color = "blue";
 			
 			//snps can be negative
