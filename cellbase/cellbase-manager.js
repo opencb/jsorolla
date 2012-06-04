@@ -1,6 +1,7 @@
 function CellBaseManager(species, args) {
 //	console.log(species);
 	
+	
 	//This line never changes
 	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
 	
@@ -18,6 +19,11 @@ function CellBaseManager(species, args) {
 //		this.host = "http://imedina:8080/cellbase/rest";
 	}
 	
+	if (args != null){
+		if(args.host != null){
+			this.host = args.host;
+		}
+	}
 	
 	this.version = "latest";
 	this.species = species;
