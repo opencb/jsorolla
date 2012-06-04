@@ -748,26 +748,26 @@ GenomeViewer.prototype._getTracksPanel = function() {
 						_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 					});
 					
-					var track1 = new TrackData(_this.species,{
-						// adapter: new CellBaseDataAdapter({
-								// species: _this.species,
-							// category: "genomic",
-							// subCategory: "region",
-							// resource: "gene"
-						// }),
-						resource:"gene"
+
+					var track1 = new TrackData("gene",{
+						adapter: new CellBaseAdapter({
+							category: "genomic",
+							subCategory: "region",
+							resource: "gene",
+							species: _this.species
+						})
 					})
-					var track2 = new TrackData(_this.species,{
-						// adapter: new CellBaseDataAdapter({
-							// category: "genomic",
-							// subCategory: "region",
-							// resource: "gene"
-						// }),
-						resource:"sequence"
+					var track2 = new TrackData("sequence",{
+						adapter: new CellBaseAdapter({
+							category: "genomic",
+							subCategory: "region",
+							resource: "sequence",
+							species: _this.species
+						})
 					});
 					
-					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene",normalDraw:"100"});
-					_this.trackSvgLayout.addTrack(track2,{id:"sequence",type:"sequence",normalDraw:"100",render:""/*GeneRender*/});
+					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+					_this.trackSvgLayout.addTrack(track2,{id:"sequence",type:"sequence",render:""/*GeneRender*/});
 					
 					// _this.trackSvgLayout.addTrack({id:"gene",resource:"gene"});
 					//_this.trackSvgLayout.addTrack({id:"snp",resource:"snp"});

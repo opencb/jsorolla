@@ -129,7 +129,7 @@ TrackSvg.prototype.draw = function(){
 		"x":75,
 		"y":16,
 		"opacity":"0",
-		"fill":"black",
+		"fill":"black"
 //		"transform":"rotate(-90 15,100)"
 	});
 	text.textContent = this.id;
