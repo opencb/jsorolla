@@ -27,8 +27,9 @@ function CellBaseAdapter(args){
 	
 };
 
-CellBaseAdapter.prototype.getData = function(query){
+CellBaseAdapter.prototype.getData = function(region){
 	var _this = this;
+	var query = region.chromosome+":"+region.start+"-"+region.end;
 	this.cellBaseManager.success.addEventListener(function(sender,data){
 		_this.onGetData.notify(data);
 	});

@@ -1,20 +1,19 @@
 UrlDataSource.prototype.fetch = DataSource.prototype.fetch;
 
-function UrlDataSource() {
+function UrlDataSource(url) {
 	DataAdapter.prototype.constructor.call(this);
 	
-	this.url = null;
+	this.url = url;
 	this.success = new Event();
 	this.error = new Event();
 };
 
-UrlDataSource.prototype.fetch = function(url){
-	this.url = url;
+UrlDataSource.prototype.fetch = function(){
 	var _this = this;
-	if(url){
+	if(this.url){
 		$.ajax({
 			type : "GET",
-			url : url,
+			url : this.url,
 			async : true,
 			success : function(data, textStatus, jqXHR) {
 				_this.success.notify(data);
