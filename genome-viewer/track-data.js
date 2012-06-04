@@ -9,7 +9,7 @@ function TrackData(species,args) {
 	
 	this.onRetrieve = new Event();
 	
-	//~ this.retrieveData({chromosome:13,start:32889511,end:32891522});
+	// this.retrieveData({chromosome:13,start:32889511,end:32891522});
 };
 
 //al moverse se va rellenando.

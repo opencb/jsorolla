@@ -737,7 +737,7 @@ GenomeViewer.prototype._getTracksPanel = function() {
 			listeners:{
 				afterrender:function(){
 					var div = $('#'+_this.id+"tracksSvg")[0];
-					//~ _this.trackDataList = new TrackDataList(_this.species);
+					// _this.trackDataList = new TrackDataList(_this.species);
 					_this.trackSvgLayout = new TrackSvgLayout(div,{
 						width:_this.width-18,
 						position:_this.position,
@@ -749,29 +749,30 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					});
 					
 					var track1 = new TrackData(_this.species,{
-						//~ adapter: new CellBaseDataAdapter({
-							//~ category: "genomic",
-							//~ subCategory: "region",
-							//~ resource: "gene"
-						//~ }),
+						// adapter: new CellBaseDataAdapter({
+								// species: _this.species,
+							// category: "genomic",
+							// subCategory: "region",
+							// resource: "gene"
+						// }),
 						resource:"gene"
 					})
 					var track2 = new TrackData(_this.species,{
-						//~ adapter: new CellBaseDataAdapter({
-							//~ category: "genomic",
-							//~ subCategory: "region",
-							//~ resource: "gene"
-						//~ }),
+						// adapter: new CellBaseDataAdapter({
+							// category: "genomic",
+							// subCategory: "region",
+							// resource: "gene"
+						// }),
 						resource:"sequence"
 					});
 					
 					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene",normalDraw:"100"});
 					_this.trackSvgLayout.addTrack(track2,{id:"sequence",type:"sequence",normalDraw:"100",render:""/*GeneRender*/});
 					
-					//~ _this.trackSvgLayout.addTrack({id:"gene",resource:"gene"});
-//					_this.trackSvgLayout.addTrack({id:"snp",resource:"snp"});
+					// _this.trackSvgLayout.addTrack({id:"gene",resource:"gene"});
+					//_this.trackSvgLayout.addTrack({id:"snp",resource:"snp"});
 					
-//					setTimeout(function() {
+					//setTimeout(function() {
 //						_this.trackSvgLayout.addTrack({id:"track4"});
 //					},5000);
 				}

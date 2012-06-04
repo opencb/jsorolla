@@ -45,7 +45,7 @@ function TrackSvg(parent, args) {
 	//flags
 	this.rendered = false;
 	
-	//~ this.prototype.addFeatures = args.render;
+	// this.prototype.addFeatures = args.render;
 };
 TrackSvg.prototype.setY = function(value){
 	this.y = value;
