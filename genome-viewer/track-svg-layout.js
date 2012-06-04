@@ -1,9 +1,9 @@
-function TrackSvgLayout(parent, trackDataList, args) {
+function TrackSvgLayout(parent, args) {
 	var _this = this;
 	this.args = args;
 	this.id = Math.round(Math.random()*10000000);
-	this.trackDataList = trackDataList;
 	
+	this.trackDataList =  new Array();
 	this.trackSvgList =  new Array();
 	this.swapHash = new Object();
 	
@@ -28,8 +28,8 @@ function TrackSvgLayout(parent, trackDataList, args) {
 		}
 	}
 	this._createPixelsbyBase();//create pixelByBase array
-	
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
+	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	
 	this.svg = SVG.init(parent,{
 		"width":this.width,
@@ -49,16 +49,40 @@ function TrackSvgLayout(parent, trackDataList, args) {
 			"y1":this.height,
 			"x2":mid,
 			"y2":this.height,
-			"stroke-width":"1",
+			"stroke-width":1,
 			"stroke":"green"
 	});
+//	this.currentLine = SVG.addChild(this.svg,"rect",{
+//		"x":mid,
+//		"y":this.height,
+//		"width":this.pixelBase,
+//		"height":this.height,
+//		"stroke":"green"
+//});
+
 	
 	this.onZoomChange = new Event();
+	this.onChromosomeChange = new Event();
 	this.onMove = new Event();
 	
-	trackDataList.onAddTrack.addEventListener(function(sender,index){
-		_this.draw(index);
+	$(this.svg).mousedown(function(event) {
+		var downX = event.clientX;
+		var lastX = 0;
+		$(this).mousemove(function(event){
+			var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
+			if(newX!=lastX){
+				var desp = lastX-newX;
+				_this.position -= desp;
+				_this.positionText.textContent = _this.position;
+				_this.onMove.notify(desp);
+				lastX = newX;
+			}
+		});
 	});
+	$(this.svg).mouseup(function(event) {
+		$(this).off('mousemove');
+	});
+	
 };
 
 TrackSvgLayout.prototype.setHeight = function(height){
@@ -68,53 +92,78 @@ TrackSvgLayout.prototype.setHeight = function(height){
 TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.zoom=zoom;
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
+	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.onZoomChange.notify();
 };
+TrackSvgLayout.prototype.setChromosome = function(chr){
+	this.chromosome = chr;
+	this.onChromosomeChange.notify();
+};
 
-TrackSvgLayout.prototype.draw = function(i){
+TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var _this = this;
-	var trackData = this.trackDataList.getTrack(i);
+	
+	var i = this.trackDataList.push(trackData);
+	
 	var trackSvg = new TrackSvg(this.svg,{
 		position:this.position,
 		zoom:this.zoom,
 		pixelBase:this.pixelBase,
-		id:trackData.id,
-		type:trackData.type,
-		width:this.width
+		id:args.id,
+		type:args.type,
+		width:this.width,
+		render:args.render
 	});
 	
-	//virtual window
-	var halfVirtualWidth = _this.width*3/2;
-	var halfVirtualBase =  halfVirtualWidth / _this.pixelBase; 
-	var virtualStart = parseInt(_this.position - halfVirtualBase);
-	var vitualEnd = parseInt(_this.position + halfVirtualBase);
-	trackData.retrieveData({chromosome:13,start:virtualStart,end:vitualEnd});
+	//start virtual window
+
+	var virtualStart = parseInt(this.position - this.halfVirtualBase);
+	var vitualEnd = parseInt(this.position + this.halfVirtualBase);
+	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd});
 	
 	//on zoom change set new virtual window and update track values
 	this.onZoomChange.addEventListener(function(sender,data){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
 		
-		while ( trackSvg.features.childNodes.length >= 1 )
+		while( trackSvg.features.childNodes.length >= 1 )
 	    {
-			trackSvg.features.removeChild( trackSvg.features.firstChild );       
-	    } 
-		trackSvg.cache={};
-		
-		var halfVirtualBase =  halfVirtualWidth / _this.pixelBase; 
-		var virtualStart = parseInt(_this.position - halfVirtualBase);
-		var vitualEnd = parseInt(_this.position + halfVirtualBase);
+			trackSvg.features.removeChild( trackSvg.features.firstChild );
+	    }
+
+		var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
+		var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
 		if(virtualStart<0){
 			virtualStart=1;
-		}		
+		}
 		if(vitualEnd>300000000){
 			vitualEnd=300000000;
 		}
-		trackData.retrieveData({chromosome:13,start:virtualStart,end:vitualEnd});
+		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
+	});
+	
+	this.onChromosomeChange.addEventListener(function(sender,data){
+		while( trackSvg.features.childNodes.length >= 1 )
+	    {
+			trackSvg.features.removeChild( trackSvg.features.firstChild );
+	    }
+		var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
+		var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
+		if(virtualStart<0){
+			virtualStart=1;
+		}
+		if(vitualEnd>300000000){
+			vitualEnd=300000000;
+		}
+		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
+	});
+	
+	this.onMove.addEventListener(function(sender,data){
+		trackSvg.position -= data;
 	});
 	
 	this.trackSvgList.push(trackSvg);
-	this.swapHash[trackSvg.id] = {index:i,visible:true};
+	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
 	trackSvg.setY(this.height);
 	trackSvg.draw();
 	
@@ -129,24 +178,37 @@ TrackSvgLayout.prototype.draw = function(i){
 		_this._hideTrack(this.parentNode.id);//"this" is the svg element
 	});
 	
+	var callStart = parseInt(trackSvg.position - this.halfVirtualBase);
+	var callEnd = parseInt(trackSvg.position + this.halfVirtualBase);
 	$(this.svg).mousedown(function(event) {
-		var x = parseInt(trackSvg.features.getAttribute("x")) - event.clientX;
 		var downX = event.clientX;
 		var lastX = 0;
 		$(this).mousemove(function(event){
 			var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
 			if(newX!=lastX){
 				var desp = lastX-newX;
-				_this.onMove.notify(desp);
-				_this.position += desp;
-				_this.positionText.textContent = _this.position;
-				var r =  parseInt(trackSvg.features.getAttribute("x")) + (desp)*_this.pixelBase;
-				trackSvg.features.setAttribute("x",r);
+				var despBase = desp*_this.pixelBase;
+				var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
+				trackSvg.features.setAttribute("x",move);
+				trackSvg.pixelPosition-=despBase;
+				
+				var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase/3);
+				var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase/3);
+				
+				if(desp<0 && virtualEnd > callEnd){
+					trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase/3)});
+					callEnd = parseInt(callEnd+_this.halfVirtualBase/3);
+				}
+				
+				if(desp>0 && virtualStart < callStart){
+					trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase/3),end:callStart});
+					callStart = parseInt(callStart-_this.halfVirtualBase/3);
+				}
+				
 				lastX = newX;
 			}
 		});
 	});
-	
 	$(this.svg).mouseup(function(event) {
 		$(this).off('mousemove');
 	});
@@ -159,7 +221,6 @@ TrackSvgLayout.prototype.draw = function(i){
 	
 	this.height += trackSvg.getHeight();
 	
-	trackData = this.trackDataList.trackList[i];
 	this.svg.setAttribute("height",this.height);
 	this.currentLine.setAttribute("y2",this.height);
 };
@@ -202,7 +263,7 @@ TrackSvgLayout.prototype._reallocateAbove = function(trackMainId){
 TrackSvgLayout.prototype._reallocateUnder = function(trackMainId){
 	var i = this.swapHash[trackMainId].index;
 	console.log(i+" quiere moverse 1 posicion abajo");
-	if(i+1<this.trackDataList.trackList.length){
+	if(i+1<this.trackDataList.length){
 		var aboveTrack=this.trackSvgList[i];
 		var underTrack=this.trackSvgList[i+1];
 		
@@ -233,7 +294,6 @@ TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 	
 	this._redraw();
 	
-	
 	var _this= this;
 	setTimeout(function() {
 		_this._showTrack(trackMainId);
@@ -260,7 +320,7 @@ TrackSvgLayout.prototype._getPixelsbyBase = function(zoom){
 };
 
 TrackSvgLayout.prototype._createPixelsbyBase = function(){
-	this.zoomLevels = new Array(); 
+	this.zoomLevels = new Array();
 	var pixelsByBase = 10;
 	for ( var i = 100; i >= -40; i-=5) {
 		this.zoomLevels[i] = pixelsByBase;

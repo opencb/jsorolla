@@ -199,7 +199,7 @@ ChromosomeFeatureTrack.prototype.mark = function(feature, color) {
 //		var attributes = [["stroke", "black"],["stroke-width", "1"],["id", this.getMarkIDFromFeature(feature)], ["fill", this.markcolor], ["opacity", "1"],["cursor", "pointer"]];
 //		var node = SVG.drawPoligon([[this.right + 6, top - 3] , [this.right, top],  [this.right + 6, top + 3]], this.trackNodeGroup, attributes);
 //		
-		var node = this.trackNodeGroup.addChildSVG("polygon",{
+		var node = SVG.addChild(this.trackNodeGroup,"polygon",{
 			"points": [[this.right + 6, top - 3] , [this.right, top],  [this.right + 6, top + 3]],
 			"stroke": "black",
 			"stroke-width": "1",
@@ -231,7 +231,7 @@ ChromosomeFeatureTrack.prototype.mark = function(feature, color) {
 //		var attributes = [["id", this.markers.length], ["fill", this.markcolor], ["opacity", "1"]];
 //		SVG.drawRectangle(left, this.top, width, (this.bottom - this.top) + this.radio + 5, this.trackNodeGroup, attributes);
 		
-		this.trackNodeGroup.addChildSVG("rect",{
+		SVG.addChild(this.trackNodeGroup,"rect",{
 			"x":left,
 			"y":this.top,
 			"width":width,
@@ -245,7 +245,7 @@ ChromosomeFeatureTrack.prototype.mark = function(feature, color) {
 //		var attributes = [["id", id], ["fill", this.markcolor], ["opacity", "1"],["stroke", "black"]];
 //		SVG.drawCircle(left , (this.bottom) + this.radio + 5, this.radio, this.trackNodeGroup, attributes);
 		
-		this.trackNodeGroup.addChildSVG("circle",{
+		SVG.addChild(this.trackNodeGroup,"circle",{
 			"cx":left,
 			"cy":(this.bottom) + this.radio + 5,
 			"radio":this.radio,
@@ -320,7 +320,7 @@ ChromosomeFeatureTrack.prototype.select = function(start, end) {
 //			var attributes = [["stroke", "black"],["stroke-width", "1"],["id", this.selector.id], ["cursor", "move"], ["fill", this.selectcolor], ["opacity", "1"]];
 //			this.selector.selectorSVG = SVG.drawPoligon([[0, top - 5] , [this.left, top],  [0, top + 5]], this.trackNodeGroup, attributes);
 			
-			this.selector.selectorSVG = this.trackNodeGroup.addChildSVG("polygon",{
+			this.selector.selectorSVG = SVG.addChild(this.trackNodeGroup,"polygon",{
 				"points":[[0, top - 5] , [this.left, top],  [0, top + 5]],
 				"stroke": "black",
 				"stroke-width": "1",
@@ -336,7 +336,7 @@ ChromosomeFeatureTrack.prototype.select = function(start, end) {
 			var left = this.left + start*pixelInc;
 			var width = Math.ceil((end - start)*pixelInc);
 			
-			this.selector.selectorSVG = this.trackNodeGroup.addChildSVG("rect",{
+			this.selector.selectorSVG = SVG.addChild(this.trackNodeGroup,"rect",{
 				x: left,
 				y: this.top + 6,
 				width: width,
@@ -391,12 +391,12 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 		this.featureHeight = this.right - this.left - 1;
 		
-		this.groupNodeFirstCentromero = this.trackNodeGroup.addChildSVG("g",{
+		this.groupNodeFirstCentromero = SVG.addChild(this.trackNodeGroup,"g",{
 			"id": "clip_group", 
 			"clip-path": "url(#clip_1" +this.id+")"
 		});
 		
-		this.groupNodeSecondCentromero = this.trackNodeGroup.addChildSVG("g",{
+		this.groupNodeSecondCentromero = SVG.addChild(this.trackNodeGroup,"g",{
 			"id": "clip_group", 
 			"clip-path": "url(#clip_2" +this.id+")"
 		});
@@ -405,7 +405,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		var rectTop = endFirstCentromero + this.top ;
 		var rectHeight = this.bottom - endFirstCentromero - this.top ;// this.bottom -  this.top ;// this.bottom -  this.top - border ;
 		
-		var rect = this.trackNodeGroup.addChildSVG("rect",{
+		var rect = SVG.addChild(this.trackNodeGroup,"rect",{
 			x: this.left,
 			y: rectTop,
 			width: this.featureHeight+2+3,
@@ -417,7 +417,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		var rectTop = this.top;
 		var rectHeight =  endFirstCentromero;
 		
-		var rect = this.trackNodeGroup.addChildSVG("rect",{
+		var rect = SVG.addChild(this.trackNodeGroup,"rect",{
 			x: this.left,
 			y: rectTop,
 			width: this.featureHeight+2+3,
@@ -434,7 +434,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 //		var rect = SVG.createRectangle(this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
 //		this.trackNodeGroup.appendChild(rect);
 
-		var rect = this.trackNodeGroup.addChildSVG("rect",{
+		var rect = SVG.addChild(this.trackNodeGroup,"rect",{
 			x: this.left,
 			y: this.top + 6,
 			width: endFirstCentromero,
@@ -445,7 +445,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 //		rect = SVG.createRectangle( this.left , this.top + 6, endFirstCentromero,  this.featureHeight ,attributesClip);
 //		this.trackNodeGroup.appendChild(rect);
 
-		var rect = this.trackNodeGroup.addChildSVG("rect",{
+		var rect = SVG.addChild(this.trackNodeGroup,"rect",{
 			x: this.left,
 			y: this.top + 6,
 			width: endFirstCentromero,
@@ -456,13 +456,13 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 		
 //		var clip = SVG.drawClip("clip_1"+this.id, rect, this.trackNodeGroup);
-		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
+		var clip = SVG.addChild(this.trackNodeGroup,"clipPath",{
 			id:"clip_1"+this.id
 		});
 		clip.appendChild(rect);
 		
 //		this.groupNodeFirstCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_1" +this.id+")"]]);
-		this.groupNodeFirstCentromero = this.trackNodeGroup.addChildSVG("g",{
+		this.groupNodeFirstCentromero = SVG.addChild(this.trackNodeGroup,"g",{
 			"id": "clip_group", 
 			"clip-path": "url(#clip_1" +this.id+")"
 		});
@@ -479,7 +479,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 //		rect = SVG.createRectangle(rectLeft, this.top + 6, rectWidth, this.featureHeight, attributesClip);
 //		this.trackNodeGroup.appendChild(rect);
 		
-		var rect = this.trackNodeGroup.addChildSVG("rect",{
+		var rect = SVG.addChild(this.trackNodeGroup,"rect",{
 			x: rectLeft,
 			y: this.top + 6,
 			width: rectWidth,
@@ -487,7 +487,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 			"stroke": "black","stroke-width": "1","id": "clip", "fill": "pink", "rx": this.rounded, "ry":  this.rounded, "z-index": "0"
 		});
 		
-		var rect = this.trackNodeGroup.addChildSVG("rect",{
+		var rect = SVG.addChild(this.trackNodeGroup,"rect",{
 			x: rectLeft,
 			y: this.top + 6,
 			width: rectWidth,
@@ -497,13 +497,13 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 		
 		
 //		clip = SVG.drawClip("clip_2"+this.id, rect, this.trackNodeGroup);
-		var clip = this.trackNodeGroup.addChildSVG("clipPath",{
+		var clip = SVG.addChild(this.trackNodeGroup,"clipPath",{
 			id:"clip_2"+this.id
 		});
 		clip.appendChild(rect);
 		
 //		groupNodeSecondCentromero = SVG.drawGroup(this.trackNodeGroup, [["id", "clip_group"], ["clip-path", "url(#clip_2" +this.id+")"]]);
-		this.groupNodeSecondCentromero = this.trackNodeGroup.addChildSVG("g",{
+		this.groupNodeSecondCentromero = SVG.addChild(this.trackNodeGroup,"g",{
 			"id": "clip_group", 
 			"clip-path": "url(#clip_2" +this.id+")"
 		});
@@ -520,7 +520,7 @@ ChromosomeFeatureTrack.prototype.drawFeatures = function() {
 //				var textAttr = [["id", this.id_ + "title"],["font-size", "9"]];
 				if (this.vertical){
 //					SVG.drawText(this.left  , this.height, feature.chromosome, this.labelNodeGroup, textAttr);
-					this.labelNodeGroup.addChildSVG("text",{
+					SVG.addChild(this.labelNodeGroup,"text",{
 						x:this.left+2,
 						y:this.height,
 						"id": this.id_ + "title" ,
@@ -555,10 +555,10 @@ ChromosomeFeatureTrack.prototype._drawCytoband = function (feature){
 				"fill": color, "id": this.id+"_" + feature.cytoband, "z-index": "10", "stroke": stroke, "style": "cursor:pointer"
 		};
 		if (!this.centromerosVisited){
-			node = this.groupNodeFirstCentromero.addChildSVG("rect",nodeAttr);
+			node = SVG.addChild(this.groupNodeFirstCentromero,"rect",nodeAttr);
 		}
 		else{
-			node = this.groupNodeSecondCentromero.addChildSVG("rect",nodeAttr);
+			node = SVG.addChild(this.groupNodeSecondCentromero,"rect",nodeAttr);
 		}
 	}
 	else{
@@ -571,10 +571,10 @@ ChromosomeFeatureTrack.prototype._drawCytoband = function (feature){
 			"fill": color, "id": this.id+"_" + feature.cytoband, "z-index": "10", "stroke": stroke, "style": "cursor:pointer"
 		};
 		if (!this.centromerosVisited){
-			node = this.groupNodeFirstCentromero.addChildSVG("rect",nodeAttr);
+			node = SVG.addChild(this.groupNodeFirstCentromero,"rect",nodeAttr);
 		}
 		else{
-			node = this.groupNodeSecondCentromero.addChildSVG("rect",nodeAttr);
+			node = SVG.addChild(this.groupNodeSecondCentromero,"rect",nodeAttr);
 		}
 		
 		
@@ -586,7 +586,7 @@ ChromosomeFeatureTrack.prototype._drawCytoband = function (feature){
 //			};
 //			textAttr.push(["transform", "translate("+ x +", " + y + "), rotate(90)"]);
 //			SVG.drawText(0, 0, feature.cytoband, this.labelNodeGroup, textAttr);
-			this.labelNodeGroup.addChildSVG("text",{
+			SVG.addChild(this.labelNodeGroup,"text",{
 				x:0,
 				y:0,
 				"fill": "black",

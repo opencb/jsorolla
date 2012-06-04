@@ -1,31 +1,31 @@
-Element.prototype.addChildSVG = function(elementName, attributes, index){
-	var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
-	for ( var key in attributes){
-		el.setAttribute(key, attributes[key]);
-	}
-	
-	// insert child at requested index, or as last child if index is too high or no index is specified
-    if ( null == index ) {
-      this.appendChild( el );
-    }
-    else {
-      var targetIndex = index + 1;
-      if ( 0 == index ) {
-        targetIndex = 0;
-      }
-      var targetEl = this.childNodes[ targetIndex ];
-      if ( targetEl ) {
-        this.insertBefore( el, targetEl ); 
-      }
-      else {
-        this.appendChild( el );
-      }
-    }
-    return el;
-};
-Element.prototype.initSVG = function(attributes){
-	return this.addChildSVG("svg", attributes);
-};
+//Element.prototype.addChildSVG = function(elementName, attributes, index){
+//	var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
+//	for ( var key in attributes){
+//		el.setAttribute(key, attributes[key]);
+//	}
+//	
+//	// insert child at requested index, or as last child if index is too high or no index is specified
+//    if ( null == index ) {
+//      this.appendChild( el );
+//    }
+//    else {
+//      var targetIndex = index + 1;
+//      if ( 0 == index ) {
+//        targetIndex = 0;
+//      }
+//      var targetEl = this.childNodes[ targetIndex ];
+//      if ( targetEl ) {
+//        this.insertBefore( el, targetEl ); 
+//      }
+//      else {
+//        this.appendChild( el );
+//      }
+//    }
+//    return el;
+//};
+//Element.prototype.initSVG = function(attributes){
+//	return this.addChildSVG("svg", attributes);
+//};
 
 var SVG = {
 

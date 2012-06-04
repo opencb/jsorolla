@@ -5,22 +5,23 @@ function TrackData(species,args) {
 	this.resource = args.resource;
 	this.species = species;
 	
-	this.featureCache =  new FeatureCache({chunkSize:1000, gzip:false});
+	this.featureCache =  new FeatureCache({chunkSize:1000, gzip:true});
 	
 	this.onRetrieve = new Event();
 	
-//	this.retrieveData({chromosome:13,start:32889511,end:32891522});
+	//~ this.retrieveData({chromosome:13,start:32889511,end:32891522});
 };
 
 //al moverse se va rellenando.
 TrackData.prototype.retrieveData = function(region){
+	
+	console.log(region.chromosome+":"+region.start+"-"+region.end)
 	var _this = this;
 	var features = this.featureCache.get(region);
 	if(features == null){
 		var query = region.chromosome+":"+region.start+"-"+region.end;
 		var cellBaseManager = new CellBaseManager(_this.species);
 		cellBaseManager.success.addEventListener(function(sender,data){
-			
 			if(_this.resource == "sequence"){
 				_this.featureCache.put(data,region);
 			}

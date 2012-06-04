@@ -160,7 +160,7 @@ Track.prototype.createSVGDom = function(id, width, height, backgroundColor ) {
 	/** Si es null es porque estamos usando el track en modo standalone sin trackCanvas **/
 	if (this._svg == null){
 		var container = DOM.select(this.targetID);
-		this._svg = container.initSVG({
+		this._svg = SVG.init(container,{
 			viewBox: this._getViewBoxCoordenates(),
 			preserveAspectRatio: "none",
 			id: id,
@@ -172,11 +172,11 @@ Track.prototype.createSVGDom = function(id, width, height, backgroundColor ) {
 	}
 	
 	/** Creating groups **/
-	this.mainNodeGroup = this._svg.addChildSVG("g", {id: this.idMain});
-	this.backgroundNodeGroup = this.mainNodeGroup.addChildSVG("g", {id: this.idBackground});
-	this.trackNodeGroup = this.mainNodeGroup.addChildSVG("g", {id: this.idTrack});
-	this.labelNodeGroup = this.mainNodeGroup.addChildSVG("g", {id: this.idNames});
-	this.titleNodeGroup = this.mainNodeGroup.addChildSVG("g", {id: this.idTitleGroup});
+	this.mainNodeGroup = SVG.addChild(this._svg,"g", {id: this.idMain});
+	this.backgroundNodeGroup = SVG.addChild(this.mainNodeGroup,"g", {id: this.idBackground});
+	this.trackNodeGroup = SVG.addChild(this.mainNodeGroup,"g", {id: this.idTrack});
+	this.labelNodeGroup = SVG.addChild(this.mainNodeGroup,"g", {id: this.idNames});
+	this.titleNodeGroup = SVG.addChild(this.mainNodeGroup,"g", {id: this.idTitleGroup});
 	
 	
 //	this.mainNodeGroup = SVG.drawGroup(this._svg, [["id", this.idMain]]);

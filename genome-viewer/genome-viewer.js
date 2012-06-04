@@ -1,4 +1,3 @@
-"use strict";
 function GenomeViewer(targetId, species, args) {
 	var _this=this;
 	this.id = "GenomeViewer"+ Math.round(Math.random()*10000);
@@ -78,8 +77,8 @@ GenomeViewer.prototype.render = function(){
 		items.push(this.toolbar);
 	}
 	items.push(this._getNavigationBar());
-//	items.push(this._getKaryotypePanel().hide());
-//	items.push(this._getChromosomePanel());
+	items.push(this._getKaryotypePanel().hide());
+	items.push(this._getChromosomePanel());
 //	items.push(this._getRegionPanel());
 //	items.push(this._getWindowSizePanel());
 	items.push(this._getTracksPanel());
@@ -99,7 +98,7 @@ GenomeViewer.prototype.render = function(){
 	});
 	
 	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
-//	Ext.getCmp(this.id+"chromosomeCont").setTitle("Chromosome "+this.chromosome);
+	Ext.getCmp(this.id+"chromosomeCont").setTitle("Chromosome "+this.chromosome);
 	Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
 	
 };
@@ -127,10 +126,12 @@ GenomeViewer.prototype.setLoc = function(data) {
 		Ext.example.msg('Species', this.speciesName+' selected.');
 		this._updateChrStore();
 		this._getKaryotypePanel(true);
+		this.trackSvgLayout.setChromosome(data.chromosome);
 		break;
 	case "_getChromosomeMenu":
 		if(this.chromosome!=data.chromosome){
 			this.chromosome = data.chromosome;
+			this.trackSvgLayout.setChromosome(data.chromosome);
 			this._drawChromosome();
 		}
 		this._karyotypePanel.select(this.chromosome, this.position, this.position);
@@ -142,6 +143,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this.position = data.position;
 		if(this.chromosome!=data.chromosome){
 			this.chromosome = data.chromosome;
+			this.trackSvgLayout.setChromosome(data.chromosome);
 			this._drawChromosome();
 		}
 		Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
@@ -152,6 +154,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this.position = data.position;
 		if(this.chromosome!=data.chromosome){
 			this.chromosome = data.chromosome;
+			this.trackSvgLayout.setChromosome(data.chromosome);
 			this._drawChromosome();
 		}
 		Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
@@ -164,7 +167,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this._karyotypePanel.select(this.chromosome, this.position, this.position);
 		break;
 	case "trackSvgLayout":
-		this.position = this.position+data.position;
+		this.position = this.position-data.position;
 		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
 //		this._karyotypePanel.select(this.chromosome, this.position, this.position);
 		break;
@@ -568,7 +571,7 @@ GenomeViewer.prototype._getKaryotypePanel = function(specieChanged) {
 		});
 	}
 	
-	if(specieChanged == true){//
+	if(specieChanged == true){
 		this._karyotypePanel.getKaryotypePanel().destroy();
 		this._karyotypePanel=null;
 	}
@@ -734,22 +737,42 @@ GenomeViewer.prototype._getTracksPanel = function() {
 			listeners:{
 				afterrender:function(){
 					var div = $('#'+_this.id+"tracksSvg")[0];
-					_this.trackDataList = new TrackDataList(_this.species);
-					_this.trackSvgLayout = new TrackSvgLayout(div,_this.trackDataList,{
+					//~ _this.trackDataList = new TrackDataList(_this.species);
+					_this.trackSvgLayout = new TrackSvgLayout(div,{
 						width:_this.width-18,
 						position:_this.position,
+						chromosome:_this.chromosome,
 						zoom : _this.zoom
 					});
 					_this.trackSvgLayout.onMove.addEventListener(function(sender,data){
 						_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 					});
 					
-					_this.trackDataList.addTrack({id:"gene",resource:"gene"});
-//					_this.trackDataList.addTrack({id:"snp",resource:"snp"});
-					_this.trackDataList.addTrack({id:"sequence",resource:"sequence",type:"sequence",normalDraw:"100"});
+					var track1 = new TrackData(_this.species,{
+						//~ adapter: new CellBaseDataAdapter({
+							//~ category: "genomic",
+							//~ subCategory: "region",
+							//~ resource: "gene"
+						//~ }),
+						resource:"gene"
+					})
+					var track2 = new TrackData(_this.species,{
+						//~ adapter: new CellBaseDataAdapter({
+							//~ category: "genomic",
+							//~ subCategory: "region",
+							//~ resource: "gene"
+						//~ }),
+						resource:"sequence"
+					});
+					
+					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene",normalDraw:"100"});
+					_this.trackSvgLayout.addTrack(track2,{id:"sequence",type:"sequence",normalDraw:"100",render:""/*GeneRender*/});
+					
+					//~ _this.trackSvgLayout.addTrack({id:"gene",resource:"gene"});
+//					_this.trackSvgLayout.addTrack({id:"snp",resource:"snp"});
 					
 //					setTimeout(function() {
-//						_this.trackDataList.addTrack({id:"track4"});
+//						_this.trackSvgLayout.addTrack({id:"track4"});
 //					},5000);
 				}
 			}

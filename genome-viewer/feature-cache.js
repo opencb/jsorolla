@@ -79,12 +79,12 @@ FeatureCache.prototype.get = function(region){
 					feature = this.cache[key][j];
 				}
 				
-				if(addedHash[feature.chromosome+feature.start+feature.end]!=true){
+				if(addedHash[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
 					// we only get those features in the region
 					if(feature.end > region.start && feature.start < region.end /*&& feature.start > i*this.chunkSize*/){
 						features.push(feature);
 					}
-					addedHash[feature.chromosome+feature.start+feature.end]=true;
+					addedHash[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
 				}
 				
 			}
