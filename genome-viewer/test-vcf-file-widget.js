@@ -27,7 +27,7 @@ TestVCFFileWidget.prototype.loadFileFromLocal = function(file){
 	console.log(file);
 	var _this = this;
 
-	var vcfAdapter = new VCFDataAdapter(new FileDataSource());
+	var vcfAdapter = new VCFDataAdapter(new FileDataSource(file));
 //	var vcfAdapter = new VCFDataAdapter(new UrlDataSource());
 	
 	vcfAdapter.completed.addEventListener(function(sender, data){
@@ -35,6 +35,6 @@ TestVCFFileWidget.prototype.loadFileFromLocal = function(file){
 //		_this.trackDataList.addTrack({id:"snp",resource:"snp"});
 	});
 	
-	vcfAdapter.getData(file);
+//	vcfAdapter.getData();
 //	vcfAdapter.getData("http://rsanchez/example.vcf");
 };

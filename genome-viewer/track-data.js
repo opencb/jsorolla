@@ -30,20 +30,25 @@ TrackData.prototype.retrieveData = function(region){
 	var _this = this;
 	var features = this.featureCache.get(region);
 	if(features == null){
-		console.log(this.adapter)
-		var query = region.chromosome+":"+region.start+"-"+region.end;
 		this.adapter.onGetData.addEventListener(function(sender,data){
-			if(_this.adapter.resource == "sequence"){
+			
+			// check if is an array of arrays or an array of objects 
+			if(data.length > 0){
+				if(data[0].constructor == Object){ 
+					_this.featureCache.put(data,region);
+				}
+				else{
+					for(var i = 0; i < data.length; i++) {
+						_this.featureCache.put(data[i],region);
+					}
+				}
+			}else{
 				_this.featureCache.put(data,region);
 			}
-			else{
-				for(var i = 0; i < data.length; i++) {
-					_this.featureCache.put(data[i],region);
-				}
-			}
+			
 			_this.onRetrieve.notify(_this.featureCache.get(region));
 		});
-		this.adapter.getData(query);
+		this.adapter.getData(region);
 		
 	}else{
 		_this.onRetrieve.notify(features);
