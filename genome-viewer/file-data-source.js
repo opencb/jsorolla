@@ -1,9 +1,9 @@
 FileDataSource.prototype.fetch = DataSource.prototype.fetch;
 
-function FileDataSource() {
+function FileDataSource(file) {
 	DataAdapter.prototype.constructor.call(this);
 	
-	this.file = null;
+	this.file = file;
 	this.success = new Event();
 	this.error = new Event();
 };
@@ -14,9 +14,8 @@ FileDataSource.prototype.error = function(){
 
 
 FileDataSource.prototype.fetch = function(file){
-	this.file = file;
 	var _this = this;
-	if(file){
+	if(this.file){
 		var  reader = new FileReader();
 		reader.onload = function(evt) {
 			if(evt.target.result.length>52428800){
@@ -26,6 +25,6 @@ FileDataSource.prototype.fetch = function(file){
 				_this.success.notify(evt.target.result);
 			}
 		};
-		reader.readAsText(file, "UTF-8");
+		reader.readAsText(this.file, "UTF-8");
 	}
 };

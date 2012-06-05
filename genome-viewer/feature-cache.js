@@ -12,7 +12,7 @@ function FeatureCache(args) {
 			this.chunkSize = args.chunkSize;
 		}
 		if(args.gzip != null){
-			this.gzip = args.gzip;
+//			this.gzip = args.gzip;
 		}
 	}
 	
@@ -77,6 +77,7 @@ FeatureCache.prototype.get = function(region){
 					feature = JSON.parse(RawDeflate.inflate(this.cache[key][j]));
 				}else{
 					feature = this.cache[key][j];
+					console.log(feature)
 				}
 				
 				if(addedHash[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){

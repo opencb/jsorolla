@@ -768,8 +768,8 @@ GenomeViewer.prototype._getTracksPanel = function() {
 						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"))
 					});
 					
-					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
-//					_this.trackSvgLayout.addTrack(track2,{id:"sequence",type:"sequence",render:""/*GeneRender*/});
+//					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+					_this.trackSvgLayout.addTrack(track2,{id:"sequence",type:"sequence",render:""/*GeneRender*/});
 //					_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
 					
 					//~ _this.trackSvgLayout.addTrack({id:"gene",resource:"gene"});
