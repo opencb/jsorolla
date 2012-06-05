@@ -77,8 +77,8 @@ GenomeViewer.prototype.render = function(){
 		items.push(this.toolbar);
 	}
 	items.push(this._getNavigationBar());
-	items.push(this._getKaryotypePanel().hide());
-	items.push(this._getChromosomePanel());
+	//items.push(this._getKaryotypePanel().hide());
+	//items.push(this._getChromosomePanel());
 //	items.push(this._getRegionPanel());
 //	items.push(this._getWindowSizePanel());
 	items.push(this._getTracksPanel());
@@ -98,7 +98,7 @@ GenomeViewer.prototype.render = function(){
 	});
 	
 	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
-	Ext.getCmp(this.id+"chromosomeCont").setTitle("Chromosome "+this.chromosome);
+	//Ext.getCmp(this.id+"chromosomeCont").setTitle("Chromosome "+this.chromosome);
 	Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
 	
 };

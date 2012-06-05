@@ -1,7 +1,7 @@
-DataAdapter.prototype.getData = DataAdapter.prototype.getData;
+VCFDataAdapter.prototype.getData = FeatureDataAdapter.prototype.getData;
 
 function VCFDataAdapter(dataSource, args){
-	DataAdapter.prototype.constructor.call(this, args);
+	FeatureDataAdapter.prototype.constructor.call(this, args);
 };
 
 VCFDataAdapter.prototype.parse = function(data){
