@@ -1,7 +1,8 @@
 VCFDataAdapter.prototype.getData = FeatureDataAdapter.prototype.getData;
 
 function VCFDataAdapter(dataSource, args){
-	FeatureDataAdapter.prototype.constructor.call(this, args);
+	FeatureDataAdapter.prototype.constructor.call(this, dataSource, args);
+	var _this = this;
 	
 	this.async = true;
 
@@ -11,6 +12,7 @@ function VCFDataAdapter(dataSource, args){
 		}
 	}
 	
+//	console.log(this.dataSource)
 	if(this.async){
 		this.dataSource.success.addEventListener(function(sender,data){
 			_this.parse(data);
@@ -19,6 +21,7 @@ function VCFDataAdapter(dataSource, args){
 		this.dataSource.fetch(this.async);
 	}else{
 		var data = this.dataSource.fetch(this.async);
+//		console.log(data)
 		this.parse(data);
 	}
 	

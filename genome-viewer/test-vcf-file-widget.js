@@ -27,13 +27,14 @@ TestVCFFileWidget.prototype.loadFileFromLocal = function(file){
 	console.log(file);
 	var _this = this;
 
-	var vcfAdapter = new VCFDataAdapter(new FileDataSource(file));
+	this.vcfAdapter = new VCFDataAdapter(new FileDataSource(file));
 //	var vcfAdapter = new VCFDataAdapter(new UrlDataSource());
 	
-	vcfAdapter.completed.addEventListener(function(sender, data){
-		console.log(data);
-//		_this.trackDataList.addTrack({id:"snp",resource:"snp"});
-	});
+	_this.btnOk.enable();
+//	this.vcfAdapter.onLoad.addEventListener(function(sender, data){
+//		console.log(data);
+////		_this.trackDataList.addTrack({id:"snp",resource:"snp"});
+//	});
 	
 //	vcfAdapter.getData();
 //	vcfAdapter.getData("http://rsanchez/example.vcf");

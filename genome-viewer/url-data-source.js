@@ -1,7 +1,7 @@
 UrlDataSource.prototype.fetch = DataSource.prototype.fetch;
 
 function UrlDataSource(url) {
-	DataAdapter.prototype.constructor.call(this);
+	DataSource.prototype.constructor.call(this);
 	
 	this.url = url;
 	this.success = new Event();
@@ -10,6 +10,9 @@ function UrlDataSource(url) {
 
 UrlDataSource.prototype.fetch = function(async){
 	var _this = this;
+	
+	var datos = null;
+	
 	if(this.url){
 		$.ajax({
 			type : "GET",
@@ -19,7 +22,8 @@ UrlDataSource.prototype.fetch = function(async){
 				if(async){
 					_this.success.notify(data);
 				}else{
-					return data;
+//					console.log(data)
+					datos = data;
 				}
 			},
 			error : function(jqXHR, textStatus, errorThrown){
@@ -27,5 +31,7 @@ UrlDataSource.prototype.fetch = function(async){
 				_this.error.notify();
 			}
 		});
+		
+		return datos;
 	}
 };

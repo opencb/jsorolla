@@ -1,7 +1,7 @@
 FileDataSource.prototype.fetch = DataSource.prototype.fetch;
 
 function FileDataSource(file) {
-	DataAdapter.prototype.constructor.call(this);
+	DataSource.prototype.constructor.call(this);
 	
 	this.file = file;
 	this.success = new Event();

@@ -4,12 +4,12 @@ function FeatureDataAdapter(dataSource, args){
 	this.dataSource = dataSource;
 	this.gzip = true;
 	
-	
 	if (args != null){
 		if(args.gzip != null){
 			this.gzip = args.gzip;
 		}
 	}
+	console.log(this.gzip)
 	
 	this.featureCache =  new FeatureCache({chunkSize:1000, gzip:this.gzip});
 	

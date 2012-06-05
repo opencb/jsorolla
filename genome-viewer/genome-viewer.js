@@ -757,16 +757,32 @@ GenomeViewer.prototype._getTracksPanel = function() {
 							resource: "gene",
 							species: _this.species
 						})
-					})
+					});
 					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+					console.log(track1.adapter.featureCache.cache);
 					
-					//var track3 = new TrackData("sequence",{
-						//adapter: new VCFDataAdapter(new FileDataSource(file),{async:false})
-					//});
-					//track3.adapter.onLoad.addEventListener(function(sender){
-						//_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
-					//});
-					//this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
+					var track2 = new TrackData("vcf",{
+						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
+							async: false,
+							gzip: false
+						})
+					});
+					console.log(track2.adapter.featureCache.cache);
+					_this.trackSvgLayout.addTrack(track2,{id:"vcf",type:"gene"});
+					
+//					var vcf = new TestVCFFileWidget({viewer:this});
+////					vcf.onOk.addEventListener(function(sender){
+//						var track3 = new TrackData("sequence",{
+//							adapter: vcf.vcfAdapter
+//						});
+//						vcf.vcfAdapter.onLoad.addEventListener(function(sender){
+//							console.log("onLoad");
+//							_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
+//						});
+////					});
+//					vcf.draw();
+					
+//					this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
 					
 					
 					//var track2 = new TrackData("sequence",{

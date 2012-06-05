@@ -12,7 +12,7 @@ function FeatureCache(args) {
 			this.chunkSize = args.chunkSize;
 		}
 		if(args.gzip != null){
-//			this.gzip = args.gzip;
+			this.gzip = args.gzip;
 		}
 	}
 	
