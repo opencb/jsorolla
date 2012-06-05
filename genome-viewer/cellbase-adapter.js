@@ -1,5 +1,4 @@
 function CellBaseAdapter(args){
-	this.onGetData = new Event();
 	this.host = null;
 	this.gzip = true;
 	
@@ -23,18 +22,19 @@ function CellBaseAdapter(args){
 			this.gzip = args.gzip;
 		}
 	}
-	this.cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 	this.featureCache =  new FeatureCache({chunkSize:1000, gzip:this.gzip});
+	this.onGetData = new Event();
 };
 
 CellBaseAdapter.prototype.getData = function(region){
 	var _this = this;
 	
 	var features = _this.featureCache.get(region, true);
-	var query = region.chromosome+":"+region.start+"-"+region.end;
 	
 	if(features == null){
-		this.cellBaseManager.success.addEventListener(function(sender,data){
+		var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
+		cellBaseManager.success.addEventListener(function(sender,data){
+			console.log("cellBaseManager.success")
 			   //check if is an array of arrays or an array of objects 
 			if(data.length > 0){
 				if(data[0].constructor == Object){ 
@@ -48,12 +48,12 @@ CellBaseAdapter.prototype.getData = function(region){
 			}else{
 				_this.featureCache.put(data,region);
 			}
-			console.log("yeha")
 			_this.onGetData.notify(_this.featureCache.get(region, true));
 		});
 		
 		console.log(query)
-		this.cellBaseManager.get(this.category, this.subCategory, query, this.resource);
+		var query = region.chromosome+":"+region.start+"-"+region.end;
+		cellBaseManager.get(this.category, this.subCategory, query, this.resource);
 		
 	}else{
 		_this.onGetData.notify(features);
