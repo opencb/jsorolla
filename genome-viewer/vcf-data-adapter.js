@@ -1,34 +1,7 @@
-function VCFDataAdapter(dataSource){
-	this.dataSource = dataSource;
-//	this.features = new Array();
-	this.featuresByChromosome = new Object();
-	
-	this.completed = new Event();
-	this.onGetData = new Event();
-	this._onParse = new Event();
-	
-	var _this = this;
-	this.dataSource.success.addEventListener(function(sender, data){
-		_this.parse(data);
-		_this._onParse.notify();
-	});
-	this.dataSource.fetch();
-};
+DataAdapter.prototype.getData = DataAdapter.prototype.getData;
 
-VCFDataAdapter.prototype.getData = function(region){
-	var _this = this;
-	
-	this._onParse.addEventListener(function(sender){
-		var features = [];
-		for ( var i = 0; i < _this.featuresByChromosome[region.chromosome].length; i++) {
-			var feature =  _this.featuresByChromosome[region.chromosome][i];
-			if(feature.end > region.start && feature.start < region.end){
-				features.push(feature);
-			}
-		}
-		_this.onGetData.notify(features);
-	});
-	
+function VCFDataAdapter(dataSource, args){
+	DataAdapter.prototype.constructor.call(this, args);
 };
 
 VCFDataAdapter.prototype.parse = function(data){
@@ -58,13 +31,8 @@ VCFDataAdapter.prototype.parse = function(data){
 						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5]
 				};
 
-//				this.features.push(feature);
-				if (this.featuresByChromosome[fields[0]] == null){
-					this.featuresByChromosome[fields[0]] = new Array();
-				}
-				this.featuresByChromosome[fields[0]].push(feature);
+				this.featureCache.put(feature);
 			}
 		}
 	}
-//	_this.completed.notify(this.features);
 };

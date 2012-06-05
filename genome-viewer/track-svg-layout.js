@@ -115,8 +115,11 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		render:args.render
 	});
 	
+	this.onMove.addEventListener(function(sender,data){
+		trackSvg.position -= data;
+	});
+	
 	//start virtual window
-
 	var virtualStart = parseInt(this.position - this.halfVirtualBase);
 	var vitualEnd = parseInt(this.position + this.halfVirtualBase);
 	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd});
@@ -158,9 +161,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 	});
 	
-	this.onMove.addEventListener(function(sender,data){
-		trackSvg.position -= data;
-	});
 	
 	this.trackSvgList.push(trackSvg);
 	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
@@ -215,7 +215,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	
 	trackData.onRetrieve.addEventListener(function(sender,data){
-//		console.log(trackData.featureCache)
 		trackSvg.addFeatures(data);
 	});
 	

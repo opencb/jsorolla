@@ -749,14 +749,14 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					});
 					
 
-					var track1 = new TrackData("gene",{
-						adapter: new CellBaseAdapter({
-							category: "genomic",
-							subCategory: "region",
-							resource: "gene",
-							species: _this.species
-						})
-					})
+					//var track1 = new TrackData("gene",{
+						//adapter: new CellBaseAdapter({
+							//category: "genomic",
+							//subCategory: "region",
+							//resource: "gene",
+							//species: _this.species
+						//})
+					//})
 					var track2 = new TrackData("sequence",{
 						adapter: new CellBaseAdapter({
 							category: "genomic",
@@ -765,13 +765,13 @@ GenomeViewer.prototype._getTracksPanel = function() {
 							species: _this.species
 						})
 					});
-					var track3 = new TrackData("sequence",{
-						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"))
-					});
+					//var track3 = new TrackData("sequence",{
+						//adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"))
+					//});
 					
-					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+					//_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
 					_this.trackSvgLayout.addTrack(track2,{id:"sequence",type:"sequence",render:""/*GeneRender*/});
-					_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
+					//_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
 					
 					// _this.trackSvgLayout.addTrack({id:"gene",resource:"gene"});
 					//_this.trackSvgLayout.addTrack({id:"snp",resource:"snp"});

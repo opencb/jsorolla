@@ -26,17 +26,23 @@ FeatureCache.prototype._getChunk = function(position){
 FeatureCache.prototype.put = function(featureDataList,region){
 	var key,firstChunk,lastChunk,feature;
 	
-	//initialize region
-	firstChunk = this._getChunk(region.start);
-	lastChunk = this._getChunk(region.end);
-	for(var i=firstChunk; i<=lastChunk; i++){
-		key = region.chromosome+":"+i;
-		if(this.cache[key]==null){
-			this.cache[key] = new Array();
+	if(region!=null){
+		//initialize region
+		firstChunk = this._getChunk(region.start);
+		lastChunk = this._getChunk(region.end);
+		for(var i=firstChunk; i<=lastChunk; i++){
+			key = region.chromosome+":"+i;
+			if(this.cache[key]==null){
+				this.cache[key] = new Array();
+			}
 		}
 	}
 	
-	//put features on his chunk
+	//Check if is a single object
+	if(featureDataList.constructor != Array){
+		var featureData = featureDataList;
+		featureDataList = [featureData];
+	}
 	for(var index in featureDataList) {
 		feature = featureDataList[index];
 		firstChunk = this._getChunk(feature.start);
@@ -55,16 +61,19 @@ FeatureCache.prototype.put = function(featureDataList,region){
 	}
 };
 
-FeatureCache.prototype.get = function(region){
+FeatureCache.prototype.get = function(region, validate){
 	var firstChunk = this._getChunk(region.start);
 	var lastChunk = this._getChunk(region.end);
 	var features =  new Array();
 	var feature, key;
-	// validator
-	for(var i=firstChunk; i<=lastChunk; i++){
-		key = region.chromosome+":"+i;
-		if(this.cache[key] == null) {
-			return null;
+	
+	if(validate != null && validate){
+		// validator
+		for(var i=firstChunk; i<=lastChunk; i++){
+			key = region.chromosome+":"+i;
+			if(this.cache[key] == null) {
+				return null;
+			}
 		}
 	}
 	
