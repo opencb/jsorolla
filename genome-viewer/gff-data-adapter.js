@@ -1,7 +1,7 @@
 function GFFDataAdapter(dataSource){
 	this.dataSource = dataSource;
-	this.features = new Array();
-	this.featuresByChromosome = new Array();
+//	this.features = new Array();
+	this.featuresByChromosome = {};
 	
 	this.completed = new Event();
 };
@@ -36,12 +36,12 @@ GFFDataAdapter.prototype.parse = function(data){
 					"group": fields[8]
 			} ;
 
-			this.features.push(feature);
+//			this.features.push(feature);
 			if (this.featuresByChromosome[chromosome] == null){
-				this.featuresByChromosome[chromosome] = new Array();
+				this.featuresByChromosome[chromosome] = [];
 			}
 			this.featuresByChromosome[chromosome].push(feature);
 		}
 	}
-	_this.completed.notify(this.features);
+//	_this.completed.notify(this.features);
 };

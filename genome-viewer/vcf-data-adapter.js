@@ -1,7 +1,7 @@
 function VCFDataAdapter(dataSource){
 	this.dataSource = dataSource;
 //	this.features = new Array();
-	this.featuresByChromosome = new Object();
+	this.featuresByChromosome = {};
 	
 	this.completed = new Event();
 	this.onGetData = new Event();
@@ -60,7 +60,7 @@ VCFDataAdapter.prototype.parse = function(data){
 
 //				this.features.push(feature);
 				if (this.featuresByChromosome[fields[0]] == null){
-					this.featuresByChromosome[fields[0]] = new Array();
+					this.featuresByChromosome[fields[0]] = [];
 				}
 				this.featuresByChromosome[fields[0]].push(feature);
 			}

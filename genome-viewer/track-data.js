@@ -29,6 +29,7 @@ function TrackData(type, args) {
 TrackData.prototype.retrieveData = function(region){
 	var _this = this;
 	var features = this.featureCache.get(region);
+	console.log(features);
 	if(features == null){
 		this.adapter.onGetData.addEventListener(function(sender,data){
 			
