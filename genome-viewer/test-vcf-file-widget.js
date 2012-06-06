@@ -14,6 +14,8 @@ function TestVCFFileWidget(args){
 	
     this.chartWidgetByChromosome = new ChartWidget();
     this.chartWidgetQuality = new ChartWidget({height:300});
+    
+    this.onComplete = new Event();
 };
 
 TestVCFFileWidget.prototype.getChartItems = function(){
@@ -28,6 +30,15 @@ TestVCFFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 
 	this.vcfAdapter = new VCFDataAdapter(new FileDataSource(file));
+	console.log(this.vcfAdapter);
+	
+	var track3 = new TrackData("vcf",{
+		adapter: this.vcfAdapter
+	});
+	this.vcfAdapter.onLoad.addEventListener(function(sender){
+		_this.onComplete.notify(track3);
+	});
+	
 //	var vcfAdapter = new VCFDataAdapter(new UrlDataSource());
 	
 	_this.btnOk.enable();

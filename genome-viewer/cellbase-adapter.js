@@ -29,7 +29,13 @@ function CellBaseAdapter(args){
 CellBaseAdapter.prototype.getData = function(region){
 	var _this = this;
 	
+	console.log("CACHE:")
+	console.log(this.featureCache.cache)
 	var features = _this.featureCache.get(region, true);
+	console.log("REGION:")
+	console.log(region)
+	console.log("GET FEATURES:")
+	console.log(features)
 	
 	if(features == null){
 		var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
@@ -48,14 +54,13 @@ CellBaseAdapter.prototype.getData = function(region){
 				_this.featureCache.put(data,region);
 			}
 			_this.onGetData.notify(_this.featureCache.get(region, true));
-			console.log("hago el notify")
 		});
 		
 		var query = region.chromosome+":"+region.start+"-"+region.end;
+		console.log(query)
 		cellBaseManager.get(this.category, this.subCategory, query, this.resource);
 		
 	}else{
 		_this.onGetData.notify(features);
-		console.log("hago el notify")
 	}
 };

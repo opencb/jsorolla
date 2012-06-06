@@ -1,23 +1,33 @@
-function BEDDataAdapter(dataSource){
-	this.dataSource = dataSource;
-	this.features = new Array();
-	this.featuresByChromosome = new Array();
-	
-	this.completed = new Event();
-};
+BEDDataAdapter.prototype.getData = FeatureDataAdapter.prototype.getData;
 
-BEDDataAdapter.prototype.getData = function(resource){
+function BEDDataAdapter(dataSource, args){
+	FeatureDataAdapter.prototype.constructor.call(this, dataSource, args);
 	var _this = this;
-	this.dataSource.success.addEventListener(function(sender, data){
-		_this.parse(data);
-	});
-	this.dataSource.fetch(resource);
+	
+	this.async = true;
+
+	if (args != null){
+		if(args.async != null){
+			this.async = args.async;
+		}
+	}
+	
+	if(this.async){
+		this.dataSource.success.addEventListener(function(sender,data){
+			_this.parse(data);
+			_this.onLoad.notify();
+		});
+		this.dataSource.fetch(this.async);
+	}else{
+		var data = this.dataSource.fetch(this.async);
+		this.parse(data);
+	}
 };
 
 BEDDataAdapter.prototype.parse = function(data){
 	var _this = this;
 	var lines = data.split("\n");
-	console.log("creating objects");
+//	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){
 		var line = lines[i].replace(/^\s+|\s+$/g,"");
 		if ((line != null)&&(line.length > 0)){
@@ -38,12 +48,7 @@ BEDDataAdapter.prototype.parse = function(data){
 					"blockStarts":fields[11]
 			} ;
 
-			this.features.push(feature);
-			if (this.featuresByChromosome[fields[0]] == null){
-				this.featuresByChromosome[fields[0]] = new Array();
-			}
-			this.featuresByChromosome[fields[0]].push(feature);
+			this.featureCache.put(feature);
 		}
 	}
-	_this.completed.notify(this.features);
 };

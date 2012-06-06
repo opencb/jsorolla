@@ -749,56 +749,70 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					});
 					
 
-					//var track1 = new TrackData("gene",{
-						//adapter: new CellBaseAdapter({
-							//gzip: true,
-							//category: "genomic",
-							//subCategory: "region",
-							//resource: "gene",
-							//species: _this.species
-						//})
-					//});
-					//_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
-					//console.log(track1.adapter.featureCache.cache);
+//					var track1 = new TrackData("gene",{
+//						adapter: new CellBaseAdapter({
+//							gzip: true,
+//							category: "genomic",
+//							subCategory: "region",
+//							resource: "gene",
+//							species: _this.species
+//						})
+//					});
+//					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+//					console.log(track1.adapter.featureCache.cache);
 					
-					var track2 = new TrackData("vcf",{
-						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
-							async: false,
-							gzip: false
-						})
-					});
-					_this.trackSvgLayout.addTrack(track2,{id:"vcf",type:"vcf"});
+//					var track2 = new TrackData("vcf",{
+//						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
+//							async: false,
+//							gzip: false
+//						})
+//					});
+//					_this.trackSvgLayout.addTrack(track2,{id:"vcf",type:"vcf"});
 					
+//					var track3 = new TrackData("gff",{
+//						adapter: new GFFDataAdapter(new UrlDataSource("http://rsanchez/example.gff"),{
+//							async: false,
+//							gzip: false
+//						})
+//					});
+//					_this.trackSvgLayout.addTrack(track3,{id:"gff",type:"gff"});
+//					console.log(track3.adapter.featureCache.cache);
+
+//					var track4 = new TrackData("bed",{
+//						adapter: new BEDDataAdapter(new UrlDataSource("http://rsanchez/example.bed"),{
+//							async: false,
+//							gzip: false
+//						})
+//					});
+//					_this.trackSvgLayout.addTrack(track4,{id:"bed",type:"bed"});
+					
+//					// load vcf file from file widget
 //					var vcf = new TestVCFFileWidget({viewer:this});
-////					vcf.onOk.addEventListener(function(sender){
-//						var track3 = new TrackData("sequence",{
-//							adapter: vcf.vcfAdapter
+//					vcf.onComplete.addEventListener(function(sender, data){
+//						vcf.onOk.addEventListener(function(sender){
+//							_this.trackSvgLayout.addTrack(data,{id:"vcf",type:"vcf",render:""/*GeneRender*/});
 //						});
-//						vcf.vcfAdapter.onLoad.addEventListener(function(sender){
-//							console.log("onLoad");
-//							_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
-//						});
-////					});
+//					});
 //					vcf.draw();
 					
 //					this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
 					
 					
-					//var track2 = new TrackData("sequence",{
-						//adapter: new CellBaseAdapter({
-							//category: "genomic",
-							//subCategory: "region",
-							//resource: "sequence",
-							//species: _this.species
-						//})
-					//});
+					var seqtrack = new TrackData("sequence",{
+						adapter: new CellBaseAdapter({
+							category: "genomic",
+							subCategory: "region",
+							resource: "sequence",
+							species: _this.species,
+							gzip: false
+						})
+					});
+					_this.trackSvgLayout.addTrack(seqtrack,{id:"sequence",type:"sequence"/*,render:""GeneRender*/});
 					
 					//track3.adapter.onLoad.addEventListener(function(sender){
 						//_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
 					//});
 					
-					
-					//_this.trackSvgLayout.addTrack(track2,{id:"sequence",type:"sequence",render:""/*GeneRender*/});
 					
 					// _this.trackSvgLayout.addTrack({id:"gene",resource:"gene"});
 					//_this.trackSvgLayout.addTrack({id:"snp",resource:"snp"});

@@ -12,7 +12,6 @@ function VCFDataAdapter(dataSource, args){
 		}
 	}
 	
-//	console.log(this.dataSource)
 	if(this.async){
 		this.dataSource.success.addEventListener(function(sender,data){
 			_this.parse(data);
@@ -21,7 +20,6 @@ function VCFDataAdapter(dataSource, args){
 		this.dataSource.fetch(this.async);
 	}else{
 		var data = this.dataSource.fetch(this.async);
-//		console.log(data)
 		this.parse(data);
 	}
 };
