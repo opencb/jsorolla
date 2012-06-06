@@ -125,10 +125,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackData.adapter.onGetData.addEventListener(function(sender,data){
-		console.log(data);
 		trackSvg.addFeatures(data);
 	});
-
 
 
 
@@ -137,7 +135,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackSvg.position -= data;
 	});
 	
-	//start virtual window
+	
+	//on first load get virtual window and retrieve data
 	var virtualStart = parseInt(this.position - this.halfVirtualBase);
 	var vitualEnd = parseInt(this.position + this.halfVirtualBase);
 	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd});

@@ -34,8 +34,7 @@ CellBaseAdapter.prototype.getData = function(region){
 	if(features == null){
 		var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 		cellBaseManager.success.addEventListener(function(sender,data){
-			console.log("cellBaseManager.success")
-			   //check if is an array of arrays or an array of objects 
+			//check if is an array of arrays or an array of objects 
 			if(data.length > 0){
 				if(data[0].constructor == Object){ 
 					_this.featureCache.put(data,region);
@@ -51,7 +50,6 @@ CellBaseAdapter.prototype.getData = function(region){
 			_this.onGetData.notify(_this.featureCache.get(region, true));
 		});
 		
-		console.log(query)
 		var query = region.chromosome+":"+region.start+"-"+region.end;
 		cellBaseManager.get(this.category, this.subCategory, query, this.resource);
 		
