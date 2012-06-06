@@ -64,9 +64,10 @@ function TrackSvgLayout(parent, args) {
 	this.onZoomChange = new Event();
 	this.onChromosomeChange = new Event();
 	this.onMove = new Event();
-	
+
 	//Main svg events
 	$(this.svg).mousedown(function(event) {
+		this.setAttribute("cursor", "move");
 		var downX = event.clientX;
 		var lastX = 0;
 		$(this).mousemove(function(event){
@@ -81,15 +82,47 @@ function TrackSvgLayout(parent, args) {
 		});
 	});
 	$(this.svg).mouseup(function(event) {
+		this.setAttribute("cursor", "default");
 		$(this).off('mousemove');
+		$(this).focus();// without this, the keydown does not work
 	});
-	
-	$(this.svg).mouseover(function(){
-		console.log("over");
+
+	//keys
+	$(this.svg).keydown(function(e) {
+		var desp = 0;
+		switch (e.keyCode){
+			case 37://left arrow
+				if(e.ctrlKey){
+					desp = 100/_this.pixelBase;
+				}else{
+					desp = 10/_this.pixelBase;
+				}
+			break;
+			case 39://right arrow
+				if(e.ctrlKey){
+					desp = -100/_this.pixelBase;
+				}else{
+					desp = -10/_this.pixelBase;
+				}
+			break;
+			case 109://minus key
+				if(e.shiftKey){
+					console.log("zoom out");
+				}
+			break;
+			case 107://plus key
+				if(e.shiftKey){
+					console.log("zoom in");
+				}
+			break;
+		}
+		if(desp != 0){
+			_this.position -= desp;
+			_this.positionText.textContent = _this.position;
+			_this.onMove.notify(desp);
+		}
 	});
-	$(this.svg).mouseout(function(){
-		console.log("out");
-	});
+	$(this.svg).focus();// without this, the keydown does not work
 	
 };
 
