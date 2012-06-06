@@ -759,15 +759,15 @@ GenomeViewer.prototype._getTracksPanel = function() {
 						})
 					});
 					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
-					console.log(track1.adapter.featureCache.cache);
+					//console.log(track1.adapter.featureCache.cache);
 					
 					var track2 = new TrackData("vcf",{
-						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
+						adapter: new VCFDataAdapter(new UrlDataSource("http://fsalavert/example.vcf"),{
 							async: false,
 							gzip: false
 						})
 					});
-					console.log(track2.adapter.featureCache.cache);
+					//console.log(track2.adapter.featureCache.cache);
 					_this.trackSvgLayout.addTrack(track2,{id:"vcf",type:"gene"});
 					
 //					var vcf = new TestVCFFileWidget({viewer:this});

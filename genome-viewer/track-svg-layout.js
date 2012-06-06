@@ -115,6 +115,24 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		render:args.render
 	});
 	
+
+	this.trackSvgList.push(trackSvg);
+	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
+	trackSvg.setY(this.height);
+	trackSvg.draw();
+	
+	
+	//Watch out!!!
+	//this event must be attached before any "trackData.retrieveData()" call
+	trackData.adapter.onGetData.addEventListener(function(sender,data){
+		console.log(data);
+		trackSvg.addFeatures(data);
+	});
+
+
+
+
+	//movement listeners
 	this.onMove.addEventListener(function(sender,data){
 		trackSvg.position -= data;
 	});
@@ -123,6 +141,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var virtualStart = parseInt(this.position - this.halfVirtualBase);
 	var vitualEnd = parseInt(this.position + this.halfVirtualBase);
 	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd});
+	
+	
 	
 	//on zoom change set new virtual window and update track values
 	this.onZoomChange.addEventListener(function(sender,data){
@@ -161,23 +181,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 	});
 	
-	
-	this.trackSvgList.push(trackSvg);
-	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
-	trackSvg.setY(this.height);
-	trackSvg.draw();
-	
-	//XXX se puede mover?
-	$(trackSvg.upRect).bind("click",function(event){
-		_this._reallocateAbove(this.parentNode.id);//"this" is the svg element
-	});
-	$(trackSvg.downRect).bind("click",function(event){
-		_this._reallocateUnder(this.parentNode.id);//"this" is the svg element
-	});
-	$(trackSvg.hideRect).bind("click",function(event){
-		_this._hideTrack(this.parentNode.id);//"this" is the svg element
-	});
-	
 	var callStart = parseInt(trackSvg.position - this.halfVirtualBase);
 	var callEnd = parseInt(trackSvg.position + this.halfVirtualBase);
 	$(this.svg).mousedown(function(event) {
@@ -214,9 +217,23 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	});
 	
 	
-	trackData.onRetrieve.addEventListener(function(sender,data){
-		trackSvg.addFeatures(data);
+	
+	
+	
+	
+	
+	//dibujado
+	//XXX se puede mover?
+	$(trackSvg.upRect).bind("click",function(event){
+		_this._reallocateAbove(this.parentNode.id);//"this" is the svg element
 	});
+	$(trackSvg.downRect).bind("click",function(event){
+		_this._reallocateUnder(this.parentNode.id);//"this" is the svg element
+	});
+	$(trackSvg.hideRect).bind("click",function(event){
+		_this._hideTrack(this.parentNode.id);//"this" is the svg element
+	});
+	
 	
 	this.height += trackSvg.getHeight();
 	

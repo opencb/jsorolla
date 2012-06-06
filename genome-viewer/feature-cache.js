@@ -86,7 +86,6 @@ FeatureCache.prototype.get = function(region, validate){
 					feature = JSON.parse(RawDeflate.inflate(this.cache[key][j]));
 				}else{
 					feature = this.cache[key][j];
-					console.log(feature)
 				}
 				
 				if(addedHash[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
