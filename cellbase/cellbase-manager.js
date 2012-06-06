@@ -130,7 +130,7 @@ function CellBaseManager(species, args) {
 					result.push(this.results[i][j]);
 				}
 			}
-			this.successed.notify(result);
+			this.success.notify(result);
 		}
 	},
 	

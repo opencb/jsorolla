@@ -65,6 +65,7 @@ function TrackSvgLayout(parent, args) {
 	this.onChromosomeChange = new Event();
 	this.onMove = new Event();
 	
+	//Main svg events
 	$(this.svg).mousedown(function(event) {
 		var downX = event.clientX;
 		var lastX = 0;
@@ -81,6 +82,13 @@ function TrackSvgLayout(parent, args) {
 	});
 	$(this.svg).mouseup(function(event) {
 		$(this).off('mousemove');
+	});
+	
+	$(this.svg).mouseover(function(){
+//		console.log("over");
+	});
+	$(this.svg).mouseout(function(){
+//		console.log("out");
 	});
 	
 };
@@ -126,18 +134,11 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackSvg.addFeatures(data);
 	});
 
-	//movement listeners
-	this.onMove.addEventListener(function(sender,data){
-		trackSvg.position -= data;
-	});
-	
 	
 	//on first load get virtual window and retrieve data
 	var virtualStart = parseInt(this.position - this.halfVirtualBase);
 	var vitualEnd = parseInt(this.position + this.halfVirtualBase);
 	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd});
-	
-	
 	
 	//on zoom change set new virtual window and update track values
 	this.onZoomChange.addEventListener(function(sender,data){
@@ -148,6 +149,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	    {
 			trackSvg.features.removeChild( trackSvg.features.firstChild );
 	    }
+		trackData.adapter.featureCache.featuresAdded = new Object();
 
 		var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
 		var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
@@ -165,6 +167,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	    {
 			trackSvg.features.removeChild( trackSvg.features.firstChild );
 	    }
+		trackData.adapter.featureCache.featuresAdded = {};
+		
 		var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
 		var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
 		if(virtualStart<0){
@@ -176,40 +180,76 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 	});
 	
+	
 	var callStart = parseInt(trackSvg.position - this.halfVirtualBase);
 	var callEnd = parseInt(trackSvg.position + this.halfVirtualBase);
-	$(this.svg).mousedown(function(event) {
-		var downX = event.clientX;
-		var lastX = 0;
-		$(this).mousemove(function(event){
-			var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
-			if(newX!=lastX){
-				var desp = lastX-newX;
-				var despBase = desp*_this.pixelBase;
-				var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
-				trackSvg.features.setAttribute("x",move);
-				trackSvg.pixelPosition-=despBase;
-				
-				var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase/3);
-				var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase/3);
-				
-				if(desp<0 && virtualEnd > callEnd){
-					trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase/3)});
-					callEnd = parseInt(callEnd+_this.halfVirtualBase/3);
-				}
-				
-				if(desp>0 && virtualStart < callStart){
-					trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase/3),end:callStart});
-					callStart = parseInt(callStart-_this.halfVirtualBase/3);
-				}
-				
-				lastX = newX;
-			}
-		});
+	
+	
+	
+	//movement listeners
+	this.onMove.addEventListener(function(sender,desp){
+		trackSvg.position -= desp;
+		var despBase = desp*_this.pixelBase;
+		trackSvg.pixelPosition-=despBase;
+		
+		var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
+		trackSvg.features.setAttribute("x",move);
+		
+		var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase/3);
+		var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase/3);
+		
+		if(virtualStart<0){
+			virtualStart=1;
+		}
+		if(vitualEnd>300000000){
+			vitualEnd=300000000;
+		}
+		
+		if(desp<0 && virtualEnd > callEnd){
+			trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase/3)});
+			callEnd = parseInt(callEnd+_this.halfVirtualBase/3);
+		}
+
+		if(desp>0 && virtualStart < callStart){
+			trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase/3),end:callStart});
+			callStart = parseInt(callStart-_this.halfVirtualBase/3);
+		}
 	});
-	$(this.svg).mouseup(function(event) {
-		$(this).off('mousemove');
-	});
+	
+	//$(this.svg).mousedown(function(event) {
+		//var downX = event.clientX;
+		//var lastX = 0;
+		//$(this).mousemove(function(event){
+			//var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
+			//if(newX!=lastX){
+				//var desp = lastX-newX;
+				//var despBase = desp*_this.pixelBase;
+				//var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
+				//trackSvg.features.setAttribute("x",move);
+				//trackSvg.pixelPosition-=despBase;
+				//
+				//var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase/3);
+				//var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase/3);
+				//
+				//if(desp<0 && virtualEnd > callEnd){
+					//trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase/3)});
+					//callEnd = parseInt(callEnd+_this.halfVirtualBase/3);
+				//}
+				//
+				//if(desp>0 && virtualStart < callStart){
+					//trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase/3),end:callStart});
+					//callStart = parseInt(callStart-_this.halfVirtualBase/3);
+				//}
+				//
+				//lastX = newX;
+			//}
+		//});
+	//});
+	//$(this.svg).mouseup(function(event) {
+		//$(this).off('mousemove');
+	//});
+	
+	
 	
 	//dibujado
 	//XXX se puede mover?

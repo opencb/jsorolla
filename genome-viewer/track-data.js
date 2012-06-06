@@ -1,5 +1,4 @@
 function TrackData(type, args) {
-	console.log(args)
 	if (args != null){
 		if(args.adapter != null){
 			this.adapter = args.adapter;

@@ -16,17 +16,22 @@ function FeatureCache(args) {
 		}
 	}
 	
-	this.cache = new Object();
+	this.cache = {};
+	this.featuresAdded = {};
 };
 
 FeatureCache.prototype._getChunk = function(position){
 	return Math.floor(position/this.chunkSize);
 };
 
-FeatureCache.prototype.put = function(featureDataList,region){
+FeatureCache.prototype.getChunkRegion = function(region){
+	start = this._getChunk(region.start) * this.chunkSize;
+	end = (this._getChunk(region.end) * this.chunkSize) + this.chunkSize-1;
+	return {start:start,end:end};
+};
+
+FeatureCache.prototype.putOLD = function(featureDataList,region){
 	var key,firstChunk,lastChunk,feature;
-	console.log("put data")
-	console.log(featureDataList)
 	
 	if(region!=null){
 		//initialize region
@@ -35,7 +40,7 @@ FeatureCache.prototype.put = function(featureDataList,region){
 		for(var i=firstChunk; i<=lastChunk; i++){
 			key = region.chromosome+":"+i;
 			if(this.cache[key]==null){
-				this.cache[key] = new Array();
+				this.cache[key] = [];
 			}
 		}
 	}
@@ -61,6 +66,50 @@ FeatureCache.prototype.put = function(featureDataList,region){
 				this.cache[key].push(feature);
 			}
 		}
+	}
+};
+
+FeatureCache.prototype.put = function(featureDataList){
+	var feature, key, firstChunk,lastChunk;
+	
+	for(var index in featureDataList) {
+		feature = featureDataList[index];
+		firstChunk = this._getChunk(feature.start);
+		lastChunk = this._getChunk(feature.end);
+		for(var i=firstChunk; i<=lastChunk; i++) {
+			key = feature.chromosome+":"+i;
+			if(this.cache[key] != null){
+				if(this.gzip) {
+					this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
+				}else{
+					this.cache[key].push(feature);
+				}
+			}
+		}
+	}
+};
+
+FeatureCache.prototype.getFeaturesByChunk = function(key){
+	var features =  new Array();
+	var feature;
+	
+	if(this.cache[key] != null) {
+		for ( var i = 0; i < this.cache[key].length; i++) {
+			if(this.gzip) {
+				feature = JSON.parse(RawDeflate.inflate(this.cache[key][i]));
+			}else{
+				feature = this.cache[key][i];
+			}
+			
+			if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
+				features.push(feature);
+				this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
+			}
+//			features.push(feature);
+		}
+		return features;
+	}else{
+		return null;
 	}
 };
 
