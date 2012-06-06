@@ -120,18 +120,24 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	trackSvg.setY(this.height);
 	trackSvg.draw();
 	
-	trackData.onRetrieve.addEventListener(function(sender,data){
+	//Watch out!!!
+	//this event must be attached before any "trackData.retrieveData()" call
+	trackData.adapter.onGetData.addEventListener(function(sender,data){
 		trackSvg.addFeatures(data);
 	});
-	
+
+	//movement listeners
 	this.onMove.addEventListener(function(sender,data){
 		trackSvg.position -= data;
 	});
 	
-	//start virtual window
+	
+	//on first load get virtual window and retrieve data
 	var virtualStart = parseInt(this.position - this.halfVirtualBase);
 	var vitualEnd = parseInt(this.position + this.halfVirtualBase);
 	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd});
+	
+	
 	
 	//on zoom change set new virtual window and update track values
 	this.onZoomChange.addEventListener(function(sender,data){
@@ -170,9 +176,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 	});
 	
-	
-	
-	
 	var callStart = parseInt(trackSvg.position - this.halfVirtualBase);
 	var callEnd = parseInt(trackSvg.position + this.halfVirtualBase);
 	$(this.svg).mousedown(function(event) {
@@ -208,6 +211,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		$(this).off('mousemove');
 	});
 	
+	//dibujado
 	//XXX se puede mover?
 	$(trackSvg.upRect).bind("click",function(event){
 		_this._reallocateAbove(this.parentNode.id);//"this" is the svg element
@@ -218,6 +222,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	$(trackSvg.hideRect).bind("click",function(event){
 		_this._hideTrack(this.parentNode.id);//"this" is the svg element
 	});
+	
 	
 	this.height += trackSvg.getHeight();
 	

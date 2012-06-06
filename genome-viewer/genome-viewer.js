@@ -749,16 +749,17 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					});
 					
 
-//					var track1 = new TrackData("gene",{
-//						adapter: new CellBaseAdapter({
-//							gzip: true,
-//							category: "genomic",
-//							subCategory: "region",
-//							resource: "gene",
-//							species: _this.species
-//						})
-//					});
-//					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+					//var track1 = new TrackData("gene",{
+						//adapter: new CellBaseAdapter({
+							//gzip: true,
+							//category: "genomic",
+							//subCategory: "region",
+							//resource: "gene",
+							//species: _this.species
+						//})
+					//});
+					//_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+					//console.log(track1.adapter.featureCache.cache);
 					
 					var track2 = new TrackData("vcf",{
 						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
