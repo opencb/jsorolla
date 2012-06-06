@@ -24,7 +24,6 @@ function VCFDataAdapter(dataSource, args){
 //		console.log(data)
 		this.parse(data);
 	}
-	
 };
 
 VCFDataAdapter.prototype.parse = function(data){

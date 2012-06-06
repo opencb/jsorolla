@@ -9,7 +9,6 @@ function FeatureDataAdapter(dataSource, args){
 			this.gzip = args.gzip;
 		}
 	}
-	console.log(this.gzip)
 	
 	this.featureCache =  new FeatureCache({chunkSize:1000, gzip:this.gzip});
 	

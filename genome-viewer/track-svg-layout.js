@@ -115,6 +115,15 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		render:args.render
 	});
 	
+	this.trackSvgList.push(trackSvg);
+	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
+	trackSvg.setY(this.height);
+	trackSvg.draw();
+	
+	trackData.onRetrieve.addEventListener(function(sender,data){
+		trackSvg.addFeatures(data);
+	});
+	
 	this.onMove.addEventListener(function(sender,data){
 		trackSvg.position -= data;
 	});
@@ -162,21 +171,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	});
 	
 	
-	this.trackSvgList.push(trackSvg);
-	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
-	trackSvg.setY(this.height);
-	trackSvg.draw();
 	
-	//XXX se puede mover?
-	$(trackSvg.upRect).bind("click",function(event){
-		_this._reallocateAbove(this.parentNode.id);//"this" is the svg element
-	});
-	$(trackSvg.downRect).bind("click",function(event){
-		_this._reallocateUnder(this.parentNode.id);//"this" is the svg element
-	});
-	$(trackSvg.hideRect).bind("click",function(event){
-		_this._hideTrack(this.parentNode.id);//"this" is the svg element
-	});
 	
 	var callStart = parseInt(trackSvg.position - this.halfVirtualBase);
 	var callEnd = parseInt(trackSvg.position + this.halfVirtualBase);
@@ -213,9 +208,15 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		$(this).off('mousemove');
 	});
 	
-	
-	trackData.onRetrieve.addEventListener(function(sender,data){
-		trackSvg.addFeatures(data);
+	//XXX se puede mover?
+	$(trackSvg.upRect).bind("click",function(event){
+		_this._reallocateAbove(this.parentNode.id);//"this" is the svg element
+	});
+	$(trackSvg.downRect).bind("click",function(event){
+		_this._reallocateUnder(this.parentNode.id);//"this" is the svg element
+	});
+	$(trackSvg.hideRect).bind("click",function(event){
+		_this._hideTrack(this.parentNode.id);//"this" is the svg element
 	});
 	
 	this.height += trackSvg.getHeight();

@@ -49,6 +49,7 @@ CellBaseAdapter.prototype.getData = function(region){
 				_this.featureCache.put(data,region);
 			}
 			_this.onGetData.notify(_this.featureCache.get(region, true));
+			console.log("hago el notify")
 		});
 		
 		console.log(query)
@@ -57,5 +58,6 @@ CellBaseAdapter.prototype.getData = function(region){
 		
 	}else{
 		_this.onGetData.notify(features);
+		console.log("hago el notify")
 	}
 };
