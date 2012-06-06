@@ -23,6 +23,12 @@ FeatureCache.prototype._getChunk = function(position){
 	return Math.floor(position/this.chunkSize);
 };
 
+FeatureCache.prototype.getChunkRegion = function(region){
+	start = this._getChunk(region.start) * this.chunkSize;
+	end = (this._getChunk(region.end) * this.chunkSize) + this.chunkSize-1;
+	return {start:start,end:end};
+};
+
 FeatureCache.prototype.put = function(featureDataList,region){
 	var key,firstChunk,lastChunk,feature;
 	

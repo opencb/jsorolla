@@ -50,8 +50,9 @@ CellBaseAdapter.prototype.getData = function(region){
 			_this.onGetData.notify(_this.featureCache.get(region, true));
 			console.log("hago el notify")
 		});
-		
-		var query = region.chromosome+":"+region.start+"-"+region.end;
+
+		var chunkRegion = this.featureCache.getChunkRegion(region);
+		var query = region.chromosome+":"+chunkRegion.start+"-"+chunkRegion.end;
 		cellBaseManager.get(this.category, this.subCategory, query, this.resource);
 		
 	}else{
