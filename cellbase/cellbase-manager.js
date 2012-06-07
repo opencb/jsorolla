@@ -41,6 +41,7 @@ function CellBaseManager(species, args) {
 	this.dataType = "script";
 
 	this.query = "";
+	this.originalQuery = "";
 	this.resource = "";
 
 	this.async = true;
@@ -94,6 +95,7 @@ function CellBaseManager(species, args) {
 
 	this.get = function(category, subcategory, query, resource, callbackFunction) {
 		if(query instanceof Array){
+				this.originalQuery = query;
 				this.batching = true;
 				this.results= new Array();
 				this.getMultiple(category, subcategory, query, resource);
@@ -102,6 +104,7 @@ function CellBaseManager(species, args) {
 				query = new String(query);
 				query = query.replace(/\s/g, "");
 				var querySplitted = query.split(",");
+				this.originalQuery = querySplitted;
 				if (this.maxQuery <querySplitted.length){
 					this.batching = true;
 					this.getMultiple(category, subcategory, querySplitted, resource, callbackFunction);
@@ -130,7 +133,7 @@ function CellBaseManager(species, args) {
 					result.push(this.results[i][j]);
 				}
 			}
-			this.successed.notify(result);
+			this.success.notify({result: result, query: this.originalQuery, error: ''});
 		}
 	},
 	
@@ -190,7 +193,7 @@ function CellBaseManager(species, args) {
 						if (_this.batching){
 							_this.batchSuccessed.notify({data:jsonResponse, id:batchID});
 						}else{
-							_this.success.notify(jsonResponse);
+							_this.success.notify({result: jsonResponse, query: _this.originalQuery, error: ''});
 						}
 //					}
 //					catch(e){

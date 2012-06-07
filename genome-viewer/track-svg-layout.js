@@ -87,6 +87,7 @@ function TrackSvgLayout(parent, args) {
 		$(this).focus();// without this, the keydown does not work
 	});
 
+
 	//keys
 	$(this.svg).keydown(function(e) {
 		var desp = 0;
@@ -182,6 +183,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	    {
 			trackSvg.features.removeChild( trackSvg.features.firstChild );
 	    }
+		trackData.adapter.featureCache.featuresAdded = new Object();
 
 		var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
 		var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
@@ -199,6 +201,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	    {
 			trackSvg.features.removeChild( trackSvg.features.firstChild );
 	    }
+		trackData.adapter.featureCache.featuresAdded = {};
+		
 		var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
 		var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
 		if(virtualStart<0){
@@ -227,6 +231,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase/3);
 		var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase/3);
+		
+		if(virtualStart<0){
+			virtualStart=1;
+		}
+		if(vitualEnd>300000000){
+			vitualEnd=300000000;
+		}
 		
 		if(desp<0 && virtualEnd > callEnd){
 			trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase/3)});

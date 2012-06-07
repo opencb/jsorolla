@@ -436,9 +436,9 @@ GenomeViewer.prototype._updateChrStore = function(){
  			if (!IsNumber) return 1;
  			return (a - b);
  		};
- 		data.sort(sortfunction);
-		for (var i = 0; i < data.length; i++) {
-			chromosomeData.push({'name':data[i]});
+ 		data.result.sort(sortfunction);
+		for (var i = 0; i < data.result.length; i++) {
+			chromosomeData.push({'name':data.result[i]});
 		}
 		chrStore.loadData(chromosomeData);
 //		chrView.getSelectionModel().select(chrStore.find("name",_this.chromosome));
@@ -749,26 +749,81 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					});
 					
 
-					var track1 = new TrackData("gene",{
+//					var track1 = new TrackData("gene",{
+//						adapter: new CellBaseAdapter({
+//							category: "genomic",
+//							subCategory: "region",
+//							resource: "gene",
+//							species: _this.species,
+//							featureCache:{
+//								gzip: true,
+//								chunkSize:1000
+//							}
+//						})
+//					});
+//					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+//					console.log(track1.adapter.featureCache.cache);
+					
+					var seqtrack = new TrackData("sequence",{
 						adapter: new CellBaseAdapter({
-							gzip: true,
 							category: "genomic",
 							subCategory: "region",
-							resource: "gene",
-							species: _this.species
+							resource: "sequence",
+							species: _this.species,
+							featureCache:{
+								gzip: false,
+								chunkSize:1000
+							}
 						})
 					});
-					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
-					//console.log(track1.adapter.featureCache.cache);
+					_this.trackSvgLayout.addTrack(seqtrack,{id:"sequence",type:"sequence"/*,render:""GeneRender*/});
 					
-					var track2 = new TrackData("vcf",{
-						adapter: new VCFDataAdapter(new UrlDataSource("http://fsalavert/example.vcf"),{
-							async: false,
-							gzip: false
-						})
-					});
-					_this.trackSvgLayout.addTrack(track2,{id:"vcf",type:"vcf"});
 					
+//					var track2 = new TrackData("vcf",{
+//						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
+//							async: false,
+//							gzip: false
+//						})
+//					});
+//					_this.trackSvgLayout.addTrack(track2,{id:"vcf",type:"vcf"});
+					
+//					var track3 = new TrackData("gff",{
+//						adapter: new GFFDataAdapter(new UrlDataSource("http://rsanchez/example.gff"),{
+//							async: false,
+//							gzip: false
+//						})
+//					});
+//					_this.trackSvgLayout.addTrack(track3,{id:"gff",type:"gff"});
+//					console.log(track3.adapter.featureCache.cache);
+
+//					var track4 = new TrackData("bed",{
+//						adapter: new BEDDataAdapter(new UrlDataSource("http://rsanchez/example.bed"),{
+//							async: false,
+//							gzip: false
+//						})
+//					});
+//					_this.trackSvgLayout.addTrack(track4,{id:"bed",type:"bed"});
+					
+//					// load vcf file from file widget
+//					var vcf = new TestVCFFileWidget({viewer:this});
+//					vcf.onComplete.addEventListener(function(sender, data){
+//						vcf.onOk.addEventListener(function(sender){
+//							_this.trackSvgLayout.addTrack(data,{id:"vcf",type:"vcf",render:""/*GeneRender*/});
+//						});
+//					});
+//					vcf.draw();
+					
+//					this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
+					
+					
+
+					//track3.adapter.onLoad.addEventListener(function(sender){
+						//_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
+					//});
+					
+					
+					// _this.trackSvgLayout.addTrack({id:"gene",resource:"gene"});
+					//_this.trackSvgLayout.addTrack({id:"snp",resource:"snp"});
 					
 					//setTimeout(function() {
 						//_this.trackSvgLayout.addTrack({id:"track4"});
