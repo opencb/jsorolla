@@ -761,7 +761,7 @@ GenomeViewer.prototype._getTracksPanel = function() {
 							}
 						})
 					});
-					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene",histogramRender:null,render:null,histogramZoom:""});
 //					console.log(track1.adapter.featureCache.cache);
 					
 					var seqtrack = new TrackData("sequence",{

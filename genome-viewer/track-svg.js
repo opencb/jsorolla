@@ -225,7 +225,7 @@ TrackSvg.prototype.draw = function(){
 };
 
 
-TrackSvg.prototype.addFeatures = function(featureList){
+TrackSvg.prototype.renderFeatures = function(featureList){
 //	console.log(this.position);
 //	console.log(featureList);
 	

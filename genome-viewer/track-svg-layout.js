@@ -165,7 +165,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackData.adapter.onGetData.addEventListener(function(sender,data){
-		trackSvg.addFeatures(data);
+		trackSvg.renderFeatures(data);
 	});
 
 	
@@ -178,6 +178,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	this.onZoomChange.addEventListener(function(sender,data){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
+		
 		
 		while( trackSvg.features.childNodes.length >= 1 )
 	    {
