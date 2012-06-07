@@ -145,16 +145,31 @@ TrackSvgLayout.prototype.setChromosome = function(chr){
 TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var _this = this;
 	
+	if (args != null){
+		if(args.id != null){
+			var id = args.id;
+		}
+		if(args.type != null){
+			var type = args.type;
+		}
+		if(args.render != null){
+			var render = args.render;
+		}
+		if(args.visibleRange != null){
+			var visibleRange = args.visibleRange;
+		}
+	}
+	
 	var i = this.trackDataList.push(trackData);
 	
 	var trackSvg = new TrackSvg(this.svg,{
 		position:this.position,
 		zoom:this.zoom,
 		pixelBase:this.pixelBase,
-		id:args.id,
-		type:args.type,
 		width:this.width,
-		render:args.render
+		id:id,
+		type:type,
+		render:render
 	});
 	
 	this.trackSvgList.push(trackSvg);
@@ -178,41 +193,44 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	this.onZoomChange.addEventListener(function(sender,data){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
-		
-		
-		while( trackSvg.features.childNodes.length >= 1 )
-	    {
-			trackSvg.features.removeChild( trackSvg.features.firstChild );
-	    }
-		trackData.adapter.featureCache.featuresAdded = new Object();
 
-		var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
-		var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
-		if(virtualStart<0){
-			virtualStart=1;
+		while( trackSvg.features.childNodes.length >= 1 ){
+			trackSvg.features.removeChild( trackSvg.features.firstChild );
 		}
-		if(vitualEnd>300000000){
-			vitualEnd=300000000;
+		trackData.adapter.featureCache.featuresAdded = new Object();
+		
+		// check if track is visible in this zoom
+		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
+			var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
+			var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
+			if(virtualStart<0){
+				virtualStart=1;
+			}
+			if(vitualEnd>300000000){
+				vitualEnd=300000000;
+			}
+			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 		}
-		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 	});
 	
 	this.onChromosomeChange.addEventListener(function(sender,data){
-		while( trackSvg.features.childNodes.length >= 1 )
-	    {
+		while( trackSvg.features.childNodes.length >= 1 ){
 			trackSvg.features.removeChild( trackSvg.features.firstChild );
 	    }
 		trackData.adapter.featureCache.featuresAdded = {};
 		
-		var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
-		var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
-		if(virtualStart<0){
-			virtualStart=1;
+		// check if track is visible in this zoom
+		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
+			var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
+			var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
+			if(virtualStart<0){
+				virtualStart=1;
+			}
+			if(vitualEnd>300000000){
+				vitualEnd=300000000;
+			}
+			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 		}
-		if(vitualEnd>300000000){
-			vitualEnd=300000000;
-		}
-		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 	});
 	
 	
@@ -226,28 +244,31 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackSvg.position -= desp;
 		var despBase = desp*_this.pixelBase;
 		trackSvg.pixelPosition-=despBase;
-		
+
 		var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
 		trackSvg.features.setAttribute("x",move);
-		
-		var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase/3);
-		var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase/3);
-		
-		if(virtualStart<0){
-			virtualStart=1;
-		}
-		if(vitualEnd>300000000){
-			vitualEnd=300000000;
-		}
-		
-		if(desp<0 && virtualEnd > callEnd){
-			trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase/3)});
-			callEnd = parseInt(callEnd+_this.halfVirtualBase/3);
-		}
 
-		if(desp>0 && virtualStart < callStart){
-			trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase/3),end:callStart});
-			callStart = parseInt(callStart-_this.halfVirtualBase/3);
+		// check if track is visible in this zoom
+		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
+			var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase/3);
+			var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase/3);
+
+			if(virtualStart<0){
+				virtualStart=1;
+			}
+			if(vitualEnd>300000000){
+				vitualEnd=300000000;
+			}
+
+			if(desp<0 && virtualEnd > callEnd){
+				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase/3)});
+				callEnd = parseInt(callEnd+_this.halfVirtualBase/3);
+			}
+
+			if(desp>0 && virtualStart < callStart){
+				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase/3),end:callStart});
+				callStart = parseInt(callStart-_this.halfVirtualBase/3);
+			}
 		}
 	});
 	
