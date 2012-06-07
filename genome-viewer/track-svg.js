@@ -227,7 +227,7 @@ TrackSvg.prototype.draw = function(){
 
 TrackSvg.prototype.addFeatures = function(featureList){
 //	console.log(this.position);
-//	console.log(featureList);
+	console.log(featureList);
 	
 	var _this=this;
 	var middle = _this.width/2;

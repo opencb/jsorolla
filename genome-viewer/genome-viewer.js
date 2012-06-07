@@ -436,9 +436,9 @@ GenomeViewer.prototype._updateChrStore = function(){
  			if (!IsNumber) return 1;
  			return (a - b);
  		};
- 		data.sort(sortfunction);
-		for (var i = 0; i < data.length; i++) {
-			chromosomeData.push({'name':data[i]});
+ 		data.result.sort(sortfunction);
+		for (var i = 0; i < data.result.length; i++) {
+			chromosomeData.push({'name':data.result[i]});
 		}
 		chrStore.loadData(chromosomeData);
 //		chrView.getSelectionModel().select(chrStore.find("name",_this.chromosome));
@@ -749,20 +749,35 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					});
 					
 
-					var track1 = new TrackData("gene",{
+//					var track1 = new TrackData("gene",{
+//						adapter: new CellBaseAdapter({
+//							category: "genomic",
+//							subCategory: "region",
+//							resource: "gene",
+//							species: _this.species,
+//							featureCache:{
+//								gzip: true,
+//								chunkSize:1000
+//							}
+//						})
+//					});
+//					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+//					console.log(track1.adapter.featureCache.cache);
+					
+					var seqtrack = new TrackData("sequence",{
 						adapter: new CellBaseAdapter({
 							category: "genomic",
 							subCategory: "region",
-							resource: "gene",
+							resource: "sequence",
 							species: _this.species,
 							featureCache:{
-								gzip: true,
-								chunkSize:40000
+								gzip: false,
+								chunkSize:1000
 							}
 						})
 					});
-					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
-//					console.log(track1.adapter.featureCache.cache);
+					_this.trackSvgLayout.addTrack(seqtrack,{id:"sequence",type:"sequence"/*,render:""GeneRender*/});
+					
 					
 //					var track2 = new TrackData("vcf",{
 //						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
@@ -800,17 +815,6 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					
 //					this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
 					
-					
-					var seqtrack = new TrackData("sequence",{
-						adapter: new CellBaseAdapter({
-							category: "genomic",
-							subCategory: "region",
-							resource: "sequence",
-							species: _this.species,
-							gzip: false
-						})
-					});
-					_this.trackSvgLayout.addTrack(seqtrack,{id:"sequence",type:"sequence"/*,render:""GeneRender*/});
 					
 					//track3.adapter.onLoad.addEventListener(function(sender){
 						//_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
