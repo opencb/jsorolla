@@ -35,13 +35,13 @@ CellBaseAdapter.prototype.getData = function(region){
 
 	cellBaseManager.success.addEventListener(function(sender,data){
 		var queryList = [];
-//		console.log(data.query.length);
+		console.log(data.query.length);
 		for(var i = 0; i < data.query.length; i++) {
 			var splitDots = data.query[i].split(":");
 			var splitDash = splitDots[1].split("-");
 			queryList.push({chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]});
 		}
-//		console.log(_this.featureCache.cache);
+		console.log(_this.featureCache.cache);
 
 
 		for(var i = 0; i < data.result.length; i++) {

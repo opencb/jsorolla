@@ -18,6 +18,8 @@ function FeatureCache(args) {
 	
 	this.cache = {};
 	this.featuresAdded = {};
+	
+	this.maxFeaturesInChunk;
 };
 
 FeatureCache.prototype._getChunk = function(position){
