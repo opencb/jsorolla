@@ -801,16 +801,16 @@ GenomeViewer.prototype._getTracksPanel = function() {
 //					this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
 					
 					
-//					var seqtrack = new TrackData("sequence",{
-//						adapter: new CellBaseAdapter({
-//							category: "genomic",
-//							subCategory: "region",
-//							resource: "sequence",
-//							species: _this.species,
-//							gzip: false
-//						})
-//					});
-//					_this.trackSvgLayout.addTrack(seqtrack,{id:"sequence",type:"sequence"/*,render:""GeneRender*/});
+					var seqtrack = new TrackData("sequence",{
+						adapter: new CellBaseAdapter({
+							category: "genomic",
+							subCategory: "region",
+							resource: "sequence",
+							species: _this.species,
+							gzip: false
+						})
+					});
+					_this.trackSvgLayout.addTrack(seqtrack,{id:"sequence",type:"sequence"/*,render:""GeneRender*/});
 					
 					//track3.adapter.onLoad.addEventListener(function(sender){
 						//_this.trackSvgLayout.addTrack(track3,{id:"vcf",type:"snp",render:""/*GeneRender*/});
