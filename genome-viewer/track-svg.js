@@ -227,42 +227,44 @@ TrackSvg.prototype.draw = function(){
 
 TrackSvg.prototype.addFeatures = function(featureList){
 //	console.log(this.position);
-	console.log(featureList);
+//	console.log(featureList);
 	
 	var _this=this;
 	var middle = _this.width/2;
 	
 	if(this.type == "sequence"){
-		var seqString = featureList[0].sequence;
-		var width = 1*this.pixelBase;
-		var color = new Object();
-		color["A"] = "#90EE90";
-		color["C"] = "#B0C4DE";
-		color["G"] = "#FFEC8B";
-		color["T"] = "#E066FF";
-		
-		var start = featureList[0].start;
-		
-		for ( var i = 0; i < seqString.length; i++) {
-			var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
-			start++;
-			var rect = SVG.addChild(this.features,"rect",{
-				"x":x,
-				"y":0,
-				"width":width,
-				"height":12,
-				"stroke":"black",
-				"opacity":0.8,
-				"fill":color[seqString.charAt(i)]
-			});
+		if(featureList.length > 0){
+			var seqString = featureList[0].sequence;
+			var width = 1*this.pixelBase;
+			var color = new Object();
+			color["A"] = "#90EE90";
+			color["C"] = "#B0C4DE";
+			color["G"] = "#FFEC8B";
+			color["T"] = "#E066FF";
 			
-			var text = SVG.addChild(this.features,"text",{
-				"x":x+1,
-				"y":10,
-				"font-size":10,
-				"fill":"black"
-			});
-			text.textContent = seqString.charAt(i);
+			var start = featureList[0].start;
+			
+			for ( var i = 0; i < seqString.length; i++) {
+				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
+				start++;
+				var rect = SVG.addChild(this.features,"rect",{
+					"x":x,
+					"y":0,
+					"width":width,
+					"height":12,
+					"stroke":"black",
+					"opacity":0.8,
+					"fill":color[seqString.charAt(i)]
+				});
+				
+				var text = SVG.addChild(this.features,"text",{
+					"x":x+1,
+					"y":10,
+					"font-size":10,
+					"fill":"black"
+				});
+				text.textContent = seqString.charAt(i);
+			}
 		}
 	}
 	else{

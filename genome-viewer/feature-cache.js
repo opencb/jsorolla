@@ -65,7 +65,6 @@ FeatureCache.prototype.getFeaturesByChunk = function(key){
 	
 	if(this.cache[key] != null) {
 		for ( var i = 0; i < this.cache[key].length; i++) {
-			console.log(this.cache[key][i].sequence.length);
 			if(this.gzip) {
 				feature = JSON.parse(RawDeflate.inflate(this.cache[key][i]));
 			}else{
@@ -78,8 +77,6 @@ FeatureCache.prototype.getFeaturesByChunk = function(key){
 			}
 //			features.push(feature);
 		}
-		console.log("devuelvo estas features")
-		console.log(features)
 		return features;
 	}
 	

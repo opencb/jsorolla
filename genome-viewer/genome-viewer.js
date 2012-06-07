@@ -749,19 +749,19 @@ GenomeViewer.prototype._getTracksPanel = function() {
 					});
 					
 
-//					var track1 = new TrackData("gene",{
-//						adapter: new CellBaseAdapter({
-//							category: "genomic",
-//							subCategory: "region",
-//							resource: "gene",
-//							species: _this.species,
-//							featureCache:{
-//								gzip: true,
-//								chunkSize:1000
-//							}
-//						})
-//					});
-//					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
+					var track1 = new TrackData("gene",{
+						adapter: new CellBaseAdapter({
+							category: "genomic",
+							subCategory: "region",
+							resource: "gene",
+							species: _this.species,
+							featureCache:{
+								gzip: true,
+								chunkSize:1000
+							}
+						})
+					});
+					_this.trackSvgLayout.addTrack(track1,{id:"gene",type:"gene"});
 //					console.log(track1.adapter.featureCache.cache);
 					
 					var seqtrack = new TrackData("sequence",{

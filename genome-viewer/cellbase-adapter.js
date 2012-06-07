@@ -28,8 +28,6 @@ function CellBaseAdapter(args){
 
 CellBaseAdapter.prototype.getData = function(region){
 	var _this = this;
-	console.log("quiero esta region: ");
-	console.log(region)
 
 	var firstChunk = this.featureCache._getChunk(region.start);
 	var lastChunk = this.featureCache._getChunk(region.end);
