@@ -34,7 +34,6 @@ CellBaseAdapter.prototype.getData = function(region){
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	cellBaseManager.success.addEventListener(function(sender,data){
-		debugger
 		var queryList = [];
 		console.log(data.query.length);
 		for(var i = 0; i < data.query.length; i++) {
@@ -51,7 +50,6 @@ CellBaseAdapter.prototype.getData = function(region){
 		}
 	});
 
-	debugger
 	var chunks = [];
 //	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){

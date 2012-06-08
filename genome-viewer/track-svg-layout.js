@@ -194,12 +194,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	this.onZoomChange.addEventListener(function(sender,data){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
-
-//		while( trackSvg.features.childNodes.length >= 1 ){
-//			trackSvg.features.removeChild( trackSvg.features.firstChild );
-//		}
-		trackSvg.features.textContent = "";
-		trackData.adapter.featureCache.featuresAdded = new Object();
+		
+		$(trackSvg.features).empty();
+		trackData.adapter.featureCache.featuresAdded = {};
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
@@ -216,11 +213,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	});
 	
 	this.onChromosomeChange.addEventListener(function(sender,data){
-//		while( trackSvg.features.childNodes.length >= 1 ){
-//			trackSvg.features.removeChild( trackSvg.features.firstChild );
-//	    }
-		trackSvg.features.textContent = "";
-		
+		$(trackSvg.features).empty();
 		trackData.adapter.featureCache.featuresAdded = {};
 		
 		// check if track is visible in this zoom
