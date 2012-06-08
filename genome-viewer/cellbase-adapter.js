@@ -34,6 +34,7 @@ CellBaseAdapter.prototype.getData = function(region){
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	cellBaseManager.success.addEventListener(function(sender,data){
+		debugger
 		var queryList = [];
 		console.log(data.query.length);
 		for(var i = 0; i < data.query.length; i++) {
@@ -41,30 +42,71 @@ CellBaseAdapter.prototype.getData = function(region){
 			var splitDash = splitDots[1].split("-");
 			queryList.push({chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]});
 		}
-		console.log(_this.featureCache.cache);
-
+//		console.log(_this.featureCache.cache);
 
 		for(var i = 0; i < data.result.length; i++) {
-			_this.featureCache.putChunk(data.result[i], queryList[i]);
-			var key = queryList[i].chromosome+":"+_this.featureCache._getChunk(queryList[i].start);
-			_this.onGetData.notify(_this.featureCache.getFeaturesByChunk(key));
+			_this.featureCache.putRegion(data.result[i], queryList[i]);
+//			var key = queryList[i].chromosome+":"+_this.featureCache._getChunk(queryList[i].start);
+			_this.onGetData.notify(_this.featureCache.getFeaturesByRegion(queryList[i]));
 		}
 	});
 
-	var querys = [];
+	debugger
+	var chunks = [];
+//	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){
 		var key = region.chromosome+":"+i;
 		if(this.featureCache.cache[key] == null) {
-			var chunkStart = parseInt(i * this.featureCache.chunkSize);
-			var chunkEnd = parseInt((i * this.featureCache.chunkSize) + this.featureCache.chunkSize-1);
-			var query = region.chromosome+":"+chunkStart+"-"+chunkEnd;
-			querys.push(query);
+			chunks.push(i);
 		}else{
-			this.onGetData.notify(this.featureCache.getFeaturesByChunk(key));
+			
+			var items = this.featureCache.getFeaturesByChunk(key);
+			if(items.length>0){
+				this.onGetData.notify(items);
+			}
+			
 		}
 	}
+//	if(itemList.length>0){
+//		this.onGetData.notify(itemList);
+//		
+//	}
+//	console.log(itemList);
+	
+	var querys = [];
+	var updateStart = true;
+	var updateEnd = true;
+	if(chunks.length > 0){
+//		console.log(chunks);
+		for ( var i = 0; i < chunks.length; i++) {
+			
+			if(updateStart){
+				var chunkStart = parseInt(chunks[i] * this.featureCache.chunkSize);
+				updateStart = false;
+			}
+			if(updateEnd){
+				var chunkEnd = parseInt((chunks[i] * this.featureCache.chunkSize) + this.featureCache.chunkSize-1);
+				updateEnd = false;
+			}
+			
+			if(chunks[i+1]!=null){
+				if(chunks[i]+1==chunks[i+1]){
+					updateEnd =true;
+				}else{
+					var query = region.chromosome+":"+chunkStart+"-"+chunkEnd;
+					querys.push(query);
+					updateStart = true;
+					updateEnd = true;
+				}
+			}else{
+				var query = region.chromosome+":"+chunkStart+"-"+chunkEnd;
+				querys.push(query);
+				updateStart = true;
+				updateEnd = true;
+			}
 
-	if(querys.length > 0){
+		}
+//		console.log(querys);
 		cellBaseManager.get(this.category, this.subCategory, querys, this.resource);
 	}
 };

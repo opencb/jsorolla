@@ -91,7 +91,7 @@ TrackSvg.prototype.draw = function(){
 		"opacity":"1",
 //		"stroke":"goldenrod",
 //		"stroke-width":"1",
-		"opacity":"0",
+		"opacity":"0.1",
 		"fill":"orange"
 	});
 	var upRect = SVG.addChild(main,"rect",{
@@ -128,7 +128,7 @@ TrackSvg.prototype.draw = function(){
 	var text = SVG.addChild(main,"text",{
 		"x":75,
 		"y":16,
-		"opacity":"0",
+		"opacity":"0.4",
 		"fill":"black"
 //		"transform":"rotate(-90 15,100)"
 	});
@@ -161,12 +161,12 @@ TrackSvg.prototype.draw = function(){
 		titlebar.setAttribute("opacity","0.7");
 	});
 	$(main).mouseleave(function(event){
-		over.setAttribute("opacity","0");
-		text.setAttribute("opacity","0");
+		over.setAttribute("opacity","0.0");
+		text.setAttribute("opacity","0.4");
 		upRect.setAttribute("opacity","0.0");
 		downRect.setAttribute("opacity","0.0");
 		hideRect.setAttribute("opacity","0.0");
-		titlebar.setAttribute("opacity","0.0");
+		titlebar.setAttribute("opacity","0.2");
 	});
 	
 	$(upRect).mouseenter(function(event){

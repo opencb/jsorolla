@@ -8,10 +8,7 @@ function CellBaseManager(species, args) {
 	if(window.location.host.indexOf("fsalavert")!=-1 ||
 	   window.location.host.indexOf("rsanchez")!=-1 ||
 	   window.location.host.indexOf("imedina")!=-1 ||
-	   window.location.href.indexOf("http://bioinfo.cipf.es/apps/genomemaps-beta")!=-1 ||
-	   window.location.href.indexOf("http://bioinfo.cipf.es/apps/renato-beta")!=-1 ||
-	   window.location.href.indexOf("http://bioinfo.cipf.es/apps/variant-beta")!=-1 ||
-	   window.location.host.indexOf("172.24.76.48")!=-1
+	   window.location.href.indexOf("http://bioinfo.cipf.es/apps-beta")!=-1
 	){
 		this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
 //		this.host = "http://fsalavert:8080/cellbase/rest";
