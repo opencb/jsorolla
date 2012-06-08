@@ -2,12 +2,13 @@ function TrackSvg(parent, args) {
 	this.args = args;
 //	this.id = Math.round(Math.random()*10000000); // internal id for this class
 	this.parent = parent;
-
+	
 	this.y = 25;
 	this.height = 50;
 	this.width = 200;
 	this.title = "track";
 	this.type = "generic";
+	this.renderedArea = {};
 	
 	this.lienzo=7000000;//mesa
 	this.pixelPosition=this.lienzo/2;
@@ -283,12 +284,15 @@ TrackSvg.prototype.renderFeatures = function(featureList){
 				color = "orangered";
 			}
 			width= width*this.pixelBase;
-			
+
 			
 			var x = this.pixelPosition+middle-((this.position-featureList[i].start)*this.pixelBase);
+			var y = 0;
+			var textY = y+23;
+			
 			var rect = SVG.addChild(this.features,"rect",{
 				"x":x,
-				"y":0,
+				"y":y,
 				"width":width,
 				"height":12,
 				"z-index":20000,
@@ -297,13 +301,44 @@ TrackSvg.prototype.renderFeatures = function(featureList){
 			
 			var text = SVG.addChild(this.features,"text",{
 				"x":x,
-				"y":10,
+				"y":textY,
 				"z-index":21000,
-				"fill":"white"
+				"fill":"black"
 			});
 			text.textContent = featureList[i].externalName;
+			
+			// avoid overlapping
+			var maxWidth = Math.max(width, text.getComputedTextLength());
+			var maxY = 200;
+			var failDraw = false;
+			for(var newY=y; newY<maxY; newY+=30){
+				if(this.renderedArea[newY] == null){
+					this.renderedArea[newY] = [];
+				}
+				if(!this.checkAvailableArea(x, x+maxWidth-1, newY)){
+					failDraw = true;
+				}else{
+					if(newY != y && failDraw){
+						rect.setAttribute("y", newY);
+						text.setAttribute("y", newY+23);
+						y = newY;
+					}
+					break;
+				}
+			}
+			this.renderedArea[y].push({start:x ,end:x+maxWidth-1});
+			
 		}
 	}
+};
+
+TrackSvg.prototype.checkAvailableArea = function(featureStart, featureEnd, targetY){
+	for(var i = 0; i < this.renderedArea[targetY].length; i++){
+		if(featureStart < this.renderedArea[targetY][i].end && featureEnd > this.renderedArea[targetY][i].start){
+			return false;
+		}
+	}
+	return true;
 };
 
 //~ function GeneRender ()
