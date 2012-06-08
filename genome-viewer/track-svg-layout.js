@@ -168,6 +168,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		zoom:this.zoom,
 		pixelBase:this.pixelBase,
 		width:this.width,
+		height:args.height,
 		id:id,
 		type:type,
 		render:render
@@ -197,6 +198,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		$(trackSvg.features).empty();
 		trackData.adapter.featureCache.featuresAdded = {};
+		trackSvg.renderedArea = {};
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
@@ -215,6 +217,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	this.onChromosomeChange.addEventListener(function(sender,data){
 		$(trackSvg.features).empty();
 		trackData.adapter.featureCache.featuresAdded = {};
+		trackSvg.renderedArea = {};
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
@@ -236,7 +239,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var callStart = parseInt(trackSvg.position - this.halfVirtualBase);
 	var callEnd = parseInt(trackSvg.position + this.halfVirtualBase);
 	
-	
+
 	//movement listeners
 	this.onMove.addEventListener(function(sender,desp){
 		trackSvg.position -= desp;

@@ -748,7 +748,6 @@ GenomeViewer.prototype._getTracksPanel = function() {
 						_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 					});
 					
-
 					var geneTrack = new TrackData("gene",{
 						adapter: new CellBaseAdapter({
 							category: "genomic",
@@ -757,7 +756,7 @@ GenomeViewer.prototype._getTracksPanel = function() {
 							species: _this.species,
 							featureCache:{
 								gzip: true,
-								chunkSize:1000
+								chunkSize:20000
 							}
 						})
 					});
@@ -767,6 +766,7 @@ GenomeViewer.prototype._getTracksPanel = function() {
 						histogramRender:null,
 						render:null,
 						histogramZoom:"",
+						height:150,
 						visibleRange:{start:0,end:100}
 					});
 					
@@ -782,8 +782,15 @@ GenomeViewer.prototype._getTracksPanel = function() {
 							}
 						})
 					});
-					_this.trackSvgLayout.addTrack(seqtrack,{id:"sequence",type:"sequence",visibleRange:{start:100,end:100}/*,render:""GeneRender*/});
-//					
+					_this.trackSvgLayout.addTrack(seqtrack,{
+						id:"sequence",
+						type:"sequence",
+						render:null,
+						histogramZoom:"",
+						height:50,
+						visibleRange:{start:100,end:100}
+					});
+					
 					
 //					var track2 = new TrackData("vcf",{
 //						adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
