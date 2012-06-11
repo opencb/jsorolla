@@ -28,14 +28,21 @@ function CellBaseAdapter(args){
 
 CellBaseAdapter.prototype.getData = function(region){
 	var _this = this;
-
+	//region check
+	if(region.start<1){
+		region.start=1;
+	}
+	if(region.end>300000000){
+		region.end=300000000;
+	}
+	
 	var firstChunk = this.featureCache._getChunk(region.start);
 	var lastChunk = this.featureCache._getChunk(region.end);
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	cellBaseManager.success.addEventListener(function(sender,data){
 		var queryList = [];
-		console.log(data.query.length);
+//		console.log("query length "+data.query.length);
 		for(var i = 0; i < data.query.length; i++) {
 			var splitDots = data.query[i].split(":");
 			var splitDash = splitDots[1].split("-");

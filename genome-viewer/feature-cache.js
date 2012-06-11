@@ -104,7 +104,6 @@ FeatureCache.prototype.putRegion = function(featureDataList,region){
 	
 	//Check if is a single object
 	if(featureDataList.constructor != Array){
-		console.log("single object");
 		var featureData = featureDataList;
 		featureDataList = [featureData];
 	}

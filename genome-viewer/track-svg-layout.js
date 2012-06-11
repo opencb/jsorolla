@@ -31,6 +31,13 @@ function TrackSvgLayout(parent, args) {
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	
+	
+	//SVG structure and events initialization
+	this.onZoomChange = new Event();
+	this.onChromosomeChange = new Event();
+	this.onMove = new Event();
+	
+	
 	this.svg = SVG.init(parent,{
 		"width":this.width,
 		"height":this.height
@@ -60,10 +67,7 @@ function TrackSvgLayout(parent, args) {
 //		"stroke":"green"
 //});
 
-	
-	this.onZoomChange = new Event();
-	this.onChromosomeChange = new Event();
-	this.onMove = new Event();
+
 
 	//Main svg events
 	$(this.svg).mousedown(function(event) {
@@ -71,14 +75,14 @@ function TrackSvgLayout(parent, args) {
 		var downX = event.clientX;
 		var lastX = 0;
 		$(this).mousemove(function(event){
-			var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
-			if(newX!=lastX){
-				var desp = lastX-newX;
-				_this.position -= desp;
-				_this.positionText.textContent = _this.position;
-				_this.onMove.notify(desp);
-				lastX = newX;
-			}
+				var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
+				if(newX!=lastX){
+					var desp = lastX-newX;
+					_this.position -= desp;
+					_this.positionText.textContent = _this.position;
+					_this.onMove.notify(desp);
+					lastX = newX;
+				}
 		});
 	});
 	$(this.svg).mouseup(function(event) {
@@ -137,42 +141,43 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.onZoomChange.notify();
 };
-TrackSvgLayout.prototype.setChromosome = function(chr){
-	this.chromosome = chr;
+TrackSvgLayout.prototype.setChromosome = function(item){//item.chromosome, item.position, item.species
+	if(item.chromosome!=null){
+		this.chromosome = item.chromosome;
+	}
+	if(item.position!=null){
+		this.position = parseInt(item.position);//check int, must be a number
+		this.positionText.textContent = this.position;
+	}
+	if(item.species!=null){
+		//check species and modify CellBaseAdapter
+		for(i in this.trackDataList){
+			if(this.trackDataList[i].adapter instanceof CellBaseAdapter){
+				this.trackDataList[i].adapter.species = item.species;
+				this.trackDataList[i].adapter.featureCache.clear();
+			}
+		}
+	}
 	this.onChromosomeChange.notify();
 };
+
+
 
 TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var _this = this;
 	
-	if (args != null){
-		if(args.id != null){
-			var id = args.id;
-		}
-		if(args.type != null){
-			var type = args.type;
-		}
-		if(args.render != null){
-			var render = args.render;
-		}
-		if(args.visibleRange != null){
-			var visibleRange = args.visibleRange;
-		}
-	}
+	var visibleRange = args.visibleRange;
+	
+	args["position"] = this.position;
+	args["trackData"] = trackData;
+	args["zoom"] = this.zoom;
+	args["pixelBase"] = this.pixelBase;
+	args["width"] = this.width;
 	
 	var i = this.trackDataList.push(trackData);
 	
-	var trackSvg = new TrackSvg(this.svg,{
-		position:this.position,
-		trackData:trackData,
-		zoom:this.zoom,
-		pixelBase:this.pixelBase,
-		width:this.width,
-		height:args.height,
-		id:id,
-		type:type,
-		render:render
-	});
+	
+	var trackSvg = new TrackSvg(this.svg,args);
 	
 	this.trackSvgList.push(trackSvg);
 	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
@@ -204,48 +209,42 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
 			var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
 			var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
-			if(virtualStart<0){
-				virtualStart=1;
-			}
-			if(vitualEnd>300000000){
-				vitualEnd=300000000;
-			}
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 		}
 	});
+
 	
+	//need call variables
+	var callStart = parseInt(trackSvg.position - this.halfVirtualBase);
+	var callEnd = parseInt(trackSvg.position + this.halfVirtualBase);
+	
+	//on chromosome change set new virtual window and update track values
 	this.onChromosomeChange.addEventListener(function(sender,data){
+		trackSvg.position=_this.position;
+		
 		$(trackSvg.features).empty();
 		trackData.adapter.featureCache.featuresAdded = {};
 		trackSvg.renderedArea = {};
+		
+		callStart = parseInt(trackSvg.position - _this.halfVirtualBase);
+		callEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
 			var virtualStart = parseInt(_this.position - _this.halfVirtualBase);
 			var vitualEnd = parseInt(_this.position + _this.halfVirtualBase);
-			if(virtualStart<0){
-				virtualStart=1;
-			}
-			if(vitualEnd>300000000){
-				vitualEnd=300000000;
-			}
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 		}
 	});
 	
-	
-	
-	
-	var callStart = parseInt(trackSvg.position - this.halfVirtualBase);
-	var callEnd = parseInt(trackSvg.position + this.halfVirtualBase);
-	
 
-	//movement listeners
+	//movement listeners 
 	this.onMove.addEventListener(function(sender,desp){
 		trackSvg.position -= desp;
 		var despBase = desp*_this.pixelBase;
 		trackSvg.pixelPosition-=despBase;
 
+		//parseFloat important 
 		var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
 		trackSvg.features.setAttribute("x",move);
 
@@ -254,58 +253,17 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase/3);
 			var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase/3);
 
-			if(virtualStart<0){
-				virtualStart=1;
-			}
-			if(vitualEnd>300000000){
-				vitualEnd=300000000;
-			}
-
 			if(desp<0 && virtualEnd > callEnd){
 				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase/3)});
-				callEnd = parseInt(callEnd+_this.halfVirtualBase/3);
+				callEnd = parseInt(callEnd+_this.halfVirtualBase*1);
 			}
 
 			if(desp>0 && virtualStart < callStart){
 				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase/3),end:callStart});
-				callStart = parseInt(callStart-_this.halfVirtualBase/3);
+				callStart = parseInt(callStart-_this.halfVirtualBase*1);
 			}
 		}
 	});
-	
-	//$(this.svg).mousedown(function(event) {
-		//var downX = event.clientX;
-		//var lastX = 0;
-		//$(this).mousemove(function(event){
-			//var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
-			//if(newX!=lastX){
-				//var desp = lastX-newX;
-				//var despBase = desp*_this.pixelBase;
-				//var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
-				//trackSvg.features.setAttribute("x",move);
-				//trackSvg.pixelPosition-=despBase;
-				//
-				//var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase/3);
-				//var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase/3);
-				//
-				//if(desp<0 && virtualEnd > callEnd){
-					//trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase/3)});
-					//callEnd = parseInt(callEnd+_this.halfVirtualBase/3);
-				//}
-				//
-				//if(desp>0 && virtualStart < callStart){
-					//trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase/3),end:callStart});
-					//callStart = parseInt(callStart-_this.halfVirtualBase/3);
-				//}
-				//
-				//lastX = newX;
-			//}
-		//});
-	//});
-	//$(this.svg).mouseup(function(event) {
-		//$(this).off('mousemove');
-	//});
-	
 	
 	
 	//dibujado
@@ -319,7 +277,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	$(trackSvg.hideRect).bind("click",function(event){
 		_this._hideTrack(this.parentNode.id);//"this" is the svg element
 	});
-	
+	$(trackSvg.settingsRect).bind("click",function(event){
+		console.log("settings click");//"this" is the svg element
+	});
 	
 	this.height += trackSvg.getHeight();
 	
