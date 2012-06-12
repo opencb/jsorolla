@@ -41,11 +41,11 @@ function TrackSvg(parent, args) {
 		if(args.type != null){
 			this.type = args.type;
 		}
-		if(args.renderFeatures != null){
-			switch(args.renderFeatures){
-				case "GeneRender": this.renderFeatures = this.GeneRender; break;
-				case "SequenceRender": this.renderFeatures = this.SequenceRender; break;
-				default: this.renderFeatures = this.GeneRender;
+		if(args.featuresRender != null){
+			switch(args.featuresRender){
+				case "GeneRender": this.featuresRender = this.GeneRender; break;
+				case "SequenceRender": this.featuresRender = this.SequenceRender; break;
+				default: this.featuresRender = this.GeneRender;
 			}
 		}
 	}
@@ -235,7 +235,11 @@ TrackSvg.prototype.draw = function(){
 
 //RENDERS for Gene, Snp, Histogram
 TrackSvg.prototype.GeneRender = function(featureList){
+	console.log(featureList.length);
+	
 	var middle = this.width/2;
+	
+	
 	
 	for ( var i = 0; i < featureList.length; i++) {
 		var width = (featureList[i].end-featureList[i].start)+1;
@@ -275,6 +279,7 @@ TrackSvg.prototype.GeneRender = function(featureList){
 		});
 		text.textContent = featureList[i].externalName;
 		
+		console.time("----------------------overlaping");
 		// avoid overlapping while moving!!!
 		var maxWidth = Math.max(width, text.getComputedTextLength());
 		var maxY = 200;
@@ -294,7 +299,8 @@ TrackSvg.prototype.GeneRender = function(featureList){
 				break;
 			}
 		}
-		this.renderedArea[y].push({start:x ,end:x+maxWidth-1});
+		this.renderedArea[y].push({start: x, end: x+maxWidth-1});
+		console.timeEnd("----------------------overlaping");
 	}
 };
 
@@ -346,10 +352,12 @@ TrackSvg.prototype.HistogramRender = function(featureList){
 };
 
 TrackSvg.prototype.checkAvailableArea = function(featureStart, featureEnd, targetY){
+	console.time("checkAvailableArea, elems: "+this.renderedArea[targetY].length);
 	for(var i = 0; i < this.renderedArea[targetY].length; i++){
 		if(featureStart < this.renderedArea[targetY][i].end && featureEnd > this.renderedArea[targetY][i].start){
 			return false;
 		}
 	}
+	console.timeEnd("checkAvailableArea, elems: "+this.renderedArea[targetY].length);
 	return true;
 };
