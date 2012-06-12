@@ -796,7 +796,7 @@ GenomeViewer.prototype._getTracksPanel = function() {
 							species: _this.species,
 							featureCache:{
 								gzip: true,
-								chunkSize:20000
+								chunkSize:50000
 							}
 						})
 					});
