@@ -726,9 +726,9 @@ GenomeViewer.prototype._drawChromosome = function() {
 			
 			var text = SVG.addChild(svg,"text",{
 				"x":middleX,
-				"y":0,
+				"y":endY+1,
 				"font-size":10,
-				"transform": "translate("+ x +", " + y + "), rotate(90)",
+				"transform": "rotate(90, "+middleX+", "+endY+1+")",
 				"fill":"black"
 			});
 			text.textContent = cytoband;
