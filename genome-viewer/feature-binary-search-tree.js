@@ -39,10 +39,10 @@ function FeatureBinarySearchTree() {
     this._root = null;
 }
 
-BinarySearchTree.prototype = {
+FeatureBinarySearchTree.prototype = {
 
     //restore constructor
-    constructor: BinarySearchTree,
+    constructor: FeatureBinarySearchTree,
     
     //-------------------------------------------------------------------------
     // Private members
@@ -57,10 +57,10 @@ BinarySearchTree.prototype = {
      * @return {Void}
      * @method add
      */
-    add: function (value){
+    add: function (v){
         //create a new item object, place data in
         var node = { 
-                value: value, 
+                value: v, 
                 left: null,
                 right: null 
             },

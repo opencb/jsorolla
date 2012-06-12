@@ -868,27 +868,27 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 					parentLayout:_this.trackSvgLayout
 				});
 				
-				var geneTrack = new TrackData("gene",{
-					adapter: new CellBaseAdapter({
-						category: "genomic",
-						subCategory: "region",
-						resource: "gene",
-						species: _this.species,
-						featureCache:{
-							gzip: true,
-							chunkSize:50000
-						}
-					})
-				});
-				_this.trackSvgLayout2.addTrack(geneTrack,{
-					id:"gene",
-					type:"gene",
-					histogramRender:null,
-					featuresRender:"GeneRender",
-					histogramZoom:"",
-					height:150,
-					visibleRange:{start:0,end:100}
-				});
+//				var geneTrack = new TrackData("gene",{
+//					adapter: new CellBaseAdapter({
+//						category: "genomic",
+//						subCategory: "region",
+//						resource: "gene",
+//						species: _this.species,
+//						featureCache:{
+//							gzip: false,
+//							chunkSize:50000
+//						}
+//					})
+//				});
+//				_this.trackSvgLayout2.addTrack(geneTrack,{
+//					id:"gene",
+//					type:"gene",
+//					histogramRender:null,
+//					featuresRender:"GeneRender",
+//					histogramZoom:"",
+//					height:150,
+//					visibleRange:{start:0,end:100}
+//				});
 			}
 		}
 	});

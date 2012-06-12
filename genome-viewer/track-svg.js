@@ -275,32 +275,41 @@ TrackSvg.prototype.GeneRender = function(featureList){
 			"x":x,
 			"y":textY,
 			"z-index":21000,
+			"font-size":10,
+			"opacity":null,
 			"fill":"black"
 		});
 		text.textContent = featureList[i].externalName;
 		
 		console.time("----------------------overlaping");
 		// avoid overlapping while moving!!!
-		var maxWidth = Math.max(width, text.getComputedTextLength());
+		console.time("----------------------imposible");
+		var maxWidth = Math.max(width, text.textContent.length*5); //text.getComputedTextLength()
+		console.timeEnd("----------------------imposible");
 		var maxY = 200;
 		var failDraw = false;
+//		debugger
 		for(var newY=y; newY<maxY; newY+=30){
 			if(this.renderedArea[newY] == null){
-				this.renderedArea[newY] = [];
+				this.renderedArea[newY] = new FeatureBinarySearchTree();
 			}
-			if(!this.checkAvailableArea(x, x+maxWidth-1, newY)){
-				failDraw = true;
-			}else{
+			
+			console.time("----------------------overlaping - BinarySearchTree");
+			var enc = this.renderedArea[newY].add({name:featureList[i].externalName, start: x, end: x+maxWidth-1})
+			console.timeEnd("----------------------overlaping - BinarySearchTree");
+			if(enc){
 				if(newY != y && failDraw){
 					rect.setAttribute("y", newY);
 					text.setAttribute("y", newY+23);
-					y = newY;
 				}
 				break;
+			}else{
+				failDraw = true;
 			}
 		}
-		this.renderedArea[y].push({start: x, end: x+maxWidth-1});
+//		this.renderedArea[y].push({start: x, end: x+maxWidth-1});
 		console.timeEnd("----------------------overlaping");
+		console.log(this.renderedArea)
 	}
 };
 

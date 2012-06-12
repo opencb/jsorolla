@@ -16,6 +16,8 @@ function ChromosomeWidget(args) {
 			this.position = args.position;
 		}
 	}
+	
+	this.onClick = new Event();
 };
 
 ChromosomeWidget.prototype.drawHorizontal = function(){
@@ -69,6 +71,7 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 			
 			//XXX
 			//hacer un notify para cambiar la posicion con el valor clickPosition
+			_this.onClick.notify({sender:"ChromosomeWidget",position:clickPosition});
 		});
 		
 		for (var i = 0; i < data.result[0].length; i++) {
