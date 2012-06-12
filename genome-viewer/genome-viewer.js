@@ -81,6 +81,7 @@ GenomeViewer.prototype.render = function(){
 	items.push(this._drawChromosomePanel());
 	items.push(this._drawKaryotypePanel().hide());
 	//items.push(this._getChromosomePanel());
+
 //	items.push(this._getRegionPanel());
 //	items.push(this._getWindowSizePanel());
 	items.push(this._getTracksPanel());
@@ -565,67 +566,68 @@ GenomeViewer.prototype._drawKaryotypePanel = function() {
 	return panel;
 };
 
-GenomeViewer.prototype._getKaryotypePanel = function(specieChanged) {
-	var _this = this;
-	var cont = Ext.getCmp(this.id+"karyotypeCont");
-	
-	
-	// sencha 4.1 must be shown because must be in the dom, in sencha 4.1 hidden elements are not in the dom
-	if(cont != null ){
-		if( cont.isHidden()){
-			cont["wasHidden"] = true;
-			cont.show();
-		}else{
-			cont["wasHidden"] = false;
-		}
-	}
-	// end
-	
-	if(cont == null ){
-		cont = Ext.create('Ext.panel.Panel',{
-			id:this.id+"karyotypeCont",
-			title:'Karyotype',
-			border:false,
-			margin:'0 0 1 0',
-			cls:'border-bot panel-border-top'
-		});
-	}
-	
-	if(specieChanged == true){
-		this._karyotypePanel.getKaryotypePanel().destroy();
-		this._karyotypePanel=null;
-	}
-	
-	if(this._karyotypePanel==null){
-		this._karyotypePanel = new KaryotypePanelWindow(this.species,{viewer:this,height:150,width:this.width});
-		
-		cont.add(this._karyotypePanel.getKaryotypePanel());
-		/** Events i listen **/
-		this._karyotypePanel.onRendered.addEventListener(function(evt, feature) {
-			_this._karyotypePanel.select(_this.chromosome, _this.position, _this.position);
-		});
-		this._karyotypePanel.onMarkerChanged.addEventListener(function(evt, data) {
-			_this.onLocationChange.notify({chromosome:data.chromosome,position:data.start,sender:"_getKaryotypePanel"});
-		});
-		this._karyotypePanel.karyotypeCellBaseDataAdapter.fill();
-		
-		//TODO para la 4.1rc3
-//		Ext.getCmp(this.id+"karyotypeButton").toggle();
-//		Ext.getCmp(this.id+"karyotypeButton").toggle();
-	}
-	
-	// sencha 4.1 must be shown because must be in the dom, in sencha 4.1 hidden elements are not in the dom
-	if(cont!= null && cont["wasHidden"] == true){
-		cont.hide();
-	}
-	// end 
-	
-	
-	return cont;
-};
+//GenomeViewer.prototype._getKaryotypePanel = function(specieChanged) {
+//	var _this = this;
+//	var cont = Ext.getCmp(this.id+"karyotypeCont");
+//	
+//	
+//	// sencha 4.1 must be shown because must be in the dom, in sencha 4.1 hidden elements are not in the dom
+//	if(cont != null ){
+//		if( cont.isHidden()){
+//			cont["wasHidden"] = true;
+//			cont.show();
+//		}else{
+//			cont["wasHidden"] = false;
+//		}
+//	}
+//	// end
+//	
+//	if(cont == null ){
+//		cont = Ext.create('Ext.panel.Panel',{
+//			id:this.id+"karyotypeCont",
+//			title:'Karyotype',
+//			border:false,
+//			margin:'0 0 1 0',
+//			cls:'border-bot panel-border-top'
+//		});
+//	}
+//	
+//	if(specieChanged == true){
+//		this._karyotypePanel.getKaryotypePanel().destroy();
+//		this._karyotypePanel=null;
+//	}
+//	
+//	if(this._karyotypePanel==null){
+//		this._karyotypePanel = new KaryotypePanelWindow(this.species,{viewer:this,height:150,width:this.width});
+//		
+//		cont.add(this._karyotypePanel.getKaryotypePanel());
+//		/** Events i listen **/
+//		this._karyotypePanel.onRendered.addEventListener(function(evt, feature) {
+//			_this._karyotypePanel.select(_this.chromosome, _this.position, _this.position);
+//		});
+//		this._karyotypePanel.onMarkerChanged.addEventListener(function(evt, data) {
+//			_this.onLocationChange.notify({chromosome:data.chromosome,position:data.start,sender:"_getKaryotypePanel"});
+//		});
+//		this._karyotypePanel.karyotypeCellBaseDataAdapter.fill();
+//		
+//		//TODO para la 4.1rc3
+////		Ext.getCmp(this.id+"karyotypeButton").toggle();
+////		Ext.getCmp(this.id+"karyotypeButton").toggle();
+//	}
+//	
+//	// sencha 4.1 must be shown because must be in the dom, in sencha 4.1 hidden elements are not in the dom
+//	if(cont!= null && cont["wasHidden"] == true){
+//		cont.hide();
+//	}
+//	// end 
+//	
+//	
+//	return cont;
+//};
 
 
 GenomeViewer.prototype._drawChromosomePanel = function() {
+	var _this = this;
 	var panel =  Ext.create('Ext.panel.Panel', {
 		id:this.id+"chromosomePanel",
 		height : 95,
@@ -636,37 +638,108 @@ GenomeViewer.prototype._drawChromosomePanel = function() {
 		html: '<div id="'+this.id+'chromosomeSvg" style="margin-top:2px"></div>',
 		listeners:{
 			afterrender:function(){
-//				_this._drawChromosome();
+				_this._drawChromosome();
 			}
 		}
 	});
 	return panel;
 };
 
-GenomeViewer.prototype._getChromosomePanel = function() {
-	var _this = this;
-	var cont = Ext.getCmp(this.id+"chromosomeCont");
-	
-	if(cont==null){
-		cont =  Ext.create('Ext.panel.Panel', {
-			id:this.id+"chromosomeCont",
-			height : 95,
-			title:'Chromosome',
-			border:false,
-			margin:'0 0 1 0',
-			cls:'border-bot panel-border-top',
-			html: '<div id="'+this.id+'chromosomeSvg" style="margin-top:2px"></div>',
-			listeners:{
-				afterrender:function(){
-					_this._drawChromosome();
-				}
-			}
-		});
-	}
-	return cont;
-};
+//GenomeViewer.prototype._getChromosomePanel = function() {
+//	var _this = this;
+//	var cont = Ext.getCmp(this.id+"chromosomeCont");
+//	
+//	if(cont==null){
+//		cont =  Ext.create('Ext.panel.Panel', {
+//			id:this.id+"chromosomeCont",
+//			height : 95,
+//			title:'Chromosome',
+//			border:false,
+//			margin:'0 0 1 0',
+//			cls:'border-bot panel-border-top',
+//			html: '<div id="'+this.id+'chromosomeSvg" style="margin-top:2px"></div>',
+//			listeners:{
+//				afterrender:function(){
+////					_this._drawChromosome();
+//				}
+//			}
+//		});
+//		console.log(this.id+'chromosomeSvg')
+//	}
+//	return cont;
+//};
 
 GenomeViewer.prototype._drawChromosome = function() {
+	var _this = this;
+	var div = $('#'+this.id+"chromosomeSvg")[0];
+	var svg = SVG.init(div,{
+		"width":this.width,
+		"height":65
+	});
+
+	var colors = {gneg:"white", stalk:"#666666", gvar:"#CCCCCC", gpos25:"silver", gpos33:"lightgrey", gpos50:"gray", gpos66:"dimgray", gpos75:"darkgray", gpos100:"black", gpos:"gray", acen:"blue"};
+	
+	var cellBaseManager = new CellBaseManager(this.species);
+ 	cellBaseManager.success.addEventListener(function(sender,data){
+ 		var pixelBase = (_this.width -40) / data.result[0][data.result[0].length-1].end;
+ 		var x = 20;
+ 		var y = 20;
+ 		var firstCentromero = true;
+ 		
+		for (var i = 0; i < data.result[0].length; i++) {
+//			console.log(data.result[0][i])
+			var width = pixelBase * (data.result[0][i].end - data.result[0][i].start);
+			var height = 18;
+			var color = colors[data.result[0][i].stain];
+			if(color == null) color = "purple";
+			var cytoband = data.result[0][i].cytoband;
+			var middleX = x+width/2;
+			var endY = y+height;
+			
+			if(data.result[0][i].stain == "acen"){
+				var points = "";
+				var middleY = y+height/2;
+				var endX = x+width;
+				if(firstCentromero){
+					points = x+","+y+" "+middleX+","+y+" "+endX+","+middleY+" "+middleX+","+endY+" "+x+","+endY;
+					firstCentromero = false;
+				}else{
+					points = x+","+middleY+" "+middleX+","+y+" "+endX+","+y+" "+endX+","+endY+" "+middleX+","+endY;
+				}
+				SVG.addChild(svg,"polyline",{
+					"points":points,
+					"stroke":"black",
+					"opacity":0.8,
+					"fill":color
+				});
+			}else{
+				SVG.addChild(svg,"rect",{
+					"x":x,
+					"y":y,
+					"width":width,
+					"height":height,
+					"stroke":"black",
+					"opacity":0.8,
+					"fill":color
+				});
+			}
+			
+			var text = SVG.addChild(svg,"text",{
+				"x":middleX,
+				"y":0,
+				"font-size":10,
+				"transform": "translate("+ x +", " + y + "), rotate(90)",
+				"fill":"black"
+			});
+			text.textContent = cytoband;
+			
+			x = x + width;
+		}
+ 	});
+ 	cellBaseManager.get("genomic", "region", this.chromosome+":1-260000000","cytoband");
+};
+
+GenomeViewer.prototype._drawChromosomeOLD = function() {
 	var _this = this;
 //	this._setChromosomeLabel(chromosome);
 	DOM.removeChilds(this.id+"chromosomeSvg");
@@ -817,7 +890,7 @@ GenomeViewer.prototype._getTracksPanel = function() {
 							resource: "sequence",
 							species: _this.species,
 							featureCache:{
-								gzip: false,
+								gzip: true,
 								chunkSize:1000
 							}
 						})
