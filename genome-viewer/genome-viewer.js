@@ -631,7 +631,15 @@ GenomeViewer.prototype._drawChromosomePanel = function() {
 		html: '<div id="'+this.id+'chromosomeSvg" style="margin-top:2px"></div>',
 		listeners:{
 			afterrender:function(){
-				_this._drawChromosome();
+//				_this._drawChromosome();
+				_this.chromosomeWidget = new ChromosomeWidget({
+					id:_this.id,
+					width:_this.width,
+					species:_this.species,
+					chromosome:_this.chromosome,
+					position:_this.position
+				});
+				_this.chromosomeWidget.drawHorizontal();
 			}
 		}
 	});
@@ -676,7 +684,7 @@ GenomeViewer.prototype._drawChromosome = function() {
  	cellBaseManager.success.addEventListener(function(sender,data){
  		var pixelBase = (_this.width -40) / data.result[0][data.result[0].length-1].end;
  		var x = 20;
- 		var y = 20;
+ 		var y = 10;
  		var firstCentromero = true;
  		
  		
@@ -767,11 +775,12 @@ GenomeViewer.prototype._drawChromosome = function() {
 				
 			}
 			
+			var textY = endY+2;
 			var text = SVG.addChild(svg,"text",{
 				"x":middleX,
-				"y":endY+1,
+				"y":textY,
 				"font-size":10,
-				"transform": "rotate(90, "+middleX+", "+endY+1+")",
+				"transform": "rotate(90, "+middleX+", "+textY+")",
 				"fill":"black"
 			});
 			text.textContent = cytoband;
