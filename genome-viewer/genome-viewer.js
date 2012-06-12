@@ -713,15 +713,40 @@ GenomeViewer.prototype._drawChromosome = function() {
 					"fill":color
 				});
 			}else{
-				SVG.addChild(svg,"rect",{
-					"x":x,
-					"y":y,
-					"width":width,
-					"height":height,
+//				SVG.addChild(svg,"rect",{
+////					"rx":"4",
+////					"ry":"4",
+//					"x":x,
+//					"y":y,
+//					"width":width,
+//					"height":height,
+//					"stroke":"black",
+//					"opacity":0.8,
+//					"fill":color
+//				});
+				var p = function (x,y){
+					return x+" "+y+" ";
+				};
+
+				var w=width;
+				var h=height;
+				var r1=5;
+				var r2=5;
+				var r3=5;
+				var r4=0;
+				var strPath = "M"+p(x+r1,y); //A
+				  strPath+="L"+p(x+w-r2,y)+"Q"+p(x+w,y)+p(x+w,y+r2); //B
+				  strPath+="L"+p(x+w,y+h-r3)+"Q"+p(x+w,y+h)+p(x+w-r3,y+h); //C
+				  strPath+="L"+p(x+r4,y+h)+"Q"+p(x,y+h)+p(x,y+h-r4); //D
+				  strPath+="L"+p(x,y+r1)+"Q"+p(x,y)+p(x+r1,y); //A
+				  strPath+="Z";
+				SVG.addChild(svg,"path",{
+					"d":strPath,
 					"stroke":"black",
 					"opacity":0.8,
 					"fill":color
 				});
+				
 			}
 			
 			var text = SVG.addChild(svg,"text",{
