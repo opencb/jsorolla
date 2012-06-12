@@ -1,8 +1,7 @@
-function ChromosomeWidget(args) {
+function ChromosomeWidget(parent, args) {
+	
+	this.id = Math.round(Math.random()*10000000);
 	if(args != null){
-		if(args.id != null){
-			this.id = args.id;
-		}
 		if(args.width != null){
 			this.width = args.width;
 		}
@@ -18,15 +17,16 @@ function ChromosomeWidget(args) {
 	}
 	
 	this.onClick = new Event();
+	
+	this.svg = SVG.init(parent,{
+		"width":this.width,
+		"height":65
+	});
+	
 };
 
 ChromosomeWidget.prototype.drawHorizontal = function(){
 	var _this = this;
-	var div = $('#'+this.id+"chromosomeSvg")[0];
-	var svg = SVG.init(div,{
-		"width":this.width,
-		"height":65
-	});
 
 	var colors = {gneg:"white", stalk:"#666666", gvar:"#CCCCCC", gpos25:"silver", gpos33:"lightgrey", gpos50:"gray", gpos66:"dimgray", gpos75:"darkgray", gpos100:"black", gpos:"gray", acen:"blue"};
 	
@@ -64,14 +64,14 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 //			"height":18
 //		});
  		
- 		var group = SVG.addChild(svg,"g",{});
+ 		var group = SVG.addChild(_this.svg,"g",{});
 		
 		$(group).click(function(event){
 			clickPosition = parseInt((event.clientX - offset)/pixelBase);
 			
 			//XXX
 			//hacer un notify para cambiar la posicion con el valor clickPosition
-			_this.onClick.notify({sender:"ChromosomeWidget",position:clickPosition});
+			_this.onClick.notify(clickPosition);
 		});
 		
 		for (var i = 0; i < data.result[0].length; i++) {
@@ -140,7 +140,7 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 			}
 			
 			var textY = endY+2;
-			var text = SVG.addChild(svg,"text",{
+			var text = SVG.addChild(_this.svg,"text",{
 				"x":middleX,
 				"y":textY,
 				"font-size":10,
@@ -155,7 +155,7 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 		var c1 = pointer+5;
  		var c2 = pointer-5;
  		var points = pointer+",25 "+c1+",13 "+c1+",1 "+c2+",1 "+c2+",13 "+pointer+",25";
- 		SVG.addChild(svg,"polyline",{
+ 		SVG.addChild(_this.svg,"polyline",{
  			"points":points,
  			"stroke":"black",
 // 			"opacity":0.8,
