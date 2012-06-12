@@ -41,14 +41,15 @@ CellBaseAdapter.prototype.getData = function(region){
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	var chunks = [];
-	var itemList = [];
+//	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){
 		var key = region.chromosome+":"+i;
 		if(this.featureCache.cache[key] == null) {
 			chunks.push(i);
 		}else{
-			console.log(key+" cached!");
+//			console.log(key+" cached!");
 			var items = this.featureCache.getFeaturesByChunk(key);
+//			itemList.concat(items);
 			if(items.length>0){
 				this.onGetData.notify(items);
 			}
@@ -73,11 +74,20 @@ CellBaseAdapter.prototype.getData = function(region){
 		}
 //		console.log(_this.featureCache.cache);
 
+		
+		
+		console.time("-------------------------------------------------for adapter");
 		for(var i = 0; i < data.result.length; i++) {
+			console.time("----------------------------------put region");
 			_this.featureCache.putRegion(data.result[i], queryList[i]);
+			console.timeEnd("----------------------------------put region");
 //			var key = queryList[i].chromosome+":"+_this.featureCache._getChunk(queryList[i].start);
-			_this.onGetData.notify(_this.featureCache.getFeaturesByRegion(queryList[i]));
+			console.time("----------------------------------getFeaturesByRegion");
+			var items = _this.featureCache.getFeaturesByRegion(queryList[i]);
+			console.timeEnd("----------------------------------getFeaturesByRegion");
+			_this.onGetData.notify(items);
 		}
+		console.timeEnd("-------------------------------------------------for adapter");
 	});
 
 	var querys = [];

@@ -93,6 +93,7 @@ FeatureCache.prototype.putRegion = function(featureDataList,region){
 	var key,firstChunk,lastChunk,feature;
 	
 	//initialize region
+	console.time("initialize region");
 	firstChunk = this._getChunk(region.start);
 	lastChunk = this._getChunk(region.end);
 	for(var i=firstChunk; i<=lastChunk; i++){
@@ -101,17 +102,24 @@ FeatureCache.prototype.putRegion = function(featureDataList,region){
 			this.cache[key] = [];
 		}
 	}
+	console.timeEnd("initialize region");
 	
 	//Check if is a single object
 	if(featureDataList.constructor != Array){
 		var featureData = featureDataList;
 		featureDataList = [featureData];
 	}
+	
+	console.time("for 1");
+//	console.log(featureDataList.length);
 	for(var index in featureDataList) {
 		feature = featureDataList[index];
+		firstChunk = this._getChunk(feature.start);
+		lastChunk = this._getChunk(feature.end);
+//		console.log(firstChunk+"-"+lastChunk);
 		for(var i=firstChunk; i<=lastChunk; i++) {
 			key = feature.chromosome+":"+i;
-			if(feature.end > region.start && feature.start < region.end){
+			if(this.cache[key]!=null){
 				if(this.gzip) {
 					this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
 				}else{
@@ -120,6 +128,7 @@ FeatureCache.prototype.putRegion = function(featureDataList,region){
 			}
 		}
 	}
+	console.timeEnd("for 1");
 };
 
 //FeatureCache.prototype.put2 = function(featureDataList){
@@ -158,7 +167,6 @@ FeatureCache.prototype.getFeaturesByRegion = function(region){
 			}else{
 				feature = this.cache[key][j];
 			}
-			
 			if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
 				// we only get those features in the region
 				if(feature.end > region.start && feature.start < region.end){

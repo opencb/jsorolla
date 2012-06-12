@@ -6,6 +6,8 @@ function TrackSvgLayout(parent, args) {
 	this.trackDataList =  new Array();
 	this.trackSvgList =  new Array();
 	this.swapHash = new Object();
+	this.zoomOffset = 0;//for region overview panel, this will keep zoom higher, 0 by default
+	this.parentLayout = null;
 	
 	//default values
 	this.height=25;
@@ -23,10 +25,17 @@ function TrackSvgLayout(parent, args) {
 		if(args.chromosome != null){
 			this.chromosome = args.chromosome;
 		}
+		if(args.zoomOffset != null){
+			this.zoomOffset = args.zoomOffset;
+		}
 		if(args.zoom != null){
-			this.zoom = args.zoom;
+			this.zoom = args.zoom-this.zoomOffset;
+		}
+		if(args.parentLayout != null){
+			this.parentLayout = args.parentLayout;
 		}
 	}
+	
 	this._createPixelsbyBase();//create pixelByBase array
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
@@ -67,14 +76,13 @@ function TrackSvgLayout(parent, args) {
 //		"stroke":"green"
 //});
 
-
-
-	//Main svg events
-	$(this.svg).mousedown(function(event) {
-		this.setAttribute("cursor", "move");
-		var downX = event.clientX;
-		var lastX = 0;
-		$(this).mousemove(function(event){
+	if(this.parentLayout==null){
+		//Main svg  movement events
+		$(this.svg).mousedown(function(event) {
+			this.setAttribute("cursor", "move");
+			var downX = event.clientX;
+			var lastX = 0;
+			$(this).mousemove(function(event){
 				var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
 				if(newX!=lastX){
 					var desp = lastX-newX;
@@ -83,13 +91,20 @@ function TrackSvgLayout(parent, args) {
 					_this.onMove.notify(desp);
 					lastX = newX;
 				}
+			});
 		});
-	});
-	$(this.svg).mouseup(function(event) {
-		this.setAttribute("cursor", "default");
-		$(this).off('mousemove');
-		$(this).focus();// without this, the keydown does not work
-	});
+		$(this.svg).mouseup(function(event) {
+			this.setAttribute("cursor", "default");
+			$(this).off('mousemove');
+			$(this).focus();// without this, the keydown does not work
+		});
+	}else{
+		_this.parentLayout.onMove.addEventListener(function(sender,desp){
+			_this.position -= desp;
+			_this.positionText.textContent = _this.position;
+			_this.onMove.notify(desp);
+		});
+	}
 
 
 	//keys
@@ -136,7 +151,7 @@ TrackSvgLayout.prototype.setHeight = function(height){
 	this.svg.setAttribute("height",height);
 };
 TrackSvgLayout.prototype.setZoom = function(zoom){
-	this.zoom=zoom;
+	this.zoom=zoom-this.zoomOffset;
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.onZoomChange.notify();
@@ -187,7 +202,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackData.adapter.onGetData.addEventListener(function(sender,data){
-		trackSvg.renderFeatures(data);
+		console.time("-------------------------------------------------drawFeatures");
+		trackSvg.featuresRender(data);
+		console.timeEnd("-------------------------------------------------drawFeatures");
 	});
 
 	

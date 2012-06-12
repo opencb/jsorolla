@@ -10,6 +10,7 @@ function CellBaseManager(species, args) {
 	   window.location.host.indexOf("imedina")!=-1 ||
 	   window.location.href.indexOf("http://bioinfo.cipf.es/apps-beta")!=-1
 	){
+//		this.host = "http://ralonso:8080/naranjoma-ws/rest";
 		this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
 //		this.host = "http://fsalavert:8080/cellbase/rest";
 //		this.host = "http://rsanchez:8080/cellbase/rest";
