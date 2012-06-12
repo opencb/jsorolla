@@ -78,7 +78,7 @@ GenomeViewer.prototype.render = function(){
 	}
 	items.push(this._getNavigationBar());
 	//items.push(this._getKaryotypePanel().hide());
-	//items.push(this._getChromosomePanel());
+	items.push(this._getChromosomePanel());
 //	items.push(this._getRegionPanel());
 //	items.push(this._getWindowSizePanel());
 	items.push(this._getTracksPanel());
@@ -623,10 +623,81 @@ GenomeViewer.prototype._getChromosomePanel = function() {
 				}
 			}
 		});
+		console.log(this.id+'chromosomeSvg')
 	}
 	return cont;
 };
 GenomeViewer.prototype._drawChromosome = function() {
+	var _this = this;
+	var div = $('#'+this.id+"chromosomeSvg")[0];
+	var svg = SVG.init(div,{
+		"width":this.width,
+		"height":65
+	});
+
+	var colors = {gneg:"white", stalk:"#666666", gvar:"#CCCCCC", gpos25:"silver", gpos33:"lightgrey", gpos50:"gray", gpos66:"dimgray", gpos75:"darkgray", gpos100:"black", gpos:"gray", acen:"blue"};
+	
+	var cellBaseManager = new CellBaseManager(this.species);
+ 	cellBaseManager.success.addEventListener(function(sender,data){
+ 		var pixelBase = (_this.width -40) / data.result[0][data.result[0].length-1].end;
+ 		var x = 20;
+ 		var y = 20;
+ 		var firstCentromero = true;
+ 		
+		for (var i = 0; i < data.result[0].length; i++) {
+//			console.log(data.result[0][i])
+			var width = pixelBase * (data.result[0][i].end - data.result[0][i].start);
+			var height = 18;
+			var color = colors[data.result[0][i].stain];
+			if(color == null) color = "purple";
+			var cytoband = data.result[0][i].cytoband;
+			var middleX = x+width/2;
+			var endY = y+height;
+			
+			if(data.result[0][i].stain == "acen"){
+				var points = "";
+				var middleY = y+height/2;
+				var endX = x+width;
+				if(firstCentromero){
+					points = x+","+y+" "+middleX+","+y+" "+endX+","+middleY+" "+middleX+","+endY+" "+x+","+endY;
+					firstCentromero = false;
+				}else{
+					points = x+","+middleY+" "+middleX+","+y+" "+endX+","+y+" "+endX+","+endY+" "+middleX+","+endY;
+				}
+				SVG.addChild(svg,"polyline",{
+					"points":points,
+					"stroke":"black",
+					"opacity":0.8,
+					"fill":color
+				});
+			}else{
+				SVG.addChild(svg,"rect",{
+					"x":x,
+					"y":y,
+					"width":width,
+					"height":height,
+					"stroke":"black",
+					"opacity":0.8,
+					"fill":color
+				});
+			}
+			
+			var text = SVG.addChild(svg,"text",{
+				"x":middleX,
+				"y":0,
+				"font-size":10,
+				"transform": "translate("+ x +", " + y + "), rotate(90)",
+				"fill":"black"
+			});
+			text.textContent = cytoband;
+			
+			x = x + width;
+		}
+ 	});
+ 	cellBaseManager.get("genomic", "region", this.chromosome+":1-260000000","cytoband");
+};
+
+GenomeViewer.prototype._drawChromosomeOLD = function() {
 	var _this = this;
 //	this._setChromosomeLabel(chromosome);
 	DOM.removeChilds(this.id+"chromosomeSvg");
@@ -777,7 +848,7 @@ GenomeViewer.prototype._getTracksPanel = function() {
 							resource: "sequence",
 							species: _this.species,
 							featureCache:{
-								gzip: false,
+								gzip: true,
 								chunkSize:1000
 							}
 						})
