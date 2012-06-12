@@ -207,11 +207,16 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		console.timeEnd("-------------------------------------------------drawFeatures");
 	});
 
+	//needed call variables
+	var callStart = parseInt(this.position - this.halfVirtualBase);
+	var callEnd = parseInt(this.position + this.halfVirtualBase);
 	
 	//on first load get virtual window and retrieve data
-	var virtualStart = parseInt(this.position - this.halfVirtualBase*1);
-	var vitualEnd = parseInt(this.position + this.halfVirtualBase*1);
+	var virtualStart = callStart;
+	var vitualEnd = callEnd;
 	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd});
+	
+	
 	
 	//on zoom change set new virtual window and update track values
 	this.onZoomChange.addEventListener(function(sender,data){
@@ -222,20 +227,20 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackData.adapter.featureCache.featuresAdded = {};
 		trackSvg.renderedArea = {};
 		
+		callStart = parseInt(_this.position - _this.halfVirtualBase);
+		callEnd = parseInt(_this.position + _this.halfVirtualBase);
+		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
-			var virtualStart = parseInt(_this.position - _this.halfVirtualBase*1);
-			var vitualEnd = parseInt(_this.position + _this.halfVirtualBase*1);
+			virtualStart = callStart;
+			vitualEnd = callEnd;
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 		}
 	});
 
 	
-	//needed call variables
-	var callStart = parseInt(trackSvg.position - this.halfVirtualBase*1);
-	var callEnd = parseInt(trackSvg.position + this.halfVirtualBase*1);
-	console.log(callStart);
-	console.log(callEnd);
+//	console.log(callStart);
+//	console.log(callEnd);
 	
 	//on chromosome change set new virtual window and update track values
 	this.onChromosomeChange.addEventListener(function(sender,data){
@@ -245,15 +250,15 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackData.adapter.featureCache.featuresAdded = {};
 		trackSvg.renderedArea = {};
 		
-		callStart = parseInt(trackSvg.position - _this.halfVirtualBase*1);
-		callEnd = parseInt(trackSvg.position + _this.halfVirtualBase*1);
-		console.log(callStart);
-		console.log(callEnd);
+		callStart = parseInt(_this.position - _this.halfVirtualBase);
+		callEnd = parseInt(_this.position + _this.halfVirtualBase);
+//		console.log(callStart);
+//		console.log(callEnd);
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
-			var virtualStart = parseInt(_this.position - _this.halfVirtualBase*1);
-			var vitualEnd = parseInt(_this.position + _this.halfVirtualBase*1);
+			virtualStart = callStart;
+			vitualEnd = callEnd;
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
 		}
 	});
@@ -271,19 +276,19 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
-			var virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase*1);
-			var virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase*1);
+			virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase);
+			virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
 
 			if(desp<0 && virtualEnd > callEnd){
-				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase*1)});
-				callEnd = parseInt(callEnd+_this.halfVirtualBase*1);
-				console.log(callEnd);
+				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase)});
+				callEnd = parseInt(callEnd+_this.halfVirtualBase);
+//				console.log(callEnd);
 			}
 
 			if(desp>0 && virtualStart < callStart){
-				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase*1),end:callStart});
-				callStart = parseInt(callStart-_this.halfVirtualBase*1);
-				console.log(callStart);
+				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart});
+				callStart = parseInt(callStart-_this.halfVirtualBase);
+//				console.log(callStart);
 			}
 		}
 	});

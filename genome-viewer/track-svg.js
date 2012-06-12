@@ -360,13 +360,13 @@ TrackSvg.prototype.HistogramRender = function(featureList){
 	
 };
 
-TrackSvg.prototype.checkAvailableArea = function(featureStart, featureEnd, targetY){
-	console.time("checkAvailableArea, elems: "+this.renderedArea[targetY].length);
-	for(var i = 0; i < this.renderedArea[targetY].length; i++){
-		if(featureStart < this.renderedArea[targetY][i].end && featureEnd > this.renderedArea[targetY][i].start){
-			return false;
-		}
-	}
-	console.timeEnd("checkAvailableArea, elems: "+this.renderedArea[targetY].length);
-	return true;
-};
+//TrackSvg.prototype.checkAvailableArea = function(featureStart, featureEnd, targetY){
+//	console.time("checkAvailableArea, elems: "+this.renderedArea[targetY].length);
+//	for(var i = 0; i < this.renderedArea[targetY].length; i++){
+//		if(featureStart < this.renderedArea[targetY][i].end && featureEnd > this.renderedArea[targetY][i].start){
+//			return false;
+//		}
+//	}
+//	console.timeEnd("checkAvailableArea, elems: "+this.renderedArea[targetY].length);
+//	return true;
+//};
