@@ -76,18 +76,11 @@ CellBaseAdapter.prototype.getData = function(region){
 
 		
 		
-		console.time("-------------------------------------------------for adapter");
 		for(var i = 0; i < data.result.length; i++) {
-			console.time("----------------------------------put region");
 			_this.featureCache.putRegion(data.result[i], queryList[i]);
-			console.timeEnd("----------------------------------put region");
-//			var key = queryList[i].chromosome+":"+_this.featureCache._getChunk(queryList[i].start);
-			console.time("----------------------------------getFeaturesByRegion");
 			var items = _this.featureCache.getFeaturesByRegion(queryList[i]);
-			console.timeEnd("----------------------------------getFeaturesByRegion");
 			_this.onGetData.notify(items);
 		}
-		console.timeEnd("-------------------------------------------------for adapter");
 	});
 
 	var querys = [];
@@ -121,7 +114,6 @@ CellBaseAdapter.prototype.getData = function(region){
 				updateStart = true;
 				updateEnd = true;
 			}
-
 		}
 //		console.log(querys);
 		cellBaseManager.get(this.category, this.subCategory, querys, this.resource);

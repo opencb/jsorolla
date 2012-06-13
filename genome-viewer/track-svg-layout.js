@@ -60,21 +60,23 @@ function TrackSvgLayout(parent, args) {
 	});
 	this.positionText.textContent = this.position;
 	
-	this.currentLine = SVG.addChild(this.svg,"line",{
-			"x1":mid,
-			"y1":this.height,
-			"x2":mid,
-			"y2":this.height,
-			"stroke-width":1,
-			"stroke":"green"
+//	this.currentLine = SVG.addChild(this.svg,"line",{
+//			"x1":mid,
+//			"y1":this.height,
+//			"x2":mid,
+//			"y2":this.height,
+//			"stroke-width":1,
+//			"stroke":"green"
+//	});
+	this.currentLine = SVG.addChild(this.svg,"rect",{
+		"x":mid,
+		"y":this.height,
+		"width":this.pixelBase,
+		"height":this.height,
+		"stroke":"white",
+		"opacity":"0.5",
+		"fill":"green"
 	});
-//	this.currentLine = SVG.addChild(this.svg,"rect",{
-//		"x":mid,
-//		"y":this.height,
-//		"width":this.pixelBase,
-//		"height":this.height,
-//		"stroke":"green"
-//});
 
 	if(this.parentLayout==null){
 		//Main svg  movement events
@@ -94,6 +96,11 @@ function TrackSvgLayout(parent, args) {
 			});
 		});
 		$(this.svg).mouseup(function(event) {
+			this.setAttribute("cursor", "default");
+			$(this).off('mousemove');
+			$(this).focus();// without this, the keydown does not work
+		});
+		$(this.svg).mouseleave(function(event) {
 			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
 			$(this).focus();// without this, the keydown does not work
@@ -149,11 +156,14 @@ function TrackSvgLayout(parent, args) {
 TrackSvgLayout.prototype.setHeight = function(height){
 	this.height=height;
 	this.svg.setAttribute("height",height);
+	this.currentLine.setAttribute("height",height);
+	
 };
 TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.zoom=zoom-this.zoomOffset;
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
+	this.currentLine.setAttribute("width",(this.pixelBase < 2) ? 2:this.pixelBase);
 	this.onZoomChange.notify();
 };
 TrackSvgLayout.prototype.setChromosome = function(item){//item.chromosome, item.position, item.species
@@ -202,11 +212,12 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackData.adapter.onGetData.addEventListener(function(sender,data){
-		console.time("-------------------------------------------------drawFeatures");
+//		console.time("---drawFeatures");
 		trackSvg.featuresRender(data);
-		console.timeEnd("-------------------------------------------------drawFeatures");
+//		console.timeEnd("---drawFeatures");
 	});
-
+	
+	//first load
 	//needed call variables
 	var callStart = parseInt(this.position - this.halfVirtualBase);
 	var callEnd = parseInt(this.position + this.halfVirtualBase);
@@ -238,9 +249,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		}
 	});
 
-	
-//	console.log(callStart);
-//	console.log(callEnd);
 	
 	//on chromosome change set new virtual window and update track values
 	this.onChromosomeChange.addEventListener(function(sender,data){
@@ -297,22 +305,24 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//dibujado
 	//XXX se puede mover?
 	$(trackSvg.upRect).bind("click",function(event){
-		_this._reallocateAbove(this.parentNode.id);//"this" is the svg element
+		_this._reallocateAbove(this.parentNode.parentNode.id);//"this" is the svg element
 	});
 	$(trackSvg.downRect).bind("click",function(event){
-		_this._reallocateUnder(this.parentNode.id);//"this" is the svg element
+		_this._reallocateUnder(this.parentNode.parentNode.id);//"this" is the svg element
 	});
 	$(trackSvg.hideRect).bind("click",function(event){
-		_this._hideTrack(this.parentNode.id);//"this" is the svg element
+		_this._hideTrack(this.parentNode.parentNode.id);//"this" is the svg element
 	});
 	$(trackSvg.settingsRect).bind("click",function(event){
 		console.log("settings click");//"this" is the svg element
 	});
 	
-	this.height += trackSvg.getHeight();
 	
-	this.svg.setAttribute("height",this.height);
-	this.currentLine.setAttribute("y2",this.height);
+	this.setHeight(this.height += trackSvg.getHeight());
+//	this.height += trackSvg.getHeight();
+	
+//	this.svg.setAttribute("height",this.height);
+//	this.currentLine.setAttribute("y2",this.height);
 };
 
 TrackSvgLayout.prototype._redraw = function(){
@@ -378,9 +388,12 @@ TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 	var track = this.trackSvgList[i];
 	this.svg.removeChild(track.main);
 	
-	this.height -= track.getHeight();
-	this.svg.setAttribute("height",this.height);
-	this.currentLine.setAttribute("y2",this.height);
+	
+	this.setHeight(this.height -= track.getHeight());
+	
+//	this.height -= track.getHeight();
+//	this.svg.setAttribute("height",this.height);
+//	this.currentLine.setAttribute("y2",this.height);
 	
 	this._redraw();
 	
@@ -397,9 +410,10 @@ TrackSvgLayout.prototype._showTrack = function(trackMainId){
 	var track = this.trackSvgList[i];
 	this.svg.appendChild(track.main);
 	
-	this.height += track.getHeight();
-	this.svg.setAttribute("height",this.height);
-	this.currentLine.setAttribute("y2",this.height);
+	this.setHeight(this.height += track.getHeight());
+//	this.height += track.getHeight();
+//	this.svg.setAttribute("height",this.height);
+//	this.currentLine.setAttribute("y2",this.height);
 	
 	this._redraw();
 };

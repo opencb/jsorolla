@@ -118,7 +118,7 @@ GenomeViewer.prototype.setSize = function(width,height) {
 };
 
 GenomeViewer.prototype.setLoc = function(data) {
-	console.log(data.sender);
+//	console.log(data.sender);
 //	this.chromosomeFeatureTrack.select(data.position-1000, data.position+1000);
 	
 	switch(data.sender){
@@ -137,6 +137,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 //		this._getKaryotypePanel(true);
 		this.trackSvgLayout.setChromosome({chromosome:data.chromosome,species:data.species,position:data.position});
 		this.trackSvgLayout2.setChromosome({chromosome:data.chromosome,species:data.species,position:data.position});
+		this.chromosomeWidget.setPosition(this.position);
 		break;
 	case "_getChromosomeMenu":
 		if(this.chromosome!=data.chromosome){
@@ -154,6 +155,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this.position = data.position;
 		this.trackSvgLayout.setChromosome({chromosome:data.chromosome, position:data.position});
 		this.trackSvgLayout2.setChromosome({chromosome:data.chromosome, position:data.position});
+		this.chromosomeWidget.setPosition(this.position);
 		if(this.chromosome!=data.chromosome){
 			this.chromosome = data.chromosome;
 //			this.trackSvgLayout.setChromosome({chromosome:data.chromosome, position:data.position});
@@ -185,6 +187,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 	case "trackSvgLayout":
 		this.position = this.position-data.position;
 		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
+		this.chromosomeWidget.setPosition(this.position);
 //		this._karyotypePanel.select(this.chromosome, this.position, this.position);
 		break;
 	default:
@@ -689,27 +692,27 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 					parentLayout:_this.trackSvgLayout
 				});
 				
-//				var geneTrack = new TrackData("gene",{
-//					adapter: new CellBaseAdapter({
-//						category: "genomic",
-//						subCategory: "region",
-//						resource: "gene",
-//						species: _this.species,
-//						featureCache:{
-//							gzip: false,
-//							chunkSize:50000
-//						}
-//					})
-//				});
-//				_this.trackSvgLayout2.addTrack(geneTrack,{
-//					id:"gene",
-//					type:"gene",
-//					histogramRender:null,
-//					featuresRender:"GeneRender",
-//					histogramZoom:"",
-//					height:150,
-//					visibleRange:{start:0,end:100}
-//				});
+				var geneTrack = new TrackData("gene",{
+					adapter: new CellBaseAdapter({
+						category: "genomic",
+						subCategory: "region",
+						resource: "gene",
+						species: _this.species,
+						featureCache:{
+							gzip: true,
+							chunkSize:50000
+						}
+					})
+				});
+				_this.trackSvgLayout2.addTrack(geneTrack,{
+					id:"gene",
+					type:"gene",
+					histogramRender:null,
+					featuresRender:"GeneRender",
+					histogramZoom:"",
+					height:150,
+					visibleRange:{start:0,end:100}
+				});
 			}
 		}
 	});
@@ -810,26 +813,26 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 				});
 				
-//				var seqtrack = new TrackData("sequence",{
-//					adapter: new CellBaseAdapter({
-//						category: "genomic",
-//						subCategory: "region",
-//						resource: "sequence",
-//						species: _this.species,
-//						featureCache:{
-//							gzip: true,
-//							chunkSize:1000
-//						}
-//					})
-//				});
-//				_this.trackSvgLayout.addTrack(seqtrack,{
-//					id:"sequence",
-//					type:"sequence",
-//					renderFeatures:"SequenceRender",
-//					histogramZoom:"",
-//					height:50,
-//					visibleRange:{start:100,end:100}
-//				});
+				var seqtrack = new TrackData("sequence",{
+					adapter: new CellBaseAdapter({
+						category: "genomic",
+						subCategory: "region",
+						resource: "sequence",
+						species: _this.species,
+						featureCache:{
+							gzip: true,
+							chunkSize:1000
+						}
+					})
+				});
+				_this.trackSvgLayout.addTrack(seqtrack,{
+					id:"sequence",
+					type:"sequence",
+					featuresRender:"SequenceRender",
+					histogramZoom:"",
+					height:50,
+					visibleRange:{start:100,end:100}
+				});
 				
 				
 				var geneTrack = new TrackData("gene",{
@@ -850,7 +853,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					histogramRender:null,
 					featuresRender:"GeneRender",
 					histogramZoom:"",
-					height:150,
+					height:180,
 					visibleRange:{start:0,end:100}
 				});
 				
