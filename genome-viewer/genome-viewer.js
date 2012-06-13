@@ -489,6 +489,7 @@ GenomeViewer.prototype.setZoom = function(zoom) {
 		this.trackSvgLayout.setZoom(zoom);
 		this.trackSvgLayout2.setZoom(zoom);
 	}
+	this.chromosomeWidget.setZoom(zoom);
 };
 
 //Action for buttons located in the NavigationBar
@@ -650,8 +651,10 @@ GenomeViewer.prototype._drawChromosomePanel = function() {
 				var div = $('#'+_this.id+"chromosomeSvg")[0];
 				_this.chromosomeWidget = new ChromosomeWidget(div,{
 					width:_this.width,
+					height:65,
 					species:_this.species,
 					chromosome:_this.chromosome,
+					zoom:_this.zoom,
 					position:_this.position
 				});
 				_this.chromosomeWidget.onClick.addEventListener(function(sender,data){

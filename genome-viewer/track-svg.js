@@ -307,7 +307,6 @@ TrackSvg.prototype.GeneRender = function(featureList){
 				failDraw = true;
 			}
 		}
-//		this.renderedArea[y].push({start: x, end: x+maxWidth-1});
 		console.timeEnd("----------------------overlaping");
 		console.log(this.renderedArea)
 	}
