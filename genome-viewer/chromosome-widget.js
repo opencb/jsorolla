@@ -192,10 +192,10 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 			"y":2,
 			"width":_this.tracksViewedRegion*_this.pixelBase,
 			"height":_this.height-2,
-			"stroke":"red",
+			"stroke":"orangered",
 			"stroke-width":2,
 			"opacity":0.3,
- 			"fill":"red"
+ 			"fill":"orange"
  		});
  	});
  	cellBaseManager.get("genomic", "region", this.chromosome+":1-260000000","cytoband");
