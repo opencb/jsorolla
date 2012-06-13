@@ -680,9 +680,10 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 		height : 150,
 		title:'Region',
 		border:false,
+		autoScroll:true,
 		margin:'0 0 1 0',
 		cls:'border-bot panel-border-top',
-		html: '<div id="'+this.id+'regionSvg" style="margin-top:2px"></div>',
+		html: '<div height=2000px; overflow-y="scroll"; id="'+this.id+'regionSvg" style="margin-top:2px"></div>',
 		listeners:{
 			afterrender:function(){
 				var div = $('#'+_this.id+"regionSvg")[0];
@@ -737,12 +738,8 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 //XXX BOTTOM BAR
 
 GenomeViewer.prototype._getBottomBar = function() {
-	var geneFeatureFormatter = new GeneFeatureFormatter();
-	var snpFeatureFormatter = new SNPFeatureFormatter();
 	var geneLegendPanel = new LegendPanel({title:'Gene legend'});
 	var snpLegendPanel = new LegendPanel({title:'SNP legend'});
-//	legendPanel.getPanel(geneFeatureFormatter.getBioTypeColors());
-//	legendPanel.getColorItems(geneFeatureFormatter.getBioTypeColors());
 	
 	var scaleLabel = Ext.create('Ext.draw.Component', {
 		id:this.id+"scaleLabel",
@@ -771,6 +768,55 @@ GenomeViewer.prototype._getBottomBar = function() {
 		height:28,
 		flex:1
 	});
+	
+	var getGeneBioTypeColors = function(){
+		var colors = new Object();
+
+		//TODO buscar los colores en ensembl!
+		colors[new String("protein_coding")] = "#a00000";
+		colors[new String("processed_transcript")] = "#0000ff";
+		colors[new String("pseudogene")] = "#666666";
+		colors[new String("miRNA")] = "#8b668b";//TODO falta
+		colors[new String("snRNA")] = "#8b668b";
+		colors[new String("snoRNA")] = "#8b668b";//TODO falta
+		colors[new String("lincRNA")] = "#8b668b";
+		
+		colors[new String("other")] = "#ffffff";
+		return colors;
+	};
+	var getSnpBioTypeColors = function(){
+		//TODO
+		var colors = new Object();
+		colors[new String("2KB_upstream_variant")] = "#a2b5cd";				//TODO done Upstream
+		colors[new String("5KB_upstream_variant")] = "#a2b5cd";				//TODO done Upstream
+		colors[new String("500B_downstream_variant")] = "#a2b5cd";			//TODO done Downstream
+		colors[new String("5KB_downstream_variant")] = "#a2b5cd";			//TODO done Downstream
+		colors[new String("3_prime_UTR_variant")] = "#7ac5cd";				//TODO done 3 prime UTR
+		colors[new String("5_prime_UTR_variant")] = "#7ac5cd";				//TODO done 5 prime UTR
+		colors[new String("coding_sequence_variant")] = "#458b00";			//TODO done Coding unknown
+		colors[new String("complex_change_in_transcript")] = "#00fa9a";		//TODO done Complex in/del
+		colors[new String("frameshift_variant")] = "#ff69b4";				//TODO done Frameshift coding
+		colors[new String("incomplete_terminal_codon_variant")] = "#ff00ff";	//TODO done Partial codon
+		colors[new String("inframe_codon_gain")] = "#ffd700";				//TODO done Non-synonymous coding
+		colors[new String("inframe_codon_loss")] = "#ffd700";				//TODO done Non-synonymous coding
+		colors[new String("initiator_codon_change")] = "#ffd700";			//TODO done Non-synonymous coding
+		colors[new String("non_synonymous_codon")] = "#ffd700";				//TODO done Non-synonymous coding
+		colors[new String("intergenic_variant")] = "#636363";				//TODO done Intergenic
+		colors[new String("intron_variant")] = "#02599c";					//TODO done Intronic
+		colors[new String("mature_miRNA_variant")] = "#458b00";				//TODO done Within mature miRNA
+		colors[new String("nc_transcript_variant")] = "#32cd32";				//TODO done Within non-coding gene
+		colors[new String("splice_acceptor_variant")] = "#ff7f50";			//TODO done Essential splice site
+		colors[new String("splice_donor_variant")] = "#ff7f50";				//TODO done Essential splice site
+		colors[new String("splice_region_variant")] = "#ff7f50";				//TODO done Splice site
+		colors[new String("stop_gained")] = "#ff0000";						//TODO done Stop gained
+		colors[new String("stop_lost")] = "#ff0000";							//TODO done Stop lost
+		colors[new String("stop_retained_variant")] = "#76ee00";				//TODO done Synonymous coding
+		colors[new String("synonymous_codon")] = "#76ee00";					//TODO done Synonymous coding
+		
+		colors[new String("other")] = "#ffffff";
+		return colors;
+	};
+	
 	var legendBar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'legendBar',
 		cls: 'bio-hiddenbar',
@@ -778,8 +824,8 @@ GenomeViewer.prototype._getBottomBar = function() {
 		height:28,
 		items : [scaleLabel, 
 		         '-',
-		         geneLegendPanel.getButton(geneFeatureFormatter.getBioTypeColors()),
-		         snpLegendPanel.getButton(snpFeatureFormatter.getBioTypeColors()),
+		         geneLegendPanel.getButton(getGeneBioTypeColors()),
+		         snpLegendPanel.getButton(getSnpBioTypeColors()),
 		         '->']
 	});
 	
