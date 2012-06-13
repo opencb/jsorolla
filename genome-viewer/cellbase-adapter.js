@@ -41,26 +41,23 @@ CellBaseAdapter.prototype.getData = function(region){
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	var chunks = [];
-//	var itemList = [];
+	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){
 		var key = region.chromosome+":"+i;
 		if(this.featureCache.cache[key] == null) {
 			chunks.push(i);
 		}else{
-//			console.log(key+" cached!");
 			var items = this.featureCache.getFeaturesByChunk(key);
-//			itemList.concat(items);
-			if(items.length>0){
-				this.onGetData.notify(items);
-			}
-			
+//			console.time("concat");
+			itemList = itemList.concat(items);
+//			console.timeEnd("concat");
 		}
 	}
-//	if(itemList.length>0){
-//		this.onGetData.notify(itemList);
-//		
-//	}
-//	console.log(itemList);
+	
+	//notify all chunks
+	if(itemList.length>0){
+		this.onGetData.notify(itemList);
+	}
 	
 	
 	//CellBase data process

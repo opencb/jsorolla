@@ -152,14 +152,12 @@ GenomeViewer.prototype.setLoc = function(data) {
 		break;
 	case "GoButton":
 		if(this.position!=data.position){
-			console.log("pos")
 			this.position = data.position;
 			this.trackSvgLayout.setLocation({position:this.position});
 			this.trackSvgLayout2.setLocation({position:this.position});
 			this.chromosomeWidget.setLocation({position:this.position});
 		}
 		if(this.chromosome!=data.chromosome){
-			console.log("chro")
 			this.chromosome = data.chromosome;
 			this.trackSvgLayout.setLocation({chromosome:this.chromosome});
 			this.trackSvgLayout2.setLocation({chromosome:this.chromosome});
@@ -714,7 +712,7 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 					id:"gene",
 					type:"gene",
 					histogramRender:null,
-					featuresRender:"GeneRender",
+					featuresRender:"MultiFeatureRender",
 					histogramZoom:"",
 					height:150,
 					visibleRange:{start:0,end:100}
@@ -857,9 +855,9 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					id:"gene",
 					type:"gene",
 					histogramRender:null,
-					featuresRender:"GeneRender",
+					featuresRender:"MultiFeatureRender",
 					histogramZoom:"",
-					height:180,
+					height:24,
 					visibleRange:{start:0,end:100}
 				});
 				
@@ -879,7 +877,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 //					id:"snp",
 //					type:"snp",
 //					histogramRender:null,
-//					featuresRender:"GeneRender",
+//					featuresRender:"MultiFeatureRender",
 //					histogramZoom:"",
 //					height:150,
 //					visibleRange:{start:0,end:100}
