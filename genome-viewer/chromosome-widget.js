@@ -5,25 +5,47 @@ function ChromosomeWidget(parent, args) {
 		if(args.width != null){
 			this.width = args.width;
 		}
+		if(args.height != null){
+			this.height = args.height;
+		}
 		if(args.species != null){
 			this.species = args.species;
 		}
 		if(args.chromosome != null){
 			this.chromosome = args.chromosome;
 		}
+		if(args.zoom != null){
+			this.zoom = args.zoom;
+		}
 		if(args.position != null){
 			this.position = args.position;
 		}
 	}
+
+//	this.zoom = 20;
+	this._createPixelsbyBase();//create pixelByBase array
+	this.tracksViewedRegion = this.width/this._getPixelsbyBase(this.zoom);
 	
 	this.onClick = new Event();
 	
 	this.svg = SVG.init(parent,{
 		"width":this.width,
-		"height":65
+		"height":this.height
 	});
 	
 };
+
+ChromosomeWidget.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
+	this.positionBox.setAttribute("x",item.position*this.pixelBase);
+};
+
+ChromosomeWidget.prototype.setZoom = function(zoom){
+	console.log("setting zoom")
+	this.zoom=zoom;
+	this.tracksViewedRegion = this.width/this._getPixelsbyBase(this.zoom);
+	this.positionBox.setAttribute("width",this.tracksViewedRegion*this.pixelBase);
+};
+
 
 ChromosomeWidget.prototype.drawHorizontal = function(){
 	var _this = this;
@@ -32,13 +54,13 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 	
 	var cellBaseManager = new CellBaseManager(this.species);
  	cellBaseManager.success.addEventListener(function(sender,data){
- 		var pixelBase = (_this.width -40) / data.result[0][data.result[0].length-1].end;
+ 		_this.pixelBase = (_this.width -40) / data.result[0][data.result[0].length-1].end;
  		var x = 20;
  		var y = 10;
  		var firstCentromero = true;
  		
  		var offset = 20;
- 		var pointer = (_this.position * pixelBase) + offset;
+ 		var pointerPosition = (_this.position * _this.pixelBase) + offset;
 
  		
 //		var cp = SVG.addChild(svg,"clipPath",{
@@ -67,16 +89,14 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
  		var group = SVG.addChild(_this.svg,"g",{});
 		
 		$(group).click(function(event){
-			clickPosition = parseInt((event.clientX - offset)/pixelBase);
+			clickPosition = parseInt((event.clientX - offset)/_this.pixelBase);
 			
-			//XXX
-			//hacer un notify para cambiar la posicion con el valor clickPosition
 			_this.onClick.notify(clickPosition);
 		});
 		
 		for (var i = 0; i < data.result[0].length; i++) {
 //			console.log(data.result[0][i])
-			var width = pixelBase * (data.result[0][i].end - data.result[0][i].start);
+			var width = _this.pixelBase * (data.result[0][i].end - data.result[0][i].start);
 			var height = 18;
 			var color = colors[data.result[0][i].stain];
 			if(color == null) color = "purple";
@@ -152,15 +172,28 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 			x = x + width;
 		}
 		
-		var c1 = pointer+5;
- 		var c2 = pointer-5;
- 		var points = pointer+",25 "+c1+",13 "+c1+",1 "+c2+",1 "+c2+",13 "+pointer+",25";
- 		SVG.addChild(_this.svg,"polyline",{
- 			"points":points,
- 			"stroke":"black",
-// 			"opacity":0.8,
+ 		_this.positionBox = SVG.addChild(group,"rect",{
+ 			"x":pointerPosition,
+			"y":2,
+			"width":_this.tracksViewedRegion*_this.pixelBase,
+			"height":_this.height-2,
+			"stroke":"black",
+			"opacity":0.3,
  			"fill":"red"
  		});
  	});
  	cellBaseManager.get("genomic", "region", this.chromosome+":1-260000000","cytoband");
+};
+
+ChromosomeWidget.prototype._getPixelsbyBase = function(zoom){
+	return this.zoomLevels[zoom];
+};
+
+ChromosomeWidget.prototype._createPixelsbyBase = function(){
+	this.zoomLevels = new Array();
+	var pixelsByBase = 10;
+	for ( var i = 100; i >= -40; i-=5) {
+		this.zoomLevels[i] = pixelsByBase;
+		pixelsByBase = pixelsByBase / 2;
+	}
 };

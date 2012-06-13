@@ -166,7 +166,7 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.currentLine.setAttribute("width",(this.pixelBase < 2) ? 2:this.pixelBase);
 	this.onZoomChange.notify();
 };
-TrackSvgLayout.prototype.setChromosome = function(item){//item.chromosome, item.position, item.species
+TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
 	if(item.chromosome!=null){
 		this.chromosome = item.chromosome;
 	}

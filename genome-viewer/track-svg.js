@@ -315,6 +315,7 @@ TrackSvg.prototype.GeneRender = function(featureList){
 		}
 //		this.renderedArea[y].push({start: x, end: x+maxWidth-1});
 //		console.timeEnd("----------------------overlaping");
+
 	}
 };
 
