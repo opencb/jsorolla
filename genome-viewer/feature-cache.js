@@ -228,5 +228,5 @@ FeatureCache.prototype.remove = function(region){
 
 FeatureCache.prototype.clear = function(key){
 	this.size = 0;
-	this.cache= new Object();
+	this.cache = {};
 };

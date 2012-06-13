@@ -46,7 +46,6 @@ function TrackSvgLayout(parent, args) {
 	this.onChromosomeChange = new Event();
 	this.onMove = new Event();
 	
-	
 	this.svg = SVG.init(parent,{
 		"width":this.width,
 		"height":this.height
@@ -73,9 +72,10 @@ function TrackSvgLayout(parent, args) {
 		"y":this.height,
 		"width":this.pixelBase,
 		"height":this.height,
-		"stroke":"white",
+		"stroke-width":"2",
+		"stroke":"orangered",
 		"opacity":"0.5",
-		"fill":"green"
+		"fill":"orange"
 	});
 
 	if(this.parentLayout==null){
@@ -103,8 +103,46 @@ function TrackSvgLayout(parent, args) {
 		$(this.svg).mouseleave(function(event) {
 			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
-			$(this).focus();// without this, the keydown does not work
 		});
+		
+		
+		//keys
+		$(this.svg).keydown(function(e) {
+			var desp = 0;
+			switch (e.keyCode){
+				case 37://left arrow
+					if(e.ctrlKey){
+						desp = 100/_this.pixelBase;
+					}else{
+						desp = 10/_this.pixelBase;
+					}
+				break;
+				case 39://right arrow
+					if(e.ctrlKey){
+						desp = -100/_this.pixelBase;
+					}else{
+						desp = -10/_this.pixelBase;
+					}
+				break;
+				case 109://minus key
+					if(e.shiftKey){
+						console.log("zoom out");
+					}
+				break;
+				case 107://plus key
+					if(e.shiftKey){
+						console.log("zoom in");
+					}
+				break;
+			}
+			if(desp != 0){
+				_this.position -= desp;
+				_this.positionText.textContent = _this.position;
+				_this.onMove.notify(desp);
+			}
+		});
+		$(this.svg).focus();// without this, the keydown does not work
+		
 	}else{
 		_this.parentLayout.onMove.addEventListener(function(sender,desp){
 			_this.position -= desp;
@@ -112,58 +150,19 @@ function TrackSvgLayout(parent, args) {
 			_this.onMove.notify(desp);
 		});
 	}
-
-
-	//keys
-	$(this.svg).keydown(function(e) {
-		var desp = 0;
-		switch (e.keyCode){
-			case 37://left arrow
-				if(e.ctrlKey){
-					desp = 100/_this.pixelBase;
-				}else{
-					desp = 10/_this.pixelBase;
-				}
-			break;
-			case 39://right arrow
-				if(e.ctrlKey){
-					desp = -100/_this.pixelBase;
-				}else{
-					desp = -10/_this.pixelBase;
-				}
-			break;
-			case 109://minus key
-				if(e.shiftKey){
-					console.log("zoom out");
-				}
-			break;
-			case 107://plus key
-				if(e.shiftKey){
-					console.log("zoom in");
-				}
-			break;
-		}
-		if(desp != 0){
-			_this.position -= desp;
-			_this.positionText.textContent = _this.position;
-			_this.onMove.notify(desp);
-		}
-	});
-	$(this.svg).focus();// without this, the keydown does not work
-	
 };
 
 TrackSvgLayout.prototype.setHeight = function(height){
 	this.height=height;
 	this.svg.setAttribute("height",height);
-	this.currentLine.setAttribute("height",height);
-	
+	this.currentLine.setAttribute("height",parseInt(height)-26);
 };
+
 TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.zoom=zoom-this.zoomOffset;
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
-	this.currentLine.setAttribute("width",(this.pixelBase < 2) ? 2:this.pixelBase);
+	this.currentLine.setAttribute("width", this.pixelBase);
 	this.onZoomChange.notify();
 };
 TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
@@ -175,7 +174,7 @@ TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.po
 		this.positionText.textContent = this.position;
 	}
 	if(item.species!=null){
-		//check species and modify CellBaseAdapter
+		//check species and modify CellBaseAdapter, clean cache
 		for(i in this.trackDataList){
 			if(this.trackDataList[i].adapter instanceof CellBaseAdapter){
 				this.trackDataList[i].adapter.species = item.species;
@@ -213,7 +212,10 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackData.adapter.onGetData.addEventListener(function(sender,data){
 //		console.time("---drawFeatures");
+		_this.height -= trackSvg.getHeight();
 		trackSvg.featuresRender(data);
+		_this.setHeight(_this.height + trackSvg.getHeight());//siempre suma TODO
+		_this._redraw();
 //		console.timeEnd("---drawFeatures");
 	});
 	
@@ -318,7 +320,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	});
 	
 	
-	this.setHeight(this.height += trackSvg.getHeight());
+	this.setHeight(this.height + trackSvg.getHeight());
 //	this.height += trackSvg.getHeight();
 	
 //	this.svg.setAttribute("height",this.height);
@@ -388,8 +390,7 @@ TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 	var track = this.trackSvgList[i];
 	this.svg.removeChild(track.main);
 	
-	
-	this.setHeight(this.height -= track.getHeight());
+	this.setHeight(this.height - track.getHeight());
 	
 //	this.height -= track.getHeight();
 //	this.svg.setAttribute("height",this.height);
@@ -410,7 +411,7 @@ TrackSvgLayout.prototype._showTrack = function(trackMainId){
 	var track = this.trackSvgList[i];
 	this.svg.appendChild(track.main);
 	
-	this.setHeight(this.height += track.getHeight());
+	this.setHeight(this.height + track.getHeight());
 //	this.height += track.getHeight();
 //	this.svg.setAttribute("height",this.height);
 //	this.currentLine.setAttribute("y2",this.height);
