@@ -36,11 +36,26 @@ function ChromosomeWidget(parent, args) {
 };
 
 ChromosomeWidget.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
-	this.positionBox.setAttribute("x",item.position*this.pixelBase);
+	var needDraw = false;
+	if(item.species!=null){
+		this.species = item.species;
+		needDraw = true;
+	}
+	if(item.chromosome!=null){
+		this.chromosome = item.chromosome;
+		needDraw = true;
+	}
+	if(item.position!=null){
+		this.position = item.position;
+		this.positionBox.setAttribute("x",this.position*this.pixelBase+20);
+	}
+	if(needDraw){
+		$(this.svg).empty();
+		this.drawHorizontal();
+	}
 };
 
 ChromosomeWidget.prototype.setZoom = function(zoom){
-	console.log("setting zoom")
 	this.zoom=zoom;
 	this.tracksViewedRegion = this.width/this._getPixelsbyBase(this.zoom);
 	this.positionBox.setAttribute("width",this.tracksViewedRegion*this.pixelBase);
@@ -90,7 +105,7 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 		
 		$(group).click(function(event){
 			clickPosition = parseInt((event.clientX - offset)/_this.pixelBase);
-			
+			_this.positionBox.setAttribute("x",clickPosition*_this.pixelBase+20);
 			_this.onClick.notify(clickPosition);
 		});
 		
@@ -177,7 +192,8 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 			"y":2,
 			"width":_this.tracksViewedRegion*_this.pixelBase,
 			"height":_this.height-2,
-			"stroke":"black",
+			"stroke":"red",
+			"stroke-width":2,
 			"opacity":0.3,
  			"fill":"red"
  		});
