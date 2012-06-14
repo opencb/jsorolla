@@ -50,6 +50,15 @@ function TrackSvg(parent, args) {
 		}
 	}
 	
+	this.tooltip = document.createElement('div');
+	$(this.tooltip).css({
+		'position':'absolute',
+		'padding':'5px',
+		'border':'1px solid deepSkyBlue',
+		'background':'honeydew',
+		'z-index':'50000'
+	}).corner("5px");
+	
 	//flags
 	this.rendered = false;//svg structure already draw, svg elements can be used from now
 };
@@ -91,14 +100,14 @@ TrackSvg.prototype.draw = function(){
 		"height":22,
 		"stroke":"deepSkyBlue",
 		"stroke-width":"1",
-		"opacity":"0.2",
+		"opacity":"0.6",
 		"fill":"honeydew"
 	});
 	var text = SVG.addChild(titleGroup,"text",{
 		"x":4,
-		"y":16,
+		"y":14,
 		"font-size": 10,
-		"opacity":"0.6",
+		"opacity":"0.4",
 		"fill":"black"
 //		"transform":"rotate(-90 50,50)"
 	});
@@ -111,6 +120,7 @@ TrackSvg.prototype.draw = function(){
 		"y":3,
 		"width":17,
 		"height":17,
+		"opacity":"0.6",
 		"visibility":"hidden"
 	});
 	
@@ -120,6 +130,7 @@ TrackSvg.prototype.draw = function(){
 		"y":4,
 	    "width":16,
 	    "height":16,
+	    "opacity":"0.6",
 	    "visibility":"hidden"
 	});
 	
@@ -129,6 +140,7 @@ TrackSvg.prototype.draw = function(){
 		"y":4,
 		"width":16,
 		"height":16,
+		"opacity":"0.6",
 		"visibility":"hidden"
 	});
 	var hideRect = SVG.addChildImage(titleGroup,{
@@ -137,6 +149,7 @@ TrackSvg.prototype.draw = function(){
 		"y":4,
 		"width":16,
 		"height":16,
+		"opacity":"0.6",
 		"visibility":"hidden"
 	});
 	
@@ -172,7 +185,7 @@ TrackSvg.prototype.draw = function(){
 	$(titleGroup).mouseenter(function(event){
 //		over.setAttribute("opacity","0.1");
 		titlebar.setAttribute("width",74+textWidth);
-		titlebar.setAttribute("opacity","0.8");
+		titlebar.setAttribute("opacity","1.0");
 		text.setAttribute("opacity","1.0");
 		upRect.setAttribute("visibility","visible");
 		downRect.setAttribute("visibility","visible");
@@ -182,7 +195,7 @@ TrackSvg.prototype.draw = function(){
 	$(titleGroup).mouseleave(function(event){
 ////	over.setAttribute("opacity","0.0");
 		titlebar.setAttribute("width",textWidth);
-		titlebar.setAttribute("opacity","0.2");
+		titlebar.setAttribute("opacity","0.6");
 		text.setAttribute("opacity","0.4");
 		upRect.setAttribute("visibility","hidden");
 		downRect.setAttribute("visibility","hidden");
@@ -190,10 +203,35 @@ TrackSvg.prototype.draw = function(){
 		settingsRect.setAttribute("visibility","hidden");
 	});
 	
+	$(upRect).mouseover(function(event){
+		this.setAttribute("opacity","1.0");
+	});
+	$(downRect).mouseover(function(event){
+		this.setAttribute("opacity","1.0");
+	});
+	$(hideRect).mouseover(function(event){
+		this.setAttribute("opacity","1.0");
+	});
+	$(settingsRect).mouseover(function(event){
+		this.setAttribute("opacity","1.0");
+	});
+	$(upRect).mouseleave(function(event){
+		this.setAttribute("opacity","0.6");
+	});
+	$(downRect).mouseleave(function(event){
+		this.setAttribute("opacity","0.6");
+	});
+	$(hideRect).mouseleave(function(event){
+		this.setAttribute("opacity","0.6");
+	});
+	$(settingsRect).mouseleave(function(event){
+		this.setAttribute("opacity","0.6");
+	});
+	
 	//set initial values when hide due mouseleave event not fires when hideTrack from TrackSvgLayout
 	$(hideRect).click(function(event){
 		titlebar.setAttribute("width",textWidth);
-		titlebar.setAttribute("opacity","0.2");
+		titlebar.setAttribute("opacity","0.6");
 		text.setAttribute("opacity","0.4");
 		upRect.setAttribute("visibility","hidden");
 		downRect.setAttribute("visibility","hidden");
@@ -228,12 +266,13 @@ TrackSvg.prototype.draw = function(){
 //RENDERS for MultiFeatureRender, sequence, Snp, Histogram
 
 TrackSvg.prototype.MultiFeatureRender = function(featureList){
+	var _this = this;
 //	console.log(featureList.length);
 	
 	var middle = this.width/2;
 	
-	
-	for ( var i = 0; i < featureList.length; i++) {
+	for ( var i = 0, len = featureList.length; i < len; i++) {
+		var feature = featureList[i];
 		var width = (featureList[i].end-featureList[i].start)+1;
 		var color = "#a00000";
 		
@@ -248,7 +287,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 			color = "orangered";
 		}
 		width = width * this.pixelBase;
-
 		
 		var x = this.pixelPosition+middle-((this.position-featureList[i].start)*this.pixelBase);
 		
@@ -270,6 +308,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 			
 			if(enc){
 				var rect = SVG.addChild(this.features,"rect",{
+					"i":i,
 					"x":x,
 					"y":rowY,
 					"width":width,
@@ -282,6 +321,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				rect.textContent = featureList[i].externalName;
 				
 				var text = SVG.addChild(this.features,"text",{
+					"i":i,
 					"x":x,
 					"y":textY,
 					"font-size":10,
@@ -292,14 +332,29 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				text.textContent = featureList[i].externalName;
 				
 				//feature events
+				$(rect).mouseenter(function(event){
+					var feature = featureList[this.getAttribute("i")];
+					$(_this.tooltip).css({'left':event.pageX,'top':event.pageY,display:'block'}).html(_this.formatTooltip(feature));
+					$("body").append(_this.tooltip);
+				});
+				$(rect).mouseleave(function(event){
+					$(_this.tooltip).fadeOut(function (){ $(this).remove(); });
+				});
 				$(text).mouseenter(function(event){
-					//show tooltip
+					var feature = featureList[this.getAttribute("i")];
+					$(_this.tooltip).css({'left':event.pageX,'top':event.pageY,display:'block'}).html(_this.formatTooltip(feature));
+					$("body").append(_this.tooltip);
+				});
+				$(text).mouseleave(function(event){
+					$(_this.tooltip).fadeOut(function (){ $(this).remove(); });
 				});
 				$(text).click(function(event){
-					console.log(this.textContent);
+					var feature = featureList[this.getAttribute("i")];
+					console.log(feature);
 				});
 				$(rect).click(function(event){
-					console.log(this.textContent);
+					var feature = featureList[this.getAttribute("i")];
+					console.log(feature);
 				});
 				break;
 			}
@@ -358,6 +413,13 @@ TrackSvg.prototype.SnpRender = function(featureList){
 
 TrackSvg.prototype.HistogramRender = function(featureList){
 	
+};
+
+TrackSvg.prototype.formatTooltip = function(feature){
+	var str = 'start: <span class="emph">'+feature.start+'</span><br>'+
+	'end:  <span class="emph">'+feature.end+'</span><br>'+
+	'length: <span class="info">'+(feature.end-feature.start+1)+'</span><br>';
+	return str;
 };
 
 //TrackSvg.prototype.checkAvailableArea = function(featureStart, featureEnd, targetY){

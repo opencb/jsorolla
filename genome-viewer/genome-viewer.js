@@ -108,6 +108,7 @@ GenomeViewer.prototype.render = function(){
 	container.insert(3, this._drawRegionPanel().hide());//rendered after trackspanel but inserted with minor index
 	container.insert(5, this._getBottomBar());
 	
+	Ext.getCmp(this.id+"regionPanel").show();
 	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
 	Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
 	Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
@@ -683,7 +684,7 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 		autoScroll:true,
 		margin:'0 0 1 0',
 		cls:'border-bot panel-border-top',
-		html: '<div height=2000px; overflow-y="scroll"; id="'+this.id+'regionSvg" style="margin-top:2px"></div>',
+		html: '<div id="'+this.id+'regionSvg" style="margin-top:2px"></div>',
 		listeners:{
 			afterrender:function(){
 				var div = $('#'+_this.id+"regionSvg")[0];
@@ -848,7 +849,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 		title:'Detailed Information',
 		autoScroll:true,
 		flex: 1,  
-		html:'<div height=2000px; overflow-y="scroll"; id = "'+this.id+'tracksSvg"></div>',
+		html:'<div id = "'+this.id+'tracksSvg"></div>',
 		listeners:{
 			afterrender:function(){
 				var div = $('#'+_this.id+"tracksSvg")[0];
