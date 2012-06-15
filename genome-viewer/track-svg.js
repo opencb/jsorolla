@@ -385,7 +385,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 		color["C"] = "#B0C4DE";
 		color["G"] = "#FFEC8B";
 		color["T"] = "#E066FF";
-		color["N"] = "#aaaaaa";
+		color["N"] = "#AAAAAA";
 		
 		var start = featureList[0].start;
 		

@@ -51,7 +51,7 @@ VCFDataAdapter.prototype.parse = function(data){
 						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5]
 				};
 
-				this.featureCache.put(feature);
+				this.featureCache.putFeatures(feature);
 			}
 		}
 	}

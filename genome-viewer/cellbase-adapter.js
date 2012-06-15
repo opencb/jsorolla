@@ -63,8 +63,8 @@ CellBaseAdapter.prototype.getData = function(region){
 	//CellBase data process
 	cellBaseManager.success.addEventListener(function(sender,data){
 		var queryList = [];
-		console.log("query length "+data.query.length);
-		console.log("data length "+data.result.length);
+//		console.log("query length "+data.query.length);
+//		console.log("data length "+data.result.length);
 		for(var i = 0; i < data.query.length; i++) {
 			var splitDots = data.query[i].split(":");
 			var splitDash = splitDots[1].split("-");
