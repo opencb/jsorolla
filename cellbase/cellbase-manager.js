@@ -42,6 +42,8 @@ function CellBaseManager(species, args) {
 	this.originalQuery = "";
 	this.resource = "";
 
+	this.params = {};
+	
 	this.async = true;
 	
 	//Queue of queries
@@ -91,7 +93,10 @@ function CellBaseManager(species, args) {
 
 	};
 
-	this.get = function(category, subcategory, query, resource, callbackFunction) {
+	this.get = function(category, subcategory, query, resource, params, callbackFunction) {
+		if(params!=null){
+			this.params = params;
+		}
 		if(query instanceof Array){
 				this.originalQuery = query;
 				this.batching = true;
@@ -172,13 +177,12 @@ function CellBaseManager(species, args) {
 
 	this._callServer = function(url, batchID, callbackFunction) {
 		var _this = this;
-		var params  = {
-				of : this.contentformat,
-				outputcompress : this.outputcompress
-			};
+		
+		this.params["of"] = this.contentformat;
+		this.params["outputcompress"] = this.outputcompress;
 
 //			jQuery.support.cors = true;
-			url = url + this.getQuery(params,url);
+			url = url + this.getQuery(this.params,url);
 			$.ajax({
 				type : "GET",
 				url : url,

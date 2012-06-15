@@ -49,7 +49,7 @@ FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion){
 			this.cache[key].push(featureDataList);
 		}
 	}else{
-		for(var index in featureDataList) {
+		for(var index = 0, len = featureDataList.length; index<len; index++) {
 			feature = featureDataList[index];
 			if(this.gzip) {
 				this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
@@ -66,7 +66,7 @@ FeatureCache.prototype.getFeaturesByChunk = function(key){
 	var feature;
 	
 	if(this.cache[key] != null) {
-		for ( var i = 0; i < this.cache[key].length; i++) {
+		for ( var i = 0, len = this.cache[key].length; i < len; i++) {
 			if(this.gzip) {
 				feature = JSON.parse(RawDeflate.inflate(this.cache[key][i]));
 			}else{
@@ -108,7 +108,7 @@ FeatureCache.prototype.putRegion = function(featureDataList,region){
 		featureDataList = [featureData];
 	}
 	
-	for(var index in featureDataList) {
+	for(var index = 0, len = featureDataList.length; index<len; index++) {
 		feature = featureDataList[index];
 		firstChunk = this._getChunk(feature.start);
 		lastChunk = this._getChunk(feature.end);
@@ -155,7 +155,7 @@ FeatureCache.prototype.getFeaturesByRegion = function(region){
 	for(var i=firstChunk; i<=lastChunk; i++){
 //		console.log("Chunk: "+i)
 		key = region.chromosome+":"+i;
-		for ( var j = 0; j < this.cache[key].length; j++) {
+		for ( var j = 0, len = this.cache[key].length; j < len; j++) {
 			if(this.gzip) {
 				feature = JSON.parse(RawDeflate.inflate(this.cache[key][j]));
 			}else{
@@ -194,7 +194,7 @@ FeatureCache.prototype.histogram = function(region, interval){
 			var key = region.chromosome+":"+j;
 			console.log(key);
 			console.log(this.cache[key]);
-			for ( var k = 0; k < this.cache[key].length; k++) {
+			for ( var k = 0, len = this.cache[key].length; k < len; k++) {
 				if(this.gzip) {
 					feature = JSON.parse(RawDeflate.inflate(this.cache[key][k]));
 				}else{

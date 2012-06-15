@@ -155,11 +155,12 @@ function TrackSvgLayout(parent, args) {
 TrackSvgLayout.prototype.setHeight = function(height){
 	this.height=height;
 	this.svg.setAttribute("height",height);
-	this.currentLine.setAttribute("height",parseInt(height)-26);
+	this.currentLine.setAttribute("height",parseInt(height)-25);//25 es el margen donde esta el texto de la posicion
 };
-
 TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.zoom=zoom-this.zoomOffset;
+//	console.log(this.zoom);
+//	console.log(this._getPixelsbyBase(this.zoom));
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.currentLine.setAttribute("width", this.pixelBase);
@@ -244,7 +245,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		callEnd = parseInt(_this.position + _this.halfVirtualBase);
 		
 		// check if track is visible in this zoom
-		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
+		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
 			virtualStart = callStart;
 			vitualEnd = callEnd;
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
@@ -321,10 +322,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	
 	this.setHeight(this.height + trackSvg.getHeight());
-//	this.height += trackSvg.getHeight();
-	
-//	this.svg.setAttribute("height",this.height);
-//	this.currentLine.setAttribute("y2",this.height);
 };
 
 TrackSvgLayout.prototype._redraw = function(){
@@ -392,10 +389,6 @@ TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 	
 	this.setHeight(this.height - track.getHeight());
 	
-//	this.height -= track.getHeight();
-//	this.svg.setAttribute("height",this.height);
-//	this.currentLine.setAttribute("y2",this.height);
-	
 	this._redraw();
 	
 	var _this= this;
@@ -412,9 +405,6 @@ TrackSvgLayout.prototype._showTrack = function(trackMainId){
 	this.svg.appendChild(track.main);
 	
 	this.setHeight(this.height + track.getHeight());
-//	this.height += track.getHeight();
-//	this.svg.setAttribute("height",this.height);
-//	this.currentLine.setAttribute("y2",this.height);
 	
 	this._redraw();
 };

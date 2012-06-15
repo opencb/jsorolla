@@ -113,7 +113,7 @@ CellBaseAdapter.prototype.getData = function(region){
 			}
 		}
 //		console.log(querys);
-		cellBaseManager.get(this.category, this.subCategory, querys, this.resource);
+		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, {interval:null});
 	}
 };
 

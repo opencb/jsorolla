@@ -24,6 +24,7 @@ TooltipPanel.prototype.getPanel = function(item){
 	var _this=this;
 	if (this.panel == null){
 		this.panel = Ext.create('Ext.tip.Tip',{
+			id:this.id+"panel",
 			html:this._getItemInfo(item)
 		});
 	}
@@ -35,64 +36,68 @@ TooltipPanel.prototype.destroy = function(){
 };
 
 TooltipPanel.prototype._getItemInfo = function(item){
-//	console.log(item);
 	var str = "";
 	
-	if(item instanceof GenericFeatureFormatter){
-		str = 
+	str = 
 		'start: <span class="emph">'+item.start+'</span><br>'+
 		'end:  <span class="emph">'+item.end+'</span><br>'+
 		'length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
-	}
 	
-	if(item instanceof BEDFeatureFormatter){
-		str = "";
-		if(item.score!=null){
-			str+='Score: <span class="ssel">'+item.score+'</span> &nbsp; &nbsp';
-		}
-		if(item.strand!=null){
-			str+='Strand:<span class="ok">'+item.strand+'</span><br>';
-		}
-		str+= 'Pos: <span class="emph">'+item.chromosome+':'+item.start+"-"+item.end+'</span><br>';
-		str+= 'Length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
-		if(item.thickStart != null && item.thickEnd != null){
-			str+='ThickPos: <span class="emph">'+item.thickStart+"-"+item.thickEnd+'</span><br>';
-			str+='ThickLength: <span class="info">'+(item.thickEnd-item.thickStart+1)+'</span><br>';
-		}
-		if(item.blockCount!=null){
-			str+='BlockCount: <span class="ok">'+item.blockCount+'</span><br>';
-		}
-		if(item.blockSizes!=null){
-			str+='BlockSizes: <span class="ok">'+item.blockSizes+'</span><br>';
-		}
-		if(item.blockStarts!=null){
-			str+='BlockStarts: <span class="ok">'+item.blockStarts+'</span><br>';
-		}
-	}
-	
-	if(item instanceof GeneFeatureFormatter){
-		str += '<span class="ok">'+item.getLabel()+'</span><br>';
-	}
-	
-	if(item instanceof GeneFeatureFormatter || 
-	   item instanceof TranscriptFeatureFormatter || 
-	   item instanceof ExonFeatureFormatter || 
-	   item instanceof SNPFeatureFormatter|| 
-	   item instanceof TfbsFeatureFormatter ||
-	   item instanceof MutationFeatureFormatter ||
-	   item instanceof CpgIslandFeatureFormatter ||
-	   item instanceof StructuralVariationFeatureFormatter ||
-	   item instanceof DASFeatureFormatter ||
-	   item instanceof MiRNAFeatureFormatter
-	){
-		str += '<span class="ssel">'+item.getName()+'</span><br>'+
-		'start: <span class="emph">'+item.start+'</span><br>'+
-		'end:  <span class="emph">'+item.end+'</span><br>'+
-		'length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
-		
-	}
-	if(item instanceof VCFFeatureFormatter){
-		str = '<span class="ssel">'+item.getName()+'</span><br>';
-	}
+//	if(item instanceof GenericFeatureFormatter){
+//		str = 
+//		'start: <span class="emph">'+item.start+'</span><br>'+
+//		'end:  <span class="emph">'+item.end+'</span><br>'+
+//		'length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
+//	}
+//	
+//	if(item instanceof BEDFeatureFormatter){
+//		str = "";
+//		if(item.score!=null){
+//			str+='Score: <span class="ssel">'+item.score+'</span> &nbsp; &nbsp';
+//		}
+//		if(item.strand!=null){
+//			str+='Strand:<span class="ok">'+item.strand+'</span><br>';
+//		}
+//		str+= 'Pos: <span class="emph">'+item.chromosome+':'+item.start+"-"+item.end+'</span><br>';
+//		str+= 'Length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
+//		if(item.thickStart != null && item.thickEnd != null){
+//			str+='ThickPos: <span class="emph">'+item.thickStart+"-"+item.thickEnd+'</span><br>';
+//			str+='ThickLength: <span class="info">'+(item.thickEnd-item.thickStart+1)+'</span><br>';
+//		}
+//		if(item.blockCount!=null){
+//			str+='BlockCount: <span class="ok">'+item.blockCount+'</span><br>';
+//		}
+//		if(item.blockSizes!=null){
+//			str+='BlockSizes: <span class="ok">'+item.blockSizes+'</span><br>';
+//		}
+//		if(item.blockStarts!=null){
+//			str+='BlockStarts: <span class="ok">'+item.blockStarts+'</span><br>';
+//		}
+//	}
+//	
+//	if(item instanceof GeneFeatureFormatter){
+//		str += '<span class="ok">'+item.getLabel()+'</span><br>';
+//	}
+//	
+//	if(item instanceof GeneFeatureFormatter || 
+//	   item instanceof TranscriptFeatureFormatter || 
+//	   item instanceof ExonFeatureFormatter || 
+//	   item instanceof SNPFeatureFormatter|| 
+//	   item instanceof TfbsFeatureFormatter ||
+//	   item instanceof MutationFeatureFormatter ||
+//	   item instanceof CpgIslandFeatureFormatter ||
+//	   item instanceof StructuralVariationFeatureFormatter ||
+//	   item instanceof DASFeatureFormatter ||
+//	   item instanceof MiRNAFeatureFormatter
+//	){
+//		str += '<span class="ssel">'+item.getName()+'</span><br>'+
+//		'start: <span class="emph">'+item.start+'</span><br>'+
+//		'end:  <span class="emph">'+item.end+'</span><br>'+
+//		'length: <span class="info">'+(item.end-item.start+1)+'</span><br>';
+//		
+//	}
+//	if(item instanceof VCFFeatureFormatter){
+//		str = '<span class="ssel">'+item.getName()+'</span><br>';
+//	}
 	return str;
 };
