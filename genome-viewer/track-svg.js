@@ -307,7 +307,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 			textY += rowHeight;
 		}
 	}
-	this.setHeight(Object.keys(this.renderedArea).length*24+/*margen entre tracks*/15);
+	this.setHeight(Object.keys(this.renderedArea).length*24+/*margen entre tracks*/22);
 };
 
 TrackSvg.prototype.SequenceRender = function(featureList){
