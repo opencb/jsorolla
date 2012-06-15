@@ -412,7 +412,14 @@ TrackSvg.prototype.SnpRender = function(featureList){
 };
 
 TrackSvg.prototype.HistogramRender = function(featureList){
+//	{"start":1,"end":409601,"interval":0,"absolute":0,"value":0.0}
+	var middle = this.width/2;
 	
+	for ( var i = 0, len = featureList.length; i < len; i++) {
+		var feature = featureList[i];
+		var width = (featureList[i].end-featureList[i].start)+1;
+		console.log(width);
+	}
 };
 
 TrackSvg.prototype.formatTooltip = function(feature){
