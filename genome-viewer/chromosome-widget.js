@@ -2,9 +2,6 @@ function ChromosomeWidget(parent, args) {
 	
 	this.id = Math.round(Math.random()*10000000);
 	if(args != null){
-		if(args.type != null){
-			this.type = args.type;
-		}
 		if(args.width != null){
 			this.width = args.width;
 		}
@@ -41,6 +38,7 @@ function ChromosomeWidget(parent, args) {
 
 ChromosomeWidget.prototype.drawKaryotype = function(){
 	var _this = this;
+	this.type = "karyotype";
 
 	var sortfunction = function(a, b) {
 		var IsNumber = true;
@@ -63,7 +61,6 @@ ChromosomeWidget.prototype.drawKaryotype = function(){
  		
  		var cellBaseManager2 = new CellBaseManager(_this.species);
  		cellBaseManager2.success.addEventListener(function(sender,data2){
- 			//calcular chromosoma mas largo
  			var biggerChr = 0;
  			for(var i=0, len=chromosomeList.length; i<len; i++){
  				var size = data2.result[i][data2.result[i].length-1].end;
@@ -87,18 +84,13 @@ ChromosomeWidget.prototype.drawKaryotype = function(){
  					for ( var k=0, len=chromosomeList.length; k<len; k++) {
 						if(event.clientX > _this.chrOffsetX[chromosomeList[k]]) chrClicked = chromosomeList[k];
 					}
- 					var clickPosition = parseInt((event.offsetY - _this.chrOffsetY[chrClicked])/_this.pixelBase);
-// 					console.log(event.offsetY - _this.chrOffsetY[chrClicked])
-// 					console.log("y: "+_this.chrOffsetY[chrClicked])
-// 					console.log("click: "+event.offsetY)
-// 					console.log("Click position: "+clickPosition)
-// 					console.log(_this.chrOffsetX[chrClicked])
  					
- 					_this.positionBox.setAttribute("x1",_this.chrOffsetX[chrClicked]-9);
- 					_this.positionBox.setAttribute("x2",_this.chrOffsetX[chrClicked]+22);
+ 					_this.positionBox.setAttribute("x1",_this.chrOffsetX[chrClicked]-10);
+ 					_this.positionBox.setAttribute("x2",_this.chrOffsetX[chrClicked]+23);
  					_this.positionBox.setAttribute("y1",event.offsetY);
  					_this.positionBox.setAttribute("y2",event.offsetY);
  					
+ 					var clickPosition = parseInt((event.offsetY - _this.chrOffsetY[chrClicked])/_this.pixelBase);
  					_this.chromosome = chrClicked;
  					_this.onClick.notify({chromosome:chrClicked, position:clickPosition});
  				});
@@ -150,34 +142,18 @@ ChromosomeWidget.prototype.drawKaryotype = function(){
  				});
  				text.textContent = chr;
  				
- 				if(chr == _this.chromosome){
-// 					var px1=x-15, px2=x-1, py1=pointerPosition+yOffset, py2=py1-5, py3=py1+5;
-// 					var points = px1+","+py2+" "+px2+","+py1+" "+px1+","+py3+" "+px1+","+py1;
-// 					_this.positionBox = SVG.addChild(_this.svg,"polyline",{
-//// 			 			"x":x-9,
-//// 						"y":pointerPosition + yOffset,
-//// 						"width":7,
-//// 						"height":3,
-// 						"points":points,
-//// 						"stroke":"orangered",
-//// 						"stroke-width":2,
-//// 						"opacity":0.3,
-// 			 			"fill":"orange"
-// 			 		});
- 					
- 					_this.positionBox = SVG.addChild(_this.svg,"line",{
- 			 			"x1":x-9,
- 						"y1":pointerPosition + _this.chrOffsetY[_this.chromosome],
- 						"x2":x+22,
- 						"y2":pointerPosition + _this.chrOffsetY[_this.chromosome],
- 						"stroke":"orange",
- 						"stroke-width":2
- 					});
- 				}
- 				
  				_this.chrOffsetX[chr] = x;
  				x += xOffset;
  			}
+ 			_this.positionBox = SVG.addChild(_this.svg,"line",{
+ 				"x1":_this.chrOffsetX[_this.chromosome]-10,
+ 				"y1":pointerPosition + _this.chrOffsetY[_this.chromosome],
+ 				"x2":_this.chrOffsetX[_this.chromosome]+23,
+ 				"y2":pointerPosition + _this.chrOffsetY[_this.chromosome],
+ 				"stroke":"orangered",
+ 				"stroke-width":2,
+ 				"opacity":0.5
+ 			});
  		});
  		cellBaseManager2.get("genomic", "region", chromosomeList.toString(),"cytoband");
  	});
@@ -185,7 +161,7 @@ ChromosomeWidget.prototype.drawKaryotype = function(){
 	
 };
 
-ChromosomeWidget.prototype.drawHorizontal = function(){
+ChromosomeWidget.prototype.drawChromosome = function(){
 	var _this = this;
 
 	var cellBaseManager = new CellBaseManager(this.species);
@@ -208,7 +184,6 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 		});
 		
 		for (var i = 0; i < data.result[0].length; i++) {
-//			console.log(data.result[0][i])
 			var width = _this.pixelBase * (data.result[0][i].end - data.result[0][i].start);
 			var height = 18;
 			var color = _this.colors[data.result[0][i].stain];
@@ -283,8 +258,8 @@ ChromosomeWidget.prototype.setLocation = function(item){//item.chromosome, item.
 		this.chromosome = item.chromosome;
 		
 		if(this.type == "karyotype" && item.species==null){
-			this.positionBox.setAttribute("x1",this.chrOffsetX[this.chromosome]-9);
-			this.positionBox.setAttribute("x2",this.chrOffsetX[this.chromosome]+22);
+			this.positionBox.setAttribute("x1",this.chrOffsetX[this.chromosome]-10);
+			this.positionBox.setAttribute("x2",this.chrOffsetX[this.chromosome]+23);
 		}else{
 			needDraw = true;
 		}
@@ -308,7 +283,7 @@ ChromosomeWidget.prototype.setLocation = function(item){//item.chromosome, item.
 		if(this.type == "karyotype"){
 			this.drawKaryotype();
 		}else{
-			this.drawHorizontal();
+			this.drawChromosome();
 		}
 	}
 };

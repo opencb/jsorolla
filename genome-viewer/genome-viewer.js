@@ -584,7 +584,6 @@ GenomeViewer.prototype._drawKaryotypePanel = function() {
 			afterrender:function(){
 				var div = $('#'+_this.id+"karyotypeSvg")[0];
 				_this.karyotypePanel = new ChromosomeWidget(div,{
-					type:"karyotype",
 					width:_this.width,
 					height:168,
 					species:_this.species,
@@ -686,8 +685,7 @@ GenomeViewer.prototype._drawChromosomePanel = function() {
 				_this.chromosomeWidget.onClick.addEventListener(function(sender,data){
 					_this.onLocationChange.notify({position:data,sender:"ChromosomeWidget"});
 				});
-				_this.chromosomeWidget.drawHorizontal();
-				
+				_this.chromosomeWidget.drawChromosome();
 			}
 		}
 	});
@@ -952,13 +950,21 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 //				});
 				
 				
-//					var track2 = new TrackData("vcf",{
-//						adapter: new VCFDataAdapter(new UrlDataSource("http://bioinfo.cipf.es/apps-beta/examples/example.vcf"),{
-//							async: false,
-//							gzip: false
-//						})
-//					});
-//					_this.trackSvgLayout.addTrack(track2,{id:"vcf",type:"vcf"});
+				var vcfTrack = new TrackData("vcf",{
+					adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
+						async: false,
+						gzip: false
+					})
+				});
+				_this.trackSvgLayout.addTrack(vcfTrack,{
+					id:"vcf",
+					type:"vcf",
+					histogramRender:null,
+					featuresRender:"MultiFeatureRender",
+					histogramZoom:"",
+					height:50,
+					visibleRange:{start:0,end:100}
+				});
 				
 //					var track3 = new TrackData("gff",{
 //						adapter: new GFFDataAdapter(new UrlDataSource("http://bioinfo.cipf.es/apps-beta/examples/example.gff"),{

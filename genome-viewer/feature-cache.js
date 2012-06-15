@@ -125,25 +125,33 @@ FeatureCache.prototype.putRegion = function(featureDataList,region){
 	}
 };
 
-//FeatureCache.prototype.put2 = function(featureDataList){
-//	var feature, key, firstChunk,lastChunk;
-//	
-//	for(var index in featureDataList) {
-//		feature = featureDataList[index];
-//		firstChunk = this._getChunk(feature.start);
-//		lastChunk = this._getChunk(feature.end);
-//		for(var i=firstChunk; i<=lastChunk; i++) {
-//			key = feature.chromosome+":"+i;
-//			if(this.cache[key] != null){
-//				if(this.gzip) {
-//					this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
-//				}else{
-//					this.cache[key].push(feature);
-//				}
-//			}
-//		}
-//	}
-//};
+FeatureCache.prototype.putFeatures = function(featureDataList){
+	var feature, key, firstChunk, lastChunk;
+
+	//Check if is a single object
+	if(featureDataList.constructor != Array){
+		var featureData = featureDataList;
+		featureDataList = [featureData];
+	}
+
+	for(var index = 0, len = featureDataList.length; index<len; index++) {
+		feature = featureDataList[index];
+		firstChunk = this._getChunk(feature.start);
+		lastChunk = this._getChunk(feature.end);
+		for(var i=firstChunk; i<=lastChunk; i++) {
+			key = feature.chromosome+":"+i;
+			if(this.cache[key]==null){
+				this.cache[key] = [];
+			}
+			if(this.gzip) {
+				this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
+			}else{
+				this.cache[key].push(feature);
+			}
+
+		}
+	}
+};
 
 
 
@@ -155,18 +163,21 @@ FeatureCache.prototype.getFeaturesByRegion = function(region){
 	for(var i=firstChunk; i<=lastChunk; i++){
 //		console.log("Chunk: "+i)
 		key = region.chromosome+":"+i;
-		for ( var j = 0, len = this.cache[key].length; j < len; j++) {
-			if(this.gzip) {
-				feature = JSON.parse(RawDeflate.inflate(this.cache[key][j]));
-			}else{
-				feature = this.cache[key][j];
-			}
-			if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
-				// we only get those features in the region
-				if(feature.end > region.start && feature.start < region.end){
-					features.push(feature);
+		// check if this key exists in cache (features from files)
+		if(this.cache[key] != null){
+			for ( var j = 0, len = this.cache[key].length; j < len; j++) {
+				if(this.gzip) {
+					feature = JSON.parse(RawDeflate.inflate(this.cache[key][j]));
+				}else{
+					feature = this.cache[key][j];
 				}
-				this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
+				if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
+					// we only get those features in the region
+					if(feature.end > region.start && feature.start < region.end){
+						features.push(feature);
+					}
+					this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
+				}
 			}
 		}
 	}
