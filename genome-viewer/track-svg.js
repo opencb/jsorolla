@@ -346,7 +346,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 					$("body").append(_this.tooltip);
 				});
 				$(text).mouseleave(function(event){
-					$(_this.tooltip).fadeOut(function (){ $(this).remove(); });
+					$(_this.tooltip).fadeOut('fast',function (){ $(this).remove(); });
 				});
 				$(text).click(function(event){
 					var feature = featureList[this.getAttribute("i")];
