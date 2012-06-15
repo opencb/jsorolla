@@ -213,7 +213,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackData.adapter.onGetData.addEventListener(function(sender,data){
 //		console.time("---drawFeatures");
-		_this.height -= trackSvg.getHeight();
+		_this.setHeight(_this.height - trackSvg.getHeight());
 		trackSvg.featuresRender(data);
 		_this.setHeight(_this.height + trackSvg.getHeight());//siempre suma TODO
 		_this._redraw();
@@ -236,6 +236,16 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	this.onZoomChange.addEventListener(function(sender,data){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
+		var interval = 5/_this.pixelBase;
+		
+		var histogram;
+		if(_this.zoom <= trackSvg.histogramZoom){
+			trackSvg.featuresRender = trackSvg.HistogramRender;
+			histogram=true;
+		}else{
+			trackSvg.featuresRender = trackSvg.defaultRender;
+			histogram=false;
+		}
 		
 		$(trackSvg.features).empty();
 		trackData.adapter.featureCache.featuresAdded = {};
@@ -248,7 +258,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
 			virtualStart = callStart;
 			vitualEnd = callEnd;
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
+			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:histogram, interval:interval});
 		}
 	});
 

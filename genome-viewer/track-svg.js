@@ -13,6 +13,8 @@ function TrackSvg(parent, args) {
 	this.lienzo=7000000;//mesa
 	this.pixelPosition=this.lienzo/2;
 	
+	this.histogramZoom = -1000;//no histogram by default 
+	
 	if (args != null){
 		if(args.title != null){
 			this.title = args.title;
@@ -41,12 +43,16 @@ function TrackSvg(parent, args) {
 		if(args.type != null){
 			this.type = args.type;
 		}
+		if(args.histogramZoom != null){
+			this.histogramZoom = args.histogramZoom;
+		}
 		if(args.featuresRender != null){
 			switch(args.featuresRender){
 				case "MultiFeatureRender": this.featuresRender = this.MultiFeatureRender; break;
 				case "SequenceRender": this.featuresRender = this.SequenceRender; break;
-				default: this.featuresRender = this.GeneRender;
+				default: this.featuresRender = this.MultiFeatureRender;
 			}
+			this.defaultRender = this.featuresRender;
 		}
 	}
 	
@@ -417,8 +423,9 @@ TrackSvg.prototype.HistogramRender = function(featureList){
 	
 	for ( var i = 0, len = featureList.length; i < len; i++) {
 		var feature = featureList[i];
-		var width = (featureList[i].end-featureList[i].start)+1;
-		console.log(width);
+		var width = (featureList[i].end-featureList[i].start);
+		console.log(feature[0]);
+		break;
 	}
 };
 

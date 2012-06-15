@@ -736,7 +736,7 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 					type:"gene",
 					histogramRender:null,
 					featuresRender:"MultiFeatureRender",
-					histogramZoom:"",
+//					histogramZoom:"",
 					height:150,
 					visibleRange:{start:0,end:100}
 				});
@@ -869,7 +869,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 		id:this.id+"tracksPanel",
 		title:'Detailed Information',
 		autoScroll:true,
-		flex: 1,  
+		flex: 1,
 		html:'<div id = "'+this.id+'tracksSvg"></div>',
 		listeners:{
 			afterrender:function(){
@@ -901,7 +901,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					id:"sequence",
 					type:"sequence",
 					featuresRender:"SequenceRender",
-					histogramZoom:"",
+//					histogramZoom:"",
 					height:50,
 					visibleRange:{start:100,end:100}
 				});
@@ -924,7 +924,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					type:"gene",
 					histogramRender:null,
 					featuresRender:"MultiFeatureRender",
-					histogramZoom:"",
+//					histogramZoom:50,
 					height:24,
 					visibleRange:{start:0,end:100}
 				});

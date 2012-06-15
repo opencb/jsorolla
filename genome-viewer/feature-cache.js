@@ -91,7 +91,6 @@ FeatureCache.prototype.getFeaturesByChunk = function(key){
 
 FeatureCache.prototype.putRegion = function(featureDataList,region){
 	var key,firstChunk,lastChunk,feature;
-	
 	//initialize region
 	firstChunk = this._getChunk(region.start);
 	lastChunk = this._getChunk(region.end);

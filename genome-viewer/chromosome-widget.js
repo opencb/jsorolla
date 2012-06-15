@@ -170,9 +170,10 @@ ChromosomeWidget.prototype.drawKaryotype = function(){
  						"y1":pointerPosition + _this.chrOffsetY[_this.chromosome],
  						"x2":x+22,
  						"y2":pointerPosition + _this.chrOffsetY[_this.chromosome],
- 						"stroke":"orange",
+ 						"stroke":"orangered",
+ 						"opacity":0.6,
  						"stroke-width":2
- 					});
+ 					},0);
  				}
  				
  				_this.chrOffsetX[chr] = x;
@@ -266,7 +267,7 @@ ChromosomeWidget.prototype.drawHorizontal = function(){
 			"height":_this.height-2,
 			"stroke":"orangered",
 			"stroke-width":2,
-			"opacity":0.3,
+			"opacity":0.5,
  			"fill":"orange"
  		});
  	});
