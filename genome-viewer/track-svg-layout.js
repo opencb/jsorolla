@@ -60,28 +60,33 @@ function TrackSvgLayout(parent, args) {
 		"font-size":10,
 		"fill":"green"
 	});
-	this.positionText.textContent = this.position;
+	this.positionText.textContent = this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 
 	this.viewNtsArrow = SVG.addChild(this.svg,"rect",{
-		"x":12,
-		"y":3,
-		"width":this.width-12,
-		"height":8,
-//		"stroke-width":"2",
-//		"stroke":"orangered",
-		"opacity":"0.2",
+		"x":24,
+		"y":2,
+		"width":this.width-48,
+		"height":10,
+		"opacity":"0.7",
 		"fill":"grey"
 	});
 	this.viewNtsArrowLeft = SVG.addChild(this.svg,"polyline",{
-		"points":"0,7 12,0 12,14",
-		"opacity":"0.4",
+		"points":"0,7 24,0 24,14",
+		"opacity":"0.7",
 		"fill":"grey"
 	});
 	this.viewNtsArrowRight = SVG.addChild(this.svg,"polyline",{
-		"points":this.width+",7 "+this.width-24+",0 "+this.width-24+",14",
-		"opacity":"0.4",
+		"points":this.width+",7 "+(this.width-24)+",0 "+(this.width-24)+",14",
+		"opacity":"0.7",
 		"fill":"grey"
 	});
+	this.viewNtsText = SVG.addChild(this.svg,"text",{
+		"x":mid-30,
+		"y":11,
+		"font-size":10,
+		"fill":"white"
+	});
+	this.viewNtsText.textContent = "Viewing "+Math.ceil((this.width - 17)/this.pixelBase)+" nts";
 	
 //	this.currentLine = SVG.addChild(this.svg,"line",{
 //			"x1":mid,
@@ -105,8 +110,8 @@ function TrackSvgLayout(parent, args) {
 
 	if(this.parentLayout==null){
 		//Main svg  movement events
+//		this.svg.setAttribute("cursor", "move");
 		$(this.svg).mousedown(function(event) {
-			this.setAttribute("cursor", "move");
 			var downX = event.clientX;
 			var lastX = 0;
 			$(this).mousemove(function(event){
@@ -114,21 +119,21 @@ function TrackSvgLayout(parent, args) {
 				if(newX!=lastX){
 					var desp = lastX-newX;
 					_this.position -= desp;
-					_this.positionText.textContent = _this.position;
+					_this.positionText.textContent = _this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 					_this.onMove.notify(desp);
 					lastX = newX;
 				}
 			});
 		});
 		$(this.svg).mouseup(function(event) {
-			this.setAttribute("cursor", "default");
+//			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
 			$(this).focus();// without this, the keydown does not work
 		});
-		$(this.svg).mouseleave(function(event) {
-			this.setAttribute("cursor", "default");
-			$(this).off('mousemove');
-		});
+//		$(this.svg).mouseleave(function(event) {
+////			this.setAttribute("cursor", "default");
+//			$(this).off('mousemove');
+//		});
 		
 		
 		//keys
@@ -171,7 +176,7 @@ function TrackSvgLayout(parent, args) {
 	}else{
 		_this.parentLayout.onMove.addEventListener(function(sender,desp){
 			_this.position -= desp;
-			_this.positionText.textContent = _this.position;
+			_this.positionText.textContent = _this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 			_this.onMove.notify(desp);
 		});
 	}
@@ -238,9 +243,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackData.adapter.onGetData.addEventListener(function(sender,data){
 //		console.time("---drawFeatures");
-		_this.height -= trackSvg.getHeight();
+		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw 
 		trackSvg.featuresRender(data);
-		_this.setHeight(_this.height + trackSvg.getHeight());//siempre suma TODO
+		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
 //		console.timeEnd("---drawFeatures");
 	});
@@ -256,11 +261,24 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd});
 	
 	
-	
 	//on zoom change set new virtual window and update track values
 	this.onZoomChange.addEventListener(function(sender,data){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
+		
+		
+		trackSvg.interval = 5/_this.pixelBase;
+		trackSvg.histogram;
+		if(_this.zoom <= trackSvg.histogramZoom){
+			trackSvg.featuresRender = trackSvg.HistogramRender;
+			trackSvg.histogram=true;
+			trackData.adapter.featureCache.clearBySubKey("histogram");
+			console.log(trackData.adapter.featureCache);
+		}else{
+			trackSvg.featuresRender = trackSvg.defaultRender;
+			trackSvg.histogram=false;
+		}
+		
 		
 		$(trackSvg.features).empty();
 		trackData.adapter.featureCache.featuresAdded = {};
@@ -273,7 +291,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
 			virtualStart = callStart;
 			vitualEnd = callEnd;
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
+			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval});
 		}
 	});
 
@@ -295,7 +313,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
 			virtualStart = callStart;
 			vitualEnd = callEnd;
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd});
+			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval});
 		}
 	});
 	
@@ -316,13 +334,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
 
 			if(desp<0 && virtualEnd > callEnd){
-				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase)});
+				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase), histogram:trackSvg.histogram, interval:trackSvg.interval});
 				callEnd = parseInt(callEnd+_this.halfVirtualBase);
 //				console.log(callEnd);
 			}
 
 			if(desp>0 && virtualStart < callStart){
-				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart});
+				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval});
 				callStart = parseInt(callStart-_this.halfVirtualBase);
 //				console.log(callStart);
 			}

@@ -145,6 +145,35 @@ ChromosomeWidget.prototype.drawKaryotype = function(){
  				});
  				text.textContent = chr;
  				
+//<<<<<<< HEAD
+// 				if(chr == _this.chromosome){
+//// 					var px1=x-15, px2=x-1, py1=pointerPosition+yOffset, py2=py1-5, py3=py1+5;
+//// 					var points = px1+","+py2+" "+px2+","+py1+" "+px1+","+py3+" "+px1+","+py1;
+//// 					_this.positionBox = SVG.addChild(_this.svg,"polyline",{
+////// 			 			"x":x-9,
+////// 						"y":pointerPosition + yOffset,
+////// 						"width":7,
+////// 						"height":3,
+//// 						"points":points,
+////// 						"stroke":"orangered",
+////// 						"stroke-width":2,
+////// 						"opacity":0.3,
+//// 			 			"fill":"orange"
+//// 			 		});
+// 					
+// 					_this.positionBox = SVG.addChild(_this.svg,"line",{
+// 			 			"x1":x-9,
+// 						"y1":pointerPosition + _this.chrOffsetY[_this.chromosome],
+// 						"x2":x+22,
+// 						"y2":pointerPosition + _this.chrOffsetY[_this.chromosome],
+// 						"stroke":"orangered",
+// 						"opacity":0.6,
+// 						"stroke-width":2
+// 					},0);
+// 				}
+// 				
+//=======
+//>>>>>>> dec97ab3ce3c1a7eb488d1b8ecc05d0739dd169a
  				_this.chrOffsetX[chr] = x;
  				x += xOffset;
  			}
@@ -244,7 +273,7 @@ ChromosomeWidget.prototype.drawChromosome = function(){
 			"height":_this.height-2,
 			"stroke":"orangered",
 			"stroke-width":2,
-			"opacity":0.3,
+			"opacity":0.5,
  			"fill":"orange"
  		});
  	});

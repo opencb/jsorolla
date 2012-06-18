@@ -13,6 +13,8 @@ function TrackSvg(parent, args) {
 	this.lienzo=7000000;//mesa
 	this.pixelPosition=this.lienzo/2;
 	
+	this.histogramZoom = -1000;//no histogram by default 
+	
 	if (args != null){
 		if(args.title != null){
 			this.title = args.title;
@@ -41,18 +43,23 @@ function TrackSvg(parent, args) {
 		if(args.type != null){
 			this.type = args.type;
 		}
+		if(args.histogramZoom != null){
+			this.histogramZoom = args.histogramZoom;
+		}
 		if(args.featuresRender != null){
 			switch(args.featuresRender){
 				case "MultiFeatureRender": this.featuresRender = this.MultiFeatureRender; break;
 				case "SequenceRender": this.featuresRender = this.SequenceRender; break;
-				default: this.featuresRender = this.GeneRender;
+				default: this.featuresRender = this.MultiFeatureRender;
 			}
+			this.defaultRender = this.featuresRender;
 		}
 	}
 	
 	this.tooltip = document.createElement('div');
 	$(this.tooltip).css({
 		'position':'absolute',
+		'margin':'0px',
 		'padding':'5px',
 		'border':'1px solid deepSkyBlue',
 		'background':'honeydew',
@@ -407,25 +414,43 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 	}
 };
 
-TrackSvg.prototype.SnpRender = function(featureList){
-	
-};
 
 TrackSvg.prototype.HistogramRender = function(featureList){
 //	{"start":1,"end":409601,"interval":0,"absolute":0,"value":0.0}
 	var middle = this.width/2;
-	
+	console.log(featureList);
+	histogramHeight = 50;
 	for ( var i = 0, len = featureList.length; i < len; i++) {
 		var feature = featureList[i];
-		var width = (featureList[i].end-featureList[i].start)+1;
-		console.log(width);
+		var width = (featureList[i].end-featureList[i].start);
+		var color = "orange";
+		
+		width = width * this.pixelBase;
+		console.log();
+		var x = this.pixelPosition+middle-((this.position-featureList[i].start)*this.pixelBase);
+		var height = histogramHeight * featureList[i].value;
+		var rect = SVG.addChild(this.features,"rect",{
+			"x":x,
+			"y":histogramHeight - height,
+			"width":width,
+			"height":height,
+			"stroke": "#3B0B0B",
+			"stroke-width": 0.5,
+			"fill": color,
+			"cursor": "pointer"
+		});
 	}
+	this.setHeight(histogramHeight+/*margen entre tracks*/10);
+};
+
+TrackSvg.prototype.SnpRender = function(featureList){
+	
 };
 
 TrackSvg.prototype.formatTooltip = function(feature){
-	var str = 'start: <span class="emph">'+feature.start+'</span><br>'+
-	'end:  <span class="emph">'+feature.end+'</span><br>'+
-	'length: <span class="info">'+(feature.end-feature.start+1)+'</span><br>';
+	var str = 'start:&nbsp;<span class="emph">'+feature.start+'</span><br>'+
+	'end:&nbsp;<span class="emph">'+feature.end+'</span><br>'+
+	'length:&nbsp;<span class="info">'+(feature.end-feature.start+1)+'</span><br>';
 	return str;
 };
 

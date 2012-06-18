@@ -17,6 +17,12 @@ function CellBaseManager(species, args) {
 //		this.host = "http://imedina:8080/cellbase/rest";
 	}
 	
+	var url = $.url();
+	var prod = url.param('p');
+	if(prod != null) {
+		this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
+	}
+	
 	if (args != null){
 		if(args.host != null){
 			this.host = args.host;
@@ -136,7 +142,7 @@ function CellBaseManager(species, args) {
 					result.push(this.results[i][j]);
 				}
 			}
-			this.success.notify({result: result, query: this.originalQuery, error: ''});
+			this.success.notify({result: result, query: this.originalQuery, params:this.params, error: ''});
 		}
 	},
 	
@@ -179,7 +185,7 @@ function CellBaseManager(species, args) {
 		var _this = this;
 		
 		this.params["of"] = this.contentformat;
-		this.params["outputcompress"] = this.outputcompress;
+//		this.params["outputcompress"] = this.outputcompress;//esto ya lo hace el servidor y el navegador por defecto
 
 //			jQuery.support.cors = true;
 			url = url + this.getQuery(this.params,url);
@@ -195,7 +201,7 @@ function CellBaseManager(species, args) {
 						if (_this.batching){
 							_this.batchSuccessed.notify({data:jsonResponse, id:batchID});
 						}else{
-							_this.success.notify({result: jsonResponse, query: _this.originalQuery, error: ''});
+							_this.success.notify({result: jsonResponse, query: _this.originalQuery, params:_this.params, error: ''});
 						}
 //					}
 //					catch(e){
