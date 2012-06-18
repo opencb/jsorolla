@@ -85,12 +85,15 @@ ChromosomeWidget.prototype.drawKaryotype = function(){
 						if(event.clientX > _this.chrOffsetX[chromosomeList[k]]) chrClicked = chromosomeList[k];
 					}
  					
+ 					var offsetY = event.originalEvent.layerY - 3;
+ 					console.log(event.originalEvent.offsetY);
+ 					
  					_this.positionBox.setAttribute("x1",_this.chrOffsetX[chrClicked]-10);
  					_this.positionBox.setAttribute("x2",_this.chrOffsetX[chrClicked]+23);
- 					_this.positionBox.setAttribute("y1",event.offsetY);
- 					_this.positionBox.setAttribute("y2",event.offsetY);
+ 					_this.positionBox.setAttribute("y1",offsetY);
+ 					_this.positionBox.setAttribute("y2",offsetY);
  					
- 					var clickPosition = parseInt((event.offsetY - _this.chrOffsetY[chrClicked])/_this.pixelBase);
+ 					var clickPosition = parseInt((offsetY - _this.chrOffsetY[chrClicked])/_this.pixelBase);
  					_this.chromosome = chrClicked;
  					_this.onClick.notify({chromosome:chrClicked, position:clickPosition});
  				});

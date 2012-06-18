@@ -51,13 +51,37 @@ function TrackSvgLayout(parent, args) {
 		"height":this.height
 	});
 	
+	
+	
 	var mid = this.width/2;
 	this.positionText = SVG.addChild(this.svg,"text",{
 		"x":mid-30,
-		"y":15,
+		"y":22,
+		"font-size":10,
 		"fill":"green"
 	});
 	this.positionText.textContent = this.position;
+
+	this.viewNtsArrow = SVG.addChild(this.svg,"rect",{
+		"x":12,
+		"y":3,
+		"width":this.width-12,
+		"height":8,
+//		"stroke-width":"2",
+//		"stroke":"orangered",
+		"opacity":"0.2",
+		"fill":"grey"
+	});
+	this.viewNtsArrowLeft = SVG.addChild(this.svg,"polyline",{
+		"points":"0,7 12,0 12,14",
+		"opacity":"0.4",
+		"fill":"grey"
+	});
+	this.viewNtsArrowRight = SVG.addChild(this.svg,"polyline",{
+		"points":this.width+",7 "+this.width-24+",0 "+this.width-24+",14",
+		"opacity":"0.4",
+		"fill":"grey"
+	});
 	
 //	this.currentLine = SVG.addChild(this.svg,"line",{
 //			"x1":mid,
@@ -67,6 +91,7 @@ function TrackSvgLayout(parent, args) {
 //			"stroke-width":1,
 //			"stroke":"green"
 //	});
+	
 	this.currentLine = SVG.addChild(this.svg,"rect",{
 		"x":mid,
 		"y":this.height,

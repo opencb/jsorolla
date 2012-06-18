@@ -953,7 +953,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 				var vcfTrack = new TrackData("vcf",{
 					adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
 						async: false,
-						gzip: false
+						gzip: true
 					})
 				});
 				_this.trackSvgLayout.addTrack(vcfTrack,{
@@ -966,14 +966,13 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					visibleRange:{start:0,end:100}
 				});
 				
-//					var track3 = new TrackData("gff",{
-//						adapter: new GFFDataAdapter(new UrlDataSource("http://bioinfo.cipf.es/apps-beta/examples/example.gff"),{
-//							async: false,
-//							gzip: false
-//						})
-//					});
-//					_this.trackSvgLayout.addTrack(track3,{id:"gff",type:"gff"});
-//					console.log(track3.adapter.featureCache.cache);
+//				var track3 = new TrackData("gff",{
+//					adapter: new GFFDataAdapter(new UrlDataSource("http://rsanchez/example.gff"),{
+//						async: false,
+//						gzip: true
+//					})
+//				});
+//				_this.trackSvgLayout.addTrack(track3,{id:"gff",type:"gff"});
 
 //					var track4 = new TrackData("bed",{
 //						adapter: new BEDDataAdapter(new UrlDataSource("http://bioinfo.cipf.es/apps-beta/examples/example.bed"),{

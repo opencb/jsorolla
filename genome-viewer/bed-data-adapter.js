@@ -48,7 +48,7 @@ BEDDataAdapter.prototype.parse = function(data){
 					"blockStarts":fields[11]
 			} ;
 
-			this.featureCache.put(feature);
+			this.featureCache.putFeatures(feature);
 		}
 	}
 };
