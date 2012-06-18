@@ -61,16 +61,16 @@ FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion){
 	
 };
 
-FeatureCache.prototype.getFeaturesByChunk = function(key){
+FeatureCache.prototype.getFeaturesByChunk = function(key, type){
 	var features =  [];
 	var feature;
 	
-	if(this.cache[key] != null) {
-		for ( var i = 0, len = this.cache[key].length; i < len; i++) {
+	if(this.cache[key] != null && this.cache[key][type] != null) {
+		for ( var i = 0, len = this.cache[key][type].length; i < len; i++) {
 			if(this.gzip) {
-				feature = JSON.parse(RawDeflate.inflate(this.cache[key][i]));
+				feature = JSON.parse(RawDeflate.inflate(this.cache[key][type][i]));
 			}else{
-				feature = this.cache[key][i];
+				feature = this.cache[key][type][i];
 			}
 			
 			if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
@@ -89,15 +89,17 @@ FeatureCache.prototype.getFeaturesByChunk = function(key){
 
 
 
-FeatureCache.prototype.putRegion = function(featureDataList,region){
+FeatureCache.prototype.putRegion = function(featureDataList,region,type){
 	var key,firstChunk,lastChunk,feature;
 	//initialize region
+	
 	firstChunk = this._getChunk(region.start);
 	lastChunk = this._getChunk(region.end);
 	for(var i=firstChunk; i<=lastChunk; i++){
 		key = region.chromosome+":"+i;
 		if(this.cache[key]==null){
-			this.cache[key] = [];
+			this.cache[key] = {};
+			this.cache[key][type] = [];
 		}
 	}
 	
@@ -113,16 +115,52 @@ FeatureCache.prototype.putRegion = function(featureDataList,region){
 		lastChunk = this._getChunk(feature.end);
 		for(var i=firstChunk; i<=lastChunk; i++) {
 			key = feature.chromosome+":"+i;
-			if(this.cache[key]!=null){
+			/*XXX la feature no tiene chromosoma, una feature de histograma no tiene chromosoma, cojo el de la region para que vaya */
+			if(feature.chromosome==null){
+				key = region.chromosome+":"+i;
+			}
+			/*XXX*/
+			if(this.cache[key] != null && this.cache[key][type] != null){
 				if(this.gzip) {
-					this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
+					this.cache[key][type].push(RawDeflate.deflate(JSON.stringify(feature)));
 				}else{
-					this.cache[key].push(feature);
+					this.cache[key][type].push(feature);
 				}
 			}
 		}
 	}
 };
+
+
+FeatureCache.prototype.getFeaturesByRegion = function(region,type){
+	var firstChunk = this._getChunk(region.start);
+	var lastChunk = this._getChunk(region.end);
+	var features =  [];
+	var feature, key;
+	for(var i=firstChunk; i<=lastChunk; i++){
+//		console.log("Chunk: "+i)
+		key = region.chromosome+":"+i;
+		// check if this key exists in cache (features from files)
+		if(this.cache[key] != null && this.cache[key][type] != null){
+			for ( var j = 0, len = this.cache[key][type].length; j < len; j++) {
+				if(this.gzip) {
+					feature = JSON.parse(RawDeflate.inflate(this.cache[key][type][j]));
+				}else{
+					feature = this.cache[key][type][j];
+				}
+				if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
+					// we only get those features in the region
+					if(feature.end > region.start && feature.start < region.end){
+						features.push(feature);
+					}
+					this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
+				}
+			}
+		}
+	}
+	return features;
+};
+
 
 FeatureCache.prototype.putFeatures = function(featureDataList){
 	var feature, key, firstChunk, lastChunk;
@@ -154,34 +192,6 @@ FeatureCache.prototype.putFeatures = function(featureDataList){
 
 
 
-FeatureCache.prototype.getFeaturesByRegion = function(region){
-	var firstChunk = this._getChunk(region.start);
-	var lastChunk = this._getChunk(region.end);
-	var features =  [];
-	var feature, key;
-	for(var i=firstChunk; i<=lastChunk; i++){
-//		console.log("Chunk: "+i)
-		key = region.chromosome+":"+i;
-		// check if this key exists in cache (features from files)
-		if(this.cache[key] != null){
-			for ( var j = 0, len = this.cache[key].length; j < len; j++) {
-				if(this.gzip) {
-					feature = JSON.parse(RawDeflate.inflate(this.cache[key][j]));
-				}else{
-					feature = this.cache[key][j];
-				}
-				if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
-					// we only get those features in the region
-					if(feature.end > region.start && feature.start < region.end){
-						features.push(feature);
-					}
-					this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
-				}
-			}
-		}
-	}
-	return features;
-};
 
 FeatureCache.prototype.histogram = function(region, interval){
 
@@ -193,8 +203,6 @@ FeatureCache.prototype.histogram = function(region, interval){
 		
 		var intervalStart = i*interval;//deberia empezar en 1...
 		var intervalEnd = ((i+1)*interval)-1;
-		
-		debugger
 		
 		var firstChunk = this._getChunk(intervalStart+region.start);
 		var lastChunk = this._getChunk(intervalEnd+region.start);
@@ -236,7 +244,25 @@ FeatureCache.prototype.remove = function(region){
 	}
 };
 
-FeatureCache.prototype.clear = function(key){
-	this.size = 0;
-	this.cache = {};
+FeatureCache.prototype.clear = function(){
+		this.size = 0;		
+		this.cache = {};
+};
+
+FeatureCache.prototype.clearKey = function(key){
+	this.size = 0;		
+	this.cache[key] = {};
+};
+
+FeatureCache.prototype.clearBySubKey = function(subkey){
+//	console.log(subkey);
+//	debugger
+console.time("clear");
+	for(var i = 0, len = Object.keys(this.cache).length; i < len; i++){
+		var key = Object.keys(this.cache)[i];
+		if(this.cache[key][subkey]!=null){
+			this.cache[key][subkey] = [];
+		}
+	}
+console.timeEnd("clear");
 };

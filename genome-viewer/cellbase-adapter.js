@@ -26,28 +26,33 @@ function CellBaseAdapter(args){
 	this.onGetData = new Event();
 };
 
-CellBaseAdapter.prototype.getData = function(region){
+CellBaseAdapter.prototype.getData = function(args){
 	var _this = this;
 	//region check
-	if(region.start<1){
-		region.start=1;
+	if(args.start<1){
+		args.start=1;
 	}
-	if(region.end>300000000){
-		region.end=300000000;
+	if(args.end>300000000){
+		args.end=300000000;
 	}
 	
-	var firstChunk = this.featureCache._getChunk(region.start);
-	var lastChunk = this.featureCache._getChunk(region.end);
+	var type = "data";
+	if(args.histogram){
+		type = "histogram";
+	}
+	
+	var firstChunk = this.featureCache._getChunk(args.start);
+	var lastChunk = this.featureCache._getChunk(args.end);
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	var chunks = [];
 	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){
-		var key = region.chromosome+":"+i;
-		if(this.featureCache.cache[key] == null) {
+		var key = args.chromosome+":"+i;
+		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
 			chunks.push(i);
 		}else{
-			var items = this.featureCache.getFeaturesByChunk(key);
+			var items = this.featureCache.getFeaturesByChunk(key, type);
 //			console.time("concat");
 			itemList = itemList.concat(items);
 //			console.timeEnd("concat");
@@ -62,9 +67,22 @@ CellBaseAdapter.prototype.getData = function(region){
 	
 	//CellBase data process
 	cellBaseManager.success.addEventListener(function(sender,data){
+		var type = "data";
+		console.log();
+		if(data.params.histogram){
+			type = "histogram";
+		}
+		
+		//XXX quitar cuando este arreglado el ws
+		if(data.params.histogram == true){
+			data.result = [data.result];
+		}
+		//XXX
+		
 		var queryList = [];
-//		console.log("query length "+data.query.length);
-//		console.log("data length "+data.result.length);
+		console.log("query length "+data.query.length);
+		console.log("data length "+data.result.length);
+//		console.log("data "+data.result);
 		for(var i = 0; i < data.query.length; i++) {
 			var splitDots = data.query[i].split(":");
 			var splitDash = splitDots[1].split("-");
@@ -74,8 +92,8 @@ CellBaseAdapter.prototype.getData = function(region){
 
 		
 		for(var i = 0; i < data.result.length; i++) {
-			_this.featureCache.putRegion(data.result[i], queryList[i]);
-			var items = _this.featureCache.getFeaturesByRegion(queryList[i]);
+			_this.featureCache.putRegion(data.result[i], queryList[i], type);
+			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
 			_this.onGetData.notify(items);
 		}
 	});
@@ -100,20 +118,20 @@ CellBaseAdapter.prototype.getData = function(region){
 				if(chunks[i]+1==chunks[i+1]){
 					updateEnd =true;
 				}else{
-					var query = region.chromosome+":"+chunkStart+"-"+chunkEnd;
+					var query = args.chromosome+":"+chunkStart+"-"+chunkEnd;
 					querys.push(query);
 					updateStart = true;
 					updateEnd = true;
 				}
 			}else{
-				var query = region.chromosome+":"+chunkStart+"-"+chunkEnd;
+				var query = args.chromosome+":"+chunkStart+"-"+chunkEnd;
 				querys.push(query);
 				updateStart = true;
 				updateEnd = true;
 			}
 		}
 //		console.log(querys);
-		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, {histogram:region.histogram,interval:region.interval});
+		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, {histogram:args.histogram,interval:args.interval});
 	}
 };
 
