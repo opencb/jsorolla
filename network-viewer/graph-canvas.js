@@ -138,7 +138,8 @@ GraphCanvas.prototype.createSVGDom = function(targetID, id, width, height, backg
 	
 	var container = document.getElementById(targetID);
 //	this._svg = SVG.createSVGCanvas(container, [["style", "background-color:"+ backgroundColor+"; border: solid 1px #bbb"],["id", id], ["dragx", 0 ] , ["dragy", 0 ],["height", this.getFormatter().getHeight()], ["width", this.getFormatter().getWidth()]]);
-	this._svg = SVG.createSVGCanvas(container, [["style", "background-color:"+ backgroundColor+";"],["id", id], ["dragx", 0 ] , ["dragy", 0 ],["height", this.getFormatter().getHeight()], ["width", this.getFormatter().getWidth()]]);
+//	this._svg = SVG.createSVGCanvas(container, [["style", "background-color:"+ backgroundColor+";"],["id", id], ["dragx", 0 ] , ["dragy", 0 ],["height", this.getFormatter().getHeight()], ["width", this.getFormatter().getWidth()]]);
+	this._svg = SVG.init(container, {"style": "background-color:"+ backgroundColor+";","id": id, "dragx": 0, "dragy": 0, "height": this.getFormatter().getHeight(), "width": this.getFormatter().getWidth()});
 	//	var rect = SVG.drawRectangle(this.formatter.getLeft(), 0, this.formatter.getRight() - this.formatter.getLeft() , this.formatter.getHeight(), this._svg, [["dragx", 0], ["dragy", 0],["fill", backgroundColor],["id", this.args.idBackgroundNode]]);
 	return this._svg;
 };
@@ -353,7 +354,13 @@ GraphCanvas.prototype.mouseDown = function(evt){
 				if(this.isVertex(evt.target)){
 					this.linkStartX = p.x;
 					this.linkStartY = p.y;
-					this.linkSVGNode = SVG.drawLine(p.x, p.y, p.x, p.y, this._svg, {"stroke":"#FF0000"});
+					this.linkSVGNode = SVG.addChild(this._svg, "line", {
+						"x1": p.x,
+						"y1": p.y,
+						"x2": p.x,
+						"y2":p.y,
+						"stroke":"#FF0000"
+					});
 					this.linkNodeSource = this.getVertexIdFromSVGId(evt.target.id);
 				}
 			}else{
@@ -459,7 +466,16 @@ GraphCanvas.prototype.displaySelection = function(x, y, width, height){
 		this.selectorSVGNode.setAttribute("height", height);
 	}
 	else{
-		this.selectorSVGNode = SVG.drawRectangle(x, y, width, height, this._svg, {"fill":"red","stroke":"black", "opacity":"0.2", "stroke-opacity":"1"});
+		this.selectorSVGNode = SVG.addChild(this._svg, "rect",{
+			"x": x,
+			"y": y,
+			"width": width,
+			"height": height,
+			"fill": "red",
+			"stroke":"black",
+			"opacity":"0.2",
+			"stroke-opacity":"1"
+		});
 	}
 };
 
@@ -587,11 +603,11 @@ GraphCanvas.prototype._movingNode = function(svgNodeElement, x, y){
 GraphCanvas.prototype.init = function(){
 	
 	this._svg = this.createSVGDom(this.targetID, this.id, this.getFormatter().getWidth(), this.getFormatter().getHeight(), this.getFormatter().getBackgroundColor());
-	this.GraphGroup = SVG.drawGroup(this._svg, [["id", this.args.idGraph], ["transform", "translate(0,0), scale(1)"]]);
-	this.GraphBackground = SVG.drawGroup(this.GraphGroup, [["id", this.args.idBackground ]]);
-	this.GraphEdgeGroup = SVG.drawGroup(this.GraphGroup, [["id", this.args.idEdgesGraph]]);
-	this.GraphNodeGroup = SVG.drawGroup(this.GraphGroup, [["id", this.args.idNodesGraph]]);
-	this.GraphLabelGroup = SVG.drawGroup(this.GraphGroup, [["id", this.args.idLabelGraph]]);
+	this.GraphGroup = SVG.addChild(this._svg, "g", {"id": this.args.idGraph, "transform": "translate(0,0), scale(1)"});
+	this.GraphBackground = SVG.addChild(this.GraphGroup, "g", {"id": this.args.idBackground});
+	this.GraphEdgeGroup = SVG.addChild(this.GraphGroup, "g", {"id": this.args.idEdgesGraph});
+	this.GraphNodeGroup = SVG.addChild(this.GraphGroup, "g", {"id": this.args.idNodesGraph});
+	this.GraphLabelGroup = SVG.addChild(this.GraphGroup, "g", {"id": this.args.idLabelGraph});
 	
 	if ((this.getFormatter().getBackgroundImage()!=null)&&(this.getFormatter().getBackgroundImage()!="")){
 		this.setBackgroundImage(this.getFormatter().getBackgroundImage());
@@ -686,8 +702,13 @@ GraphCanvas.prototype.removeBackgroundImage = function(){
 };
 
 GraphCanvas.prototype._setBackgroundColor = function(color){
-	var attributes = [["fill", color]];
-	SVG.drawRectangle(0,0, this.getFormatter().getWidth(), this.getFormatter().getHeight(), this.GraphBackground, attributes);
+	SVG.addChild(this.GraphBackground, "rect",{
+		"x": 0,
+		"y": 0,
+		"width": this.getFormatter().getWidth(),
+		"height": this.getFormatter().getHeight(),
+		"fill": color
+	});
 };
 
 /** Serialize **/
@@ -1111,7 +1132,13 @@ GraphCanvas.prototype.renderLabel = function(nodeId){
 		svgAttributesNode.dragy = gragy; 
 		svgAttributesNode.transform = "translate("+ svgAttributesNode.dragx + "," + svgAttributesNode.dragy +")";//, scale("+this.formatter.getVertexById(nodeId).getDefault().getSize()+")";
 		
-		var nodeSVG = SVG.drawText(0,0, this.getDataset().getVertexById(nodeId).getName(), this.GraphLabelGroup, svgAttributesNode);
+		//TODO separar svgAttributesNode
+		var nodeSVG = SVG.addChild(this.GraphLabelGroup, "text",{
+				"x": 0,
+				"y": 0
+//				svgAttributesNode
+		});
+		nodeSVG.textContent = this.getDataset().getVertexById(nodeId).getName();
 		
 		this.svgLabels[nodeId] = nodeSVG;
 		
@@ -1146,7 +1173,12 @@ GraphCanvas.prototype.renderNode = function(nodeId){
 	
 	
 	if (this.getFormatter().getVertexById(nodeId) instanceof CircleVertexGraphFormatter){
-		nodeSVG = SVG.drawCircle(0 ,0 , this.circleDefaultRadius, this.GraphNodeGroup, svgAttributesNode);
+		nodeSVG = SVG.drawCircle(this.GraphNodeGroup, "circle",{
+			"cx": 0 ,
+			"cy": 0 ,
+			"r": this.circleDefaultRadius,
+			svgAttributesNode
+		});
 	}
 	
 	if (this.getFormatter().getVertexById(nodeId) instanceof SquareVertexGraphFormatter){
