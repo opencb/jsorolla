@@ -49,7 +49,7 @@ CellBaseAdapter.prototype.getData = function(args){
 	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){
 		var key = args.chromosome+":"+i;
-		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
+		if(this.featureCache.cache[type] == null || this.featureCache.cache[type][key] == null) {
 			chunks.push(i);
 		}else{
 			var items = this.featureCache.getFeaturesByChunk(key, type);
@@ -79,6 +79,7 @@ CellBaseAdapter.prototype.getData = function(args){
 		}
 		//XXX
 		
+//		debugger
 		var queryList = [];
 		console.log("query length "+data.query.length);
 		console.log("data length "+data.result.length);

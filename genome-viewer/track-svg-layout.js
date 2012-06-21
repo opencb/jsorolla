@@ -237,13 +237,12 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
 		
-		
 		trackSvg.interval = 5/_this.pixelBase;
 		trackSvg.histogram;
 		if(_this.zoom <= trackSvg.histogramZoom){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 			trackSvg.histogram=true;
-			trackData.adapter.featureCache.clearBySubKey("histogram");
+			trackData.adapter.featureCache.clearType("histogram");
 			console.log(trackData.adapter.featureCache);
 		}else{
 			trackSvg.featuresRender = trackSvg.defaultRender;

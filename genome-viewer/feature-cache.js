@@ -65,12 +65,12 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, type){
 	var features =  [];
 	var feature;
 	
-	if(this.cache[key] != null && this.cache[key][type] != null) {
-		for ( var i = 0, len = this.cache[key][type].length; i < len; i++) {
+	if(this.cache[type] != null && this.cache[type][key] != null) {
+		for ( var i = 0, len = this.cache[type][key].length; i < len; i++) {
 			if(this.gzip) {
-				feature = JSON.parse(RawDeflate.inflate(this.cache[key][type][i]));
+				feature = JSON.parse(RawDeflate.inflate(this.cache[type][key][i]));
 			}else{
-				feature = this.cache[key][type][i];
+				feature = this.cache[type][key][i];
 			}
 			
 			if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
@@ -91,15 +91,18 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, type){
 
 FeatureCache.prototype.putRegion = function(featureDataList,region,type){
 	var key,firstChunk,lastChunk,feature;
-	//initialize region
 	
+	if(this.cache[type]==null){
+		this.cache[type] = {};
+	}
+	
+	//initialize region
 	firstChunk = this._getChunk(region.start);
 	lastChunk = this._getChunk(region.end);
 	for(var i=firstChunk; i<=lastChunk; i++){
 		key = region.chromosome+":"+i;
-		if(this.cache[key]==null){
-			this.cache[key] = {};
-			this.cache[key][type] = [];
+		if(this.cache[type][key]==null){
+			this.cache[type][key] = [];
 		}
 	}
 	
@@ -120,11 +123,11 @@ FeatureCache.prototype.putRegion = function(featureDataList,region,type){
 				key = region.chromosome+":"+i;
 			}
 			/*XXX*/
-			if(this.cache[key] != null && this.cache[key][type] != null){
+			if(this.cache[type][key] != null){
 				if(this.gzip) {
-					this.cache[key][type].push(RawDeflate.deflate(JSON.stringify(feature)));
+					this.cache[type][key].push(RawDeflate.deflate(JSON.stringify(feature)));
 				}else{
-					this.cache[key][type].push(feature);
+					this.cache[type][key].push(feature);
 				}
 			}
 		}
@@ -141,12 +144,12 @@ FeatureCache.prototype.getFeaturesByRegion = function(region,type){
 //		console.log("Chunk: "+i)
 		key = region.chromosome+":"+i;
 		// check if this key exists in cache (features from files)
-		if(this.cache[key] != null && this.cache[key][type] != null){
-			for ( var j = 0, len = this.cache[key][type].length; j < len; j++) {
+		if(this.cache[type] != null && this.cache[type][key] != null){
+			for ( var j = 0, len = this.cache[type][key].length; j < len; j++) {
 				if(this.gzip) {
-					feature = JSON.parse(RawDeflate.inflate(this.cache[key][type][j]));
+					feature = JSON.parse(RawDeflate.inflate(this.cache[type][key][j]));
 				}else{
-					feature = this.cache[key][type][j];
+					feature = this.cache[type][key][j];
 				}
 				if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
 					// we only get those features in the region
@@ -246,23 +249,14 @@ FeatureCache.prototype.remove = function(region){
 
 FeatureCache.prototype.clear = function(){
 		this.size = 0;		
-		this.cache = {};
+		this.cache = null;
 };
 
 FeatureCache.prototype.clearKey = function(key){
 	this.size = 0;		
-	this.cache[key] = {};
+	this.cache[key] = null;
 };
 
-FeatureCache.prototype.clearBySubKey = function(subkey){
-//	console.log(subkey);
-//	debugger
-console.time("clear");
-	for(var i = 0, len = Object.keys(this.cache).length; i < len; i++){
-		var key = Object.keys(this.cache)[i];
-		if(this.cache[key][subkey]!=null){
-			this.cache[key][subkey] = [];
-		}
-	}
-console.timeEnd("clear");
+FeatureCache.prototype.clearType = function(type){
+	this.cache[type] = null;
 };

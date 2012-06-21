@@ -717,27 +717,27 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 					parentLayout:_this.trackSvgLayout
 				});
 				
-//				var geneTrack = new TrackData("gene",{
-//					adapter: new CellBaseAdapter({
-//						category: "genomic",
-//						subCategory: "region",
-//						resource: "gene",
-//						species: _this.species,
-//						featureCache:{
-//							gzip: true,
-//							chunkSize:50000
-//						}
-//					})
-//				});
-//				_this.trackSvgLayout2.addTrack(geneTrack,{
-//					id:"gene",
-//					type:"gene",
-//					histogramRender:null,
-//					featuresRender:"MultiFeatureRender",
-//					histogramZoom:20,
-//					height:150,
-//					visibleRange:{start:0,end:100}
-//				});
+				var geneTrack = new TrackData("gene",{
+					adapter: new CellBaseAdapter({
+						category: "genomic",
+						subCategory: "region",
+						resource: "gene",
+						species: _this.species,
+						featureCache:{
+							gzip: true,
+							chunkSize:50000
+						}
+					})
+				});
+				_this.trackSvgLayout2.addTrack(geneTrack,{
+					id:"gene",
+					type:"gene",
+					histogramRender:null,
+					featuresRender:"MultiFeatureRender",
+					histogramZoom:20,
+					height:150,
+					visibleRange:{start:0,end:100}
+				});
 			}
 		}
 	});
@@ -882,49 +882,49 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 				});
 				
-//				var seqtrack = new TrackData("sequence",{
-//					adapter: new CellBaseAdapter({
-//						category: "genomic",
-//						subCategory: "region",
-//						resource: "sequence",
-//						species: _this.species,
-//						featureCache:{
-//							gzip: true,
-//							chunkSize:1000
-//						}
-//					})
-//				});
-//				_this.trackSvgLayout.addTrack(seqtrack,{
-//					id:"sequence",
-//					type:"sequence",
-//					featuresRender:"SequenceRender",
-////					histogramZoom:"",
-//					height:50,
-//					visibleRange:{start:100,end:100}
-//				});
-//				
-//				
-//				var geneTrack = new TrackData("gene",{
-//					adapter: new CellBaseAdapter({
-//						category: "genomic",
-//						subCategory: "region",
-//						resource: "gene",
-//						species: _this.species,
-//						featureCache:{
-//							gzip: true,
-//							chunkSize:50000
-//						}
-//					})
-//				});
-//				_this.trackSvgLayout.addTrack(geneTrack,{
-//					id:"gene",
-//					type:"gene",
-//					histogramRender:null,
-//					featuresRender:"MultiFeatureRender",
-//					histogramZoom:20,
-//					height:24,
-//					visibleRange:{start:0,end:100}
-//				});
+				var seqtrack = new TrackData("sequence",{
+					adapter: new CellBaseAdapter({
+						category: "genomic",
+						subCategory: "region",
+						resource: "sequence",
+						species: _this.species,
+						featureCache:{
+							gzip: true,
+							chunkSize:1000
+						}
+					})
+				});
+				_this.trackSvgLayout.addTrack(seqtrack,{
+					id:"sequence",
+					type:"sequence",
+					featuresRender:"SequenceRender",
+//					histogramZoom:"",
+					height:50,
+					visibleRange:{start:100,end:100}
+				});
+				
+				
+				var geneTrack = new TrackData("gene",{
+					adapter: new CellBaseAdapter({
+						category: "genomic",
+						subCategory: "region",
+						resource: "gene",
+						species: _this.species,
+						featureCache:{
+							gzip: true,
+							chunkSize:50000
+						}
+					})
+				});
+				_this.trackSvgLayout.addTrack(geneTrack,{
+					id:"gene",
+					type:"gene",
+					histogramRender:null,
+					featuresRender:"MultiFeatureRender",
+					histogramZoom:20,
+					height:24,
+					visibleRange:{start:0,end:100}
+				});
 				
 				var snpTrack = new TrackData("snp",{
 					adapter: new CellBaseAdapter({
