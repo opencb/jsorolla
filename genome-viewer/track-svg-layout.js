@@ -63,20 +63,20 @@ function TrackSvgLayout(parent, args) {
 	this.positionText.textContent = this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 
 	this.viewNtsArrow = SVG.addChild(this.svg,"rect",{
-		"x":24,
+		"x":16,
 		"y":2,
-		"width":this.width-48,
+		"width":this.width-32,
 		"height":10,
 		"opacity":"0.7",
 		"fill":"grey"
 	});
 	this.viewNtsArrowLeft = SVG.addChild(this.svg,"polyline",{
-		"points":"0,7 24,0 24,14",
+		"points":"0,7 16,0 16,14",
 		"opacity":"0.7",
 		"fill":"grey"
 	});
 	this.viewNtsArrowRight = SVG.addChild(this.svg,"polyline",{
-		"points":this.width+",7 "+(this.width-24)+",0 "+(this.width-24)+",14",
+		"points":this.width+",7 "+(this.width-16)+",0 "+(this.width-16)+",14",
 		"opacity":"0.7",
 		"fill":"grey"
 	});
@@ -86,7 +86,7 @@ function TrackSvgLayout(parent, args) {
 		"font-size":10,
 		"fill":"white"
 	});
-	this.viewNtsText.textContent = "Viewing "+Math.ceil((this.width - 17)/this.pixelBase)+" nts";
+	this.viewNtsText.textContent = "Viewing "+Math.ceil((this.width)/this.pixelBase)+" nts";
 	
 //	this.currentLine = SVG.addChild(this.svg,"line",{
 //			"x1":mid,

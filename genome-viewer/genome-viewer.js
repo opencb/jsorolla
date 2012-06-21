@@ -882,26 +882,31 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 				});
 				
-//				var seqtrack = new TrackData("sequence",{
-//					adapter: new CellBaseAdapter({
-//						category: "genomic",
-//						subCategory: "region",
-//						resource: "sequence",
-//						species: _this.species,
-//						featureCache:{
-//							gzip: true,
-//							chunkSize:1000
-//						}
-//					})
-//				});
-//				_this.trackSvgLayout.addTrack(seqtrack,{
-//					id:"sequence",
-//					type:"sequence",
-//					featuresRender:"SequenceRender",
-////					histogramZoom:"",
-//					height:50,
-//					visibleRange:{start:100,end:100}
-//				});
+				var seqtrack = new TrackData("sequence",{
+					adapter: new CellBaseAdapter({
+						category: "genomic",
+						subCategory: "region",
+						resource: "sequence",
+						species: _this.species,
+						featureCache:{
+							gzip: true,
+							chunkSize:1000
+						}
+					})
+				});
+				_this.trackSvgLayout.addTrack(seqtrack,{
+					id:"sequence",
+					type:"sequence",
+					featuresRender:"SequenceRender",
+//					histogramZoom:"",
+					height:50,
+					visibleRange:{start:100,end:100},
+					settings:{
+						color: {A:"#90EE90", C:"#B0C4DE", G:"#FFEC8B", T:"#E066FF", N:"#AAAAAA"},
+						closable: false
+					}
+				});
+				
 //				
 //				
 //				var geneTrack = new TrackData("gene",{

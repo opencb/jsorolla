@@ -13,7 +13,8 @@ function TrackSvg(parent, args) {
 	this.lienzo=7000000;//mesa
 	this.pixelPosition=this.lienzo/2;
 	
-	this.histogramZoom = -1000;//no histogram by default 
+	this.histogramZoom = -1000;//no histogram by default
+	this.settings = {};
 	
 	if (args != null){
 		if(args.title != null){
@@ -46,6 +47,9 @@ function TrackSvg(parent, args) {
 		if(args.histogramZoom != null){
 			this.histogramZoom = args.histogramZoom;
 		}
+		if(args.settings != null){
+			this.settings = args.settings;
+		}
 		if(args.featuresRender != null){
 			switch(args.featuresRender){
 				case "MultiFeatureRender": this.featuresRender = this.MultiFeatureRender; break;
@@ -54,6 +58,10 @@ function TrackSvg(parent, args) {
 			}
 			this.defaultRender = this.featuresRender;
 		}
+	}
+	
+	if(this.settings.closable == null){
+		this.settings.closable = true;
 	}
 	
 	this.tooltip = document.createElement('div');
@@ -85,6 +93,8 @@ TrackSvg.prototype.setHeight = function(height){
 };
 
 TrackSvg.prototype.draw = function(){
+	var _this = this;
+	
 	var main = SVG.addChild(this.parent,"svg",{
 //		"style":"border:1px solid #e0e0e0;",
 		"id":this.id,
@@ -196,7 +206,7 @@ TrackSvg.prototype.draw = function(){
 		text.setAttribute("opacity","1.0");
 		upRect.setAttribute("visibility","visible");
 		downRect.setAttribute("visibility","visible");
-		hideRect.setAttribute("visibility","visible");
+		if(_this.settings.closable){ hideRect.setAttribute("visibility","visible"); }
 		settingsRect.setAttribute("visibility","visible");
 	});
 	$(titleGroup).mouseleave(function(event){
@@ -381,12 +391,10 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 	if(featureList.length > 0){
 		var seqString = featureList[0].sequence;
 		var width = 1*this.pixelBase;
-		var color = new Object();
-		color["A"] = "#90EE90";
-		color["C"] = "#B0C4DE";
-		color["G"] = "#FFEC8B";
-		color["T"] = "#E066FF";
-		color["N"] = "#AAAAAA";
+		
+		if(!this.settings.color){
+			this.settings.color = {A:"#90EE90", C:"#B0C4DE", G:"#FFEC8B", T:"#E066FF", N:"#AAAAAA"};
+		}
 		
 		var start = featureList[0].start;
 		
@@ -400,7 +408,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				"height":12,
 				"stroke":"black",
 				"opacity":0.8,
-				"fill":color[seqString.charAt(i)]
+				"fill":this.settings.color[seqString.charAt(i)]
 			});
 			
 			var text = SVG.addChild(this.features,"text",{
