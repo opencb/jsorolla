@@ -177,7 +177,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
     	var pdbs = [];
     	$.ajax({
 //    		  url: 'http://ws.bioinfo.cipf.es/celldb/rest/v1/hsa/feature/id/brca2/xref?dbname=pdb',
-    		  url: 'http://ws.bioinfo.cipf.es/cellbase/rest/v1/hsa/feature/id/'+this.feature.getName()+'/xref?dbname=pdb',
+    		  url: 'http://ws.bioinfo.cipf.es/cellbase/rest/v1/hsa/feature/id/'+this.query+'/xref?dbname=pdb',
 //    		  data: data,
 //    		  dataType: dataType,
     		  async:false,
@@ -283,12 +283,12 @@ GeneInfoWidget.prototype.getData = function (){
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
 //	category, subcategory, query, resource, callbackFunction
-	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
-	cellBaseDataAdapter.successed.addEventListener(function (evt){
-		
-		_this.dataReceived(JSON.parse(cellBaseDataAdapter.toJSON()));//TODO
+	var cellBaseManager = new CellBaseManager(this.species);
+	cellBaseManager.success.addEventListener(function(sender,data){
+		console.log(data)
+		_this.dataReceived(JSON.parse(data.result));//TODO
 	});
-	cellBaseDataAdapter.fill("feature","gene", this.feature.getName(), "fullinfo");
+	cellBaseManager.get("feature","gene", this.query, "fullinfo");
 };
 GeneInfoWidget.prototype.dataReceived = function (data){
 //	console.log(data);

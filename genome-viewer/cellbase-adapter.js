@@ -27,6 +27,7 @@ function CellBaseAdapter(args){
 };
 
 CellBaseAdapter.prototype.getData = function(args){
+	console.time("all");
 	var _this = this;
 	//region check
 	if(args.start<1){
@@ -38,7 +39,7 @@ CellBaseAdapter.prototype.getData = function(args){
 	
 	var type = "data";
 	if(args.histogram){
-		type = "histogram";
+		type = "histogram"+args.interval;
 	}
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
@@ -58,10 +59,9 @@ CellBaseAdapter.prototype.getData = function(args){
 //			console.timeEnd("concat");
 		}
 	}
-	
-	//notify all chunks
+//	//notify all chunks
 	if(itemList.length>0){
-		this.onGetData.notify(itemList);
+		this.onGetData.notify({data:itemList,cached:true});
 	}
 	
 	
@@ -70,7 +70,7 @@ CellBaseAdapter.prototype.getData = function(args){
 		var type = "data";
 		console.log();
 		if(data.params.histogram){
-			type = "histogram";
+			type = "histogram"+data.params.interval;
 		}
 		
 		//XXX quitar cuando este arreglado el ws
@@ -79,6 +79,7 @@ CellBaseAdapter.prototype.getData = function(args){
 		}
 		//XXX
 		
+//		debugger
 		var queryList = [];
 		console.log("query length "+data.query.length);
 		console.log("data length "+data.result.length);
@@ -94,7 +95,7 @@ CellBaseAdapter.prototype.getData = function(args){
 		for(var i = 0; i < data.result.length; i++) {
 			_this.featureCache.putRegion(data.result[i], queryList[i], type);
 			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
-			_this.onGetData.notify(items);
+			_this.onGetData.notify({data:items,cached:false});
 		}
 	});
 
@@ -103,6 +104,7 @@ CellBaseAdapter.prototype.getData = function(args){
 	var updateEnd = true;
 	if(chunks.length > 0){
 //		console.log(chunks);
+		
 		for ( var i = 0; i < chunks.length; i++) {
 			
 			if(updateStart){

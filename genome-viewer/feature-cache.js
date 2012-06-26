@@ -72,7 +72,6 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, type){
 			}else{
 				feature = this.cache[key][type][i];
 			}
-			
 			if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
 				features.push(feature);
 				this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
@@ -91,14 +90,16 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, type){
 
 FeatureCache.prototype.putRegion = function(featureDataList,region,type){
 	var key,firstChunk,lastChunk,feature;
-	//initialize region
 	
+	//initialize region
 	firstChunk = this._getChunk(region.start);
 	lastChunk = this._getChunk(region.end);
 	for(var i=firstChunk; i<=lastChunk; i++){
 		key = region.chromosome+":"+i;
 		if(this.cache[key]==null){
 			this.cache[key] = {};
+		}
+		if(this.cache[key][type]==null){
 			this.cache[key][type] = [];
 		}
 	}
@@ -249,20 +250,6 @@ FeatureCache.prototype.clear = function(){
 		this.cache = {};
 };
 
-FeatureCache.prototype.clearKey = function(key){
-	this.size = 0;		
-	this.cache[key] = {};
-};
-
-FeatureCache.prototype.clearBySubKey = function(subkey){
-//	console.log(subkey);
-//	debugger
-console.time("clear");
-	for(var i = 0, len = Object.keys(this.cache).length; i < len; i++){
-		var key = Object.keys(this.cache)[i];
-		if(this.cache[key][subkey]!=null){
-			this.cache[key][subkey] = [];
-		}
-	}
-console.timeEnd("clear");
+FeatureCache.prototype.clearType = function(type){
+	this.cache[type] = null;
 };
