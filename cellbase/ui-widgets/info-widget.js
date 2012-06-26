@@ -71,19 +71,21 @@ function InfoWidget(targetId, species, args){
 	
 };
 
-InfoWidget.prototype.draw = function (feature){
+InfoWidget.prototype.draw = function (args){
+	console.log(args);
 //	this.featureId = feature.id;
-	this.feature = feature;
-	if(feature.getName()==null){
-		console.log("getName not defined");
-//		var feature = new Object();
-//		feature.getName = function(){return feature;};
-	}	
+	this.query = args.query;
+	this.feature = args.feature;
+//	if(feature.getName()==null){
+//		console.log("getName not defined");
+////		var feature = new Object();
+////		feature.getName = function(){return feature;};
+//	}	
 	
-	console.log(feature.getName());
+//	console.log(feature.getName());
 //	this.feature.getName = function(){return "a";};
 	
-	this.panel=Ext.getCmp(this.title +" "+ this.feature.getName());
+	this.panel=Ext.getCmp(this.title +" "+ this.query);
 	if (this.panel == null){
 		//the order is important
 		this.render();
@@ -97,8 +99,8 @@ InfoWidget.prototype.draw = function (feature){
 InfoWidget.prototype.render = function (){
 		/**MAIN PANEL**/
 		this.panel = Ext.create('Ext.ux.Window', {
-		    title: this.title +" "+ this.feature.getName(),
-		    id : this.title +" "+ this.feature.getName(),
+		    title: this.title +" "+ this.query,
+		    id : this.title +" "+ this.query,
 //		    resizable: false,
 		    minimizable :true,
 			constrain:true,

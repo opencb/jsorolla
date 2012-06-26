@@ -194,16 +194,16 @@ SnpInfoWidget.prototype.getData = function (){
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
 //	category, subcategory, query, resource, callbackFunction
-	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
-	cellBaseDataAdapter.successed.addEventListener(function (evt){
-		_this.dataReceived(JSON.parse(cellBaseDataAdapter.toJSON()));//TODO
+	var cellBaseManager = new CellBaseManager(this.species);
+	cellBaseManager.success.addEventListener(function (sender,data){
+		_this.dataReceived(JSON.parse(data.result));//TODO
 	});
-	cellBaseDataAdapter.fill("feature","snp", this.feature.getName(), "fullinfo");
+	cellBaseManager.get("feature","snp", this.query, "fullinfo");
 };
 SnpInfoWidget.prototype.dataReceived = function (data){
 	var mappedSnps = data[0];
 	for ( var i = 0; i < mappedSnps.length; i++) {
-		if (mappedSnps[i].chromosome == this.feature.feature.chromosome && mappedSnps[i].start == this.feature.start && mappedSnps[i].end == this.feature.end ){
+		if (mappedSnps[i].chromosome == this.feature.chromosome && mappedSnps[i].start == this.feature.start && mappedSnps[i].end == this.feature.end ){
 			this.data=mappedSnps[i];
 			console.log(mappedSnps[i]);
 		}

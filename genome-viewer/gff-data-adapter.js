@@ -46,7 +46,7 @@ GFFDataAdapter.prototype.parse = function(data){
 					"group": fields[8]
 			} ;
 
-			this.featureCache.put(feature);
+			this.featureCache.putFeatures(feature);
 		}
 	}
 };

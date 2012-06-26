@@ -135,7 +135,7 @@ function CellBaseManager(species, args) {
 		this.resultsCount.push(true);
 		this.results[response.id] = response.data;
 		if (this.numberQueries == this.resultsCount.length){
-			var result = new Array();
+			var result = [];
 			
 			for (var i = 0; i< this.results.length; i++){
 				for (var j = 0; j< this.results[i].length; j++){

@@ -1,4 +1,4 @@
-function TrackSvgLayout(parent, args) {
+function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	var _this = this;
 	this.args = args;
 	this.id = Math.round(Math.random()*10000000);
@@ -6,7 +6,7 @@ function TrackSvgLayout(parent, args) {
 	this.trackDataList =  new Array();
 	this.trackSvgList =  new Array();
 	this.swapHash = new Object();
-	this.zoomOffset = 0;//for region overview panel, this will keep zoom higher, 0 by default
+	this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
 	this.parentLayout = null;
 	
 	//default values
@@ -46,9 +46,41 @@ function TrackSvgLayout(parent, args) {
 	this.onChromosomeChange = new Event();
 	this.onMove = new Event();
 	
+	
+	
+	//Flags 
+	this.onFeaturesRendered = new Event(); //used when location or zoom is modified, to avoid repeated calls
+	
+	
+	//Main SVG and his events
 	this.svg = SVG.init(parent,{
 		"width":this.width,
 		"height":this.height
+	});
+	
+	var patt = SVG.addChild(this.svg,"pattern",{
+		"id":this.id+"gridPatt",
+		"patternUnits":"userSpaceOnUse",
+		"x":0,
+		"y":0,
+		"width":10,
+		"height":2000
+	});
+	
+	var grid = SVG.addChild(patt,"rect",{
+		"x":0,
+		"y":25,
+		"width":1,
+		"height":2000,
+		"opacity":"0.1",
+		"fill":"grey"
+	});
+	
+	var grid2 = SVG.addChild(this.svg,"rect",{
+		"width":this.width,
+		"height":2000,
+		"x":0,
+		"fill":"url(#"+this.id+"gridPatt)"
 	});
 	
 	var mid = this.width/2;
@@ -59,6 +91,32 @@ function TrackSvgLayout(parent, args) {
 		"fill":"green"
 	});
 	this.positionText.textContent = this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+
+	this.viewNtsArrow = SVG.addChild(this.svg,"rect",{
+		"x":16,
+		"y":2,
+		"width":this.width-32,
+		"height":10,
+		"opacity":"0.7",
+		"fill":"grey"
+	});
+	this.viewNtsArrowLeft = SVG.addChild(this.svg,"polyline",{
+		"points":"0,7 16,0 16,14",
+		"opacity":"0.7",
+		"fill":"grey"
+	});
+	this.viewNtsArrowRight = SVG.addChild(this.svg,"polyline",{
+		"points":this.width+",7 "+(this.width-16)+",0 "+(this.width-16)+",14",
+		"opacity":"0.7",
+		"fill":"grey"
+	});
+	this.viewNtsText = SVG.addChild(this.svg,"text",{
+		"x":mid-30,
+		"y":11,
+		"font-size":10,
+		"fill":"white"
+	});
+	this.viewNtsText.textContent = "Viewing "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
 	
 //	this.currentLine = SVG.addChild(this.svg,"line",{
 //			"x1":mid,
@@ -68,6 +126,7 @@ function TrackSvgLayout(parent, args) {
 //			"stroke-width":1,
 //			"stroke":"green"
 //	});
+	
 	this.currentLine = SVG.addChild(this.svg,"rect",{
 		"x":mid,
 		"y":this.height,
@@ -165,6 +224,7 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.currentLine.setAttribute("width", this.pixelBase);
+	this.viewNtsText.textContent = "Viewing "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
 	this.onZoomChange.notify();
 };
 TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
@@ -212,13 +272,11 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
-	trackData.adapter.onGetData.addEventListener(function(sender,data){
-//		console.time("---drawFeatures");
+	trackData.adapter.onGetData.addEventListener(function(sender,event){
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw 
-		trackSvg.featuresRender(data);
+		trackSvg.featuresRender(event.data);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
-//		console.timeEnd("---drawFeatures");
 	});
 	
 	//first load
@@ -239,16 +297,16 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		trackSvg.interval = 5/_this.pixelBase;
 		trackSvg.histogram;
+		
 		if(_this.zoom <= trackSvg.histogramZoom){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 			trackSvg.histogram=true;
-			trackData.adapter.featureCache.clearType("histogram");
+//			trackData.adapter.featureCache.clearType("histogram");
 			console.log(trackData.adapter.featureCache);
 		}else{
 			trackSvg.featuresRender = trackSvg.defaultRender;
 			trackSvg.histogram=false;
 		}
-		
 		
 		$(trackSvg.features).empty();
 		trackData.adapter.featureCache.featuresAdded = {};
@@ -306,12 +364,14 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			if(desp<0 && virtualEnd > callEnd){
 				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase), histogram:trackSvg.histogram, interval:trackSvg.interval});
 				callEnd = parseInt(callEnd+_this.halfVirtualBase);
+//				$(trackSvg.features).empty();
 //				console.log(callEnd);
 			}
 
 			if(desp>0 && virtualStart < callStart){
 				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval});
 				callStart = parseInt(callStart-_this.halfVirtualBase);
+//				$(trackSvg.features).empty();
 //				console.log(callStart);
 			}
 		}

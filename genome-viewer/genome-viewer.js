@@ -58,6 +58,8 @@ function GenomeViewer(targetId, species, args) {
 		_this.setLoc(data);
 	});
 
+//	this.geneBioTypeColors = this.getGeneBioTypeColors();
+//	this.snpBioTypeColors = this.getSnpBioTypeColors();
 	
 	// useful logs
 	console.log(this.width+"x"+this.height);
@@ -289,8 +291,14 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        	 id:this.id+"zoomOutButton",
 		        	 margin : '0 0 0 10',
 		        	 iconCls:'icon-zoom-out',
-		        	 handler : function() {
-		        		 _this._handleNavigationBar('-');
+		        	 listeners : {
+		        		 click:{
+		        			 fn :function() {
+		        				 var current = Ext.getCmp(_this.id+'zoomSlider').getValue();
+		        				 Ext.getCmp(_this.id+'zoomSlider').setValue(current-_this.increment);
+		        			 },
+		        			 buffer : 400
+		        		 }
 		        	 }
 		         }, 
 		         this._getZoomSlider(), 
@@ -298,8 +306,14 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        	 id:this.id+"zoomInButton",
 		        	 margin:'0 5 0 0',
 		        	 iconCls:'icon-zoom-in',
-		        	 handler :  function() {
-		        		 _this._handleNavigationBar('+');
+		        	 listeners : {
+		        		 click:{
+		        			 fn :function() {
+		        				 var current = Ext.getCmp(_this.id+'zoomSlider').getValue();
+		        				 Ext.getCmp(_this.id+'zoomSlider').setValue(current+_this.increment);
+		        			 },
+		        			 buffer : 400
+		        		 }
 		        	 }
 		         },
 //		         {
@@ -472,7 +486,7 @@ GenomeViewer.prototype._getZoomSlider = function() {
 	var _this = this;
 	if(this._zoomSlider==null){
 		this._zoomSlider = Ext.create('Ext.slider.Single', {
-			id : this.id+'_zoomSlider',
+			id : this.id+'zoomSlider',
 			width : 200,
 			minValue : 0,
 			maxValue : 100,
@@ -486,16 +500,38 @@ GenomeViewer.prototype._getZoomSlider = function() {
 			}
 		});
 		
-		this._zoomSlider.on("changecomplete", function(slider, newValue) {
-			_this._handleNavigationBar("ZOOM", newValue);
+		this._zoomSlider.on({
+			'change': {
+				fn: function(slider, newValue) {
+				 _this._handleNavigationBar("ZOOM", newValue);
+   			 },
+   			 buffer : 500
+   			 }
 		});
+		
+//		this._zoomSlider.on("changecomplete", function(slider, newValue) {
+//			_this._handleNavigationBar("ZOOM", newValue);
+//		});
+	
 	}
 	return this._zoomSlider;
 };
 
+GenomeViewer.prototype._disableZoomElements = function(){
+	//disable sencha elements till render gets finished
+	Ext.getCmp(this.id+'zoomSlider').disable();
+	Ext.getCmp(this.id+"zoomOutButton").disable();
+	Ext.getCmp(this.id+"zoomInButton").disable();
+};
+GenomeViewer.prototype._enableZoomElements = function(){
+	Ext.getCmp(this.id+'zoomSlider').enable();
+	Ext.getCmp(this.id+"zoomOutButton").enable();
+	Ext.getCmp(this.id+"zoomInButton").enable();
+};
 
 GenomeViewer.prototype.setZoom = function(zoom) {
 	var _this = this;
+	
 	this.zoom = zoom;
 	this._getZoomSlider().setValue(zoom);
 	if(this.trackSvgLayout!=null){
@@ -736,129 +772,22 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 					featuresRender:"MultiFeatureRender",
 					histogramZoom:20,
 					height:150,
-					visibleRange:{start:0,end:100}
+					visibleRange:{start:0,end:100},
+					titleVisibility:'hidden',
+					settings:{
+						label: "externalName",
+						infoWidgetId: "externalName",
+						height:4,
+						histogramColor:"lightblue",
+						colorField: "biotype",
+						color: _this.geneBioTypeColors
+					}
 				});
 			}
 		}
 	});
 	return panel;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-//XXX BOTTOM BAR
-
-GenomeViewer.prototype._getBottomBar = function() {
-	var geneLegendPanel = new LegendPanel({title:'Gene legend'});
-	var snpLegendPanel = new LegendPanel({title:'SNP legend'});
-	
-	var scaleLabel = Ext.create('Ext.draw.Component', {
-		id:this.id+"scaleLabel",
-        width: 100,
-        height: 20,
-        items:[
-            {type: 'text',text: 'Scale number',fill: '#000000',x: 10,y: 9,width: 5, height: 20},
-            {type: 'rect',fill: '#000000',x: 0,y: 0,width: 2, height: 20},
-			{type: 'rect',fill: '#000000',x: 2,y: 12, width: 100,height: 3},
-			{type: 'rect',fill: '#000000',x: 101,y: 0, width: 2,height: 20}
-		]
-	});
-//	scale.surface.items.items[0].setAttributes({text:'num'},true);
-	
-	var aboutLabel = Ext.create('Ext.container.Container', {
-		id:this.id+'aboutLabel',
-		padding:5,
-		html: this.version
-	});
-	
-	var taskbar = Ext.create('Ext.toolbar.Toolbar', {
-		id:this.id+'uxTaskbar',
-		winMgr: new Ext.ZIndexManager(),
-		enableOverflow:true,
-		cls: 'bio-hiddenbar',
-		height:28,
-		flex:1
-	});
-	
-	var getGeneBioTypeColors = function(){
-		var colors = new Object();
-		//TODO buscar los colores en ensembl!
-		colors["protein_coding"] = "#a00000";
-		colors["processed_transcript"] = "#0000ff";
-		colors["pseudogene"] = "#666666";
-		colors["miRNA"] = "#8b668b";//TODO falta
-		colors["snRNA"] = "#8b668b";
-		colors["snoRNA"] = "#8b668b";//TODO falta
-		colors["lincRNA"] = "#8b668b";
-		
-		colors["other"] = "#ffffff";
-		return colors;
-	};
-	var getSnpBioTypeColors = function(){
-		//TODO
-		var colors = new Object();
-		colors["2KB_upstream_variant"] = "#a2b5cd";				//TODO done Upstream
-		colors["5KB_upstream_variant"] = "#a2b5cd";				//TODO done Upstream
-		colors["500B_downstream_variant"] = "#a2b5cd";			//TODO done Downstream
-		colors["5KB_downstream_variant"] = "#a2b5cd";			//TODO done Downstream
-		colors["3_prime_UTR_variant"] = "#7ac5cd";				//TODO done 3 prime UTR
-		colors["5_prime_UTR_variant"] = "#7ac5cd";				//TODO done 5 prime UTR
-		colors["coding_sequence_variant"] = "#458b00";			//TODO done Coding unknown
-		colors["complex_change_in_transcript"] = "#00fa9a";		//TODO done Complex in/del
-		colors["frameshift_variant"] = "#ff69b4";				//TODO done Frameshift coding
-		colors["incomplete_terminal_codon_variant"] = "#ff00ff";	//TODO done Partial codon
-		colors["inframe_codon_gain"] = "#ffd700";				//TODO done Non-synonymous coding
-		colors["inframe_codon_loss"] = "#ffd700";				//TODO done Non-synonymous coding
-		colors["initiator_codon_change"] = "#ffd700";			//TODO done Non-synonymous coding
-		colors["non_synonymous_codon"] = "#ffd700";				//TODO done Non-synonymous coding
-		colors["intergenic_variant"] = "#636363";				//TODO done Intergenic
-		colors["intron_variant"] = "#02599c";					//TODO done Intronic
-		colors["mature_miRNA_variant"] = "#458b00";				//TODO done Within mature miRNA
-		colors["nc_transcript_variant"] = "#32cd32";				//TODO done Within non-coding gene
-		colors["splice_acceptor_variant"] = "#ff7f50";			//TODO done Essential splice site
-		colors["splice_donor_variant"] = "#ff7f50";				//TODO done Essential splice site
-		colors["splice_region_variant"] = "#ff7f50";				//TODO done Splice site
-		colors["stop_gained"] = "#ff0000";						//TODO done Stop gained
-		colors["stop_lost"] = "#ff0000";							//TODO done Stop lost
-		colors["stop_retained_variant"] = "#76ee00";				//TODO done Synonymous coding
-		colors["synonymous_codon"] = "#76ee00";					//TODO done Synonymous coding
-		
-		colors["other"] = "#ffffff";
-		return colors;
-	};
-	
-	var legendBar = Ext.create('Ext.toolbar.Toolbar', {
-		id:this.id+'legendBar',
-		cls: 'bio-hiddenbar',
-		width:300,
-		height:28,
-		items : [scaleLabel, 
-		         '-',
-		         geneLegendPanel.getButton(getGeneBioTypeColors()),
-		         snpLegendPanel.getButton(getSnpBioTypeColors()),
-		         '->']
-	});
-	
-	var bottomBar = Ext.create('Ext.container.Container', {
-		id:this.id+'bottomBar',
-		layout:'hbox',
-		cls:"bio-botbar x-unselectable",
-		height:30,
-		border:true,
-		items : [aboutLabel,taskbar,legendBar]
-	});
-	return bottomBar;
-};
-//BOTTOM BAR
 
 GenomeViewer.prototype._drawTracksPanel = function() {
 	var _this=this;
@@ -900,7 +829,11 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					featuresRender:"SequenceRender",
 //					histogramZoom:"",
 					height:50,
-					visibleRange:{start:100,end:100}
+					visibleRange:{start:100,end:100},
+					settings:{
+						color: {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"},
+						closable: false
+					}
 				});
 				
 				
@@ -923,8 +856,17 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					featuresRender:"MultiFeatureRender",
 					histogramZoom:20,
 					height:24,
-					visibleRange:{start:0,end:100}
+					visibleRange:{start:0,end:100},
+					settings:{
+						label: "externalName",
+						infoWidgetId: "externalName",
+						colorField: "biotype",
+						height:4,
+						histogramColor:"lightblue",
+						color: _this.geneBioTypeColors
+					}
 				});
+				
 				
 				var snpTrack = new TrackData("snp",{
 					adapter: new CellBaseAdapter({
@@ -933,7 +875,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 						resource: "snp",
 						species: _this.species,
 						featureCache:{
-							gzip: false,
+							gzip: true,
 							chunkSize:10000
 						}
 					})
@@ -943,9 +885,17 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					type:"snp",
 					histogramRender:null,
 					featuresRender:"MultiFeatureRender",
-					histogramZoom:65,
+					histogramZoom:80,
 					height:150,
-					visibleRange:{start:0,end:100}
+					visibleRange:{start:0,end:100},
+					settings:{
+						label: "name",
+						infoWidgetId: "name",
+						colorField: "displaySoConsequence",
+						height:10,
+						histogramColor:"orange",
+						color: _this.snpBioTypeColors
+					}
 				});
 				
 				
@@ -965,14 +915,30 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 //					visibleRange:{start:0,end:100}
 //				});
 				
-//					var track3 = new TrackData("gff",{
-//						adapter: new GFFDataAdapter(new UrlDataSource("http://bioinfo.cipf.es/apps-beta/examples/example.gff"),{
-//							async: false,
-//							gzip: false
-//						})
-//					});
-//					_this.trackSvgLayout.addTrack(track3,{id:"gff",type:"gff"});
-//					console.log(track3.adapter.featureCache.cache);
+//				
+//				var vcfTrack = new TrackData("vcf",{
+//					adapter: new VCFDataAdapter(new UrlDataSource("http://fsalavert/example.vcf"),{
+//						async: false,
+//						gzip: true
+//					})
+//				});
+//				_this.trackSvgLayout.addTrack(vcfTrack,{
+//					id:"vcf",
+//					type:"vcf",
+//					histogramRender:null,
+//					featuresRender:"MultiFeatureRender",
+//					histogramZoom:"",
+//					height:50,
+//					visibleRange:{start:0,end:100}
+//				});
+				
+//				var track3 = new TrackData("gff",{
+//					adapter: new GFFDataAdapter(new UrlDataSource("http://rsanchez/example.gff"),{
+//						async: false,
+//						gzip: true
+//					})
+//				});
+//				_this.trackSvgLayout.addTrack(track3,{id:"gff",type:"gff"});
 
 //					var track4 = new TrackData("bed",{
 //						adapter: new BEDDataAdapter(new UrlDataSource("http://bioinfo.cipf.es/apps-beta/examples/example.bed"),{
@@ -1010,3 +976,104 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 	});
 	return panel;
 };
+
+
+GenomeViewer.prototype.geneBioTypeColors = {
+		//TODO buscar los colores en ensembl!
+		"protein_coding":"#a00000",
+		"processed_transcript":"#0000ff",
+		"pseudogene":"#666666",
+		"miRNA":"#8b668b",//TODO falta
+		"snRNA":"#8b668b",
+		"snoRNA":"#8b668b",//TODO falta
+		"lincRNA":"#8b668b",
+		"other":"#ffffff"
+	};
+
+	GenomeViewer.prototype.snpBioTypeColors = {
+		"2KB_upstream_variant":"#a2b5cd",				//TODO done Upstream
+		"5KB_upstream_variant":"#a2b5cd",				//TODO done Upstream
+		"500B_downstream_variant":"#a2b5cd",			//TODO done Downstream
+		"5KB_downstream_variant":"#a2b5cd",			//TODO done Downstream
+		"3_prime_UTR_variant":"#7ac5cd",				//TODO done 3 prime UTR
+		"5_prime_UTR_variant":"#7ac5cd",				//TODO done 5 prime UTR
+		"coding_sequence_variant":"#458b00",			//TODO done Coding unknown
+		"complex_change_in_transcript":"#00fa9a",		//TODO done Complex in/del
+		"frameshift_variant":"#ff69b4",				//TODO done Frameshift coding
+		"incomplete_terminal_codon_variant":"#ff00ff",	//TODO done Partial codon
+		"inframe_codon_gain":"#ffd700",				//TODO done Non-synonymous coding
+		"inframe_codon_loss":"#ffd700",				//TODO done Non-synonymous coding
+		"initiator_codon_change":"#ffd700",			//TODO done Non-synonymous coding
+		"non_synonymous_codon":"#ffd700",				//TODO done Non-synonymous coding
+		"intergenic_variant":"#636363",				//TODO done Intergenic
+		"intron_variant":"#02599c",					//TODO done Intronic
+		"mature_miRNA_variant":"#458b00",				//TODO done Within mature miRNA
+		"nc_transcript_variant":"#32cd32",				//TODO done Within non-coding gene
+		"splice_acceptor_variant":"#ff7f50",			//TODO done Essential splice site
+		"splice_donor_variant":"#ff7f50",				//TODO done Essential splice site
+		"splice_region_variant":"#ff7f50",				//TODO done Splice site
+		"stop_gained":"#ff0000",						//TODO done Stop gained
+		"stop_lost":"#ff0000",							//TODO done Stop lost
+		"stop_retained_variant":"#76ee00",				//TODO done Synonymous coding
+		"synonymous_codon":"#76ee00",					//TODO done Synonymous coding
+		"other":"#ffffff"
+	};
+
+
+//XXX BOTTOM BAR
+
+GenomeViewer.prototype._getBottomBar = function() {
+	var geneLegendPanel = new LegendPanel({title:'Gene legend'});
+	var snpLegendPanel = new LegendPanel({title:'SNP legend'});
+	
+	var scaleLabel = Ext.create('Ext.draw.Component', {
+		id:this.id+"scaleLabel",
+        width: 100,
+        height: 20,
+        items:[
+            {type: 'text',text: 'Scale number',fill: '#000000',x: 10,y: 9,width: 5, height: 20},
+            {type: 'rect',fill: '#000000',x: 0,y: 0,width: 2, height: 20},
+			{type: 'rect',fill: '#000000',x: 2,y: 12, width: 100,height: 3},
+			{type: 'rect',fill: '#000000',x: 101,y: 0, width: 2,height: 20}
+		]
+	});
+//	scale.surface.items.items[0].setAttributes({text:'num'},true);
+	
+	var aboutLabel = Ext.create('Ext.container.Container', {
+		id:this.id+'aboutLabel',
+		padding:5,
+		html: this.version
+	});
+	
+	var taskbar = Ext.create('Ext.toolbar.Toolbar', {
+		id:this.id+'uxTaskbar',
+		winMgr: new Ext.ZIndexManager(),
+		enableOverflow:true,
+		cls: 'bio-hiddenbar',
+		height:28,
+		flex:1
+	});
+	
+	var legendBar = Ext.create('Ext.toolbar.Toolbar', {
+		id:this.id+'legendBar',
+		cls: 'bio-hiddenbar',
+		width:300,
+		height:28,
+		items : [scaleLabel, 
+		         '-',
+		         geneLegendPanel.getButton(this.geneBioTypeColors),
+		         snpLegendPanel.getButton(this.snpBioTypeColors),
+		         '->']
+	});
+	
+	var bottomBar = Ext.create('Ext.container.Container', {
+		id:this.id+'bottomBar',
+		layout:'hbox',
+		cls:"bio-botbar x-unselectable",
+		height:30,
+		border:true,
+		items : [aboutLabel,taskbar,legendBar]
+	});
+	return bottomBar;
+};
+//BOTTOM BAR
