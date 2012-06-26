@@ -321,6 +321,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			virtualStart = callStart;
 			vitualEnd = callEnd;
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval});
+			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
+		}else{
+			trackSvg.invalidZoomText.setAttribute("visibility", "visible");
 		}
 	});
 

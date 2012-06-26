@@ -106,7 +106,7 @@ TrackSvg.prototype.draw = function(){
 	var features = SVG.addChild(main,"svg",{
 		"x":-this.pixelPosition,
 		"width":this.lienzo,
-		"height":this.height,
+		"height":this.height
 	});
 	
 	var titleGroup = SVG.addChild(main,"g",{
@@ -241,6 +241,17 @@ TrackSvg.prototype.draw = function(){
 		settingsRect.setAttribute("visibility","hidden");
 	});
 	
+	
+	this.invalidZoomText = SVG.addChild(main,"text",{
+		"x":154,
+		"y":14,
+		"font-size": 10,
+		"opacity":"0.6",
+		"fill":"black",
+		"visibility":"hidden"
+	});
+	this.invalidZoomText.textContent = "This level of zoom isn't appropiate for this track";
+	
 	//ya no se usa, es track svg layout el q captura el evento de click y arrastrar
 //	$(this.parent).mousedown(function(event) {
 //		var x = parseInt(features.getAttribute("x")) - event.clientX;
@@ -374,7 +385,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				"x":x+1,
 				"y":13,
 				"font-size":16,
-				"font-family": "monospace",
+				"font-family": "monospace"
 //				"fill":this.settings.color[seqString.charAt(i)]
 			});
 			text.textContent = seqString;
