@@ -9,6 +9,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
 	this.parentLayout = null;
 	
+	
 	//default values
 	this.height=25;
 	
@@ -233,7 +234,7 @@ TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.po
 	}
 	if(item.position!=null){
 		this.position = parseInt(item.position);//check int, must be a number
-		this.positionText.textContent = this.position;
+		this.positionText.textContent = this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 	}
 	if(item.species!=null){
 		//check species and modify CellBaseAdapter, clean cache
