@@ -548,33 +548,33 @@ NetworkViewer.prototype.drawMenuBar = function(){
 		
 		
 		var ExportToMeu = Ext.create('Ext.menu.Menu', {
-						
-						items :[
-										{
-											text:"PNG", 
-											handler:function(){
-												var content = _this.networkWidget.getGraphCanvas().toHTML();
-												_this.drawConvertPNGDialog(content,"png");
-											}
-										},{
-											text:"JPG", 
-											handler:function(){
-												var content = _this.networkWidget.getGraphCanvas().toHTML();
-												_this.drawConvertPNGDialog(content,"jpg");
-											}
-										},
-										
-										{
-											text:"SVG (recommended)",
-											handler:function(){
-													var content = _this.networkWidget.getGraphCanvas().toHTML();
-													var clienSideDownloaderWindowWidget = new ClienSideDownloaderWindowWidget();
-													clienSideDownloaderWindowWidget.draw(content, content);
-											}
-											
-											
-										}
-								]
+
+			items :[
+			        {
+			        	text:"PNG", 
+			        	handler:function(){
+			        		var content = _this.networkWidget.getGraphCanvas().toHTML();
+			        		_this.drawConvertPNGDialog(content,"png");
+			        	}
+			        },{
+			        	text:"JPG", 
+			        	handler:function(){
+			        		var content = _this.networkWidget.getGraphCanvas().toHTML();
+			        		_this.drawConvertPNGDialog(content,"jpg");
+			        	}
+			        },
+
+			        {
+			        	text:"SVG (recommended)",
+			        	handler:function(){
+			        		var content = _this.networkWidget.getGraphCanvas().toHTML();
+			        		var clienSideDownloaderWindowWidget = new ClienSideDownloaderWindowWidget();
+			        		clienSideDownloaderWindowWidget.draw(content, content);
+			        	}
+
+
+			        }
+			        ]
 
 		});
 		

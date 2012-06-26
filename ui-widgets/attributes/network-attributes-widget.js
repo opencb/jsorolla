@@ -66,7 +66,7 @@ NetworkAttributesWidget.prototype.drawNetwork = function (targetId, dataset, for
 	var dsLayout = new LayoutDataset();
 	dsLayout.loadFromJSON(this.dataset, layout.toJSON());
 	
-	this.networkWidget = new NetworkWidget({targetId: targetId, label:false});
+	this.networkWidget = new NetworkWidget(null, {targetId: targetId, label:false});
 	this.networkWidget.draw(this.dataset, this.formatter, dsLayout);
 	this.networkWidget.getFormatter().resize(this.networkWidth, this.networkHeigth);
 };

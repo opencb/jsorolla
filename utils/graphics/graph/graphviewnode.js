@@ -25,8 +25,8 @@ function GraphViewNode(graphView, node, coordenates, size, color, shape, opacity
 
    this.noseStrokeWidth = "1";
    if (noseStrokeWidth!=null){
-	   	this.noseStrokeWidth = noseStrokeWidth;   
-  }
+	   this.noseStrokeWidth = noseStrokeWidth;   
+   }
    this.over = new Event(this);
    this.mouseout = new Event(this);
    this.mousedown = new Event(this);

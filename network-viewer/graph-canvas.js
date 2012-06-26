@@ -4,7 +4,7 @@ function GraphCanvas (componentID, targetNode,  args) {
 	this.targetID = targetNode.id;
 	
 	/** id manage */
-	this.id = componentID;	
+	this.id = componentID;
 	this.args.idGraph = this.id + "main";
 	this.args.idBackgroundNode = this.id + "background";
 	
@@ -139,7 +139,14 @@ GraphCanvas.prototype.createSVGDom = function(targetID, id, width, height, backg
 	var container = document.getElementById(targetID);
 //	this._svg = SVG.createSVGCanvas(container, [["style", "background-color:"+ backgroundColor+"; border: solid 1px #bbb"],["id", id], ["dragx", 0 ] , ["dragy", 0 ],["height", this.getFormatter().getHeight()], ["width", this.getFormatter().getWidth()]]);
 //	this._svg = SVG.createSVGCanvas(container, [["style", "background-color:"+ backgroundColor+";"],["id", id], ["dragx", 0 ] , ["dragy", 0 ],["height", this.getFormatter().getHeight()], ["width", this.getFormatter().getWidth()]]);
-	this._svg = SVG.init(container, {"style": "background-color:"+ backgroundColor+";","id": id, "dragx": 0, "dragy": 0, "height": this.getFormatter().getHeight(), "width": this.getFormatter().getWidth()});
+	this._svg = SVG.init(container,{
+		"style": "background-color:"+ backgroundColor+";",
+		"id": id,
+		"dragx": 0,
+		"dragy": 0,
+		"height": this.getFormatter().getHeight(),
+		"width": this.getFormatter().getWidth()
+	});
 	//	var rect = SVG.drawRectangle(this.formatter.getLeft(), 0, this.formatter.getRight() - this.formatter.getLeft() , this.formatter.getHeight(), this._svg, [["dragx", 0], ["dragy", 0],["fill", backgroundColor],["id", this.args.idBackgroundNode]]);
 	return this._svg;
 };
@@ -1131,13 +1138,10 @@ GraphCanvas.prototype.renderLabel = function(nodeId){
 		var gragy = parseFloat(this.getFormatter().getVertexById(nodeId).getDefault().getSize())  + Math.ceil(this.getLayout().getNodeById(nodeId).y * this.getFormatter().getHeight()); 
 		svgAttributesNode.dragy = gragy; 
 		svgAttributesNode.transform = "translate("+ svgAttributesNode.dragx + "," + svgAttributesNode.dragy +")";//, scale("+this.formatter.getVertexById(nodeId).getDefault().getSize()+")";
+		svgAttributesNode.x = 0;
+		svgAttributesNode.y = 0;
 		
-		//TODO separar svgAttributesNode
-		var nodeSVG = SVG.addChild(this.GraphLabelGroup, "text",{
-				"x": 0,
-				"y": 0
-//				svgAttributesNode
-		});
+		var nodeSVG = SVG.addChild(this.GraphLabelGroup, "text", svgAttributesNode);
 		nodeSVG.textContent = this.getDataset().getVertexById(nodeId).getName();
 		
 		this.svgLabels[nodeId] = nodeSVG;
@@ -1168,38 +1172,49 @@ GraphCanvas.prototype.renderNode = function(nodeId){
 	svgAttributesNode.transform = "translate("+ svgAttributesNode.dragx + "," + svgAttributesNode.dragy +"), scale("+this.getFormatter().getVertexById(nodeId).getDefault().getSize()+")";
 	svgAttributesNode.id = this.getSVGNodeId(nodeId);
 	
-	
 	var nodeSVG;
 	
-	
 	if (this.getFormatter().getVertexById(nodeId) instanceof CircleVertexGraphFormatter){
-		nodeSVG = SVG.drawCircle(this.GraphNodeGroup, "circle",{
-			"cx": 0 ,
-			"cy": 0 ,
-			"r": this.circleDefaultRadius,
-			svgAttributesNode
-		});
+		svgAttributesNode.cx = 0;
+		svgAttributesNode.cy = 0;
+		svgAttributesNode.r = this.circleDefaultRadius;
+		nodeSVG = SVG.addChild(this.GraphNodeGroup, "circle", svgAttributesNode);
 	}
 	
 	if (this.getFormatter().getVertexById(nodeId) instanceof SquareVertexGraphFormatter){
 		//nodeSVG = SVG.drawRectangle(0 - (this.circleDefaultRadius) ,0 - (this.formatter.getVertexById(nodeId).getDefault().getSize()) , (this.getFormatter().getVertexById(nodeId).getDefault().getSize()*2),  (this.getFormatter().getVertexById(nodeId).getDefault().getSize()*2), this.GraphNodeGroup, svgAttributesNode);
-		nodeSVG = SVG.drawRectangle(0 - (this.circleDefaultRadius) ,0 - (this.circleDefaultRadius) , (this.circleDefaultRadius*2),  (this.circleDefaultRadius*2), this.GraphNodeGroup, svgAttributesNode);
+		svgAttributesNode.x = 0 - (this.circleDefaultRadius);
+		svgAttributesNode.y = 0 - (this.circleDefaultRadius);
+		svgAttributesNode.width = (this.circleDefaultRadius*2);
+		svgAttributesNode.height = (this.circleDefaultRadius*2);
+		nodeSVG = SVG.addChild(this.GraphNodeGroup, "rect", svgAttributesNode);
 	}
 	
 	if (this.getFormatter().getVertexById(nodeId) instanceof EllipseVertexGraphFormatter){
-		nodeSVG = SVG.drawEllipse(0  ,0 , this.circleDefaultRadius*1.5,  this.circleDefaultRadius, this.GraphNodeGroup, svgAttributesNode);
+		svgAttributesNode.x = 0;
+		svgAttributesNode.y = 0;
+		svgAttributesNode.rx = this.circleDefaultRadius*1.5;
+		svgAttributesNode.ry = this.circleDefaultRadius;
+		nodeSVG = SVG.addChild(this.GraphNodeGroup, "ellipse", svgAttributesNode);
 	}
 	
 	if (this.getFormatter().getVertexById(nodeId) instanceof RectangleVertexGraphFormatter){
 		//nodeSVG = SVG.drawRectangle(0 - (this.circleDefaultRadius) ,0 - ((this.circleDefaultRadius*2)/2) , (this.circleDefaultRadius*2),  (this.circleDefaultRadius), this.GraphNodeGroup, svgAttributesNode);
-		nodeSVG = SVG.drawRectangle(0 - (this.circleDefaultRadius*1.5) ,0 - (this.circleDefaultRadius) , (this.circleDefaultRadius*2*1.5),  (this.circleDefaultRadius*2), this.GraphNodeGroup, svgAttributesNode);
-
+		svgAttributesNode.x = 0 - (this.circleDefaultRadius*1.5);
+		svgAttributesNode.y = 0 - (this.circleDefaultRadius);
+		svgAttributesNode.width = (this.circleDefaultRadius*2*1.5);
+		svgAttributesNode.height = (this.circleDefaultRadius*2);
+		nodeSVG = SVG.addChild(this.GraphNodeGroup, "rect", svgAttributesNode);
 	}
 	
 	if (this.getFormatter().getVertexById(nodeId) instanceof RoundedVertexGraphFormatter){
 		svgAttributesNode.ry = 2;// this.formatter.getVertexById(nodeId).getDefault().getSize()/4;
 		svgAttributesNode.rx = 2;// this.formatter.getVertexById(nodeId).getDefault().getSize()/4;
-		nodeSVG = SVG.drawRectangle(0 - (this.circleDefaultRadius*1.5) ,0 - (this.circleDefaultRadius) , (this.circleDefaultRadius*2*1.5),  (this.circleDefaultRadius*2), this.GraphNodeGroup, svgAttributesNode);
+		svgAttributesNode.x = 0 - (this.circleDefaultRadius*1.5);
+		svgAttributesNode.y = 0 - (this.circleDefaultRadius);
+		svgAttributesNode.width = (this.circleDefaultRadius*2*1.5);
+		svgAttributesNode.height = (this.circleDefaultRadius*2);
+		nodeSVG = SVG.addChild(this.GraphNodeGroup, "rect", svgAttributesNode);
 	}
 	
 	//<polygon fill="violet" stroke="violet" points="935.972,-363.757 935.972,-380.243 914.9,-391.9 885.1,-391.9 864.028,-380.243 864.028,-363.757 885.1,-352.1 914.9,-352.1 935.972,-363.757"/> 
@@ -1207,7 +1222,11 @@ GraphCanvas.prototype.renderNode = function(nodeId){
 	if (this.getFormatter().getVertexById(nodeId) instanceof OctagonVertexGraphFormatter){
 		svgAttributesNode.ry = 2;
 		svgAttributesNode.rx = 2;
-		nodeSVG = SVG.drawRectangle(0 - (this.circleDefaultRadius*1.5) ,0 - (this.circleDefaultRadius) , (this.circleDefaultRadius*2*1.5),  (this.circleDefaultRadius*2), this.GraphNodeGroup, svgAttributesNode);
+		svgAttributesNode.x = 0 - (this.circleDefaultRadius*1.5);
+		svgAttributesNode.y = 0 - (this.circleDefaultRadius);
+		svgAttributesNode.width = (this.circleDefaultRadius*2*1.5);
+		svgAttributesNode.height = (this.circleDefaultRadius*2);
+		nodeSVG = SVG.addChild(this.GraphNodeGroup, "rect", svgAttributesNode);
 	}
 	
 	nodeSVG.internalId = nodeId;
@@ -1329,22 +1348,25 @@ GraphCanvas.prototype.renderEdge = function(edgeId){
 	var svgNodeSource = this.getVertexById(edge.getNodeSource().getId());
 	svgAttributesEdge.id = this.getSVGEdgeId(edge.getId()) + "_shadow";
 	
-	
 	var svgEdge = null;
 	
 	if (this.getFormatter().getEdgeById(edgeId) instanceof LineEdgeGraphFormatter){
-		var coordenateSourceX = svgNodeSource.getAttribute("dragx");
-		var coordenateSourceY = svgNodeSource.getAttribute("dragy");
-		var coordenateTargetX = svgNodeTarget.getAttribute("dragx");
-		var coordenateTargetY =  svgNodeTarget.getAttribute("dragy");
+		svgAttributesEdge.x1 = svgNodeSource.getAttribute("dragx");
+		svgAttributesEdge.y1 = svgNodeSource.getAttribute("dragy");
+		svgAttributesEdge.x2 = svgNodeTarget.getAttribute("dragx");
+		svgAttributesEdge.y2 = svgNodeTarget.getAttribute("dragy");
+		SVG.addChild(this.GraphEdgeGroup, "line", svgAttributesEdge);
 		
-		SVG.drawLine(coordenateSourceX, coordenateSourceY, coordenateTargetX, coordenateTargetY,  this.GraphEdgeGroup, svgAttributesEdge);
-		var attributesShadow = new Object();
+		var attributesShadow = {};
 		attributesShadow.id = this.getSVGEdgeId(edge.getId());
 		attributesShadow["stroke-opacity"] = 0;
 		attributesShadow["stroke-width"] = 4;
 		attributesShadow["stroke"] = "black";
-		svgEdge = SVG.drawLine(svgNodeSource.getAttribute("dragx") ,svgNodeSource.getAttribute("dragy"), svgNodeTarget.getAttribute("dragx"), svgNodeTarget.getAttribute("dragy"), this.GraphEdgeGroup, attributesShadow);
+		attributesShadow.x1 = svgNodeSource.getAttribute("dragx");
+		attributesShadow.y1 = svgNodeSource.getAttribute("dragy");
+		attributesShadow.x2 = svgNodeTarget.getAttribute("dragx");
+		attributesShadow.y2 = svgNodeTarget.getAttribute("dragy");
+		svgEdge = SVG.addChild(this.GraphEdgeGroup, "line", attributesShadow);
 	}
 	
 	if(this.getFormatter().getEdgeById(edgeId) instanceof BezierEdgeGraphFormatter){
@@ -1352,8 +1374,10 @@ GraphCanvas.prototype.renderEdge = function(edgeId){
 		var nodeSize = this.formatter.getVertexById(nodeId).getDefault().getSize() * this.getFormatter().getNodesMaxSize();
 		svgAttributesEdge.fill = "none";
 		svgAttributesEdge.id = this.getSVGEdgeId(edgeId);
-		var d = this.calculateCoordenatesBezier(nodeSize, svgNodeSource.getAttribute("dragx") ,svgNodeSource.getAttribute("dragy"));
-		svgEdge = SVG.drawPath(d, this.GraphEdgeGroup, svgAttributesEdge);
+		
+		var svgAttributesPath = svgAttributesEdge;
+		svgAttributesPath.d = this.calculateCoordenatesBezier(nodeSize, svgNodeSource.getAttribute("dragx") ,svgNodeSource.getAttribute("dragy"));
+		svgEdge = SVG.addChild(this.GraphEdgeGroup, "path", svgAttributesPath);
 	};
 
 	if ((this.getFormatter().getEdgeById(edgeId) instanceof DirectedLineEdgeGraphFormatter)|| (this.getFormatter().getEdgeById(edgeId) instanceof CutDirectedLineEdgeGraphFormatter) || (this.getFormatter().getEdgeById(edgeId) instanceof DotDirectedLineEdgeGraphFormatter) || (this.getFormatter().getEdgeById(edgeId) instanceof OdotDirectedLineEdgeGraphFormatter) || (this.getFormatter().getEdgeById(edgeId) instanceof OdirectedLineEdgeGraphFormatter)){
@@ -1366,14 +1390,23 @@ GraphCanvas.prototype.renderEdge = function(edgeId){
 		var point = this._calculateEdgePointerPosition(coordenateSourceX, coordenateSourceY, coordenateTargetX, coordenateTargetY, offset);
 		coordenateTargetX = point.x;
 		coordenateTargetY = point.y;
-		SVG.drawLine(coordenateSourceX ,coordenateSourceY,coordenateTargetX, coordenateTargetY, this.GraphEdgeGroup, svgAttributesEdge);
+		
+		svgAttributesEdge.x1 = coordenateSourceX;
+		svgAttributesEdge.y1 = coordenateSourceY;
+		svgAttributesEdge.x2 = coordenateTargetX;
+		svgAttributesEdge.y2 = coordenateTargetY;
+		SVG.addChild(this.GraphEdgeGroup, "line", svgAttributesEdge);
 	
-		var attributesShadow = new Object();
+		var attributesShadow = {};
 		attributesShadow.id = this.getSVGEdgeId(edge.getId());
 		attributesShadow["stroke-opacity"] = 0;
 		attributesShadow["stroke-width"] = 4;
 		attributesShadow["stroke"] = "black";
-		svgEdge = SVG.drawLine(coordenateSourceX ,coordenateSourceY,coordenateTargetX, coordenateTargetY, this.GraphEdgeGroup, attributesShadow);
+		attributesShadow.x1 = coordenateSourceX;
+		attributesShadow.y1 = coordenateSourceY;
+		attributesShadow.x2 = coordenateTargetX;
+		attributesShadow.y2 = coordenateTargetY;
+		svgEdge = SVG.addChild(this.GraphEdgeGroup, "line", attributesShadow);
 	}
 	
 	if(this.getFormatter().getEdgeById(edgeId) instanceof DirectedLineEdgeGraphFormatter || (this.getFormatter().getEdgeById(edgeId) instanceof OdirectedLineEdgeGraphFormatter)){
@@ -1390,16 +1423,21 @@ GraphCanvas.prototype.renderEdge = function(edgeId){
 		this.arrowDefaultSize = this.getFormatter().getEdgeById(edgeId).getArrowSize(); //getDefault().getArrowSize();
 		var d = "-"+ this.arrowDefaultSize +",0 0,-"+parseFloat(this.arrowDefaultSize)*2+" "+ this.arrowDefaultSize +",0";
 		
-		var attributes;
+		var attributes = {};
 
 		if (this.getFormatter().getEdgeById(edgeId) instanceof DirectedLineEdgeGraphFormatter ){
-			attributes = [["fill", this.getFormatter().getEdgeById(edgeId).getDefault().getStroke()], ["stroke", this.getFormatter().getEdgeById(edgeId).getDefault().getStroke()], ["id", this.getSVGArrowEdgeId(edgeId)]];
+			attributes.fill = this.getFormatter().getEdgeById(edgeId).getDefault().getStroke();
+			attributes.stroke = this.getFormatter().getEdgeById(edgeId).getDefault().getStroke();
+			attributes.id = this.getSVGArrowEdgeId(edgeId);
 		}
 		else{
-			attributes = [["fill", "#FFFFFF"], ["stroke", this.getFormatter().getEdgeById(edgeId).getDefault().getStroke()], ["id", this.getSVGArrowEdgeId(edgeId)]];
+			attributes.fill = "#FFFFFF";
+			attributes.stroke = this.getFormatter().getEdgeById(edgeId).getDefault().getStroke();
+			attributes.id = this.getSVGArrowEdgeId(edgeId);
 		}
 		
-		var flechaSVGNode = SVG.drawPoligon(d, this.GraphEdgeGroup, attributes);//, ["transform", "rotate("+angle+"), translate(0,0)"]]);
+		attributes.d = d;
+		var flechaSVGNode = SVG.addChild(this.GraphEdgeGroup, "polygon", attributes);//, ["transform", "rotate("+angle+"), translate(0,0)"]]);
 		flechaSVGNode.setAttribute("transform", " translate("+coordenateTargetX+", "+coordenateTargetY + "), rotate("+angle+")");
 	};
 	
@@ -1417,9 +1455,14 @@ GraphCanvas.prototype.renderEdge = function(edgeId){
 		var angle = Geometry.toDegree(point.angle) + 90;
 		
 		//this.arrowDefaultSize = 2; //getDefault().getArrowSize();
-		var d = "-4,0 4,0 4,-2 -4,-2";
+		var attributes = {
+				"fill": this.getFormatter().getEdgeById(edgeId).getDefault().getStroke(),
+				"stroke": this.getFormatter().getEdgeById(edgeId).getDefault().getStroke(),
+				"id": this.getSVGArrowEdgeId(edgeId),
+				"d": "-4,0 4,0 4,-2 -4,-2"
+		};
 		
-		var flechaSVGNode = SVG.drawPoligon(d, this.GraphEdgeGroup, [["fill", this.getFormatter().getEdgeById(edgeId).getDefault().getStroke()], ["stroke", this.getFormatter().getEdgeById(edgeId).getDefault().getStroke()], ["id", this.getSVGArrowEdgeId(edgeId)]]);//, ["transform", "rotate("+angle+"), translate(0,0)"]]);
+		var flechaSVGNode = SVG.addChild(this.GraphEdgeGroup, "polygon", attributes);//, ["transform", "rotate("+angle+"), translate(0,0)"]]);
 		flechaSVGNode.setAttribute("transform", " translate("+coordenateTargetX+", "+coordenateTargetY + "), rotate("+angle+")");
 	};
 	
@@ -1434,14 +1477,21 @@ GraphCanvas.prototype.renderEdge = function(edgeId){
 		coordenateTargetY = point.y;
 		var angle = Geometry.toDegree(point.angle) + 90;
 	//	this.arrowDefaultSize = this.formatter.getEdgeById(edgeId).getArrowSize(); //getDefault().getArrowSize();
-		var attributes = [];
+		var attributes = {};
 		if (this.getFormatter().getEdgeById(edgeId)  instanceof OdotDirectedLineEdgeGraphFormatter){
-			 attributes = [["fill", "#FFFFFF"], ["stroke", this.getFormatter().getEdgeById(edgeId).getDefault().getStroke()], ["id", this.getSVGArrowEdgeId(edgeId)]];
+			attributes.fill = "#FFFFFF";
+			attributes.stroke = this.getFormatter().getEdgeById(edgeId).getDefault().getStroke();
+			attributes.id = this.getSVGArrowEdgeId(edgeId);
 		}
 		else{
-			 attributes = [["fill", this.getFormatter().getEdgeById(edgeId).getDefault().getStroke()], ["stroke", this.getFormatter().getEdgeById(edgeId).getDefault().getStroke()], ["id", this.getSVGArrowEdgeId(edgeId)]];
+			attributes.fill = this.getFormatter().getEdgeById(edgeId).getDefault().getStroke();
+			attributes.stroke = this.getFormatter().getEdgeById(edgeId).getDefault().getStroke();
+			attributes.id = this.getSVGArrowEdgeId(edgeId);
 		}
-		var flechaSVGNode = SVG.drawCircle(0,0, 4, this.GraphEdgeGroup, attributes);
+		attributes.cx = 0;
+		attributes.cy = 0;
+		attributes.r = 4;
+		var flechaSVGNode = SVG.addChild(this.GraphEdgeGroup, "circle", attributes);
 		flechaSVGNode.setAttribute("transform", " translate("+coordenateTargetX+", "+coordenateTargetY + "), rotate("+angle+")");
 	};
 	

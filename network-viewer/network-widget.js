@@ -2,8 +2,10 @@ function NetworkWidget(species, args){
 	this.id = "NetworkWidget"+ Math.round(Math.random()*10000);
 	this.label = true;
 	
-	this.species=species;
-	
+	if(species != null){
+		this.species=species;
+	}
+
 	if (args != null){
 		if (args.targetId != null){
 			this.targetId = args.targetId;
@@ -158,23 +160,23 @@ NetworkWidget.prototype.getConnectedComponent = function(){
 NetworkWidget.prototype.visitNode = function(nodeId, nodosVisitados, aristasVisitadas, arrNodos, arrAristas){
 	nodosVisitados[nodeId]=true;
 	arrNodos.push(nodeId);
-		var nodeEdges = this.getDataset().getVertexById(nodeId).getEdges();
-		for ( var j = 0; j < nodeEdges.length; j++) {
-			var edge = nodeEdges[j];
-			var edgeId = edge.getId();
-			if(aristasVisitadas[edgeId]==null){
-				aristasVisitadas[edgeId]=true;
-				arrAristas.push(edgeId);
-				var nodeTargetId = edge.getNodeTarget().getId();
-				if(nodosVisitados[nodeTargetId]==null){
-					this.visitNode(nodeTargetId, nodosVisitados, aristasVisitadas, arrNodos, arrAristas);
-				}
-				var nodeSourceId = edge.getNodeSource().getId();
-				if(nodosVisitados[nodeSourceId]==null){
-					this.visitNode(nodeSourceId, nodosVisitados, aristasVisitadas, arrNodos, arrAristas);
-				}
+	var nodeEdges = this.getDataset().getVertexById(nodeId).getEdges();
+	for ( var j = 0; j < nodeEdges.length; j++) {
+		var edge = nodeEdges[j];
+		var edgeId = edge.getId();
+		if(aristasVisitadas[edgeId]==null){
+			aristasVisitadas[edgeId]=true;
+			arrAristas.push(edgeId);
+			var nodeTargetId = edge.getNodeTarget().getId();
+			if(nodosVisitados[nodeTargetId]==null){
+				this.visitNode(nodeTargetId, nodosVisitados, aristasVisitadas, arrNodos, arrAristas);
+			}
+			var nodeSourceId = edge.getNodeSource().getId();
+			if(nodosVisitados[nodeSourceId]==null){
+				this.visitNode(nodeSourceId, nodosVisitados, aristasVisitadas, arrNodos, arrAristas);
 			}
 		}
+	}
 };
 
 /** COLLAPSE SELECTED VERTICES **/

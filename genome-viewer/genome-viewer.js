@@ -138,7 +138,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this.trackSvgLayout.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
 		this.trackSvgLayout2.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
 		this.chromosomeWidget.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
-		this.karyotypePanel.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
+		this.karyotypeWidget.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
 		break;
 	case "_getChromosomeMenu":
 		if(this.chromosome!=data.chromosome){
@@ -146,7 +146,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 			this.trackSvgLayout.setLocation({chromosome:this.chromosome});
 			this.trackSvgLayout2.setLocation({chromosome:this.chromosome});
 			this.chromosomeWidget.setLocation({chromosome:this.chromosome});
-			this.karyotypePanel.setLocation({chromosome:this.chromosome,position:this.position});
+			this.karyotypeWidget.setLocation({chromosome:this.chromosome,position:this.position});
 		}
 		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
 		Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
@@ -158,14 +158,14 @@ GenomeViewer.prototype.setLoc = function(data) {
 			this.trackSvgLayout.setLocation({position:this.position});
 			this.trackSvgLayout2.setLocation({position:this.position});
 			this.chromosomeWidget.setLocation({position:this.position});
-			this.karyotypePanel.setLocation({position:this.position});
+			this.karyotypeWidget.setLocation({position:this.position});
 		}
 		if(this.chromosome!=data.chromosome){
 			this.chromosome = data.chromosome;
 			this.trackSvgLayout.setLocation({chromosome:this.chromosome});
 			this.trackSvgLayout2.setLocation({chromosome:this.chromosome});
 			this.chromosomeWidget.setLocation({chromosome:this.chromosome});
-			this.karyotypePanel.setLocation({chromosome:this.chromosome});
+			this.karyotypeWidget.setLocation({chromosome:this.chromosome});
 			Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
 			Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
 		}
@@ -191,14 +191,14 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this.position = data.position;
 		this.trackSvgLayout.setLocation({position:this.position});
 		this.trackSvgLayout2.setLocation({position:this.position});
-		this.karyotypePanel.setLocation({position:this.position});
+		this.karyotypeWidget.setLocation({position:this.position});
 		Ext.getCmp(this.id+'tbCoordinate').setValue(this.chromosome + ":" + Math.ceil(this.position));
 		break;
 	case "trackSvgLayout":
 		this.position -= data.position;
 		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
 		this.chromosomeWidget.setLocation({position:this.position});
-		this.karyotypePanel.setLocation({position:this.position});
+		this.karyotypeWidget.setLocation({position:this.position});
 		break;
 	default:
 	
@@ -583,7 +583,7 @@ GenomeViewer.prototype._drawKaryotypePanel = function() {
 		listeners:{
 			afterrender:function(){
 				var div = $('#'+_this.id+"karyotypeSvg")[0];
-				_this.karyotypePanel = new ChromosomeWidget(div,{
+				_this.karyotypeWidget = new KaryotypeWidget(div,{
 					width:_this.width,
 					height:168,
 					species:_this.species,
@@ -591,10 +591,10 @@ GenomeViewer.prototype._drawKaryotypePanel = function() {
 					zoom:_this.zoom,
 					position:_this.position
 				});
-				_this.karyotypePanel.onClick.addEventListener(function(sender,data){
+				_this.karyotypeWidget.onClick.addEventListener(function(sender,data){
 					_this.onLocationChange.notify({position:data.position,chromosome:data.chromosome,sender:"KaryotypePanel"});
 				});
-				_this.karyotypePanel.drawKaryotype();
+				_this.karyotypeWidget.drawKaryotype();
 			}
 		}
 	});
@@ -907,29 +907,29 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 					}
 				});
 				
-//				
-//				
-//				var geneTrack = new TrackData("gene",{
-//					adapter: new CellBaseAdapter({
-//						category: "genomic",
-//						subCategory: "region",
-//						resource: "gene",
-//						species: _this.species,
-//						featureCache:{
-//							gzip: true,
-//							chunkSize:50000
-//						}
-//					})
-//				});
-//				_this.trackSvgLayout.addTrack(geneTrack,{
-//					id:"gene",
-//					type:"gene",
-//					histogramRender:null,
-//					featuresRender:"MultiFeatureRender",
-//					histogramZoom:20,
-//					height:24,
-//					visibleRange:{start:0,end:100}
-//				});
+				
+				
+				var geneTrack = new TrackData("gene",{
+					adapter: new CellBaseAdapter({
+						category: "genomic",
+						subCategory: "region",
+						resource: "gene",
+						species: _this.species,
+						featureCache:{
+							gzip: true,
+							chunkSize:50000
+						}
+					})
+				});
+				_this.trackSvgLayout.addTrack(geneTrack,{
+					id:"gene",
+					type:"gene",
+					histogramRender:null,
+					featuresRender:"MultiFeatureRender",
+					histogramZoom:20,
+					height:24,
+					visibleRange:{start:0,end:100}
+				});
 				
 				var snpTrack = new TrackData("snp",{
 					adapter: new CellBaseAdapter({
@@ -971,21 +971,21 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 //				});
 				
 				
-				var vcfTrack = new TrackData("vcf",{
-					adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
-						async: false,
-						gzip: true
-					})
-				});
-				_this.trackSvgLayout.addTrack(vcfTrack,{
-					id:"vcf",
-					type:"vcf",
-					histogramRender:null,
-					featuresRender:"MultiFeatureRender",
-					histogramZoom:"",
-					height:50,
-					visibleRange:{start:0,end:100}
-				});
+//				var vcfTrack = new TrackData("vcf",{
+//					adapter: new VCFDataAdapter(new UrlDataSource("http://rsanchez/example.vcf"),{
+//						async: false,
+//						gzip: true
+//					})
+//				});
+//				_this.trackSvgLayout.addTrack(vcfTrack,{
+//					id:"vcf",
+//					type:"vcf",
+//					histogramRender:null,
+//					featuresRender:"MultiFeatureRender",
+//					histogramZoom:"",
+//					height:50,
+//					visibleRange:{start:0,end:100}
+//				});
 				
 //				var track3 = new TrackData("gff",{
 //					adapter: new GFFDataAdapter(new UrlDataSource("http://rsanchez/example.gff"),{
