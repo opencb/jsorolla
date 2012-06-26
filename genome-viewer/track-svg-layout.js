@@ -252,7 +252,6 @@ TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.po
 
 TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var _this = this;
-	
 	var visibleRange = args.visibleRange;
 	
 	args["position"] = this.position;
@@ -263,8 +262,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	var i = this.trackDataList.push(trackData);
 	
-	
 	var trackSvg = new TrackSvg(this.svg,args);
+	console.log(args.transcriptZoom);
 	
 	this.trackSvgList.push(trackSvg);
 	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
@@ -284,11 +283,25 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//needed call variables
 	var callStart = parseInt(this.position - this.halfVirtualBase);
 	var callEnd = parseInt(this.position + this.halfVirtualBase);
-	
 	//on first load get virtual window and retrieve data
+	if(_this.zoom <= trackSvg.histogramZoom){
+		trackSvg.featuresRender = trackSvg.HistogramRender;
+		trackSvg.histogram=true;
+		trackSvg.interval = 5/_this.pixelBase;
+//		trackData.adapter.featureCache.clearType("histogram");
+		console.log(trackData.adapter.featureCache);
+	}else{
+		trackSvg.featuresRender = trackSvg.defaultRender;
+	}
+	//for genes only
+	if(trackSvg.transcriptZoom != null && _this.zoom > trackSvg.transcriptZoom){
+		trackSvg.transcript=false;//XXX
+	}else{
+		trackSvg.transcript=null;
+	}
 	var virtualStart = callStart;
 	var vitualEnd = callEnd;
-	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd});
+	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 	
 	
 	//on zoom change set new virtual window and update track values
@@ -296,17 +309,21 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
 		
-		trackSvg.interval = 5/_this.pixelBase;
-		trackSvg.histogram;
-		
 		if(_this.zoom <= trackSvg.histogramZoom){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 			trackSvg.histogram=true;
+			trackSvg.interval = 5/_this.pixelBase;
 //			trackData.adapter.featureCache.clearType("histogram");
 			console.log(trackData.adapter.featureCache);
 		}else{
 			trackSvg.featuresRender = trackSvg.defaultRender;
-			trackSvg.histogram=false;
+		}
+		//for genes only
+		trackSvg.transcript=null;
+		if(trackSvg.transcriptZoom != null && _this.zoom > trackSvg.transcriptZoom){
+			trackSvg.transcript=true;
+		}else{
+			trackSvg.transcript=null;
 		}
 		
 		$(trackSvg.features).empty();
@@ -320,7 +337,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
 			virtualStart = callStart;
 			vitualEnd = callEnd;
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval});
+			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 		}
 	});
 
@@ -342,7 +359,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
 			virtualStart = callStart;
 			vitualEnd = callEnd;
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval});
+			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 		}
 	});
 	
@@ -363,14 +380,14 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
 
 			if(desp<0 && virtualEnd > callEnd){
-				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase), histogram:trackSvg.histogram, interval:trackSvg.interval});
+				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase), histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 				callEnd = parseInt(callEnd+_this.halfVirtualBase);
 //				$(trackSvg.features).empty();
 //				console.log(callEnd);
 			}
 
 			if(desp>0 && virtualStart < callStart){
-				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval});
+				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 				callStart = parseInt(callStart-_this.halfVirtualBase);
 //				$(trackSvg.features).empty();
 //				console.log(callStart);

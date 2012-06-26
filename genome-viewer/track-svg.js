@@ -20,6 +20,10 @@ function TrackSvg(parent, args) {
 	this.settings = {};
 	
 	
+	this.interval=null;
+	this.histogram=null;
+	this.transcript=null;
+	
 	if (args != null){
 		if(args.title != null){
 			this.title = args.title;
@@ -53,6 +57,9 @@ function TrackSvg(parent, args) {
 		}
 		if(args.histogramZoom != null){
 			this.histogramZoom = args.histogramZoom;
+		}
+		if(args.transcriptZoom != null){//gene only
+			this.transcriptZoom = args.transcriptZoom;
 		}
 		if(args.settings != null){
 			this.settings = args.settings;
@@ -106,7 +113,7 @@ TrackSvg.prototype.draw = function(){
 	var features = SVG.addChild(main,"svg",{
 		"x":-this.pixelPosition,
 		"width":this.lienzo,
-		"height":this.height,
+		"height":this.height
 	});
 	
 	var titleGroup = SVG.addChild(main,"g",{
@@ -333,7 +340,15 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				
 				$([rect,text]).qtip({
 					content: _this.formatTooltip({feature:feature, type:_this.type }),
-					position: {target: 'mouse',adjust: { mouse: true,screen: true }}
+					position: {target: 'mouse',adjust: { mouse: true,screen: true }},
+					 style: { 
+					      background: 'honeydew',
+					      border: {
+					         width: 1,
+					         radius: 1,
+					         color: 'deepskyblue'
+					      }
+					   }
 				});
 				
 				$([rect,text]).click(function(event){
@@ -374,8 +389,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				"x":x+1,
 				"y":13,
 				"font-size":16,
-				"font-family": "monospace",
-//				"fill":this.settings.color[seqString.charAt(i)]
+				"font-family": "monospace"
 			});
 			text.textContent = seqString;
 		}else{

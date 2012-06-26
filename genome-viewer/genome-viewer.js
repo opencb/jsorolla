@@ -136,10 +136,8 @@ GenomeViewer.prototype.render = function(){
 	container.insert(3, this._drawChromosomePanel());
 	container.insert(4, this._drawTracksPanel());
 	container.insert(5, this._getBottomBar());
-	container.insert(3, regionPanel.hide());//rendered after trackspanel but inserted with minor index
+	container.insert(3, regionPanel);//rendered after trackspanel but inserted with minor index
 	
-	
-	regionPanel.show();//XXX for test purposes only
 	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
 	Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
 	Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
@@ -274,6 +272,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        	 id:this.id+"karyotypeButton",
 		        	 text : 'Karyotype',
 		        	 enableToggle:true,
+		        	 pressed:false,
 		        	 toggleHandler:function() {
 		        		 if(this.pressed){
 		        			 Ext.getCmp(_this.id+"karyotypePanel").show();
@@ -299,6 +298,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        	 id:this.id+"RegionToggleButton",
 		        	 text : 'Region',
 		        	 enableToggle:true,
+		        	 pressed:true,
 		        	 toggleHandler:function() {
 		        		 if(this.pressed){
 		        			 Ext.getCmp(_this.id+"regionPanel").show();
@@ -325,8 +325,8 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        			 fn :function() {
 		        				 var current = Ext.getCmp(_this.id+'zoomSlider').getValue();
 		        				 Ext.getCmp(_this.id+'zoomSlider').setValue(current-_this.increment);
-		        			 },
-		        			 buffer : 400
+		        			 }
+//		        			 buffer : 300
 		        		 }
 		        	 }
 		         }, 
@@ -340,8 +340,8 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        			 fn :function() {
 		        				 var current = Ext.getCmp(_this.id+'zoomSlider').getValue();
 		        				 Ext.getCmp(_this.id+'zoomSlider').setValue(current+_this.increment);
-		        			 },
-		        			 buffer : 400
+		        			 }
+//		        			 buffer : 300
 		        		 }
 		        	 }
 		         },
