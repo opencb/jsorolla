@@ -337,7 +337,10 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
 			virtualStart = callStart;
 			vitualEnd = callEnd;
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
+			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval});
+			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
+		}else{
+			trackSvg.invalidZoomText.setAttribute("visibility", "visible");
 		}
 	});
 

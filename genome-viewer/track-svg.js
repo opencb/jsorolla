@@ -248,6 +248,17 @@ TrackSvg.prototype.draw = function(){
 		settingsRect.setAttribute("visibility","hidden");
 	});
 	
+	
+	this.invalidZoomText = SVG.addChild(main,"text",{
+		"x":154,
+		"y":14,
+		"font-size": 10,
+		"opacity":"0.6",
+		"fill":"black",
+		"visibility":"hidden"
+	});
+	this.invalidZoomText.textContent = "This level of zoom isn't appropiate for this track";
+	
 	//ya no se usa, es track svg layout el q captura el evento de click y arrastrar
 //	$(this.parent).mousedown(function(event) {
 //		var x = parseInt(features.getAttribute("x")) - event.clientX;
