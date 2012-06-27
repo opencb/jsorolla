@@ -59,7 +59,7 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, type){
 };
 
 
-FeatureCache.prototype.putFeaturesByRegion = function(featureDataList,region,type){
+FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, resource, type){
 	var key,firstChunk,lastChunk,feature;
 	
 	//initialize region
