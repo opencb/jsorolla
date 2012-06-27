@@ -287,8 +287,7 @@ TrackSvg.prototype.draw = function(){
 
 TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	var _this = this;
-	console.log(featureList.length);
-	console.log(featureList);
+//	console.log(featureList.length);
 	
 	var middle = this.width/2;
 	
@@ -352,7 +351,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				text.textContent = feature[_this.settings.label];
 				
 				$([rect,text]).qtip({
-					content: _this.formatTooltip({feature:feature, resource:feature.resource }),
+					content: _this.formatTooltip({feature:feature, featureType:feature.featureType }),
 					position: {target: 'mouse',adjust: { mouse: true,screen: true }},
 					 style: { 
 					      background: 'honeydew',
@@ -366,7 +365,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				
 				$([rect,text]).click(function(event){
 					var feature = featureList[this.getAttribute("i")];
-					_this.showInfoWidget({query:feature[_this.settings.infoWidgetId], feature:feature, resource:feature.resource });
+					_this.showInfoWidget({query:feature[_this.settings.infoWidgetId], feature:feature, featureType:feature.featureType });
 				});
 				
 				
@@ -485,7 +484,7 @@ TrackSvg.prototype.SnpRender = function(featureList){
 
 TrackSvg.prototype.formatTooltip = function(args){
 	var str="";
-	switch (args.type) {
+	switch (args.featureType) {
 	case "snp":
 		str +='<span class="ok">'+args.feature.name+'</span><br>'+ 
 		'alleles:&nbsp;<span class="ssel">'+args.feature.alleleString+'</span><br>'+
@@ -507,9 +506,9 @@ TrackSvg.prototype.formatTooltip = function(args){
 };
 
 TrackSvg.prototype.showInfoWidget = function(args){
-	switch (args.resource) {
+	switch (args.featureType) {
 	case "gene": new GeneInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "snp" : new SnpInfoWidget(null,this.trackData.adapter.species).draw(args); break;	
-	default: console.log("No infowidget associated to "+args.resource); break;
+	default: break;
 	}
 };

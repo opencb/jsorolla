@@ -95,7 +95,7 @@ CellBaseAdapter.prototype.getData = function(args){
 
 		
 		for(var i = 0; i < data.result.length; i++) {
-			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
+			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.featureType, type);
 			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
 			_this.onGetData.notify({data:items,cached:false});
 		}

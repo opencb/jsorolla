@@ -35,16 +35,16 @@ FeatureCache.prototype.getChunkRegion = function(region){
 
 
 
-FeatureCache.prototype.getFeaturesByChunk = function(key, type){
+FeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 	var features =  [];
 	var feature;
 	
-	if(this.cache[key] != null && this.cache[key][type] != null) {
-		for ( var i = 0, len = this.cache[key][type].length; i < len; i++) {
+	if(this.cache[key] != null && this.cache[key][dataType] != null) {
+		for ( var i = 0, len = this.cache[key][dataType].length; i < len; i++) {
 			if(this.gzip) {
-				feature = JSON.parse(RawDeflate.inflate(this.cache[key][type][i]));
+				feature = JSON.parse(RawDeflate.inflate(this.cache[key][dataType][i]));
 			}else{
-				feature = this.cache[key][type][i];
+				feature = this.cache[key][dataType][i];
 			}
 			if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
 				features.push(feature);
@@ -59,7 +59,7 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, type){
 };
 
 
-FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, resource, type){
+FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, featureType, dataType){
 	var key,firstChunk,lastChunk,feature;
 	
 	//initialize region
@@ -70,8 +70,8 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, r
 		if(this.cache[key]==null){
 			this.cache[key] = {};
 		}
-		if(this.cache[key][type]==null){
-			this.cache[key][type] = [];
+		if(this.cache[key][dataType]==null){
+			this.cache[key][dataType] = [];
 		}
 	}
 	
@@ -83,6 +83,7 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, r
 	
 	for(var index = 0, len = featureDataList.length; index<len; index++) {
 		feature = featureDataList[index];
+		feature.featureType = featureType;
 		firstChunk = this._getChunk(feature.start);
 		lastChunk = this._getChunk(feature.end);
 		for(var i=firstChunk; i<=lastChunk; i++) {
@@ -92,11 +93,11 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, r
 				key = region.chromosome+":"+i;
 			}
 			/*XXX*/
-			if(this.cache[key] != null && this.cache[key][type] != null){
+			if(this.cache[key] != null && this.cache[key][dataType] != null){
 				if(this.gzip) {
-					this.cache[key][type].push(RawDeflate.deflate(JSON.stringify(feature)));
+					this.cache[key][dataType].push(RawDeflate.deflate(JSON.stringify(feature)));
 				}else{
-					this.cache[key][type].push(feature);
+					this.cache[key][dataType].push(feature);
 				}
 			}
 		}
@@ -104,7 +105,7 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, r
 };
 
 
-FeatureCache.prototype.getFeaturesByRegion = function(region,type){
+FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 	var firstChunk = this._getChunk(region.start);
 	var lastChunk = this._getChunk(region.end);
 	var features =  [];
@@ -113,12 +114,12 @@ FeatureCache.prototype.getFeaturesByRegion = function(region,type){
 //		console.log("Chunk: "+i)
 		key = region.chromosome+":"+i;
 		// check if this key exists in cache (features from files)
-		if(this.cache[key] != null && this.cache[key][type] != null){
-			for ( var j = 0, len = this.cache[key][type].length; j < len; j++) {
+		if(this.cache[key] != null && this.cache[key][dataType] != null){
+			for ( var j = 0, len = this.cache[key][dataType].length; j < len; j++) {
 				if(this.gzip) {
-					feature = JSON.parse(RawDeflate.inflate(this.cache[key][type][j]));
+					feature = JSON.parse(RawDeflate.inflate(this.cache[key][dataType][j]));
 				}else{
-					feature = this.cache[key][type][j];
+					feature = this.cache[key][dataType][j];
 				}
 				if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
 					// we only get those features in the region
@@ -150,8 +151,8 @@ FeatureCache.prototype.clear = function(){
 		this.cache = {};
 };
 
-FeatureCache.prototype.clearType = function(type){
-	this.cache[type] = null;
+FeatureCache.prototype.clearType = function(dataType){
+	this.cache[dataType] = null;
 };
 
 
