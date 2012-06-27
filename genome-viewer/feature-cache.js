@@ -33,33 +33,7 @@ FeatureCache.prototype.getChunkRegion = function(region){
 };
 
 
-FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion){
-	var feature, key, chunk;
-	chunk = this._getChunk(chunkRegion.start);
-	key = chunkRegion.chromosome+":"+chunk;
 
-	if(this.cache[key]==null){
-		this.cache[key] = [];
-	}
-
-	if(featureDataList.constructor == Object){
-		if(this.gzip) {
-			this.cache[key].push(RawDeflate.deflate(JSON.stringify(featureDataList)));
-		}else{
-			this.cache[key].push(featureDataList);
-		}
-	}else{
-		for(var index = 0, len = featureDataList.length; index<len; index++) {
-			feature = featureDataList[index];
-			if(this.gzip) {
-				this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
-			}else{
-				this.cache[key].push(feature);
-			}
-		}
-	}
-	
-};
 
 FeatureCache.prototype.getFeaturesByChunk = function(key, type){
 	var features =  [];
@@ -85,10 +59,7 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, type){
 };
 
 
-
-
-
-FeatureCache.prototype.putRegion = function(featureDataList,region,type){
+FeatureCache.prototype.putFeaturesByRegion = function(featureDataList,region,type){
 	var key,firstChunk,lastChunk,feature;
 	
 	//initialize region
@@ -163,6 +134,33 @@ FeatureCache.prototype.getFeaturesByRegion = function(region,type){
 };
 
 
+
+
+FeatureCache.prototype.remove = function(region){
+	var firstChunk = this._getChunk(region.start);
+	var lastChunk = this._getChunk(region.end);
+	for(var i=firstChunk; i<=lastChunk; i++){
+		var key = region.chromosome+":"+i;
+		this.cache[key] = null;
+	}
+};
+
+FeatureCache.prototype.clear = function(){
+		this.size = 0;		
+		this.cache = {};
+};
+
+FeatureCache.prototype.clearType = function(type){
+	this.cache[type] = null;
+};
+
+
+
+
+
+
+
+//XXX need revision
 FeatureCache.prototype.putFeatures = function(featureDataList){
 	var feature, key, firstChunk, lastChunk;
 
@@ -191,9 +189,42 @@ FeatureCache.prototype.putFeatures = function(featureDataList){
 	}
 };
 
+FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion){
+	var feature, key, chunk;
+	chunk = this._getChunk(chunkRegion.start);
+	key = chunkRegion.chromosome+":"+chunk;
+
+	if(this.cache[key]==null){
+		this.cache[key] = [];
+	}
+
+	if(featureDataList.constructor == Object){
+		if(this.gzip) {
+			this.cache[key].push(RawDeflate.deflate(JSON.stringify(featureDataList)));
+		}else{
+			this.cache[key].push(featureDataList);
+		}
+	}else{
+		for(var index = 0, len = featureDataList.length; index<len; index++) {
+			feature = featureDataList[index];
+			if(this.gzip) {
+				this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
+			}else{
+				this.cache[key].push(feature);
+			}
+		}
+	}
+	
+};
 
 
 
+
+
+
+
+
+//XXX not tested
 FeatureCache.prototype.histogram = function(region, interval){
 
 	var intervals = (region.end-region.start+1)/interval;
@@ -234,22 +265,4 @@ FeatureCache.prototype.histogram = function(region, interval){
 	for ( var inter in  intervalList) {
 		intervalList[inter]=intervalList[inter]/this.maxFeaturesInterval;
 	}
-};
-
-FeatureCache.prototype.remove = function(region){
-	var firstChunk = this._getChunk(region.start);
-	var lastChunk = this._getChunk(region.end);
-	for(var i=firstChunk; i<=lastChunk; i++){
-		var key = region.chromosome+":"+i;
-		this.cache[key] = null;
-	}
-};
-
-FeatureCache.prototype.clear = function(){
-		this.size = 0;		
-		this.cache = {};
-};
-
-FeatureCache.prototype.clearType = function(type){
-	this.cache[type] = null;
 };

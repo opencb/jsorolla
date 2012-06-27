@@ -1,9 +1,24 @@
 UrlDataSource.prototype.fetch = DataSource.prototype.fetch;
 
-function UrlDataSource(url) {
+function UrlDataSource(url, args) {
 	DataSource.prototype.constructor.call(this);
 	
 	this.url = url;
+	this.proxy = "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v1/utils/proxy?url=";
+	if(args != null){
+		if(args.proxy != null){
+			if(typeof(args.proxy) == "boolean"){
+				if(args.proxy == false){
+					this.proxy = false;
+				}
+				else{
+					this.url = this.proxy + url;
+				}
+			}else if(typeof(args.proxy) == "string"){
+				this.url = args.proxy + url;
+			}
+		}
+	}
 	this.success = new Event();
 	this.error = new Event();
 };
@@ -22,7 +37,6 @@ UrlDataSource.prototype.fetch = function(async){
 				if(async){
 					_this.success.notify(data);
 				}else{
-//					console.log(data)
 					datos = data;
 				}
 			},

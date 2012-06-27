@@ -287,7 +287,8 @@ TrackSvg.prototype.draw = function(){
 
 TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	var _this = this;
-//	console.log(featureList.length);
+	console.log(featureList.length);
+	console.log(featureList);
 	
 	var middle = this.width/2;
 	
