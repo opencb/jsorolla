@@ -44,7 +44,6 @@ DasAdapter.prototype.getData = function(args){
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
-//	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	var chunks = [];
 	var itemList = [];
@@ -171,21 +170,15 @@ DasAdapter.prototype.getData = function(args){
 							}
 						}
 						var region = {chromosome:args.chromosome, start:chunkStart, end:chunkEnd};
-						_this.featureCache.putFeaturesByRegion(result, region, type);
+						var resource = "das";
+						_this.featureCache.putFeaturesByRegion(result, region, resource, type);
 						console.log(_this.featureCache.cache);
 						var items = _this.featureCache.getFeaturesByRegion(region, type);
 						console.log(items);
-//						_this.onGetData.notify({data:items,cached:false});
+						_this.onGetData.notify({data:items,cached:false});
 					}
 				});
 			}
 		}
-//		console.log(querys);
-//		this.params["histogram"] = args.histogram;
-//		this.params["interval"] = args.interval;
-//		this.params["transcript"] = args.transcript;
-//		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, this.params);
-		
-		
 	}
 };
