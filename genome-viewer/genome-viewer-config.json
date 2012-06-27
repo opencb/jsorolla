@@ -1,0 +1,81 @@
+GENE_BIOTYPE_COLORS = {
+		//TODO buscar los colores en ensembl!
+		"protein_coding":"#a00000",
+		"processed_transcript":"#0000ff",
+		"pseudogene":"#666666",
+		"miRNA":"#8b668b",//TODO falta
+		"snRNA":"#8b668b",
+		"snoRNA":"#8b668b",//TODO falta
+		"lincRNA":"#8b668b",
+		"other":"#ffffff"
+};
+
+SNP_BIOTYPE_COLORS = {
+	"2KB_upstream_variant":"#a2b5cd",				//TODO done Upstream
+	"5KB_upstream_variant":"#a2b5cd",				//TODO done Upstream
+	"500B_downstream_variant":"#a2b5cd",			//TODO done Downstream
+	"5KB_downstream_variant":"#a2b5cd",			//TODO done Downstream
+	"3_prime_UTR_variant":"#7ac5cd",				//TODO done 3 prime UTR
+	"5_prime_UTR_variant":"#7ac5cd",				//TODO done 5 prime UTR
+	"coding_sequence_variant":"#458b00",			//TODO done Coding unknown
+	"complex_change_in_transcript":"#00fa9a",		//TODO done Complex in/del
+	"frameshift_variant":"#ff69b4",				//TODO done Frameshift coding
+	"incomplete_terminal_codon_variant":"#ff00ff",	//TODO done Partial codon
+	"inframe_codon_gain":"#ffd700",				//TODO done Non-synonymous coding
+	"inframe_codon_loss":"#ffd700",				//TODO done Non-synonymous coding
+	"initiator_codon_change":"#ffd700",			//TODO done Non-synonymous coding
+	"non_synonymous_codon":"#ffd700",				//TODO done Non-synonymous coding
+	"intergenic_variant":"#636363",				//TODO done Intergenic
+	"intron_variant":"#02599c",					//TODO done Intronic
+	"mature_miRNA_variant":"#458b00",				//TODO done Within mature miRNA
+	"nc_transcript_variant":"#32cd32",				//TODO done Within non-coding gene
+	"splice_acceptor_variant":"#ff7f50",			//TODO done Essential splice site
+	"splice_donor_variant":"#ff7f50",				//TODO done Essential splice site
+	"splice_region_variant":"#ff7f50",				//TODO done Splice site
+	"stop_gained":"#ff0000",						//TODO done Stop gained
+	"stop_lost":"#ff0000",							//TODO done Stop lost
+	"stop_retained_variant":"#76ee00",				//TODO done Synonymous coding
+	"synonymous_codon":"#76ee00",					//TODO done Synonymous coding
+	"other":"#ffffff"
+};
+
+SEQUENCE_COLORS = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"}
+
+FEATURE_TYPES = {
+	sequence:{
+		color: SEQUENCE_COLORS
+	},
+	gene:{
+		label: "externalName",
+		infoWidgetId: "stableId",
+		colorField: "biotype",
+		height:4,
+		histogramColor:"lightblue",
+		color: GENE_BIOTYPE_COLORS
+	},
+	transcript:{
+		label: "stableId",
+		infoWidgetId: "stableId",
+		colorField: "biotype",
+		height:4,
+		histogramColor:"lightblue",
+		color: GENE_BIOTYPE_COLORS
+	},
+	exon:{
+		label: "stableId",
+		infoWidgetId: "stableId",
+		colorField: "biotype",
+		height:4,
+		histogramColor:"lightblue",
+		color: GENE_BIOTYPE_COLORS
+	},
+	snp:{
+		label: "name",
+		infoWidgetId: "name",
+		colorField: "displaySoConsequence",
+		height:10,
+		histogramColor:"orange",
+		color: SNP_BIOTYPE_COLORS
+	},
+};
+

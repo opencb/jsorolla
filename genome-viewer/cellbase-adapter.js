@@ -72,7 +72,6 @@ CellBaseAdapter.prototype.getData = function(args){
 	//CellBase data process
 	cellBaseManager.success.addEventListener(function(sender,data){
 		var type = "data";
-		console.log();
 		if(data.params.histogram){
 			type = "histogram"+data.params.interval;
 		}
@@ -83,10 +82,9 @@ CellBaseAdapter.prototype.getData = function(args){
 		}
 		//XXX
 		
-//		debugger
 		var queryList = [];
-		console.log("query length "+data.query.length);
-		console.log("data length "+data.result.length);
+//		console.log("query length "+data.query.length);
+//		console.log("data length "+data.result.length);
 //		console.log("data "+data.result);
 		for(var i = 0; i < data.query.length; i++) {
 			var splitDots = data.query[i].split(":");

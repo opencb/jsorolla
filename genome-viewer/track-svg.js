@@ -7,7 +7,7 @@ function TrackSvg(parent, args) {
 	this.height = 50;
 	this.width = 200;
 	this.title = "track";
-	this.type = "generic";
+//	this.type = "generic";
 	this.renderedArea = {};
 	
 	this.lienzo=7000000;//mesa
@@ -52,9 +52,9 @@ function TrackSvg(parent, args) {
 		if(args.pixelBase != null){
 			this.pixelBase = args.pixelBase;
 		}
-		if(args.type != null){
-			this.type = args.type;
-		}
+//		if(args.type != null){
+//			this.type = args.type;
+//		}
 		if(args.histogramZoom != null){
 			this.histogramZoom = args.histogramZoom;
 		}
@@ -291,10 +291,9 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	
 	var middle = this.width/2;
 	
-	for ( var i = 0, len = featureList.length; i < len; i++) {
-		var feature = featureList[i];
-		var width = (featureList[i].end-featureList[i].start)+1;
-		var color = this.settings.color[featureList[i][this.settings.colorField]];
+	var draw = function(feature){
+		var width = (feature.end-feature.start)+1;
+		var color = _this.settings.color[feature[_this.settings.colorField]];
 		
 		//snps can be negative
 		if(width<0){
@@ -304,41 +303,43 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 		if(width==0){
 			width=1;
 		}
-		width = width * this.pixelBase;
+		width = width * _this.pixelBase;
 		
-		var x = this.pixelPosition+middle-((this.position-featureList[i].start)*this.pixelBase);
+		var x = _this.pixelPosition+middle-((_this.position-feature.start)*_this.pixelBase);
 		
 		try{
-			var maxWidth = Math.max(width, featureList[i][this.settings.label].length*8); //text.getComputedTextLength()
+			var maxWidth = Math.max(width, feature[_this.settings.label].length*8); //XXX cuidado : text.getComputedTextLength()
 		}catch(e){
 			var maxWidth = 72;
 		}
 		
 		var rowHeight = 24;
 		var rowY = 0;
-		var textY = 12+this.settings.height;
+		var textY = 12+_this.settings.height;
+		
+		
 		
 		while(true){
-			if(this.renderedArea[rowY] == null){
-				this.renderedArea[rowY] = new FeatureBinarySearchTree();
+			if(_this.renderedArea[rowY] == null){
+				_this.renderedArea[rowY] = new FeatureBinarySearchTree();
 			}
-			var enc = this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
+			var enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
 			
 			if(enc){
-				var rect = SVG.addChild(this.features,"rect",{
+				var rect = SVG.addChild(_this.features,"rect",{
 					"i":i,
 					"x":x,
 					"y":rowY,
 					"width":width,
-					"height":this.settings.height,
+					"height":_this.settings.height,
 					"stroke": "#3B0B0B",
 					"stroke-width": 0.5,
 					"fill": color,
 					"cursor": "pointer"
 				});
-				rect.textContent = featureList[i][this.settings.label];
+				rect.textContent = feature[_this.settings.label];
 				
-				var text = SVG.addChild(this.features,"text",{
+				var text = SVG.addChild(_this.features,"text",{
 					"i":i,
 					"x":x,
 					"y":textY,
@@ -347,10 +348,10 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 					"fill":"black",
 					"cursor": "pointer"
 				});
-				text.textContent = featureList[i][this.settings.label];
+				text.textContent = feature[_this.settings.label];
 				
 				$([rect,text]).qtip({
-					content: _this.formatTooltip({feature:feature, type:_this.type }),
+					content: _this.formatTooltip({feature:feature, resource:feature.resource }),
 					position: {target: 'mouse',adjust: { mouse: true,screen: true }},
 					 style: { 
 					      background: 'honeydew',
@@ -364,13 +365,32 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				
 				$([rect,text]).click(function(event){
 					var feature = featureList[this.getAttribute("i")];
-					_this.showInfoWidget({query:feature[_this.settings.infoWidgetId], feature:feature, type:_this.type });
+					_this.showInfoWidget({query:feature[_this.settings.infoWidgetId], feature:feature, resource:feature.resource });
 				});
+				
 				
 				break;
 			}
 			rowY += rowHeight;
 			textY += rowHeight;
+		}
+	};
+	
+	
+	//process features and check transcripts
+	for ( var i = 0, leni = featureList.length; i < leni; i++) {
+		var feature = featureList[i];
+		draw(feature);
+		if(feature.transcripts != null){
+			console.log(feature.transcripts.length);
+			for ( var j = 0, lenj = feature.transcripts.length; j < lenj; j++) {
+				var transcript = feature.transcripts[j];
+//				console.log(transcript);
+				draw(transcript);
+			}
+//			for ( var j = 0; j < feature.transcripts.length; j++) {
+//				
+//			}
 		}
 	}
 	var newHeight = Object.keys(this.renderedArea).length*24;
@@ -416,8 +436,9 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				text.textContent = seqString.charAt(i);
 				
 				$(text).qtip({
-					content:(seqStart+i).toString(),
-					position: {target: 'mouse',adjust: { mouse: true,screen: true }}
+					content:(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
+					position: {target: 'mouse',adjust: { mouse: true,screen: true }},
+					style: { color: 'dodgerblue' }
 				});
 			}
 			
@@ -485,9 +506,9 @@ TrackSvg.prototype.formatTooltip = function(args){
 };
 
 TrackSvg.prototype.showInfoWidget = function(args){
-	switch (args.type) {
+	switch (args.resource) {
 	case "gene": new GeneInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "snp" : new SnpInfoWidget(null,this.trackData.adapter.species).draw(args); break;	
-	default: break;
+	default: console.log("No infowidget associated to "+args.resource); break;
 	}
 };

@@ -263,13 +263,53 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var i = this.trackDataList.push(trackData);
 	
 	var trackSvg = new TrackSvg(this.svg,args);
-	console.log(args.transcriptZoom);
 	
 	this.trackSvgList.push(trackSvg);
 	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
 	trackSvg.setY(this.height);
 	trackSvg.draw();
 	
+	
+	
+	
+	
+	//XXX help methods
+	var callStart, callEnd, virtualStart, vitualEnd;
+	var setCallRegion = function (){
+		//needed call variables
+		callStart = parseInt(_this.position - _this.halfVirtualBase);
+		callEnd = parseInt(_this.position + _this.halfVirtualBase);
+		virtualStart = callStart;//for now
+		vitualEnd = callEnd;//for now
+	};
+	var checkHistogramZoom = function(){
+		if(_this.zoom <= trackSvg.histogramZoom){
+			trackSvg.featuresRender = trackSvg.HistogramRender;
+			trackSvg.histogram = true;
+			trackSvg.interval = 5/_this.pixelBase;
+//			console.log(trackData.adapter.featureCache);
+		}else{
+			trackSvg.histogram = null;
+			trackSvg.featuresRender = trackSvg.defaultRender;
+		}
+	};
+	var checkTranscriptZoom = function(){ //for genes only
+		if(trackSvg.transcriptZoom != null && _this.zoom > trackSvg.transcriptZoom){
+			trackSvg.transcript=true;
+		}else{
+			trackSvg.transcript=null;
+		}
+	};
+	var cleanSvgFeatures = function(){
+		$(trackSvg.features).empty();
+		trackData.adapter.featureCache.featuresAdded = {};
+		trackSvg.renderedArea = {};
+	};
+	//END help methods
+	
+	
+	
+	//EventListeners
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackData.adapter.onGetData.addEventListener(function(sender,event){
@@ -279,28 +319,11 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		_this._redraw();
 	});
 	
-	//first load
-	//needed call variables
-	var callStart = parseInt(this.position - this.halfVirtualBase);
-	var callEnd = parseInt(this.position + this.halfVirtualBase);
-	//on first load get virtual window and retrieve data
-	if(_this.zoom <= trackSvg.histogramZoom){
-		trackSvg.featuresRender = trackSvg.HistogramRender;
-		trackSvg.histogram=true;
-		trackSvg.interval = 5/_this.pixelBase;
-//		trackData.adapter.featureCache.clearType("histogram");
-		console.log(trackData.adapter.featureCache);
-	}else{
-		trackSvg.featuresRender = trackSvg.defaultRender;
-	}
-	//for genes only
-	if(trackSvg.transcriptZoom != null && _this.zoom > trackSvg.transcriptZoom){
-		trackSvg.transcript=false;//XXX
-	}else{
-		trackSvg.transcript=null;
-	}
-	var virtualStart = callStart;
-	var vitualEnd = callEnd;
+	
+	//first load, get virtual window and retrieve data
+	checkHistogramZoom();
+	checkTranscriptZoom();//for genes only
+	setCallRegion();
 	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 	
 	
@@ -309,34 +332,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
 		
-		if(_this.zoom <= trackSvg.histogramZoom){
-			trackSvg.featuresRender = trackSvg.HistogramRender;
-			trackSvg.histogram=true;
-			trackSvg.interval = 5/_this.pixelBase;
-//			trackData.adapter.featureCache.clearType("histogram");
-			console.log(trackData.adapter.featureCache);
-		}else{
-			trackSvg.featuresRender = trackSvg.defaultRender;
-		}
-		//for genes only
-		trackSvg.transcript=null;
-		if(trackSvg.transcriptZoom != null && _this.zoom > trackSvg.transcriptZoom){
-			trackSvg.transcript=true;
-		}else{
-			trackSvg.transcript=null;
-		}
-		
-		$(trackSvg.features).empty();
-		trackData.adapter.featureCache.featuresAdded = {};
-		trackSvg.renderedArea = {};
-		
-		callStart = parseInt(_this.position - _this.halfVirtualBase);
-		callEnd = parseInt(_this.position + _this.halfVirtualBase);
+		checkHistogramZoom();
+		checkTranscriptZoom();//for genes only
+		cleanSvgFeatures();
+		setCallRegion();
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-			virtualStart = callStart;
-			vitualEnd = callEnd;
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval});
 			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
 		}else{
@@ -349,19 +351,11 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	this.onChromosomeChange.addEventListener(function(sender,data){
 		trackSvg.position=_this.position;
 		
-		$(trackSvg.features).empty();
-		trackData.adapter.featureCache.featuresAdded = {};
-		trackSvg.renderedArea = {};
-		
-		callStart = parseInt(_this.position - _this.halfVirtualBase);
-		callEnd = parseInt(_this.position + _this.halfVirtualBase);
-//		console.log(callStart);
-//		console.log(callEnd);
+		cleanSvgFeatures();
+		setCallRegion();
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
-			virtualStart = callStart;
-			vitualEnd = callEnd;
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 		}
 	});
@@ -399,7 +393,10 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	});
 	
 	
-	//dibujado
+	
+	
+	
+	//track buttons
 	//XXX se puede mover?
 	$(trackSvg.upRect).bind("click",function(event){
 		_this._reallocateAbove(this.parentNode.parentNode.id);//"this" is the svg element
