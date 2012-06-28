@@ -483,10 +483,11 @@ TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 	this._redraw();
 	
 	var _this= this;
-	setTimeout(function() {
-		_this._showTrack(trackMainId);
-	},2000);
-	
+//	setTimeout(function() {
+//		_this._showTrack(trackMainId);
+//	},2000);
+	console.log(this.trackSvgList)
+	console.log(this.swapHash)
 };
 
 TrackSvgLayout.prototype._showTrack = function(trackMainId){

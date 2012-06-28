@@ -1,16 +1,11 @@
 function DasAdapter(args){
-	this.host = null;
 	this.gzip = true;
 	
 	this.proxy = "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v1/utils/proxy?url=";
-	this.params={};
 	
 	if (args != null){
 		if (args.url != null){
 			this.url = args.url;
-		}
-		if(args.host != null){
-			this.host = args.host;
 		}
 		if(args.species != null){
 			this.species = args.species;
@@ -64,41 +59,7 @@ DasAdapter.prototype.getData = function(args){
 	}
 	
 	
-	//CellBase data process
-//	cellBaseManager.success.addEventListener(function(sender,data){
-//		var type = "data";
-//		console.log();
-//		if(data.params.histogram){
-//			type = "histogram"+data.params.interval;
-//		}
-//		
-//		//XXX quitar cuando este arreglado el ws
-//		if(data.params.histogram == true){
-//			data.result = [data.result];
-//		}
-//		//XXX
-//		
-////		debugger
-//		var queryList = [];
-//		console.log("query length "+data.query.length);
-//		console.log("data length "+data.result.length);
-////		console.log("data "+data.result);
-//		for(var i = 0; i < data.query.length; i++) {
-//			var splitDots = data.query[i].split(":");
-//			var splitDash = splitDots[1].split("-");
-//			queryList.push({chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]});
-//		}
-////		console.log(_this.featureCache.cache);
-//
-//		
-//		for(var i = 0; i < data.result.length; i++) {
-//			_this.featureCache.putRegion(data.result[i], queryList[i], type);
-//			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
-//			_this.onGetData.notify({data:items,cached:false});
-//		}
-//	});
-
-	var querys = [];
+	//data process
 	var updateStart = true;
 	var updateEnd = true;
 	if(chunks.length > 0){
@@ -121,13 +82,11 @@ DasAdapter.prototype.getData = function(args){
 					updateEnd =true;
 				}else{
 					query = args.chromosome+":"+chunkStart+","+chunkEnd;
-//					querys.push(query);
 					updateStart = true;
 					updateEnd = true;
 				}
 			}else{
 				query = args.chromosome+":"+chunkStart+","+chunkEnd;
-//				querys.push(query);
 				updateStart = true;
 				updateEnd = true;
 			}
@@ -159,7 +118,7 @@ DasAdapter.prototype.getData = function(args){
 								if (data.dasgff.gff.segment[0].feature != null){
 									for ( var i = 0; i < data.dasgff.gff.segment.length; i++) {
 										for ( var j = 0; j < data.dasgff.gff.segment[i].feature.length; j++) {
-											data.dasgff.gff.segment[i].feature[j]["chromosome"] = chromosome;
+											data.dasgff.gff.segment[i].feature[j]["chromosome"] = args.chromosome;
 											result.push(data.dasgff.gff.segment[i].feature[j]);
 										}
 									}
