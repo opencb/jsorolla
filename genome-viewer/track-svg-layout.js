@@ -294,7 +294,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		}
 	};
 	var checkTranscriptZoom = function(){ //for genes only
-		if(trackSvg.transcriptZoom != null && _this.zoom > trackSvg.transcriptZoom){
+		if(trackSvg.transcriptZoom != null && _this.zoom >= trackSvg.transcriptZoom){
 			trackSvg.transcript=true;
 		}else{
 			trackSvg.transcript=null;
@@ -315,6 +315,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	trackData.adapter.onGetData.addEventListener(function(sender,event){
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw 
 		trackSvg.featuresRender(event.data);
+		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
 	});
@@ -339,7 +340,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval});
+			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
 		}else{
 			trackSvg.invalidZoomText.setAttribute("visibility", "visible");

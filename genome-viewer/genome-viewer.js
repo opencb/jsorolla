@@ -742,8 +742,8 @@ GenomeViewer.prototype._getBottomBar = function() {
 		height:28,
 		items : [scaleLabel, 
 		         '-',
-		         geneLegendPanel.getButton(this.geneBioTypeColors),
-		         snpLegendPanel.getButton(this.snpBioTypeColors),
+		         geneLegendPanel.getButton(GENE_BIOTYPE_COLORS),
+		         snpLegendPanel.getButton(SNP_BIOTYPE_COLORS),
 		         '->']
 	});
 	

@@ -290,11 +290,13 @@ TranscriptInfoWidget.prototype.getData = function (){
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
 //	category, subcategory, query, resource, callbackFunction
-	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
-	cellBaseDataAdapter.successed.addEventListener(function (evt){
-		_this.dataReceived(JSON.parse(cellBaseDataAdapter.toJSON()));//TODO
+	
+	var cellBaseManager = new CellBaseManager(this.species);
+	cellBaseManager.success.addEventListener(function(sender,data){
+		console.log(data)
+		_this.dataReceived(JSON.parse(data.result));//TODO
 	});
-	cellBaseDataAdapter.fill("feature","transcript", this.feature.feature.stableId, "fullinfo");
+	cellBaseManager.get("feature","transcript", this.query, "fullinfo");
 };
 TranscriptInfoWidget.prototype.dataReceived = function (data){
 	this.data=data[0];
