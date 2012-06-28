@@ -1,39 +1,39 @@
 GENE_BIOTYPE_COLORS = {
 		//TODO buscar los colores en ensembl!
-		"3prime_overlapping_ncrna":"#000000",
-		"ambiguous_orf":"#000000",
-		"antisense":"#000000",
-		"disrupted_domain":"#000000",
-		"IG_C_gene":"#000000",
-		"IG_D_gene":"#000000",
-		"IG_J_gene":"#000000",
-		"IG_V_gene":"#000000",
+		"3prime_overlapping_ncrna":"Orange",
+		"ambiguous_orf":"SlateBlue",
+		"antisense":"SteelBlue",
+		"disrupted_domain":"YellowGreen",
+		"IG_C_gene":"#FF7F50",
+		"IG_D_gene":"#FF7F50",
+		"IG_J_gene":"#FF7F50",
+		"IG_V_gene":"#FF7F50",
 		"lincRNA":"#8b668b",
 		"miRNA":"#8b668b",//TODO falta
 		"misc_RNA":"#8b668b",
 		"Mt_rRNA":"#8b668b",
 		"Mt_tRNA":"#8b668b",
-		"ncrna_host":"#000000",
-		"nonsense_mediated_decay":"#000000",
-		"non_coding":"#000000",
-		"non_stop_decay":"#000000",
-		"polymorphic_pseudogene":"#000000",
-		"processed_pseudogene":"#000000",
+		"ncrna_host":"Fuchsia",
+		"nonsense_mediated_decay":"Chartreuse",
+		"non_coding":"orangered",
+		"non_stop_decay":"aqua",
+		"polymorphic_pseudogene":"#666666",
+		"processed_pseudogene":"#666666",
 		"processed_transcript":"#0000ff",
 		"protein_coding":"#a00000",
 		"pseudogene":"#666666",
-		"retained_intron":"#000000",
-		"retrotransposed":"#000000",
-		"rRNA":"#000000",
-		"sense_intronic":"#000000",
-		"sense_overlapping":"#000000",  
+		"retained_intron":"gold",
+		"retrotransposed":"lightsalmon",
+		"rRNA":"LawnGreen",
+		"sense_intronic":"#20B2AA",
+		"sense_overlapping":"#20B2AA",  
 		"snoRNA":"#8b668b",//TODO falta
 		"snRNA":"#8b668b",
-		"transcribed_processed_pseudogene":"#000000",
-		"transcribed_unprocessed_pseudogene":"#000000",
-		"unitary_pseudogene":"#000000",
-		"unprocessed_pseudogene":"#000000",
-		"other":"#ffffff"
+		"transcribed_processed_pseudogene":"#666666",
+		"transcribed_unprocessed_pseudogene":"#666666",
+		"unitary_pseudogene":"#666666",
+		"unprocessed_pseudogene":"#666666",
+		"other":"#000000"
 };
 
 
@@ -64,7 +64,7 @@ SNP_BIOTYPE_COLORS = {
 	"stop_lost":"#ff0000",							//TODO done Stop lost
 	"stop_retained_variant":"#76ee00",				//TODO done Synonymous coding
 	"synonymous_codon":"#76ee00",					//TODO done Synonymous coding
-	"other":"#ffffff"
+	"other":"#000000"
 };
 
 SEQUENCE_COLORS = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"}
@@ -74,7 +74,14 @@ FEATURE_TYPES = {
 		color: SEQUENCE_COLORS
 	},
 	gene:{
-		label: "externalName",
+		getLabel: function(f){
+			var str = "";
+			str+= (f.strand < 0) ? "<" : "";
+			str+= " "+f.externalName+" ";
+			str+= (f.strand > 0) ? ">" : "";
+			str+= " ["+f.biotype+"]";
+			return str;
+		},
 		infoWidgetId: "stableId",
 		colorField: "biotype",
 		height:4,
@@ -82,7 +89,18 @@ FEATURE_TYPES = {
 		color: GENE_BIOTYPE_COLORS
 	},
 	transcript:{
-		label: "stableId",
+		getLabel: function(f){
+			var str = "";
+			str+= (f.strand < 0) ? "<" : "";
+			str+= " "+f.externalName+" ";
+			str+= (f.strand > 0) ? ">" : "";
+			if(f.end - f.start < 2000) {				
+				str+= "";
+			}else {				
+			str+= " ["+f.biotype+"]";
+			}
+			return str;
+		},
 		infoWidgetId: "stableId",
 		colorField: "biotype",
 		height:4,
@@ -90,7 +108,7 @@ FEATURE_TYPES = {
 		color: GENE_BIOTYPE_COLORS
 	},
 	exon:{
-		label: "stableId",
+		getLabel: "stableId",
 		infoWidgetId: "stableId",
 		colorField: "biotype",
 		height:4,
@@ -98,7 +116,11 @@ FEATURE_TYPES = {
 		color: GENE_BIOTYPE_COLORS
 	},
 	snp:{
-		label: "name",
+		getLabel: function(f){
+			var str = "";
+			str+= f.name
+			return str;
+		},
 		infoWidgetId: "name",
 		colorField: "displaySoConsequence",
 		height:10,

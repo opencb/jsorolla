@@ -159,7 +159,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		$(this.svg).mouseup(function(event) {
 //			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
-			$(this).focus();// without this, the keydown does not work
+//			$(this).focus();// without this, the keydown does not work
 		});
 //		$(this.svg).mouseleave(function(event) {
 ////			this.setAttribute("cursor", "default");

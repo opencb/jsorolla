@@ -319,7 +319,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 //		var hollowX =  _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
 		
 		try{
-			var maxWidth = Math.max(width, feature[settings.label].length*8); //XXX cuidado : text.getComputedTextLength()
+			var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
 		}catch(e){
 			var maxWidth = 72;
 		}
@@ -380,7 +380,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 					"fill": color,
 					"cursor": "pointer"
 				});
-				rect.textContent = feature[settings.label];
+				rect.textContent = settings.getLabel(feature);
 				
 				var text = SVG.addChild(_this.features,"text",{
 					"i":i,
@@ -391,8 +391,8 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 					"fill":"black",
 					"cursor": "pointer"
 				});
-				text.textContent = feature[settings.label];
-				console.log(feature[settings.label]);
+				text.textContent = settings.getLabel(feature);
+				console.log(settings.getLabel(feature));
 				
 				$([rect,text]).qtip({
 					content: _this.formatTooltip({feature:feature, featureType:feature.featureType }),
@@ -430,38 +430,51 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						var color = settings.color[transcript[settings.colorField]];
 						
 						try{
-							var maxWidth = Math.max(width, transcript[settings.label].length*8); //XXX cuidado : text.getComputedTextLength()
+							var maxWidth = Math.max(width, settings.getLabel(transcript).length*8); //XXX cuidado : text.getComputedTextLength()
 						}catch(e){
 							var maxWidth = 72;
 						}
 						
 						
+						
 						enc = _this.renderedArea[checkRowY].add({start: x, end: x+maxWidth-1});
+						
+						
+//						//line to test
+//						SVG.addChild(_this.features,"rect",{
+//							"i":i,
+//							"x":x,
+//							"y":checkRowY+1,
+//							"width":width,
+//							"height":settings.height-3,
+//							"fill": color,
+//							"cursor": "pointer"
+//						});
+						
+						var transcriptX = _this.pixelPosition+middle-((_this.position-transcript.start)*_this.pixelBase);
+						var transcriptWidth = (transcript.end-transcript.start+1) * ( _this.pixelBase);
+						// transcript width
 						var rect = SVG.addChild(_this.features,"rect",{
 							"i":i,
-							"x":x,
-							"y":checkRowY,
-							"width":width,
-							"height":settings.height,
-							"stroke": "#3B0B0B",
-							"stroke-width": 0.5,
-							"fill": color,
+							"x":transcriptX,
+							"y":checkRowY+2,
+							"width":transcriptWidth,
+							"height":settings.height-3,
+							"fill": "gray",
 							"cursor": "pointer"
 						});
-						rect.textContent = transcript[settings.label];
-						
+						rect.textContent = settings.getLabel(transcript);
 						var text = SVG.addChild(_this.features,"text",{
 							"i":i,
-							"x":x,
+							"x":transcriptX,
 							"y":checkTextY,
 							"font-size":10,
 							"opacity":null,
 							"fill":"black",
 							"cursor": "pointer"
 						});
-						text.textContent = transcript[settings.label];
-						console.log(transcript[settings.label]);
-						console.log(settings.label);
+						text.textContent = settings.getLabel(transcript);
+						
 						
 						$([rect,text]).qtip({
 							content: _this.formatTooltip({feature:transcript, featureType:transcript.featureType }),
@@ -479,6 +492,49 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						$([rect,text]).click(function(event){
 							_this.showInfoWidget({query:transcript[settings.infoWidgetId], feature:transcript, featureType:transcript.featureType });
 						});
+						
+						
+						
+						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){
+							var e2t = feature.transcripts[i].exonToTranscripts[e];
+							var exonStart = parseInt(e2t.exon.start);
+							var exonEnd =  parseInt(e2t.exon.end);
+							
+							var exonX = _this.pixelPosition+middle-((_this.position-exonStart)*_this.pixelBase);
+							var exonWidth = (exonEnd-exonStart+1) * ( _this.pixelBase);
+							
+							SVG.addChild(_this.features,"rect",{
+								"i":i,
+								"x":exonX,
+								"y":checkRowY-1,
+								"width":exonWidth,
+								"height":settings.height+3,
+								"stroke": "gray",
+								"stroke-width": 1,
+								"fill": "white",
+								"cursor": "pointer"
+							});
+							
+							
+							var codingStart = parseInt(e2t.genomicCodingStart);
+							var codingEnd = parseInt(e2t.genomicCodingEnd);
+							
+							var codingX = _this.pixelPosition+middle-((_this.position-codingStart)*_this.pixelBase);
+							var codingWidth = (codingEnd-codingStart+1) * ( _this.pixelBase);
+							
+							SVG.addChild(_this.features,"rect",{
+								"i":i,
+								"x":codingX,
+								"y":checkRowY-1,
+								"width":codingWidth,
+								"height":settings.height+3,
+								"stroke": color,
+								"stroke-width": 1,
+								"fill": color,
+								"cursor": "pointer"
+							});
+							
+						}
 						
 						checkRowY += rowHeight;
 						checkTextY += rowHeight;
@@ -501,7 +557,10 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	//process features and check transcripts
 	for ( var i = 0, leni = featureList.length; i < leni; i++) {
 		var feature = featureList[i];
+		
+		console.time("Draw with Overlapping");
 		draw(feature,feature.start,feature.end);
+		console.timeEnd("Draw with Overlapping");
 //		if(feature.featureType == "gene" && feature.transcripts != null){
 //			console.log(feature.transcripts.length);
 //			for ( var j = 0, lenj = feature.transcripts.length; j < lenj; j++) {
@@ -633,8 +692,7 @@ TrackSvg.prototype.formatTooltip = function(args){
 		'biotype:&nbsp;<span class="emph" style="color:'+settings.color[args.feature[settings.colorField]]+';">'+args.feature.biotype+'</span><br>';
 		break;
 	case "transcript":
-		str += 
-		'Gene:&nbsp;<span class="ok">'+args.feature.externalName+'</span><br>'+
+		str += '<span class="ok">'+args.feature.externalName+'</span><br>'+
 		'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+args.feature.stableId+'</span><br>'+
 		'biotype:&nbsp;<span class="emph" style="color:'+settings.color[args.feature[settings.colorField]]+';">'+args.feature.biotype+'</span><br>';
 		break;
