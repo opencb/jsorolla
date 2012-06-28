@@ -45,6 +45,9 @@ CellBaseAdapter.prototype.getData = function(args){
 	if(args.histogram){
 		type = "histogram"+args.interval;
 	}
+	if(args.transcript){
+		type = "withTranscripts";
+	}
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
@@ -75,6 +78,9 @@ CellBaseAdapter.prototype.getData = function(args){
 		if(data.params.histogram){
 			type = "histogram"+data.params.interval;
 		}
+		if(data.params.transcript){
+			type = "withTranscripts";
+		}
 		
 		//XXX quitar cuando este arreglado el ws
 		if(data.params.histogram == true){
@@ -95,7 +101,24 @@ CellBaseAdapter.prototype.getData = function(args){
 
 		
 		for(var i = 0; i < data.result.length; i++) {
-			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.featureType, type);
+			
+			//Check if is a single object
+			if(data.result[i].constructor != Array){
+				data.result[i] = [data.result[i]];
+			}
+			for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
+				if(data.resource == "gene" && data.result[i][j].transcripts!=null){
+					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
+						data.result[i][j].transcripts[t].featureType = "transcript";
+						//for de exones
+						for (var e = 0, lene = data.result[i][j].transcripts[t].exonToTranscripts.length; e < lene; e++){
+							data.result[i][j].transcripts[t].exonToTranscripts[e].featureType = "exon";
+						}
+					}
+				}
+			}
+			
+			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
 			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
 			_this.onGetData.notify({data:items,cached:false});
 		}

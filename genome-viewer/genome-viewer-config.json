@@ -1,14 +1,42 @@
 GENE_BIOTYPE_COLORS = {
 		//TODO buscar los colores en ensembl!
-		"protein_coding":"#a00000",
-		"processed_transcript":"#0000ff",
-		"pseudogene":"#666666",
-		"miRNA":"#8b668b",//TODO falta
-		"snRNA":"#8b668b",
-		"snoRNA":"#8b668b",//TODO falta
+		"3prime_overlapping_ncrna":"#000000",
+		"ambiguous_orf":"#000000",
+		"antisense":"#000000",
+		"disrupted_domain":"#000000",
+		"IG_C_gene":"#000000",
+		"IG_D_gene":"#000000",
+		"IG_J_gene":"#000000",
+		"IG_V_gene":"#000000",
 		"lincRNA":"#8b668b",
+		"miRNA":"#8b668b",//TODO falta
+		"misc_RNA":"#8b668b",
+		"Mt_rRNA":"#8b668b",
+		"Mt_tRNA":"#8b668b",
+		"ncrna_host":"#000000",
+		"nonsense_mediated_decay":"#000000",
+		"non_coding":"#000000",
+		"non_stop_decay":"#000000",
+		"polymorphic_pseudogene":"#000000",
+		"processed_pseudogene":"#000000",
+		"processed_transcript":"#0000ff",
+		"protein_coding":"#a00000",
+		"pseudogene":"#666666",
+		"retained_intron":"#000000",
+		"retrotransposed":"#000000",
+		"rRNA":"#000000",
+		"sense_intronic":"#000000",
+		"sense_overlapping":"#000000",  
+		"snoRNA":"#8b668b",//TODO falta
+		"snRNA":"#8b668b",
+		"transcribed_processed_pseudogene":"#000000",
+		"transcribed_unprocessed_pseudogene":"#000000",
+		"unitary_pseudogene":"#000000",
+		"unprocessed_pseudogene":"#000000",
 		"other":"#ffffff"
 };
+
+
 
 SNP_BIOTYPE_COLORS = {
 	"2KB_upstream_variant":"#a2b5cd",				//TODO done Upstream

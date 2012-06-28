@@ -72,7 +72,8 @@ FeatureBinarySearchTree.prototype = {
         if (this._root === null){
             this._root = node;
             return true;
-        } else {
+        } 
+        	//else
             current = this._root;
             
             while(true){
@@ -85,9 +86,9 @@ FeatureBinarySearchTree.prototype = {
                         current.left = node;
                         return true;
 //                        break;
-                    } else {                    
+                    } 
+                    	//else                  
                         current = current.left;
-                    }
                     
                 //if the new value is greater than this node's value, go right
                 } else if (node.value.start > current.value.end){
@@ -97,9 +98,9 @@ FeatureBinarySearchTree.prototype = {
                         current.right = node;
                         return true;
 //                        break;
-                    } else {                    
+                    } 
+                    	//else
                         current = current.right;
-                    }       
  
                 //if the new value is equal to the current one, just ignore
                 } else {
@@ -107,6 +108,37 @@ FeatureBinarySearchTree.prototype = {
 //                    break;
                 }
             }        
-        }
+        
+    },
+    
+    contains: function (v){
+        var node = { 
+                value: v, 
+                left: null,
+                right: null 
+            },
+    	found = false,
+    	current = this._root;
+          
+      //make sure there's a node to search
+      while(!found && current){
+      
+          //if the value is less than the current node's, go left
+          if (node.value.end < current.value.start){
+              current = current.left;
+              
+          //if the value is greater than the current node's, go right
+          } else if (node.value.start > current.value.end){
+              current = current.right;
+              
+          //values are equal, found it!
+          } else {
+              found = true;
+          }
+      }
+      
+      //only proceed if the node was found
+      return found;   
+        
     }
 };

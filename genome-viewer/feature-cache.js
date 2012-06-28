@@ -77,8 +77,7 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 	
 	//Check if is a single object
 	if(featureDataList.constructor != Array){
-		var featureData = featureDataList;
-		featureDataList = [featureData];
+		featureDataList = [featureDataList];
 	}
 	
 	for(var index = 0, len = featureDataList.length; index<len; index++) {
