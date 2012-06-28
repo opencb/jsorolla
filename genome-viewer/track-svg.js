@@ -460,8 +460,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							"cursor": "pointer"
 						});
 						text.textContent = transcript[settings.label];
-						console.log(transcript[settings.label]);
-						console.log(settings.label);
 						
 						$([rect,text]).qtip({
 							content: _this.formatTooltip({feature:transcript, featureType:transcript.featureType }),
