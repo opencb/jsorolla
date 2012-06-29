@@ -3,6 +3,7 @@ FileDataSource.prototype.fetch = DataSource.prototype.fetch;
 function FileDataSource(file) {
 	DataSource.prototype.constructor.call(this);
 	
+	console.log(file)
 	this.file = file;
 	this.success = new Event();
 	this.error = new Event();

@@ -17,5 +17,7 @@ function FeatureDataAdapter(dataSource, args){
 };
 
 FeatureDataAdapter.prototype.getData = function(region){
-	this.onGetData.notify(this.featureCache.getFeaturesByRegion(region));
+	var dataType = "data";
+	var itemList = this.featureCache.getFeaturesByRegion(region, dataType);
+	this.onGetData.notify({data:itemList,cached:true});
 };

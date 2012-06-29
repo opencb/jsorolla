@@ -161,7 +161,7 @@ FeatureCache.prototype.clearType = function(dataType){
 
 
 //XXX need revision
-FeatureCache.prototype.putFeatures = function(featureDataList){
+FeatureCache.prototype.putFeatures = function(featureDataList, dataType){
 	var feature, key, firstChunk, lastChunk;
 
 	//Check if is a single object
@@ -179,17 +179,20 @@ FeatureCache.prototype.putFeatures = function(featureDataList){
 			if(this.cache[key]==null){
 				this.cache[key] = [];
 			}
+			if(this.cache[key][dataType]==null){
+				this.cache[key][dataType] = [];
+			}
 			if(this.gzip) {
-				this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
+				this.cache[key][dataType].push(RawDeflate.deflate(JSON.stringify(feature)));
 			}else{
-				this.cache[key].push(feature);
+				this.cache[key][dataType].push(feature);
 			}
 
 		}
 	}
 };
 
-FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion){
+FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dataType){
 	var feature, key, chunk;
 	chunk = this._getChunk(chunkRegion.start);
 	key = chunkRegion.chromosome+":"+chunk;
@@ -197,20 +200,23 @@ FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion){
 	if(this.cache[key]==null){
 		this.cache[key] = [];
 	}
+	if(this.cache[key][dataType]==null){
+		this.cache[key][dataType] = [];
+	}
 
 	if(featureDataList.constructor == Object){
 		if(this.gzip) {
-			this.cache[key].push(RawDeflate.deflate(JSON.stringify(featureDataList)));
+			this.cache[key][dataType].push(RawDeflate.deflate(JSON.stringify(featureDataList)));
 		}else{
-			this.cache[key].push(featureDataList);
+			this.cache[key][dataType].push(featureDataList);
 		}
 	}else{
 		for(var index = 0, len = featureDataList.length; index<len; index++) {
 			feature = featureDataList[index];
 			if(this.gzip) {
-				this.cache[key].push(RawDeflate.deflate(JSON.stringify(feature)));
+				this.cache[key][dataType].push(RawDeflate.deflate(JSON.stringify(feature)));
 			}else{
-				this.cache[key].push(feature);
+				this.cache[key][dataType].push(feature);
 			}
 		}
 	}
