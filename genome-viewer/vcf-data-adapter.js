@@ -50,7 +50,7 @@ VCFDataAdapter.prototype.parse = function(data){
 						"format": 		fields[8], 
 						"record":		fields,
 						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
-						"featureType":	"vcf"
+						"featureType":	"file"
 				};
 				this.featureCache.putFeatures(feature, dataType);
 			}

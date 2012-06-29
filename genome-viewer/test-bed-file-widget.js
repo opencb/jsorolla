@@ -14,6 +14,8 @@ function TestBEDFileWidget(args){
 	
     this.chartWidgetByChromosome = new ChartWidget();
     this.chartWidgetQuality = new ChartWidget({height:300});
+    
+    this.onComplete = new Event();
 };
 
 TestBEDFileWidget.prototype.getChartItems = function(){
@@ -22,14 +24,11 @@ TestBEDFileWidget.prototype.getChartItems = function(){
 
 
 TestBEDFileWidget.prototype.loadFileFromLocal = function(file){
-	console.log(file);
 	var _this = this;
-
-	var bedAdapter = new BEDDataAdapter(new FileDataSource());
-	
-	bedAdapter.completed.addEventListener(function(sender, data){
-		console.log(data);
+	this.file = file;
+	this.adapter = new BEDDataAdapter(new FileDataSource(file));
+	this.adapter.onLoad.addEventListener(function(sender){
+		_this.onComplete.notify(file);
+		_this.btnOk.enable();
 	});
-	
-	bedAdapter.getData(file);
 };
