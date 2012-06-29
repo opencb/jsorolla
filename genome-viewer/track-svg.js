@@ -471,7 +471,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 //							debugger
 //						}
 						var rect = SVG.addChild(_this.features,"rect",{
-							"i":i,
+							"widgetId":transcript[settings.infoWidgetId],
 							"x":transcriptX,
 							"y":checkRowY+2,
 							"width":transcriptWidth,
@@ -480,7 +480,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							"cursor": "pointer"
 						});
 						var text = SVG.addChild(_this.features,"text",{
-							"i":i,
+							"widgetId":transcript[settings.infoWidgetId],
 							"x":transcriptX,
 							"y":checkTextY,
 							"font-size":10,
@@ -505,7 +505,8 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						});
 						
 						$([rect,text]).click(function(event){
-							_this.showInfoWidget({query:transcript[settings.infoWidgetId], feature:transcript, featureType:transcript.featureType });
+							var query = this.getAttribute("widgetId");
+							_this.showInfoWidget({query:query, /*feature:transcript,*/ featureType:transcript.featureType });
 						});
 						
 						

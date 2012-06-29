@@ -38,10 +38,10 @@ UrlWidget.prototype.render = function (){
     this.urlField = Ext.create('Ext.form.field.Text',{
     	margin:"0 2 2 0",
     	labelWidth : 30,
-    	flex:1,
+    	width:this.width-55,
     	fieldLabel : 'URL',
 		emptyText: 'enter a valid url',
-		value : "http://www.ensembl.org/das/Homo_sapiens.GRCh37.gene/features",
+		value : "http://das.sanger.ac.uk/das/grc_region_GRCh37/features",
 		listeners : { change: {fn: function(){ var dasName = this.value.split('/das/')[1].split('/')[0];
 											   _this.trackNameField.setValue(dasName); }}
 		}
@@ -80,6 +80,7 @@ UrlWidget.prototype.render = function (){
 		title:'Track name',
 		cls:"panel-border-top",
 		bodyPadding: 10,
+		width:this.width-2,
 	    items : [this.trackNameField]	 
 	});
 	this.contentArea = Ext.create('Ext.form.field.TextArea',{
@@ -87,9 +88,11 @@ UrlWidget.prototype.render = function (){
 		width : this.width,
 		height : this.height
 	});
-	this.infobar = Ext.create('Ext.toolbar.Toolbar',{height:28,cls:"bio-border-false"});
-	this.infobar.add(this.urlField);
-	this.infobar.add(this.checkButton);
+	this.infobar = Ext.create('Ext.toolbar.Toolbar',{
+		height:28,
+		cls:"bio-border-false",
+		items:[this.urlField,this.checkButton]
+	});
 	this.form = Ext.create('Ext.panel.Panel', {
 		border : false,
 		items : [this.infobar,this.contentArea,this.panelSettings]
