@@ -252,16 +252,17 @@ GenomeViewer.prototype.setLoc = function(data) {
 GenomeViewer.prototype._getNavigationBar = function() {
 	var _this = this;
 	
-	$.ajax({url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/AASD/starts_with?of=json",success:function(data, textStatus, jqXHR){
-		
-		
-	},error:function(jqXHR, textStatus, errorThrown){console.log(textStatus);}});
-	
-	var species = Ext.create('Ext.data.Store', {
-		autoLoad: true,
-		fields: ["xrefId","displayId","description"],
-	    data : []
+	//XXX
+	var searchResults = Ext.create('Ext.data.Store', {
+		autoLoad:false,
+		fields: ["xrefId","displayId","description"]
 	});
+	
+	var retrieving = false;
+	 searchResults.on("datachanged",function(){
+		 console.log("change")
+		 retrieving = false;
+	 });
 	
 	var combo = Ext.create('Ext.form.field.ComboBox', {
 		id:_this.id+"speciesCombo",
@@ -269,14 +270,20 @@ GenomeViewer.prototype._getNavigationBar = function() {
 	    valueField: 'displayId',
 	    editable:true,
 	    width:200,
-	    store: species,
+	    store: searchResults,
 		listeners:{
 			 change:function(){
-					console.log(this.getValue());
+				 if(!retrieving && this.getValue() && this.getValue().length > 3){
+					 retrieving = true;
+					 $.ajax({url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/"+this.getValue()+"/starts_with?of=json",success:function(data, textStatus, jqXHR){
+						 var d = JSON.parse(data);
+						 searchResults.loadData(d[0]);
+					 },error:function(jqXHR, textStatus, errorThrown){console.log(textStatus);retrieving = false;}});
+				 }
 			 }
 		 }
 	});
-	
+	//XXX
 	
 	var navToolbar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+"navToolbar",
@@ -371,7 +378,8 @@ GenomeViewer.prototype._getNavigationBar = function() {
 //		        			 buffer : 300
 		        		 }
 		        	 }
-		         },combo,
+		         },
+//		         combo,
 //		         {
 //		        	 id:this.id+"right1posButton",
 //		        	 text : '>',

@@ -533,8 +533,22 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							});
 							
 							
-							var codingStart = parseInt(e2t.genomicCodingStart);
-							var codingEnd = parseInt(e2t.genomicCodingEnd);
+							var codingStart, codingEnd;
+							codingStart = parseInt(e2t.genomicCodingStart);
+							codingEnd = parseInt(e2t.genomicCodingEnd);
+							
+//							if(transcript.strand == 1) {
+								if(transcript.codingRegionStart > exonStart && transcript.codingRegionStart < exonEnd) {
+									codingStart = parseInt(transcript.codingRegionStart);
+								}else {
+									if(transcript.codingRegionEnd > exonStart && transcript.codingRegionEnd < exonEnd) {										
+										codingEnd = parseInt(transcript.codingRegionEnd);										
+									}
+								}
+//							}else {
+								//se supone que la negativa la hace bien
+//							}
+							
 							
 							var codingX = _this.pixelPosition+middle-((_this.position-codingStart)*_this.pixelBase);
 							var codingWidth = (codingEnd-codingStart+1) * ( _this.pixelBase);
@@ -665,9 +679,6 @@ TrackSvg.prototype.HistogramRender = function(featureList){
 		var feature = featureList[i];
 		var width = (feature.end-feature.start);
 		//get type settings object
-		console.log(this.types);
-		console.log(feature.featureType);
-		console.log(this.types[feature.featureType]);
 		var settings = this.types[feature.featureType];
 		var color = settings.histogramColor;
 		
