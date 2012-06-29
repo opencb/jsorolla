@@ -313,7 +313,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
-		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw 
+		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
 		trackSvg.featuresRender(event.data);
 //		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 

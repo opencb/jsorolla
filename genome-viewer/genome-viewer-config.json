@@ -67,6 +67,10 @@ SNP_BIOTYPE_COLORS = {
 	"other":"#000000"
 };
 
+DEFAULT_COLORS = {
+		"black":"black"
+};
+
 SEQUENCE_COLORS = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"}
 
 FEATURE_TYPES = {
@@ -82,11 +86,12 @@ FEATURE_TYPES = {
 			str+= " ["+f.biotype+"]";
 			return str;
 		},
+		getColor: function(f){
+			return GENE_BIOTYPE_COLORS[f.biotype];
+		},
 		infoWidgetId: "stableId",
-		colorField: "biotype",
 		height:4,
-		histogramColor:"lightblue",
-		color: GENE_BIOTYPE_COLORS
+		histogramColor:"lightblue"
 	},
 	transcript:{
 		getLabel: function(f){
@@ -97,11 +102,12 @@ FEATURE_TYPES = {
 			str+= " ["+f.biotype+"]";
 			return str;
 		},
+		getColor: function(f){
+			return GENE_BIOTYPE_COLORS[f.biotype];
+		},
 		infoWidgetId: "stableId",
-		colorField: "biotype",
 		height:4,
-		histogramColor:"lightblue",
-		color: GENE_BIOTYPE_COLORS
+		histogramColor:"lightblue"
 	},
 	exon:{
 		getLabel: function(e2t){
@@ -109,11 +115,12 @@ FEATURE_TYPES = {
 			str+= e2t.exon.stableId;
 			return str;
 		},
+		getColor: function(f){
+			return "black";
+		},
 		infoWidgetId: "stableId",
-		colorField: "biotype",
 		height:4,
-		histogramColor:"lightblue",
-		color: GENE_BIOTYPE_COLORS
+		histogramColor:"lightblue"
 	},
 	snp:{
 		getLabel: function(f){
@@ -121,11 +128,26 @@ FEATURE_TYPES = {
 			str+= f.name
 			return str;
 		},
+		getColor: function(f){
+			return SNP_BIOTYPE_COLORS[f.displaySoConsequence];
+		},
 		infoWidgetId: "name",
-		colorField: "displaySoConsequence",
 		height:10,
 		histogramColor:"orange",
-		color: SNP_BIOTYPE_COLORS
 	},
+	vcf:{
+		getLabel: function(f){
+			var str = "";
+			str+= f.label
+			return str;
+		},
+		getColor: function(f){
+			return "black";
+		},
+		colorField: "black",
+		height:10,
+		histogramColor:"orange",
+		color: DEFAULT_COLORS
+	}
 };
 

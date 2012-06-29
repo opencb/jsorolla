@@ -317,7 +317,8 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 		
 		//get type settings object
 		var settings = _this.types[feature.featureType];
-		var color = settings.color[feature[settings.colorField]];
+//		var color = settings.color[feature[settings.colorField]];
+		var color = settings.getColor(feature);
 		//transform to pixel position
 		width = width * _this.pixelBase;
 //		var hollowWidth = (end-start) * _this.pixelBase;
@@ -440,7 +441,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						
 						//get type settings object
 						var settings = _this.types[transcript.featureType];
-						var color = settings.color[transcript[settings.colorField]];
+						var color = settings.getColor(transcript);
 						
 						try{
 							//se resta el trozo del final del gen hasta el principio del transcrito y se le suma el texto del transcrito
@@ -624,9 +625,9 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 		var seqStart = featureList[0].start;
 		var width = 1*this.pixelBase;
 		
-		if(!this.settings.color){
-			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
-		}
+//		if(!this.settings.color){
+//			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
+//		}
 		
 		var start = featureList[0].start;
 		
@@ -647,7 +648,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 					"x":x+1,
 					"y":12,
 					"font-size":12,
-					"fill":this.settings.color[seqString.charAt(i)]
+					"fill":SEQUENCE_COLORS[seqString.charAt(i)]
 				});
 				text.textContent = seqString.charAt(i);
 				
@@ -733,17 +734,17 @@ TrackSvg.prototype.formatTooltip = function(args){
 	case "snp":
 		str +='<span class="ok">'+args.feature.name+'</span><br>'+ 
 		'alleles:&nbsp;<span class="ssel">'+args.feature.alleleString+'</span><br>'+
-		'SO:&nbsp;<span class="emph" style="color:'+settings.color[args.feature[settings.colorField]]+';">'+args.feature.displaySoConsequence+'</span><br>';
+		'SO:&nbsp;<span class="emph" style="color:'+settings.getColor(args.feature)+';">'+args.feature.displaySoConsequence+'</span><br>';
 		break;
 	case "gene":
 		str += '<span class="ok">'+args.feature.externalName+'</span><br>'+
 		'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+args.feature.stableId+'</span><br>'+
-		'biotype:&nbsp;<span class="emph" style="color:'+settings.color[args.feature[settings.colorField]]+';">'+args.feature.biotype+'</span><br>';
+		'biotype:&nbsp;<span class="emph" style="color:'+settings.getColor(args.feature)+';">'+args.feature.biotype+'</span><br>';
 		break;
 	case "transcript":
 		str += '<span class="ok">'+args.feature.externalName+'</span><br>'+
 		'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+args.feature.stableId+'</span><br>'+
-		'biotype:&nbsp;<span class="emph" style="color:'+settings.color[args.feature[settings.colorField]]+';">'+args.feature.biotype+'</span><br>';
+		'biotype:&nbsp;<span class="emph" style="color:'+settings.getColor(args.feature)+';">'+args.feature.biotype+'</span><br>';
 		break;
 	default: break;
 	}

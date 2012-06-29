@@ -26,6 +26,7 @@ function VCFDataAdapter(dataSource, args){
 
 VCFDataAdapter.prototype.parse = function(data){
 	var _this = this;
+	var dataType = "data";
 	var lines = data.split("\n");
 //	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){
@@ -48,10 +49,11 @@ VCFDataAdapter.prototype.parse = function(data){
 						"info": 		fields[7], 
 						"format": 		fields[8], 
 						"record":		fields,
-						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5]
+						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
+						"featureType":	"vcf"
 				};
 
-				this.featureCache.putFeatures(feature);
+				this.featureCache.putFeatures(feature, dataType);
 			}
 		}
 	}
