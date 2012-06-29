@@ -377,7 +377,9 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 			
 			
 			if(enc){
-//				debugger
+//				if(width<0){
+//					debugger
+//				}
 				var rect = SVG.addChild(_this.features,"rect",{
 					"i":i,
 					"x":x,
@@ -464,6 +466,9 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 //						});
 						
 						// transcript width
+//						if(transcriptWidth<0){
+//							debugger
+//						}
 						var rect = SVG.addChild(_this.features,"rect",{
 							"i":i,
 							"x":transcriptX,
@@ -512,6 +517,9 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							var exonX = _this.pixelPosition+middle-((_this.position-exonStart)*_this.pixelBase);
 							var exonWidth = (exonEnd-exonStart+1) * ( _this.pixelBase);
 							
+//							if(exonWidth<0){
+//								debugger
+//							}
 							SVG.addChild(_this.features,"rect",{
 								"i":i,
 								"x":exonX,
@@ -530,7 +538,12 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							
 							var codingX = _this.pixelPosition+middle-((_this.position-codingStart)*_this.pixelBase);
 							var codingWidth = (codingEnd-codingStart+1) * ( _this.pixelBase);
+							//XXX patch
+							codingWidth = Math.max(0, codingWidth);
 							
+//							if(codingWidth<0){
+//								debugger
+//							}
 							SVG.addChild(_this.features,"rect",{
 								"i":i,
 								"x":codingX,
