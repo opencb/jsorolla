@@ -1,4 +1,4 @@
-function TrackData(type, args) {
+function TrackData(id, args) {
 	if (args != null){
 		if(args.adapter != null){
 			this.adapter = args.adapter;

@@ -250,6 +250,31 @@ GenomeViewer.prototype.setLoc = function(data) {
 GenomeViewer.prototype._getNavigationBar = function() {
 	var _this = this;
 	
+	$.ajax({url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/AASD/starts_with?of=json",success:function(data, textStatus, jqXHR){
+		
+		
+	},error:function(jqXHR, textStatus, errorThrown){console.log(textStatus);}});
+	
+	var species = Ext.create('Ext.data.Store', {
+		autoLoad: true,
+		fields: ["xrefId","displayId","description"],
+	    data : []
+	});
+	
+	var combo = Ext.create('Ext.form.field.ComboBox', {
+		id:_this.id+"speciesCombo",
+	    displayField: 'displayId',
+	    valueField: 'displayId',
+	    editable:true,
+	    width:200,
+	    store: species,
+		listeners:{
+			 change:function(){
+					console.log(this.getValue());
+			 }
+		 }
+	});
+	
 	
 	var navToolbar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+"navToolbar",
@@ -344,7 +369,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 //		        			 buffer : 300
 		        		 }
 		        	 }
-		         },
+		         },combo,
 //		         {
 //		        	 id:this.id+"right1posButton",
 //		        	 text : '>',
@@ -390,7 +415,13 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        			 if (e.getKey() == e.ENTER) {
 		        				 _this._handleNavigationBar('GoToGene');
 		        			 }
-		        		 }
+		        		 },
+		        		 change: function(){
+		        			 	var str = this.getValue();
+		        			 	if(str.length > 3){
+		        			 		console.log(this.getValue());
+		        			 	}
+					     },
 		        	 }
 		         },{
 		        	 id : this.id+'GoToGeneButton',
@@ -401,6 +432,8 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		         }]
 	});
 	return navToolbar;
+	
+
 };
 
 //Creates the species empty menu if not exist and returns it
@@ -687,7 +720,7 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 		border:false,
 		autoScroll:true,
 		margin:'0 0 1 0',
-		cls:'border-bot panel-border-top',
+		cls:'border-bot panel-border-top x-unselectable',
 		html: '<div id="'+this.id+'regionSvg" style="margin-top:2px"></div>'
 	});
 	return panel;
@@ -699,6 +732,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 		id:this.id+"tracksPanel",
 		title:'Detailed Information',
 		autoScroll:true,
+		cls:"x-unselectable",
 		flex: 1,
 		html:'<div id = "'+this.id+'tracksSvg"></div>'
 	});
@@ -713,18 +747,23 @@ GenomeViewer.prototype._getBottomBar = function() {
 	var geneLegendPanel = new LegendPanel({title:'Gene legend'});
 	var snpLegendPanel = new LegendPanel({title:'SNP legend'});
 	
-	var scaleLabel = Ext.create('Ext.draw.Component', {
-		id:this.id+"scaleLabel",
-        width: 100,
-        height: 20,
-        items:[
-            {type: 'text',text: 'Scale number',fill: '#000000',x: 10,y: 9,width: 5, height: 20},
-            {type: 'rect',fill: '#000000',x: 0,y: 0,width: 2, height: 20},
-			{type: 'rect',fill: '#000000',x: 2,y: 12, width: 100,height: 3},
-			{type: 'rect',fill: '#000000',x: 101,y: 0, width: 2,height: 20}
-		]
-	});
+//	var scaleLabel = Ext.create('Ext.draw.Component', {
+//		id:this.id+"scaleLabel",
+//        width: 100,
+//        height: 20,
+//        items:[
+//            {type: 'text',text: 'Scale number',fill: '#000000',x: 10,y: 9,width: 5, height: 20},
+//            {type: 'rect',fill: '#000000',x: 0,y: 0,width: 2, height: 20},
+//			{type: 'rect',fill: '#000000',x: 2,y: 12, width: 100,height: 3},
+//			{type: 'rect',fill: '#000000',x: 101,y: 0, width: 2,height: 20}
+//		]
+//	});
 //	scale.surface.items.items[0].setAttributes({text:'num'},true);
+	
+	var versionLabel = Ext.create('Ext.toolbar.TextItem', {
+		id:this.id+"versionLabel",
+		text:''
+	});
 	
 	var taskbar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'uxTaskbar',
@@ -738,13 +777,13 @@ GenomeViewer.prototype._getBottomBar = function() {
 	var legendBar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'legendBar',
 		cls: 'bio-hiddenbar',
-		width:300,
+		width:220,
 		height:28,
-		items : [scaleLabel, 
+		items : [/*scaleLabel, */
 		         '-',
 		         geneLegendPanel.getButton(GENE_BIOTYPE_COLORS),
 		         snpLegendPanel.getButton(SNP_BIOTYPE_COLORS),
-		         '->']
+		         '->',versionLabel]
 	});
 	
 	var bottomBar = Ext.create('Ext.container.Container', {

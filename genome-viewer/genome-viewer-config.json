@@ -94,11 +94,7 @@ FEATURE_TYPES = {
 			str+= (f.strand < 0) ? "<" : "";
 			str+= " "+f.externalName+" ";
 			str+= (f.strand > 0) ? ">" : "";
-			if(f.end - f.start < 2000) {				
-				str+= "";
-			}else {				
 			str+= " ["+f.biotype+"]";
-			}
 			return str;
 		},
 		infoWidgetId: "stableId",
@@ -108,7 +104,11 @@ FEATURE_TYPES = {
 		color: GENE_BIOTYPE_COLORS
 	},
 	exon:{
-		getLabel: "stableId",
+		getLabel: function(e2t){
+			var str = "";
+			str+= e2t.exon.stableId;
+			return str;
+		},
 		infoWidgetId: "stableId",
 		colorField: "biotype",
 		height:4,
