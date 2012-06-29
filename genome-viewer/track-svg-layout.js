@@ -261,14 +261,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	args["width"] = this.width;
 	
 	var i = this.trackDataList.push(trackData);
-	
 	var trackSvg = new TrackSvg(this.svg,args);
 	
 	this.trackSvgList.push(trackSvg);
 	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
 	trackSvg.setY(this.height);
 	trackSvg.draw();
-	
+	this.setHeight(this.height + trackSvg.getHeight());
 	
 	
 	
@@ -412,8 +411,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		console.log("settings click");//"this" is the svg element
 	});
 	
-	
-	this.setHeight(this.height + trackSvg.getHeight());
+
 };
 
 TrackSvgLayout.prototype.removeTrack = function(trackId){

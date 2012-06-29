@@ -21,6 +21,10 @@ function FileWidget(args){
         if (args.tags!= null){
         	this.tags = args.tags;       
         }
+        if (args.viewer!= null){
+        	this.viewer = args.viewer;       
+        }
+        
 	}
 	
 	this.dataAdapter = null;
@@ -167,7 +171,7 @@ FileWidget.prototype.draw = function(){
 			text:'Ok',
 			disabled:true,
 			handler: function(){ 
-				_this.onOk.notify({title:_this.getTitleName(), dataAdapter:_this.dataAdapter});
+				_this.onOk.notify({fileName:_this.file.name, adapter:_this.adapter});
 				_this.openDialog.close();
 			}
 		});

@@ -26,27 +26,13 @@ TestVCFFileWidget.prototype.getChartItems = function(){
 
 
 TestVCFFileWidget.prototype.loadFileFromLocal = function(file){
-	console.log(file);
 	var _this = this;
-
-	this.vcfAdapter = new VCFDataAdapter(new FileDataSource(file));
-	console.log(this.vcfAdapter);
-	
-	var track3 = new TrackData("vcf",{
-		adapter: this.vcfAdapter
-	});
-	this.vcfAdapter.onLoad.addEventListener(function(sender){
-		_this.onComplete.notify(track3);
+//	console.log(file);
+	this.file = file;
+	this.adapter = new VCFDataAdapter(new FileDataSource(file));
+	this.adapter.onLoad.addEventListener(function(sender){
+		_this.onComplete.notify(file);
+		_this.btnOk.enable();
 	});
 	
-//	var vcfAdapter = new VCFDataAdapter(new UrlDataSource());
-	
-	_this.btnOk.enable();
-//	this.vcfAdapter.onLoad.addEventListener(function(sender, data){
-//		console.log(data);
-////		_this.trackDataList.addTrack({id:"snp",resource:"snp"});
-//	});
-	
-//	vcfAdapter.getData();
-//	vcfAdapter.getData("http://rsanchez/example.vcf");
 };
