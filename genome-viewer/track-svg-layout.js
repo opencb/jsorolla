@@ -315,7 +315,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw 
 		trackSvg.featuresRender(event.data);
-		console.log(trackData.adapter.featureCache);
+//		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
 	});

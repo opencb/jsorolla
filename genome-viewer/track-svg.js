@@ -125,10 +125,12 @@ TrackSvg.prototype.draw = function(){
 	var titleGroup = SVG.addChild(main,"g",{
 		visibility:this.titleVisibility	
 	});
+	
+	var textWidth = 25+this.id.length*5;
 	var titlebar = SVG.addChild(titleGroup,"rect",{
 		"x":0,
 		"y":0,
-		"width":56,
+		"width":textWidth,
 		"height":22,
 		"stroke":"deepSkyBlue",
 		"stroke-width":"1",
@@ -144,7 +146,6 @@ TrackSvg.prototype.draw = function(){
 //		"transform":"rotate(-90 50,50)"
 	});
 	text.textContent = this.id;
-	textWidth = 56;
 
 	var settingsRect = SVG.addChildImage(titleGroup,{
 		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
@@ -242,6 +243,12 @@ TrackSvg.prototype.draw = function(){
 		this.setAttribute("opacity","0.6");
 	});
 
+	$(settingsRect).mouseover(function(event){
+		titlebar.setAttribute("height",22+22);
+	});
+	$(settingsRect).mouseleave(function(event){
+		titlebar.setAttribute("height",22);
+	});
 	
 	//set initial values when hide due mouseleave event not fires when hideTrack from TrackSvgLayout
 	$(hideRect).click(function(event){
@@ -337,7 +344,9 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 //			console.log("start:" +hollowX+", end: "+(hollowX+maxWidth-1));
 			
 			var enc;
-			//XXX
+			
+			
+			//XXX  TRANSCRIPTS DETECTION
 			var rowAvailable=false;
 //			debugger
 			if(feature.featureType == "gene" && feature.transcripts != null){
@@ -380,7 +389,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 					"fill": color,
 					"cursor": "pointer"
 				});
-				rect.textContent = settings.getLabel(feature);
 				
 				var text = SVG.addChild(_this.features,"text",{
 					"i":i,
@@ -392,7 +400,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 					"cursor": "pointer"
 				});
 				text.textContent = settings.getLabel(feature);
-				console.log(settings.getLabel(feature));
+//				console.log(settings.getLabel(feature));
 				
 				$([rect,text]).qtip({
 					content: _this.formatTooltip({feature:feature, featureType:feature.featureType }),
@@ -425,12 +433,16 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							_this.renderedArea[checkRowY] = new FeatureBinarySearchTree();
 						}
 						var transcript = feature.transcripts[i];
+						var transcriptX = _this.pixelPosition+middle-((_this.position-transcript.start)*_this.pixelBase);
+						var transcriptWidth = (transcript.end-transcript.start+1) * ( _this.pixelBase);
+						
 						//get type settings object
 						var settings = _this.types[transcript.featureType];
 						var color = settings.color[transcript[settings.colorField]];
 						
 						try{
-							var maxWidth = Math.max(width, settings.getLabel(transcript).length*8); //XXX cuidado : text.getComputedTextLength()
+							//se resta el trozo del final del gen hasta el principio del transcrito y se le suma el texto del transcrito
+							var maxWidth = Math.max(width, width-((feature.end-transcript.start)* ( _this.pixelBase))+settings.getLabel(transcript).length*7);
 						}catch(e){
 							var maxWidth = 72;
 						}
@@ -451,8 +463,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 //							"cursor": "pointer"
 //						});
 						
-						var transcriptX = _this.pixelPosition+middle-((_this.position-transcript.start)*_this.pixelBase);
-						var transcriptWidth = (transcript.end-transcript.start+1) * ( _this.pixelBase);
 						// transcript width
 						var rect = SVG.addChild(_this.features,"rect",{
 							"i":i,
@@ -463,7 +473,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							"fill": "gray",
 							"cursor": "pointer"
 						});
-						rect.textContent = settings.getLabel(transcript);
 						var text = SVG.addChild(_this.features,"text",{
 							"i":i,
 							"x":transcriptX,
@@ -632,43 +641,59 @@ TrackSvg.prototype.HistogramRender = function(featureList){
 	var middle = this.width/2;
 //	console.log(featureList);
 	var histogramHeight = 50;
+	console.log(featureList.length);
 	var points = "";
+	if(featureList.length>0) {
+		var firstx = this.pixelPosition+middle-((this.position-featureList[0].start)*this.pixelBase);
+		points = firstx+",50 ";
+		
+	}
 	for ( var i = 0, len = featureList.length; i < len; i++) {
 		var feature = featureList[i];
 		var width = (feature.end-feature.start);
 		//get type settings object
+		console.log(this.types);
+		console.log(feature.featureType);
+		console.log(this.types[feature.featureType]);
 		var settings = this.types[feature.featureType];
 		var color = settings.histogramColor;
 		
 		width = width * this.pixelBase;
 		var x = this.pixelPosition+middle-((this.position-feature.start)*this.pixelBase);
 		var height = histogramHeight * featureList[i].value;
+		
+		//
 		if(featureList[i].value==null){
 			console.log(featureList[i]);
 		}
 
-		//TODO FOR POLYLINE Width/2 to center the point  	
-		points += (x+width/2)+","+(histogramHeight - height)+" ";
+		//TODO FOR POLYLINE Width/2 to center the point
+		points += (x+(width/2))+","+(histogramHeight - height)+" ";
 		
-		var rect = SVG.addChild(this.features,"rect",{
-			"x":x,
-			"y":histogramHeight - height,
-			"width":width,
-			"height":height,
-			"stroke": "#3B0B0B",
-			"stroke-width": 0.5,
-			"fill": color,
-			"cursor": "pointer"
-		});
+//		var rect = SVG.addChild(this.features,"rect",{
+//			"x":x,
+//			"y":histogramHeight - height,
+//			"width":width,
+//			"height":height,
+//			"stroke": "#3B0B0B",
+//			"stroke-width": 0.5,
+//			"fill": color,
+//			"cursor": "pointer"
+//		});
+	}
+	if(featureList.length>0) {
+		var firstx = this.pixelPosition+middle-((this.position-featureList[featureList.length-1].start)*this.pixelBase);
+		points += firstx+",50 ";
+		
 	}
 //	console.log(points);
-//	var rect = SVG.addChild(this.features,"polyline",{
-//		"points":points,
-//		"stroke": "#000000",
-//		"stroke-width": 0.2,
-//		"fill": color,
-//		"cursor": "pointer"
-//	});
+	var rect = SVG.addChild(this.features,"polyline",{
+		"points":points,
+		"stroke": "#000000",
+		"stroke-width": 0.2,
+		"fill": color,
+		"cursor": "pointer"
+	});
 	this.setHeight(histogramHeight+/*margen entre tracks*/10);
 	console.timeEnd("all");
 };
