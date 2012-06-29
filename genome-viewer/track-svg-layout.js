@@ -312,7 +312,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//EventListeners
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
-	trackData.adapter.onGetData.addEventListener(function(sender,event){
+	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw 
 		trackSvg.featuresRender(event.data);
 		console.log(trackData.adapter.featureCache);
@@ -329,7 +329,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	
 	//on zoom change set new virtual window and update track values
-	this.onZoomChange.addEventListener(function(sender,data){
+	trackSvg.onZoomChangeIdx = this.onZoomChange.addEventListener(function(sender,data){
 		trackSvg.zoom=_this.zoom;
 		trackSvg.pixelBase=_this.pixelBase;
 		
@@ -349,7 +349,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 
 	
 	//on chromosome change set new virtual window and update track values
-	this.onChromosomeChange.addEventListener(function(sender,data){
+	trackSvg.onChromosomeChangeIdx = this.onChromosomeChange.addEventListener(function(sender,data){
 		trackSvg.position=_this.position;
 		
 		cleanSvgFeatures();
@@ -363,7 +363,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 
 	//movement listeners 
-	this.onMove.addEventListener(function(sender,desp){
+	trackSvg.onMoveIdx = this.onMove.addEventListener(function(sender,desp){
 		trackSvg.position -= desp;
 		var despBase = desp*_this.pixelBase;
 		trackSvg.pixelPosition-=despBase;
@@ -414,6 +414,24 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	
 	this.setHeight(this.height + trackSvg.getHeight());
+};
+
+TrackSvgLayout.prototype.removeTrack = function(trackId){
+	// first hide the track
+	this._hideTrack(trackId);
+	
+	var position = this.swapHash[trackId].index;
+	
+	// delete listeners
+	this.onZoomChange.removeEventListener(this.trackSvgList[position].onZoomChangeIdx);
+	this.onChromosomeChange.removeEventListener(this.trackSvgList[position].onChromosomeChangeIdx);
+	this.onMove.removeEventListener(this.trackSvgList[position].onMoveIdx);
+
+	// delete data
+	this.trackSvgList.splice(position, 1);
+	this.trackDataList.splice(position, 1);
+	delete this.swapHash[trackId];
+	
 };
 
 TrackSvgLayout.prototype._redraw = function(){
@@ -487,8 +505,6 @@ TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 //	setTimeout(function() {
 //		_this._showTrack(trackMainId);
 //	},2000);
-	console.log(this.trackSvgList)
-	console.log(this.swapHash)
 };
 
 TrackSvgLayout.prototype._showTrack = function(trackMainId){

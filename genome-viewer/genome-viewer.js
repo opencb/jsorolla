@@ -46,6 +46,7 @@ function GenomeViewer(targetId, species, args) {
 	}
 
 	//Events i send
+	this.onSpeciesChange = new Event();
 	this.onLocationChange = new Event();
 	this.afterLocationChange = new Event();
 	this.afterRender = new Event();
@@ -168,6 +169,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this.trackSvgLayout2.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
 		this.chromosomeWidget.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
 		this.karyotypeWidget.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
+		this.onSpeciesChange.notify();
 		break;
 	case "_getChromosomeMenu":
 		if(this.chromosome!=data.chromosome){

@@ -13,7 +13,10 @@ function Event(sender) {
  
 Event.prototype = {
     addEventListener : function (listener) {
-        this._listeners.push(listener);
+        return this._listeners.push(listener)-1; //return index of array
+    },
+    removeEventListener : function (index) {
+    	this._listeners.splice(index,1);
     },
     notify : function (args) {
         for (var i = 0; i < this._listeners.length; i++) {
