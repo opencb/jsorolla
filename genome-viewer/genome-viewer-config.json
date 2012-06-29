@@ -67,9 +67,6 @@ SNP_BIOTYPE_COLORS = {
 	"other":"#000000"
 };
 
-DEFAULT_COLORS = {
-		"black":"black"
-};
 
 SEQUENCE_COLORS = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"}
 
@@ -133,9 +130,9 @@ FEATURE_TYPES = {
 		},
 		infoWidgetId: "name",
 		height:10,
-		histogramColor:"orange",
+		histogramColor:"orange"
 	},
-	vcf:{
+	file:{
 		getLabel: function(f){
 			var str = "";
 			str+= f.label
@@ -144,10 +141,28 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		colorField: "black",
 		height:10,
-		histogramColor:"orange",
-		color: DEFAULT_COLORS
+		histogramColor:"orange"
+	},
+	bed:{
+		getLabel: function(f){
+			var str = "";
+			str+= f.label
+			return str;
+		},
+		getColor: function(f){
+			//XXX convert RGB to Hex
+	        var rgbColor = new Array();
+	        rgbColor = f.itemRgb.split(",");
+	        var hex = function (x) {
+	        	var hexDigits = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
+	            return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+	        };
+	        var hexColor = hex(rgbColor[0])+ hex(rgbColor[1]) + hex(rgbColor[2]);
+			return "#"+hexColor;
+		},
+		height:10,
+		histogramColor:"orange"
 	}
 };
 

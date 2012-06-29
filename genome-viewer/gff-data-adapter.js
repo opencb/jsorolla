@@ -26,6 +26,7 @@ function GFFDataAdapter(dataSource, args){
 
 GFFDataAdapter.prototype.parse = function(data){
 	var _this = this;
+	var dataType = "data";
 	var lines = data.split("\n");
 //	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){
@@ -43,10 +44,11 @@ GFFDataAdapter.prototype.parse = function(data){
 					"score": parseFloat(fields[5]),
 					"strand": fields[6], 
 					"frame": fields[7],
-					"group": fields[8]
+					"group": fields[8],
+					"featureType":	"file"
 			} ;
 
-			this.featureCache.putFeatures(feature);
+			this.featureCache.putFeatures(feature, dataType);
 		}
 	}
 };
