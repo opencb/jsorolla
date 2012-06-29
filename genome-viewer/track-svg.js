@@ -596,9 +596,9 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	for ( var i = 0, leni = featureList.length; i < leni; i++) {
 		var feature = featureList[i];
 		
-		console.time("Draw with Overlapping");
+//		console.time("Draw with Overlapping");
 		draw(feature,feature.start,feature.end);
-		console.timeEnd("Draw with Overlapping");
+//		console.timeEnd("Draw with Overlapping");
 //		if(feature.featureType == "gene" && feature.transcripts != null){
 //			console.log(feature.transcripts.length);
 //			for ( var j = 0, lenj = feature.transcripts.length; j < lenj; j++) {
@@ -615,7 +615,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	if(newHeight>0){
 		this.setHeight(newHeight+/*margen entre tracks*/10);
 	}
-	console.timeEnd("all");
+//	console.timeEnd("all");
 };
 
 TrackSvg.prototype.SequenceRender = function(featureList){

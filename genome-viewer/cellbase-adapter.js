@@ -31,7 +31,7 @@ function CellBaseAdapter(args){
 };
 
 CellBaseAdapter.prototype.getData = function(args){
-	console.time("all");
+//	console.time("all");
 	var _this = this;
 	//region check
 	if(args.start<1){
