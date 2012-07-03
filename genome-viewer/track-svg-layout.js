@@ -91,8 +91,21 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"font-size":10,
 		"fill":"green"
 	});
-	this.positionText.textContent = this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-
+	this.firstPositionText = SVG.addChild(this.svg,"text",{
+		"x":0,
+		"y":22,
+		"font-size":10,
+		"fill":"green"
+	});
+	this.lastPositionText = SVG.addChild(this.svg,"text",{
+		"x":this.width-70,
+		"y":22,
+		"font-size":10,
+		"fill":"green"
+	});
+	this._setTextPosition();
+	
+	
 	this.viewNtsArrow = SVG.addChild(this.svg,"rect",{
 		"x":16,
 		"y":2,
@@ -119,14 +132,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	});
 	this.viewNtsText.textContent = "Viewing "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
 	
-//	this.currentLine = SVG.addChild(this.svg,"line",{
-//			"x1":mid,
-//			"y1":this.height,
-//			"x2":mid,
-//			"y2":this.height,
-//			"stroke-width":1,
-//			"stroke":"green"
-//	});
 	
 	this.currentLine = SVG.addChild(this.svg,"rect",{
 		"x":mid,
@@ -150,7 +155,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 				if(newX!=lastX){
 					var desp = lastX-newX;
 					_this.position -= desp;
-					_this.positionText.textContent = _this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+					_this._setTextPosition();
 					_this.onMove.notify(desp);
 					lastX = newX;
 				}
@@ -159,12 +164,12 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		$(this.svg).mouseup(function(event) {
 //			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
-//			$(this).focus();// without this, the keydown does not work
+			$(this).focus();// without this, the keydown does not work
 		});
-//		$(this.svg).mouseleave(function(event) {
-////			this.setAttribute("cursor", "default");
-//			$(this).off('mousemove');
-//		});
+		$(this.svg).mouseleave(function(event) {
+//			this.setAttribute("cursor", "default");
+			$(this).off('mousemove');
+		});
 		
 		
 		//keys
@@ -198,7 +203,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			}
 			if(desp != 0){
 				_this.position -= desp;
-				_this.positionText.textContent = _this.position;
+				_this._setTextPosition();
 				_this.onMove.notify(desp);
 			}
 		});
@@ -207,7 +212,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	}else{
 		_this.parentLayout.onMove.addEventListener(function(sender,desp){
 			_this.position -= desp;
-			_this.positionText.textContent = _this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+			_this._setTextPosition();
 			_this.onMove.notify(desp);
 		});
 	}
@@ -219,13 +224,14 @@ TrackSvgLayout.prototype.setHeight = function(height){
 	this.currentLine.setAttribute("height",parseInt(height)-25);//25 es el margen donde esta el texto de la posicion
 };
 TrackSvgLayout.prototype.setZoom = function(zoom){
-	this.zoom=zoom-this.zoomOffset;
+	this.zoom=Math.max(zoom-this.zoomOffset, -5);
 //	console.log(this.zoom);
 //	console.log(this._getPixelsbyBase(this.zoom));
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.currentLine.setAttribute("width", this.pixelBase);
 	this.viewNtsText.textContent = "Viewing "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this._setTextPosition();
 	this.onZoomChange.notify();
 };
 TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
@@ -234,7 +240,7 @@ TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.po
 	}
 	if(item.position!=null){
 		this.position = parseInt(item.position);//check int, must be a number
-		this.positionText.textContent = this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+		this._setTextPosition();
 	}
 	if(item.species!=null){
 		//check species and modify CellBaseAdapter, clean cache
@@ -528,4 +534,11 @@ TrackSvgLayout.prototype._createPixelsbyBase = function(){
 		this.zoomLevels[i] = pixelsByBase;
 		pixelsByBase = pixelsByBase / 2;
 	}
+};
+
+TrackSvgLayout.prototype._setTextPosition = function(){
+	this.positionText.textContent = this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+	var x = Math.floor((this.width)/this.pixelBase/2);
+	this.firstPositionText.textContent = (this.position-x).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+	this.lastPositionText.textContent = (this.position+x-1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 };

@@ -1,5 +1,6 @@
 function KaryotypeWidget(parent, args) {
 	
+	this.parent = parent;
 	this.id = Math.round(Math.random()*10000000);
 	if(args != null){
 		if(args.width != null){
@@ -71,14 +72,16 @@ KaryotypeWidget.prototype.drawKaryotype = function(){
  		 		var firstCentromere = true;
  		 		var pointerPosition = (_this.position * _this.pixelBase);
  		 		
- 				var group = SVG.addChild(_this.svg,"g",{"cursor":"pointer"});
+ 				var group = SVG.addChild(_this.svg,"g",{"cursor":"pointer","chr":chromosomeList[i]});
  				$(group).click(function(event){
- 					var chrClicked;
- 					for ( var k=0, len=chromosomeList.length; k<len; k++) {
-						if(event.clientX > _this.chrOffsetX[chromosomeList[k]]) chrClicked = chromosomeList[k];
-					}
+ 					var chrClicked = this.getAttribute("chr");
+// 					for ( var k=0, len=chromosomeList.length; k<len; k++) {
+// 						 var offsetX = (event.pageX - $(_this.svg).offset().left);
+//						if(offsetX > _this.chrOffsetX[chromosomeList[k]]) chrClicked = chromosomeList[k];
+//					}
  					
- 					var offsetY = event.originalEvent.layerY - 3;
+ 					var offsetY = (event.pageY - $(_this.svg).offset().top);
+// 					var offsetY = event.originalEvent.layerY - 3;
  					
  					_this.positionBox.setAttribute("x1",_this.chrOffsetX[chrClicked]-10);
  					_this.positionBox.setAttribute("x2",_this.chrOffsetX[chrClicked]+23);
@@ -87,7 +90,7 @@ KaryotypeWidget.prototype.drawKaryotype = function(){
  					
  					var clickPosition = parseInt((offsetY - _this.chrOffsetY[chrClicked])/_this.pixelBase);
  					_this.chromosome = chrClicked;
- 					_this.onClick.notify({chromosome:chrClicked, position:clickPosition});
+ 					_this.onClick.notify({chromosome:_this.chromosome, position:clickPosition});
  				});
  				
  				for ( var j=0, lenJ=data2.result[i].length; j<lenJ; j++){ //loop over chromosome objects

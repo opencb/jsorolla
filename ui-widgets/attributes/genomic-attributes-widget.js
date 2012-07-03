@@ -1,6 +1,6 @@
 function GenomicAttributesWidget(species, args){
 	var _this=this;
-	this.id = "GenomicAttributesWidget_" + Math.random();
+	this.id = "GenomicAttributesWidget" + Math.round(Math.random()*10000);
 	
 	this.species=species;
 	this.args=args;
@@ -23,7 +23,6 @@ function GenomicAttributesWidget(species, args){
     
 	this.listWidget = new ListWidget(this.species,args.listWidgetArgs);
 	
-    this.karyotypeWidget = new KaryotypePanel(this.getKaryotypePanelId(), this.species, {"top":10, "width":1000, "height": 300, "trackWidth":15});
 	this.attributesPanel = new AttributesPanel({height: 240, columnsCount: this.columnsCount,wum:args.wum,tags:args.tags});
 	
 	/** Event **/
@@ -36,11 +35,6 @@ function GenomicAttributesWidget(species, args){
 		_this.dataChange(data);
 	});
 	
-	this.karyotypeWidget.onMarkerClicked.addEventListener(function(sender,feature){
-		_this.onMarkerClicked.notify(feature); 
-	});
-	
-	
 	
 };
 
@@ -49,12 +43,29 @@ GenomicAttributesWidget.prototype.draw = function (){
 	if (this.panel == null){
 		
 		this.karyotypePanel  = Ext.create('Ext.panel.Panel', {
+			id:this.id+"karyotypePanel",
 			height:350,
 			maxHeight:350,
 			border:0,
-			bodyPadding: 15,
+//			bodyPadding: 15,
 			padding:'0 0 0 0',
-			html:'<div id="' + this.getKaryotypePanelId() +'" ><div>'
+			html:'<div id="' + this.id + "karyotypeDiv" +'" ><div>'
+		});
+		
+		this.karyotypePanel.on("afterrender",function(){
+			var div = $('#'+_this.id+"karyotypeDiv")[0];
+			console.log(div);
+			_this.karyotypeWidget = new KaryotypeWidget(div,{
+				width:1000,
+				height:340,
+				species:_this.args.viewer.species,
+				chromosome:_this.args.viewer.chromosome,
+				position:_this.args.viewer.position
+			});
+			_this.karyotypeWidget.onClick.addEventListener(function(sender,data){
+				_this.onLocationChange.notify({position:data.position,chromosome:data.chromosome,sender:"KaryotypePanel"});
+			});
+			_this.karyotypeWidget.drawKaryotype();
 		});
 		
 		this.filtersButton = Ext.create('Ext.button.Button', {
@@ -99,7 +110,6 @@ GenomicAttributesWidget.prototype.draw = function (){
 		});
 		this.attributesPanel.barField.add(this.filtersButton);
 		this.panel.setLoading();
-		this.drawKaryotype();
 	}	
 	this.panel.show();
 		
@@ -115,9 +125,9 @@ GenomicAttributesWidget.prototype.getMainPanel = function (){
 			border:0,
 			bodyPadding: 15,
 			padding:'0 0 0 0',
-			html:'<div id="' + this.getKaryotypePanelId() +'" ><div>'
+			html:'<div id="' + this.id + "karyotypeDiv" +'" ><div>'
 		});
-		
+
 		this.filtersButton = Ext.create('Ext.button.Button', {
 			 text: 'Additional Filters',
 			 disabled:true,
@@ -160,7 +170,7 @@ GenomicAttributesWidget.prototype.getMainPanel = function (){
 		this.attributesPanel.getPanel();
 		this.attributesPanel.barField.add(this.filtersButton);
 //		this.panel.setLoading();
-		this.drawKaryotype();
+//		this.drawKaryotype();
 	}	
 	return [this.attributesPanel.getPanel(),this.karyotypePanel];
 		
@@ -234,9 +244,6 @@ GenomicAttributesWidget.prototype.drawKaryotype = function (){
 		karyotypeCellBaseDataAdapter.fill();
 };
 
-GenomicAttributesWidget.prototype.getKaryotypePanelId = function (){
-	return this.id + "_karyotypePanel";	
-};
 
 GenomicAttributesWidget.prototype.onAdditionalInformationClick = function (){
 	var _this=this;

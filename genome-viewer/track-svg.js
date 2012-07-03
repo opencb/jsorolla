@@ -105,6 +105,7 @@ TrackSvg.prototype.setHeight = function(height){
 	}
 };
 
+
 TrackSvg.prototype.draw = function(){
 	var _this = this;
 	
@@ -317,14 +318,10 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 		
 		//get type settings object
 		var settings = _this.types[feature.featureType];
-//		var color = settings.color[feature[settings.colorField]];
 		var color = settings.getColor(feature);
 		//transform to pixel position
 		width = width * _this.pixelBase;
-//		var hollowWidth = (end-start) * _this.pixelBase;
-		
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
-//		var hollowX =  _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
 		
 		try{
 			var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
@@ -342,7 +339,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 			if(_this.renderedArea[rowY] == null){
 				_this.renderedArea[rowY] = new FeatureBinarySearchTree();
 			}
-//			console.log("start:" +hollowX+", end: "+(hollowX+maxWidth-1));
 			
 			var enc;
 			
@@ -374,13 +370,9 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
 			}
 			//XXX
-//			enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
 			
 			
 			if(enc){
-//				if(width<0){
-//					debugger
-//				}
 				var rect = SVG.addChild(_this.features,"rect",{
 					"i":i,
 					"x":x,
@@ -406,16 +398,9 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 //				console.log(settings.getLabel(feature));
 				
 				$([rect,text]).qtip({
-					content: _this.formatTooltip({feature:feature, featureType:feature.featureType }),
-					position: {target: 'mouse',adjust: { mouse: true,screen: true }},
-					 style: { 
-					      background: 'honeydew',
-					      border: {
-					         width: 1,
-					         radius: 1,
-					         color: 'deepskyblue'
-					      }
-					   }
+					content: {text:_this.formatTip({feature:feature}), title:_this.formatTitleTip({feature:feature})},
+					position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
+					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'},
 				});
 				
 				$([rect,text]).click(function(event){
@@ -426,8 +411,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				
 				
 //				//XXX
-//				debugger
-				
 				if(rowAvailable == true){
 					var checkRowY = rowY+rowHeight;
 					var checkTextY = textY+rowHeight;
@@ -492,24 +475,14 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						
 						
 						$([rect,text]).qtip({
-							content: _this.formatTooltip({feature:transcript, featureType:transcript.featureType }),
-							position: {target: 'mouse',adjust: { mouse: true,screen: true }},
-							 style: { 
-							      background: 'honeydew',
-							      border: {
-							         width: 1,
-							         radius: 1,
-							         color: 'deepskyblue'
-							      }
-							   }
+							content: {text:_this.formatTip({feature:transcript}), title: _this.formatTitleTip({feature:transcript})},
+							position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+							style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'},
 						});
-						
 						$([rect,text]).click(function(event){
 							var query = this.getAttribute("widgetId");
 							_this.showInfoWidget({query:query, /*feature:transcript,*/ featureType:transcript.featureType });
 						});
-						
-						
 						
 						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){
 							var e2t = feature.transcripts[i].exonToTranscripts[e];
@@ -519,9 +492,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							var exonX = _this.pixelPosition+middle-((_this.position-exonStart)*_this.pixelBase);
 							var exonWidth = (exonEnd-exonStart+1) * ( _this.pixelBase);
 							
-//							if(exonWidth<0){
-//								debugger
-//							}
 							SVG.addChild(_this.features,"rect",{
 								"i":i,
 								"x":exonX,
@@ -533,7 +503,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 								"fill": "white",
 								"cursor": "pointer"
 							});
-							
 							
 							var codingStart, codingEnd;
 							codingStart = parseInt(e2t.genomicCodingStart);
@@ -557,20 +526,32 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							//XXX patch
 							codingWidth = Math.max(0, codingWidth);
 							
-//							if(codingWidth<0){
-//								debugger
-//							}
-							SVG.addChild(_this.features,"rect",{
-								"i":i,
-								"x":codingX,
-								"y":checkRowY-1,
-								"width":codingWidth,
-								"height":settings.height+3,
-								"stroke": color,
-								"stroke-width": 1,
-								"fill": color,
-								"cursor": "pointer"
-							});
+							if(codingWidth > 0){
+								SVG.addChild(_this.features,"rect",{
+									"i":i,
+									"x":codingX,
+									"y":checkRowY-1,
+									"width":codingWidth,
+									"height":settings.height+3,
+									"stroke": color,
+									"stroke-width": 1,
+									"fill": color,
+									"cursor": "pointer"
+								});
+							}
+							for(var p = 0, lenp = 3 - e2t.phase; p < lenp && _this.pixelBase==10 && e2t.phase!=-1; p++){//==10 for max zoom only
+								SVG.addChild(_this.features,"rect",{
+									"i":i,
+									"x":codingX+(p*10),
+									"y":checkRowY-1,
+									"width":_this.pixelBase,
+									"height":settings.height+3,
+									"stroke": color,
+									"stroke-width": 1,
+									"fill": 'white',
+									"cursor": "pointer"
+								});
+							}
 							
 						}
 						
@@ -595,21 +576,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	//process features and check transcripts
 	for ( var i = 0, leni = featureList.length; i < leni; i++) {
 		var feature = featureList[i];
-		
-//		console.time("Draw with Overlapping");
 		draw(feature,feature.start,feature.end);
-//		console.timeEnd("Draw with Overlapping");
-//		if(feature.featureType == "gene" && feature.transcripts != null){
-//			console.log(feature.transcripts.length);
-//			for ( var j = 0, lenj = feature.transcripts.length; j < lenj; j++) {
-//				var transcript = feature.transcripts[j];
-////				console.log(transcript);
-//				draw(transcript,feature.start,feature.end);
-//			}
-////			for ( var j = 0; j < feature.transcripts.length; j++) {
-////				
-////			}
-//		}
 	}
 	var newHeight = Object.keys(this.renderedArea).length*24;
 	if(newHeight>0){
@@ -655,8 +622,8 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				
 				$(text).qtip({
 					content:(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
-					position: {target: 'mouse',adjust: { mouse: true,screen: true }},
-					style: { color: 'dodgerblue' }
+					position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+					style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'},
 				});
 			}
 			
@@ -728,22 +695,22 @@ TrackSvg.prototype.SnpRender = function(featureList){
 	
 };
 
-TrackSvg.prototype.formatTooltip = function(args){
+TrackSvg.prototype.formatTip = function(args){
 	var settings = this.types[args.feature.featureType];
 	var str="";
-	switch (args.featureType) {
+	switch (args.feature.featureType) {
 	case "snp":
-		str +='<span class="ok">'+args.feature.name+'</span><br>'+ 
+		str +=
 		'alleles:&nbsp;<span class="ssel">'+args.feature.alleleString+'</span><br>'+
 		'SO:&nbsp;<span class="emph" style="color:'+settings.getColor(args.feature)+';">'+args.feature.displaySoConsequence+'</span><br>';
 		break;
 	case "gene":
-		str += '<span class="ok">'+args.feature.externalName+'</span><br>'+
+		str += 
 		'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+args.feature.stableId+'</span><br>'+
 		'biotype:&nbsp;<span class="emph" style="color:'+settings.getColor(args.feature)+';">'+args.feature.biotype+'</span><br>';
 		break;
 	case "transcript":
-		str += '<span class="ok">'+args.feature.externalName+'</span><br>'+
+		str += 
 		'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+args.feature.stableId+'</span><br>'+
 		'biotype:&nbsp;<span class="emph" style="color:'+settings.getColor(args.feature)+';">'+args.feature.biotype+'</span><br>';
 		break;
@@ -754,6 +721,26 @@ TrackSvg.prototype.formatTooltip = function(args){
 	'end:&nbsp;<span class="emph">'+args.feature.end+'</span><br>'+
 	'strand:&nbsp;<span class="emph">'+args.feature.strand+'</span><br>'+
 	'length:&nbsp;<span class="info">'+(args.feature.end-args.feature.start+1)+'</span><br>';
+	return str;
+};
+
+TrackSvg.prototype.formatTitleTip = function(args){
+	var str="";
+	switch (args.feature.featureType) {
+	case "snp":
+		str += args.feature.featureType.toUpperCase() +
+		' - <span class="ok">'+args.feature.name+'</span>';
+		break;
+	case "gene":
+		str += args.feature.featureType.charAt(0).toUpperCase() + args.feature.featureType.slice(1) +
+		' - <span class="ok">'+args.feature.externalName+'</span>';
+		break;
+	case "transcript":
+		str += args.feature.featureType.charAt(0).toUpperCase() + args.feature.featureType.slice(1) +
+		' - <span class="ok">'+args.feature.externalName+'</span>';	
+		break;
+	default: str += args.feature.featureType.charAt(0).toUpperCase() + args.feature.featureType.slice(1); break;
+	}
 	return str;
 };
 
