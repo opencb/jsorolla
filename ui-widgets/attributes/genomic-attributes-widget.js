@@ -63,7 +63,7 @@ GenomicAttributesWidget.prototype.draw = function (){
 				position:_this.args.viewer.position
 			});
 			_this.karyotypeWidget.onClick.addEventListener(function(sender,data){
-				_this.onLocationChange.notify({position:data.position,chromosome:data.chromosome,sender:"KaryotypePanel"});
+				_this.args.viewer.onLocationChange.notify({position:data.position,chromosome:data.chromosome,sender:"KaryotypePanel"});
 			});
 			_this.karyotypeWidget.drawKaryotype();
 		});

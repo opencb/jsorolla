@@ -187,3 +187,14 @@ KaryotypeWidget.prototype.setLocation = function(item){//item.chromosome, item.p
 		this.drawKaryotype();
 	}
 };
+
+
+KaryotypeWidget.prototype.updatePositionBox = function(item){
+	this.chromosome = item.chromosome;
+	this.position = item.position;
+	this.positionBox.setAttribute("x1",this.chrOffsetX[this.chromosome]-10);
+	this.positionBox.setAttribute("x2",this.chrOffsetX[this.chromosome]+23);
+	var pointerPosition = this.position * this.pixelBase + this.chrOffsetY[this.chromosome];
+	this.positionBox.setAttribute("y1",pointerPosition);
+	this.positionBox.setAttribute("y2",pointerPosition);
+};

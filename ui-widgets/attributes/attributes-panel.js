@@ -48,11 +48,11 @@ function AttributesPanel(args){
     
     /** Events i listen **/
     this.browserData.adapter.onReadData.addEventListener(function (sender, data){
-		var tabularFileDataAdapter = new TabularFileDataAdapter({comment:"#"});
-		tabularFileDataAdapter.parse(data.data);
-		_this.makeGrid(tabularFileDataAdapter);
-		_this.uptadeTotalFilteredRowsInfo(tabularFileDataAdapter.lines.length);
-		_this.uptadeTotalRowsInfo(tabularFileDataAdapter.lines.length);
+    	var tabularDataAdapter = new TabularDataAdapter(new StringDataSource(data.data),{async:false});
+    	var fileLines = tabularDataAdapter.getLines();
+		_this.makeGrid(tabularDataAdapter);
+		_this.uptadeTotalFilteredRowsInfo(fileLines.length);
+		_this.uptadeTotalRowsInfo(fileLines.length);
 		_this.fileNameLabel.setText('<span class="emph">'+ data.filename +'</span> <span class="info">(server)</span>',false);
 	});	
 };
@@ -233,7 +233,7 @@ AttributesPanel.prototype.getData = function (){
 
 AttributesPanel.prototype.makeGrid = function (dataAdapter){
 		var _this = this;
-		this.data = dataAdapter.lines;
+		this.data = dataAdapter.getLines();
 	
 		var fields = [];
 		var columns = [];
