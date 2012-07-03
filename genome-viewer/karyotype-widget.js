@@ -197,4 +197,26 @@ KaryotypeWidget.prototype.updatePositionBox = function(item){
 	var pointerPosition = this.position * this.pixelBase + this.chrOffsetY[this.chromosome];
 	this.positionBox.setAttribute("y1",pointerPosition);
 	this.positionBox.setAttribute("y2",pointerPosition);
+};	
+	
+KaryotypeWidget.prototype.addMark = function(item){//item.chromosome, item.position
+	this.markGroup = SVG.addChild(this.svg,"g",{"cursor":"pointer"});
+	if(item.chromosome!=null && item.position!=null){
+		var x1 = this.chrOffsetX[item.chromosome]-10;
+		var x2 = this.chrOffsetX[item.chromosome];
+		var y1 = (item.position * this.pixelBase + this.chrOffsetY[item.chromosome]) - 4;
+		var y2 = item.position * this.pixelBase + this.chrOffsetY[item.chromosome];
+		var y3 = (item.position * this.pixelBase + this.chrOffsetY[item.chromosome]) + 4;
+		var points = x1+","+y1+" "+x2+","+y2+" "+x1+","+y3+" "+x1+","+y1;
+		SVG.addChild(this.markGroup,"polyline",{
+			"points":points,
+			"stroke":"black",
+			"opacity":0.8,
+			"fill":"#33FF33"
+		});
+	}
+};
+
+KaryotypeWidget.prototype.unmark = function(){
+	$(this.markGroup).empty();
 };
