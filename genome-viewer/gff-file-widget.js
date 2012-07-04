@@ -1,10 +1,10 @@
-TestGFFFileWidget.prototype.getTitleName = FileWidget.prototype.getTitleName;
-TestGFFFileWidget.prototype.getFileUpload = FileWidget.prototype.getFileUpload;
-TestGFFFileWidget.prototype.draw = FileWidget.prototype.draw;
-TestGFFFileWidget.prototype.sessionInitiated = FileWidget.prototype.sessionInitiated;
-TestGFFFileWidget.prototype.sessionFinished = FileWidget.prototype.sessionFinished;
+GFFFileWidget.prototype.getTitleName = FileWidget.prototype.getTitleName;
+GFFFileWidget.prototype.getFileUpload = FileWidget.prototype.getFileUpload;
+GFFFileWidget.prototype.draw = FileWidget.prototype.draw;
+GFFFileWidget.prototype.sessionInitiated = FileWidget.prototype.sessionInitiated;
+GFFFileWidget.prototype.sessionFinished = FileWidget.prototype.sessionFinished;
 
-function TestGFFFileWidget(args){
+function GFFFileWidget(args){
 	if (args == null){
 		args = new Object();
 	}
@@ -18,12 +18,12 @@ function TestGFFFileWidget(args){
     this.onComplete = new Event();
 };
 
-TestGFFFileWidget.prototype.getChartItems = function(){
+GFFFileWidget.prototype.getChartItems = function(){
 	return [this.chartWidgetByChromosome.getChart(["features","chromosome"])];
 };
 
 
-TestGFFFileWidget.prototype.loadFileFromLocal = function(file){
+GFFFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
 	this.adapter = new GFFDataAdapter(new FileDataSource(file));

@@ -41,7 +41,8 @@ UrlWidget.prototype.render = function (){
     	width:this.width-55,
     	fieldLabel : 'URL',
 		emptyText: 'enter a valid url',
-		value : "http://das.sanger.ac.uk/das/grc_region_GRCh37/features",
+//		value : "http://das.sanger.ac.uk/das/grc_region_GRCh37/features",
+		value : "http://www.ensembl.org/das/Homo_sapiens.GRCh37.gene/features",
 		listeners : { change: {fn: function(){ var dasName = this.value.split('/das/')[1].split('/')[0];
 											   _this.trackNameField.setValue(dasName); }}
 		}
@@ -50,20 +51,40 @@ UrlWidget.prototype.render = function (){
 		text : 'Check',
 		handler : function() {
 			_this.form.setLoading();
-			var dasDataAdapter = new DasRegionDataAdapter({
-				url : _this.urlField.getValue()
+//			var dasDataAdapter = new DasRegionDataAdapter({
+//				url : _this.urlField.getValue()
+//			});
+//			dasDataAdapter.successed.addEventListener(function() {
+//				_this.contentArea.setValue(dasDataAdapter.xml);
+//				_this.form.setLoading(false);
+//			});
+//
+//			dasDataAdapter.onError.addEventListener(function() {
+//				_this.contentArea.setValue("XMLHttpRequest cannot load. This server is not allowed by Access-Control-Allow-Origin");
+//				_this.form.setLoading(false);
+//			});
+//			dasDataAdapter.fill(1, 1, 1);
+			
+			var dasAdapter = new DasAdapter({
+				url: _this.urlField.getValue(),
+				featureCache:{
+					gzip: false,
+					chunkSize:10000
+				}
 			});
-
-			dasDataAdapter.successed.addEventListener(function() {
-				_this.contentArea.setValue(dasDataAdapter.xml);
+			
+			dasAdapter.onCheckUrl.addEventListener(function(sender,event){
+				console.log(event.data);
+				_this.contentArea.setValue(event.data);
 				_this.form.setLoading(false);
 			});
-
-			dasDataAdapter.onError.addEventListener(function() {
+			
+			dasAdapter.onError.addEventListener(function() {
 				_this.contentArea.setValue("XMLHttpRequest cannot load. This server is not allowed by Access-Control-Allow-Origin");
 				_this.form.setLoading(false);
 			});
-			dasDataAdapter.fill(1, 1, 1);
+				
+			dasAdapter.checkUrl();
 		}
     });
 	this.trackNameField = Ext.create('Ext.form.field.Text',{
