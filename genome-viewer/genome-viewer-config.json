@@ -137,7 +137,7 @@ FEATURE_TYPES = {
 	snp:{
 		getLabel: function(f){
 			var str = "";
-			str+= f.name
+			str+= f.name;
 			return str;
 		},
 		getColor: function(f){
@@ -150,7 +150,7 @@ FEATURE_TYPES = {
 	file:{
 		getLabel: function(f){
 			var str = "";
-			str+= f.label
+			str+= f.label;
 			return str;
 		},
 		getColor: function(f){
@@ -162,7 +162,7 @@ FEATURE_TYPES = {
 	bed:{
 		getLabel: function(f){
 			var str = "";
-			str+= f.label
+			str+= f.label;
 			return str;
 		},
 		getColor: function(f){
@@ -175,6 +175,18 @@ FEATURE_TYPES = {
 	        };
 	        var hexColor = hex(rgbColor[0])+ hex(rgbColor[1]) + hex(rgbColor[2]);
 			return "#"+hexColor;
+		},
+		height:10,
+		histogramColor:"orange"
+	},
+	das:{
+		getLabel: function(f){
+			var str = "";
+			str+= f.id;
+			return str;
+		},
+		getColor: function(f){
+			return "black";
 		},
 		height:10,
 		histogramColor:"orange"

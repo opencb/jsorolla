@@ -1,10 +1,10 @@
-TestBEDFileWidget.prototype.getTitleName = FileWidget.prototype.getTitleName;
-TestBEDFileWidget.prototype.getFileUpload = FileWidget.prototype.getFileUpload;
-TestBEDFileWidget.prototype.draw = FileWidget.prototype.draw;
-TestBEDFileWidget.prototype.sessionInitiated = FileWidget.prototype.sessionInitiated;
-TestBEDFileWidget.prototype.sessionFinished = FileWidget.prototype.sessionFinished;
+BEDFileWidget.prototype.getTitleName = FileWidget.prototype.getTitleName;
+BEDFileWidget.prototype.getFileUpload = FileWidget.prototype.getFileUpload;
+BEDFileWidget.prototype.draw = FileWidget.prototype.draw;
+BEDFileWidget.prototype.sessionInitiated = FileWidget.prototype.sessionInitiated;
+BEDFileWidget.prototype.sessionFinished = FileWidget.prototype.sessionFinished;
 
-function TestBEDFileWidget(args){
+function BEDFileWidget(args){
 	if (args == null){
 		args = new Object();
 	}
@@ -18,12 +18,12 @@ function TestBEDFileWidget(args){
     this.onComplete = new Event();
 };
 
-TestBEDFileWidget.prototype.getChartItems = function(){
+BEDFileWidget.prototype.getChartItems = function(){
 	return [this.chartWidgetByChromosome.getChart(["features","chromosome"])];
 };
 
 
-TestBEDFileWidget.prototype.loadFileFromLocal = function(file){
+BEDFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
 	this.adapter = new BEDDataAdapter(new FileDataSource(file),{species:this.viewer.species});

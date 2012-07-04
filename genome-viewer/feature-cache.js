@@ -109,6 +109,7 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 	var lastChunk = this._getChunk(region.end);
 	var features =  [];
 	var feature, key;
+	var returnNull = true;
 	for(var i=firstChunk; i<=lastChunk; i++){
 //		console.log("Chunk: "+i)
 		key = region.chromosome+":"+i;
@@ -124,13 +125,18 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 					// we only get those features in the region
 					if(feature.end > region.start && feature.start < region.end){
 						features.push(feature);
+						returnNull = false;
 					}
 					this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
 				}
 			}
 		}
 	}
-	return features;
+	if(returnNull){
+		return null;
+	}else{
+		return features;
+	}
 };
 
 

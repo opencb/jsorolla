@@ -400,7 +400,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				$([rect,text]).qtip({
 					content: {text:_this.formatTip({feature:feature}), title:_this.formatTitleTip({feature:feature})},
 					position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
-					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'},
+					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 				});
 				
 				$([rect,text]).click(function(event){
@@ -477,11 +477,11 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						$([rect,text]).qtip({
 							content: {text:_this.formatTip({feature:transcript}), title: _this.formatTitleTip({feature:transcript})},
 							position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
-							style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'},
+							style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 						});
 						$([rect,text]).click(function(event){
 							var query = this.getAttribute("widgetId");
-							_this.showInfoWidget({query:query, /*feature:transcript,*/ featureType:transcript.featureType });
+							_this.showInfoWidget({query:query, /*feature:transcript,*/ featureType:transcript.featureType});
 						});
 						
 						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){
@@ -627,7 +627,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				$(text).qtip({
 					content:(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
 					position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
-					style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'},
+					style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
 				});
 			}
 			

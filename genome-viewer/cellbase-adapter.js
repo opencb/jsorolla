@@ -121,7 +121,9 @@ CellBaseAdapter.prototype.getData = function(args){
 			
 			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
 			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
-			_this.onGetData.notify({data:items,cached:false});
+			if(items != null){
+				_this.onGetData.notify({data:items,cached:false});
+			}
 		}
 	});
 

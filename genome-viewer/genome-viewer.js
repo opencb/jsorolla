@@ -280,39 +280,41 @@ GenomeViewer.prototype.setLoc = function(data) {
 //NAVIGATION BAR
 GenomeViewer.prototype._getNavigationBar = function() {
 	var _this = this;
-	
-	//XXX
+
 	var searchResults = Ext.create('Ext.data.Store', {
-		autoLoad:false,
 		fields: ["xrefId","displayId","description"]
 	});
 	
-	var retrieving = false;
-	 searchResults.on("datachanged",function(){
-		 console.log("change")
-		 retrieving = false;
-	 });
-	
-	var combo = Ext.create('Ext.form.field.ComboBox', {
-		id:_this.id+"speciesCombo",
-	    displayField: 'displayId',
-	    valueField: 'displayId',
-	    editable:true,
-	    width:200,
-	    store: searchResults,
+	var searchCombo = Ext.create('Ext.form.field.ComboBox', {
+		id : this.id+'quickSearch',
+		displayField: 'displayId',
+		valueField: 'displayId',
+		emptyText:'gene, transcript',
+		hideTrigger: true,
+		width:200,
+		store: searchResults,
+		queryMode: 'local',
+		queryDelay: 500,
 		listeners:{
-			 change:function(){
-				 if(!retrieving && this.getValue() && this.getValue().length > 3){
-					 retrieving = true;
-					 $.ajax({url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/"+this.getValue()+"/starts_with?of=json",success:function(data, textStatus, jqXHR){
-						 var d = JSON.parse(data);
-						 searchResults.loadData(d[0]);
-					 },error:function(jqXHR, textStatus, errorThrown){console.log(textStatus);retrieving = false;}});
-				 }
-			 }
-		 }
+			change:function(){
+				var value = this.getValue();
+				var min = 2;
+				if(value && value.substring(0,3).toUpperCase() == "ENS"){
+					min = 10;
+				}
+				if(value && value.length > min){
+					$.ajax({
+						url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/"+this.getValue()+"/starts_with?of=json",
+						success:function(data, textStatus, jqXHR){
+							var d = JSON.parse(data);
+							searchResults.loadData(d[0]);
+						},
+						error:function(jqXHR, textStatus, errorThrown){console.log(textStatus);}
+					});
+				}
+			}
+		}
 	});
-	//XXX
 	
 	var navToolbar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+"navToolbar",
@@ -408,7 +410,6 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        		 }
 		        	 }
 		         },
-//		         combo,
 //		         {
 //		        	 id:this.id+"right1posButton",
 //		        	 text : '>',
@@ -443,26 +444,28 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        	 xtype : 'label',
 		        	 text : 'Search:',
 		        	 margins : '0 0 0 10'
-		         },{
-		        	 
-		        	 id : this.id+'tbGene',
-		        	 xtype : 'textfield',
-		        	 emptyText:'gene, protein, transcript',
-		        	 name : 'field1',
-		        	 listeners:{
-		        		 specialkey: function(field, e){
-		        			 if (e.getKey() == e.ENTER) {
-		        				 _this._handleNavigationBar('GoToGene');
-		        			 }
-		        		 },
-		        		 change: function(){
-		        			 	var str = this.getValue();
-		        			 	if(str.length > 3){
-		        			 		console.log(this.getValue());
-		        			 	}
-					     }
-		        	 }
-		         },{
+		         },
+		         searchCombo,
+//		         {
+//		        	 id : this.id+'quickSearch',
+//		        	 xtype : 'textfield',
+//		        	 emptyText:'gene, protein, transcript',
+//		        	 name : 'field1',
+//		        	 listeners:{
+//		        		 specialkey: function(field, e){
+//		        			 if (e.getKey() == e.ENTER) {
+//		        				 _this._handleNavigationBar('GoToGene');
+//		        			 }
+//		        		 },
+//		        		 change: function(){
+//		        			 	var str = this.getValue();
+//		        			 	if(str.length > 3){
+//		        			 		console.log(this.getValue());
+//		        			 	}
+//					     }
+//		        	 }
+//		         },
+		         {
 		        	 id : this.id+'GoToGeneButton',
 		        	 text : 'Go',
 		        	 handler : function() {
@@ -647,7 +650,7 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
     	this.setZoom(args);
     }
     if (action == 'GoToGene'){
-        var geneName = Ext.getCmp(this.id+'tbGene').getValue();
+        var geneName = Ext.getCmp(this.id+'quickSearch').getValue();
         this.openGeneListWidget(geneName);
     }
     if (action == '+'){
@@ -777,6 +780,28 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 	return panel;
 };
 
+GenomeViewer.prototype.addTrack = function(trackData, args) {
+	this.trackSvgLayout.addTrack(trackData, args);
+};
+
+GenomeViewer.prototype.removeTrack = function(trackId) {
+	this.trackSvgLayout.removeTrack(trackId);
+};
+
+GenomeViewer.prototype.showTrack = function(trackId) {
+	this.trackSvgLayout._showTrack(trackId);
+};
+
+GenomeViewer.prototype.hideTrack = function(trackId) {
+	this.trackSvgLayout._hideTrack(trackId);
+};
+
+GenomeViewer.prototype.checkRenderedTrack = function(trackId) {
+	if(this.trackSvgLayout.swapHash[trackId]){
+		return true;
+	}
+	return false;
+};
 
 
 //XXX BOTTOM BAR

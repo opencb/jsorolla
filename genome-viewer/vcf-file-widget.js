@@ -1,10 +1,10 @@
-TestVCFFileWidget.prototype.getTitleName = FileWidget.prototype.getTitleName;
-TestVCFFileWidget.prototype.getFileUpload = FileWidget.prototype.getFileUpload;
-TestVCFFileWidget.prototype.draw = FileWidget.prototype.draw;
-TestVCFFileWidget.prototype.sessionInitiated = FileWidget.prototype.sessionInitiated;
-TestVCFFileWidget.prototype.sessionFinished = FileWidget.prototype.sessionFinished;
+VCFFileWidget.prototype.getTitleName = FileWidget.prototype.getTitleName;
+VCFFileWidget.prototype.getFileUpload = FileWidget.prototype.getFileUpload;
+VCFFileWidget.prototype.draw = FileWidget.prototype.draw;
+VCFFileWidget.prototype.sessionInitiated = FileWidget.prototype.sessionInitiated;
+VCFFileWidget.prototype.sessionFinished = FileWidget.prototype.sessionFinished;
 
-function TestVCFFileWidget(args){
+function VCFFileWidget(args){
 	if (args == null){
 		args = new Object();
 	}
@@ -18,14 +18,14 @@ function TestVCFFileWidget(args){
     this.onComplete = new Event();
 };
 
-TestVCFFileWidget.prototype.getChartItems = function(){
+VCFFileWidget.prototype.getChartItems = function(){
 	return [this.chartWidgetByChromosome.getChart(["features","chromosome"]),
 	        this.chartWidgetQuality.getChart(["features","quality"])];
 };
 
 
 
-TestVCFFileWidget.prototype.loadFileFromLocal = function(file){
+VCFFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
 	this.adapter = new VCFDataAdapter(new FileDataSource(file),{species:this.viewer.species});

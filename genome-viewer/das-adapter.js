@@ -19,6 +19,8 @@ function DasAdapter(args){
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
 	this.onGetData = new Event();
+	this.onCheckUrl = new Event();
+	this.onError = new Event();
 };
 
 DasAdapter.prototype.getData = function(args){
@@ -133,11 +135,32 @@ DasAdapter.prototype.getData = function(args){
 						_this.featureCache.putFeaturesByRegion(result, region, resource, type);
 						console.log(_this.featureCache.cache);
 						var items = _this.featureCache.getFeaturesByRegion(region, type);
-						console.log(items);
-						_this.onGetData.notify({data:items,cached:false});
+						if(items != null){
+							_this.onGetData.notify({data:items,cached:false});
+						}
 					}
 				});
 			}
 		}
 	}
+};
+
+DasAdapter.prototype.checkUrl = function(){
+	var _this = this;
+	var fullURL = this.proxy + this.url + "?segment=1:1,1";
+	console.log("Checking URL: "+fullURL);
+
+	$.ajax({
+		url: fullURL,
+		type: 'GET',
+		dataType:"xml",
+		error: function(){
+			alert("error");
+			_this.onError.notify("It is not allowed by Access-Control-Allow-Origin " );
+		},
+		success: function(data){
+			_this.xml = (new XMLSerializer()).serializeToString(data);
+			_this.onCheckUrl.notify({data:_this.xml});
+		}
+	});
 };
