@@ -36,6 +36,7 @@ TabularDataAdapter.prototype.parse = function(data){
 //	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){
 		var line = lines[i].replace(/^\s+|\s+$/g,"");
+		line = line.replace(/\//gi,"");//TODO DONE   /  is not allowed in the call
 		if ((line != null)&&(line.length > 0) && line.charAt(0)!="#"){
 			var fields = line.split("\t");
 			this.fileLines.push(fields);

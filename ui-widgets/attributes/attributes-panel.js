@@ -53,6 +53,7 @@ function AttributesPanel(args){
 		_this.makeGrid(tabularDataAdapter);
 		_this.uptadeTotalFilteredRowsInfo(fileLines.length);
 		_this.uptadeTotalRowsInfo(fileLines.length);
+		_this.fileName = data.filename;
 		_this.fileNameLabel.setText('<span class="emph">'+ data.filename +'</span> <span class="info">(server)</span>',false);
 	});	
 };

@@ -282,10 +282,10 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var callStart, callEnd, virtualStart, vitualEnd;
 	var setCallRegion = function (){
 		//needed call variables
-		callStart = parseInt(_this.position - _this.halfVirtualBase);
-		callEnd = parseInt(_this.position + _this.halfVirtualBase);
-		virtualStart = callStart;//for now
-		vitualEnd = callEnd;//for now
+		callStart = parseInt(_this.position - _this.halfVirtualBase*2);
+		callEnd = parseInt(_this.position + _this.halfVirtualBase*2);
+		virtualStart = parseInt(_this.position - _this.halfVirtualBase);//for now
+		vitualEnd = parseInt(_this.position + _this.halfVirtualBase);//for now
 	};
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){

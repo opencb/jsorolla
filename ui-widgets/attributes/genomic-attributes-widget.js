@@ -19,6 +19,9 @@ function GenomicAttributesWidget(species, args){
         if (args.featureType!= null){
         	this.featureType = args.featureType;       
         }
+        if (args.viewer!= null){
+        	this.viewer = args.viewer;       
+        }
     }
     
 	this.listWidget = new ListWidget(this.species,args.listWidgetArgs);
@@ -58,12 +61,12 @@ GenomicAttributesWidget.prototype.draw = function (){
 			_this.karyotypeWidget = new KaryotypeWidget(div,{
 				width:1000,
 				height:340,
-				species:_this.args.viewer.species,
-				chromosome:_this.args.viewer.chromosome,
-				position:_this.args.viewer.position
+				species:_this.viewer.species,
+				chromosome:_this.viewer.chromosome,
+				position:_this.viewer.position
 			});
 			_this.karyotypeWidget.onClick.addEventListener(function(sender,data){
-				_this.args.viewer.onLocationChange.notify({position:data.position,chromosome:data.chromosome,sender:"KaryotypePanel"});
+				_this.viewer.onLocationChange.notify({position:data.position,chromosome:data.chromosome,sender:"KaryotypePanel"});
 			});
 			_this.karyotypeWidget.drawKaryotype();
 		});
@@ -81,7 +84,7 @@ GenomicAttributesWidget.prototype.draw = function (){
 			text:'Add Track',
 			disabled:true,
 			handler: function(){ 
-				_this.onTrackAddAction.notify({"features":_this.features,"trackName":_this.attributesPanel.fileName});
+				_this.onTrackAddAction.notify({"adapter":_this.adapter,"fileName":_this.attributesPanel.fileName});
 				}
 		});
 		
@@ -176,25 +179,24 @@ GenomicAttributesWidget.prototype.getMainPanel = function (){
 		
 };
 
-GenomicAttributesWidget.prototype.fill = function (queryNames){
-	
-	var _this = this;
-	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
-	cellBaseDataAdapter.successed.addEventListener(function(sender){
-		_this.karyotypePanel.setLoading("Retrieving data");
-		for (var i = 0; i < cellBaseDataAdapter.dataset.toJSON().length; i++) {
-				_this.karyotypeWidget.mark(cellBaseDataAdapter.dataset.toJSON()[i]);
-				
-		}
-		_this.features=cellBaseDataAdapter.dataset.toJSON();
-		_this.query = {"dataset": cellBaseDataAdapter.dataset, "resource":queryNames }; 
-		_this.karyotypePanel.setLoading(false);
-		_this.filtersButton.enable();
-		_this.addTrackButton.enable();
-		
-	});
-	cellBaseDataAdapter.fill("feature", this.featureType, queryNames.toString(), "info");
-};
+//GenomicAttributesWidget.prototype.fill = function (queryNames){
+//	var _this = this;
+//	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
+//	cellBaseDataAdapter.successed.addEventListener(function(sender){
+//		_this.karyotypePanel.setLoading("Retrieving data");
+//		for (var i = 0; i < cellBaseDataAdapter.dataset.toJSON().length; i++) {
+//				_this.karyotypeWidget.mark(cellBaseDataAdapter.dataset.toJSON()[i]);
+//				
+//		}
+//		_this.features=cellBaseDataAdapter.dataset.toJSON();
+//		_this.query = {"dataset": cellBaseDataAdapter.dataset, "resource":queryNames }; 
+//		_this.karyotypePanel.setLoading(false);
+//		_this.filtersButton.enable();
+//		_this.addTrackButton.enable();
+//		
+//	});
+//	cellBaseDataAdapter.fill("feature", this.featureType, queryNames.toString(), "info");
+//};
 
 GenomicAttributesWidget.prototype.dataChange = function (items){
 		try{
@@ -208,7 +210,6 @@ GenomicAttributesWidget.prototype.dataChange = function (items){
 					for (var i = 0; i < items.length; i++) {
 						externalNames.push(items[i].data[0]);
 					}	
-					
 					if (items.length > 0){
 						this.fill(externalNames);
 					}

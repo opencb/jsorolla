@@ -1,6 +1,6 @@
 function ListWidget(species, args) {
 	this.targetId = null;
-	this.id = "ListWidget_" + Math.round(Math.random()*10000000);
+	this.id = "ListWidget" + Math.round(Math.random()*10000000);
 	this.species=species;
 	
 	this.width = 1000;
@@ -29,6 +29,9 @@ function ListWidget(species, args) {
         }
         if (args.action!= null){
         	this.action = args.action;       
+        }
+        if (args.viewer!= null){
+        	this.viewer = args.viewer;
         }
     }
 	
@@ -62,7 +65,7 @@ ListWidget.prototype._render = function() {
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
-			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
+			taskbar:Ext.getCmp(this.viewer.id+'uxTaskbar'),
 			resizable: false,
 			constrain:true,
 			closable:true,
@@ -90,9 +93,9 @@ ListWidget.prototype._render = function() {
 	}
 };
 
-ListWidget.prototype.draw = function(features, queries) {
+ListWidget.prototype.draw = function(cbResponse) {
 	var _this = this;
-	this.listPanel.draw(features, queries);
+	this.listPanel.draw(cbResponse);
 	this.listPanel.grid.getSelectionModel().on('selectionchange',function(){
 		if(_this.listPanel.grid.getSelectionModel().hasSelection()){
 			_this.localizeButton.enable();

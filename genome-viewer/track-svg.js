@@ -62,8 +62,8 @@ function TrackSvg(parent, args) {
 		if(args.transcriptZoom != null){//gene only
 			this.transcriptZoom = args.transcriptZoom;
 		}
-		if(args.types != null){
-			this.types = args.types;
+		if(args.featureTypes != null){
+			this.featureTypes = args.featureTypes;
 		}
 		if(args.titleVisibility != null){
 			this.titleVisibility = args.titleVisibility;
@@ -486,6 +486,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						
 						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){
 							var e2t = feature.transcripts[i].exonToTranscripts[e];
+							var settings = _this.types[e2t.exon.featureType];
 							var exonStart = parseInt(e2t.exon.start);
 							var exonEnd =  parseInt(e2t.exon.end);
 							
@@ -576,6 +577,9 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	//process features and check transcripts
 	for ( var i = 0, leni = featureList.length; i < leni; i++) {
 		var feature = featureList[i];
+//		if(feature.featureType==null){
+//			feature.featureType = "feature";
+//		}
 		draw(feature,feature.start,feature.end);
 	}
 	var newHeight = Object.keys(this.renderedArea).length*24;
@@ -739,12 +743,16 @@ TrackSvg.prototype.formatTitleTip = function(args){
 		str += args.feature.featureType.charAt(0).toUpperCase() + args.feature.featureType.slice(1) +
 		' - <span class="ok">'+args.feature.externalName+'</span>';	
 		break;
+	case undefined:
+		str += "Feature";
+		break;
 	default: str += args.feature.featureType.charAt(0).toUpperCase() + args.feature.featureType.slice(1); break;
 	}
 	return str;
 };
 
 TrackSvg.prototype.showInfoWidget = function(args){
+	console.log(args);
 	switch (args.featureType) {
 	case "gene": new GeneInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "transcript": new TranscriptInfoWidget(null,this.trackData.adapter.species).draw(args); break;

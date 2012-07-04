@@ -71,8 +71,23 @@ SNP_BIOTYPE_COLORS = {
 SEQUENCE_COLORS = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"}
 
 FEATURE_TYPES = {
+	
+		
 	sequence:{
 		color: SEQUENCE_COLORS
+	},
+	undefined:{
+		getLabel: function(f){
+			var str = "";
+			str+= f.chromosome + ":" + f.start + "-" + f.end;
+			return str;
+		},
+		getColor: function(f){
+			return "grey";
+		},
+//		infoWidgetId: "stableId",
+		height:10
+//		histogramColor:"lightblue"
 	},
 	gene:{
 		getLabel: function(f){
@@ -107,9 +122,9 @@ FEATURE_TYPES = {
 		histogramColor:"lightblue"
 	},
 	exon:{
-		getLabel: function(e2t){
+		getLabel: function(f){
 			var str = "";
-			str+= e2t.exon.stableId;
+			str+= f.stableId;
 			return str;
 		},
 		getColor: function(f){

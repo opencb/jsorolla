@@ -41,7 +41,7 @@ GenomicListWidget.prototype._render = function() {
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
-			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
+			taskbar:Ext.getCmp(this.viewer.id+'uxTaskbar'),
 			resizable: false,
 			constrain:true,
 			closable:true,
@@ -50,9 +50,16 @@ GenomicListWidget.prototype._render = function() {
 			width: this.width,
 			height:this.height,
 			items : [ this.listPanel.grid ],
-			buttonAlign:'right',
+			buttonAlign:'left',
 			buttons:[
-			         {text:'Add Track', handler: function(){_this.onTrackAddAction.notify(_this.listPanel.features);}, margin:"0 " + buttonRigthMargin  +" 0 0 "},
+			         {
+			        	 text:'Add Track', 
+			        	 handler: function(){
+			        		 var name = "Search "+Math.round(Math.random()*1000);
+			        		 _this.onTrackAddAction.notify({"adapter":_this.listPanel.adapter,"fileName":name});
+			        	 }
+			         },
+			         '->',
 			         this.getActionButton(this.action),
 			         {text:'Close', handler: function(){_this.panel.close();}}
 			],

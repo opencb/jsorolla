@@ -21,11 +21,15 @@ function KaryotypeWidget(parent, args) {
 	}
 
 	this.onClick = new Event();
+	this.afterRender = new Event();
+	
+	this.rendered=false;
 	
 	this.svg = SVG.init(parent,{
 		"width":this.width,
 		"height":this.height
 	});
+	this.markGroup = SVG.addChild(this.svg,"g",{"cursor":"pointer"});
 	
 	this.colors = {gneg:"white", stalk:"#666666", gvar:"#CCCCCC", gpos25:"silver", gpos33:"lightgrey", gpos50:"gray", gpos66:"dimgray", gpos75:"darkgray", gpos100:"black", gpos:"gray", acen:"blue"};
 };
@@ -152,6 +156,9 @@ KaryotypeWidget.prototype.drawKaryotype = function(){
  				"stroke-width":2,
  				"opacity":0.5
  			});
+ 			
+ 			_this.rendered=true;
+ 			_this.afterRender.notify();
  		});
  		cellBaseManager2.get("genomic", "region", chromosomeList.toString(),"cytoband");
  	});
@@ -200,19 +207,33 @@ KaryotypeWidget.prototype.updatePositionBox = function(item){
 };	
 	
 KaryotypeWidget.prototype.addMark = function(item){//item.chromosome, item.position
-	this.markGroup = SVG.addChild(this.svg,"g",{"cursor":"pointer"});
-	if(item.chromosome!=null && item.position!=null){
-		var x1 = this.chrOffsetX[item.chromosome]-10;
-		var x2 = this.chrOffsetX[item.chromosome];
-		var y1 = (item.position * this.pixelBase + this.chrOffsetY[item.chromosome]) - 4;
-		var y2 = item.position * this.pixelBase + this.chrOffsetY[item.chromosome];
-		var y3 = (item.position * this.pixelBase + this.chrOffsetY[item.chromosome]) + 4;
-		var points = x1+","+y1+" "+x2+","+y2+" "+x1+","+y3+" "+x1+","+y1;
-		SVG.addChild(this.markGroup,"polyline",{
-			"points":points,
-			"stroke":"black",
-			"opacity":0.8,
-			"fill":"#33FF33"
+	var _this = this;
+	
+	var mark = function (){
+
+		if(item.chromosome!=null && item.start!=null){
+			if(_this.chrOffsetX[item.chromosome]!= null){
+				var x1 = _this.chrOffsetX[item.chromosome]-10;
+				var x2 = _this.chrOffsetX[item.chromosome];
+				var y1 = (item.start * _this.pixelBase + _this.chrOffsetY[item.chromosome]) - 4;
+				var y2 = item.start * _this.pixelBase + _this.chrOffsetY[item.chromosome];
+				var y3 = (item.start * _this.pixelBase + _this.chrOffsetY[item.chromosome]) + 4;
+				var points = x1+","+y1+" "+x2+","+y2+" "+x1+","+y3+" "+x1+","+y1;
+				SVG.addChild(_this.markGroup,"polyline",{
+					"points":points,
+					"stroke":"black",
+					"opacity":0.8,
+					"fill":"#33FF33"
+				});
+			}
+		}
+	};
+	
+	if(this.rendered){
+		mark();
+	}else{
+		this.afterRender.addEventListener(function(sender,data){
+			mark();
 		});
 	}
 };

@@ -26,7 +26,7 @@ TestGFFFileWidget.prototype.getChartItems = function(){
 TestGFFFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
-	this.adapter = new GFFDataAdapter(new FileDataSource(file));
+	this.adapter = new GFFDataAdapter(new FileDataSource(file),{species:this.viewer.species});
 	this.adapter.onLoad.addEventListener(function(sender){
 		_this.onComplete.notify(file);
 		_this.btnOk.enable();

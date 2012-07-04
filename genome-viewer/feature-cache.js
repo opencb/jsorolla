@@ -2,7 +2,7 @@ function FeatureCache(args) {
 	this.args = args;
 	this.id = Math.round(Math.random() * 10000000); // internal id for this class
 
-	this.chunkSize = 1000;
+	this.chunkSize = 50000;
 	this.gzip = true;
 	this.maxSize = 10*1024*1024;
 	this.size = 0;

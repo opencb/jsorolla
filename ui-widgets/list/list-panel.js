@@ -1,6 +1,6 @@
 function ListPanel(species, args) {
 	this.targetId = null;
-	this.id = "ListPanel_" + Math.round(Math.random()*10000000);
+	this.id = "ListPanel" + Math.round(Math.random()*100000);
 	this.species=species;
 	
 	this.args=args;
@@ -31,7 +31,12 @@ function ListPanel(species, args) {
         if (args.borderCls!= null){
         	this.borderCls = args.borderCls;       
         }
-        
+        if (args.viewer!= null){
+        	this.viewer = args.viewer;       
+        }
+        if (args.featureType!= null){
+        	this.featureType = args.featureType;       
+        }
     }
 	
 	this.onSelected = new Event(this);
@@ -68,10 +73,10 @@ ListPanel.prototype._getGeneGrid = function() {
 		
 	    this.infoToolBar = Ext.create('Ext.toolbar.Toolbar');
 		this.infoLabelOk = Ext.create('Ext.toolbar.TextItem', {
-			html : '&nbsp;'
+			text : '&nbsp;'
 		});
 		this.infoLabelNotFound = Ext.create('Ext.toolbar.TextItem', {
-			html : '&nbsp;'
+			text : '&nbsp;'
 		});
 		this.clearFilter = Ext.create('Ext.button.Button', {
 			 text: 'Clear filters',
@@ -133,21 +138,40 @@ ListPanel.prototype._getGeneGrid = function() {
 ListPanel.prototype._localize = function() {
 	var _this = this;
 	
-	var karyotypePanelWindow = new KaryotypePanelWindow(this.species,{viewer:this.args.viewer});
-	karyotypePanelWindow.onRendered.addEventListener(function(evt, feature) {
-		var results = new Array();
-		for ( var i = 0; i < _this.original.length; i++) {
-			for ( var j = 0; j < _this.original[i].length; j++) {
-				results.push(_this.original[i][j]);
+	var panel = Ext.create('Ext.window.Window', {
+		id:this.id+"karyotypePanel",
+		title:"Karyotype",
+		width:1020,
+		height:380,
+		bodyStyle: 'background:#fff;',
+		html:'<div id="' + this.id + "karyotypeDiv" +'" ><div>',
+		listeners:{
+			afterrender:function(){
+				
+				var div = $('#'+_this.id+"karyotypeDiv")[0];
+				var karyotypeWidget = new KaryotypeWidget(div,{
+					width:1000,
+					height:340,
+					species:_this.viewer.species,
+					chromosome:_this.viewer.chromosome,
+					position:_this.viewer.position
+				});
+				karyotypeWidget.onClick.addEventListener(function(sender,data){
+					_this.viewer.onLocationChange.notify({position:data.position,chromosome:data.chromosome,sender:"KaryotypePanel"});
+				});
+				karyotypeWidget.drawKaryotype();
+
+				for ( var i = 0; i < _this.original.length; i++) {
+					for ( var j = 0; j < _this.original[i].length; j++) {
+						var feature = _this.original[i][j];
+						feature.position=feature.start;
+						karyotypeWidget.addMark(feature);
+					}
+				}
+//				
 			}
 		}
-		karyotypePanelWindow.mark(results);
-	});
-
-	karyotypePanelWindow.onMarkerChanged.addEventListener(function(evt, data) {
-		_this.onSelected.notify(data);
-	});
-	karyotypePanelWindow.draw();
+	}).show();
 };
 
 ListPanel.prototype.setTextInfoBar = function(resultsCount, featuresCount, noFoundCount) {
@@ -194,35 +218,36 @@ ListPanel.prototype._render = function() {
 	this.panel.add(this._getGeneGrid());
 };
 
-ListPanel.prototype.draw = function(features, queries) {
+ListPanel.prototype.draw = function(cbResponse) {
 	this._render();
 	
-	if ((queries instanceof Array) == false){
-		queries = queries.split(",");
-	}
-	this.original = features;
 	this.queriesNotFound=[];
 	this.queriesFound=[];
-	var notFoundCount = 0;
-	var results = new Array();
-
-	for ( var i = 0; i < features.length; i++) {
-		if (features[i].length == 0){
-			notFoundCount++; 
-			this.queriesNotFound.push(queries[i]);
-		}else{
-			this.queriesFound.push(queries[i]);
+	
+	this.adapter = new FeatureDataAdapter(null,{species:this.species});
+	
+	for ( var i = 0; i < cbResponse.result.length; i++) {
+		
+		//Check if is a single object
+		if(cbResponse.result[i].constructor != Array){
+			cbResponse.result[i] = [cbResponse.result[i]];
 		}
 		
-		for ( var j = 0; j < features[i].length; j++) {
-			features[i][j].position = features[i][j].chromosome + ":"+ features[i][j].start + "-" + features[i][j].end;
-			results.push(features[i][j]);
+		for ( var j = 0; j < cbResponse.result[i].length; j++) {
+			var feature = cbResponse.result[i][j];
+			feature.position = feature.chromosome + ":"+ feature.start + "-" + feature.end;
+			feature.featureType = cbResponse.resource;
+		}
+		
+		
+		if (cbResponse.result[i].length == 0){
+			this.queriesNotFound.push(cbResponse.query[i]);
+		}else{
+			this.queriesFound.push(cbResponse.query[i]);
+			this.adapter.addFeatures(cbResponse.result[i]);
+			this.store.loadData(cbResponse.result[i]);
 		}
 	}
-	
-	this.features = results;
 
-	this.setTextInfoBar(results.length, this.original.length, notFoundCount);
-	
-	this.store.loadData(results, false);
+	this.setTextInfoBar(this.queriesFound.length, this.queriesFound.length, this.queriesNotFound.length);
 };

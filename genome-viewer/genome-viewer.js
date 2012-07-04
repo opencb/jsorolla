@@ -164,7 +164,6 @@ GenomeViewer.prototype.setLoc = function(data) {
 		Ext.getCmp(this.id+"speciesMenuButton").setText(this.speciesName);
 		Ext.example.msg('Species', this.speciesName+' selected.');
 		this._updateChrStore();
-//		this._getKaryotypePanel(true);
 		this.trackSvgLayout.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
 		this.trackSvgLayout2.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
 		this.chromosomeWidget.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
@@ -234,7 +233,35 @@ GenomeViewer.prototype.setLoc = function(data) {
 		this.karyotypeWidget.setLocation({position:this.position});
 		break;
 	default:
-
+		var obj = {};
+		if(data.species != null){
+			this.species = data.species;
+			obj.species = this.species;
+			Ext.example.msg('Species', this.speciesName+' selected.');
+			this.onSpeciesChange.notify();
+		}
+		if(data.name != null){
+			this.speciesName = data.name;
+			obj.speciesName = this.speciesName;
+		}
+		if(data.position != null){
+			this.position = data.position;
+			obj.position = this.position;
+		}
+		if(data.chromosome != null){
+			this.chromosome = data.chromosome;
+			obj.chromosome = this.chromosome;
+		}
+		Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
+		Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
+		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
+		Ext.getCmp(this.id+"speciesMenuButton").setText(this.speciesName);
+		this._updateChrStore();
+		this.trackSvgLayout.setLocation(obj);
+		this.trackSvgLayout2.setLocation(obj);
+		this.chromosomeWidget.setLocation(obj);
+		this.karyotypeWidget.setLocation(obj);
+		
 	}
 };
 
@@ -812,73 +839,91 @@ GenomeViewer.prototype._getBottomBar = function() {
 
 
 
-GenomeViewer.prototype.openListWidget = function(category, subcategory, query, resource, title, gridField) {
+GenomeViewer.prototype.openListWidget = function(args) {
 	var _this = this;
+	
+	console.log(args.query)
+	
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function(evt, data) {
-		var genomicListWidget = new GenomicListWidget(_this.species,{title:title, gridFields:gridField,viewer:_this});
-		genomicListWidget.draw(data.result, query );
+		var genomicListWidget = new GenomicListWidget(_this.species,{title:args.title, gridFields:args.gridField,viewer:_this});
+		
+		genomicListWidget.draw(data);
 		
 		genomicListWidget.onSelected.addEventListener(function(evt, feature) {
-			console.log(feature);
-			if (feature != null) {
-				if (feature.chromosome != null) {
-					_this.setLocation(feature.chromosome, feature.start);
+//			console.log(feature);
+			if (feature != null && feature.chromosome != null) {
+				if(_this.chromosome!= feature.chromosome || _this.position != feature.start){
+					_this.setLoc({sender:"",chromosome:feature.chromosome, position:feature.start});
 				}
 			}
 		});
 		
-		genomicListWidget.onTrackAddAction.addEventListener(function(evt, features) {
-			if (features != null) {
-				_this.addTrackFromFeatures(features);
-			}
+		genomicListWidget.onTrackAddAction.addEventListener(function(evt, event) {
+				var track = new TrackData(event.fileName,{
+					adapter: event.adapter
+				});
+				_this.trackSvgLayout.addTrack(track,{
+					id:event.fileName,
+					featuresRender:"MultiFeatureRender",
+//					histogramZoom:80,
+					height:150,
+					visibleRange:{start:0,end:100},
+					featureTypes:FEATURE_TYPES
+				});
 		});
 	});
-	cellBaseManager.get(category, subcategory, query, resource);
+	cellBaseManager.get(args.category, args.subcategory, args.query, args.resource, args.params);
 };
-GenomeViewer.prototype.openGeneListWidget = function(geneName) {
-	this.openListWidget("feature", "gene", geneName.toString(), "info", "Gene List");
+GenomeViewer.prototype.openGeneListWidget = function(name) {
+	this.openListWidget({
+		category:"feature",
+		subcategory:"id",
+		query:name.toString(),
+		resource:"gene",
+		title:"Gene List"
+	});
 };
 
 GenomeViewer.prototype.openTranscriptListWidget = function(name) {
-	this.openListWidget("feature", "transcript", name.toString(), "info", "Transcript List", ["externalName","stableId", "biotype", "chromosome", "start", "end", "strand", "description"]);
+//	this.openListWidget({
+//		category:"feature",
+//		subcategory:"transcript",
+//		query:name.toString(),
+//		resource:"info",
+//		title:"Transcript List",
+//		gridField:["externalName","stableId", "biotype", "chromosome", "start", "end", "strand", "description"]
+//	});
 };
 
-GenomeViewer.prototype.openExonListWidget = function(geneName) {
-	var _this = this;
-	var cellBase = new CellBaseDataAdapter(this.species);
-	cellBase.successed.addEventListener(function(evt, data) {
-		var window = new GenomicListWidget({title:'Exon List', gridFields:["stableId", "chromosome","start", "end", "strand"]});	
-		var array = new Array();
-		array.push(cellBase.dataset.toJSON());
-		window.draw(array, geneName );
-		window.onSelected.addEventListener(function(evt, feature) {
-			if (feature != null) {
-				if (feature.chromosome != null) {
-					_this.setLocation(feature.chromosome, feature.start);
-				}
-			}
-		});
-		
-		
+GenomeViewer.prototype.openExonListWidget = function(name) {
+//	this.openListWidget({
+//		category:"feature",
+//		subcategory:"exon",
+//		query:name.toString(),
+//		resource:"info",
+//		title:"Exon List",
+//		gridField:["stableId", "chromosome","start", "end", "strand"]
+//	});
+};
+
+GenomeViewer.prototype.openSNPListWidget = function(name) {
+	this.openListWidget({
+		category:"feature",
+		subcategory:"id",
+		query:name.toString(),
+		resource:"snp",
+		title:"SNP List",
+		gridField:["name", "variantAlleles", "ancestralAllele", "mapWeight",  "position", "sequence"]
 	});
-	cellBase.fill("feature", "exon", geneName.toString(), "info");
 };
 
-GenomeViewer.prototype.openSNPListWidget = function(snpName) {
-	this.openListWidget("feature", "snp", snpName.toString(), "info", "SNP List", ["name", "variantAlleles", "ancestralAllele", "mapWeight",  "position", "sequence"]);
-};
-
-GenomeViewer.prototype.openGOListWidget = function(goList) {
-	var _this = this;
-	var cellBase = new CellBaseDataAdapter(this.species);
-	cellBase.successed.addEventListener(function(evt, data) {
-		
-		var geneNames = new Array();
-		for (var i = 0; i < cellBase.dataset.toJSON()[0].length; i++){
-			geneNames.push(cellBase.dataset.toJSON()[0][i].displayId);
-		}
-		_this.openGeneListWidget(geneNames);
+GenomeViewer.prototype.openGOListWidget = function(name) {
+	this.openListWidget({
+		category:"feature",
+		subcategory:"id",
+		query:name.toString(),
+		resource:"gene",
+		title:"Gene List by GO"
 	});
-	cellBase.fill("feature", "id", goList.toString(), "xref?dbname=ensembl_gene&");
 };

@@ -22,7 +22,6 @@ function InputListWidget(args) {
         	this.headerInfo = args.headerInfo;       
         }
     }
-	
 	this.onOk = new Event(this);
 };
 
@@ -37,7 +36,7 @@ InputListWidget.prototype.draw = function(text){
 	if (this.panel == null){
 		this.infobar = Ext.create('Ext.toolbar.Toolbar',{cls:"bio-border-false"});
 		this.infoLabel = Ext.create('Ext.toolbar.TextItem', {
-				html:this.headerInfo
+				text:this.headerInfo
 		});
 		this.infobar.add(this.infoLabel);
 		this.editor = Ext.create('Ext.form.field.TextArea', {

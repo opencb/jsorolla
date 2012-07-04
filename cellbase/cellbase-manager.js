@@ -142,7 +142,15 @@ function CellBaseManager(species, args) {
 					result.push(this.results[i][j]);
 				}
 			}
-			this.success.notify({result: result, query: this.originalQuery, resource:this.resource, params:this.params, error: ''});
+			this.success.notify({
+				"result": result, 
+				"category":  this.category, 
+				"subcategory": this.subcategory, 
+				"query": this.originalQuery, 
+				"resource":this.resource, 
+				"params":this.params, 
+				"error": ''
+			});
 		}
 	},
 	
@@ -202,7 +210,15 @@ function CellBaseManager(species, args) {
 							_this.batchSuccessed.notify({data:jsonResponse, id:batchID});
 						}else{
 							//TODO no siempre el resource coincide con el featureType, ejemplo: mirna es el featureType del resource mirna_targets
-							_this.success.notify({result: jsonResponse, query: _this.originalQuery, resource:_this.resource, params:_this.params, error: ''});
+							_this.success.notify({
+								"result": jsonResponse, 
+								"category":  _this.category, 
+								"subcategory": _this.subcategory, 
+								"query": _this.originalQuery, 
+								"resource":_this.resource, 
+								"params":_this.params, 
+								"error": ''
+							});
 						}
 //					}
 //					catch(e){
