@@ -332,8 +332,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
-		
-		debugger
 		if(event.params.histogram == true){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 		}else{
@@ -384,7 +382,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		setCallRegion();
 		
 		// check if track is visible in this zoom
-		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
+		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 		}
 	});
