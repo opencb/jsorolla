@@ -380,6 +380,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		cleanSvgFeatures();
 		setCallRegion();
+		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
