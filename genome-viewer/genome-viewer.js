@@ -43,6 +43,9 @@ function GenomeViewer(targetId, species, args) {
 		if (args.position != null) {//middle browser window
 			this.position = parseInt(args.position);
 		}
+		if (args.zoom != null) {
+			this.zoom = args.zoom;
+		}
 	}
 
 	//Events i send
@@ -73,21 +76,6 @@ GenomeViewer.prototype.draw = function(){
 };
 GenomeViewer.prototype.render = function(){
 	var _this = this;
-//	var items = [];
-//	if(this.toolbar!=null){
-//		items.push(this.toolbar);
-//	}
-//	items.push(this._getNavigationBar());
-//	//items.push(this._getKaryotypePanel().hide());
-//	items.push(this._drawChromosomePanel());
-//	items.push(this._drawKaryotypePanel().hide());
-//	//items.push(this._getChromosomePanel());
-//
-////	items.push(this._getWindowSizePanel());
-//	items.push(this._drawTracksPanel());
-//	items.push(this._drawRegionPanel().hide());
-//	items.push(this._getBottomBar());
-	
 	var container = Ext.create('Ext.container.Container', {
 		id:this.id+"container",
 		renderTo:this.targetId,
@@ -102,11 +90,13 @@ GenomeViewer.prototype.render = function(){
 	if(this.toolbar!=null){
 		container.insert(0, this.toolbar);
 	}
-	
 	//The last item is regionPanel
 	//when all items are inserted afterRender is notified, tracks can be added now
+	var tracksPanel = this._drawTracksPanel();
 	var regionPanel = this._drawRegionPanel();
-	regionPanel.on("afterrender", function(){
+	var regionAndTrackRendered = 0;
+	
+	var createSvgLayout = function (){
 		var div = $('#'+_this.id+"tracksSvg")[0];
 		_this.trackSvgLayout = new TrackSvgLayout(div,{
 			width:_this.width-18,
@@ -129,19 +119,34 @@ GenomeViewer.prototype.render = function(){
 		});
 		
 		_this.afterRender.notify();
-	});
+	};
 	
+	tracksPanel.on("afterrender", function(){
+		regionAndTrackRendered++;
+		if(regionAndTrackRendered>1){
+			createSvgLayout();
+		}
+	});
+	regionPanel.on("afterrender", function(){
+		regionAndTrackRendered++;
+		if(regionAndTrackRendered>1){
+			createSvgLayout();
+		}
+	});
 	
 	container.insert(1, this._getNavigationBar());
 	container.insert(2, this._drawKaryotypePanel().hide());
 	container.insert(3, this._drawChromosomePanel());
-	container.insert(4, this._drawTracksPanel());
+	container.insert(4, tracksPanel);
 	container.insert(5, this._getBottomBar());
 	container.insert(3, regionPanel);//rendered after trackspanel but inserted with minor index
 	
 	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
 	Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
 	Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
+};
+GenomeViewer.prototype.setMenuBar = function(toolbar) {
+	this.toolbar = toolbar;
 };
 
 GenomeViewer.prototype.setSize = function(width,height) {
@@ -294,7 +299,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		valueField: 'displayId',
 		emptyText:'Quick search: gene, transcript',
 		hideTrigger: true,
-		width:200,
+		width:170,
 		store: searchResults,
 		queryMode: 'local',
 //		typeAhead:true,

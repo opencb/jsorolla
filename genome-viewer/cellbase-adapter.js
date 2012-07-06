@@ -23,7 +23,7 @@ function CellBaseAdapter(args){
 			var argsFeatureCache = args.featureCache;
 		}
 		if(args.params != null){
-			var params = args.params;
+			this.params = args.params;
 		}
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);

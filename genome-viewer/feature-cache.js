@@ -32,6 +32,16 @@ FeatureCache.prototype.getChunkRegion = function(region){
 	return {start:start,end:end};
 };
 
+FeatureCache.prototype.getFirstFeature = function(){
+	var feature;
+	if(this.gzip) {
+		feature = JSON.parse(RawDeflate.inflate(this.cache[Object.keys(this.cache)[0]].data[0]));
+	}else{
+		feature = this.cache[Object.keys(this.cache)[0]].data[0];
+	}
+	return feature;
+};
+
 
 FeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 	var features =  [];
@@ -157,7 +167,6 @@ FeatureCache.prototype.clear = function(){
 FeatureCache.prototype.clearType = function(dataType){
 	this.cache[dataType] = null;
 };
-
 
 
 
