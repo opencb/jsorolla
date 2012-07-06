@@ -5,26 +5,28 @@
     <title>Genome Viewer</title>
 
 	<!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/sencha/ext-4.0.7/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/sencha/extjs-4.1.0/resources/css/ext-all.css">
     <link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/libs/resources/css/style.css">  
 	<!--<link rel="stylesheet" type="text/css" href="../../wum/resources/css/style.css"> -->
 	<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb/install/ChemDoodleWeb.css">
+<!--	<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.qtip.min.css">-->
   
 	<!-- EXT-LIBS -->
 
 	<!-- Ext-js -->
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/sencha/ext-4.0.7/ext-all.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/sencha/ext-4.0.7/examples/shared/examples.js"></script>
+	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/sencha/extjs-4.1.0/ext-all.js"></script>
+	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/sencha/extjs-4.1.0/examples/shared/examples.js"></script>
 	
 
 	<!-- jQuery -->
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.qtip-1.0.0-rc3.min.js"></script>
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.sha1.js"></script>
+	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.url.js"></script>
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.cookie.js"></script>  
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jqXMLUtils.js"></script>
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.smartresize.js"></script>
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-mousewheel-3.0.6/jquery.mousewheel.min.js"></script>
-	
 	
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/xml2json.js"  ></script>
 	
@@ -60,8 +62,8 @@
 		counter = counter + positions;
 	}
 	
-	Ext.onReady(run);
 	var genomeMaps;
+	Ext.onReady(run);
 	var AVAILABLE_SPECIES = [{"name":"Homo sapiens", "species":"hsa", "icon":"","chromosome":"13","position":"32889611"},
 	                         {"name":"Mus musculus", "species":"mmu", "icon":"","chromosome":"1","position":"18422009"},
 	                         {"name":"Danio rerio", "species":"dre", "icon":"","chromosome":"1","position":"1570040"},
@@ -71,9 +73,59 @@
 	                         {"name":"Caenorhabditis elegans", "species":"cel", "icon":"","chromosome":"I","position":"111532"}
 	                         ];
 	function run(){
-		var gv = new GenomeViewer("gv_div",AVAILABLE_SPECIES[0],{width:800,height:480});
-		gv.setSpeciesMenu(AVAILABLE_SPECIES);
+		var gv = new GenomeViewer("gv_div",AVAILABLE_SPECIES[0],{
+			width:800,
+			height:480,
+			availableSpecies: AVAILABLE_SPECIES
+		});
 		gv.draw();
+		
+		// Region track
+		var geneTrack = new TrackData("gene",{
+			adapter: new CellBaseAdapter({
+				category: "genomic",
+				subCategory: "region",
+				resource: "gene",
+				species: gv.species,
+				featureCache:{
+					gzip: true,
+					chunkSize:50000
+				}
+			})
+		});
+		gv.trackSvgLayout2.addTrack(geneTrack,{
+			id:"gene",
+			type:"gene",
+			featuresRender:"MultiFeatureRender",
+			histogramZoom:20,
+			height:150,
+			visibleRange:{start:0,end:100},
+			titleVisibility:'hidden',
+			featureTypes:FEATURE_TYPES
+		});
+		
+		// Gene track
+		var geneTrack = new TrackData("Gene/Transcript",{
+			adapter: new CellBaseAdapter({
+				category: "genomic",
+				subCategory: "region",
+				resource: "gene",
+				species: gv.species,
+				featureCache:{
+					gzip: true,
+					chunkSize:50000
+				}
+			})
+		});
+		gv.addTrack(geneTrack,{
+			id:"Gene/Transcript",
+			featuresRender:"MultiFeatureRender",
+			histogramZoom:20,
+			transcriptZoom:50,
+			height:24,
+			visibleRange:{start:0,end:100},
+			featureTypes:FEATURE_TYPES
+		});
 	}
 	</script>
 
