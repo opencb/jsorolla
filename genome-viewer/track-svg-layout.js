@@ -164,7 +164,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		$(this.svg).mouseup(function(event) {
 //			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
-			$(this).focus();// without this, the keydown does not work
+//			$(this).focus();// without this, the keydown does not work
 		});
 		$(this.svg).mouseleave(function(event) {
 //			this.setAttribute("cursor", "default");
@@ -172,41 +172,57 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		});
 		
 		
-		//keys
-		$(this.svg).keydown(function(e) {
-			var desp = 0;
-			switch (e.keyCode){
-				case 37://left arrow
-					if(e.ctrlKey){
-						desp = 100/_this.pixelBase;
-					}else{
-						desp = 10/_this.pixelBase;
-					}
-				break;
-				case 39://right arrow
-					if(e.ctrlKey){
-						desp = -100/_this.pixelBase;
-					}else{
-						desp = -10/_this.pixelBase;
-					}
-				break;
-				case 109://minus key
-					if(e.shiftKey){
-						console.log("zoom out");
-					}
-				break;
-				case 107://plus key
-					if(e.shiftKey){
-						console.log("zoom in");
-					}
-				break;
-			}
-			if(desp != 0){
-				_this.position -= desp;
-				_this._setTextPosition();
-				_this.onMove.notify(desp);
-			}
+		var enableKeys = function(){
+			//keys
+			$("body").keydown(function(e) {
+				var desp = 0;
+				switch (e.keyCode){
+					case 37://left arrow
+						if(e.ctrlKey){
+							desp = 100/_this.pixelBase;
+						}else{
+							desp = 10/_this.pixelBase;
+						}
+					break;
+					case 39://right arrow
+						if(e.ctrlKey){
+							desp = -100/_this.pixelBase;
+						}else{
+							desp = -10/_this.pixelBase;
+						}
+					break;
+					case 109://minus key
+						if(e.shiftKey){
+							console.log("zoom out");
+						}
+					break;
+					case 107://plus key
+						if(e.shiftKey){
+							console.log("zoom in");
+						}
+					break;
+				}
+				if(desp != 0){
+					_this.position -= desp;
+					_this._setTextPosition();
+					_this.onMove.notify(desp);
+				}
+			});
+		};
+		
+		
+		
+		$(this.svg).focusin(function(e) {
+			enableKeys();
 		});
+		$(this.svg).click(function(e) {
+			$("body").off('keydown');
+			enableKeys();
+		});
+		$(this.svg).focusout(function(e) {
+			$("body").off('keydown');
+		});
+
 		$(this.svg).focus();// without this, the keydown does not work
 		
 	}else{
@@ -289,13 +305,11 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	};
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){
-			trackSvg.featuresRender = trackSvg.HistogramRender;
 			trackSvg.histogram = true;
-			trackSvg.interval = 5/_this.pixelBase;
+			trackSvg.interval = Math.max(512, 5/_this.pixelBase);//server interval limit 512
 //			console.log(trackData.adapter.featureCache);
 		}else{
 			trackSvg.histogram = null;
-			trackSvg.featuresRender = trackSvg.defaultRender;
 		}
 	};
 	var checkTranscriptZoom = function(){ //for genes only
@@ -318,6 +332,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
+		if(event.params.histogram == true){
+			trackSvg.featuresRender = trackSvg.HistogramRender;
+		}else{
+			trackSvg.featuresRender = trackSvg.defaultRender;
+		}
+		
+		console.timeEnd("insertCache");
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
 		trackSvg.featuresRender(event.data);
 //		console.log(trackData.adapter.featureCache);
@@ -360,7 +381,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		cleanSvgFeatures();
 		setCallRegion();
 		// check if track is visible in this zoom
-		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
+		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 		}
 	});

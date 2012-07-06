@@ -9,7 +9,7 @@ function StringDataSource(str) {
 
 StringDataSource.prototype.fetch = function(async){
 	if(async){
-		_this.success.notify(this.str);
+		this.success.notify(this.str);
 	}else{
 		return this.str;
 	}

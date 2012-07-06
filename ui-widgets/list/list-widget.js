@@ -93,9 +93,9 @@ ListWidget.prototype._render = function() {
 	}
 };
 
-ListWidget.prototype.draw = function(cbResponse) {
+ListWidget.prototype.draw = function(cbResponse, processData) {
 	var _this = this;
-	this.listPanel.draw(cbResponse);
+	this.listPanel.draw(cbResponse, processData);
 	this.listPanel.grid.getSelectionModel().on('selectionchange',function(){
 		if(_this.listPanel.grid.getSelectionModel().hasSelection()){
 			_this.localizeButton.enable();

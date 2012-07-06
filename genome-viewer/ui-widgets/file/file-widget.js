@@ -38,9 +38,11 @@ function FileWidget(args){
 		_this.panel.setLoading();
 	});	
     this.browserData.adapter.onReadData.addEventListener(function (sender, data){
+    	console.log(data)
     	_this.trackNameField.setValue(data.filename);
     	_this.fileNameLabel.setText('<span class="emph">'+ data.filename +'</span> <span class="info">(server)</span>',false);
     	_this.loadFileFromServer(data);
+    	_this.panel.setLoading(false);
 	});	
 };
 
@@ -77,7 +79,7 @@ FileWidget.prototype.getFileUpload = function(){
 				fn : function() {
 					_this.panel.setLoading();
 					var file = document.getElementById(_this.uploadField.fileInputEl.id).files[0];
-					_this.trackNameField.setValue(file.fileName);
+					_this.trackNameField.setValue(file.name);
 					_this.fileNameLabel.setText('<span class="emph">'+ file.name +'</span> <span class="info">(local)</span>',false);
 					_this.loadFileFromLocal(file);
 					_this.panel.setLoading(false);
@@ -179,10 +181,10 @@ FileWidget.prototype.draw = function(){
 		this.openDialog = Ext.create('Ext.ux.Window', {
 			title : 'Open '+this.title+' file',
 			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
-			width : 800,
+			width : 600,
 	//		bodyPadding : 10,
 			resizable:false,
-			items : [browseBar, this.panel, panelSettings],
+			items : [browseBar, /*this.panel,*/ panelSettings],
 			buttons:[this.btnOk, 
 			         {text:'Cancel', handler: function(){_this.openDialog.close();}}],
 			listeners: {

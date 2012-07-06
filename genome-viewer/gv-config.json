@@ -147,6 +147,84 @@ FEATURE_TYPES = {
 		height:10,
 		histogramColor:"orange"
 	},
+	mutation:{
+		getLabel: function(f){
+			var str = "";
+			str+= f[Object.keys(f)[0]];
+			return str;
+		},
+		getColor: function(f){
+			return "Chartreuse";
+		},
+		infoWidgetId: "name",
+		height:10,
+		histogramColor:"Chartreuse"
+	},
+	cpg_island:{
+		getLabel: function(f){
+			var str = "";
+			str+= f[Object.keys(f)[0]];
+			return str;
+		},
+		getColor: function(f){
+			return "Aquamarine";
+		},
+		infoWidgetId: "name",
+		height:10,
+		histogramColor:"Aquamarine"
+	},
+	structural_variation:{
+		getLabel: function(f){
+			var str = "";
+			str+= f[Object.keys(f)[0]];
+			return str;
+		},
+		getColor: function(f){
+			return "indigo";
+		},
+		infoWidgetId: "name",
+		height:10,
+		histogramColor:"indigo"
+	},
+	mirna_targets:{
+		getLabel: function(f){
+			var str = "";
+			str+= f[Object.keys(f)[0]];
+			return str;
+		},
+		getColor: function(f){
+			return "#8b668b";
+		},
+		infoWidgetId: "name",
+		height:10,
+		histogramColor:"#8b668b"
+	},
+	tfbs:{
+		getLabel: function(f){
+			var str = "";
+			str+= f[Object.keys(f)[0]];
+			return str;
+		},
+		getColor: function(f){
+			return "blue";
+		},
+		infoWidgetId: "name",
+		height:10,
+		histogramColor:"blue"
+	},
+	conserved_region:{
+		getLabel: function(f){
+			var str = "";
+			str+= f[Object.keys(f)[0]];
+			return str;
+		},
+		getColor: function(f){
+			return "DodgerBlue";
+		},
+		infoWidgetId: "name",
+		height:10,
+		histogramColor:"DodgerBlue"
+	},
 	file:{
 		getLabel: function(f){
 			var str = "";

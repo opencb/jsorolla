@@ -33,8 +33,6 @@ FeatureCache.prototype.getChunkRegion = function(region){
 };
 
 
-
-
 FeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 	var features =  [];
 	var feature;
@@ -228,10 +226,6 @@ FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dataTyp
 	}
 	
 };
-
-
-
-
 
 
 

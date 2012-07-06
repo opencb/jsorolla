@@ -21,6 +21,9 @@ function InputListWidget(args) {
         if (args.headerInfo!= null){
         	this.headerInfo = args.headerInfo;       
         }
+        if (args.viewer!= null){
+        	this.viewer = args.viewer;       
+        }
     }
 	this.onOk = new Event(this);
 };
@@ -81,7 +84,7 @@ InputListWidget.prototype.draw = function(text){
 		
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
-			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
+			taskbar:Ext.getCmp(this.viewer.id+'uxTaskbar'),
 			layout: 'fit',
 			resizable: false,
 			collapsible:true,

@@ -14,8 +14,6 @@ function GFFFileWidget(args){
 	
     this.chartWidgetByChromosome = new ChartWidget();
     this.chartWidgetQuality = new ChartWidget({height:300});
-    
-    this.onComplete = new Event();
 };
 
 GFFFileWidget.prototype.getChartItems = function(){
@@ -23,12 +21,19 @@ GFFFileWidget.prototype.getChartItems = function(){
 };
 
 
+
 GFFFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
 	this.adapter = new GFFDataAdapter(new FileDataSource(file),{species:this.viewer.species});
 	this.adapter.onLoad.addEventListener(function(sender){
-		_this.onComplete.notify(file);
 		_this.btnOk.enable();
 	});
+};
+
+
+GFFFileWidget.prototype.loadFileFromServer = function(data){
+	this.file = {name:data.filename};
+	this.adapter = new GFFDataAdapter(new StringDataSource(data.data),{async:false,species:this.viewer.species});
+	this.btnOk.enable();
 };
