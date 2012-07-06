@@ -11,7 +11,6 @@ function VCFDataAdapter(dataSource, args){
 			this.async = args.async;
 		}
 	}
-	
 	if(this.async){
 		this.dataSource.success.addEventListener(function(sender,data){
 			_this.parse(data);

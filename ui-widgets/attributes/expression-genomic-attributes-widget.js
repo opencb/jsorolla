@@ -33,39 +33,44 @@ ExpressionGenomicAttributesWidget.prototype.fill = function (queryNames){
 		}
 	}
 	
-	
-	var cellBaseManager = new CellBaseManager(this.species);
-	var featureDataAdapter = new FeatureDataAdapter(null,{species:this.species});
-	cellBaseManager.success.addEventListener(function(sender,data){
-		_this.karyotypePanel.setLoading("Retrieving data");
-		for (var i = 0; i < data.result.length; i++) {
-			for (var j = 0; j < data.result[i].length; j++) {
-				var feature = data.result[i][j];
-				feature.position = feature.start;
-				feature.featureType = "gene";
-				_this.karyotypeWidget.addMark(feature,  colors[i]);
-				featureDataAdapter.addFeatures(feature);
-				
+	if(this.cbResponse==null){
+		var cellBaseManager = new CellBaseManager(this.species);
+		var featureDataAdapter = new FeatureDataAdapter(null,{species:this.species});
+		cellBaseManager.success.addEventListener(function(sender,data){
+			_this.karyotypePanel.setLoading("Retrieving data");
+			for (var i = 0; i < data.result.length; i++) {
+				if(data.result[i].length>0){
+					_this.attributesPanel.store.data.items[i].data.cellBase = true;
+				}else{
+					_this.attributesPanel.store.data.items[i].data.cellBase = false;
+				}
+				for (var j = 0; j < data.result[i].length; j++) {
+					var feature = data.result[i][j];
+					feature.featureType = "gene";
+					_this.karyotypeWidget.addMark(feature,  colors[i]);
+					featureDataAdapter.addFeatures(feature);
+				}
 			}
-		}
 
-		_this.adapter = featureDataAdapter;
-//		_this.query = {"dataset": cellBaseManager.dataset, "resource":queryNames }; 
-//		_this.features=cellBaseManager.dataset.toJSON();
-		_this.karyotypePanel.setLoading(false);
-		_this.filtersButton.enable();
-		_this.addTrackButton.enable();
-	});
-	console.log(queryNames);
-	cellBaseManager.get("feature", "gene", queryNames.toString(), "info");
+			_this.adapter = featureDataAdapter;
+//			_this.query = {"dataset": cellBaseManager.dataset, "resource":queryNames }; 
+//			_this.features=cellBaseManager.dataset.toJSON();
+			_this.filtersButton.enable();
+			_this.addTrackButton.enable();
+			_this.karyotypePanel.setLoading(false);
+
+			_this.cbResponse = data;
+			_this.karyotypePanel.setLoading(false);
+		});
+		this.karyotypePanel.setLoading("Connecting to Database");
+		cellBaseManager.get("feature", "gene", queryNames.toString(), "info");
+		
+	}
 };
 
 ExpressionGenomicAttributesWidget.prototype.dataChange = function (items){
 	try{
 				var _this = this;
-				this.karyotypePanel.setLoading("Connecting to Database");
-				this.karyotypeWidget.unmark();
-				var _this=this;
 				var externalNames = [];
 				values = [];
 				

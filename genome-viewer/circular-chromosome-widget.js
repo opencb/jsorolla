@@ -57,7 +57,7 @@ function CircularChromosomeWidget(parent, args) {
 	        
     //para decargarse los datos de la base de datos, de esta forma, copiamos todos los datos en data
     $.ajax({
-	url: "http://ws-beta.bioinfo.cipf.es/cellbase/rest/latest/hsa/genomic/region/13/cytoband?of=json",
+	url: "http://ws-beta.bioinfo.cipf.es/cellbase/rest/latest/hsa/genomic/region/13/cytoband?of=json"
     }).done(function(data,b,c) {
 
   

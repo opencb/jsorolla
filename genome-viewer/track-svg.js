@@ -301,12 +301,14 @@ TrackSvg.prototype.draw = function(){
 
 TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	var _this = this;
+	console.time("Multirender");
 //	console.log(featureList.length);
 	
 	var middle = this.width/2;
 	
 	var draw = function(feature, start, end){
 		var width = (end-start)+1;
+		console.log(width)
 		//snps can be negative
 		if(width<0){
 			width=Math.abs(width);
@@ -374,7 +376,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 			
 			if(enc){
 				var rect = SVG.addChild(_this.features,"rect",{
-					"i":i,
 					"x":x,
 					"y":rowY,
 					"width":width,
@@ -573,7 +574,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 		}
 	};
 	
-	
 	//process features and check transcripts
 	for ( var i = 0, leni = featureList.length; i < leni; i++) {
 		var feature = featureList[i];
@@ -586,7 +586,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	if(newHeight>0){
 		this.setHeight(newHeight+/*margen entre tracks*/10);
 	}
-//	console.timeEnd("all");
+	console.timeEnd("Multirender");
 };
 
 TrackSvg.prototype.SequenceRender = function(featureList){
@@ -641,7 +641,6 @@ TrackSvg.prototype.HistogramRender = function(featureList){
 	var middle = this.width/2;
 //	console.log(featureList);
 	var histogramHeight = 50;
-	console.log(featureList.length);
 	var points = "";
 	if(featureList.length>0) {
 		var firstx = this.pixelPosition+middle-((this.position-featureList[0].start)*this.pixelBase);
@@ -724,29 +723,37 @@ TrackSvg.prototype.formatTip = function(args){
 	str += 'start:&nbsp;<span class="emph">'+args.feature.start+'</span><br>'+
 	'end:&nbsp;<span class="emph">'+args.feature.end+'</span><br>'+
 	'strand:&nbsp;<span class="emph">'+args.feature.strand+'</span><br>'+
-	'length:&nbsp;<span class="info">'+(args.feature.end-args.feature.start+1)+'</span><br>';
+	'length:&nbsp;<span class="info">'+(args.feature.end-args.feature.start+1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+'</span><br>';
 	return str;
 };
 
 TrackSvg.prototype.formatTitleTip = function(args){
 	var str="";
+	
+	//Remove "_" and UpperCase first letter
+	var format = function (str){
+		var s = str.replace(/_/gi, " ");
+		s = s.charAt(0).toUpperCase() + s.slice(1);
+		return s;
+	};
+	
 	switch (args.feature.featureType) {
 	case "snp":
-		str += args.feature.featureType.toUpperCase() +
+		str += format(args.feature.featureType) +
 		' - <span class="ok">'+args.feature.name+'</span>';
 		break;
 	case "gene":
-		str += args.feature.featureType.charAt(0).toUpperCase() + args.feature.featureType.slice(1) +
+		str += format(args.feature.featureType) +
 		' - <span class="ok">'+args.feature.externalName+'</span>';
 		break;
 	case "transcript":
-		str += args.feature.featureType.charAt(0).toUpperCase() + args.feature.featureType.slice(1) +
+		str += format(args.feature.featureType) +
 		' - <span class="ok">'+args.feature.externalName+'</span>';	
 		break;
 	case undefined:
 		str += "Feature";
 		break;
-	default: str += args.feature.featureType.charAt(0).toUpperCase() + args.feature.featureType.slice(1); break;
+	default: str += format(args.feature.featureType); break;
 	}
 	return str;
 };

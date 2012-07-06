@@ -289,11 +289,12 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		id : this.id+'quickSearch',
 		displayField: 'displayId',
 		valueField: 'displayId',
-		emptyText:'gene, transcript',
+		emptyText:'Quick search: gene, transcript',
 		hideTrigger: true,
 		width:200,
 		store: searchResults,
 		queryMode: 'local',
+//		typeAhead:true,
 		queryDelay: 500,
 		listeners:{
 			change:function(){
@@ -312,6 +313,9 @@ GenomeViewer.prototype._getNavigationBar = function() {
 						error:function(jqXHR, textStatus, errorThrown){console.log(textStatus);}
 					});
 				}
+			},
+			select: function(field, e){
+				_this._handleNavigationBar('GoToGene');
 			}
 		}
 	});
@@ -409,7 +413,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 //		        			 buffer : 300
 		        		 }
 		        	 }
-		         },
+		         },'-',
 //		         {
 //		        	 id:this.id+"right1posButton",
 //		        	 text : '>',
@@ -417,7 +421,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 //		        		 _this._handleNavigationBar('>');
 //		        	 }
 //		         },
-		         '->',{
+		         {
 		        	 id:this.id+"positionLabel",
 		        	 xtype : 'label',
 		        	 text : 'Position:',
@@ -425,6 +429,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		         },{
 		        	 id : this.id+'tbCoordinate',
 		        	 xtype : 'textfield',
+		        	 width : 120,
 		        	 text : this.chromosome + ":" + this.position,
 		        	 listeners:{
 		        		 specialkey: function(field, e){
@@ -439,12 +444,13 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        	 handler : function() {
 		        		 _this._handleNavigationBar('Go');
 		        	 }
-		         },{
-		        	 id : this.id+'searchLabel',
-		        	 xtype : 'label',
-		        	 text : 'Search:',
-		        	 margins : '0 0 0 10'
-		         },
+		         },'->',
+//		         {
+//		        	 id : this.id+'searchLabel',
+//		        	 xtype : 'label',
+//		        	 text : 'Quick search:',
+//		        	 margins : '0 0 0 10'
+//		         },
 		         searchCombo,
 //		         {
 //		        	 id : this.id+'quickSearch',
@@ -467,7 +473,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 //		         },
 		         {
 		        	 id : this.id+'GoToGeneButton',
-		        	 text : 'Go',
+		        	 iconCls:'icon-find',
 		        	 handler : function() {
 		        		 _this._handleNavigationBar('GoToGene');
 		        	 }

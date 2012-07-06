@@ -20,10 +20,11 @@ function GenomicAttributesWidget(species, args){
         	this.featureType = args.featureType;       
         }
         if (args.viewer!= null){
-        	this.viewer = args.viewer;       
+        	this.viewer = args.viewer;      
+        	args.listWidgetArgs.viewer = args.viewer;
         }
     }
-    
+	
 	this.listWidget = new ListWidget(this.species,args.listWidgetArgs);
 	
 	this.attributesPanel = new AttributesPanel({height: 240, columnsCount: this.columnsCount,wum:args.wum,tags:args.tags});
@@ -94,6 +95,7 @@ GenomicAttributesWidget.prototype.draw = function (){
 			minimizable :true,
 			constrain:true,
 			closable:true,
+			bodyStyle: 'background:#fff;',
 			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
 			items: [this.attributesPanel.getPanel(),this.karyotypePanel],
 			width: 1035,
@@ -118,66 +120,66 @@ GenomicAttributesWidget.prototype.draw = function (){
 		
 };
 
-GenomicAttributesWidget.prototype.getMainPanel = function (){
-	var _this=this;
-	if (this.panel == null){
-		
-		this.karyotypePanel  = Ext.create('Ext.panel.Panel', {
-			height:350,
-			maxHeight:350,
-			border:0,
-			bodyPadding: 15,
-			padding:'0 0 0 0',
-			html:'<div id="' + this.id + "karyotypeDiv" +'" ><div>'
-		});
-
-		this.filtersButton = Ext.create('Ext.button.Button', {
-			 text: 'Additional Filters',
-			 disabled:true,
-			 listeners: {
-			       scope: this,
-			       click: function(){this.onAdditionalInformationClick();}
-	        }
-		});
-		
-		this.addTrackButton = Ext.create('Ext.button.Button', {
-			text:'Add Track',
-			disabled:true,
-			handler: function(){ 
-				_this.onTrackAddAction.notify({"features":_this.features,"trackName":_this.attributesPanel.fileName});
-				}
-		});
-		
-//		this.panel  = Ext.create('Ext.ux.Window', {
-//			title : this.title,
-//			resizable: false,
-//			minimizable :true,
-//			constrain:true,
-//			closable:true,
-//			items: [this.attributesPanel.getPanel(),this.karyotypePanel],
-//			width: 1035,
-//		    height: 653,
-//		    buttonAlign:'left',
-//			buttons:[this.addTrackButton,'->',
-//			         {text:'Close', handler: function(){_this.panel.close();}}],
-//	 		listeners: {
-//		    	scope: this,
-//		    	minimize:function(){
-//					this.panel.hide();
-//		       	},
-//		      	destroy: function(){
-//		       		delete this.panel;
-//		      	}
-//	    	}
+//GenomicAttributesWidget.prototype.getMainPanel = function (){
+//	var _this=this;
+//	if (this.panel == null){
+//		
+//		this.karyotypePanel  = Ext.create('Ext.panel.Panel', {
+//			height:350,
+//			maxHeight:350,
+//			border:0,
+//			bodyPadding: 15,
+//			padding:'0 0 0 0',
+//			html:'<div id="' + this.id + "karyotypeDiv" +'" ><div>'
 //		});
-		this.attributesPanel.getPanel();
-		this.attributesPanel.barField.add(this.filtersButton);
-//		this.panel.setLoading();
-//		this.drawKaryotype();
-	}	
-	return [this.attributesPanel.getPanel(),this.karyotypePanel];
-		
-};
+//
+//		this.filtersButton = Ext.create('Ext.button.Button', {
+//			 text: 'Additional Filters',
+//			 disabled:true,
+//			 listeners: {
+//			       scope: this,
+//			       click: function(){this.onAdditionalInformationClick();}
+//	        }
+//		});
+//		
+//		this.addTrackButton = Ext.create('Ext.button.Button', {
+//			text:'Add Track',
+//			disabled:true,
+//			handler: function(){ 
+//				_this.onTrackAddAction.notify({"features":_this.features,"trackName":_this.attributesPanel.fileName});
+//				}
+//		});
+//		
+////		this.panel  = Ext.create('Ext.ux.Window', {
+////			title : this.title,
+////			resizable: false,
+////			minimizable :true,
+////			constrain:true,
+////			closable:true,
+////			items: [this.attributesPanel.getPanel(),this.karyotypePanel],
+////			width: 1035,
+////		    height: 653,
+////		    buttonAlign:'left',
+////			buttons:[this.addTrackButton,'->',
+////			         {text:'Close', handler: function(){_this.panel.close();}}],
+////	 		listeners: {
+////		    	scope: this,
+////		    	minimize:function(){
+////					this.panel.hide();
+////		       	},
+////		      	destroy: function(){
+////		       		delete this.panel;
+////		      	}
+////	    	}
+////		});
+//		this.attributesPanel.getPanel();
+//		this.attributesPanel.barField.add(this.filtersButton);
+////		this.panel.setLoading();
+////		this.drawKaryotype();
+//	}	
+//	return [this.attributesPanel.getPanel(),this.karyotypePanel];
+//		
+//};
 
 //GenomicAttributesWidget.prototype.fill = function (queryNames){
 //	var _this = this;
@@ -226,37 +228,22 @@ GenomicAttributesWidget.prototype.dataChange = function (items){
 		}
 };
 
-GenomicAttributesWidget.prototype.drawKaryotype = function (){
-		/** Karyotype Widget **/
-		var _this = this;
-		var karyotypeCellBaseDataAdapter = new KaryotypeCellBaseDataAdapter(this.species);
-		
-		karyotypeCellBaseDataAdapter.successed.addEventListener(function(evt, data){
-			_this.karyotypeWidget.onRendered.addEventListener(function(evt, data){
-//				_this.panel.setLoading(false);
-			});
-			
-			_this.karyotypeWidget.onClick.addEventListener(function(evt, data){
-			});
-			
-			_this.karyotypeWidget.draw(karyotypeCellBaseDataAdapter.chromosomeNames, karyotypeCellBaseDataAdapter.dataset.json);
-			
-		});
-		karyotypeCellBaseDataAdapter.fill();
-};
-
 
 GenomicAttributesWidget.prototype.onAdditionalInformationClick = function (){
 	var _this=this;
-	this.listWidget.draw(this.query.dataset.toJSON(), this.query.resource);
+	this.listWidget.draw(this.cbResponse, false);
 	this.listWidget.onFilterResult.addEventListener(function(sender,data){
+		debugger
+			_this.karyotypeWidget.unmark();
+			var items  = data;
+			for (var i = 0; i < items.length; i++) {
+				var feature = items[i].data;
+				_this.karyotypeWidget.addMark(feature);
+			}
+		
 		_this.attributesPanel.store.clearFilter();
 		_this.attributesPanel.store.filter(function(item){
-			for(var i = 0; i < data.length; i++){
-				if(data[i].data.stableId == item.data["0"]){
-					return true;
-				}
-			}
+			return item.data.cellBase;
 		});
 	});
 };

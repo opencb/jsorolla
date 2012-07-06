@@ -31,7 +31,6 @@ function CellBaseAdapter(args){
 };
 
 CellBaseAdapter.prototype.getData = function(args){
-//	console.time("all");
 	var _this = this;
 	//region check
 	if(args.start<1){
@@ -74,6 +73,8 @@ CellBaseAdapter.prototype.getData = function(args){
 	
 	//CellBase data process
 	cellBaseManager.success.addEventListener(function(sender,data){
+		console.timeEnd("cellbase");
+		console.time("insertCache");
 		var type = "data";
 		if(data.params.histogram){
 			type = "histogram"+data.params.interval;
@@ -164,6 +165,8 @@ CellBaseAdapter.prototype.getData = function(args){
 		this.params["histogram"] = args.histogram;
 		this.params["interval"] = args.interval;
 		this.params["transcript"] = args.transcript;
+		
+		console.time("cellbase");
 		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, this.params);
 	}
 };
