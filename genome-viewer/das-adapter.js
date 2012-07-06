@@ -3,6 +3,7 @@ function DasAdapter(args){
 	
 	this.proxy = "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v1/utils/proxy?url=";
 	
+	this.params = {};
 	if (args != null){
 		if (args.url != null){
 			this.url = args.url;
@@ -14,7 +15,7 @@ function DasAdapter(args){
 			var argsFeatureCache = args.featureCache;
 		}
 		if(args.params != null){
-			var params = args.params;
+			this.params = args.params;
 		}
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
@@ -24,9 +25,14 @@ function DasAdapter(args){
 };
 
 DasAdapter.prototype.getData = function(args){
-	console.time("all");
+//	console.time("all");
 	var _this = this;
 	//region check
+	
+	this.params["histogram"] = args.histogram;
+	this.params["interval"] = args.interval;
+	this.params["transcript"] = args.transcript;
+	
 	if(args.start<1){
 		args.start=1;
 	}
@@ -57,7 +63,7 @@ DasAdapter.prototype.getData = function(args){
 	}
 //	//notify all chunks
 	if(itemList.length>0){
-		this.onGetData.notify({data:itemList,cached:true});
+		this.onGetData.notify({data:itemList, params:this.params, cached:true});
 	}
 	
 	
@@ -136,7 +142,7 @@ DasAdapter.prototype.getData = function(args){
 						console.log(_this.featureCache.cache);
 						var items = _this.featureCache.getFeaturesByRegion(region, type);
 						if(items != null){
-							_this.onGetData.notify({data:items,cached:false});
+							_this.onGetData.notify({data:items, params:this.params, cached:false});
 						}
 					}
 				});

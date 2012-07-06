@@ -308,7 +308,6 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	
 	var draw = function(feature, start, end){
 		var width = (end-start)+1;
-		console.log(width)
 		//snps can be negative
 		if(width<0){
 			width=Math.abs(width);

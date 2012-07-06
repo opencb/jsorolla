@@ -223,7 +223,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			$("body").off('keydown');
 		});
 
-		$(this.svg).focus();// without this, the keydown does not work
+//		$(this.svg).focus();// without this, the keydown does not work
 		
 	}else{
 		_this.parentLayout.onMove.addEventListener(function(sender,desp){
