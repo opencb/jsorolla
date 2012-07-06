@@ -305,13 +305,11 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	};
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){
-			trackSvg.featuresRender = trackSvg.HistogramRender;
 			trackSvg.histogram = true;
 			trackSvg.interval = Math.max(512, 5/_this.pixelBase);//server interval limit 512
 //			console.log(trackData.adapter.featureCache);
 		}else{
 			trackSvg.histogram = null;
-			trackSvg.featuresRender = trackSvg.defaultRender;
 		}
 	};
 	var checkTranscriptZoom = function(){ //for genes only
@@ -334,6 +332,14 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
+		
+		debugger
+		if(event.params.histogram == true){
+			trackSvg.featuresRender = trackSvg.HistogramRender;
+		}else{
+			trackSvg.featuresRender = trackSvg.defaultRender;
+		}
+		
 		console.timeEnd("insertCache");
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
 		trackSvg.featuresRender(event.data);

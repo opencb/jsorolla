@@ -33,6 +33,12 @@ function CellBaseAdapter(args){
 CellBaseAdapter.prototype.getData = function(args){
 	var _this = this;
 	//region check
+	
+	this.params["histogram"] = args.histogram;
+	this.params["interval"] = args.interval;
+	this.params["transcript"] = args.transcript;
+	
+	
 	if(args.start<1){
 		args.start=1;
 	}
@@ -67,7 +73,7 @@ CellBaseAdapter.prototype.getData = function(args){
 	}
 //	//notify all chunks
 	if(itemList.length>0){
-		this.onGetData.notify({data:itemList,cached:true});
+		this.onGetData.notify({data:itemList, params:this.params, cached:true});
 	}
 	
 	
@@ -123,7 +129,7 @@ CellBaseAdapter.prototype.getData = function(args){
 			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
 			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
 			if(items != null){
-				_this.onGetData.notify({data:items,cached:false});
+				_this.onGetData.notify({data:items, params:_this.params, cached:false});
 			}
 		}
 	});
@@ -162,46 +168,42 @@ CellBaseAdapter.prototype.getData = function(args){
 			}
 		}
 //		console.log(querys);
-		this.params["histogram"] = args.histogram;
-		this.params["interval"] = args.interval;
-		this.params["transcript"] = args.transcript;
-		
 		console.time("cellbase");
 		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, this.params);
 	}
 };
 
-
-CellBaseAdapter.prototype.searchData = function(args){
-	var querys = args.queryList; 
-	cellBaseManager.success.addEventListener(function(sender,data){
-		for(var i = 0; i < data.result.length; i++) {
-			
-			//Check if is a single object
-			if(data.result[i].constructor != Array){
-				data.result[i] = [data.result[i]];
-			}
-			
-			for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
-				if(data.resource == "gene" && data.result[i][j].transcripts!=null){
-					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
-						data.result[i][j].transcripts[t].featureType = "transcript";
-						//for de exones
-						for (var e = 0, lene = data.result[i][j].transcripts[t].exonToTranscripts.length; e < lene; e++){
-							data.result[i][j].transcripts[t].exonToTranscripts[e].featureType = "exon";
-						}
-					}
-				}
-			}
-			
-			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
-			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
-			_this.onGetData.notify({data:items,cached:false});
-		}
-	});
-	
-	cellBaseManager.get(this.category, this.subCategory, querys, this.resource, this.params);
-};
+//XXX borrar?
+//CellBaseAdapter.prototype.searchData = function(args){
+//	var querys = args.queryList; 
+//	cellBaseManager.success.addEventListener(function(sender,data){
+//		for(var i = 0; i < data.result.length; i++) {
+//			
+//			//Check if is a single object
+//			if(data.result[i].constructor != Array){
+//				data.result[i] = [data.result[i]];
+//			}
+//			
+//			for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
+//				if(data.resource == "gene" && data.result[i][j].transcripts!=null){
+//					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
+//						data.result[i][j].transcripts[t].featureType = "transcript";
+//						//for de exones
+//						for (var e = 0, lene = data.result[i][j].transcripts[t].exonToTranscripts.length; e < lene; e++){
+//							data.result[i][j].transcripts[t].exonToTranscripts[e].featureType = "exon";
+//						}
+//					}
+//				}
+//			}
+//			
+//			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
+//			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
+//			_this.onGetData.notify({data:items,cached:false});
+//		}
+//	});
+//	
+//	cellBaseManager.get(this.category, this.subCategory, querys, this.resource, this.params);
+//};
 
 
 //CellBaseAdapter.prototype.getDataOLD = function(region){
