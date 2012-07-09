@@ -17,6 +17,11 @@ function CellBaseManager(species, args) {
 //		this.host = "http://imedina:8080/cellbase/rest";
 	}
 	
+	//naranjoma CHECK
+	if(species === "orange"){
+		this.host = "http://ralonso:8080/naranjoma-ws/rest";
+	}
+	
 	var url = $.url();
 	var prod = url.param('p');
 	if(prod != null) {
