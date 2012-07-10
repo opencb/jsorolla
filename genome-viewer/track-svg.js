@@ -518,15 +518,15 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							if(transcript.codingRegionStart > exonStart && transcript.codingRegionStart < exonEnd){
 								codingStart = parseInt(transcript.codingRegionStart);
 								codingEnd = exonEnd;
-							}
-							if(transcript.codingRegionEnd > exonStart && transcript.codingRegionEnd < exonEnd){
-								codingStart = exonStart;		
-								codingEnd = parseInt(transcript.codingRegionEnd);		
-							}
-							if(transcript.codingRegionStart < exonStart && transcript.codingRegionEnd > exonEnd){
-								codingStart = exonStart;		
-								codingEnd = exonEnd;	
-							}
+							}else 
+								if(transcript.codingRegionEnd > exonStart && transcript.codingRegionEnd < exonEnd){
+									codingStart = exonStart;		
+									codingEnd = parseInt(transcript.codingRegionEnd);		
+								}else
+									if(transcript.codingRegionStart < exonStart && transcript.codingRegionEnd > exonEnd){
+										codingStart = exonStart;		
+										codingEnd = exonEnd;	
+									}
 							
 //							var codingStart, codingEnd;
 //							codingStart = parseInt(e2t.genomicCodingStart);
