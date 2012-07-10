@@ -21,6 +21,11 @@ function VCFDataAdapter(dataSource, args){
 		var data = this.dataSource.fetch(this.async);
 		this.parse(data);
 	}
+	
+	
+	//stat atributes
+	this.featuresCount = 0;
+	this.featuresByChromosome = {};
 };
 
 VCFDataAdapter.prototype.parse = function(data){
@@ -34,12 +39,11 @@ VCFDataAdapter.prototype.parse = function(data){
 			var fields = line.split("\t");
 			if (fields[0].substr(0,1) != "#"){
 //				_this.addQualityControl(fields[5]);
-
 				var feature = {
 						"chromosome": 	fields[0],
-						"position": 	parseFloat(fields[1]), 
-						"start": 		parseFloat(fields[1]), 
-						"end": 			parseFloat(fields[1]),
+						"position": 	parseInt(fields[1]), 
+						"start": 		parseInt(fields[1]),//added
+						"end": 			parseInt(fields[1]),//added
 						"id":  			fields[2],
 						"ref": 			fields[3], 
 						"alt": 			fields[4], 
@@ -47,11 +51,17 @@ VCFDataAdapter.prototype.parse = function(data){
 						"filter": 		fields[6], 
 						"info": 		fields[7], 
 						"format": 		fields[8], 
-						"record":		fields,
-						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
-						"featureType":	"file"
+//						"record":		fields,
+//						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
+						"featureType":	"vcf"
 				};
 				this.featureCache.putFeatures(feature, dataType);
+				
+				if (this.featuresByChromosome[fields[0]] == null){
+					this.featuresByChromosome[fields[0]] = 0;
+				}
+				this.featuresByChromosome[fields[0]]++;
+				this.featuresCount++;
 			}
 		}
 	}

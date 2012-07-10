@@ -72,7 +72,21 @@ SEQUENCE_COLORS = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#55555
 
 FEATURE_TYPES = {
 	
+	//methods
+	formatTitle : function (str){
+		var s = str.replace(/_/gi, " ");
+		s = s.charAt(0).toUpperCase() + s.slice(1);
+		return s;
+	},
+	getTipCommons : function(f){
+		var strand = (f.strand != null) ? f.strand : "NA";
+		return 'start:&nbsp;<span class="emph">'+f.start+'</span><br>'+
+		'end:&nbsp;<span class="emph">'+f.end+'</span><br>'+
+		'strand:&nbsp;<span class="emph">'+strand+'</span><br>'+
+		'length:&nbsp;<span class="info">'+(f.end-f.start+1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+'</span><br>';
+	},
 		
+	//items
 	sequence:{
 		color: SEQUENCE_COLORS
 	},
@@ -81,6 +95,12 @@ FEATURE_TYPES = {
 			var str = "";
 			str+= f.chromosome + ":" + f.start + "-" + f.end;
 			return str;
+		},
+		getTipTitle: function(f){
+			return " ";
+		},
+		getTipText: function(f){
+			return " ";
 		},
 		getColor: function(f){
 			return "grey";
@@ -98,6 +118,16 @@ FEATURE_TYPES = {
 			str+= " ["+f.biotype+"]";
 			return str;
 		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType) +
+			' - <span class="ok">'+f.externalName+'</span>';
+		},
+		getTipText: function(f){
+			var color = GENE_BIOTYPE_COLORS[f.biotype];
+			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.stableId+'</span><br>'+
+			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f);
+		},
 		getColor: function(f){
 			return GENE_BIOTYPE_COLORS[f.biotype];
 		},
@@ -114,6 +144,16 @@ FEATURE_TYPES = {
 			str+= " ["+f.biotype+"]";
 			return str;
 		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType) +
+			' - <span class="ok">'+f.externalName+'</span>';
+		},
+		getTipText: function(f){
+			var color = GENE_BIOTYPE_COLORS[f.biotype];
+			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.stableId+'</span><br>'+
+			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f);
+		},
 		getColor: function(f){
 			return GENE_BIOTYPE_COLORS[f.biotype];
 		},
@@ -127,6 +167,12 @@ FEATURE_TYPES = {
 			str+= f.stableId;
 			return str;
 		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
+		},
 		getColor: function(f){
 			return "black";
 		},
@@ -136,9 +182,17 @@ FEATURE_TYPES = {
 	},
 	snp:{
 		getLabel: function(f){
-			var str = "";
-			str+= f.name;
-			return str;
+			return f.name;
+		},
+		getTipTitle: function(f){
+			return f.featureType.toUpperCase() +
+			' - <span class="ok">'+f.name+'</span>';
+		},
+		getTipText: function(f){
+			var color = SNP_BIOTYPE_COLORS[f.displaySoConsequence];
+			return 'alleles:&nbsp;<span class="ssel">'+f.alleleString+'</span><br>'+
+			'SO:&nbsp;<span class="emph" style="color:'+color+';">'+f.displaySoConsequence+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f);
 		},
 		getColor: function(f){
 			return SNP_BIOTYPE_COLORS[f.displaySoConsequence];
@@ -153,6 +207,12 @@ FEATURE_TYPES = {
 			str+= f[Object.keys(f)[0]];
 			return str;
 		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
+		},
 		getColor: function(f){
 			return "Chartreuse";
 		},
@@ -165,6 +225,12 @@ FEATURE_TYPES = {
 			var str = "";
 			str+= f[Object.keys(f)[0]];
 			return str;
+		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
 		},
 		getColor: function(f){
 			return "Aquamarine";
@@ -179,6 +245,12 @@ FEATURE_TYPES = {
 			str+= f[Object.keys(f)[0]];
 			return str;
 		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
+		},
 		getColor: function(f){
 			return "indigo";
 		},
@@ -191,6 +263,12 @@ FEATURE_TYPES = {
 			var str = "";
 			str+= f[Object.keys(f)[0]];
 			return str;
+		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
 		},
 		getColor: function(f){
 			return "#8b668b";
@@ -205,6 +283,12 @@ FEATURE_TYPES = {
 			str+= f[Object.keys(f)[0]];
 			return str;
 		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
+		},
 		getColor: function(f){
 			return "blue";
 		},
@@ -217,6 +301,12 @@ FEATURE_TYPES = {
 			var str = "";
 			str+= f[Object.keys(f)[0]];
 			return str;
+		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
 		},
 		getColor: function(f){
 			return "DodgerBlue";
@@ -231,17 +321,112 @@ FEATURE_TYPES = {
 			str+= f.label;
 			return str;
 		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
+		},
 		getColor: function(f){
 			return "black";
 		},
 		height:10,
 		histogramColor:"orange"
 	},
+	vcf:{
+		getLabel: function(f){
+			return f.id+" "+f.ref+"/"+f.alt+"";
+		},
+		getTipTitle: function(f){
+			return f.featureType.toUpperCase() +
+			' - <span class="ok">'+f.id+'</span>';
+		},
+		getTipText: function(f){
+			return 'alleles:&nbsp;<span class="emph">'+f.ref+"/"+f.alt+'</span><br>'+
+			'quality:&nbsp;<span class="emph">'+f.quality+'</span><br>'+
+			'filter:&nbsp;<span class="emph">'+f.filter+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f);
+		},
+		getColor: function(f){
+			return "black";
+		},
+		height:10,
+		histogramColor:"gray"
+	},
+	gff2:{
+		getLabel: function(f){
+			var str = "";
+			str+= f.label;
+			return str;
+		},
+		getTipTitle: function(f){
+			return f.featureType.toUpperCase() +
+			' - <span class="ok">'+f.label+'</span>';
+		},
+		getTipText: function(f){
+			return 'score:&nbsp;<span class="emph">'+f.score+'</span><br>'+
+			'frame:&nbsp;<span class="emph">'+f.frame+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f);
+		},
+		getColor: function(f){
+			return "black";
+		},
+		height:10,
+		histogramColor:"gray"
+	},
+	gff3:{
+		getLabel: function(f){
+			var str = "";
+			str+= f.label;
+			return str;
+		},
+		getTipTitle: function(f){
+			return f.featureType.toUpperCase() +
+			' - <span class="ok">'+f.label+'</span>';
+		},
+		getTipText: function(f){
+			return 'score:&nbsp;<span class="emph">'+f.score+'</span><br>'+
+			'frame:&nbsp;<span class="emph">'+f.frame+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f);
+		},
+		getColor: function(f){
+			return "black";
+		},
+		height:10,
+		histogramColor:"gray"
+	},
+	gtf:{
+		getLabel: function(f){
+			var str = "";
+			str+= f.label;
+			return str;
+		},
+		getTipTitle: function(f){
+			return f.featureType.toUpperCase() +
+			' - <span class="ok">'+f.label+'</span>';
+		},
+		getTipText: function(f){
+			return 'score:&nbsp;<span class="emph">'+f.score+'</span><br>'+
+			'frame:&nbsp;<span class="emph">'+f.frame+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f);
+		},
+		getColor: function(f){
+			return "black";
+		},
+		height:10,
+		histogramColor:"gray"
+	},
 	bed:{
 		getLabel: function(f){
 			var str = "";
 			str+= f.label;
 			return str;
+		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
 		},
 		getColor: function(f){
 			//XXX convert RGB to Hex
@@ -262,6 +447,12 @@ FEATURE_TYPES = {
 			var str = "";
 			str+= f.id;
 			return str;
+		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType);
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
 		},
 		getColor: function(f){
 			return "black";

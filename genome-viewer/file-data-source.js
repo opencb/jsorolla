@@ -9,12 +9,12 @@ function FileDataSource(file) {
 };
 
 FileDataSource.prototype.error = function(){
-	alert("File is too big. Max file size is 50 Mbytes.");
+	alert("File is too big. Max file size is 100 Mbytes.");
 };
 
 FileDataSource.prototype.fetch = function(async){
 	var _this = this;
-	if(this.file.size <= 52428800){
+	if(this.file.size <= 104857600){
 		if(async){
 			var  reader = new FileReader();
 			reader.onload = function(evt) {

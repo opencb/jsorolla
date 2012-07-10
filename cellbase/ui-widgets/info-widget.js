@@ -376,6 +376,8 @@ InfoWidget.prototype.getSnpTranscriptTemplate = function (){
 		    }
 		);
 };
+
+
 InfoWidget.prototype.getConsequenceTypeTemplate = function (){
 	return new Ext.XTemplate(
 		    '<p><span class="panel-border-bottom"><span class="ssel s130">{transcript.stableId}</span> &nbsp; <span class="emph s120"> {consequenceType.description} </span></span><br><br>',

@@ -175,12 +175,21 @@ function CircularChromosomeWidget(parent, args) {
     });
 
 
-    //creamos un indicador y lo situamos inicialmente en un punto
+//    //creamos un indicador y lo situamos inicialmente en un punto
 	var obj = document.createElementNS("http://www.w3.org/2000/svg", "line");
     obj.setAttribute("stroke", "red");
     obj.setAttribute("stroke-width", 1);
     obj.setAttribute("transform","rotate(-90,"+ _this.coord_x+","+_this.coord_y+")"); //lo rotamos para que empiece por arriba y lo desplazamos para verlo en la pantalla  
     _this.mySvg.appendChild (obj);
+    
+    
+//    var obj = SVG.addChild(_this.mySvg, "line", {
+//    	"stroke": "red",
+//    	"stroke-width": 1,
+//    	"transform":"rotate(-90,"+ _this.coord_x+","+_this.coord_y+")",
+//    });
+    
+    
     
     //llamamos a la funcion aqui y no en el index para que os datos esten bien dargados antes de dibujar
     _this.drawChromosome();

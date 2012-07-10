@@ -53,6 +53,7 @@ TranscriptInfoWidget.prototype.optionClick = function (item){
 			case "Interpro": this.panel.add(this.getXrefGrid(this.data.interpro, "Interpro").show());  break;
 			case "Reactome": this.panel.add(this.getXrefGrid(this.data.reactome, "Reactome").show());  break;
 			case "SNPs": this.panel.add(this.getSnpsGrid(this.data.snps).show());  break;
+			case "Mutations": this.panel.add(this.getMutationsGrid(this.data.mutations).show());  break;
 			case "3D protein": this.panel.add(this.get3Dprotein(this.data.snps).show());  break;
 		}
 	}
@@ -158,18 +159,40 @@ TranscriptInfoWidget.prototype.getSnpsGrid = function(data){
     if(this.snpsGrid==null){
     	var groupField = '';
     	var modelName = 'SNPs';
-	    var fields = ['chromosome','start','end','name',"strand","sequence"];
+	    var fields = ['chromosome','start','end','name',"strand","alleleString","displaySoConsequence"];
 		var columns = [
 		               	{header : 'Name',dataIndex: 'name',flex:2},
-		               	{header : 'Location', xtype:'templatecolumn', tpl:'{chromosome}:{start}-{end}',flex:2},
-						{header : 'Strand',dataIndex: 'strand',flex:0.7},
-						{header : 'Sequence',dataIndex: 'sequence',flex:2}
+		               	{header : 'Location: chr:start-end (strand)', xtype:'templatecolumn', tpl:'{chromosome}:{start}-{end} ({strand})',flex:2},
+						{header : 'Alleles',dataIndex: 'alleleString',flex:0.7},
+						{header : 'Most severe SO term',dataIndex: 'displaySoConsequence',flex:2}
 		             ];
 		this.snpsGrid = this.doGrid(columns,fields,modelName,groupField);
 		this.snpsGrid.store.loadData(data);
     }
     return this.snpsGrid;
 };
+
+TranscriptInfoWidget.prototype.getMutationsGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
+    if(this.mutationsGrid==null){
+    	var groupField = '';
+    	var modelName = 'Mutations';
+	    var fields = ["chromosome","start","end","mutationAa","mutationCds","primaryHistology","source"];
+		var columns = [
+		                {header : 'Mutation AA',dataIndex: 'mutationAa',flex:1},
+		               	{header : 'Mutation CDS',dataIndex: 'mutationCds',flex:1.5},
+		               	{header : 'Location: chr:start-end', xtype:'templatecolumn', tpl:'{chromosome}:{start}-{end}',flex:1.7},
+						{header : 'Primary histology',dataIndex: 'primaryHistology',flex:1},
+						{header : 'Source',dataIndex: 'source',flex:1}
+		             ];
+		this.mutationsGrid = this.doGrid(columns,fields,modelName,groupField);
+		this.mutationsGrid.store.loadData(data);
+    }
+    return this.mutationsGrid;
+};
+
 TranscriptInfoWidget.prototype.get3Dprotein = function(data){
 	var _this=this;
     if(this.p3dProtein==null){
@@ -293,12 +316,12 @@ TranscriptInfoWidget.prototype.getData = function (){
 	
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function(sender,data){
-		console.log(data)
 		_this.dataReceived(JSON.parse(data.result));//TODO
 	});
 	cellBaseManager.get("feature","transcript", this.query, "fullinfo");
 };
 TranscriptInfoWidget.prototype.dataReceived = function (data){
+	console.log(data)
 	this.data=data[0];
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();

@@ -398,7 +398,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 //				console.log(settings.getLabel(feature));
 				
 				$([rect,text]).qtip({
-					content: {text:_this.formatTip({feature:feature}), title:_this.formatTitleTip({feature:feature})},
+					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
 					position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
 					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 				});
@@ -414,7 +414,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				if(rowAvailable == true){
 					var checkRowY = rowY+rowHeight;
 					var checkTextY = textY+rowHeight;
-					for(var i = 0, leni = feature.transcripts.length; i < leni; i++){
+					for(var i = 0, leni = feature.transcripts.length; i < leni; i++){//XXX loop over transcripts
 						if(_this.renderedArea[checkRowY] == null){
 							_this.renderedArea[checkRowY] = new FeatureBinarySearchTree();
 						}
@@ -453,7 +453,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 //						if(transcriptWidth<0){
 //							debugger
 //						}
-						var rect = SVG.addChild(_this.features,"rect",{
+						var rect = SVG.addChild(_this.features,"rect",{//this rect its like a line
 							"widgetId":transcript[settings.infoWidgetId],
 							"x":transcriptX,
 							"y":checkRowY+2,
@@ -475,7 +475,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						
 						
 						$([rect,text]).qtip({
-							content: {text:_this.formatTip({feature:transcript}), title: _this.formatTitleTip({feature:transcript})},
+							content: {text:settings.getTipText(transcript), title:settings.getTipTitle(transcript)},
 							position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
 							style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 						});
@@ -484,7 +484,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							_this.showInfoWidget({query:query, /*feature:transcript,*/ featureType:transcript.featureType});
 						});
 						
-						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){
+						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){//XXX loop over exons
 							var e2t = feature.transcripts[i].exonToTranscripts[e];
 							var settings = _this.types[e2t.exon.featureType];
 							var exonStart = parseInt(e2t.exon.start);
@@ -493,7 +493,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 							var exonX = _this.pixelPosition+middle-((_this.position-exonStart)*_this.pixelBase);
 							var exonWidth = (exonEnd-exonStart+1) * ( _this.pixelBase);
 							
-							SVG.addChild(_this.features,"rect",{
+							SVG.addChild(_this.features,"rect",{//paint exons in white without coding region
 								"i":i,
 								"x":exonX,
 								"y":checkRowY-1,
@@ -505,21 +505,44 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 								"cursor": "pointer"
 							});
 							
-							var codingStart, codingEnd;
-							codingStart = parseInt(e2t.genomicCodingStart);
-							codingEnd = parseInt(e2t.genomicCodingEnd);
 							
-//							if(transcript.strand == 1) {
-								if(transcript.codingRegionStart > exonStart && transcript.codingRegionStart < exonEnd) {
-									codingStart = parseInt(transcript.codingRegionStart);
-								}else {
-									if(transcript.codingRegionEnd > exonStart && transcript.codingRegionEnd < exonEnd) {										
-										codingEnd = parseInt(transcript.codingRegionEnd);										
-									}
-								}
-//							}else {
-								//se supone que la negativa la hace bien
+							//XXX now paint coding region
+//							transcript.codingRegionStart
+//							transcript.codingRegionEnd
+//							if(transcript.stableId === "ENST00000380152"){
+//								
+//								debugger
 //							}
+							var	codingStart = 0;
+							var codingEnd = 0;
+							if(transcript.codingRegionStart > exonStart && transcript.codingRegionStart < exonEnd){
+								codingStart = parseInt(transcript.codingRegionStart);
+								codingEnd = exonEnd;
+							}
+							if(transcript.codingRegionEnd > exonStart && transcript.codingRegionEnd < exonEnd){
+								codingStart = exonStart;		
+								codingEnd = parseInt(transcript.codingRegionEnd);		
+							}
+							if(transcript.codingRegionStart < exonStart && transcript.codingRegionEnd > exonEnd){
+								codingStart = exonStart;		
+								codingEnd = exonEnd;	
+							}
+							
+//							var codingStart, codingEnd;
+//							codingStart = parseInt(e2t.genomicCodingStart);
+//							codingEnd = parseInt(e2t.genomicCodingEnd);
+							
+////							if(transcript.strand == 1) {
+//								if(transcript.codingRegionStart > exonStart && transcript.codingRegionStart < exonEnd) {
+//									codingStart = parseInt(transcript.codingRegionStart);
+//								}else {
+//									if(transcript.codingRegionEnd > exonStart && transcript.codingRegionEnd < exonEnd) {										
+//										codingEnd = parseInt(transcript.codingRegionEnd);										
+//									}
+//								}
+////							}else {
+//								//se supone que la negativa la hace bien
+////							}
 							
 							
 							var codingX = _this.pixelPosition+middle-((_this.position-codingStart)*_this.pixelBase);
@@ -540,6 +563,8 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 									"cursor": "pointer"
 								});
 							}
+							
+							//XXX drawing phase
 							for(var p = 0, lenp = 3 - e2t.phase; p < lenp && _this.pixelBase==10 && e2t.phase!=-1; p++){//==10 for max zoom only
 								SVG.addChild(_this.features,"rect",{
 									"i":i,
@@ -697,65 +722,6 @@ TrackSvg.prototype.SnpRender = function(featureList){
 	
 };
 
-TrackSvg.prototype.formatTip = function(args){
-	var settings = this.types[args.feature.featureType];
-	var str="";
-	switch (args.feature.featureType) {
-	case "snp":
-		str +=
-		'alleles:&nbsp;<span class="ssel">'+args.feature.alleleString+'</span><br>'+
-		'SO:&nbsp;<span class="emph" style="color:'+settings.getColor(args.feature)+';">'+args.feature.displaySoConsequence+'</span><br>';
-		break;
-	case "gene":
-		str += 
-		'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+args.feature.stableId+'</span><br>'+
-		'biotype:&nbsp;<span class="emph" style="color:'+settings.getColor(args.feature)+';">'+args.feature.biotype+'</span><br>';
-		break;
-	case "transcript":
-		str += 
-		'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+args.feature.stableId+'</span><br>'+
-		'biotype:&nbsp;<span class="emph" style="color:'+settings.getColor(args.feature)+';">'+args.feature.biotype+'</span><br>';
-		break;
-	default: break;
-	}
-	
-	str += 'start:&nbsp;<span class="emph">'+args.feature.start+'</span><br>'+
-	'end:&nbsp;<span class="emph">'+args.feature.end+'</span><br>'+
-	'strand:&nbsp;<span class="emph">'+args.feature.strand+'</span><br>'+
-	'length:&nbsp;<span class="info">'+(args.feature.end-args.feature.start+1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+'</span><br>';
-	return str;
-};
-
-TrackSvg.prototype.formatTitleTip = function(args){
-	var str="";
-	
-	//Remove "_" and UpperCase first letter
-	var format = function (str){
-		var s = str.replace(/_/gi, " ");
-		s = s.charAt(0).toUpperCase() + s.slice(1);
-		return s;
-	};
-	
-	switch (args.feature.featureType) {
-	case "snp":
-		str += format(args.feature.featureType) +
-		' - <span class="ok">'+args.feature.name+'</span>';
-		break;
-	case "gene":
-		str += format(args.feature.featureType) +
-		' - <span class="ok">'+args.feature.externalName+'</span>';
-		break;
-	case "transcript":
-		str += format(args.feature.featureType) +
-		' - <span class="ok">'+args.feature.externalName+'</span>';	
-		break;
-	case undefined:
-		str += "Feature";
-		break;
-	default: str += format(args.feature.featureType); break;
-	}
-	return str;
-};
 
 TrackSvg.prototype.showInfoWidget = function(args){
 	console.log(args);

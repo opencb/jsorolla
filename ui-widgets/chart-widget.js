@@ -63,7 +63,7 @@ ChartWidget.prototype.getChart = function(fields) {
 		series : [{
 					type : 'column',
 					axis: 'left',
-					gutter: 80,
+					gutter: 10,
 					yField : fields[0],
 					xField : fields[1],
 	                style: {

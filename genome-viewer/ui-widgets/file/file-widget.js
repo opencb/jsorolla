@@ -44,6 +44,8 @@ function FileWidget(args){
     	_this.loadFileFromServer(data);
     	_this.panel.setLoading(false);
 	});	
+    
+    this.chartWidgetByChromosome = new ChartWidget({height:200,width:570});
 };
 
 FileWidget.prototype.getTitleName = function(){
@@ -60,8 +62,7 @@ FileWidget.prototype.loadFileFromLocal = function(){
 };
 
 FileWidget.prototype.getChartItems = function(){
-	//abstract method
-	return [];
+	return [this.chartWidgetByChromosome.getChart(["features","chromosome"])];
 };
 
 FileWidget.prototype.getFileUpload = function(){
@@ -112,6 +113,7 @@ FileWidget.prototype.draw = function(){
 			border: false,
 			cls:'panel-border-top panel-border-bottom',
 	//		padding: "0 0 10 0",
+			height:230,
 			title: "Previsualization",
 		    items : this.getChartItems(),
 		    bbar:featureCountBar
@@ -184,7 +186,7 @@ FileWidget.prototype.draw = function(){
 			width : 600,
 	//		bodyPadding : 10,
 			resizable:false,
-			items : [browseBar, /*this.panel,*/ panelSettings],
+			items : [browseBar, this.panel, panelSettings],
 			buttons:[this.btnOk, 
 			         {text:'Cancel', handler: function(){_this.openDialog.close();}}],
 			listeners: {
@@ -201,6 +203,20 @@ FileWidget.prototype.draw = function(){
 	}
 	this.openDialog.show();
 };
+
+FileWidget.prototype._loadChartInfo = function(){
+
+	var datastore = new Array();
+ 	for ( var chromosome in this.adapter.featuresByChromosome) {
+		datastore.push({ features: this.adapter.featuresByChromosome[chromosome], chromosome: chromosome });
+	}
+ 	this.chartWidgetByChromosome.getStore().loadData(datastore);
+ 	
+ 	this.panel.setLoading(false);
+ 	this.featureCountLabel.setText("Features count: " + this.adapter.featuresCount, false);
+};
+
+
 
 FileWidget.prototype.sessionInitiated = function (){
 	if(this.btnBrowse!=null){

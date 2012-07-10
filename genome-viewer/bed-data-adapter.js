@@ -22,6 +22,11 @@ function BEDDataAdapter(dataSource, args){
 		var data = this.dataSource.fetch(this.async);
 		this.parse(data);
 	}
+	
+	
+	//stat atributes
+	this.featuresCount = 0;
+	this.featuresByChromosome = {};
 };
 
 BEDDataAdapter.prototype.parse = function(data){
@@ -51,6 +56,12 @@ BEDDataAdapter.prototype.parse = function(data){
 			} ;
 
 			this.featureCache.putFeatures(feature, dataType);
+			
+			if (this.featuresByChromosome[fields[0]] == null){
+				this.featuresByChromosome[fields[0]] = 0;
+			}
+			this.featuresByChromosome[fields[0]]++;
+			this.featuresCount++;
 		}
 	}
 };
