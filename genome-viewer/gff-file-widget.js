@@ -10,10 +10,13 @@ function GFFFileWidget(args){
 	if (args == null){
 		args = new Object();
 	}
-	args.title = "GFF";
+	this.version = "2";
+    if (args.version!= null){
+    	this.version = args.version;       
+    }
+	args.title = "GFF"+this.version;
 	args.tags = ["gff"];
 	FileWidget.prototype.constructor.call(this, args);
-	
 };
 
 
@@ -21,7 +24,19 @@ function GFFFileWidget(args){
 GFFFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
-	this.adapter = new GFF2DataAdapter(new FileDataSource(file),{species:this.viewer.species});
+	
+	switch(this.version){
+	case "2":
+		this.adapter = new GFF2DataAdapter(new FileDataSource(file),{species:this.viewer.species});
+		break;
+	case "3":
+		this.adapter = new GFF3DataAdapter(new FileDataSource(file),{species:this.viewer.species});
+		break;
+	default :
+		this.adapter = new GFF2DataAdapter(new FileDataSource(file),{species:this.viewer.species});
+		break;
+	}
+	
 	this.adapter.onLoad.addEventListener(function(sender){
 		_this._loadChartInfo();
 		_this.btnOk.enable();
@@ -31,7 +46,18 @@ GFFFileWidget.prototype.loadFileFromLocal = function(file){
 
 GFFFileWidget.prototype.loadFileFromServer = function(data){
 	this.file = {name:data.filename};
-	this.adapter = new GFF2DataAdapter(new StringDataSource(data.data),{async:false,species:this.viewer.species});
+	switch(this.version){
+	case "2":
+		this.adapter = new GFF2DataAdapter(new StringDataSource(data.data),{async:false,species:this.viewer.species});
+		break;
+	case "3":
+		this.adapter = new GFF3DataAdapter(new StringDataSource(data.data),{async:false,species:this.viewer.species});
+		break;
+	default :
+		this.adapter = new GFF2DataAdapter(new StringDataSource(data.data),{async:false,species:this.viewer.species});
+		break;
+	}
+	
 	this._loadChartInfo();
 	this.btnOk.enable();
 };

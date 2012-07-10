@@ -39,7 +39,7 @@ SnpInfoWidget.prototype.optionClick = function (item){
 		}
 		switch (item.text){
 			case "Information":  this.panel.add(this.getInfoPanel(this.data).show()); break;
-			case "Transcripts": this.panel.add(this.getTranscriptPanel(this.data.snptotranscript).show()); break;
+			case "Transcripts": this.panel.add(this.getSnpTranscriptPanel(this.data.snptotranscript).show()); break;
 			case "Consequence type": this.panel.add(this.getConsequenceTypePanel(this.data.snptotranscript).show()); break;
 			case "Annotated phenotype": this.panel.add(this.getPhenotypePanel(this.data.phenotype).show()); break;
 			case "Population frequency": this.panel.add(this.getPopulationPanel(this.data.population).show()); break;
@@ -69,23 +69,23 @@ SnpInfoWidget.prototype.getInfoPanel = function(data){
 };
 
 
-SnpInfoWidget.prototype.getTranscriptPanel = function(data){
+SnpInfoWidget.prototype.getSnpTranscriptPanel = function(data){
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}
-    if(this.transcriptGrid==null){
+    if(this.snpTranscriptGrid==null){
     	var tpl = this.getSnpTranscriptTemplate();
     	
     	var panels = [];
     	for ( var i = 0; i < data.length; i++) {	
-			var transcriptPanel = Ext.create('Ext.container.Container',{
+			var snpTranscriptPanel = Ext.create('Ext.container.Container',{
 				padding:5,
 				data:data[i],
 				tpl:tpl
 			});
-			panels.push(transcriptPanel);
+			panels.push(snpTranscriptPanel);
     	}
-		this.transcriptGrid = Ext.create('Ext.panel.Panel',{
+		this.snpTranscriptGrid = Ext.create('Ext.panel.Panel',{
 			title:"Transcripts ("+i+")",
 			border:false,
 			cls:'panel-border-left',
@@ -95,7 +95,7 @@ SnpInfoWidget.prototype.getTranscriptPanel = function(data){
 			items:panels
 		});
     }
-    return this.transcriptGrid;
+    return this.snpTranscriptGrid;
 };
 
 SnpInfoWidget.prototype.getConsequenceTypePanel = function(data){

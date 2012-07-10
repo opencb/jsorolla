@@ -5,6 +5,10 @@ function BEDDataAdapter(dataSource, args){
 	var _this = this;
 	
 	this.async = true;
+	
+	//stat atributes
+	this.featuresCount = 0;
+	this.featuresByChromosome = {};
 
 	if (args != null){
 		if(args.async != null){
@@ -23,10 +27,6 @@ function BEDDataAdapter(dataSource, args){
 		this.parse(data);
 	}
 	
-	
-	//stat atributes
-	this.featuresCount = 0;
-	this.featuresByChromosome = {};
 };
 
 BEDDataAdapter.prototype.parse = function(data){
@@ -38,10 +38,11 @@ BEDDataAdapter.prototype.parse = function(data){
 		var line = lines[i].replace(/^\s+|\s+$/g,"");
 		if ((line != null)&&(line.length > 0)){
 			var fields = line.split("\t");
-
+			var chromosome = fields[0].replace("chr", "");
+			
 			var feature = {
 					"label":fields[3],
-					"chromosome": fields[0].replace("chr", ""), 
+					"chromosome": chromosome, 
 					"start": parseFloat(fields[1]), 
 					"end": parseFloat(fields[2]), 
 					"score":fields[4],
@@ -57,10 +58,10 @@ BEDDataAdapter.prototype.parse = function(data){
 
 			this.featureCache.putFeatures(feature, dataType);
 			
-			if (this.featuresByChromosome[fields[0]] == null){
-				this.featuresByChromosome[fields[0]] = 0;
+			if (this.featuresByChromosome[chromosome] == null){
+				this.featuresByChromosome[chromosome] = 0;
 			}
-			this.featuresByChromosome[fields[0]]++;
+			this.featuresByChromosome[chromosome]++;
 			this.featuresCount++;
 		}
 	}

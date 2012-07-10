@@ -481,7 +481,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						});
 						$([rect,text]).click(function(event){
 							var query = this.getAttribute("widgetId");
-							_this.showInfoWidget({query:query, /*feature:transcript,*/ featureType:transcript.featureType});
+							_this.showInfoWidget({query:query, feature:transcript, featureType:transcript.featureType});
 						});
 						
 						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){//XXX loop over exons
@@ -729,6 +729,7 @@ TrackSvg.prototype.showInfoWidget = function(args){
 	case "gene": new GeneInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "transcript": new TranscriptInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "snp" : new SnpInfoWidget(null,this.trackData.adapter.species).draw(args); break;	
+	case "vcf" : new VCFVariantInfoWidget(null,this.trackData.adapter.species).draw(args); break;	
 	default: break;
 	}
 };

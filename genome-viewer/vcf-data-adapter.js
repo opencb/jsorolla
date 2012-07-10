@@ -5,6 +5,11 @@ function VCFDataAdapter(dataSource, args){
 	var _this = this;
 	
 	this.async = true;
+	
+	//stat atributes
+	this.featuresCount = 0;
+	this.featuresByChromosome = {};
+	
 
 	if (args != null){
 		if(args.async != null){
@@ -23,9 +28,6 @@ function VCFDataAdapter(dataSource, args){
 	}
 	
 	
-	//stat atributes
-	this.featuresCount = 0;
-	this.featuresByChromosome = {};
 };
 
 VCFDataAdapter.prototype.parse = function(data){

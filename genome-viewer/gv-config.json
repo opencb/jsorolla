@@ -126,7 +126,9 @@ FEATURE_TYPES = {
 			var color = GENE_BIOTYPE_COLORS[f.biotype];
 			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.stableId+'</span><br>'+
 			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
-			FEATURE_TYPES.getTipCommons(f);
+			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f)+
+			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
 		},
 		getColor: function(f){
 			return GENE_BIOTYPE_COLORS[f.biotype];
@@ -152,6 +154,7 @@ FEATURE_TYPES = {
 			var color = GENE_BIOTYPE_COLORS[f.biotype];
 			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.stableId+'</span><br>'+
 			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
+			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
 			FEATURE_TYPES.getTipCommons(f);
 		},
 		getColor: function(f){
@@ -161,7 +164,7 @@ FEATURE_TYPES = {
 		height:4,
 		histogramColor:"lightblue"
 	},
-	exon:{
+	exon:{//not yet
 		getLabel: function(f){
 			var str = "";
 			str+= f.stableId;
@@ -191,8 +194,11 @@ FEATURE_TYPES = {
 		getTipText: function(f){
 			var color = SNP_BIOTYPE_COLORS[f.displaySoConsequence];
 			return 'alleles:&nbsp;<span class="ssel">'+f.alleleString+'</span><br>'+
-			'SO:&nbsp;<span class="emph" style="color:'+color+';">'+f.displaySoConsequence+'</span><br>'+
-			FEATURE_TYPES.getTipCommons(f);
+			'ancestral allele:&nbsp;<span class="ssel">'+f.ancestralAllele+'</span><br>'+
+			'SO consequence:&nbsp;<span class="emph" style="color:'+color+';">'+f.displaySoConsequence+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f)+
+			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
+			
 		},
 		getColor: function(f){
 			return SNP_BIOTYPE_COLORS[f.displaySoConsequence];
@@ -201,17 +207,45 @@ FEATURE_TYPES = {
 		height:10,
 		histogramColor:"orange"
 	},
-	mutation:{
+	cpg_island:{
 		getLabel: function(f){
-			var str = "";
-			str+= f[Object.keys(f)[0]];
-			return str;
+			return f.name;
 		},
 		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.featureType);
+			return 'CpG island - <span class="ok">'+f.name+'</span>';
 		},
 		getTipText: function(f){
-			return FEATURE_TYPES.getTipCommons(f);
+			return 'CpG number:&nbsp;<span class="ssel">'+f.cpgNum+'</span><br>'+
+			'CpG precentage:&nbsp;<span class="ssel">'+f.perCpG+'</span><br>'+
+			'CG number:&nbsp;<span class="ssel">'+f.gcNum+'</span><br>'+
+			'CG percentage:&nbsp;<span class="ssel">'+f.perGc+'</span><br>'+
+			'observed-expected ratio:&nbsp;<span class="ssel">'+f.observedExpectedRatio+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f);
+		},
+		getColor: function(f){
+			return "Aquamarine";
+		},
+		infoWidgetId: "name",
+		height:8,
+		histogramColor:"Aquamarine"
+	},
+	mutation:{
+		getLabel: function(f){
+			return f.mutationCds;
+		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+f.mutationCds+'</span>';
+		},
+		getTipText: function(f){
+			return 'mutation CDS:&nbsp;<span class="ssel">'+f.mutationCds+'</span><br>'+
+			'mutation Aa:&nbsp;<span class="ssel">'+f.mutationAa+'</span><br>'+
+			'mutation description:&nbsp;<span class="ssel">'+f.mutationDescription+'</span><br>'+
+			'primary histology:&nbsp;<span class="ssel">'+f.primaryHistology+'</span><br>'+
+			'primary site:&nbsp;<span class="ssel">'+f.primarySite+'</span><br>'+
+			'site subtype:&nbsp;<span class="ssel">'+f.siteSubtype+'</span><br>'+
+			'gene name:&nbsp;<span class="ssel">'+f.geneName+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f)+
+			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
 		},
 		getColor: function(f){
 			return "Chartreuse";
@@ -220,99 +254,92 @@ FEATURE_TYPES = {
 		height:10,
 		histogramColor:"Chartreuse"
 	},
-	cpg_island:{
-		getLabel: function(f){
-			var str = "";
-			str+= f[Object.keys(f)[0]];
-			return str;
-		},
-		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.featureType);
-		},
-		getTipText: function(f){
-			return FEATURE_TYPES.getTipCommons(f);
-		},
-		getColor: function(f){
-			return "Aquamarine";
-		},
-		infoWidgetId: "name",
-		height:10,
-		histogramColor:"Aquamarine"
-	},
 	structural_variation:{
 		getLabel: function(f){
-			var str = "";
-			str+= f[Object.keys(f)[0]];
-			return str;
+			return f.displayId;
 		},
 		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.featureType);
+			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+f.displayId+'</span>';
 		},
 		getTipText: function(f){
-			return FEATURE_TYPES.getTipCommons(f);
+			return 'display ID:&nbsp;<span class="ssel">'+f.displayId+'</span><br>'+
+			'SO term:&nbsp;<span class="ssel">'+f.soTerm+'</span><br>'+
+			'study description:&nbsp;<span class="emph">'+f.studyDescription+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f)+
+			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
 		},
 		getColor: function(f){
 			return "indigo";
 		},
 		infoWidgetId: "name",
-		height:10,
+		height:8,
 		histogramColor:"indigo"
-	},
-	mirna_targets:{
-		getLabel: function(f){
-			var str = "";
-			str+= f[Object.keys(f)[0]];
-			return str;
-		},
-		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.featureType);
-		},
-		getTipText: function(f){
-			return FEATURE_TYPES.getTipCommons(f);
-		},
-		getColor: function(f){
-			return "#8b668b";
-		},
-		infoWidgetId: "name",
-		height:10,
-		histogramColor:"#8b668b"
 	},
 	tfbs:{
 		getLabel: function(f){
-			var str = "";
-			str+= f[Object.keys(f)[0]];
-			return str;
+			return f.tfName;
 		},
 		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.featureType);
+			return 'TFBS - <span class="ok">'+f.tfName+'</span>';
 		},
 		getTipText: function(f){
-			return FEATURE_TYPES.getTipCommons(f);
+			return 'TF name:&nbsp;<span class="ssel">'+f.tfName+'</span><br>'+
+			'relative start:&nbsp;<span class="ssel">'+f.relativeStart+'</span><br>'+
+			'relative end:&nbsp;<span class="ssel">'+f.relativeEnd+'</span><br>'+
+			'target gene name:&nbsp;<span class="ssel">'+f.targetGeneName+'</span><br>'+
+			'score:&nbsp;<span class="ssel">'+f.score+'</span><br>'+
+			'sequence:&nbsp;<span class="ssel">'+f.sequence+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f)+
+			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
 		},
 		getColor: function(f){
 			return "blue";
 		},
 		infoWidgetId: "name",
-		height:10,
+		height:8,
 		histogramColor:"blue"
+	},
+	mirna_target:{
+		getLabel: function(f){
+			return f.mirbaseId;
+		},
+		getTipTitle: function(f){
+			return 'miRNA target - <span class="ok">'+f.mirbaseId+'</span>';
+		},
+		getTipText: function(f){
+			return 'gene target name:&nbsp;<span class="ssel">'+f.geneTargetName+'</span><br>'+
+			'experimental method:&nbsp;<span class="ssel">'+f.experimentalMethod+'</span><br>'+
+			'score:&nbsp;<span class="ssel">'+f.score+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f)+
+			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
+		},
+		getColor: function(f){
+			return "#8b668b";
+		},
+		infoWidgetId: "name",
+		height:8,
+		histogramColor:"#8b668b"
 	},
 	conserved_region:{
 		getLabel: function(f){
-			var str = "";
-			str+= f[Object.keys(f)[0]];
-			return str;
+			return f.conservedRegionId;
 		},
 		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.featureType);
+			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+f.conservedRegionId+'</span>';
 		},
 		getTipText: function(f){
-			return FEATURE_TYPES.getTipCommons(f);
+			return 'method:&nbsp;<span class="ssel">'+f.method+'</span><br>'+
+			'data range primate:&nbsp;<span class="ssel">'+f.dataRangePrimate+'</span><br>'+
+			'lower limit primate:&nbsp;<span class="ssel">'+f.lowerLimitPrimate+'</span><br>'+
+			'sumData primate:&nbsp;<span class="ssel">'+f.sumDataPrimate+'</span><br>'+
+			'sumSquare primate:&nbsp;<span class="ssel">'+f.sumSquarePrimate+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f);
 		},
 		getColor: function(f){
 			return "DodgerBlue";
 		},
 		infoWidgetId: "name",
-		height:10,
+		height:8,
 		histogramColor:"DodgerBlue"
 	},
 	file:{
@@ -338,11 +365,10 @@ FEATURE_TYPES = {
 			return f.id+" "+f.ref+"/"+f.alt+"";
 		},
 		getTipTitle: function(f){
-			return f.featureType.toUpperCase() +
-			' - <span class="ok">'+f.id+'</span>';
+			return 'VCF variant - <span class="ok">'+f.id+'</span>';
 		},
 		getTipText: function(f){
-			return 'alleles:&nbsp;<span class="emph">'+f.ref+"/"+f.alt+'</span><br>'+
+			return 'alleles (ref/alt):&nbsp;<span class="emph">'+f.ref+"/"+f.alt+'</span><br>'+
 			'quality:&nbsp;<span class="emph">'+f.quality+'</span><br>'+
 			'filter:&nbsp;<span class="emph">'+f.filter+'</span><br>'+
 			FEATURE_TYPES.getTipCommons(f);

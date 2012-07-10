@@ -127,24 +127,18 @@ VCFVariantInfoWidget.prototype.getData = function (){
 	var _this = this;
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
-	
-	
-	
-	var cellBaseDataAdapter = new CellBaseDataAdapter(this.species);
-	cellBaseDataAdapter.successed.addEventListener(function (evt){
-		console.log(cellBaseDataAdapter.toJSON());
-		_this.dataReceived(cellBaseDataAdapter.toJSON());//TODO
+//	category, subcategory, query, resource, callbackFunction
+	var cellBaseManager = new CellBaseManager(this.species);
+	cellBaseManager.success.addEventListener(function(sender,data){
+		_this.dataReceived(data.result);
 	});
-	console.log(this.feature.feature);
-	var query = this.feature.feature.chromosome+":"+this.feature.feature.start+":"+this.feature.feature.ref+":"+this.feature.feature.alt;
-	cellBaseDataAdapter.fill("genomic","variant", query, "consequence_type");
-	
-//	this.dataReceived(this.feature);
+	var query = this.feature.chromosome+":"+this.feature.start+":"+this.feature.ref+":"+this.feature.alt;
+	cellBaseManager.get("genomic","variant", query, "consequence_type");
 };
 
 VCFVariantInfoWidget.prototype.dataReceived = function (data){
 	this.data = new Object();
-	this.data["feature"] = this.feature.feature;
+	this.data["feature"] = this.feature;
 	this.data["consequenceType"] = data;
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();

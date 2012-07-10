@@ -7,7 +7,7 @@ function InfoWidget(targetId, species, args){
 	this.title = null;
 	this.featureId = null;
 	this.width = 800;
-	this.height = 400;
+	this.height = 430;
 	
 	if (targetId!= null){
 		this.targetId = targetId;       

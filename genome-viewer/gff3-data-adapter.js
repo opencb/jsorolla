@@ -6,6 +6,10 @@ function GFF3DataAdapter(dataSource, args){
 	
 	this.async = true;
 
+	//stat atributes
+	this.featuresCount = 0;
+	this.featuresByChromosome = {};
+
 	if (args != null){
 		if(args.async != null){
 			this.async = args.async;
@@ -23,9 +27,6 @@ function GFF3DataAdapter(dataSource, args){
 		this.parse(data);
 	}
 	
-	//stat atributes
-	this.featuresCount = 0;
-	this.featuresByChromosome = {};
 };
 
 GFF3DataAdapter.prototype.parse = function(data){
@@ -66,10 +67,10 @@ GFF3DataAdapter.prototype.parse = function(data){
 			} ;
 
 			this.featureCache.putFeatures(feature, dataType);
-			if (this.featuresByChromosome[fields[0]] == null){
-				this.featuresByChromosome[fields[0]] = 0;
+			if (this.featuresByChromosome[chromosome] == null){
+				this.featuresByChromosome[chromosome] = 0;
 			}
-			this.featuresByChromosome[fields[0]]++;
+			this.featuresByChromosome[chromosome]++;
 			this.featuresCount++;
 		}
 	}

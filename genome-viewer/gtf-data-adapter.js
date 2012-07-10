@@ -5,6 +5,10 @@ function GTFDataAdapter(dataSource, args){
 	var _this = this;
 	
 	this.async = true;
+	
+	//stat atributes
+	this.featuresCount = 0;
+	this.featuresByChromosome = {};
 
 	if (args != null){
 		if(args.async != null){
@@ -62,6 +66,11 @@ GTFDataAdapter.prototype.parse = function(data){
 			} ;
 
 			this.featureCache.putFeatures(feature, dataType);
+			if (this.featuresByChromosome[chromosome] == null){
+				this.featuresByChromosome[chromosome] = 0;
+			}
+			this.featuresByChromosome[chromosome]++;
+			this.featuresCount++;
 		}
 	}
 };

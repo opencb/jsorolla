@@ -26,11 +26,14 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	                { text: "Reactome"},
 	                { text: "Interpro"}
 	            ] },
-//	            { text: "Regulatory", children: [
-//	                { text: "Jaspar"},
-//	                { text: "miRNA"}
-//	            ] },
-	            {text: "3D protein"}
+	            { text: "Regulatory", children: [
+	                { text: "TFBS"},
+	                { text: "miRNA targets"}                   
+	            ]},
+	            { text:"Protein", children: [
+	                { text: "Features"},//protein profile
+	                { text: "3D structure"}
+	            ]}	     
 	        ];
 };
 
@@ -42,28 +45,29 @@ GeneInfoWidget.prototype.optionClick = function (item){
 			this.panel.remove(1,false);
 		}
 		switch (item.text){
-			case "Information": this.panel.add(this.getInfoPanel(this.data).show()); break;
+			case "Information": this.panel.add(this.getGenePanel(this.data).show()); break;
 			case "Transcripts": this.panel.add(this.getTranscriptPanel(this.data.transcripts).show());  break;
 //			case "GO": this.panel.add(this.getGoGrid().show()); break;
 			case "GO": this.panel.add(this.getXrefGrid(this.data.go, "GO").show());  break;
 			case "Interpro": this.panel.add(this.getXrefGrid(this.data.interpro, "Interpro").show());  break;
 			case "Reactome": this.panel.add(this.getXrefGrid(this.data.reactome, "Reactome").show());  break;
-			case "Jaspar": break;
-			case "miRNA": break;
-			case "3D protein": this.panel.add(this.get3Dprotein(this.data.snps).show());  break;
+			case "TFBS": this.panel.add(this.getTfbsGrid(this.data.tfbs).show());  break;
+			case "miRNA targets": this.panel.add(this.getMirnaTargetGrid(this.data.mirnaTargets).show());  break;
+			case "Features": this.panel.add(this.getProteinFeaturesGrid(this.data.proteinFeatures).show());  break;
+			case "3D structure": this.panel.add(this.get3Dprotein(this.data.snps).show());  break;
 		}
 	}
 };
 
-GeneInfoWidget.prototype.getInfoPanel = function(data){
+GeneInfoWidget.prototype.getGenePanel = function(data){
 	if(data==null){
 		return this.notFoundPanel;
 	}
-    if(this.infoPanel==null){
+    if(this.genePanel==null){
     	var tpl = this.getGeneTemplate();
     	
-		this.infoPanel = Ext.create('Ext.panel.Panel',{
-			title:"Information",
+		this.genePanel = Ext.create('Ext.panel.Panel',{
+			title:"Gene information",
 	        border:false,
 	        cls:'panel-border-left',
 			flex:3,
@@ -72,8 +76,9 @@ GeneInfoWidget.prototype.getInfoPanel = function(data){
 			tpl:tpl
 		});
     }
-    return this.infoPanel;
+    return this.genePanel;
 };
+
 
 GeneInfoWidget.prototype.getTranscriptPanel = function(data){
 	if(data.length<=0){
@@ -157,6 +162,93 @@ GeneInfoWidget.prototype.getXrefGrid = function(data, dbname){
 //    return this.goGrid;
 //};
 
+
+GeneInfoWidget.prototype.getTfbsGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
+    if(this.tfbsGrid==null){
+    	var groupField = "";
+    	var modelName = "TFBS";
+	    var fields = ["chromosome","start","end","strand","tfName","relativeStart","relativeEnd","targetGeneName","score","sequence"];
+		var columns = [
+		                {header : 'Name',dataIndex: 'tfName',flex:1},
+		            	{header : 'Location: chr:start-end (strand)', xtype:'templatecolumn', tpl:'{chromosome}:{start}-{end} ({strand})',flex:2.5},
+		            	{header : 'Relative (start-end)',xtype:'templatecolumn',tpl:'{relativeStart}-{relativeEnd}',flex:1.5},
+						{header : 'Target gene',dataIndex: 'targetGeneName',flex:1},
+						{header : 'Score',dataIndex: 'score',flex:1},
+						{header : 'Sequence',dataIndex: 'sequence',flex:1}
+		             ];
+		this.tfbsGrid = this.doGrid(columns,fields,modelName,groupField);
+		this.tfbsGrid.store.loadData(data);
+    }
+    return this.tfbsGrid;
+};
+
+GeneInfoWidget.prototype.getMirnaTargetGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
+    if(this.mirnaTargetGrid==null){
+    	var groupField = "";
+    	var modelName = "miRNA targets";
+	    var fields = ["chromosome","start","end","strand","mirbaseId","score","experimentalMethod","source"];
+		var columns = [
+		                {header : 'Id',dataIndex: 'mirbaseId',flex:1},
+		            	{header : 'Location: chr:start-end (strand)', xtype:'templatecolumn', tpl:'{chromosome}:{start}-{end} ({strand})',flex:2},
+						{header : 'Score',dataIndex: 'score',flex:1},
+						{header : 'Exp. Method',dataIndex: 'experimentalMethod',flex:1},
+						{header : 'source',dataIndex: 'source',flex:1}
+		             ];
+		this.mirnaTargetGrid = this.doGrid(columns,fields,modelName,groupField);
+		this.mirnaTargetGrid.store.loadData(data);
+    }
+    return this.mirnaTargetGrid;
+};
+
+GeneInfoWidget.prototype.getProteinFeaturesGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
+    if(this.proteinFeaturesGrid==null){
+    	var groupField = '';
+    	var modelName = "Protein features";
+	    var fields = ["identifier","start","end","original","type","description"];
+		var columns = [
+		                {header : 'Identifier',dataIndex: 'identifier',flex:1},
+		               	{header : 'Location: (start-end)', xtype:'templatecolumn', tpl:'{start}-{end}',flex:1.2},
+		               	{header : 'Original',dataIndex: 'original',flex:1},
+						{header : 'Type',dataIndex: 'type',flex:1},
+						{header : 'Description',dataIndex: 'description',flex:1.5}
+		             ];
+		this.proteinFeaturesGrid = this.doGrid(columns,fields,modelName,groupField);
+		this.proteinFeaturesGrid.store.loadData(data);
+    }
+    return this.proteinFeaturesGrid;
+};
+
+
+GeneInfoWidget.prototype.getProteinFeaturesGrid = function(data){
+	if(data.length<=0){
+		return this.notFoundPanel;
+	}
+    if(this.proteinFeaturesGrid==null){
+    	var groupField = '';
+    	var modelName = 'Protein features';
+	    var fields = ["identifier","start","end","original","type","description"];
+		var columns = [
+		                {header : 'Identifier',dataIndex: 'identifier',flex:1},
+		               	{header : 'Location: (start-end)', xtype:'templatecolumn', tpl:'{start}-{end}',flex:1.2},
+		               	{header : 'Original',dataIndex: 'original',flex:1},
+						{header : 'Type',dataIndex: 'type',flex:1},
+						{header : 'Description',dataIndex: 'description',flex:1.5}
+		             ];
+		this.proteinFeaturesGrid = this.doGrid(columns,fields,modelName,groupField);
+		this.proteinFeaturesGrid.store.loadData(data);
+    }
+    return this.proteinFeaturesGrid;
+};
+
 GeneInfoWidget.prototype.get3Dprotein = function(data){
 	var _this=this;
     if(this.p3dProtein==null){
@@ -192,7 +284,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
       	    			var pan = Ext.create('Ext.panel.Panel',{
       	    				title:pdb_name,
       	    				bodyCls:'background-black',
-      	    				html:'<center><canvas class="ChemDoodleWebComponent" id="pdb_canvas_'+pdb_name+'" width="600" height="600" style="width: 600px; height: 600px; ">This browser does not support HTML5/Canvas.</canvas></center>',
+      	    				html:'<canvas class="ChemDoodleWebComponent" id="pdb_canvas_'+pdb_name+'" width="600" height="600" style="width: 600px; height: 600px; ">This browser does not support HTML5/Canvas.</canvas>',
       	    				listeners:{
       	    					afterrender:function(este){
       	    						// JavaScript Document
@@ -273,6 +365,8 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
 };
 
 
+
+
 GeneInfoWidget.prototype.getEnsembleId = function (){
 
 };
@@ -291,8 +385,8 @@ GeneInfoWidget.prototype.getData = function (){
 	cellBaseManager.get("feature","gene", this.query, "fullinfo");
 };
 GeneInfoWidget.prototype.dataReceived = function (data){
-//	console.log(data);
 	this.data=data[0][0];
+	console.log(this.data);
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();
 	this.panel.setLoading(false);
