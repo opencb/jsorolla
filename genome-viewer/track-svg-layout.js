@@ -281,6 +281,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	args["zoom"] = this.zoom;
 	args["pixelBase"] = this.pixelBase;
 	args["width"] = this.width;
+	args["adapter"] = trackData.adapter;
 	
 	var i = this.trackDataList.push(trackData);
 	var trackSvg = new TrackSvg(this.svg,args);

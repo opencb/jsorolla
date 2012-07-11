@@ -18,7 +18,9 @@ VCFVariantInfoWidget.prototype.getdataTypes = function (){
 	return dataTypes=[
 	            { text: "Genomic", children: [
 	                { text: "Information"},
-	                { text: "Variant effect"}
+	                { text: "Variant effect"},
+	                { text: "Header"},
+	                { text: "Samples"}
 	            ] }
 	        ];
 };
@@ -32,6 +34,8 @@ VCFVariantInfoWidget.prototype.optionClick = function (item){
 		switch (item.text){
 			case "Information":  this.panel.add(this.getInfoPanel(this.data.feature).show()); break;
 			case "Variant effect":this.panel.add(this.getEffectPanel(this.data.consequenceType).show()); break;
+			case "Header":this.panel.add(this.getHeaderPanel(this.data.header).show()); break;
+			case "Samples":this.panel.add(this.getSamplesGrid(this.data.feature.sampleData,this.data.samples,this.data.feature.format).show()); break;
 			case "Population": break;
 		}
 	}
@@ -122,6 +126,48 @@ VCFVariantInfoWidget.prototype.getEffectPanel = function(data){
 //    return this.effectPanel;
 };
 
+VCFVariantInfoWidget.prototype.getHeaderPanel = function(data){
+	if(data==""){
+		return this.notFoundPanel;
+	}
+    if(this.headerPanel==null){
+
+		this.headerPanel = Ext.create('Ext.panel.Panel',{
+			title:"Information",
+	        border:false,
+	        cls:'panel-border-left',
+			flex:3,    
+			bodyPadding:10,
+			html:data
+		});
+
+    }
+    return this.headerPanel;
+};
+
+VCFVariantInfoWidget.prototype.getSamplesGrid = function(samplesData,samples,format){
+	var sData = samplesData.split("\t").slice(9);
+	if(sData.length<=0){
+		return this.notFoundPanel;
+	}
+	var data = new Array(samples.length);
+	for ( var i = 0, li = data.length; i < li; i++) {
+		data[i] = {id:samples[i],info:sData[i]};
+	}
+	
+    if(this.samplesGrid==null){
+    	var groupField = '';
+    	var modelName = 'VCF samples';
+	    var fields = ["id","info"];
+		var columns = [
+		                {header : 'Identifier',dataIndex: 'id',flex:1},
+		                {header : format,dataIndex: 'info',flex:5}
+		             ];
+		this.samplesGrid = this.doGrid(columns,fields,modelName,groupField);
+		this.samplesGrid.store.loadData(data);
+    }
+    return this.samplesGrid;
+};
 
 VCFVariantInfoWidget.prototype.getData = function (){
 	var _this = this;
@@ -138,6 +184,8 @@ VCFVariantInfoWidget.prototype.getData = function (){
 
 VCFVariantInfoWidget.prototype.dataReceived = function (data){
 	this.data = new Object();
+	this.data["header"] = this.adapter.header;
+	this.data["samples"] = this.adapter.samples;
 	this.data["feature"] = this.feature;
 	this.data["consequenceType"] = data;
 	this.optionClick({"text":"Information","leaf":"true"});

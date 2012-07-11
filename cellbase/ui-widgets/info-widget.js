@@ -9,6 +9,11 @@ function InfoWidget(targetId, species, args){
 	this.width = 800;
 	this.height = 430;
 	
+	this.feature = null;
+	this.query = null;
+	this.adapter = null;
+	
+	
 	if (targetId!= null){
 		this.targetId = targetId;       
 	}
@@ -76,6 +81,7 @@ InfoWidget.prototype.draw = function (args){
 //	this.featureId = feature.id;
 	this.query = args.query;
 	this.feature = args.feature;
+	this.adapter = args.adapter;
 //	if(feature.getName()==null){
 //		console.log("getName not defined");
 ////		var feature = new Object();
@@ -303,7 +309,7 @@ InfoWidget.prototype.getVCFVariantTemplate = function (){
 			'<p><span class="w75 dis s90">Quality: </span> {quality}</p>',
 			'<p><span class="w75 dis s90">Format: </span> {format}</p>',
 			'<p><span class="w75 dis s90">Samples: </span> {samples}</p>',
-			'<p><span class="w75 dis s90">Info: </span> {info}</p>'
+			'<p><span class="w75 dis s90">Info: <br></span> {info}</p>'
 		);
 };
 

@@ -9,7 +9,8 @@ function VCFDataAdapter(dataSource, args){
 	//stat atributes
 	this.featuresCount = 0;
 	this.featuresByChromosome = {};
-	
+	this.header = "";
+	this.samples = [];
 
 	if (args != null){
 		if(args.async != null){
@@ -39,7 +40,13 @@ VCFDataAdapter.prototype.parse = function(data){
 		var line = lines[i].replace(/^\s+|\s+$/g,"");
 		if ((line != null)&&(line.length > 0)){
 			var fields = line.split("\t");
-			if (fields[0].substr(0,1) != "#"){
+			if(line.substr(0,1)==="#"){
+				if(line.substr(1,1)==="#"){
+					this.header+=line.replace(/</gi,"&#60;").replace(/>/gi,"&#62;")+"<br>";
+				}else{
+					this.samples = fields.slice(9);
+				}
+			}else{
 //				_this.addQualityControl(fields[5]);
 				var feature = {
 						"chromosome": 	fields[0],
@@ -51,12 +58,15 @@ VCFDataAdapter.prototype.parse = function(data){
 						"alt": 			fields[4], 
 						"quality": 		fields[5], 
 						"filter": 		fields[6], 
-						"info": 		fields[7], 
-						"format": 		fields[8], 
+						"info": 		fields[7].replace(/;/gi,"<br>"), 
+						"format": 		fields[8],
+						"sampleData":	line,
 //						"record":		fields,
 //						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
 						"featureType":	"vcf"
 				};
+				
+				
 				this.featureCache.putFeatures(feature, dataType);
 				
 				if (this.featuresByChromosome[fields[0]] == null){
