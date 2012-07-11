@@ -146,7 +146,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 
 	if(this.parentLayout==null){
 		//Main svg  movement events
-		this.svg.setAttribute("cursor", "move");
+//		this.svg.setAttribute("cursor", "move");
 		$(this.svg).mousedown(function(event) {
 			var downX = event.clientX;
 			var lastX = 0;
