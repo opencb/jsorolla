@@ -470,6 +470,22 @@ FEATURE_TYPES = {
 		height:10,
 		histogramColor:"orange"
 	},
+	bam:{
+		getLabel: function(f){
+			return  "bam  "+f.chromosome+":"+f.start+"-"+f.end;
+		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+f.name+'</span>';
+		},
+		getTipText: function(f){
+			return FEATURE_TYPES.getTipCommons(f);
+		},
+		getColor: function(f){
+			return "grey";
+		},
+		height:10,
+		histogramColor:"grey"
+	},
 	das:{
 		getLabel: function(f){
 			var str = "";

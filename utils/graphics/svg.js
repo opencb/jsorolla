@@ -29,6 +29,14 @@
 
 var SVG = {
 	
+	create : function (elementName, attributes){
+		var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
+		for ( var key in attributes){
+			el.setAttribute(key, attributes[key]);
+		}
+		return el;
+	},
+		
 	addChild : function (parent, elementName, attributes, index){
 		var el = document.createElementNS('http://www.w3.org/2000/svg', elementName);
 		for ( var key in attributes){

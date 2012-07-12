@@ -73,6 +73,7 @@ function TrackSvg(parent, args) {
 				case "MultiFeatureRender": this.featuresRender = this.MultiFeatureRender; break;
 				case "SequenceRender": this.featuresRender = this.SequenceRender; break;
 				case "GeneTranscriptRender": this.featuresRender = this.GeneTranscriptRender; break;
+				case "BamRender": this.featuresRender = this.BamRender; break;
 				default: this.featuresRender = this.MultiFeatureRender;
 			}
 			this.defaultRender = this.featuresRender;
@@ -128,7 +129,7 @@ TrackSvg.prototype.draw = function(){
 		visibility:this.titleVisibility	
 	});
 	
-	var textWidth = 25+this.id.length*5;
+	var textWidth = 15+this.id.length*6;
 	var titlebar = SVG.addChild(titleGroup,"rect",{
 		"x":0,
 		"y":0,
@@ -392,6 +393,91 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	console.timeEnd("Multirender");
 };
 
+TrackSvg.prototype.BamRender = function(featureList){
+	console.log(featureList.length);
+	var _this = this;
+//	console.log(featureList.length);
+	var draw = function(feature){
+		var start = feature.start;
+		var end = feature.end;
+		var width = (end-start)+1;
+		
+		var middle = _this.width/2;
+		
+		//get type settings object
+		var settings = _this.types[feature.featureType];
+		var color = settings.getColor(feature);
+		
+		//transform to pixel position
+		width = width * _this.pixelBase;
+		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
+		
+		try{
+			var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
+		}catch(e){
+			var maxWidth = 72;
+		}
+		
+		var rowHeight = 12;
+		var rowY = 0;
+//		var textY = 12+settings.height;
+		
+		while(true){
+			if(_this.renderedArea[rowY] == null){
+				_this.renderedArea[rowY] = new FeatureBinarySearchTree();
+			}
+			var enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
+			
+			if(enc){
+				var rect = SVG.addChild(_this.features,"rect",{
+					"x":x,
+					"y":rowY,
+					"width":width,
+					"height":settings.height,
+					"stroke": "black",
+					"stroke-width": 0.2,
+					"fill": color,
+					"cursor": "pointer"
+				});
+				
+//				var text = SVG.addChild(_this.features,"text",{
+//					"i":i,
+//					"x":x,
+//					"y":textY,
+//					"font-size":10,
+//					"opacity":null,
+//					"fill":"black",
+//					"cursor": "pointer"
+//				});
+//				text.textContent = settings.getLabel(feature);
+				
+				$([rect]).qtip({
+					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
+					position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
+					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+				});
+				
+				$([rect]).click(function(event){
+					_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
+				});
+				break;
+			}
+			rowY += rowHeight;
+//			textY += rowHeight;
+		}
+	};
+	
+	//process features
+	console.time("BamRender");
+	for ( var i = 0, leni = featureList.length; i < leni; i++) {
+		draw(featureList[i]);
+	}
+	console.timeEnd("BamRender");
+	var newHeight = Object.keys(this.renderedArea).length*24;
+	if(newHeight>0){
+		this.setHeight(newHeight+/*margen entre tracks*/10);
+	}
+};
 
 TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 	var _this = this;

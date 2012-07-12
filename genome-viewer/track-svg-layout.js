@@ -321,7 +321,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		}
 	};
 	var cleanSvgFeatures = function(){
-		$(trackSvg.features).empty();
+		console.time("empty");
+//		$(trackSvg.features).empty();
+//		trackSvg.features.textContent = "";
+		while (trackSvg.features.firstChild) {
+			trackSvg.features.removeChild(trackSvg.features.firstChild);
+		}
+		console.timeEnd("empty");
 		trackData.adapter.featureCache.featuresAdded = {};
 		trackSvg.renderedArea = {};
 	};

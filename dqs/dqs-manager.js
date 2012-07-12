@@ -3,7 +3,7 @@ function DqsManager(){
 	this.manager = new DqsRestManager();
 	
 	this.onBamList = this.manager.onBamList;
-	this.onBamRegion = this.manager.onBamRegion;
+	this.onRegion = this.manager.onRegion;
 
 	this.onError = this.manager.onError;
 }
@@ -11,8 +11,8 @@ function DqsManager(){
 DqsManager.prototype.bamList = function (queryParams) {
 	this.manager.bamList(queryParams);
 };
-DqsManager.prototype.bamRegion = function (filename, region, queryParams) {
-	this.manager.bamRegion(filename, region, queryParams);
+DqsManager.prototype.region = function (category, filename, region, queryParams) {
+	this.manager.region(category, filename, region, queryParams);
 };
 
 

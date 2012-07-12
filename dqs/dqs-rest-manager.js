@@ -18,7 +18,7 @@ function DqsRestManager (){
 	/** Events **/
 	/** BAM **/
 	this.onBamList = new Event(this);
-	this.onBamRegion = new Event(this);
+	this.onRegion = new Event(this);
 	
 	this.onError = new Event(this);
 };
@@ -42,12 +42,12 @@ DqsRestManager.prototype.bamList = function(queryParams){
 	
 };
 
-DqsRestManager.prototype.bamRegion = function(filename, region, queryParams){
+DqsRestManager.prototype.region = function(category, filename, region, queryParams){
 	var _this=this;
-	var url = this.getHost()+'/bam/'+filename+'/'+region+'/region'+this.getQuery(queryParams);
+	var url = this.getHost()+'/'+category+'/'+filename+'/'+region+'/region'+this.getQuery(queryParams);
 	console.log(url);
 	function success(data){
-		_this.onBamRegion.notify(JSON.parse(data));
+		_this.onRegion.notify({resource:category,result:JSON.parse(data),filename:filename,query:region,params:queryParams});
 	}
 	
 	function error(data){
