@@ -17,7 +17,7 @@ function FeatureCache(args) {
 	}
 	
 	this.cache = {};
-	this.featuresAdded = {};
+	this.chunksDisplayed = {};
 	
 	this.maxFeaturesInterval = 0;
 };
@@ -45,7 +45,7 @@ FeatureCache.prototype.getFirstFeature = function(){
 
 FeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 	var features =  [];
-	var feature;
+	var feature, firstChunk, lastChunk;
 	
 	if(this.cache[key] != null && this.cache[key][dataType] != null) {
 		for ( var i = 0, len = this.cache[key][dataType].length; i < len; i++) {
@@ -54,12 +54,25 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 			}else{
 				feature = this.cache[key][dataType][i];
 			}
-			if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
-				features.push(feature);
-				this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
+			
+			//check if any feature chunk has been already displayed 
+			var displayed = false;
+			firstChunk = this._getChunk(feature.start);
+			lastChunk = this._getChunk(feature.end);
+			for(var f=firstChunk; f<=lastChunk; f++){
+				var fkey = feature.chromosome+":"+f;
+				if(this.chunksDisplayed[fkey+dataType]==true){
+					displayed = true;
+					break;
+				}
 			}
-//			features.push(feature);
+			
+			if(!displayed){
+				features.push(feature);
+				returnNull = false;
+			}
 		}
+		this.chunksDisplayed[key+dataType]=true;
 		return features;
 	}
 	
@@ -67,13 +80,59 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 };
 
 
+
+FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
+	var firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, features = [], feature, key, returnNull = true, displayed;
+	firstRegionChunk = this._getChunk(region.start);
+	lastRegionChunk = this._getChunk(region.end);
+	for(var i=firstRegionChunk; i<=lastRegionChunk; i++){
+		key = region.chromosome+":"+i;
+		// check if this key exists in cache (features from files)
+		if(this.cache[key] != null && this.cache[key][dataType] != null){
+			for ( var j = 0, len = this.cache[key][dataType].length; j < len; j++) {
+				if(this.gzip) {
+					feature = JSON.parse(RawDeflate.inflate(this.cache[key][dataType][j]));
+				}else{
+					feature = this.cache[key][dataType][j];
+				}
+				// we only get those features in the region AND check if chunk has been already displayed
+				if(feature.end > region.start && feature.start < region.end){
+					
+					//check if any feature chunk has been already displayed 
+					displayed = false;
+					firstChunk = this._getChunk(feature.start);
+					lastChunk = this._getChunk(feature.end);
+					for(var f=firstChunk; f<=lastChunk; f++){
+						var fkey = region.chromosome+":"+f;
+						if(this.chunksDisplayed[fkey+dataType]==true){
+							displayed = true;
+							break;
+						}
+					}
+					
+					if(!displayed){
+						features.push(feature);
+						returnNull = false;
+					}
+				}
+			}
+		}
+		this.chunksDisplayed[key+dataType]=true;//mark chunk as displayed
+	}
+	if(returnNull){
+		return null;
+	}else{
+		return features;
+	}
+};
+
 FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, featureType, dataType){
-	var key,firstChunk,lastChunk,feature;
+	var key, firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, feature, gzipFeature;
 	
 	//initialize region
-	firstChunk = this._getChunk(region.start);
-	lastChunk = this._getChunk(region.end);
-	for(var i=firstChunk; i<=lastChunk; i++){
+	firstRegionChunk = this._getChunk(region.start);
+	lastRegionChunk = this._getChunk(region.end);
+	for(var i=firstRegionChunk; i<=lastRegionChunk; i++){
 		key = region.chromosome+":"+i;
 		if(this.cache[key]==null){
 			this.cache[key] = {};
@@ -88,65 +147,44 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 		featureDataList = [featureDataList];
 	}
 	
+	//loop over features and set on corresponding chunks
 	for(var index = 0, len = featureDataList.length; index<len; index++) {
 		feature = featureDataList[index];
 		feature.featureType = featureType;
 		firstChunk = this._getChunk(feature.start);
 		lastChunk = this._getChunk(feature.end);
+		
+		if(this.gzip) {
+			gzipFeature = RawDeflate.deflate(JSON.stringify(feature));
+		}else{
+			gzipFeature = feature;
+		}
+		
 		for(var i=firstChunk; i<=lastChunk; i++) {
-			key = feature.chromosome+":"+i;
-			/*XXX la feature no tiene chromosoma, una feature de histograma no tiene chromosoma, cojo el de la region para que vaya */
-			if(feature.chromosome==null){
+			if(i >= firstRegionChunk && i<= lastRegionChunk){//only if is inside the called region
 				key = region.chromosome+":"+i;
-			}
-			/*XXX*/
-			if(this.cache[key] != null && this.cache[key][dataType] != null){
-				if(this.gzip) {
-					this.cache[key][dataType].push(RawDeflate.deflate(JSON.stringify(feature)));
-				}else{
-					this.cache[key][dataType].push(feature);
-				}
+				this.cache[key][dataType].push(gzipFeature);
 			}
 		}
 	}
 };
 
 
-FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
-	var firstChunk = this._getChunk(region.start);
-	var lastChunk = this._getChunk(region.end);
-	var features =  [];
-	var feature, key;
-	var returnNull = true;
-	for(var i=firstChunk; i<=lastChunk; i++){
-//		console.log("Chunk: "+i)
-		key = region.chromosome+":"+i;
-		// check if this key exists in cache (features from files)
-		if(this.cache[key] != null && this.cache[key][dataType] != null){
-			for ( var j = 0, len = this.cache[key][dataType].length; j < len; j++) {
-				if(this.gzip) {
-					feature = JSON.parse(RawDeflate.inflate(this.cache[key][dataType][j]));
-				}else{
-					feature = this.cache[key][dataType][j];
-				}
-				if(this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]!=true){
-					// we only get those features in the region
-					if(feature.end > region.start && feature.start < region.end){
-						features.push(feature);
-						returnNull = false;
-					}
-					this.featuresAdded[feature.chromosome+":"+feature.start+"-"+feature.end]=true;
-				}
-			}
-		}
-	}
-	if(returnNull){
-		return null;
-	}else{
-		return features;
-	}
+FeatureCache.prototype.putChunk = function(key, item){
+	this.cache[key] = item;
 };
 
+FeatureCache.prototype.getChunk = function(key){
+	return this.cache[key];
+};
+
+FeatureCache.prototype.putCustom = function(f){
+	f(this);
+};
+
+FeatureCache.prototype.getCustom = function(f){
+	f(this);
+};
 
 
 

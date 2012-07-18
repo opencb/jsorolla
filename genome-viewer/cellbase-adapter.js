@@ -56,7 +56,6 @@ CellBaseAdapter.prototype.getData = function(args){
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
-	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	var chunks = [];
 	var itemList = [];
@@ -78,9 +77,10 @@ CellBaseAdapter.prototype.getData = function(args){
 	
 	
 	//CellBase data process
+	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 	cellBaseManager.success.addEventListener(function(sender,data){
 		console.timeEnd("cellbase");
-		console.time("insertCache");
+		console.time("insertCache"+" "+data.resource);
 		var type = "data";
 		if(data.params.histogram){
 			type = "histogram"+data.params.interval;
@@ -114,8 +114,8 @@ CellBaseAdapter.prototype.getData = function(args){
 				data.result[i] = [data.result[i]];
 			}
 			
-			for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
-				if(data.resource == "gene" && data.result[i][j].transcripts!=null){
+			if(data.resource == "gene" && data.params.transcript!=null){
+				for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
 					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
 						data.result[i][j].transcripts[t].featureType = "transcript";
 						//for de exones
@@ -128,6 +128,7 @@ CellBaseAdapter.prototype.getData = function(args){
 			
 			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
 			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
+			console.timeEnd("insertCache"+" "+data.resource);
 			if(items != null){
 				_this.onGetData.notify({data:items, params:_this.params, cached:false});
 			}

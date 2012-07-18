@@ -17,10 +17,12 @@ function TrackSvg(parent, args) {
 	
 	this.titleVisibility = 'visible';	
 	
-	this.settings = {};
-	
 	this.closable = true;
 	this.types = FEATURE_TYPES;
+	
+	this.customField=false;
+	
+	this.labelZoom = -1;
 	
 	if (args != null){
 		if(args.title != null){
@@ -53,8 +55,11 @@ function TrackSvg(parent, args) {
 //		if(args.type != null){
 //			this.type = args.type;
 //		}
-		if(this.closable != null){
+		if(args.closable != null){
 			this.closable = args.closable;
+		}
+		if(args.labelZoom != null){
+			this.labelZoom = args.labelZoom;
 		}
 		if(args.histogramZoom != null){
 			this.histogramZoom = args.histogramZoom;
@@ -68,6 +73,9 @@ function TrackSvg(parent, args) {
 		if(args.titleVisibility != null){
 			this.titleVisibility = args.titleVisibility;
 		}
+		if(args.customField != null){
+			this.customField = args.customField;
+		}
 		if(args.featuresRender != null){
 			switch(args.featuresRender){
 				case "MultiFeatureRender": this.featuresRender = this.MultiFeatureRender; break;
@@ -78,10 +86,6 @@ function TrackSvg(parent, args) {
 			}
 			this.defaultRender = this.featuresRender;
 		}
-	}
-	
-	if(this.settings.closable == null){
-		this.settings.closable = true;
 	}
 	
 	//flags
@@ -286,6 +290,14 @@ TrackSvg.prototype.draw = function(){
 //		$(this).off('mousemove');
 //	});
 	
+	if(this.customField = true){
+		this.customSvgField = SVG.addChild(main,"text",{
+			"x":this.width/2,
+			"y":0,
+			"font-size": 10,
+			"fill":"black"
+		});
+	}
 	
 	this.main = main;
 	this.titleGroup = titleGroup;
@@ -303,7 +315,7 @@ TrackSvg.prototype.draw = function(){
 
 TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	var _this = this;
-	console.time("Multirender");
+	console.time("Multirender "+featureList.length);
 //	console.log(featureList.length);
 	var draw = function(feature){
 		var start = feature.start;
@@ -327,15 +339,22 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 		width = width * _this.pixelBase;
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
 		
-		try{
-			var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
-		}catch(e){
-			var maxWidth = 72;
+		var textHeight = 12;
+		if(_this.zoom > _this.labelZoom){
+			try{
+				var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
+			}catch(e){
+				var maxWidth = 72;
+			}
+		}else{
+			var maxWidth = width;
+			textHeight = 0;
 		}
+		
 		
 		var rowHeight = 24;
 		var rowY = 0;
-		var textY = 12+settings.height;
+		var textY = textHeight+settings.height;
 		
 		while(true){
 			if(_this.renderedArea[rowY] == null){
@@ -354,27 +373,37 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 					"fill": color,
 					"cursor": "pointer"
 				});
-				
-				var text = SVG.addChild(_this.features,"text",{
-					"i":i,
-					"x":x,
-					"y":textY,
-					"font-size":10,
-					"opacity":null,
-					"fill":"black",
-					"cursor": "pointer"
-				});
-				text.textContent = settings.getLabel(feature);
-				
-				$([rect,text]).qtip({
-					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
-					position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
-					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
-				});
-				
-				$([rect,text]).click(function(event){
-					_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
-				});
+				if(_this.zoom > _this.labelZoom){
+					var text = SVG.addChild(_this.features,"text",{
+						"i":i,
+						"x":x,
+						"y":textY,
+						"font-size":10,
+						"opacity":null,
+						"fill":"black",
+						"cursor": "pointer"
+					});
+					text.textContent = settings.getLabel(feature);
+					$([rect,text]).qtip({
+						content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
+						position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
+						style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+					});
+					
+					$([rect,text]).click(function(event){
+						_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
+					});
+				}else{
+					$([rect]).qtip({
+						content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
+						position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
+						style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+					});
+					
+					$([rect]).click(function(event){
+						_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
+					});
+				}
 				break;
 			}
 			rowY += rowHeight;
@@ -390,13 +419,73 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 	if(newHeight>0){
 		this.setHeight(newHeight+/*margen entre tracks*/10);
 	}
-	console.timeEnd("Multirender");
+	console.timeEnd("Multirender "+featureList.length);
 };
 
-TrackSvg.prototype.BamRender = function(featureList){
-	console.log(featureList.length);
+TrackSvg.prototype.BamRender = function(chunkList){
 	var _this = this;
-//	console.log(featureList.length);
+	var middle = this.width/2;
+	console.log(chunkList.length);
+	var drawCoverage = function(chunk){
+		var coverageList = chunk.coverage;
+		var readList = chunk.reads;
+		var start = parseInt(chunk.region.start);
+		var width = 1*_this.pixelBase;
+		console.log(coverageList)
+		var points = "";
+		
+		var baseMid = (_this.pixelBase/2)-0.5;//4.5 cuando pixelBase = 10
+		var x,y;
+		for ( var i = 0; i < coverageList.length; i++) {
+			x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase)+baseMid;
+//			var text = SVG.addChild(_this.features,"text",{
+//				"x":x+4,
+//				"y":12,
+//				"font-size":12,
+//				"style":"writing-mode: tb; glyph-orientation-vertical: 0;",
+//				"fill":"teal"
+//			});
+//			text.textContent = coverageList[i].toString();
+//			var text = SVG.addChild(_this.features,"rect",{
+//				"x":x,
+//				"y":12,
+//				"width":1,
+//				"height":10,
+////				"stroke": "#3B0B0B",
+////				"stroke-width": 0.5,
+//				"fill": "teal",
+//				"cursor": "pointer"
+//			});
+			y = coverageList[i]/200*50;
+			points += x+","+y+" ";
+//			points += (x+(width/2))+","+(histogramHeight - height)+" ";
+			start++;
+			
+//			$(text).qtip({
+//				content:(parseInt(chunk.region.start)+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
+//				position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+//				style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
+//			});
+		}
+//		console.log(points)
+		var pol = SVG.addChild(_this.features,"polyline",{
+			"points":points,
+			"stroke": "black",
+			"stroke-width": 0.2,
+			"fill": "gray",
+			"cursor": "pointer"
+		});
+//		$(pol).onmouseover(function(e){
+//			console.log(e);
+//		});
+		console.log(_this.customSvgField)
+		_this.customSvgField.setAttribute("y","60");
+		_this.customSvgField.textContent = "asdf";
+		for ( var i = 0, li = readList.length; i < li; i++) {
+			draw(readList[i]);
+		}
+	};
+	
 	var draw = function(feature){
 		var start = feature.start;
 		var end = feature.end;
@@ -419,7 +508,7 @@ TrackSvg.prototype.BamRender = function(featureList){
 		}
 		
 		var rowHeight = 12;
-		var rowY = 0;
+		var rowY = 70;
 //		var textY = 12+settings.height;
 		
 		while(true){
@@ -469,13 +558,13 @@ TrackSvg.prototype.BamRender = function(featureList){
 	
 	//process features
 	console.time("BamRender");
-	for ( var i = 0, leni = featureList.length; i < leni; i++) {
-		draw(featureList[i]);
+	for ( var i = 0, li = chunkList.length; i < li; i++) {
+		drawCoverage(chunkList[i]);
 	}
 	console.timeEnd("BamRender");
 	var newHeight = Object.keys(this.renderedArea).length*24;
 	if(newHeight>0){
-		this.setHeight(newHeight+/*margen entre tracks*/10);
+		this.setHeight(newHeight+/*margen entre tracks*/10+70);
 	}
 };
 
@@ -769,6 +858,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 
 
 TrackSvg.prototype.HistogramRender = function(featureList){
+	console.time("histogramRender");
 	var middle = this.width/2;
 //	console.log(featureList);
 	var histogramHeight = 50;
@@ -822,7 +912,7 @@ TrackSvg.prototype.HistogramRender = function(featureList){
 		"cursor": "pointer"
 	});
 	this.setHeight(histogramHeight+/*margen entre tracks*/10);
-	console.timeEnd("all");
+	console.timeEnd("histogramRender");
 };
 
 
