@@ -359,7 +359,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 		}
 		
 		
-		var rowHeight = 24;
+		var rowHeight = textHeight+12;
 		var rowY = 0;
 		var textY = textHeight+settings.height;
 		
