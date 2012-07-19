@@ -978,7 +978,7 @@ GenomeViewer.prototype.openSNPListWidget = function(name) {
 		query:name.toString(),
 		resource:"snp",
 		title:"SNP List",
-		gridField:["name", "variantAlleles", "ancestralAllele", "mapWeight",  "position", "sequence"]
+		gridField:["name", "variantAlleles", "ancestralAllele", "mapWeight",  "position", "sequence","chromosome","start","end"]
 	});
 };
 
