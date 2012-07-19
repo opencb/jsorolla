@@ -689,8 +689,11 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 						//add to the tree the transcripts size
 						_this.renderedArea[checkRowY].add({start: x, end: x+maxWidth-1});
 
-
-						var rect = SVG.addChild(_this.features,"rect",{//this rect its like a line
+						
+						var transcriptGroup = SVG.addChild(_this.features,"g");
+						
+						
+						var rect = SVG.addChild(transcriptGroup,"rect",{//this rect its like a line
 							"widgetId":transcript[settings.infoWidgetId],
 							"x":transcriptX,
 							"y":checkRowY+2,
@@ -699,7 +702,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 							"fill": "gray",
 							"cursor": "pointer"
 						});
-						var text = SVG.addChild(_this.features,"text",{
+						var text = SVG.addChild(transcriptGroup,"text",{
 							"widgetId":transcript[settings.infoWidgetId],
 							"x":transcriptX,
 							"y":checkTextY,
@@ -711,12 +714,12 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 						text.textContent = settings.getLabel(transcript);
 
 
-						$([rect,text]).qtip({
+						$(transcriptGroup).qtip({
 							content: {text:settings.getTipText(transcript), title:settings.getTipTitle(transcript)},
 							position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
 							style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 						});
-						$([rect,text]).click(function(event){
+						$(transcriptGroup).click(function(event){
 							var query = this.getAttribute("widgetId");
 							_this.showInfoWidget({query:query, feature:transcript, featureType:transcript.featureType, adapter:_this.trackData.adapter});
 						});
@@ -731,7 +734,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 							var exonX = _this.pixelPosition+middle-((_this.position-exonStart)*_this.pixelBase);
 							var exonWidth = (exonEnd-exonStart+1) * ( _this.pixelBase);
 
-							var eRect = SVG.addChild(_this.features,"rect",{//paint exons in white without coding region
+							var eRect = SVG.addChild(transcriptGroup,"rect",{//paint exons in white without coding region
 								"i":i,
 								"x":exonX,
 								"y":checkRowY-1,
@@ -741,11 +744,6 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 								"stroke-width": 1,
 								"fill": "white",
 								"cursor": "pointer"
-							});
-							$(eRect).qtip({
-								content: {text:settings.getTipText(transcript), title:settings.getTipTitle(transcript)},
-								position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
-								style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 							});
 
 							//XXX now paint coding region
@@ -768,7 +766,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 							var codingWidth = (codingEnd-codingStart) * ( _this.pixelBase);
 
 							if(codingWidth > 0){
-								SVG.addChild(_this.features,"rect",{
+								var cRect = SVG.addChild(transcriptGroup,"rect",{
 									"i":i,
 									"x":codingX,
 									"y":checkRowY-1,
@@ -783,7 +781,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 
 							//XXX draw phase only at zoom 100, where this.pixelBase=10
 							for(var p = 0, lenp = 3 - e2t.phase; p < lenp && _this.pixelBase==10 && e2t.phase!=-1; p++){//==10 for max zoom only
-								SVG.addChild(_this.features,"rect",{
+								SVG.addChild(transcriptGroup,"rect",{
 									"i":i,
 									"x":codingX+(p*10),
 									"y":checkRowY-1,

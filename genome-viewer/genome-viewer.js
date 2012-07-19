@@ -160,11 +160,14 @@ GenomeViewer.prototype.setMenuBar = function(toolbar) {
 };
 
 GenomeViewer.prototype.setSize = function(width,height) {
-	Ext.getCmp(this.id+"container").setSize(width,height);
 	this.trackSvgLayout.setWidth(width-18);
 	this.trackSvgLayout2.setWidth(width-18);
 	this.chromosomeWidget.setWidth(width);
 	this.karyotypeWidget.setWidth(width);
+	Ext.getCmp(this.id+"container").setSize(width,height);
+	
+//	$("#"+this.id+'tracksSvg')[0].setAttribute('width',width);
+//	$("#"+this.id+'regionSvg')[0].setAttribute('width',width);
 };
 
 GenomeViewer.prototype.setLoc = function(data) {
