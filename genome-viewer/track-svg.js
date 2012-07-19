@@ -111,6 +111,13 @@ TrackSvg.prototype.setHeight = function(height){
 	}
 };
 
+TrackSvg.prototype.setWidth = function(width){
+	this.width=width;
+	if(this.rendered){
+		this.main.setAttribute("width",width);
+	}
+};
+
 
 TrackSvg.prototype.draw = function(){
 	var _this = this;
@@ -717,25 +724,29 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 						//paint exons
 						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){//XXX loop over exons
 							var e2t = feature.transcripts[i].exonToTranscripts[e];
-							var settings = _this.types[e2t.exon.featureType];
+							var exonSettings = _this.types[e2t.exon.featureType];
 							var exonStart = parseInt(e2t.exon.start);
 							var exonEnd =  parseInt(e2t.exon.end);
 
 							var exonX = _this.pixelPosition+middle-((_this.position-exonStart)*_this.pixelBase);
 							var exonWidth = (exonEnd-exonStart+1) * ( _this.pixelBase);
 
-							SVG.addChild(_this.features,"rect",{//paint exons in white without coding region
+							var eRect = SVG.addChild(_this.features,"rect",{//paint exons in white without coding region
 								"i":i,
 								"x":exonX,
 								"y":checkRowY-1,
 								"width":exonWidth,
-								"height":settings.height+3,
+								"height":exonSettings.height+3,
 								"stroke": "gray",
 								"stroke-width": 1,
 								"fill": "white",
 								"cursor": "pointer"
 							});
-
+							$(eRect).qtip({
+								content: {text:settings.getTipText(transcript), title:settings.getTipTitle(transcript)},
+								position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+								style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+							});
 
 							//XXX now paint coding region
 							var	codingStart = 0;
@@ -762,7 +773,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 									"x":codingX,
 									"y":checkRowY-1,
 									"width":codingWidth,
-									"height":settings.height+3,
+									"height":exonSettings.height+3,
 									"stroke": color,
 									"stroke-width": 1,
 									"fill": color,
@@ -770,7 +781,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 								});
 							}
 
-							//XXX drawing phase only at zoom 100, where this.pixelBase=10
+							//XXX draw phase only at zoom 100, where this.pixelBase=10
 							for(var p = 0, lenp = 3 - e2t.phase; p < lenp && _this.pixelBase==10 && e2t.phase!=-1; p++){//==10 for max zoom only
 								SVG.addChild(_this.features,"rect",{
 									"i":i,

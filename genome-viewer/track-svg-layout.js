@@ -169,6 +169,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			var pos = (rcX*_this.pixelBase) + 1;
 			_this.mouseLine.setAttribute("x",pos);
 			
+			var mid = _this.width/2;
 			var posOffset = (mid/_this.pixelBase) | 0;
 			_this.mousePosition = _this.position+rcX-posOffset;
 			var formatedMousePos = _this.mousePosition.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
@@ -177,9 +178,11 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		
 		$(this.svg).mousedown(function(event) {
 			_this.mouseLine.setAttribute("visibility","hidden");
+			this.setAttribute("cursor", "move");
 			var downX = event.clientX;
 			var lastX = 0;
 			$(this).mousemove(function(event){
+				this.setAttribute("cursor", "move");
 				var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
 				if(newX!=lastX){
 					var desp = lastX-newX;
@@ -195,12 +198,12 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		});
 		$(this.svg).mouseup(function(event) {
 			_this.mouseLine.setAttribute("visibility","visible");
-//			this.setAttribute("cursor", "default");
+			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
 //			$(this).focus();// without this, the keydown does not work
 		});
 		$(this.svg).mouseleave(function(event) {
-//			this.setAttribute("cursor", "default");
+			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
 		});
 		
@@ -274,6 +277,26 @@ TrackSvgLayout.prototype.setHeight = function(height){
 	this.currentLine.setAttribute("height",parseInt(height)-25);//25 es el margen donde esta el texto de la posicion
 	this.mouseLine.setAttribute("height",parseInt(height)-25);//25 es el margen donde esta el texto de la posicion
 };
+TrackSvgLayout.prototype.setWidth = function(width){
+	this.width=width;
+	var mid = this.width/2;
+	this.svg.setAttribute("width",width);
+	this.grid2.setAttribute("width",width);
+	this.positionText.setAttribute("x",mid-30);
+	this.lastPositionText.setAttribute("x",width-70);
+	this.viewNtsArrow.setAttribute("width",width-32);
+	this.viewNtsArrowRight.setAttribute("points",width+",7 "+(width-16)+",0 "+(width-16)+",14");
+	this.viewNtsText.setAttribute("x",mid-30);
+	this.currentLine.setAttribute("x",mid);
+	for ( var i = 0; i < this.trackSvgList.length; i++) {
+		this.trackSvgList[i].setWidth(width);
+	}		
+	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
+	this.viewNtsText.textContent = "Window size "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this._setTextPosition();
+	this.onZoomChange.notify();
+};
+
 TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.zoom=Math.max(zoom-this.zoomOffset, -5);
 //	console.log(this.zoom);

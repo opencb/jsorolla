@@ -161,6 +161,10 @@ GenomeViewer.prototype.setMenuBar = function(toolbar) {
 
 GenomeViewer.prototype.setSize = function(width,height) {
 	Ext.getCmp(this.id+"container").setSize(width,height);
+	this.trackSvgLayout.setWidth(width-18);
+	this.trackSvgLayout2.setWidth(width-18);
+	this.chromosomeWidget.setWidth(width);
+	this.karyotypeWidget.setWidth(width);
 };
 
 GenomeViewer.prototype.setLoc = function(data) {
@@ -343,7 +347,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		cls:"bio-toolbar",
 		border:true,
 		height:35,
-		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
+//		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
 		items : [
 		         {
 		        	 id:this.id+"speciesMenuButton",
