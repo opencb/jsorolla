@@ -478,7 +478,9 @@ FEATURE_TYPES = {
 			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+f.name+'</span>';
 		},
 		getTipText: function(f){
-			return FEATURE_TYPES.getTipCommons(f);
+			return 'cigar:&nbsp;<span class="ssel">'+f.cigar+'</span><br>'+
+				'flags:&nbsp;<span class="ssel">'+f.flags+'</span><br>'+
+				FEATURE_TYPES.getTipCommons(f);
 		},
 		getColor: function(f){
 			return "grey";

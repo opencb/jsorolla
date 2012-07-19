@@ -59,6 +59,10 @@ function GenomeViewer(targetId, species, args) {
 		_this.setLoc(data);
 	});
 
+	
+	//Events i propagate
+	this.onSvgRemoveTrack = null;//assigned later, the component must exist
+	
 //	this.geneBioTypeColors = this.getGeneBioTypeColors();
 //	this.snpBioTypeColors = this.getSnpBioTypeColors();
 	
@@ -107,6 +111,13 @@ GenomeViewer.prototype.render = function(){
 		_this.trackSvgLayout.onMove.addEventListener(function(sender,data){
 			_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 		});
+		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,data){
+			var formatedMousePos = data.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+			Ext.getCmp(_this.id+"mouseLabel").setText('<span class="ssel">Position: '+formatedMousePos+'</span>');
+			$('#'+_this.id+"mouseLabel").qtip({content:'Mouse position',style:{width:95},position: {my:"bottom center",at:"top center"}});
+		});
+		//propagate event
+		_this.onSvgRemoveTrack = _this.trackSvgLayout.onSvgRemoveTrack;
 		
 		var div = $('#'+_this.id+"regionSvg")[0];
 		_this.trackSvgLayout2 = new TrackSvgLayout(div,{
@@ -139,7 +150,7 @@ GenomeViewer.prototype.render = function(){
 	container.insert(3, this._drawChromosomePanel());
 	container.insert(4, tracksPanel);
 	container.insert(5, this._getBottomBar());
-	container.insert(3, regionPanel);//rendered after trackspanel but inserted with minor index
+	container.insert(4, regionPanel);//rendered after trackspanel but inserted with minor index
 	
 	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
 	Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
@@ -150,7 +161,14 @@ GenomeViewer.prototype.setMenuBar = function(toolbar) {
 };
 
 GenomeViewer.prototype.setSize = function(width,height) {
+	this.trackSvgLayout.setWidth(width-18);
+	this.trackSvgLayout2.setWidth(width-18);
+	this.chromosomeWidget.setWidth(width);
+	this.karyotypeWidget.setWidth(width);
 	Ext.getCmp(this.id+"container").setSize(width,height);
+	
+//	$("#"+this.id+'tracksSvg')[0].setAttribute('width',width);
+//	$("#"+this.id+'regionSvg')[0].setAttribute('width',width);
 };
 
 GenomeViewer.prototype.setLoc = function(data) {
@@ -333,7 +351,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		cls:"bio-toolbar",
 		border:true,
 		height:35,
-		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
+//		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
 		items : [
 		         {
 		        	 id:this.id+"speciesMenuButton",
@@ -621,7 +639,7 @@ GenomeViewer.prototype._getZoomSlider = function() {
 				fn: function(slider, newValue) {
 				 _this._handleNavigationBar("ZOOM", newValue);
    			 },
-   			 buffer : 300
+   			 buffer : 500
    			 }
 		});
 	}
@@ -771,7 +789,7 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 	var panel =  Ext.create('Ext.panel.Panel', {
 		id:this.id+"regionPanel",
 		height : 150,
-		title:'Region',
+		title:'Region overview',
 		border:false,
 		autoScroll:true,
 		margin:'0 0 1 0',
@@ -785,7 +803,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 	var _this=this;
 	var panel = Ext.create('Ext.panel.Panel', {
 		id:this.id+"tracksPanel",
-		title:'Detailed Information',
+		title:'Detailed information',
 		autoScroll:true,
 		cls:"x-unselectable",
 		flex: 1,
@@ -799,7 +817,7 @@ GenomeViewer.prototype.addTrack = function(trackData, args) {
 };
 
 GenomeViewer.prototype.removeTrack = function(trackId) {
-	this.trackSvgLayout.removeTrack(trackId);
+	return this.trackSvgLayout.removeTrack(trackId);
 };
 
 GenomeViewer.prototype.showTrack = function(trackId) {
@@ -842,6 +860,12 @@ GenomeViewer.prototype._getBottomBar = function() {
 		text:''
 	});
 	
+	var mouseLabel = Ext.create('Ext.toolbar.TextItem', {
+		id:this.id+"mouseLabel",
+		width:110,
+		text:''
+	});
+	
 	var taskbar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'uxTaskbar',
 		winMgr: new Ext.ZIndexManager(),
@@ -854,10 +878,10 @@ GenomeViewer.prototype._getBottomBar = function() {
 	var legendBar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'legendBar',
 		cls: 'bio-hiddenbar',
-		width:220,
+		width:420,
 		height:28,
 		items : [/*scaleLabel, */
-		         '-',
+		         '-',mouseLabel,
 		         geneLegendPanel.getButton(GENE_BIOTYPE_COLORS),
 		         snpLegendPanel.getButton(SNP_BIOTYPE_COLORS),
 		         '->',versionLabel]
@@ -890,6 +914,7 @@ GenomeViewer.prototype.openListWidget = function(args) {
 		genomicListWidget.draw(data);
 		
 		genomicListWidget.onSelected.addEventListener(function(evt, feature) {
+			debugger
 //			console.log(feature);
 			if (feature != null && feature.chromosome != null) {
 				if(_this.chromosome!= feature.chromosome || _this.position != feature.start){

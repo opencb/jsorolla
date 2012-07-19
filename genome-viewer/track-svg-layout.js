@@ -8,7 +8,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this.swapHash = new Object();
 	this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
 	this.parentLayout = null;
-	
+	this.mousePosition="";
 	
 	//default values
 	this.height=25;
@@ -46,6 +46,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this.onZoomChange = new Event();
 	this.onChromosomeChange = new Event();
 	this.onMove = new Event();
+	this.onMousePosition = new Event();
+	this.onSvgRemoveTrack = new Event();
 	
 	
 	
@@ -59,6 +61,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"height":this.height
 	});
 	
+	//grid
 	var patt = SVG.addChild(this.svg,"pattern",{
 		"id":this.id+"gridPatt",
 		"patternUnits":"userSpaceOnUse",
@@ -68,7 +71,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"height":2000
 	});
 	
-	var grid = SVG.addChild(patt,"rect",{
+	this.grid = SVG.addChild(patt,"rect",{
 		"x":0,
 		"y":25,
 		"width":1,
@@ -77,7 +80,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"fill":"grey"
 	});
 	
-	var grid2 = SVG.addChild(this.svg,"rect",{
+	this.grid2 = SVG.addChild(this.svg,"rect",{
 		"width":this.width,
 		"height":2000,
 		"x":0,
@@ -130,8 +133,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"font-size":10,
 		"fill":"white"
 	});
-	this.viewNtsText.textContent = "Viewing "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
-	
+	this.viewNtsText.textContent = "Window size "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
 	
 	this.currentLine = SVG.addChild(this.svg,"rect",{
 		"x":mid,
@@ -143,31 +145,64 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"opacity":"0.5",
 		"fill":"orange"
 	});
+	
+	this.mouseLine = SVG.addChild(this.svg,"rect",{
+		"x":-20,
+		"y":this.height,
+		"width":this.pixelBase,
+		"height":this.height,
+		"stroke-width":"2",
+		//"stroke":"LawnGreen",
+		"stroke":"lightgray",
+		"opacity":"0.4",
+		//"fill":"GreenYellow"
+		"fill":"gainsboro"
+	});
 
 	if(this.parentLayout==null){
 		//Main svg  movement events
 //		this.svg.setAttribute("cursor", "move");
+		
+		$(parent).mousemove(function(event) {
+			var cX = event.clientX+2-_this.pixelBase/2;
+			var rcX = (cX/_this.pixelBase) | 0;
+			var pos = (rcX*_this.pixelBase) + 1;
+			_this.mouseLine.setAttribute("x",pos);
+			
+			var mid = _this.width/2;
+			var posOffset = (mid/_this.pixelBase) | 0;
+			_this.mousePosition = _this.position+rcX-posOffset;
+			_this.onMousePosition.notify(_this.mousePosition);
+		});
+		
 		$(this.svg).mousedown(function(event) {
+			_this.mouseLine.setAttribute("visibility","hidden");
+			this.setAttribute("cursor", "move");
 			var downX = event.clientX;
 			var lastX = 0;
 			$(this).mousemove(function(event){
+				this.setAttribute("cursor", "move");
 				var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
 				if(newX!=lastX){
 					var desp = lastX-newX;
-					_this.position -= desp;
-					_this._setTextPosition();
-					_this.onMove.notify(desp);
-					lastX = newX;
+					var p = _this.position - desp;
+					if(p>0){//avoid 0 and negative positions
+						_this.position -= desp;
+						_this._setTextPosition();
+						_this.onMove.notify(desp);
+						lastX = newX;
+					}
 				}
 			});
 		});
 		$(this.svg).mouseup(function(event) {
-//			this.setAttribute("cursor", "default");
+			_this.mouseLine.setAttribute("visibility","visible");
+			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
 //			$(this).focus();// without this, the keydown does not work
 		});
 		$(this.svg).mouseleave(function(event) {
-//			this.setAttribute("cursor", "default");
+			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
 		});
 		
@@ -211,7 +246,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		};
 		
 		
-		
 		$(this.svg).focusin(function(e) {
 			enableKeys();
 		});
@@ -237,8 +271,31 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 TrackSvgLayout.prototype.setHeight = function(height){
 	this.height=height;
 	this.svg.setAttribute("height",height);
+	this.grid.setAttribute("height",height);
+	this.grid2.setAttribute("height",height);
 	this.currentLine.setAttribute("height",parseInt(height)-25);//25 es el margen donde esta el texto de la posicion
+	this.mouseLine.setAttribute("height",parseInt(height)-25);//25 es el margen donde esta el texto de la posicion
 };
+TrackSvgLayout.prototype.setWidth = function(width){
+	this.width=width;
+	var mid = this.width/2;
+	this.svg.setAttribute("width",width);
+	this.grid2.setAttribute("width",width);
+	this.positionText.setAttribute("x",mid-30);
+	this.lastPositionText.setAttribute("x",width-70);
+	this.viewNtsArrow.setAttribute("width",width-32);
+	this.viewNtsArrowRight.setAttribute("points",width+",7 "+(width-16)+",0 "+(width-16)+",14");
+	this.viewNtsText.setAttribute("x",mid-30);
+	this.currentLine.setAttribute("x",mid);
+	for ( var i = 0; i < this.trackSvgList.length; i++) {
+		this.trackSvgList[i].setWidth(width);
+	}		
+	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
+	this.viewNtsText.textContent = "Window size "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this._setTextPosition();
+	this.onZoomChange.notify();
+};
+
 TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.zoom=Math.max(zoom-this.zoomOffset, -5);
 //	console.log(this.zoom);
@@ -246,7 +303,8 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.currentLine.setAttribute("width", this.pixelBase);
-	this.viewNtsText.textContent = "Viewing "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this.mouseLine.setAttribute("width", this.pixelBase);
+	this.viewNtsText.textContent = "Window size "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
 	this._setTextPosition();
 	this.onZoomChange.notify();
 };
@@ -282,6 +340,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	args["pixelBase"] = this.pixelBase;
 	args["width"] = this.width;
 	args["adapter"] = trackData.adapter;
+	args["trackSvgLayout"] = this;
 	
 	var i = this.trackDataList.push(trackData);
 	var trackSvg = new TrackSvg(this.svg,args);
@@ -328,7 +387,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			trackSvg.features.removeChild(trackSvg.features.firstChild);
 		}
 		console.timeEnd("empty");
-		trackData.adapter.featureCache.featuresAdded = {};
+		trackData.adapter.featureCache.chunksDisplayed = {};
 		trackSvg.renderedArea = {};
 	};
 	//END help methods
@@ -345,7 +404,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			trackSvg.featuresRender = trackSvg.defaultRender;
 		}
 		
-		console.timeEnd("insertCache");
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
 		trackSvg.featuresRender(event.data);
 //		console.log(trackData.adapter.featureCache);
@@ -439,7 +497,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		_this._reallocateUnder(this.parentNode.parentNode.id);//"this" is the svg element
 	});
 	$(trackSvg.hideRect).bind("click",function(event){
-		_this._hideTrack(this.parentNode.parentNode.id);//"this" is the svg element
+//		_this._hideTrack(this.parentNode.parentNode.id);//"this" is the svg element
+		_this.removeTrack(this.parentNode.parentNode.id);//"this" is the svg element
+		_this.onSvgRemoveTrack.notify(this.parentNode.parentNode.id);
 	});
 	$(trackSvg.settingsRect).bind("click",function(event){
 		console.log("settings click");//"this" is the svg element
@@ -463,7 +523,7 @@ TrackSvgLayout.prototype.removeTrack = function(trackId){
 	this.trackSvgList.splice(position, 1);
 	this.trackDataList.splice(position, 1);
 	delete this.swapHash[trackId];
-	
+	return trackId;
 };
 
 TrackSvgLayout.prototype._redraw = function(){
