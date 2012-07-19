@@ -354,7 +354,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				var maxWidth = 72;
 			}
 		}else{
-			var maxWidth = width;
+			var maxWidth = Math.max(width,10);
 			textHeight = 0;
 		}
 		
@@ -370,7 +370,8 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 			var enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
 			
 			if(enc){
-				var rect = SVG.addChild(_this.features,"rect",{
+				var featureGroup = SVG.addChild(_this.features,"g");
+				var rect = SVG.addChild(featureGroup,"rect",{
 					"x":x,
 					"y":rowY,
 					"width":width,
@@ -381,7 +382,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 					"cursor": "pointer"
 				});
 				if(_this.zoom > _this.labelZoom){
-					var text = SVG.addChild(_this.features,"text",{
+					var text = SVG.addChild(featureGroup,"text",{
 						"i":i,
 						"x":x,
 						"y":textY,
@@ -391,26 +392,17 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 						"cursor": "pointer"
 					});
 					text.textContent = settings.getLabel(feature);
-					$([rect,text]).qtip({
-						content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
-						position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
-						style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
-					});
-					
-					$([rect,text]).click(function(event){
-						_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
-					});
-				}else{
-					$([rect]).qtip({
-						content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
-						position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
-						style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
-					});
-					
-					$([rect]).click(function(event){
-						_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
-					});
 				}
+				
+				$(featureGroup).qtip({
+					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
+					position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
+					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+				});
+				
+				$(featureGroup).click(function(event){
+					_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
+				});
 				break;
 			}
 			rowY += rowHeight;
