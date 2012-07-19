@@ -112,7 +112,8 @@ GenomeViewer.prototype.render = function(){
 			_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
 		});
 		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,data){
-			Ext.getCmp(_this.id+"mouseLabel").setText('<span class="ssel">Position: '+data+'</span>');
+			var formatedMousePos = data.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+			Ext.getCmp(_this.id+"mouseLabel").setText('<span class="ssel">Position: '+formatedMousePos+'</span>');
 			$('#'+_this.id+"mouseLabel").qtip({content:'Mouse position',style:{width:95},position: {my:"bottom center",at:"top center"}});
 		});
 		//propagate event
@@ -913,6 +914,7 @@ GenomeViewer.prototype.openListWidget = function(args) {
 		genomicListWidget.draw(data);
 		
 		genomicListWidget.onSelected.addEventListener(function(evt, feature) {
+			debugger
 //			console.log(feature);
 			if (feature != null && feature.chromosome != null) {
 				if(_this.chromosome!= feature.chromosome || _this.position != feature.start){

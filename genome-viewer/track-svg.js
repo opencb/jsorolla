@@ -31,6 +31,9 @@ function TrackSvg(parent, args) {
 		if(args.id != null){
 			this.id = args.id;
 		}
+		if(args.trackSvgLayout != null){
+			this.trackSvgLayout = args.trackSvgLayout;
+		}
 		if(args.trackData != null){
 			this.trackData = args.trackData;
 		}
@@ -470,7 +473,8 @@ TrackSvg.prototype.BamRender = function(chunkList){
 		var pol = SVG.addChild(_this.features,"polyline",{
 			"points":points,
 			"stroke": "black",
-			"stroke-width": 0.2,
+			"stroke-width": 1,
+			"opacity": 0.4,
 			"fill": "gray",
 			"cursor": "pointer"
 		});
@@ -479,7 +483,10 @@ TrackSvg.prototype.BamRender = function(chunkList){
 //		});
 		console.log(_this.customSvgField)
 		_this.customSvgField.setAttribute("y","60");
-		_this.customSvgField.textContent = "asdf";
+		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,data){
+			console.log(start-data)
+//			_this.customSvgField.textContent = coverageList[start - data];
+		});
 		for ( var i = 0, li = readList.length; i < li; i++) {
 			draw(readList[i]);
 		}
@@ -682,11 +689,12 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 						_this.renderedArea[checkRowY].add({start: x, end: x+maxWidth-1});
 
 						
-						var transcriptGroup = SVG.addChild(_this.features,"g");
+						var transcriptGroup = SVG.addChild(_this.features,"g",{
+							"widgetId":transcript[settings.infoWidgetId],
+						});
 						
 						
 						var rect = SVG.addChild(transcriptGroup,"rect",{//this rect its like a line
-							"widgetId":transcript[settings.infoWidgetId],
 							"x":transcriptX,
 							"y":checkRowY+2,
 							"width":transcriptWidth,
@@ -695,7 +703,6 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 							"cursor": "pointer"
 						});
 						var text = SVG.addChild(transcriptGroup,"text",{
-							"widgetId":transcript[settings.infoWidgetId],
 							"x":transcriptX,
 							"y":checkTextY,
 							"font-size":10,

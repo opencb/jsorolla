@@ -172,8 +172,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			var mid = _this.width/2;
 			var posOffset = (mid/_this.pixelBase) | 0;
 			_this.mousePosition = _this.position+rcX-posOffset;
-			var formatedMousePos = _this.mousePosition.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-			_this.onMousePosition.notify(formatedMousePos);
+			_this.onMousePosition.notify(_this.mousePosition);
 		});
 		
 		$(this.svg).mousedown(function(event) {
@@ -341,6 +340,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	args["pixelBase"] = this.pixelBase;
 	args["width"] = this.width;
 	args["adapter"] = trackData.adapter;
+	args["trackSvgLayout"] = this;
 	
 	var i = this.trackDataList.push(trackData);
 	var trackSvg = new TrackSvg(this.svg,args);
