@@ -523,6 +523,10 @@ TrackSvgLayout.prototype.removeTrack = function(trackId){
 	this.trackSvgList.splice(position, 1);
 	this.trackDataList.splice(position, 1);
 	delete this.swapHash[trackId];
+	//uddate swapHash with correct index after slice
+	for ( var i = 0; i < this.trackSvgList.length; i++) {
+		this.swapHash[this.trackSvgList[i].id].index = i;
+	}
 	return trackId;
 };
 

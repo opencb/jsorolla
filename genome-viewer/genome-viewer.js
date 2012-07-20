@@ -320,7 +320,8 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		width:170,
 		store: searchResults,
 		queryMode: 'local',
-//		typeAhead:true,
+		typeAhead:false,
+		autoSelect:false,
 		queryDelay: 500,
 		listeners:{
 			change:function(){
@@ -343,6 +344,11 @@ GenomeViewer.prototype._getNavigationBar = function() {
 			select: function(field, e){
 				_this._handleNavigationBar('GoToGene');
 			}
+//			specialkey: function(field, e){
+//				if (e.getKey() == e.ENTER) {
+//					_this._handleNavigationBar('GoToGene');
+//				}
+//			}
 		}
 	});
 	
@@ -683,7 +689,11 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
     }
     if (action == 'GoToGene'){
         var geneName = Ext.getCmp(this.id+'quickSearch').getValue();
-        this.openGeneListWidget(geneName);
+        if(geneName.slice(0, "rs".length) == "rs" || geneName.slice(0, "AFFY_".length) == "AFFY_" || geneName.slice(0, "SNP_".length) == "SNP_" || geneName.slice(0, "VAR_".length) == "VAR_" || geneName.slice(0, "CRTAP_".length) == "CRTAP_" || geneName.slice(0, "FKBP10_".length) == "FKBP10_" || geneName.slice(0, "LEPRE1_".length) == "LEPRE1_" || geneName.slice(0, "PPIB_".length) == "PPIB_") {
+        	this.openSNPListWidget(geneName);
+        }else{
+        	this.openGeneListWidget(geneName);
+        }
     }
     if (action == '+'){
 //  	var zoom = this.genomeWidgetProperties.getZoom();
@@ -909,21 +919,20 @@ GenomeViewer.prototype.openListWidget = function(args) {
 	
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function(evt, data) {
-		var genomicListWidget = new GenomicListWidget(_this.species,{title:args.title, gridFields:args.gridField,viewer:_this});
-		
-		genomicListWidget.draw(data);
-		
-		genomicListWidget.onSelected.addEventListener(function(evt, feature) {
-			debugger
+		if(data.result[0].length>1){
+			var genomicListWidget = new GenomicListWidget(_this.species,{title:args.title, gridFields:args.gridField,viewer:_this});
+			genomicListWidget.draw(data);
+			
+			genomicListWidget.onSelected.addEventListener(function(evt, feature) {
 //			console.log(feature);
-			if (feature != null && feature.chromosome != null) {
-				if(_this.chromosome!= feature.chromosome || _this.position != feature.start){
-					_this.setLoc({sender:"",chromosome:feature.chromosome, position:feature.start});
+				if (feature != null && feature.chromosome != null) {
+					if(_this.chromosome!= feature.chromosome || _this.position != feature.start){
+						_this.setLoc({sender:"",chromosome:feature.chromosome, position:feature.start});
+					}
 				}
-			}
-		});
-		
-		genomicListWidget.onTrackAddAction.addEventListener(function(evt, event) {
+			});
+			
+			genomicListWidget.onTrackAddAction.addEventListener(function(evt, event) {
 				var track = new TrackData(event.fileName,{
 					adapter: event.adapter
 				});
@@ -935,7 +944,15 @@ GenomeViewer.prototype.openListWidget = function(args) {
 					visibleRange:{start:0,end:100},
 					featureTypes:FEATURE_TYPES
 				});
-		});
+			});
+		}else{
+			var feature = data.result[0][0];
+			if(feature != null){
+				_this.setLoc({sender:"",chromosome:feature.chromosome, position:feature.start});
+			}else{
+				Ext.example.msg('Feature <span class="ssel">'+args.query+'</span> not found',"");
+			}
+		}
 	});
 	cellBaseManager.get(args.category, args.subcategory, args.query, args.resource, args.params);
 };
@@ -978,7 +995,7 @@ GenomeViewer.prototype.openSNPListWidget = function(name) {
 		query:name.toString(),
 		resource:"snp",
 		title:"SNP List",
-		gridField:["name", "variantAlleles", "ancestralAllele", "mapWeight",  "position", "sequence"]
+		gridField:["name", "variantAlleles", "ancestralAllele", "mapWeight",  "position", "sequence","chromosome","start","end"]
 	});
 };
 
