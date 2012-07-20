@@ -347,8 +347,8 @@ GenomeViewer.prototype._getNavigationBar = function() {
 			},
 			select: function(field, e){
 				_this._handleNavigationBar('GoToGene');
-			},
-//			specialkey: function(field, e){
+			}
+//			,specialkey: function(field, e){
 //				if (e.getKey() == e.ENTER) {
 //					_this._handleNavigationBar('GoToGene');
 //				}
