@@ -690,7 +690,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 
 						
 						var transcriptGroup = SVG.addChild(_this.features,"g",{
-							"widgetId":transcript[settings.infoWidgetId],
+							"widgetId":transcript[settings.infoWidgetId]
 						});
 						
 						
@@ -762,9 +762,9 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 									}
 
 							var codingX = _this.pixelPosition+middle-((_this.position-codingStart)*_this.pixelBase);
-							var codingWidth = (codingEnd-codingStart) * ( _this.pixelBase);
+							var codingWidth = (codingEnd-codingStart+1) * ( _this.pixelBase);
 
-							if(codingWidth > 0){
+							if(codingWidth > 0 ){
 								var cRect = SVG.addChild(transcriptGroup,"rect",{
 									"i":i,
 									"x":codingX,
