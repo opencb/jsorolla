@@ -9,6 +9,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
 	this.parentLayout = null;
 	this.mousePosition="";
+	this.windowSize = "";
 	
 	//default values
 	this.height=25;
@@ -46,6 +47,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this.onZoomChange = new Event();
 	this.onChromosomeChange = new Event();
 	this.onMove = new Event();
+	this.onWindowSize = new Event();
 	this.onMousePosition = new Event();
 	this.onSvgRemoveTrack = new Event();
 	
@@ -133,7 +135,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"font-size":10,
 		"fill":"white"
 	});
-	this.viewNtsText.textContent = "Window size "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this.windowSize = "Window size: "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this.viewNtsText.textContent = this.windowSize;
 	
 	this.currentLine = SVG.addChild(this.svg,"rect",{
 		"x":mid,
@@ -291,8 +294,10 @@ TrackSvgLayout.prototype.setWidth = function(width){
 		this.trackSvgList[i].setWidth(width);
 	}		
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
-	this.viewNtsText.textContent = "Window size "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this.viewNtsText.textContent = "Window size: "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this.windowSize = this.viewNtsText.textContent;
 	this._setTextPosition();
+	this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
 	this.onZoomChange.notify();
 };
 
@@ -304,8 +309,10 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.currentLine.setAttribute("width", this.pixelBase);
 	this.mouseLine.setAttribute("width", this.pixelBase);
-	this.viewNtsText.textContent = "Window size "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this.viewNtsText.textContent = "Window size: "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this.windowSize = this.viewNtsText.textContent;
 	this._setTextPosition();
+	this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
 	this.onZoomChange.notify();
 };
 TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
@@ -360,8 +367,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		//needed call variables
 		callStart = parseInt(_this.position - _this.halfVirtualBase*2);
 		callEnd = parseInt(_this.position + _this.halfVirtualBase*2);
-		virtualStart = parseInt(_this.position - _this.halfVirtualBase);//for now
-		vitualEnd = parseInt(_this.position + _this.halfVirtualBase);//for now
+		virtualStart = parseInt(_this.position - _this.halfVirtualBase*2);//for now
+		vitualEnd = parseInt(_this.position + _this.halfVirtualBase*2);//for now
 	};
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){
