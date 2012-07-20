@@ -81,8 +81,7 @@ FEATURE_TYPES = {
 	},
 	getTipCommons : function(f){
 		var strand = (f.strand != null) ? f.strand : "NA";
-		return 'start:&nbsp;<span class="emph">'+f.start+'</span><br>'+
-		'end:&nbsp;<span class="emph">'+f.end+'</span><br>'+
+		return 'start-end:&nbsp;<span class="emph">'+f.start+'-'+f.end+'</span><br>'+
 		'strand:&nbsp;<span class="emph">'+strand+'</span><br>'+
 		'length:&nbsp;<span class="info">'+(f.end-f.start+1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+'</span><br>';
 	},
@@ -172,10 +171,18 @@ FEATURE_TYPES = {
 			return str;
 		},
 		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.featureType);
+			return FEATURE_TYPES.formatTitle(f.exon.featureType)+' - <span class="ok">'+f.exon.stableId+'</span>';
 		},
-		getTipText: function(f){
-			return FEATURE_TYPES.getTipCommons(f);
+		getTipText: function(e2t,t){
+			var color = GENE_BIOTYPE_COLORS[t.biotype];
+			return	'transcript name:&nbsp;<span class="ssel">'+t.externalName+'</span><br>'+
+			'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+t.stableId+'</span><br>'+
+			'transcript biotype:&nbsp;<span class="emph" style="color:'+color+';">'+t.biotype+'</span><br>'+
+			'transcript description:&nbsp;<span class="emph">'+t.description+'</span><br>'+
+			'transcript start-end:&nbsp;<span class="emph">'+t.start+'-'+t.end+'</span><br>'+
+			'exon start-end:&nbsp;<span class="emph">'+e2t.exon.start+'-'+e2t.exon.end+'</span><br>'+
+			'strand:&nbsp;<span class="emph">'+t.strand+'</span><br>'+
+			'length:&nbsp;<span class="info">'+(e2t.exon.end-e2t.exon.start+1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+'</span><br>';
 		},
 		getColor: function(f){
 			return "black";

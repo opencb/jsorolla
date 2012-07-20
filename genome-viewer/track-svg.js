@@ -219,7 +219,6 @@ TrackSvg.prototype.draw = function(){
 //		$(this).off('mousemove');
 //	});
 	
-	$(features).css('fill','red');
 	
 //	var over = SVG.addChild(main,"rect",{
 //		"x":0,
@@ -735,7 +734,15 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 							var exonX = _this.pixelPosition+middle-((_this.position-exonStart)*_this.pixelBase);
 							var exonWidth = (exonEnd-exonStart+1) * ( _this.pixelBase);
 
-							var eRect = SVG.addChild(transcriptGroup,"rect",{//paint exons in white without coding region
+							var exonGroup = SVG.addChild(_this.features,"g");
+							
+							$(exonGroup).qtip({
+								content: {text:exonSettings.getTipText(e2t,transcript), title:exonSettings.getTipTitle(e2t)},
+								position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+								style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+							});
+							
+							var eRect = SVG.addChild(exonGroup,"rect",{//paint exons in white without coding region
 								"i":i,
 								"x":exonX,
 								"y":checkRowY-1,
@@ -775,7 +782,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 							var codingWidth = (coding+1) * ( _this.pixelBase);
 
 							if(coding > 0 ){
-								var cRect = SVG.addChild(transcriptGroup,"rect",{
+								var cRect = SVG.addChild(exonGroup,"rect",{
 									"i":i,
 									"x":codingX,
 									"y":checkRowY-1,
@@ -788,7 +795,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 								});
 								//XXX draw phase only at zoom 100, where this.pixelBase=10
 								for(var p = 0, lenp = 3 - e2t.phase; p < lenp && _this.pixelBase==10 && e2t.phase!=-1; p++){//==10 for max zoom only
-									SVG.addChild(transcriptGroup,"rect",{
+									SVG.addChild(exonGroup,"rect",{
 										"i":i,
 										"x":codingX+(p*10),
 										"y":checkRowY-1,

@@ -367,8 +367,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		//needed call variables
 		callStart = parseInt(_this.position - _this.halfVirtualBase*2);
 		callEnd = parseInt(_this.position + _this.halfVirtualBase*2);
-		virtualStart = parseInt(_this.position - _this.halfVirtualBase);//for now
-		vitualEnd = parseInt(_this.position + _this.halfVirtualBase);//for now
+		virtualStart = parseInt(_this.position - _this.halfVirtualBase*2);//for now
+		vitualEnd = parseInt(_this.position + _this.halfVirtualBase*2);//for now
 	};
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){
