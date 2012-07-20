@@ -116,6 +116,10 @@ GenomeViewer.prototype.render = function(){
 			Ext.getCmp(_this.id+"mouseLabel").setText('<span class="ssel">Position: '+formatedMousePos+'</span>');
 			$('#'+_this.id+"mouseLabel").qtip({content:'Mouse position',style:{width:95},position: {my:"bottom center",at:"top center"}});
 		});
+		Ext.getCmp(_this.id+"windowSize").setText('<span class="emph">'+_this.trackSvgLayout.windowSize+'</span>');
+		_this.trackSvgLayout.onWindowSize.addEventListener(function(sender,data){
+			Ext.getCmp(_this.id+"windowSize").setText('<span class="emph">'+data.windowSize+'</span>');
+		});
 		//propagate event
 		_this.onSvgRemoveTrack = _this.trackSvgLayout.onSvgRemoveTrack;
 		
@@ -315,7 +319,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		id : this.id+'quickSearch',
 		displayField: 'displayId',
 		valueField: 'displayId',
-		emptyText:'Quick search: gene, transcript',
+		emptyText:'Quick search: gene, snp',
 		hideTrigger: true,
 		width:170,
 		store: searchResults,
@@ -343,7 +347,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 			},
 			select: function(field, e){
 				_this._handleNavigationBar('GoToGene');
-			}
+			},
 //			specialkey: function(field, e){
 //				if (e.getKey() == e.ENTER) {
 //					_this._handleNavigationBar('GoToGene');
@@ -873,7 +877,12 @@ GenomeViewer.prototype._getBottomBar = function() {
 	var mouseLabel = Ext.create('Ext.toolbar.TextItem', {
 		id:this.id+"mouseLabel",
 		width:110,
-		text:''
+		text:'<span class="ssel">Position: -</span>'
+	});
+	var windowSize = Ext.create('Ext.toolbar.TextItem', {
+		id:this.id+"windowSize",
+		width:130,
+		text:'<span class="emph">Window size: -</span>'
 	});
 	
 	var taskbar = Ext.create('Ext.toolbar.Toolbar', {
@@ -888,10 +897,10 @@ GenomeViewer.prototype._getBottomBar = function() {
 	var legendBar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'legendBar',
 		cls: 'bio-hiddenbar',
-		width:420,
+		width:570,
 		height:28,
 		items : [/*scaleLabel, */
-		         '-',mouseLabel,
+		         '-',mouseLabel,windowSize,
 		         geneLegendPanel.getButton(GENE_BIOTYPE_COLORS),
 		         snpLegendPanel.getButton(SNP_BIOTYPE_COLORS),
 		         '->',versionLabel]

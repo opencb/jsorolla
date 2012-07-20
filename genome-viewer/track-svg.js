@@ -134,6 +134,7 @@ TrackSvg.prototype.draw = function(){
 		"height":this.height
 	});
 	var features = SVG.addChild(main,"svg",{
+		"class":"features",
 		"x":-this.pixelPosition,
 		"width":this.lienzo,
 		"height":this.height
@@ -204,8 +205,8 @@ TrackSvg.prototype.draw = function(){
 	});
 	
 	
-	//XXX para mañana, arrastrar para ordenar verticalmente
-//	$(titlebar).mousedown(function(event){
+////	XXX para mañana, arrastrar para ordenar verticalmente
+//	$(titleGroup).mousedown(function(event){
 //		main.parentNode.appendChild(main); 
 ////		var x = parseInt(main.getAttribute("x")) - event.offsetX;
 //		var y = parseInt(main.getAttribute("y")) - event.clientY;
@@ -218,7 +219,8 @@ TrackSvg.prototype.draw = function(){
 //		$(this).off('mousemove');
 //	});
 	
-
+	$(features).css('fill','red');
+	
 //	var over = SVG.addChild(main,"rect",{
 //		"x":0,
 //		"y":0,
@@ -240,7 +242,7 @@ TrackSvg.prototype.draw = function(){
 		upRect.setAttribute("visibility","visible");
 		downRect.setAttribute("visibility","visible");
 		if(_this.closable == true){ hideRect.setAttribute("visibility","visible"); }
-		settingsRect.setAttribute("visibility","visible");
+//		settingsRect.setAttribute("visibility","visible");//TODO not implemented yet, hidden for now...
 	});
 	$(titleGroup).mouseleave(function(event){
 ////	over.setAttribute("opacity","0.0");
@@ -748,23 +750,31 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 							//XXX now paint coding region
 							var	codingStart = 0;
 							var codingEnd = 0;
+							// 5'-UTR
 							if(transcript.codingRegionStart > exonStart && transcript.codingRegionStart < exonEnd){
 								codingStart = parseInt(transcript.codingRegionStart);
 								codingEnd = exonEnd;
-							}else 
+							}else {
+								// 3'-UTR
 								if(transcript.codingRegionEnd > exonStart && transcript.codingRegionEnd < exonEnd){
 									codingStart = exonStart;		
 									codingEnd = parseInt(transcript.codingRegionEnd);		
 								}else
+									// all exon is transcribed
 									if(transcript.codingRegionStart < exonStart && transcript.codingRegionEnd > exonEnd){
 										codingStart = exonStart;		
 										codingEnd = exonEnd;	
 									}
-
+//									else{
+//										if(exonEnd < transcript.codingRegionStart){
+//										
+//									}
+							}
+							var coding = codingEnd-codingStart;
 							var codingX = _this.pixelPosition+middle-((_this.position-codingStart)*_this.pixelBase);
-							var codingWidth = (codingEnd-codingStart+1) * ( _this.pixelBase);
+							var codingWidth = (coding+1) * ( _this.pixelBase);
 
-							if(codingWidth > 0 ){
+							if(coding > 0 ){
 								var cRect = SVG.addChild(transcriptGroup,"rect",{
 									"i":i,
 									"x":codingX,
@@ -776,22 +786,22 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 									"fill": color,
 									"cursor": "pointer"
 								});
+								//XXX draw phase only at zoom 100, where this.pixelBase=10
+								for(var p = 0, lenp = 3 - e2t.phase; p < lenp && _this.pixelBase==10 && e2t.phase!=-1; p++){//==10 for max zoom only
+									SVG.addChild(transcriptGroup,"rect",{
+										"i":i,
+										"x":codingX+(p*10),
+										"y":checkRowY-1,
+										"width":_this.pixelBase,
+										"height":settings.height+3,
+										"stroke": color,
+										"stroke-width": 1,
+										"fill": 'white',
+										"cursor": "pointer"
+									});
+								}
 							}
 
-							//XXX draw phase only at zoom 100, where this.pixelBase=10
-							for(var p = 0, lenp = 3 - e2t.phase; p < lenp && _this.pixelBase==10 && e2t.phase!=-1; p++){//==10 for max zoom only
-								SVG.addChild(transcriptGroup,"rect",{
-									"i":i,
-									"x":codingX+(p*10),
-									"y":checkRowY-1,
-									"width":_this.pixelBase,
-									"height":settings.height+3,
-									"stroke": color,
-									"stroke-width": 1,
-									"fill": 'white',
-									"cursor": "pointer"
-								});
-							}
 
 						}
 
