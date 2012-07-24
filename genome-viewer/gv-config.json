@@ -137,6 +137,34 @@ FEATURE_TYPES = {
 		height:4,
 		histogramColor:"lightblue"
 	},
+	geneorange:{
+		getLabel: function(f){
+			var str = "";
+			str+= (f.strand < 0) ? "<" : "";
+			str+= " "+f.externalName+" ";
+			str+= (f.strand > 0) ? ">" : "";
+			str+= " ["+f.biotype+"]";
+			return str;
+		},
+		getTipTitle: function(f){
+			return FEATURE_TYPES.formatTitle(f.featureType) +
+			' - <span class="ok">'+f.externalName+'</span>';
+		},
+		getTipText: function(f){
+			var color = GENE_BIOTYPE_COLORS[f.biotype];
+			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.stableId+'</span><br>'+
+			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
+			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
+			FEATURE_TYPES.getTipCommons(f)+
+			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
+		},
+		getColor: function(f){
+			return GENE_BIOTYPE_COLORS[f.biotype];
+		},
+		infoWidgetId: "stableId",
+		height:4,
+		histogramColor:"lightblue"
+	},
 	transcript:{
 		getLabel: function(f){
 			var str = "";
@@ -370,7 +398,31 @@ FEATURE_TYPES = {
 	},
 	vcf:{
 		getLabel: function(f){
-			return f.id+" "+f.ref+"/"+f.alt+"";
+			var fields = f.sampleData.split("\t");
+			if(fields.length>10)
+				return f.id+" "+f.ref+"/"+f.alt+"";
+			else{
+				var gt = fields[9].split(":")[0];
+				if(gt.indexOf(".")!= -1 || gt.indexOf("-")!= -1)
+					return gt;
+				var label = "";
+				var alt = f.alt.split(",");
+				if(gt.charAt(0)=='0')
+					label = f.ref;
+				else{
+					var pos = gt.charAt(0)-1
+					label = alt[pos] 
+				}				
+				label+=gt.charAt(1)
+				if(gt.charAt(2)=='0')
+					label += f.ref;
+				else{
+					var pos = gt.charAt(2)-1
+					label += alt[pos] 
+				}
+		
+				return label;
+			}
 		},
 		getTipTitle: function(f){
 			return 'VCF variant - <span class="ok">'+f.id+'</span>';

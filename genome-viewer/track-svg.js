@@ -945,7 +945,7 @@ TrackSvg.prototype.showInfoWidget = function(args){
 	console.log(args);
 	switch (args.featureType) {
 	case "gene": new GeneInfoWidget(null,this.trackData.adapter.species).draw(args); break;
-	case "geneorange": new GeneInfoWidget(null,this.trackData.adapter.species).draw(args); break;
+	case "geneorange": new GeneOrangeInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "transcript": new TranscriptInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "snp" : new SnpInfoWidget(null,this.trackData.adapter.species).draw(args); break;	
 	case "vcf" : new VCFVariantInfoWidget(null,this.trackData.adapter.species).draw(args); break;

@@ -126,7 +126,7 @@ CellBaseAdapter.prototype.getData = function(args){
 				}
 			}
 			if(_this.species=="orange"){
-				data.resource+"orange";
+				data.resource+="orange";
 			}
 			
 			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
