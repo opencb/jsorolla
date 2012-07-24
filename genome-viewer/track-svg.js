@@ -471,10 +471,11 @@ TrackSvg.prototype.BamRender = function(chunkList){
 //			});
 		}
 //		console.log(points)
-		var pol = SVG.addChild(_this.features,"polyline",{
+		var pol2 = SVG.addChild(_this.features,"g");
+		var pol = SVG.addChild(pol2,"polyline",{
 			"points":points,
 			"stroke": "black",
-			"stroke-width": 1,
+			"stroke-width": 3,
 			"opacity": 0.4,
 			"fill": "gray",
 			"cursor": "pointer"
@@ -482,12 +483,35 @@ TrackSvg.prototype.BamRender = function(chunkList){
 //		$(pol).onmouseover(function(e){
 //			console.log(e);
 //		});
-		console.log(_this.customSvgField)
 		_this.customSvgField.setAttribute("y","60");
-		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,data){
-			console.log(start-data)
-//			_this.customSvgField.textContent = coverageList[start - data];
+		_this.customSvgField.textContent = "AAAAAAAA";
+//		var overPol = false;
+//		$(pol).mouseenter(function(){
+//			console.log("enter");
+//			overPol = true;
+//		});
+		
+//		console.log(pol.onmouseover)
+		_this.customSvgField.onmouseover = function(){
+			console.log("enter");
+		};
+		$(pol).mouseleave(function(){
+			console.log("leave");
+			overPol = false;
 		});
+//		$(pol).qtip({
+//			content:"asdf",
+//			position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+//			style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
+//		});
+		
+		
+//		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,mousePos){
+//			if(overPol){
+//				_this.customSvgField.textContent = coverageList[mousePos-parseInt(chunk.region.start)];
+//			}
+//		});
+		
 		for ( var i = 0, li = readList.length; i < li; i++) {
 			draw(readList[i]);
 		}

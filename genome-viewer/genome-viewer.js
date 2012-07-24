@@ -315,6 +315,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		fields: ["xrefId","displayId","description"]
 	});
 	
+	
 	var searchCombo = Ext.create('Ext.form.field.ComboBox', {
 		id : this.id+'quickSearch',
 		displayField: 'displayId',
@@ -340,6 +341,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 						success:function(data, textStatus, jqXHR){
 							var d = JSON.parse(data);
 							searchResults.loadData(d[0]);
+							console.log(searchResults)
 						},
 						error:function(jqXHR, textStatus, errorThrown){console.log(textStatus);}
 					});
@@ -881,7 +883,7 @@ GenomeViewer.prototype._getBottomBar = function() {
 	});
 	var windowSize = Ext.create('Ext.toolbar.TextItem', {
 		id:this.id+"windowSize",
-		width:130,
+		width:150,
 		text:'<span class="emph">Window size: -</span>'
 	});
 	
@@ -897,7 +899,7 @@ GenomeViewer.prototype._getBottomBar = function() {
 	var legendBar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'legendBar',
 		cls: 'bio-hiddenbar',
-		width:570,
+		width:600,
 		height:28,
 		items : [/*scaleLabel, */
 		         '-',mouseLabel,windowSize,

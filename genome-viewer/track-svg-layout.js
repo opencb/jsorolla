@@ -73,12 +73,13 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"height":2000
 	});
 	
+	var mid = this.width/2;
 	this.grid = SVG.addChild(patt,"rect",{
-		"x":0,
+		"x":parseInt(mid%10),
 		"y":25,
 		"width":1,
 		"height":2000,
-		"opacity":"0.1",
+		"opacity":"0.15",
 		"fill":"grey"
 	});
 	
@@ -89,7 +90,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"fill":"url(#"+this.id+"gridPatt)"
 	});
 	
-	var mid = this.width/2;
 	this.positionText = SVG.addChild(this.svg,"text",{
 		"x":mid-30,
 		"y":22,
@@ -167,19 +167,20 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 //		this.svg.setAttribute("cursor", "move");
 		
 		$(parent).mousemove(function(event) {
-			var cX = event.clientX+2-_this.pixelBase/2;
+			var mid = _this.width/2;
+			var offsetX = (event.clientX - $(_this.svg).offset().left);
+			var cX = offsetX-_this.pixelBase/2;
 			var rcX = (cX/_this.pixelBase) | 0;
-			var pos = (rcX*_this.pixelBase) + 1;
+			var pos = (rcX*_this.pixelBase) + mid%_this.pixelBase;
 			_this.mouseLine.setAttribute("x",pos);
 			
-			var mid = _this.width/2;
 			var posOffset = (mid/_this.pixelBase) | 0;
 			_this.mousePosition = _this.position+rcX-posOffset;
 			_this.onMousePosition.notify(_this.mousePosition);
 		});
 		
 		$(this.svg).mousedown(function(event) {
-			_this.mouseLine.setAttribute("visibility","hidden");
+//			_this.mouseLine.setAttribute("visibility","hidden");
 			this.setAttribute("cursor", "move");
 			var downX = event.clientX;
 			var lastX = 0;
@@ -207,8 +208,13 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		$(this.svg).mouseleave(function(event) {
 			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
+			$("body").off('keydown');
 		});
 		
+		$(this.svg).mouseenter(function(e) {
+			$("body").off('keydown');
+			enableKeys();
+		});
 		
 		var enableKeys = function(){
 			//keys
@@ -249,17 +255,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		};
 		
 		
-		$(this.svg).focusin(function(e) {
-			enableKeys();
-		});
-		$(this.svg).click(function(e) {
-			$("body").off('keydown');
-			enableKeys();
-		});
-		$(this.svg).focusout(function(e) {
-			$("body").off('keydown');
-		});
-
 //		$(this.svg).focus();// without this, the keydown does not work
 		
 	}else{
@@ -283,6 +278,7 @@ TrackSvgLayout.prototype.setWidth = function(width){
 	this.width=width;
 	var mid = this.width/2;
 	this.svg.setAttribute("width",width);
+	this.grid.setAttribute("x",parseInt(mid%10));
 	this.grid2.setAttribute("width",width);
 	this.positionText.setAttribute("x",mid-30);
 	this.lastPositionText.setAttribute("x",width-70);
@@ -423,8 +419,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	checkHistogramZoom();
 	checkTranscriptZoom();//for genes only
 	setCallRegion();
-	trackData.retrieveData({chromosome:this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
-	
+	// check if track is visible in this zoom
+	if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
+		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
+		trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
+	}else{
+		trackSvg.invalidZoomText.setAttribute("visibility", "visible");
+	}
 	
 	//on zoom change set new virtual window and update track values
 	trackSvg.onZoomChangeIdx = this.onZoomChange.addEventListener(function(sender,data){
