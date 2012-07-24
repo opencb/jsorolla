@@ -180,7 +180,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		});
 		
 		$(this.svg).mousedown(function(event) {
-			_this.mouseLine.setAttribute("visibility","hidden");
+//			_this.mouseLine.setAttribute("visibility","hidden");
 			this.setAttribute("cursor", "move");
 			var downX = event.clientX;
 			var lastX = 0;
