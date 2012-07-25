@@ -47,7 +47,6 @@ DqsAdapter.prototype.getData = function(args){
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
-	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	var chunks = [];
 	var itemList = [];

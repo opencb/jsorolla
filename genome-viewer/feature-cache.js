@@ -20,6 +20,9 @@ function FeatureCache(args) {
 	this.chunksDisplayed = {};
 	
 	this.maxFeaturesInterval = 0;
+	
+	//XXX
+	this.gzip = false;
 };
 
 FeatureCache.prototype._getChunk = function(position){
@@ -129,6 +132,9 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, featureType, dataType){
 	var key, firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, feature, gzipFeature;
 	
+	console.time("-----"+featureType);
+	var ssss = 0;
+	
 	//initialize region
 	firstRegionChunk = this._getChunk(region.start);
 	lastRegionChunk = this._getChunk(region.end);
@@ -156,8 +162,10 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 		
 		if(this.gzip) {
 			gzipFeature = RawDeflate.deflate(JSON.stringify(feature));
+			ssss+=gzipFeature.length;
 		}else{
 			gzipFeature = feature;
+			ssss+=JSON.stringify(gzipFeature).length;
 		}
 		
 		for(var i=firstChunk; i<=lastChunk; i++) {
@@ -167,6 +175,8 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 			}
 		}
 	}
+	console.timeEnd("-----"+featureType);
+	console.log("-----"+ssss)
 };
 
 

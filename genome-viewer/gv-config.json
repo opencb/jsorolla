@@ -71,6 +71,19 @@ SNP_BIOTYPE_COLORS = {
 
 SEQUENCE_COLORS = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"}
 
+SAM_FLAGS = [["read paired", 0x1],
+             ["read mapped in proper pair", 0x2],
+             ["read unmapped", 0x4],
+             ["mate unmapped", 0x8],
+             ["read reverse strand", 0x10],
+             ["mate reverse strand", 0x20],
+             ["first in pair", 0x40],
+             ["second in pair", 0x80],
+             ["not primary alignment", 0x100],
+             ["read fails platform/vendor quality checks", 0x200],
+             ["read is PCR or optical duplicate", 0x400]];
+
+
 FEATURE_TYPES = {
 	
 	//methods
@@ -478,16 +491,35 @@ FEATURE_TYPES = {
 		histogramColor:"orange"
 	},
 	bam:{
+		explainFlags : function(flags) {
+			var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags : <span class="ssel">'+flags+'</span></div>';
+			for(var i = 0; i < SAM_FLAGS.length; i++) {
+				if(SAM_FLAGS[i][1] & flags) {
+					summary  += SAM_FLAGS[i][0] + "<br>";
+				} 
+			}
+			return summary;
+		},
 		getLabel: function(f){
+			
 			return  "bam  "+f.chromosome+":"+f.start+"-"+f.end;
 		},
 		getTipTitle: function(f){
 			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+f.name+'</span>';
 		},
 		getTipText: function(f){
-			return 'cigar:&nbsp;<span class="ssel">'+f.cigar+'</span><br>'+
-				'flags:&nbsp;<span class="ssel">'+f.flags+'</span><br>'+
-				FEATURE_TYPES.getTipCommons(f);
+			var one =  'cigar:&nbsp;<span class="ssel">'+f.cigar+'</span><br>'+
+				FEATURE_TYPES.getTipCommons(f)+'<br>'+
+				FEATURE_TYPES.bam.explainFlags(f.flags);
+			
+			var three = '<div style="background:#FFEF93;font-weight:bold;">attributes</div>';
+			delete f.attributes["BQ"];//for now because is too long
+			for (var key in f.attributes) {
+				three += key+":"+f.attributes[key]+"<br>";
+			}
+			var style = "background:#FFEF93;font-weight:bold;";
+			return '<div style="float:left">'+one+'</div>'+
+					'<div style="float:right">'+three+'</div>';
 		},
 		getColor: function(f){
 			return "grey";

@@ -47,7 +47,7 @@ DqsRestManager.prototype.region = function(category, filename, region, queryPara
 	var url = this.getHost()+'/'+category+'/'+filename+'/'+region+'/region'+this.getQuery(queryParams);
 	console.log(url);
 	function success(data){
-		_this.onRegion.notify({resource:category,result:JSON.parse(data),filename:filename,query:region,params:queryParams});
+			_this.onRegion.notify({resource:category,result:JSON.parse(data),filename:filename,query:region,params:queryParams});
 	}
 	
 	function error(data){
