@@ -398,7 +398,15 @@ FEATURE_TYPES = {
 	},
 	vcf:{
 		getLabel: function(f){
-			var fields = f.sampleData.split("\t");
+				try {
+						var fields = f.sampleData.split("\t");
+					} catch (e) {
+					//Uncaught TypeError: Cannot call method 'split' of undefined 
+						console.log(e)
+						debugger
+						
+					}
+			
 			if(fields.length>10)
 				return f.id+" "+f.ref+"/"+f.alt+"";
 			else{
