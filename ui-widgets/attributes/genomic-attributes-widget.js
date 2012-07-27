@@ -233,7 +233,6 @@ GenomicAttributesWidget.prototype.onAdditionalInformationClick = function (){
 	var _this=this;
 	this.listWidget.draw(this.cbResponse, false);
 	this.listWidget.onFilterResult.addEventListener(function(sender,data){
-		debugger
 			_this.karyotypeWidget.unmark();
 			var items  = data;
 			for (var i = 0; i < items.length; i++) {

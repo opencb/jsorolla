@@ -508,6 +508,7 @@ FEATURE_TYPES = {
 			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+f.name+'</span>';
 		},
 		getTipText: function(f){
+			f.strand = FEATURE_TYPES.bam.getStrand(f);
 			var one =  'cigar:&nbsp;<span class="ssel">'+f.cigar+'</span><br>'+
 				FEATURE_TYPES.getTipCommons(f)+'<br>'+
 				FEATURE_TYPES.bam.explainFlags(f.flags);
@@ -523,6 +524,9 @@ FEATURE_TYPES = {
 		},
 		getColor: function(f){
 			return "grey";
+		},
+		getStrand: function(f){
+			return (parseInt(f.flags)&16) == 0 ? "Forward" : "Reverse";
 		},
 		height:10,
 		histogramColor:"grey"

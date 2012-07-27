@@ -200,6 +200,42 @@ TrackSvg.prototype.draw = function(){
 		"visibility":"hidden"
 	});
 	
+	//bamStrandPatt
+//	var bamStrandPatt = SVG.addChild(main,"pattern",{
+//		"id":this.id+"bamStrandPatt",
+//		"patternUnits":"userSpaceOnUse",
+//		"x":0,
+//		"y":0,
+//		"width":30,
+//		"height":10
+//	});
+//	
+//	var bamStrandPattArrow = SVG.addChild(bamStrandPatt,"path",{
+//		"d":"M 1 1 L 8 5 L 1 9 Z",
+//	});
+	
+	var bamStrandForward = SVG.addChild(main,"linearGradient",{
+		"id":this.id+"bamStrandForward",
+	});
+	var bamStrandReverse = SVG.addChild(main,"linearGradient",{
+		"id":this.id+"bamStrandReverse",
+	});
+	var stop1 = SVG.addChild(bamStrandForward,"stop",{
+		"offset":"5%",
+		"stop-color":"#666"
+	});
+	var stop2 = SVG.addChild(bamStrandForward,"stop",{
+		"offset":"95%",
+		"stop-color":"#BBB"
+	});
+	var stop1 = SVG.addChild(bamStrandReverse,"stop",{
+		"offset":"5%",
+		"stop-color":"#BBB"
+	});
+	var stop2 = SVG.addChild(bamStrandReverse,"stop",{
+		"offset":"95%",
+		"stop-color":"#666"
+	});
 	
 ////	XXX para mañana, arrastrar para ordenar verticalmente
 //	$(titleGroup).mousedown(function(event){
@@ -453,7 +489,7 @@ TrackSvg.prototype.BamRender = function(chunkList){
 		var pol = SVG.addChild(bamGroup,"polyline",{
 			"points":points,
 			"stroke": "black",
-			"stroke-width": 3,
+			"stroke-width": 2,
 			"opacity": 0.4,
 			"fill": "gray"
 		});
@@ -528,27 +564,35 @@ TrackSvg.prototype.BamRender = function(chunkList){
 			var enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
 			
 			if(enc){
+				
+				var strand = settings.getStrand(feature);
 				var rect = SVG.addChild(bamGroup,"rect",{
 					"x":x,
 					"y":rowY,
 					"width":width,
 					"height":settings.height,
-					"stroke": "black",
-					"stroke-width": 0.2,
-					"fill": color,
+					"stroke": "white",
+					"stroke-width": 1,
+					"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
 					"cursor": "pointer"
 				});
+//				var d = 'M '+x+' '+rowY+' L '+(x+width)+' '+rowY+' L '+(x+width)+' '+(rowY+settings.height)+' L '+x+' '+(rowY+settings.height)+' Z';
 //				var rect = SVG.addChild(bamGroup,"path",{
 ////					"x":x,
 ////					"y":rowY,
 ////					"width":width,
 ////					"height":settings.height,
-//					"d":'M '+x+' '+rowY+' L '+width+' '+rowY+' L '+width+' '+(rowY+settings.height)+' L '+x+' '+(rowY+settings.height)+' Z',
-//					"stroke": "black",
-//					"stroke-width": 0.2,
+//					"d":d,
+//					"stroke": "white",
+//					"stroke-width": 1,
 //					"fill": color,
 //					"cursor": "pointer"
 //				});
+////				console.log(d)
+				
+//				rect.onmouseover = function(){
+//					console.log("over");
+//				};
 				
 //				var text = SVG.addChild(_this.features,"text",{
 //					"i":i,
@@ -868,6 +912,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				"x":x+1,
 				"y":13,
 				"font-size":16,
+//				"dx" : width,
 				"font-family": "monospace"
 			});
 			text.textContent = seqString;

@@ -54,8 +54,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	
 	
 	//Flags 
-	this.onFeaturesRendered = new Event(); //used when location or zoom is modified, to avoid repeated calls
-	
+	this.tracksRendered=0;
+	this.onTracksRendered = new Event();
 	
 	//Main SVG and his events
 	this.svg = SVG.init(parent,{
@@ -168,8 +168,9 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		
 		$(parent).mousemove(function(event) {
 			var mid = _this.width/2;
-			var offsetX = (event.clientX - $(_this.svg).offset().left);
-			var cX = offsetX-_this.pixelBase/2;
+			var pb2 = _this.pixelBase/2;
+			var offsetX = (event.clientX - $(parent).offset().left);
+			var cX = offsetX-pb2;
 			var rcX = (cX/_this.pixelBase) | 0;
 			var pos = (rcX*_this.pixelBase) + mid%_this.pixelBase;
 			_this.mouseLine.setAttribute("x",pos);
@@ -401,6 +402,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
+		_this.tracksRendered++;
 		if(event.params.histogram == true){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 		}else{
@@ -412,6 +414,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 //		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
+		_this._checkTracksRendered();
+//		_this.tracksRendered--;
+		
 	});
 	
 	
@@ -421,6 +426,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	setCallRegion();
 	// check if track is visible in this zoom
 	if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
+		
 		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 		trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
 	}else{
@@ -439,6 +445,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
+			
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
 		}else{
@@ -456,6 +463,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
+			
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 		}
 	});
@@ -477,6 +485,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
 
 			if(desp<0 && virtualEnd > callEnd){
+				
 				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase), histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 				callEnd = parseInt(callEnd+_this.halfVirtualBase);
 //				$(trackSvg.features).empty();
@@ -484,6 +493,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			}
 
 			if(desp>0 && virtualStart < callStart){
+				
 				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 				callStart = parseInt(callStart-_this.halfVirtualBase);
 //				$(trackSvg.features).empty();
@@ -642,3 +652,12 @@ TrackSvgLayout.prototype._setTextPosition = function(){
 	this.firstPositionText.textContent = (this.position-x).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 	this.lastPositionText.textContent = (this.position+x-1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 };
+
+TrackSvgLayout.prototype._checkTracksRendered = function(){
+	if(this.tracksRendered == this.trackSvgList.length-1){
+		console.log(this.tracksRendered)
+		this.tracksRendered=0;
+		this.onTracksRendered.notify();
+	}
+};
+

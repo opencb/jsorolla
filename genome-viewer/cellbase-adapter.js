@@ -33,7 +33,6 @@ function CellBaseAdapter(args){
 CellBaseAdapter.prototype.getData = function(args){
 	var _this = this;
 	//region check
-	
 	this.params["histogram"] = args.histogram;
 	this.params["interval"] = args.interval;
 	this.params["transcript"] = args.transcript;
@@ -71,9 +70,9 @@ CellBaseAdapter.prototype.getData = function(args){
 		}
 	}
 //	//notify all chunks
-	if(itemList.length>0){
-		this.onGetData.notify({data:itemList, params:this.params, cached:true});
-	}
+//	if(itemList.length>0){
+//		this.onGetData.notify({data:itemList, params:this.params, cached:true});
+//	}
 	
 	
 	//CellBase data process
@@ -133,8 +132,11 @@ CellBaseAdapter.prototype.getData = function(args){
 			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
 			console.timeEnd("insertCache"+" "+data.resource);
 			if(items != null){
-				_this.onGetData.notify({data:items, params:_this.params, cached:false});
+				itemList = itemList.concat(items);
 			}
+		}
+		if(itemList.length > 0){
+			_this.onGetData.notify({data:itemList, params:_this.params, cached:false});
 		}
 	});
 
@@ -174,5 +176,9 @@ CellBaseAdapter.prototype.getData = function(args){
 //		console.log(querys);
 		console.time("cellbase");
 		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, this.params);
+	}else{
+		if(itemList.length > 0){
+			this.onGetData.notify({data:itemList, params:this.params});
+		}
 	}
 };
