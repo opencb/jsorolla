@@ -523,7 +523,7 @@ FEATURE_TYPES = {
 					'<div style="float:right">'+three+'</div>';
 		},
 		getColor: function(f){
-			return "grey";
+			return (parseInt(f.flags)&16) == 0 ? "DarkGray" : "LightGray";
 		},
 		getStrand: function(f){
 			return (parseInt(f.flags)&16) == 0 ? "Forward" : "Reverse";

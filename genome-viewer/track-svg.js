@@ -573,7 +573,8 @@ TrackSvg.prototype.BamRender = function(chunkList){
 					"height":settings.height,
 					"stroke": "white",
 					"stroke-width": 1,
-					"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
+					"fill": color,
+//					"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
 					"cursor": "pointer"
 				});
 //				var d = 'M '+x+' '+rowY+' L '+(x+width)+' '+rowY+' L '+(x+width)+' '+(rowY+settings.height)+' L '+x+' '+(rowY+settings.height)+' Z';
