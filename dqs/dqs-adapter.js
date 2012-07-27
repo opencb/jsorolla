@@ -25,6 +25,7 @@ function DqsAdapter(args){
 };
 
 DqsAdapter.prototype.getData = function(args){
+	debugger
 	var _this = this;
 	//region check
 	
@@ -119,6 +120,7 @@ DqsAdapter.prototype.getData = function(args){
 				}
 			}else{
 				var query = args.chromosome+":"+chunkStart+"-"+chunkEnd;
+				
 				querys.push(query);
 				updateStart = true;
 				updateEnd = true;

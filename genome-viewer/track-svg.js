@@ -368,7 +368,16 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 		
 		//get type settings object
 		var settings = _this.types[feature.featureType];
-		var color = settings.getColor(feature);
+		try {
+			var color = settings.getColor(feature);
+		} catch (e) {
+			//Uncaught TypeError: Cannot call method 'getColor' of undefined 
+			console.log(e)
+			debugger
+			
+		}
+		
+		
 		
 		//transform to pixel position
 		width = width * _this.pixelBase;
@@ -1003,9 +1012,18 @@ TrackSvg.prototype.HistogramRender = function(featureList){
 
 TrackSvg.prototype.showInfoWidget = function(args){
 	console.log(args);
+	if(this.trackData.adapter.species=="orange"){
+		//data.resource+="orange";
+		if(args.featureType.indexOf("gene")!=-1)
+			args.featureType="geneorange";
+		if(args.featureType.indexOf("transcript")!=-1)
+			args.featureType="transcriptorange";
+	}
+	
 	switch (args.featureType) {
 	case "gene": new GeneInfoWidget(null,this.trackData.adapter.species).draw(args); break;
-	case "geneorange": new GeneInfoWidget(null,this.trackData.adapter.species).draw(args); break;
+	case "geneorange": new GeneOrangeInfoWidget(null,this.trackData.adapter.species).draw(args); break;
+	case "transcriptorange": new TranscriptOrangeInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "transcript": new TranscriptInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "snp" : new SnpInfoWidget(null,this.trackData.adapter.species).draw(args); break;	
 	case "vcf" : new VCFVariantInfoWidget(null,this.trackData.adapter.species).draw(args); break;

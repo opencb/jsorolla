@@ -654,7 +654,7 @@ TrackSvgLayout.prototype._setTextPosition = function(){
 };
 
 TrackSvgLayout.prototype._checkTracksRendered = function(){
-	if(this.tracksRendered == this.trackSvgList.length-1){
+	if(this.tracksRendered == this.trackSvgList.length){
 		console.log(this.tracksRendered)
 		this.tracksRendered=0;
 		this.onTracksRendered.notify();

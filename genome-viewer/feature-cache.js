@@ -94,7 +94,15 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 		if(this.cache[key] != null && this.cache[key][dataType] != null){
 			for ( var j = 0, len = this.cache[key][dataType].length; j < len; j++) {
 				if(this.gzip) {
-					feature = JSON.parse(RawDeflate.inflate(this.cache[key][dataType][j]));
+					try {
+						feature = JSON.parse(RawDeflate.inflate(this.cache[key][dataType][j]));
+					} catch (e) {
+						/** feature es "" **/
+						console.log(e)
+						debugger
+						
+					}
+					
 				}else{
 					feature = this.cache[key][dataType][j];
 				}

@@ -3,6 +3,9 @@ function DqsRestManager (){
 	//This line never changes
 	this.host = "http://ws.bioinfo.cipf.es/dqs/rest";
 	
+	if(window.location.hostname.indexOf("bioinfo.cipf.es")!=-1)
+         this.host = "http://bioinfo.cipf.es/dqs-naranjoma-ws/rest";
+
 	if(window.location.host.indexOf("fsalavert")!=-1 ||
 	   window.location.host.indexOf("rsanchez")!=-1 ||
 	   window.location.host.indexOf("imedina")!=-1 ||
@@ -12,6 +15,9 @@ function DqsRestManager (){
 //		this.host = "http://fsalavert:8080/dqs/rest";
 //		this.host = "http://rsanchez:8080/dqs/rest";
 //		this.host = "http://imedina:8080/dqs/rest";
+	}
+	if(window.location.host.indexOf("ralonso")!=-1){
+		this.host = "http://ralonso:8080/dqs-naranjoma-ws/rest";
 	}
 	DQSHOST = this.host;
 	
@@ -47,7 +53,7 @@ DqsRestManager.prototype.region = function(category, filename, region, queryPara
 	var url = this.getHost()+'/'+category+'/'+filename+'/'+region+'/region'+this.getQuery(queryParams);
 	console.log(url);
 	function success(data){
-			_this.onRegion.notify({resource:category,result:JSON.parse(data),filename:filename,query:region,params:queryParams});
+		_this.onRegion.notify({resource:category,result:JSON.parse(data),filename:filename,query:region,params:queryParams});
 	}
 	
 	function error(data){

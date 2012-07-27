@@ -1,12 +1,12 @@
-GeneInfoWidget.prototype.draw = InfoWidget.prototype.draw;
-GeneInfoWidget.prototype.render = InfoWidget.prototype.render;
-GeneInfoWidget.prototype.getTreePanel = InfoWidget.prototype.getTreePanel;
-GeneInfoWidget.prototype.checkDataTypes = InfoWidget.prototype.checkDataTypes;
-GeneInfoWidget.prototype.doGrid = InfoWidget.prototype.doGrid;
-GeneInfoWidget.prototype.getGeneTemplate = InfoWidget.prototype.getGeneTemplate;
-GeneInfoWidget.prototype.getTranscriptTemplate = InfoWidget.prototype.getTranscriptTemplate;
+GeneOrangeInfoWidget.prototype.draw = InfoWidget.prototype.draw;
+GeneOrangeInfoWidget.prototype.render = InfoWidget.prototype.render;
+GeneOrangeInfoWidget.prototype.getTreePanel = InfoWidget.prototype.getTreePanel;
+GeneOrangeInfoWidget.prototype.checkDataTypes = InfoWidget.prototype.checkDataTypes;
+GeneOrangeInfoWidget.prototype.doGrid = InfoWidget.prototype.doGrid;
+GeneOrangeInfoWidget.prototype.getGeneTemplate = InfoWidget.prototype.getGeneTemplate;
+GeneOrangeInfoWidget.prototype.getTranscriptTemplate = InfoWidget.prototype.getTranscriptTemplate;
 
-function GeneInfoWidget(targetId, species, args){
+function GeneOrangeInfoWidget(targetId, species, args){
 	if (args == null){
 		args = new Object();
 	}
@@ -14,7 +14,7 @@ function GeneInfoWidget(targetId, species, args){
 	InfoWidget.prototype.constructor.call(this, targetId, species, args);
 };
 
-GeneInfoWidget.prototype.getdataTypes = function (){
+GeneOrangeInfoWidget.prototype.getdataTypes = function (){
 	//Abstract method
 	return dataTypes=[
 	            { text: "Genomic", children: [
@@ -23,21 +23,13 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	            ] },
 	            { text: "Functional information", children: [
 	                { text: "GO"},
-	                { text: "Reactome"},
+	                { text: "KEGG"},
 	                { text: "Interpro"}
-	            ] },
-	            { text: "Regulatory", children: [
-	                { text: "TFBS"},
-	                { text: "miRNA targets"}                   
-	            ]},
-	            { text:"Protein", children: [
-	                { text: "Features"},//protein profile
-	                { text: "3D structure"}
-	            ]}	     
+	            ] }
 	        ];
 };
 
-GeneInfoWidget.prototype.optionClick = function (item){
+GeneOrangeInfoWidget.prototype.optionClick = function (item){
 	//Abstract method
 	if (item.leaf){
 		if(this.panel.getComponent(1)!=null){
@@ -50,16 +42,12 @@ GeneInfoWidget.prototype.optionClick = function (item){
 //			case "GO": this.panel.add(this.getGoGrid().show()); break;
 			case "GO": this.panel.add(this.getXrefGrid(this.data.go, "GO").show());  break;
 			case "Interpro": this.panel.add(this.getXrefGrid(this.data.interpro, "Interpro").show());  break;
-			case "Reactome": this.panel.add(this.getXrefGrid(this.data.reactome, "Reactome").show());  break;
-			case "TFBS": this.panel.add(this.getTfbsGrid(this.data.tfbs).show());  break;
-			case "miRNA targets": this.panel.add(this.getMirnaTargetGrid(this.data.mirnaTargets).show());  break;
-			case "Features": this.panel.add(this.getProteinFeaturesGrid(this.data.proteinFeatures).show());  break;
-			case "3D structure": this.panel.add(this.get3Dprotein(this.data.snps).show());  break;
+			case "KEGG": this.panel.add(this.getXrefGrid(this.data.kegg, "KEGG").show());  break;
 		}
 	}
 };
 
-GeneInfoWidget.prototype.getGenePanel = function(data){
+GeneOrangeInfoWidget.prototype.getGenePanel = function(data){
 	if(data==null){
 		return this.notFoundPanel;
 	}
@@ -80,7 +68,7 @@ GeneInfoWidget.prototype.getGenePanel = function(data){
 };
 
 
-GeneInfoWidget.prototype.getTranscriptPanel = function(data){
+GeneOrangeInfoWidget.prototype.getTranscriptPanel = function(data){
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}
@@ -111,7 +99,7 @@ GeneInfoWidget.prototype.getTranscriptPanel = function(data){
 };
 
 
-GeneInfoWidget.prototype.getXrefGrid = function(data, dbname){
+GeneOrangeInfoWidget.prototype.getXrefGrid = function(data, dbname){
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}
@@ -129,7 +117,7 @@ GeneInfoWidget.prototype.getXrefGrid = function(data, dbname){
     return this[dbname+"Grid"];
 };
 
-//GeneInfoWidget.prototype.getGoGrid = function(){
+//GeneOrangeInfoWidget.prototype.getGoGrid = function(){
 //    var _this = this;
 //    if(this.goGrid==null){
 //    	var groupField = 'namespace';
@@ -163,7 +151,7 @@ GeneInfoWidget.prototype.getXrefGrid = function(data, dbname){
 //};
 
 
-GeneInfoWidget.prototype.getTfbsGrid = function(data){
+GeneOrangeInfoWidget.prototype.getTfbsGrid = function(data){
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}
@@ -185,7 +173,7 @@ GeneInfoWidget.prototype.getTfbsGrid = function(data){
     return this.tfbsGrid;
 };
 
-GeneInfoWidget.prototype.getMirnaTargetGrid = function(data){
+GeneOrangeInfoWidget.prototype.getMirnaTargetGrid = function(data){
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}
@@ -206,7 +194,7 @@ GeneInfoWidget.prototype.getMirnaTargetGrid = function(data){
     return this.mirnaTargetGrid;
 };
 
-GeneInfoWidget.prototype.getProteinFeaturesGrid = function(data){
+GeneOrangeInfoWidget.prototype.getProteinFeaturesGrid = function(data){
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}
@@ -228,7 +216,7 @@ GeneInfoWidget.prototype.getProteinFeaturesGrid = function(data){
 };
 
 
-GeneInfoWidget.prototype.getProteinFeaturesGrid = function(data){
+GeneOrangeInfoWidget.prototype.getProteinFeaturesGrid = function(data){
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}
@@ -249,7 +237,7 @@ GeneInfoWidget.prototype.getProteinFeaturesGrid = function(data){
     return this.proteinFeaturesGrid;
 };
 
-GeneInfoWidget.prototype.get3Dprotein = function(data){
+GeneOrangeInfoWidget.prototype.get3Dprotein = function(data){
 	var _this=this;
     if(this.p3dProtein==null){
     	//ws
@@ -367,12 +355,12 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
 
 
 
-GeneInfoWidget.prototype.getEnsembleId = function (){
+GeneOrangeInfoWidget.prototype.getEnsembleId = function (){
 
 };
 
 
-GeneInfoWidget.prototype.getData = function (){
+GeneOrangeInfoWidget.prototype.getData = function (){
 	var _this = this;
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
@@ -383,7 +371,7 @@ GeneInfoWidget.prototype.getData = function (){
 	});
 	cellBaseManager.get("feature","gene", this.query, "fullinfo");
 };
-GeneInfoWidget.prototype.dataReceived = function (data){
+GeneOrangeInfoWidget.prototype.dataReceived = function (data){
 	this.data=data[0][0];
 	console.log(this.data);
 	this.optionClick({"text":"Information","leaf":"true"});
