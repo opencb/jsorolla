@@ -25,6 +25,7 @@ function DqsAdapter(args){
 };
 
 DqsAdapter.prototype.getData = function(args){
+	debugger
 	var _this = this;
 	//region check
 	
@@ -47,7 +48,6 @@ DqsAdapter.prototype.getData = function(args){
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
-	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 
 	var chunks = [];
 	var itemList = [];
@@ -60,14 +60,16 @@ DqsAdapter.prototype.getData = function(args){
 			itemList = itemList.concat(items);
 		}
 	}
-//	//notify all chunks
-	if(itemList.length>0){
-		this.onGetData.notify({data:itemList, params:this.params, cached:true});
-	}
+////	//notify all chunks
+//	if(itemList.length>0){
+//		this.onGetData.notify({data:itemList, params:this.params, cached:true});
+//	}
 	
 	
 	//CellBase data process
 	var dqsManager = new DqsManager();
+	var calls = 0;
+	var querys = [];
 	dqsManager.onRegion.addEventListener(function (evt, data){
 		console.timeEnd("dqs");
 		console.time("dqs-cache");
@@ -84,11 +86,13 @@ DqsAdapter.prototype.getData = function(args){
 		var items = _this.featureCache.getFeaturesByRegion(query, type);
 		console.timeEnd("dqs-cache");
 		if(items != null){
-			_this.onGetData.notify({data:items, params:_this.params, cached:false});
+			itemList = itemList.concat(items);
+		}
+		if(calls == querys.length ){
+			_this.onGetData.notify({data:itemList, params:_this.params, cached:false});
 		}
 	});
 
-	var querys = [];
 	var updateStart = true;
 	var updateEnd = true;
 	if(chunks.length > 0){
@@ -122,10 +126,15 @@ DqsAdapter.prototype.getData = function(args){
 				updateEnd = true;
 			}
 		}
-//		console.log(querys);
+//		console.log(querys)
 		for ( var i = 0, li = querys.length; i < li; i++) {
 			console.time("dqs");
+			calls++;
 			dqsManager.region(this.category, this.resource, querys[i], this.params);
+		}
+	}else{
+		if(itemList.length > 0){
+			this.onGetData.notify({data:itemList, params:this.params});
 		}
 	}
 };

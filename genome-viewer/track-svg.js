@@ -20,7 +20,6 @@ function TrackSvg(parent, args) {
 	this.closable = true;
 	this.types = FEATURE_TYPES;
 	
-	this.customField=false;
 	
 	this.labelZoom = -1;
 	
@@ -75,9 +74,6 @@ function TrackSvg(parent, args) {
 		}
 		if(args.titleVisibility != null){
 			this.titleVisibility = args.titleVisibility;
-		}
-		if(args.customField != null){
-			this.customField = args.customField;
 		}
 		if(args.featuresRender != null){
 			switch(args.featuresRender){
@@ -204,6 +200,42 @@ TrackSvg.prototype.draw = function(){
 		"visibility":"hidden"
 	});
 	
+	//bamStrandPatt
+//	var bamStrandPatt = SVG.addChild(main,"pattern",{
+//		"id":this.id+"bamStrandPatt",
+//		"patternUnits":"userSpaceOnUse",
+//		"x":0,
+//		"y":0,
+//		"width":30,
+//		"height":10
+//	});
+//	
+//	var bamStrandPattArrow = SVG.addChild(bamStrandPatt,"path",{
+//		"d":"M 1 1 L 8 5 L 1 9 Z",
+//	});
+	
+	var bamStrandForward = SVG.addChild(main,"linearGradient",{
+		"id":this.id+"bamStrandForward",
+	});
+	var bamStrandReverse = SVG.addChild(main,"linearGradient",{
+		"id":this.id+"bamStrandReverse",
+	});
+	var stop1 = SVG.addChild(bamStrandForward,"stop",{
+		"offset":"5%",
+		"stop-color":"#666"
+	});
+	var stop2 = SVG.addChild(bamStrandForward,"stop",{
+		"offset":"95%",
+		"stop-color":"#BBB"
+	});
+	var stop1 = SVG.addChild(bamStrandReverse,"stop",{
+		"offset":"5%",
+		"stop-color":"#BBB"
+	});
+	var stop2 = SVG.addChild(bamStrandReverse,"stop",{
+		"offset":"95%",
+		"stop-color":"#666"
+	});
 	
 ////	XXX para mañana, arrastrar para ordenar verticalmente
 //	$(titleGroup).mousedown(function(event){
@@ -301,14 +333,6 @@ TrackSvg.prototype.draw = function(){
 //		$(this).off('mousemove');
 //	});
 	
-	if(this.customField = true){
-		this.customSvgField = SVG.addChild(main,"text",{
-			"x":this.width/2,
-			"y":0,
-			"font-size": 10,
-			"fill":"black"
-		});
-	}
 	
 	this.main = main;
 	this.titleGroup = titleGroup;
@@ -409,7 +433,7 @@ TrackSvg.prototype.MultiFeatureRender = function(featureList){
 				
 				$(featureGroup).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
-					position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
+					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
 					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 				});
 				
@@ -438,79 +462,70 @@ TrackSvg.prototype.BamRender = function(chunkList){
 	var _this = this;
 	var middle = this.width/2;
 	console.log(chunkList.length);
+	var bamGroup = SVG.addChild(_this.features,"g");
 	var drawCoverage = function(chunk){
-		var coverageList = chunk.coverage;
+		var coverageList = chunk.coverage.all;
 		var readList = chunk.reads;
 		var start = parseInt(chunk.region.start);
-		var width = 1*_this.pixelBase;
-		console.log(coverageList)
-		var points = "";
+		var end = parseInt(chunk.region.end);
+		var pixelWidth = (end-start+1)*_this.pixelBase;
 		
+		var points = "";
 		var baseMid = (_this.pixelBase/2)-0.5;//4.5 cuando pixelBase = 10
-		var x,y;
+		
+		var x,y, p  = parseInt(chunk.region.start), covHeight = 50;
 		for ( var i = 0; i < coverageList.length; i++) {
-			x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase)+baseMid;
-//			var text = SVG.addChild(_this.features,"text",{
-//				"x":x+4,
-//				"y":12,
-//				"font-size":12,
-//				"style":"writing-mode: tb; glyph-orientation-vertical: 0;",
-//				"fill":"teal"
-//			});
-//			text.textContent = coverageList[i].toString();
-//			var text = SVG.addChild(_this.features,"rect",{
-//				"x":x,
-//				"y":12,
-//				"width":1,
-//				"height":10,
-////				"stroke": "#3B0B0B",
-////				"stroke-width": 0.5,
-//				"fill": "teal",
-//				"cursor": "pointer"
-//			});
-			y = coverageList[i]/200*50;
+			x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+baseMid;
+			y = coverageList[i]/200*covHeight;//200 is the depth
 			points += x+","+y+" ";
-//			points += (x+(width/2))+","+(histogramHeight - height)+" ";
-			start++;
+			p++;
 			
 //			$(text).qtip({
 //				content:(parseInt(chunk.region.start)+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
-//				position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+//				position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
 //				style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
 //			});
 		}
 //		console.log(points)
-		var pol2 = SVG.addChild(_this.features,"g");
-		var pol = SVG.addChild(pol2,"polyline",{
-			"points":points,
-			"stroke": "black",
-			"stroke-width": 3,
-			"opacity": 0.4,
-			"fill": "gray",
+		var dummyRect = SVG.addChild(bamGroup,"rect",{
+			"x":_this.pixelPosition+middle-((_this.position-start)*_this.pixelBase),
+			"y":0,
+			"width":pixelWidth,
+			"height":covHeight,
+			"fill": "transparent",
 			"cursor": "pointer"
 		});
-//		$(pol).onmouseover(function(e){
-//			console.log(e);
-//		});
-		_this.customSvgField.setAttribute("y","60");
-		_this.customSvgField.textContent = "AAAAAAAA";
+		var pol = SVG.addChild(bamGroup,"polyline",{
+			"points":points,
+			"stroke": "black",
+			"stroke-width": 2,
+			"opacity": 0.4,
+			"fill": "gray"
+		});
+		$(dummyRect).qtip({
+			content:" ",
+			position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
+			style: { width:true, classes: 'ui-tooltip-shadow'}
+		});
+		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,mousePos){
+			
+			var str = 'depth: <span class="ssel">'+coverageList[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
+					'A: <span class="ssel">'+chunk.coverage.a[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
+					'C: <span class="ssel">'+chunk.coverage.c[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
+					'G: <span class="ssel">'+chunk.coverage.g[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
+					'T: <span class="ssel">'+chunk.coverage.t[mousePos-parseInt(chunk.region.start)]+'</span><br>';
+			$(dummyRect).qtip('option', 'content.text', str ); 
+		});
+		
 //		var overPol = false;
 //		$(pol).mouseenter(function(){
 //			console.log("enter");
 //			overPol = true;
 //		});
 		
-//		console.log(pol.onmouseover)
-		_this.customSvgField.onmouseover = function(){
-			console.log("enter");
-		};
-		$(pol).mouseleave(function(){
-			console.log("leave");
-			overPol = false;
-		});
 //		$(pol).qtip({
 //			content:"asdf",
-//			position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+//			position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
 //			style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
 //		});
 		
@@ -558,16 +573,35 @@ TrackSvg.prototype.BamRender = function(chunkList){
 			var enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
 			
 			if(enc){
-				var rect = SVG.addChild(_this.features,"rect",{
+				
+				var strand = settings.getStrand(feature);
+				var rect = SVG.addChild(bamGroup,"rect",{
 					"x":x,
 					"y":rowY,
 					"width":width,
 					"height":settings.height,
-					"stroke": "black",
-					"stroke-width": 0.2,
-					"fill": color,
+					"stroke": "white",
+					"stroke-width": 1,
+					"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
 					"cursor": "pointer"
 				});
+//				var d = 'M '+x+' '+rowY+' L '+(x+width)+' '+rowY+' L '+(x+width)+' '+(rowY+settings.height)+' L '+x+' '+(rowY+settings.height)+' Z';
+//				var rect = SVG.addChild(bamGroup,"path",{
+////					"x":x,
+////					"y":rowY,
+////					"width":width,
+////					"height":settings.height,
+//					"d":d,
+//					"stroke": "white",
+//					"stroke-width": 1,
+//					"fill": color,
+//					"cursor": "pointer"
+//				});
+////				console.log(d)
+				
+//				rect.onmouseover = function(){
+//					console.log("over");
+//				};
 				
 //				var text = SVG.addChild(_this.features,"text",{
 //					"i":i,
@@ -582,8 +616,8 @@ TrackSvg.prototype.BamRender = function(chunkList){
 				
 				$([rect]).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
-					position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
-					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
+					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
 				});
 				
 				$([rect]).click(function(event){
@@ -687,7 +721,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 
 				$([rect,text]).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
-					position: {target:  "mouse", adjust: {x:15, y:15},  viewport: $(window), effect: false},
+					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
 					style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 				});
 
@@ -749,7 +783,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 
 						$(transcriptGroup).qtip({
 							content: {text:settings.getTipText(transcript), title:settings.getTipTitle(transcript)},
-							position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+							position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
 							style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 						});
 						$(transcriptGroup).click(function(event){
@@ -771,7 +805,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 							
 							$(exonGroup).qtip({
 								content: {text:exonSettings.getTipText(e2t,transcript), title:exonSettings.getTipTitle(e2t)},
-								position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+								position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
 								style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 							});
 							
@@ -887,6 +921,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				"x":x+1,
 				"y":13,
 				"font-size":16,
+//				"dx" : width,
 				"font-family": "monospace"
 			});
 			text.textContent = seqString;
@@ -904,7 +939,7 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				
 				$(text).qtip({
 					content:(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
-					position: {target: 'mouse', adjust: {x:15, y:15}, viewport: $(window), effect: false},
+					position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
 					style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
 				});
 			}

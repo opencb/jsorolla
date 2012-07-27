@@ -120,6 +120,9 @@ GenomeViewer.prototype.render = function(){
 		_this.trackSvgLayout.onWindowSize.addEventListener(function(sender,data){
 			Ext.getCmp(_this.id+"windowSize").setText('<span class="emph">'+data.windowSize+'</span>');
 		});
+		_this.trackSvgLayout.onTracksRendered.addEventListener(function(sender,data){
+			Ext.getCmp(_this.id+'container').setLoading(false);
+		});
 		//propagate event
 		_this.onSvgRemoveTrack = _this.trackSvgLayout.onSvgRemoveTrack;
 		
@@ -165,6 +168,7 @@ GenomeViewer.prototype.setMenuBar = function(toolbar) {
 };
 
 GenomeViewer.prototype.setSize = function(width,height) {
+	Ext.getCmp(this.id+'container').setLoading();
 	this.trackSvgLayout.setWidth(width-18);
 	this.trackSvgLayout2.setWidth(width-18);
 	this.chromosomeWidget.setWidth(width);
@@ -176,6 +180,7 @@ GenomeViewer.prototype.setSize = function(width,height) {
 };
 
 GenomeViewer.prototype.setLoc = function(data) {
+	Ext.getCmp(this.id+'container').setLoading();
 	console.log(data.sender);
 //	this.chromosomeFeatureTrack.select(data.position-1000, data.position+1000);
 
@@ -672,7 +677,7 @@ GenomeViewer.prototype._enableZoomElements = function(){
 
 GenomeViewer.prototype.setZoom = function(zoom) {
 	var _this = this;
-	
+	Ext.getCmp(this.id+'container').setLoading();
 	this.zoom = zoom;
 	this._getZoomSlider().setValue(zoom);
 	if(this.trackSvgLayout!=null){
