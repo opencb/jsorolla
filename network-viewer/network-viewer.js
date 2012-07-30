@@ -76,21 +76,10 @@ function NetworkViewer(targetId, species, args) {
 //	}
 	
 	
-	
-	this.settingsInteractomeViewer = new SettingsInteractomeViewer();
-//	this.settingsInteractomeViewer.specieChanged.addEventListener(function(sender, specie){
+//	this.networkBackgroundSettings.specieChanged.addEventListener(function(sender, specie){
 //		_this.setSpecies(specie);
 //	});
 	
-	
-//	if (this.wum){
-//		var _this = this;
-//		this.headerWidget.onLogin.addEventListener(function (sender){
-//		});
-//		
-//		this.headerWidget.onLogout.addEventListener(function (sender){
-//		});
-//	}
 
 };
 
@@ -101,8 +90,14 @@ NetworkViewer.prototype.draw = function(){
 	this.render();
 };
 
-
 NetworkViewer.prototype.render = function(){
+	var div = $('#'+this.getGraphCanvasId())[0];
+	this.networkSvg = new NetworkSvg(div, {"width": this.drawZoneWidth, "height": this.drawZoneHeight});
+	
+	this.networkEditorBarWidget.setNetworkSvg(this.networkSvg);
+};
+
+NetworkViewer.prototype.renderOLD = function(){
 	var _this = this;
 
 	/** Persitencia del viewer **/
@@ -183,6 +178,18 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 			margins : '0 0 0 0',
 			items :items
 		});
+		
+//		this._panel = Ext.create('Ext.container.Container', {
+//			id:this.id+"container",
+//			renderTo:this.targetId,
+//			width:width,
+//	    	height:height,
+//			cls:'x-unselectable',
+//			layout: { type: 'vbox',align: 'stretch'},
+//			region : 'center',
+//			margins : '0 0 0 0',
+//			items :items
+//		});
 	}
 	
 	return this._panel;
@@ -902,47 +909,38 @@ NetworkViewer.prototype.drawMenuBar = function(){
 
 /** Options handler **/
 NetworkViewer.prototype.handleActionMenu = function(action, args) {
-	 if (action == 'add'){
-		 	this.networkWidget.getGraphCanvas().getDataset().addNode("new Vertex");
-	 }
-	 
-	 if (action == 'delete'){
-		 	this.networkWidget.getGraphCanvas().removeSelected();
-	 }
-	 
-	 if (action == 'select'){
-			 this.networkWidget.getGraphCanvas().setLinking(false);
-			 this.networkWidget.getGraphCanvas().setMultipleSelection(true);
-			 this.networkWidget.getGraphCanvas().selecting = false;
-	 }
-	 
-	 
-	 if (action == 'join'){
-		 	this.networkWidget.getGraphCanvas().setLinking(true);
-	 }
-	 
-	 if (action == 'drag'){
-			 this.networkWidget.getGraphCanvas().setLinking(false);
-			 this.networkWidget.getGraphCanvas().setMultipleSelection(false);
-			 this.networkWidget.getGraphCanvas().selecting = false;
-	 }
-	 
-	 
-    if (action == 'ZOOM'){
-    	this.zoomLevel = 
-    	this.networkWidget.setScale((args/5) * 0.1);
-    }
+	if (action == 'select'){
+		this.networkSvg.setMode("select");
+	}
+	
+//	if (action == 'drag'){
+//		this.networkSvg.setMode("drag");
+//	}
+	
+	if (action == 'add'){
+		this.networkSvg.setMode("add");
+	}
 
-    if (action == 'GO'){
-    	var name = Ext.getCmp("tbSearch").getValue();
-    		this.networkWidget.deselectNodes();
-    		this.networkWidget.selectVertexByName(name);
-    }
-    
-    
-    
+	if (action == 'join'){
+		this.networkSvg.setMode("join");
+	}
+	
+	if (action == 'delete'){
+		this.networkSvg.setMode("delete");
+	}
 
+	if (action == 'ZOOM'){
+		this.zoomLevel = 
+			this.networkWidget.setScale((args/5) * 0.1);
+	}
+
+	if (action == 'GO'){
+		var name = Ext.getCmp("tbSearch").getValue();
+		this.networkWidget.deselectNodes();
+		this.networkWidget.selectVertexByName(name);
+	}
 };
+
 NetworkViewer.prototype.getInfoBar = function() {
 	var taskbar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'uxTaskbar',
@@ -1005,7 +1003,7 @@ NetworkViewer.prototype.getOptionBar = function() {
 	var optionBar = Ext.create('Ext.toolbar.Toolbar', {
 		cls : "bio-toolbar",
 		height : 35,
-		border : 0,
+		border : true,
 		items : [ 
 		{
 			id:this.id+"speciesMenuButton",
@@ -1017,6 +1015,8 @@ NetworkViewer.prototype.getOptionBar = function() {
         this.networkEditorBarWidget.layoutButton,
         this.networkEditorBarWidget.labelSizeButton,
         this.networkEditorBarWidget.selectButton,
+        '-',
+        this.networkEditorBarWidget.backgroundButton,
         '-',
 		{
 			xtype : 'button',

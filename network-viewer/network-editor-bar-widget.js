@@ -2,120 +2,147 @@ function NetworkEditorBarWidget(networkViewer){
 	this.networkViewer = networkViewer;
 };
 
-NetworkEditorBarWidget.prototype.changeEdgeShape = function(value){
-	var classe = "DirectedLineEdgeNetworkFormatter";
-	if (value == "DirectedLineEdgeNetworkFormatter"){
-		classe = "DirectedLineEdgeNetworkFormatter";
-	}
-	if (value == "undirected"){
-		classe = "LineEdgeNetworkFormatter";
-	}
-	if (value == "inhibited"){
-		classe = "CutDirectedLineEdgeNetworkFormatter";
-	}
-	if (value == "dot"){
-		classe = "DotDirectedLineEdgeNetworkFormatter";
-	}
-
-	if (value == "odot"){
-		classe = "OdotDirectedLineEdgeNetworkFormatter";
-	}
-	if (value == "odirected"){
-		classe = "OdirectedLineEdgeNetworkFormatter";
-	}
-	for ( var i = 0; i < this.networkWidget.getSelectedEdges().length; i++) {
-		this.networkWidget.getFormatter().changeEdgeType(this.networkWidget.getSelectedEdges()[i], classe);
-	}
-};
-
-NetworkEditorBarWidget.prototype.changeShape = function(value){
-	var classe = "CircleNetworkNodeFormatter";
-	switch (value){
-	case "square": classe = "SquareVertexNetworkFormatter"; break;
-	case "circle": classe = "CircleVertexNetworkFormatter";  break;
-	case "ellipse": classe = "EllipseVertexNetworkFormatter";  break;
-	case "rectangle": classe = "RectangleVertexNetworkFormatter";  break;
-	case "rounded": classe = "RoundedVertexNetworkFormatter";  break;
-//	case "octagon": classe = "OctagonVertexNetworkFormatter";  break;
-	default: classe = "CircleNetworkNodeFormatter";
-	}
-	for ( var i = 0; i < this.networkWidget.getSelectedVertices().length; i++) {
-		this.networkWidget.getFormatter().changeNodeType(this.networkWidget.getSelectedVertices()[i], classe);
-	}
-};
-
-
-NetworkEditorBarWidget.prototype.changeOpacity = function(opacityString){
-	var opacity = 1;
-	if (opacityString == "none"){
-		opacity = 1;
-	}
-	if (opacityString == "low"){
-		opacity = 0.8;
-	}
-	if (opacityString == "medium"){
-		opacity = 0.5;
-	}
-	if (opacityString == "high"){
-		opacity = 0.2;
-	}
-	if (opacityString == "invisible"){
-		opacity = 0;
-	}
-
-	for ( var i = 0; i < this.networkWidget.getSelectedVertices().length; i++) {
-		this.networkWidget.setVertexOpacity(this.networkWidget.getSelectedVertices()[i], opacity);
-	}
-
-	for ( var i = 0; i < this.networkWidget.getSelectedEdges().length; i++) {
-		this.networkWidget.setEdgeStrokeOpacity(this.networkWidget.getSelectedEdges()[i], opacity);
-	}
-};
-
-NetworkEditorBarWidget.prototype.setNetworkWidget = function(networkWidget){
+NetworkEditorBarWidget.prototype.setNetworkSvg = function(networkSvg){
 	var _this = this;
-	this.networkWidget = networkWidget;
-
-	this.networkWidget.onVertexSelect.addEventListener(function (sender, id){
-		_this.onSelect();
+	this.networkSvg = networkSvg;
+	
+	this.setNodeButtons({
+		"shape":this.networkSvg.nodeShape,
+		"size":this.networkSvg.nodeSize,
+		"color":this.networkSvg.nodeColor,
+		"strokeWidth":this.networkSvg.nodeStrokeSize,
+		"strokeColor":this.networkSvg.nodeStrokeColor,
+		"opacity":this.networkSvg.nodeOpacity,
+		"label":this.networkSvg.edgeLabel
 	});
 
-	this.networkWidget.onEdgeSelect.addEventListener(function (sender, id){
-		_this.onSelect();
+	this.setEdgeButtons({
+		"type":this.networkSvg.edgeType,
+		"label":this.networkSvg.edgeLabel
 	});
-
-	this.networkWidget.onCanvasClicked.addEventListener(function (sender, id){
-		_this.deselect();
+	
+	this.networkSvg.onNodeClick.addEventListener(function(sender, args){
+		debugger
+		if(_this.networkSvg.countSelectedNodes == 1){
+			_this.showNodeButtons();
+			_this.hideEdgeButtons();
+			_this.setNodeButtons(args);
+		}else{
+			_this.showNodeButtons();
+			_this.unsetNodeButtons();
+		}
 	});
-
-	this.deselect();
+	
+	this.networkSvg.onEdgeClick.addEventListener(function(sender, args){
+		if(_this.networkSvg.countSelectedEdges == 1){
+			_this.showEdgeButtons();
+			_this.hideNodeButtons();
+			_this.setEdgeButtons(args);
+		}else{
+			_this.showEdgeButtons();
+			_this.unsetEdgeButtons();
+		}
+	});
+	
+	this.networkSvg.onCanvasClick.addEventListener(function(sender, args){
+		if(_this.networkSvg.countSelectedNodes == 1){
+			_this.showNodeButtons();
+			_this.hideEdgeButtons();
+			_this.setNodeButtons(args);
+		}else if(_this.networkSvg.countSelectedNodes > 1){
+			_this.showNodeButtons();
+			_this.unsetNodeButtons();
+		}else{
+			_this.hideNodeButtons();
+			_this.hideEdgeButtons();
+		}
+	});
 };
 
-NetworkEditorBarWidget.prototype.changeSize = function(size){
-	for ( var i = 0; i < this.networkWidget.getSelectedVertices().length; i++) {
-		this.networkWidget.getFormatter().getVertexById(this.networkWidget.getSelectedVertices()[i]).getDefault().setSize(size);
-		this.networkWidget.getFormatter().getVertexById(this.networkWidget.getSelectedVertices()[i]).getSelected().setSize(size);
-		this.networkWidget.getFormatter().getVertexById(this.networkWidget.getSelectedVertices()[i]).getOver().setSize(size);
-		this.networkWidget.getFormatter().getVertexById(this.networkWidget.getSelectedVertices()[i]).getDragging().setSize(size);
-	}
-
-	for ( var i = 0; i < this.networkWidget.getSelectedEdges().length; i++) {
-		this.networkWidget.getFormatter().getEdgeById( this.networkWidget.getSelectedEdges()[i]).getDefault().setStrokeWidth(size);
-		this.networkWidget.getFormatter().getEdgeById( this.networkWidget.getSelectedEdges()[i]).getSelected().setStrokeWidth(size);
-		this.networkWidget.getFormatter().getEdgeById( this.networkWidget.getSelectedEdges()[i]).getOver().setStrokeWidth(size);
-		this.networkWidget.getFormatter().getEdgeById( this.networkWidget.getSelectedEdges()[i]).getDragging().setStrokeWidth(size);
-	}
+NetworkEditorBarWidget.prototype.setNodeButtons = function(args){
+	var shapes = {"circle":0, "square":1, "ellipse":2, "rectangle":3};
+	this.comboBoxNode.menu.items.items[shapes[args.shape]].setChecked(true);
+	
+	var sizes = {"1":0,"2":1,"3":2,"4":3,"5":4,"6":5,"7":6,"8":7,"10":8,"12":9,"14":10,"16":11,"18":12,"22":13,"28":14,"36":15,"72":16};
+	this.comboSize.menu.items.items[sizes[args.size]].setChecked(true);
+	this.comboStrokeWidth.menu.items.items[sizes[args.strokeWidth]].setChecked(true);
+	
+	this.innerColorPicker.select(args.color, true);
+	this.strokeColorPicker.select(args.strokeColor, true);
+	
+	var opacities = {"1":0, "0.8":1, "0.5":2, "0.2":3, "0":4};
+	this.comboBoxOpacity.menu.items.items[opacities[args.opacity]].setChecked(true);
+	
+	this.textBoxName.setValue(args.label);
 };
 
-NetworkEditorBarWidget.prototype.deselect = function(){
-	this.textBoxName.disable(true);
-	this.strokeColorPickerButton.disable(true);
-	this.colorPickerButton.disable(true);
-	this.comboBoxOpacity.disable(true);
-	this.comboSize.disable(true);
-	this.comboBoxEdge.disable(true);
-	this.comboStrokeWidth.disable(true);
-	this.comboBoxNode.disable(true);
+NetworkEditorBarWidget.prototype.unsetNodeButtons = function(){
+	for(var i=0, len=this.comboBoxNode.menu.items.items.length; i<len; i++){
+		this.comboBoxNode.menu.items.items[i].setChecked(false);
+	}
+	
+	for(var i=0, len=this.comboSize.menu.items.items.length; i<len; i++){
+		this.comboSize.menu.items.items[i].setChecked(false);
+	}
+	
+	for(var i=0, len=this.comboStrokeWidth.menu.items.items.length; i<len; i++){
+		this.comboStrokeWidth.menu.items.items[i].setChecked(false);
+	}
+	
+	this.innerColorPicker.select("#", true);
+	
+	this.strokeColorPicker.select("#", true);
+
+	for(var i=0, len=this.comboBoxOpacity.menu.items.items.length; i<len; i++){
+		this.comboBoxOpacity.menu.items.items[i].setChecked(false);
+	}
+	
+	this.textBoxName.setValue("");
+};
+
+NetworkEditorBarWidget.prototype.showNodeButtons = function(){
+	this.textBoxName.show();
+	this.strokeColorPickerButton.show();
+	this.colorPickerButton.show();
+	this.comboBoxOpacity.show();
+	this.comboSize.show();
+	this.comboStrokeWidth.show();
+	this.comboBoxNode.show();
+};
+
+NetworkEditorBarWidget.prototype.setEdgeButtons = function(args){
+	var types = {"directed":0, "odirected":1, "undirected":2, "inhibited":3, "dot":4, "odot":5};
+	this.comboBoxEdge.menu.items.items[types[args.type]].setChecked(true);
+	
+	this.textBoxEdgeName.setValue(args.label);
+};
+
+NetworkEditorBarWidget.prototype.unsetEdgeButtons = function(){
+	for(var i=0, len=this.comboStrokeWidth.menu.items.items.length; i<len; i++){
+		this.comboBoxEdge.menu.items.items[i].setChecked(false);
+	}
+	
+	this.textBoxEdgeName.setValue("");
+};
+
+NetworkEditorBarWidget.prototype.showEdgeButtons = function(){
+	this.comboBoxEdge.show();
+	this.textBoxEdgeName.show();
+};
+
+NetworkEditorBarWidget.prototype.hideNodeButtons = function(){
+	this.textBoxName.hide();
+	this.strokeColorPickerButton.hide();
+	this.colorPickerButton.hide();
+	this.comboBoxOpacity.hide();
+	this.comboSize.hide();
+	this.comboStrokeWidth.hide();
+	this.comboBoxNode.hide();
+};
+
+NetworkEditorBarWidget.prototype.hideEdgeButtons = function(){
+	this.comboBoxEdge.hide();
+	this.textBoxEdgeName.hide();
 };
 
 NetworkEditorBarWidget.prototype.onSelect = function(){
@@ -162,6 +189,29 @@ NetworkEditorBarWidget.prototype.onSelect = function(){
 		//	this.comboEdgeType.enable(true);
 		//	this.textBoxName.disable(false);
 	}
+};
+
+NetworkEditorBarWidget.prototype.changeOpacity = function(opacityString){
+	var opacity = 1;
+	switch (opacityString) {
+	case "none":
+		opacity = 1;
+		break;
+	case "low":
+		opacity = 0.8;
+		break;
+	case "medium":
+		opacity = 0.5;
+		break;
+	case "high":
+		opacity = 0.2;
+		break;
+	case "invisible":
+		opacity = 0;
+		break;
+	}
+
+	this.networkSvg.setNodeOpacity(opacity);
 };
 
 NetworkEditorBarWidget.prototype.changeStroke = function(color){
@@ -215,19 +265,35 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 		emptyText: 'Node name',
 		width:100,
 		enableKeyEvents:true,
+		hidden:true,
 		listeners:{
 			scope:this,
 			keyup:function() {
-				this.changeName(this.textBoxName.getValue());
+				//this.changeName(this.textBoxName.getValue());
+				_this.networkSvg.setNodeLabel(this.textBoxName.getValue());
+			}
+		}
+	});
+	
+	this.textBoxEdgeName = Ext.create('Ext.form.field.Text',{
+		emptyText: 'Edge name',
+		width:100,
+		enableKeyEvents:true,
+		hidden:true,
+		listeners:{
+			scope:this,
+			keyup:function() {
+				_this.networkSvg.setEdgeLabel(this.textBoxEdgeName.getValue());
 			}
 		}
 	});
 
-	var innerColorPicker = Ext.create('Ext.picker.Color', {
+	this.innerColorPicker = Ext.create('Ext.picker.Color', {
 		value: '993300',
 		listeners: {
 			select: function(picker, selColor) {
-				_this.changeColor("#" + selColor);
+				_this.networkSvg.setNodeColor("#" + selColor);
+//				_this.changeColor("#" + selColor);
 			}
 		}
 	});
@@ -235,25 +301,28 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 	this.colorPickerButton = Ext.create('Ext.button.Button',{
 		iconCls : 'icon-fill-color',
 		tooltip:"Color",
+		hidden:true,
 		menu: new Ext.menu.Menu({
-			items: innerColorPicker
+			items: this.innerColorPicker
 		})
 	});
 
-	var strokeColorPickerButton = Ext.create('Ext.picker.Color', {
+	this.strokeColorPicker = Ext.create('Ext.picker.Color', {
 		value: '993300',  // initial selected color
 		listeners: {
 			scope:this,
 			select: function(picker, selColor) {
-				this.changeStroke("#" + selColor);
+				_this.networkSvg.setNodeStrokeColor("#" + selColor);
+//				this.changeStroke("#" + selColor);
 			}
 		}
 	});
 	this.strokeColorPickerButton = Ext.create('Ext.button.Button',{
 		iconCls : 'icon-stroke-color',
 		tooltip:"Stroke color",
+		hidden:true,
 		menu: new Ext.menu.Menu({
-			items: strokeColorPickerButton
+			items: this.strokeColorPicker
 		})
 	});
 
@@ -267,6 +336,7 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 	this.comboSize = Ext.create('Ext.button.Button', {
 		iconCls : 'icon-node-size',
 		tooltip:this.comboSizeId,
+		hidden:true,
 		menu : {items:buttons,plain:true}
 	});
 	
@@ -280,6 +350,7 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 	this.comboStrokeWidth = Ext.create('Ext.button.Button', {
 		iconCls : 'icon-stroke-size',
 		tooltip:this.comboStrokeWidthId,
+		hidden:true,
 		menu : {items:buttons,plain:true}
 	});
 	
@@ -292,6 +363,7 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 	this.comboBoxOpacity = Ext.create('Ext.button.Button', {
 		iconCls : 'icon-node-opacity',
 		tooltip:this.comboBoxOpacityId,
+		hidden:true,
 		menu : {items:buttons,plain:true}
 	});
 
@@ -305,6 +377,7 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 	this.comboBoxEdge = Ext.create('Ext.button.Button', {
 		iconCls : 'icon-edge-type',
 		tooltip:this.comboBoxEdgeId,
+		hidden:true,
 		menu : {items:buttons,plain:true}
 	});
 	
@@ -312,20 +385,21 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 	this.comboBoxNodeId = "Node shape";
 	var buttons = this._createButtons({
 		group:this.comboBoxNodeId,
-		data:[{text:"circle"},{text:"square"},{text:"ellipse"},{text:"rectangle"},{text:"rounded"}]
+		data:[{text:"circle"},{text:"square"},{text:"ellipse"},{text:"rectangle"}]
 	});
 	this.comboBoxNode = Ext.create('Ext.button.Button', {
 		iconCls : 'icon-node-shape',
 		tooltip:this.comboBoxNodeId,
+		hidden:true,
 		menu : {items:buttons,plain:true}
 	});
 	
 	
-	var backgroundButton = Ext.create('Ext.button.Button',{
+	this.backgroundButton = Ext.create('Ext.button.Button',{
 		iconCls : 'icon-background-option',
 		tooltip:"Background settings...",
 		handler:function(){
-			_this.networkViewer.settingsInteractomeViewer.draw(_this.networkViewer.networkMetaDataViewer.getFormatter());
+			_this.networkSvg.networkBackgroundSettings.draw(_this.networkSvg);
 		}
 	});
 
@@ -358,7 +432,7 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 		iconCls : 'icon-collapse',
 		tooltip:"Collapse",
 		handler:function(){
-			_this.networkViewer.networkWidget.collapse();
+			_this.networkSvg.collapse();
 		}
 	});
 
@@ -367,7 +441,7 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 	this.selectButtonId = "Select";
 	var buttons = this._createButtons({
 		group:this.selectButtonId,
-		data:[{text:"All Vertices"},{text:"All Edges"},{text:"Everything"},{text:"Adjacent"},{text:"Neighbourhood"},{text:"Connected"}]
+		data:[{text:"All Nodes"},{text:"All Edges"},{text:"Everything"},{text:"Adjacent"},{text:"Neighbourhood"},{text:"Connected"}]
 	});
 	this.selectButton = Ext.create('Ext.button.Button', {
 		iconCls : 'icon-auto-select',
@@ -386,30 +460,42 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 	var editionBar = Ext.create('Ext.toolbar.Toolbar', {
 		cls : "bio-toolbar-bot",
 		height : 35,
-		border : 0,
+		border : true,
 		items : [
 		         {
-		        	 iconCls : 'icon-select', tooltip : 'Select', handler :function() {
+		        	 iconCls : 'icon-mouse-select', tooltip : 'Select', toggleGroup: 'action', pressed: 'true', handler :function() {
+		        		 this.toggle(true);
+		        		 _this.hideNodeButtons();
+		        		 _this.hideEdgeButtons();
+		        		 _this.networkSvg.svg.setAttribute("cursor", "default");
 		        		 _this.networkViewer.handleActionMenu("select");
 		        	 }
 		         },
+		         '-',
 		         {
-		        	 iconCls : 'icon-drag', tooltip : 'Drag', handler : function() {
-		        		 _this.networkViewer.handleActionMenu("drag");
-		        	 }
-		         },'-',
-		         {
-		        	 iconCls : 'icon-add',tooltip : 'Add', handler : function() {
+		        	 iconCls : 'icon-add',tooltip : 'Add node', toggleGroup: 'action', handler : function() {
+		        		 this.toggle(true);
+		        		 _this.showNodeButtons();
+		        		 _this.hideEdgeButtons();
+		        		 _this.networkSvg.svg.setAttribute("cursor", "url(./img/addNodeCursor.png), auto");
 		        		 _this.networkViewer.handleActionMenu("add");
 		        	 }
 		         },
 		         {
-		        	 iconCls : 'icon-link',tooltip : 'Join', handler : function() {
+		        	 iconCls : 'icon-link',tooltip : 'Join nodes', toggleGroup: 'action', handler : function() {
+		        		 this.toggle(true);
+		        		 _this.hideNodeButtons();
+		        		 _this.showEdgeButtons();
+		        		 _this.networkSvg.svg.setAttribute("cursor", "url(./img/addEdgeCursor.png), auto");
 		        		 _this.networkViewer.handleActionMenu("join");
 		        	 }
 		         },
 		         {
-		        	 iconCls : 'icon-delete', tooltip : 'Delete', handler : function() {
+		        	 iconCls : 'icon-delete', tooltip : 'Delete', toggleGroup: 'action', handler : function() {
+		        		 this.toggle(true);
+		        		 _this.hideNodeButtons();
+		        		 _this.hideEdgeButtons();
+		        		 _this.networkSvg.svg.setAttribute("cursor", "url(./img/removeCursor.png), auto");
 		        		 _this.networkViewer.handleActionMenu("delete");
 		        	 }
 		         },
@@ -426,10 +512,11 @@ NetworkEditorBarWidget.prototype.getBar = function(){
 		         this.comboStrokeWidth,
 		         this.strokeColorPickerButton,
 		         this.comboBoxOpacity,
-		         this.comboBoxEdge,
 		         this.textBoxName,
-		         "-",
-		         backgroundButton
+		         this.comboBoxEdge,
+		         this.textBoxEdgeName
+//		         "-",
+//		         backgroundButton
 		         ]
 	});
 	return editionBar;
@@ -441,9 +528,9 @@ NetworkEditorBarWidget.prototype._createButtons = function(config){
 	for ( var i = 0; i < config.data.length; i++) {
 		var btn = {
 //			xtype:'button',
-//			xtype: 'menucheckitem',
+			xtype: 'menucheckitem',
 			text : config.data[i].text,
-			checked:false,
+//			checked:false,
 //			cls:"bio-toolbar greyborder",
 //			overCls:"list-item-hover",
 			group:config.group, //only one pressed
@@ -461,34 +548,28 @@ NetworkEditorBarWidget.prototype._handleButtons = function(config){
 	switch(config.parent){
 		case this.selectButtonId:
 			switch(config.text){
-				case 'All Vertices': _this.networkViewer.networkWidget.selectAllNodes();break;
-				case 'All Edges': _this.networkViewer.networkWidget.selectAllEdges();break;
-				case 'Everything': _this.networkViewer.networkWidget.selectAll();break;
-				case 'Adjacent': _this.networkViewer.networkWidget.selectAdjacent();break;
-				case 'Neighbourhood': _this.networkViewer.networkWidget.selectNeighbourhood();break;
-				case 'Connected': _this.networkViewer.networkWidget.selectConnectedComponent();break;
+				case 'All Nodes': _this.networkSvg.selectAllNodes();break;
+				case 'All Edges': _this.networkSvg.selectAllEdges();break;
+				case 'Everything': _this.networkSvg.selectAll();break;
+				case 'Adjacent': _this.networkSvg.selectAdjacentNodes();break;
+				case 'Neighbourhood': _this.networkSvg.selectNeighbourhood();break;
+				case 'Connected': _this.networkSvg.selectConnectedNodes();break;
 				default: console.log(config.text+" not yet defined");
 			}
 		break;
 				
 		case this.layoutButtonId:
-			if(config.text=="Custom"){
-				_this.networkViewer.networkMetaDataViewer.setLayout(new LayoutDataset());
-				_this.networkViewer.graphEditorWidget.mainGraphCanvas.render();
-			}else{
-				_this.networkViewer.networkMetaDataViewer.getLayout().getLayout(config.text);
-			}
+			_this.networkSvg.setLayout(config.text);
 		break;
 		case this.labelSizeButtonId:
 			var hash = {"None":0,"Small":8,"Medium":10,"Large":12,"x-Large":16};
-			_this.networkViewer.networkWidget.setVerticesFontSize(hash[config.text]);
-//			chromosomeMenu.hide();
+			_this.networkSvg.setLabelSize(hash[config.text]);
 		break;
 		
-		case this.comboBoxNodeId:		_this.changeShape(config.text);	break;
-		case this.comboBoxEdgeId:		_this.changeEdgeShape(config.text);	break;
-		case this.comboSizeId:			_this.changeSize(config.text);	break;
-		case this.comboStrokeWidthId:	_this.changeStrokeWidth(config.text);	break;
+		case this.comboBoxNodeId:		_this.networkSvg.setNodeShape(config.text);	break;
+		case this.comboBoxEdgeId:		_this.networkSvg.setEdgeType(config.text);	break;
+		case this.comboSizeId:			_this.networkSvg.setNodeSize(config.text);	break;
+		case this.comboStrokeWidthId:	_this.networkSvg.setNodeStrokeSize(config.text);	break;
 		case this.comboBoxOpacityId:	_this.changeOpacity(config.text);	break;
 		
 		default: console.log(config.parent+" not yet defined");
