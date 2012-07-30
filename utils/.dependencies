@@ -1,1 +1,7 @@
-.
+./event.js
+./dom.js
+./colors.js
+./normalization.js
+./string-buffer.js
+./graphics/svg.js
+./geometry.js
