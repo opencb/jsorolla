@@ -1,3 +1,6 @@
+
+GV_CELLBASE_HOST = "http://ws.bioinfo.cipf.es/cellbase/rest";
+
 GENE_BIOTYPE_COLORS = {
 		//TODO buscar los colores en ensembl!
 		"3prime_overlapping_ncrna":"Orange",
@@ -420,7 +423,7 @@ FEATURE_TYPES = {
 						
 					}
 			
-			if(fields.length>10)
+			if(fields.length>10 || fields.length==9)
 				return f.id+" "+f.ref+"/"+f.alt+"";
 			else{
 				var gt = fields[9].split(":")[0];

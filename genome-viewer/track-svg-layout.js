@@ -402,7 +402,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
-		_this.tracksRendered++;
+//		_this.tracksRendered++;
 		if(event.params.histogram == true){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 		}else{
@@ -414,9 +414,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 //		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
-		_this._checkTracksRendered();
-//		_this.tracksRendered--;
-		
+//		_this._checkTracksRendered();
 	});
 	
 	
@@ -654,7 +652,7 @@ TrackSvgLayout.prototype._setTextPosition = function(){
 };
 
 TrackSvgLayout.prototype._checkTracksRendered = function(){
-	if(this.tracksRendered == this.trackSvgList.length){
+	if(this.tracksRendered == this.trackSvgList.length-1){
 		console.log(this.tracksRendered)
 		this.tracksRendered=0;
 		this.onTracksRendered.notify();
