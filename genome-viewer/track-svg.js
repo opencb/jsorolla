@@ -215,10 +215,10 @@ TrackSvg.prototype.draw = function(){
 //	});
 	
 	var bamStrandForward = SVG.addChild(main,"linearGradient",{
-		"id":this.id+"bamStrandForward",
+		"id":this.id+"bamStrandForward"
 	});
 	var bamStrandReverse = SVG.addChild(main,"linearGradient",{
-		"id":this.id+"bamStrandReverse",
+		"id":this.id+"bamStrandReverse"
 	});
 	var stop1 = SVG.addChild(bamStrandForward,"stop",{
 		"offset":"5%",
