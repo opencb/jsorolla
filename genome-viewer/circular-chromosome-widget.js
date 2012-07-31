@@ -28,16 +28,16 @@ function CircularChromosomeWidget(parent, args) {
 	this.circleLength = 2*Math.PI*this.radius;
 	
 	//variables que le daremos valor al cargar los datos
-	this.d; //tendra todos los datos de la base de datos
-	this.chroLength; //numero de elementos de la base de datos
-	this.pixelRatio; //numero de elementos de la base de datos en cada pixel
-	this.angle_click; //angulo del punto en el que vamos a clickar
+	this.d = null; //tendra todos los datos de la base de datos
+	this.chroLength = null; //numero de elementos de la base de datos
+	this.pixelRatio = null; //numero de elementos de la base de datos en cada pixel
+	this.angle_click = null; //angulo del punto en el que vamos a clickar
 	
 	//coordenadas de la linea que indica donde hemos clickado
-	this.x_point;
-	this.y_point;
-	this.x_point2;
-	this.y_point2;
+	this.x_point = null;;
+	this.y_point = null;;
+	this.x_point2 = null;;
+	this.y_point2 = null;;
 
 	//separacion de lo que marca donde hemos clikado con el circulo principal
 	this.sep = 27;

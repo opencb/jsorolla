@@ -709,7 +709,8 @@ ResultWidget.prototype.loadNetworkOnCellBrowser = function (genes, tfbs, targetI
 
 	//Getting tfbs by gene
 	var cellBaseManager = new CellBaseManager(this.networkViewer.species);
-	cellBaseManager.successed.addEventListener(function (evt, data_tfbs){
+	cellBaseManager.success.addEventListener(function (evt, response){
+		var data_tfbs = response.result;
 		var tfbsByGene = new Object();
 		for (var i = 0; i < data_tfbs.length; i++){
 			for ( var j = 0; j < data_tfbs[i].length; j++) {
@@ -780,7 +781,8 @@ ResultWidget.prototype.loadNetworkOnCellBrowser = function (genes, tfbs, targetI
 	}
 	//getting mirna target by gene
 	var cellBaseManagerMirna = new CellBaseManager(this.networkViewer.species);
-	cellBaseManagerMirna.successed.addEventListener(function (evt, data_tfbs){
+	cellBaseManagerMirna.success.addEventListener(function (evt, response){
+		var data_tfbs = response.result;
 		var tfbsByGene = new Object();
 		for (var i = 0; i < data_tfbs.length; i++){
 			for ( var j = 0; j < data_tfbs[i].length; j++) {
