@@ -700,10 +700,12 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
     }
     if (action == 'GoToGene'){
         var geneName = Ext.getCmp(this.id+'quickSearch').getValue();
-        if(geneName.slice(0, "rs".length) == "rs" || geneName.slice(0, "AFFY_".length) == "AFFY_" || geneName.slice(0, "SNP_".length) == "SNP_" || geneName.slice(0, "VAR_".length) == "VAR_" || geneName.slice(0, "CRTAP_".length) == "CRTAP_" || geneName.slice(0, "FKBP10_".length) == "FKBP10_" || geneName.slice(0, "LEPRE1_".length) == "LEPRE1_" || geneName.slice(0, "PPIB_".length) == "PPIB_") {
-        	this.openSNPListWidget(geneName);
-        }else{
-        	this.openGeneListWidget(geneName);
+        if(geneName != null){
+        	if(geneName.slice(0, "rs".length) == "rs" || geneName.slice(0, "AFFY_".length) == "AFFY_" || geneName.slice(0, "SNP_".length) == "SNP_" || geneName.slice(0, "VAR_".length) == "VAR_" || geneName.slice(0, "CRTAP_".length) == "CRTAP_" || geneName.slice(0, "FKBP10_".length) == "FKBP10_" || geneName.slice(0, "LEPRE1_".length) == "LEPRE1_" || geneName.slice(0, "PPIB_".length) == "PPIB_") {
+        		this.openSNPListWidget(geneName);
+        	}else{
+        		this.openGeneListWidget(geneName);
+        	}
         }
     }
     if (action == '+'){
