@@ -117,9 +117,29 @@ TrackSvg.prototype.setWidth = function(width){
 	}
 };
 
+TrackSvg.prototype.setLoading = function(bool){
+	if(bool){
+		this.loading.setAttribute("visibility", "visible");
+	}else{
+		this.loading.setAttribute("visibility", "hidden");
+	}
+	
+};
+
 
 TrackSvg.prototype.draw = function(){
 	var _this = this;
+	
+//	var loadingDiv =  document.createElement("div");
+//	$(loadingDiv).css("width",this.width);
+//	$(loadingDiv).css("height",this.height);
+//	$(loadingDiv).css("left","0");
+//	$(loadingDiv).css("top",this.y);
+////	$(loadingDiv).css("display","block");
+//	$(loadingDiv).css("background","gray");
+//	$(loadingDiv).css("position","absolute");
+//	$(loadingDiv).css('z-index','50000')
+//	$("body")[0].appendChild(loadingDiv);
 	
 	var main = SVG.addChild(this.parent,"svg",{
 //		"style":"border:1px solid #e0e0e0;",
@@ -129,6 +149,7 @@ TrackSvg.prototype.draw = function(){
 		"width":this.width,
 		"height":this.height
 	});
+	
 	var features = SVG.addChild(main,"svg",{
 		"class":"features",
 		"x":-this.pixelPosition,
@@ -151,7 +172,7 @@ TrackSvg.prototype.draw = function(){
 		"opacity":"0.6",
 		"fill":"honeydew"
 	});
-	var text = SVG.addChild(titleGroup,"text",{
+	var titleText = SVG.addChild(titleGroup,"text",{
 		"x":4,
 		"y":14,
 		"font-size": 10,
@@ -159,7 +180,7 @@ TrackSvg.prototype.draw = function(){
 		"fill":"black"
 //		"transform":"rotate(-90 50,50)"
 	});
-	text.textContent = this.id;
+	titleText.textContent = this.id;
 
 	var settingsRect = SVG.addChildImage(titleGroup,{
 		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
@@ -269,7 +290,7 @@ TrackSvg.prototype.draw = function(){
 //		over.setAttribute("opacity","0.1");
 		titlebar.setAttribute("width",74+textWidth);
 		titlebar.setAttribute("opacity","1.0");
-		text.setAttribute("opacity","1.0");
+		titleText.setAttribute("opacity","1.0");
 		upRect.setAttribute("visibility","visible");
 		downRect.setAttribute("visibility","visible");
 		if(_this.closable == true){ hideRect.setAttribute("visibility","visible"); }
@@ -279,7 +300,7 @@ TrackSvg.prototype.draw = function(){
 ////	over.setAttribute("opacity","0.0");
 		titlebar.setAttribute("width",textWidth);
 		titlebar.setAttribute("opacity","0.6");
-		text.setAttribute("opacity","0.4");
+		titleText.setAttribute("opacity","0.4");
 		upRect.setAttribute("visibility","hidden");
 		downRect.setAttribute("visibility","hidden");
 		hideRect.setAttribute("visibility","hidden");
@@ -304,7 +325,7 @@ TrackSvg.prototype.draw = function(){
 	$(hideRect).click(function(event){
 		titlebar.setAttribute("width",textWidth);
 		titlebar.setAttribute("opacity","0.6");
-		text.setAttribute("opacity","0.4");
+		titleText.setAttribute("opacity","0.4");
 		upRect.setAttribute("visibility","hidden");
 		downRect.setAttribute("visibility","hidden");
 		hideRect.setAttribute("visibility","hidden");
@@ -322,6 +343,15 @@ TrackSvg.prototype.draw = function(){
 	});
 	this.invalidZoomText.textContent = "This level of zoom isn't appropiate for this track";
 	
+	this.loading = SVG.addChildImage(main,{
+		"xlink:href":"data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%3Csvg%20version%3D%221.1%22%20width%3D%2230px%22%20height%3D%2230px%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%3Cdefs%3E%3Cg%20id%3D%22pair%22%3E%3Cellipse%20cx%3D%2210%22%20cy%3D%220%22%20rx%3D%225%22%20ry%3D%222%22%20style%3D%22fill%3A%23ccc%3B%20fill-opacity%3A0.5%3B%22%2F%3E%3Cellipse%20cx%3D%22-10%22%20cy%3D%220%22%20rx%3D%225%22%20ry%3D%222%22%20style%3D%22fill%3A%23aaa%3B%20fill-opacity%3A1.0%3B%22%2F%3E%3C%2Fg%3E%3C%2Fdefs%3E%3Cg%20transform%3D%22translate(15%2C15)%22%3E%3Cg%3E%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%20from%3D%220%22%20to%3D%22360%22%20dur%3D%222s%22%20repeatDur%3D%22indefinite%22%2F%3E%3Cuse%20xlink%3Ahref%3D%22%23pair%22%2F%3E%3Cuse%20xlink%3Ahref%3D%22%23pair%22%20transform%3D%22rotate(45)%22%2F%3E%3Cuse%20xlink%3Ahref%3D%22%23pair%22%20transform%3D%22rotate(90)%22%2F%3E%3Cuse%20xlink%3Ahref%3D%22%23pair%22%20transform%3D%22rotate(135)%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+		"x":this.width-40,
+		"y":0,
+		"width":22,
+		"height":22,
+		"visibility":"hidden"
+	});
+	
 	//ya no se usa, es track svg layout el q captura el evento de click y arrastrar
 //	$(this.parent).mousedown(function(event) {
 //		var x = parseInt(features.getAttribute("x")) - event.clientX;
@@ -336,6 +366,8 @@ TrackSvg.prototype.draw = function(){
 	
 	this.main = main;
 	this.titleGroup = titleGroup;
+	this.titlebar = titlebar;
+	this.titleText = titleText;
 	this.upRect = upRect;
 	this.downRect = downRect;
 	this.hideRect = hideRect;

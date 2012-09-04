@@ -11,6 +11,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this.mousePosition="";
 	this.windowSize = "";
 	
+	
 	//default values
 	this.height=25;
 	
@@ -349,6 +350,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var i = this.trackDataList.push(trackData);
 	var trackSvg = new TrackSvg(this.svg,args);
 	
+	
 	this.trackSvgList.push(trackSvg);
 	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
 	trackSvg.setY(this.height);
@@ -410,11 +412,18 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		}
 		
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
+		
 		trackSvg.featuresRender(event.data);
+		
+		trackSvg.setLoading(false);
+		
+		$(trackSvg.features).fadeIn("fast");
+		
+		
+		console.log("rendered");
 //		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
-//		_this._checkTracksRendered();
 	});
 	
 	
@@ -424,12 +433,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	setCallRegion();
 	// check if track is visible in this zoom
 	if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-		
+		trackSvg.setLoading(true);
 		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 		trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
 	}else{
 		trackSvg.invalidZoomText.setAttribute("visibility", "visible");
 	}
+	
 	
 	//on zoom change set new virtual window and update track values
 	trackSvg.onZoomChangeIdx = this.onZoomChange.addEventListener(function(sender,data){
@@ -443,7 +453,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-			
+			trackSvg.setLoading(true);
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
 		}else{
@@ -461,7 +471,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-			
+			trackSvg.setLoading(true);
 			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 		}
 	});
@@ -481,22 +491,20 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
 			virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase);
 			virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
-
-			if(desp<0 && virtualEnd > callEnd){
-				
-				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase), histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
-				callEnd = parseInt(callEnd+_this.halfVirtualBase);
-//				$(trackSvg.features).empty();
-//				console.log(callEnd);
-			}
-
+			
+			var s = parseInt(trackSvg.position - _this.halfVirtualBase*2);
+			var e = parseInt(trackSvg.position + _this.halfVirtualBase*2);
+			
 			if(desp>0 && virtualStart < callStart){
-				
 				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
 				callStart = parseInt(callStart-_this.halfVirtualBase);
-//				$(trackSvg.features).empty();
-//				console.log(callStart);
 			}
+
+			if(desp<0 && virtualEnd > callEnd){
+				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase), histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
+				callEnd = parseInt(callEnd+_this.halfVirtualBase);
+			}
+
 		}
 	});
 	
@@ -650,12 +658,3 @@ TrackSvgLayout.prototype._setTextPosition = function(){
 	this.firstPositionText.textContent = (this.position-x).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 	this.lastPositionText.textContent = (this.position+x-1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 };
-
-TrackSvgLayout.prototype._checkTracksRendered = function(){
-	if(this.tracksRendered == this.trackSvgList.length-1){
-		console.log(this.tracksRendered)
-		this.tracksRendered=0;
-		this.onTracksRendered.notify();
-	}
-};
-

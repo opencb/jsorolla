@@ -202,7 +202,7 @@ ManageProjectsWidget.prototype._render = function (mode,targetId){
 			});
 		}
         else{
-			this._panel = Ext.create('Ext.ux.Window', { 
+			this._panel = Ext.create('Ext.window.Window', { 
 				title: 'Manage projects',
 				iconCls:'icon-project-manager',
 		    	resizable: false,

@@ -5,7 +5,7 @@ function VCFDataAdapter(dataSource, args){
 	var _this = this;
 	
 	this.async = true;
-	
+	debugger
 	//stat atributes
 	this.featuresCount = 0;
 	this.featuresByChromosome = {};

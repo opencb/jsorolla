@@ -1,6 +1,6 @@
 function JobFormPanel(args){
 	var _this=this;
-	this.id = "JobFormPanel_";
+	this.id = "JobFormPanel"+Math.round(Math.random()*10000);
 	this.targetId = null;
 	
 	this.title = null;
@@ -34,7 +34,7 @@ function JobFormPanel(args){
 	
 	this.uploadWidget = new UploadWidget({suiteId:this.suiteId});
 
-	this.panelId = this.title+this.id;
+	this.panelId = this.title+"_JobFormPanel";
 	
 	this.onRun = new Event();
 	
