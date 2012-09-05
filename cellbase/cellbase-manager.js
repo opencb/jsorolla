@@ -34,11 +34,17 @@ function CellBaseManager(species, args) {
 		}
 	}
 	
+	//GLOBAL VARIABLE from config files
+	if(typeof CELLBASEHOST == 'undefined'){
+		CELLBASEHOST = this.host;
+	}else{
+		this.host = CELLBASEHOST;
+	}
+	
 	this.version = "latest";
 	this.species = species;
 	
 //		this.host = 'http://localhost:8080/celldb/rest';
-	CELLBASEHOST=this.host;
 	
 	this.category = null;
 	this.subcategory = null;
