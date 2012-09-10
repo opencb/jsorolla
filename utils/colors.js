@@ -1,4 +1,3 @@
-
 var Colors = new function()
 {
    this.hashColor = [];
@@ -246,5 +245,4 @@ var Colors = new function()
       }
     }
   }
-}
-();
+}();

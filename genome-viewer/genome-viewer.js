@@ -181,7 +181,7 @@ GenomeViewer.prototype.setSize = function(width,height) {
 
 GenomeViewer.prototype.setLoc = function(data) {
 //	Ext.getCmp(this.id+'container').setLoading();
-	console.log("GV SetLoc sender: "+data.sender);
+	console.log("GV SetLoc sender: "+data.position);
 //	this.chromosomeFeatureTrack.select(data.position-1000, data.position+1000);
 
 	switch(data.sender){

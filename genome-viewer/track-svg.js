@@ -953,9 +953,8 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 			var text = SVG.addChild(this.features,"text",{
 				"x":x+1,
 				"y":13,
-				"font-size":16,
-//				"dx" : width,
-				"font-family": "monospace"
+				"font-size":19,
+				"font-family": "Ubuntu Mono"
 			});
 			text.textContent = seqString;
 		}else{
@@ -965,7 +964,8 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 				var text = SVG.addChild(this.features,"text",{
 					"x":x+1,
 					"y":12,
-					"font-size":12,
+					"font-size":16,
+					"font-family": "Ubuntu Mono",
 					"fill":SEQUENCE_COLORS[seqString.charAt(i)]
 				});
 				text.textContent = seqString.charAt(i);

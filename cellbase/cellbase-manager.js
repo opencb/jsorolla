@@ -1,50 +1,10 @@
 function CellBaseManager(species, args) {
 //	console.log(species);
 	
-	
-	//This line never changes
-	this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
-	
-	if(window.location.host.indexOf("fsalavert")!=-1 ||
-	   window.location.host.indexOf("rsanchez")!=-1 ||
-	   window.location.host.indexOf("imedina")!=-1 ||
-	   window.location.href.indexOf("http://bioinfo.cipf.es/apps-beta")!=-1
-	){
-//		this.host = "http://ralonso:8080/naranjoma-ws/rest";
-		this.host = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
-//		this.host = "http://fsalavert:8080/cellbase/rest";
-//		this.host = "http://rsanchez:8080/cellbase/rest";
-//		this.host = "http://imedina:8080/cellbase/rest";
-	}
-	
-	//naranjoma CHECK
-	if(species === "orange"){
-		this.host = "http://ralonso:8080/naranjoma-ws/rest";
-	}
-	
-	var url = $.url();
-	var prod = url.param('p');
-	if(prod != null) {
-		this.host = "http://ws.bioinfo.cipf.es/cellbase/rest";
-	}
-	
-	if (args != null){
-		if(args.host != null){
-			this.host = args.host;
-		}
-	}
-	
-	//GLOBAL VARIABLE from config files
-	if(typeof CELLBASEHOST == 'undefined'){
-		CELLBASEHOST = this.host;
-	}else{
-		this.host = CELLBASEHOST;
-	}
+	this.host = CELLBASE_HOST;
 	
 	this.version = "latest";
 	this.species = species;
-	
-//		this.host = 'http://localhost:8080/celldb/rest';
 	
 	this.category = null;
 	this.subcategory = null;
@@ -69,6 +29,15 @@ function CellBaseManager(species, args) {
 	this.results = new Array();
 	this.resultsCount = new Array();
 	this.batching = false;
+	
+	
+	if (args != null){
+		if(args.host != null){
+			this.host = args.host;
+		}
+	}
+	
+	
 	
 	//Events
 	this.completed = new Event();
