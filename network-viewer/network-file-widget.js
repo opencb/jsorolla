@@ -52,20 +52,29 @@ NetworkFileWidget.prototype.getFileUpload = function(){
 						_this.content = content.content; //para el onOK.notify event
 						var json = JSON.parse(content.content);
 						
+						var numNodes = json.metaInfo.numNodes;
+						var numEdges = json.metaInfo.numEdges;
 						
-						var graphDataset = new GraphDataset();
-						graphDataset.loadFromJSON(json.dataset);
+						var edges = json.edges;
+						for (var id in edges) {
+							var link = "--";
+							if(json.edges[id].directed) link = "->";
+							_this.gridStore.loadData([[json.edges[id].source, link, json.edges[id].target]], true);
+						}
 						
-						var vertices = graphDataset.getVerticesCount();
-						var edges = graphDataset.getEdgesCount();
-						
-						var sif = new SIFFileDataAdapter().toSIF(graphDataset);
-						var tabularFileDataAdapter = new TabularFileDataAdapter();
-						tabularFileDataAdapter.parse(sif);
-						_this.gridStore.loadData(tabularFileDataAdapter.getLines());
+//						var graphDataset = new GraphDataset();
+//						graphDataset.loadFromJSON(json.dataset);
+//						
+//						var vertices = graphDataset.getVerticesCount();
+//						var edges = graphDataset.getEdgesCount();
+//						
+//						var sif = new SIFFileDataAdapter().toSIF(graphDataset);
+//						var tabularFileDataAdapter = new TabularFileDataAdapter();
+//						tabularFileDataAdapter.parse(sif);
+//						_this.gridStore.loadData(tabularFileDataAdapter.getLines());
 						
 						_this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>',false);
-						_this.countLabel.setText('vertices:<span class="info">'+vertices+'</span> edges:<span class="info">'+edges+'</span>',false);
+						_this.countLabel.setText('vertices:<span class="info">'+numNodes+'</span> edges:<span class="info">'+numEdges+'</span>',false);
 					
 					}catch(e){
 						_this.infoLabel.setText('<span class="err">File not valid </span>'+e,false);
@@ -114,7 +123,7 @@ NetworkFileWidget.prototype.draw = function(){
 			border:false,
 			flex:1,
 		    store: this.gridStore,
-		    columns: [{"header":"Node","dataIndex":"0",flex:1},{"header":"Node","dataIndex":"1",flex:1},{"header":"Node","dataIndex":"2",flex:1}],
+		    columns: [{"header":"Node","dataIndex":"0",flex:1},{"header":"Relation","dataIndex":"1",flex:1,menuDisabled:true},{"header":"Node","dataIndex":"2",flex:1}],
 		    features: [{ftype:'grouping'}],
 		    tbar:browseBar,
 		    bbar:infobar
@@ -128,23 +137,21 @@ NetworkFileWidget.prototype.draw = function(){
 			resizable:false,
 			layout: { type: 'vbox',align: 'stretch'},
 			items : [this.grid],
-			buttons:[{text:'Ok', handler: function()
-									{ 
-											_this.onOk.notify(_this.content);
-											_this.panel.close();
-									}}, 
-			         {text:'Cancel', handler: function(){_this.panel.close();}}],
+			buttons:[{text:'Ok', handler: function() {	
+				_this.onOk.notify(_this.content);
+				_this.panel.close();
+				}}, 
+				{text:'Cancel', handler: function() { _this.panel.close(); }}],
 			listeners: {
-			    	scope: this,
-			    	minimize:function(){
-						this.panel.hide();
-			       	},
-			      	destroy: function(){
-			       		delete this.panel;
-			      	}
-		    	}
+				scope: this,
+				minimize:function() {
+					this.panel.hide();
+				},
+				destroy: function() {
+					delete this.panel;
+				}
+			}
 		});
 	}
 	this.panel.show();
-	
 };
