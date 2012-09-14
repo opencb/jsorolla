@@ -50,40 +50,4 @@ TEMPLATEWIDGET.prototype._render = function (data){
 //
 //widget.draw();
 
-function MyClass(){
-	var me = this;
-	
-	//properties
-	this.cero='0';
-	//private method
-	var someFn = function(){
-		return this;
-	};
 
-	console.log(MyClass.prototype);
-	//methods
-	this.getCero = function(){
-		return this.cero;
-	};
-	
-	
-};
-MyClass.prototype.setCero = function(cero){
-	this.cero = cero;
-};
-
-function GFFDataset(){
-	var self = this;
-
-	//properties
-	self.a='0';
-
-	//methods
-	this.prototype.seta(x) = GenericDataset.geta();
-	
-	//provate method
-	var f = geta(){
-		return a;
-	};
-	
-};

@@ -157,6 +157,9 @@ a:hover {text-decoration: underline; color: #15428B;}
 	width: 15px;
 	height: 15px;
 }
+.icon-save{
+	background:url('../img/save.png');
+}
 .icon-grid{
 	background:url('../img/grid.png');
 }

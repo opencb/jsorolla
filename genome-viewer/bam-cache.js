@@ -191,7 +191,6 @@ BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType
 	console.log("BamCache.prototype.putFeaturesByRegion"+ssss)
 };
 
-
 //BamCache.prototype.remove = function(region){
 //	var firstChunk = this._getChunk(region.start);
 //	var lastChunk = this._getChunk(region.end);

@@ -29,6 +29,25 @@ function DqsRestManager (){
 	this.onError = new Event(this);
 };
 
+/**General**/
+DqsRestManager.prototype.experimentList = function(queryParams){
+	var _this=this;
+	var url = this.getHost()+'/experiment'+this.getQuery(queryParams);
+	
+	function success(data){
+		_this.onBamList.notify(JSON.parse(data));
+	}
+	
+	function error(data){
+		console.log("ERROR: " + data);
+		console.log(data);
+	}
+	
+	this.doGet(url, success, error);
+//	console.log(url);
+	
+};
+
 /**BAM**/
 DqsRestManager.prototype.bamList = function(queryParams){
 	var _this=this;
