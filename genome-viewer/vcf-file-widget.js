@@ -27,10 +27,8 @@ VCFFileWidget.prototype.loadFileFromLocal = function(file){
 	});
 };
 
-
 VCFFileWidget.prototype.loadFileFromServer = function(data){
 	this.file = {name:data.filename};
-	debugger
 	this.adapter = new VCFDataAdapter(new StringDataSource(data.data),{async:false,species:this.viewer.species});
 	this._loadChartInfo();
 	this.btnOk.enable();

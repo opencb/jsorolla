@@ -22,6 +22,7 @@ FileDataSource.prototype.fetch = function(async){
 			};
 			reader.readAsText(this.file, "UTF-8");
 		}else{
+			// FileReaderSync no funciona
 			var reader = new FileReaderSync();
 			return reader.readAsText(this.file, "UTF-8");
 		}

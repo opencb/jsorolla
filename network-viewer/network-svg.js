@@ -1,8 +1,7 @@
-function NetworkSvg (parent,  args) {
+function NetworkSvg (parent, networkData, args) {
 	var _this = this;
 	this.id = "graph_"+Math.round(Math.random()*10000000);
-	this.nodeId = 0;
-	this.edgeId = 0;
+	
 	this.countSelectedNodes = 0;
 	this.countSelectedEdges = 0;
 	this.bgColor = "white";
@@ -17,13 +16,13 @@ function NetworkSvg (parent,  args) {
 		if(args.bgColor != null){
 			this.bgColor = args.bgColor;
 		}
-		if (args.species != null) {
+		if (args.species != null){
 			this.species = args.species;
 		}
 	}
 	
 	/** Network Data object **/
-	this.networkData = new NetworkData();
+	this.networkData = networkData;
 	
 	/** Network Background object **/
 	this.networkBackgroundSettings = new NetworkBackgroundSettings(this);
@@ -48,95 +47,10 @@ function NetworkSvg (parent,  args) {
 	this.selectedNodes = {};
 	this.selectedEdges = {};
 	
-	
-	
-//	/** id manage */
-//	this.id = componentID;
-//	this.args.idGraph = this.id + "main";
-//	this.args.idBackgroundNode = this.id + "background";
-//	
-//	this.args.idEdgesGraph = this.id + "edges";
-//	this.args.idNodesGraph = this.id + "vertices";
-//	this.args.idLabelGraph = this.id + "label";
-//	this.args.idBackground = this.id + "background";
-//
-//	/** Objects Graph **/
-//	this.dataset = null;
-//	this.formatter = null;
-//	this.layout = null;
-	
-//	/** Drawing **/
-//	this.circleDefaultRadius = 2;
-//	this.squareDefaultSide = this.circleDefaultRadius*1.5;
-//	
-//	/** Directed Arrow **/
-//	this.arrowDefaultSize = this.circleDefaultRadius;
-//	 
-//	/** Groups **/
-//	this.GraphGroup = null;
-//	this.GraphNodeGroup = null;
-//	this.GraphLabelGroup = null;
-//	this.GraphBackground = null;
-//	
-//	/** SETTINGS FLAGS **/
-//	this.args.draggingCanvasEnabled = true; //Flag to set if the canvas can be dragged
-//	this.args.multipleSelectionEnabled = false;
-//	this.args.interactive = true;
-//	this.args.labeled = false;
-//	this.args.linkEnabled = false;
-//	
-//	/** If numberEdge > maxNumberEdgesMoving then only it will move edges when mouse up **/
-//	this.args.maxNumberEdgesMoving = 3;
-//	this.args.maxNumberEdgesFiringEvents = 50;
-//	 
-//	/** Linking edges **/
-//	this.args.linking = false;
-//	this.linkStartX = 0;
-//	this.linkStartY = 0;
-//	this.linkSVGNode = null;
-//	this.linkNodeSource = null;
-//	this.linkNodeTarget = null;
-//	
-//	
-//	/** Dragging Control **/
-//	this.draggingElement = null;
-//	this.dragging = false;
-//	this.nMouseOffsetX = 0;
-//    this.nMouseOffsetY = 0;
-//    this.dragStartX = 0;
-//    this.dragStartY = 0;
-//    this.desplazamientoX = 0;
-//    this.desplazamientoY = 0;
-//    
-//    /** Selection Control **/
-//    this.selecting = false;
-//    this.selectorX = null;
-//    this.selectorY = null;
-//    this.selectorSVGNode = null;
-//    
-//    /** Node status **/
-//    this.args.isNodesSelected = new Object();
-//    this.args.selectedNodes = new Array();
-// 
-//    /** Edges status **/
-//    this.args.isEdgeSelected = new Object();
-//    this.args.selectedEdges = new Array();
-//    
-//    
-//    /** Hashmap with the svg node labels **/
-//    this.svgLabels = new Object();
-//    
-//    
-//    /** EVENTS **/
-//    this.onNodeOut = new Event(this);
-//    this.onNodeOver = new Event(this);
-//    this.onNodeSelect = new Event(this);
-//    this.onEdgeSelect = new Event(this);
-//    this.onCanvasClicked = new Event(this);
-	
 	this.onNodeClick = new Event(this);
 	this.onEdgeClick = new Event(this);
 	this.onCanvasClick = new Event(this);
+	this.onSelectionChange = new Event(this);
     
     
     /** SVG init **/
@@ -146,16 +60,6 @@ function NetworkSvg (parent,  args) {
 		"height": this.height
 	});
     
-//    $(this.svg).click(function(event){
-//    	if(event.target.getAttribute("shape")){
-//    		_this.nodeClick(event, event.target.getAttribute("id"));
-//    		console.log("node");
-//    	}else{
-//    		_this.canvasClick(event);
-//    		console.log("canvas");
-//    	}
-//    	
-//    });
     $(this.svg).mousedown(function(event){
     	if(!event.target.getAttribute("shape") && !event.target.getAttribute("type")){
     		_this.canvasMouseDown(event);
@@ -167,35 +71,86 @@ function NetworkSvg (parent,  args) {
     	}
     });
     
-//    this.svg.addEventListener("click", function(event) {_this.mouseClick(event);}, false);
-//    this.svg.addEventListener("mousemove", function(event) { _this.mouseMove(event, _this); }, false);
-//    this.svg.addEventListener("mousedown", function(event) { _this.mouseDown(event, _this); }, false);
-//    this.svg.addEventListener("mouseup", function(event) { _this.mouseUp(event, _this);}, false);
-    
-    this.defs = SVG.addChild(this.svg, "defs", {});
-    
-    this.background = SVG.addChild(this.svg, "rect",{
-    	"id":"background",
-    	"width":"100%",
-    	"height":"100%",
-    	"fill":this.bgColor
-    });
-    
-    this.backgroundImage = SVG.addChildImage(this.svg,{
-    	"id":"backgroundImage"
-    });
+    this.initSVG();
 };
 
-NetworkSvg.prototype.addNode = function(args){
-	var _this = this;
-	var nodeId = args.id || this.nodeId;
+NetworkSvg.prototype.initSVG = function(){
+	this.defs = SVG.addChild(this.svg, "defs", {});
 	
-	/** Data **/
-	this.networkData.addNode(nodeId, {
-		"name":args.label,
-		"type":"none"
+	this.background = SVG.addChild(this.svg, "rect",{
+		"id":"background",
+		"width":"100%",
+		"height":"100%",
+		"fill":this.bgColor
 	});
-	/** /Data **/
+	
+	this.backgroundImage = SVG.addChildImage(this.svg,{
+		"id":"backgroundImage"
+	});
+};
+
+NetworkSvg.prototype.refresh = function(networkData){
+	this.networkData = networkData;
+	
+	this.nodeSvgList = {};
+	this.edgeSvgList = {};
+	
+	// Empty SVG and set background
+	while (this.svg.firstChild) {
+		this.svg.removeChild(this.svg.firstChild);
+	}
+	
+	this.initSVG();
+	
+	console.log(this.networkData);
+	// loop over rendered nodes
+	for (var node in this.networkData.nodes){
+		
+		// get config for this node type
+		var typeArgs = NODE_TYPES[this.networkData.nodes[node].type];
+		
+		this.addNode({
+			"id":node,
+			"shape":this.networkData.nodes[node].metainfo.shape || typeArgs.shape,
+			"size":this.networkData.nodes[node].metainfo.size || typeArgs.size,
+			"color":this.networkData.nodes[node].metainfo.color || typeArgs.color,
+			"strokeColor":this.networkData.nodes[node].metainfo.strokeColor || typeArgs.strokeColor,
+			"strokeSize":this.networkData.nodes[node].metainfo.strokeSize || typeArgs.strokeSize,
+			"opacity":this.networkData.nodes[node].metainfo.opacity || typeArgs.opacity,
+			"label":this.networkData.nodes[node].name || "",
+			"x":this.networkData.nodes[node].metainfo.x || typeArgs.x,
+			"y":this.networkData.nodes[node].metainfo.y || typeArgs.y
+		});
+	}
+	
+	// loop over rendered edges
+	for (var edge in this.networkData.edges){
+		this.addEdge({
+			"id":edge,
+			"source":this.networkData.edges[edge].source,
+			"target":this.networkData.edges[edge].target,
+			"type":this.networkData.edges[edge].type,
+			"x1":this.networkData.edges[edge].metainfo.x1 || 0,
+			"y1":this.networkData.edges[edge].metainfo.y1 || 0,
+			"x2":this.networkData.edges[edge].metainfo.x2 || 0,
+			"y2":this.networkData.edges[edge].metainfo.y2 || 0,
+			"markerArrow":this.networkData.edges[edge].metainfo.markerArrow //|| "url(#arrow-"+this.networkData.edges[edge].type+"-14)"
+		});
+	}
+};
+
+NetworkSvg.prototype.addNode = function(args, fromClick){
+	var _this = this;
+	var nodeId = args.id;
+	
+	if(fromClick){
+		// Add info to networkData
+		nodeId = this.networkData.addNode({
+			"name":args.label,
+			"type":"none",
+			"metainfo":args
+		});
+	}
 	
 	/** SVG **/
 	var nodeGroup = SVG.addChild(this.svg, "g", {"cursor":"pointer"});
@@ -286,17 +241,11 @@ NetworkSvg.prototype.addNode = function(args){
 	this.nodeSvgList[nodeId].edgesIn = [];
 	this.nodeSvgList[nodeId].edgesOut = [];
 	/** /SVG **/
-	
-	if(!args.id) this.nodeId++;
 };
 
 NetworkSvg.prototype.removeNode = function(nodeId){
-	/** Data **/
-	this.networkData.removeNode(nodeId);
-	/** /Data **/
-	
 	/** SVG **/
-	// remove node in edges
+	// remove node input edges
 	for ( var i=0, leni=this.nodeSvgList[nodeId].edgesIn.length; i<leni; i++) {
 //		var sourceNode = this.nodeSvgList[nodeId].edgesIn[i];
 //		var edgeId = sourceNode+"-"+nodeId;
@@ -338,6 +287,10 @@ NetworkSvg.prototype.removeNode = function(nodeId){
 	this.svg.removeChild(this.nodeSvgList[nodeId]);
 	delete this.nodeSvgList[nodeId];
 	/** /SVG **/
+	
+	/** Data **/
+	this.networkData.removeNode(nodeId);
+	/** /Data **/
 };
 
 NetworkSvg.prototype.moveNode = function(nodeId, newX, newY){
@@ -377,7 +330,7 @@ NetworkSvg.prototype.moveNode = function(nodeId, newX, newY){
 
 NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 	var _this = this;
-//	debugger
+	
 	/** SVG **/
 	if(this.joinSourceNode == null){
 		this.joinSourceNode = nodeId;
@@ -392,7 +345,7 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 		}
 		
 		this.edgeSvg = SVG.addChild(this.svg, "line", {
-			"id":this.edgeId,
+			"id":this.networkData.edgeId,
 			"source":this.joinSourceNode,
 			"type":this.edgeType,
 			"x1":this.joinSourceX,
@@ -432,25 +385,25 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 		this.edgeSvg.setAttribute("stroke", "black");
 		
 		// if not exists this marker, add new one to defs
-		var markerId = "#arrow-"+this.edgeType+"-"+tipOffset;
-		if($(markerId).length == 0){
+		var markerArrowId = "#arrow-"+this.edgeType+"-"+tipOffset;
+		if($(markerArrowId).length == 0){
 			this.addArrowShape(this.edgeType, tipOffset);
 		}
-		this.edgeSvg.setAttribute("marker-end", "url("+markerId+")");
+		this.edgeSvg.setAttribute("marker-end", "url("+markerArrowId+")");
 
 		// if not exists this marker, add new one to defs
-		var markerId = "#edgeLabel-"+this.edgeId;
-		if($(markerId).length == 0){
-			this.addEdgeLabel(this.edgeId, this.edgeLabel);
+		var edgeId = this.networkData.edgeId;
+		var markerLabelId = "#edgeLabel-"+edgeId;
+		if($(markerLabelId).length == 0){
+			this.addEdgeLabel(edgeId, this.edgeLabel);
 		}
-		this.edgeSvg.setAttribute("marker-start", "url("+markerId+")");
+		this.edgeSvg.setAttribute("marker-start", "url("+markerLabelId+")");
 		this.edgeSvg.setAttribute("label", this.edgeLabel);
 		
 		this.edgeSvg.setAttribute("x2", joinTargetX);
 		this.edgeSvg.setAttribute("y2", joinTargetY);
 		
 //		var edgeId = this.joinSourceNode+"-"+joinTargetNode;
-		var edgeId = this.edgeId;
 //		this.edgeSvg.setAttribute("id", edgeId);
 		this.edgeSvg.setAttribute("target", joinTargetNode);
 		
@@ -461,30 +414,49 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 		$(this.edgeSvg).click(function(event){_this.edgeClick(event, this.id);});
 		
 		/** Data **/
-		var directed = true;
-		if(this.edgeType == "undirected") directed = false;
-		var args = {"source":this.joinSourceNode, "target":joinTargetNode, "name":this.edgeLabel, "directed":directed, "weight":1};
-		this.networkData.addEdge(edgeId, args);
+//		var directed = true;
+//		if(this.edgeType == "undirected") directed = false;
+		var args = {
+					"weight":1,
+					"x1":this.joinSourceX,
+					"y1":this.joinSourceY,
+					"x2":joinTargetX,
+					"y2":joinTargetY,
+					"markerArrow": "url("+markerArrowId+")",
+					"markerLabel": "url("+markerLabelId+")"
+					};
+		this.networkData.addEdge(this.joinSourceNode, joinTargetNode, this.edgeType, this.edgeLabel, args);
 		/** /Data **/
 		
 		// reset join
 		this.joinSourceNode = null;
-		this.edgeId++;
 	}
 	/** /SVG **/
 };
 
 NetworkSvg.prototype.addEdge = function(args){
-	/** Data **/
-	var dataArgs = {"source":args.source, "target":args.target, "type":args.type};
-	this.networkData.addEdge(args.id, dataArgs);
-	/** /Data **/
-	
 	/** SVG **/
-	// if not exists this marker, add new one to defs
 //	var edgeType = args.markerEnd.split('-')[1];
-	var tipOffset = args.markerEnd.split('-')[2].slice(0,-1);
-	if($(args.markerEnd).length == 0){
+	
+	var tipOffset = 14;
+	if(!args.markerArrow) {
+		var figure = this.nodeSvgList[args.target].childNodes[0];
+		// if is rect calculate the figure center
+		if(figure.hasAttribute("x")){
+			var a = parseInt(figure.getAttribute("width"));
+			var b = parseInt(figure.getAttribute("height"));
+			tipOffset = Math.floor(parseInt(Math.sqrt(a*a+b*b))/2);
+		}else{
+			tipOffset = parseInt(figure.getAttribute("r")) || parseInt(figure.getAttribute("rx"));
+		}
+	}
+	else {
+		tipOffset = args.markerArrow.split('-')[2].slice(0,-1);
+	}
+	
+	// if not exists this marker, add new one to defs
+	var markerArrowId = "#arrow-"+args.type+"-"+tipOffset;
+	if($(markerArrowId).length == 0){
 		this.addArrowShape(args.type, tipOffset);
 	}
 	
@@ -500,7 +472,7 @@ NetworkSvg.prototype.addEdge = function(args){
 		"stroke":"black",
 		"stroke-width":"0.5",
 		"cursor":"pointer",
-		"marker-end":args.markerEnd
+		"marker-end":"url("+markerArrowId+")"
 	},2);
 	
 	$(this.edgeSvg).click(function(event){_this.edgeClick(event, this.id);});
@@ -508,6 +480,7 @@ NetworkSvg.prototype.addEdge = function(args){
 	this.edgeSvgList[args.id] = this.edgeSvg;
 //	var sourceNode = args.id.split('-')[0];
 //	var targetNode = args.id.split('-')[1];
+
 	this.nodeSvgList[args.source].edgesOut.push(args.id);
 	this.nodeSvgList[args.target].edgesIn.push(args.id);
 	/** /SVG **/
@@ -786,39 +759,40 @@ NetworkSvg.prototype.toJson = function(){
 	return json;
 };
 
+//XXX DEPRECATED
 NetworkSvg.prototype.loadFromJson = function(jsonStr){
 	var json = JSON.parse(jsonStr);
 	this.nodeSvgList = {};
 	this.edgeSvgList = {};
 	
 	// loop over rendered nodes
-	for (var id in json.nodeStyle){
+	for (var node in json.display.nodes){
 		this.addNode({
-			"id":id,
-			"shape":json.nodeStyle[id].shape,
-			"size":json.nodeStyle[id].size,
-			"color":json.nodeStyle[id].color,
-			"strokeColor":json.nodeStyle[id].strokeColor,
-			"strokeSize":json.nodeStyle[id].strokeSize,
-			"opacity":json.nodeStyle[id].opacity,
-			"label":json.nodeStyle[id].label,
-			"x":json.nodeStyle[id].x,
-			"y":json.nodeStyle[id].y
+			"id":node,
+			"shape":json.display.nodes[node].shape,
+			"size":json.display.nodes[node].size,
+			"color":json.display.nodes[node].color,
+			"strokeColor":json.display.nodes[node].strokeColor,
+			"strokeSize":json.display.nodes[node].strokeSize,
+			"opacity":json.display.nodes[node].opacity,
+			"label":json.display.nodes[node].label,
+			"x":json.display.nodes[node].x,
+			"y":json.display.nodes[node].y
 		});
 	}
 	
 	// loop over rendered edges
-	for (var id in json.edgeStyle){
+	for (var edge in json.display.edges){
 		this.addEdge({
-			"id":id,
-			"source":json.edgeStyle[id].source,
-			"target":json.edgeStyle[id].target,
-			"type":json.edgeStyle[id].type,
-			"x1":json.edgeStyle[id].x1,
-			"y1":json.edgeStyle[id].y1,
-			"x2":json.edgeStyle[id].x2,
-			"y2":json.edgeStyle[id].y2,
-			"markerEnd":json.edgeStyle[id].markerEnd
+			"id":edge,
+			"source":json.display.edges[edge].source,
+			"target":json.display.edges[edge].target,
+			"type":json.display.edges[edge].type,
+			"x1":json.display.edges[edge].x1,
+			"y1":json.display.edges[edge].y1,
+			"x2":json.display.edges[edge].x2,
+			"y2":json.display.edges[edge].y2,
+			"markerEnd":json.display.edges[edge].markerEnd
 		});
 	}
 };
@@ -1178,6 +1152,14 @@ NetworkSvg.prototype.selectAll = function(){
 	this.selectAllEdges();
 };
 
+NetworkSvg.prototype.getSelectedNodes = function(){
+	var arraySel = [];
+	for (var nodeId in this.selectedNodes){
+		arraySel.push(nodeId);
+	}
+	return arraySel;
+};
+
 /** API FORMATTER **/
 NetworkSvg.prototype.getWidth = function(){
 	return this.width;
@@ -1456,7 +1438,7 @@ NetworkSvg.prototype.canvasMouseDown = function(event){
 			"label":this.nodeLabel,
 			"x":offsetX-15,
 			"y":offsetY-10
-		});
+		}, true);
 		break;
 
 	case "select":
@@ -1559,6 +1541,7 @@ NetworkSvg.prototype.canvasMouseUp = function(event){
 		this.selectNodes(nodeList);
 		this.deselectAllEdges();
 		this.onCanvasClick.notify(args);
+		this.onSelectionChange.notify(this.getSelectedNodes());
 		break;
 	}
 };
@@ -1623,6 +1606,7 @@ NetworkSvg.prototype.nodeClick = function(event, nodeId){
 				}
 			});
 		}
+		this.onSelectionChange.notify(this.getSelectedNodes());
 		break;
 	}
 };

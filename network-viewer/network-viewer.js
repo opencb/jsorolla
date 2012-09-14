@@ -37,9 +37,13 @@ function NetworkViewer(targetId, species, args) {
 		if (args.pluginsMenu != null) {
 			this.pluginsMenu = args.pluginsMenu;
 		}
+		if (args.attributes != null) {
+			this.attributes = args.attributes;
+		}
 	}
 	
-
+	/** Network Data object **/
+	this.networkData = new NetworkData({"attributes":this.attributes});
 	
 	this.drawZoneWidth = this.width-12;
 //	this.drawZoneHeight = this.height-148;
@@ -92,37 +96,37 @@ NetworkViewer.prototype.draw = function(){
 
 NetworkViewer.prototype.render = function(){
 	var div = $('#'+this.getGraphCanvasId())[0];
-	this.networkSvg = new NetworkSvg(div, {"width": this.drawZoneWidth, "height": this.drawZoneHeight});
+	this.networkSvg = new NetworkSvg(div, this.networkData, {"width": this.drawZoneWidth, "height": this.drawZoneHeight});
 	
 	this.networkEditorBarWidget.setNetworkSvg(this.networkSvg);
 };
 
-NetworkViewer.prototype.renderOLD = function(){
-	var _this = this;
-
-	/** Persitencia del viewer **/
-	this.networkMetaDataViewer = new NetworkMetaDataViewer(this.species,{"width":this.drawZoneWidth,"height":this.drawZoneHeight});
-	
-	var dataset = new GraphDataset();
-	var formatter = this.networkMetaDataViewer.getFormatter();
-	var layout = new LayoutDataset();
-	
-	formatter.dataBind(dataset);
-	layout.dataBind(dataset);
-	
-	// Events
-//	this.searcherViewer.onSelectedNodes.addEventListener(function (sender, idNodes){
-//		_this.selectVertices(idNodes);
+//NetworkViewer.prototype.renderOLD = function(){
+//	var _this = this;
+//
+//	/** Persitencia del viewer **/
+//	this.networkMetaDataViewer = new NetworkMetaDataViewer(this.species,{"width":this.drawZoneWidth,"height":this.drawZoneHeight});
+//	
+//	var dataset = new GraphDataset();
+//	var formatter = this.networkMetaDataViewer.getFormatter();
+//	var layout = new LayoutDataset();
+//	
+//	formatter.dataBind(dataset);
+//	layout.dataBind(dataset);
+//	
+//	// Events
+////	this.searcherViewer.onSelectedNodes.addEventListener(function (sender, idNodes){
+////		_this.selectVertices(idNodes);
+////	});
+//	this.networkMetaDataViewer.getMetaNetwork().onInfoRetrieved.addEventListener(function (sender){
+//	    //	_this.onInfoRetrieved.notify();
+//	    	if(_this.openViewer == "searcherViewer")
+//	        	_this.showSearcherViewer();
+//	    	if(_this.openViewer == "filter")
+//	        	_this.showFilterViewer();
 //	});
-	this.networkMetaDataViewer.getMetaNetwork().onInfoRetrieved.addEventListener(function (sender){
-	    //	_this.onInfoRetrieved.notify();
-	    	if(_this.openViewer == "searcherViewer")
-	        	_this.showSearcherViewer();
-	    	if(_this.openViewer == "filter")
-	        	_this.showFilterViewer();
-	});
-	this.drawNetwork(dataset, formatter, layout);
-};
+//	this.drawNetwork(dataset, formatter, layout);
+//};
 
 
 //Gets the panel containing all genomeViewer
@@ -283,71 +287,81 @@ NetworkViewer.prototype.setSpecies = function(text){
 //};
 
 	
-NetworkViewer.prototype.drawUI = function(){
-	this.drawMenuBar(this.width, this.height);
-};
+//NetworkViewer.prototype.drawUI = function(){
+//	this.drawMenuBar(this.width, this.height);
+//};
+//
+//
+//NetworkViewer.prototype.drawNetwork = function(dataset, formatter, layout){
+//	var _this = this;
+//	
+////	console.log(dataset);
+////	console.log(formatter);
+////	console.log(layout);
+//	
+//	this.networkMetaDataViewer.setDataset(dataset);
+//	this.networkMetaDataViewer.setFormatter(formatter);
+//	this.networkMetaDataViewer.setLayout(layout);
+//	
+//	this.networkMetaDataViewer.getMetaNetwork().dataBind(this.networkMetaDataViewer.getDataset());
+//	
+//	document.getElementById(this.getGraphCanvasId()).innerHTML ="";
+//	
+////	var newHeight = this.height - 27;//this.menuToolbar.getHeight();
+//	
+//	this.networkWidget = new NetworkWidget(this.species,{targetId: this.getGraphCanvasId()});
+//	this.networkWidget.draw(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
+//	
+//	this.networkWidget.onVertexOver.addEventListener(function(sender, nodeID){
+//		_this.setNodeInfoLabel(_this.networkWidget.getDataset().getVertexById(nodeID).getName());
+//	});
+//	
+//	this.networkWidget.onVertexOut.addEventListener(function(sender, nodeID){
+//		_this.setNodeInfoLabel("");
+//	});
+//	
+//	
+//	this.networkEditorBarWidget.setNetworkWidget(this.networkWidget.getGraphCanvas()); 
+//	
+//	
+//	// With attach the two events and with this variable=false we say that we want to retrieve all the information from cellBase again
+//	this.networkMetaDataViewer.getDataset().newVertex.addEventListener(function (sender, node){
+//		_this.networkMetaDataViewer.getMetaNetwork().setInformationRetrieved(false);
+//		_this.networkMetaDataViewer.getMetaNetwork().addNode(node);
+//	});
+//	this.networkMetaDataViewer.getDataset().vertexNameChanged.addEventListener(function (sender, args){
+//		var item = args.item;
+//		_this.networkMetaDataViewer.getMetaNetwork().getVertexById(item.id).setName(item.name);
+//		_this.networkMetaDataViewer.getMetaNetwork().getVertexById(item.id).setFilled(false);
+//		_this.networkMetaDataViewer.getMetaNetwork().setInformationRetrieved(false);
+//	});
+//};	
 
 
-NetworkViewer.prototype.drawNetwork = function(dataset, formatter, layout){
-	var _this = this;
-	
-//	console.log(dataset);
-//	console.log(formatter);
-//	console.log(layout);
-	
-	this.networkMetaDataViewer.setDataset(dataset);
-	this.networkMetaDataViewer.setFormatter(formatter);
-	this.networkMetaDataViewer.setLayout(layout);
-	
-	this.networkMetaDataViewer.getMetaNetwork().dataBind(this.networkMetaDataViewer.getDataset());
-	
-	document.getElementById(this.getGraphCanvasId()).innerHTML ="";
-	
-//	var newHeight = this.height - 27;//this.menuToolbar.getHeight();
-	
-	this.networkWidget = new NetworkWidget(this.species,{targetId: this.getGraphCanvasId()});
-	this.networkWidget.draw(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
-	
-	this.networkWidget.onVertexOver.addEventListener(function(sender, nodeID){
-		_this.setNodeInfoLabel(_this.networkWidget.getDataset().getVertexById(nodeID).getName());
-	});
-	
-	this.networkWidget.onVertexOut.addEventListener(function(sender, nodeID){
-		_this.setNodeInfoLabel("");
-	});
-	
-	
-	this.networkEditorBarWidget.setNetworkWidget(this.networkWidget.getGraphCanvas()); 
-	
-	
-	// With attach the two events and with this variable=false we say that we want to retrieve all the information from cellBase again
-	this.networkMetaDataViewer.getDataset().newVertex.addEventListener(function (sender, node){
-		_this.networkMetaDataViewer.getMetaNetwork().setInformationRetrieved(false);
-		_this.networkMetaDataViewer.getMetaNetwork().addNode(node);
-	});
-	this.networkMetaDataViewer.getDataset().vertexNameChanged.addEventListener(function (sender, args){
-		var item = args.item;
-		_this.networkMetaDataViewer.getMetaNetwork().getVertexById(item.id).setName(item.name);
-		_this.networkMetaDataViewer.getMetaNetwork().getVertexById(item.id).setFilled(false);
-		_this.networkMetaDataViewer.getMetaNetwork().setInformationRetrieved(false);
-	});
-};	
 
-NetworkViewer.prototype.loadSif = function(sifdataadapter){
-	this.networkMetaDataViewer.loadSif(sifdataadapter);
-	this.drawNetwork(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
-};
-
-
-//NetworkViewer.prototype.loadDot = function(dotAdapter){
-//	this.draw(dotAdapter.getDataset(), dotAdapter.getFormatter(this.width, this.height), dotAdapter.getLayout());
-//	openInteractomeDOTDialog.hide();
-//	this.draw(dotAdapter.dataset, dotAdapter.formatter, dotAdapter.layout);
+//NetworkViewer.prototype.loadDOT = function(networkData){
+////	this.draw(dotAdapter.getDataset(), dotAdapter.getFormatter(this.width, this.height), dotAdapter.getLayout());
+////	openInteractomeDOTDialog.hide();
+////	this.draw(dotAdapter.dataset, dotAdapter.formatter, dotAdapter.layout);
+//	
+//	console.log(networkData);
 //};
 
+NetworkViewer.prototype.loadNetwork = function(networkData){
+//	this.networkMetaDataViewer.loadSif(sifdataadapter);
+//	this.drawNetwork(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
+	
+	this.networkData = networkData;
+	this.networkSvg.refresh(networkData);
+	this.networkSvg.setLayout("Circle");
+};
+
 NetworkViewer.prototype.loadJSON = function(content){
-	this.networkMetaDataViewer.loadJSON(content);
-	this.drawNetwork(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
+//	this.networkMetaDataViewer.loadJSON(content);
+//	this.drawNetwork(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
+	
+	this.networkData.loadJSON(content);
+	this.networkSvg.refresh(this.networkData);
 };
 
 
@@ -362,9 +376,12 @@ NetworkViewer.prototype.drawConvertPNGDialog = function(content, type){
 
 	$("#"+this.networkWidget.id).append(html.toString());
 	$("#"+this.id+"_topng_dialog").submit();
-
 };
 
+
+NetworkViewer.prototype.getGraphCanvasId = function(){
+	return  this.id + "_graph";
+};
 
 //NetworkViewer.prototype.getAnnotationInfo = function(){
 //	if(node!=null){
@@ -388,280 +405,290 @@ NetworkViewer.prototype.drawConvertPNGDialog = function(content, type){
 //	}
 //	
 //};
-
-NetworkViewer.prototype.loadMetaData = function(){
-	console.log(this.openViewer);
-	var _this = this;
-    if(!this.networkMetaDataViewer.getMetaNetwork().isInformationRetrieved()){
-    	this.networkMetaDataViewer.getMetaNetwork().loadData();
-    }
-    else{
-    	if(this.openViewer == "searcherViewer")
-    		this.showSearcherViewer();
-    	if(this.openViewer == "filter")
-        		this.showFilterViewer();
-    }
-};
-NetworkViewer.prototype.showSearcherViewer = function(){
-	var _this = this;
-	this.searcherViewer.setStore(this.networkMetaDataViewer.getMetaNetwork().store);
-	this.searcherViewer.render();
-};
-
-NetworkViewer.prototype.getGraphCanvasId = function(){
-	return  this.id + "_graph";
-};
-
-NetworkViewer.prototype.showTopMessage = function(text, opt){
-	Ext.example.msg(text, opt);
-};
-
-NetworkViewer.prototype.drawMenuBar = function(){
-	var menuItemWidth = 125;
-
-	var _this = this;
-//		var sifUpload = Ext.create('Ext.form.field.File', {
+//
+//NetworkViewer.prototype.loadMetaData = function(){
+//	console.log(this.openViewer);
+//	var _this = this;
+//    if(!this.networkMetaDataViewer.getMetaNetwork().isInformationRetrieved()){
+//    	this.networkMetaDataViewer.getMetaNetwork().loadData();
+//    }
+//    else{
+//    	if(this.openViewer == "searcherViewer")
+//    		this.showSearcherViewer();
+//    	if(this.openViewer == "filter")
+//        		this.showFilterViewer();
+//    }
+//};
+//NetworkViewer.prototype.showSearcherViewer = function(){
+//	var _this = this;
+//	this.searcherViewer.setStore(this.networkMetaDataViewer.getMetaNetwork().store);
+//	this.searcherViewer.render();
+//};
+//
+//NetworkViewer.prototype.showTopMessage = function(text, opt){
+//	Ext.example.msg(text, opt);
+//};
+//
+//NetworkViewer.prototype.drawMenuBar = function(){
+//	var menuItemWidth = 125;
+//
+//	var _this = this;
+////		var sifUpload = Ext.create('Ext.form.field.File', {
+////			labelWidth: 50,
+////			msgTarget: 'side',
+////			allowBlank: false,
+////			anchor: '100%',
+////			buttonText: 'Select a SIF ...',
+////			listeners: {
+////				change: {
+////		            fn: function(){
+////						var sifdataadapter = new InteractomeSIFFileDataAdapter();
+////						
+////						var file = document.getElementById(sifUpload.fileInputEl.id).files[0];
+//////						var file = $("#"+sifUpload.fileInputEl.id).attr('files')[0];
+////						sifdataadapter.loadFromFile(file);
+////						sifdataadapter.onRead.addEventListener(function (sender, id){
+////							_this.loadSif(sender);
+////							openSIFDialog.hide();
+////						}); 
+////					}
+////		        }
+////			}  
+////		});
+//		
+//		var DOTUpload = Ext.create('Ext.form.field.File', {
 //			labelWidth: 50,
 //			msgTarget: 'side',
 //			allowBlank: false,
 //			anchor: '100%',
-//			buttonText: 'Select a SIF ...',
+//			buttonText: 'Select a DOT ...',
 //			listeners: {
 //				change: {
 //		            fn: function(){
-//						var sifdataadapter = new InteractomeSIFFileDataAdapter();
-//						
-//						var file = document.getElementById(sifUpload.fileInputEl.id).files[0];
-////						var file = $("#"+sifUpload.fileInputEl.id).attr('files')[0];
+//						var  sifdataadapter= new BiopaxDotFileDataAdapter();
+//						var file = $("#"+DOTUpload.fileInputEl.id).attr('files')[0];
 //						sifdataadapter.loadFromFile(file);
 //						sifdataadapter.onRead.addEventListener(function (sender, id){
-//							_this.loadSif(sender);
-//							openSIFDialog.hide();
+//							
+//							_this.graphEditorWidget = new GraphEditor(_this.graphEditorWidgetCanvasName, document.getElementById(_this.getGraphCanvasId()));
+//							_this.draw(sender.getDataset(), sender.getFormatter(_this.width, _this.height), sender.getLayout());
+//							openDOTDialog.hide();
 //						}); 
 //					}
 //		        }
 //			}  
 //		});
-		
-		var DOTUpload = Ext.create('Ext.form.field.File', {
-			labelWidth: 50,
-			msgTarget: 'side',
-			allowBlank: false,
-			anchor: '100%',
-			buttonText: 'Select a DOT ...',
-			listeners: {
-				change: {
-		            fn: function(){
-						var  sifdataadapter= new BiopaxDotFileDataAdapter();
-						var file = $("#"+DOTUpload.fileInputEl.id).attr('files')[0];
-						sifdataadapter.loadFromFile(file);
-						sifdataadapter.onRead.addEventListener(function (sender, id){
-							
-							_this.graphEditorWidget = new GraphEditor(_this.graphEditorWidgetCanvasName, document.getElementById(_this.getGraphCanvasId()));
-							_this.draw(sender.getDataset(), sender.getFormatter(_this.width, _this.height), sender.getLayout());
-							openDOTDialog.hide();
-						}); 
-					}
-		        }
-			}  
-		});
-		var interactomeDOTUpload = Ext.create('Ext.form.field.File', {
-			labelWidth: 50,
-			msgTarget: 'side',
-			allowBlank: false,
-			anchor: '100%',
-			buttonText: 'Select an InteractomeDOT ...',
-			listeners: {
-				change: {
-		            fn: function(){
-						var adapter= new InteractomeDotFileDataAdapter();
-						var file = $("#"+interactomeDOTUpload.fileInputEl.id).attr('files')[0];
-						adapter.loadFromFile(file);
-						adapter.onRead.addEventListener(function (sender){
-							_this.draw(sender.getDataset(), sender.getFormatter(_this.width, _this.height), sender.getLayout());
-							openInteractomeDOTDialog.hide();
-						}); 
-					}
-		        }
-			}  
-		});
-		
-		var jsonUpload = Ext.create('Ext.form.field.File', {
-			labelWidth: 50,
-			msgTarget: 'side',
-			allowBlank: false,
-			anchor: '100%',
-			buttonText: 'Select a JSON ...',
-			listeners: {
-				change: {
-	            fn: function(){
-					var dataadapter = new FileDataAdapter();
-					var file = document.getElementById(jsonUpload.fileInputEl.id).files[0];
-					dataadapter.read(file);
-					dataadapter.onRead.addEventListener(function (sender, content){
-						_this.loadJSON(content.content);
-						openJsonDialog.hide();
-					});
-				}
-	        }
-		}  
-		});
-		
-		
-		/****************************************************************
-		 **********	FILE MENU declaration	*****************************
-		 ****************************************************************/
-		var openJsonDialog = Ext.create('Ext.window.Window', {
-		    title: 'Open',
-		    width: 400,
-		    bodyPadding: 10,
-		    layout: 'fit',
-		    closeAction: 'hide',
-		    items: jsonUpload
-		});
-//		var openSIFDialog = Ext.create('Ext.window.Window', {
-//		    title: 'Open a SIF file',
+//		var interactomeDOTUpload = Ext.create('Ext.form.field.File', {
+//			labelWidth: 50,
+//			msgTarget: 'side',
+//			allowBlank: false,
+//			anchor: '100%',
+//			buttonText: 'Select an InteractomeDOT ...',
+//			listeners: {
+//				change: {
+//		            fn: function(){
+//						var adapter= new InteractomeDotFileDataAdapter();
+//						var file = $("#"+interactomeDOTUpload.fileInputEl.id).attr('files')[0];
+//						adapter.loadFromFile(file);
+//						adapter.onRead.addEventListener(function (sender){
+//							_this.draw(sender.getDataset(), sender.getFormatter(_this.width, _this.height), sender.getLayout());
+//							openInteractomeDOTDialog.hide();
+//						}); 
+//					}
+//		        }
+//			}  
+//		});
+//		
+//		var jsonUpload = Ext.create('Ext.form.field.File', {
+//			labelWidth: 50,
+//			msgTarget: 'side',
+//			allowBlank: false,
+//			anchor: '100%',
+//			buttonText: 'Select a JSON ...',
+//			listeners: {
+//				change: {
+//	            fn: function(){
+//					var dataadapter = new FileDataAdapter();
+//					var file = document.getElementById(jsonUpload.fileInputEl.id).files[0];
+//					dataadapter.read(file);
+//					dataadapter.onRead.addEventListener(function (sender, content){
+//						_this.loadJSON(content.content);
+//						openJsonDialog.hide();
+//					});
+//				}
+//	        }
+//		}  
+//		});
+//		
+//		
+//		/****************************************************************
+//		 **********	FILE MENU declaration	*****************************
+//		 ****************************************************************/
+//		var openJsonDialog = Ext.create('Ext.window.Window', {
+//		    title: 'Open',
 //		    width: 400,
 //		    bodyPadding: 10,
 //		    layout: 'fit',
 //		    closeAction: 'hide',
-//		    items: sifUpload
+//		    items: jsonUpload
 //		});
-		
-		var openDOTDialog = Ext.create('Ext.window.Window', {
-		    title: 'Open a DOT file',
-		    width: 400,
-		    bodyPadding: 10,
-		    layout: 'fit',
-		    closeAction: 'hide',
-		    items: DOTUpload
-		});
-		var openInteractomeDOTDialog = Ext.create('Ext.window.Window', {
-		    title: 'Open a InteractomeDOT file',
-		    width: 400,
-		    bodyPadding: 10,
-		    layout: 'fit',
-		    closeAction: 'hide',
-		    items: interactomeDOTUpload
-		});
-		/**
-		 * data for selecting node
-		 * 
-		 */
-		Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
-
-	    
-
-		
-		
-		var ExportToMeu = Ext.create('Ext.menu.Menu', {
-
-			items :[
-			        {
-			        	text:"PNG", 
-			        	handler:function(){
-			        		var content = _this.networkWidget.getGraphCanvas().toHTML();
-			        		_this.drawConvertPNGDialog(content,"png");
-			        	}
-			        },{
-			        	text:"JPG", 
-			        	handler:function(){
-			        		var content = _this.networkWidget.getGraphCanvas().toHTML();
-			        		_this.drawConvertPNGDialog(content,"jpg");
-			        	}
-			        },
-
-			        {
-			        	text:"SVG (recommended)",
-			        	handler:function(){
-			        		var content = _this.networkWidget.getGraphCanvas().toHTML();
-			        		var clienSideDownloaderWindowWidget = new ClienSideDownloaderWindowWidget();
-			        		clienSideDownloaderWindowWidget.draw(content, content);
-			        	}
-
-
-			        }
-			        ]
-
-		});
-		
-		
-//		var exportFileMenu = new Ext.create('Ext.menu.Menu',{
-//			width: menuItemWidth,
+////		var openSIFDialog = Ext.create('Ext.window.Window', {
+////		    title: 'Open a SIF file',
+////		    width: 400,
+////		    bodyPadding: 10,
+////		    layout: 'fit',
+////		    closeAction: 'hide',
+////		    items: sifUpload
+////		});
+//		
+//		var openDOTDialog = Ext.create('Ext.window.Window', {
+//		    title: 'Open a DOT file',
+//		    width: 400,
+//		    bodyPadding: 10,
+//		    layout: 'fit',
+//		    closeAction: 'hide',
+//		    items: DOTUpload
+//		});
+//		var openInteractomeDOTDialog = Ext.create('Ext.window.Window', {
+//		    title: 'Open a InteractomeDOT file',
+//		    width: 400,
+//		    bodyPadding: 10,
+//		    layout: 'fit',
+//		    closeAction: 'hide',
+//		    items: interactomeDOTUpload
+//		});
+//		/**
+//		 * data for selecting node
+//		 * 
+//		 */
+//		Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
+//
+//	    
+//
+//		
+//		
+//		var ExportToMeu = Ext.create('Ext.menu.Menu', {
+//
+//			items :[
+//			        {
+//			        	text:"PNG", 
+//			        	handler:function(){
+//			        		var content = _this.networkWidget.getGraphCanvas().toHTML();
+//			        		_this.drawConvertPNGDialog(content,"png");
+//			        	}
+//			        },{
+//			        	text:"JPG", 
+//			        	handler:function(){
+//			        		var content = _this.networkWidget.getGraphCanvas().toHTML();
+//			        		_this.drawConvertPNGDialog(content,"jpg");
+//			        	}
+//			        },
+//
+//			        {
+//			        	text:"SVG (recommended)",
+//			        	handler:function(){
+//			        		var content = _this.networkWidget.getGraphCanvas().toHTML();
+//			        		var clienSideDownloaderWindowWidget = new ClienSideDownloaderWindowWidget();
+//			        		clienSideDownloaderWindowWidget.draw(content, content);
+//			        	}
+//
+//
+//			        }
+//			        ]
+//
+//		});
+//		
+//		
+////		var exportFileMenu = new Ext.create('Ext.menu.Menu',{
+////			width: menuItemWidth,
+////			floating: true,
+////			items: [
+////			{
+////				text: 'To Image',
+////				menu:ExportToMeu 
+////			},
+////			{
+////				text: 'To SIF',
+////				handler:function(){
+////					var content = _this.graphEditorWidget.dataset.toSIF();
+////					_this.save(content,"sif");
+////			}	
+////			},
+////			{
+////				text: 'To DOT',
+////				handler:function(){
+////				var content = _this.graphEditorWidget.dataset.toDOT();
+////				_this.save(content,"dot");
+////			}
+////			}]
+////		});
+//		
+//		var importFileMenu = new Ext.create('Ext.menu.Menu', {
+//			//width: menuItemWidth,
 //			floating: true,
 //			items: [
-//			{
-//				text: 'To Image',
-//				menu:ExportToMeu 
-//			},
-//			{
-//				text: 'To SIF',
-//				handler:function(){
-//					var content = _this.graphEditorWidget.dataset.toSIF();
-//					_this.save(content,"sif");
-//			}	
-//			},
-//			{
-//				text: 'To DOT',
-//				handler:function(){
-//				var content = _this.graphEditorWidget.dataset.toDOT();
-//				_this.save(content,"dot");
-//			}
-//			}]
+//				 {
+//			    	   text: 'Load remote network...',
+//			    	   handler: function(){
+//			    	   		_this.biopaxServerSelector.render();
+//			    	   		//_this.biopaxServerSelector.getSource();
+//						}
+//			       },
+//			       {
+//			    	   text: 'Upload local network',
+//			    	   menu: importLocalNetwork
+//				}
+//			]
 //		});
-		
-		var importFileMenu = new Ext.create('Ext.menu.Menu', {
-			//width: menuItemWidth,
-			floating: true,
-			items: [
-				 {
-			    	   text: 'Load remote network...',
-			    	   handler: function(){
-			    	   		_this.biopaxServerSelector.render();
-			    	   		//_this.biopaxServerSelector.getSource();
-						}
-			       },
-			       {
-			    	   text: 'Upload local network',
-			    	   menu: importLocalNetwork
-				}
-			]
-		});
-	
-		
-		
-		
-		/******************************************************************************
-		 ***************	END FILE MENU	******************************************* 
-		 ******************************************************************************/
-		
-		 _this.expressionStore = Ext.create('Ext.data.ArrayStore', {
-			 autoDestroy: true,
-		        fields: [
-		           {name: 'node'},
-		           {name: 'expression',      type: 'float'},
-		           {name: 'scaled',      type: 'float'},
-		           {name: 'color'}
-		         
-		        ]
-		    });
-		
-		 
-		 var expressionUpload = Ext.create('Ext.form.field.File', {
-				labelWidth: 50,
-				msgTarget: 'side',
-				allowBlank: false,
-				anchor: '100%',
-				buttonText: 'Select ...',
-				listeners: {
-					change: {
-			            fn: function(){
-							var dataAdapter = new TabularFileDataAdapter();
-							dataAdapter.loadFromFile($("#"+expressionUpload.fileInputEl.id).attr('files')[0]);
-							dataAdapter.onRead.addEventListener(function (sender, id){
-								
-//								for ( var i = 0; i < sender.lines[0].length; i++) {
-//									var split = sender.lines[0][i].split(",");
+//	
+//		
+//		
+//		
+//		/******************************************************************************
+//		 ***************	END FILE MENU	******************************************* 
+//		 ******************************************************************************/
+//		
+//		 _this.expressionStore = Ext.create('Ext.data.ArrayStore', {
+//			 autoDestroy: true,
+//		        fields: [
+//		           {name: 'node'},
+//		           {name: 'expression',      type: 'float'},
+//		           {name: 'scaled',      type: 'float'},
+//		           {name: 'color'}
+//		         
+//		        ]
+//		    });
+//		
+//		 
+//		 var expressionUpload = Ext.create('Ext.form.field.File', {
+//				labelWidth: 50,
+//				msgTarget: 'side',
+//				allowBlank: false,
+//				anchor: '100%',
+//				buttonText: 'Select ...',
+//				listeners: {
+//					change: {
+//			            fn: function(){
+//							var dataAdapter = new TabularFileDataAdapter();
+//							dataAdapter.loadFromFile($("#"+expressionUpload.fileInputEl.id).attr('files')[0]);
+//							dataAdapter.onRead.addEventListener(function (sender, id){
+//								
+////								for ( var i = 0; i < sender.lines[0].length; i++) {
+////									var split = sender.lines[0][i].split(",");
+////									var name = split[0];
+////									var expression = split[1];
+//////									
+////									
+////									if (_this.networkMetaDataViewer.getDataset().getVertexByName(name)!= null){
+////										_this.expressionValues[_this.networkMetaDataViewer.getDataset().getVertexByName(name).getId()] = expression;
+////									}
+////									else{
+////										console.log(name + " not found");
+////										//_this.expressionValues[_this.dataset.getVertexByName(name).getId()] = Math.infinity;
+////									}
+////								}
+//								for ( var i = 0; i < sender.lines.length; i++) {
+//									var split = sender.lines[i];
 //									var name = split[0];
 //									var expression = split[1];
 ////									
@@ -674,209 +701,195 @@ NetworkViewer.prototype.drawMenuBar = function(){
 //										//_this.expressionValues[_this.dataset.getVertexByName(name).getId()] = Math.infinity;
 //									}
 //								}
-								for ( var i = 0; i < sender.lines.length; i++) {
-									var split = sender.lines[i];
-									var name = split[0];
-									var expression = split[1];
-//									
-									
-									if (_this.networkMetaDataViewer.getDataset().getVertexByName(name)!= null){
-										_this.expressionValues[_this.networkMetaDataViewer.getDataset().getVertexByName(name).getId()] = expression;
-									}
-									else{
-										console.log(name + " not found");
-										//_this.expressionValues[_this.dataset.getVertexByName(name).getId()] = Math.infinity;
-									}
-								}
-								
-								openUploadExpressionFile.hide();
-								
-								var data = _this.normalize();
-				        		_this.expressionStore.removeAll();
-				        		_this.expressionStore.loadData(data, true); //["2222",1111,1111,"color"], true);
-				       
-								openExpressionWindow.show();
-							});
-						}
-			        }
-				}  
-			});
-		 
-		   var openUploadExpressionFile = Ext.create('Ext.window.Window', {
-			    title: 'Open expression file',
-			    width: 400,
-			    bodyPadding: 10,
-			    layout: 'fit',
-			    closeAction: 'hide',
-			    items: expressionUpload
-			});
-			
-			
-		 gridExpression = Ext.create('Ext.grid.Panel', {
-		        store: _this.expressionStore,
-		        stateful: true,
-		        stateId: 'stateGrid',
-		        columns: [
-		            {
-		                text     : 'node',
-		                flex     : 1,
-		                width    : 75,
-		                sortable : true,
-		                dataIndex: 'node'
-		            },
-		            {
-		                text     : 'expression',
-		                width    : 75,
-		                sortable : true,
-		                dataIndex: 'expression'
-		            },
-		            {
-		                text     : 'scaled',
-		                width    : 75,
-		                sortable : true,
-		                dataIndex: 'normalized'
-		            },
-		            {
-		                text     : 'color',
-		                width    : 75,
-		                sortable : true,
-		                dataIndex: 'color'
-		            }],
-		     height: 350,
-		     width: 350,
-		     title: 'Array Grid',
-		     viewConfig: {
-		         stripeRows: true
-		     }
-		 });
-		 
-		 
-		 
-//		var openExpressionWindow = Ext.create('Ext.window.Window', {
-//		    title: 'Expression',
-//		    width: 400,
-//		    bodyPadding: 10,
-//		    layout: 'fit',
-//		    closeAction: 'hide',
-//		    items: [
-//		            gridExpression,
+//								
+//								openUploadExpressionFile.hide();
+//								
+//								var data = _this.normalize();
+//				        		_this.expressionStore.removeAll();
+//				        		_this.expressionStore.loadData(data, true); //["2222",1111,1111,"color"], true);
+//				       
+//								openExpressionWindow.show();
+//							});
+//						}
+//			        }
+//				}  
+//			});
+//		 
+//		   var openUploadExpressionFile = Ext.create('Ext.window.Window', {
+//			    title: 'Open expression file',
+//			    width: 400,
+//			    bodyPadding: 10,
+//			    layout: 'fit',
+//			    closeAction: 'hide',
+//			    items: expressionUpload
+//			});
+//			
+//			
+//		 gridExpression = Ext.create('Ext.grid.Panel', {
+//		        store: _this.expressionStore,
+//		        stateful: true,
+//		        stateId: 'stateGrid',
+//		        columns: [
 //		            {
-//		            	   xtype: 'button',
-//		                   text : 'Apply',
-//		                   handler : function() {
-//		            	
-//					            	var colors = _this.expressionColors;
-//					        		for ( var vertex in _this.expressionColors) {
-//					        			_this.networkMetaDataViewer.getFormatter().getVertexById(vertex).getDefault().setFill(_this.expressionColors[vertex]);
-//					        			_this.graphEditorWidget.zoomFormatter.getVertexById(vertex).getDefault().setFill(_this.expressionColors[vertex]);
-//					        		}
-//		   					}
-//		            }]
-//		});
-		
-	    
-//		var expresionExtension = new Ext.create('Ext.menu.Menu', {
-//			//width: menuItemWidth,
+//		                text     : 'node',
+//		                flex     : 1,
+//		                width    : 75,
+//		                sortable : true,
+//		                dataIndex: 'node'
+//		            },
+//		            {
+//		                text     : 'expression',
+//		                width    : 75,
+//		                sortable : true,
+//		                dataIndex: 'expression'
+//		            },
+//		            {
+//		                text     : 'scaled',
+//		                width    : 75,
+//		                sortable : true,
+//		                dataIndex: 'normalized'
+//		            },
+//		            {
+//		                text     : 'color',
+//		                width    : 75,
+//		                sortable : true,
+//		                dataIndex: 'color'
+//		            }],
+//		     height: 350,
+//		     width: 350,
+//		     title: 'Array Grid',
+//		     viewConfig: {
+//		         stripeRows: true
+//		     }
+//		 });
+//		 
+//		 
+//		 
+////		var openExpressionWindow = Ext.create('Ext.window.Window', {
+////		    title: 'Expression',
+////		    width: 400,
+////		    bodyPadding: 10,
+////		    layout: 'fit',
+////		    closeAction: 'hide',
+////		    items: [
+////		            gridExpression,
+////		            {
+////		            	   xtype: 'button',
+////		                   text : 'Apply',
+////		                   handler : function() {
+////		            	
+////					            	var colors = _this.expressionColors;
+////					        		for ( var vertex in _this.expressionColors) {
+////					        			_this.networkMetaDataViewer.getFormatter().getVertexById(vertex).getDefault().setFill(_this.expressionColors[vertex]);
+////					        			_this.graphEditorWidget.zoomFormatter.getVertexById(vertex).getDefault().setFill(_this.expressionColors[vertex]);
+////					        		}
+////		   					}
+////		            }]
+////		});
+//		
+//	    
+////		var expresionExtension = new Ext.create('Ext.menu.Menu', {
+////			//width: menuItemWidth,
+////			floating: true,
+////			items: [{
+////				text: 'Upload Expression File',
+////				//xtype: 'menucheckitem',
+////				handler : function() {
+////						openUploadExpressionFile.show();
+////				}
+////			},
+////			{
+////				text: 'Manage expression',
+////				handler : function() {
+////			
+////					var data = _this.normalize();
+////	        		_this.expressionStore.removeAll();
+////	        		_this.expressionStore.loadData(data, true); 
+////					 openExpressionWindow.show();
+////				}
+////			}
+////			]
+////		});
+//		
+//		   
+//		var networkAnalysis = new Ext.create('Ext.menu.Menu', {
+//			width: menuItemWidth,
 //			floating: true,
 //			items: [{
-//				text: 'Upload Expression File',
-//				//xtype: 'menucheckitem',
-//				handler : function() {
-//						openUploadExpressionFile.show();
-//				}
+//				text: 'View parameters'
 //			},
 //			{
-//				text: 'Manage expression',
-//				handler : function() {
-//			
-//					var data = _this.normalize();
-//	        		_this.expressionStore.removeAll();
-//	        		_this.expressionStore.loadData(data, true); 
-//					 openExpressionWindow.show();
-//				}
+//				text: 'Plot parameters'
+//			},
+//			'-',
+//			{
+//				text: 'Snow'
+//			},
+//			{
+//				text: 'Network Miner'
 //			}
 //			]
 //		});
-		
-		   
-		var networkAnalysis = new Ext.create('Ext.menu.Menu', {
-			width: menuItemWidth,
-			floating: true,
-			items: [{
-				text: 'View parameters'
-			},
-			{
-				text: 'Plot parameters'
-			},
-			'-',
-			{
-				text: 'Snow'
-			},
-			{
-				text: 'Network Miner'
-			}
-			]
-		});
-
-//		var extensionsMenu = new Ext.create('Ext.menu.Menu', {
+//
+////		var extensionsMenu = new Ext.create('Ext.menu.Menu', {
+////			width: menuItemWidth,
+////			floating: true,
+////			text: "Extensions",
+////			items: [ {
+////			        	text: 'Expression',
+////			        	menu: expresionExtension
+////			        },
+////			        {
+////			        	text: 'Network',
+////			        	menu: networkAnalysis
+////			        }
+////			        ]
+////		});
+//
+//		
+//		
+//		var selectMenu = new Ext.create('Ext.menu.Menu',{
 //			width: menuItemWidth,
 //			floating: true,
-//			text: "Extensions",
-//			items: [ {
-//			        	text: 'Expression',
-//			        	menu: expresionExtension
-//			        },
-//			        {
-//			        	text: 'Network',
-//			        	menu: networkAnalysis
-//			        }
-//			        ]
-//		});
-
-		
-		
-		var selectMenu = new Ext.create('Ext.menu.Menu',{
-			width: menuItemWidth,
-			floating: true,
-			items: [
-//					{
-//						text: "Select",
-//						menu: [
-			        	       	{
-			        	       		text: 'Adjacent Vertices',
-			        	       		handler: function(){
-				        	       		_this.selectAdjacent();
-			        	       		}
-			        	       	},
-			        	       	{
-			        	       		text: 'Edges',
-			        	       		handler: function(){
-				        	       		_this.selectEdgesFromVertices();
-			        	       		}
-			        	       	},
-			        	       	{
-			        	       		text: 'Neighbourhood',
-			        	       		handler: function(){
-			        	       		
-			        	       			_this.selectEdgesFromVertices();
-			        	       			_this.selectAdjacent();
-				        	       			
-				        	       			
-			        	       		}
-			        	       	}
-//			        	       	,"-",
+//			items: [
+////					{
+////						text: "Select",
+////						menu: [
 //			        	       	{
-//			        	       		text: 'Collapse',
+//			        	       		text: 'Adjacent Vertices',
 //			        	       		handler: function(){
-//			        	       			_this.collapse();
+//				        	       		_this.selectAdjacent();
+//			        	       		}
+//			        	       	},
+//			        	       	{
+//			        	       		text: 'Edges',
+//			        	       		handler: function(){
+//				        	       		_this.selectEdgesFromVertices();
+//			        	       		}
+//			        	       	},
+//			        	       	{
+//			        	       		text: 'Neighbourhood',
+//			        	       		handler: function(){
+//			        	       		
+//			        	       			_this.selectEdgesFromVertices();
+//			        	       			_this.selectAdjacent();
+//				        	       			
+//				        	       			
 //			        	       		}
 //			        	       	}
-						]
-//					}]
-		});
-		
-
-};
+////			        	       	,"-",
+////			        	       	{
+////			        	       		text: 'Collapse',
+////			        	       		handler: function(){
+////			        	       			_this.collapse();
+////			        	       		}
+////			        	       	}
+//						]
+////					}]
+//		});
+//		
+//
+//};
 
 
 
