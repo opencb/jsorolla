@@ -55,6 +55,8 @@ NetworkEditorBarWidget.prototype.setNetworkSvg = function(networkSvg) {
 					_this.hideNodeButtons();
 					_this.hideEdgeButtons();
 				}
+				
+//				Ext.getCmp("selectBtn").
 			});
 };
 
@@ -663,6 +665,7 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 				border : true,
 				items : [
 						{
+							id : 'selectBtn',
 							iconCls : 'icon-mouse-select',
 							tooltip : 'Select',
 							toggleGroup : 'action',
@@ -671,8 +674,6 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 								this.toggle(true);
 								_this.hideNodeButtons();
 								_this.hideEdgeButtons();
-								_this.networkSvg.svg.setAttribute("cursor",
-										"default");
 								_this.networkViewer.handleActionMenu("select");
 							}
 						},
@@ -685,8 +686,6 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 								this.toggle(true);
 								_this.showNodeButtons();
 								_this.hideEdgeButtons();
-								_this.networkSvg.svg.setAttribute("cursor",
-										"url(./img/addNodeCursor.png), auto");
 								_this.networkViewer.handleActionMenu("add");
 							}
 						},
@@ -698,8 +697,6 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 								this.toggle(true);
 								_this.hideNodeButtons();
 								_this.showEdgeButtons();
-								_this.networkSvg.svg.setAttribute("cursor",
-										"url(./img/addEdgeCursor.png), auto");
 								_this.networkViewer.handleActionMenu("join");
 							}
 						},
@@ -711,8 +708,6 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 								this.toggle(true);
 								_this.hideNodeButtons();
 								_this.hideEdgeButtons();
-								_this.networkSvg.svg.setAttribute("cursor",
-										"url(./img/removeCursor.png), auto");
 								_this.networkViewer.handleActionMenu("delete");
 							}
 						},
@@ -786,7 +781,7 @@ NetworkEditorBarWidget.prototype._handleButtons = function(config) {
 			break;
 
 		case this.layoutButtonId :
-			_this.networkSvg.setLayout(config.text);
+			_this.networkViewer.setLayout(config.text);
 			break;
 		case this.labelSizeButtonId :
 			var hash = {

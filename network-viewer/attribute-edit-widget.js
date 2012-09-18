@@ -10,6 +10,8 @@ function AttributeEditWidget(attributeManager) {
 			_this.updateNumRowsLabel();
 		}
 	});
+	
+	this.onSelectNodes = new Event(this);
 };
 
 AttributeEditWidget.prototype.draw = function(selectedNodes) {
@@ -63,7 +65,7 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        },
 		        {
 		        	xtype: 'button',
-		        	text: 'Modify',
+		        	text: 'Update',
 		        	margin: "0 15 0 20",
 		        	formBind: true, // only enabled if the form is valid
 		        	disabled: true,
@@ -272,8 +274,64 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		            	          {
 		            	        	  xtype : 'tbtext',
 		            	        	  id : this.id + "numRowsLabel"
-		            	          } 
-		            	          ]
+		            	          }, '->',
+		            	          {
+		            	        	  xtype: 'button',
+		            	        	  text: 'Export...',
+		            	        	  handler: function() {
+		            	        		  if(!Ext.getCmp("exportWindow")) {
+		            	        			  var cbgItems = [];
+		            	        			  var attrList = _this.attrMan.getAttrNameList();
+		            	        			  for(var i = 0; i < attrList.length; i++) {
+		            	        				  cbgItems.push({
+		            	        					  boxLabel  : attrList[i],
+		            	        					  name      : 'attr',
+		            	        					  inputValue: attrList[i],
+		            	        					  checked   : true
+		            	        				  });
+		            	        			  }
+
+		            	        			  Ext.create('Ext.window.Window', {
+		            	        				  id : "exportWindow",
+		            	        				  title : "Export attributes",
+		            	        				  height : 250,
+		            	        				  maxHeight: 250,
+		            	        				  width : 400,
+		            	        				  autoScroll: true,
+		            	        				  layout : "fit",
+		            	        				  modal : true,
+		            	        				  items : [
+		            	        				           {
+		            	        				        	   xtype: 'checkboxgroup',
+		            	        				        	   id: _this.id+"cbgAttributes",
+//		            	        				        	   layout: 'fit',
+//		            	        				        	   width: 380,
+//		            	        				        	   height: 200,
+//		            	        				        	   maxHeight: 200,
+//		            	        				        	   autoScroll: true,
+//		            	        				        	   defaultType: 'checkboxfield',
+//		            	        				        	   columns: 2,
+//		            	        				        	   vertical: true,
+		            	        				        	   items: cbgItems
+		            	        				           }
+		            	        				          ],
+		            	        			  	  buttons : [{
+		            	        		        	  text: 'Ok',
+		            	        		        	  handler: function() {
+		            	        		        		  var columns = Ext.getCmp(_this.id+"cbgAttributes").getChecked();
+		            	        		        		  var content = _this.attrMan.exportToTab(columns, true);
+		            	        		        		  
+		            	        		        		  //Download file
+		            	        		        		  document.location = 'data:Application/octet-stream,'+encodeURIComponent(content);
+		            	        		        		  
+		            	        		        		  Ext.getCmp("exportWindow").close();
+		            	        		        	  }
+		            	        		          }]
+		            	        			  }).show();
+		            	        		  }
+		            	        	  }
+		            	          }
+		            	         ]
 		              },
 		              {
 		            	  xtype : 'toolbar',
@@ -306,6 +364,13 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 						alert('custom item for column "'+columnDataIndex+'" was pressed');
 					}
 				}]);           
+			},
+			selectionchange: function(model, selected) {
+				var nodeList = [];
+				for (var i = 0; i < selected.length; i++) {
+					nodeList.push(selected[i].getData().Id);
+				}
+        		_this.onSelectNodes.notify(nodeList);
 			}
 		}
 	});
@@ -402,7 +467,7 @@ AttributeEditWidget.prototype.addAttribute = function() {
 		        		  Ext.getCmp("addAttrWindow").close();
 		        	  }
 		          }
-		          ]
+		         ]
 	});
 	
 	Ext.create('widget.window', {

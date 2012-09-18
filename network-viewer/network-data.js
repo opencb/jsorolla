@@ -11,18 +11,16 @@ function NetworkData (args) {
 	this.metaInfo.numNodes = 0;
 	this.metaInfo.numEdges= 0;
 	
-	if(args.attributes != null) {
-		this.attributes = args.attributes;
-	}
-	else {
-		var defaults = [["Id", "number", "null"],["Name", "string", "none"]];
-		this.attributes = new AttributeManager(defaults);
-	}
-	if(args.type != null) {
-		this.type = args.type;
-	}
-	else {
-		this.type = "undirected";
+	var defaults = [["Id", "number", "null"],["Name", "string", "none"]];
+	this.attributes = new AttributeManager(defaults);
+	
+	if(args != null) {
+		if(args.type != null) {
+			this.type = args.type;
+		}
+		else {
+			this.type = "undirected";
+		}
 	}
 };
 
@@ -190,6 +188,14 @@ NetworkData.prototype.setType = function(type) {
 
 NetworkData.prototype.getNodesCount = function() {
 	return this.metaInfo.numNodes;
+};
+
+NetworkData.prototype.getNodesList = function() {
+	var nodeList = [];
+	for(var nodeId in this.nodes) {
+		nodeList.push(nodeId);
+	}
+	return nodeList;
 };
 
 NetworkData.prototype.getAttributes = function() {
