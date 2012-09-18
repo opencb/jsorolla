@@ -37,13 +37,10 @@ function NetworkViewer(targetId, species, args) {
 		if (args.pluginsMenu != null) {
 			this.pluginsMenu = args.pluginsMenu;
 		}
-		if (args.attributes != null) {
-			this.attributes = args.attributes;
-		}
 	}
 	
 	/** Network Data object **/
-	this.networkData = new NetworkData({"attributes":this.attributes});
+	this.networkData = new NetworkData();
 	
 	this.drawZoneWidth = this.width-12;
 //	this.drawZoneHeight = this.height-148;
@@ -84,7 +81,7 @@ function NetworkViewer(targetId, species, args) {
 //		_this.setSpecies(specie);
 //	});
 	
-
+	
 };
 
 NetworkViewer.prototype.draw = function(){
@@ -100,33 +97,6 @@ NetworkViewer.prototype.render = function(){
 	
 	this.networkEditorBarWidget.setNetworkSvg(this.networkSvg);
 };
-
-//NetworkViewer.prototype.renderOLD = function(){
-//	var _this = this;
-//
-//	/** Persitencia del viewer **/
-//	this.networkMetaDataViewer = new NetworkMetaDataViewer(this.species,{"width":this.drawZoneWidth,"height":this.drawZoneHeight});
-//	
-//	var dataset = new GraphDataset();
-//	var formatter = this.networkMetaDataViewer.getFormatter();
-//	var layout = new LayoutDataset();
-//	
-//	formatter.dataBind(dataset);
-//	layout.dataBind(dataset);
-//	
-//	// Events
-////	this.searcherViewer.onSelectedNodes.addEventListener(function (sender, idNodes){
-////		_this.selectVertices(idNodes);
-////	});
-//	this.networkMetaDataViewer.getMetaNetwork().onInfoRetrieved.addEventListener(function (sender){
-//	    //	_this.onInfoRetrieved.notify();
-//	    	if(_this.openViewer == "searcherViewer")
-//	        	_this.showSearcherViewer();
-//	    	if(_this.openViewer == "filter")
-//	        	_this.showFilterViewer();
-//	});
-//	this.drawNetwork(dataset, formatter, layout);
-//};
 
 
 //Gets the panel containing all genomeViewer
@@ -200,6 +170,7 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 
 	
 };
+
 //NetworkViewer.prototype.setSize = function(width,height) {
 //	this.width=width;
 //	this.height=height;
@@ -347,22 +318,7 @@ NetworkViewer.prototype.setSpecies = function(text){
 //	console.log(networkData);
 //};
 
-NetworkViewer.prototype.loadNetwork = function(networkData){
-//	this.networkMetaDataViewer.loadSif(sifdataadapter);
-//	this.drawNetwork(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
-	
-	this.networkData = networkData;
-	this.networkSvg.refresh(networkData);
-	this.networkSvg.setLayout("Circle");
-};
 
-NetworkViewer.prototype.loadJSON = function(content){
-//	this.networkMetaDataViewer.loadJSON(content);
-//	this.drawNetwork(this.networkMetaDataViewer.getDataset(), this.networkMetaDataViewer.getFormatter(), this.networkMetaDataViewer.getLayout());
-	
-	this.networkData.loadJSON(content);
-	this.networkSvg.refresh(this.networkData);
-};
 
 
 NetworkViewer.prototype.drawConvertPNGDialog = function(content, type){
@@ -1188,35 +1144,151 @@ NetworkViewer.prototype.getSBGNToolBar = function() {
 
 };
 
-NetworkViewer.prototype.expressionSelected = function() {
-	var _this=this;
-	var networkAttributesWidget = new ExpressionNetworkAttributesWidget({title:'Expression',wum:true,width:this.width,height:this.height});
-	networkAttributesWidget.draw(_this.networkWidget.getDataset(), _this.networkWidget.getFormatter(),_this.networkWidget.getLayout());
-	
-	networkAttributesWidget.verticesSelected.addEventListener(function(sender, vertices){
-		_this.networkWidget.deselectNodes();
-		_this.networkWidget.selectVerticesByName(vertices);
-	});
-	
+//NetworkViewer.prototype.expressionSelected = function() {
+//	var _this=this;
+//	var networkAttributesWidget = new ExpressionNetworkAttributesWidget({title:'Expression',wum:true,width:this.width,height:this.height});
+//	networkAttributesWidget.draw(_this.networkWidget.getDataset(), _this.networkWidget.getFormatter(),_this.networkWidget.getLayout());
+//	
+//	networkAttributesWidget.verticesSelected.addEventListener(function(sender, vertices){
+//		_this.networkWidget.deselectNodes();
+//		_this.networkWidget.selectVerticesByName(vertices);
+//	});
+//	
+//
+//	networkAttributesWidget.applyColors.addEventListener(function(sender, vertices){
+//		var vertices = networkAttributesWidget.dataset.getVertices();
+//		for ( var vertex in vertices) {
+//			var id = vertices[vertex].getId();
+//			var color = networkAttributesWidget.formatter.getVertexById(id).getDefault().getFill();
+//			_this.networkWidget.getFormatter().getVertexById(id).getDefault().setFill(color);
+//		}
+//		
+//	});
+//	
+//	
+//	_this.networkWidget.onVertexOver.addEventListener(function(sender, nodeId){
+//		var name = _this.networkWidget.getDataset().getVertexById(nodeId).getName();
+//		_this.setNodeInfoLabel(networkAttributesWidget.getVertexAttributesByName(name).toString());
+//	});
+//};
+//
+//NetworkViewer.prototype.reactomeSelected = function() {
+//	pathwayTreeViewer = new PathwayTreeViewer(this.species);
+//	pathwayTreeViewer.draw();
+//};
 
-	networkAttributesWidget.applyColors.addEventListener(function(sender, vertices){
-		var vertices = networkAttributesWidget.dataset.getVertices();
-		for ( var vertex in vertices) {
-			var id = vertices[vertex].getId();
-			var color = networkAttributesWidget.formatter.getVertexById(id).getDefault().getFill();
-			_this.networkWidget.getFormatter().getVertexById(id).getDefault().setFill(color);
-		}
-		
-	});
-	
-	
-	_this.networkWidget.onVertexOver.addEventListener(function(sender, nodeId){
-		var name = _this.networkWidget.getDataset().getVertexById(nodeId).getName();
-		_this.setNodeInfoLabel(networkAttributesWidget.getVertexAttributesByName(name).toString());
-	});
+
+
+
+
+/**** NETWORK VIEWER API *****/
+NetworkViewer.prototype.loadNetwork = function(networkData){
+	this.networkData = networkData;
+	this.networkSvg.refresh(networkData);
+	this.networkSvg.setLayout("Circle");
 };
 
-NetworkViewer.prototype.reactomeSelected = function() {
-	pathwayTreeViewer = new PathwayTreeViewer(this.species);
-	pathwayTreeViewer.draw();
+NetworkViewer.prototype.loadJSON = function(content){
+	this.networkData.loadJSON(content);
+	this.networkSvg.refresh(this.networkData);
+};
+
+NetworkViewer.prototype.getNetworkData = function(){
+	return this.networkData;
+};
+
+NetworkViewer.prototype.setLayout = function(type){
+	switch (type) {
+	case "Circle":
+		var count = this.networkData.getNodesCount();
+		var vertexCoordinates = this.calculateLayoutVertex(type, count);
+		var nodeList = this.networkData.getNodesList();
+		var aux = 0;
+		for(var i = 0; i < nodeList.length; i++) {
+			var x = this.networkSvg.getWidth()*(0.05 + 0.85*vertexCoordinates[aux].x);
+			var y = this.networkSvg.getHeight()*(0.05 + 0.85*vertexCoordinates[aux].y);
+			this.networkSvg.moveNode(nodeList[i], x, y);
+			aux++;
+		}
+		break;
+	case "Square":
+		var count = this.networkData.getNodesCount();
+		var vertexCoordinates = this.calculateLayoutVertex(type, count);
+		var nodeList = this.networkData.getNodesList();
+		var aux = 0;
+		for(var i = 0; i < nodeList.length; i++) {
+			var x = this.networkSvg.getWidth()*(0.05 + 0.85*vertexCoordinates[aux].x);
+			var y = this.networkSvg.getHeight()*(0.05 + 0.85*vertexCoordinates[aux].y);
+			this.networkSvg.moveNode(nodeList[i], x, y);
+			aux++;
+		}
+		break;
+	case "Random":
+		var nodeList = this.networkData.getNodesList();
+		for(var i = 0; i < nodeList.length; i++) {
+			var x = this.networkSvg.getWidth()*(0.05 + 0.85*vertexCoordinates[aux].x);
+			var y = this.networkSvg.getHeight()*(0.05 + 0.85*vertexCoordinates[aux].y);
+			this.networkSvg.moveNode(nodeList[i], x, y);
+		}
+		break;
+	default:
+		var dotText = this.networkData.toDot();
+		var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/"+type+".coords";
+		var _this = this;
+		
+		$.ajax({
+			async: true,
+			type: "POST",
+			url: url,
+			dataType: "text",
+			data: {
+				dot: dotText
+			},
+			cache: false,
+			success: function(data){ 
+				var response = JSON.parse(data);
+				for(var nodeId in response){
+					var x = _this.networkSvg.getWidth()*(0.05 + 0.85*response[nodeId].x);
+					var y = _this.networkSvg.getHeight()*(0.05 + 0.85*response[nodeId].y);
+					_this.networkSvg.moveNode(nodeId, x, y);
+				}
+			}
+		});
+		break;
+	}
+};
+
+NetworkViewer.prototype.calculateLayoutVertex = function(type, count){
+	switch (type) {
+	case "Circle":
+		var radius = 0.4;
+		var centerX = 0.5;
+		var centerY = 0.5;
+		var vertexCoordinates = new Array();
+		for(var i = 0; i < count; i++){
+			x = centerX + radius * Math.sin(i * 2 * Math.PI/count);
+			y = centerY + radius * Math.cos(i * 2 * Math.PI/count);
+			vertexCoordinates.push({'x':x,'y':y});
+		}
+		return vertexCoordinates;
+		break;
+
+	case "Square":
+		var xMin = 0.1;
+		var xMax = 0.9;
+		var yMin = 0.1;
+		var yMax = 0.9;
+		var rows = Math.sqrt(count);
+		var step = (xMax - xMin) / rows;
+		var vertexCoordinates = new Array();
+		for(var i = 0; i < rows; i ++){
+			for ( var j = 0; j < rows; j++) {
+				x = i * step + xMin;
+				y = j * step + yMin;
+				vertexCoordinates.push({'x':x,'y':y});
+			}
+		}
+		return vertexCoordinates;
+		break;
+	}
 };

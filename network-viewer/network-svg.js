@@ -90,7 +90,9 @@ NetworkSvg.prototype.initSVG = function(){
 };
 
 NetworkSvg.prototype.refresh = function(networkData){
-	this.networkData = networkData;
+	if(networkData != null) {
+		this.networkData = networkData;
+	}
 	
 	this.nodeSvgList = {};
 	this.edgeSvgList = {};
@@ -243,7 +245,7 @@ NetworkSvg.prototype.addNode = function(args, fromClick){
 	/** /SVG **/
 };
 
-NetworkSvg.prototype.removeNode = function(nodeId){
+NetworkSvg.prototype.removeNode = function(nodeId, onlySVG) {
 	/** SVG **/
 	// remove node input edges
 	for ( var i=0, leni=this.nodeSvgList[nodeId].edgesIn.length; i<leni; i++) {
@@ -253,7 +255,9 @@ NetworkSvg.prototype.removeNode = function(nodeId){
 		var sourceNode = this.edgeSvgList[edgeId].getAttribute("source");
 		this.svg.removeChild(this.edgeSvgList[edgeId]);
 		delete this.edgeSvgList[edgeId];
-		this.networkData.removeEdge(edgeId); //remove from NetworkData
+		if(!onlySVG) {
+			this.networkData.removeEdge(edgeId); //remove from NetworkData
+		}
 		
 		// remove edge from source node
 		for ( var j=0, lenj=this.nodeSvgList[sourceNode].edgesOut.length; j<lenj; j++) {
@@ -272,7 +276,9 @@ NetworkSvg.prototype.removeNode = function(nodeId){
 		var targetNode = this.edgeSvgList[edgeId].getAttribute("target");
 		this.svg.removeChild(this.edgeSvgList[edgeId]);
 		delete this.edgeSvgList[edgeId];
-		this.networkData.removeEdge(edgeId); //remove from NetworkData
+		if(!onlySVG) {
+			this.networkData.removeEdge(edgeId); //remove from NetworkData
+		}
 		
 		// remove edge from target node
 		for ( var j=0, lenj=this.nodeSvgList[targetNode].edgesIn.length; j<lenj; j++) {
@@ -289,8 +295,21 @@ NetworkSvg.prototype.removeNode = function(nodeId){
 	/** /SVG **/
 	
 	/** Data **/
-	this.networkData.removeNode(nodeId);
+	if(!onlySVG) {
+		this.networkData.removeNode(nodeId);
+	}
 	/** /Data **/
+};
+
+NetworkSvg.prototype.filterNodes = function(nodeList){
+	this.deselectAllNodes();
+	
+	//Delete nodes that not are in list
+	for(var node in this.nodeSvgList){
+		if(!nodeList[node]) {
+			this.removeNode(node, true);
+		}
+	}
 };
 
 NetworkSvg.prototype.moveNode = function(nodeId, newX, newY){
@@ -798,7 +817,7 @@ NetworkSvg.prototype.loadFromJson = function(jsonStr){
 };
 
 /** LAYOUT FUNCTIONS **/
-NetworkSvg.prototype.setLayout = function(type){
+NetworkSvg.prototype.setLayoutDEPRECATED = function(type){
 	switch (type) {
 	case "Circle":
 		var count = this.networkData.getNodesCount();
@@ -856,7 +875,7 @@ NetworkSvg.prototype.setLayout = function(type){
 	}
 };
 
-NetworkSvg.prototype.calculateLayoutVertex = function(type, count){
+NetworkSvg.prototype.calculateLayoutVertexDEPRECATED = function(type, count){
 	switch (type) {
 	case "Circle":
 		var radius = 0.4;
@@ -939,6 +958,7 @@ NetworkSvg.prototype.selectNode = function(nodeId){
 };
 
 NetworkSvg.prototype.selectNodes = function(nodeList){
+	this.setMode("select");
 	this.deselectAllNodes();
 
 	//Select nodes in list
@@ -950,6 +970,8 @@ NetworkSvg.prototype.selectNodes = function(nodeList){
 		//Change the color of the node
 		this.nodeSvgList[nodeList[i]].childNodes[0].setAttribute("fill", "red");
 	}
+	
+	this.onCanvasClick.notify();
 };
 
 NetworkSvg.prototype.selectAllNodes = function(){
@@ -1173,6 +1195,24 @@ NetworkSvg.prototype.getHeight = function(){
 /** SETTING FUNCTIONS **/
 NetworkSvg.prototype.setMode = function(mode){
 	this.mode = mode;
+	
+	switch (mode) {
+	case "add":
+		this.svg.setAttribute("cursor", "url(./img/addNodeCursor.png), auto");
+		break;
+		
+	case "join":
+		this.svg.setAttribute("cursor", "url(./img/addEdgeCursor.png), auto");
+		break;
+		
+	case "delete":
+		this.svg.setAttribute("cursor", "url(./img/removeCursor.png), auto");
+		break;
+
+	default:
+		this.svg.setAttribute("cursor", "default");
+		break;
+	}
 };
 
 NetworkSvg.prototype.setBackgroundColor = function(color){
@@ -1363,6 +1403,7 @@ NetworkSvg.prototype.setNodeLabel = function(newLabel){
 			figure.setAttribute("nodeLabel", newLabel);
 			var text = this.nodeSvgList[nodeId].childNodes[1];
 			text.textContent = newLabel;
+			this.networkData.attributes.setName(nodeId, newLabel);
 		}
 		break;
 	case "add":
@@ -1557,7 +1598,6 @@ NetworkSvg.prototype.nodeClick = function(event, nodeId){
 		break;
 	case "select":
 		if(event.ctrlKey){
-//			debugger
 			this.selectNode(nodeId);
 		}else if(this.countSelectedNodes < 2 || !this.selectedNodes[nodeId]){
 			this.deselectAllNodes();

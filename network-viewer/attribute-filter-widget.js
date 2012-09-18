@@ -10,6 +10,11 @@ function AttributeFilterWidget(attributeManager) {
 			_this.updateNumRowsLabel();
 		}
 	});
+	
+	this.onSelectNodes = new Event(this);
+	this.onDeselectNodes = new Event(this);
+	this.onFilterNodes = new Event(this);
+	this.onRestoreNodes = new Event(this);
 };
 
 AttributeFilterWidget.prototype.draw = function(selectedNodes) {
@@ -91,10 +96,51 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		        					if(this.checked){
 		        						// apply filter
 		        						_this.attrMan.enableFilter(this.text);
+		        						
+		        						// select nodes of filter
+		        						_this.selectNodesOnGraph();
+		        						
+		        						// check item in the other menu
+		        						Ext.getCmp(this.id+"_main").setChecked(true);
 		        					}
 		        					else{
 		        						// remove filter
 		        						_this.attrMan.disableFilter(this.text);
+		        						_this.deselectNodesOnGraph();
+		        						
+		        						// check item in the other menu
+		        						Ext.getCmp(this.id+"_main").setChecked(false);
+		        					}
+		        				}
+		        			});
+		        			
+		        			//add to main menu
+		        			Ext.getCmp("filtersAttrMainMenu").add({
+		        				id: filterName+"_main",
+		        				text: filterName,
+		        				checked: true,
+		        				handler: function() {
+		        					if(this.checked){
+		        						// apply filter
+		        						_this.attrMan.enableFilter(this.text);
+		        						
+		        						// select nodes of filter
+		        						_this.selectNodesOnGraph();
+		        						
+		        						// check item in the other menu
+		        						if(Ext.getCmp(this.text)) {
+		        							Ext.getCmp(this.text).setChecked(true);
+		        						}
+		        					}
+		        					else{
+		        						// remove filter
+		        						_this.attrMan.disableFilter(this.text);
+		        						_this.deselectNodesOnGraph();
+		        						
+		        						// check item in the other menu
+		        						if(Ext.getCmp(this.text)) {
+		        							Ext.getCmp(this.text).setChecked(false);
+		        						}
 		        					}
 		        				}
 		        			});
@@ -106,8 +152,13 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		        					_this.attrMan.removeFilter(this.text);
 		        					Ext.getCmp(_this.id+"rmFilterMenu").menu.remove(this);
 		        					Ext.getCmp(_this.id+"filterMenu").menu.remove(this.text);
+		        					Ext.getCmp("filtersAttrMainMenu").remove(Ext.getCmp(this.text+"_main"));
+		        					_this.deselectNodesOnGraph();
 		        				}
 		        			});
+		        			
+		        			// select nodes of added filter
+    						_this.selectNodesOnGraph();
 		        		}
 		        		else {
 		        			Ext.Msg.show({
@@ -120,6 +171,16 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		        	}
 		        }
        ]
+	});
+	
+	var restoreBtn = Ext.create('Ext.Button', {
+		disabled: true,
+		text: 'Restore original graph',
+		handler: function() {
+			this.setDisabled(true);
+			
+			_this.onRestoreNodes.notify();
+		}
 	});
 	
 	this.grid = Ext.create('Ext.grid.Panel', {
@@ -140,6 +201,70 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		            	          {
 		            	        	  xtype : 'tbtext',
 		            	        	  id : this.id + "numRowsLabel"
+		            	          }, '->',
+		            	          {
+		            	        	  xtype: 'button',
+		            	        	  text: 'Export...',
+		            	        	  handler: function() {
+		            	        		  if(!Ext.getCmp("exportWindow")) {
+		            	        			  var cbgItems = [];
+//		            	        			  cbgItems.push({
+//		            	        				  boxLabel  : 'Select all / Deselect all',
+//		            	        				  name      : 'selectAll',
+//		            	        				  checked   : true,
+//		            	        				  handler	: function() {
+//		            	        					  
+//		            	        				  }
+//		            	        			  });
+		            	        			  var attrList = _this.attrMan.getAttrNameList();
+		            	        			  for(var i = 0; i < attrList.length; i++) {
+		            	        				  cbgItems.push({
+		            	        					  boxLabel  : attrList[i],
+		            	        					  name      : 'attr',
+		            	        					  inputValue: attrList[i],
+		            	        					  checked   : true
+		            	        				  });
+		            	        			  }
+
+		            	        			  Ext.create('Ext.window.Window', {
+		            	        				  id : "exportWindow",
+		            	        				  title : "Export attributes",
+		            	        				  height : 250,
+		            	        				  maxHeight: 250,
+		            	        				  width : 400,
+		            	        				  autoScroll: true,
+		            	        				  layout : "fit",
+		            	        				  modal : true,
+		            	        				  items : [
+		            	        				           {
+		            	        				        	   xtype: 'checkboxgroup',
+		            	        				        	   id: _this.id+"cbgAttributes",
+//		            	        				        	   layout: 'fit',
+//		            	        				        	   width: 380,
+//		            	        				        	   height: 200,
+//		            	        				        	   maxHeight: 200,
+//		            	        				        	   autoScroll: true,
+//		            	        				        	   defaultType: 'checkboxfield',
+//		            	        				        	   columns: 2,
+//		            	        				        	   vertical: true,
+		            	        				        	   items: cbgItems
+		            	        				           }
+		            	        				          ],
+		            	        			  	  buttons : [{
+		            	        		        	  text: 'Ok',
+		            	        		        	  handler: function() {
+		            	        		        		  var columns = Ext.getCmp(_this.id+"cbgAttributes").getChecked();
+		            	        		        		  var content = _this.attrMan.exportToTab(columns, false);
+		            	        		        		  
+		            	        		        		  //Download file
+		            	        		        		  document.location = 'data:Application/octet-stream,'+encodeURIComponent(content);
+		            	        		        		  
+		            	        		        		  Ext.getCmp("exportWindow").close();
+		            	        		        	  }
+		            	        		          }]
+		            	        			  }).show();
+		            	        		  }
+		            	        	  }
 		            	          }
 		            	         ]
 		              },
@@ -169,19 +294,25 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		            	           {
 							        	xtype: 'button',
 							        	text: 'Select on graph',
-							        	// margin: "0 15 0 10",
 							        	handler: function() {
-							        		
+							        		_this.selectNodesOnGraph();
 							        	}
 							       },
 							       {
 							        	xtype: 'button',
 							        	text: 'Filter on graph',
-							        	// margin: "0 15 0 10",
 							        	handler: function() {
-							        		
+							        		restoreBtn.setDisabled(false);
+							        		_this.grid.getSelectionModel().selectAll();
+							        		var selection = _this.grid.getSelectionModel().getSelection();
+							        		var nodeList = {};
+							        		for (var i = 0; i < selection.length; i++) {
+												nodeList[selection[i].getData().Id] = true;
+											}
+							        		_this.onFilterNodes.notify(nodeList);
 							        	}
-							       }
+							       },
+							       restoreBtn
 		            	          ]
 		              }
 		],
@@ -202,6 +333,13 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 						alert('custom item for column "'+columnDataIndex+'" was pressed');
 					}
 				}]);           
+			},
+			selectionchange: function(model, selected) {
+				var nodeList = [];
+				for (var i = 0; i < selected.length; i++) {
+					nodeList.push(selected[i].getData().Id);
+				}
+        		_this.onSelectNodes.notify(nodeList);
 			}
 		}
 	});
@@ -214,7 +352,49 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		layout : "fit",
 		items : this.grid
 	}).show();
-
+	
+	//Add created filters to menus
+	for(var filter in this.attrMan.filters) {
+		// Active filters menu
+		Ext.getCmp(this.id+"filterMenu").menu.add({
+			id: filter,
+			text: filter,
+			checked: this.attrMan.filters[filter].active,
+			handler: function() {
+				if(this.checked){
+					// apply filter
+					_this.attrMan.enableFilter(this.text);
+					
+					// select nodes of filter
+					_this.selectNodesOnGraph();
+					
+					// check item in the other menu
+					Ext.getCmp(this.id+"_main").setChecked(true);
+				}
+				else{
+					// remove filter
+					_this.attrMan.disableFilter(this.text);
+					_this.deselectNodesOnGraph();
+					
+					// check item in the other menu
+					Ext.getCmp(this.id+"_main").setChecked(false);
+				}
+			}
+		});
+		
+		// Remove filter menu
+		Ext.getCmp(this.id+"rmFilterMenu").menu.add({
+			text: filter,
+			handler: function() {
+				_this.attrMan.removeFilter(this.text);
+				Ext.getCmp(_this.id+"rmFilterMenu").menu.remove(this);
+				Ext.getCmp(_this.id+"filterMenu").menu.remove(this.text);
+				Ext.getCmp("filtersAttrMainMenu").remove(Ext.getCmp(this.text+"_main"));
+				_this.deselectNodesOnGraph();
+			}
+		});
+	}
+	
 	this.selectRowsById(selectedNodes);
 	this.updateNumRowsLabel();
 };
@@ -237,6 +417,21 @@ AttributeFilterWidget.prototype.getAttributeNames = function() {
 	return names;
 };
 
+AttributeFilterWidget.prototype.selectNodesOnGraph = function() {
+	if(Ext.getCmp("filterAttrWindow")) {
+		this.grid.getSelectionModel().selectAll();
+	}
+	
+	var nodeList = [];
+	this.attrMan.store.each(function (record){
+		nodeList.push(record.getData().Id);
+	});
+	this.onSelectNodes.notify(nodeList);
+};
+
+AttributeFilterWidget.prototype.deselectNodesOnGraph = function() {
+	this.onDeselectNodes.notify();
+};
 
 AttributeFilterWidget.prototype.selectRowsById = function(arrayNodes) {
 	this.grid.getSelectionModel().deselectAll();

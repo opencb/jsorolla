@@ -310,7 +310,7 @@ AttributeManager.prototype.disableFilter = function(filterName) {
 	this.filters[filterName].active = false;
 	
 	this.store.clearFilter(false);
-	for (var filter in this.filters){
+	for (var filter in this.filters) {
 		if(this.filters[filter].active) {
 			//this.store.filter(this.filters[filterName].attribute, this.filters[filterName].value); //para filtrar cuando este escrito el nombre entero bien
 			var reg = new RegExp(""+this.filters[filter].value);
@@ -372,4 +372,47 @@ AttributeManager.prototype.toJSON = function() {
 	row = JSON.stringify(row);
 
 	console.log(row);
+};
+
+AttributeManager.prototype.setName = function(nodeId, newName) {
+	this.store.getAt(this.store.find("Id",  nodeId)).set("Name", newName);
+};
+
+AttributeManager.prototype.getAttrNameList = function() {
+	return this.attributes;
+};
+
+AttributeManager.prototype.exportToTab = function(columns, clearFilter) {
+	if(clearFilter) {
+		this.store.clearFilter(false);
+	}
+	
+	var output = "#";
+	var colNames = [];
+	for(var i = 0; i < columns.length; i++) {
+		output += columns[i].inputValue + "\t";
+		colNames.push(columns[i].inputValue);
+	}
+	output += "\n";
+	
+	var lines = this.store.getRange();
+	for(var j = 0; j < lines.length; j++) {
+		for(var i = 0; i < colNames.length; i++) {
+//			console.log(lines[j].getData()[field]);
+			output += lines[j].getData()[colNames[i]] + "\t";
+		}
+		output += "\n";
+	}
+	
+	if(clearFilter) {
+		for (var filter in this.filters) {
+			if(this.filters[filter].active) {
+				//this.store.filter(this.filters[filterName].attribute, this.filters[filterName].value); //para filtrar cuando este escrito el nombre entero bien
+				var reg = new RegExp(""+this.filters[filter].value);
+				this.store.filter(Ext.create('Ext.util.Filter', {property: this.filters[filter].attribute, value: reg, root: 'data'}));
+			}
+		}
+	}
+	
+	return output;
 };
