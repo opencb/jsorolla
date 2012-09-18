@@ -44,7 +44,6 @@ BamCache.prototype.getFeaturesByChunk = function(key, dataType){
 			coverage = this.cache[key]["coverage"];
 		}
 		
-		
 		for ( var i = 0, len = this.cache[key]["data"].length; i < len; i++) {
 			if(this.gzip) {
 				feature = JSON.parse(RawDeflate.inflate(this.cache[key]["data"][i]));

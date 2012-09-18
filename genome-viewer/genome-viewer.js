@@ -70,7 +70,6 @@ function GenomeViewer(targetId, species, args) {
 	console.log(this.width+"x"+this.height);
 	console.log(this.targetId);
 	console.log(this.id);
-	
 };
 
 GenomeViewer.prototype.draw = function(){
@@ -83,8 +82,8 @@ GenomeViewer.prototype.render = function(){
 	var container = Ext.create('Ext.container.Container', {
 		id:this.id+"container",
 		renderTo:this.targetId,
-    	width:this.width,
-    	height:this.height,
+                width:this.width,
+                height:this.height,
 		cls:'x-unselectable',
 		layout: { type: 'vbox',align: 'stretch'},
 		region : 'center',
@@ -120,10 +119,7 @@ GenomeViewer.prototype.render = function(){
 		_this.trackSvgLayout.onWindowSize.addEventListener(function(sender,data){
 			Ext.getCmp(_this.id+"windowSize").setText('<span class="emph">'+data.windowSize+'</span>');
 		});
-		_this.trackSvgLayout.onTracksRendered.addEventListener(function(sender,data){
-//			Ext.getCmp(_this.id+'container').setLoading(false);
-		});
-		//propagate event
+		//propagate event to TrackSvgLayout
 		_this.onSvgRemoveTrack = _this.trackSvgLayout.onSvgRemoveTrack;
 		
 		var div = $('#'+_this.id+"regionSvg")[0];
@@ -926,7 +922,6 @@ GenomeViewer.prototype._getBottomBar = function() {
 	return bottomBar;
 };
 //BOTTOM BAR
-
 
 
 

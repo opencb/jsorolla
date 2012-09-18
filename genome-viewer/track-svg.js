@@ -496,20 +496,39 @@ TrackSvg.prototype.BamRender = function(chunkList){
 	console.log(chunkList.length);
 	var bamGroup = SVG.addChild(_this.features,"g");
 	var drawCoverage = function(chunk){
+		//var coverageList = chunk.coverage.all;
 		var coverageList = chunk.coverage.all;
+		var coverageListA = chunk.coverage.a;
+		var coverageListC = chunk.coverage.c;
+		var coverageListG = chunk.coverage.g;
+		var coverageListT = chunk.coverage.t;
 		var readList = chunk.reads;
 		var start = parseInt(chunk.region.start);
 		var end = parseInt(chunk.region.end);
 		var pixelWidth = (end-start+1)*_this.pixelBase;
 		
-		var points = "";
+		var points = "", pointsA = "", pointsC = "", pointsG = "", pointsT = "";
 		var baseMid = (_this.pixelBase/2)-0.5;//4.5 cuando pixelBase = 10
 		
-		var x,y, p  = parseInt(chunk.region.start), covHeight = 50;
+		var x,y, p = parseInt(chunk.region.start), covHeight = 50;
+		var lineA = "", lineC = "", lineG = "", lineT = "";
 		for ( var i = 0; i < coverageList.length; i++) {
-			x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+baseMid;
-			y = coverageList[i]/200*covHeight;//200 is the depth
-			points += x+","+y+" ";
+			//x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+baseMid;
+			x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase);
+                        xx = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+_this.pixelBase;
+			
+			lineA += x+","+coverageListA[i]/200*covHeight+" ";
+			lineA += xx+","+coverageListA[i]/200*covHeight+" ";
+			lineC += x+","+(coverageListC[i]+coverageListA[i])/200*covHeight+" ";
+			lineC += xx+","+(coverageListC[i]+coverageListA[i])/200*covHeight+" ";
+			lineG += x+","+(coverageListG[i]+coverageListC[i]+coverageListA[i])/200*covHeight+" ";
+			lineG += xx+","+(coverageListG[i]+coverageListC[i]+coverageListA[i])/200*covHeight+" ";
+			lineT += x+","+(coverageListT[i]+coverageListG[i]+coverageListC[i]+coverageListA[i])/200*covHeight+" ";
+			lineT += xx+","+(coverageListT[i]+coverageListG[i]+coverageListC[i]+coverageListA[i])/200*covHeight+" ";
+			
+			//y = coverageList[i]/200*covHeight;//200 is the depth
+                        
+			//points += x+","+y+" ";
 			p++;
 			
 //			$(text).qtip({
@@ -527,12 +546,47 @@ TrackSvg.prototype.BamRender = function(chunkList){
 			"fill": "transparent",
 			"cursor": "pointer"
 		});
-		var pol = SVG.addChild(bamGroup,"polyline",{
-			"points":points,
-			"stroke": "black",
-			"stroke-width": 2,
-			"opacity": 0.4,
-			"fill": "gray"
+		//var pol = SVG.addChild(bamGroup,"polyline",{
+		//	"points":points,
+		//	"stroke": "black",
+		//	"stroke-width": 2,
+		//	"opacity": 0.4,
+		//	"fill": "gray"
+		//});
+		
+		var rlineC = lineC.split(" ").reverse().join(" ").trim();
+		var rlineG = lineG.split(" ").reverse().join(" ").trim();
+		var rlineT = lineT.split(" ").reverse().join(" ").trim();
+		
+		var firstPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.region.start))*_this.pixelBase)+baseMid;
+		var lastPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.region.end))*_this.pixelBase)+baseMid;
+                var polA = SVG.addChild(bamGroup,"polyline",{
+			"points":firstPoint+",0 "+lineA+lastPoint+",0",
+			"opacity":"0.4",
+			//"stroke-width":"1",
+			//"stroke":"gray",
+			"fill":"green"
+		});
+                var polC = SVG.addChild(bamGroup,"polyline",{
+			"points":lineA+" "+rlineC,
+			"opacity":"0.4",
+			//"stroke-width":"1",
+			//"stroke":"black",
+			"fill":"blue"
+		});
+                var polG = SVG.addChild(bamGroup,"polyline",{
+			"points":lineC+" "+rlineG,
+			"opacity":"0.4",
+			//"stroke-width":"1",
+			//"stroke":"black",
+			"fill":"gold"
+		});
+                var polT = SVG.addChild(bamGroup,"polyline",{
+			"points":lineG+" "+rlineT,
+			"opacity":"0.4",
+			//"stroke-width":"1",
+			//"stroke":"black",
+			"fill":"red"
 		});
 		$(dummyRect).qtip({
 			content:" ",
@@ -542,10 +596,10 @@ TrackSvg.prototype.BamRender = function(chunkList){
 		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,mousePos){
 			
 			var str = 'depth: <span class="ssel">'+coverageList[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
-					'A: <span class="ssel">'+chunk.coverage.a[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
-					'C: <span class="ssel">'+chunk.coverage.c[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
-					'G: <span class="ssel">'+chunk.coverage.g[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
-					'T: <span class="ssel">'+chunk.coverage.t[mousePos-parseInt(chunk.region.start)]+'</span><br>';
+					'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
+					'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
+					'<span style="color:darkgoldenrod">G</span>: <span class="ssel">'+chunk.coverage.g[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
+					'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[mousePos-parseInt(chunk.region.start)]+'</span><br>';
 			$(dummyRect).qtip('option', 'content.text', str ); 
 		});
 		
@@ -666,7 +720,9 @@ TrackSvg.prototype.BamRender = function(chunkList){
 	//process features
 	console.time("BamRender");
 	for ( var i = 0, li = chunkList.length; i < li; i++) {
-		drawCoverage(chunkList[i]);
+                if(chunkList[i].reads.length > 0){
+                    drawCoverage(chunkList[i]);
+                }
 	}
 	console.timeEnd("BamRender");
 	var newHeight = Object.keys(this.renderedArea).length*24;
@@ -938,15 +994,16 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 	var middle = this.width/2;
 	
 	if(featureList.length > 0){
-		var seqString = featureList[0].sequence;
-		var seqStart = featureList[0].start;
+	for ( var j = 0; j < featureList.length; j++) {
+		var seqString = featureList[j].sequence;
+		var seqStart = featureList[j].start;
 		var width = 1*this.pixelBase;
 		
 //		if(!this.settings.color){
 //			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
 //		}
 		
-		var start = featureList[0].start;
+		var start = featureList[j].start;
 		
 		if(jQuery.browser.mozilla){
 			var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
@@ -978,6 +1035,8 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 			}
 			
 		}
+	}
+		
 	}
 	console.timeEnd("all");
 };

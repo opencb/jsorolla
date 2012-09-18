@@ -26,7 +26,6 @@ function BamAdapter(args){
 
 BamAdapter.prototype.getData = function(args){
 	var _this = this;
-	
 	//region check
 	
 	this.params["histogram"] = args.histogram;
@@ -48,7 +47,6 @@ BamAdapter.prototype.getData = function(args){
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
-	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 	var chunks = [];
 	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){

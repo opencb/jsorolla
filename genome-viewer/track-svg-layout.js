@@ -53,11 +53,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this.onSvgRemoveTrack = new Event();
 	
 	
-	
-	//Flags 
-	this.tracksRendered=0;
-	this.onTracksRendered = new Event();
-	
 	//Main SVG and his events
 	this.svg = SVG.init(parent,{
 		"width":this.width,
@@ -366,8 +361,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		//needed call variables
 		callStart = parseInt(_this.position - _this.halfVirtualBase*2);
 		callEnd = parseInt(_this.position + _this.halfVirtualBase*2);
-		virtualStart = parseInt(_this.position - _this.halfVirtualBase*2);//for now
-		vitualEnd = parseInt(_this.position + _this.halfVirtualBase*2);//for now
+		virtualStart = parseInt(_this.position - _this.halfVirtualBase);//for now
+		vitualEnd = parseInt(_this.position + _this.halfVirtualBase);//for now
 	};
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){
@@ -404,7 +399,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
 	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
-//		_this.tracksRendered++;
 		if(event.params.histogram == true){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 		}else{
@@ -491,9 +485,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
 			virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase);
 			virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
-			
-			var s = parseInt(trackSvg.position - _this.halfVirtualBase*2);
-			var e = parseInt(trackSvg.position + _this.halfVirtualBase*2);
 			
 			if(desp>0 && virtualStart < callStart){
 				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
