@@ -463,7 +463,7 @@ ResultWidget.prototype.drawApplicationItems  = function (){
 		margin:"50 50 0 50",
 		height:700,
 		cls:'greyborder',
-		html:'<div id="'+this.id+'Container"></div>'
+		html:'<div id="'+this.id+'Container"></div><div style="height:40px"></div>'
 	});
 		
 	switch (this.application){

@@ -411,9 +411,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		trackSvg.setLoading(false);
 		
-		$(trackSvg.features).fadeIn("fast");
-		
-		
 		console.log("rendered");
 //		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
