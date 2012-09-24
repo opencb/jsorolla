@@ -119,8 +119,10 @@ TrackSvg.prototype.setWidth = function(width){
 
 TrackSvg.prototype.setLoading = function(bool){
 	if(bool){
+		this.titleGroup.setAttribute("transform","translate(40)");
 		this.loading.setAttribute("visibility", "visible");
 	}else{
+		this.titleGroup.setAttribute("transform","translate(0)");
 		this.loading.setAttribute("visibility", "hidden");
 	}
 	
@@ -354,7 +356,7 @@ TrackSvg.prototype.draw = function(){
 	
 	this.loading = SVG.addChildImage(main,{
 		"xlink:href":"data:image/svg+xml,"+encodeURIComponent(loadingImg),
-		"x":this.width-40,
+		"x":10,
 		"y":0,
 		"width":22,
 		"height":22,
