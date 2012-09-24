@@ -1002,55 +1002,68 @@ TrackSvg.prototype.GeneTranscriptRender = function(featureList){
 };
 
 TrackSvg.prototype.SequenceRender = function(featureList){
-	var middle = this.width/2;
-	
-	if(featureList.length > 0){
-	for ( var j = 0; j < featureList.length; j++) {
-		var seqString = featureList[j].sequence;
-		var seqStart = featureList[j].start;
-		var width = 1*this.pixelBase;
-		
-//		if(!this.settings.color){
-//			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
-//		}
-		
-		var start = featureList[j].start;
-		
-		if(jQuery.browser.mozilla){
-			var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
-			var text = SVG.addChild(this.features,"text",{
-				"x":x+1,
-				"y":13,
-				"font-size":19,
-				"style":"letter-spacing:8;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
-				"font-family": "Ubuntu Mono"
-			});
-			text.textContent = seqString;
-		}else{
-			for ( var i = 0; i < seqString.length; i++) {
-				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
-				start++;
-				var text = SVG.addChild(this.features,"text",{
-					"x":x+1,
-					"y":12,
-					"font-size":16,
-					"font-family": "Ubuntu Mono",
-					"fill":SEQUENCE_COLORS[seqString.charAt(i)]
-				});
-				text.textContent = seqString.charAt(i);
-				
-				$(text).qtip({
-					content:(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
-					position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
-					style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
-				});
-			}
+	console.log(this.zoom)
+
+	if(this.zoom < 100){
+		for ( var j = 0; j < featureList.length; j++) {
+			var seqString = featureList[j].sequence;
+		//this.trackSvgLayout.
 			
 		}
-	}
+		console.log(this.trackSvgLayout.position)
+		this.invalidZoomText.setAttribute("visibility", "visible");
+	}else{
+		this.invalidZoomText.setAttribute("visibility", "hidden");
+		var middle = this.width/2;
 		
+		//if(featureList.length > 0){//???
+		for ( var j = 0; j < featureList.length; j++) {
+			var seqString = featureList[j].sequence;
+			var seqStart = featureList[j].start;
+			var width = 1*this.pixelBase;
+			
+	//		if(!this.settings.color){
+	//			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
+	//		}
+			
+			var start = featureList[j].start;
+			
+			if(jQuery.browser.mozilla){
+				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
+				var text = SVG.addChild(this.features,"text",{
+					"x":x+1,
+					"y":13,
+					"font-size":19,
+					"style":"letter-spacing:8;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
+					"font-family": "Ubuntu Mono"
+				});
+				text.textContent = seqString;
+			}else{
+				for ( var i = 0; i < seqString.length; i++) {
+					var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
+					start++;
+					var text = SVG.addChild(this.features,"text",{
+						"x":x+1,
+						"y":12,
+						"font-size":16,
+						"font-family": "Ubuntu Mono",
+						"fill":SEQUENCE_COLORS[seqString.charAt(i)]
+					});
+					text.textContent = seqString.charAt(i);
+					
+					$(text).qtip({
+						content:seqString.charAt(i)+" "+(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
+						position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
+						style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
+					});
+				}
+				
+			}
+		}
+			
+		//}
+		console.timeEnd("all");
 	}
-	console.timeEnd("all");
 };
 
 

@@ -37,6 +37,9 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		if(args.parentLayout != null){
 			this.parentLayout = args.parentLayout;
 		}
+		if(args.genomeViewer != null){
+			this.genomeViewer = args.genomeViewer;
+		}
 	}
 	
 	this._createPixelsbyBase();//create pixelByBase array
@@ -174,6 +177,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			var posOffset = (mid/_this.pixelBase) | 0;
 			_this.mousePosition = _this.position+rcX-posOffset;
 			_this.onMousePosition.notify(_this.mousePosition);
+			_this.getBaseByPosition(_this.mousePosition);
 		});
 		
 		$(this.svg).mousedown(function(event) {
@@ -645,4 +649,38 @@ TrackSvgLayout.prototype._setTextPosition = function(){
 	var x = Math.floor((this.width)/this.pixelBase/2);
 	this.firstPositionText.textContent = (this.position-x).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 	this.lastPositionText.textContent = (this.position+x-1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+};
+
+TrackSvgLayout.prototype.getTrackSvgById = function(id){
+for ( var i = 0; i < this.trackSvgList.length; i++) {
+		trackSvg = this.trackSvgList[i];
+		if(trackSvg.id = id){
+			return trackSvg;
+		}
+	}
+	return null;
+};
+
+TrackSvgLayout.prototype.getBaseByPosition = function(position){
+	
+	seqTrack = this.getTrackSvgById("Sequence");
+
+	debugger
+	var x = seqTrack.trackData.adapter.featureCache.getFeaturesByRegion({chromosome:this.chromosome,start:position,end:position},"data");
+	//var _this = this;
+	//var drawBase = function(base){
+		//console.log(base)
+	//}
+	//if (this.baseCache == null){
+		//this.baseCache = {};
+	//}
+	//if(this.baseCache[position]==null){
+		//$.ajax({url:new CellBaseManager().host+"/latest/"+this.genomeViewer.species+"/genomic/region/"+this.chromosome+":"+position+"-"+position+"/sequence?of=json",
+			//success:function(response){
+				//_this.baseCache[position] = JSON.parse(response)[0].sequence;
+			//}
+		//});
+	//}else{
+		//drawBase(this.baseCache[position]);
+	//}
 };
