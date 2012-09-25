@@ -82,6 +82,12 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 	return null;
 };
 
+FeatureCache.prototype.getFeatureChunk = function(key){
+	if(this.cache[key] != null) {
+		return this.cache[key];
+	}
+	return null;
+};
 
 
 FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
@@ -148,7 +154,6 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 	}
 };
 
-//NEW METHOD
 FeatureCache.prototype.getFeatureChunksByRegion = function(region){
 	var firstRegionChunk, lastRegionChunk,  chunks = [], key;
 	firstRegionChunk = this._getChunk(region.start);
@@ -156,11 +161,12 @@ FeatureCache.prototype.getFeatureChunksByRegion = function(region){
 	for(var i=firstRegionChunk; i<=lastRegionChunk; i++){
 		key = region.chromosome+":"+i;
 		// check if this key exists in cache (features from files)
-		if(this.cache[key] != null){
+		if(this.cache[key] != null ){
 			chunks.push(this.cache[key]);
 		}
 		
 	}
+	return chunks;
 };
 
 

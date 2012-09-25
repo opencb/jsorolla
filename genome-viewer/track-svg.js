@@ -94,6 +94,9 @@ function TrackSvg(parent, args) {
 	this.interval=null;
 	this.histogram=null;
 	this.transcript=null;
+
+	//diplayed boolean object
+	this.chunksDisplayed = {};
 };
 
 TrackSvg.prototype.setY = function(value){
@@ -391,7 +394,10 @@ TrackSvg.prototype.draw = function(){
 
 //RENDERS for MultiFeatureRender, sequence, Snp, Histogram
 
-TrackSvg.prototype.MultiFeatureRender = function(featureList){
+TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
+	var featureList = this._getFeaturesByChunks(response);
+	//here we got features array
+	debugger
 	var _this = this;
 	console.time("Multirender "+featureList.length);
 //	console.log(featureList.length);
@@ -742,7 +748,10 @@ TrackSvg.prototype.BamRender = function(chunkList){
 	}
 };
 
-TrackSvg.prototype.GeneTranscriptRender = function(featureList){
+TrackSvg.prototype.GeneTranscriptRender = function(response){
+	var featureList = this._getFeaturesByChunks(response);
+	//here we got features array
+	debugger
 	var _this = this;
 	console.time("GeneTranscriptRender");
 //	console.log(featureList.length);
@@ -1147,9 +1156,41 @@ TrackSvg.prototype.showInfoWidget = function(args){
 	}
 };
 
-TrackSvg.prototype._getFeaturesByChunks = function(chunks){
-	var chunk;
-	for ( var i = 0, len = chunks.length; i < len; i++) {
-		chunk = chunks[i];
+TrackSvg.prototype._getFeaturesByChunks = function(response){
+	debugger
+	var chunks = response.items;
+	var type = response.params.type;
+	var chromosome = response.params.chromosome;
+	var features = [];
+	
+	var feature, displayed,firstChunk, lastChunk, features = [];
+	for ( var i = 0, leni = chunks.length; i < leni; i++) {
+		for ( var j = 0, lenj = chunks[i][type].length; j < lenj; j++) {
+			feature = chunks[i][type][j];
+				//check if any feature has been already displayed by another chunk
+				displayed = false;
+				firstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
+				lastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
+				for(var f=firstChunk; f<=lastChunk; f++){
+					var fkey = chromosome+":"+f;
+					if(this.chunksDisplayed[fkey+type]==true){
+						displayed = true;
+						break;
+					}
+				}
+						
+				if(!displayed){
+					features.push(feature);
+				}
+		}
+		//this.chunksDisplayed[key+type]=true;
+		this.chunksDisplayed[fkey+type]=true;
 	}
+	return features;
+
+	
+	//we only get those features in the region AND check if chunk has been already displayed
+	//if(feature.end > region.start && feature.start < region.end){
+
+	//}
 }

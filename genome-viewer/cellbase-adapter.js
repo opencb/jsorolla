@@ -36,7 +36,7 @@ CellBaseAdapter.prototype.getData = function(args){
 	this.params["histogram"] = args.histogram;
 	this.params["interval"] = args.interval;
 	this.params["transcript"] = args.transcript;
-	
+	this.params["chromosome"] = args.chromosome;
 	
 	if(args.start<1){
 		args.start=1;
@@ -52,6 +52,8 @@ CellBaseAdapter.prototype.getData = function(args){
 	if(args.transcript){
 		type = "withTranscripts";
 	}
+
+	this.params["type"] = type
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
@@ -63,16 +65,12 @@ CellBaseAdapter.prototype.getData = function(args){
 		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
 			chunks.push(i);
 		}else{
-			var items = this.featureCache.getFeaturesByChunk(key, type);
+			var item = this.featureCache.getFeatureChunk(key, type);
 //			console.time("concat");
-			itemList = itemList.concat(items);
+			itemList = itemList.push(item);
 //			console.timeEnd("concat");
 		}
 	}
-//	//notify all chunks
-//	if(itemList.length>0){
-//		this.onGetData.notify({data:itemList, params:this.params, cached:true});
-//	}
 	
 	
 	//CellBase data process
@@ -126,14 +124,14 @@ CellBaseAdapter.prototype.getData = function(args){
 			}
 			
 			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
-			var items = _this.featureCache.getFeaturesByRegion(queryList[i], type);
+			var items = _this.featureCache.getFeatureChunksByRegion(queryList[i], type);
 			console.timeEnd("insertCache"+" "+data.resource);
 			if(items != null){
 				itemList = itemList.concat(items);
 			}
 		}
 		if(itemList.length > 0){
-			_this.onGetData.notify({data:itemList, params:_this.params, cached:false});
+			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
 		}
 	});
 
@@ -175,7 +173,7 @@ CellBaseAdapter.prototype.getData = function(args){
 		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, this.params);
 	}else{
 		if(itemList.length > 0){
-			this.onGetData.notify({data:itemList, params:this.params});
+			this.onGetData.notify({items:itemList, params:this.params});
 		}
 	}
 };

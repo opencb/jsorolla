@@ -406,16 +406,16 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//EventListeners
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
-	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
-		if(event.params.histogram == true){
+	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,response){
+		if(response.params.histogram == true){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 		}else{
 			trackSvg.featuresRender = trackSvg.defaultRender;
 		}
 		
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
-		
-		trackSvg.featuresRender(event.data);
+
+		trackSvg.featuresRender(response);
 		
 		trackSvg.setLoading(false);
 		
