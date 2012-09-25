@@ -108,27 +108,38 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 				}
 				// we only get those features in the region AND check if chunk has been already displayed
 				if(feature.end > region.start && feature.start < region.end){
-					
-					//check if any feature chunk has been already displayed 
-					displayed = false;
-					firstChunk = this._getChunk(feature.start);
-					lastChunk = this._getChunk(feature.end);
-					for(var f=firstChunk; f<=lastChunk; f++){
-						var fkey = region.chromosome+":"+f;
-						if(this.chunksDisplayed[fkey+dataType]==true){
-							displayed = true;
-							break;
+
+					// check displayCheck argument 
+					if(region.displayedCheck != false){
+						//check if any feature chunk has been already displayed 
+						displayed = false;
+						firstChunk = this._getChunk(feature.start);
+						lastChunk = this._getChunk(feature.end);
+						for(var f=firstChunk; f<=lastChunk; f++){
+							var fkey = region.chromosome+":"+f;
+							if(this.chunksDisplayed[fkey+dataType]==true){
+								displayed = true;
+								break;
+							}
 						}
-					}
-					
-					if(!displayed){
+						
+						if(!displayed){
+							features.push(feature);
+							returnNull = false;
+						}
+					}else{
 						features.push(feature);
 						returnNull = false;
 					}
+
+					
 				}
 			}
 		}
-		this.chunksDisplayed[key+dataType]=true;//mark chunk as displayed
+		// check displayCheck argument 
+		if(region.displayedCheck != false){
+			this.chunksDisplayed[key+dataType]=true;//mark chunk as displayed
+		}
 	}
 	if(returnNull){
 		return null;
@@ -136,6 +147,22 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 		return features;
 	}
 };
+
+//NEW METHOD
+FeatureCache.prototype.getFeatureChunksByRegion = function(region){
+	var firstRegionChunk, lastRegionChunk,  chunks = [], key;
+	firstRegionChunk = this._getChunk(region.start);
+	lastRegionChunk = this._getChunk(region.end);
+	for(var i=firstRegionChunk; i<=lastRegionChunk; i++){
+		key = region.chromosome+":"+i;
+		// check if this key exists in cache (features from files)
+		if(this.cache[key] != null){
+			chunks.push(this.cache[key]);
+		}
+		
+	}
+};
+
 
 FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, featureType, dataType){
 	var key, firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, feature, gzipFeature;

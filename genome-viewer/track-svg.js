@@ -1146,3 +1146,10 @@ TrackSvg.prototype.showInfoWidget = function(args){
 	default: break;
 	}
 };
+
+TrackSvg.prototype._getFeaturesByChunks = function(chunks){
+	var chunk;
+	for ( var i = 0, len = chunks.length; i < len; i++) {
+		chunk = chunks[i];
+	}
+}
