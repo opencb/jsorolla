@@ -1151,7 +1151,7 @@ TrackSvg.prototype._getFeaturesByChunks = function(response){
 	var dataType = response.params.dataType;
 	var chromosome = response.params.chromosome;
 	var features = [];
-	if(response.params.resource=="gene")debugger
+	//if(response.params.resource=="gene")debugger
 	
 	var feature, displayed, firstChunk, lastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {
