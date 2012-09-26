@@ -1065,8 +1065,10 @@ TrackSvg.prototype.SequenceRender = function(response){
 };
 
 
-TrackSvg.prototype.HistogramRender = function(featureList){
-	console.time("histogramRender");
+TrackSvg.prototype.HistogramRender = function(response){
+	var featureList = this._getFeaturesByChunks(response);
+	//here we got features array
+	
 	var middle = this.width/2;
 //	console.log(featureList);
 	var histogramHeight = 50;
@@ -1120,7 +1122,6 @@ TrackSvg.prototype.HistogramRender = function(featureList){
 		"cursor": "pointer"
 	});
 	this.setHeight(histogramHeight+/*margen entre tracks*/10);
-	console.timeEnd("histogramRender");
 };
 
 
