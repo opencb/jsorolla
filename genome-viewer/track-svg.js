@@ -506,11 +506,14 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 	console.timeEnd("Multirender "+featureList.length);
 };
 
-TrackSvg.prototype.BamRender = function(chunkList){
-	debugger
+TrackSvg.prototype.BamRender = function(response){
 	var _this = this;
+
+	response = this._removeDisplayedChunks(response);
+	var chunkList = response.items;
+
 	var middle = this.width/2;
-	console.log(chunkList.length);
+	
 	var bamGroup = SVG.addChild(_this.features,"g");
 	var drawCoverage = function(chunk){
 		//var coverageList = chunk.coverage.all;
@@ -519,20 +522,20 @@ TrackSvg.prototype.BamRender = function(chunkList){
 		var coverageListC = chunk.coverage.c;
 		var coverageListG = chunk.coverage.g;
 		var coverageListT = chunk.coverage.t;
-		var readList = chunk.reads;
-		var start = parseInt(chunk.region.start);
-		var end = parseInt(chunk.region.end);
+		var readList = chunk.data;
+		var start = parseInt(chunk.start);
+		var end = parseInt(chunk.end);
 		var pixelWidth = (end-start+1)*_this.pixelBase;
 		
 		var points = "", pointsA = "", pointsC = "", pointsG = "", pointsT = "";
 		var baseMid = (_this.pixelBase/2)-0.5;//4.5 cuando pixelBase = 10
 		
-		var x,y, p = parseInt(chunk.region.start), covHeight = 50;
+		var x,y, p = parseInt(chunk.start), covHeight = 50;
 		var lineA = "", lineC = "", lineG = "", lineT = "";
 		for ( var i = 0; i < coverageList.length; i++) {
 			//x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+baseMid;
 			x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase);
-                        xx = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+_this.pixelBase;
+            xx = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+_this.pixelBase;
 			
 			lineA += x+","+coverageListA[i]/200*covHeight+" ";
 			lineA += xx+","+coverageListA[i]/200*covHeight+" ";
@@ -575,8 +578,8 @@ TrackSvg.prototype.BamRender = function(chunkList){
 		var rlineG = lineG.split(" ").reverse().join(" ").trim();
 		var rlineT = lineT.split(" ").reverse().join(" ").trim();
 		
-		var firstPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.region.start))*_this.pixelBase)+baseMid;
-		var lastPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.region.end))*_this.pixelBase)+baseMid;
+		var firstPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.start))*_this.pixelBase)+baseMid;
+		var lastPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.end))*_this.pixelBase)+baseMid;
                 var polA = SVG.addChild(bamGroup,"polyline",{
 			"points":firstPoint+",0 "+lineA+lastPoint+",0",
 			"opacity":"0.4",
@@ -612,11 +615,11 @@ TrackSvg.prototype.BamRender = function(chunkList){
 		});
 		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,mousePos){
 			
-			var str = 'depth: <span class="ssel">'+coverageList[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
-					'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
-					'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
-					'<span style="color:darkgoldenrod">G</span>: <span class="ssel">'+chunk.coverage.g[mousePos-parseInt(chunk.region.start)]+'</span><br>'+
-					'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[mousePos-parseInt(chunk.region.start)]+'</span><br>';
+			var str = 'depth: <span class="ssel">'+coverageList[mousePos-parseInt(chunk.start)]+'</span><br>'+
+					'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[mousePos-parseInt(chunk.start)]+'</span><br>'+
+					'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[mousePos-parseInt(chunk.start)]+'</span><br>'+
+					'<span style="color:darkgoldenrod">G</span>: <span class="ssel">'+chunk.coverage.g[mousePos-parseInt(chunk.start)]+'</span><br>'+
+					'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[mousePos-parseInt(chunk.start)]+'</span><br>';
 			$(dummyRect).qtip('option', 'content.text', str ); 
 		});
 		
@@ -736,16 +739,18 @@ TrackSvg.prototype.BamRender = function(chunkList){
 	
 	//process features
 	console.time("BamRender");
-	for ( var i = 0, li = chunkList.length; i < li; i++) {
-                if(chunkList[i].reads.length > 0){
-                    drawCoverage(chunkList[i]);
-                }
+	if(chunkList.length>0){
+		for ( var i = 0, li = chunkList.length; i < li; i++) {
+					if(chunkList[i].data.length > 0){
+						drawCoverage(chunkList[i]);
+					}
+		}
+		var newHeight = Object.keys(this.renderedArea).length*24;
+		if(newHeight>0){
+			this.setHeight(newHeight+/*margen entre tracks*/10+70);
+		}
 	}
 	console.timeEnd("BamRender");
-	var newHeight = Object.keys(this.renderedArea).length*24;
-	if(newHeight>0){
-		this.setHeight(newHeight+/*margen entre tracks*/10+70);
-	}
 };
 
 TrackSvg.prototype.GeneTranscriptRender = function(response){
@@ -1127,7 +1132,6 @@ TrackSvg.prototype.HistogramRender = function(response){
 
 
 TrackSvg.prototype.showInfoWidget = function(args){
-	console.log(args);
 	if(this.trackData.adapter.species=="orange"){
 		//data.resource+="orange";
 		if(args.featureType.indexOf("gene")!=-1)
@@ -1177,6 +1181,31 @@ TrackSvg.prototype._getFeaturesByChunks = function(response){
 		this.chunksDisplayed[chunks[i].key+dataType]=true;
 	}
 	return features;
+
+	
+	//we only get those features in the region AND check if chunk has been already displayed
+	//if(feature.end > region.start && feature.start < region.end){
+
+	//}
+}
+
+TrackSvg.prototype._removeDisplayedChunks = function(response){
+	//Returns an array avoiding already drawn features in this.chunksDisplayed
+	var chunks = response.items;
+	var dataType = response.params.dataType;
+	var chromosome = response.params.chromosome;
+	var features = [];
+	
+	var feature, displayed, firstChunk, lastChunk, features = [];
+	for ( var i = 0, leni = chunks.length; i < leni; i++) {
+		var key = chunks[i].key;
+		if(this.chunksDisplayed[key+dataType]==true){
+			chunks.splice(i,1);
+		}
+		this.chunksDisplayed[key+dataType]=true;
+	}
+	
+	return response;
 
 	
 	//we only get those features in the region AND check if chunk has been already displayed

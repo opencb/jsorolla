@@ -58,7 +58,6 @@ CellBaseAdapter.prototype.getData = function(args){
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
-
 	var chunks = [];
 	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){
@@ -67,18 +66,13 @@ CellBaseAdapter.prototype.getData = function(args){
 			chunks.push(i);
 		}else{
 			var item = this.featureCache.getFeatureChunk(key);
-//			console.time("concat");
 			itemList.push(item);
-//			console.timeEnd("concat");
 		}
 	}
-	
 	
 	//CellBase data process
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 	cellBaseManager.success.addEventListener(function(sender,data){
-		console.timeEnd("cellbase");
-		console.time("insertCache"+" "+data.resource);
 		var dataType = "data";
 		if(data.params.histogram){
 			dataType = "histogram"+data.params.interval;
@@ -94,16 +88,11 @@ CellBaseAdapter.prototype.getData = function(args){
 		//XXX
 		
 		var queryList = [];
-//		console.log("query length "+data.query.length);
-//		console.log("data length "+data.result.length);
-//		console.log("data "+data.result);
 		for(var i = 0; i < data.query.length; i++) {
 			var splitDots = data.query[i].split(":");
 			var splitDash = splitDots[1].split("-");
 			queryList.push({chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]});
 		}
-//		console.log(_this.featureCache.cache);
-
 		
 		for(var i = 0; i < data.result.length; i++) {
 			

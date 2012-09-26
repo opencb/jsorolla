@@ -31,6 +31,34 @@ BamCache.prototype._getChunk = function(position){
 	return Math.floor(position/this.chunkSize);
 };
 
+//new 
+BamCache.prototype.getFeatureChunk = function(key){
+	if(this.cache[key] != null) {
+		return this.cache[key];
+	}
+	return null;
+};
+//new
+BamCache.prototype.getFeatureChunksByRegion = function(region){
+	var firstRegionChunk, lastRegionChunk,  chunks = [], key;
+	firstRegionChunk = this._getChunk(region.start);
+	lastRegionChunk = this._getChunk(region.end);
+	for(var i=firstRegionChunk; i<=lastRegionChunk; i++){
+		key = region.chromosome+":"+i;
+		// check if this key exists in cache (features from files)
+		if(this.cache[key] != null ){
+			chunks.push(this.cache[key]);
+		}
+		
+	}
+	//if(chunks.length == 0){
+		//return null;
+	//}
+	return chunks;
+};
+
+
+/*
 BamCache.prototype.getFeaturesByChunk = function(key, dataType){
 	var features =  [];
 	var feature, firstChunk, lastChunk, chunk;
@@ -119,11 +147,13 @@ BamCache.prototype.getFeaturesByRegion = function(region, dataType){
 	}
 	return chunks;
 };
-
+*/
 
 
 
 BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType, dataType){
+	//debugger
+	
 	var key, firstChunk, lastChunk, firstRegionChunk, lastRegionChunk, read, gzipRead;
 	var reads = resultObj.reads;
 	var coverage = resultObj.coverage;
@@ -134,12 +164,18 @@ BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType
 	
 	var chunkIndex = 0;
 	console.time("BamCache.prototype.putFeaturesByRegion1")
+	//TODO the region for now is a chunk region, so this for is always 1 loop
 	for(var i=firstRegionChunk; i<=lastRegionChunk; i++){
 		key = region.chromosome+":"+i;
 		if(this.cache[key]==null){
 			this.cache[key] = {};
-			this.cache[key]["data"] = [];
+			this.cache[key][dataType] = [];
+			this.cache[key].key = key;
+			this.cache[key].start = region.start;
+			this.cache[key].end = region.end;
 		}
+
+		//divide the coverage array in multiple arrays of chunksize length
 //		var chunkCoverage = coverage.slice(chunkIndex,chunkIndex+this.chunkSize);
 		var chunkCoverageAll = coverage.all.slice(chunkIndex,chunkIndex+this.chunkSize);
 		var chunkCoverageA = coverage.a.slice(chunkIndex,chunkIndex+this.chunkSize);
@@ -153,6 +189,7 @@ BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType
 			"g":chunkCoverageG,
 			"t":chunkCoverageT
 		};
+
 		
 		if(this.gzip) {
 			this.cache[key]["coverage"]=RawDeflate.deflate(JSON.stringify(chunkCoverage));
