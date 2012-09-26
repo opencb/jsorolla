@@ -125,6 +125,40 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 };
 
 
+//used by BED, GFF, VCF
+FeatureCache.prototype.putFeatures = function(featureDataList, dataType){
+	var feature, key, firstChunk, lastChunk;
+
+	//Check if is a single object
+	if(featureDataList.constructor != Array){
+		featureDataList = [featureDataList];
+	}
+
+	for(var index = 0, len = featureDataList.length; index<len; index++) {
+		feature = featureDataList[index];
+		firstChunk = this._getChunk(feature.start);
+		lastChunk = this._getChunk(feature.end);
+		for(var i=firstChunk; i<=lastChunk; i++) {
+			key = feature.chromosome+":"+i;
+			if(this.cache[key]==null){
+				this.cache[key] = [];
+				this.cache[key].key = key;
+			}
+			if(this.cache[key][dataType]==null){
+				this.cache[key][dataType] = [];
+			}
+			if(this.gzip) {
+				this.cache[key][dataType].push(RawDeflate.deflate(JSON.stringify(feature)));
+			}else{
+				this.cache[key][dataType].push(feature);
+			}
+
+		}
+	}
+};
+
+
+
 FeatureCache.prototype.putChunk = function(key, item){
 	this.cache[key] = item;
 };
@@ -273,39 +307,6 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 
 
 
-
-
-//XXX need revision
-FeatureCache.prototype.putFeatures = function(featureDataList, dataType){
-	var feature, key, firstChunk, lastChunk;
-
-	//Check if is a single object
-	if(featureDataList.constructor != Array){
-		var featureData = featureDataList;
-		featureDataList = [featureData];
-	}
-
-	for(var index = 0, len = featureDataList.length; index<len; index++) {
-		feature = featureDataList[index];
-		firstChunk = this._getChunk(feature.start);
-		lastChunk = this._getChunk(feature.end);
-		for(var i=firstChunk; i<=lastChunk; i++) {
-			key = feature.chromosome+":"+i;
-			if(this.cache[key]==null){
-				this.cache[key] = [];
-			}
-			if(this.cache[key][dataType]==null){
-				this.cache[key][dataType] = [];
-			}
-			if(this.gzip) {
-				this.cache[key][dataType].push(RawDeflate.deflate(JSON.stringify(feature)));
-			}else{
-				this.cache[key][dataType].push(feature);
-			}
-
-		}
-	}
-};
 
 FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dataType){
 	var feature, key, chunk;

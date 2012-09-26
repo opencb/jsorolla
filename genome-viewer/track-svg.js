@@ -507,6 +507,7 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 };
 
 TrackSvg.prototype.BamRender = function(chunkList){
+	debugger
 	var _this = this;
 	var middle = this.width/2;
 	console.log(chunkList.length);
@@ -1152,7 +1153,6 @@ TrackSvg.prototype._getFeaturesByChunks = function(response){
 	var dataType = response.params.dataType;
 	var chromosome = response.params.chromosome;
 	var features = [];
-	//if(response.params.resource=="gene")debugger
 	
 	var feature, displayed, firstChunk, lastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {
