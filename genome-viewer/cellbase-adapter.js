@@ -37,6 +37,7 @@ CellBaseAdapter.prototype.getData = function(args){
 	this.params["interval"] = args.interval;
 	this.params["transcript"] = args.transcript;
 	this.params["chromosome"] = args.chromosome;
+	this.params["resource"] = this.resource;
 	
 	if(args.start<1){
 		args.start=1;
@@ -45,15 +46,15 @@ CellBaseAdapter.prototype.getData = function(args){
 		args.end=300000000;
 	}
 	
-	var type = "data";
+	var dataType = "data";
 	if(args.histogram){
-		type = "histogram"+args.interval;
+		dataType = "histogram"+args.interval;
 	}
 	if(args.transcript){
-		type = "withTranscripts";
+		dataType = "withTranscripts";
 	}
 
-	this.params["type"] = type
+	this.params["dataType"] = dataType
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
@@ -62,12 +63,12 @@ CellBaseAdapter.prototype.getData = function(args){
 	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){
 		var key = args.chromosome+":"+i;
-		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
+		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][dataType] == null) {
 			chunks.push(i);
 		}else{
-			var item = this.featureCache.getFeatureChunk(key, type);
+			var item = this.featureCache.getFeatureChunk(key);
 //			console.time("concat");
-			itemList = itemList.push(item);
+			itemList.push(item);
 //			console.timeEnd("concat");
 		}
 	}
@@ -78,14 +79,14 @@ CellBaseAdapter.prototype.getData = function(args){
 	cellBaseManager.success.addEventListener(function(sender,data){
 		console.timeEnd("cellbase");
 		console.time("insertCache"+" "+data.resource);
-		var type = "data";
+		var dataType = "data";
 		if(data.params.histogram){
-			type = "histogram"+data.params.interval;
+			dataType = "histogram"+data.params.interval;
 		}
 		if(data.params.transcript){
-			type = "withTranscripts";
+			dataType = "withTranscripts";
 		}
-		
+
 		//XXX quitar cuando este arreglado el ws
 		if(data.params.histogram == true){
 			data.result = [data.result];
@@ -123,8 +124,8 @@ CellBaseAdapter.prototype.getData = function(args){
 				}
 			}
 			
-			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, type);
-			var items = _this.featureCache.getFeatureChunksByRegion(queryList[i], type);
+			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, dataType);
+			var items = _this.featureCache.getFeatureChunksByRegion(queryList[i]);
 			console.timeEnd("insertCache"+" "+data.resource);
 			if(items != null){
 				itemList = itemList.concat(items);

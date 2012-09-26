@@ -397,7 +397,6 @@ TrackSvg.prototype.draw = function(){
 TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 	var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
-	debugger
 	var _this = this;
 	console.time("Multirender "+featureList.length);
 //	console.log(featureList.length);
@@ -751,7 +750,6 @@ TrackSvg.prototype.BamRender = function(chunkList){
 TrackSvg.prototype.GeneTranscriptRender = function(response){
 	var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
-	debugger
 	var _this = this;
 	console.time("GeneTranscriptRender");
 //	console.log(featureList.length);
@@ -1010,18 +1008,10 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 	console.timeEnd("GeneTranscriptRender");
 };
 
-TrackSvg.prototype.SequenceRender = function(featureList){
-	console.log(this.zoom)
+TrackSvg.prototype.SequenceRender = function(response){
+	var featureList = this._getFeaturesByChunks(response);
+	//here we got features array
 
-	if(this.zoom < 100){
-		for ( var j = 0; j < featureList.length; j++) {
-			var seqString = featureList[j].sequence;
-		//this.trackSvgLayout.
-			
-		}
-		console.log(this.trackSvgLayout.position)
-		this.invalidZoomText.setAttribute("visibility", "visible");
-	}else{
 		this.invalidZoomText.setAttribute("visibility", "hidden");
 		var middle = this.width/2;
 		
@@ -1072,7 +1062,6 @@ TrackSvg.prototype.SequenceRender = function(featureList){
 			
 		//}
 		console.timeEnd("all");
-	}
 };
 
 
@@ -1157,34 +1146,34 @@ TrackSvg.prototype.showInfoWidget = function(args){
 };
 
 TrackSvg.prototype._getFeaturesByChunks = function(response){
-	debugger
+	//Returns an array avoiding already drawn features in this.chunksDisplayed
 	var chunks = response.items;
-	var type = response.params.type;
+	var dataType = response.params.dataType;
 	var chromosome = response.params.chromosome;
 	var features = [];
+	if(response.params.resource=="gene")debugger
 	
-	var feature, displayed,firstChunk, lastChunk, features = [];
+	var feature, displayed, firstChunk, lastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {
-		for ( var j = 0, lenj = chunks[i][type].length; j < lenj; j++) {
-			feature = chunks[i][type][j];
+		for ( var j = 0, lenj = chunks[i][dataType].length; j < lenj; j++) {
+			feature = chunks[i][dataType][j];
+
 				//check if any feature has been already displayed by another chunk
 				displayed = false;
 				firstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
 				lastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
 				for(var f=firstChunk; f<=lastChunk; f++){
 					var fkey = chromosome+":"+f;
-					if(this.chunksDisplayed[fkey+type]==true){
+					if(this.chunksDisplayed[fkey+dataType]==true){
 						displayed = true;
 						break;
 					}
 				}
-						
 				if(!displayed){
 					features.push(feature);
 				}
 		}
-		//this.chunksDisplayed[key+type]=true;
-		this.chunksDisplayed[fkey+type]=true;
+		this.chunksDisplayed[chunks[i].key+dataType]=true;
 	}
 	return features;
 
