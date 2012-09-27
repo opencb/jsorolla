@@ -417,7 +417,10 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			trackSvg.features.removeChild(trackSvg.features.firstChild);
 		}
 		console.timeEnd("empty");
+		//deprecated, bam still uses it
 		trackData.adapter.featureCache.chunksDisplayed = {};
+
+		trackSvg.chunksDisplayed = {};
 		trackSvg.renderedArea = {};
 	};
 	//END help methods
@@ -427,16 +430,16 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//EventListeners
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
-	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
-		if(event.params.histogram == true){
+	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,response){
+		if(response.params.histogram == true){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 		}else{
 			trackSvg.featuresRender = trackSvg.defaultRender;
 		}
 		
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
-		
-		trackSvg.featuresRender(event.data);
+
+		trackSvg.featuresRender(response);
 		
 		trackSvg.setLoading(false);
 		
@@ -691,7 +694,7 @@ for ( var i = 0; i < this.trackSvgList.length; i++) {
 
 TrackSvgLayout.prototype.getBaseByPosition = function(position){
 
-	var drawBase = function(base){
+	//var drawBase = function(base){
 		//var html = "";
 		//switch(base){
 				//case "A": html = "<span></span>" break;
@@ -699,13 +702,13 @@ TrackSvgLayout.prototype.getBaseByPosition = function(position){
 				//case "G": html = "<span></span>" break;
 				//case "T": html = "<span></span>" break;
 			//}
-		console.log(base)
-	}
-	
-	seqTrack = this.getTrackSvgById("Sequence");
-
-	var r = seqTrack.trackData.adapter.featureCache.getFeaturesByRegion({chromosome:this.chromosome,start:position,end:position,displayedCheck:false},"data");
-
+		//console.log(base)
+	//}
+	//
+	//seqTrack = this.getTrackSvgById("Sequence");
+//
+	//var r = seqTrack.trackData.adapter.featureCache.getFeaturesByRegion({chromosome:this.chromosome,start:position,end:position,displayedCheck:false},"data");
+//
 	//as i asked for a simple nucleotid im sure the response length is 1
-	drawBase(r[0].sequence.charAt(position-r[0].start));
+	//drawBase(r[0].sequence.charAt(position-r[0].start));
 };

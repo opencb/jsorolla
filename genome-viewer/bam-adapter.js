@@ -48,11 +48,11 @@ function BamAdapter(args){
 BamAdapter.prototype.getData = function(args){
 	var _this = this;
 	//region check
-	
 	this.params["histogram"] = args.histogram;
 	this.params["interval"] = args.interval;
 	this.params["transcript"] = args.transcript;
-	
+	this.params["chromosome"] = args.chromosome;
+	this.params["resource"] = this.resource;
 	
 	if(args.start<1){
 		args.start=1;
@@ -61,10 +61,12 @@ BamAdapter.prototype.getData = function(args){
 		args.end=300000000;
 	}
 	
-	var type = "data";
+	var dataType = "data";
 	if(args.histogram){
-		type = "histogram"+args.interval;
+		dataType = "histogram"+args.interval;
 	}
+
+	this.params["dataType"] = dataType
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
@@ -72,27 +74,20 @@ BamAdapter.prototype.getData = function(args){
 	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){
 		var key = args.chromosome+":"+i;
-		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
+		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][dataType] == null) {
 			chunks.push(i);
 		}else{
-			var item = this.featureCache.getFeaturesByChunk(key, type);
+			var item = this.featureCache.getFeatureChunk(key);
 			itemList.push(item);
 		}
 	}
-////	//notify all chunks
-//	if(itemList.length>0){
-//		this.onGetData.notify({data:itemList, params:this.params, cached:true});
-//	}
-	
 	
 	//CellBase data process
 	var dqsManager = new DqsManager();
 	dqsManager.onRegion.addEventListener(function (evt, data){
-		console.timeEnd("dqs");
-		console.time("dqs-cache");
-		var type = "data";
+		var dataType = "data";
 		if(data.params.histogram){
-			type = "histogram"+data.params.interval;
+			dataType = "histogram"+data.params.interval;
 		}
 
 		var splitDots = data.query.split(":");
@@ -101,21 +96,18 @@ BamAdapter.prototype.getData = function(args){
 		
 		
 		
-//		_this.featureCache.putCustom(put);
-//		var items = _this.featureCache.getCustom(get);
-		_this.featureCache.putFeaturesByRegion(data.result, query, data.resource, type);
-		var items = _this.featureCache.getFeaturesByRegion(query, type);
+		_this.featureCache.putFeaturesByRegion(data.result, query, data.resource, dataType);
+		var items = _this.featureCache.getFeatureChunksByRegion(query, dataType);
 		itemList = itemList.concat(items);
-		console.timeEnd("dqs-cache");
 		if(itemList.length > 0){
-			_this.onGetData.notify({data:itemList, params:_this.params});
+			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
 		}
 	});
 
 	var querys = [];
 	var updateStart = true;
 	var updateEnd = true;
-	if(chunks.length > 0){
+	if(chunks.length > 0){//chunks needed to retrieve
 //		console.log(chunks);
 		
 		for ( var i = 0; i < chunks.length; i++) {
@@ -152,7 +144,7 @@ BamAdapter.prototype.getData = function(args){
 		}
 	}else{//no server call
 		if(itemList.length > 0){
-			this.onGetData.notify({data:itemList, params:this.params});
+			this.onGetData.notify({items:itemList, params:this.params});
 		}
 	}
 };
