@@ -327,7 +327,7 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 
 
 
-
+/*
 
 FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dataType){
 	var feature, key, chunk;
@@ -360,10 +360,10 @@ FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dataTyp
 	
 };
 
+*/
 
 
-
-//TODO XXX not tested
+//NOT USED dev not tested
 FeatureCache.prototype.histogram = function(region, interval){
 
 	var intervals = (region.end-region.start+1)/interval;

@@ -1181,25 +1181,28 @@ TrackSvg.prototype._getFeaturesByChunks = function(response){
 	
 	var feature, displayed, firstChunk, lastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {
-		for ( var j = 0, lenj = chunks[i][dataType].length; j < lenj; j++) {
-			feature = chunks[i][dataType][j];
+		if(this.chunksDisplayed[chunks[i].key+dataType]!=true){//check if any chunk is already displayed and skip it
 
-				//check if any feature has been already displayed by another chunk
-				displayed = false;
-				firstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
-				lastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
-				for(var f=firstChunk; f<=lastChunk; f++){
-					var fkey = chromosome+":"+f;
-					if(this.chunksDisplayed[fkey+dataType]==true){
-						displayed = true;
-						break;
+			for ( var j = 0, lenj = chunks[i][dataType].length; j < lenj; j++) {
+				feature = chunks[i][dataType][j];
+
+					//check if any feature has been already displayed by another chunk
+					displayed = false;
+					firstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
+					lastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
+					for(var f=firstChunk; f<=lastChunk; f++){
+						var fkey = chromosome+":"+f;
+						if(this.chunksDisplayed[fkey+dataType]==true){
+							displayed = true;
+							break;
+						}
 					}
-				}
-				if(!displayed){
-					features.push(feature);
-				}
+					if(!displayed){
+						features.push(feature);
+					}
+			}
+			this.chunksDisplayed[chunks[i].key+dataType]=true;
 		}
-		this.chunksDisplayed[chunks[i].key+dataType]=true;
 	}
 	return features;
 
