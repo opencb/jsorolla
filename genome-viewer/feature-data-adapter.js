@@ -48,10 +48,11 @@ FeatureDataAdapter.prototype.getData = function(region){
 	
 	console.log("XXX comprobar histograma");
 	console.log(region);
-	var dataType = "data";
-	var itemList = this.featureCache.getFeaturesByRegion(region, dataType);
+	this.params["dataType"] = "data";
+	this.params["chromosome"] = region.chromosome;
+	var itemList = this.featureCache.getFeatureChunksByRegion(region);
 	if(itemList != null){
-		this.onGetData.notify({data:itemList, params:this.params, cached:true});
+		this.onGetData.notify({items:itemList, params:this.params, cached:true});
 	}
 };
 

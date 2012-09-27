@@ -126,6 +126,7 @@ GenomeViewer.prototype.render = function(){
 			width:_this.width-18,
 			position:_this.position,
 			chromosome:_this.chromosome,
+			genomeViewer:_this,
 			zoom : _this.zoom
 		});
 		_this.trackSvgLayout.onMove.addEventListener(function(sender,data){
@@ -150,6 +151,7 @@ GenomeViewer.prototype.render = function(){
 			chromosome:_this.chromosome,
 			zoom : _this.zoom,
 			zoomOffset:40,
+			genomeViewer:_this,
 			parentLayout:_this.trackSvgLayout
 		});
 		
@@ -198,9 +200,10 @@ GenomeViewer.prototype.setSize = function(width,height) {
 
 GenomeViewer.prototype.setLoc = function(data) {
 //	Ext.getCmp(this.id+'container').setLoading();
-	console.log("GV SetLoc sender: "+data.position);
+	//console.log("GV SetLoc sender: "+data.position);
 //	this.chromosomeFeatureTrack.select(data.position-1000, data.position+1000);
 
+	
 	switch(data.sender){
 	case "setSpecies": 
 		this.species = data.species;

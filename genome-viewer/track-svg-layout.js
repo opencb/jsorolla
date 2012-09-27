@@ -23,8 +23,10 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	var _this = this;
 	this.args = args;
 	this.id = Math.round(Math.random()*10000000);
+
+	//deprecated
+	//this.trackDataList =  new Array();
 	
-	this.trackDataList =  new Array();
 	this.trackSvgList =  new Array();
 	this.swapHash = new Object();
 	this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
@@ -57,6 +59,9 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		}
 		if(args.parentLayout != null){
 			this.parentLayout = args.parentLayout;
+		}
+		if(args.genomeViewer != null){
+			this.genomeViewer = args.genomeViewer;
 		}
 	}
 	
@@ -195,6 +200,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			var posOffset = (mid/_this.pixelBase) | 0;
 			_this.mousePosition = _this.position+rcX-posOffset;
 			_this.onMousePosition.notify(_this.mousePosition);
+			_this.getBaseByPosition(_this.mousePosition);
 		});
 		
 		$(this.svg).mousedown(function(event) {
@@ -339,10 +345,10 @@ TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.po
 	}
 	if(item.species!=null){
 		//check species and modify CellBaseAdapter, clean cache
-		for(i in this.trackDataList){
-			if(this.trackDataList[i].adapter instanceof CellBaseAdapter){
-				this.trackDataList[i].adapter.species = item.species;
-				this.trackDataList[i].adapter.featureCache.clear();
+		for(i in this.trackSvgList){
+			if(this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter){
+				this.trackSvgList[i].trackData.adapter.species = item.species;
+				this.trackSvgList[i].trackData.adapter.featureCache.clear();
 			}
 		}
 	}
@@ -363,11 +369,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	args["adapter"] = trackData.adapter;
 	args["trackSvgLayout"] = this;
 	
-	var i = this.trackDataList.push(trackData);
+	//deprecated
+	//var i = this.trackDataList.push(trackData);
+
 	var trackSvg = new TrackSvg(this.svg,args);
 	
 	
-	this.trackSvgList.push(trackSvg);
+	var i = this.trackSvgList.push(trackSvg);
 	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
 	trackSvg.setY(this.height);
 	trackSvg.draw();
@@ -409,7 +417,10 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			trackSvg.features.removeChild(trackSvg.features.firstChild);
 		}
 		console.timeEnd("empty");
+		//deprecated, bam still uses it
 		trackData.adapter.featureCache.chunksDisplayed = {};
+
+		trackSvg.chunksDisplayed = {};
 		trackSvg.renderedArea = {};
 	};
 	//END help methods
@@ -419,16 +430,16 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//EventListeners
 	//Watch out!!!
 	//this event must be attached before any "trackData.retrieveData()" call
-	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,event){
-		if(event.params.histogram == true){
+	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,response){
+		if(response.params.histogram == true){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 		}else{
 			trackSvg.featuresRender = trackSvg.defaultRender;
 		}
 		
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
-		
-		trackSvg.featuresRender(event.data);
+
+		trackSvg.featuresRender(response);
 		
 		trackSvg.setLoading(false);
 		
@@ -554,7 +565,10 @@ TrackSvgLayout.prototype.removeTrack = function(trackId){
 
 	// delete data
 	this.trackSvgList.splice(position, 1);
-	this.trackDataList.splice(position, 1);
+
+	//deprecated
+	//this.trackDataList.splice(position, 1);
+	
 	delete this.swapHash[trackId];
 	//uddate swapHash with correct index after slice
 	for ( var i = 0; i < this.trackSvgList.length; i++) {
@@ -601,7 +615,7 @@ TrackSvgLayout.prototype._reallocateAbove = function(trackMainId){
 TrackSvgLayout.prototype._reallocateUnder = function(trackMainId){
 	var i = this.swapHash[trackMainId].index;
 	console.log(i+" quiere moverse 1 posicion abajo");
-	if(i+1<this.trackDataList.length){
+	if(i+1<this.trackSvgList.length){
 		var aboveTrack=this.trackSvgList[i];
 		var underTrack=this.trackSvgList[i+1];
 		
@@ -666,4 +680,35 @@ TrackSvgLayout.prototype._setTextPosition = function(){
 	var x = Math.floor((this.width)/this.pixelBase/2);
 	this.firstPositionText.textContent = (this.position-x).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 	this.lastPositionText.textContent = (this.position+x-1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+};
+
+TrackSvgLayout.prototype.getTrackSvgById = function(id){
+for ( var i = 0; i < this.trackSvgList.length; i++) {
+		trackSvg = this.trackSvgList[i];
+		if(trackSvg.id = id){
+			return trackSvg;
+		}
+	}
+	return null;
+};
+
+TrackSvgLayout.prototype.getBaseByPosition = function(position){
+
+	//var drawBase = function(base){
+		//var html = "";
+		//switch(base){
+				//case "A": html = "<span></span>" break;
+				//case "C": html = "<span></span>" break;
+				//case "G": html = "<span></span>" break;
+				//case "T": html = "<span></span>" break;
+			//}
+		//console.log(base)
+	//}
+	//
+	//seqTrack = this.getTrackSvgById("Sequence");
+//
+	//var r = seqTrack.trackData.adapter.featureCache.getFeaturesByRegion({chromosome:this.chromosome,start:position,end:position,displayedCheck:false},"data");
+//
+	//as i asked for a simple nucleotid im sure the response length is 1
+	//drawBase(r[0].sequence.charAt(position-r[0].start));
 };
