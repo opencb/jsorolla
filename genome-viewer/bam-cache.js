@@ -210,10 +210,10 @@ BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType
 		
 		if(this.gzip) {
 			gzipRead = RawDeflate.deflate(JSON.stringify(read));
-			ssss+= gzipRead.length;
+			//ssss+= gzipRead.length;
 		}else{
 			gzipRead = read;
-			ssss+= JSON.stringify(gzipRead).length;
+			//ssss+= JSON.stringify(gzipRead).length;
 		}
 		
 		for(var i=firstChunk; i<=lastChunk; i++) {

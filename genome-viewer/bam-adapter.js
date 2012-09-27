@@ -86,7 +86,7 @@ BamAdapter.prototype.getData = function(args){
 	var querys = [];
 	var updateStart = true;
 	var updateEnd = true;
-	if(chunks.length > 0){
+	if(chunks.length > 0){//chunks needed to retrieve
 //		console.log(chunks);
 		
 		for ( var i = 0; i < chunks.length; i++) {

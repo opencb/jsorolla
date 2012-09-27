@@ -1197,19 +1197,32 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 	var features = [];
 	
 	var feature, displayed, firstChunk, lastChunk, features = [];
-	for ( var i = 0, leni = chunks.length; i < leni; i++) {
-		var key = chunks[i].key;
-		if(this.chunksDisplayed[key+dataType]==true){
-			chunks.splice(i,1);
+	for ( var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
+		if(this.chunksDisplayed[chunks[i].key+dataType]!=true){//check if any chunk is already displayed and skip it
+		
+			features = []; //initialize array, will contain features not drawn by other drawn chunks
+			for ( var j = 0, lenj = chunks[i][dataType].length; j < lenj; j++) {
+				feature = chunks[i][dataType][j];
+
+					//check if any feature has been already displayed by another chunk
+					displayed = false;
+					firstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
+					lastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
+					for(var f=firstChunk; f<=lastChunk; f++){//loop over chunks touched by this feature
+						var fkey = chromosome+":"+f;
+						if(this.chunksDisplayed[fkey+dataType]==true){
+							displayed = true;
+							break;
+						}
+					}
+					if(!displayed){
+						features.push(feature);
+					}
+			}
+			this.chunksDisplayed[chunks[i].key+dataType]=true;
+			chunks[i][dataType] = features;//update features array
 		}
-		this.chunksDisplayed[key+dataType]=true;
 	}
-	
+
 	return response;
-
-	
-	//we only get those features in the region AND check if chunk has been already displayed
-	//if(feature.end > region.start && feature.start < region.end){
-
-	//}
 }
