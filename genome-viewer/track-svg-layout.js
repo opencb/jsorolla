@@ -118,6 +118,12 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"font-size":10,
 		"fill":"green"
 	});
+	this.nucleotidText = SVG.addChild(this.svg,"text",{
+		"x":mid+35,
+		"y":22,
+		"font-family": "Ubuntu Mono",
+		"font-size":13
+	});
 	this.firstPositionText = SVG.addChild(this.svg,"text",{
 		"x":0,
 		"y":22,
@@ -200,7 +206,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			var posOffset = (mid/_this.pixelBase) | 0;
 			_this.mousePosition = _this.position+rcX-posOffset;
 			_this.onMousePosition.notify(_this.mousePosition);
-			_this.getBaseByPosition(_this.mousePosition);
+			_this.setMousePosition(_this.mousePosition);
 		});
 		
 		$(this.svg).mousedown(function(event) {
@@ -219,6 +225,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 						_this._setTextPosition();
 						_this.onMove.notify(desp);
 						lastX = newX;
+						_this.setNucleotidPosition(_this.position);
 					}
 				}
 			});
@@ -692,23 +699,24 @@ for ( var i = 0; i < this.trackSvgList.length; i++) {
 	return null;
 };
 
-TrackSvgLayout.prototype.getBaseByPosition = function(position){
+TrackSvgLayout.prototype.setMousePosition = function(position){
+	var base = this.getSequenceNucleotid(position);
+	var html = '<span style="font-family: Ubuntu Mono;font-size:19px;color:'+SEQUENCE_COLORS[base]+'">'+base+'</span>';
+	Ext.getCmp(this.genomeViewer.id+"mouseNucleotidLabel").setText(html);
+};
 
-	//var drawBase = function(base){
-		//var html = "";
-		//switch(base){
-				//case "A": html = "<span></span>" break;
-				//case "C": html = "<span></span>" break;
-				//case "G": html = "<span></span>" break;
-				//case "T": html = "<span></span>" break;
-			//}
-		//console.log(base)
-	//}
-	//
-	//seqTrack = this.getTrackSvgById("Sequence");
-//
-	//var r = seqTrack.trackData.adapter.featureCache.getFeaturesByRegion({chromosome:this.chromosome,start:position,end:position,displayedCheck:false},"data");
-//
-	//as i asked for a simple nucleotid im sure the response length is 1
-	//drawBase(r[0].sequence.charAt(position-r[0].start));
+TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
+	seqTrack = this.getTrackSvgById("Sequence");
+	var key  = this.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(position);
+	var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(key);
+	if(r != null){
+		return r.data[0].sequence.charAt(position-r.data[0].start);
+	}
+	return "";
+}
+
+TrackSvgLayout.prototype.setNucleotidPosition = function(position){
+	var base = this.getSequenceNucleotid(position);
+	this.nucleotidText.setAttribute("fill",SEQUENCE_COLORS[base]);
+	this.nucleotidText.textContent = base;
 };
