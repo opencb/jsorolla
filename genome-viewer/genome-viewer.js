@@ -501,7 +501,8 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        			 }
 		        		 }
 		        	 }
-		         },{
+				},
+		         {
 		        	 id : this.id+'GoButton',
 		        	 text : 'Go',
 		        	 handler : function() {
@@ -908,6 +909,11 @@ GenomeViewer.prototype._getBottomBar = function() {
 		width:110,
 		text:'<span class="ssel">Position: -</span>'
 	});
+	var mouseNucleotidLabel = Ext.create('Ext.toolbar.TextItem', {
+		id:this.id+"mouseNucleotidLabel",
+		width:10,
+		text:'-'
+	});
 	var windowSize = Ext.create('Ext.toolbar.TextItem', {
 		id:this.id+"windowSize",
 		width:150,
@@ -926,10 +932,10 @@ GenomeViewer.prototype._getBottomBar = function() {
 	var legendBar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+'legendBar',
 		cls: 'bio-hiddenbar',
-		width:600,
+		width:610,
 		height:28,
 		items : [/*scaleLabel, */
-		         '-',mouseLabel,windowSize,
+		         '-',mouseLabel,mouseNucleotidLabel,windowSize,
 		         geneLegendPanel.getButton(GENE_BIOTYPE_COLORS),
 		         snpLegendPanel.getButton(SNP_BIOTYPE_COLORS),
 		         '->',versionLabel]

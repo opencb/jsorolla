@@ -1039,8 +1039,20 @@ TrackSvg.prototype.SequenceRender = function(response){
 	var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
 
+		var chromeFontSize = "16";
+		var firefoxFontSize = "19";
+		var chromeFontOff = "16";
+		var fontOff = 1;
+		if(this.zoom == 95){
+			chromeFontSize = "10";
+			firefoxFontSize = "10";
+			fontOff = 0;
+		}
+
 		this.invalidZoomText.setAttribute("visibility", "hidden");
 		var middle = this.width/2;
+
+
 		
 		//if(featureList.length > 0){//???
 		for ( var j = 0; j < featureList.length; j++) {
@@ -1057,9 +1069,9 @@ TrackSvg.prototype.SequenceRender = function(response){
 			if(jQuery.browser.mozilla){
 				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
 				var text = SVG.addChild(this.features,"text",{
-					"x":x+1,
+					"x":x+fontOff,
 					"y":13,
-					"font-size":19,
+					"font-size":firefoxFontSize,
 					"style":"letter-spacing:8;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
 					"font-family": "Ubuntu Mono"
 				});
@@ -1069,9 +1081,9 @@ TrackSvg.prototype.SequenceRender = function(response){
 					var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
 					start++;
 					var text = SVG.addChild(this.features,"text",{
-						"x":x+1,
+						"x":x+fontOff,
 						"y":12,
-						"font-size":16,
+						"font-size":chromeFontSize,
 						"font-family": "Ubuntu Mono",
 						"fill":SEQUENCE_COLORS[seqString.charAt(i)]
 					});
@@ -1089,6 +1101,7 @@ TrackSvg.prototype.SequenceRender = function(response){
 			
 		//}
 		console.timeEnd("all");
+		this.trackSvgLayout.setNucleotidPosition(this.position);
 };
 
 
