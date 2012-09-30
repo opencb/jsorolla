@@ -312,6 +312,7 @@ TrackSvgLayout.prototype.setWidth = function(width){
 	this.grid.setAttribute("x",parseInt(mid%10));
 	this.grid2.setAttribute("width",width);
 	this.positionText.setAttribute("x",mid-30);
+	this.nucleotidText.setAttribute("x",mid+35);
 	this.lastPositionText.setAttribute("x",width-70);
 	this.viewNtsArrow.setAttribute("width",width-32);
 	this.viewNtsArrowRight.setAttribute("points",width+",7 "+(width-16)+",0 "+(width-16)+",14");
@@ -689,12 +690,10 @@ TrackSvgLayout.prototype._setTextPosition = function(){
 	this.lastPositionText.textContent = (this.position+x-1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 };
 
-TrackSvgLayout.prototype.getTrackSvgById = function(id){
-for ( var i = 0; i < this.trackSvgList.length; i++) {
-		trackSvg = this.trackSvgList[i];
-		if(trackSvg.id = id){
-			return trackSvg;
-		}
+TrackSvgLayout.prototype.getTrackSvgById = function(trackId){
+	if(this.swapHash[trackId]!=null){
+		var position = this.swapHash[trackId].index;
+		return this.trackSvgList[position];
 	}
 	return null;
 };
@@ -706,11 +705,13 @@ TrackSvgLayout.prototype.setMousePosition = function(position){
 };
 
 TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
-	seqTrack = this.getTrackSvgById("Sequence");
-	var key  = this.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(position);
-	var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(key);
-	if(r != null){
-		return r.data[0].sequence.charAt(position-r.data[0].start);
+	var seqTrack = this.getTrackSvgById("Sequence");
+	if( seqTrack != null){
+		var key  = this.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(position);
+		var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(key);
+		if(r != null){
+			return r.data[0].sequence.charAt(position-r.data[0].start);
+		}
 	}
 	return "";
 }
