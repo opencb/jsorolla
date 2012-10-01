@@ -312,8 +312,8 @@ TrackSvgLayout.prototype.setHeight = function(height){
 	this.svg.setAttribute("height",height);
 	this.grid.setAttribute("height",height);
 	this.grid2.setAttribute("height",height);
-	this.currentLine.setAttribute("height",parseInt(height)-25);//25 es el margen donde esta el texto de la posicion
-	this.mouseLine.setAttribute("height",parseInt(height)-25);//25 es el margen donde esta el texto de la posicion
+	this.currentLine.setAttribute("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
+	this.mouseLine.setAttribute("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
 };
 TrackSvgLayout.prototype.setWidth = function(width){
 	this.width=width;
