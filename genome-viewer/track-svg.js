@@ -1228,12 +1228,14 @@ TrackSvg.prototype._getFeaturesByChunks = function(response){
 TrackSvg.prototype._removeDisplayedChunks = function(response){
 	//Returns an array avoiding already drawn features in this.chunksDisplayed
 	var chunks = response.items;
+	var newChunks = []; 
 	var dataType = response.params.dataType;
 	var chromosome = response.params.chromosome;
 	var features = [];
 	
 	var feature, displayed, firstChunk, lastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
+		console.log(this.chunksDisplayed[chunks[i].key+dataType]!=true)
 		if(this.chunksDisplayed[chunks[i].key+dataType]!=true){//check if any chunk is already displayed and skip it
 		
 			features = []; //initialize array, will contain features not drawn by other drawn chunks
@@ -1257,8 +1259,9 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 			}
 			this.chunksDisplayed[chunks[i].key+dataType]=true;
 			chunks[i][dataType] = features;//update features array
+			newChunks.push(chunks[i]);
 		}
 	}
-
+	response.items = newChunks;
 	return response;
 }
