@@ -388,15 +388,15 @@ TrackSvg.prototype.draw = function(){
 	});
 	
 	//ya no se usa, es track svg layout el q captura el evento de click y arrastrar
-//	$(this.parent).mousedown(function(event) {
-//		var x = parseInt(features.getAttribute("x")) - event.clientX;
-//		$(this).mousemove(function(event){
-//			features.setAttribute("x",x + event.clientX);
-//		});
-//	});
-//	$(this.parent).mouseup(function(event) {
-//		$(this).off('mousemove');
-//	});
+	//$(this.parent).mousedown(function(event) {
+		//var x = parseInt(features.getAttribute("x")) - event.clientX;
+		//$(this).mousemove(function(event){
+			//features.setAttribute("x",x + event.clientX);
+		//});
+	//});
+	//$(this.parent).mouseup(function(event) {
+		//$(this).off('mousemove');
+	//});
 	
 	
 	this.main = main;
@@ -534,6 +534,7 @@ TrackSvg.prototype.BamRender = function(response){
 	var chunkList = response.items;
 
 	var middle = this.width/2;
+
 	
 	var bamGroup = SVG.addChild(_this.features,"g");
 	var drawCoverage = function(chunk){
@@ -551,34 +552,25 @@ TrackSvg.prototype.BamRender = function(response){
 		var points = "", pointsA = "", pointsC = "", pointsG = "", pointsT = "";
 		var baseMid = (_this.pixelBase/2)-0.5;//4.5 cuando pixelBase = 10
 		
-		var x,y, p = parseInt(chunk.start), covHeight = 50;
+		var x,y, p = parseInt(chunk.start);
 		var lineA = "", lineC = "", lineG = "", lineT = "";
+		var coverageNorm = 200, covHeight = 50;
 		for ( var i = 0; i < coverageList.length; i++) {
 			//x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+baseMid;
 			x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase);
             xx = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+_this.pixelBase;
 			
-			lineA += x+","+coverageListA[i]/200*covHeight+" ";
-			lineA += xx+","+coverageListA[i]/200*covHeight+" ";
-			lineC += x+","+(coverageListC[i]+coverageListA[i])/200*covHeight+" ";
-			lineC += xx+","+(coverageListC[i]+coverageListA[i])/200*covHeight+" ";
-			lineG += x+","+(coverageListG[i]+coverageListC[i]+coverageListA[i])/200*covHeight+" ";
-			lineG += xx+","+(coverageListG[i]+coverageListC[i]+coverageListA[i])/200*covHeight+" ";
-			lineT += x+","+(coverageListT[i]+coverageListG[i]+coverageListC[i]+coverageListA[i])/200*covHeight+" ";
-			lineT += xx+","+(coverageListT[i]+coverageListG[i]+coverageListC[i]+coverageListA[i])/200*covHeight+" ";
+			lineA += x+","+coverageListA[i]/coverageNorm*covHeight+" ";
+			lineA += xx+","+coverageListA[i]/coverageNorm*covHeight+" ";
+			lineC += x+","+(coverageListC[i]+coverageListA[i])/coverageNorm*covHeight+" ";
+			lineC += xx+","+(coverageListC[i]+coverageListA[i])/coverageNorm*covHeight+" ";
+			lineG += x+","+(coverageListG[i]+coverageListC[i]+coverageListA[i])/coverageNorm*covHeight+" ";
+			lineG += xx+","+(coverageListG[i]+coverageListC[i]+coverageListA[i])/coverageNorm*covHeight+" ";
+			lineT += x+","+(coverageListT[i]+coverageListG[i]+coverageListC[i]+coverageListA[i])/coverageNorm*covHeight+" ";
+			lineT += xx+","+(coverageListT[i]+coverageListG[i]+coverageListC[i]+coverageListA[i])/coverageNorm*covHeight+" ";
 			
-			//y = coverageList[i]/200*covHeight;//200 is the depth
-                        
-			//points += x+","+y+" ";
 			p++;
-			
-//			$(text).qtip({
-//				content:(parseInt(chunk.region.start)+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
-//				position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
-//				style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
-//			});
 		}
-//		console.log(points)
 		var dummyRect = SVG.addChild(bamGroup,"rect",{
 			"x":_this.pixelPosition+middle-((_this.position-start)*_this.pixelBase),
 			"y":0,
@@ -587,42 +579,36 @@ TrackSvg.prototype.BamRender = function(response){
 			"fill": "transparent",
 			"cursor": "pointer"
 		});
-		//var pol = SVG.addChild(bamGroup,"polyline",{
-		//	"points":points,
-		//	"stroke": "black",
-		//	"stroke-width": 2,
-		//	"opacity": 0.4,
-		//	"fill": "gray"
-		//});
-		
+
+		//reverse to draw the polylines(polygons) for each nucleotid
 		var rlineC = lineC.split(" ").reverse().join(" ").trim();
 		var rlineG = lineG.split(" ").reverse().join(" ").trim();
 		var rlineT = lineT.split(" ").reverse().join(" ").trim();
 		
 		var firstPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.start))*_this.pixelBase)+baseMid;
 		var lastPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.end))*_this.pixelBase)+baseMid;
-                var polA = SVG.addChild(bamGroup,"polyline",{
+        var polA = SVG.addChild(bamGroup,"polyline",{
 			"points":firstPoint+",0 "+lineA+lastPoint+",0",
 			"opacity":"0.4",
 			//"stroke-width":"1",
 			//"stroke":"gray",
 			"fill":"green"
 		});
-                var polC = SVG.addChild(bamGroup,"polyline",{
+        var polC = SVG.addChild(bamGroup,"polyline",{
 			"points":lineA+" "+rlineC,
 			"opacity":"0.4",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"blue"
 		});
-                var polG = SVG.addChild(bamGroup,"polyline",{
+        var polG = SVG.addChild(bamGroup,"polyline",{
 			"points":lineC+" "+rlineG,
 			"opacity":"0.4",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"gold"
 		});
-                var polT = SVG.addChild(bamGroup,"polyline",{
+        var polT = SVG.addChild(bamGroup,"polyline",{
 			"points":lineG+" "+rlineT,
 			"opacity":"0.4",
 			//"stroke-width":"1",
@@ -635,7 +621,6 @@ TrackSvg.prototype.BamRender = function(response){
 			style: { width:true, classes: 'ui-tooltip-shadow'}
 		});
 		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,mousePos){
-			
 			var str = 'depth: <span class="ssel">'+coverageList[mousePos-parseInt(chunk.start)]+'</span><br>'+
 					'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[mousePos-parseInt(chunk.start)]+'</span><br>'+
 					'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[mousePos-parseInt(chunk.start)]+'</span><br>'+
@@ -643,25 +628,6 @@ TrackSvg.prototype.BamRender = function(response){
 					'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[mousePos-parseInt(chunk.start)]+'</span><br>';
 			$(dummyRect).qtip('option', 'content.text', str ); 
 		});
-		
-//		var overPol = false;
-//		$(pol).mouseenter(function(){
-//			console.log("enter");
-//			overPol = true;
-//		});
-		
-//		$(pol).qtip({
-//			content:"asdf",
-//			position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
-//			style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
-//		});
-		
-		
-//		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,mousePos){
-//			if(overPol){
-//				_this.customSvgField.textContent = coverageList[mousePos-parseInt(chunk.region.start)];
-//			}
-//		});
 		
 		for ( var i = 0, li = readList.length; i < li; i++) {
 			draw(readList[i]);
@@ -674,10 +640,22 @@ TrackSvg.prototype.BamRender = function(response){
 		var width = (end-start)+1;
 		
 		var middle = _this.width/2;
-		
 		//get type settings object
 		var settings = _this.types[feature.featureType];
 		var color = settings.getColor(feature);
+		
+		//if(feature.read !=  "SRR077487.3945695"){color="red";fea1234 = feature}
+/**/
+		//var seqTrack = _this.trackSvgLayout.getTrackSvgById("Sequence");
+		//if( seqTrack != null){
+			//var key  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(start);
+			//var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(key);
+			//if(r != null){
+				//var originalSeq = r.data[0].sequence.substring((start - r.data[0].start),((end+1) - r.data[0].start));
+				//if(feature.read == originalSeq)color=="blue";
+			//}
+		//}
+/**/		
 		
 		//transform to pixel position
 		width = width * _this.pixelBase;
@@ -710,9 +688,25 @@ TrackSvg.prototype.BamRender = function(response){
 					"stroke": "white",
 					"stroke-width": 1,
 					"fill": color,
-//					"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
+					//"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
 					"cursor": "pointer"
 				});
+				var	t = SVG.addChild(bamGroup,"text",{
+					"x":x+1,
+					"y":rowY+settings.height,
+					"font-size":16,
+					"style":"letter-spacing:2;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
+					"font-family": "Ubuntu Mono"
+				});
+				//var rect = SVG.addChild(bamGroup,"text",{
+					//"x":x,
+					//"y":rowY+settings.height,
+					//"font-size":14,
+					//"style":"letter-spacing:3;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
+					//"font-family": "Ubuntu Mono"
+				//});
+				//rect.textContent = feature.read;
+				
 //				var d = 'M '+x+' '+rowY+' L '+(x+width)+' '+rowY+' L '+(x+width)+' '+(rowY+settings.height)+' L '+x+' '+(rowY+settings.height)+' Z';
 //				var rect = SVG.addChild(bamGroup,"path",{
 ////					"x":x,
@@ -726,10 +720,13 @@ TrackSvg.prototype.BamRender = function(response){
 //					"cursor": "pointer"
 //				});
 ////				console.log(d)
-				
-//				rect.onmouseover = function(){
-//					console.log("over");
-//				};
+		
+				$([rect,t]).mouseenter(function(e) {
+					t.textContent = feature.read;
+				});
+				$([rect,t]).mouseleave(function(event) {
+					t.textContent = "";
+				});
 				
 //				var text = SVG.addChild(_this.features,"text",{
 //					"i":i,
@@ -741,14 +738,15 @@ TrackSvg.prototype.BamRender = function(response){
 //					"cursor": "pointer"
 //				});
 //				text.textContent = settings.getLabel(feature);
-				
-				$([rect]).qtip({
+
+				$([rect,t]).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
 					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
 					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
 				});
 				
-				$([rect]).click(function(event){
+				$([rect,t]).click(function(event){
+					console.log("bamClick")
 					_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
 				});
 				break;
