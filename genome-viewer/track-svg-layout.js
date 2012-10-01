@@ -23,7 +23,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	var _this = this;
 	this.args = args;
 	this.id = Math.round(Math.random()*10000000);
-
 	//deprecated
 	//this.trackDataList =  new Array();
 	
@@ -36,7 +35,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	
 	
 	//default values
-	this.height=25;
+	this.height=0;
 	
 	if (args != null){
 		if(args.width != null){
@@ -77,12 +76,22 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this.onWindowSize = new Event();
 	this.onMousePosition = new Event();
 	this.onSvgRemoveTrack = new Event();
-	
-	
+
+
+	//this.tracksDiv = $('<div></div>').height(this.height).css({"overflow-y":"auto"})[0];
+	//$(this.tracksDiv).appendTo(parent);
+
 	//Main SVG and his events
-	this.svg = SVG.init(parent,{
+	this.svgTop = SVG.init(parent.top,{
 		"width":this.width,
-		"height":this.height
+		//"height":this.height,
+	});
+	
+
+	//Main SVG and his events
+	this.svg = SVG.init(parent.track,{
+		"width":this.width,
+		"height":this.height,
 	});
 	
 	//grid
@@ -98,7 +107,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	var mid = this.width/2;
 	this.grid = SVG.addChild(patt,"rect",{
 		"x":parseInt(mid%10),
-		"y":25,
+		"y":0,
 		"width":1,
 		"height":2000,
 		"opacity":"0.15",
@@ -112,25 +121,25 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"fill":"url(#"+this.id+"gridPatt)"
 	});
 	
-	this.positionText = SVG.addChild(this.svg,"text",{
+	this.positionText = SVG.addChild(this.svgTop,"text",{
 		"x":mid-30,
 		"y":22,
 		"font-size":10,
 		"fill":"green"
 	});
-	this.nucleotidText = SVG.addChild(this.svg,"text",{
+	this.nucleotidText = SVG.addChild(this.svgTop,"text",{
 		"x":mid+35,
 		"y":22,
 		"font-family": "Ubuntu Mono",
 		"font-size":13
 	});
-	this.firstPositionText = SVG.addChild(this.svg,"text",{
+	this.firstPositionText = SVG.addChild(this.svgTop,"text",{
 		"x":0,
 		"y":22,
 		"font-size":10,
 		"fill":"green"
 	});
-	this.lastPositionText = SVG.addChild(this.svg,"text",{
+	this.lastPositionText = SVG.addChild(this.svgTop,"text",{
 		"x":this.width-70,
 		"y":22,
 		"font-size":10,
@@ -139,7 +148,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this._setTextPosition();
 	
 	
-	this.viewNtsArrow = SVG.addChild(this.svg,"rect",{
+	this.viewNtsArrow = SVG.addChild(this.svgTop,"rect",{
 		"x":16,
 		"y":2,
 		"width":this.width-32,
@@ -147,17 +156,17 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"opacity":"0.7",
 		"fill":"grey"
 	});
-	this.viewNtsArrowLeft = SVG.addChild(this.svg,"polyline",{
+	this.viewNtsArrowLeft = SVG.addChild(this.svgTop,"polyline",{
 		"points":"0,7 16,0 16,14",
 		"opacity":"0.7",
 		"fill":"grey"
 	});
-	this.viewNtsArrowRight = SVG.addChild(this.svg,"polyline",{
+	this.viewNtsArrowRight = SVG.addChild(this.svgTop,"polyline",{
 		"points":this.width+",7 "+(this.width-16)+",0 "+(this.width-16)+",14",
 		"opacity":"0.7",
 		"fill":"grey"
 	});
-	this.viewNtsText = SVG.addChild(this.svg,"text",{
+	this.viewNtsText = SVG.addChild(this.svgTop,"text",{
 		"x":mid-30,
 		"y":11,
 		"font-size":10,
@@ -194,10 +203,10 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		//Main svg  movement events
 //		this.svg.setAttribute("cursor", "move");
 		
-		$(parent).mousemove(function(event) {
+		$(parent.track).mousemove(function(event) {
 			var mid = _this.width/2;
 			var pb2 = _this.pixelBase/2;
-			var offsetX = (event.clientX - $(parent).offset().left);
+			var offsetX = (event.clientX - $(parent.track).offset().left);
 			var cX = offsetX-pb2;
 			var rcX = (cX/_this.pixelBase) | 0;
 			var pos = (rcX*_this.pixelBase) + mid%_this.pixelBase;
@@ -296,6 +305,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		});
 	}
 };
+
 
 TrackSvgLayout.prototype.setHeight = function(height){
 	this.height=height;
@@ -588,7 +598,7 @@ TrackSvgLayout.prototype.removeTrack = function(trackId){
 TrackSvgLayout.prototype._redraw = function(){
 	var _this = this;
 	var trackSvg = null;
-	var lastY = 25;
+	var lastY = 0;
 	for ( var i = 0; i < this.trackSvgList.length; i++) {
 		trackSvg = this.trackSvgList[i];
 		if(this.swapHash[trackSvg.id].visible){

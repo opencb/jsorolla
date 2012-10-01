@@ -24,7 +24,7 @@ function TrackSvg(parent, args) {
 //	this.id = Math.round(Math.random()*10000000); // internal id for this class
 	this.parent = parent;
 	
-	this.y = 25;
+	this.y = 0;
 	this.height = 50;
 	this.width = 200;
 	this.title = "track";
@@ -1051,7 +1051,6 @@ TrackSvg.prototype.SequenceRender = function(response){
 
 		this.invalidZoomText.setAttribute("visibility", "hidden");
 		var middle = this.width/2;
-
 
 		
 		//if(featureList.length > 0){//???
