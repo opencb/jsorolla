@@ -83,15 +83,14 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 
 	//Main SVG and his events
 	this.svgTop = SVG.init(parent.top,{
-		"width":this.width,
-		//"height":this.height,
+		"width":this.width
 	});
 	
 
 	//Main SVG and his events
 	this.svg = SVG.init(parent.track,{
 		"width":this.width,
-		"height":this.height,
+		"height":this.height
 	});
 	
 	//grid
