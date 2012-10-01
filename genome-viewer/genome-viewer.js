@@ -121,8 +121,9 @@ GenomeViewer.prototype.render = function(){
 	var regionAndTrackRendered = 0;
 	
 	var createSvgLayout = function (){
-		var div = $('#'+_this.id+"tracksSvg")[0];
-		_this.trackSvgLayout = new TrackSvgLayout(div,{
+		var divTop = $('#'+_this.id+"tracksSvgTop")[0];
+		var divTrack = $('#'+_this.id+"tracksSvgTrack")[0];
+		_this.trackSvgLayout = new TrackSvgLayout({top:divTop,track:divTrack},{
 			width:_this.width-18,
 			position:_this.position,
 			chromosome:_this.chromosome,
@@ -144,8 +145,9 @@ GenomeViewer.prototype.render = function(){
 		//propagate event to TrackSvgLayout
 		_this.onSvgRemoveTrack = _this.trackSvgLayout.onSvgRemoveTrack;
 		
-		var div = $('#'+_this.id+"regionSvg")[0];
-		_this.trackSvgLayout2 = new TrackSvgLayout(div,{
+		var divTop = $('#'+_this.id+"regionSvgTop")[0];
+		var divTrack = $('#'+_this.id+"regionSvgTrack")[0];
+		_this.trackSvgLayout2 = new TrackSvgLayout({top:divTop,track:divTrack},{
 			width:_this.width-18,
 			position:_this.position,
 			chromosome:_this.chromosome,
@@ -830,28 +832,50 @@ GenomeViewer.prototype._drawChromosomePanel = function() {
 
 GenomeViewer.prototype._drawRegionPanel = function() {
 	var _this=this;
+	var c1 = Ext.create('Ext.container.Container', {
+		height:25,
+		html:'<div id = "'+this.id+'regionSvgTop"></div>'
+	});
+	var c2 = Ext.create('Ext.container.Container', {
+		overflowY:'auto',//scrollbar
+		overflowX:'hidden',//scrollbar
+		flex: 1,//scrollbar
+		html:'<div id = "'+this.id+'regionSvgTrack" style="margin-top:0px"></div></div>'
+	});
 	var panel =  Ext.create('Ext.panel.Panel', {
 		id:this.id+"regionPanel",
 		height : 150,
 		title:'Region overview',
 		border:false,
-		autoScroll:true,
 		margin:'0 0 1 0',
+		layout: { type: 'vbox',align: 'stretch'},//scrollbar
 		cls:'border-bot panel-border-top x-unselectable',
-		html: '<div id="'+this.id+'regionSvg" style="margin-top:2px"></div>'
+		items:[c1,c2]
+		//html: '<div id="'+this.id+'regionSvg" '
 	});
 	return panel;
 };
 
 GenomeViewer.prototype._drawTracksPanel = function() {
 	var _this=this;
+	var c1 = Ext.create('Ext.container.Container', {
+		height:25,
+		html:'<div id = "'+this.id+'tracksSvgTop"></div>'
+	});
+	var c2 = Ext.create('Ext.container.Container', {
+		overflowY:'auto',//scrollbar
+		overflowX:'hidden',//scrollbar
+		flex: 1,//scrollbar
+		html:'<div id = "'+this.id+'tracksSvgTrack"></div>'
+	});
+	
 	var panel = Ext.create('Ext.panel.Panel', {
 		id:this.id+"tracksPanel",
 		title:'Detailed information',
-		autoScroll:true,
+		layout: { type: 'vbox',align: 'stretch'},//scrollbar
 		cls:"x-unselectable",
 		flex: 1,
-		html:'<div id = "'+this.id+'tracksSvg"></div>'
+		items:[c1,c2]
 	});
 	return panel;
 };
