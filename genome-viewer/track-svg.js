@@ -646,16 +646,22 @@ TrackSvg.prototype.BamRender = function(response){
 		
 		//if(feature.read !=  "SRR077487.3945695"){color="red";fea1234 = feature}
 /**/
-		//var seqTrack = _this.trackSvgLayout.getTrackSvgById("Sequence");
-		//if( seqTrack != null){
-			//var key  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(start);
-			//var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(key);
-			//if(r != null){
-				//var originalSeq = r.data[0].sequence.substring((start - r.data[0].start),((end+1) - r.data[0].start));
-				//if(feature.read == originalSeq)color=="blue";
-			//}
-		//}
-/**/		
+		var seqTrack = _this.trackSvgLayout.getTrackSvgById("Sequence");
+		if( seqTrack != null){
+			var startKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(start);
+			var endKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(end);
+			var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(startKey);
+			if(startKey == endKey && r != null){//only ones cached and inside the same chunk
+			//debugger
+				var originalSeq = r.data[0].sequence.substring((start - r.data[0].start),((end+1) - r.data[0].start));
+				if(feature.read == originalSeq){
+				}else{
+					color="lightsalmon";
+				}
+				//......................................MORE
+			}
+		}
+/**/
 		
 		//transform to pixel position
 		width = width * _this.pixelBase;
@@ -721,12 +727,6 @@ TrackSvg.prototype.BamRender = function(response){
 //				});
 ////				console.log(d)
 		
-				$([rect,t]).mouseenter(function(e) {
-					t.textContent = feature.read;
-				});
-				$([rect,t]).mouseleave(function(event) {
-					t.textContent = "";
-				});
 				
 //				var text = SVG.addChild(_this.features,"text",{
 //					"i":i,
@@ -738,6 +738,13 @@ TrackSvg.prototype.BamRender = function(response){
 //					"cursor": "pointer"
 //				});
 //				text.textContent = settings.getLabel(feature);
+
+				$([rect,t]).mouseenter(function(e) {
+					t.textContent = feature.read;
+				});
+				$([rect,t]).mouseleave(function(event) {
+					t.textContent = "";
+				});
 
 				$([rect,t]).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
@@ -1233,8 +1240,7 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 	
 	var feature, displayed, firstChunk, lastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
-		console.log(this.chunksDisplayed[chunks[i].key+dataType]!=true)
-		if(this.chunksDisplayed[chunks[i].key+dataType]!=true){//check if any chunk is already displayed and skip it
+		if(this.chunksDisplayed[chunks[i].key+dataType] != true){//check if any chunk is already displayed and skip it
 		
 			features = []; //initialize array, will contain features not drawn by other drawn chunks
 			for ( var j = 0, lenj = chunks[i][dataType].length; j < lenj; j++) {
