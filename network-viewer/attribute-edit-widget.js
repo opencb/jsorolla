@@ -3,7 +3,6 @@ function AttributeEditWidget(attributeManager) {
 	
 	var _this = this;
 	this.attrMan = attributeManager;
-	this.grid;
 
 	this.attrMan.store.on('datachanged', function(){
 		if(Ext.getCmp("editAttrWindow")){
@@ -158,12 +157,10 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        	xtype : 'textfield',
 		        	id : this.id + "attrDefault",
 		        	width : 100,
-		        	margin: "0 5 0 3",
-		        	allowBlank : false
+		        	margin: "0 5 0 3"
 		        },
 		        {
 		        	xtype: 'button',
-//		        	text: 'Add',
 		        	tooltip: "Add attribute",
 		        	iconCls: 'icon-add',
 		        	margin: "0 0 0 5",
@@ -180,7 +177,7 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        			// set default value for new attribute in existing rows
 		        			if(_this.attrMan.getNumberOfRows() > 0) {
 		        				_this.grid.getSelectionModel().selectAll();
-		        				_this.attrMan.modifyAttributeOfRows(_this.grid.getSelectionModel().getSelection(), _this.attrMan.attributes[_this.attrMan.attributes.length-1], defaultValue);
+		        				_this.attrMan.modifyAttributeOfRows(_this.grid.getSelectionModel().getSelection(), _this.attrMan.attributes[_this.attrMan.attributes.length-1].name, defaultValue);
 		        				_this.grid.getSelectionModel().deselectAll();
 		        			}
 
@@ -198,7 +195,6 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        },
 		        {
 		        	xtype : 'button',
-//		        	text: 'Save',
 		        	tooltip: "Save changes for this attribute",
 		        	iconCls : 'icon-save',
 		        	margin: "0 0 0 5",
@@ -226,31 +222,39 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        },
 		        {
 		        	xtype : 'button',
-//		        	text: 'Del.',
 		        	tooltip: "Remove this attribute",
 		        	iconCls : 'icon-delete',
 		        	margin: "0 10 0 5",
 		        	formBind: true, // only enabled if the form is valid
 		        	disabled: true,
 		        	handler: function() {
-		        		var name = Ext.getCmp(_this.id + "attrName").getValue();
-
-		        		if(_this.attrMan.removeAttribute(name)) {
-		        			_this.grid.reconfigure(null, _this.attrMan.columnsGrid);
-		        			attrNameStore.loadData(_this.getAttributeNames());
-
-		        			Ext.getCmp(_this.id + "attrName").reset();
-		        			Ext.getCmp(_this.id + "attrType").reset();
-		        			Ext.getCmp(_this.id + "attrDefault").reset();
-		        		}
-		        		else {
-		        			Ext.Msg.show({
-		        				title:"Error",
-		        				msg: "Imposible to delete this attribute.",
-		        				buttons: Ext.Msg.OK,
-		        				icon: Ext.Msg.ERROR
-		        			});
-		        		}
+		        		Ext.Msg.show({
+		        		     title:'Delete',
+		        		     msg: 'Confirm delete. Are you sure?',
+		        		     buttons: Ext.Msg.YESNO,
+		        		     icon: Ext.Msg.QUESTION,
+		        		     fn: function(resp){
+		        		    	 if(resp == "yes") {
+		        		    		 var name = Ext.getCmp(_this.id + "attrName").getValue();
+		        		    		 if(_this.attrMan.removeAttribute(name)) {
+		        		    			 _this.grid.reconfigure(null, _this.attrMan.columnsGrid);
+		        		    			 attrNameStore.loadData(_this.getAttributeNames());
+		        		    			 
+		        		    			 Ext.getCmp(_this.id + "attrName").reset();
+		        		    			 Ext.getCmp(_this.id + "attrType").reset();
+		        		    			 Ext.getCmp(_this.id + "attrDefault").reset();
+		        		    		 }
+		        		    		 else {
+		        		    			 Ext.Msg.show({
+		        		    				 title:"Error",
+		        		    				 msg: "Imposible to delete this attribute.",
+		        		    				 buttons: Ext.Msg.OK,
+		        		    				 icon: Ext.Msg.ERROR
+		        		    			 });
+		        		    		 }
+		        		    	 }
+		        		     }
+		        		});
 		        	}
 		        }
        ]
@@ -258,10 +262,10 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 	
 	this.grid = Ext.create('Ext.grid.Panel', {
 		store: this.attrMan.store,
-		columns: this.attrMan.columnsGrid, 
+		columns: this.attrMan.columnsGrid,
 		height: 400,
 		width: 400,
-		selModel: { 	
+		selModel: {
 			selType: 'rowmodel',
 			mode: 'MULTI'
 		},
@@ -282,7 +286,16 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		            	        		  if(!Ext.getCmp("exportWindow")) {
 		            	        			  var cbgItems = [];
 		            	        			  var attrList = _this.attrMan.getAttrNameList();
-		            	        			  for(var i = 0; i < attrList.length; i++) {
+		            	        			  
+		            	        			  cbgItems.push({
+	            	        					  boxLabel  : attrList[1],
+	            	        					  name      : 'attr',
+	            	        					  inputValue: attrList[1],
+	            	        					  checked   : true,
+	            	        					  disabled  : true
+	            	        				  });
+		            	        			  
+		            	        			  for(var i = 2; i < attrList.length; i++) {
 		            	        				  cbgItems.push({
 		            	        					  boxLabel  : attrList[i],
 		            	        					  name      : 'attr',
@@ -298,13 +311,13 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		            	        				  maxHeight: 250,
 		            	        				  width : 400,
 		            	        				  autoScroll: true,
-		            	        				  layout : "fit",
+		            	        				  layout : "vbox",
 		            	        				  modal : true,
 		            	        				  items : [
 		            	        				           {
 		            	        				        	   xtype: 'checkboxgroup',
 		            	        				        	   id: _this.id+"cbgAttributes",
-//		            	        				        	   layout: 'fit',
+		            	        				        	   layout: 'vbox',
 //		            	        				        	   width: 380,
 //		            	        				        	   height: 200,
 //		            	        				        	   maxHeight: 200,
@@ -315,18 +328,30 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		            	        				        	   items: cbgItems
 		            	        				           }
 		            	        				          ],
-		            	        			  	  buttons : [{
-		            	        		        	  text: 'Ok',
-		            	        		        	  handler: function() {
-		            	        		        		  var columns = Ext.getCmp(_this.id+"cbgAttributes").getChecked();
-		            	        		        		  var content = _this.attrMan.exportToTab(columns, true);
-		            	        		        		  
-		            	        		        		  //Download file
-		            	        		        		  document.location = 'data:Application/octet-stream,'+encodeURIComponent(content);
-		            	        		        		  
-		            	        		        		  Ext.getCmp("exportWindow").close();
-		            	        		        	  }
-		            	        		          }]
+            	        				          buttons : [
+            	        				                     {
+            	        				                    	 xtype: 'textfield',
+            	        				                    	 id: _this.id+"fileName",
+            	        				                    	 emptyText:"enter file name",
+            	        				                    	 flex:1
+            	        				                     },
+            	        				                     {
+            	        				                    	 text: 'Download',
+            	        				                    	 href: "none",
+            	        				                    	 handler: function() {
+            	        				                    		 var fileName = Ext.getCmp(_this.id+"fileName").getValue();
+            	        				                    		 if(fileName == "") {
+            	        				                    			 fileName =  "attributes";
+            	        				                    		 }
+            	        				                    		 var columns = Ext.getCmp(_this.id+"cbgAttributes").getChecked();
+            	        				                    		 var content = _this.attrMan.exportToTab(columns, true);
+            	        				                    		 this.getEl().child("em").child("a").set({
+            	        				                    			 href: 'data:text/csv,'+encodeURIComponent(content),
+            	        				                    			 download: fileName+".txt"
+            	        				                    		 });
+            	        				                    	 }
+            	        				                     }
+		            	        			  	            ]
 		            	        			  }).show();
 		            	        		  }
 		            	        	  }
@@ -460,7 +485,7 @@ AttributeEditWidget.prototype.addAttribute = function() {
 		        		  // set default value for new attribute in existing rows
 		        		  if(_this.attrMan.getNumberOfRows() > 0) {
 		        			  _this.grid.getSelectionModel().selectAll();
-		        			  _this.attrMan.modifyAttributeOfRows(_this.grid.getSelectionModel().getSelection(), _this.attrMan.attributes[_this.attrMan.attributes.length-1], defaultValue);
+		        			  _this.attrMan.modifyAttributeOfRows(_this.grid.getSelectionModel().getSelection(), _this.attrMan.attributes[_this.attrMan.attributes.length-1].name, defaultValue);
 		        			  _this.grid.getSelectionModel().deselectAll();
 		        		  }
 		        		  
@@ -489,8 +514,9 @@ AttributeEditWidget.prototype.addAttribute = function() {
 //-----------------------------------------------------------------------------//
 AttributeEditWidget.prototype.getAttributeNames = function() {
 	var names = [];
-	for ( var i = 0; i < this.attrMan.attributes.length; i++) {
-		var attr = this.attrMan.attributes[i];
+	var nameList = this.attrMan.getAttrNameList();
+	for ( var i = 0; i < nameList.length; i++) {
+		var attr = nameList[i];
 		if(attr != "Id" && attr != "Name"){
 			names.push({"name": attr});
 		}

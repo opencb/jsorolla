@@ -10,14 +10,9 @@ function AttributeManager(defaultAttrs) {
 		model : this.model
 	});
 
-	//atributos del grid
-	this.columnsGrid = []; 
+	this.columnsGrid = [];
 
-	//los atributos en un array de strings
 	this.attributes = [];
-
-	//valores de los campos del Model
-	this.fieldsModel = [];
 	
 	this.filters = {};
 
@@ -27,64 +22,45 @@ function AttributeManager(defaultAttrs) {
 	}
 };
 
-
-//-----------------------addAttribute---------------------------------------//
-//Descripcion:
-//Añade un nuevo atributo
-//Parametros:
-//attributesName: nombre del atributo
-//types: tipo del atributo
-//defaultValues: valores por defecto del atributo
-//--------------------------------------------------------------------------//
 AttributeManager.prototype.addAttribute = function(name, type, defaultValue) {
-	var error = false;
 	for ( var i = 0; i < this.attributes.length; i++) {
-		if(this.attributes[i] == name) error = true; 
+		if(this.attributes[i].name == name) return false; //if exists one with the same name
 	}
-	
-	if(!error) {
-		this.fieldsModel.push({
-			"name": name,
-			"type": type,
-			"defaultValue": defaultValue
-		});	
-		
-		this.attributes.push(name);	
-		
-		//pasamos los atributos al formato soportado por grid
-		this.columnsGrid.push({
-			"text": name,
-			"dataIndex": name,
-			"editor": {xtype: 'textfield', allowBlank: true}
-		});
-		
-		// set model fields
-		this.model.setFields(this.fieldsModel);
-		
-		return true;
-	}
-	else {
-		return false;
-	}
+
+	this.attributes.push({
+		"name": name,
+		"type": type,
+		"defaultValue": defaultValue
+	});
+
+	this.columnsGrid.push({
+		"text": name,
+		"dataIndex": name,
+		"editor": {xtype: 'textfield', allowBlank: true}
+	});
+
+	// set model fields
+	this.model.setFields(this.attributes);
+
+	return true;
 };
 
 AttributeManager.prototype.updateAttribute = function(oldName, newName, type, defaultValue) {
 	for(var i = 0; i < this.attributes.length; i++) {
-		if(oldName != newName && this.attributes[i] == newName) return false;
+		if(oldName != newName && this.attributes[i].name == newName) return false;
 	}
 	
 	for(var i = 0; i < this.attributes.length; i++) {
-		if(this.attributes[i] == oldName) {
+		if(this.attributes[i].name == oldName) {
 			if(oldName != newName) {
-				this.attributes[i] = newName;
 				this.columnsGrid[i].text = newName;
 				this.columnsGrid[i].dataIndex = newName;
-				this.fieldsModel[i].name = newName;
+				this.attributes[i].name = newName;
 			}
-			this.fieldsModel[i].type = type;
-			this.fieldsModel[i].defaultValue = defaultValue;
+			this.attributes[i].type = type;
+			this.attributes[i].defaultValue = defaultValue;
 			
-			this.model.setFields(this.fieldsModel);
+			this.model.setFields(this.attributes);
 			
 			return true;
 		}
@@ -94,12 +70,11 @@ AttributeManager.prototype.updateAttribute = function(oldName, newName, type, de
 
 AttributeManager.prototype.removeAttribute = function(attribute) {
 	for(var i = 0; i < this.attributes.length; i++) {
-		if(this.attributes[i]==attribute) {
-			this.attributes.splice(i,1);
+		if(this.attributes[i].name == attribute) {
 			this.columnsGrid.splice(i,1);
-			this.fieldsModel.splice(i,1);
+			this.attributes.splice(i,1);
 			
-			this.model.setFields(this.fieldsModel);
+			this.model.setFields(this.attributes);
 			
 			return true;
 		}
@@ -107,30 +82,15 @@ AttributeManager.prototype.removeAttribute = function(attribute) {
 	return false;
 };
 
-//-----------------------addRow-------------------------------------------//
-//Descripcion:
-//Añade datos al store
-//Parametros:
-//data: (array de array de strings) datos
-//------------------------------------------------------------------------//
-AttributeManager.prototype.addRow = function(data) {
-//	if(data.length == this.columnsGrid.length) {
-
-		//guardamos la informacion de data en un array de objetos
-		var arr2 = new Array();
-		var aux2 = new Object();
-
-		for (var i = 0; i <  this.columnsGrid.length; i++) {
-			aux2[this.attributes[i]] = data[i]; // para que la key sea el valor de una variable
-		}
-		arr2.push(aux2);
-
-		//añadimos los datos al store
-		this.store.loadData(arr2, true);
+AttributeManager.prototype.addRows = function(data, append) {
+//	console.log(data);
+//	var row = {};
+//	for (var i = 0; i < this.attributes.length; i++) {
+//		row[this.attributes[i].name] = data[i];
 //	}
-//	else{
-//		console.log("Error introduciendo los datos");
-//	}
+//	this.store.loadData([row], true);
+	
+	this.store.loadData(data, append);
 };
 
 
@@ -143,11 +103,11 @@ AttributeManager.prototype.addRow = function(data) {
 //attributeModify: (string) atributo que se desea modificar
 //value: (string) valor nuevo de ese atributo
 //-------------------------------------------------------------------------------//
-AttributeManager.prototype.modifyAttributeOfRows = function(selectRows, attributeModify, value) {
+AttributeManager.prototype.modifyAttributeOfRows = function(selectRows, attribute, value) {
 	for ( var i = 0; i < selectRows.length; i++) {
-		selectRows[i].data[attributeModify] = value;
+		selectRows[i].data[attribute] = value;
 	}
-
+	
 	this.store.loadData(selectRows, true);
 };
 
@@ -186,34 +146,6 @@ AttributeManager.prototype.removeRows = function(attribute, value) {
 
 		console.log(i);
 	}
-};
-
-
-//-----------------------clearRow-----------------------------------------------//
-//Descripcion:
-//Borra todos los datos
-//Parametros: (ninguno)
-//------------------------------------------------------------------------------//
-AttributeManager.prototype.clearRow = function(){
-	this.store.removeAll();
-};
-
-
-//-----------------------clearAttributes----------------------------------------//
-//Descripcion:
-//Borra todos los atributos y los datos
-//Parametros: (ninguno)
-//------------------------------------------------------------------------------//
-AttributeManager.prototype.clearAttributes = function(){
-	this.model.setFields([]);
-	this.grid.reconfigure(null, []); 
-
-	//como hemos borrado los atributos, borramos los datos
-	this.store.removeAll();
-
-	//borramos la informacion de las variables de la clase
-	this.attributes = [];
-	this.columnsGrid = [];
 };
 
 
@@ -340,46 +272,59 @@ AttributeManager.prototype.clearFilters = function() {
 };
 
 
-//----------------------------------fromJSON-----------------------------------//
-//Descripcion:
-//Coge los datos de un fichero en formato JASON para añadirlos
-//Parametros: 
-//data: (string) datos
-//-----------------------------------------------------------------------------//
-AttributeManager.prototype.fromJSON = function(data) {
-	this.store.loadData(JSON.parse(data), false); 
-	console.log(this.store);
-	//hay que pasarle los datos de los fields al model i al grid 
-	//this.model.setFields(arr_1);  	
-	//this.grid.reconfigure(null, this.columnsGrid); 
+AttributeManager.prototype.loadJSON = function(json) {
+	this.attributes = [];
+	this.columnsGrid = [];
+	console.log(json);
+	this.filters = json.filters;
+	
+	// add attributes
+	for ( var i = 0; i < json.attributes.length; i++) {
+		this.addAttribute(json.attributes[i].name, json.attributes[i].type, json.attributes[i].defaultValue);
+	}
+	
+	// add rows
+	this.addRows(json.data, false);
 };
 
-
-//----------------------------------toJSON-------------------------------------//
-//Descripcion:
-//Coge los datos y los transforma en un string para poder almacenarlos 
-//en un fichero de formato JSON
-//Parametros: (ninguno)
-//-----------------------------------------------------------------------------//
 AttributeManager.prototype.toJSON = function() {
-	var end = this.store.getRange().length;
-	var aux = this.store.getRange();
-	var row = new Array ();
-
-	for(var i=0; i<end ; i++){
-		row[i] = aux[i].data;
+	var json = {};
+	json.attributes = this.attributes;
+	json.filters = this.filters;
+	json.data = [];
+	
+	// add row values to data matrix
+	var rows = this.store.getRange();
+	for(var j = 0; j < rows.length; j++) {
+		json.data.push([]);
+		for(var i = 0; i < this.attributes.length; i++) {
+			json.data[j].push(rows[j].getData()[this.attributes[i].name]);
+		}
 	}
-	row = JSON.stringify(row);
-
-	console.log(row);
+	
+	return json;
 };
 
 AttributeManager.prototype.setName = function(nodeId, newName) {
-	this.store.getAt(this.store.find("Id",  nodeId)).set("Name", newName);
+	var register = this.store.getAt(this.store.find("Id",  nodeId)); 
+	register.set("Name", newName);
+	register.commit();
+};
+
+AttributeManager.prototype.setAttributeByName = function(name, attribute, value) {
+	var register = this.store.getAt(this.store.find("Name",  name));
+	if(register) { // if exists a row with this name
+		register.set(attribute, value);
+		register.commit();
+	}
 };
 
 AttributeManager.prototype.getAttrNameList = function() {
-	return this.attributes;
+	var nameList = [];
+	for(var i = 0; i < this.attributes.length; i++) {
+		nameList.push(this.attributes[i].name);
+	}
+	return nameList;
 };
 
 AttributeManager.prototype.exportToTab = function(columns, clearFilter) {
@@ -387,18 +332,31 @@ AttributeManager.prototype.exportToTab = function(columns, clearFilter) {
 		this.store.clearFilter(false);
 	}
 	
-	var output = "#";
 	var colNames = [];
+	var headerLine = "", typeLine = "", defValLine = "";
 	for(var i = 0; i < columns.length; i++) {
-		output += columns[i].inputValue + "\t";
+		headerLine += columns[i].inputValue + "\t";
 		colNames.push(columns[i].inputValue);
 	}
-	output += "\n";
+	
+	for(var i = 0; i < colNames.length; i++) {
+		for(var j = 0; j < this.attributes.length; j++) {
+			if(colNames[i] == this.attributes[j].name){
+				typeLine += this.attributes[j].type + "\t";
+				defValLine += this.attributes[j].defaultValue + "\t";
+				break;
+			}
+		}
+	}
+	
+	var output = "";
+	output += "#"+typeLine+"\n";
+	output += "#"+defValLine+"\n";
+	output += "#"+headerLine+"\n";
 	
 	var lines = this.store.getRange();
 	for(var j = 0; j < lines.length; j++) {
 		for(var i = 0; i < colNames.length; i++) {
-//			console.log(lines[j].getData()[field]);
 			output += lines[j].getData()[colNames[i]] + "\t";
 		}
 		output += "\n";
