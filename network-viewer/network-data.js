@@ -27,13 +27,14 @@ function NetworkData (args) {
 	this.nodeId = 0;
 	this.edgeId = 0;
 	
-	
 	this.metaInfo = {};
 	this.metaInfo.numNodes = 0;
 	this.metaInfo.numEdges= 0;
 	
 	var defaults = [["Id", "number", "null"],["Name", "string", "none"]];
 	this.attributes = new AttributeManager(defaults);
+	
+	this.nodeNames = {};
 	
 	if(args != null) {
 		if(args.type != null) {
@@ -46,26 +47,32 @@ function NetworkData (args) {
 };
 
 NetworkData.prototype.addNode = function(args) {
-	this.metaInfo.numNodes++;
-	this.nodes[this.nodeId] = {};
-	this.nodes[this.nodeId].name = args.name;
-	this.nodes[this.nodeId].type = args.type;
-	this.nodes[this.nodeId].subgraph = args.subgraph;
-	if(this.subgraphs[args.subgraph] == null) {
-		this.subgraphs[args.subgraph] = [];
-		this.subgraphs[args.subgraph].push(this.nodeId);
+	if(this.nodeNames[args.name]) {
+		return -1;
 	}
 	else {
-		this.subgraphs[args.subgraph].push(this.nodeId);
+		this.nodeNames[args.name] = true;
+		this.metaInfo.numNodes++;
+		this.nodes[this.nodeId] = {};
+		this.nodes[this.nodeId].name = args.name;
+		this.nodes[this.nodeId].type = args.type;
+		this.nodes[this.nodeId].subgraph = args.subgraph;
+		if(this.subgraphs[args.subgraph] == null) {
+			this.subgraphs[args.subgraph] = [];
+			this.subgraphs[args.subgraph].push(this.nodeId);
+		}
+		else {
+			this.subgraphs[args.subgraph].push(this.nodeId);
+		}
+		this.nodes[this.nodeId].metainfo = args.metainfo;
+		this.nodes[this.nodeId].edges = [];
+		
+		this.attributes.addRows([[this.nodeId, args.name]], true);
+		
+		this.nodeId++;
+		
+		return this.nodeId-1;
 	}
-	this.nodes[this.nodeId].metainfo = args.metainfo;
-	this.nodes[this.nodeId].edges = [];
-	
-	this.attributes.addRow([[this.nodeId], [args.name]]);
-
-	this.nodeId++;
-	
-	return this.nodeId-1;
 };
 
 NetworkData.prototype.removeNode = function(nodeId) {
@@ -118,10 +125,9 @@ NetworkData.prototype.loadJSON = function(jsonStr){
 	this.nodeId = 0;
 	this.edgeId = 0;
 	this.metaInfo.numNodes = 0;
-	this.metaInfo.numEdges= 0;
+	this.metaInfo.numEdges = 0;
 	
 	this.type = json.type;
-	this.attributes = json.attributes;
 	
 	// loop over nodes
 	for (var node in json.nodes){
@@ -145,6 +151,9 @@ NetworkData.prototype.loadJSON = function(jsonStr){
 			"markerLabel":json.edges[edge].metainfo.markerLabel
 		});
 	}
+	
+	// load attributes
+	if(json.attributes) this.attributes.loadJSON(json.attributes);
 };
 
 NetworkData.prototype.toJSON = function() {
@@ -153,7 +162,7 @@ NetworkData.prototype.toJSON = function() {
 	json.nodes = this.nodes;
 	json.edges = this.edges;
 	json.metaInfo = this.metaInfo;
-	json.attributes = this.attributes;
+	json.attributes = this.attributes.toJSON();
 	return json;
 };
 
@@ -221,4 +230,51 @@ NetworkData.prototype.getNodesList = function() {
 
 NetworkData.prototype.getAttributes = function() {
 	return this.attributes;
+};
+
+NetworkData.prototype.updateFromSvg = function(data) {
+	for(var nodeId in this.nodes) {
+		this.nodes[nodeId].name = data.nodes[nodeId].name;
+		this.nodes[nodeId].metainfo = data.nodes[nodeId].metainfo;
+	}
+	
+	for(var edgeId in this.edges) {
+		this.edges[edgeId].type = data.edges[edgeId].type;
+		this.edges[edgeId].metainfo.x1 = data.edges[edgeId].x1;
+		this.edges[edgeId].metainfo.y1 = data.edges[edgeId].y1;
+		this.edges[edgeId].metainfo.x2 = data.edges[edgeId].x2;
+		this.edges[edgeId].metainfo.y2 = data.edges[edgeId].y2;
+	}
+};
+
+NetworkData.prototype.resize = function(width, height) {
+	// adjust node coordenates to the received width and height
+	width -= 40;
+	height -= 40;
+	
+	// calculate max x and y
+	var maxX = width, maxY = height, x, y;
+	for(var nodeId in this.nodes) {
+		x = parseInt(this.nodes[nodeId].metainfo.x);
+		if(x > maxX) maxX = x;
+		
+		y = parseInt(this.nodes[nodeId].metainfo.y);
+		if(y > maxY) maxY = y;
+	}
+	
+//	if(maxX > width || maxY > height) {
+//		for(var nodeId in this.nodes) {
+//			this.nodes[nodeId].metainfo.x = parseInt(width * this.nodes[nodeId].metainfo.x / maxX);
+//			this.nodes[nodeId].metainfo.y = parseInt(height * this.nodes[nodeId].metainfo.y / maxY);
+//		}
+//	}
+	
+	for(var nodeId in this.nodes) {
+		if(maxX > width) {
+			this.nodes[nodeId].metainfo.x = parseInt(width * this.nodes[nodeId].metainfo.x / maxX);
+		}
+		if(maxY > height) {
+			this.nodes[nodeId].metainfo.y = parseInt(height * this.nodes[nodeId].metainfo.y / maxY);
+		}
+	}
 };

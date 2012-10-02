@@ -24,7 +24,6 @@ function AttributeFilterWidget(attributeManager) {
 	
 	var _this = this;
 	this.attrMan = attributeManager;
-	this.grid;
 
 	this.attrMan.store.on('datachanged', function(){
 		if(Ext.getCmp("filterAttrWindow")){
@@ -170,11 +169,22 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		        			Ext.getCmp(_this.id+"rmFilterMenu").menu.add({
 		        				text: filterName,
 		        				handler: function() {
-		        					_this.attrMan.removeFilter(this.text);
-		        					Ext.getCmp(_this.id+"rmFilterMenu").menu.remove(this);
-		        					Ext.getCmp(_this.id+"filterMenu").menu.remove(this.text);
-		        					Ext.getCmp("filtersAttrMainMenu").remove(Ext.getCmp(this.text+"_main"));
-		        					_this.deselectNodesOnGraph();
+		        					var item = this;
+		        					Ext.Msg.show({
+	        							title:'Delete',
+	        							msg: 'Confirm delete. Are you sure?',
+	        							buttons: Ext.Msg.YESNO,
+	        							icon: Ext.Msg.QUESTION,
+	        							fn: function(resp){
+	        								if(resp == "yes") {
+	        									_this.attrMan.removeFilter(item.text);
+	        									Ext.getCmp(_this.id+"rmFilterMenu").menu.remove(item);
+	        									Ext.getCmp(_this.id+"filterMenu").menu.remove(item.text);
+	        									Ext.getCmp("filtersAttrMainMenu").remove(Ext.getCmp(item.text+"_main"));
+	        									_this.deselectNodesOnGraph();
+	        								}
+	        							}
+	        						});
 		        				}
 		        			});
 		        			
@@ -229,16 +239,17 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		            	        	  handler: function() {
 		            	        		  if(!Ext.getCmp("exportWindow")) {
 		            	        			  var cbgItems = [];
-//		            	        			  cbgItems.push({
-//		            	        				  boxLabel  : 'Select all / Deselect all',
-//		            	        				  name      : 'selectAll',
-//		            	        				  checked   : true,
-//		            	        				  handler	: function() {
-//		            	        					  
-//		            	        				  }
-//		            	        			  });
 		            	        			  var attrList = _this.attrMan.getAttrNameList();
-		            	        			  for(var i = 0; i < attrList.length; i++) {
+
+		            	        			  cbgItems.push({
+	            	        					  boxLabel  : attrList[1],
+	            	        					  name      : 'attr',
+	            	        					  inputValue: attrList[1],
+	            	        					  checked   : true,
+	            	        					  disabled  : true
+	            	        				  });
+		            	        			  
+		            	        			  for(var i = 2; i < attrList.length; i++) {
 		            	        				  cbgItems.push({
 		            	        					  boxLabel  : attrList[i],
 		            	        					  name      : 'attr',
@@ -246,7 +257,8 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		            	        					  checked   : true
 		            	        				  });
 		            	        			  }
-
+		            	        			  
+		            	        			  
 		            	        			  Ext.create('Ext.window.Window', {
 		            	        				  id : "exportWindow",
 		            	        				  title : "Export attributes",
@@ -254,35 +266,50 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		            	        				  maxHeight: 250,
 		            	        				  width : 400,
 		            	        				  autoScroll: true,
-		            	        				  layout : "fit",
+		            	        				  layout : "vbox",
 		            	        				  modal : true,
 		            	        				  items : [
 		            	        				           {
 		            	        				        	   xtype: 'checkboxgroup',
 		            	        				        	   id: _this.id+"cbgAttributes",
-//		            	        				        	   layout: 'fit',
+		            	        				        	   layout: 'vbox',
 //		            	        				        	   width: 380,
 //		            	        				        	   height: 200,
 //		            	        				        	   maxHeight: 200,
 //		            	        				        	   autoScroll: true,
 //		            	        				        	   defaultType: 'checkboxfield',
-//		            	        				        	   columns: 2,
+//		            	        				        	   columns: 1,
 //		            	        				        	   vertical: true,
 		            	        				        	   items: cbgItems
 		            	        				           }
 		            	        				          ],
-		            	        			  	  buttons : [{
-		            	        		        	  text: 'Ok',
-		            	        		        	  handler: function() {
-		            	        		        		  var columns = Ext.getCmp(_this.id+"cbgAttributes").getChecked();
-		            	        		        		  var content = _this.attrMan.exportToTab(columns, false);
-		            	        		        		  
-		            	        		        		  //Download file
-		            	        		        		  document.location = 'data:Application/octet-stream,'+encodeURIComponent(content);
-		            	        		        		  
-		            	        		        		  Ext.getCmp("exportWindow").close();
-		            	        		        	  }
-		            	        		          }]
+		            	        			  	  buttons : [
+		            	        			  	             {
+		            	        			  	            	 xtype: 'textfield',
+		            	        			  	            	 id: _this.id+"fileName",
+		            	        			  	            	 emptyText:"enter file name",
+		            	        			  	            	 flex:1
+		            	        			  	             },
+		            	        			  	             {
+		            	        			  	            	 text: 'Download',
+		            	        			  	            	 href: "none",
+		            	        			  	            	 handler: function() {
+		            	        			  	            		 //Download file
+//		            	        			  	            		 document.location = 'data:Application/octet-stream,'+encodeURIComponent(content);
+		            	        			  	            		 var fileName = Ext.getCmp(_this.id+"fileName").getValue();
+		            	        			  	            		 if(fileName == "") {
+		            	        			  	            			 fileName =  "attributes";
+		            	        			  	            		 }
+		            	        			  	            		 var columns = Ext.getCmp(_this.id+"cbgAttributes").getChecked();
+		            	        			  	            		 var content = _this.attrMan.exportToTab(columns, false);
+		            	        			  	            		 this.getEl().child("em").child("a").set({
+		            	        			  	            			 href: 'data:text/csv,'+encodeURIComponent(content),
+		            	        			  	            			 download: fileName+".txt"
+		            	        			  	            		 });
+//		            	        			  	            		 Ext.getCmp("exportWindow").close();
+		            	        			  	            	 }
+		            	        			  	             }
+		            	        			  	            ]
 		            	        			  }).show();
 		            	        		  }
 		            	        	  }
@@ -420,17 +447,11 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 	this.updateNumRowsLabel();
 };
 
-
-//---------------------------getAttributeNames---------------------------------//
-//Descripcion:
-//	Coge los nombres de los atributos y los pasa en el formato
-//	adecuado para poder pasarselo al combobox del search
-//Parametros: (ninguno)
-//-----------------------------------------------------------------------------//
 AttributeFilterWidget.prototype.getAttributeNames = function() {
 	var names = [];
-	for ( var i = 0; i < this.attrMan.attributes.length; i++) {
-		var attr = this.attrMan.attributes[i];
+	var nameList = this.attrMan.getAttrNameList();
+	for ( var i = 0; i < nameList.length; i++) {
+		var attr = nameList[i];
 		if(attr != "Id"){
 			names.push({"name": attr});
 		}

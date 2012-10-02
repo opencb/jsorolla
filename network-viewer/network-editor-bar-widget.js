@@ -28,105 +28,108 @@ NetworkEditorBarWidget.prototype.setNetworkSvg = function(networkSvg) {
 	this.networkSvg = networkSvg;
 
 	this.setNodeButtons({
-				"shape" : this.networkSvg.nodeShape,
-				"size" : this.networkSvg.nodeSize,
-				"color" : this.networkSvg.nodeColor,
-				"strokeWidth" : this.networkSvg.nodeStrokeSize,
-				"strokeColor" : this.networkSvg.nodeStrokeColor,
-				"opacity" : this.networkSvg.nodeOpacity,
-				"label" : this.networkSvg.edgeLabel
-			});
+		"shape" : this.networkSvg.nodeShape,
+		"size" : this.networkSvg.nodeSize,
+		"color" : this.networkSvg.nodeColor,
+		"strokeWidth" : this.networkSvg.nodeStrokeSize,
+		"strokeColor" : this.networkSvg.nodeStrokeColor,
+		"opacity" : this.networkSvg.nodeOpacity,
+		"label" : this.networkSvg.edgeLabel
+	});
 
 	this.setEdgeButtons({
-				"type" : this.networkSvg.edgeType,
-				"label" : this.networkSvg.edgeLabel
-			});
+		"type" : this.networkSvg.edgeType,
+		"label" : this.networkSvg.edgeLabel
+	});
 
 	this.networkSvg.onNodeClick.addEventListener(function(sender, args) {
-				if (_this.networkSvg.countSelectedNodes == 1) {
-					_this.showNodeButtons();
-					_this.hideEdgeButtons();
-					_this.setNodeButtons(args);
-				} else {
-					_this.showNodeButtons();
-					_this.unsetNodeButtons();
-				}
-			});
+		if (_this.networkSvg.countSelectedNodes == 1) {
+			_this.showNodeButtons();
+			_this.hideEdgeButtons();
+			_this.setNodeButtons(args);
+		} else {
+			_this.showNodeButtons();
+			_this.unsetNodeButtons();
+		}
+	});
 
 	this.networkSvg.onEdgeClick.addEventListener(function(sender, args) {
-				if (_this.networkSvg.countSelectedEdges == 1) {
-					_this.showEdgeButtons();
-					_this.hideNodeButtons();
-					_this.setEdgeButtons(args);
-				} else {
-					_this.showEdgeButtons();
-					_this.unsetEdgeButtons();
-				}
-			});
+		if (_this.networkSvg.countSelectedEdges == 1) {
+			_this.showEdgeButtons();
+			_this.hideNodeButtons();
+			_this.setEdgeButtons(args);
+		} else {
+			_this.showEdgeButtons();
+			_this.unsetEdgeButtons();
+		}
+	});
 
 	this.networkSvg.onCanvasClick.addEventListener(function(sender, args) {
-				if (_this.networkSvg.countSelectedNodes == 1) {
-					_this.showNodeButtons();
-					_this.hideEdgeButtons();
-					_this.setNodeButtons(args);
-				} else if (_this.networkSvg.countSelectedNodes > 1) {
-					_this.showNodeButtons();
-					_this.unsetNodeButtons();
-				} else {
-					_this.hideNodeButtons();
-					_this.hideEdgeButtons();
-				}
-				
-//				Ext.getCmp("selectBtn").
-			});
+		if (_this.networkSvg.countSelectedNodes == 1) {
+			_this.showNodeButtons();
+			_this.hideEdgeButtons();
+			_this.setNodeButtons(args);
+		} else if (_this.networkSvg.countSelectedNodes > 1) {
+			_this.showNodeButtons();
+			_this.unsetNodeButtons();
+		} else {
+			_this.hideNodeButtons();
+			_this.hideEdgeButtons();
+		}
+	});
+	
+	this.networkSvg.onNodeAdded.addEventListener(function(sender, data) {
+		_this.textBoxName.setValue(data);
+	});
 };
 
 NetworkEditorBarWidget.prototype.setNodeButtons = function(args) {
-	var shapes = {
-		"circle" : 0,
-		"square" : 1,
-		"ellipse" : 2,
-		"rectangle" : 3
-	};
-	this.comboBoxNode.menu.items.items[shapes[args.shape]].setChecked(true);
-
-	var sizes = {
-		"1" : 0,
-		"2" : 1,
-		"3" : 2,
-		"4" : 3,
-		"5" : 4,
-		"6" : 5,
-		"7" : 6,
-		"8" : 7,
-		"10" : 8,
-		"12" : 9,
-		"14" : 10,
-		"16" : 11,
-		"18" : 12,
-		"22" : 13,
-		"28" : 14,
-		"36" : 15,
-		"72" : 16
-	};
-	this.comboSize.menu.items.items[sizes[args.size]].setChecked(true);
-	this.comboStrokeWidth.menu.items.items[sizes[args.strokeWidth]]
-			.setChecked(true);
-
-	this.innerColorPicker.select(args.color, true);
-	this.strokeColorPicker.select(args.strokeColor, true);
-
-	var opacities = {
-		"1" : 0,
-		"0.8" : 1,
-		"0.5" : 2,
-		"0.2" : 3,
-		"0" : 4
-	};
-	this.comboBoxOpacity.menu.items.items[opacities[args.opacity]]
-			.setChecked(true);
-
-	this.textBoxName.setValue(args.label);
+	if(args.size) {
+		var shapes = {
+				"circle" : 0,
+				"square" : 1,
+				"ellipse" : 2,
+				"rectangle" : 3
+		};
+		this.comboBoxNode.menu.items.items[shapes[args.shape]].setChecked(true);// || null;
+		
+		var sizes = {
+				"1" : 0,
+				"2" : 1,
+				"3" : 2,
+				"4" : 3,
+				"5" : 4,
+				"6" : 5,
+				"7" : 6,
+				"8" : 7,
+				"10" : 8,
+				"12" : 9,
+				"14" : 10,
+				"16" : 11,
+				"18" : 12,
+				"22" : 13,
+				"28" : 14,
+				"36" : 15,
+				"72" : 16
+		};
+		this.comboSize.menu.items.items[sizes[args.size]].setChecked(true);
+		this.comboStrokeWidth.menu.items.items[sizes[args.strokeWidth]].setChecked(true);
+		
+		this.innerColorPicker.select(args.color, true);
+		this.strokeColorPicker.select(args.strokeColor, true);
+		
+		var opacities = {
+				"1" : 0,
+				"0.8" : 1,
+				"0.5" : 2,
+				"0.2" : 3,
+				"0" : 4
+		};
+		this.comboBoxOpacity.menu.items.items[opacities[args.opacity]].setChecked(true);
+		
+		this.textBoxName.setValue(args.name);
+		if(args.label != "") this.textBoxLabel.setValue(args.label);
+	}
 };
 
 NetworkEditorBarWidget.prototype.unsetNodeButtons = function() {
@@ -151,10 +154,12 @@ NetworkEditorBarWidget.prototype.unsetNodeButtons = function() {
 	}
 
 	this.textBoxName.setValue("");
+	this.textBoxLabel.setValue("");
 };
 
 NetworkEditorBarWidget.prototype.showNodeButtons = function() {
 	this.textBoxName.enable();
+	this.textBoxLabel.enable();
 	this.strokeColorPickerButton.enable();
 	this.colorPickerButton.enable();
 	this.comboBoxOpacity.enable();
@@ -192,6 +197,7 @@ NetworkEditorBarWidget.prototype.showEdgeButtons = function() {
 
 NetworkEditorBarWidget.prototype.hideNodeButtons = function() {
 	this.textBoxName.disable();
+	this.textBoxLabel.disable();
 	this.strokeColorPickerButton.disable();
 	this.colorPickerButton.disable();
 	this.comboBoxOpacity.disable();
@@ -212,6 +218,7 @@ NetworkEditorBarWidget.prototype.onSelect = function() {
 	if ((nodesSelectedCount > 0)) {
 		// this.comboBoxEdge.setV([{name:"directed"},{name:"odirected"},{name:"undirected"},{name:"inhibited"},{name:"dot"},{name:"odot"}]);
 		this.textBoxName.enable(true);
+		this.textBoxLabel.enable(true);
 		if (edgesSelectedCount > 0) {
 			this.strokeColorPickerButton.disable(false);
 			// this.comboEdgeType.disable(false);
@@ -221,6 +228,7 @@ NetworkEditorBarWidget.prototype.onSelect = function() {
 	/** Solo un nodo seleccionado * */
 	if ((nodesSelectedCount == 1) && (edgesSelectedCount == 0)) {
 		this.textBoxName.enable(true);
+		this.textBoxLabel.enable(true);
 		this.strokeColorPickerButton.enable(true);
 		this.colorPickerButton.enable(true);
 		this.comboBoxNode.enable(true);
@@ -311,7 +319,6 @@ NetworkEditorBarWidget.prototype.changeStrokeWidth = function(value) {
 };
 
 NetworkEditorBarWidget.prototype.changeColor = function(color) {
-
 	for (var i = 0; i < this.networkWidget.getSelectedVertices().length; i++) {
 		this.networkWidget.setVertexFill(this.networkWidget
 						.getSelectedVertices()[i], color);
@@ -334,120 +341,133 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 	var _this = this;
 
 	this.textBoxName = Ext.create('Ext.form.field.Text', {
-				emptyText : 'Node name',
-				width : 100,
-				enableKeyEvents : true,
-				disabled : true,
-				listeners : {
-					scope : this,
-					keyup : function() {
-						// this.changeName(this.textBoxName.getValue());
-						_this.networkSvg.setNodeLabel(this.textBoxName
-								.getValue());
-					}
-				}
-			});
+		emptyText : 'Name (node0)',
+//		value : 'node0',
+		width : 100,
+		enableKeyEvents : true,
+		disabled : true,
+		listeners : {
+			scope : this,
+			keyup : function() {
+				_this.networkSvg.setNodeName(this.textBoxName.getValue());
+			}
+		}
+	});
+	
+	this.textBoxLabel = Ext.create('Ext.form.field.Text', {
+		emptyText : 'Node label',
+		width : 100,
+		enableKeyEvents : true,
+		disabled : true,
+		listeners : {
+			scope : this,
+			keyup : function() {
+				_this.networkSvg.setNodeLabel(this.textBoxLabel.getValue());
+			}
+		}
+	});
 
 	this.textBoxEdgeName = Ext.create('Ext.form.field.Text', {
-				emptyText : 'Edge name',
-				width : 100,
-				enableKeyEvents : true,
-				disabled : true,
-				listeners : {
-					scope : this,
-					keyup : function() {
-						_this.networkSvg.setEdgeLabel(this.textBoxEdgeName
-								.getValue());
-					}
-				}
-			});
+		emptyText : 'Edge name',
+		width : 100,
+		enableKeyEvents : true,
+		disabled : true,
+		listeners : {
+			scope : this,
+			keyup : function() {
+				_this.networkSvg.setEdgeLabel(this.textBoxEdgeName.getValue());
+			}
+		}
+	});
 
 	this.innerColorPicker = Ext.create('Ext.picker.Color', {
-				value : '993300',
-				listeners : {
-					select : function(picker, selColor) {
-						_this.networkSvg.setNodeColor("#" + selColor);
-						// _this.changeColor("#" + selColor);
-					}
-				}
-			});
+		value : '993300',
+		listeners : {
+			select : function(picker, selColor) {
+				_this.networkSvg.setNodeColor("#" + selColor);
+				// _this.changeColor("#" + selColor);
+			}
+		}
+	});
 
 	this.colorPickerButton = Ext.create('Ext.button.Button', {
-				iconCls : 'icon-fill-color',
-				tooltip : "Color",
-				disabled : true,
-				menu : new Ext.menu.Menu({
-							items : this.innerColorPicker
-						})
-			});
+		iconCls : 'icon-fill-color',
+		tooltip : "Color",
+		disabled : true,
+		menu : new Ext.menu.Menu({
+			items : this.innerColorPicker
+		})
+	});
 
 	this.strokeColorPicker = Ext.create('Ext.picker.Color', {
-				value : '993300', // initial selected color
-				listeners : {
-					scope : this,
-					select : function(picker, selColor) {
-						_this.networkSvg.setNodeStrokeColor("#" + selColor);
-						// this.changeStroke("#" + selColor);
-					}
-				}
-			});
+		value : '993300', // initial selected color
+		listeners : {
+			scope : this,
+			select : function(picker, selColor) {
+				_this.networkSvg.setNodeStrokeColor("#" + selColor);
+				// this.changeStroke("#" + selColor);
+			}
+		}
+	});
+	
 	this.strokeColorPickerButton = Ext.create('Ext.button.Button', {
-				iconCls : 'icon-stroke-color',
-				tooltip : "Stroke color",
-				disabled : true,
-				menu : new Ext.menu.Menu({
-							items : this.strokeColorPicker
-						})
-			});
+		iconCls : 'icon-stroke-color',
+		tooltip : "Stroke color",
+		disabled : true,
+		menu : new Ext.menu.Menu({
+			items : this.strokeColorPicker
+		})
+	});
 
 	this.comboSizeId = "Size";
 	var buttons = this._createButtons({
-				group : this.comboSizeId,
-				data : [{
-							text : "1"
-						}, {
-							text : "2"
-						}, {
-							text : "3"
-						}, {
-							text : "4"
-						}, {
-							text : "5"
-						}, {
-							text : "6"
-						}, {
-							text : "7"
-						}, {
-							text : "8"
-						}, {
-							text : "10"
-						}, {
-							text : "12"
-						}, {
-							text : "14"
-						}, {
-							text : "16"
-						}, {
-							text : "18"
-						}, {
-							text : "22"
-						}, {
-							text : "28"
-						}, {
-							text : "36"
-						}, {
-							text : "72"
-						}]
-			});
+		group : this.comboSizeId,
+		data : [{
+			text : "1"
+		}, {
+			text : "2"
+		}, {
+			text : "3"
+		}, {
+			text : "4"
+		}, {
+			text : "5"
+		}, {
+			text : "6"
+		}, {
+			text : "7"
+		}, {
+			text : "8"
+		}, {
+			text : "10"
+		}, {
+			text : "12"
+		}, {
+			text : "14"
+		}, {
+			text : "16"
+		}, {
+			text : "18"
+		}, {
+			text : "22"
+		}, {
+			text : "28"
+		}, {
+			text : "36"
+		}, {
+			text : "72"
+		}]
+	});
+	
 	this.comboSize = Ext.create('Ext.button.Button', {
-				iconCls : 'icon-node-size',
-				tooltip : this.comboSizeId,
-				disabled : true,
-				menu : {
-					items : buttons,
-					plain : true
-				}
-			});
+		iconCls : 'icon-node-size',
+		tooltip : this.comboSizeId,
+		disabled : true,
+		menu : {
+			items : buttons,
+			plain : true
+		}
+	});
 
 	this.comboStrokeWidthId = "Stroke size";
 	var buttons = this._createButtons({
@@ -564,24 +584,23 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 						}]
 			});
 	this.comboBoxNode = Ext.create('Ext.button.Button', {
-				iconCls : 'icon-node-shape',
-				tooltip : this.comboBoxNodeId,
-				disabled : true,
-				menu : {
-					items : buttons,
-					plain : true
-				}
-			});
+		iconCls : 'icon-node-shape',
+		tooltip : this.comboBoxNodeId,
+		disabled : true,
+		menu : {
+			items : buttons,
+			plain : true
+		}
+	});
 
 	this.backgroundButton = Ext.create('Ext.button.Button', {
-				iconCls : 'icon-background-option',
-				tooltip : "Background settings...",
-				handler : function() {
-					_this.networkSvg.networkBackgroundSettings
-							.draw(_this.networkSvg);
-				}
-			});
-
+		iconCls : 'icon-background-option',
+		tooltip : "Background settings...",
+		handler : function() {
+			_this.networkSvg.networkBackgroundSettings.draw(_this.networkSvg);
+		}
+	});
+	
 	this.labelSizeButtonId = "Label size";
 	var buttons = this._createButtons({
 				group : this.labelSizeButtonId,
@@ -740,8 +759,8 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 						"-", this.comboBoxNode, this.comboSize,
 						this.colorPickerButton, this.comboStrokeWidth,
 						this.strokeColorPickerButton, this.comboBoxOpacity,
-						this.textBoxName, this.comboBoxEdge,
-						this.textBoxEdgeName
+						this.textBoxName, this.textBoxLabel,
+						this.comboBoxEdge, this.textBoxEdgeName
 				// "-",
 				// backgroundButton
 				]

@@ -67,7 +67,6 @@ DOTDataAdapter.prototype.parse = function(data){
 									attrFields = attrList[c].split("=");
 									metainfo[attrFields[0].replace(/^\s+|\s+$/g, "")] = attrFields[1].replace(/^\s+|\s+$/g, "");
 								}
-								console.log(metainfo);
 								line = line.substring(0, line.indexOf("["));
 							}
 							// relation without attributes

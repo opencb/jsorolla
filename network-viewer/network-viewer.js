@@ -28,20 +28,21 @@ function NetworkViewer(targetId, species, args) {
 	// if not provided on instatiation
 	this.width =  $(document).width();
 	this.height = $(document).height();
+	this.overviewScale = 0.2;
 	this.targetId=null;
 	
-	//Default species
-	this.species="hsa";
-	this.speciesName="Homo sapiens";
+//	//Default species
+//	this.species="hsa";
+//	this.speciesName="Homo sapiens";
 	
 	//Setting paramaters
 	if (targetId != null){
 		this.targetId=targetId;
 	}
-	if (species != null) {
-		this.species = species.species;
-		this.speciesName = species.name;
-	}
+//	if (species != null) {
+//		this.species = species.species;
+//		this.speciesName = species.name;
+//	}
 	if (args != null){
 		if(args.description != null){
 			args.description = "beta";
@@ -58,35 +59,37 @@ function NetworkViewer(targetId, species, args) {
 		if (args.pluginsMenu != null) {
 			this.pluginsMenu = args.pluginsMenu;
 		}
+		if (args.overview != null) {
+			this.overview = args.overview;
+		}
 	}
 	
 	/** Network Data object **/
 	this.networkData = new NetworkData();
 	
 	this.drawZoneWidth = this.width-12;
-//	this.drawZoneHeight = this.height-148;
-//	this.drawZoneHeight = this.height-140;//menu
-	this.drawZoneHeight = this.height-112;//SBGN
+	this.drawZoneHeight = this.height-112;
 	
 	//Events i send
-	this.onSpeciesChange = new Event();
+//	this.onSpeciesChange = new Event();
+	this.onSelectionChange = new Event();
 	
 	console.log(this.width+"x"+this.height);
 	console.log(this.targetId);
 	console.log(this.id);
 	
 	//Events i listen
-	this.onSpeciesChange.addEventListener(function(sender,data){
-		_this.species=data.species;
-		_this.speciesName=data.name;
-		Ext.getCmp(_this.id+"speciesMenuButton").setText(_this.speciesName);
-		Ext.getCmp(_this.id+"specieInfoLabel").setText(data.species);
-		Ext.example.msg('Species', _this.speciesName+' selected.');
-		
-		_this.networkMetaDataViewer.setSpecies(data.species);
-		_this.networkWidget.setSpecies(data.species);
-//		_this.pathwayTreeViewer.setSpecies(data.species);
-	});
+//	this.onSpeciesChange.addEventListener(function(sender,data){
+//		_this.species=data.species;
+//		_this.speciesName=data.name;
+//		Ext.getCmp(_this.id+"speciesMenuButton").setText(_this.speciesName);
+//		Ext.getCmp(_this.id+"specieInfoLabel").setText(data.species);
+//		Ext.example.msg('Species', _this.speciesName+' selected.');
+//		
+//		_this.networkMetaDataViewer.setSpecies(data.species);
+//		_this.networkWidget.setSpecies(data.species);
+////		_this.pathwayTreeViewer.setSpecies(data.species);
+//	});
 	
 	
 //	if (args != null){
@@ -113,10 +116,21 @@ NetworkViewer.prototype.draw = function(){
 };
 
 NetworkViewer.prototype.render = function(){
+	var _this = this;
 	var div = $('#'+this.getGraphCanvasId())[0];
 	this.networkSvg = new NetworkSvg(div, this.networkData, {"width": this.drawZoneWidth, "height": this.drawZoneHeight});
 	
 	this.networkEditorBarWidget.setNetworkSvg(this.networkSvg);
+	
+	this.networkSvg.onSelectionChange.addEventListener(function(sender,data){
+		_this.onSelectionChange.notify(data);
+	});
+	
+	// networkSVG for the overview
+	if(this.overview) {
+		div = $('#'+this.getGraphCanvasId()+'_overview')[0];
+		this.networkSvgOverview = new NetworkSvg(div, this.networkData, {"width": "100%", "height": "100%", "parentNetwork": this.networkSvg, "scale": this.overviewScale});
+	}
 };
 
 
@@ -124,23 +138,24 @@ NetworkViewer.prototype.render = function(){
 NetworkViewer.prototype._getPanel = function(width,height) {
 	var _this=this;
 	if(this._panel == null){
-		
-		
-//		//TODO PARA TEST, esto debe ser llamado por cellbrowser
-//		this.menuBar = this.getMenu();
-		
 		this.networkEditorBarWidget = new NetworkEditorBarWidget(this);
 		var editorBar = this.networkEditorBarWidget.getBar();
 		
+		var htmlContent = '<div id="'+this.getGraphCanvasId()+'" style="border:1px solid #bbb;"></div>'; 
+		if(this.overview) {
+			htmlContent = '<div id="'+this.getGraphCanvasId()+'" style="position:relative; border:1px solid #bbb;">';
+			htmlContent += '<div id="'+this.getGraphCanvasId()+'_overview" style="position:absolute; bottom:7px; right:7px; width:'+parseInt(this.drawZoneWidth*this.overviewScale)+'px; height:'+parseInt(this.drawZoneHeight*this.overviewScale)+'px; border:1px solid #bbb;"></div>';
+			htmlContent += '</div>';
+		}
+		
 		this.container = Ext.create('Ext.container.Container', {
-//			id:this.getGraphCanvasId(),
+//			id: this.getGraphCanvasId(),
 			padding:5,
 			flex:1,
 			style:"background: whiteSmoke;",
-//			id: this.getGraphCanvasId(),
 			cls:'x-unselectable',
+			html:htmlContent
 //			html:'<div class="x-unselectable" style="width:'+this.width+'px;height:800px;" id="'+this.getGraphCanvasId()+'"></div>'
-			html:'<div id="'+this.getGraphCanvasId()+'" style="border:1px solid #bbb;"></div>'
 //			listeners:{
 //				resize: function ( cont, adjWidth, adjHeight){
 ////					console.log(adjWidth);
@@ -157,10 +172,8 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 		items.push(this.getOptionBar());
 		items.push(editorBar);
 		
-		
 		items.push(this.container);
 		items.push(this.getInfoBar());
-		
 		
 		this._panel = Ext.create('Ext.panel.Panel', {
 			renderTo:this.targetId,
@@ -188,8 +201,6 @@ NetworkViewer.prototype._getPanel = function(width,height) {
 	}
 	
 	return this._panel;
-
-	
 };
 
 //NetworkViewer.prototype.setSize = function(width,height) {
@@ -342,18 +353,18 @@ NetworkViewer.prototype.setSpecies = function(text){
 
 
 
-NetworkViewer.prototype.drawConvertPNGDialog = function(content, type){
-	var html = new StringBuffer();
-
-	html.append("<form id='"+this.id+"_topng_dialog' name='input' action='" + this.networkMetaDataViewer.servletPNGURL + "' method='post'>");
-	html.append("	<input type='hidden' name='filename' value='image.'"+type+"/>");
-	html.append("	<input type='hidden' name='content'  value = '" + content+"' />");
-	html.append("	<input type='hidden' name='type' value='"+type+"' /> ");
-	html.append("</form>");
-
-	$("#"+this.networkWidget.id).append(html.toString());
-	$("#"+this.id+"_topng_dialog").submit();
-};
+//NetworkViewer.prototype.drawConvertPNGDialog = function(content, type){
+//	var html = new StringBuffer();
+//
+//	html.append("<form id='"+this.id+"_topng_dialog' name='input' action='" + this.networkMetaDataViewer.servletPNGURL + "' method='post'>");
+//	html.append("	<input type='hidden' name='filename' value='image.'"+type+"/>");
+//	html.append("	<input type='hidden' name='content'  value = '" + content+"' />");
+//	html.append("	<input type='hidden' name='type' value='"+type+"' /> ");
+//	html.append("</form>");
+//
+//	$("#"+this.networkWidget.id).append(html.toString());
+//	$("#"+this.id+"_topng_dialog").submit();
+//};
 
 
 NetworkViewer.prototype.getGraphCanvasId = function(){
@@ -920,8 +931,12 @@ NetworkViewer.prototype.handleActionMenu = function(action, args) {
 	}
 
 	if (action == 'ZOOM'){
-		this.zoomLevel = 
-			this.networkWidget.setScale((args/5) * 0.1);
+//		this.zoomLevel = this.networkWidget.setScale((args/5) * 0.1);
+		
+		this.networkSvg.setScale(args);
+		
+		if(this.overview) this.networkSvgOverview.setOverviewRectSize(args);
+//		2 - (args/100) -1
 	}
 
 	if (action == 'GO'){
@@ -978,9 +993,9 @@ NetworkViewer.prototype.getOptionBar = function() {
 				hideLabel : false,
 //				padding: '0 0 0 20',
 				maxValue : 100,
-				value : 50,
+				value : 0,
 				useTips : true,
-				increment : 1,
+				increment : 10,
 				tipText : function(thumb) {
 					return Ext.String.format('<b>{0}%</b>', thumb.value);
 				}
@@ -995,12 +1010,12 @@ NetworkViewer.prototype.getOptionBar = function() {
 		height : 35,
 		border : true,
 		items : [ 
-		{
-			id:this.id+"speciesMenuButton",
-			text : this.speciesName,
-			menu : this._getSpeciesMenu()
-		},
-		'-',
+//		{
+//			id:this.id+"speciesMenuButton",
+//			text : this.speciesName,
+//			menu : this._getSpeciesMenu()
+//		},
+//		'-',
         this.networkEditorBarWidget.collapseButton,
         this.networkEditorBarWidget.layoutButton,
         this.networkEditorBarWidget.labelSizeButton,
@@ -1016,7 +1031,7 @@ NetworkViewer.prototype.getOptionBar = function() {
 				'click' : function() {
 					var zoom = _this.slider.getValue();
 					if (zoom > 0){
-						zoom = zoom -1 ;
+						zoom -= 10 ;
 						_this.slider.setValue(zoom);
 						this.handleActionMenu('ZOOM', zoom);
 					}
@@ -1032,14 +1047,30 @@ NetworkViewer.prototype.getOptionBar = function() {
 				'click' : function() {
 					var zoom = _this.slider.getValue();
 					if (zoom < 100){
-						zoom = zoom +1;
+						zoom += 10;
 						_this.slider.setValue(zoom);
 						this.handleActionMenu('ZOOM', zoom);
 					}
 				}
 			}
 		},
-		 '->',
+		'-',
+		{
+			xtype : 'button',
+			iconCls : 'icon-select',
+			tooltip : "Show/Hide overview",
+			toggleGroup : 'overview',
+			pressed : true,
+			handler : function() {
+				if(this.pressed) {
+					_this.networkSvgOverview.showRenderDiv();
+				}
+				else {
+					_this.networkSvgOverview.hideRenderDiv();
+				}
+			}
+		},
+		'->',
 		{
 			xtype : 'label',
 			text : 'Find:',
@@ -1202,83 +1233,7 @@ NetworkViewer.prototype.getSBGNToolBar = function() {
 
 
 
-/**** NETWORK VIEWER API *****/
-NetworkViewer.prototype.loadNetwork = function(networkData){
-	this.networkData = networkData;
-	this.networkSvg.refresh(networkData);
-	this.networkSvg.setLayout("Circle");
-};
-
-NetworkViewer.prototype.loadJSON = function(content){
-	this.networkData.loadJSON(content);
-	this.networkSvg.refresh(this.networkData);
-};
-
-NetworkViewer.prototype.getNetworkData = function(){
-	return this.networkData;
-};
-
-NetworkViewer.prototype.setLayout = function(type){
-	switch (type) {
-	case "Circle":
-		var count = this.networkData.getNodesCount();
-		var vertexCoordinates = this.calculateLayoutVertex(type, count);
-		var nodeList = this.networkData.getNodesList();
-		var aux = 0;
-		for(var i = 0; i < nodeList.length; i++) {
-			var x = this.networkSvg.getWidth()*(0.05 + 0.85*vertexCoordinates[aux].x);
-			var y = this.networkSvg.getHeight()*(0.05 + 0.85*vertexCoordinates[aux].y);
-			this.networkSvg.moveNode(nodeList[i], x, y);
-			aux++;
-		}
-		break;
-	case "Square":
-		var count = this.networkData.getNodesCount();
-		var vertexCoordinates = this.calculateLayoutVertex(type, count);
-		var nodeList = this.networkData.getNodesList();
-		var aux = 0;
-		for(var i = 0; i < nodeList.length; i++) {
-			var x = this.networkSvg.getWidth()*(0.05 + 0.85*vertexCoordinates[aux].x);
-			var y = this.networkSvg.getHeight()*(0.05 + 0.85*vertexCoordinates[aux].y);
-			this.networkSvg.moveNode(nodeList[i], x, y);
-			aux++;
-		}
-		break;
-	case "Random":
-		var nodeList = this.networkData.getNodesList();
-		for(var i = 0; i < nodeList.length; i++) {
-			var x = this.networkSvg.getWidth()*(0.05 + 0.85*vertexCoordinates[aux].x);
-			var y = this.networkSvg.getHeight()*(0.05 + 0.85*vertexCoordinates[aux].y);
-			this.networkSvg.moveNode(nodeList[i], x, y);
-		}
-		break;
-	default:
-		var dotText = this.networkData.toDot();
-		var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/"+type+".coords";
-		var _this = this;
-		
-		$.ajax({
-			async: true,
-			type: "POST",
-			url: url,
-			dataType: "text",
-			data: {
-				dot: dotText
-			},
-			cache: false,
-			success: function(data){ 
-				var response = JSON.parse(data);
-				for(var nodeId in response){
-					var x = _this.networkSvg.getWidth()*(0.05 + 0.85*response[nodeId].x);
-					var y = _this.networkSvg.getHeight()*(0.05 + 0.85*response[nodeId].y);
-					_this.networkSvg.moveNode(nodeId, x, y);
-				}
-			}
-		});
-		break;
-	}
-};
-
+/**** INTERNAL METHODS *****/
 NetworkViewer.prototype.calculateLayoutVertex = function(type, count){
 	switch (type) {
 	case "Circle":
@@ -1312,4 +1267,161 @@ NetworkViewer.prototype.calculateLayoutVertex = function(type, count){
 		return vertexCoordinates;
 		break;
 	}
+};
+
+
+/**** NETWORK VIEWER API *****/
+NetworkViewer.prototype.loadNetwork = function(networkData, layout){
+	this.networkData = networkData;
+	this.networkData.resize(this.drawZoneWidth, this.drawZoneHeight);
+	this.refresh(networkData);
+	
+	if(layout) {
+		this.setLayout("Circle");
+	}
+};
+
+NetworkViewer.prototype.toJSON = function(){
+	this.networkData.updateFromSvg(this.networkSvg.getNodeMetainfo());
+	
+	return this.networkData.toJSON();
+};
+
+NetworkViewer.prototype.loadJSON = function(json){
+	this.networkData.loadJSON(json);
+	this.refresh(this.networkData);
+};
+
+NetworkViewer.prototype.getNetworkData = function(){
+	return this.networkData;
+};
+
+NetworkViewer.prototype.getNetworkSvg = function(){
+	return this.networkSvg;
+};
+
+NetworkViewer.prototype.setLayout = function(type, nodeLst){
+	var nodeList = nodeLst || this.networkData.getNodesList();
+	switch (type) {
+	case "Circle":
+		var vertexCoordinates = this.calculateLayoutVertex(type, nodeList.length);
+		var aux = 0;
+		for(var i = 0; i < nodeList.length; i++) {
+			var x = this.networkSvg.getWidth()*(0.05 + 0.85*vertexCoordinates[aux].x);
+			var y = this.networkSvg.getHeight()*(0.05 + 0.85*vertexCoordinates[aux].y);
+			this.networkSvg.moveNode(nodeList[i], x, y);
+			aux++;
+		}
+		break;
+	case "Square":
+		var vertexCoordinates = this.calculateLayoutVertex(type, nodeList.length);
+		var aux = 0;
+		for(var i = 0; i < nodeList.length; i++) {
+			var x = this.networkSvg.getWidth()*(0.05 + 0.85*vertexCoordinates[aux].x);
+			var y = this.networkSvg.getHeight()*(0.05 + 0.85*vertexCoordinates[aux].y);
+			this.networkSvg.moveNode(nodeList[i], x, y);
+			aux++;
+		}
+		break;
+	case "Random":
+		for(var i = 0; i < nodeList.length; i++) {
+			var x = this.networkSvg.getWidth()*(0.05 + 0.85*Math.random());
+			var y = this.networkSvg.getHeight()*(0.05 + 0.85*Math.random());
+			this.networkSvg.moveNode(nodeList[i], x, y);
+		}
+		break;
+	default:
+		var dotText = this.networkData.toDot();
+		var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/"+type+".coords";
+		var _this = this;
+		
+		$.ajax({
+			async: true,
+			type: "POST",
+			url: url,
+			dataType: "text",
+			data: {
+				dot: dotText
+			},
+			cache: false,
+			success: function(data){ 
+				var response = JSON.parse(data);
+				for(var nodeId in response){
+					var x = _this.networkSvg.getWidth()*(0.05 + 0.85*response[nodeId].x);
+					var y = _this.networkSvg.getHeight()*(0.05 + 0.85*response[nodeId].y);
+					_this.networkSvg.moveNode(nodeId, x, y);
+				}
+			}
+		});
+		break;
+	}
+};
+
+NetworkViewer.prototype.importAttributes = function(data){
+	if(data.createNodes) {
+		var nodeList = [];
+		for(var i=0; i<data.content.data.length; i++) {
+			var nodeId = this.networkData.addNode({
+				"name": data.content.data[i][0],
+				"metainfo":{}
+			});
+			if(nodeId != -1) {
+				nodeList.push(nodeId);
+			}
+		}
+		this.refresh();
+		this.setLayout("Random", nodeList);
+	}
+	
+	// add attributes
+	if(data.content.attributes.length > 1) {
+		var attrNames = [];
+		for(var i=0; i < data.content.attributes.length; i++) {
+			var name = data.content.attributes[i].name;
+			var type = data.content.attributes[i].type;
+			var defaultValue = data.content.attributes[i].defaultValue;
+			this.networkData.getAttributes().addAttribute(name, type, defaultValue);
+			attrNames.push(name);
+		}
+		
+		// add values for attributes
+		for(var i=0; i < data.content.data.length; i++) {
+			for(var j=1; j < data.content.data[i].length; j++) {
+				var name = data.content.data[i][0];
+				var attr = attrNames[j];
+				var value = data.content.data[i][j];
+				this.networkData.getAttributes().setAttributeByName(name, attr, value);
+			}
+		}
+	}
+};
+
+NetworkViewer.prototype.selectNodes = function(nodeList){
+	this.networkSvg.selectNodes(nodeList);
+};
+
+NetworkViewer.prototype.deselectAllNodes = function(){
+	this.networkSvg.deselectAllNodes();
+};
+
+NetworkViewer.prototype.filterNodes = function(nodeList){
+	this.networkSvg.filterNodes(nodeList);
+};
+
+NetworkViewer.prototype.refresh = function(networkData){
+	this.networkSvg.refresh(networkData);
+	this.networkSvg.placeLabelsAndEdges(networkData);
+	
+	if(this.overview) {
+		this.networkSvgOverview.refresh(networkData);
+		this.networkSvgOverview.placeLabelsAndEdges(networkData);
+	}
+};
+
+NetworkViewer.prototype.getSelectedNodes = function(){
+	return this.networkSvg.getSelectedNodes();
+};
+
+NetworkViewer.prototype.getNumNodes = function(){
+	return this.networkData.getNodesCount();
 };

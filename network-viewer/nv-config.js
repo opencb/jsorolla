@@ -21,11 +21,25 @@
 
 NODE_TYPES = {
 	undefined:{
-		color:"#993300",
+		fillcolor:"#993300",
 		shape:"circle",
 		opacity:1,
+		height:1,
+		width:1,
 		size:7,
-		strokeColor:"#000000",
+		color:"#000000",
+		strokeSize:1,
+		x:0,
+		y:0
+	},
+	"none":{
+		fillcolor:"#993300",
+		shape:"circle",
+		opacity:1,
+		height:1,
+		width:1,
+		size:7,
+		color:"#000000",
 		strokeSize:1,
 		x:0,
 		y:0

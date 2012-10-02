@@ -26,6 +26,9 @@ function NetworkSvg (parent, networkData, args) {
 	this.countSelectedNodes = 0;
 	this.countSelectedEdges = 0;
 	this.bgColor = "white";
+	this.scale = 1;
+	this.zoom = 0;
+	this.parentDiv = parent;
 	
 	if (args != null){
 		if(args.width != null){
@@ -39,6 +42,12 @@ function NetworkSvg (parent, networkData, args) {
 		}
 		if (args.species != null){
 			this.species = args.species;
+		}
+		if(args.parentNetwork!= null){
+			this.parentNetwork = args.parentNetwork;
+		}
+		if(args.scale!= null){
+			this.scale = args.scale;
 		}
 	}
 	
@@ -58,6 +67,7 @@ function NetworkSvg (parent, networkData, args) {
 	this.nodeStrokeColor = "#000000";
 	this.nodeStrokeSize = 1;
 	this.nodeOpacity = 1;
+	this.nodeName = "node0";
 	this.nodeLabel = "";
 	this.edgeLabel = "";
 	this.edgeType = "directed";
@@ -72,48 +82,143 @@ function NetworkSvg (parent, networkData, args) {
 	this.onEdgeClick = new Event(this);
 	this.onCanvasClick = new Event(this);
 	this.onSelectionChange = new Event(this);
-    
+	this.onNodeAdded = new Event(this);
+	this.onNodeMoved = new Event(this);
+	this.onChange = new Event(this);
     
     /** SVG init **/
     this.svg = SVG.init(parent,{
-		"id": this.id,
+		"id": "mainSVG",
 		"width": this.width,
 		"height": this.height
 	});
     
+    var mouseDown = false;
     $(this.svg).mousedown(function(event){
-    	if(!event.target.getAttribute("shape") && !event.target.getAttribute("type")){
+    	if(!event.target.getAttribute("shape") && !event.target.getAttribute("type") && event.originalEvent.button !== 2 && !mouseDown){
     		_this.canvasMouseDown(event);
+    		if(_this.mode == "select") mouseDown = true;
     	}
     });
     $(this.svg).mouseup(function(event){
-    	if(!event.target.getAttribute("shape") && !event.target.getAttribute("type")){
+    	if(!event.target.getAttribute("shape") && !event.target.getAttribute("type") && event.originalEvent.button !== 2){
     		_this.canvasMouseUp(event);
+    		if(_this.mode == "select") mouseDown = false;
+    	}
+    });
+    $(this.svg).mouseleave(function(event){
+    	if(_this.mode == "select"){
+    		$(_this.svg).off('mousemove');
     	}
     });
     
     this.initSVG();
+    
+    if(this.parentNetwork) {
+    	this.parentNetwork.onSelectionChange.addEventListener(function(sender, data) {
+    		_this.selectNodes(data);
+    	});
+    	
+    	this.parentNetwork.onNodeMoved.addEventListener(function(sender, data) {
+    		_this.moveNode(data.nodeId, data.x, data.y);
+    	});
+    	
+    	this.parentNetwork.onChange.addEventListener(function(sender, data) {
+    		_this.refresh();
+    		_this.placeLabelsAndEdges();
+    		_this.setOverviewRectSize(_this.zoom);
+    	});
+    	
+    	this.overviewDivWidth = $(parent).width();
+    	this.overviewDivHeight = $(parent).height();
+    }
 };
 
 NetworkSvg.prototype.initSVG = function(){
-	this.defs = SVG.addChild(this.svg, "defs", {});
+	var _this = this;
 	
-	this.background = SVG.addChild(this.svg, "rect",{
+	//TODO SI LO ACTIVO NO FUNCIONA LA EXPORTACION DE IMAGEN
+	this.backgroundImage = SVG.addChildImage(this.svg,{
+		"id":"backgroundImage"
+	});
+	
+	
+	this.svgC = SVG.init(this.svg,{
+		"width": 100000,
+		"height": 100000,
+		"x": 0,
+		"y": 0
+	});
+	this.background = SVG.addChild(this.svgC, "rect",{
 		"id":"background",
 		"width":"100%",
 		"height":"100%",
 		"fill":this.bgColor
 	});
 	
-	this.backgroundImage = SVG.addChildImage(this.svg,{
-		"id":"backgroundImage"
-	});
+	
+	this.svgG = SVG.addChild(this.svgC, "g", {"transform":"scale("+this.scale+")"});
+	
+	this.defs = SVG.addChild(this.svg, "defs", {});
+	
+	if(this.parentNetwork) {
+		this.overviewRect = SVG.addChild(this.svg, "rect",{
+			"width":"100%",
+			"height":"100%",
+			"fill":"blue",
+			"fill-opacity":"0.1",
+			"stroke":"red",
+			"stroke-width":"4",
+			"stroke-opacity":"0.6",
+			"transform":"scale(1)",
+			"x":"0",
+			"y":"0"
+		});
+
+		
+		$(this.overviewRect).mousedown(function(event) {
+			$(_this.svg).off('mousedown');
+			_this.moveOverviewRect(event);
+		});
+		
+		$(this.overviewRect).mouseup(function(event) {
+			$(_this.svg).off('mouseup');
+			$(_this.svg).off('mousemove');
+		});
+	}
+	
+//    var rectTest = SVG.addChild(this.svgTest, "rect",{
+//    	"width": 300,
+//    	"height": 400,
+////    	"width":"100%",
+////    	"height":"100%",
+//    	"fill":"blue",
+//    	"fill-opacity":"0.1",
+//    	"stroke":"red",
+//    	"stroke-width":"4",
+//    	"stroke-opacity":"0.6"
+//    });
 };
 
 NetworkSvg.prototype.refresh = function(networkData){
+	var _this = this;
+
 	if(networkData != null) {
 		this.networkData = networkData;
 	}
+	
+//	// calculate max x and y
+//	var width = this.width-40;
+//	var height = this.height-40;
+//	var maxX = width, maxY = height;
+//	var x, y;
+//	for(var nodeId in this.networkData.nodes) {
+//		x = parseInt(this.networkData.nodes[nodeId].metainfo.x);
+//		if(x > maxX) maxX = x;
+//		
+//		y = parseInt(this.networkData.nodes[nodeId].metainfo.y);
+//		if(y > maxY) maxY = y;
+//	}
 	
 	this.nodeSvgList = {};
 	this.edgeSvgList = {};
@@ -129,20 +234,39 @@ NetworkSvg.prototype.refresh = function(networkData){
 	// loop over rendered nodes
 	for (var node in this.networkData.nodes){
 		
+		x = this.networkData.nodes[node].metainfo.x;
+		y = this.networkData.nodes[node].metainfo.y;
+		if(!this.parentNetwork) {
+//			// calculate resized x and y
+//			if(maxX > width) {
+//				x = parseInt(width * x / maxX);
+//			}
+//			if(maxY > height) {
+//				y = parseInt(height * y / maxY);
+//			}
+		}
+		else {
+//			this.svgG.setAttribute("transform","scale("+this.scale+")");
+		}
+		
 		// get config for this node type
 		var typeArgs = NODE_TYPES[this.networkData.nodes[node].type];
 		
 		this.addNode({
 			"id":node,
+			"name":this.networkData.nodes[node].name || "",
 			"shape":this.networkData.nodes[node].metainfo.shape || typeArgs.shape,
-			"size":this.networkData.nodes[node].metainfo.size || typeArgs.size,
+			"height":this.networkData.nodes[node].metainfo.height || typeArgs.height,
+			"width":this.networkData.nodes[node].metainfo.width || typeArgs.width,
 			"color":this.networkData.nodes[node].metainfo.color || typeArgs.color,
-			"strokeColor":this.networkData.nodes[node].metainfo.strokeColor || typeArgs.strokeColor,
+			"fillcolor":this.networkData.nodes[node].metainfo.fillcolor || typeArgs.fillcolor,
+			"label":this.networkData.nodes[node].metainfo.label || this.networkData.nodes[node].name || "",
 			"strokeSize":this.networkData.nodes[node].metainfo.strokeSize || typeArgs.strokeSize,
 			"opacity":this.networkData.nodes[node].metainfo.opacity || typeArgs.opacity,
-			"label":this.networkData.nodes[node].name || "",
-			"x":this.networkData.nodes[node].metainfo.x || typeArgs.x,
-			"y":this.networkData.nodes[node].metainfo.y || typeArgs.y
+			"size":this.networkData.nodes[node].metainfo.size || typeArgs.size,
+			"x":x || typeArgs.x,
+			"y":y || typeArgs.y,
+			"url":this.networkData.nodes[node].metainfo.URL
 		});
 	}
 	
@@ -156,8 +280,7 @@ NetworkSvg.prototype.refresh = function(networkData){
 			"x1":this.networkData.edges[edge].metainfo.x1 || 0,
 			"y1":this.networkData.edges[edge].metainfo.y1 || 0,
 			"x2":this.networkData.edges[edge].metainfo.x2 || 0,
-			"y2":this.networkData.edges[edge].metainfo.y2 || 0,
-			"markerArrow":this.networkData.edges[edge].metainfo.markerArrow //|| "url(#arrow-"+this.networkData.edges[edge].type+"-14)"
+			"y2":this.networkData.edges[edge].metainfo.y2 || 0
 		});
 	}
 };
@@ -169,101 +292,100 @@ NetworkSvg.prototype.addNode = function(args, fromClick){
 	if(fromClick){
 		// Add info to networkData
 		nodeId = this.networkData.addNode({
-			"name":args.label,
+			"name":args.name,
 			"type":"none",
 			"metainfo":args
 		});
-	}
-	
-	/** SVG **/
-	var nodeGroup = SVG.addChild(this.svg, "g", {"cursor":"pointer"});
-	
-	var customShape = args.shape;
-	var attrX = "cx";
-	var attrY = "cy";
-	if(args.shape != "circle" && args.shape != "ellipse"){
-		args.shape = "rect";
-		attrX = "x";
-		attrY = "y";
-	}
-	var svgArgs = this.getSvgArgs(customShape, nodeId, args);
-	
-	var nodeSvg = SVG.addChild(nodeGroup, args.shape, svgArgs);
-	
-	var textOffset = (parseInt(nodeSvg.getAttribute("height")) + 10) || (parseInt(nodeSvg.getAttribute("r") || nodeSvg.getAttribute("ry") || 0)*2 + 10);
-	var nodeText = SVG.addChild(nodeGroup, "text", {
-		"id":nodeId,
-		"x":args.x,
-		"y":args.y + textOffset,
-		"font-size":10,
-		"class":"nodeLabel",
-		"fill":"green"
-	});
-	nodeText.textContent = args.label;
-	
-	// attach click event
-//	$(nodeSvg).click(function(event){_this.nodeClick(event, this.id);});
-	
-	// attach move event
-	$(nodeSvg).mousedown(function(event) {
-		_this.nodeClick(event, this.id);
 		
-//		var downX = event.clientX;
-//		var downY = event.clientY;
-//		var clickShapeOffsetX = downX - nodeSvg.getAttribute(attrX);
-//		var clickShapeOffsetY = downY - nodeSvg.getAttribute(attrY);
-//		var clickTextOffsetX = downX - nodeText.getAttribute("x");
-//		var clickTextOffsetY = downY - nodeText.getAttribute("y");
-//		var lastX = 0, lastY = 0, edgeOffsetX = 0, edgeOffsetY = 0;
-//		
-//		// if is rect calculate the figure center for move edges
-//		if(attrX == "x"){
-//			edgeOffsetX = parseInt(nodeSvg.getAttribute("width")/2);
-//			edgeOffsetY = parseInt(nodeSvg.getAttribute("height")/2);
-//		}
-//		
-//		$(_this.svg).mousemove(function(event){
-//			if(_this.mode == "select"){
-//				var newX = (downX + event.clientX);
-//				var newY = (downY + event.clientY);
-//				if(newX!=lastX || newY!=lastY){
-//					nodeSvg.setAttribute(attrX, event.clientX - clickShapeOffsetX);
-//					nodeSvg.setAttribute(attrY, event.clientY - clickShapeOffsetY);
-//					
-//					nodeText.setAttribute("x", event.clientX - clickTextOffsetX);
-//					nodeText.setAttribute("y", event.clientY - clickTextOffsetY);
-//					
-//					//move edges in
-//					for ( var i=0, len=_this.nodeSvgList[nodeSvg.id].edgesIn.length; i<len; i++) {
-////						var edgeId = _this.nodeSvgList[nodeSvg.id].edgesIn[i]+"-"+nodeSvg.id;
-//						var edgeId = _this.nodeSvgList[nodeSvg.id].edgesIn[i];
-//						_this.edgeSvgList[edgeId].setAttribute("x2", event.clientX - clickShapeOffsetX + edgeOffsetX);
-//						_this.edgeSvgList[edgeId].setAttribute("y2", event.clientY - clickShapeOffsetY + edgeOffsetY);
-//					}
-//					
-//					//move edges out
-//					for ( var i=0, len=_this.nodeSvgList[nodeSvg.id].edgesOut.length; i<len; i++) {
-////						var edgeId = nodeSvg.id+"-"+_this.nodeSvgList[nodeSvg.id].edgesOut[i];
-//						var edgeId = _this.nodeSvgList[nodeSvg.id].edgesOut[i];
-//						_this.edgeSvgList[edgeId].setAttribute("x1", event.clientX - clickShapeOffsetX + edgeOffsetX);
-//						_this.edgeSvgList[edgeId].setAttribute("y1", event.clientY - clickShapeOffsetY + edgeOffsetY);
-//					}
-//					
-//					lastX = newX;
-//					lastY = newY;
-//				}
-//			}
-//		});
-	});
-	$(nodeSvg).mouseup(function(event) {
-		if(_this.mode == "select") $(_this.svg).off('mousemove');
-	});
+		this.onChange.notify();
+	}
 	
-	// add to svg node list
-	this.nodeSvgList[nodeId] = nodeGroup;
-	this.nodeSvgList[nodeId].edgesIn = [];
-	this.nodeSvgList[nodeId].edgesOut = [];
-	/** /SVG **/
+	if(nodeId != -1) {
+		if(args.label == "") {
+			args.label = this.nodeName;
+		}
+		
+		this.onNodeAdded.notify(this.nodeName);
+		this.setNodeName("node"+(nodeId+1));
+		
+		/** SVG **/
+		var nodeGroup = SVG.addChild(this.svgG, "g", {"cursor":"pointer"});
+		
+		var customShape = args.shape;
+		var attrX = "cx";
+		var attrY = "cy";
+		if(args.shape != "circle" && args.shape != "ellipse"){
+			args.shape = "rect";
+			attrX = "x";
+			attrY = "y";
+		}
+		
+		var svgArgs = this.getSvgArgs(customShape, nodeId, args);
+		
+		var nodeSvg = SVG.addChild(nodeGroup, args.shape, svgArgs);
+		
+		var textOffset = (parseInt(nodeSvg.getAttribute("height")) + 10) || (parseInt(nodeSvg.getAttribute("r") || nodeSvg.getAttribute("ry") || 0)*2 + 10);
+		var nodeText = SVG.addChild(nodeGroup, "text", {
+			"id":nodeId,
+			"x":args.x,
+			"y":args.y + textOffset,
+			"font-size":10,
+			"class":"nodeLabel",
+			"fill":"green"
+		});
+		nodeText.textContent = args.label;
+		
+		// attach click event
+		//	$(nodeSvg).click(function(event){_this.nodeClick(event, this.id);});
+		
+		// attach move event
+		$(nodeSvg).mousedown(function(event) {
+			_this.nodeClick(event, this.id);
+		});
+		$(nodeSvg).mouseup(function(event) {
+			if(_this.mode == "select") $(_this.svg).off('mousemove');
+		});
+		
+		// disable move on right click
+		$(nodeSvg).bind("contextmenu", function(event) {
+			$(_this.svg).off('mousemove');
+			return false;
+		});
+		
+		
+		// add to svg node list
+		this.nodeSvgList[nodeId] = nodeGroup;
+		this.nodeSvgList[nodeId].edgesIn = [];
+		this.nodeSvgList[nodeId].edgesOut = [];
+		
+		// attach qtip on right-click
+		var label = "<b>Label: </b>"+args.label;
+		var url = ""; 
+		if(args.url) url = "<br><br><a href='"+args.url+"' target='_blank'>+info</a>";
+		$(nodeSvg).qtip({
+			content: {text: label+url, title: {text: args.name, button: 'Close'}},
+			position: {target: $(nodeSvg), viewport: $(window), effect: false},
+			show: {event: 'mousedown', solo: true},
+			events: {
+				show: function(event, api) {
+					if(event.originalEvent.button !== 2) {
+						event.preventDefault();
+					}
+				}
+			},
+			hide: 'unfocus',
+			style: { width: 150, classes: 'ui-tooltip ui-tooltip-shadow', tip: false}
+		});
+		/** /SVG **/
+	}
+	else {
+		Ext.Msg.show({
+			title:"Error",
+			msg: "Already exists a node with this name. The name must be unique.",
+			buttons: Ext.Msg.OK,
+			icon: Ext.Msg.ERROR
+		});
+	}
 };
 
 NetworkSvg.prototype.removeNode = function(nodeId, onlySVG) {
@@ -311,7 +433,7 @@ NetworkSvg.prototype.removeNode = function(nodeId, onlySVG) {
 	}
 	
 	// remove node
-	this.svg.removeChild(this.nodeSvgList[nodeId]);
+	this.svgG.removeChild(this.nodeSvgList[nodeId]);
 	delete this.nodeSvgList[nodeId];
 	/** /SVG **/
 	
@@ -320,6 +442,8 @@ NetworkSvg.prototype.removeNode = function(nodeId, onlySVG) {
 		this.networkData.removeNode(nodeId);
 	}
 	/** /Data **/
+	
+	this.onChange.notify();
 };
 
 NetworkSvg.prototype.filterNodes = function(nodeList){
@@ -329,6 +453,39 @@ NetworkSvg.prototype.filterNodes = function(nodeList){
 	for(var node in this.nodeSvgList){
 		if(!nodeList[node]) {
 			this.removeNode(node, true);
+		}
+	}
+};
+
+NetworkSvg.prototype.placeLabelsAndEdges = function(){
+	for (var nodeId in this.nodeSvgList) {
+		var figure = this.nodeSvgList[nodeId].childNodes[0];
+		var x = parseInt(figure.getAttribute("x") || figure.getAttribute("cx")); 
+		var y = parseInt(figure.getAttribute("y") || figure.getAttribute("cy"));
+		
+		//place label
+		var textOffsetX = parseInt(figure.getAttribute("r") || figure.getAttribute("rx") || 0);
+		var textOffsetY = parseInt(figure.getAttribute("height") || figure.getAttribute("r") || figure.getAttribute("ry") || 0) + 10;
+		var label = this.nodeSvgList[nodeId].childNodes[1];
+		label.setAttribute("x", x - textOffsetX);
+		label.setAttribute("y", y + textOffsetY);
+		
+		//place edges
+		var edgeOffsetX = parseInt(figure.getAttribute("width") || 0)/2;
+		var edgeOffsetY = parseInt(figure.getAttribute("height") || 0)/2;
+		
+		//edges in
+		for ( var i=0, len=this.nodeSvgList[nodeId].edgesIn.length; i<len; i++) {
+			var edgeId = this.nodeSvgList[nodeId].edgesIn[i];
+			this.edgeSvgList[edgeId].setAttribute("x2", x + edgeOffsetX);
+			this.edgeSvgList[edgeId].setAttribute("y2", y + edgeOffsetY);
+		}
+		
+		//edges out
+		for ( var i=0, len=this.nodeSvgList[nodeId].edgesOut.length; i<len; i++) {
+			var edgeId = this.nodeSvgList[nodeId].edgesOut[i];
+			this.edgeSvgList[edgeId].setAttribute("x1", x + edgeOffsetX);
+			this.edgeSvgList[edgeId].setAttribute("y1", y + edgeOffsetY);
 		}
 	}
 };
@@ -366,6 +523,8 @@ NetworkSvg.prototype.moveNode = function(nodeId, newX, newY){
 		this.edgeSvgList[edgeId].setAttribute("x1", newX + edgeOffsetX);
 		this.edgeSvgList[edgeId].setAttribute("y1", newY + edgeOffsetY);
 	}
+	
+	this.onNodeMoved.notify({"nodeId":nodeId, "x":newX, "y":newY});
 };
 
 NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
@@ -384,7 +543,7 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 			this.joinSourceY = parseInt(this.joinSourceY) + parseInt(figure.getAttribute("height"))/2;
 		}
 		
-		this.edgeSvg = SVG.addChild(this.svg, "line", {
+		this.edgeSvg = SVG.addChild(this.svgG, "line", {
 			"id":this.networkData.edgeId,
 			"source":this.joinSourceNode,
 			"type":this.edgeType,
@@ -396,11 +555,11 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 			"stroke-width":"0.5",
 			"cursor":"pointer"
 //			"marker-end":"url(#Arrow)"
-		},2);
+		},0);
 		
 		$(this.svg).mousemove(function(event){
-			var offsetX = (event.clientX - $(_this.svg).offset().left);
-			var offsetY = (event.clientY - $(_this.svg).offset().top);
+			var offsetX = (event.clientX - $(_this.svg).offset().left)/_this.scale;
+			var offsetY = (event.clientY - $(_this.svg).offset().top)/_this.scale;
 			_this.edgeSvg.setAttribute("x2", offsetX);
 			_this.edgeSvg.setAttribute("y2", offsetY);
 		});
@@ -454,16 +613,14 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 		$(this.edgeSvg).click(function(event){_this.edgeClick(event, this.id);});
 		
 		/** Data **/
-//		var directed = true;
-//		if(this.edgeType == "undirected") directed = false;
 		var args = {
 					"weight":1,
 					"x1":this.joinSourceX,
 					"y1":this.joinSourceY,
 					"x2":joinTargetX,
-					"y2":joinTargetY,
-					"markerArrow": "url("+markerArrowId+")",
-					"markerLabel": "url("+markerLabelId+")"
+					"y2":joinTargetY
+//					"markerArrow": "url("+markerArrowId+")",
+//					"markerLabel": "url("+markerLabelId+")"
 					};
 		this.networkData.addEdge(this.joinSourceNode, joinTargetNode, this.edgeType, this.edgeLabel, args);
 		/** /Data **/
@@ -472,6 +629,8 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 		this.joinSourceNode = null;
 	}
 	/** /SVG **/
+	
+	this.onChange.notify();
 };
 
 NetworkSvg.prototype.addEdge = function(args){
@@ -479,7 +638,7 @@ NetworkSvg.prototype.addEdge = function(args){
 //	var edgeType = args.markerEnd.split('-')[1];
 	
 	var tipOffset = 14;
-	if(!args.markerArrow) {
+//	if(!args.markerArrow) {
 		var figure = this.nodeSvgList[args.target].childNodes[0];
 		// if is rect calculate the figure center
 		if(figure.hasAttribute("x")){
@@ -489,10 +648,10 @@ NetworkSvg.prototype.addEdge = function(args){
 		}else{
 			tipOffset = parseInt(figure.getAttribute("r")) || parseInt(figure.getAttribute("rx"));
 		}
-	}
-	else {
-		tipOffset = args.markerArrow.split('-')[2].slice(0,-1);
-	}
+//	}
+//	else {
+//		tipOffset = args.markerArrow.split('-')[2].slice(0,-1);
+//	}
 	
 	// if not exists this marker, add new one to defs
 	var markerArrowId = "#arrow-"+args.type+"-"+tipOffset;
@@ -500,7 +659,7 @@ NetworkSvg.prototype.addEdge = function(args){
 		this.addArrowShape(args.type, tipOffset);
 	}
 	
-	this.edgeSvg = SVG.addChild(this.svg, "line", {
+	this.edgeSvg = SVG.addChild(this.svgG, "line", {
 		"id":args.id,
 		"source":args.source,
 		"target":args.target,
@@ -558,14 +717,15 @@ NetworkSvg.prototype.getSvgArgs = function(shape, nodeId, args){
 		svgArgs = {
 			"id":nodeId,
 			"shape":shape,
-			"nodeSize":args.size,
+			"nodeName":args.name,
 			"nodeLabel":args.label,
+			"nodeSize":args.size,
 			"x":args.x,
 			"y":args.y,
 			"width":4*args.size,
 			"height":4*args.size,
-			"fill":args.color,
-			"stroke":args.strokeColor,
+			"fill":args.fillcolor,
+			"stroke":args.color,
 			"stroke-width":args.strokeSize,
 			"opacity":args.opacity
 		};
@@ -574,14 +734,15 @@ NetworkSvg.prototype.getSvgArgs = function(shape, nodeId, args){
 		svgArgs = {
 			"id":nodeId,
 			"shape":shape,
-			"nodeSize":args.size,
+			"nodeName":args.name,
 			"nodeLabel":args.label,
+			"nodeSize":args.size,
 			"x":args.x,
 			"y":args.y,
 			"width":7*args.size,
 			"height":4*args.size,
-			"fill":args.color,
-			"stroke":args.strokeColor,
+			"fill":args.fillcolor,
+			"stroke":args.color,
 			"stroke-width":args.strokeSize,
 			"opacity":args.opacity
 	};
@@ -591,13 +752,14 @@ NetworkSvg.prototype.getSvgArgs = function(shape, nodeId, args){
 		svgArgs = {
 			"id":nodeId,
 			"shape":shape,
-			"nodeSize":args.size,
+			"nodeName":args.name,
 			"nodeLabel":args.label,
-			"cx":args.x + radius,
-			"cy":args.y + radius,
+			"nodeSize":args.size,
+			"cx":parseInt(args.x) + radius,
+			"cy":parseInt(args.y) + radius,
 			"r":radius,
-			"fill":args.color,
-			"stroke":args.strokeColor,
+			"fill":args.fillcolor,
+			"stroke":args.color,
 			"stroke-width":args.strokeSize,
 			"opacity":args.opacity
 		};
@@ -607,14 +769,15 @@ NetworkSvg.prototype.getSvgArgs = function(shape, nodeId, args){
 		svgArgs = {
 			"id":nodeId,
 			"shape":shape,
-			"nodeSize":args.size,
+			"nodeName":args.name,
 			"nodeLabel":args.label,
-			"cx":args.x + radius,
-			"cy":args.y + radius,
+			"nodeSize":args.size,
+			"cx":parseInt(args.x) + radius,
+			"cy":parseInt(args.y) + radius,
 			"rx":radius,
 			"ry":1.5*args.size,
-			"fill":args.color,
-			"stroke":args.strokeColor,
+			"fill":args.fillcolor,
+			"stroke":args.color,
 			"stroke-width":args.strokeSize,
 			"opacity":args.opacity
 		};
@@ -748,6 +911,7 @@ NetworkSvg.prototype.reallocateInputEdgeArrows = function(nodeSvg){
 };
 
 /** CONVERSION FUNCTIONS **/
+//XXX DEPRECATED
 NetworkSvg.prototype.toJson = function(){
 	var json = {};
 	
@@ -992,7 +1156,7 @@ NetworkSvg.prototype.selectNodes = function(nodeList){
 		this.nodeSvgList[nodeList[i]].childNodes[0].setAttribute("fill", "red");
 	}
 	
-	this.onCanvasClick.notify();
+	this.onCanvasClick.notify({});
 };
 
 NetworkSvg.prototype.selectAllNodes = function(){
@@ -1236,6 +1400,33 @@ NetworkSvg.prototype.setMode = function(mode){
 	}
 };
 
+NetworkSvg.prototype.setScale = function(zoom){
+	var scale = 1 + (zoom/100);
+	this.scale = scale;
+	this.svgG.setAttribute("transform","scale("+this.scale+")");
+};
+
+NetworkSvg.prototype.setOverviewRectSize = function(zoom){
+	this.zoom = zoom;
+	var scales = {"0":1,"10":0.92,"20":0.84,"30":0.77,"40":0.73,"50":0.67,"60":0.63,"70":0.59,"80":0.56,"90":0.53,"100":0.5};
+	var scale = scales[zoom];
+	this.overviewRect.setAttribute("transform","scale("+scale+")");
+	
+	//move canvas if overview rect cross the window limit
+	var x = parseInt(this.overviewRect.getAttribute("x"));
+	if(x*scale + this.overviewDivWidth*scale > this.overviewDivWidth) {
+		var newX = this.overviewDivWidth - this.overviewDivWidth*scale;
+		this.overviewRect.setAttribute("x", newX/scale);
+		this.parentNetwork.svgC.setAttribute("x", parseInt(-newX/this.scale/scale));
+	}
+	var y = parseInt(this.overviewRect.getAttribute("y"));
+	if(y*scale + this.overviewDivHeight*scale > this.overviewDivHeight) {
+		var newY = this.overviewDivHeight - this.overviewDivHeight*scale;
+		this.overviewRect.setAttribute("y", newY/scale);
+		this.parentNetwork.svgC.setAttribute("y", parseInt(-newY/this.scale/scale));
+	}
+};
+
 NetworkSvg.prototype.setBackgroundColor = function(color){
 	this.bgColor = color;
 	this.background.setAttribute("fill", this.bgColor);
@@ -1350,6 +1541,15 @@ NetworkSvg.prototype.setNodeSize = function(newSize){
 					this.reallocateEdgesPosition(figure);
 				}
 				this.reallocateInputEdgeArrows(figure);
+				
+				//reallocate label
+				var x = parseInt(figure.getAttribute("x") || figure.getAttribute("cx")); 
+				var y = parseInt(figure.getAttribute("y") || figure.getAttribute("cy"));
+				var textOffsetX = parseInt(figure.getAttribute("r") || figure.getAttribute("rx") || 0);
+				var textOffsetY = parseInt(figure.getAttribute("height") || figure.getAttribute("r") || figure.getAttribute("ry") || 0) + 10;
+				var label = this.nodeSvgList[nodeId].childNodes[1];
+				label.setAttribute("x", x - textOffsetX);
+				label.setAttribute("y", y + textOffsetY);
 			}
 		}
 		break;
@@ -1416,6 +1616,24 @@ NetworkSvg.prototype.setNodeOpacity = function(newOpacity){
 	}
 };
 
+NetworkSvg.prototype.setNodeName = function(newName){
+	switch (this.mode) {
+	case "select":
+		for (var nodeId in this.selectedNodes){
+			var figure = this.nodeSvgList[nodeId].childNodes[0];
+			figure.setAttribute("nodeName", newName);
+//			var text = this.nodeSvgList[nodeId].childNodes[1];
+//			text.textContent = newName;
+			this.networkData.attributes.setName(nodeId, newName);
+			$(figure).qtip('option', 'content.title.text', newName);
+		}
+		break;
+	case "add":
+		this.nodeName = newName;
+		break;
+	}
+};
+
 NetworkSvg.prototype.setNodeLabel = function(newLabel){
 	switch (this.mode) {
 	case "select":
@@ -1424,7 +1642,13 @@ NetworkSvg.prototype.setNodeLabel = function(newLabel){
 			figure.setAttribute("nodeLabel", newLabel);
 			var text = this.nodeSvgList[nodeId].childNodes[1];
 			text.textContent = newLabel;
-			this.networkData.attributes.setName(nodeId, newLabel);
+//			this.networkData.attributes.setName(nodeId, newLabel);
+			
+			// change qtip info
+			var oldContent = $(figure).qtip('option', 'content.text');
+			var oldLabel = oldContent.split("<br>")[0];
+			var newContent = oldContent.replace(oldLabel, "<b>Label: </b>"+newLabel);
+			$(figure).qtip('option', 'content.text', newContent);
 		}
 		break;
 	case "add":
@@ -1486,20 +1710,21 @@ NetworkSvg.prototype.setLabelSize = function(size){
 /** EVENT FUNCTIONS **/
 NetworkSvg.prototype.canvasMouseDown = function(event){
 	var _this = this;
-	var offsetX = (event.clientX - $(this.svg).offset().left);
-	var offsetY = (event.clientY - $(this.svg).offset().top);
+	var offsetX = (event.clientX - $(this.svg).offset().left);///this.scale;
+	var offsetY = (event.clientY - $(this.svg).offset().top);///this.scale;
 	switch (this.mode) {
 	case "add":
 		this.addNode({
+			"name":this.nodeName,
 			"shape":this.nodeShape,
 			"size":this.nodeSize,
-			"color":this.nodeColor,
-			"strokeColor":this.nodeStrokeColor,
+			"fillcolor":this.nodeColor,
+			"color":this.nodeStrokeColor,
 			"strokeSize":this.nodeStrokeSize,
 			"opacity":this.nodeOpacity,
 			"label":this.nodeLabel,
-			"x":offsetX-15,
-			"y":offsetY-10
+			"x":offsetX/this.scale-15,
+			"y":offsetY/this.scale-10
 		}, true);
 		break;
 
@@ -1519,8 +1744,8 @@ NetworkSvg.prototype.canvasMouseDown = function(event){
 
 		var lastX = 0, lastY = 0;
 		$(this.svg).mousemove(function(event){
-			var offsetX = (event.clientX - $(_this.svg).offset().left);
-			var offsetY = (event.clientY - $(_this.svg).offset().top);
+			var offsetX = (event.clientX - $(_this.svg).offset().left);///_this.scale;
+			var offsetY = (event.clientY - $(_this.svg).offset().top);///_this.scale;
 			var newX = (_this.selectRectDownX + offsetX);
 			var newY = (_this.selectRectDownY + offsetY);
 			if(newX!=lastX || newY!=lastY){
@@ -1550,12 +1775,12 @@ NetworkSvg.prototype.canvasMouseDown = function(event){
 };
 
 NetworkSvg.prototype.canvasMouseUp = function(event){
-	var offsetX = (event.clientX - $(this.svg).offset().left);
-	var offsetY = (event.clientY - $(this.svg).offset().top);
+	var offsetX = (event.clientX - $(this.svg).offset().left);//this.scale;
+	var offsetY = (event.clientY - $(this.svg).offset().top);//this.scale;
 	switch (this.mode) {
 	case "select":
 		$(this.svg).off('mousemove');
-
+		
 		// calculate nodes in selection
 		var nodeList = [];
 		var startSelectX = this.selectRectDownX;
@@ -1573,12 +1798,14 @@ NetworkSvg.prototype.canvasMouseUp = function(event){
 		for (var node in this.nodeSvgList){
 			var figure = this.nodeSvgList[node].childNodes[0];
 			var nodeStartX = parseInt(figure.getAttribute("x") || figure.getAttribute("cx"));
-			var nodeStartY = parseInt(figure.getAttribute("y") || figure.getAttribute("cy"));
 			nodeStartX -= parseInt(figure.getAttribute("r") || figure.getAttribute("rx") || 0);
+			nodeStartX *= this.scale;
+			var nodeStartY = parseInt(figure.getAttribute("y") || figure.getAttribute("cy"));
 			nodeStartY -= parseInt(figure.getAttribute("r") || figure.getAttribute("ry") || 0);
+			nodeStartY *= this.scale;
 			
-			var nodeEndX = nodeStartX + (parseInt(figure.getAttribute("width")) || parseInt(figure.getAttribute("r") || figure.getAttribute("rx") || 0)*2);
-			var nodeEndY = nodeStartY + (parseInt(figure.getAttribute("height")) || parseInt(figure.getAttribute("r") || figure.getAttribute("ry") || 0)*2);
+			var nodeEndX = nodeStartX + (parseInt(figure.getAttribute("width")) || parseInt(figure.getAttribute("r") || figure.getAttribute("rx") || 0)*2)*this.scale;
+			var nodeEndY = nodeStartY + (parseInt(figure.getAttribute("height")) || parseInt(figure.getAttribute("r") || figure.getAttribute("ry") || 0)*2)*this.scale;
 			
 			if(startSelectX <= nodeEndX && startSelectY <= nodeEndY && endSelectX >= nodeStartX && endSelectY >= nodeStartY){
 				nodeList.push(node);
@@ -1618,14 +1845,17 @@ NetworkSvg.prototype.nodeClick = function(event, nodeId){
 		this.addEdgeFromClick(nodeId);
 		break;
 	case "select":
+		var figure = this.nodeSvgList[nodeId].childNodes[0];
+		
 		if(event.ctrlKey){
 			this.selectNode(nodeId);
 		}else if(this.countSelectedNodes < 2 || !this.selectedNodes[nodeId]){
 			this.deselectAllNodes();
 			this.selectNode(nodeId);
 			
-			var figure = this.nodeSvgList[nodeId].childNodes[0];
 			this.onNodeClick.notify({
+				"id":nodeId,
+				"name":figure.getAttribute("nodeName"),
 				"shape":figure.getAttribute("shape"),
 				"size":figure.getAttribute("nodeSize"),
 				"color":this.selectedNodes[nodeId],
@@ -1639,6 +1869,13 @@ NetworkSvg.prototype.nodeClick = function(event, nodeId){
 		if(this.selectedNodes[nodeId]){
 			var downX = event.clientX;
 			var downY = event.clientY;
+			
+//			var m = figure.getScreenCTM();
+//			var down = this.svg.createSVGPoint();
+//			down.x = event.clientX;
+//			down.y = event.clientY;
+//			down = down.matrixTransform(m.inverse());
+			
 			var lastX = 0, lastY = 0;
 
 			//save original node position
@@ -1651,9 +1888,25 @@ NetworkSvg.prototype.nodeClick = function(event, nodeId){
 				nodeOrigY[nodeId] = parseInt(nodeSvg.getAttribute("y") || nodeSvg.getAttribute("cy"));
 			}
 
+//			$(this.svg).mousemove(function(event){
+//				var despX = event.clientX - downX;
+//				var despY = event.clientY - downY;
+//				var newX = (downX + event.clientX);
+//				var newY = (downY + event.clientY);
+//				if(newX!=lastX || newY!=lastY){
+//					for (var nodeId in _this.selectedNodes){
+//						var newNodeX = nodeOrigX[nodeId] + despX;
+//						var newNodeY = nodeOrigY[nodeId] + despY;
+//						_this.moveNode(nodeId, newNodeX, newNodeY);
+//					}
+//					lastX = newX;
+//					lastY = newY;
+//				}
+//			});
+			
 			$(this.svg).mousemove(function(event){
-				var despX = event.clientX - downX;
-				var despY = event.clientY - downY;
+				var despX = (event.clientX - downX)/_this.scale;
+				var despY = (event.clientY - downY)/_this.scale;
 				var newX = (downX + event.clientX);
 				var newY = (downY + event.clientY);
 				if(newX!=lastX || newY!=lastY){
@@ -1692,4 +1945,90 @@ NetworkSvg.prototype.edgeClick = function(event, edgeId){
 		}
 		break;
 	}
+};
+
+NetworkSvg.prototype.getNodeMetainfo = function(){
+	console.log(this.nodeSvgList);
+	
+	var nodeList = {};
+	// loop over rendered nodes
+	for (var node in this.nodeSvgList) {
+		nodeList[node] = {};
+		var figure = this.nodeSvgList[node].childNodes[0];
+		nodeList[node].name = this.nodeSvgList[node].childNodes[1].textContent;
+		nodeList[node].metainfo = {};
+		nodeList[node].metainfo.shape = figure.getAttribute("shape");
+		nodeList[node].metainfo.size = parseInt(figure.getAttribute("nodeSize"));
+		nodeList[node].metainfo.label = figure.getAttribute("nodeLabel");
+		nodeList[node].metainfo.fillcolor = figure.getAttribute("fill");
+		nodeList[node].metainfo.color = figure.getAttribute("stroke");
+		nodeList[node].metainfo.strokeSize = figure.getAttribute("stroke-width");
+		nodeList[node].metainfo.opacity = figure.getAttribute("opacity");
+		nodeList[node].metainfo.x = parseInt(figure.getAttribute("x") || figure.getAttribute("cx"));
+		nodeList[node].metainfo.x -= parseInt(figure.getAttribute("r") || figure.getAttribute("rx") || 0);
+		nodeList[node].metainfo.y = parseInt(figure.getAttribute("y") || figure.getAttribute("cy"));
+		nodeList[node].metainfo.y -= parseInt(figure.getAttribute("r") || figure.getAttribute("ry") || 0);
+	}
+	
+	var edgeList = {};
+	// loop over rendered edges
+	for (var iedge in this.edgeSvgList){
+		var figure = this.edgeSvgList[iedge];
+		var id = figure.getAttribute("id");
+		edgeList[id] = {};
+		edgeList[id].type = figure.getAttribute("type");
+		edgeList[id].x1 = parseInt(figure.getAttribute("x1"));
+		edgeList[id].y1 = parseInt(figure.getAttribute("y1"));
+		edgeList[id].x2 = parseInt(figure.getAttribute("x2"));
+		edgeList[id].y2 = parseInt(figure.getAttribute("y2"));
+//		edgeList[id].markerEnd = figure.getAttribute("marker-end");
+	}
+	
+	return {
+		"nodes": nodeList,
+		"edges": edgeList
+	};
+};
+
+NetworkSvg.prototype.moveOverviewRect = function(event) {
+	var _this = this;
+	
+	var downX = event.clientX;
+	var downY = event.clientY;
+	var lastX = 0, lastY = 0;
+	var origX = parseInt(this.overviewRect.getAttribute("x"));
+	var origY = parseInt(this.overviewRect.getAttribute("y"));
+	var scale = parseFloat(this.overviewRect.getAttribute("transform").split('(')[1].split(')')[0]);
+	console.log("Scale overview: "+scale);
+	
+	$(this.svg).mousemove(function(event){
+		var despX = (event.clientX - downX)/scale;
+		var despY = (event.clientY - downY)/scale;
+		var newX = (downX + event.clientX);
+		var newY = (downY + event.clientY);
+		if(newX!=lastX || newY!=lastY){
+			var newRectX = origX + despX;
+			var newRectY = origY + despY;
+			if(newRectX*scale >= 0 && newRectX*scale + _this.overviewDivWidth*scale <= _this.overviewDivWidth) {
+				_this.overviewRect.setAttribute("x", newRectX);
+				
+				_this.parentNetwork.svgC.setAttribute("x", parseInt(-newRectX/_this.scale));
+			}
+			if(newRectY*scale >= 0 && newRectY*scale + _this.overviewDivHeight*scale <= _this.overviewDivHeight) {
+				_this.overviewRect.setAttribute("y", newRectY);
+				
+				_this.parentNetwork.svgC.setAttribute("y", parseInt(-newRectY/_this.scale));
+			}
+			lastX = newX;
+			lastY = newY;
+		}
+	});
+};
+
+NetworkSvg.prototype.showRenderDiv = function() {
+	$(this.parentDiv).css("visibility", "visible");
+};
+
+NetworkSvg.prototype.hideRenderDiv = function() {
+	$(this.parentDiv).css("visibility", "hidden");
 };
