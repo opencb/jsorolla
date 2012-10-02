@@ -56,6 +56,9 @@ function CellBaseManager(species, args) {
 		if(args.host != null){
 			this.host = args.host;
 		}
+		if(args.async != null){
+			this.async = args.async;
+		}
 	}
 	
 	

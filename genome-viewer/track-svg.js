@@ -1041,7 +1041,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 };
 
 TrackSvg.prototype.SequenceRender = function(response){
-	var featureList = this._getFeaturesByChunks(response);
+	//var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
 
 		var chromeFontSize = "16";
@@ -1059,16 +1059,17 @@ TrackSvg.prototype.SequenceRender = function(response){
 
 		
 		//if(featureList.length > 0){//???
-		for ( var j = 0; j < featureList.length; j++) {
-			var seqString = featureList[j].sequence;
-			var seqStart = featureList[j].start;
+		//for ( var j = 0; j < featureList.length; j++) {
+			//var seqString = featureList[j].sequence;
+			//var seqStart = featureList[j].start;
 			var width = 1*this.pixelBase;
 			
 	//		if(!this.settings.color){
 	//			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
 	//		}
 			
-			var start = featureList[j].start;
+			var start = response.start;
+			var seqString = response.sequence;
 			
 			if(jQuery.browser.mozilla){
 				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
@@ -1101,7 +1102,7 @@ TrackSvg.prototype.SequenceRender = function(response){
 				}
 				
 			}
-		}
+		//}
 			
 		//}
 		console.timeEnd("all");
