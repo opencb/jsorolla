@@ -1068,8 +1068,9 @@ TrackSvg.prototype.SequenceRender = function(response){
 	//			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
 	//		}
 			
-			var start = response.start;
-			var seqString = response.sequence;
+			var start = response.items.start;
+			var seqStart = response.items.start;
+			var seqString = response.items.sequence;
 			
 			if(jQuery.browser.mozilla){
 				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
@@ -1106,7 +1107,7 @@ TrackSvg.prototype.SequenceRender = function(response){
 			
 		//}
 		console.timeEnd("all");
-		this.trackSvgLayout.setNucleotidPosition(this.position);
+		//this.trackSvgLayout.setNucleotidPosition(this.position);
 };
 
 

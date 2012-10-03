@@ -407,8 +407,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		//needed call variables
 		callStart = parseInt(_this.position - _this.halfVirtualBase*2);
 		callEnd = parseInt(_this.position + _this.halfVirtualBase*2);
-		virtualStart = parseInt(_this.position - _this.halfVirtualBase);//for now
-		vitualEnd = parseInt(_this.position + _this.halfVirtualBase);//for now
+		virtualStart = parseInt(_this.position - _this.halfVirtualBase*2);//for now
+		vitualEnd = parseInt(_this.position + _this.halfVirtualBase*2);//for now
 	};
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){
@@ -527,10 +527,10 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
 		trackSvg.features.setAttribute("x",move);
 
+		virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase);
+		virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
-			virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase);
-			virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
 			
 			if(desp>0 && virtualStart < callStart){
 				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
@@ -708,9 +708,9 @@ TrackSvgLayout.prototype.getTrackSvgById = function(trackId){
 };
 
 TrackSvgLayout.prototype.setMousePosition = function(position){
-	var base = this.getSequenceNucleotid(position);
-	var html = '<span style="font-family: Ubuntu Mono;font-size:19px;color:'+SEQUENCE_COLORS[base]+'">'+base+'</span>';
-	Ext.getCmp(this.genomeViewer.id+"mouseNucleotidLabel").setText(html);
+	//var base = this.getSequenceNucleotid(position);
+	//var html = '<span style="font-family: Ubuntu Mono;font-size:19px;color:'+SEQUENCE_COLORS[base]+'">'+base+'</span>';
+	//Ext.getCmp(this.genomeViewer.id+"mouseNucleotidLabel").setText(html);
 };
 
 TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
@@ -726,7 +726,7 @@ TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
 }
 
 TrackSvgLayout.prototype.setNucleotidPosition = function(position){
-	var base = this.getSequenceNucleotid(position);
-	this.nucleotidText.setAttribute("fill",SEQUENCE_COLORS[base]);
-	this.nucleotidText.textContent = base;
+	//var base = this.getSequenceNucleotid(position);
+	//this.nucleotidText.setAttribute("fill",SEQUENCE_COLORS[base]);
+	//this.nucleotidText.textContent = base;
 };

@@ -49,8 +49,8 @@ function SequenceAdapter(args){
 	}
 	this.onGetData = new Event();
 	this.sequence="";
-	this.start = null;
-	this.end = null;
+	this.start = 0;
+	this.end = 0;
 };
 
 SequenceAdapter.prototype.getData = function(args){
@@ -61,8 +61,6 @@ SequenceAdapter.prototype.getData = function(args){
 	this.params["transcript"] = args.transcript;
 	this.params["chromosome"] = args.chromosome;
 	this.params["resource"] = this.resource;
-	this.params["queryStart"] = args.start;
-	this.params["queryEnd"] = args.end;
 
 	if(args.start<1){
 		args.start=1;
@@ -70,28 +68,107 @@ SequenceAdapter.prototype.getData = function(args){
 	if(args.end>300000000){
 		args.end=300000000;
 	}
-	var query = args.chromosome+"-"+args.start+":"+args.end;
-	
-	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
+	console.log("--------------------------------------------------------------------"+this.start+" "+this.end);
+	console.log("--------------------------------------------------------------------"+args.start+" "+args.end);
 
+	var s,e;
+	if(_this.start==0 && _this.end==0){
+			_this.start = args.start;
+			_this.end = args.end;
+			s = args.start;
+			e = args.end;
+	}else{
+		if(args.start <= _this.start){
+			s = args.start;
+			e = _this.start-1;
+			_this.start = s;
+			this.params["side"] = "left";
+		}
+		if(args.end >= _this.end){
+			e = args.end;
+			s = _this.end+1;
+			_this.end = e;
+			this.params["side"] = "rigth";
+		}
+	}
+
+	this.params["queryStart"] = s;
+	this.params["queryEnd"] = e;
+	var query = args.chromosome+":"+s+"-"+e;
+	console.log("--------------------------------------------------------------------"+s+" "+e);
+	console.log("--------------------------------------------------------------------"+this.start+" "+this.end);
+	console.log(this)
+	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
+//
 	cellBaseManager.success.addEventListener(function(sender,data){
-		debugger
 		var seqResponse = data.result[0];
-		if(_this.start==null && _this.end==null){
-			_this.start = seqResponse.start;
-			_this.end = seqResponse.end;
+		if(data.params.side == null){
 			_this.sequence = seqResponse.sequence;
 		}else{
-			if(seqResponse.start < _this.start){
-				_this.start = seqResponse.start;
+			if(data.params.side == "left"){
+				_this.sequence = seqResponse.sequence + _this.sequence;
+			}else{
+				_this.sequence = _this.sequence + seqResponse.sequence;
 			}
-			if(seqResponse.end > _this.end){
-				_this.end = seqResponse.end;
-			}
-		}
-		_this.onGetData.notify({sequence:_this.sequence,start:_this.start,end:_this.end})
-	});
 
+		}
+		_this.onGetData.notify({items:{sequence:seqResponse.sequence,start:data.params.queryStart,end:data.params.queryEnd},params:_this.params});
+	});
 	cellBaseManager.get(this.category, this.subCategory, query, this.resource, this.params);
 	
+};
+
+SequenceAdapter.prototype.compare = function(args){
+	var _this=this;
+	//var start = args.start;
+	//var end = args.end;
+	//var sequence = args.sequence
+
+	//TODO
+
+	var s,e, query, querys = [];
+	if(_this.start==0 && _this.end==0){
+			_this.start = args.start;
+			_this.end = args.end;
+			s = args.start;
+			e = args.end;
+	}else{
+		if(args.start <= _this.start){
+			s = args.start;
+			e = _this.start-1;
+			_this.start = s;
+			this.params["side"] = "left";
+		}
+		query = args.chromosome+":"+s+"-"+e;
+		querys.push(query);
+		if(args.end >= _this.end){
+			e = args.end;
+			s = _this.end+1;
+			_this.end = e;
+			this.params["side"] = "rigth";
+		}
+		query = args.chromosome+":"+s+"-"+e;
+		querys.push(query);
+	}
+
+	var query = args.chromosome+":"+s+"-"+e;
+	
+	var cellBaseManager = new CellBaseManager(this.species,{host: this.host, async:false});
+	var x  =  cellBaseManager.get(this.category, this.subCategory, querys.toString(), this.resource, this.params);
+	console.log(x)
+	debugger
+	//cellBaseManager.success.addEventListener(function(sender,data){
+		//var seqResponse = data.result[0];
+		//if(data.params.side == null){
+			//_this.sequence = seqResponse.sequence;
+		//}else{
+			//if(data.params.side == "left"){
+				//_this.sequence = seqResponse.sequence + _this.sequence;
+			//}else{
+				//_this.sequence = _this.sequence + seqResponse.sequence;
+			//}
+//
+		//}
+		//_this.onGetData.notify({items:{sequence:seqResponse.sequence,start:data.params.queryStart,end:data.params.queryEnd},params:_this.params});
+	//});
 };
