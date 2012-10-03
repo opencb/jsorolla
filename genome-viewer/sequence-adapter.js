@@ -61,7 +61,7 @@ SequenceAdapter.prototype.getData = function(args){
 	this.params["transcript"] = args.transcript;
 	this.params["chromosome"] = args.chromosome;
 	this.params["resource"] = this.resource;
-
+	
 	if(args.start<1){
 		args.start=1;
 	}
@@ -71,104 +71,92 @@ SequenceAdapter.prototype.getData = function(args){
 	console.log("--------------------------------------------------------------------"+this.start+" "+this.end);
 	console.log("--------------------------------------------------------------------"+args.start+" "+args.end);
 
-	var s,e;
-	if(_this.start==0 && _this.end==0){
-			_this.start = args.start;
-			_this.end = args.end;
-			s = args.start;
-			e = args.end;
-	}else{
-		if(args.start <= _this.start){
-			s = args.start;
-			e = _this.start-1;
-			_this.start = s;
-			this.params["side"] = "left";
-		}
-		if(args.end >= _this.end){
-			e = args.end;
-			s = _this.end+1;
-			_this.end = e;
-			this.params["side"] = "rigth";
-		}
-	}
+	var queryString = this._getSequenceQuery(args);
 
-	this.params["queryStart"] = s;
-	this.params["queryEnd"] = e;
-	var query = args.chromosome+":"+s+"-"+e;
-	console.log("--------------------------------------------------------------------"+s+" "+e);
-	console.log("--------------------------------------------------------------------"+this.start+" "+this.end);
-	console.log(this)
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 //
 	cellBaseManager.success.addEventListener(function(sender,data){
-		var seqResponse = data.result[0];
-		if(data.params.side == null){
-			_this.sequence = seqResponse.sequence;
-		}else{
-			if(data.params.side == "left"){
-				_this.sequence = seqResponse.sequence + _this.sequence;
-			}else{
-				_this.sequence = _this.sequence + seqResponse.sequence;
-			}
-
-		}
-		_this.onGetData.notify({items:{sequence:seqResponse.sequence,start:data.params.queryStart,end:data.params.queryEnd},params:_this.params});
+		_this._processSequenceQuery(data,true);
 	});
-	cellBaseManager.get(this.category, this.subCategory, query, this.resource, this.params);
+	cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
 	
 };
 
-SequenceAdapter.prototype.compare = function(args){
-	var _this=this;
-	//var start = args.start;
-	//var end = args.end;
-	//var sequence = args.sequence
-
-	//TODO
-
+SequenceAdapter.prototype._getSequenceQuery = function(args){
+	var _this = this;
 	var s,e, query, querys = [];
 	if(_this.start==0 && _this.end==0){
 			_this.start = args.start;
 			_this.end = args.end;
 			s = args.start;
 			e = args.end;
+			query = args.chromosome+":"+s+"-"+e;
+			querys.push(query);
 	}else{
 		if(args.start <= _this.start){
 			s = args.start;
 			e = _this.start-1;
 			_this.start = s;
-			this.params["side"] = "left";
+			query = args.chromosome+":"+s+"-"+e;
+			querys.push(query);
 		}
-		query = args.chromosome+":"+s+"-"+e;
-		querys.push(query);
 		if(args.end >= _this.end){
 			e = args.end;
 			s = _this.end+1;
 			_this.end = e;
-			this.params["side"] = "rigth";
+			query = args.chromosome+":"+s+"-"+e;
+			querys.push(query);
 		}
-		query = args.chromosome+":"+s+"-"+e;
-		querys.push(query);
 	}
+	
+	console.log("--------------------------------------------------------------------"+s+" "+e);
+	console.log("--------------------------------------------------------------------"+this.start+" "+this.end);
+	
+	return querys.toString();
+};
 
-	var query = args.chromosome+":"+s+"-"+e;
+SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
+	var seqResponse = data.result;
+	for(var i = 0; i < seqResponse.length; i++){
+		var splitDots = data.query[i].split(":");
+		var splitDash = splitDots[1].split("-");
+		var queryStart = splitDash[0];
+		var queryEnd = splitDash[1];
+		
+		if(this.sequence == ""){
+			this.sequence = seqResponse[i].sequence;
+		}else{
+			if(queryStart == this.start){
+				this.sequence = seqResponse[i].sequence + this.sequence;
+			}else{
+				this.sequence = this.sequence + seqResponse[i].sequence;
+			}
+		}
+		if(throwNotify == true){
+			this.onGetData.notify({items:{sequence:seqResponse[i].sequence,start:queryStart,end:queryEnd},params:this.params});
+		}
+	}
+};
+
+SequenceAdapter.prototype.getDiffString = function(args){
+	var _this=this;
+	var queryString = this._getSequenceQuery(args);
 	
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host, async:false});
-	var x  =  cellBaseManager.get(this.category, this.subCategory, querys.toString(), this.resource, this.params);
-	console.log(x)
-	debugger
-	//cellBaseManager.success.addEventListener(function(sender,data){
-		//var seqResponse = data.result[0];
-		//if(data.params.side == null){
-			//_this.sequence = seqResponse.sequence;
-		//}else{
-			//if(data.params.side == "left"){
-				//_this.sequence = seqResponse.sequence + _this.sequence;
-			//}else{
-				//_this.sequence = _this.sequence + seqResponse.sequence;
-			//}
-//
-		//}
-		//_this.onGetData.notify({items:{sequence:seqResponse.sequence,start:data.params.queryStart,end:data.params.queryEnd},params:_this.params});
-	//});
+	var data = cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
+	_this._processSequenceQuery(data);
+
+	//here the needed sequence is on the cache
+	
+	var referenceSubStr = this.sequence.substring(args.start-this.start,args.sequence.length);
+
+	resultStr = "";
+	for(var i = 0; i < args.sequence.length; i++){
+		if(args.sequence.charAt(i) == referenceSubStr.charAt(i)){
+			resultStr+=" ";
+		}else{
+			resultStr+=args.sequence.charAt(i);
+		}
+	}
+	return resultStr;
 };

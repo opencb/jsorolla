@@ -1043,7 +1043,6 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 TrackSvg.prototype.SequenceRender = function(response){
 	//var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
-
 		var chromeFontSize = "16";
 		var firefoxFontSize = "19";
 		var chromeFontOff = "16";
@@ -1071,7 +1070,7 @@ TrackSvg.prototype.SequenceRender = function(response){
 			var start = response.items.start;
 			var seqStart = response.items.start;
 			var seqString = response.items.sequence;
-			
+
 			if(jQuery.browser.mozilla){
 				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
 				var text = SVG.addChild(this.features,"text",{

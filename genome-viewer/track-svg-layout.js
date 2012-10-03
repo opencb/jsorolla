@@ -434,8 +434,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			trackSvg.features.removeChild(trackSvg.features.firstChild);
 		}
 		console.timeEnd("empty");
+		
 		//deprecated, bam still uses it
-		trackData.adapter.featureCache.chunksDisplayed = {};
+		//trackData.adapter.featureCache.chunksDisplayed = {};
 
 		trackSvg.chunksDisplayed = {};
 		trackSvg.renderedArea = {};
@@ -661,7 +662,7 @@ TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 	
 	this._redraw();
 	
-	var _this= this;
+	//var _this= this;
 //	setTimeout(function() {
 //		_this._showTrack(trackMainId);
 //	},2000);
