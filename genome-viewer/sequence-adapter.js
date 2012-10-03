@@ -55,6 +55,8 @@ function SequenceAdapter(args){
 
 SequenceAdapter.prototype.getData = function(args){
 	var _this = this;
+	this.sender = args.sender;
+	
 	//region check
 	this.params["histogram"] = args.histogram;
 	this.params["interval"] = args.interval;
@@ -133,7 +135,11 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 			}
 		}
 		if(throwNotify == true){
-			this.onGetData.notify({items:{sequence:seqResponse[i].sequence,start:queryStart,end:queryEnd},params:this.params});
+			if(this.sender == "onMove"){
+				this.onGetData.notify({items:{sequence:seqResponse[i].sequence,start:queryStart,end:queryEnd},params:this.params});
+			}else{//if not onMove the svg was cleared so all sequence is send to redraw
+				this.onGetData.notify({items:{sequence:this.sequence,start:this.start,end:this.end},params:this.params});
+			}
 		}
 	}
 };

@@ -428,7 +428,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	};
 	var cleanSvgFeatures = function(){
 		console.time("empty");
-//		$(trackSvg.features).empty();
+		//$(trackSvg.features).empty();
 //		trackSvg.features.textContent = "";
 		while (trackSvg.features.firstChild) {
 			trackSvg.features.removeChild(trackSvg.features.firstChild);
@@ -437,9 +437,28 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		//deprecated, bam still uses it
 		//trackData.adapter.featureCache.chunksDisplayed = {};
-
+		if(trackSvg.id == "Sequence")
+		
 		trackSvg.chunksDisplayed = {};
 		trackSvg.renderedArea = {};
+	};
+	var retrieveData = function(sender){
+		// check if track is visible in this zoom
+		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
+			trackSvg.setLoading(true);
+			trackData.retrieveData({
+				chromosome:_this.chromosome,
+				start:virtualStart,
+				end:vitualEnd,
+				histogram:trackSvg.histogram,
+				interval:trackSvg.interval,
+				transcript:trackSvg.transcript,
+				sender:sender
+			});
+			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
+		}else{
+			trackSvg.invalidZoomText.setAttribute("visibility", "visible");
+		}
 	};
 	//END help methods
 	
@@ -472,14 +491,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	checkHistogramZoom();
 	checkTranscriptZoom();//for genes only
 	setCallRegion();
-	// check if track is visible in this zoom
-	if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-		trackSvg.setLoading(true);
-		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
-		trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
-	}else{
-		trackSvg.invalidZoomText.setAttribute("visibility", "visible");
-	}
+	
+	retrieveData("firstLoad");
 	
 	
 	//on zoom change set new virtual window and update track values
@@ -492,14 +505,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		cleanSvgFeatures();
 		setCallRegion();
 		
-		// check if track is visible in this zoom
-		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-			trackSvg.setLoading(true);
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
-			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
-		}else{
-			trackSvg.invalidZoomText.setAttribute("visibility", "visible");
-		}
+		retrieveData("onZoomChange");
 	});
 
 	
@@ -509,12 +515,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		cleanSvgFeatures();
 		setCallRegion();
-		
-		// check if track is visible in this zoom
-		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-			trackSvg.setLoading(true);
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
-		}
+
+		retrieveData("onChromosomeChange");
 	});
 	
 
@@ -534,12 +536,28 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
 			
 			if(desp>0 && virtualStart < callStart){
-				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
+				trackData.retrieveData({
+					chromosome:_this.chromosome,
+					start:parseInt(callStart-_this.halfVirtualBase),
+					end:callStart,
+					histogram:trackSvg.histogram,
+					interval:trackSvg.interval,
+					transcript:trackSvg.transcript,
+					sender:"onMove"
+				});
 				callStart = parseInt(callStart-_this.halfVirtualBase);
 			}
 
 			if(desp<0 && virtualEnd > callEnd){
-				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase), histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
+				trackData.retrieveData({
+					chromosome:_this.chromosome,
+					start:callEnd,
+					end:parseInt(callEnd+_this.halfVirtualBase),
+					histogram:trackSvg.histogram,
+					interval:trackSvg.interval,
+					transcript:trackSvg.transcript,
+					sender:"onMove"
+				});
 				callEnd = parseInt(callEnd+_this.halfVirtualBase);
 			}
 
