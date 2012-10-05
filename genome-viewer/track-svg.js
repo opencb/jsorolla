@@ -1106,7 +1106,7 @@ TrackSvg.prototype.SequenceRender = function(response){
 			
 		//}
 		console.timeEnd("all");
-		//this.trackSvgLayout.setNucleotidPosition(this.position);
+		this.trackSvgLayout.setNucleotidPosition(this.position);
 };
 
 

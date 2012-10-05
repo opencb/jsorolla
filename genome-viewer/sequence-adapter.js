@@ -48,9 +48,15 @@ function SequenceAdapter(args){
 		}
 	}
 	this.onGetData = new Event();
-	this.sequence="";
-	this.start = 0;
-	this.end = 0;
+	this.sequence = {};
+	this.start = {};
+	this.end = {};
+};
+
+SequenceAdapter.prototype.clearData = function(){
+	this.sequence = {};
+	this.start = {};
+	this.end = {};
 };
 
 SequenceAdapter.prototype.getData = function(args){
@@ -63,6 +69,8 @@ SequenceAdapter.prototype.getData = function(args){
 	this.params["transcript"] = args.transcript;
 	this.params["chromosome"] = args.chromosome;
 	this.params["resource"] = this.resource;
+
+	var chromosome = args.chromosome;
 	
 	if(args.start<1){
 		args.start=1;
@@ -70,83 +78,102 @@ SequenceAdapter.prototype.getData = function(args){
 	if(args.end>300000000){
 		args.end=300000000;
 	}
-	console.log("--------------------------------------------------------------------"+this.start+" "+this.end);
+
+	console.log("--------------------------------------------------------------------"+this.start[chromosome]+" "+this.end[chromosome]);
 	console.log("--------------------------------------------------------------------"+args.start+" "+args.end);
 
 	var queryString = this._getSequenceQuery(args);
 
-	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
+	if(queryString != ""){
+		var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 //
-	cellBaseManager.success.addEventListener(function(sender,data){
-		_this._processSequenceQuery(data,true);
-	});
-	cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
+		cellBaseManager.success.addEventListener(function(sender,data){
+			_this._processSequenceQuery(data,true);
+		});
+	
+		cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
+	}else{
+		if(this.sender != "onMove"){
+			this.onGetData.notify({items:{sequence:this.sequence[chromosome],start:this.start[chromosome],end:this.end[chromosome]},params:this.params});
+		}
+	}
 	
 };
 
 SequenceAdapter.prototype._getSequenceQuery = function(args){
 	var _this = this;
+	var chromosome = args.chromosome;
+	
 	var s,e, query, querys = [];
-	if(_this.start==0 && _this.end==0){
-			_this.start = args.start;
-			_this.end = args.end;
+	if(_this.start[chromosome]==null && _this.end[chromosome]==null){
+			args.start -= 500;
+			args.end += 500;
+			_this.start[chromosome] = args.start;
+			_this.end[chromosome] = args.end;
 			s = args.start;
 			e = args.end;
-			query = args.chromosome+":"+s+"-"+e;
+			query = chromosome+":"+s+"-"+e;
 			querys.push(query);
 	}else{
-		if(args.start <= _this.start){
+		if(args.start <= _this.start[chromosome]){
 			s = args.start;
-			e = _this.start-1;
-			_this.start = s;
+			e = _this.start[chromosome]-1;
+			_this.start[chromosome] = s;
 			query = args.chromosome+":"+s+"-"+e;
 			querys.push(query);
 		}
-		if(args.end >= _this.end){
+		if(args.end >= _this.end[chromosome]){
 			e = args.end;
-			s = _this.end+1;
-			_this.end = e;
+			s = _this.end[chromosome]+1;
+			_this.end[chromosome] = e;
 			query = args.chromosome+":"+s+"-"+e;
 			querys.push(query);
 		}
 	}
 	
-	console.log("--------------------------------------------------------------------"+s+" "+e);
-	console.log("--------------------------------------------------------------------"+this.start+" "+this.end);
+	//console.log("--------------------------------------------------------------------"+s+" "+e);
+	//console.log("--------------------------------------------------------------------"+this.start[args.chromosome]+" "+this.end[args.chromosome]);
 	
 	return querys.toString();
 };
 
 SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
+	var _this = this;
 	var seqResponse = data.result;
+	var params = data.params;
+	var chromosome = data.params.chromosome;
+
 	for(var i = 0; i < seqResponse.length; i++){
 		var splitDots = data.query[i].split(":");
 		var splitDash = splitDots[1].split("-");
 		var queryStart = splitDash[0];
 		var queryEnd = splitDash[1];
 		
-		if(this.sequence == ""){
-			this.sequence = seqResponse[i].sequence;
+		if(this.sequence[chromosome] == null){
+			this.sequence[chromosome] = seqResponse[i].sequence;
 		}else{
-			if(queryStart == this.start){
-				this.sequence = seqResponse[i].sequence + this.sequence;
+			if(queryStart == this.start[chromosome]){
+				this.sequence[chromosome] = seqResponse[i].sequence + this.sequence[chromosome];
 			}else{
-				this.sequence = this.sequence + seqResponse[i].sequence;
+				this.sequence[chromosome] = this.sequence[chromosome] + seqResponse[i].sequence;
 			}
 		}
-		if(throwNotify == true){
-			if(this.sender == "onMove"){
-				this.onGetData.notify({items:{sequence:seqResponse[i].sequence,start:queryStart,end:queryEnd},params:this.params});
-			}else{//if not onMove the svg was cleared so all sequence is send to redraw
-				this.onGetData.notify({items:{sequence:this.sequence,start:this.start,end:this.end},params:this.params});
-			}
+		if(this.sender == "onMove" && throwNotify == true){
+			this.onGetData.notify({items:{sequence:seqResponse[i].sequence,start:queryStart,end:queryEnd},params:params});
 		}
+	}
+	//if not onMove the svg was cleared so all sequence is sent to redraw
+	if(this.sender != "onMove" && throwNotify == true){
+		this.onGetData.notify({items:{sequence:this.sequence[chromosome],start:this.start[chromosome],end:this.end[chromosome]},params:params});
 	}
 };
 
+//Used by bam to get the mutations
 SequenceAdapter.prototype.getDiffString = function(args){
 	var _this=this;
 	var queryString = this._getSequenceQuery(args);
+
+	var chromosome = args.chromosome;
 	
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host, async:false});
 	var data = cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
@@ -154,7 +181,7 @@ SequenceAdapter.prototype.getDiffString = function(args){
 
 	//here the needed sequence is on the cache
 	
-	var referenceSubStr = this.sequence.substring(args.start-this.start,args.sequence.length);
+	var referenceSubStr = this.sequence[chromosome].substr(args.start-this.start,args.sequence.length);
 
 	resultStr = "";
 	for(var i = 0; i < args.sequence.length; i++){
@@ -165,4 +192,25 @@ SequenceAdapter.prototype.getDiffString = function(args){
 		}
 	}
 	return resultStr;
+};
+
+//Used by bam to get the mutations
+SequenceAdapter.prototype.getNucleotidByPosition = function(args){
+	var _this=this;
+	var queryString = this._getSequenceQuery(args);
+	
+	var chromosome = args.chromosome;
+	
+	if(queryString != ""){
+		var cellBaseManager = new CellBaseManager(this.species,{host: this.host, async:false});
+		var data = cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
+		_this._processSequenceQuery(data);
+	}
+	if(this.sequence[chromosome] != null){
+		var referenceSubStr = this.sequence[chromosome].substr((args.start-this.start[chromosome]),1);
+		return referenceSubStr;
+	}else{
+		console.log("SequenceRender: this.sequence[chromosome] is undefined");
+		return "";
+	}
 };

@@ -363,9 +363,14 @@ TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.po
 	if(item.species!=null){
 		//check species and modify CellBaseAdapter, clean cache
 		for(i in this.trackSvgList){
-			if(this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter){
+			if(this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter ||
+				this.trackSvgList[i].trackData.adapter instanceof SequenceAdapter
+			){
 				this.trackSvgList[i].trackData.adapter.species = item.species;
-				this.trackSvgList[i].trackData.adapter.featureCache.clear();
+				//this.trackSvgList[i].trackData.adapter.featureCache.clear();
+
+				//TODO  implement clear method, this crashes
+				this.trackSvgList[i].trackData.adapter.clearData();
 			}
 		}
 	}
@@ -435,9 +440,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		}
 		console.timeEnd("empty");
 		
-		//deprecated, bam still uses it
+		//deprecated, diplayed object is now in trackSvg class
 		//trackData.adapter.featureCache.chunksDisplayed = {};
-		if(trackSvg.id == "Sequence")
 		
 		trackSvg.chunksDisplayed = {};
 		trackSvg.renderedArea = {};
@@ -727,25 +731,25 @@ TrackSvgLayout.prototype.getTrackSvgById = function(trackId){
 };
 
 TrackSvgLayout.prototype.setMousePosition = function(position){
-	//var base = this.getSequenceNucleotid(position);
-	//var html = '<span style="font-family: Ubuntu Mono;font-size:19px;color:'+SEQUENCE_COLORS[base]+'">'+base+'</span>';
-	//Ext.getCmp(this.genomeViewer.id+"mouseNucleotidLabel").setText(html);
+	var base = this.getSequenceNucleotid(position);
+	var html = '<span style="font-family: Ubuntu Mono;font-size:19px;color:'+SEQUENCE_COLORS[base]+'">'+base+'</span>';
+	Ext.getCmp(this.genomeViewer.id+"mouseNucleotidLabel").setText(html);
 };
 
 TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
 	var seqTrack = this.getTrackSvgById("Sequence");
 	if( seqTrack != null){
-		var key  = this.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(position);
-		var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(key);
-		if(r != null){
-			return r.data[0].sequence.charAt(position-r.data[0].start);
-		}
+		return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.chromosome})
+		//var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(key);
+		//if(r != null){
+			//return r.data[0].sequence.charAt(position-r.data[0].start);
+		//}
 	}
 	return "";
 }
 
 TrackSvgLayout.prototype.setNucleotidPosition = function(position){
-	//var base = this.getSequenceNucleotid(position);
-	//this.nucleotidText.setAttribute("fill",SEQUENCE_COLORS[base]);
-	//this.nucleotidText.textContent = base;
+	var base = this.getSequenceNucleotid(position);
+	this.nucleotidText.setAttribute("fill",SEQUENCE_COLORS[base]);
+	this.nucleotidText.textContent = base;
 };

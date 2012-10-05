@@ -51,6 +51,11 @@ function CellBaseAdapter(args){
 	this.onGetData = new Event();
 };
 
+CellBaseAdapter.prototype.clearData = function(){
+	this.featureCache.clear();
+};
+
+
 CellBaseAdapter.prototype.getData = function(args){
 	var _this = this;
 	//region check
