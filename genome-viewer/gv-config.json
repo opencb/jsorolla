@@ -17,7 +17,7 @@ GENE_BIOTYPE_COLORS = {
 		"Mt_rRNA":"#8b668b",
 		"Mt_tRNA":"#8b668b",
 		"ncrna_host":"Fuchsia",
-		"nonsense_mediated_decay":"Chartreuse",
+		"nonsense_mediated_decay":"seagreen",
 		"non_coding":"orangered",
 		"non_stop_decay":"aqua",
 		"polymorphic_pseudogene":"#666666",
@@ -27,7 +27,7 @@ GENE_BIOTYPE_COLORS = {
 		"pseudogene":"#666666",
 		"retained_intron":"gold",
 		"retrotransposed":"lightsalmon",
-		"rRNA":"LawnGreen",
+		"rRNA":"indianred",
 		"sense_intronic":"#20B2AA",
 		"sense_overlapping":"#20B2AA",  
 		"snoRNA":"#8b668b",//TODO falta

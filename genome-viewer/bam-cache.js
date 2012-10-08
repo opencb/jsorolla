@@ -38,11 +38,11 @@ function BamCache(args) {
 	}
 	
 	this.cache = {};
-	this.chunksDisplayed = {};
+
+	//deprecated trackSvg has this object now
+	//this.chunksDisplayed = {};
 	
 	this.maxFeaturesInterval = 0;//for local histogram
-	
-	
 	
 	//XXX
 	this.gzip = false;

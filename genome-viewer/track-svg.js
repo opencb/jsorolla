@@ -96,6 +96,9 @@ function TrackSvg(parent, args) {
 		if(args.titleVisibility != null){
 			this.titleVisibility = args.titleVisibility;
 		}
+		if(args.visibleRange != null){
+			this.visibleRange = args.visibleRange;
+		}
 		if(args.featuresRender != null){
 			switch(args.featuresRender){
 				case "MultiFeatureRender": this.featuresRender = this.MultiFeatureRender; break;
@@ -350,7 +353,7 @@ TrackSvg.prototype.draw = function(){
 	
 	this.invalidZoomText = SVG.addChild(main,"text",{
 		"x":154,
-		"y":14,
+		"y":24,
 		"font-size": 10,
 		"opacity":"0.6",
 		"fill":"black",
@@ -419,7 +422,7 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 	var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
 	var _this = this;
-	console.time("Multirender "+featureList.length);
+	console.time("Multirender ["+featureList.length+"] "+ response.params.resource);
 //	console.log(featureList.length);
 	var draw = function(feature){
 		var start = feature.start;
@@ -524,12 +527,13 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 	if(newHeight>0){
 		this.setHeight(newHeight+/*margen entre tracks*/10);
 	}
-	console.timeEnd("Multirender "+featureList.length);
+	console.timeEnd("Multirender ["+featureList.length+"] "+ response.params.resource);
 };
 
 TrackSvg.prototype.BamRender = function(response){
 	var _this = this;
-
+	console.time("BamRender "+ response.params.resource);
+	
 	response = this._removeDisplayedChunks(response);
 	var chunkList = response.items;
 
@@ -646,21 +650,21 @@ TrackSvg.prototype.BamRender = function(response){
 		
 		//if(feature.read !=  "SRR077487.3945695"){color="red";fea1234 = feature}
 /**/
-		var seqTrack = _this.trackSvgLayout.getTrackSvgById("Sequence");
-		if( seqTrack != null){
-			var startKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(start);
-			var endKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(end);
-			var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(startKey);
-			if(startKey == endKey && r != null){//only ones cached and inside the same chunk
+		//var seqTrack = _this.trackSvgLayout.getTrackSvgById("Sequence");
+		//if( seqTrack != null){
+			//var startKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(start);
+			//var endKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(end);
+			//var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(startKey);
+			//if(startKey == endKey && r != null){//only ones cached and inside the same chunk
 			//debugger
-				var originalSeq = r.data[0].sequence.substring((start - r.data[0].start),((end+1) - r.data[0].start));
-				if(feature.read == originalSeq){
-				}else{
-					color="lightsalmon";
-				}
+				//var originalSeq = r.data[0].sequence.substring((start - r.data[0].start),((end+1) - r.data[0].start));
+				//if(feature.read == originalSeq){
+				//}else{
+					//color="lightsalmon";
+				//}
 				//......................................MORE
-			}
-		}
+			//}
+		//}
 /**/
 		
 		//transform to pixel position
@@ -764,7 +768,6 @@ TrackSvg.prototype.BamRender = function(response){
 	};
 	
 	//process features
-	console.time("BamRender");
 	if(chunkList.length>0){
 		for ( var i = 0, li = chunkList.length; i < li; i++) {
 					if(chunkList[i].data.length > 0){
@@ -776,7 +779,7 @@ TrackSvg.prototype.BamRender = function(response){
 			this.setHeight(newHeight+/*margen entre tracks*/10+70);
 		}
 	}
-	console.timeEnd("BamRender");
+	console.timeEnd("BamRender "+ response.params.resource);
 };
 
 TrackSvg.prototype.GeneTranscriptRender = function(response){
@@ -1041,9 +1044,9 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 };
 
 TrackSvg.prototype.SequenceRender = function(response){
-	var featureList = this._getFeaturesByChunks(response);
+	//var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
-
+	console.time("Sequence render "+response.items.sequence.length);
 		var chromeFontSize = "16";
 		var firefoxFontSize = "19";
 		var chromeFontOff = "16";
@@ -1059,17 +1062,19 @@ TrackSvg.prototype.SequenceRender = function(response){
 
 		
 		//if(featureList.length > 0){//???
-		for ( var j = 0; j < featureList.length; j++) {
-			var seqString = featureList[j].sequence;
-			var seqStart = featureList[j].start;
+		//for ( var j = 0; j < featureList.length; j++) {
+			//var seqString = featureList[j].sequence;
+			//var seqStart = featureList[j].start;
 			var width = 1*this.pixelBase;
 			
 	//		if(!this.settings.color){
 	//			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
 	//		}
 			
-			var start = featureList[j].start;
-			
+			var start = response.items.start;
+			var seqStart = response.items.start;
+			var seqString = response.items.sequence;
+
 			if(jQuery.browser.mozilla){
 				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
 				var text = SVG.addChild(this.features,"text",{
@@ -1101,10 +1106,10 @@ TrackSvg.prototype.SequenceRender = function(response){
 				}
 				
 			}
-		}
+		//}
 			
 		//}
-		console.timeEnd("all");
+		console.timeEnd("Sequence render "+response.items.sequence.length);
 		this.trackSvgLayout.setNucleotidPosition(this.position);
 };
 

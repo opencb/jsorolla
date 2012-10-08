@@ -349,6 +349,12 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.viewNtsText.textContent = "Window size: "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
 	this.windowSize = this.viewNtsText.textContent;
 	this._setTextPosition();
+
+	//var seqTrack = this.getTrackSvgById("Sequence");
+	//if(seqTrack != null){
+		//seqTrack.trackData.adapter.clearData();
+	//}
+	
 	this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
 	this.onZoomChange.notify();
 };
@@ -363,9 +369,14 @@ TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.po
 	if(item.species!=null){
 		//check species and modify CellBaseAdapter, clean cache
 		for(i in this.trackSvgList){
-			if(this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter){
+			if(this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter ||
+				this.trackSvgList[i].trackData.adapter instanceof SequenceAdapter
+			){
 				this.trackSvgList[i].trackData.adapter.species = item.species;
-				this.trackSvgList[i].trackData.adapter.featureCache.clear();
+				//this.trackSvgList[i].trackData.adapter.featureCache.clear();
+
+				//TODO  implement clear method, this crashes
+				this.trackSvgList[i].trackData.adapter.clearData();
 			}
 		}
 	}
@@ -383,6 +394,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	args["zoom"] = this.zoom;
 	args["pixelBase"] = this.pixelBase;
 	args["width"] = this.width;
+	args["visibleRange"] = args.visibleRange;
 	args["adapter"] = trackData.adapter;
 	args["trackSvgLayout"] = this;
 	
@@ -407,8 +419,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		//needed call variables
 		callStart = parseInt(_this.position - _this.halfVirtualBase*2);
 		callEnd = parseInt(_this.position + _this.halfVirtualBase*2);
-		virtualStart = parseInt(_this.position - _this.halfVirtualBase);//for now
-		vitualEnd = parseInt(_this.position + _this.halfVirtualBase);//for now
+		virtualStart = parseInt(_this.position - _this.halfVirtualBase*2);//for now
+		vitualEnd = parseInt(_this.position + _this.halfVirtualBase*2);//for now
 	};
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){
@@ -428,17 +440,36 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	};
 	var cleanSvgFeatures = function(){
 		console.time("empty");
-//		$(trackSvg.features).empty();
+		//$(trackSvg.features).empty();
 //		trackSvg.features.textContent = "";
 		while (trackSvg.features.firstChild) {
 			trackSvg.features.removeChild(trackSvg.features.firstChild);
 		}
 		console.timeEnd("empty");
-		//deprecated, bam still uses it
-		trackData.adapter.featureCache.chunksDisplayed = {};
-
+		
+		//deprecated, diplayed object is now in trackSvg class
+		//trackData.adapter.featureCache.chunksDisplayed = {};
+		
 		trackSvg.chunksDisplayed = {};
 		trackSvg.renderedArea = {};
+	};
+	var retrieveData = function(sender){
+		// check if track is visible in this zoom
+		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
+			trackSvg.setLoading(true);
+			trackData.retrieveData({
+				chromosome:_this.chromosome,
+				start:virtualStart,
+				end:vitualEnd,
+				histogram:trackSvg.histogram,
+				interval:trackSvg.interval,
+				transcript:trackSvg.transcript,
+				sender:sender
+			});
+			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
+		}else{
+			trackSvg.invalidZoomText.setAttribute("visibility", "visible");
+		}
 	};
 	//END help methods
 	
@@ -460,7 +491,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		trackSvg.setLoading(false);
 		
-		console.log("rendered");
+		//console.log("rendered");
 //		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
@@ -471,14 +502,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	checkHistogramZoom();
 	checkTranscriptZoom();//for genes only
 	setCallRegion();
-	// check if track is visible in this zoom
-	if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-		trackSvg.setLoading(true);
-		trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
-		trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
-	}else{
-		trackSvg.invalidZoomText.setAttribute("visibility", "visible");
-	}
+	
+	retrieveData("firstLoad");
 	
 	
 	//on zoom change set new virtual window and update track values
@@ -491,14 +516,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		cleanSvgFeatures();
 		setCallRegion();
 		
-		// check if track is visible in this zoom
-		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-			trackSvg.setLoading(true);
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
-			trackSvg.invalidZoomText.setAttribute("visibility", "hidden");
-		}else{
-			trackSvg.invalidZoomText.setAttribute("visibility", "visible");
-		}
+		retrieveData("onZoomChange");
 	});
 
 	
@@ -508,12 +526,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		cleanSvgFeatures();
 		setCallRegion();
-		
-		// check if track is visible in this zoom
-		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
-			trackSvg.setLoading(true);
-			trackData.retrieveData({chromosome:_this.chromosome,start:virtualStart,end:vitualEnd, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
-		}
+
+		retrieveData("onChromosomeChange");
 	});
 	
 
@@ -527,18 +541,34 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
 		trackSvg.features.setAttribute("x",move);
 
+		virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase);
+		virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
-			virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase);
-			virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
 			
 			if(desp>0 && virtualStart < callStart){
-				trackData.retrieveData({chromosome:_this.chromosome,start:parseInt(callStart-_this.halfVirtualBase),end:callStart, histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
+				trackData.retrieveData({
+					chromosome:_this.chromosome,
+					start:parseInt(callStart-_this.halfVirtualBase),
+					end:callStart,
+					histogram:trackSvg.histogram,
+					interval:trackSvg.interval,
+					transcript:trackSvg.transcript,
+					sender:"onMove"
+				});
 				callStart = parseInt(callStart-_this.halfVirtualBase);
 			}
 
 			if(desp<0 && virtualEnd > callEnd){
-				trackData.retrieveData({chromosome:_this.chromosome,start:callEnd,end:parseInt(callEnd+_this.halfVirtualBase), histogram:trackSvg.histogram, interval:trackSvg.interval, transcript:trackSvg.transcript});
+				trackData.retrieveData({
+					chromosome:_this.chromosome,
+					start:callEnd,
+					end:parseInt(callEnd+_this.halfVirtualBase),
+					histogram:trackSvg.histogram,
+					interval:trackSvg.interval,
+					transcript:trackSvg.transcript,
+					sender:"onMove"
+				});
 				callEnd = parseInt(callEnd+_this.halfVirtualBase);
 			}
 
@@ -661,7 +691,7 @@ TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 	
 	this._redraw();
 	
-	var _this= this;
+	//var _this= this;
 //	setTimeout(function() {
 //		_this._showTrack(trackMainId);
 //	},2000);
@@ -715,12 +745,8 @@ TrackSvgLayout.prototype.setMousePosition = function(position){
 
 TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
 	var seqTrack = this.getTrackSvgById("Sequence");
-	if( seqTrack != null){
-		var key  = this.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(position);
-		var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(key);
-		if(r != null){
-			return r.data[0].sequence.charAt(position-r.data[0].start);
-		}
+	if( seqTrack != null && this.zoom >= seqTrack.visibleRange.start-this.zoomOffset && this.zoom <= seqTrack.visibleRange.end){
+		return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.chromosome})
 	}
 	return "";
 }

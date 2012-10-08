@@ -22,7 +22,7 @@
 function DasAdapter(args){
 	this.gzip = true;
 	
-	this.proxy = "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v1/utils/proxy?url=";
+	this.proxy = CELLBASE_HOST+"/latest/utils/proxy?url=";
 	
 	this.params = {};
 	if (args != null){
@@ -61,10 +61,12 @@ DasAdapter.prototype.getData = function(args){
 		args.end=300000000;
 	}
 	
-	var type = "data";
+	var dataType = "data";
 	if(args.histogram){
-		type = "histogram"+args.interval;
+		dataType = "histogram"+args.interval;
 	}
+
+	this.params["dataType"] = dataType;
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
@@ -73,18 +75,18 @@ DasAdapter.prototype.getData = function(args){
 	var itemList = [];
 	for(var i=firstChunk; i<=lastChunk; i++){
 		var key = args.chromosome+":"+i;
-		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
+		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][dataType] == null) {
 			chunks.push(i);
 		}else{
-			var items = this.featureCache.getFeaturesByChunk(key, type);
+			var item = this.featureCache.getFeatureChunk(key);
 //			console.time("concat");
-			itemList = itemList.concat(items);
+			itemList.push(item);
 //			console.timeEnd("concat");
 		}
 	}
 //	//notify all chunks
 	if(itemList.length>0){
-		this.onGetData.notify({data:itemList, params:this.params, cached:true});
+		this.onGetData.notify({items:itemList, params:this.params, cached:true});
 	}
 	
 	
@@ -159,11 +161,11 @@ DasAdapter.prototype.getData = function(args){
 						}
 						var region = {chromosome:args.chromosome, start:chunkStart, end:chunkEnd};
 						var resource = "das";
-						_this.featureCache.putFeaturesByRegion(result, region, resource, type);
+						_this.featureCache.putFeaturesByRegion(result, region, resource, dataType);
 						console.log(_this.featureCache.cache);
-						var items = _this.featureCache.getFeaturesByRegion(region, type);
+						var items = _this.featureCache.getFeatureChunksByRegion(region);
 						if(items != null){
-							_this.onGetData.notify({data:items, params:this.params, cached:false});
+							_this.onGetData.notify({items:items, params:_this.params, cached:false});
 						}
 					}
 				});

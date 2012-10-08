@@ -96,9 +96,7 @@ FeatureCache.prototype.getFeatureChunksByRegion = function(region){
 
 FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, featureType, dataType){
 	var key, firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, feature, gzipFeature;
-	
-	console.time("-----"+featureType);
-	//var ssss = 0;
+
 	
 	//initialize region
 	firstRegionChunk = this._getChunk(region.start);
@@ -128,10 +126,8 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 		
 		if(this.gzip) {
 			gzipFeature = RawDeflate.deflate(JSON.stringify(feature));
-			//ssss+=gzipFeature.length;
 		}else{
 			gzipFeature = feature;
-			//ssss+=JSON.stringify(gzipFeature).length;
 		}
 		
 		for(var i=firstChunk; i<=lastChunk; i++) {
@@ -141,8 +137,6 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 			}
 		}
 	}
-	console.timeEnd("-----"+featureType);
-	//console.log("-----"+ssss)
 };
 
 
