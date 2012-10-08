@@ -62,6 +62,19 @@ SequenceAdapter.prototype.clearData = function(){
 SequenceAdapter.prototype.getData = function(args){
 	var _this = this;
 	this.sender = args.sender;
+	var chromosome = args.chromosome;
+
+	if(args.start<1){
+		args.start=1;
+	}
+	if(args.end>300000000){
+		args.end=300000000;
+	}
+
+	//clean when the new position is too far from current
+	if(args.start<this.start[chromosome]-5000 || args.end > this.end[chromosome]+5000){
+		this.clearData();
+	}
 	
 	//region check
 	this.params["histogram"] = args.histogram;
@@ -70,17 +83,10 @@ SequenceAdapter.prototype.getData = function(args){
 	this.params["chromosome"] = args.chromosome;
 	this.params["resource"] = this.resource;
 
-	var chromosome = args.chromosome;
 	
-	if(args.start<1){
-		args.start=1;
-	}
-	if(args.end>300000000){
-		args.end=300000000;
-	}
 
-	console.log("--------------------------------------------------------------------"+this.start[chromosome]+" "+this.end[chromosome]);
-	console.log("--------------------------------------------------------------------"+args.start+" "+args.end);
+	//console.log("--------------------------------------------------------------------"+this.start[chromosome]+" "+this.end[chromosome]);
+	//console.log("--------------------------------------------------------------------"+args.start+" "+args.end);
 
 	var queryString = this._getSequenceQuery(args);
 
@@ -106,8 +112,8 @@ SequenceAdapter.prototype._getSequenceQuery = function(args){
 	
 	var s,e, query, querys = [];
 	if(_this.start[chromosome]==null && _this.end[chromosome]==null){
-			args.start -= 500;
-			args.end += 500;
+			//args.start -= 100;
+			//args.end += 100;
 			_this.start[chromosome] = args.start;
 			_this.end[chromosome] = args.end;
 			s = args.start;

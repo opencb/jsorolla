@@ -349,6 +349,12 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.viewNtsText.textContent = "Window size: "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
 	this.windowSize = this.viewNtsText.textContent;
 	this._setTextPosition();
+
+	//var seqTrack = this.getTrackSvgById("Sequence");
+	//if(seqTrack != null){
+		//seqTrack.trackData.adapter.clearData();
+	//}
+	
 	this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
 	this.onZoomChange.notify();
 };
@@ -388,6 +394,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	args["zoom"] = this.zoom;
 	args["pixelBase"] = this.pixelBase;
 	args["width"] = this.width;
+	args["visibleRange"] = args.visibleRange;
 	args["adapter"] = trackData.adapter;
 	args["trackSvgLayout"] = this;
 	
@@ -484,7 +491,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		trackSvg.setLoading(false);
 		
-		console.log("rendered");
+		//console.log("rendered");
 //		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
@@ -738,12 +745,8 @@ TrackSvgLayout.prototype.setMousePosition = function(position){
 
 TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
 	var seqTrack = this.getTrackSvgById("Sequence");
-	if( seqTrack != null){
+	if( seqTrack != null && this.zoom >= seqTrack.visibleRange.start-this.zoomOffset && this.zoom <= seqTrack.visibleRange.end){
 		return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.chromosome})
-		//var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(key);
-		//if(r != null){
-			//return r.data[0].sequence.charAt(position-r.data[0].start);
-		//}
 	}
 	return "";
 }
