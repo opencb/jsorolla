@@ -36,6 +36,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	
 	//default values
 	this.height=0;
+
 	
 	if (args != null){
 		if(args.width != null){
@@ -44,11 +45,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		if(args.height != null){
 			this.height = args.height;
 		}
-		if(args.position != null){
-			this.position = args.position;
-		}
-		if(args.chromosome != null){
-			this.chromosome = args.chromosome;
+		if(args.region != null){
+			this.region = args.region;
 		}
 		if(args.zoomOffset != null){
 			this.zoomOffset = args.zoomOffset;
@@ -65,7 +63,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	}
 	
 	this._createPixelsbyBase();//create pixelByBase array
-	this.pixelBase = this._getPixelsbyBase(this.zoom);
+	//this.pixelBase = this._getPixelsbyBase(this.zoom);
+	this.pixelBase = this._getPixelBaseByRegion();
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	
 	
@@ -212,7 +211,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			_this.mouseLine.setAttribute("x",pos);
 			
 			var posOffset = (mid/_this.pixelBase) | 0;
-			_this.mousePosition = _this.position+rcX-posOffset;
+			var centerPosition = Compbio.centerPosition(_this.region);
+			_this.mousePosition = centerPosition+rcX-posOffset;
 			_this.onMousePosition.notify(_this.mousePosition);
 			_this.setMousePosition(_this.mousePosition);
 		});
@@ -227,9 +227,11 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 				var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
 				if(newX!=lastX){
 					var desp = lastX-newX;
-					var p = _this.position - desp;
+					var centerPosition = Compbio.centerPosition(_this.region);
+					var p = centerPosition - desp;
 					if(p>0){//avoid 0 and negative positions
-						_this.position -= desp;
+						_this.region.start -= desp;
+						_this.region.end -= desp;
 						_this._setTextPosition();
 						_this.onMove.notify(desp);
 						lastX = newX;
@@ -286,7 +288,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 					break;
 				}
 				if(desp != 0){
-					_this.position -= desp;
+					_this.region.start -= desp;
+					_this.region.end -= desp;
 					_this._setTextPosition();
 					_this.onMove.notify(desp);
 				}
@@ -298,7 +301,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		
 	}else{
 		_this.parentLayout.onMove.addEventListener(function(sender,desp){
-			_this.position -= desp;
 			_this._setTextPosition();
 			_this.onMove.notify(desp);
 		});
@@ -358,14 +360,10 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 	this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
 	this.onZoomChange.notify();
 };
-TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
-	if(item.chromosome!=null){
-		this.chromosome = item.chromosome;
-	}
-	if(item.position!=null){
-		this.position = parseInt(item.position);//check int, must be a number
-		this._setTextPosition();
-	}
+
+TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.position, item.species
+	this._setTextPosition();
+	this._getPixelBaseByRegion();
 	if(item.species!=null){
 		//check species and modify CellBaseAdapter, clean cache
 		for(i in this.trackSvgList){
@@ -375,7 +373,6 @@ TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.po
 				this.trackSvgList[i].trackData.adapter.species = item.species;
 				//this.trackSvgList[i].trackData.adapter.featureCache.clear();
 
-				//TODO  implement clear method, this crashes
 				this.trackSvgList[i].trackData.adapter.clearData();
 			}
 		}
@@ -383,13 +380,11 @@ TrackSvgLayout.prototype.setLocation = function(item){//item.chromosome, item.po
 	this.onChromosomeChange.notify();
 };
 
-
-
 TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var _this = this;
 	var visibleRange = args.visibleRange;
 	
-	args["position"] = this.position;
+	args["region"] = this.region;
 	args["trackData"] = trackData;
 	args["zoom"] = this.zoom;
 	args["pixelBase"] = this.pixelBase;
@@ -417,10 +412,12 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var callStart, callEnd, virtualStart, vitualEnd;
 	var setCallRegion = function (){
 		//needed call variables
-		callStart = parseInt(_this.position - _this.halfVirtualBase*2);
-		callEnd = parseInt(_this.position + _this.halfVirtualBase*2);
-		virtualStart = parseInt(_this.position - _this.halfVirtualBase*2);//for now
-		vitualEnd = parseInt(_this.position + _this.halfVirtualBase*2);//for now
+		callStart = parseInt(_this.region.start - _this.halfVirtualBase*2);
+		callEnd = parseInt(_this.region.end + _this.halfVirtualBase*2);
+		virtualStart = parseInt(_this.region.start - _this.halfVirtualBase*2);//for now
+		vitualEnd = parseInt(_this.region.end + _this.halfVirtualBase*2);//for now
+
+		trackSvg.pixelBase = _this.pixelBase;
 	};
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){
@@ -455,10 +452,10 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	};
 	var retrieveData = function(sender){
 		// check if track is visible in this zoom
-		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end){
+		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end ){
 			trackSvg.setLoading(true);
 			trackData.retrieveData({
-				chromosome:_this.chromosome,
+				chromosome:_this.region.chromosome,
 				start:virtualStart,
 				end:vitualEnd,
 				histogram:trackSvg.histogram,
@@ -488,7 +485,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
 
 		trackSvg.featuresRender(response);
-		
+		debugger
 		trackSvg.setLoading(false);
 		
 		//console.log("rendered");
@@ -522,8 +519,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	//on chromosome change set new virtual window and update track values
 	trackSvg.onChromosomeChangeIdx = this.onChromosomeChange.addEventListener(function(sender,data){
-		trackSvg.position=_this.position;
-		
+		trackSvg.pixelBase = _this._getPixelBaseByRegion();
+		trackSvg.position = Compbio.centerPosition(trackSvg.region);
+		console.log("trackSVG: "+trackSvg.position);
 		cleanSvgFeatures();
 		setCallRegion();
 
@@ -533,7 +531,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 
 	//movement listeners 
 	trackSvg.onMoveIdx = this.onMove.addEventListener(function(sender,desp){
-		trackSvg.position -= desp;
 		var despBase = desp*_this.pixelBase;
 		trackSvg.pixelPosition-=despBase;
 
@@ -541,14 +538,14 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		var move =  parseFloat(trackSvg.features.getAttribute("x")) + despBase;
 		trackSvg.features.setAttribute("x",move);
 
-		virtualStart = parseInt(trackSvg.position - _this.halfVirtualBase);
-		virtualEnd = parseInt(trackSvg.position + _this.halfVirtualBase);
+		virtualStart = parseInt(trackSvg.region.start - _this.halfVirtualBase);
+		virtualEnd = parseInt(trackSvg.region.end + _this.halfVirtualBase);
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start && _this.zoom <= visibleRange.end){
 			
 			if(desp>0 && virtualStart < callStart){
 				trackData.retrieveData({
-					chromosome:_this.chromosome,
+					chromosome:_this.region.chromosome,
 					start:parseInt(callStart-_this.halfVirtualBase),
 					end:callStart,
 					histogram:trackSvg.histogram,
@@ -561,7 +558,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 
 			if(desp<0 && virtualEnd > callEnd){
 				trackData.retrieveData({
-					chromosome:_this.chromosome,
+					chromosome:_this.region.chromosome,
 					start:callEnd,
 					end:parseInt(callEnd+_this.halfVirtualBase),
 					histogram:trackSvg.histogram,
@@ -690,11 +687,6 @@ TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 	this.setHeight(this.height - track.getHeight());
 	
 	this._redraw();
-	
-	//var _this= this;
-//	setTimeout(function() {
-//		_this._showTrack(trackMainId);
-//	},2000);
 };
 
 TrackSvgLayout.prototype._showTrack = function(trackMainId){
@@ -708,6 +700,10 @@ TrackSvgLayout.prototype._showTrack = function(trackMainId){
 	this._redraw();
 };
 
+TrackSvgLayout.prototype._getPixelBaseByRegion = function(){
+	var pixelBase = this.width/(this.region.end-this.region.start+1);
+	return Math.min(pixelBase,10);
+};
 
 TrackSvgLayout.prototype._getPixelsbyBase = function(zoom){
 	return this.zoomLevels[zoom];
@@ -723,10 +719,9 @@ TrackSvgLayout.prototype._createPixelsbyBase = function(){
 };
 
 TrackSvgLayout.prototype._setTextPosition = function(){
-	this.positionText.textContent = this.position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-	var x = Math.floor((this.width)/this.pixelBase/2);
-	this.firstPositionText.textContent = (this.position-x).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-	this.lastPositionText.textContent = (this.position+x-1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+	this.positionText.textContent = Compbio.centerPosition(this.region);
+	this.firstPositionText.textContent = Compbio.formatPosition(this.region.start);
+	this.lastPositionText.textContent = Compbio.formatPosition(this.region.end);
 };
 
 TrackSvgLayout.prototype.getTrackSvgById = function(trackId){
@@ -744,12 +739,12 @@ TrackSvgLayout.prototype.setMousePosition = function(position){
 };
 
 TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
-	var seqTrack = this.getTrackSvgById("Sequence");
-	if( seqTrack != null && this.zoom >= seqTrack.visibleRange.start-this.zoomOffset && this.zoom <= seqTrack.visibleRange.end){
-		return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.chromosome})
-	}
+	//var seqTrack = this.getTrackSvgById("Sequence");
+	//if( seqTrack != null && this.zoom >= seqTrack.visibleRange.start-this.zoomOffset && this.zoom <= seqTrack.visibleRange.end){
+		//return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.chromosome})
+	//}
 	return "";
-}
+};
 
 TrackSvgLayout.prototype.setNucleotidPosition = function(position){
 	var base = this.getSequenceNucleotid(position);

@@ -34,7 +34,7 @@ function GenomeViewer(targetId, species, args) {
 	this.speciesName="Homo sapiens";
 	this.increment = 5;
 	this.zoom=100;
-	
+
 	//Setting paramaters
 	if (targetId != null){
 		this.targetId=targetId;
@@ -42,8 +42,7 @@ function GenomeViewer(targetId, species, args) {
 	if (species != null) {
 		this.species = species.species;
 		this.speciesName = species.name;
-		this.chromosome = species.chromosome;//this is a string
-		this.position = parseInt(species.position);
+		this.region = species.region;
 	}
 	if (args != null){
 		if(args.toolbar != null){
@@ -58,11 +57,8 @@ function GenomeViewer(targetId, species, args) {
 		if (args.availableSpecies != null) {
 			this.setSpeciesMenu(args.availableSpecies);
 		}
-		if (args.chromosome != null) {
-			this.chromosome = args.chromosome;
-		}
-		if (args.position != null) {//middle browser window
-			this.position = parseInt(args.position);
+		if (args.region != null) {
+			this.region = args.region;
 		}
 		if (args.zoom != null) {
 			this.zoom = args.zoom;
@@ -120,22 +116,25 @@ GenomeViewer.prototype.render = function(){
 	var regionPanel = this._drawRegionPanel();
 	var regionAndTrackRendered = 0;
 	
-	var createSvgLayout = function (){
+	var createSvgLayout = function (){//there will be two instances of TrackSvgLayout, one for detailed information and other for Overview
 		var divTop = $('#'+_this.id+"tracksSvgTop")[0];
 		var divTrack = $('#'+_this.id+"tracksSvgTrack")[0];
 		_this.trackSvgLayout = new TrackSvgLayout({top:divTop,track:divTrack},{
 			width:_this.width-18,
-			position:_this.position,
-			chromosome:_this.chromosome,
+			region:_this.region,
 			genomeViewer:_this,
 			zoom : _this.zoom
 		});
+		
+		
 		_this.trackSvgLayout.onMove.addEventListener(function(sender,data){
-			_this.onLocationChange.notify({position:data,sender:"trackSvgLayout"});
+			//this method returns the increment, the new position is read from the trackSvgLayout
+			_this.onLocationChange.notify({
+				sender:"trackSvgLayout"
+			});
 		});
 		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,data){
-			var formatedMousePos = data.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-			Ext.getCmp(_this.id+"mouseLabel").setText('<span class="ssel">Position: '+formatedMousePos+'</span>');
+			Ext.getCmp(_this.id+"mouseLabel").setText('<span class="ssel">Position: '+Compbio.formatPosition(data)+'</span>');
 			$('#'+_this.id+"mouseLabel").qtip({content:'Mouse position',style:{width:95},position: {my:"bottom center",at:"top center"}});
 		});
 		Ext.getCmp(_this.id+"windowSize").setText('<span class="emph">'+_this.trackSvgLayout.windowSize+'</span>');
@@ -147,10 +146,9 @@ GenomeViewer.prototype.render = function(){
 		
 		var divTop = $('#'+_this.id+"regionSvgTop")[0];
 		var divTrack = $('#'+_this.id+"regionSvgTrack")[0];
-		_this.trackSvgLayout2 = new TrackSvgLayout({top:divTop,track:divTrack},{
+		_this.trackSvgLayoutOverview = new TrackSvgLayout({top:divTop,track:divTrack},{
 			width:_this.width-18,
-			position:_this.position,
-			chromosome:_this.chromosome,
+			region:_this.region,
 			zoom : _this.zoom,
 			zoomOffset:40,
 			genomeViewer:_this,
@@ -180,9 +178,9 @@ GenomeViewer.prototype.render = function(){
 	container.insert(5, this._getBottomBar());
 	container.insert(4, regionPanel);//rendered after trackspanel but inserted with minor index
 	
-	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
-	Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
-	Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
+	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.region.chromosome);
+	Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.region.chromosome);
+	Ext.getCmp(_this.id+'tbCoordinate').setValue(Compbio.stringifyRegion(this.region));
 };
 GenomeViewer.prototype.setMenuBar = function(toolbar) {
 	this.toolbar = toolbar;
@@ -191,7 +189,7 @@ GenomeViewer.prototype.setMenuBar = function(toolbar) {
 GenomeViewer.prototype.setSize = function(width,height) {
 //	Ext.getCmp(this.id+'container').setLoading();
 	this.trackSvgLayout.setWidth(width-18);
-	this.trackSvgLayout2.setWidth(width-18);
+	this.trackSvgLayoutOverview.setWidth(width-18);
 	this.chromosomeWidget.setWidth(width);
 	this.karyotypeWidget.setWidth(width);
 	Ext.getCmp(this.id+"container").setSize(width,height);
@@ -200,94 +198,63 @@ GenomeViewer.prototype.setSize = function(width,height) {
 //	$("#"+this.id+'regionSvg')[0].setAttribute('width',width);
 };
 
+
 GenomeViewer.prototype.setLoc = function(data) {
 //	Ext.getCmp(this.id+'container').setLoading();
 	//console.log("GV SetLoc sender: "+data.position);
 //	this.chromosomeFeatureTrack.select(data.position-1000, data.position+1000);
-
-	
 	switch(data.sender){
-	case "setSpecies": 
+	case "setSpecies":
 		this.species = data.species;
 		this.speciesName = data.name;
-		this.position = data.position;
-		this.chromosome = data.chromosome;
-		Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
-		Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
-		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
+		Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.region.chromosome);
+		Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.region.chromosome);
+		Ext.getCmp(this.id+'tbCoordinate').setValue(Compbio.stringifyRegion(this.region));
 		Ext.getCmp(this.id+"speciesMenuButton").setText(this.speciesName);
 		Ext.example.msg('Species', this.speciesName+' selected.');
 		this._updateChrStore();
-		this.trackSvgLayout.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
-		this.trackSvgLayout2.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
-		this.chromosomeWidget.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
-		this.karyotypeWidget.setLocation({chromosome:this.chromosome,species:this.species,position:this.position});
+		this.trackSvgLayout.setRegion({species:this.species});
+		this.trackSvgLayoutOverview.setRegion({species:this.species});
+		this.chromosomeWidget.setRegion({species:this.species});
+		this.karyotypeWidget.setRegion({species:this.species});
 		this.onSpeciesChange.notify();
 		break;
 	case "_getChromosomeMenu":
-		if(this.chromosome!=data.chromosome){
-			this.chromosome = data.chromosome;
-			this.trackSvgLayout.setLocation({chromosome:this.chromosome});
-			this.trackSvgLayout2.setLocation({chromosome:this.chromosome});
-			this.chromosomeWidget.setLocation({chromosome:this.chromosome});
-			this.karyotypeWidget.setLocation({chromosome:this.chromosome,position:this.position});
-		}
-		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
-		Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
-		Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
+		this.trackSvgLayout.setRegion({});
+		this.trackSvgLayoutOverview.setRegion({});
+		this.chromosomeWidget.setRegion({});
+		this.karyotypeWidget.setRegion({});
+		Ext.getCmp(this.id+'tbCoordinate').setValue(Compbio.stringifyRegion(this.region));
+		Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.region.chromosome);
+		Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.region.chromosome);
 		break;
 	case "GoButton":
-		var obj = {};
-		if(data.position != null && this.position != data.position){
-			this.position = data.position;
-			obj.position = this.position;
-		}
-		if(data.chromosome != null && this.chromosome != data.chromosome){
-			this.chromosome = data.chromosome;
-			obj.chromosome = this.chromosome;
-			Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
-			Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
-		}
-		if(Object.keys(obj).length>0){ //if obj has change
-			this.trackSvgLayout.setLocation(obj);
-			this.trackSvgLayout2.setLocation(obj);
-			this.chromosomeWidget.setLocation(obj);
-			this.karyotypeWidget.setLocation(obj);
-		}
+			Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.region.chromosome);
+			Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.region.chromosome);
+			this.trackSvgLayout.setRegion({});
+			this.trackSvgLayoutOverview.setRegion({});
+			this.chromosomeWidget.setRegion({});
+			this.karyotypeWidget.setRegion({});
 		break;
 	case "KaryotypePanel":
-		var obj = {};
-		if(data.position != null && this.position != data.position){
-			this.position = data.position;
-			obj.position = this.position;
-		}
-		if(data.chromosome != null && this.chromosome != data.chromosome){
-			this.chromosome = data.chromosome;
-			obj.chromosome = this.chromosome;
-			Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.chromosome);
-			Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.chromosome);
-		}
-		if(Object.keys(obj).length>0){ //if obj has changeç
-			this.trackSvgLayout.setLocation(obj);
-			this.trackSvgLayout2.setLocation(obj);
-			this.chromosomeWidget.setLocation(obj);
-			
-			Ext.getCmp(this.id+'tbCoordinate').setValue(this.chromosome + ":" + Math.ceil(this.position));
-			this.karyotypeWidget.updatePositionBox({chromosome:this.chromosome,position:this.position});
-		}
+			Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.region.chromosome);
+			Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.region.chromosome);
+			Ext.getCmp(this.id+'tbCoordinate').setValue(Compbio.stringifyRegion(this.region));
+			this.trackSvgLayout.setRegion({});
+			this.trackSvgLayoutOverview.setRegion({});
+			this.chromosomeWidget.setRegion({});
+			this.karyotypeWidget.updatePositionBox();
 		break;
 	case "ChromosomeWidget":
-		this.position = data.position;
-		this.trackSvgLayout.setLocation({position:this.position});
-		this.trackSvgLayout2.setLocation({position:this.position});
-		this.karyotypeWidget.setLocation({position:this.position});
-		Ext.getCmp(this.id+'tbCoordinate').setValue(this.chromosome + ":" + Math.ceil(this.position));
+		this.trackSvgLayout.setRegion({region:this.region});
+		this.trackSvgLayoutOverview.setRegion({region:this.region});
+		this.karyotypeWidget.setRegion({region:this.region});
+		Ext.getCmp(this.id+'tbCoordinate').setValue(Compbio.stringifyRegion(this.region));
 		break;
 	case "trackSvgLayout":
-		this.position -= data.position;
-		Ext.getCmp(this.id+'tbCoordinate').setValue( this.chromosome + ":" + Math.ceil(this.position));
-		this.chromosomeWidget.setLocation({position:this.position});
-		this.karyotypeWidget.setLocation({position:this.position});
+		Ext.getCmp(this.id+'tbCoordinate').setValue(Compbio.stringifyRegion(this.region));
+		this.chromosomeWidget.setRegion({region:this.region});
+		this.karyotypeWidget.setRegion({region:this.region});
 		break;
 	default:
 		var obj = {};
@@ -315,7 +282,7 @@ GenomeViewer.prototype.setLoc = function(data) {
 		Ext.getCmp(this.id+"speciesMenuButton").setText(this.speciesName);
 		this._updateChrStore();
 		this.trackSvgLayout.setLocation(obj);
-		this.trackSvgLayout2.setLocation(obj);
+		this.trackSvgLayoutOverview.setLocation(obj);
 		this.chromosomeWidget.setLocation(obj);
 		this.karyotypeWidget.setLocation(obj);
 		
@@ -494,7 +461,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		         },{
 		        	 id : this.id+'tbCoordinate',
 		        	 xtype : 'textfield',
-		        	 width : 120,
+		        	 width : 165,
 		        	 text : this.chromosome + ":" + this.position,
 		        	 listeners:{
 		        		 specialkey: function(field, e){
@@ -584,6 +551,9 @@ GenomeViewer.prototype.setSpeciesMenu = function(speciesObj) {
 };
 //Sets the new specie and fires an event
 GenomeViewer.prototype.setSpecies = function(data){
+	this.region.chromosome = data.region.chromosome;
+	this.region.start = data.region.start;
+	this.region.end = data.region.end;
 	data["sender"]="setSpecies";
 	this.onLocationChange.notify(data);
 };
@@ -606,7 +576,8 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
  			listeners: {
  				selectionchange:function(este,selNodes){
  					if(selNodes.length>0){
- 						_this.onLocationChange.notify({sender:"_getChromosomeMenu",chromosome:selNodes[0].data.name});
+						_this.region.chromosome = selNodes[0].data.name;
+ 						_this.onLocationChange.notify({sender:"_getChromosomeMenu"});
 // 					_this.setChromosome(selNodes[0].data.name);
  					}
  					chromosomeMenu.hide();
@@ -705,7 +676,7 @@ GenomeViewer.prototype.setZoom = function(zoom) {
 	this._getZoomSlider().setValue(zoom);
 	if(this.trackSvgLayout!=null){
 		this.trackSvgLayout.setZoom(zoom);
-		this.trackSvgLayout2.setZoom(zoom);
+		this.trackSvgLayoutOverview.setZoom(zoom);
 	}
 	this.chromosomeWidget.setZoom(zoom);
 };
@@ -748,18 +719,21 @@ GenomeViewer.prototype._handleNavigationBar = function(action, args) {
     
     if (action == 'Go'){
     	var value = Ext.getCmp(this.id+'tbCoordinate').getValue();
-        var position = parseInt(value.split(":")[1]);
-        var chromosome = value.split(":")[0];
-        
+
+		var regionObj = Compbio.parseRegion(value);
+		
         // Validate chromosome and position
-        if(isNaN(position) || position < 0){
+        if(isNaN(regionObj.start) || regionObj.start < 0){
         	Ext.getCmp(this.id+'tbCoordinate').markInvalid("Position must be a positive number");
         }
-        else if(Ext.getCmp(this.id+"chromosomeMenu").almacen.find("name", chromosome) == -1){
+        else if(Ext.getCmp(this.id+"chromosomeMenu").almacen.find("name", regionObj.chromosome) == -1){
         	Ext.getCmp(this.id+'tbCoordinate').markInvalid("Invalid chromosome");
         }
         else{
-        	this.onLocationChange.notify({chromosome:chromosome,position:position,sender:"GoButton"});
+			this.region.chromosome = regionObj.chromosome;
+			this.region.start = regionObj.start;
+			this.region.end = regionObj.end;
+			this.onLocationChange.notify({sender:"GoButton"});
         }
         
     }
@@ -783,12 +757,11 @@ GenomeViewer.prototype._drawKaryotypePanel = function() {
 					width:_this.width,
 					height:168,
 					species:_this.species,
-					chromosome:_this.chromosome,
-					zoom:_this.zoom,
-					position:_this.position
+					region:_this.region,
+					zoom:_this.zoom
 				});
 				_this.karyotypeWidget.onClick.addEventListener(function(sender,data){
-					_this.onLocationChange.notify({position:data.position,chromosome:data.chromosome,sender:"KaryotypePanel"});
+					_this.onLocationChange.notify({sender:"KaryotypePanel"});
 				});
 				_this.karyotypeWidget.drawKaryotype();
 			}
@@ -815,12 +788,11 @@ GenomeViewer.prototype._drawChromosomePanel = function() {
 					width:_this.width,
 					height:65,
 					species:_this.species,
-					chromosome:_this.chromosome,
-					zoom:_this.zoom,
-					position:_this.position
+					region:_this.region,
+					zoom:_this.zoom
 				});
 				_this.chromosomeWidget.onClick.addEventListener(function(sender,data){
-					_this.onLocationChange.notify({position:data,sender:"ChromosomeWidget"});
+					_this.onLocationChange.notify({sender:"ChromosomeWidget"});
 				});
 				_this.chromosomeWidget.drawChromosome();
 			}

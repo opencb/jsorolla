@@ -66,8 +66,8 @@ function TrackSvg(parent, args) {
 		if(args.height != null){
 			this.height = args.height;
 		}
-		if(args.position != null){
-			this.position = args.position;
+		if(args.region != null){
+			this.region = args.region;
 		}
 		if(args.zoom != null){
 			this.zoom = args.zoom;
@@ -110,6 +110,8 @@ function TrackSvg(parent, args) {
 			this.defaultRender = this.featuresRender;
 		}
 	}
+
+	this.position = Compbio.centerPosition(this.region);
 	
 	//flags
 	this.rendered = false;//svg structure already draw, svg elements can be used from now

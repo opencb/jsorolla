@@ -33,11 +33,8 @@ function KaryotypeWidget(parent, args) {
 		if(args.species != null){
 			this.species = args.species;
 		}
-		if(args.chromosome != null){
-			this.chromosome = args.chromosome;
-		}
-		if(args.position != null){
-			this.position = args.position;
+		if(args.region != null){
+			this.region = args.region;
 		}
 	}
 
@@ -118,7 +115,9 @@ KaryotypeWidget.prototype._drawSvg = function(chromosomeList, data2){
 		var y = yMargin + (biggerChr * _this.pixelBase) - chrSize;
 		_this.chrOffsetY[chr] = y;
 		var firstCentromere = true;
-		var pointerPosition = (_this.position * _this.pixelBase);
+		
+		var centerPosition = Compbio.centerPosition(_this.region); 
+		var pointerPosition = (centerPosition * _this.pixelBase);
 
 		var group = SVG.addChild(_this.svg,"g",{"cursor":"pointer","chr":chromosomeList[i]});
 		$(group).click(function(event){
@@ -137,8 +136,11 @@ KaryotypeWidget.prototype._drawSvg = function(chromosomeList, data2){
 			_this.positionBox.setAttribute("y2",offsetY);
 
 			var clickPosition = parseInt((offsetY - _this.chrOffsetY[chrClicked])/_this.pixelBase);
-			_this.chromosome = chrClicked;
-			_this.onClick.notify({chromosome:_this.chromosome, position:clickPosition});
+			_this.region.chromosome = chrClicked;
+			_this.region.start = clickPosition;
+			_this.region.end = clickPosition;
+			
+			_this.onClick.notify(_this.region);
 		});
 
 		for ( var j=0, lenJ=data2.result[i].length; j<lenJ; j++){ //loop over chromosome objects
@@ -192,10 +194,10 @@ KaryotypeWidget.prototype._drawSvg = function(chromosomeList, data2){
 		x += xOffset;
 	}
 	_this.positionBox = SVG.addChild(_this.svg,"line",{
-		"x1":_this.chrOffsetX[_this.chromosome]-10,
-		"y1":pointerPosition + _this.chrOffsetY[_this.chromosome],
-		"x2":_this.chrOffsetX[_this.chromosome]+23,
-		"y2":pointerPosition + _this.chrOffsetY[_this.chromosome],
+		"x1":_this.chrOffsetX[_this.region.chromosome]-10,
+		"y1":pointerPosition + _this.chrOffsetY[_this.region.chromosome],
+		"x2":_this.chrOffsetX[_this.region.chromosome]+23,
+		"y2":pointerPosition + _this.chrOffsetY[_this.region.chromosome],
 		"stroke":"orangered",
 		"stroke-width":2,
 		"opacity":0.5
@@ -206,25 +208,21 @@ KaryotypeWidget.prototype._drawSvg = function(chromosomeList, data2){
 };
 
 
-KaryotypeWidget.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
+KaryotypeWidget.prototype.setRegion = function(item){//item.chromosome, item.position, item.species
 	var needDraw = false;
 	if(item.species!=null){
 		this.species = item.species;
 		needDraw = true;
 	}
-	if(item.chromosome!=null){
-		this.chromosome = item.chromosome;
-		
-		if(item.species==null){
-			this.positionBox.setAttribute("x1",this.chrOffsetX[this.chromosome]-10);
-			this.positionBox.setAttribute("x2",this.chrOffsetX[this.chromosome]+23);
-		}
+	if(item.species==null){
+		this.positionBox.setAttribute("x1",this.chrOffsetX[this.region.chromosome]-10);
+		this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
 	}
-	if(item.position!=null){
-		this.position = item.position;
-		
+	
+	var centerPosition = Compbio.centerPosition(this.region);
+	if(!isNaN(centerPosition)){
 		if(item.species==null){
-			var pointerPosition = this.position * this.pixelBase + this.chrOffsetY[this.chromosome];
+			var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
 			this.positionBox.setAttribute("y1",pointerPosition);
 			this.positionBox.setAttribute("y2",pointerPosition);
 		}
@@ -239,12 +237,12 @@ KaryotypeWidget.prototype.setLocation = function(item){//item.chromosome, item.p
 };
 
 
-KaryotypeWidget.prototype.updatePositionBox = function(item){
-	this.chromosome = item.chromosome;
-	this.position = item.position;
-	this.positionBox.setAttribute("x1",this.chrOffsetX[this.chromosome]-10);
-	this.positionBox.setAttribute("x2",this.chrOffsetX[this.chromosome]+23);
-	var pointerPosition = this.position * this.pixelBase + this.chrOffsetY[this.chromosome];
+KaryotypeWidget.prototype.updatePositionBox = function(){
+	this.positionBox.setAttribute("x1",this.chrOffsetX[this.region.chromosome]-10);
+	this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
+
+	var centerPosition = Compbio.centerPosition(this.region);
+	var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
 	this.positionBox.setAttribute("y1",pointerPosition);
 	this.positionBox.setAttribute("y2",pointerPosition);
 };	

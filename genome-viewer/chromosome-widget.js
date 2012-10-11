@@ -32,16 +32,15 @@ function ChromosomeWidget(parent, args) {
 		if(args.species != null){
 			this.species = args.species;
 		}
-		if(args.chromosome != null){
-			this.chromosome = args.chromosome;
+		if(args.region != null){
+			this.region = args.region;
 		}
 		if(args.zoom != null){
 			this.zoom = args.zoom;
 		}
-		if(args.position != null){
-			this.position = args.position;
-		}
 	}
+
+	this.lastChromosome = "";
 
 	this._createPixelsbyBase();//create pixelByBase array
 	this.tracksViewedRegion = this.width/this._getPixelsbyBase(this.zoom);
@@ -76,7 +75,8 @@ ChromosomeWidget.prototype.drawChromosome = function(){
  		_this.data = data;
  		_this._drawSvg(data);
  	});
- 	cellBaseManager.get("genomic", "region", this.chromosome,"cytoband");
+ 	cellBaseManager.get("genomic", "region", this.region.chromosome,"cytoband");
+ 	this.lastChromosome = this.region.chromosome;
 };
 ChromosomeWidget.prototype._drawSvg = function(data){
 	var _this = this;
@@ -87,7 +87,9 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 	var firstCentromere = true;
 
 	var offset = 20;
-	var pointerPosition = (_this.position * _this.pixelBase) + offset;
+	var centerPosition = Compbio.centerPosition(_this.region);
+	
+	var pointerPosition = (centerPosition * _this.pixelBase) + offset;
 
 	var group = SVG.addChild(_this.svg,"g",{"cursor":"pointer"});
 	$(group).click(function(event){
@@ -95,7 +97,10 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 		var positionBoxWidth = parseFloat(_this.positionBox.getAttribute("width"));
 
 		_this.positionBox.setAttribute("x",event.clientX-(positionBoxWidth/2));
-		_this.onClick.notify(clickPosition);
+
+		_this.region.start = clickPosition;
+		_this.region.end = clickPosition;
+		_this.onClick.notify(_this.region);
 	});
 
 	for (var i = 0; i < data.result[0].length; i++) {
@@ -162,20 +167,19 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 };
 
 
-ChromosomeWidget.prototype.setLocation = function(item){//item.chromosome, item.position, item.species
+ChromosomeWidget.prototype.setRegion = function(item){//item.chromosome, item.region
 	var needDraw = false;
 	if(item.species!=null){
 		this.species = item.species;
 		needDraw = true;
 	}
-	if(item.chromosome!=null){
-		this.chromosome = item.chromosome;
+	if(this.lastChromosome != this.region.chromosome){
 		needDraw = true;
 	}
-	if(item.position!=null){
-		this.position = item.position;
-
-		var pointerPosition = this.position*this.pixelBase+20;
+	
+	var centerPosition = Compbio.centerPosition(this.region);
+	if(!isNaN(centerPosition)){
+		var pointerPosition = centerPosition*this.pixelBase+20;
 		var positionBoxWidth = parseFloat(this.positionBox.getAttribute("width"));
 		this.positionBox.setAttribute("x",pointerPosition-(positionBoxWidth/2));
 	}
