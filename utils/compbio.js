@@ -63,6 +63,41 @@ var Compbio = {
 			return Math.ceil((arg1.start+arg1.end)/2);
 		}
 	},
+	getPixelBaseByZoom : function (zoom, adjust){
+		//zoom [0-100] intervals of 5
+		zoom = Math.max(0,zoom);
+		zoom = Math.min(100,zoom);
+		if(adjust == true){
+			return 10/(1<<(20-(zoom/5)));
+		}
+		return 10/(Math.pow(2,(20-(zoom/5))));
+	},
+	getZoomByPixelBase : function (pixelBase, adjust){
+		//pixelBase [10 - 0];
+		pixelBase = Math.max(0,pixelBase);
+		pixelBase = Math.min(10,pixelBase);
+		z = 100-((Math.log(10/pixelBase)/(Math.log(2)))*5);
+		if(adjust == true){
+			return z-(z%5);
+		}
+		return z;
+	},
+	calculatePixelBaseAndZoomByRegion : function (args){
+		var pixelBaseByZoom =  this.getPixelBaseByZoom(args.zoom);
+		var pixelBaseByRegion =  args.width/(args.region.end-args.region.start+1);
+		var pixelBase, halfGenomicWidth, centerPosition;
+		pixelBase = pixelBaseByRegion;
+		if(pixelBaseByZoom < pixelBaseByRegion){
+			pixelBase = pixelBaseByZoom;
+			halfGenomicWidth = (args.width/pixelBase)/2;
+			centerPosition = Math.ceil((args.region.start+args.region.end)/2);
+			args.region.start = Math.ceil(centerPosition-halfGenomicWidth);
+			args.region.end = Math.ceil(centerPosition+halfGenomicWidth);
+			console.log(centerPosition)
+			//modify the start and end
+		}
+		return {pixelBase:pixelBase,zoom:this.getZoomByPixelBase(pixelBase)}
+	},
 	isString : function (s) {
 		return typeof(s) === 'string' || s instanceof String;
 	},

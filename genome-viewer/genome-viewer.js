@@ -87,6 +87,15 @@ function GenomeViewer(targetId, species, args) {
 	console.log(this.width+"x"+this.height);
 	console.log(this.targetId);
 	console.log(this.id);
+
+	var pixelAndZoom = Compbio.calculatePixelBaseAndZoomByRegion({
+		region:this.region,
+		zoom:this.zoom,
+		width:this.width-18
+	});
+	this.zoom = pixelAndZoom.zoom;
+	this.pixelBase = pixelAndZoom.pixelBase;
+	debugger
 };
 
 GenomeViewer.prototype.draw = function(){
@@ -122,6 +131,7 @@ GenomeViewer.prototype.render = function(){
 		_this.trackSvgLayout = new TrackSvgLayout({top:divTop,track:divTrack},{
 			width:_this.width-18,
 			region:_this.region,
+			pixelBase:_this.pixelBase,
 			genomeViewer:_this,
 			zoom : _this.zoom
 		});
@@ -151,6 +161,7 @@ GenomeViewer.prototype.render = function(){
 			region:_this.region,
 			zoom : _this.zoom,
 			zoomOffset:40,
+			pixelBase:_this.pixelBase,
 			genomeViewer:_this,
 			parentLayout:_this.trackSvgLayout
 		});

@@ -54,6 +54,9 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		if(args.zoom != null){
 			this.zoom = args.zoom-this.zoomOffset;
 		}
+		if(args.pixelBase != null){
+			this.pixelBase = args.pixelBase;
+		}
 		if(args.parentLayout != null){
 			this.parentLayout = args.parentLayout;
 		}
@@ -62,11 +65,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		}
 	}
 	
-	this._createPixelsbyBase();//create pixelByBase array
-	//this.pixelBase = this._getPixelsbyBase(this.zoom);
-	this.pixelBase = this._getPixelBaseByRegion();
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
-	
 	
 	//SVG structure and events initialization
 	this.onZoomChange = new Event();
@@ -485,7 +484,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
 
 		trackSvg.featuresRender(response);
-		debugger
+
 		trackSvg.setLoading(false);
 		
 		//console.log("rendered");
@@ -703,19 +702,6 @@ TrackSvgLayout.prototype._showTrack = function(trackMainId){
 TrackSvgLayout.prototype._getPixelBaseByRegion = function(){
 	var pixelBase = this.width/(this.region.end-this.region.start+1);
 	return Math.min(pixelBase,10);
-};
-
-TrackSvgLayout.prototype._getPixelsbyBase = function(zoom){
-	return this.zoomLevels[zoom];
-};
-
-TrackSvgLayout.prototype._createPixelsbyBase = function(){
-	this.zoomLevels = new Array();
-	var pixelsByBase = 10;
-	for ( var i = 100; i >= -40; i-=5) {
-		this.zoomLevels[i] = pixelsByBase;
-		pixelsByBase = pixelsByBase / 2;
-	}
 };
 
 TrackSvgLayout.prototype._setTextPosition = function(){
