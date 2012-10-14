@@ -88,6 +88,8 @@ function GenomeViewer(targetId, species, args) {
 	console.log(this.targetId);
 	console.log(this.id);
 
+	debugger
+	/*******/
 	var pixelAndZoom = Compbio.calculatePixelBaseAndZoomByRegion({
 		region:this.region,
 		zoom:this.zoom,
@@ -95,7 +97,7 @@ function GenomeViewer(targetId, species, args) {
 	});
 	this.zoom = pixelAndZoom.zoom;
 	this.pixelBase = pixelAndZoom.pixelBase;
-	debugger
+	/********/
 };
 
 GenomeViewer.prototype.draw = function(){

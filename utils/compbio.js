@@ -58,9 +58,16 @@ var Compbio = {
 	},
 	centerPosition : function (arg1, arg2) {
 		if(isNaN(arg1) == false){//arguments mean : start, end
-			return Math.ceil((arg1+arg2)/2);
+			return arg1+Math.floor((arg2-arg1)/2);
 		}else{//arguments mean : object, nothing
-			return Math.ceil((arg1.start+arg1.end)/2);
+			return arg1.start+Math.floor((arg1.end-arg1.start)/2);
+		}
+	},
+	regionLength : function (arg1, arg2) {
+		if(isNaN(arg1) == false){//arguments mean : start, end
+			return arg2-arg1+1;
+		}else{//arguments mean : object, nothing
+			return arg1.end-arg1.start+1;
 		}
 	},
 	getPixelBaseByZoom : function (zoom, adjust){
@@ -83,17 +90,17 @@ var Compbio = {
 		return z;
 	},
 	calculatePixelBaseAndZoomByRegion : function (args){
-		var pixelBaseByZoom =  this.getPixelBaseByZoom(args.zoom);
-		var pixelBaseByRegion =  args.width/(args.region.end-args.region.start+1);
-		var pixelBase, halfGenomicWidth, centerPosition;
-		pixelBase = pixelBaseByRegion;
-		if(pixelBaseByZoom < pixelBaseByRegion){
-			pixelBase = pixelBaseByZoom;
-			halfGenomicWidth = (args.width/pixelBase)/2;
-			centerPosition = Math.ceil((args.region.start+args.region.end)/2);
-			args.region.start = Math.ceil(centerPosition-halfGenomicWidth);
-			args.region.end = Math.ceil(centerPosition+halfGenomicWidth);
-			console.log(centerPosition)
+		var regionLength = this.regionLength(args.region);
+		var pixelBase = args.width/regionLength;
+		var baseWidth = parseInt(args.width/10);//10 is the max pixelbase at max zoom 100
+		
+		if(regionLength < baseWidth){//region is too small, start and end must be recalculated for the max allowed zoom
+			pixelBase = this.getPixelBaseByZoom(args.zoom);
+			var centerPosition = this.centerPosition(args.region);
+			var aux = Math.ceil((baseWidth/2)-1);
+			args.region.start = Math.floor(centerPosition-aux);
+			args.region.end = Math.floor(centerPosition+aux);
+			
 			//modify the start and end
 		}
 		return {pixelBase:pixelBase,zoom:this.getZoomByPixelBase(pixelBase)}

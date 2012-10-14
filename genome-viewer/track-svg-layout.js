@@ -200,17 +200,17 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		//Main svg  movement events
 //		this.svg.setAttribute("cursor", "move");
 		
+		var centerPosition = Compbio.centerPosition(_this.region);
 		$(parent.track).mousemove(function(event) {
-			var mid = _this.width/2;
-			var pb2 = _this.pixelBase/2;
+			//var mid = _this.width/2;
+			var mouseLineOffset = _this.pixelBase/2;
 			var offsetX = (event.clientX - $(parent.track).offset().left);
-			var cX = offsetX-pb2;
+			var cX = offsetX-mouseLineOffset;
 			var rcX = (cX/_this.pixelBase) | 0;
 			var pos = (rcX*_this.pixelBase) + mid%_this.pixelBase;
 			_this.mouseLine.setAttribute("x",pos);
 			
 			var posOffset = (mid/_this.pixelBase) | 0;
-			var centerPosition = Compbio.centerPosition(_this.region);
 			_this.mousePosition = centerPosition+rcX-posOffset;
 			_this.onMousePosition.notify(_this.mousePosition);
 			_this.setMousePosition(_this.mousePosition);
@@ -340,10 +340,18 @@ TrackSvgLayout.prototype.setWidth = function(width){
 };
 
 TrackSvgLayout.prototype.setZoom = function(zoom){
-	this.zoom=Math.max(zoom-this.zoomOffset, -5);
+	//this.zoom=Math.max(zoom-this.zoomOffset, -5);
+	/*******/
+	var pixelAndZoom = Compbio.calculatePixelBaseAndZoomByRegion({
+		region:this.region,
+		zoom:zoom,
+		width:this.width
+	});
+	this.zoom = Math.max(pixelAndZoom.zoom-this.zoomOffset, -5);
+	this.pixelBase = pixelAndZoom.pixelBase;
+	/********/
 //	console.log(this.zoom);
 //	console.log(this._getPixelsbyBase(this.zoom));
-	this.pixelBase = this._getPixelsbyBase(this.zoom);
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.currentLine.setAttribute("width", this.pixelBase);
 	this.mouseLine.setAttribute("width", this.pixelBase);
@@ -361,8 +369,17 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 };
 
 TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.position, item.species
-	this._setTextPosition();
-	this._getPixelBaseByRegion();
+	//this._setTextPosition();
+		///*******/
+	//var pixelAndZoom = Compbio.calculatePixelBaseAndZoomByRegion({
+		//region:this.region,
+		//zoom:this.zoom,
+		//width:this.width
+	//});
+	//this.zoom = Math.max(pixelAndZoom.zoom-this.zoomOffset, -5);
+	//this.pixelBase = pixelAndZoom.pixelBase;
+	//this._setTextPosition();
+	///********/
 	if(item.species!=null){
 		//check species and modify CellBaseAdapter, clean cache
 		for(i in this.trackSvgList){
@@ -699,10 +716,6 @@ TrackSvgLayout.prototype._showTrack = function(trackMainId){
 	this._redraw();
 };
 
-TrackSvgLayout.prototype._getPixelBaseByRegion = function(){
-	var pixelBase = this.width/(this.region.end-this.region.start+1);
-	return Math.min(pixelBase,10);
-};
 
 TrackSvgLayout.prototype._setTextPosition = function(){
 	this.positionText.textContent = Compbio.centerPosition(this.region);
