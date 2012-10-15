@@ -54,9 +54,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		if(args.zoom != null){
 			this.zoom = args.zoom-this.zoomOffset;
 		}
-		if(args.pixelBase != null){
-			this.pixelBase = args.pixelBase;
-		}
 		if(args.parentLayout != null){
 			this.parentLayout = args.parentLayout;
 		}
@@ -64,6 +61,10 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			this.genomeViewer = args.genomeViewer;
 		}
 	}
+
+	///*******/
+	this.pixelBase = Compbio.getPixelBaseByZoom(this.zoom);
+	/********/
 	
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	
@@ -319,6 +320,7 @@ TrackSvgLayout.prototype.setWidth = function(width){
 	this.width=width;
 	var mid = this.width/2;
 	this.svg.setAttribute("width",width);
+	this.svgTop.setAttribute("width",width);
 	this.grid.setAttribute("x",parseInt(mid%10));
 	this.grid2.setAttribute("width",width);
 	this.positionText.setAttribute("x",mid-30);
@@ -340,18 +342,9 @@ TrackSvgLayout.prototype.setWidth = function(width){
 };
 
 TrackSvgLayout.prototype.setZoom = function(zoom){
-	//this.zoom=Math.max(zoom-this.zoomOffset, -5);
-	/*******/
-	var pixelAndZoom = Compbio.calculatePixelBaseAndZoomByRegion({
-		region:this.region,
-		zoom:zoom,
-		width:this.width
-	});
-	this.zoom = Math.max(pixelAndZoom.zoom-this.zoomOffset, -5);
-	this.pixelBase = pixelAndZoom.pixelBase;
-	/********/
-//	console.log(this.zoom);
-//	console.log(this._getPixelsbyBase(this.zoom));
+	this.zoom = Math.max(zoom-this.zoomOffset, -5);
+	this.pixelBase = Compbio.getPixelBaseByZoom(this.zoom);
+
 	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
 	this.currentLine.setAttribute("width", this.pixelBase);
 	this.mouseLine.setAttribute("width", this.pixelBase);
@@ -535,7 +528,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	//on chromosome change set new virtual window and update track values
 	trackSvg.onChromosomeChangeIdx = this.onChromosomeChange.addEventListener(function(sender,data){
-		trackSvg.pixelBase = _this._getPixelBaseByRegion();
 		trackSvg.position = Compbio.centerPosition(trackSvg.region);
 		console.log("trackSVG: "+trackSvg.position);
 		cleanSvgFeatures();

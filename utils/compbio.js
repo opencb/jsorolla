@@ -70,24 +70,17 @@ var Compbio = {
 			return arg1.end-arg1.start+1;
 		}
 	},
-	getPixelBaseByZoom : function (zoom, adjust){
+	getPixelBaseByZoom : function (zoom){
 		//zoom [0-100] intervals of 5
 		zoom = Math.max(0,zoom);
 		zoom = Math.min(100,zoom);
-		if(adjust == true){
-			return 10/(1<<(20-(zoom/5)));
-		}
 		return 10/(Math.pow(2,(20-(zoom/5))));
 	},
-	getZoomByPixelBase : function (pixelBase, adjust){
+	getZoomByPixelBase : function (pixelBase){
 		//pixelBase [10 - 0];
 		pixelBase = Math.max(0,pixelBase);
 		pixelBase = Math.min(10,pixelBase);
-		z = 100-((Math.log(10/pixelBase)/(Math.log(2)))*5);
-		if(adjust == true){
-			return z-(z%5);
-		}
-		return z;
+		return 100-((Math.log(10/pixelBase)/(Math.log(2)))*5);
 	},
 	calculatePixelBaseAndZoomByRegion : function (args){
 		var regionLength = this.regionLength(args.region);

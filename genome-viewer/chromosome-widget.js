@@ -42,8 +42,7 @@ function ChromosomeWidget(parent, args) {
 
 	this.lastChromosome = "";
 
-	this._createPixelsbyBase();//create pixelByBase array
-	this.tracksViewedRegion = this.width/this._getPixelsbyBase(this.zoom);
+	this.tracksViewedRegion = this.width/Compbio.getPixelBaseByZoom(this.zoom);
 	
 	this.onClick = new Event();
 	
@@ -194,22 +193,11 @@ ChromosomeWidget.prototype.setRegion = function(item){//item.chromosome, item.re
 
 ChromosomeWidget.prototype.setZoom = function(zoom){
 	this.zoom=zoom;
-	this.tracksViewedRegion = this.width/this._getPixelsbyBase(this.zoom);
+	this.tracksViewedRegion = this.width/Compbio.getPixelBaseByZoom(this.zoom);
 	var width = this.tracksViewedRegion*this.pixelBase;
 	this.positionBox.setAttribute("width",width);
-	var pointerPosition = this.position*this.pixelBase+20;
+
+	var centerPosition = Compbio.centerPosition(this.region);
+	var pointerPosition = centerPosition*this.pixelBase+20;
 	this.positionBox.setAttribute("x",pointerPosition-(width/2));
-};
-
-ChromosomeWidget.prototype._getPixelsbyBase = function(zoom){
-	return this.zoomLevels[zoom];
-};
-
-ChromosomeWidget.prototype._createPixelsbyBase = function(){
-	this.zoomLevels = new Array();
-	var pixelsByBase = 10;
-	for ( var i = 100; i >= -40; i-=5) {
-		this.zoomLevels[i] = pixelsByBase;
-		pixelsByBase = pixelsByBase / 2;
-	}
 };
