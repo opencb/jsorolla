@@ -51,6 +51,7 @@ function GFF2DataAdapter(dataSource, args){
 };
 
 GFF2DataAdapter.prototype.parse = function(data){
+	console.time("asdf")
 	var _this = this;
 	var dataType = "data";
 	var lines = data.split("\n");
@@ -67,7 +68,7 @@ GFF2DataAdapter.prototype.parse = function(data){
 					"label": fields[2], 
 					"start": parseInt(fields[3]), 
 					"end": parseInt(fields[4]), 
-					"score": parseFloat(fields[5]),
+					"score": fields[5],
 					"strand": fields[6], 
 					"frame": fields[7],
 					"group": fields[8],
@@ -83,4 +84,6 @@ GFF2DataAdapter.prototype.parse = function(data){
 			this.featuresCount++;
 		}
 	}
+	console.log(this.featuresCount);
+	console.timeEnd("asdf")
 };

@@ -257,7 +257,7 @@ ListPanel.prototype.draw = function(cbResponse, useAdapter) {
 			for ( var j = 0; j < cbResponse.result[i].length; j++) {
 				var feature = cbResponse.result[i][j];
 				feature.position = feature.chromosome + ":"+ feature.start + "-" + feature.end;
-				feature.featureType = cbResponse.resource;
+				feature.featureType = cbResponse.subCategory;
 				this.features.push(feature);
 			}
 
@@ -278,7 +278,7 @@ ListPanel.prototype.draw = function(cbResponse, useAdapter) {
 			for ( var j = 0; j < cbResponse.result[i].length; j++) {
 				var feature = cbResponse.result[i][j];
 				feature.position = feature.chromosome + ":"+ feature.start + "-" + feature.end;
-				feature.featureType = cbResponse.resource;
+				feature.featureType = cbResponse.subCategory;
 				this.features.push(feature);
 			}
 

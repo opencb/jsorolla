@@ -20,55 +20,8 @@
  */
 
 var Compbio = {
-	parseRegion : function(str){
-		var splitDots = str.split(":");
-		if(splitDots.length == 2){
-			var splitDash = splitDots[1].split("-");
-			var chromosome = splitDots[0];
-			var start = parseInt(splitDash[0]);
-			if(splitDash.length == 2){
-				var end = parseInt(splitDash[1]);
-				return {chromosome:chromosome,start:start,end:end};
-			}
-			return {chromosome:chromosome,start:start,end:start};
-		}
-		throw "Chromosome must be separated by :";
-	},
-	stringifyRegion : function(arg1,arg2,arg3,arg4){
-		var str;
-		if (this.isString(arg1)){//arguments mean : chr, start, end, formated
-			if(arg4 == true){
-				str = arg1 + ":" + this.formatPosition(arg2) + "-" + this.formatPosition(arg3);
-			}else{
-				str = arg1 + ":" + arg2 + "-" + arg3;
-			}
-			return str;
-		}else{//arguments mean : object, formated, nothing, nothing
-			if(arg2 == true){
-				str = arg1.chromosome + ":" + this.formatPosition(arg1.start) + "-" + this.formatPosition(arg1.end);
-			}else{
-				str = arg1.chromosome + ":" + arg1.start + "-" + arg1.end;
-			}
-			return str;
-		}
-		return str;
-	},
-	formatPosition : function(position){
+	formatNumber : function(position){
 		return position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-	},
-	centerPosition : function (arg1, arg2) {
-		if(isNaN(arg1) == false){//arguments mean : start, end
-			return arg1+Math.floor((arg2-arg1)/2);
-		}else{//arguments mean : object, nothing
-			return arg1.start+Math.floor((arg1.end-arg1.start)/2);
-		}
-	},
-	regionLength : function (arg1, arg2) {
-		if(isNaN(arg1) == false){//arguments mean : start, end
-			return arg2-arg1+1;
-		}else{//arguments mean : object, nothing
-			return arg1.end-arg1.start+1;
-		}
 	},
 	getPixelBaseByZoom : function (zoom){
 		//zoom [0-100] intervals of 5
@@ -81,6 +34,9 @@ var Compbio = {
 		pixelBase = Math.max(0,pixelBase);
 		pixelBase = Math.min(10,pixelBase);
 		return 100-((Math.log(10/pixelBase)/(Math.log(2)))*5);
+	},
+	getPixelBaseByRegion : function (width, region){
+		return width/region.length();
 	},
 	calculatePixelBaseAndZoomByRegion : function (args){
 		var regionLength = this.regionLength(args.region);

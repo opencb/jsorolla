@@ -116,7 +116,7 @@ KaryotypeWidget.prototype._drawSvg = function(chromosomeList, data2){
 		_this.chrOffsetY[chr] = y;
 		var firstCentromere = true;
 		
-		var centerPosition = Compbio.centerPosition(_this.region); 
+		var centerPosition = _this.region.center();
 		var pointerPosition = (centerPosition * _this.pixelBase);
 
 		var group = SVG.addChild(_this.svg,"g",{"cursor":"pointer","chr":chromosomeList[i]});
@@ -219,12 +219,12 @@ KaryotypeWidget.prototype.setRegion = function(item){//item.chromosome, item.pos
 		this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
 	}
 	
-	var centerPosition = Compbio.centerPosition(this.region);
+	var centerPosition = this.region.center();
 	if(!isNaN(centerPosition)){
 		if(item.species==null){
 			var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
-			this.positionBox.setAttribute("y1",pointerPosition);
-			this.positionBox.setAttribute("y2",pointerPosition);
+			this.positionBox.setAttribute("y1", pointerPosition);
+			this.positionBox.setAttribute("y2", pointerPosition);
 		}
 	}
 	if(needDraw){

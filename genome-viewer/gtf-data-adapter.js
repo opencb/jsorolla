@@ -79,7 +79,7 @@ GTFDataAdapter.prototype.parse = function(data){
 					"label": fields[2], 
 					"start": parseInt(fields[3]), 
 					"end": parseInt(fields[4]), 
-					"score": parseFloat(fields[5]),
+					"score": fields[5],
 					"strand": fields[6], 
 					"frame": fields[7],
 					"attributes": getAttr(fields[8]),

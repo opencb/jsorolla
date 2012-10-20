@@ -35,15 +35,10 @@ function ChromosomeWidget(parent, args) {
 		if(args.region != null){
 			this.region = args.region;
 		}
-		if(args.zoom != null){
-			this.zoom = args.zoom;
-		}
 	}
 
 	this.lastChromosome = "";
 
-	this.tracksViewedRegion = this.width/Compbio.getPixelBaseByZoom(this.zoom);
-	
 	this.onClick = new Event();
 	
 	this.svg = SVG.init(parent,{
@@ -59,7 +54,7 @@ function ChromosomeWidget(parent, args) {
 ChromosomeWidget.prototype.setWidth = function(width){
 	this.width=width;
 	this.svg.setAttribute("width",width);
-	this.tracksViewedRegion = width/this._getPixelsbyBase(this.zoom);
+	this.tracksViewedRegion = this.width/Compbio.getPixelBaseByZoom(this.zoom);
 	while (this.svg.firstChild) {
 		this.svg.removeChild(this.svg.firstChild);
 	}
@@ -77,29 +72,120 @@ ChromosomeWidget.prototype.drawChromosome = function(){
  	cellBaseManager.get("genomic", "region", this.region.chromosome,"cytoband");
  	this.lastChromosome = this.region.chromosome;
 };
+
 ChromosomeWidget.prototype._drawSvg = function(data){
 	var _this = this;
 	
-	_this.pixelBase = (_this.width -40) / data.result[0][data.result[0].length-1].end;
+	this.chromosomeLength = data.result[0][data.result[0].length-1].end;
+	_this.pixelBase = (_this.width - 40) / this.chromosomeLength;
 	var x = 20;
 	var y = 10;
 	var firstCentromere = true;
 
 	var offset = 20;
-	var centerPosition = Compbio.centerPosition(_this.region);
+	var centerPosition = _this.region.center();
 	
 	var pointerPosition = (centerPosition * _this.pixelBase) + offset;
 
 	var group = SVG.addChild(_this.svg,"g",{"cursor":"pointer"});
-	$(group).click(function(event){
-		var clickPosition = parseInt((event.clientX - offset)/_this.pixelBase);
-		var positionBoxWidth = parseFloat(_this.positionBox.getAttribute("width"));
 
-		_this.positionBox.setAttribute("x",event.clientX-(positionBoxWidth/2));
+	var selBox = SVG.addChild(this.svg,"rect",{
+		"x":0,
+		"y":2,
+		"stroke-width":"2",
+		"stroke":"deepskyblue",
+		"opacity":"0.5",
+		"fill":"honeydew"
+	});
+	//Prevent browser context menu
+	$(_this.svg).contextmenu(function(e) {
+		e.preventDefault();
+	});
+	var overPositionBox = false;
+	var movingPositionBox = false;
+	var selectingRegion = false;
+	var downY, downX, moveX, moveY, lastX;
+	$(this.svg).mousedown(function(event) {
+		downX = (event.pageX - $(_this.svg).offset().left);
+		selBox.setAttribute("x",downX);
+		lastX = _this.positionBox.getAttribute("x");
+		$(this).mousemove(function(event){
+			moveX = (event.pageX - $(_this.svg).offset().left);
+			if(overPositionBox==false && movingPositionBox==false){
+				selectingRegion = true;
+				if(moveX < downX){
+					selBox.setAttribute("x",moveX);
+				}
+				selBox.setAttribute("width",Math.abs(moveX - downX));
+				selBox.setAttribute("height",_this.height-3);
+			}else if(selectingRegion == false){
+				movingPositionBox=true;
+				var w = _this.positionBox.getAttribute("width");
+				_this.positionBox.setAttribute("x",moveX-(w/2));
+			}
+		});
+	});
+	
+	$(this.svg).mouseup(function(event) {
+		$(this).off('mousemove');
+		if(downX != null){
+			if(moveX != null){
+				if(overPositionBox==false && movingPositionBox==false){
+					var bioS = (downX-offset)/_this.pixelBase;
+					var bioE = (moveX-offset)/_this.pixelBase;
+					_this.region.start = parseInt(Math.min(bioS,bioE));
+					_this.region.end =  parseInt(Math.max(bioS,bioE));
 
-		_this.region.start = clickPosition;
-		_this.region.end = clickPosition;
-		_this.onClick.notify(_this.region);
+					var w = Math.abs(downX-moveX);
+					_this.positionBox.setAttribute("width",w);
+					_this.positionBox.setAttribute("x",Math.abs((downX+moveX)/2)-(w/2));
+					_this.onClick.notify();
+					selectingRegion = false;
+				}else{//click to move the positionBox
+					var w = _this.positionBox.getAttribute("width");
+					var pixS = moveX-(w/2);
+					var pixE = moveX+(w/2);
+					var bioS = (pixS-offset)/_this.pixelBase;
+					var bioE = (pixE-offset)/_this.pixelBase;
+					_this.region.start = Math.round(bioS);
+					_this.region.end =  Math.round(bioE);
+
+					_this.positionBox.setAttribute("x",moveX-(w/2));
+					_this.onClick.notify();
+					movingPositionBox=false;
+				}
+			}else{
+				var w = _this.positionBox.getAttribute("width");
+				var pixS = downX-(w/2);
+				var pixE = downX+(w/2);
+				var bioS = (pixS-offset)/_this.pixelBase;
+				var bioE = (pixE-offset)/_this.pixelBase;
+				_this.region.start = Math.round(bioS);
+				_this.region.end =  Math.round(bioE);
+
+				_this.positionBox.setAttribute("x",downX-(w/2));
+				_this.onClick.notify();
+			}
+		}
+		selBox.setAttribute("width",0);
+		selBox.setAttribute("height",0);
+		downX = null;
+		moveX = null;
+		lastX = _this.positionBox.getAttribute("x");
+	});
+	$(this.svg).mouseleave(function(event) {
+		$(this).off('mousemove')
+		if(lastX!=null){
+			_this.positionBox.setAttribute("x",lastX);
+		}
+		selBox.setAttribute("width",0);
+		selBox.setAttribute("height",0);
+		downX = null;
+		moveX = null;
+		lastX = null;
+		overPositionBox = false;
+		movingPositionBox = false;
+		selectingRegion = false;
 	});
 
 	for (var i = 0; i < data.result[0].length; i++) {
@@ -140,7 +226,7 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 		}
 
 		var textY = endY+2;
-		var text = SVG.addChild(_this.svg,"text",{
+		var text = SVG.addChild(group,"text",{
 			"x":middleX,
 			"y":textY,
 			"font-size":10,
@@ -152,16 +238,25 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 		x = x + width;
 	}
 
-	var positionBoxWidth = _this.tracksViewedRegion*_this.pixelBase;
+	var positionBoxWidth = _this.region.length()*_this.pixelBase;
 	_this.positionBox = SVG.addChild(group,"rect",{
 		"x":pointerPosition-(positionBoxWidth/2),
 		"y":2,
 		"width":positionBoxWidth,
-		"height":_this.height-2,
+		"height":_this.height-3,
 		"stroke":"orangered",
 		"stroke-width":2,
 		"opacity":0.5,
-		"fill":"orange"
+		"fill":"navajowhite"
+	});
+	$(_this.positionBox).mouseenter(function(event) {
+		if(selectingRegion==false){
+			overPositionBox = true;
+		}
+	});
+	$(_this.positionBox).mouseleave(function(event) {
+		console.log("leave")
+		overPositionBox = false;
 	});
 };
 
@@ -176,11 +271,13 @@ ChromosomeWidget.prototype.setRegion = function(item){//item.chromosome, item.re
 		needDraw = true;
 	}
 	
-	var centerPosition = Compbio.centerPosition(this.region);
+	var centerPosition = this.region.center();
 	if(!isNaN(centerPosition)){
-		var pointerPosition = centerPosition*this.pixelBase+20;
+		var pointerPosition = (centerPosition*this.pixelBase)+20;
 		var positionBoxWidth = parseFloat(this.positionBox.getAttribute("width"));
 		this.positionBox.setAttribute("x",pointerPosition-(positionBoxWidth/2));
+		var positionBoxWidth = this.region.length()*this.pixelBase;
+		this.positionBox.setAttribute("width",positionBoxWidth);
 	}
 	if(needDraw){
 //		$(this.svg).empty();
@@ -191,13 +288,13 @@ ChromosomeWidget.prototype.setRegion = function(item){//item.chromosome, item.re
 	}
 };
 
-ChromosomeWidget.prototype.setZoom = function(zoom){
-	this.zoom=zoom;
-	this.tracksViewedRegion = this.width/Compbio.getPixelBaseByZoom(this.zoom);
-	var width = this.tracksViewedRegion*this.pixelBase;
-	this.positionBox.setAttribute("width",width);
-
-	var centerPosition = Compbio.centerPosition(this.region);
-	var pointerPosition = centerPosition*this.pixelBase+20;
-	this.positionBox.setAttribute("x",pointerPosition-(width/2));
-};
+//ChromosomeWidget.prototype.setZoom = function(zoom){
+	//this.zoom=zoom;
+	//this.tracksViewedRegion = this.width/Compbio.getPixelBaseByZoom(this.zoom);
+	//var width = this.tracksViewedRegion*this.pixelBase;
+	//this.positionBox.setAttribute("width",width);
+//
+	//var centerPosition = Compbio.centerPosition(this.region);
+	//var pointerPosition = centerPosition*this.pixelBase+20;
+	//this.positionBox.setAttribute("x",pointerPosition-(width/2));
+//};

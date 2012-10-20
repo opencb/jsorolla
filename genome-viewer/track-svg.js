@@ -111,7 +111,7 @@ function TrackSvg(parent, args) {
 		}
 	}
 
-	this.position = Compbio.centerPosition(this.region);
+	this.position = this.region.center();
 	
 	//flags
 	this.rendered = false;//svg structure already draw, svg elements can be used from now
@@ -150,11 +150,12 @@ TrackSvg.prototype.setLoading = function(bool){
 	if(bool){
 		this.titleGroup.setAttribute("transform","translate(40)");
 		this.loading.setAttribute("visibility", "visible");
+		this.status = "rendering";
 	}else{
 		this.titleGroup.setAttribute("transform","translate(0)");
 		this.loading.setAttribute("visibility", "hidden");
+		this.status = "ready";
 	}
-	
 };
 
 
@@ -1195,14 +1196,14 @@ TrackSvg.prototype.showInfoWidget = function(args){
 	}
 };
 
-TrackSvg.prototype._getFeaturesByChunks = function(response){
+TrackSvg.prototype._getFeaturesByChunks = function(response, filters){
 	//Returns an array avoiding already drawn features in this.chunksDisplayed
 	var chunks = response.items;
 	var dataType = response.params.dataType;
 	var chromosome = response.params.chromosome;
 	var features = [];
 	
-	var feature, displayed, firstChunk, lastChunk, features = [];
+	var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {
 		if(this.chunksDisplayed[chunks[i].key+dataType]!=true){//check if any chunk is already displayed and skip it
 
@@ -1211,9 +1212,9 @@ TrackSvg.prototype._getFeaturesByChunks = function(response){
 
 					//check if any feature has been already displayed by another chunk
 					displayed = false;
-					firstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
-					lastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
-					for(var f=firstChunk; f<=lastChunk; f++){
+					featureFirstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
+					featureLastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
+					for(var f=featureFirstChunk; f<=featureLastChunk; f++){
 						var fkey = chromosome+":"+f;
 						if(this.chunksDisplayed[fkey+dataType]==true){
 							displayed = true;
@@ -1221,6 +1222,17 @@ TrackSvg.prototype._getFeaturesByChunks = function(response){
 						}
 					}
 					if(!displayed){
+						//apply filter
+						// if(filters != null) {
+						//		var pass = true;
+						// 		for(filter in filters) {
+						// 			pass = pass && filters[filter](feature);
+						//			if(pass == false) {
+						//				break;
+						//			}				
+						// 		}
+						//		if(pass) features.push(feature);
+						// } else {
 						features.push(feature);
 					}
 			}

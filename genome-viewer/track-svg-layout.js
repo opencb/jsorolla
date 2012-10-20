@@ -29,11 +29,13 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this.trackSvgList =  new Array();
 	this.swapHash = new Object();
 	this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
+	//
+	
 	this.parentLayout = null;
 	this.mousePosition="";
 	this.windowSize = "";
-	
-	
+
+	this.zoomMultiplier = 1;
 	//default values
 	this.height=0;
 
@@ -48,11 +50,11 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		if(args.region != null){
 			this.region = args.region;
 		}
-		if(args.zoomOffset != null){
+		if(args.zoomOffset != null){//multiplier
 			this.zoomOffset = args.zoomOffset;
 		}
-		if(args.zoom != null){
-			this.zoom = args.zoom-this.zoomOffset;
+		if(args.zoomMultiplier != null){//multiplier
+			this.zoomMultiplier = args.zoomMultiplier;
 		}
 		if(args.parentLayout != null){
 			this.parentLayout = args.parentLayout;
@@ -63,14 +65,14 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	}
 
 	///*******/
-	this.pixelBase = Compbio.getPixelBaseByZoom(this.zoom);
+	this._calculateMinRegion();
+	this._calculatePixelBase();
 	/********/
 	
-	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
-	
 	//SVG structure and events initialization
-	this.onZoomChange = new Event();
-	this.onChromosomeChange = new Event();
+	this.onReady = new Event();
+	this.onRegionChange = new Event();
+	this.onRegionSelect = new Event();//only when parentLayout is not null
 	this.onMove = new Event();
 	this.onWindowSize = new Event();
 	this.onMousePosition = new Event();
@@ -98,7 +100,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"patternUnits":"userSpaceOnUse",
 		"x":0,
 		"y":0,
-		"width":10,
+		"width":_this.pixelBase,
 		"height":2000
 	});
 	
@@ -113,7 +115,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	});
 	
 	this.grid2 = SVG.addChild(this.svg,"rect",{
-		"width":this.width,
+		"width":0,
 		"height":2000,
 		"x":0,
 		"fill":"url(#"+this.id+"gridPatt)"
@@ -143,9 +145,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"font-size":10,
 		"fill":"green"
 	});
-	this._setTextPosition();
-	
-	
 	this.viewNtsArrow = SVG.addChild(this.svgTop,"rect",{
 		"x":16,
 		"y":2,
@@ -170,8 +169,9 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"font-size":10,
 		"fill":"white"
 	});
-	this.windowSize = "Window size: "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
+	this.windowSize = "Window size: "+this.region.length()+" nts";
 	this.viewNtsText.textContent = this.windowSize;
+	this._setTextPosition();
 	
 	this.currentLine = SVG.addChild(this.svg,"rect",{
 		"x":mid,
@@ -192,7 +192,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"stroke-width":"2",
 		//"stroke":"LawnGreen",
 		"stroke":"lightgray",
-		"opacity":"0.4",
+		"opacity":"0.7",
 		//"fill":"GreenYellow"
 		"fill":"gainsboro"
 	});
@@ -201,9 +201,9 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		//Main svg  movement events
 //		this.svg.setAttribute("cursor", "move");
 		
-		var centerPosition = Compbio.centerPosition(_this.region);
 		$(parent.track).mousemove(function(event) {
-			//var mid = _this.width/2;
+			var centerPosition = _this.region.center();
+			var mid = _this.width/2;
 			var mouseLineOffset = _this.pixelBase/2;
 			var offsetX = (event.clientX - $(parent.track).offset().left);
 			var cX = offsetX-mouseLineOffset;
@@ -213,8 +213,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			
 			var posOffset = (mid/_this.pixelBase) | 0;
 			_this.mousePosition = centerPosition+rcX-posOffset;
-			_this.onMousePosition.notify(_this.mousePosition);
-			_this.setMousePosition(_this.mousePosition);
+			_this.onMousePosition.notify({mousePos:_this.mousePosition,baseHtml:_this.getMousePosition(_this.mousePosition)});
 		});
 		
 		$(this.svg).mousedown(function(event) {
@@ -227,7 +226,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 				var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
 				if(newX!=lastX){
 					var desp = lastX-newX;
-					var centerPosition = Compbio.centerPosition(_this.region);
+					var centerPosition = _this.region.center();
 					var p = centerPosition - desp;
 					if(p>0){//avoid 0 and negative positions
 						_this.region.start -= desp;
@@ -235,7 +234,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 						_this._setTextPosition();
 						_this.onMove.notify(desp);
 						lastX = newX;
-						_this.setNucleotidPosition(_this.position);
+						_this.setNucleotidPosition(p);
 					}
 				}
 			});
@@ -264,16 +263,16 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 				switch (e.keyCode){
 					case 37://left arrow
 						if(e.ctrlKey){
-							desp = 100/_this.pixelBase;
+							desp = Math.round(100/_this.pixelBase);
 						}else{
-							desp = 10/_this.pixelBase;
+							desp = Math.round(10/_this.pixelBase);
 						}
 					break;
 					case 39://right arrow
 						if(e.ctrlKey){
-							desp = -100/_this.pixelBase;
+							desp = Math.round(-100/_this.pixelBase)
 						}else{
-							desp = -10/_this.pixelBase;
+							desp = Math.round(-10/_this.pixelBase);
 						}
 					break;
 					case 109://minus key
@@ -304,12 +303,48 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			_this._setTextPosition();
 			_this.onMove.notify(desp);
 		});
+		var selBox = SVG.addChild(this.svg,"rect",{
+				"x":0,
+				"y":0,
+				"stroke-width":"1",
+				"stroke":"orangered",
+				"opacity":"0.5",
+				"fill":"navajowhite"
+		});
+		var downX, moveX;
+		$(this.svg).mousedown(function(event) {
+			downX = (event.pageX - $(_this.svg).offset().left);
+			selBox.setAttribute("x",downX);
+			$(this).mousemove(function(event){
+				moveX = (event.pageX - $(_this.svg).offset().left);
+				if(moveX < downX){
+					selBox.setAttribute("x",moveX);
+				}
+				selBox.setAttribute("width",Math.abs(moveX - downX));
+				selBox.setAttribute("height",_this.height);
+			});
+		});
+		$(this.svg).mouseup(function(event) {
+			selBox.setAttribute("width",0);
+			selBox.setAttribute("height",0);
+			$(this).off('mousemove');
+
+			if(downX != null && moveX != null){
+				var ss = downX/_this.pixelBase;
+				var ee =moveX/_this.pixelBase;
+				ss += _this._s;
+				ee += _this._s;
+				_this.region.start = parseInt(Math.min(ss,ee));
+				_this.region.end =  parseInt(Math.max(ss,ee));
+				_this.onRegionSelect.notify();
+			}
+		});
 	}
 };
 
 
 TrackSvgLayout.prototype.setHeight = function(height){
-	this.height=height;
+	this.height=Math.max(height,60);
 	this.svg.setAttribute("height",height);
 	this.grid.setAttribute("height",height);
 	this.grid2.setAttribute("height",height);
@@ -318,11 +353,14 @@ TrackSvgLayout.prototype.setHeight = function(height){
 };
 TrackSvgLayout.prototype.setWidth = function(width){
 	this.width=width;
+	this._calculateMinRegion();
+
+	//this._calculatePixelBase();
 	var mid = this.width/2;
 	this.svg.setAttribute("width",width);
 	this.svgTop.setAttribute("width",width);
-	this.grid.setAttribute("x",parseInt(mid%10));
-	this.grid2.setAttribute("width",width);
+	//this.grid.setAttribute("x",parseInt(mid%10));
+	//this.grid2.setAttribute("width",width);
 	this.positionText.setAttribute("x",mid-30);
 	this.nucleotidText.setAttribute("x",mid+35);
 	this.lastPositionText.setAttribute("x",width-70);
@@ -330,49 +368,46 @@ TrackSvgLayout.prototype.setWidth = function(width){
 	this.viewNtsArrowRight.setAttribute("points",width+",7 "+(width-16)+",0 "+(width-16)+",14");
 	this.viewNtsText.setAttribute("x",mid-30);
 	this.currentLine.setAttribute("x",mid);
+	this.currentLine.setAttribute("width", this.pixelBase);
+	this.mouseLine.setAttribute("width", this.pixelBase);
 	for ( var i = 0; i < this.trackSvgList.length; i++) {
 		this.trackSvgList[i].setWidth(width);
-	}		
-	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
-	this.viewNtsText.textContent = "Window size: "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
-	this.windowSize = this.viewNtsText.textContent;
+	}
 	this._setTextPosition();
 	this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
-	this.onZoomChange.notify();
+	this.onRegionChange.notify();
 };
 
 TrackSvgLayout.prototype.setZoom = function(zoom){
-	this.zoom = Math.max(zoom-this.zoomOffset, -5);
-	this.pixelBase = Compbio.getPixelBaseByZoom(this.zoom);
+	throw("DEPRECATED: TrackSvgLayout.prototype.setZoom");
+};
 
-	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
-	this.currentLine.setAttribute("width", this.pixelBase);
-	this.mouseLine.setAttribute("width", this.pixelBase);
-	this.viewNtsText.textContent = "Window size: "+Math.ceil((this.width)/this.pixelBase).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+" nts";
-	this.windowSize = this.viewNtsText.textContent;
-	this._setTextPosition();
-
-	//var seqTrack = this.getTrackSvgById("Sequence");
-	//if(seqTrack != null){
-		//seqTrack.trackData.adapter.clearData();
-	//}
-	
-	this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
-	this.onZoomChange.notify();
+TrackSvgLayout.prototype._calculateMinRegion = function() {
+	var regionLength = this.region.length();
+	var minimumBaseLength = parseInt(this.width/Compbio.getPixelBaseByZoom(100));//for zoom 100
+	if(regionLength < minimumBaseLength){
+		//the zoom will be 100, region must be recalculated
+		var centerPosition = this.region.center();
+		var aux = Math.ceil((minimumBaseLength/2)-1);
+		this.region.start = Math.floor(centerPosition-aux);
+		this.region.end = Math.floor(centerPosition+aux);
+	}
 };
 
 TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.position, item.species
-	//this._setTextPosition();
-		///*******/
-	//var pixelAndZoom = Compbio.calculatePixelBaseAndZoomByRegion({
-		//region:this.region,
-		//zoom:this.zoom,
-		//width:this.width
-	//});
-	//this.zoom = Math.max(pixelAndZoom.zoom-this.zoomOffset, -5);
-	//this.pixelBase = pixelAndZoom.pixelBase;
-	//this._setTextPosition();
-	///********/
+	var _this = this;
+	this._calculateMinRegion();
+	//get pixelbase by Region
+
+	this._calculatePixelBase();
+
+	this.currentLine.setAttribute("width", this.pixelBase);
+	this.mouseLine.setAttribute("width", this.pixelBase);
+	this.viewNtsText.textContent = "Window size: "+this.region.length()+" nts";
+	this.windowSize = this.viewNtsText.textContent;
+	this._setTextPosition();
+	this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
+	
 	if(item.species!=null){
 		//check species and modify CellBaseAdapter, clean cache
 		for(i in this.trackSvgList){
@@ -386,7 +421,28 @@ TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.posi
 			}
 		}
 	}
-	this.onChromosomeChange.notify();
+
+	this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
+
+
+	/************************/
+	var checkAllTrackStatus = function(status){
+		for(i in _this.trackSvgList){
+			if(_this.trackSvgList[i].status != status) return false;
+		}
+		return true;
+	}
+	var checkStatus = function(){
+		if(checkAllTrackStatus('ready')){
+			if(_this.parentLayout==null){
+				_this.onReady.notify();
+			}
+		}else{
+			setTimeout(checkStatus,20);
+		}
+	}
+	setTimeout(checkStatus, 10);
+	this.onRegionChange.notify();
 };
 
 TrackSvgLayout.prototype.addTrack = function(trackData, args){
@@ -413,9 +469,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	trackSvg.setY(this.height);
 	trackSvg.draw();
 	this.setHeight(this.height + trackSvg.getHeight());
-	
-	
-	
 	
 	//XXX help methods
 	var callStart, callEnd, virtualStart, vitualEnd;
@@ -462,6 +515,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var retrieveData = function(sender){
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end ){
+			// Commenntttttttssssss
 			trackSvg.setLoading(true);
 			trackData.retrieveData({
 				chromosome:_this.region.chromosome,
@@ -494,7 +548,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		_this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
 
 		trackSvg.featuresRender(response);
-
 		trackSvg.setLoading(false);
 		
 		//console.log("rendered");
@@ -512,28 +565,20 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	retrieveData("firstLoad");
 	
 	
-	//on zoom change set new virtual window and update track values
-	trackSvg.onZoomChangeIdx = this.onZoomChange.addEventListener(function(sender,data){
-		trackSvg.zoom=_this.zoom;
-		trackSvg.pixelBase=_this.pixelBase;
-		
+	//on region change set new virtual window and update track values
+	trackSvg.onRegionChangeIdx = this.onRegionChange.addEventListener(function(sender,data){
+		trackSvg.zoom = _this.zoom;
+		trackSvg.pixelBase = _this.pixelBase;
+		trackSvg.position = trackSvg.region.center();
+
 		checkHistogramZoom();
 		checkTranscriptZoom();//for genes only
-		cleanSvgFeatures();
-		setCallRegion();
 		
-		retrieveData("onZoomChange");
-	});
-
-	
-	//on chromosome change set new virtual window and update track values
-	trackSvg.onChromosomeChangeIdx = this.onChromosomeChange.addEventListener(function(sender,data){
-		trackSvg.position = Compbio.centerPosition(trackSvg.region);
-		console.log("trackSVG: "+trackSvg.position);
 		cleanSvgFeatures();
 		setCallRegion();
 
-		retrieveData("onChromosomeChange");
+		
+		retrieveData("onRegionChange");
 	});
 	
 
@@ -611,8 +656,7 @@ TrackSvgLayout.prototype.removeTrack = function(trackId){
 	var position = this.swapHash[trackId].index;
 	
 	// delete listeners
-	this.onZoomChange.removeEventListener(this.trackSvgList[position].onZoomChangeIdx);
-	this.onChromosomeChange.removeEventListener(this.trackSvgList[position].onChromosomeChangeIdx);
+	this.onRegionChange.removeEventListener(this.trackSvgList[position].onRegionChangeIdx);
 	this.onMove.removeEventListener(this.trackSvgList[position].onMoveIdx);
 
 	// delete data
@@ -708,11 +752,28 @@ TrackSvgLayout.prototype._showTrack = function(trackMainId){
 	this._redraw();
 };
 
+TrackSvgLayout.prototype._calculatePixelBase = function(){
+	this.pixelBase = this.width/this.region.length();
+	this.pixelBase = this.pixelBase / this.zoomMultiplier;
+	this.pixelBase = Math.max(this.pixelBase,(10/Math.pow(2,20)));
+
+	this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
+	this.zoom = Math.round(Compbio.getZoomByPixelBase(this.pixelBase));
+};
 
 TrackSvgLayout.prototype._setTextPosition = function(){
-	this.positionText.textContent = Compbio.centerPosition(this.region);
-	this.firstPositionText.textContent = Compbio.formatPosition(this.region.start);
-	this.lastPositionText.textContent = Compbio.formatPosition(this.region.end);
+	var centerPosition = this.region.center();
+	var baseLength = parseInt(this.width/this.pixelBase);//for zoom 100
+	var aux = Math.ceil((baseLength/2)-1);
+	this._s = Math.floor(centerPosition-aux);
+	this._e = Math.floor(centerPosition+aux-1);
+	
+	this.positionText.textContent = Compbio.formatNumber(centerPosition);
+	this.firstPositionText.textContent = Compbio.formatNumber(this._s);
+	this.lastPositionText.textContent = Compbio.formatNumber(this._e);
+
+	this.viewNtsText.textContent = "Window size: "+(this._e-this._s+1)+" nts";
+	this.windowSize = this.viewNtsText.textContent;
 };
 
 TrackSvgLayout.prototype.getTrackSvgById = function(trackId){
@@ -723,17 +784,16 @@ TrackSvgLayout.prototype.getTrackSvgById = function(trackId){
 	return null;
 };
 
-TrackSvgLayout.prototype.setMousePosition = function(position){
+TrackSvgLayout.prototype.getMousePosition = function(position){
 	var base = this.getSequenceNucleotid(position);
-	var html = '<span style="font-family: Ubuntu Mono;font-size:19px;color:'+SEQUENCE_COLORS[base]+'">'+base+'</span>';
-	Ext.getCmp(this.genomeViewer.id+"mouseNucleotidLabel").setText(html);
+	return '<span style="font-family: Ubuntu Mono;font-size:19px;color:'+SEQUENCE_COLORS[base]+'">'+base+'</span>';
 };
 
 TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
-	//var seqTrack = this.getTrackSvgById("Sequence");
-	//if( seqTrack != null && this.zoom >= seqTrack.visibleRange.start-this.zoomOffset && this.zoom <= seqTrack.visibleRange.end){
-		//return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.chromosome})
-	//}
+	var seqTrack = this.getTrackSvgById("Sequence");
+	if( seqTrack != null && this.zoom >= seqTrack.visibleRange.start-this.zoomOffset && this.zoom <= seqTrack.visibleRange.end){
+		return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.region.chromosome})
+	}
 	return "";
 };
 
