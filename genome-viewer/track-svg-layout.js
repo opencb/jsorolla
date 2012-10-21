@@ -243,7 +243,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			_this.mouseLine.setAttribute("visibility","visible");
 			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
-//			$(this).focus();// without this, the keydown does not work
 		});
 		$(this.svg).mouseleave(function(event) {
 			this.setAttribute("cursor", "default");
@@ -294,9 +293,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 				}
 			});
 		};
-		
-		
-//		$(this.svg).focus();// without this, the keydown does not work
 		
 	}else{
 		_this.parentLayout.onMove.addEventListener(function(sender,desp){
@@ -425,7 +421,7 @@ TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.posi
 	this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
 
 
-	/************************/
+	/************ Loading ************/
 	var checkAllTrackStatus = function(status){
 		for(i in _this.trackSvgList){
 			if(_this.trackSvgList[i].status != status) return false;
@@ -438,10 +434,11 @@ TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.posi
 				_this.onReady.notify();
 			}
 		}else{
-			setTimeout(checkStatus,20);
+			setTimeout(checkStatus,50);
 		}
 	}
 	setTimeout(checkStatus, 10);
+	/***************************/
 	this.onRegionChange.notify();
 };
 
@@ -461,13 +458,12 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//deprecated
 	//var i = this.trackDataList.push(trackData);
 
-	var trackSvg = new TrackSvg(this.svg,args);
-	
-	
+	var trackSvg = new TrackSvg(this.svg, args);
 	var i = this.trackSvgList.push(trackSvg);
 	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
 	trackSvg.setY(this.height);
 	trackSvg.draw();
+	
 	this.setHeight(this.height + trackSvg.getHeight());
 	
 	//XXX help methods
@@ -515,7 +511,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var retrieveData = function(sender){
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end ){
-			// Commenntttttttssssss
+			// Just before retrieve data the track is set to loading 
 			trackSvg.setLoading(true);
 			trackData.retrieveData({
 				chromosome:_this.region.chromosome,
@@ -537,7 +533,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	//EventListeners
 	//Watch out!!!
-	//this event must be attached before any "trackData.retrieveData()" call
+	//this event must be attached before call "trackData.retrieveData()"
 	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,response){
 		if(response.params.histogram == true){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
@@ -550,8 +546,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		trackSvg.featuresRender(response);
 		trackSvg.setLoading(false);
 		
-		//console.log("rendered");
-//		console.log(trackData.adapter.featureCache);
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
 	});
@@ -561,14 +555,13 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	checkHistogramZoom();
 	checkTranscriptZoom();//for genes only
 	setCallRegion();
-	
 	retrieveData("firstLoad");
 	
 	
 	//on region change set new virtual window and update track values
 	trackSvg.onRegionChangeIdx = this.onRegionChange.addEventListener(function(sender,data){
-		trackSvg.zoom = _this.zoom;
 		trackSvg.pixelBase = _this.pixelBase;
+		trackSvg.zoom = _this.zoom;
 		trackSvg.position = trackSvg.region.center();
 
 		checkHistogramZoom();
@@ -576,8 +569,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		cleanSvgFeatures();
 		setCallRegion();
-
-		
 		retrieveData("onRegionChange");
 	});
 	
@@ -626,9 +617,6 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	});
 	
 	
-	
-	
-	
 	//track buttons
 	//XXX se puede mover?
 	$(trackSvg.upRect).bind("click",function(event){
@@ -645,26 +633,21 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	$(trackSvg.settingsRect).bind("click",function(event){
 		console.log("settings click");//"this" is the svg element
 	});
-	
-
 };
 
 TrackSvgLayout.prototype.removeTrack = function(trackId){
 	// first hide the track
 	this._hideTrack(trackId);
 	
-	var position = this.swapHash[trackId].index;
+	var i = this.swapHash[trackId].index;
 	
 	// delete listeners
-	this.onRegionChange.removeEventListener(this.trackSvgList[position].onRegionChangeIdx);
-	this.onMove.removeEventListener(this.trackSvgList[position].onMoveIdx);
+	this.onRegionChange.removeEventListener(this.trackSvgList[i].onRegionChangeIdx);
+	this.onMove.removeEventListener(this.trackSvgList[i].onMoveIdx);
 
 	// delete data
-	this.trackSvgList.splice(position, 1);
+	this.trackSvgList.splice(i, 1);
 
-	//deprecated
-	//this.trackDataList.splice(position, 1);
-	
 	delete this.swapHash[trackId];
 	//uddate swapHash with correct index after slice
 	for ( var i = 0; i < this.trackSvgList.length; i++) {
@@ -689,7 +672,7 @@ TrackSvgLayout.prototype._redraw = function(){
 //This routine is called when track order modified
 TrackSvgLayout.prototype._reallocateAbove = function(trackMainId){
 	var i = this.swapHash[trackMainId].index;
-	console.log(i+" quiere moverse 1 posicion arriba");
+	console.log(i+" wants to move up");
 	if(i>0){
 		var aboveTrack=this.trackSvgList[i-1];
 		var underTrack=this.trackSvgList[i];
@@ -704,13 +687,13 @@ TrackSvgLayout.prototype._reallocateAbove = function(trackMainId){
 		this.swapHash[aboveTrack.id].index=i;
 		this.swapHash[underTrack.id].index=i-1;
 	}else{
-		console.log("ya esta en la mas alta");
+		console.log("is at top");
 	}
 };
 //This routine is called when track order modified
 TrackSvgLayout.prototype._reallocateUnder = function(trackMainId){
 	var i = this.swapHash[trackMainId].index;
-	console.log(i+" quiere moverse 1 posicion abajo");
+	console.log(i+" wants to move down");
 	if(i+1<this.trackSvgList.length){
 		var aboveTrack=this.trackSvgList[i];
 		var underTrack=this.trackSvgList[i+1];
@@ -726,7 +709,7 @@ TrackSvgLayout.prototype._reallocateUnder = function(trackMainId){
 		this.swapHash[aboveTrack.id].index=i+1;
 		
 	}else{
-		console.log("abajo del todo");
+		console.log("is at bottom");
 	}
 };
 

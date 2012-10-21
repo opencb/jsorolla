@@ -29,7 +29,7 @@ function TrackSvg(parent, args) {
 	this.width = 200;
 	this.title = "track";
 //	this.type = "generic";
-	this.renderedArea = {};
+	this.renderedArea = {};//used for renders to store binary trees
 	
 	this.lienzo=7000000;//mesa
 	this.pixelPosition=this.lienzo/2;
@@ -1256,7 +1256,7 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 	var chromosome = response.params.chromosome;
 	var features = [];
 	
-	var feature, displayed, firstChunk, lastChunk, features = [];
+	var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
 		if(this.chunksDisplayed[chunks[i].key+dataType] != true){//check if any chunk is already displayed and skip it
 		
@@ -1266,9 +1266,9 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 
 					//check if any feature has been already displayed by another chunk
 					displayed = false;
-					firstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
-					lastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
-					for(var f=firstChunk; f<=lastChunk; f++){//loop over chunks touched by this feature
+					featureFirstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
+					featureLastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
+					for(var f=featureFirstChunk; f<=featureLastChunk; f++){//loop over chunks touched by this feature
 						var fkey = chromosome+":"+f;
 						if(this.chunksDisplayed[fkey+dataType]==true){
 							displayed = true;
