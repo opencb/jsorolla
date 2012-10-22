@@ -187,7 +187,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"opacity":"0.5",
 		"fill":"orange"
 	});
-	
+
+
 	this.mouseLine = SVG.addChild(this.svg,"rect",{
 		"x":-20,
 		"y":this.height,
@@ -202,6 +203,20 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	});
 
 	if(this.parentLayout==null){
+
+		//this.minRegionRect = SVG.addChild(this.svg,"rect",{
+			//"x":mid,
+			//"y":this.height,
+			//"width":this.minRectWidth,
+			//"height":2000,
+			//"stroke-width":"2",
+			//"stroke":"gray",
+			//"opacity":"0.3",
+			//"fill":"lightgray",
+			//"visibility":"hidden",
+		//});
+	
+		
 		//Main svg  movement events
 //		this.svg.setAttribute("cursor", "move");
 		
@@ -303,6 +318,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			_this._setTextPosition();
 			_this.onMove.notify(desp);
 		});
+
+		//allow selection in trackSvgLayoutOverview
 		var selBox = SVG.addChild(this.svg,"rect",{
 				"x":0,
 				"y":0,
@@ -385,6 +402,7 @@ TrackSvgLayout.prototype.setZoom = function(zoom){
 TrackSvgLayout.prototype._calculateMinRegion = function() {
 	var regionLength = this.region.length();
 	var minimumBaseLength = parseInt(this.width/Compbio.getPixelBaseByZoom(100));//for zoom 100
+	//this.minRectWidth = regionLength*Compbio.getPixelBaseByZoom(100);
 	if(regionLength < minimumBaseLength){
 		//the zoom will be 100, region must be recalculated
 		var centerPosition = this.region.center();
@@ -444,6 +462,9 @@ TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.posi
 	setTimeout(checkStatus, 10);
 	/***************************/
 	this.onRegionChange.notify();
+
+	//this.minRegionRect.setAttribute("width",this.minRectWidth);
+	//this.minRegionRect.setAttribute("x",(this.width/2)-(this.minRectWidth/2)+6);
 };
 
 TrackSvgLayout.prototype.addTrack = function(trackData, args){
