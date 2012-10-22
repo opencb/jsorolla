@@ -64,6 +64,10 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		}
 	}
 
+	//this region is used to do not modify original region, and will be used by trackSvg
+	this.visualRegion = new Region();
+	this.visualRegion.load(this.region);
+	
 	///*******/
 	this._calculateMinRegion();
 	this._calculatePixelBase();
@@ -302,10 +306,10 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		var selBox = SVG.addChild(this.svg,"rect",{
 				"x":0,
 				"y":0,
-				"stroke-width":"1",
-				"stroke":"orangered",
+				"stroke-width":"2",
+				"stroke":"deepskyblue",
 				"opacity":"0.5",
-				"fill":"navajowhite"
+				"fill":"honeydew"
 		});
 		var downX, moveX;
 		$(this.svg).mousedown(function(event) {
@@ -328,8 +332,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			if(downX != null && moveX != null){
 				var ss = downX/_this.pixelBase;
 				var ee =moveX/_this.pixelBase;
-				ss += _this._s;
-				ee += _this._s;
+				ss += _this.visualRegion.start;
+				ee += _this.visualRegion.start;
 				_this.region.start = parseInt(Math.min(ss,ee));
 				_this.region.end =  parseInt(Math.max(ss,ee));
 				_this.onRegionSelect.notify();
@@ -748,14 +752,14 @@ TrackSvgLayout.prototype._setTextPosition = function(){
 	var centerPosition = this.region.center();
 	var baseLength = parseInt(this.width/this.pixelBase);//for zoom 100
 	var aux = Math.ceil((baseLength/2)-1);
-	this._s = Math.floor(centerPosition-aux);
-	this._e = Math.floor(centerPosition+aux-1);
+	this.visualRegion.start = Math.floor(centerPosition-aux);
+	this.visualRegion.end = Math.floor(centerPosition+aux-1);
 	
 	this.positionText.textContent = Compbio.formatNumber(centerPosition);
-	this.firstPositionText.textContent = Compbio.formatNumber(this._s);
-	this.lastPositionText.textContent = Compbio.formatNumber(this._e);
+	this.firstPositionText.textContent = Compbio.formatNumber(this.visualRegion.start);
+	this.lastPositionText.textContent = Compbio.formatNumber(this.visualRegion.end);
 
-	this.viewNtsText.textContent = "Window size: "+(this._e-this._s+1)+" nts";
+	this.viewNtsText.textContent = "Window size: "+this.visualRegion.length()+" nts";
 	this.windowSize = this.viewNtsText.textContent;
 };
 

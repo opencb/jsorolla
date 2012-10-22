@@ -20,6 +20,7 @@
  */
 
 BEDDataAdapter.prototype.getData = FeatureDataAdapter.prototype.getData;
+BEDDataAdapter.prototype._fetchData = FeatureDataAdapter.prototype._fetchData;
 
 function BEDDataAdapter(dataSource, args){
 	FeatureDataAdapter.prototype.constructor.call(this, dataSource, args);
@@ -36,21 +37,9 @@ function BEDDataAdapter(dataSource, args){
 			this.async = args.async;
 		}
 	}
-	
-	if(this.async){
-		this.dataSource.success.addEventListener(function(sender,data){
-			_this.parse(data);
-			_this.onLoad.notify();
-		});
-		this.dataSource.fetch(this.async);
-	}else{
-		var data = this.dataSource.fetch(this.async);
-		this.parse(data);
-	}
-	
 };
 
-BEDDataAdapter.prototype.parse = function(data){
+BEDDataAdapter.prototype.parse = function(data, region){
 	var _this = this;
 	var dataType = "data";
 	var lines = data.split("\n");
@@ -60,30 +49,32 @@ BEDDataAdapter.prototype.parse = function(data){
 		if ((line != null)&&(line.length > 0)){
 			var fields = line.split("\t");
 			var chromosome = fields[0].replace("chr", "");
+			if(chromosome == region.chromosome){// load only one chromosome on the cache
 			
-			var feature = {
-					"label":fields[3],
-					"chromosome": chromosome, 
-					"start": parseFloat(fields[1]), 
-					"end": parseFloat(fields[2]), 
-					"score":fields[4],
-					"strand":fields[5],
-					"thickStart":fields[6],
-					"thickEnd":fields[7],
-					"itemRgb":fields[8],
-					"blockCount":fields[9],
-					"blockSizes":fields[10],
-					"blockStarts":fields[11],
-					"featureType":	"bed"
-			} ;
+				var feature = {
+						"label":fields[3],
+						"chromosome": chromosome, 
+						"start": parseFloat(fields[1]), 
+						"end": parseFloat(fields[2]), 
+						"score":fields[4],
+						"strand":fields[5],
+						"thickStart":fields[6],
+						"thickEnd":fields[7],
+						"itemRgb":fields[8],
+						"blockCount":fields[9],
+						"blockSizes":fields[10],
+						"blockStarts":fields[11],
+						"featureType":	"bed"
+				} ;
 
-			this.featureCache.putFeatures(feature, dataType);
-			
-			if (this.featuresByChromosome[chromosome] == null){
-				this.featuresByChromosome[chromosome] = 0;
+				this.featureCache.putFeatures(feature, dataType);
+				
+				if (this.featuresByChromosome[chromosome] == null){
+					this.featuresByChromosome[chromosome] = 0;
+				}
+				this.featuresByChromosome[chromosome]++;
+				this.featuresCount++;
 			}
-			this.featuresByChromosome[chromosome]++;
-			this.featuresCount++;
 		}
 	}
 };

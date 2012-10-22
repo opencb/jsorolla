@@ -42,20 +42,45 @@ function FeatureDataAdapter(dataSource, args){
 	
 	this.onLoad = new Event();	
 	this.onGetData = new Event();
+
+	//chromosomes loaded
+	this.chromosomesLoaded = {};
 };
 
 FeatureDataAdapter.prototype.getData = function(region){
 	
-	console.log("XXX comprobar histograma");
+	console.log("TODO comprobar histograma");
 	console.log(region);
 	this.params["dataType"] = "data";
 	this.params["chromosome"] = region.chromosome;
+
+	//check if the chromosome has been already loaded
+	if(this.chromosomesLoaded[region.chromosome] != true){
+		this._fetchData(region);
+		this.chromosomesLoaded[region.chromosome]=true;
+	}
+	
 	var itemList = this.featureCache.getFeatureChunksByRegion(region);
 	if(itemList != null){
 		this.onGetData.notify({items:itemList, params:this.params, cached:true});
 	}
 };
 
+FeatureDataAdapter.prototype._fetchData = function(region){
+	var _this = this;
+	if(this.dataSource!=null){//could be null in expression genomic attributer widget 59
+		if(this.async){
+			this.dataSource.success.addEventListener(function(sender,data){
+				_this.parse(data, region);
+				_this.onLoad.notify();
+			});
+			this.dataSource.fetch(this.async);
+		}else{
+			var data = this.dataSource.fetch(this.async);
+			this.parse(data,region);
+		}
+	}
+}
 
 FeatureDataAdapter.prototype.addFeatures = function(features){
 		this.featureCache.putFeatures(features, "data");

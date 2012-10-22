@@ -44,8 +44,8 @@ BEDFileWidget.prototype.loadFileFromLocal = function(file){
 	this.adapter = new BEDDataAdapter(new FileDataSource(file),{species:this.viewer.species});
 	this.adapter.onLoad.addEventListener(function(sender){
 		_this._loadChartInfo();
-		_this.btnOk.enable();
 	});
+	_this.btnOk.enable();
 };
 
 

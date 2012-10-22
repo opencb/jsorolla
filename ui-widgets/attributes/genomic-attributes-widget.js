@@ -87,7 +87,7 @@ GenomicAttributesWidget.prototype.draw = function (){
 				region:_this.viewer.region
 			});
 			_this.karyotypeWidget.onClick.addEventListener(function(sender,data){
-				_this.viewer.region.load({start:data.start, end:data.end, chromosome:data.chromosome})
+				_this.viewer.region.load(data)
 				_this.viewer.onRegionChange.notify({sender:"KaryotypePanel"});
 			});
 			_this.karyotypeWidget.drawKaryotype();
@@ -105,7 +105,7 @@ GenomicAttributesWidget.prototype.draw = function (){
 		this.addTrackButton = Ext.create('Ext.button.Button', {
 			text:'Add Track',
 			disabled:true,
-			handler: function(){ 
+			handler: function(){
 				_this.onTrackAddAction.notify({"adapter":_this.adapter,"fileName":_this.attributesPanel.fileName});
 				}
 		});

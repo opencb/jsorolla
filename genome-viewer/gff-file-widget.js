@@ -60,8 +60,8 @@ GFFFileWidget.prototype.loadFileFromLocal = function(file){
 	
 	this.adapter.onLoad.addEventListener(function(sender){
 		_this._loadChartInfo();
-		_this.btnOk.enable();
 	});
+	_this.btnOk.enable();
 };
 
 
