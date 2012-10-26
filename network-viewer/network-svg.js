@@ -29,6 +29,8 @@ function NetworkSvg (parent, networkData, args) {
 	this.scale = 1;
 	this.zoom = 0;
 	this.parentDiv = parent;
+	this.canvasOffsetX = 0;
+	this.canvasOffsetY = 0;
 	
 	if (args != null){
 		if(args.width != null){
@@ -71,6 +73,7 @@ function NetworkSvg (parent, networkData, args) {
 	this.nodeLabel = "";
 	this.edgeLabel = "";
 	this.edgeType = "directed";
+	this.edgeColor = "#000000";
 	
 	/** Objects Graph **/
 	this.nodeSvgList = {};
@@ -137,11 +140,20 @@ function NetworkSvg (parent, networkData, args) {
 NetworkSvg.prototype.initSVG = function(){
 	var _this = this;
 	
-	//TODO SI LO ACTIVO NO FUNCIONA LA EXPORTACION DE IMAGEN
-	this.backgroundImage = SVG.addChildImage(this.svg,{
-		"id":"backgroundImage"
+	this.background = SVG.addChild(this.svg, "rect",{
+		"id":"background",
+		"width":"100%",
+		"height":"100%",
+		"fill":this.bgColor
 	});
 	
+	this.backgroundImage = SVG.addChildImage(this.svg,{
+		"id":"backgroundImage",
+		"x":"0",
+    	"y":"0",
+    	"width":this.width,
+		"height":this.height
+	});
 	
 	this.svgC = SVG.init(this.svg,{
 		"width": 100000,
@@ -149,32 +161,33 @@ NetworkSvg.prototype.initSVG = function(){
 		"x": 0,
 		"y": 0
 	});
-	this.background = SVG.addChild(this.svgC, "rect",{
-		"id":"background",
-		"width":"100%",
-		"height":"100%",
-		"fill":this.bgColor
-	});
 	
 	
 	this.svgG = SVG.addChild(this.svgC, "g", {"transform":"scale("+this.scale+")"});
+	this.shadowContainer = SVG.init(this.svgG,{});
 	
 	this.defs = SVG.addChild(this.svg, "defs", {});
 	
 	if(this.parentNetwork) {
+		SVG.addChild(this.svg, "rect",{
+			"width":"100%",
+			"height":"100%",
+			"opacity":"0"
+		});
+		
 		this.overviewRect = SVG.addChild(this.svg, "rect",{
 			"width":"100%",
 			"height":"100%",
 			"fill":"blue",
 			"fill-opacity":"0.1",
+			"cursor":"pointer",
 			"stroke":"red",
 			"stroke-width":"4",
 			"stroke-opacity":"0.6",
 			"transform":"scale(1)",
-			"x":"0",
-			"y":"0"
+			"x":-this.parentNetwork.canvasOffsetX*this.scale,
+			"y":-this.parentNetwork.canvasOffsetY*this.scale
 		});
-
 		
 		$(this.overviewRect).mousedown(function(event) {
 			$(_this.svg).off('mousedown');
@@ -186,39 +199,14 @@ NetworkSvg.prototype.initSVG = function(){
 			$(_this.svg).off('mousemove');
 		});
 	}
-	
-//    var rectTest = SVG.addChild(this.svgTest, "rect",{
-//    	"width": 300,
-//    	"height": 400,
-////    	"width":"100%",
-////    	"height":"100%",
-//    	"fill":"blue",
-//    	"fill-opacity":"0.1",
-//    	"stroke":"red",
-//    	"stroke-width":"4",
-//    	"stroke-opacity":"0.6"
-//    });
 };
 
 NetworkSvg.prototype.refresh = function(networkData){
 	var _this = this;
-
+	
 	if(networkData != null) {
 		this.networkData = networkData;
 	}
-	
-//	// calculate max x and y
-//	var width = this.width-40;
-//	var height = this.height-40;
-//	var maxX = width, maxY = height;
-//	var x, y;
-//	for(var nodeId in this.networkData.nodes) {
-//		x = parseInt(this.networkData.nodes[nodeId].metainfo.x);
-//		if(x > maxX) maxX = x;
-//		
-//		y = parseInt(this.networkData.nodes[nodeId].metainfo.y);
-//		if(y > maxY) maxY = y;
-//	}
 	
 	this.nodeSvgList = {};
 	this.edgeSvgList = {};
@@ -230,24 +218,10 @@ NetworkSvg.prototype.refresh = function(networkData){
 	
 	this.initSVG();
 	
-	console.log(this.networkData);
-	// loop over rendered nodes
+	// loop over nodes
 	for (var node in this.networkData.nodes){
-		
 		x = this.networkData.nodes[node].metainfo.x;
 		y = this.networkData.nodes[node].metainfo.y;
-		if(!this.parentNetwork) {
-//			// calculate resized x and y
-//			if(maxX > width) {
-//				x = parseInt(width * x / maxX);
-//			}
-//			if(maxY > height) {
-//				y = parseInt(height * y / maxY);
-//			}
-		}
-		else {
-//			this.svgG.setAttribute("transform","scale("+this.scale+")");
-		}
 		
 		// get config for this node type
 		var typeArgs = NODE_TYPES[this.networkData.nodes[node].type];
@@ -270,7 +244,7 @@ NetworkSvg.prototype.refresh = function(networkData){
 		});
 	}
 	
-	// loop over rendered edges
+	// loop over edges
 	for (var edge in this.networkData.edges){
 		this.addEdge({
 			"id":edge,
@@ -343,7 +317,7 @@ NetworkSvg.prototype.addNode = function(args, fromClick){
 			_this.nodeClick(event, this.id);
 		});
 		$(nodeSvg).mouseup(function(event) {
-			if(_this.mode == "select") $(_this.svg).off('mousemove');
+			if(_this.mode == "select" || _this.mode == "add") $(_this.svg).off('mousemove');
 		});
 		
 		// disable move on right click
@@ -388,6 +362,13 @@ NetworkSvg.prototype.addNode = function(args, fromClick){
 	}
 };
 
+NetworkSvg.prototype.removeNodes = function(nodeList) {
+	this.deselectAllNodes();
+	for(var i=0; i<nodeList.length; i++) {
+		this.removeNode(nodeList[i]);
+	}
+};
+
 NetworkSvg.prototype.removeNode = function(nodeId, onlySVG) {
 	/** SVG **/
 	// remove node input edges
@@ -396,7 +377,7 @@ NetworkSvg.prototype.removeNode = function(nodeId, onlySVG) {
 //		var edgeId = sourceNode+"-"+nodeId;
 		var edgeId = this.nodeSvgList[nodeId].edgesIn[i];
 		var sourceNode = this.edgeSvgList[edgeId].getAttribute("source");
-		this.svg.removeChild(this.edgeSvgList[edgeId]);
+		this.svgG.removeChild(this.edgeSvgList[edgeId]);
 		delete this.edgeSvgList[edgeId];
 		if(!onlySVG) {
 			this.networkData.removeEdge(edgeId); //remove from NetworkData
@@ -417,7 +398,7 @@ NetworkSvg.prototype.removeNode = function(nodeId, onlySVG) {
 //		var edgeId = nodeId+"-"+targetNode;
 		var edgeId = this.nodeSvgList[nodeId].edgesOut[i];
 		var targetNode = this.edgeSvgList[edgeId].getAttribute("target");
-		this.svg.removeChild(this.edgeSvgList[edgeId]);
+		this.svgG.removeChild(this.edgeSvgList[edgeId]);
 		delete this.edgeSvgList[edgeId];
 		if(!onlySVG) {
 			this.networkData.removeEdge(edgeId); //remove from NetworkData
@@ -554,12 +535,11 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 			"stroke":"red",
 			"stroke-width":"0.5",
 			"cursor":"pointer"
-//			"marker-end":"url(#Arrow)"
 		},0);
 		
-		$(this.svg).mousemove(function(event){
-			var offsetX = (event.clientX - $(_this.svg).offset().left)/_this.scale;
-			var offsetY = (event.clientY - $(_this.svg).offset().top)/_this.scale;
+		$(this.svg).mousemove(function(event) {
+			var offsetX = (event.clientX - $(_this.svg).offset().left - _this.canvasOffsetX)/_this.scale;
+			var offsetY = (event.clientY - $(_this.svg).offset().top - _this.canvasOffsetY)/_this.scale;
 			_this.edgeSvg.setAttribute("x2", offsetX);
 			_this.edgeSvg.setAttribute("y2", offsetY);
 		});
@@ -581,7 +561,7 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 			var tipOffset = parseInt(figure.getAttribute("r")) || parseInt(figure.getAttribute("rx"));
 		}
 
-		this.edgeSvg.setAttribute("stroke", "black");
+		this.edgeSvg.setAttribute("stroke", this.edgeColor);
 		
 		// if not exists this marker, add new one to defs
 		var markerArrowId = "#arrow-"+this.edgeType+"-"+tipOffset;
@@ -622,7 +602,10 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 //					"markerArrow": "url("+markerArrowId+")",
 //					"markerLabel": "url("+markerLabelId+")"
 					};
-		this.networkData.addEdge(this.joinSourceNode, joinTargetNode, this.edgeType, this.edgeLabel, args);
+		
+		var name = this.joinSourceNode+"-"+joinTargetNode;
+		
+		this.networkData.addEdge(this.joinSourceNode, joinTargetNode, this.edgeType, name, args);
 		/** /Data **/
 		
 		// reset join
@@ -634,6 +617,8 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 };
 
 NetworkSvg.prototype.addEdge = function(args){
+	var _this = this;
+	
 	/** SVG **/
 //	var edgeType = args.markerEnd.split('-')[1];
 	
@@ -672,7 +657,7 @@ NetworkSvg.prototype.addEdge = function(args){
 		"stroke-width":"0.5",
 		"cursor":"pointer",
 		"marker-end":"url("+markerArrowId+")"
-	},2);
+	},0);
 	
 	$(this.edgeSvg).click(function(event){_this.edgeClick(event, this.id);});
 	
@@ -703,7 +688,7 @@ NetworkSvg.prototype.removeEdge = function(edgeId){
 		}
 	}
 	
-	this.svg.removeChild(this.edgeSvgList[edgeId]);
+	this.svgG.removeChild(this.edgeSvgList[edgeId]);
 	delete this.edgeSvgList[edgeId];
 	
 	// remove from NetworkData
@@ -907,191 +892,6 @@ NetworkSvg.prototype.reallocateInputEdgeArrows = function(nodeSvg){
 			}
 			this.edgeSvgList[i].setAttribute("marker-end", "url("+markerId+")");
 		}
-	}
-};
-
-/** CONVERSION FUNCTIONS **/
-//XXX DEPRECATED
-NetworkSvg.prototype.toJson = function(){
-	var json = {};
-	
-	// Data
-	json.data = this.networkData.toJson();
-	
-	// Display
-	json.display = {};
-	json.display.nodes = {};
-	json.display.edges = {};
-	json.display.graph = {"width":this.width, "height":this.height, "bgColor":this.bgColor};
-	
-	// loop over rendered nodes
-	for (var inode in this.nodeSvgList){
-		var figure = this.nodeSvgList[inode].childNodes[0];
-		var node = {};
-		var id = parseInt(figure.getAttribute("id"));
-		node.shape = figure.getAttribute("shape");
-		node.size = parseInt(figure.getAttribute("nodeSize"));
-		node.label = figure.getAttribute("nodeLabel");
-		node.color = figure.getAttribute("fill");
-		node.strokeColor = figure.getAttribute("stroke");
-		node.strokeSize = figure.getAttribute("stroke-width");
-		node.opacity = figure.getAttribute("opacity");
-		node.x = parseInt(figure.getAttribute("x") || figure.getAttribute("cx"));
-		node.x -= parseInt(figure.getAttribute("r") || figure.getAttribute("rx") || 0);
-		node.y = parseInt(figure.getAttribute("y") || figure.getAttribute("cy"));
-		node.y -= parseInt(figure.getAttribute("r") || figure.getAttribute("ry") || 0);
-		
-		json.display.nodes[id] = node;
-	}
-	
-	// loop over rendered edges
-	for (var iedge in this.edgeSvgList){
-		var figure = this.edgeSvgList[iedge];
-		var edge = {};
-		var id = figure.getAttribute("id");
-		edge.source = figure.getAttribute("source");
-		edge.target = figure.getAttribute("target");
-		edge.type = figure.getAttribute("type");
-		edge.x1 = parseInt(figure.getAttribute("x1"));
-		edge.y1 = parseInt(figure.getAttribute("y1"));
-		edge.x2 = parseInt(figure.getAttribute("x2"));
-		edge.y2 = parseInt(figure.getAttribute("y2"));
-		edge.markerEnd = figure.getAttribute("marker-end");
-		
-		json.display.edges[id] = edge;
-	}
-	return json;
-};
-
-//XXX DEPRECATED
-NetworkSvg.prototype.loadFromJson = function(jsonStr){
-	var json = JSON.parse(jsonStr);
-	this.nodeSvgList = {};
-	this.edgeSvgList = {};
-	
-	// loop over rendered nodes
-	for (var node in json.display.nodes){
-		this.addNode({
-			"id":node,
-			"shape":json.display.nodes[node].shape,
-			"size":json.display.nodes[node].size,
-			"color":json.display.nodes[node].color,
-			"strokeColor":json.display.nodes[node].strokeColor,
-			"strokeSize":json.display.nodes[node].strokeSize,
-			"opacity":json.display.nodes[node].opacity,
-			"label":json.display.nodes[node].label,
-			"x":json.display.nodes[node].x,
-			"y":json.display.nodes[node].y
-		});
-	}
-	
-	// loop over rendered edges
-	for (var edge in json.display.edges){
-		this.addEdge({
-			"id":edge,
-			"source":json.display.edges[edge].source,
-			"target":json.display.edges[edge].target,
-			"type":json.display.edges[edge].type,
-			"x1":json.display.edges[edge].x1,
-			"y1":json.display.edges[edge].y1,
-			"x2":json.display.edges[edge].x2,
-			"y2":json.display.edges[edge].y2,
-			"markerEnd":json.display.edges[edge].markerEnd
-		});
-	}
-};
-
-/** LAYOUT FUNCTIONS **/
-NetworkSvg.prototype.setLayoutDEPRECATED = function(type){
-	switch (type) {
-	case "Circle":
-		var count = this.networkData.getNodesCount();
-		var vertexCoordinates = this.calculateLayoutVertex(type, count);
-		var aux = 0;
-		for(var nodeId in this.nodeSvgList){
-			var x = this.width*(0.05 + 0.85*vertexCoordinates[aux].x);
-			var y = this.height*(0.05 + 0.85*vertexCoordinates[aux].y);
-			this.moveNode(nodeId, x, y);
-			aux++;
-		}
-		break;
-	case "Square":
-		var count = this.networkData.getNodesCount();
-		var vertexCoordinates = this.calculateLayoutVertex(type, count);
-		var aux = 0;
-		for(var nodeId in this.nodeSvgList){
-			var x = this.width*(0.05 + 0.85*vertexCoordinates[aux].x);
-			var y = this.height*(0.05 + 0.85*vertexCoordinates[aux].y);
-			this.moveNode(nodeId, x, y);
-			aux++;
-		}
-		break;
-	case "Random":
-		for(var nodeId in this.nodeSvgList){
-			var x = this.width*(0.05 + 0.85*Math.random());
-			var y = this.height*(0.05 + 0.85*Math.random());
-			this.moveNode(nodeId, x, y);
-		}
-		break;
-	default:
-		var dotText = this.networkData.toDot();
-		var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/"+type+".coords";
-		var _this = this;
-		
-		$.ajax({
-			async: true,
-			type: "POST",
-			url: url,
-			dataType: "text",
-			data: {
-				dot: dotText
-			},
-			cache: false,
-			success: function(data){ 
-				var response = JSON.parse(data);
-				for(var nodeId in response){
-					var x = _this.width*(0.05 + 0.85*response[nodeId].x);
-					var y = _this.height*(0.05 + 0.85*response[nodeId].y);
-					_this.moveNode(nodeId, x, y);
-				}
-			}
-		});
-		break;
-	}
-};
-
-NetworkSvg.prototype.calculateLayoutVertexDEPRECATED = function(type, count){
-	switch (type) {
-	case "Circle":
-		var radius = 0.4;
-		var centerX = 0.5;
-		var centerY = 0.5;
-		var vertexCoordinates = new Array();
-		for(var i = 0; i < count; i++){
-			x = centerX + radius * Math.sin(i * 2 * Math.PI/count);
-			y = centerY + radius * Math.cos(i * 2 * Math.PI/count);
-			vertexCoordinates.push({'x':x,'y':y});
-		}
-		return vertexCoordinates;
-		break;
-
-	case "Square":
-		var xMin = 0.1;
-		var xMax = 0.9;
-		var yMin = 0.1;
-		var yMax = 0.9;
-		var rows = Math.sqrt(count);
-		var step = (xMax - xMin) / rows;
-		var vertexCoordinates = new Array();
-		for(var i = 0; i < rows; i ++){
-			for ( var j = 0; j < rows; j++) {
-				x = i * step + xMin;
-				y = j * step + yMin;
-				vertexCoordinates.push({'x':x,'y':y});
-			}
-		}
-		return vertexCoordinates;
-		break;
 	}
 };
 
@@ -1433,16 +1233,7 @@ NetworkSvg.prototype.setBackgroundColor = function(color){
 };
 
 NetworkSvg.prototype.setBackgroundImage = function(image){
-	this.svg.removeChild(this.backgroundImage);
-	
-	this.backgroundImage = SVG.addChildImage(this.svg,{
-    	"id":"backgroundImage",
-    	"x":"0",
-    	"y":"0",
-    	"width":this.width,
-		"height":this.height,
-		"xlink:href":image
-    },1);
+	this.backgroundImage.setAttributeNS('http://www.w3.org/1999/xlink','href',image);
 };
 
 NetworkSvg.prototype.setBackgroundImageWidth = function(width){
@@ -1503,7 +1294,7 @@ NetworkSvg.prototype.setNodeShape = function(newShape){
 					_this.nodeClick(event, this.id);
 				});
 				$(nodeSvg).mouseup(function(event) {
-					if(_this.mode == "select") $(_this.svg).off('mousemove');
+					if(_this.mode == "select" || _this.mode == "add") $(_this.svg).off('mousemove');
 				});
 				
 				this.reallocateInputEdgeArrows(nodeSvg);
@@ -1617,20 +1408,22 @@ NetworkSvg.prototype.setNodeOpacity = function(newOpacity){
 };
 
 NetworkSvg.prototype.setNodeName = function(newName){
-	switch (this.mode) {
-	case "select":
-		for (var nodeId in this.selectedNodes){
-			var figure = this.nodeSvgList[nodeId].childNodes[0];
-			figure.setAttribute("nodeName", newName);
-//			var text = this.nodeSvgList[nodeId].childNodes[1];
-//			text.textContent = newName;
-			this.networkData.attributes.setName(nodeId, newName);
-			$(figure).qtip('option', 'content.title.text', newName);
+	if(!this.parentNetwork){
+		switch (this.mode) {
+		case "select":
+			for (var nodeId in this.selectedNodes){
+				var figure = this.nodeSvgList[nodeId].childNodes[0];
+				figure.setAttribute("nodeName", newName);
+//				var text = this.nodeSvgList[nodeId].childNodes[1];
+//				text.textContent = newName;
+				this.networkData.getNodeAttributes.setName(nodeId, newName);
+				$(figure).qtip('option', 'content.title.text', newName);
+			}
+			break;
+		case "add":
+			this.nodeName = newName;
+			break;
 		}
-		break;
-	case "add":
-		this.nodeName = newName;
-		break;
 	}
 };
 
@@ -1694,6 +1487,22 @@ NetworkSvg.prototype.setEdgeType = function(newType){
 	}
 };
 
+NetworkSvg.prototype.setEdgeColor = function(newColor){
+	switch (this.mode) {
+	case "select":
+		for (var edgeId in this.selectedEdges){
+			var edgeSvg = this.edgeSvgList[edgeId];
+			
+			this.selectedEdges[edgeId] = newColor;
+			edgeSvg.setAttribute("fill", newColor);
+		}
+		break;
+	case "join":
+		this.edgeColor = newColor;
+		break;
+	}
+};
+
 NetworkSvg.prototype.setLabelSize = function(size){
 	var nodeLabels = $(".nodeLabel");
 	for(var i=0, len=nodeLabels.length; i<len; i++){
@@ -1710,10 +1519,10 @@ NetworkSvg.prototype.setLabelSize = function(size){
 /** EVENT FUNCTIONS **/
 NetworkSvg.prototype.canvasMouseDown = function(event){
 	var _this = this;
-	var offsetX = (event.clientX - $(this.svg).offset().left);///this.scale;
-	var offsetY = (event.clientY - $(this.svg).offset().top);///this.scale;
 	switch (this.mode) {
 	case "add":
+		var offsetX = (event.clientX - $(this.svg).offset().left)-this.canvasOffsetX;
+		var offsetY = (event.clientY - $(this.svg).offset().top)-this.canvasOffsetY;
 		this.addNode({
 			"name":this.nodeName,
 			"shape":this.nodeShape,
@@ -1729,6 +1538,8 @@ NetworkSvg.prototype.canvasMouseDown = function(event){
 		break;
 
 	case "select":
+		var offsetX = (event.clientX - $(this.svg).offset().left);
+		var offsetY = (event.clientY - $(this.svg).offset().top);
 		this.selectRectDownX = offsetX;
 		this.selectRectDownY = offsetY;
 
@@ -1744,8 +1555,8 @@ NetworkSvg.prototype.canvasMouseDown = function(event){
 
 		var lastX = 0, lastY = 0;
 		$(this.svg).mousemove(function(event){
-			var offsetX = (event.clientX - $(_this.svg).offset().left);///_this.scale;
-			var offsetY = (event.clientY - $(_this.svg).offset().top);///_this.scale;
+			var offsetX = (event.clientX - $(_this.svg).offset().left);//_this.scale;
+			var offsetY = (event.clientY - $(_this.svg).offset().top);//_this.scale;
 			var newX = (_this.selectRectDownX + offsetX);
 			var newY = (_this.selectRectDownY + offsetY);
 			if(newX!=lastX || newY!=lastY){
@@ -1783,17 +1594,17 @@ NetworkSvg.prototype.canvasMouseUp = function(event){
 		
 		// calculate nodes in selection
 		var nodeList = [];
-		var startSelectX = this.selectRectDownX;
-		var startSelectY = this.selectRectDownY;
-		var endSelectX = offsetX;
-		var endSelectY = offsetY;
+		var startSelectX = this.selectRectDownX-this.canvasOffsetX;
+		var startSelectY = this.selectRectDownY-this.canvasOffsetY;
+		var endSelectX = offsetX-this.canvasOffsetX;
+		var endSelectY = offsetY-this.canvasOffsetY;
 		if(this.selectXNegative){
 			startSelectX = endSelectX;
-			endSelectX = this.selectRectDownX;
+			endSelectX = this.selectRectDownX-this.canvasOffsetX;
 		}
 		if(this.selectYNegative){
 			startSelectY = endSelectY;
-			endSelectY = this.selectRectDownY;
+			endSelectY = this.selectRectDownY-this.canvasOffsetY;
 		}
 		for (var node in this.nodeSvgList){
 			var figure = this.nodeSvgList[node].childNodes[0];
@@ -1826,7 +1637,8 @@ NetworkSvg.prototype.canvasMouseUp = function(event){
 			};
 		}
 		
-		this.svg.removeChild(this.selectRect);
+		if(this.selectRect != undefined) this.svg.removeChild(this.selectRect);
+		this.selectRect = null;
 		this.selectNodes(nodeList);
 		this.deselectAllEdges();
 		this.onCanvasClick.notify(args);
@@ -1839,12 +1651,28 @@ NetworkSvg.prototype.nodeClick = function(event, nodeId){
 	var _this = this;
 	switch (this.mode) {
 	case "delete":
-		this.removeNode(nodeId);
+		if(this.countSelectedNodes > 1) {
+			Ext.Msg.show({
+				title:'Delete',
+				msg: 'Confirm to delete selected nodes. Are you sure?',
+				buttons: Ext.Msg.YESNO,
+				icon: Ext.Msg.QUESTION,
+				fn: function(resp){
+					if(resp == "yes") {
+						_this.removeNodes(_this.getSelectedNodes());
+					}
+				}
+			});
+		}
+		else {
+			this.removeNode(nodeId);
+		}
 		break;
 	case "join":
 		this.addEdgeFromClick(nodeId);
 		break;
-	case "select":
+//	case "select":
+	default:
 		var figure = this.nodeSvgList[nodeId].childNodes[0];
 		
 		if(event.ctrlKey){
@@ -1869,13 +1697,6 @@ NetworkSvg.prototype.nodeClick = function(event, nodeId){
 		if(this.selectedNodes[nodeId]){
 			var downX = event.clientX;
 			var downY = event.clientY;
-			
-//			var m = figure.getScreenCTM();
-//			var down = this.svg.createSVGPoint();
-//			down.x = event.clientX;
-//			down.y = event.clientY;
-//			down = down.matrixTransform(m.inverse());
-			
 			var lastX = 0, lastY = 0;
 
 			//save original node position
@@ -1940,7 +1761,8 @@ NetworkSvg.prototype.edgeClick = function(event, edgeId){
 			var edgeSvg = this.edgeSvgList[edgeId];
 			this.onEdgeClick.notify({
 				"type":edgeSvg.getAttribute("type"),
-				"label":edgeSvg.getAttribute("label") || ""
+				"label":edgeSvg.getAttribute("label") || "",
+				"color":this.selectedEdges[edgeId]
 			});
 		}
 		break;
@@ -1990,6 +1812,38 @@ NetworkSvg.prototype.getNodeMetainfo = function(){
 	};
 };
 
+//TODO (incomplete)
+NetworkSvg.prototype.shadeSelectedNodes = function() {
+	var xMin = Infinity;
+	var xMax = -Infinity;
+	var yMin = Infinity;
+	var yMax = -Infinity;
+
+	for (var nodeId in this.selectedNodes){
+		var figure = this.nodeSvgList[nodeId].childNodes[0];
+		var nodeX = parseInt(figure.getAttribute("x") || figure.getAttribute("cx"));;
+		var nodeY = parseInt(figure.getAttribute("y") || figure.getAttribute("cy"));
+		
+		if (xMin > nodeX){xMin = nodeX;}
+		if (xMax < nodeX){xMax = nodeX;}
+		if (yMin > nodeY){yMin = nodeY;}
+		if (yMax < nodeY){yMax = nodeY;}
+	}
+	
+	var rx = (xMax - xMin)/2;
+	var ry = (yMax - yMin)/2;
+	var cx =  xMin + rx;
+	var cy =  yMin + ry;
+	
+	SVG.addChild(this.shadowContainer, "ellipse", {
+		"opacity":0.1,
+		"cx":cx,
+		"cy":cy,
+		"rx":rx*1.5,
+		"ry":ry*1.5
+	});
+};
+
 NetworkSvg.prototype.moveOverviewRect = function(event) {
 	var _this = this;
 	
@@ -1999,7 +1853,6 @@ NetworkSvg.prototype.moveOverviewRect = function(event) {
 	var origX = parseInt(this.overviewRect.getAttribute("x"));
 	var origY = parseInt(this.overviewRect.getAttribute("y"));
 	var scale = parseFloat(this.overviewRect.getAttribute("transform").split('(')[1].split(')')[0]);
-	console.log("Scale overview: "+scale);
 	
 	$(this.svg).mousemove(function(event){
 		var despX = (event.clientX - downX)/scale;
@@ -2012,12 +1865,14 @@ NetworkSvg.prototype.moveOverviewRect = function(event) {
 			if(newRectX*scale >= 0 && newRectX*scale + _this.overviewDivWidth*scale <= _this.overviewDivWidth) {
 				_this.overviewRect.setAttribute("x", newRectX);
 				
-				_this.parentNetwork.svgC.setAttribute("x", parseInt(-newRectX/_this.scale));
+				_this.parentNetwork.canvasOffsetX = parseInt(-newRectX/_this.scale);
+				_this.parentNetwork.svgC.setAttribute("x", _this.parentNetwork.canvasOffsetX);
 			}
 			if(newRectY*scale >= 0 && newRectY*scale + _this.overviewDivHeight*scale <= _this.overviewDivHeight) {
 				_this.overviewRect.setAttribute("y", newRectY);
 				
-				_this.parentNetwork.svgC.setAttribute("y", parseInt(-newRectY/_this.scale));
+				_this.parentNetwork.canvasOffsetY = parseInt(-newRectY/_this.scale);
+				_this.parentNetwork.svgC.setAttribute("y", _this.parentNetwork.canvasOffsetY);
 			}
 			lastX = newX;
 			lastY = newY;

@@ -46,7 +46,25 @@ DOTNetworkFileWidget.prototype.getFileUpload = function(){
 				var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];				
 				var dotDataAdapter = new DOTDataAdapter(new FileDataSource(file), {"networkData":_this.networkData});
 				dotDataAdapter.onLoad.addEventListener(function(sender,data){
-					_this.content = dotDataAdapter.getNetworkData(); //para el onOK.notify event
+					try{
+						_this.content = dotDataAdapter.getNetworkData(); //para el onOK.notify event
+						
+						var numNodes = _this.content.metaInfo.numNodes;
+						var numEdges = _this.content.metaInfo.numEdges;
+						
+						var edges = _this.content.edges;
+						for (var id in edges) {
+							var link = "--";
+							if(_this.content.edges[id].type = "directed") link = "->";
+							_this.gridStore.loadData([[_this.content.edges[id].source, link, _this.content.edges[id].target]], true);
+						}
+						
+						_this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>',false);
+						_this.countLabel.setText('nodes:<span class="info">'+numNodes+'</span> edges:<span class="info">'+numEdges+'</span>',false);
+					
+					}catch(e) {
+						_this.infoLabel.setText('<span class="err">File not valid </span>'+e,false);
+					};
 				});
 			}
 		}

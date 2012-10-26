@@ -39,7 +39,8 @@ NetworkEditorBarWidget.prototype.setNetworkSvg = function(networkSvg) {
 
 	this.setEdgeButtons({
 		"type" : this.networkSvg.edgeType,
-		"label" : this.networkSvg.edgeLabel
+		"label" : this.networkSvg.edgeLabel,
+		"color" : this.networkSvg.edgeColor
 	});
 
 	this.networkSvg.onNodeClick.addEventListener(function(sender, args) {
@@ -180,6 +181,8 @@ NetworkEditorBarWidget.prototype.setEdgeButtons = function(args) {
 	this.comboBoxEdge.menu.items.items[types[args.type]].setChecked(true);
 
 	this.textBoxEdgeName.setValue(args.label);
+	
+	this.edgeColorPicker.select(args.color, true);
 };
 
 NetworkEditorBarWidget.prototype.unsetEdgeButtons = function() {
@@ -188,11 +191,14 @@ NetworkEditorBarWidget.prototype.unsetEdgeButtons = function() {
 	}
 
 	this.textBoxEdgeName.setValue("");
+	
+	this.edgeColorPicker.select("#", true);
 };
 
 NetworkEditorBarWidget.prototype.showEdgeButtons = function() {
 	this.comboBoxEdge.enable();
 	this.textBoxEdgeName.enable();
+	this.edgeColorPickerButton.enable();
 };
 
 NetworkEditorBarWidget.prototype.hideNodeButtons = function() {
@@ -209,6 +215,7 @@ NetworkEditorBarWidget.prototype.hideNodeButtons = function() {
 NetworkEditorBarWidget.prototype.hideEdgeButtons = function() {
 	this.comboBoxEdge.disable();
 	this.textBoxEdgeName.disable();
+	this.edgeColorPickerButton.disable();
 };
 
 NetworkEditorBarWidget.prototype.onSelect = function() {
@@ -379,13 +386,30 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 			}
 		}
 	});
+	
+	this.edgeColorPicker = Ext.create('Ext.picker.Color', {
+		value : '000000',
+		listeners : {
+			select : function(picker, selColor) {
+				_this.networkSvg.setEdgeColor("#" + selColor);
+			}
+		}
+	});
+
+	this.edgeColorPickerButton = Ext.create('Ext.button.Button', {
+		iconCls : 'icon-fill-color',
+		tooltip : "Line color",
+		disabled : true,
+		menu : new Ext.menu.Menu({
+			items : this.edgeColorPicker
+		})
+	});
 
 	this.innerColorPicker = Ext.create('Ext.picker.Color', {
 		value : '993300',
 		listeners : {
 			select : function(picker, selColor) {
 				_this.networkSvg.setNodeColor("#" + selColor);
-				// _this.changeColor("#" + selColor);
 			}
 		}
 	});
@@ -405,7 +429,6 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 			scope : this,
 			select : function(picker, selColor) {
 				_this.networkSvg.setNodeStrokeColor("#" + selColor);
-				// this.changeStroke("#" + selColor);
 			}
 		}
 	});
@@ -760,7 +783,7 @@ NetworkEditorBarWidget.prototype.getBar = function() {
 						this.colorPickerButton, this.comboStrokeWidth,
 						this.strokeColorPickerButton, this.comboBoxOpacity,
 						this.textBoxName, this.textBoxLabel,
-						this.comboBoxEdge, this.textBoxEdgeName
+						this.comboBoxEdge, this.edgeColorPickerButton, this.textBoxEdgeName
 				// "-",
 				// backgroundButton
 				]

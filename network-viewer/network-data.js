@@ -32,7 +32,8 @@ function NetworkData (args) {
 	this.metaInfo.numEdges= 0;
 	
 	var defaults = [["Id", "number", "null"],["Name", "string", "none"]];
-	this.attributes = new AttributeManager(defaults);
+	this.nodeAttributes = new AttributeManager(defaults);
+	this.edgeAttributes = new AttributeManager(defaults);
 	
 	this.nodeNames = {};
 	
@@ -67,7 +68,7 @@ NetworkData.prototype.addNode = function(args) {
 		this.nodes[this.nodeId].metainfo = args.metainfo;
 		this.nodes[this.nodeId].edges = [];
 		
-		this.attributes.addRows([[this.nodeId, args.name]], true);
+		this.nodeAttributes.addRows([[this.nodeId, args.name]], true);
 		
 		this.nodeId++;
 		
@@ -77,7 +78,7 @@ NetworkData.prototype.addNode = function(args) {
 
 NetworkData.prototype.removeNode = function(nodeId) {
 	this.metaInfo.numNodes--;
-	this.attributes.removeRow("Id", nodeId);
+	this.nodeAttributes.removeRow("Id", nodeId);
 	delete this.nodes[nodeId];
 };
 
@@ -89,17 +90,11 @@ NetworkData.prototype.addEdge = function(source, target, type, name, args) {
 	this.edges[this.edgeId].type = type;
 	this.edges[this.edgeId].metainfo = args;
 	this.edges[this.edgeId].metainfo.name = name;
-//	this.edges[this.edgeId].metainfo.weight = args.weight;
-//	this.edges[this.edgeId].metainfo.x1 = args.x1;
-//	this.edges[this.edgeId].metainfo.y1 = args.y1;
-//	this.edges[this.edgeId].metainfo.x2 = args.x2;
-//	this.edges[this.edgeId].metainfo.y2 = args.y2;
-//	this.edges[this.edgeId].metainfo.markerArrow = args.markerArrow;
-//	this.edges[this.edgeId].metainfo.markerLabel = args.markerLabel;
 	this.nodes[source].edges.push(this.edgeId);
 	
-	this.edgeId++;
+	this.edgeAttributes.addRows([[this.edgeId, name]], true);
 	
+	this.edgeId++;
 	return this.edgeId-1;
 };
 
@@ -117,7 +112,7 @@ NetworkData.prototype.removeEdge = function(edgeId) {
 	delete this.edges[edgeId];
 };
 
-NetworkData.prototype.loadJSON = function(jsonStr){
+NetworkData.prototype.loadJSON = function(jsonStr) {
 	var json = JSON.parse(jsonStr);
 	
 	this.nodes = {};
@@ -153,7 +148,7 @@ NetworkData.prototype.loadJSON = function(jsonStr){
 	}
 	
 	// load attributes
-	if(json.attributes) this.attributes.loadJSON(json.attributes);
+	if(json.attributes) this.nodeAttributes.loadJSON(json.attributes);
 };
 
 NetworkData.prototype.toJSON = function() {
@@ -162,7 +157,7 @@ NetworkData.prototype.toJSON = function() {
 	json.nodes = this.nodes;
 	json.edges = this.edges;
 	json.metaInfo = this.metaInfo;
-	json.attributes = this.attributes.toJSON();
+	json.attributes = this.nodeAttributes.toJSON();
 	return json;
 };
 
@@ -228,8 +223,12 @@ NetworkData.prototype.getNodesList = function() {
 	return nodeList;
 };
 
-NetworkData.prototype.getAttributes = function() {
-	return this.attributes;
+NetworkData.prototype.getNodeAttributes = function() {
+	return this.nodeAttributes;
+};
+
+NetworkData.prototype.getEdgeAttributes = function() {
+	return this.edgeAttributes;
 };
 
 NetworkData.prototype.updateFromSvg = function(data) {
@@ -262,19 +261,36 @@ NetworkData.prototype.resize = function(width, height) {
 		if(y > maxY) maxY = y;
 	}
 	
-//	if(maxX > width || maxY > height) {
-//		for(var nodeId in this.nodes) {
-//			this.nodes[nodeId].metainfo.x = parseInt(width * this.nodes[nodeId].metainfo.x / maxX);
-//			this.nodes[nodeId].metainfo.y = parseInt(height * this.nodes[nodeId].metainfo.y / maxY);
-//		}
-//	}
-	
 	for(var nodeId in this.nodes) {
 		if(maxX > width) {
 			this.nodes[nodeId].metainfo.x = parseInt(width * this.nodes[nodeId].metainfo.x / maxX);
 		}
 		if(maxY > height) {
 			this.nodes[nodeId].metainfo.y = parseInt(height * this.nodes[nodeId].metainfo.y / maxY);
+		}
+	}
+};
+
+NetworkData.prototype.addNodeAttribute = function(name, type, defaultValue) {
+	this.nodeAttributes.addAttribute(name, type, defaultValue);
+};
+
+NetworkData.prototype.setNodeAttributeValues = function(nodeId, attrList, attrValueList) {
+	if(attrList.length == attrValueList.length) {
+		for(var i=0; i<attrList.length; i++) {
+			this.nodeAttributes.setAttributeById(nodeId, attrList[i], attrValueList[i]);
+		}
+	}
+};
+
+NetworkData.prototype.addEdgeAttribute = function(name, type, defaultValue) {
+	this.edgeAttributes.addAttribute(name, type, defaultValue);
+};
+
+NetworkData.prototype.setEdgeAttributeValues = function(edgeId, attrList, attrValueList) {
+	if(attrList.length == attrValueList.length) {
+		for(var i=0; i<attrList.length; i++) {
+			this.edgeAttributes.setAttributeById(edgeId, attrList[i], attrValueList[i]);
 		}
 	}
 };

@@ -32,6 +32,18 @@ NODE_TYPES = {
 		x:0,
 		y:0
 	},
+	"pathway":{
+		fillcolor:"#FFFFFF",
+		shape:"rectangle",
+		opacity:1,
+		height:1,
+		width:1,
+		size:7,
+		color:"#CCFFCC",
+		strokeSize:5,
+		x:0,
+		y:0
+	},
 	"none":{
 		fillcolor:"#993300",
 		shape:"circle",

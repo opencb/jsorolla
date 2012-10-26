@@ -19,11 +19,12 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function AttributeFilterWidget(attributeManager) {
+function AttributeFilterWidget(attributeManager, type) {
 	this.id = Math.round(Math.random() * 10000000);
 	
 	var _this = this;
 	this.attrMan = attributeManager;
+	this.type = type;
 
 	this.attrMan.store.on('datachanged', function(){
 		if(Ext.getCmp("filterAttrWindow")){
@@ -135,7 +136,7 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 		        			});
 		        			
 		        			//add to main menu
-		        			Ext.getCmp("filtersAttrMainMenu").add({
+		        			Ext.getCmp("filters"+_this.type+"AttrMenu").add({
 		        				id: filterName+"_main",
 		        				text: filterName,
 		        				checked: true,
@@ -180,7 +181,7 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 	        									_this.attrMan.removeFilter(item.text);
 	        									Ext.getCmp(_this.id+"rmFilterMenu").menu.remove(item);
 	        									Ext.getCmp(_this.id+"filterMenu").menu.remove(item.text);
-	        									Ext.getCmp("filtersAttrMainMenu").remove(Ext.getCmp(item.text+"_main"));
+	        									Ext.getCmp("filters"+_this.type+"AttrMenu").remove(Ext.getCmp(item.text+"_main"));
 	        									_this.deselectNodesOnGraph();
 	        								}
 	        							}
@@ -393,8 +394,8 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 	});
 
 	Ext.create('Ext.window.Window', {
-		id : "filterAttrWindow",
-		title : "Filter attributes",
+		id : "filter"+this.type+"AttrWindow",
+		title : "Filter "+this.type.toLowerCase()+" attributes",
 		height : 450,
 		width : 600,
 		layout : "fit",
@@ -437,7 +438,7 @@ AttributeFilterWidget.prototype.draw = function(selectedNodes) {
 				_this.attrMan.removeFilter(this.text);
 				Ext.getCmp(_this.id+"rmFilterMenu").menu.remove(this);
 				Ext.getCmp(_this.id+"filterMenu").menu.remove(this.text);
-				Ext.getCmp("filtersAttrMainMenu").remove(Ext.getCmp(this.text+"_main"));
+				Ext.getCmp("filters"+_this.type+"AttrMenu").remove(Ext.getCmp(this.text+"_main"));
 				_this.deselectNodesOnGraph();
 			}
 		});

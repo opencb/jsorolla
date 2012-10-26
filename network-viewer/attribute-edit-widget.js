@@ -19,14 +19,15 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function AttributeEditWidget(attributeManager) {
+function AttributeEditWidget(attributeManager, type) {
 	this.id = Math.round(Math.random() * 10000000);
 	
 	var _this = this;
 	this.attrMan = attributeManager;
+	this.type = type;
 
 	this.attrMan.store.on('datachanged', function(){
-		if(Ext.getCmp("editAttrWindow")){
+		if(Ext.getCmp("edit"+type+"AttrWindow")){
 			_this.updateNumRowsLabel();
 		}
 	});
@@ -37,8 +38,12 @@ function AttributeEditWidget(attributeManager) {
 AttributeEditWidget.prototype.draw = function(selectedNodes) {
 	var _this = this;
 
-	var attrNameStore = Ext.create('Ext.data.Store', {
-		id : this.id + "attrNameStore",
+	this.attrNameStore = Ext.create('Ext.data.Store', {
+		fields: ['name'],
+		data: this.getAttributeNames()
+	});
+	
+	this.attrNameStore2 = Ext.create('Ext.data.Store', {
 		fields: ['name'],
 		data: this.getAttributeNames()
 	});
@@ -72,11 +77,11 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        	margin: "0 0 0 10",
 		        	width: 120,
 		        	allowBlank: false,
-		        	mode: 'local',
 		        	editable: false,
 		        	displayField: 'name',
 		        	valueField: 'name',
-		        	store: attrNameStore
+		        	queryMode: 'local',
+		        	store: this.attrNameStore2
 		        },
 		        {
 		        	xtype: 'text',
@@ -119,19 +124,19 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        	margin: "0 0 0 3",
 		        	width: 100,
 		        	allowBlank: false,
-		        	mode: 'local',
 		        	editable: true,
 		        	displayField: 'name',
 		        	valueField: 'name',
-		        	store: attrNameStore,
+		        	queryMode: 'local',
+		        	store: this.attrNameStore,
 		        	listeners: {
 		        		select: function(combo, record, index) {
 		        			// set other fields
-		        			for ( var i = 0; i < _this.attrMan.fieldsModel.length; i++) {
-		        				if(combo.getValue() == _this.attrMan.fieldsModel[i].name) {
+		        			for ( var i = 0; i < _this.attrMan.attributes.length; i++) {
+		        				if(combo.getValue() == _this.attrMan.attributes[i].name) {
 		        					attrSelected = combo.getValue();
-		        					Ext.getCmp(_this.id + "attrType").setValue(_this.attrMan.fieldsModel[i].type);
-		        					Ext.getCmp(_this.id + "attrDefault").setValue(_this.attrMan.fieldsModel[i].defaultValue);
+		        					Ext.getCmp(_this.id + "attrType").setValue(_this.attrMan.attributes[i].type);
+		        					Ext.getCmp(_this.id + "attrDefault").setValue(_this.attrMan.attributes[i].defaultValue);
 		        					break;
 		        				}
 		        			}
@@ -201,8 +206,10 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        				_this.attrMan.modifyAttributeOfRows(_this.grid.getSelectionModel().getSelection(), _this.attrMan.attributes[_this.attrMan.attributes.length-1].name, defaultValue);
 		        				_this.grid.getSelectionModel().deselectAll();
 		        			}
-
-		        			attrNameStore.loadData(_this.getAttributeNames());
+		        			
+		        			console.log(_this.getAttributeNames());
+		        			_this.attrNameStore.loadData(_this.getAttributeNames());
+		        			_this.attrNameStore2.loadData(_this.getAttributeNames());
 		        		}
 		        		else {
 		        			Ext.Msg.show({
@@ -225,11 +232,12 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        		var newName = Ext.getCmp(_this.id + "attrName").getValue();
 		        		var type = Ext.getCmp(_this.id + "attrType").getValue();
 		        		var defaultValue = Ext.getCmp(_this.id + "attrDefault").getValue();
-
+		        		
 		        		if(_this.attrMan.updateAttribute(attrSelected, newName, type, defaultValue)) {
 		        			_this.grid.reconfigure(null, _this.attrMan.columnsGrid);
 
-		        			attrNameStore.loadData(_this.getAttributeNames());
+		        			_this.attrNameStore.loadData(_this.getAttributeNames());
+		        			_this.attrNameStore2.loadData(_this.getAttributeNames());
 		        		}
 		        		else {
 		        			Ext.Msg.show({
@@ -259,7 +267,8 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 		        		    		 var name = Ext.getCmp(_this.id + "attrName").getValue();
 		        		    		 if(_this.attrMan.removeAttribute(name)) {
 		        		    			 _this.grid.reconfigure(null, _this.attrMan.columnsGrid);
-		        		    			 attrNameStore.loadData(_this.getAttributeNames());
+		        		    			 _this.attrNameStore.loadData(_this.getAttributeNames());
+		        		    			 _this.attrNameStore2.loadData(_this.getAttributeNames());
 		        		    			 
 		        		    			 Ext.getCmp(_this.id + "attrName").reset();
 		        		    			 Ext.getCmp(_this.id + "attrType").reset();
@@ -422,8 +431,8 @@ AttributeEditWidget.prototype.draw = function(selectedNodes) {
 	});
 
 	Ext.create('Ext.window.Window', {
-		id : "editAttrWindow",
-		title : "Edit attributes",
+		id : "edit"+this.type+"AttrWindow",
+		title : "Edit "+this.type.toLowerCase()+" attributes",
 		height : 450,
 		width : 600,
 		layout : "fit",
@@ -463,13 +472,13 @@ AttributeEditWidget.prototype.addAttribute = function() {
 	            		 fields : [ 'name', 'value' ],
 	            		 data : [ {
 	            			 name : 'Number',
-	            			 value : 'number'
+	            			 value : 'float'
 	            		 }, {
 	            			 name : 'String',
 	            			 value : 'string'
 	            		 }, {
 	            			 name : 'Boolean',
-	            			 value : 'bool'
+	            			 value : 'boolean'
 	            		 } ]
 	            	 })
 	             },

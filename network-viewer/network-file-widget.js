@@ -55,7 +55,6 @@ NetworkFileWidget.prototype.getTitleName = function(){
 
 NetworkFileWidget.prototype.getFileUpload = function(){
 	var _this = this;
-	
 	this.fileUpload = Ext.create('Ext.form.field.File', {
 		msgTarget: 'side',
 		allowBlank: false,
@@ -68,7 +67,6 @@ NetworkFileWidget.prototype.getFileUpload = function(){
 				var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];
 				dataadapter.read(file);
 				dataadapter.onRead.addEventListener(function (sender, content){
-					
 					try{
 						_this.content = content.content; //para el onOK.notify event
 						var json = JSON.parse(content.content);
@@ -83,25 +81,12 @@ NetworkFileWidget.prototype.getFileUpload = function(){
 							_this.gridStore.loadData([[json.edges[id].source, link, json.edges[id].target]], true);
 						}
 						
-//						var graphDataset = new GraphDataset();
-//						graphDataset.loadFromJSON(json.dataset);
-//						
-//						var vertices = graphDataset.getVerticesCount();
-//						var edges = graphDataset.getEdgesCount();
-//						
-//						var sif = new SIFFileDataAdapter().toSIF(graphDataset);
-//						var tabularFileDataAdapter = new TabularFileDataAdapter();
-//						tabularFileDataAdapter.parse(sif);
-//						_this.gridStore.loadData(tabularFileDataAdapter.getLines());
-						
 						_this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>',false);
-						_this.countLabel.setText('vertices:<span class="info">'+numNodes+'</span> edges:<span class="info">'+numEdges+'</span>',false);
+						_this.countLabel.setText('nodes:<span class="info">'+numNodes+'</span> edges:<span class="info">'+numEdges+'</span>',false);
 					
-					}catch(e){
+					}catch(e) {
 						_this.infoLabel.setText('<span class="err">File not valid </span>'+e,false);
 					};
-					
-//					console.log(content.content);
 				});
 			}
 	    }
@@ -150,6 +135,18 @@ NetworkFileWidget.prototype.draw = function(){
 		    bbar:infobar
 		});
 		
+		var comboLayout = Ext.create('Ext.form.field.ComboBox', {
+			margin: "0 0 0 5",
+			width: 120,
+			editable: false,
+			displayField: 'name',
+			valueField: 'name',
+			value: "none",
+			store: new Ext.data.SimpleStore({
+				fields: ['name'],
+				data: [["none"],["dot"],["neato"],["twopi"],["circo"],["fdp"],["sfdp"],["Random"],["Circle"],["Square"]]
+			})
+		});
 		
 		this.panel = Ext.create('Ext.window.Window', {
 			title : this.title,
@@ -158,11 +155,20 @@ NetworkFileWidget.prototype.draw = function(){
 			resizable:false,
 			layout: { type: 'vbox',align: 'stretch'},
 			items : [this.grid],
-			buttons:[{text:'Ok', handler: function() {	
-				_this.onOk.notify(_this.content);
-				_this.panel.close();
-				}}, 
-				{text:'Cancel', handler: function() { _this.panel.close(); }}],
+			buttons:[
+			         {
+			        	 xtype: 'text',
+			        	 margin: "5 0 0 0",
+			        	 text: 'Apply layout:'
+			         },
+			         comboLayout, '->',
+			         {text:'Ok', handler: function() {
+			        	 _this.onOk.notify({"content":_this.content, "layout":comboLayout.getValue()});
+			        	 _this.panel.close();
+			        	 }
+			         }, 
+			         {text:'Cancel', handler: function() { _this.panel.close(); }}
+			         ],
 			listeners: {
 				scope: this,
 				minimize:function() {
