@@ -46,6 +46,12 @@ function CellBaseAdapter(args){
 		if(args.params != null){
 			this.params = args.params;
 		}
+		if(args.filters != null){
+			this.filters = args.filters;
+		}
+		if(args.filtersConfig != null){
+			this.filtersConfig = args.filtersConfig;
+		}
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
 	this.onGetData = new Event();
@@ -53,6 +59,14 @@ function CellBaseAdapter(args){
 
 CellBaseAdapter.prototype.clearData = function(){
 	this.featureCache.clear();
+};
+
+CellBaseAdapter.prototype.setFilters = function(filters){
+	this.clearData();
+	for(var i=0; i<filters.length; i++){
+		var filter = filters[i];
+		this.params[filter.param] = filter.value.toString();
+	}
 };
 
 

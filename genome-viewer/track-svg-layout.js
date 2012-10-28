@@ -518,21 +518,21 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			trackSvg.transcript=null;
 		}
 	};
-	var cleanSvgFeatures = function(){
-		console.time("empty");
+	//var cleanSvgFeatures = function(){
+		//console.time("empty");
 		//$(trackSvg.features).empty();
-//		trackSvg.features.textContent = "";
-		while (trackSvg.features.firstChild) {
-			trackSvg.features.removeChild(trackSvg.features.firstChild);
-		}
-		console.timeEnd("empty");
-		
+		//trackSvg.features.textContent = "";
+		//while (trackSvg.features.firstChild) {
+			//trackSvg.features.removeChild(trackSvg.features.firstChild);
+		//}
+		//console.timeEnd("empty");
+		//
 		//deprecated, diplayed object is now in trackSvg class
 		//trackData.adapter.featureCache.chunksDisplayed = {};
-		
-		trackSvg.chunksDisplayed = {};
-		trackSvg.renderedArea = {};
-	};
+		//
+		//trackSvg.chunksDisplayed = {};
+		//trackSvg.renderedArea = {};
+	//};
 	var retrieveData = function(sender){
 		// check if track is visible in this zoom
 		if(_this.zoom >= visibleRange.start-_this.zoomOffset && _this.zoom <= visibleRange.end ){
@@ -584,7 +584,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	
 	//on region change set new virtual window and update track values
-	trackSvg.onRegionChangeIdx = this.onRegionChange.addEventListener(function(sender,data){
+	trackSvg.regionChange = function(sender,data){
 		trackSvg.pixelBase = _this.pixelBase;
 		trackSvg.zoom = _this.zoom;
 		trackSvg.position = trackSvg.region.center();
@@ -592,10 +592,11 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		checkHistogramZoom();
 		checkTranscriptZoom();//for genes only
 		
-		cleanSvgFeatures();
+		trackSvg.cleanSvg();
 		setCallRegion();
 		retrieveData("onRegionChange");
-	});
+	};
+	trackSvg.onRegionChangeIdx = this.onRegionChange.addEventListener(trackSvg.regionChange);
 	
 
 	//movement listeners 
@@ -644,20 +645,20 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	//track buttons
 	//XXX se puede mover?
-	$(trackSvg.upRect).bind("click",function(event){
-		_this._reallocateAbove(this.parentNode.parentNode.id);//"this" is the svg element
-	});
-	$(trackSvg.downRect).bind("click",function(event){
-		_this._reallocateUnder(this.parentNode.parentNode.id);//"this" is the svg element
-	});
-	$(trackSvg.hideRect).bind("click",function(event){
-//		_this._hideTrack(this.parentNode.parentNode.id);//"this" is the svg element
-		_this.removeTrack(this.parentNode.parentNode.id);//"this" is the svg element
-		_this.onSvgRemoveTrack.notify(this.parentNode.parentNode.id);
-	});
-	$(trackSvg.settingsRect).bind("click",function(event){
-		console.log("settings click");//"this" is the svg element
-	});
+	//$(trackSvg.upRect).bind("click",function(event){
+		//_this._reallocateAbove(this.parentNode.parentNode.id);//"this" is the svg element
+	//});
+	//$(trackSvg.downRect).bind("click",function(event){
+		//_this._reallocateUnder(this.parentNode.parentNode.id);//"this" is the svg element
+	//});
+	//$(trackSvg.hideRect).bind("click",function(event){
+		////_this._hideTrack(this.parentNode.parentNode.id);//"this" is the svg element
+		//_this.removeTrack(this.parentNode.parentNode.id);//"this" is the svg element
+		//_this.onSvgRemoveTrack.notify(this.parentNode.parentNode.id);
+	//});
+	//$(trackSvg.settingsRect).bind("click",function(event){
+		//console.log("settings click");//"this" is the svg element
+	//});
 };
 
 TrackSvgLayout.prototype.removeTrack = function(trackId){
@@ -674,7 +675,7 @@ TrackSvgLayout.prototype.removeTrack = function(trackId){
 	this.trackSvgList.splice(i, 1);
 
 	delete this.swapHash[trackId];
-	//uddate swapHash with correct index after slice
+	//uddate swapHash with correct index after splice
 	for ( var i = 0; i < this.trackSvgList.length; i++) {
 		this.swapHash[this.trackSvgList[i].id].index = i;
 	}
@@ -694,9 +695,9 @@ TrackSvgLayout.prototype._redraw = function(){
 	}
 };
 
-//This routine is called when track order modified
-TrackSvgLayout.prototype._reallocateAbove = function(trackMainId){
-	var i = this.swapHash[trackMainId].index;
+//This routine is called when track order is modified
+TrackSvgLayout.prototype._reallocateAbove = function(trackId){
+	var i = this.swapHash[trackId].index;
 	console.log(i+" wants to move up");
 	if(i>0){
 		var aboveTrack=this.trackSvgList[i-1];
@@ -715,9 +716,10 @@ TrackSvgLayout.prototype._reallocateAbove = function(trackMainId){
 		console.log("is at top");
 	}
 };
-//This routine is called when track order modified
-TrackSvgLayout.prototype._reallocateUnder = function(trackMainId){
-	var i = this.swapHash[trackMainId].index;
+
+//This routine is called when track order is modified
+TrackSvgLayout.prototype._reallocateUnder = function(trackId){
+	var i = this.swapHash[trackId].index;
 	console.log(i+" wants to move down");
 	if(i+1<this.trackSvgList.length){
 		var aboveTrack=this.trackSvgList[i];
@@ -737,6 +739,33 @@ TrackSvgLayout.prototype._reallocateUnder = function(trackMainId){
 		console.log("is at bottom");
 	}
 };
+
+TrackSvgLayout.prototype.setTrackIndex = function(trackId, newIndex){
+	var oldIndex = this.swapHash[trackId].index;
+
+	//remove track from old index
+	var track = this.trackSvgList.splice(oldIndex,1)[0]
+
+	//add track at new Index
+	this.trackSvgList.splice(newIndex,0,track);
+
+	//uddate swapHash with correct index after slice
+	for ( var i = 0; i < this.trackSvgList.length; i++) {
+		this.swapHash[this.trackSvgList[i].id].index = i;
+	}
+	//update svg coordinates
+	this._redraw();
+};
+
+TrackSvgLayout.prototype.scrollToTrack = function(trackId){
+	var swapTrack = this.swapHash[trackId];
+	if(swapTrack != null){
+		var i = swapTrack.index;
+		var track = this.trackSvgList[i];
+		$(this.svg).parent().parent().scrollTop(track.main.getAttribute("y"));
+	}
+};
+
 
 TrackSvgLayout.prototype._hideTrack = function(trackMainId){
 	this.swapHash[trackMainId].visible=false;

@@ -36,6 +36,9 @@ function GenomeViewer(targetId, species, args) {
 	this.speciesName="Homo sapiens";
 	this.increment = 5;
 	this.zoom=100;
+
+
+	this.sidePanelItems = [];
 	
 	//Setting paramaters
 	if (targetId != null){
@@ -80,6 +83,7 @@ function GenomeViewer(targetId, species, args) {
 			Ext.getCmp(_this.id+"regionHistory").add({
 				xtype:'container',
 				padding:"2 5 2 3",
+				border:1,
 				html:_this.region.toString(),
 				s:_this.region.toString(),
 				listeners:{
@@ -123,25 +127,17 @@ GenomeViewer.prototype.render = function(){
 		region : 'center',
 		margins : '0 0 0 0'
 	});
-	var sideContainer = Ext.create('Ext.panel.Panel', {
+	this.sideContainer = Ext.create('Ext.panel.Panel', {
 		id: this.id+"sideContainer",
 		region: "east",
 		title: "Side panel",
-		collapsed:true,
+		collapsed:false,
 		collapsible:true,
 		titleCollapse:true,
-		width: this.sidePanelWidth+125,
-		//border: 1,
-		//style: {borderColor:'lightblue', borderStyle:'solid', borderWidth:'1px'},
-		layout: 'accordion',
-		items: [{
-			title: 'Tracks',
-			id:this.id+"tracksAccordion"
-		},{
-			title: 'Region history',
-			id:this.id+"regionHistory"
-		}]
+		width: this.sidePanelWidth+250,
+		layout: 'accordion'
 	});
+
 	var containerPort = Ext.create('Ext.container.Container', {
 		id:this.id+"containerPort",
 		renderTo:this.targetId,
@@ -151,11 +147,11 @@ GenomeViewer.prototype.render = function(){
 		layout: { type: 'border'},
 		region : 'center',
 		margins : '0 0 0 0',
-		items:[container,sideContainer]
+		items:[container,this.sideContainer]
 	});
-	if(this.toolbar!=null){
-		containerPort.add(this.toolbar);
-	}
+	//if(this.toolbar!=null){
+		//containerPort.add(this.toolbar);
+	//}
 	//The last item is regionPanel
 	//when all items are inserted afterRender is notified, tracks can be added now
 	var tracksPanel = this._drawTracksPanel();
@@ -220,13 +216,13 @@ GenomeViewer.prototype.render = function(){
 		}
 	});
 	
-	container.insert(0, this._getNavigationBar());
-	container.insert(1, this._drawKaryotypePanel().hide());//the good one
+	containerPort.insert(0, this._getNavigationBar());
+	containerPort.insert(1, this._getBottomBar());
+	container.insert(0, this._drawKaryotypePanel().hide());//the good one
 	//container.insert(1, this._drawKaryotypePanel());
-	container.insert(2, this._drawChromosomePanel());
-	container.insert(3, tracksPanel);
-	containerPort.add(this._getBottomBar());
-	container.insert(3, regionPanel);//rendered after trackspanel but inserted with minor index
+	container.insert(1, this._drawChromosomePanel());
+	container.insert(2, tracksPanel);
+	container.insert(2, regionPanel);//rendered after trackspanel but inserted with minor index
 	
 	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.region.chromosome);
 	Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.region.chromosome);
@@ -234,6 +230,14 @@ GenomeViewer.prototype.render = function(){
 };
 GenomeViewer.prototype.setMenuBar = function(toolbar) {
 	this.toolbar = toolbar;
+};
+GenomeViewer.prototype.addSidePanelItems = function(items) {
+	items.push({
+		title: 'Region history',
+		bodyPadding:'10',
+		id:this.id+"regionHistory"
+	});
+	this.sideContainer.insert(0, items);
 };
 
 GenomeViewer.prototype.setSize = function(width,height) {
@@ -428,6 +432,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 	var navToolbar = Ext.create('Ext.toolbar.Toolbar', {
 		id:this.id+"navToolbar",
 		cls:"bio-toolbar",
+		region:"north",
 		border:true,
 		height:35,
 //		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
@@ -586,7 +591,6 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		         }]
 	});
 	return navToolbar;
-	
 
 };
 
@@ -808,9 +812,9 @@ GenomeViewer.prototype._drawKaryotypePanel = function() {
 		id:this.id+"karyotypePanel",
 		height : 200,
 		title:'Karyotype',
-		border:false,
+		border:true,
 		margin:'0 0 1 0',
-		cls:'border-bot panel-border-top',
+		//cls:'border-bot panel-border-top',
 		html: '<div id="'+this.id+'karyotypeSvg" style="margin-top:2px"></div>',
 		listeners:{
 			afterrender:function(){
@@ -838,9 +842,9 @@ GenomeViewer.prototype._drawChromosomePanel = function() {
 		id:this.id+"chromosomePanel",
 		height : 95,
 		title:'Chromosome',
-		border:false,
+		border:true,
 		margin:'0 0 1 0',
-		cls:'border-bot panel-border-top',
+		//cls:'border-bot panel-border-top',
 		html: '<div id="'+this.id+'chromosomeSvg" style="margin-top:2px"></div>',
 		listeners:{
 			afterrender:function(){
@@ -879,10 +883,10 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 		id:this.id+"regionPanel",
 		height : 150,
 		title:'Region overview',
-		border:false,
+		border:true,
 		margin:'0 0 1 0',
 		layout: { type: 'vbox',align: 'stretch'},//scrollbar
-		cls:'border-bot panel-border-top x-unselectable',
+		//cls:'border-bot panel-border-top x-unselectable',
 		items:[c1,c2]
 		//html: '<div id="'+this.id+'regionSvg" '
 	});
@@ -906,8 +910,8 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 		id:this.id+"tracksPanel",
 		title:'Detailed information',
 		layout: { type: 'vbox',align: 'stretch'},//scrollbar
-		border:false,
-		cls:"border-bot panel-border-top x-unselectable",
+		border:true,
+		//cls:"border-bot panel-border-top x-unselectable",
 		flex: 1,
 		items:[c1,c2]
 	});
@@ -918,8 +922,20 @@ GenomeViewer.prototype.addTrack = function(trackData, args) {
 	this.trackSvgLayout.addTrack(trackData, args);
 };
 
+GenomeViewer.prototype.getTrackSvgById = function(trackId) {
+	return this.trackSvgLayout.getTrackSvgById(trackId);
+};
+
 GenomeViewer.prototype.removeTrack = function(trackId) {
 	return this.trackSvgLayout.removeTrack(trackId);
+};
+
+GenomeViewer.prototype.setTrackIndex = function(trackId, newIndex) {
+	return this.trackSvgLayout.setTrackIndex(trackId, newIndex);
+};
+
+GenomeViewer.prototype.scrollToTrack = function(trackId) {
+	return this.trackSvgLayout.scrollToTrack(trackId);
 };
 
 GenomeViewer.prototype.showTrack = function(trackId) {

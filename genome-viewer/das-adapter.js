@@ -139,33 +139,36 @@ DasAdapter.prototype.getData = function(args){
 						_this.xml =   (new XMLSerializer()).serializeToString(data);
 						var xmlStringified =  (new XMLSerializer()).serializeToString(data); //data.childNodes[2].nodeValue;
 						var data = xml2json.parser(xmlStringified);
-						var result = new Array();
 
-						if (typeof(data.dasgff.gff.segment)  != 'undefined'){
-							if (typeof(data.dasgff.gff.segment.feature)  != 'undefined'){	  
-								result = data.dasgff.gff.segment.feature;	
-							}
-							else if (typeof(data.dasgff.gff.segment[0])  != 'undefined'){
-								if (data.dasgff.gff.segment[0].feature != null){
-									for ( var i = 0; i < data.dasgff.gff.segment.length; i++) {
-										for ( var j = 0; j < data.dasgff.gff.segment[i].feature.length; j++) {
-											data.dasgff.gff.segment[i].feature[j]["chromosome"] = args.chromosome;
-											result.push(data.dasgff.gff.segment[i].feature[j]);
+						if(data.dasgff != null){//Some times DAS server does not respond
+							var result = new Array();
+								
+							if (typeof(data.dasgff.gff.segment)  != 'undefined'){
+								if (typeof(data.dasgff.gff.segment.feature)  != 'undefined'){	  
+									result = data.dasgff.gff.segment.feature;	
+								}
+								else if (typeof(data.dasgff.gff.segment[0])  != 'undefined'){
+									if (data.dasgff.gff.segment[0].feature != null){
+										for ( var i = 0; i < data.dasgff.gff.segment.length; i++) {
+											for ( var j = 0; j < data.dasgff.gff.segment[i].feature.length; j++) {
+												data.dasgff.gff.segment[i].feature[j]["chromosome"] = args.chromosome;
+												result.push(data.dasgff.gff.segment[i].feature[j]);
+											}
 										}
 									}
-								}
-								else{
-									result.push([]);
+									else{
+										result.push([]);
+									}
 								}
 							}
-						}
-						var region = {chromosome:args.chromosome, start:chunkStart, end:chunkEnd};
-						var resource = "das";
-						_this.featureCache.putFeaturesByRegion(result, region, resource, dataType);
-						console.log(_this.featureCache.cache);
-						var items = _this.featureCache.getFeatureChunksByRegion(region);
-						if(items != null){
-							_this.onGetData.notify({items:items, params:_this.params, cached:false});
+							var region = {chromosome:args.chromosome, start:chunkStart, end:chunkEnd};
+							var resource = "das";
+							_this.featureCache.putFeaturesByRegion(result, region, resource, dataType);
+							console.log(_this.featureCache.cache);
+							var items = _this.featureCache.getFeatureChunksByRegion(region);
+							if(items != null){
+								_this.onGetData.notify({items:items, params:_this.params, cached:false});
+							}
 						}
 					}
 				});

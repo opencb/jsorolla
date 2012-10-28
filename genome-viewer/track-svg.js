@@ -158,6 +158,26 @@ TrackSvg.prototype.setLoading = function(bool){
 	}
 };
 
+TrackSvg.prototype.setFilters = function(filters){
+	this.trackData.setFilters(filters);
+	this.regionChange();
+};
+
+TrackSvg.prototype.cleanSvg = function(filters){
+		console.time("empty");
+		//$(this.features).empty();
+//		this.features.textContent = "";
+		while (this.features.firstChild) {
+			this.features.removeChild(this.features.firstChild);
+		}
+		console.timeEnd("empty");
+		//deprecated, diplayed object is now in trackSvg class
+		//this.adapter.featureCache.chunksDisplayed = {};
+		this.chunksDisplayed = {};
+		this.renderedArea = {};
+};
+
+
 
 TrackSvg.prototype.draw = function(){
 	var _this = this;
@@ -202,44 +222,44 @@ TrackSvg.prototype.draw = function(){
 	});
 	titleText.textContent = this.id;
 
-	var settingsRect = SVG.addChildImage(titleGroup,{
-		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
-		"x":4+textWidth,
-		"y":3,
-		"width":17,
-		"height":17,
-		"opacity":"0.6",
-		"visibility":"hidden"
-	});
-	
-	var upRect = SVG.addChildImage(titleGroup,{
-		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAD9JREFUOI1jYKAhEGBgYJgPxWSB+QwMDP+hmGRDkDWTbAg2zUQbgk8zQUOI0Uyyd2AacAImYk0aNWAwG0AxAABRBSdztC0IxQAAAABJRU5ErkJggg==",
-		"x":22+textWidth,
-		"y":4,
-	    "width":16,
-	    "height":16,
-	    "opacity":"0.6",
-	    "visibility":"hidden"
-	});
-	
-	var downRect = SVG.addChildImage(titleGroup,{
-		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAERJREFUOI1jYKAx+A/FOAETpTaMGjDYDJjPgIh39PhHF5+Py0BshhCtmRhDCGrGZwjRmrEZQrJmZEPmMzAwCJBrAEEAANCqJXdWrFuyAAAAAElFTkSuQmCC",
-		"x":36+textWidth,
-		"y":4,
-		"width":16,
-		"height":16,
-		"opacity":"0.6",
-		"visibility":"hidden"
-	});
-	var hideRect = SVG.addChildImage(titleGroup,{
-		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAJFJREFUOI2tks0NgzAMhb+wAFP05FM2aCdjtDBCLjkxBRO4F4JoAONIfVKkyHk/sl4CQIyRFqpKzvk0/zvCMRSYgU9LEpH9XkpJwFtEgqr+8NJmkozAR45F2N+WcTQyrk3c4lYwbadLXFGFCkx34sHr9lrXrvTLFXrFx509Fd+K3SaeqkwTb1XV5Axvz73/wcQXYitIjMzG550AAAAASUVORK5CYII=",
-		"x":52+textWidth,
-		"y":4,
-		"width":16,
-		"height":16,
-		"opacity":"0.6",
-		"visibility":"hidden"
-	});
+	//var settingsRect = SVG.addChildImage(titleGroup,{
+		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
+		//"x":4+textWidth,
+		//"y":3,
+		//"width":17,
+		//"height":17,
+		//"opacity":"0.6",
+		//"visibility":"hidden"
+	//});
+	//
+	//var upRect = SVG.addChildImage(titleGroup,{
+		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAD9JREFUOI1jYKAhEGBgYJgPxWSB+QwMDP+hmGRDkDWTbAg2zUQbgk8zQUOI0Uyyd2AacAImYk0aNWAwG0AxAABRBSdztC0IxQAAAABJRU5ErkJggg==",
+		//"x":22+textWidth,
+		//"y":4,
+	    //"width":16,
+	    //"height":16,
+	    //"opacity":"0.6",
+	    //"visibility":"hidden"
+	//});
+	//
+	//var downRect = SVG.addChildImage(titleGroup,{
+		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAERJREFUOI1jYKAx+A/FOAETpTaMGjDYDJjPgIh39PhHF5+Py0BshhCtmRhDCGrGZwjRmrEZQrJmZEPmMzAwCJBrAEEAANCqJXdWrFuyAAAAAElFTkSuQmCC",
+		//"x":36+textWidth,
+		//"y":4,
+		//"width":16,
+		//"height":16,
+		//"opacity":"0.6",
+		//"visibility":"hidden"
+	//});
+	//var hideRect = SVG.addChildImage(titleGroup,{
+		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAJFJREFUOI2tks0NgzAMhb+wAFP05FM2aCdjtDBCLjkxBRO4F4JoAONIfVKkyHk/sl4CQIyRFqpKzvk0/zvCMRSYgU9LEpH9XkpJwFtEgqr+8NJmkozAR45F2N+WcTQyrk3c4lYwbadLXFGFCkx34sHr9lrXrvTLFXrFx509Fd+K3SaeqkwTb1XV5Axvz73/wcQXYitIjMzG550AAAAASUVORK5CYII=",
+		//"x":52+textWidth,
+		//"y":4,
+		//"width":16,
+		//"height":16,
+		//"opacity":"0.6",
+		//"visibility":"hidden"
+	//});
 	
 	//bamStrandPatt
 //	var bamStrandPatt = SVG.addChild(main,"pattern",{
@@ -304,53 +324,54 @@ TrackSvg.prototype.draw = function(){
 //		"fill":"deepskyblue"
 //	});
 	
-	
-	
-	$(titleGroup).mouseenter(function(event){
+	this.fnTitleMouseEnter = function(){
 //		over.setAttribute("opacity","0.1");
-		titlebar.setAttribute("width",74+textWidth);
+		//titlebar.setAttribute("width",74+textWidth);
 		titlebar.setAttribute("opacity","1.0");
 		titleText.setAttribute("opacity","1.0");
-		upRect.setAttribute("visibility","visible");
-		downRect.setAttribute("visibility","visible");
-		if(_this.closable == true){ hideRect.setAttribute("visibility","visible"); }
+		//upRect.setAttribute("visibility","visible");
+		//downRect.setAttribute("visibility","visible");
+		//if(_this.closable == true){ hideRect.setAttribute("visibility","visible"); }
 //		settingsRect.setAttribute("visibility","visible");//TODO not implemented yet, hidden for now...
-	});
-	$(titleGroup).mouseleave(function(event){
+	};
+	this.fnTitleMouseLeave = function(){
 ////	over.setAttribute("opacity","0.0");
-		titlebar.setAttribute("width",textWidth);
+		//titlebar.setAttribute("width",textWidth);
 		titlebar.setAttribute("opacity","0.6");
 		titleText.setAttribute("opacity","0.4");
-		upRect.setAttribute("visibility","hidden");
-		downRect.setAttribute("visibility","hidden");
-		hideRect.setAttribute("visibility","hidden");
-		settingsRect.setAttribute("visibility","hidden");
-	});
+		//upRect.setAttribute("visibility","hidden");
+		//downRect.setAttribute("visibility","hidden");
+		//hideRect.setAttribute("visibility","hidden");
+		//settingsRect.setAttribute("visibility","hidden");
+	};
 	
-	$([upRect,downRect,hideRect,settingsRect]).mouseover(function(event){
-		this.setAttribute("opacity","1.0");
-	});
-	$([upRect,downRect,hideRect,settingsRect]).mouseleave(function(event){
-		this.setAttribute("opacity","0.6");
-	});
-
-	$(settingsRect).mouseover(function(event){
-		titlebar.setAttribute("height",22+22);
-	});
-	$(settingsRect).mouseleave(function(event){
-		titlebar.setAttribute("height",22);
-	});
+	$(titleGroup).mouseenter(this.fnTitleMouseEnter);
+	$(titleGroup).mouseleave(this.fnTitleMouseLeave);
 	
+	//$([upRect,downRect,hideRect,settingsRect]).mouseover(function(event){
+		//this.setAttribute("opacity","1.0");
+	//});
+	//$([upRect,downRect,hideRect,settingsRect]).mouseleave(function(event){
+		//this.setAttribute("opacity","0.6");
+	//});
+//
+	//$(settingsRect).mouseover(function(event){
+		//titlebar.setAttribute("height",22+22);
+	//});
+	//$(settingsRect).mouseleave(function(event){
+		//titlebar.setAttribute("height",22);
+	//});
+	//
 	//set initial values when hide due mouseleave event not fires when hideTrack from TrackSvgLayout
-	$(hideRect).click(function(event){
-		titlebar.setAttribute("width",textWidth);
-		titlebar.setAttribute("opacity","0.6");
-		titleText.setAttribute("opacity","0.4");
-		upRect.setAttribute("visibility","hidden");
-		downRect.setAttribute("visibility","hidden");
-		hideRect.setAttribute("visibility","hidden");
-		settingsRect.setAttribute("visibility","hidden");
-	});
+	//$(hideRect).click(function(event){
+		//titlebar.setAttribute("width",textWidth);
+		//titlebar.setAttribute("opacity","0.6");
+		//titleText.setAttribute("opacity","0.4");
+		//upRect.setAttribute("visibility","hidden");
+		//downRect.setAttribute("visibility","hidden");
+		//hideRect.setAttribute("visibility","hidden");
+		//settingsRect.setAttribute("visibility","hidden");
+	//});
 	
 	
 	this.invalidZoomText = SVG.addChild(main,"text",{
@@ -408,10 +429,10 @@ TrackSvg.prototype.draw = function(){
 	this.titleGroup = titleGroup;
 	this.titlebar = titlebar;
 	this.titleText = titleText;
-	this.upRect = upRect;
-	this.downRect = downRect;
-	this.hideRect = hideRect;
-	this.settingsRect = settingsRect;
+	//this.upRect = upRect;
+	//this.downRect = downRect;
+	//this.hideRect = hideRect;
+	//this.settingsRect = settingsRect;
 	this.features = features;
 	
 	this.rendered = true;

@@ -178,7 +178,7 @@ InfoWidget.prototype.getTreePanel = function (){
 			    		this.optionClick(record.data);
 		    		}
 			}
-		});	
+		});
 		return treePan;
 };
 

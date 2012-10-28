@@ -269,7 +269,7 @@ CellBaseManager.prototype.getQuery = function(paramsWS,url){
 	var query = "";
 	for ( var key in paramsWS) {
 		if(paramsWS[key]!=null)
-			query+=key+"="+paramsWS[key]+"&";
+			query+=key+"="+paramsWS[key].toString()+"&";
 	}
 	if(query!="")
 		query = chr+query.substring(0, query.length-1);
