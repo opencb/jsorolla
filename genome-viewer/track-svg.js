@@ -51,6 +51,9 @@ function TrackSvg(parent, args) {
 		if(args.id != null){
 			this.id = args.id;
 		}
+		if(args.type != null){
+			this.type = args.type;
+		}
 		if(args.trackSvgLayout != null){
 			this.trackSvgLayout = args.trackSvgLayout;
 		}
@@ -177,7 +180,14 @@ TrackSvg.prototype.cleanSvg = function(filters){
 		this.renderedArea = {};
 };
 
+TrackSvg.prototype.setTitle = function(title){
+	this.titleText.textContent =  title;
+	this.titlebar.setAttribute("width", (15+title.length*6));
+};
 
+TrackSvg.prototype.getTitle = function(){
+	return this.titleText.textContent;
+};
 
 TrackSvg.prototype.draw = function(){
 	var _this = this;
@@ -200,8 +210,10 @@ TrackSvg.prototype.draw = function(){
 	var titleGroup = SVG.addChild(main,"g",{
 		visibility:this.titleVisibility	
 	});
-	
-	var textWidth = 15+this.id.length*6;
+
+
+	var text = this.title+'-'+this.id;
+	var textWidth = 15+text.length*6;
 	var titlebar = SVG.addChild(titleGroup,"rect",{
 		"x":0,
 		"y":0,
@@ -220,8 +232,7 @@ TrackSvg.prototype.draw = function(){
 		"fill":"black"
 //		"transform":"rotate(-90 50,50)"
 	});
-	titleText.textContent = this.id;
-
+	titleText.textContent =  text;
 	//var settingsRect = SVG.addChildImage(titleGroup,{
 		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
 		//"x":4+textWidth,

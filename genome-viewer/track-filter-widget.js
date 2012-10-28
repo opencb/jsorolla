@@ -25,6 +25,9 @@ function TrackFilterWidget(args) {
 		if(args.trackSvg != null){
 			this.trackSvg = args.trackSvg;
 		}
+		if(args.treeRecord != null){
+			this.treeRecord = args.treeRecord;
+		}
 	}
 
 	this.filtersConfig = this.trackSvg.trackData.adapter.filtersConfig;
@@ -76,7 +79,18 @@ TrackFilterWidget.prototype.draw = function(){
 		bodyPadding:10,
 		items: [{
 				xtype:'textfield',
+				value: _this.trackSvg.getTitle(),
 				fieldLabel:'TrackName',
+				allowBlank: false,
+				listeners:{
+					change:function(este, newValue){
+						if(este.isValid()){
+							_this.trackSvg.setTitle(newValue);
+							_this.treeRecord.set('text',newValue);
+							_this.treeRecord.save();
+						}
+					}
+				}
 			}
 		]
 	});
@@ -115,7 +129,14 @@ TrackFilterWidget.prototype.draw = function(){
 						}
 					}
 				},
-			    {text:'Cancel', handler: function(){Ext.getCmp(_this.id+"window").destroy();}}
+			    {text:'Cancel', handler: function(){
+					_this.trackSvg.setTitle(originalValue);
+					_this.treeRecord.set('text',originalValue);
+					_this.treeRecord.save();
+					Ext.getCmp(_this.id+"window").destroy();
+				}}
 		]
 	}).show();
+
+	var originalValue = _this.trackSvg.getTitle();
 };
