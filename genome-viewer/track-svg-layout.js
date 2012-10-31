@@ -219,7 +219,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		
 		//Main svg  movement events
 //		this.svg.setAttribute("cursor", "move");
-		
 		$(parent.track).mousemove(function(event) {
 			var centerPosition = _this.region.center();
 			var mid = _this.width/2;
@@ -456,7 +455,7 @@ TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.posi
 				_this.onReady.notify();
 			}
 		}else{
-			setTimeout(checkStatus,50);
+			setTimeout(checkStatus,100);
 		}
 	}
 	setTimeout(checkStatus, 10);
@@ -465,6 +464,11 @@ TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.posi
 
 	//this.minRegionRect.setAttribute("width",this.minRectWidth);
 	//this.minRegionRect.setAttribute("x",(this.width/2)-(this.minRectWidth/2)+6);
+};
+
+TrackSvgLayout.prototype._createTrackSvg = function(trackData, args){
+
+	return trackSvg;
 };
 
 TrackSvgLayout.prototype.addTrack = function(trackData, args){
@@ -482,8 +486,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 	//deprecated
 	//var i = this.trackDataList.push(trackData);
-
 	var trackSvg = new TrackSvg(this.svg, args);
+
 	var i = this.trackSvgList.push(trackSvg);
 	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
 	trackSvg.setY(this.height);
@@ -559,7 +563,8 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	//EventListeners
 	//Watch out!!!
 	//this event must be attached before call "trackData.retrieveData()"
-	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(function(sender,response){
+
+	trackSvg.getData = function(sender,response){
 		if(response.params.histogram == true){
 			trackSvg.featuresRender = trackSvg.HistogramRender;
 		}else{
@@ -573,7 +578,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 		
 		_this.setHeight(_this.height + trackSvg.getHeight());//modify height after redraw 
 		_this._redraw();
-	});
+	};
+	
+	trackSvg.onGetDataIdx = trackData.adapter.onGetData.addEventListener(trackSvg.getData);
 	
 	
 	//first load, get virtual window and retrieve data
@@ -599,8 +606,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	trackSvg.onRegionChangeIdx = this.onRegionChange.addEventListener(trackSvg.regionChange);
 	
 
-	//movement listeners 
-	trackSvg.onMoveIdx = this.onMove.addEventListener(function(sender,desp){
+	trackSvg.move = function(sender,desp){
 		var despBase = desp*_this.pixelBase;
 		trackSvg.pixelPosition-=despBase;
 
@@ -640,7 +646,9 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 			}
 
 		}
-	});
+	};
+	//movement listeners 
+	trackSvg.onMoveIdx = this.onMove.addEventListener(trackSvg.move);
 	
 	
 	//track buttons
@@ -672,14 +680,38 @@ TrackSvgLayout.prototype.removeTrack = function(trackId){
 	this.onMove.removeEventListener(this.trackSvgList[i].onMoveIdx);
 
 	// delete data
-	this.trackSvgList.splice(i, 1);
+	var track = this.trackSvgList.splice(i, 1)[0];
 
 	delete this.swapHash[trackId];
 	//uddate swapHash with correct index after splice
 	for ( var i = 0; i < this.trackSvgList.length; i++) {
 		this.swapHash[this.trackSvgList[i].id].index = i;
 	}
-	return trackId;
+	return track;
+};
+
+TrackSvgLayout.prototype.restoreTrack = function(trackSvg, index){
+	var _this = this;
+	
+	trackSvg.region = this.region;
+	trackSvg.zoom = this.zoom;
+	trackSvg.pixelBase = this.pixelBase;
+	trackSvg.width = this.width;
+	
+	var i = this.trackSvgList.push(trackSvg);
+	this.swapHash[trackSvg.id] = {index:i-1,visible:true};
+	trackSvg.setY(this.height);
+	trackSvg.draw();
+	this.setHeight(this.height + trackSvg.getHeight());
+
+	trackSvg.onRegionChangeIdx = this.onRegionChange.addEventListener(trackSvg.regionChange);
+	trackSvg.onMoveIdx = this.onMove.addEventListener(trackSvg.move);
+
+	trackSvg.regionChange();
+
+	if(index!=null){
+		this.setTrackIndex(trackSvg.id, index);
+	}
 };
 
 TrackSvgLayout.prototype._redraw = function(){
@@ -827,7 +859,7 @@ TrackSvgLayout.prototype.getMousePosition = function(position){
 };
 
 TrackSvgLayout.prototype.getSequenceNucleotid = function(position){
-	var seqTrack = this.getTrackSvgById("Sequence");
+	var seqTrack = this.getTrackSvgById(1);
 	if( seqTrack != null && this.zoom >= seqTrack.visibleRange.start-this.zoomOffset && this.zoom <= seqTrack.visibleRange.end){
 		return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.region.chromosome})
 	}

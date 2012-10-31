@@ -81,9 +81,7 @@ function GenomeViewer(targetId, species, args) {
 		_this.setRegion(data);
 		if(data.sender != "trackSvgLayout"){
 			Ext.getCmp(_this.id+"regionHistory").add({
-				xtype:'container',
-				padding:"2 5 2 3",
-				border:1,
+				xtype:'container',padding:"2 5 2 3",border:1,
 				html:_this.region.toString(),
 				s:_this.region.toString(),
 				listeners:{
@@ -123,6 +121,7 @@ GenomeViewer.prototype.render = function(){
         height:this.height,
 		cls:'x-unselectable',
 		region:"center",
+		flex:0,
 		layout: { type: 'vbox',align: 'stretch'},
 		region : 'center',
 		margins : '0 0 0 0'
@@ -871,16 +870,19 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 	var _this=this;
 	var c1 = Ext.create('Ext.container.Container', {
 		height:25,
+		style:'background:whitesmoke',
 		html:'<div id = "'+this.id+'regionSvgTop"></div>'
 	});
 	var c2 = Ext.create('Ext.container.Container', {
 		overflowY:'auto',//scrollbar
 		overflowX:'hidden',//scrollbar
+		style:'background:whitesmoke',
 		flex: 1,//scrollbar
 		html:'<div id = "'+this.id+'regionSvgTrack" style="margin-top:0px"></div></div>'
 	});
 	var panel =  Ext.create('Ext.panel.Panel', {
 		id:this.id+"regionPanel",
+		//style:'background:whitesmoke',
 		height : 150,
 		title:'Region overview',
 		border:true,
@@ -897,11 +899,13 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 	var _this=this;
 	var c1 = Ext.create('Ext.container.Container', {
 		height:25,
+		style:'background:whitesmoke',
 		html:'<div id = "'+this.id+'tracksSvgTop"></div>'
 	});
 	var c2 = Ext.create('Ext.container.Container', {
 		overflowY:'auto',//scrollbar
 		overflowX:'hidden',//scrollbar
+		style:'background:whitesmoke',
 		flex: 1,//scrollbar
 		html:'<div id = "'+this.id+'tracksSvgTrack"></div>'
 	});
@@ -909,6 +913,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 	var panel = Ext.create('Ext.panel.Panel', {
 		id:this.id+"tracksPanel",
 		title:'Detailed information',
+							shrinkWrap:1,
 		layout: { type: 'vbox',align: 'stretch'},//scrollbar
 		border:true,
 		//cls:"border-bot panel-border-top x-unselectable",
@@ -928,6 +933,10 @@ GenomeViewer.prototype.getTrackSvgById = function(trackId) {
 
 GenomeViewer.prototype.removeTrack = function(trackId) {
 	return this.trackSvgLayout.removeTrack(trackId);
+};
+
+GenomeViewer.prototype.restoreTrack = function(trackSvg, index) {
+	return this.trackSvgLayout.restoreTrack(trackSvg, index);
 };
 
 GenomeViewer.prototype.setTrackIndex = function(trackId, newIndex) {
@@ -1085,25 +1094,25 @@ GenomeViewer.prototype.openGeneListWidget = function(name) {
 };
 
 GenomeViewer.prototype.openTranscriptListWidget = function(name) {
-//	this.openListWidget({
-//		category:"feature",
-//		subcategory:"transcript",
-//		query:name.toString(),
-//		resource:"info",
-//		title:"Transcript List",
-//		gridField:["externalName","stableId", "biotype", "chromosome", "start", "end", "strand", "description"]
-//	});
+	this.openListWidget({
+		category:"feature",
+		subcategory:"transcript",
+		query:name.toString(),
+		resource:"info",
+		title:"Transcript List",
+		gridField:["externalName","stableId", "biotype", "chromosome", "start", "end", "strand", "description"]
+	});
 };
 
 GenomeViewer.prototype.openExonListWidget = function(name) {
-//	this.openListWidget({
-//		category:"feature",
-//		subcategory:"exon",
-//		query:name.toString(),
-//		resource:"info",
-//		title:"Exon List",
-//		gridField:["stableId", "chromosome","start", "end", "strand"]
-//	});
+	this.openListWidget({
+		category:"feature",
+		subcategory:"exon",
+		query:name.toString(),
+		resource:"info",
+		title:"Exon List",
+		gridField:["stableId", "chromosome","start", "end", "strand"]
+	});
 };
 
 GenomeViewer.prototype.openSNPListWidget = function(name) {

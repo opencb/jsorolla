@@ -165,6 +165,12 @@ TrackSvg.prototype.setFilters = function(filters){
 	this.trackData.setFilters(filters);
 	this.regionChange();
 };
+TrackSvg.prototype.getFilters = function(){
+	return this.trackData.adapter.filters;
+};
+TrackSvg.prototype.getFiltersConfig = function(){
+	return this.trackData.adapter.filtersConfig;
+};
 
 TrackSvg.prototype.cleanSvg = function(filters){
 		console.time("empty");

@@ -63,9 +63,12 @@ CellBaseAdapter.prototype.clearData = function(){
 
 CellBaseAdapter.prototype.setFilters = function(filters){
 	this.clearData();
-	for(var i=0; i<filters.length; i++){
-		var filter = filters[i];
-		this.params[filter.param] = filter.value.toString();
+	this.filters = filters;
+	for(filter in filters){
+		var value = filters[filter].toString();
+		if(value != ""){
+			this.params[filter] = value;
+		}
 	}
 };
 
