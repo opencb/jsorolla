@@ -122,7 +122,7 @@ TrackSettingsWidget.prototype.draw = function(){
 	});
 	var tabFilter = Ext.create('Ext.tab.Panel', {
 		title: "Filters",
-		items: items,
+		items: items
 	});
 	
 	Ext.create('Ext.window.Window', {

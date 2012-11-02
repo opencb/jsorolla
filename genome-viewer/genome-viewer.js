@@ -81,7 +81,7 @@ function GenomeViewer(targetId, species, args) {
 		_this.setRegion(data);
 		if(data.sender != "trackSvgLayout"){
 			Ext.getCmp(_this.id+"regionHistory").add({
-				xtype:'container',padding:"2 5 2 3",border:1,
+				xtype:'box',padding:"2 5 2 3",border:1,
 				html:_this.region.toString(),
 				s:_this.region.toString(),
 				listeners:{
@@ -1075,7 +1075,8 @@ GenomeViewer.prototype.openListWidget = function(args) {
 		}else{
 			var feature = data.result[0][0];
 			if(feature != null){
-				_this.onRegionChange.notify({sender:"",chromosome:feature.chromosome, position:feature.start});
+				_this.region.load(feature);
+				_this.onRegionChange.notify({sender:""});
 			}else{
 				Ext.example.msg('Feature <span class="ssel">'+args.query+'</span> not found',"");
 			}

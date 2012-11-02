@@ -316,7 +316,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "Chartreuse";
 		},
-		infoWidgetId: "name",
+		infoWidgetId: "mutationCds",
 		height:10,
 		histogramColor:"Chartreuse"
 	},
