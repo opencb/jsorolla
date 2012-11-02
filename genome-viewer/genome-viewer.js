@@ -128,7 +128,7 @@ GenomeViewer.prototype.render = function(){
 	this.sideContainer = Ext.create('Ext.panel.Panel', {
 		id: this.id+"sideContainer",
 		region: "east",
-		title: "Customization",
+		title: "Configuration",
 		collapsed:false,
 		collapsible:true,
 		titleCollapse:true,
