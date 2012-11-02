@@ -142,6 +142,11 @@ a:hover {text-decoration: underline; color: #15428B;}
 	border-color:deepSkyBlue;
 	background:honeydew;
 }
+.encima2{
+	cursor:pointer;
+	border-color:lightgray;
+	background:whitesmoke;
+}
 
 .outputItem{
 	display: inline-block;

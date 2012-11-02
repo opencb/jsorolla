@@ -219,7 +219,7 @@ FEATURE_TYPES = {
 			return GENE_BIOTYPE_COLORS[f.biotype];
 		},
 		infoWidgetId: "stableId",
-		height:4,
+		height:1,
 		histogramColor:"lightblue"
 	},
 	exon:{//not yet
@@ -246,7 +246,7 @@ FEATURE_TYPES = {
 			return "black";
 		},
 		infoWidgetId: "stableId",
-		height:4,
+		height:5,
 		histogramColor:"lightblue"
 	},
 	snp:{
@@ -270,7 +270,7 @@ FEATURE_TYPES = {
 			return SNP_BIOTYPE_COLORS[f.displaySoConsequence];
 		},
 		infoWidgetId: "name",
-		height:10,
+		height:8,
 		histogramColor:"orange"
 	},
 	cpg_island:{
@@ -317,7 +317,7 @@ FEATURE_TYPES = {
 			return "Chartreuse";
 		},
 		infoWidgetId: "mutationCds",
-		height:10,
+		height:8,
 		histogramColor:"Chartreuse"
 	},
 	structural_variation:{
@@ -423,7 +423,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"orange"
 	},
 	vcf:{
@@ -475,7 +475,7 @@ FEATURE_TYPES = {
 			return "black";
 		},
 		infoWidgetId: "id",
-		height:10,
+		height:8,
 		histogramColor:"gray"
 	},
 	gff2:{
@@ -496,7 +496,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"gray"
 	},
 	gff3:{
@@ -517,7 +517,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"gray"
 	},
 	gtf:{
@@ -538,7 +538,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"gray"
 	},
 	bed:{
@@ -564,7 +564,7 @@ FEATURE_TYPES = {
 	        var hexColor = hex(rgbColor[0])+ hex(rgbColor[1]) + hex(rgbColor[2]);
 			return "#"+hexColor;
 		},
-		height:10,
+		height:8,
 		histogramColor:"orange"
 	},
 	bam:{
@@ -605,7 +605,7 @@ FEATURE_TYPES = {
 		getStrand: function(f){
 			return (parseInt(f.flags)&16) == 0 ? "Forward" : "Reverse";
 		},
-		height:10,
+		height:8,
 		histogramColor:"grey"
 	},
 	das:{
@@ -623,7 +623,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"orange"
 	}
 };

@@ -25,7 +25,7 @@ function TrackSvg(parent, args) {
 	this.parent = parent;
 	
 	this.y = 0;
-	this.height = 50;
+	this.height = 25;
 	this.width = 200;
 	this.title = "track";
 //	this.type = "generic";
@@ -489,13 +489,11 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 			
 		}
 		
-		
-		
 		//transform to pixel position
 		width = width * _this.pixelBase;
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
 		
-		var textHeight = 12;
+		var textHeight = 9;
 		if(_this.zoom > _this.labelZoom){
 			try{
 				var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
@@ -508,7 +506,7 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 		}
 		
 		
-		var rowHeight = textHeight+12;
+		var rowHeight = textHeight+10;
 		var rowY = 0;
 		var textY = textHeight+settings.height;
 		
@@ -849,9 +847,9 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 			var maxWidth = 72;
 		}
 		
-		var rowHeight = 24;
+		var rowHeight = 20;
 		var rowY = 0;
-		var textY = 12+settings.height;
+		var textY = 10+settings.height;
 		
 		
 		while(true){
@@ -946,9 +944,9 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 						
 						var rect = SVG.addChild(transcriptGroup,"rect",{//this rect its like a line
 							"x":transcriptX,
-							"y":checkRowY+2,
+							"y":checkRowY+1,
 							"width":transcriptWidth,
-							"height":settings.height-3,
+							"height":settings.height,
 							"fill": "gray",
 							"cursor": "pointer"
 						});
@@ -996,7 +994,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 								"x":exonX,
 								"y":checkRowY-1,
 								"width":exonWidth,
-								"height":exonSettings.height+3,
+								"height":exonSettings.height,
 								"stroke": "gray",
 								"stroke-width": 1,
 								"fill": "white",
@@ -1036,20 +1034,20 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 									"x":codingX,
 									"y":checkRowY-1,
 									"width":codingWidth,
-									"height":exonSettings.height+3,
+									"height":exonSettings.height,
 									"stroke": color,
 									"stroke-width": 1,
 									"fill": color,
 									"cursor": "pointer"
 								});
 								//XXX draw phase only at zoom 100, where this.pixelBase=10
-								for(var p = 0, lenp = 3 - e2t.phase; p < lenp && _this.pixelBase==10 && e2t.phase!=-1; p++){//==10 for max zoom only
+								for(var p = 0, lenp = 3 - e2t.phase; p < lenp && Math.round(_this.pixelBase)==10 && e2t.phase!=-1; p++){//==10 for max zoom only
 									SVG.addChild(exonGroup,"rect",{
 										"i":i,
 										"x":codingX+(p*10),
 										"y":checkRowY-1,
 										"width":_this.pixelBase,
-										"height":settings.height+3,
+										"height":exonSettings.height,
 										"stroke": color,
 										"stroke-width": 1,
 										"fill": 'white',
