@@ -605,7 +605,7 @@ FEATURE_TYPES = {
 		getStrand: function(f){
 			return (parseInt(f.flags)&16) == 0 ? "Forward" : "Reverse";
 		},
-		height:8,
+		height:10,
 		histogramColor:"grey"
 	},
 	das:{

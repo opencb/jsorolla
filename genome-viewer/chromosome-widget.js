@@ -97,8 +97,16 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 		"opacity":"0.5",
 		"fill":"honeydew"
 	});
+
+	/*Remove event listeners*/
+	$(this.svg).off('contextmenu');
+	$(this.svg).off('mousedown');
+	$(this.svg).off('mouseup');
+	$(this.svg).off('mousemove');
+	$(this.svg).off('mouseleave');
+
 	//Prevent browser context menu
-	$(_this.svg).contextmenu(function(e) {
+	$(this.svg).contextmenu(function(e) {
 		e.preventDefault();
 	});
 	var overPositionBox = false;
@@ -239,7 +247,7 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 	}
 
 	var positionBoxWidth = _this.region.length()*_this.pixelBase;
-	_this.positionBox = SVG.addChild(group,"rect",{
+	this.positionBox = SVG.addChild(group,"rect",{
 		"x":pointerPosition-(positionBoxWidth/2),
 		"y":2,
 		"width":positionBoxWidth,
@@ -249,13 +257,14 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 		"opacity":0.5,
 		"fill":"navajowhite"
 	});
-	$(_this.positionBox).mouseenter(function(event) {
+	$(this.positionBox).off('mouseenter');
+	$(this.positionBox).off('mouseleave');
+	$(this.positionBox).mouseenter(function(event) {
 		if(selectingRegion==false){
 			overPositionBox = true;
 		}
 	});
-	$(_this.positionBox).mouseleave(function(event) {
-		console.log("leave")
+	$(this.positionBox).mouseleave(function(event) {
 		overPositionBox = false;
 	});
 };

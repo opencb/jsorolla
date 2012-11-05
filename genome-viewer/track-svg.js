@@ -118,7 +118,7 @@ function TrackSvg(parent, args) {
 	
 	//flags
 	this.rendered = false;//svg structure already draw, svg elements can be used from now
-	
+	this.status = null;
 	
 	this.interval=null;
 	this.histogram=null;
@@ -173,13 +173,13 @@ TrackSvg.prototype.getFiltersConfig = function(){
 };
 
 TrackSvg.prototype.cleanSvg = function(filters){
-		console.time("empty");
+		console.time("-----------------------------------------empty");
 		//$(this.features).empty();
 //		this.features.textContent = "";
 		while (this.features.firstChild) {
 			this.features.removeChild(this.features.firstChild);
 		}
-		console.timeEnd("empty");
+		console.timeEnd("-----------------------------------------empty");
 		//deprecated, diplayed object is now in trackSvg class
 		//this.adapter.featureCache.chunksDisplayed = {};
 		this.chunksDisplayed = {};
@@ -361,7 +361,9 @@ TrackSvg.prototype.draw = function(){
 		//hideRect.setAttribute("visibility","hidden");
 		//settingsRect.setAttribute("visibility","hidden");
 	};
-	
+
+	$(titleGroup).off("mouseenter");
+	$(titleGroup).off("mouseleave");
 	$(titleGroup).mouseenter(this.fnTitleMouseEnter);
 	$(titleGroup).mouseleave(this.fnTitleMouseLeave);
 	
@@ -453,6 +455,7 @@ TrackSvg.prototype.draw = function(){
 	this.features = features;
 	
 	this.rendered = true;
+	this.status = "ready";
 };
 
 
@@ -662,12 +665,13 @@ TrackSvg.prototype.BamRender = function(response){
 			position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
 			style: { width:true, classes: 'ui-tooltip-shadow'}
 		});
-		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,mousePos){
-			var str = 'depth: <span class="ssel">'+coverageList[mousePos-parseInt(chunk.start)]+'</span><br>'+
-					'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[mousePos-parseInt(chunk.start)]+'</span><br>'+
-					'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[mousePos-parseInt(chunk.start)]+'</span><br>'+
-					'<span style="color:darkgoldenrod">G</span>: <span class="ssel">'+chunk.coverage.g[mousePos-parseInt(chunk.start)]+'</span><br>'+
-					'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[mousePos-parseInt(chunk.start)]+'</span><br>';
+		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,obj){
+			var pos = obj.mousePos-parseInt(chunk.start);
+			var str = 'depth: <span class="ssel">'+coverageList[pos]+'</span><br>'+
+					'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[pos]+'</span><br>'+
+					'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[pos]+'</span><br>'+
+					'<span style="color:darkgoldenrod">G</span>: <span class="ssel">'+chunk.coverage.g[pos]+'</span><br>'+
+					'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[pos]+'</span><br>';
 			$(dummyRect).qtip('option', 'content.text', str ); 
 		});
 		
@@ -780,13 +784,19 @@ TrackSvg.prototype.BamRender = function(response){
 //					"cursor": "pointer"
 //				});
 //				text.textContent = settings.getLabel(feature);
-
-				$([rect,t]).mouseenter(function(e) {
-					t.textContent = feature.read;
-				});
-				$([rect,t]).mouseleave(function(event) {
-					t.textContent = "";
-				});
+//
+				//$([rect,t]).mouseenter(function(e) {
+					//t.textContent = feature.read;
+				//});
+				//$([rect,t]).mouseleave(function(event) {
+					//t.textContent = "";
+				//});
+//
+				//var seqTrack = _this.trackSvgLayout.getTrackSvgById(1);
+				//var diffString = seqTrack.trackData.adapter.getDiffString(feature);
+				//if(diffString.trim() != ""){
+					//t.textContent = diffString;
+				//}
 
 				$([rect,t]).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
@@ -914,7 +924,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 				var checkRowY = rowY+rowHeight;
 				var checkTextY = textY+rowHeight;
 				if(feature.transcripts!=null){
-					for(var i = 0, leni = feature.transcripts.length; i < leni; i++){//XXX loop over transcripts
+					for(var i = 0, leni = feature.transcripts.length; i < leni; i++){/*Loop over transcripts*/
 						if(_this.renderedArea[checkRowY] == null){
 							_this.renderedArea[checkRowY] = new FeatureBinarySearchTree();
 						}
@@ -972,7 +982,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 						});
 
 						//paint exons
-						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){//XXX loop over exons
+						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){/* loop over exons*/
 							var e2t = feature.transcripts[i].exonToTranscripts[e];
 							var exonSettings = _this.types[e2t.exon.featureType];
 							var exonStart = parseInt(e2t.exon.start);

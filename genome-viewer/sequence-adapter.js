@@ -178,23 +178,23 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 SequenceAdapter.prototype.getDiffString = function(args){
 	var _this=this;
 	var queryString = this._getSequenceQuery(args);
-
 	var chromosome = args.chromosome;
 	
-	var cellBaseManager = new CellBaseManager(this.species,{host: this.host, async:false});
-	var data = cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
-	_this._processSequenceQuery(data);
-
-	//here the needed sequence is on the cache
-	
-	var referenceSubStr = this.sequence[chromosome].substr(args.start-this.start,args.sequence.length);
+	if(queryString != ""){
+		var cellBaseManager = new CellBaseManager(this.species,{host: this.host, async:false});
+		var data = cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
+		_this._processSequenceQuery(data);
+	}
+		//now the needed sequence is on the cache
+		
+	var referenceSubStr = this.sequence[chromosome].substr(args.start-this.start[chromosome],args.read.length);
 
 	resultStr = "";
-	for(var i = 0; i < args.sequence.length; i++){
-		if(args.sequence.charAt(i) == referenceSubStr.charAt(i)){
+	for(var i = 0; i < args.read.length; i++){
+		if(args.read.charAt(i) == referenceSubStr.charAt(i)){
 			resultStr+=" ";
 		}else{
-			resultStr+=args.sequence.charAt(i);
+			resultStr+=args.read.charAt(i);
 		}
 	}
 	return resultStr;

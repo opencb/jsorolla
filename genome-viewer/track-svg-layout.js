@@ -460,6 +460,7 @@ TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.posi
 	}
 	setTimeout(checkStatus, 10);
 	/***************************/
+	console.log("##@@##@@##"+this.parentLayout);
 	this.onRegionChange.notify();
 
 	//this.minRegionRect.setAttribute("width",this.minRectWidth);
