@@ -66,6 +66,7 @@ CellBaseAdapter.prototype.setFilters = function(filters){
 	this.filters = filters;
 	for(filter in filters){
 		var value = filters[filter].toString();
+		delete this.params[filter];
 		if(value != ""){
 			this.params[filter] = value;
 		}

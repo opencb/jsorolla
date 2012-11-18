@@ -55,8 +55,7 @@ function JobFormPanel(args){
 	
 	this.uploadWidget = new UploadWidget({suiteId:this.suiteId});
 
-	this.panelId = this.title+"_JobFormPanel";
-	
+	this.panelId = this.id+this.title+"_JobFormPanel";
 	this.onRun = new Event();
 	
 	this.runButtonId=this.id+"_runButton";
@@ -90,7 +89,7 @@ JobFormPanel.prototype.render = function (){
 		    items: this.getForms(),
 			listeners: {
 		      	destroy: function(){
-		       		delete _this.panel;
+		       		//delete _this.panel;
 		      	}
 			}
 		});

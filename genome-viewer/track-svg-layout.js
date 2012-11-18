@@ -87,6 +87,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	//$(this.tracksDiv).appendTo(parent);
 
 	//Main SVG and his events
+	this.parent = parent;
 	this.svgTop = SVG.init(parent.top,{
 		"width":this.width
 	});
@@ -99,31 +100,31 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	});
 	
 	//grid
-	var patt = SVG.addChild(this.svg,"pattern",{
-		"id":this.id+"gridPatt",
-		"patternUnits":"userSpaceOnUse",
-		"x":0,
-		"y":0,
-		"width":_this.pixelBase,
-		"height":2000
-	});
+	//var patt = SVG.addChild(this.svg,"pattern",{
+		//"id":this.id+"gridPatt",
+		//"patternUnits":"userSpaceOnUse",
+		//"x":0,
+		//"y":0,
+		//"width":_this.pixelBase,
+		//"height":2000
+	//});
 	
 	var mid = this.width/2;
-	this.grid = SVG.addChild(patt,"rect",{
-		"x":parseInt(mid%10),
-		"y":0,
-		"width":1,
-		"height":2000,
-		"opacity":"0.15",
-		"fill":"grey"
-	});
-	
-	this.grid2 = SVG.addChild(this.svg,"rect",{
-		"width":0,
-		"height":2000,
-		"x":0,
-		"fill":"url(#"+this.id+"gridPatt)"
-	});
+	//this.grid = SVG.addChild(patt,"rect",{
+		//"x":parseInt(mid%10),
+		//"y":0,
+		//"width":1,
+		//"height":2000,
+		//"opacity":"0.15",
+		//"fill":"grey"
+	//});
+	//
+	//this.grid2 = SVG.addChild(this.svg,"rect",{
+		//"width":0,
+		//"height":2000,
+		//"x":0,
+		//"fill":"url(#"+this.id+"gridPatt)"
+	//});
 	
 	this.positionText = SVG.addChild(this.svgTop,"text",{
 		"x":mid-30,
@@ -178,6 +179,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 	this._setTextPosition();
 	
 	this.currentLine = SVG.addChild(this.svg,"rect",{
+		"id":this.id+"centerLine",
 		"x":mid,
 		"y":this.height,
 		"width":this.pixelBase,
@@ -190,6 +192,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 
 
 	this.mouseLine = SVG.addChild(this.svg,"rect",{
+		"id":this.id+"mouseLine",
 		"x":-20,
 		"y":this.height,
 		"width":this.pixelBase,
@@ -219,6 +222,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		
 		//Main svg  movement events
 //		this.svg.setAttribute("cursor", "move");
+
 		$(parent.track).mousemove(function(event) {
 			var centerPosition = _this.region.center();
 			var mid = _this.width/2;
@@ -311,7 +315,6 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 				}
 			});
 		};
-		
 	}else{
 		_this.parentLayout.onMove.addEventListener(function(sender,desp){
 			_this._setTextPosition();
@@ -362,8 +365,8 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 TrackSvgLayout.prototype.setHeight = function(height){
 	this.height=Math.max(height,60);
 	this.svg.setAttribute("height",height);
-	this.grid.setAttribute("height",height);
-	this.grid2.setAttribute("height",height);
+	//this.grid.setAttribute("height",height);
+	//this.grid2.setAttribute("height",height);
 	this.currentLine.setAttribute("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
 	this.mouseLine.setAttribute("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
 };
@@ -460,7 +463,6 @@ TrackSvgLayout.prototype.setRegion = function(item){//item.chromosome, item.posi
 	}
 	setTimeout(checkStatus, 10);
 	/***************************/
-	console.log("##@@##@@##"+this.parentLayout);
 	this.onRegionChange.notify();
 
 	//this.minRegionRect.setAttribute("width",this.minRectWidth);
@@ -608,6 +610,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	
 
 	trackSvg.move = function(sender,desp){
+		trackSvg.position = _this.region.center();
 		var despBase = desp*_this.pixelBase;
 		trackSvg.pixelPosition-=despBase;
 

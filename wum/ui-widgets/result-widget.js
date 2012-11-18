@@ -142,6 +142,7 @@ ResultWidget.prototype.render = function (){
 				}
 			}
 			
+			obj["Interactive Results"]={items:[]};
 			console.log(obj);
 			
 			var topLink = Ext.create('Ext.container.Container', {html:'<a name="'+this.jobId+'top"></a>'});
@@ -482,9 +483,7 @@ ResultWidget.prototype.drawApplicationItems  = function (){
 		id:this.application+this.id+"Container",
 		border: true,
 		margin:"50 50 0 50",
-		height:700,
-		cls:'greyborder',
-		html:'<div id="'+this.id+'Container"></div><div style="height:40px"></div>'
+		html:'<div class="greyborder" id="'+this.id+'Container"></div><div style="height:40px"></div>'
 	});
 		
 	switch (this.application){
@@ -528,19 +527,31 @@ ResultWidget.prototype.createGenomeViewer = function (targetId){
 	var width = Ext.getCmp(this.application+targetId).getWidth();
 	var height = Ext.getCmp(this.application+targetId).getHeight();
 		
-	var genomeViewer = new GenomeViewer(targetId, AVAILABLE_SPECIES[0],{
-		version:"",
-		zoom:75,
-		width:width-2,
-		height:height-2
-	});
-	genomeViewer.setMenuBar(this.getGenomeViewerResultBar(genomeViewer));
+	//var genomeViewer = new GenomeViewer(targetId, AVAILABLE_SPECIES[0],{
+		//version:"",
+		//zoom:75,
+		//width:width-2,
+		//height:height-2
+	//});
+	//genomeViewer.setMenuBar(this.getGenomeViewerResultBar(genomeViewer));
 	
+
+	genomeViewer = new GenomeViewer(targetId, DEFAULT_SPECIES,{
+		sidePanelCollapsed:true,
+		width:width-2,
+		height:700-2
+	});
 	genomeViewer.afterRender.addEventListener(function(sender,event){
 		_this.app.setTracks(genomeViewer);
+		genomeViewer.addSidePanelItems();
+		var variantFilterWidget = new VariantFilterWidget(_this.jobId,{
+				width:width-2,
+				targetId:_this.application+targetId,
+				viewer:genomeViewer,
+				fileNames:_this.variantFiles
+		});
 	});
 	genomeViewer.draw();
-	
 	
 	var adapter = new WumRestAdapter();
 	adapter.onPoll.addEventListener(function(sender, data){
@@ -556,8 +567,9 @@ ResultWidget.prototype.createGenomeViewer = function (targetId){
 			visibleRange:{start:0,end:100},
 			featureTypes:FEATURE_TYPES
 		});
-		var feature = vcfDataAdapter.featureCache.getFirstFeature();
-		genomeViewer.setLoc({sender:"",chromosome:feature.chromosome, position:feature.start});
+		//var feature = vcfDataAdapter.featureCache.getFirstFeature();
+		//genomeViewer.region.load(feature);
+		//genomeViewer.setRegion({sender:""});
 //		genomeViewer.setZoom(75);
 	});
 	

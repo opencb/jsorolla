@@ -40,10 +40,33 @@ function BamAdapter(args){
 		if(args.params != null){
 			this.params = args.params;
 		}
+		if(args.filters != null){
+			this.filters = args.filters;
+		}
+		if(args.filtersConfig != null){
+			this.filtersConfig = args.filtersConfig;
+		}
 	}
 	this.featureCache =  new BamCache(argsFeatureCache);
 	this.onGetData = new Event();
 };
+
+BamAdapter.prototype.clearData = function(){
+	this.featureCache.clear();
+};
+
+BamAdapter.prototype.setFilters = function(filters){
+	this.clearData();
+	this.filters = filters;
+	for(filter in filters){
+		var value = filters[filter].toString();
+		delete this.params[filter];
+		if(value != ""){
+			this.params[filter] = value;
+		}
+	}
+};
+
 
 BamAdapter.prototype.getData = function(args){
 	var _this = this;

@@ -13,6 +13,12 @@ FEATURE_FILTERS = {
 		text:"Consequence Type",
 		values:["2KB_upstream_variant", "5KB_upstream_variant", "500B_downstream_variant", "5KB_downstream_variant", "3_prime_UTR_variant", "5_prime_UTR_variant", "coding_sequence_variant", "complex_change_in_transcript", "frameshift_variant", "incomplete_terminal_codon_variant", "inframe_codon_gain", "inframe_codon_loss", "initiator_codon_change", "non_synonymous_codon", "intergenic_variant", "intron_variant", "mature_miRNA_variant", "nc_transcript_variant", "splice_acceptor_variant", "splice_donor_variant", "splice_region_variant", "stop_gained", "stop_lost", "stop_retained_variant", "synonymous_codon"],
 		selection:"multi"
+	}],
+	bam:[{
+		name:"view",
+		text:"View",
+		values:["view_as_pairs","show_soft-clipped_bases"],
+		selection:"multi"
 	}]
 };
 
@@ -600,10 +606,16 @@ FEATURE_TYPES = {
 					'<div style="float:right">'+three+'</div>';
 		},
 		getColor: function(f){
-			return (parseInt(f.flags)&16) == 0 ? "DarkGray" : "LightGray";
+			return (parseInt(f.flags)&(0x10)) == 0 ? "DarkGray" : "LightGray";/**/
 		},
 		getStrand: function(f){
-			return (parseInt(f.flags)&16) == 0 ? "Forward" : "Reverse";
+			return (parseInt(f.flags)&(0x10)) == 0 ? "Forward" : "Reverse";
+		},
+		getReadPairedFlag: function(f){
+			return (parseInt(f.flags)&(0x1)) == 0 ? false : true;
+		},
+		getFirstOfPairFlag: function(f){
+			return (parseInt(f.flags)&(0x40)) == 0 ? false : true;
 		},
 		height:10,
 		histogramColor:"grey"

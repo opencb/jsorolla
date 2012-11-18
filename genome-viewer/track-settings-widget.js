@@ -65,7 +65,7 @@ TrackSettingsWidget.prototype.draw = function(){
 			iconCls:"icon-box",
 			children:children
 		};
-		var st = Ext.create('Ext.data.TreeStore',{root:root});
+		var st = Ext.create('Ext.data.TreeStore',{root:root,fields:['text', 'name']});
 		items.push({
 			xtype:"treepanel",
 			useArrows:true,
@@ -152,6 +152,7 @@ TrackSettingsWidget.prototype.draw = function(){
 								filters[name]=checkValues;
 							//}
 						}
+						console.log(filters)
 						_this.setFilters(filters);
 						Ext.getCmp(_this.id+"window").destroy();
 					}

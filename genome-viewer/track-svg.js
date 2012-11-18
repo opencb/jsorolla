@@ -31,7 +31,7 @@ function TrackSvg(parent, args) {
 //	this.type = "generic";
 	this.renderedArea = {};//used for renders to store binary trees
 	
-	this.lienzo=7000000;//mesa
+	this.lienzo=500000;//mesa
 	this.pixelPosition=this.lienzo/2;
 	
 	this.histogramZoom = -1000;//no histogram by default
@@ -200,6 +200,7 @@ TrackSvg.prototype.draw = function(){
 	var main = SVG.addChild(this.parent,"svg",{
 //		"style":"border:1px solid #e0e0e0;",
 		"id":this.id,
+		"class":"trackSvg",
 		"x":0,
 		"y":this.y,
 		"width":this.width,
@@ -214,11 +215,12 @@ TrackSvg.prototype.draw = function(){
 	});
 	
 	var titleGroup = SVG.addChild(main,"g",{
+		"class":"trackTitle",
 		visibility:this.titleVisibility	
 	});
 
 
-	var text = this.title+'-'+this.id;
+	var text = this.title;
 	var textWidth = 15+text.length*6;
 	var titlebar = SVG.addChild(titleGroup,"rect",{
 		"x":0,
@@ -291,29 +293,31 @@ TrackSvg.prototype.draw = function(){
 //	var bamStrandPattArrow = SVG.addChild(bamStrandPatt,"path",{
 //		"d":"M 1 1 L 8 5 L 1 9 Z",
 //	});
-	
-	var bamStrandForward = SVG.addChild(main,"linearGradient",{
-		"id":this.id+"bamStrandForward"
-	});
-	var bamStrandReverse = SVG.addChild(main,"linearGradient",{
-		"id":this.id+"bamStrandReverse"
-	});
-	var stop1 = SVG.addChild(bamStrandForward,"stop",{
-		"offset":"5%",
-		"stop-color":"#666"
-	});
-	var stop2 = SVG.addChild(bamStrandForward,"stop",{
-		"offset":"95%",
-		"stop-color":"#BBB"
-	});
-	var stop1 = SVG.addChild(bamStrandReverse,"stop",{
-		"offset":"5%",
-		"stop-color":"#BBB"
-	});
-	var stop2 = SVG.addChild(bamStrandReverse,"stop",{
-		"offset":"95%",
-		"stop-color":"#666"
-	});
+
+	/*GRADIENT*/
+	//var bamStrandForward = SVG.addChild(main,"linearGradient",{
+		//"id":this.id+"bamStrandForward"
+	//});
+	//var bamStrandReverse = SVG.addChild(main,"linearGradient",{
+		//"id":this.id+"bamStrandReverse"
+	//});
+	//var stop1 = SVG.addChild(bamStrandForward,"stop",{
+		//"offset":"5%",
+		//"stop-color":"#666"
+	//});
+	//var stop2 = SVG.addChild(bamStrandForward,"stop",{
+		//"offset":"95%",
+		//"stop-color":"#BBB"
+	//});
+	//var stop1 = SVG.addChild(bamStrandReverse,"stop",{
+		//"offset":"5%",
+		//"stop-color":"#BBB"
+	//});
+	//var stop2 = SVG.addChild(bamStrandReverse,"stop",{
+		//"offset":"95%",
+		//"stop-color":"#666"
+	//});
+	/*GRADIENT*/
 	
 ////	XXX para mañana, arrastrar para ordenar verticalmente
 //	$(titleGroup).mousedown(function(event){
@@ -573,15 +577,38 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 
 TrackSvg.prototype.BamRender = function(response){
 	var _this = this;
+
+	//CHECK VISUALIZATON MODE
+	var viewAsPairs = false;
+	if(response.params.view != null){
+		if(response.params.view.toString().indexOf("view_as_pairs")!= -1){
+			viewAsPairs = true;
+		}
+	}
+	console.log("viewAsPairs "+viewAsPairs);
+
+	//Prevent browser context menu
+	$(this.features).contextmenu(function(e) {
+		console.log("click derecho")
+		//e.preventDefault();
+	});
+	
 	console.time("BamRender "+ response.params.resource);
 	
 	response = this._removeDisplayedChunks(response);
 	var chunkList = response.items;
 
 	var middle = this.width/2;
-
 	
-	var bamGroup = SVG.addChild(_this.features,"g");
+	var bamCoverGroup = SVG.addChild(_this.features,"g",{
+		"class":"bamCoverage",
+		"cursor": "pointer"
+	});
+	var bamReadGroup = SVG.addChild(_this.features,"g",{
+		"class":"bamReads",
+		"cursor": "pointer"
+	});
+
 	var drawCoverage = function(chunk){
 		//var coverageList = chunk.coverage.all;
 		var coverageList = chunk.coverage.all;
@@ -589,7 +616,6 @@ TrackSvg.prototype.BamRender = function(response){
 		var coverageListC = chunk.coverage.c;
 		var coverageListG = chunk.coverage.g;
 		var coverageListT = chunk.coverage.t;
-		var readList = chunk.data;
 		var start = parseInt(chunk.start);
 		var end = parseInt(chunk.end);
 		var pixelWidth = (end-start+1)*_this.pixelBase;
@@ -616,14 +642,6 @@ TrackSvg.prototype.BamRender = function(response){
 			
 			p++;
 		}
-		var dummyRect = SVG.addChild(bamGroup,"rect",{
-			"x":_this.pixelPosition+middle-((_this.position-start)*_this.pixelBase),
-			"y":0,
-			"width":pixelWidth,
-			"height":covHeight,
-			"fill": "transparent",
-			"cursor": "pointer"
-		});
 
 		//reverse to draw the polylines(polygons) for each nucleotid
 		var rlineC = lineC.split(" ").reverse().join(" ").trim();
@@ -632,33 +650,42 @@ TrackSvg.prototype.BamRender = function(response){
 		
 		var firstPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.start))*_this.pixelBase)+baseMid;
 		var lastPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.end))*_this.pixelBase)+baseMid;
-        var polA = SVG.addChild(bamGroup,"polyline",{
+        var polA = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":firstPoint+",0 "+lineA+lastPoint+",0",
 			"opacity":"0.4",
 			//"stroke-width":"1",
 			//"stroke":"gray",
 			"fill":"green"
 		});
-        var polC = SVG.addChild(bamGroup,"polyline",{
+        var polC = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":lineA+" "+rlineC,
 			"opacity":"0.4",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"blue"
 		});
-        var polG = SVG.addChild(bamGroup,"polyline",{
+        var polG = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":lineC+" "+rlineG,
 			"opacity":"0.4",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"gold"
 		});
-        var polT = SVG.addChild(bamGroup,"polyline",{
+        var polT = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":lineG+" "+rlineT,
 			"opacity":"0.4",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"red"
+		});
+		
+		var dummyRect = SVG.addChild(bamCoverGroup,"rect",{
+			"x":_this.pixelPosition+middle-((_this.position-start)*_this.pixelBase),
+			"y":0,
+			"width":pixelWidth,
+			"height":covHeight,
+			"fill": "transparent",
+			"cursor": "pointer"
 		});
 		$(dummyRect).qtip({
 			content:" ",
@@ -674,41 +701,23 @@ TrackSvg.prototype.BamRender = function(response){
 					'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[pos]+'</span><br>';
 			$(dummyRect).qtip('option', 'content.text', str ); 
 		});
-		
-		for ( var i = 0, li = readList.length; i < li; i++) {
-			draw(readList[i]);
-		}
 	};
 	
-	var draw = function(feature){
-		var start = feature.start;
-		var end = feature.end;
-		var width = (end-start)+1;
+	var drawFeature = function(feature){
+		//var start = feature.start;
+		//var end = feature.end;
+		var start = feature.unclippedStart;
+		var end = feature.unclippedEnd;
 		
-		var middle = _this.width/2;
+		var diff = feature.diff;
+		
+		var width = (end-start)+1;
+		//var middle = _this.width/2;
+		
 		//get type settings object
 		var settings = _this.types[feature.featureType];
 		var color = settings.getColor(feature);
-		
-		//if(feature.read !=  "SRR077487.3945695"){color="red";fea1234 = feature}
-/**/
-		//var seqTrack = _this.trackSvgLayout.getTrackSvgById("Sequence");
-		//if( seqTrack != null){
-			//var startKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(start);
-			//var endKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(end);
-			//var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(startKey);
-			//if(startKey == endKey && r != null){//only ones cached and inside the same chunk
-			//debugger
-				//var originalSeq = r.data[0].sequence.substring((start - r.data[0].start),((end+1) - r.data[0].start));
-				//if(feature.read == originalSeq){
-				//}else{
-					//color="lightsalmon";
-				//}
-				//......................................MORE
-			//}
-		//}
-/**/
-		
+
 		//transform to pixel position
 		width = width * _this.pixelBase;
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
@@ -717,6 +726,14 @@ TrackSvg.prototype.BamRender = function(response){
 			var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
 		}catch(e){
 			var maxWidth = 72;
+		}
+
+		if(viewAsPairs && settings.getReadPairedFlag(feature)){
+			if(feature.mateAlignmentStart < start){
+				
+			}else{
+				
+			}
 		}
 		
 		var rowHeight = 12;
@@ -728,84 +745,54 @@ TrackSvg.prototype.BamRender = function(response){
 				_this.renderedArea[rowY] = new FeatureBinarySearchTree();
 			}
 			var enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
-			
 			if(enc){
-				
 				var strand = settings.getStrand(feature);
-				var rect = SVG.addChild(bamGroup,"rect",{
-					"x":x,
-					"y":rowY,
-					"width":width,
-					"height":settings.height,
+				var readEls = [];
+				var points = {
+					"Reverse":x+","+(rowY+(settings.height/2))+" "+(x+5)+","+rowY+" "+(x+width-5)+","+rowY+" "+(x+width-5)+","+(rowY+settings.height)+" "+(x+5)+","+(rowY+settings.height),
+					"Forward":x+","+rowY+" "+(x+width-5)+","+rowY+" "+(x+width)+","+(rowY+(settings.height/2))+" "+(x+width-5)+","+(rowY+settings.height)+" "+x+","+(rowY+settings.height)
+				}
+				var poly = SVG.addChild(bamReadGroup,"polygon",{
+					"points":points[strand],
 					"stroke": "white",
 					"stroke-width": 1,
 					"fill": color,
-					//"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
 					"cursor": "pointer"
 				});
-				var	t = SVG.addChild(bamGroup,"text",{
-					"x":x+1,
-					"y":rowY+settings.height,
-					"font-size":16,
-					"style":"letter-spacing:2;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
-					"font-family": "Ubuntu Mono"
-				});
-				//var rect = SVG.addChild(bamGroup,"text",{
-					//"x":x,
-					//"y":rowY+settings.height,
-					//"font-size":14,
-					//"style":"letter-spacing:3;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
-					//"font-family": "Ubuntu Mono"
+				readEls.push(poly);
+				//var rect = SVG.addChild(bamReadGroup,"rect",{
+					//"x":x+offset[strand],
+					//"y":rowY,
+					//"width":width-4,
+					//"height":settings.height,
+					//"stroke": "white",
+					//"stroke-width":1,
+					//"fill": color,
+					//"clip-path":"url(#"+_this.id+"cp)",
+					//"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
 				//});
-				//rect.textContent = feature.read;
-				
-//				var d = 'M '+x+' '+rowY+' L '+(x+width)+' '+rowY+' L '+(x+width)+' '+(rowY+settings.height)+' L '+x+' '+(rowY+settings.height)+' Z';
-//				var rect = SVG.addChild(bamGroup,"path",{
-////					"x":x,
-////					"y":rowY,
-////					"width":width,
-////					"height":settings.height,
-//					"d":d,
-//					"stroke": "white",
-//					"stroke-width": 1,
-//					"fill": color,
-//					"cursor": "pointer"
-//				});
-////				console.log(d)
-		
-				
-//				var text = SVG.addChild(_this.features,"text",{
-//					"i":i,
-//					"x":x,
-//					"y":textY,
-//					"font-size":10,
-//					"opacity":null,
-//					"fill":"black",
-//					"cursor": "pointer"
-//				});
-//				text.textContent = settings.getLabel(feature);
-//
-				//$([rect,t]).mouseenter(function(e) {
-					//t.textContent = feature.read;
-				//});
-				//$([rect,t]).mouseleave(function(event) {
-					//t.textContent = "";
-				//});
-//
-				//var seqTrack = _this.trackSvgLayout.getTrackSvgById(1);
-				//var diffString = seqTrack.trackData.adapter.getDiffString(feature);
-				//if(diffString.trim() != ""){
-					//t.textContent = diffString;
-				//}
-
-				$([rect,t]).qtip({
+				//readEls.push(rect);
+				if(diff != null && _this.zoom > 99 && false){
+					var	t = SVG.addChild(bamReadGroup,"text",{
+						"x":x+1,
+						"y":rowY+settings.height-1,
+						"font-size":13,
+						"fill":"darkred",
+						"textLength":width,
+						"cursor": "pointer",
+						"font-family": "Ubuntu Mono"
+					});
+					t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space","preserve");
+					t.textContent = diff;
+					readEls.push(t);
+				}
+				$(readEls).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
 					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
 					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
 				});
-				
-				$([rect,t]).click(function(event){
-					console.log("bamClick")
+				$(readEls).click(function(event){
+					console.log(feature);
 					_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
 				});
 				break;
@@ -814,12 +801,20 @@ TrackSvg.prototype.BamRender = function(response){
 //			textY += rowHeight;
 		}
 	};
+
+	var drawChunk = function(chunk){
+		drawCoverage(chunk);
+		var readList = chunk.data;
+		for ( var i = 0, li = readList.length; i < li; i++) {
+			drawFeature(readList[i]);
+		}
+	};
 	
 	//process features
 	if(chunkList.length>0){
 		for ( var i = 0, li = chunkList.length; i < li; i++) {
 					if(chunkList[i].data.length > 0){
-						drawCoverage(chunkList[i]);
+						drawChunk(chunkList[i]);
 					}
 		}
 		var newHeight = Object.keys(this.renderedArea).length*24;
@@ -1105,6 +1100,7 @@ TrackSvg.prototype.SequenceRender = function(response){
 			fontOff = 0;
 		}
 
+		
 		this.invalidZoomText.setAttribute("visibility", "hidden");
 		var middle = this.width/2;
 

@@ -37,8 +37,7 @@ function GenomeViewer(targetId, species, args) {
 	this.increment = 5;
 	this.zoom=100;
 
-
-	this.sidePanelItems = [];
+	this.sidePanelCollapsed = false;
 	
 	//Setting paramaters
 	if (targetId != null){
@@ -61,14 +60,26 @@ function GenomeViewer(targetId, species, args) {
 		if (args.availableSpecies != null) {
 			this.setSpeciesMenu(args.availableSpecies);
 		}
-		if (args.zoom != null) {
+		if (args.zoom != null) {//evaluate zoom after
 			this.zoom = args.zoom;
 		}
 		if (args.region != null) {
 			this.region = args.region;
+		}else{
+			this.region = new Region(species.region);
+		}
+		if (args.sidePanelCollapsed != null) {
+			this.sidePanelCollapsed = args.sidePanelCollapsed;
+		}
+		if (args.region != null && args.region.url != null) {
+			this._calculateZoomByRegion();
+		}else{
+			this._calculateRegionByZoom();
 			this._calculateZoomByRegion();
 		}
 	}
+
+	
 
 	//Events i send
 	this.onSpeciesChange = new Event();
@@ -106,7 +117,6 @@ function GenomeViewer(targetId, species, args) {
 	console.log(this.width+"x"+this.height);
 	console.log(this.targetId);
 	console.log(this.id);
-
 };
 
 GenomeViewer.prototype.draw = function(){
@@ -129,13 +139,13 @@ GenomeViewer.prototype.render = function(){
 		id: this.id+"sideContainer",
 		region: "east",
 		title: "Configuration",
-		collapsed:false,
+		collapsed:this.sidePanelCollapsed,
 		collapsible:true,
 		titleCollapse:true,
-		width: this.sidePanelWidth+250,
+		width: this.sidePanelWidth+260,
 		layout: 'accordion'
 	});
-
+	
 	var containerPort = Ext.create('Ext.container.Container', {
 		id:this.id+"containerPort",
 		renderTo:this.targetId,
@@ -230,12 +240,14 @@ GenomeViewer.prototype.setMenuBar = function(toolbar) {
 	this.toolbar = toolbar;
 };
 GenomeViewer.prototype.addSidePanelItems = function(items) {
-	items.push({
+	this.sideContainer.insert(1,{
 		title: 'Region history',
 		bodyPadding:'10',
 		id:this.id+"regionHistory"
 	});
-	this.sideContainer.insert(0, items);
+	if(items!=null){
+		this.sideContainer.insert(0, items);
+	}
 };
 
 GenomeViewer.prototype.setSize = function(width,height) {
