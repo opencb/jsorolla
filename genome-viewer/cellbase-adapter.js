@@ -49,8 +49,22 @@ function CellBaseAdapter(args){
 		if(args.filters != null){
 			this.filters = args.filters;
 		}
-		if(args.filtersConfig != null){
-			this.filtersConfig = args.filtersConfig;
+		if(args.options != null){
+			this.options = args.options;
+		}
+		if(args.featureConfig != null){
+			if(args.featureConfig.filters != null){
+				this.filtersConfig = args.featureConfig.filters;
+			}
+			if(args.featureConfig.options != null){
+				this.optionsConfig = args.featureConfig.options;
+				for(var i = 0; i < this.optionsConfig.length; i++){
+					if(this.optionsConfig[i].checked == true){
+						this.options[this.optionsConfig[i].name] = true;
+						this.params[this.optionsConfig[i].name] = true;
+					}				
+				}
+			}
 		}
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
@@ -69,6 +83,19 @@ CellBaseAdapter.prototype.setFilters = function(filters){
 		delete this.params[filter];
 		if(value != ""){
 			this.params[filter] = value;
+		}
+	}
+};
+CellBaseAdapter.prototype.setOption = function(opt, value){
+	if(opt.fetch){
+		this.clearData();
+	}
+	this.options[opt.name] = value;
+	for(option in this.options){
+		if(this.options[opt.name] != null){
+			this.params[opt.name] = this.options[opt.name];
+		}else{
+			delete this.params[opt.name];
 		}
 	}
 };

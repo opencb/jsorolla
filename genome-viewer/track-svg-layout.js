@@ -358,6 +358,14 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 				_this.onRegionSelect.notify();
 			}
 		});
+		$(this.svg).mouseleave(function(event) {
+			//cancel action
+			selBox.setAttribute("width",0);
+			selBox.setAttribute("height",0);
+			$(this).off('mousemove');
+			downX = null;
+			moveX = null;
+		});
 	}
 };
 

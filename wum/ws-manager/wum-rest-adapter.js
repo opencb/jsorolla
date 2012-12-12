@@ -44,6 +44,10 @@ function WumRestAdapter (){
 
 	WUMHOST = this.host;
 
+	if(WUM_HOST != null){
+		this.host = WUM_HOST;
+	}
+
 	/** Events **/
 	/**Data**/
 	this.onGetData = new Event(this);

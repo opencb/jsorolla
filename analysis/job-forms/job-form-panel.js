@@ -55,10 +55,10 @@ function JobFormPanel(args){
 	
 	this.uploadWidget = new UploadWidget({suiteId:this.suiteId});
 
-	this.panelId = this.id+this.title+"_JobFormPanel";
 	this.onRun = new Event();
 	
-	this.runButtonId=this.id+"_runButton";
+	this.panelId = this.id+this.title+"_JobFormPanel";
+	this.runButtonId = this.id+"_runButton";	
 	
 	//info notes
 	this.note1 = Ext.create('Ext.container.Container', {

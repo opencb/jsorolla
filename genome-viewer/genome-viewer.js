@@ -34,7 +34,7 @@ function GenomeViewer(targetId, species, args) {
 	//Default values
 	this.species="hsa";
 	this.speciesName="Homo sapiens";
-	this.increment = 5;
+	this.increment = 3;
 	this.zoom=100;
 
 	this.sidePanelCollapsed = false;

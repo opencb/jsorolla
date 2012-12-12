@@ -29,31 +29,34 @@ function UserBarWidget(args){
         	this.targetId = args.targetId;       
         }
     }
-
-	this.accountData = null;
 	
     /**ID**/
 	this.spltbtnActiveProjectId = this.id + "_spltbtnActiveProjectID";
     
+    this.adapter = new WumAdapter();
+    
 	/**Events i send**/
 	this.onItemsReady = new Event(this);
 	this.onProjectChange = new Event(this);
+	
+	/**Atach events i listen**/
+	this.adapter.onGetUserInfo.addEventListener(function (sender, data){
+		_this.responseGetUserInfo(data);
+		
+	});	
+	this.adapter.onActiveProject.addEventListener(function (sender, data){
+		_this.responseActiveProject();
+	});
+	
 };
 UserBarWidget.prototype.responseActiveProject = function(data){
 	Ext.getBody().unmask();
 	Ext.getCmp(this.spltbtnActiveProjectId).setText('<b class="emph">'+this.workingProject+'</b>');
 	this.onProjectChange.notify();
 };
-
-UserBarWidget.prototype.setAccountData = function(data){
-	this.accountData = data;
-	this._setAccountInfo(this.accountData);
-};
-	
-UserBarWidget.prototype._setAccountInfo = function(data){
+UserBarWidget.prototype.responseGetUserInfo = function(data){
 //	console.log(data);
-
-	this.pdata = this.accountData;
+	this.pdata = JSON.parse(data);
 //	console.log(this.pdata);
 	
 	var a=(this.pdata.diskUsage/1024).toFixed(2);
@@ -64,7 +67,7 @@ UserBarWidget.prototype._setAccountInfo = function(data){
 	this.workingProject = '<b class="emph">'+this.pdata.activeProjectName+'</b>';
 	
 	
-	//this.createProjectMenuItems(this.pdata.ownedProjects);
+	this.createProjectMenuItems(this.pdata.ownedProjects);
 	
 	this.userInfo = '<b style="color:darkred">'+this.pdata.email+'</b>&nbsp;working&nbsp;on&nbsp;project';
 	this.userInfo2 = ' using&nbsp;<b style="color:chocolate">'+a+'</b>&nbsp;MB&nbsp;of&nbsp;<b style="color:blue">'+b+'</b>&nbsp;GB&nbsp;(<b>'+p+'%</b>)&nbsp;';
@@ -75,8 +78,10 @@ UserBarWidget.prototype._setAccountInfo = function(data){
 
 UserBarWidget.prototype.draw = function (bar){
 	this.clean(bar);
+	this.adapter.getUserInfo($.cookie('bioinfo_sid'));
+	
+	
 };
-
 UserBarWidget.prototype.clean = function (bar){
 	if (this.items != null){
 		for(var i=0;i<this.items.length;i++){

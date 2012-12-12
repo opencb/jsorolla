@@ -139,6 +139,7 @@ TrackSvg.prototype.setHeight = function(height){
 	if(this.rendered){
 		this.main.setAttribute("height",height);
 		this.features.setAttribute("height",height);
+		this.titlebar.setAttribute("height",height);
 	}
 };
 
@@ -151,11 +152,11 @@ TrackSvg.prototype.setWidth = function(width){
 
 TrackSvg.prototype.setLoading = function(bool){
 	if(bool){
-		this.titleGroup.setAttribute("transform","translate(40)");
+		//this.titleGroup.setAttribute("transform","translate(40)");
 		this.loading.setAttribute("visibility", "visible");
 		this.status = "rendering";
 	}else{
-		this.titleGroup.setAttribute("transform","translate(0)");
+		//this.titleGroup.setAttribute("transform","translate(0)");
 		this.loading.setAttribute("visibility", "hidden");
 		this.status = "ready";
 	}
@@ -170,6 +171,16 @@ TrackSvg.prototype.getFilters = function(){
 };
 TrackSvg.prototype.getFiltersConfig = function(){
 	return this.trackData.adapter.filtersConfig;
+};
+TrackSvg.prototype.setOption = function(option, value){
+	this.trackData.setOption(option, value);
+	this.regionChange();
+};
+TrackSvg.prototype.getOptions = function(){
+	return this.trackData.adapter.options;
+};
+TrackSvg.prototype.getOptionsConfig = function(){
+	return this.trackData.adapter.optionsConfig;
 };
 
 TrackSvg.prototype.cleanSvg = function(filters){
@@ -188,7 +199,7 @@ TrackSvg.prototype.cleanSvg = function(filters){
 
 TrackSvg.prototype.setTitle = function(title){
 	this.titleText.textContent =  title;
-	this.titlebar.setAttribute("width", (15+title.length*6));
+	//this.titlebar.setAttribute("width", (15+title.length*6));
 };
 
 TrackSvg.prototype.getTitle = function(){
@@ -207,16 +218,11 @@ TrackSvg.prototype.draw = function(){
 		"height":this.height
 	});
 	
-	var features = SVG.addChild(main,"svg",{
-		"class":"features",
-		"x":-this.pixelPosition,
-		"width":this.lienzo,
-		"height":this.height
-	});
+
 	
 	var titleGroup = SVG.addChild(main,"g",{
-		"class":"trackTitle",
-		visibility:this.titleVisibility	
+		"class":"trackTitle"
+		//visibility:this.titleVisibility	
 	});
 
 
@@ -225,12 +231,16 @@ TrackSvg.prototype.draw = function(){
 	var titlebar = SVG.addChild(titleGroup,"rect",{
 		"x":0,
 		"y":0,
-		"width":textWidth,
-		"height":22,
-		"stroke":"deepSkyBlue",
-		"stroke-width":"1",
+		//"width":textWidth,
+		"width":this.width,
+		//"height":22,
+		"height":this.getHeight(),
+		//"stroke":"lightgray",
+		//"stroke":"deepSkyBlue",
+		//"stroke-width":"1",
 		"opacity":"0.6",
-		"fill":"honeydew"
+		//"fill":"honeydew"
+		"fill":"transparent"
 	});
 	var titleText = SVG.addChild(titleGroup,"text",{
 		"x":4,
@@ -241,6 +251,13 @@ TrackSvg.prototype.draw = function(){
 //		"transform":"rotate(-90 50,50)"
 	});
 	titleText.textContent =  text;
+
+	var features = SVG.addChild(titleGroup,"svg",{
+		"class":"features",
+		"x":-this.pixelPosition,
+		"width":this.lienzo,
+		"height":this.height
+	});
 	//var settingsRect = SVG.addChildImage(titleGroup,{
 		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
 		//"x":4+textWidth,
@@ -348,7 +365,8 @@ TrackSvg.prototype.draw = function(){
 	this.fnTitleMouseEnter = function(){
 //		over.setAttribute("opacity","0.1");
 		//titlebar.setAttribute("width",74+textWidth);
-		titlebar.setAttribute("opacity","1.0");
+		titlebar.setAttribute("opacity","0.1");
+		titlebar.setAttribute("fill","gray");
 		titleText.setAttribute("opacity","1.0");
 		//upRect.setAttribute("visibility","visible");
 		//downRect.setAttribute("visibility","visible");
@@ -359,6 +377,7 @@ TrackSvg.prototype.draw = function(){
 ////	over.setAttribute("opacity","0.0");
 		//titlebar.setAttribute("width",textWidth);
 		titlebar.setAttribute("opacity","0.6");
+		titlebar.setAttribute("fill","transparent");
 		titleText.setAttribute("opacity","0.4");
 		//upRect.setAttribute("visibility","hidden");
 		//downRect.setAttribute("visibility","hidden");
@@ -397,7 +416,7 @@ TrackSvg.prototype.draw = function(){
 	//});
 	
 	
-	this.invalidZoomText = SVG.addChild(main,"text",{
+	this.invalidZoomText = SVG.addChild(titleGroup,"text",{
 		"x":154,
 		"y":24,
 		"font-size": 10,
@@ -580,12 +599,19 @@ TrackSvg.prototype.BamRender = function(response){
 
 	//CHECK VISUALIZATON MODE
 	var viewAsPairs = false;
-	if(response.params.view != null){
-		if(response.params.view.toString().indexOf("view_as_pairs")!= -1){
-			viewAsPairs = true;
-		}
+	if(response.params["view_as_pairs"] != null){
+		viewAsPairs = true;
 	}
 	console.log("viewAsPairs "+viewAsPairs);
+	var insertSizeMin = 0;
+	var insertSizeMax = 0;
+	var variantColor = "orangered";
+	if(response.params["insert_size_interval"] != null){
+		insertSizeMin = response.params["insert_size_interval"].split(",")[0];
+		insertSizeMax = response.params["insert_size_interval"].split(",")[1];
+	}
+	console.log("insertSizeMin "+insertSizeMin);
+	console.log("insertSizeMin "+insertSizeMax);
 
 	//Prevent browser context menu
 	$(this.features).contextmenu(function(e) {
@@ -652,28 +678,28 @@ TrackSvg.prototype.BamRender = function(response){
 		var lastPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.end))*_this.pixelBase)+baseMid;
         var polA = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":firstPoint+",0 "+lineA+lastPoint+",0",
-			"opacity":"0.4",
+			//"opacity":"1",
 			//"stroke-width":"1",
 			//"stroke":"gray",
 			"fill":"green"
 		});
         var polC = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":lineA+" "+rlineC,
-			"opacity":"0.4",
+			//"opacity":"1",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"blue"
 		});
         var polG = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":lineC+" "+rlineG,
-			"opacity":"0.4",
+			//"opacity":"1",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"gold"
 		});
         var polT = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":lineG+" "+rlineT,
-			"opacity":"0.4",
+			//"opacity":"1",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"red"
@@ -684,7 +710,8 @@ TrackSvg.prototype.BamRender = function(response){
 			"y":0,
 			"width":pixelWidth,
 			"height":covHeight,
-			"fill": "transparent",
+			"opacity":"0.5",
+			"fill": "lightgray",
 			"cursor": "pointer"
 		});
 		$(dummyRect).qtip({
@@ -694,32 +721,39 @@ TrackSvg.prototype.BamRender = function(response){
 		});
 		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,obj){
 			var pos = obj.mousePos-parseInt(chunk.start);
-			var str = 'depth: <span class="ssel">'+coverageList[pos]+'</span><br>'+
-					'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[pos]+'</span><br>'+
-					'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[pos]+'</span><br>'+
-					'<span style="color:darkgoldenrod">G</span>: <span class="ssel">'+chunk.coverage.g[pos]+'</span><br>'+
-					'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[pos]+'</span><br>';
-			$(dummyRect).qtip('option', 'content.text', str ); 
+			//if(coverageList[pos]!=null){
+				var str = 'depth: <span class="ssel">'+coverageList[pos]+'</span><br>'+
+						'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[pos]+'</span><br>'+
+						'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[pos]+'</span><br>'+
+						'<span style="color:darkgoldenrod">G</span>: <span class="ssel">'+chunk.coverage.g[pos]+'</span><br>'+
+						'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[pos]+'</span><br>';
+				$(dummyRect).qtip('option', 'content.text', str ); 
+			//}
 		});
 	};
 	
-	var drawFeature = function(feature){
+	var drawSingleRead = function(feature){
 		//var start = feature.start;
 		//var end = feature.end;
 		var start = feature.unclippedStart;
 		var end = feature.unclippedEnd;
-		
 		var diff = feature.diff;
-		
-		var width = (end-start)+1;
-		//var middle = _this.width/2;
-		
-		//get type settings object
+		/*get type settings object*/
 		var settings = _this.types[feature.featureType];
-		var color = settings.getColor(feature);
+		var strand = settings.getStrand(feature);
+		var color = settings.getColor(feature, _this.region.chromosome);
+		
+		if(insertSizeMin != 0 && insertSizeMax != 0 && !settings.getMateUnmappedFlag(feature)){
+			if(Math.abs(feature.inferredInsertSize) > insertSizeMax){
+				color = 'maroon';
+			}
+			if(Math.abs(feature.inferredInsertSize) < insertSizeMin){
+				color = 'navy';
+			}
+		}
 
-		//transform to pixel position
-		width = width * _this.pixelBase;
+		/*transform to pixel position*/
+		var width = ((end-start)+1)*_this.pixelBase;
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
 		
 		try{
@@ -728,25 +762,15 @@ TrackSvg.prototype.BamRender = function(response){
 			var maxWidth = 72;
 		}
 
-		if(viewAsPairs && settings.getReadPairedFlag(feature)){
-			if(feature.mateAlignmentStart < start){
-				
-			}else{
-				
-			}
-		}
-		
 		var rowHeight = 12;
 		var rowY = 70;
 //		var textY = 12+settings.height;
-		
 		while(true){
 			if(_this.renderedArea[rowY] == null){
 				_this.renderedArea[rowY] = new FeatureBinarySearchTree();
 			}
 			var enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
 			if(enc){
-				var strand = settings.getStrand(feature);
 				var readEls = [];
 				var points = {
 					"Reverse":x+","+(rowY+(settings.height/2))+" "+(x+5)+","+rowY+" "+(x+width-5)+","+rowY+" "+(x+width-5)+","+(rowY+settings.height)+" "+(x+5)+","+(rowY+settings.height),
@@ -754,12 +778,13 @@ TrackSvg.prototype.BamRender = function(response){
 				}
 				var poly = SVG.addChild(bamReadGroup,"polygon",{
 					"points":points[strand],
-					"stroke": "white",
+					"stroke": settings.getStrokeColor(feature),
 					"stroke-width": 1,
 					"fill": color,
 					"cursor": "pointer"
 				});
 				readEls.push(poly);
+
 				//var rect = SVG.addChild(bamReadGroup,"rect",{
 					//"x":x+offset[strand],
 					//"y":rowY,
@@ -772,20 +797,27 @@ TrackSvg.prototype.BamRender = function(response){
 					//"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
 				//});
 				//readEls.push(rect);
-				if(diff != null && _this.zoom > 99 && false){
-					var	t = SVG.addChild(bamReadGroup,"text",{
-						"x":x+1,
-						"y":rowY+settings.height-1,
-						"font-size":13,
-						"fill":"darkred",
-						"textLength":width,
-						"cursor": "pointer",
-						"font-family": "Ubuntu Mono"
+				
+				if(diff != null && _this.zoom > 95){
+					//var	t = SVG.addChild(bamReadGroup,"text",{
+						//"x":x+1,
+						//"y":rowY+settings.height-1,
+						//"font-size":13,
+						//"fill":"darkred",
+						//"textLength":width,
+						//"cursor": "pointer",
+						//"font-family": "Ubuntu Mono"
+					//});
+					//t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space","preserve");
+					//t.textContent = diff;
+					//readEls.push(t);
+					var path = SVG.addChild(bamReadGroup,"path",{
+						"d":Compbio.genBamVariants(diff, _this.pixelBase, x, rowY),
+						"fill":variantColor
 					});
-					t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space","preserve");
-					t.textContent = diff;
-					readEls.push(t);
+					readEls.push(path);
 				}
+				
 				$(readEls).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
 					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
@@ -802,11 +834,159 @@ TrackSvg.prototype.BamRender = function(response){
 		}
 	};
 
+	var drawPairedReads = function(read, mate){
+		var readStart = read.unclippedStart;
+		var readEnd = read.unclippedEnd;
+		var mateStart = mate.unclippedStart;
+		var mateEnd = mate.unclippedEnd;
+		var readDiff = read.diff;
+		var mateDiff = mate.diff;
+		/*get type settings object*/
+		var readSettings = _this.types[read.featureType];
+		var mateSettings = _this.types[mate.featureType];
+		var readColor = readSettings.getColor(read, _this.region.chromosome);
+		var mateColor = mateSettings.getColor(mate, _this.region.chromosome);
+		var readStrand = readSettings.getStrand(read);
+		var matestrand = mateSettings.getStrand(mate);
+
+		if(insertSizeMin != 0 && insertSizeMax != 0){
+			if(Math.abs(read.inferredInsertSize) > insertSizeMax){
+				readColor = 'maroon';
+				mateColor = 'maroon';
+			}
+			if(Math.abs(read.inferredInsertSize) < insertSizeMin){
+				readColor = 'navy';
+				mateColor = 'navy';
+			}
+		}
+
+		var pairStart = readStart;
+		var pairEnd = mateEnd;
+		if(mateStart <= readStart){
+			pairStart = mateStart;
+		}
+		if(readEnd >= mateEnd){
+			pairEnd = readEnd;
+		}
+		
+		/*transform to pixel position*/
+		var pairWidth = ((pairEnd-pairStart)+1)*_this.pixelBase;
+		var pairX = _this.pixelPosition+middle-((_this.position-pairStart)*_this.pixelBase);
+		
+		var readWidth = ((readEnd-readStart)+1)*_this.pixelBase;
+		var readX = _this.pixelPosition+middle-((_this.position-readStart)*_this.pixelBase);
+		
+		var mateWidth = ((mateEnd-mateStart)+1)*_this.pixelBase;
+		var mateX = _this.pixelPosition+middle-((_this.position-mateStart)*_this.pixelBase);
+
+		var rowHeight = 12;
+		var rowY = 70;
+//		var textY = 12+settings.height;
+
+		while(true){
+			if(_this.renderedArea[rowY] == null){
+				_this.renderedArea[rowY] = new FeatureBinarySearchTree();
+			}
+			var enc = _this.renderedArea[rowY].add({start: pairX, end: pairX+pairWidth-1});
+			if(enc){
+				var readEls = [];
+				var mateEls = [];
+				var readPoints = {
+					"Reverse":readX+","+(rowY+(readSettings.height/2))+" "+(readX+5)+","+rowY+" "+(readX+readWidth-5)+","+rowY+" "+(readX+readWidth-5)+","+(rowY+readSettings.height)+" "+(readX+5)+","+(rowY+readSettings.height),
+					"Forward":readX+","+rowY+" "+(readX+readWidth-5)+","+rowY+" "+(readX+readWidth)+","+(rowY+(readSettings.height/2))+" "+(readX+readWidth-5)+","+(rowY+readSettings.height)+" "+readX+","+(rowY+readSettings.height)
+				}
+				var readPoly = SVG.addChild(bamReadGroup,"polygon",{
+					"points":readPoints[readStrand],
+					"stroke": readSettings.getStrokeColor(read),
+					"stroke-width": 1,
+					"fill": readColor,
+					"cursor": "pointer"
+				});
+				readEls.push(readPoly);
+				var matePoints = {
+					"Reverse":mateX+","+(rowY+(mateSettings.height/2))+" "+(mateX+5)+","+rowY+" "+(mateX+mateWidth-5)+","+rowY+" "+(mateX+mateWidth-5)+","+(rowY+mateSettings.height)+" "+(mateX+5)+","+(rowY+mateSettings.height),
+					"Forward":mateX+","+rowY+" "+(mateX+mateWidth-5)+","+rowY+" "+(mateX+mateWidth)+","+(rowY+(mateSettings.height/2))+" "+(mateX+mateWidth-5)+","+(rowY+mateSettings.height)+" "+mateX+","+(rowY+mateSettings.height)
+				}
+				var matePoly = SVG.addChild(bamReadGroup,"polygon",{
+					"points":matePoints[matestrand],
+					"stroke": mateSettings.getStrokeColor(mate),
+					"stroke-width": 1,
+					"fill": mateColor,
+					"cursor": "pointer"
+				});
+				mateEls.push(matePoly);
+
+				var line = SVG.addChild(bamReadGroup,"line",{
+					"x1":(readX+readWidth),
+					"y1":(rowY+(readSettings.height/2)),
+					"x2":mateX,
+					"y2":(rowY+(readSettings.height/2)),
+					"stroke-width": "1",
+					"stroke": "gray",
+					//"stroke-color": "black",
+					"cursor": "pointer"
+				});
+				
+				if(_this.zoom > 95){
+					if(readDiff != null){
+						var readPath = SVG.addChild(bamReadGroup,"path",{
+							"d":Compbio.genBamVariants(readDiff, _this.pixelBase, readX, rowY),
+							"fill":variantColor
+						});
+						readEls.push(readPath);
+					}
+					if(mateDiff != null){
+						var matePath = SVG.addChild(bamReadGroup,"path",{
+							"d":Compbio.genBamVariants(mateDiff, _this.pixelBase, mateX, rowY),
+							"fill":variantColor
+						});
+						mateEls.push(matePath);
+					}
+				}
+				
+				$(readEls).qtip({
+					content: {text:readSettings.getTipText(read), title:readSettings.getTipTitle(read)},
+					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
+					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
+				});
+				$(readEls).click(function(event){
+					console.log(read);
+					_this.showInfoWidget({query:read[readSettings.infoWidgetId], feature:read, featureType:read.featureType, adapter:_this.trackData.adapter});
+				});
+				$(mateEls).qtip({
+					content: {text:mateSettings.getTipText(mate), title:mateSettings.getTipTitle(mate)},
+					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
+					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
+				});
+				$(mateEls).click(function(event){
+					console.log(mate);
+					_this.showInfoWidget({query:mate[mateSettings.infoWidgetId], feature:mate, featureType:mate.featureType, adapter:_this.trackData.adapter});
+				});
+				break;
+			}
+			rowY += rowHeight;
+//			textY += rowHeight;
+		}
+	};
+
 	var drawChunk = function(chunk){
 		drawCoverage(chunk);
 		var readList = chunk.data;
 		for ( var i = 0, li = readList.length; i < li; i++) {
-			drawFeature(readList[i]);
+			var read = readList[i];
+			if(viewAsPairs){
+				var nextRead = readList[i+1];
+				if(nextRead!=null){
+					if(read.name == nextRead.name){
+						drawPairedReads(read,nextRead);
+						i++;
+					}else{
+						drawSingleRead(read);
+					}
+				}
+			}else{
+				drawSingleRead(read);
+			}
 		}
 	};
 	

@@ -31,8 +31,6 @@ function HeaderWidget(args){
 	this.args.appname="My new App";
 	this.args.description="My app description";
 	this.args.suiteId=-1;
-
-	this.accountData = null;
 	
 	if (args != null){
         if (args.appname != null){
@@ -46,8 +44,7 @@ function HeaderWidget(args){
         }
     }
     
-	//this.adapter = new WumAdapter();
-	this.adapter = new GcsaManager();
+	this.adapter = new WumAdapter();
 	
 	/** Events **/
 	this.onLogin = new Event();
@@ -60,7 +57,6 @@ function HeaderWidget(args){
 	this.editUserWidget = new EditUserWidget();
 	this.uploadWidget = new UploadWidget({suiteId:this.args.suiteId});
 	this.projectManager = new ManageProjectsWidget({width:800,height:500,suiteId:this.args.suiteId});
-	this.gcsaBrowserWidget = new GcsaBrowserWidget(this.args);
 	
 	/**Atach events i listen**/
 	this.loginWidget.onSessionInitiated.addEventListener(function (sender){
@@ -76,24 +72,14 @@ function HeaderWidget(args){
 	});
 	
 	this.adapter.onLogout.addEventListener(function (sender, data){
-		console.log(data);
 		//Se borran todas las cookies por si acaso
 		$.cookie('bioinfo_sid', null);
 		$.cookie('bioinfo_sid', null, {path: '/'});
-		$.cookie('bioinfo_account', null);
-		$.cookie('bioinfo_account', null, {path: '/'});
 		_this.sessionFinished();
 		_this.onLogout.notify();
 	});	
 	
 };
-
-HeaderWidget.prototype.setAccountData = function (data){
-	this.accountData = data;
-	this.gcsaBrowserWidget.setAccountData(data);
-	this.userBarWidget.setAccountData(data);
-}
-
 
 HeaderWidget.prototype.responseItemsReady = function(){
 	for (var i = 0; i < this.userBarWidget.items.length; i++) {
@@ -371,29 +357,17 @@ HeaderWidget.prototype._getMenubarItems = function (){
 			}
 	});
 	
-	this.manageProjects = Ext.create('Ext.Button', {
-			id:this.id+"manageProjects",
-			text: 'GCSA',
-			iconCls: 'icon-project-manager',
-			disabled: true,
-			handler: function() {
-				_this.gcsaBrowserWidget.draw();
-			}
-	});
 	
-	
-	return [this.manageProjects,this.manageProjectsButton,this.btnUpload];
+	return [this.manageProjectsButton,this.btnUpload];
 };
 
 HeaderWidget.prototype._enableMenubarItems = function (){
 	this.btnUpload.enable();
 	this.manageProjectsButton.enable();
-	this.manageProjects.enable();
 };
 HeaderWidget.prototype._disableMenubarItems = function (){
 	this.btnUpload.disable();
 	this.manageProjectsButton.disable();
-	this.manageProjects.disable();
 };
 
 
