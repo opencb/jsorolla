@@ -254,7 +254,7 @@ AttributeManager.prototype.removeFilter = function(filterName) {
 AttributeManager.prototype.enableFilter = function(filterName) {
 	this.filters[filterName].active = true;
 	
-	//this.store.filter(this.filters[filterName].attribute, this.filters[filterName].value); //para filtrar cuando este escrito el nombre entero bien
+	//this.store.filter(this.filters[filterName].attribute, this.filters[filterName].value); //filter for exactly match
 	var reg = new RegExp(""+this.filters[filterName].value);
 	this.store.filter(Ext.create('Ext.util.Filter', {property: this.filters[filterName].attribute, value: reg, root: 'data'}));
 };

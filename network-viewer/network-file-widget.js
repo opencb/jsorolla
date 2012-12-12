@@ -63,6 +63,7 @@ NetworkFileWidget.prototype.getFileUpload = function(){
 		buttonText: 'Browse local',
 		listeners: {
 			change: function(){
+				_this.panel.setLoading(true);
 				var dataadapter = new FileDataAdapter();
 				var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];
 				dataadapter.read(file);
@@ -87,6 +88,7 @@ NetworkFileWidget.prototype.getFileUpload = function(){
 					}catch(e) {
 						_this.infoLabel.setText('<span class="err">File not valid </span>'+e,false);
 					};
+					_this.panel.setLoading(false);
 				});
 			}
 	    }

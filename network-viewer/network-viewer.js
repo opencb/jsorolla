@@ -415,6 +415,7 @@ NetworkViewer.prototype.loadNetwork = function(networkData, layout){
 };
 
 NetworkViewer.prototype.toJSON = function(){
+	this.networkSvg.deselectAllNodes();
 	this.networkData.updateFromSvg(this.networkSvg.getNodeMetainfo());
 	
 	return this.networkData.toJSON();
@@ -470,6 +471,7 @@ NetworkViewer.prototype.setLayout = function(type, nodeLst){
 	default:
 		var dotText = this.networkData.toDot();
 		var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/"+type+".coords";
+//		var url = "http://localhost:8080/gcsa/rest/utils/network/layout/"+type+".coords";
 		var _this = this;
 		
 		$.ajax({
@@ -565,10 +567,28 @@ NetworkViewer.prototype.getNumNodes = function() {
 };
 
 NetworkViewer.prototype.addNode = function(args) {
-	this.networkData.addNode(args);
+	return this.networkData.addNode(args);
 };
 
+NetworkViewer.prototype.removeNode = function(nodeId) {
+	this.networkData.removeNode(nodeId);
+};
 
+NetworkViewer.prototype.addEdge = function(source, target, type, name, args) {
+	return this.networkData.addEdge(source, target, type, name, args);
+};
+
+NetworkViewer.prototype.clearNetwork = function() {
+	this.networkData.clearNetwork();
+};
+
+NetworkViewer.prototype.getNodeLabelsFromNodeList= function(nodeList) {
+	return this.networkData.getNodeLabelsFromNodeList(nodeList);
+};
+
+NetworkViewer.prototype.getUnselectedNodes = function(selectedNodes) {
+	return this.networkData.getUnselectedNodes(selectedNodes);
+};
 
 //TODO BORRAR
 /** For testing pathways **/

@@ -131,6 +131,14 @@ DOTDataAdapter.prototype.parse = function(data){
 							else {
 								var node = line.split("[")[0].replace(/^\s+|\s+$/g, "").replace(/"/g, "");
 								
+								// check and modify if necesary color names
+								if(metainfo.color && metainfo.color.slice(0,1)!='#' && !isNaN(metainfo.color.slice(-1))) {
+									metainfo.color = metainfo.color.slice(0,-1); 
+								}
+								if(metainfo.fillcolor && metainfo.fillcolor.slice(0,1)!='#' && !isNaN(metainfo.fillcolor.slice(-1))) {
+									metainfo.fillcolor = metainfo.fillcolor.slice(0,-1); 
+								}
+								
 								// add node to networkData
 								if(this.addedNodes[node] == null) {
 									sourceId = this.networkData.addNode({

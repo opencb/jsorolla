@@ -77,8 +77,16 @@ NetworkData.prototype.addNode = function(args) {
 };
 
 NetworkData.prototype.removeNode = function(nodeId) {
+	// remove edges of this node
+	for (var edge in this.edges) {
+		if(this.edges[edge].source == nodeId || this.edges[edge].target == nodeId) {
+			this.removeEdge(edge);
+		}
+	}
+	
 	this.metaInfo.numNodes--;
 	this.nodeAttributes.removeRow("Id", nodeId);
+	delete this.nodeNames[this.nodes[nodeId].name];
 	delete this.nodes[nodeId];
 };
 
@@ -112,15 +120,19 @@ NetworkData.prototype.removeEdge = function(edgeId) {
 	delete this.edges[edgeId];
 };
 
-NetworkData.prototype.loadJSON = function(jsonStr) {
-	var json = JSON.parse(jsonStr);
-	
+NetworkData.prototype.clearNetwork = function() {
 	this.nodes = {};
 	this.edges = {};
 	this.nodeId = 0;
 	this.edgeId = 0;
 	this.metaInfo.numNodes = 0;
 	this.metaInfo.numEdges = 0;
+};
+
+NetworkData.prototype.loadJSON = function(jsonStr) {
+	var json = JSON.parse(jsonStr);
+	
+	this.clearNetwork();
 	
 	this.type = json.type;
 	
@@ -223,6 +235,22 @@ NetworkData.prototype.getNodesList = function() {
 	return nodeList;
 };
 
+NetworkData.prototype.getNodeLabelsFromNodeList= function(nodeList) {
+	var labelList = [];
+	for(var i=0, len=nodeList.length; i<len; i++) {
+		labelList.push(this.nodes[nodeList[i]].metainfo.label);
+	}
+	return labelList;
+};
+
+NetworkData.prototype.getUnselectedNodes= function(selectedNodes) {
+	var unselected = [];
+	unselected = $.grep(this.getNodesList(), function (item) {
+	    return $.inArray(item, selectedNodes) < 0;
+	});
+	return this.getNodeLabelsFromNodeList(unselected);
+};
+
 NetworkData.prototype.getNodeAttributes = function() {
 	return this.nodeAttributes;
 };
@@ -250,13 +278,26 @@ NetworkData.prototype.resize = function(width, height) {
 	// adjust node coordenates to the received width and height
 	width -= 40;
 	height -= 40;
+	var x, y;
+	
+	// calculate min x and y
+	var minX = 0, minY = 0;
+	for(var nodeId in this.nodes) {
+		x = parseInt(this.nodes[nodeId].metainfo.x);
+		if(x < minX) minX = x;
+		
+		y = parseInt(this.nodes[nodeId].metainfo.y);
+		if(y < minY) minY = y;
+	}
 	
 	// calculate max x and y
-	var maxX = width, maxY = height, x, y;
+	var maxX = width, maxY = height;
 	for(var nodeId in this.nodes) {
+		this.nodes[nodeId].metainfo.x -= minX;
 		x = parseInt(this.nodes[nodeId].metainfo.x);
 		if(x > maxX) maxX = x;
 		
+		this.nodes[nodeId].metainfo.y -= minY;
 		y = parseInt(this.nodes[nodeId].metainfo.y);
 		if(y > maxY) maxY = y;
 	}

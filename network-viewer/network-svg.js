@@ -204,6 +204,10 @@ NetworkSvg.prototype.initSVG = function(){
 NetworkSvg.prototype.refresh = function(networkData){
 	var _this = this;
 	
+	// Deselect all nodes and edges
+	this.deselectAllNodes();
+	this.deselectAllEdges();
+	
 	if(networkData != null) {
 		this.networkData = networkData;
 	}
@@ -220,9 +224,6 @@ NetworkSvg.prototype.refresh = function(networkData){
 	
 	// loop over nodes
 	for (var node in this.networkData.nodes){
-		x = this.networkData.nodes[node].metainfo.x;
-		y = this.networkData.nodes[node].metainfo.y;
-		
 		// get config for this node type
 		var typeArgs = NODE_TYPES[this.networkData.nodes[node].type];
 		
@@ -238,9 +239,12 @@ NetworkSvg.prototype.refresh = function(networkData){
 			"strokeSize":this.networkData.nodes[node].metainfo.strokeSize || typeArgs.strokeSize,
 			"opacity":this.networkData.nodes[node].metainfo.opacity || typeArgs.opacity,
 			"size":this.networkData.nodes[node].metainfo.size || typeArgs.size,
-			"x":x || typeArgs.x,
-			"y":y || typeArgs.y,
-			"url":this.networkData.nodes[node].metainfo.URL
+			"x":this.networkData.nodes[node].metainfo.x || typeArgs.x,
+			"y":this.networkData.nodes[node].metainfo.y || typeArgs.y,
+			"url":this.networkData.nodes[node].metainfo.URL,
+			"qtipContent":this.networkData.nodes[node].metainfo.qtipContent,
+			"qtipScope":this.networkData.nodes[node].metainfo.qtipScope,
+			"qtipFn":this.networkData.nodes[node].metainfo.qtipFn
 		});
 	}
 	
@@ -333,11 +337,16 @@ NetworkSvg.prototype.addNode = function(args, fromClick){
 		this.nodeSvgList[nodeId].edgesOut = [];
 		
 		// attach qtip on right-click
-		var label = "<b>Label: </b>"+args.label;
-		var url = ""; 
-		if(args.url) url = "<br><br><a href='"+args.url+"' target='_blank'>+info</a>";
+		var label = "<b>Label: </b>"+args.label+"<br><br>";
+		var url = "";
+		if(args.url) url = "<a href='"+args.url+"' target='_blank'>+info</a><br><br>";
+		var content = "";
+		if(args.qtipContent) content = args.qtipContent;
+		var qtipScope = args.qtipScope;
+		var qtipFn = args.qtipFn;
+		
 		$(nodeSvg).qtip({
-			content: {text: label+url, title: {text: args.name, button: 'Close'}},
+			content: {text: label+url+content, title: {text: args.name, button: 'Close'}},
 			position: {target: $(nodeSvg), viewport: $(window), effect: false},
 			show: {event: 'mousedown', solo: true},
 			events: {
@@ -345,11 +354,18 @@ NetworkSvg.prototype.addNode = function(args, fromClick){
 					if(event.originalEvent.button !== 2) {
 						event.preventDefault();
 					}
+				},
+				render: function(event, api) {
+					$(".link").click(function() {
+						eval(qtipFn);
+						api.hide();
+				    });
 				}
 			},
 			hide: 'unfocus',
 			style: { width: 150, classes: 'ui-tooltip ui-tooltip-shadow', tip: false}
 		});
+		
 		/** /SVG **/
 	}
 	else {
@@ -494,8 +510,14 @@ NetworkSvg.prototype.moveNode = function(nodeId, newX, newY){
 	//move edges in
 	for ( var i=0, len=this.nodeSvgList[nodeId].edgesIn.length; i<len; i++) {
 		var edgeId = this.nodeSvgList[nodeId].edgesIn[i];
-		this.edgeSvgList[edgeId].setAttribute("x2", newX + edgeOffsetX);
-		this.edgeSvgList[edgeId].setAttribute("y2", newY + edgeOffsetY);
+		var d = this.edgeSvgList[edgeId].getAttribute("d");
+		if(d != null) {
+			this.edgeSvgList[edgeId].setAttribute("d", "M"+(newX + edgeOffsetX)+","+(newY + edgeOffsetY)+" C"+(parseInt(newX + edgeOffsetX)-20)+","+(parseInt(newY + edgeOffsetY)-75)+" "+(parseInt(newX + edgeOffsetX)+20)+","+(parseInt(newY + edgeOffsetY)-75)+" "+(parseInt(newX + edgeOffsetX))+","+(newY + edgeOffsetY));
+		}
+		else {
+			this.edgeSvgList[edgeId].setAttribute("x2", newX + edgeOffsetX);
+			this.edgeSvgList[edgeId].setAttribute("y2", newY + edgeOffsetY);
+		}
 	}
 	
 	//move edges out
@@ -512,7 +534,7 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 	var _this = this;
 	
 	/** SVG **/
-	if(this.joinSourceNode == null){
+	if(this.joinSourceNode == null && nodeId != null){
 		this.joinSourceNode = nodeId;
 		var figure = this.nodeSvgList[this.joinSourceNode].childNodes[0];
 		this.joinSourceX = figure.getAttribute("x") || figure.getAttribute("cx");
@@ -540,60 +562,81 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 		$(this.svg).mousemove(function(event) {
 			var offsetX = (event.clientX - $(_this.svg).offset().left - _this.canvasOffsetX)/_this.scale;
 			var offsetY = (event.clientY - $(_this.svg).offset().top - _this.canvasOffsetY)/_this.scale;
-			_this.edgeSvg.setAttribute("x2", offsetX);
-			_this.edgeSvg.setAttribute("y2", offsetY);
+			_this.edgeSvg.setAttribute("x2", offsetX-1);
+			_this.edgeSvg.setAttribute("y2", offsetY-1);
 		});
 	} else{
 		$(this.svg).off('mousemove');
-		var joinTargetNode = nodeId;
-		var figure = this.nodeSvgList[joinTargetNode].childNodes[0];
-		var joinTargetX = figure.getAttribute("x") || figure.getAttribute("cx");
-		var joinTargetY = figure.getAttribute("y") || figure.getAttribute("cy");
-		
-		// if is rect calculate the figure center
-		if(figure.hasAttribute("x")){
-			joinTargetX = parseInt(joinTargetX) + parseInt(figure.getAttribute("width"))/2;
-			joinTargetY = parseInt(joinTargetY) + parseInt(figure.getAttribute("height"))/2;
-			var a = parseInt(figure.getAttribute("width"));
-			var b = parseInt(figure.getAttribute("height"));
-			var tipOffset = Math.floor(parseInt(Math.sqrt(a*a+b*b))/2);
-		}else{
-			var tipOffset = parseInt(figure.getAttribute("r")) || parseInt(figure.getAttribute("rx"));
-		}
-
-		this.edgeSvg.setAttribute("stroke", this.edgeColor);
-		
-		// if not exists this marker, add new one to defs
-		var markerArrowId = "#arrow-"+this.edgeType+"-"+tipOffset;
-		if($(markerArrowId).length == 0){
-			this.addArrowShape(this.edgeType, tipOffset);
-		}
-		this.edgeSvg.setAttribute("marker-end", "url("+markerArrowId+")");
-
-		// if not exists this marker, add new one to defs
-		var edgeId = this.networkData.edgeId;
-		var markerLabelId = "#edgeLabel-"+edgeId;
-		if($(markerLabelId).length == 0){
-			this.addEdgeLabel(edgeId, this.edgeLabel);
-		}
-		this.edgeSvg.setAttribute("marker-start", "url("+markerLabelId+")");
-		this.edgeSvg.setAttribute("label", this.edgeLabel);
-		
-		this.edgeSvg.setAttribute("x2", joinTargetX);
-		this.edgeSvg.setAttribute("y2", joinTargetY);
-		
-//		var edgeId = this.joinSourceNode+"-"+joinTargetNode;
-//		this.edgeSvg.setAttribute("id", edgeId);
-		this.edgeSvg.setAttribute("target", joinTargetNode);
-		
-		this.edgeSvgList[edgeId] = this.edgeSvg;
-		this.nodeSvgList[this.joinSourceNode].edgesOut.push(edgeId);
-		this.nodeSvgList[joinTargetNode].edgesIn.push(edgeId);
-		
-		$(this.edgeSvg).click(function(event){_this.edgeClick(event, this.id);});
-		
-		/** Data **/
-		var args = {
+		if(nodeId != null) {
+			
+			// If source and target is the same
+			if(this.joinSourceNode == nodeId) {
+				this.svgG.removeChild(this.edgeSvg);
+				
+				var x = this.joinSourceX;
+				var y = this.joinSourceY;
+				this.edgeSvg = SVG.addChild(this.svgG, "path", {
+					"id":this.networkData.edgeId,
+					"source":nodeId,
+					"target":nodeId,
+					"type":this.edgeType,
+					"d":"M"+(parseInt(x))+","+y+" C"+(parseInt(x)-20)+","+(parseInt(y)-75)+" "+(parseInt(x)+20)+","+(parseInt(y)-75)+" "+(parseInt(x))+","+y,
+					"fill":"transparent",
+					"stroke":"black",
+					"stroke-width":"0.5",
+					"cursor":"pointer"
+				},0);
+			}
+			
+			var joinTargetNode = nodeId;
+			var figure = this.nodeSvgList[joinTargetNode].childNodes[0];
+			var joinTargetX = figure.getAttribute("x") || figure.getAttribute("cx");
+			var joinTargetY = figure.getAttribute("y") || figure.getAttribute("cy");
+			
+			// if is rect calculate the figure center
+			if(figure.hasAttribute("x")) {
+				joinTargetX = parseInt(joinTargetX) + parseInt(figure.getAttribute("width"))/2;
+				joinTargetY = parseInt(joinTargetY) + parseInt(figure.getAttribute("height"))/2;
+				var a = parseInt(figure.getAttribute("width"));
+				var b = parseInt(figure.getAttribute("height"));
+				var tipOffset = Math.floor(parseInt(Math.sqrt(a*a+b*b))/2);
+			}else {
+				var tipOffset = parseInt(figure.getAttribute("r")) || parseInt(figure.getAttribute("rx"));
+			}
+			
+			this.edgeSvg.setAttribute("stroke", this.edgeColor);
+			
+			// if not exists this marker, add new one to defs
+			var markerArrowId = "#arrow-"+this.edgeType+"-"+tipOffset;
+			if($(markerArrowId).length == 0){
+				this.addArrowShape(this.edgeType, tipOffset);
+			}
+			this.edgeSvg.setAttribute("marker-end", "url("+markerArrowId+")");
+			
+			// if not exists this marker, add new one to defs
+			var edgeId = this.networkData.edgeId;
+			var markerLabelId = "#edgeLabel-"+edgeId;
+			if($(markerLabelId).length == 0){
+				this.addEdgeLabel(edgeId, this.edgeLabel);
+			}
+			this.edgeSvg.setAttribute("marker-start", "url("+markerLabelId+")");
+			this.edgeSvg.setAttribute("label", this.edgeLabel);
+			
+			this.edgeSvg.setAttribute("x2", joinTargetX);
+			this.edgeSvg.setAttribute("y2", joinTargetY);
+			
+//			var edgeId = this.joinSourceNode+"-"+joinTargetNode;
+//			this.edgeSvg.setAttribute("id", edgeId);
+			this.edgeSvg.setAttribute("target", joinTargetNode);
+			
+			this.edgeSvgList[edgeId] = this.edgeSvg;
+			this.nodeSvgList[this.joinSourceNode].edgesOut.push(edgeId);
+			this.nodeSvgList[joinTargetNode].edgesIn.push(edgeId);
+			
+			$(this.edgeSvg).click(function(event){_this.edgeClick(event, this.id);});
+			
+			/** Data **/
+			var args = {
 					"weight":1,
 					"x1":this.joinSourceX,
 					"y1":this.joinSourceY,
@@ -601,12 +644,17 @@ NetworkSvg.prototype.addEdgeFromClick = function(nodeId){
 					"y2":joinTargetY
 //					"markerArrow": "url("+markerArrowId+")",
 //					"markerLabel": "url("+markerLabelId+")"
-					};
-		
-		var name = this.joinSourceNode+"-"+joinTargetNode;
-		
-		this.networkData.addEdge(this.joinSourceNode, joinTargetNode, this.edgeType, name, args);
-		/** /Data **/
+			};
+			
+			var name = this.joinSourceNode+"-"+joinTargetNode;
+			
+			this.networkData.addEdge(this.joinSourceNode, joinTargetNode, this.edgeType, name, args);
+			/** /Data **/
+			
+		}
+		else { //Cancel edge creation
+			this.svgG.removeChild(this.edgeSvg);
+		}
 		
 		// reset join
 		this.joinSourceNode = null;
@@ -624,15 +672,16 @@ NetworkSvg.prototype.addEdge = function(args){
 	
 	var tipOffset = 14;
 //	if(!args.markerArrow) {
-		var figure = this.nodeSvgList[args.target].childNodes[0];
-		// if is rect calculate the figure center
-		if(figure.hasAttribute("x")){
-			var a = parseInt(figure.getAttribute("width"));
-			var b = parseInt(figure.getAttribute("height"));
-			tipOffset = Math.floor(parseInt(Math.sqrt(a*a+b*b))/2);
-		}else{
-			tipOffset = parseInt(figure.getAttribute("r")) || parseInt(figure.getAttribute("rx"));
-		}
+	if(!args.target) console.log(args);
+	var figure = this.nodeSvgList[args.target].childNodes[0];
+	// if is rect calculate the figure center
+	if(figure.hasAttribute("x")){
+		var a = parseInt(figure.getAttribute("width"));
+		var b = parseInt(figure.getAttribute("height"));
+		tipOffset = Math.floor(parseInt(Math.sqrt(a*a+b*b))/2);
+	}else{
+		tipOffset = parseInt(figure.getAttribute("r")) || parseInt(figure.getAttribute("rx"));
+	}
 //	}
 //	else {
 //		tipOffset = args.markerArrow.split('-')[2].slice(0,-1);
@@ -644,20 +693,38 @@ NetworkSvg.prototype.addEdge = function(args){
 		this.addArrowShape(args.type, tipOffset);
 	}
 	
-	this.edgeSvg = SVG.addChild(this.svgG, "line", {
-		"id":args.id,
-		"source":args.source,
-		"target":args.target,
-		"type":args.type,
-		"x1":args.x1,
-		"y1":args.y1,
-		"x2":args.x2,
-		"y2":args.y2,
-		"stroke":"black",
-		"stroke-width":"0.5",
-		"cursor":"pointer",
-		"marker-end":"url("+markerArrowId+")"
-	},0);
+	if(args.source != args.target) {
+		this.edgeSvg = SVG.addChild(this.svgG, "line", {
+			"id":args.id,
+			"source":args.source,
+			"target":args.target,
+			"type":args.type,
+			"x1":args.x1,
+			"y1":args.y1,
+			"x2":args.x2,
+			"y2":args.y2,
+			"stroke":"black",
+			"stroke-width":"0.5",
+			"cursor":"pointer",
+			"marker-end":"url("+markerArrowId+")"
+		},0);
+	}
+	else {
+		var x = args.x1;
+		var y = args.y1;
+		this.edgeSvg = SVG.addChild(this.svgG, "path", {
+			"id":args.id,
+			"source":args.source,
+			"target":args.target,
+			"type":args.type,
+			"d":"M"+(parseInt(x))+","+y+" C"+(parseInt(x)-20)+","+(parseInt(y)-75)+" "+(parseInt(x)+20)+","+(parseInt(y)-75)+" "+(parseInt(x))+","+y,
+			"fill":"transparent",
+			"stroke":"black",
+			"stroke-width":"0.5",
+			"cursor":"pointer",
+			"marker-end":"url("+markerArrowId+")"
+		},0);
+	}
 	
 	$(this.edgeSvg).click(function(event){_this.edgeClick(event, this.id);});
 	
@@ -725,6 +792,23 @@ NetworkSvg.prototype.getSvgArgs = function(shape, nodeId, args){
 			"x":args.x,
 			"y":args.y,
 			"width":7*args.size,
+			"height":4*args.size,
+			"fill":args.fillcolor,
+			"stroke":args.color,
+			"stroke-width":args.strokeSize,
+			"opacity":args.opacity
+	};
+		break;
+	case "rect":
+		svgArgs = {
+			"id":nodeId,
+			"shape":shape,
+			"nodeName":args.name,
+			"nodeLabel":args.label,
+			"nodeSize":args.size,
+			"x":args.x,
+			"y":args.y,
+			"width":4*args.size,
 			"height":4*args.size,
 			"fill":args.fillcolor,
 			"stroke":args.color,
@@ -860,8 +944,14 @@ NetworkSvg.prototype.reallocateEdgesPosition = function(nodeSvg){
 	//move edges in
 	for ( var i=0, len=this.nodeSvgList[nodeId].edgesIn.length; i<len; i++) {
 		var edgeId = this.nodeSvgList[nodeId].edgesIn[i];
-		this.edgeSvgList[edgeId].setAttribute("x2", x + edgeOffsetX);
-		this.edgeSvgList[edgeId].setAttribute("y2", y + edgeOffsetY);
+		var d = this.edgeSvgList[edgeId].getAttribute("d");
+		if(d != null) {
+			this.edgeSvgList[edgeId].setAttribute("d", "M"+(x + edgeOffsetX)+","+(y + edgeOffsetY)+" C"+(parseInt(x + edgeOffsetX)-20)+","+(parseInt(y + edgeOffsetY)-75)+" "+(parseInt(x + edgeOffsetX)+20)+","+(parseInt(y + edgeOffsetY)-75)+" "+(parseInt(x + edgeOffsetX))+","+(y + edgeOffsetY));
+		}
+		else {
+			this.edgeSvgList[edgeId].setAttribute("x2", x + edgeOffsetX);
+			this.edgeSvgList[edgeId].setAttribute("y2", y + edgeOffsetY);
+		}
 	}
 	
 	//move edges out
@@ -1644,6 +1734,9 @@ NetworkSvg.prototype.canvasMouseUp = function(event){
 		this.onCanvasClick.notify(args);
 		this.onSelectionChange.notify(this.getSelectedNodes());
 		break;
+	case "join":
+		this.addEdgeFromClick(null);
+		break;
 	}
 };
 
@@ -1770,14 +1863,14 @@ NetworkSvg.prototype.edgeClick = function(event, edgeId){
 };
 
 NetworkSvg.prototype.getNodeMetainfo = function(){
-	console.log(this.nodeSvgList);
-	
 	var nodeList = {};
 	// loop over rendered nodes
 	for (var node in this.nodeSvgList) {
 		nodeList[node] = {};
 		var figure = this.nodeSvgList[node].childNodes[0];
-		nodeList[node].name = this.nodeSvgList[node].childNodes[1].textContent;
+		
+//		nodeList[node].name = this.nodeSvgList[node].childNodes[1].textContent;
+		nodeList[node].name = figure.getAttribute("nodeName");
 		nodeList[node].metainfo = {};
 		nodeList[node].metainfo.shape = figure.getAttribute("shape");
 		nodeList[node].metainfo.size = parseInt(figure.getAttribute("nodeSize"));
