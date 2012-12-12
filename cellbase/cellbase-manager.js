@@ -56,6 +56,9 @@ function CellBaseManager(species, args) {
 		if(args.host != null){
 			this.host = args.host;
 		}
+		if(args.async != null){
+			this.async = args.async;
+		}
 	}
 	
 	
@@ -108,7 +111,7 @@ function CellBaseManager(species, args) {
 				this.originalQuery = query;
 				this.batching = true;
 				this.results= new Array();
-				this.getMultiple(category, subcategory, query, resource);
+				return this.getMultiple(category, subcategory, query, resource);
 		}
 		else{
 				query = new String(query);
@@ -121,7 +124,7 @@ function CellBaseManager(species, args) {
 				}
 				else{
 					this.batching = false;
-					this.getSingle(category, subcategory, query, resource, callbackFunction);
+					return this.getSingle(category, subcategory, query, resource, callbackFunction);
 				}
 		}
 	},
@@ -161,7 +164,7 @@ function CellBaseManager(species, args) {
 		this.query = query;
 		this.resource = resource;
 		var url = this.getUrl();
-		this._callServer(url, batchID, callbackFunction);
+		return this._callServer(url, batchID, callbackFunction);
 	},
 	
 	this.getMultiple = function(category, subcategory, queryArray, resource, callbackFunction) {
@@ -192,88 +195,69 @@ function CellBaseManager(species, args) {
 
 	this._callServer = function(url, batchID, callbackFunction) {
 		var _this = this;
-		
 		this.params["of"] = this.contentformat;
-//		this.params["outputcompress"] = this.outputcompress;//esto ya lo hace el servidor y el navegador por defecto
-
 //			jQuery.support.cors = true;
 			url = url + this.getQuery(this.params,url);
-			$.ajax({
-				type : "GET",
-				url : url,
-				async : this.async,
-				success : function(data, textStatus, jqXHR) {
-//					try{
-						if(data==""){console.log("data is empty");data="[]";}
-						var jsonResponse = JSON.parse(data);
-//					console.log(jsonResponse);
-						if (_this.batching){
-							_this.batchSuccessed.notify({data:jsonResponse, id:batchID});
-						}else{
-							//TODO no siempre el resource coincide con el featureType, ejemplo: mirna es el featureType del resource mirna_targets
-							_this.success.notify({
-								"result": jsonResponse, 
-								"category":  _this.category, 
-								"subcategory": _this.subcategory, 
-								"query": _this.originalQuery, 
-								"resource":_this.resource, 
-								"params":_this.params, 
-								"error": ''
-							});
-						}
-//					}
-//					catch(e){
-//						console.log("CellBaseManager: data returned was not json: "+url+" :");
-//						console.log(data+" END");
-//					}
-					
-				},
-				complete : function() {
-					_this.completed.notify();
-					
-				},
-				error : function(jqXHR, textStatus, errorThrown) {
-					console.log("CellBaseManager: Ajax call returned : "+errorThrown+'\t'+textStatus+'\t'+jqXHR.statusText+" END");
-					_this.error.notify();
-					
-				}
-			});
-			
-		
-//		$.ajax({
-//			type : "GET",
-//			url : url,
-//			async : this.async,
-////			dataType : this.dataType,
-//			data : params,
-////			jsonp : "callback",
-//			success : function() {
-//				if( typeof( response ) != 'undefined'  ){
-////					if (callbackFunction!=null){
-////						callbackFunction(response);
-////					}
-//					
-//					if (_this.batching){
-//						_this.batchSuccessed.notify({data:response, id:batchID});
-//					}else{
-//						_this.successed.notify(response);
-//					}
-//				}
-//				else{
-//					_this.error.notify();
-//				}
-//			},
-//			complete : function() {
-//				_this.completed.notify();
-//				
-//			},
-//			error : function() {
-//				_this.error.notify();
-//				
-//			}
-//		});
-		
-		console.log(url);
+			console.log(url);
+			if(this.async == true){
+				$.ajax({
+					type : "GET",
+					url : url,
+					async : this.async,
+					success : function(data, textStatus, jqXHR) {
+							if(data==""){console.log("data is empty");data="[]";}
+							var jsonResponse = JSON.parse(data);
+							
+							if (_this.batching){
+								_this.batchSuccessed.notify({data:jsonResponse, id:batchID});
+							}else{
+								//TODO no siempre el resource coincide con el featureType, ejemplo: mirna es el featureType del resource mirna_targets
+								_this.success.notify({
+									"result": jsonResponse, 
+									"category":  _this.category, 
+									"subcategory": _this.subcategory, 
+									"query": _this.originalQuery, 
+									"resource":_this.resource, 
+									"params":_this.params, 
+									"error": ''
+								});
+							}
+						
+					},
+					complete : function() {
+						_this.completed.notify();
+						
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						console.log("CellBaseManager: Ajax call returned : "+errorThrown+'\t'+textStatus+'\t'+jqXHR.statusText+" END");
+						_this.error.notify();
+						
+					}
+				});
+			}else{
+				var response = null;
+				$.ajax({
+					type : "GET",
+					url : url,
+					async : this.async,
+					success : function(data, textStatus, jqXHR) {
+							if(data==""){console.log("data is empty");data="[]";}
+							var jsonResponse = JSON.parse(data);
+							response =  {
+									"result": jsonResponse,
+									"category":  _this.category,
+									"subcategory": _this.subcategory,
+									"query": _this.originalQuery,
+									"resource":_this.resource,
+									"params":_this.params,
+									"error": ''
+							}
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+					}
+				});
+				return response;
+			}
 	};
 }
 
@@ -285,7 +269,7 @@ CellBaseManager.prototype.getQuery = function(paramsWS,url){
 	var query = "";
 	for ( var key in paramsWS) {
 		if(paramsWS[key]!=null)
-			query+=key+"="+paramsWS[key]+"&";
+			query+=key+"="+paramsWS[key].toString()+"&";
 	}
 	if(query!="")
 		query = chr+query.substring(0, query.length-1);

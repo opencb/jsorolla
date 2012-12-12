@@ -38,7 +38,7 @@ function GenomicAttributesWidget(species, args){
         	this.columnsCount = args.columnsCount;       
         }
         if (args.featureType!= null){
-        	this.featureType = args.featureType;       
+        	this.featureType = args.featureType;
         }
         if (args.viewer!= null){
         	this.viewer = args.viewer;      
@@ -84,11 +84,11 @@ GenomicAttributesWidget.prototype.draw = function (){
 				width:1000,
 				height:340,
 				species:_this.viewer.species,
-				chromosome:_this.viewer.chromosome,
-				position:_this.viewer.position
+				region:_this.viewer.region
 			});
 			_this.karyotypeWidget.onClick.addEventListener(function(sender,data){
-				_this.viewer.onLocationChange.notify({position:data.position,chromosome:data.chromosome,sender:"KaryotypePanel"});
+				_this.viewer.region.load(data)
+				_this.viewer.onRegionChange.notify({sender:"KaryotypePanel"});
 			});
 			_this.karyotypeWidget.drawKaryotype();
 		});
@@ -105,7 +105,7 @@ GenomicAttributesWidget.prototype.draw = function (){
 		this.addTrackButton = Ext.create('Ext.button.Button', {
 			text:'Add Track',
 			disabled:true,
-			handler: function(){ 
+			handler: function(){
 				_this.onTrackAddAction.notify({"adapter":_this.adapter,"fileName":_this.attributesPanel.fileName});
 				}
 		});

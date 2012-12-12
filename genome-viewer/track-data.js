@@ -35,3 +35,10 @@ function TrackData(id, args) {
 TrackData.prototype.retrieveData = function(region){
 	this.adapter.getData(region);
 };
+
+TrackData.prototype.setFilters = function(filters){
+	this.adapter.setFilters(filters);
+};
+TrackData.prototype.setOption = function(option, value){
+	this.adapter.setOption(option, value);
+};

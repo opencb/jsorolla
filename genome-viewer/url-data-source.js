@@ -25,7 +25,7 @@ function UrlDataSource(url, args) {
 	DataSource.prototype.constructor.call(this);
 	
 	this.url = url;
-	this.proxy = "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v1/utils/proxy?url=";
+	this.proxy = CELLBASE_HOST+"/latest/utils/proxy?url=";
 	if(args != null){
 		if(args.proxy != null){
 			if(typeof(args.proxy) == "boolean"){

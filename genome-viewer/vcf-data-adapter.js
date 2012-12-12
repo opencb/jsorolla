@@ -20,16 +20,17 @@
  */
 
 VCFDataAdapter.prototype.getData = FeatureDataAdapter.prototype.getData;
+VCFDataAdapter.prototype._fetchData = FeatureDataAdapter.prototype._fetchData;
 
 function VCFDataAdapter(dataSource, args){
 	FeatureDataAdapter.prototype.constructor.call(this, dataSource, args);
 	var _this = this;
 	
 	this.async = true;
-	debugger
 	//stat atributes
 	this.featuresCount = 0;
 	this.featuresByChromosome = {};
+	
 	this.header = "";
 	this.samples = [];
 
@@ -38,21 +39,10 @@ function VCFDataAdapter(dataSource, args){
 			this.async = args.async;
 		}
 	}
-	if(this.async){
-		this.dataSource.success.addEventListener(function(sender,data){
-			_this.parse(data);
-			_this.onLoad.notify();
-		});
-		this.dataSource.fetch(this.async);
-	}else{
-		var data = this.dataSource.fetch(this.async);
-		this.parse(data);
-	}
-	
-	
 };
 
-VCFDataAdapter.prototype.parse = function(data){
+VCFDataAdapter.prototype.parse = function(data, region){
+	console.log(data);
 	var _this = this;
 	var dataType = "data";
 	var lines = data.split("\n");
@@ -61,40 +51,42 @@ VCFDataAdapter.prototype.parse = function(data){
 		var line = lines[i].replace(/^\s+|\s+$/g,"");
 		if ((line != null)&&(line.length > 0)){
 			var fields = line.split("\t");
-			if(line.substr(0,1)==="#"){
-				if(line.substr(1,1)==="#"){
-					this.header+=line.replace(/</gi,"&#60;").replace(/>/gi,"&#62;")+"<br>";
+			if(fields[0]==region.chromosome){// load only one chromosome on the cache
+			
+				if(line.substr(0,1)==="#"){
+					if(line.substr(1,1)==="#"){
+						this.header+=line.replace(/</gi,"&#60;").replace(/>/gi,"&#62;")+"<br>";
+					}else{
+						this.samples = fields.slice(9);
+					}
 				}else{
-					this.samples = fields.slice(9);
+	//				_this.addQualityControl(fields[5]);
+					var feature = {
+							"chromosome": 	fields[0],
+							"position": 	parseInt(fields[1]), 
+							"start": 		parseInt(fields[1]),//added
+							"end": 			parseInt(fields[1]),//added
+							"id":  			fields[2],
+							"ref": 			fields[3], 
+							"alt": 			fields[4], 
+							"quality": 		fields[5], 
+							"filter": 		fields[6], 
+							"info": 		fields[7].replace(/;/gi,"<br>"), 
+							"format": 		fields[8],
+							"sampleData":	line,
+	//						"record":		fields,
+	//						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
+							"featureType":	"vcf"
+					};
+					
+					this.featureCache.putFeatures(feature, dataType);
+					
+					if (this.featuresByChromosome[fields[0]] == null){
+						this.featuresByChromosome[fields[0]] = 0;
+					}
+					this.featuresByChromosome[fields[0]]++;
+					this.featuresCount++;
 				}
-			}else{
-//				_this.addQualityControl(fields[5]);
-				var feature = {
-						"chromosome": 	fields[0],
-						"position": 	parseInt(fields[1]), 
-						"start": 		parseInt(fields[1]),//added
-						"end": 			parseInt(fields[1]),//added
-						"id":  			fields[2],
-						"ref": 			fields[3], 
-						"alt": 			fields[4], 
-						"quality": 		fields[5], 
-						"filter": 		fields[6], 
-						"info": 		fields[7].replace(/;/gi,"<br>"), 
-						"format": 		fields[8],
-						"sampleData":	line,
-//						"record":		fields,
-//						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
-						"featureType":	"vcf"
-				};
-				
-				
-				this.featureCache.putFeatures(feature, dataType);
-				
-				if (this.featuresByChromosome[fields[0]] == null){
-					this.featuresByChromosome[fields[0]] = 0;
-				}
-				this.featuresByChromosome[fields[0]]++;
-				this.featuresCount++;
 			}
 		}
 	}

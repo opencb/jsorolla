@@ -1,8 +1,81 @@
-
 GV_CELLBASE_HOST = "http://ws.bioinfo.cipf.es/cellbase/rest";
 
+
+FEATURE_CONFIG = {
+	gene:{
+		filters:[{
+			name:"biotype",
+			text:"Biotype",
+			values:["3prime_overlapping_ncrna", "ambiguous_orf", "antisense", "disrupted_domain", "IG_C_gene", "IG_D_gene", "IG_J_gene", "IG_V_gene", "lincRNA", "miRNA", "misc_RNA", "Mt_rRNA", "Mt_tRNA", "ncrna_host", "nonsense_mediated_decay", "non_coding", "non_stop_decay", "polymorphic_pseudogene", "processed_pseudogene", "processed_transcript", "protein_coding", "pseudogene", "retained_intron", "retrotransposed", "rRNA", "sense_intronic", "sense_overlapping", "snoRNA", "snRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"],
+			selection:"multi"
+		}]
+		//options:[
+		//]
+	},
+	snp:{
+		filters:[{
+			name:"consequence_type",
+			text:"Consequence Type",
+			values:["2KB_upstream_variant", "5KB_upstream_variant", "500B_downstream_variant", "5KB_downstream_variant", "3_prime_UTR_variant", "5_prime_UTR_variant", "coding_sequence_variant", "complex_change_in_transcript", "frameshift_variant", "incomplete_terminal_codon_variant", "inframe_codon_gain", "inframe_codon_loss", "initiator_codon_change", "non_synonymous_codon", "intergenic_variant", "intron_variant", "mature_miRNA_variant", "nc_transcript_variant", "splice_acceptor_variant", "splice_donor_variant", "splice_region_variant", "stop_gained", "stop_lost", "stop_retained_variant", "synonymous_codon"],
+			selection:"multi"
+		}]
+		//options:[
+		//]
+	},
+	bam:{
+		//filters:[{
+				//name:"view",
+				//text:"View",
+				//values:["view_as_pairs","show_soft-clipped_bases"],
+				//selection:"multi"
+			//}
+		//],
+		options:[{
+				text:"View as pairs",
+				name:"view_as_pairs",
+				type:"checkbox",
+				fetch:true,
+				checked : false
+			},{
+				text:"Show Soft-clipping",
+				name:"show_softclipping",
+				type:"checkbox",
+				fetch:true,
+				checked : false
+			},{
+				text:"Insert size interval",
+				name:"insert_size_interval",
+				type:"doublenumberfield",
+				fetch:false,
+				minValue : 0,
+				maxValue : 0
+			}
+		]
+	}
+	
+};
+FEATURE_OPTIONS = {
+	gene:[{
+		name:"biotype",
+		text:"Biotype",
+		values:["3prime_overlapping_ncrna", "ambiguous_orf", "antisense", "disrupted_domain", "IG_C_gene", "IG_D_gene", "IG_J_gene", "IG_V_gene", "lincRNA", "miRNA", "misc_RNA", "Mt_rRNA", "Mt_tRNA", "ncrna_host", "nonsense_mediated_decay", "non_coding", "non_stop_decay", "polymorphic_pseudogene", "processed_pseudogene", "processed_transcript", "protein_coding", "pseudogene", "retained_intron", "retrotransposed", "rRNA", "sense_intronic", "sense_overlapping", "snoRNA", "snRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"],
+		selection:"multi"
+	}],
+	snp:[{
+		name:"consequence_type",
+		text:"Consequence Type",
+		values:["2KB_upstream_variant", "5KB_upstream_variant", "500B_downstream_variant", "5KB_downstream_variant", "3_prime_UTR_variant", "5_prime_UTR_variant", "coding_sequence_variant", "complex_change_in_transcript", "frameshift_variant", "incomplete_terminal_codon_variant", "inframe_codon_gain", "inframe_codon_loss", "initiator_codon_change", "non_synonymous_codon", "intergenic_variant", "intron_variant", "mature_miRNA_variant", "nc_transcript_variant", "splice_acceptor_variant", "splice_donor_variant", "splice_region_variant", "stop_gained", "stop_lost", "stop_retained_variant", "synonymous_codon"],
+		selection:"multi"
+	}],
+	bam:[{
+		name:"view",
+		text:"View",
+		values:["view_as_pairs","show_soft-clipped_bases"],
+		selection:"multi"
+	}]
+};
+
 GENE_BIOTYPE_COLORS = {
-		//TODO buscar los colores en ensembl!
 		"3prime_overlapping_ncrna":"Orange",
 		"ambiguous_orf":"SlateBlue",
 		"antisense":"SteelBlue",
@@ -12,12 +85,12 @@ GENE_BIOTYPE_COLORS = {
 		"IG_J_gene":"#FF7F50",
 		"IG_V_gene":"#FF7F50",
 		"lincRNA":"#8b668b",
-		"miRNA":"#8b668b",//TODO falta
+		"miRNA":"#8b668b",
 		"misc_RNA":"#8b668b",
 		"Mt_rRNA":"#8b668b",
 		"Mt_tRNA":"#8b668b",
 		"ncrna_host":"Fuchsia",
-		"nonsense_mediated_decay":"Chartreuse",
+		"nonsense_mediated_decay":"seagreen",
 		"non_coding":"orangered",
 		"non_stop_decay":"aqua",
 		"polymorphic_pseudogene":"#666666",
@@ -27,10 +100,10 @@ GENE_BIOTYPE_COLORS = {
 		"pseudogene":"#666666",
 		"retained_intron":"gold",
 		"retrotransposed":"lightsalmon",
-		"rRNA":"LawnGreen",
+		"rRNA":"indianred",
 		"sense_intronic":"#20B2AA",
 		"sense_overlapping":"#20B2AA",  
-		"snoRNA":"#8b668b",//TODO falta
+		"snoRNA":"#8b668b",
 		"snRNA":"#8b668b",
 		"transcribed_processed_pseudogene":"#666666",
 		"transcribed_unprocessed_pseudogene":"#666666",
@@ -43,31 +116,31 @@ GENE_BIOTYPE_COLORS = {
 
 
 SNP_BIOTYPE_COLORS = {
-	"2KB_upstream_variant":"#a2b5cd",				//TODO done Upstream
-	"5KB_upstream_variant":"#a2b5cd",				//TODO done Upstream
-	"500B_downstream_variant":"#a2b5cd",			//TODO done Downstream
-	"5KB_downstream_variant":"#a2b5cd",			//TODO done Downstream
-	"3_prime_UTR_variant":"#7ac5cd",				//TODO done 3 prime UTR
-	"5_prime_UTR_variant":"#7ac5cd",				//TODO done 5 prime UTR
-	"coding_sequence_variant":"#458b00",			//TODO done Coding unknown
-	"complex_change_in_transcript":"#00fa9a",		//TODO done Complex in/del
-	"frameshift_variant":"#ff69b4",				//TODO done Frameshift coding
-	"incomplete_terminal_codon_variant":"#ff00ff",	//TODO done Partial codon
-	"inframe_codon_gain":"#ffd700",				//TODO done Non-synonymous coding
-	"inframe_codon_loss":"#ffd700",				//TODO done Non-synonymous coding
-	"initiator_codon_change":"#ffd700",			//TODO done Non-synonymous coding
-	"non_synonymous_codon":"#ffd700",				//TODO done Non-synonymous coding
-	"intergenic_variant":"#636363",				//TODO done Intergenic
-	"intron_variant":"#02599c",					//TODO done Intronic
-	"mature_miRNA_variant":"#458b00",				//TODO done Within mature miRNA
-	"nc_transcript_variant":"#32cd32",				//TODO done Within non-coding gene
-	"splice_acceptor_variant":"#ff7f50",			//TODO done Essential splice site
-	"splice_donor_variant":"#ff7f50",				//TODO done Essential splice site
-	"splice_region_variant":"#ff7f50",				//TODO done Splice site
-	"stop_gained":"#ff0000",						//TODO done Stop gained
-	"stop_lost":"#ff0000",							//TODO done Stop lost
-	"stop_retained_variant":"#76ee00",				//TODO done Synonymous coding
-	"synonymous_codon":"#76ee00",					//TODO done Synonymous coding
+	"2KB_upstream_variant":"#a2b5cd",
+	"5KB_upstream_variant":"#a2b5cd",
+	"500B_downstream_variant":"#a2b5cd",
+	"5KB_downstream_variant":"#a2b5cd",
+	"3_prime_UTR_variant":"#7ac5cd",
+	"5_prime_UTR_variant":"#7ac5cd",
+	"coding_sequence_variant":"#458b00",
+	"complex_change_in_transcript":"#00fa9a",
+	"frameshift_variant":"#ff69b4",
+	"incomplete_terminal_codon_variant":"#ff00ff",
+	"inframe_codon_gain":"#ffd700",
+	"inframe_codon_loss":"#ffd700",
+	"initiator_codon_change":"#ffd700",
+	"non_synonymous_codon":"#ffd700",
+	"intergenic_variant":"#636363",
+	"intron_variant":"#02599c",
+	"mature_miRNA_variant":"#458b00",
+	"nc_transcript_variant":"#32cd32",
+	"splice_acceptor_variant":"#ff7f50",
+	"splice_donor_variant":"#ff7f50",
+	"splice_region_variant":"#ff7f50",
+	"stop_gained":"#ff0000",
+	"stop_lost":"#ff0000",
+	"stop_retained_variant":"#76ee00",
+	"synonymous_codon":"#76ee00",
 	"other":"#000000"
 };
 
@@ -205,7 +278,7 @@ FEATURE_TYPES = {
 			return GENE_BIOTYPE_COLORS[f.biotype];
 		},
 		infoWidgetId: "stableId",
-		height:4,
+		height:1,
 		histogramColor:"lightblue"
 	},
 	exon:{//not yet
@@ -232,7 +305,7 @@ FEATURE_TYPES = {
 			return "black";
 		},
 		infoWidgetId: "stableId",
-		height:4,
+		height:5,
 		histogramColor:"lightblue"
 	},
 	snp:{
@@ -256,7 +329,7 @@ FEATURE_TYPES = {
 			return SNP_BIOTYPE_COLORS[f.displaySoConsequence];
 		},
 		infoWidgetId: "name",
-		height:10,
+		height:8,
 		histogramColor:"orange"
 	},
 	cpg_island:{
@@ -302,8 +375,8 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "Chartreuse";
 		},
-		infoWidgetId: "name",
-		height:10,
+		infoWidgetId: "mutationCds",
+		height:8,
 		histogramColor:"Chartreuse"
 	},
 	structural_variation:{
@@ -409,7 +482,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"orange"
 	},
 	vcf:{
@@ -461,7 +534,7 @@ FEATURE_TYPES = {
 			return "black";
 		},
 		infoWidgetId: "id",
-		height:10,
+		height:8,
 		histogramColor:"gray"
 	},
 	gff2:{
@@ -482,7 +555,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"gray"
 	},
 	gff3:{
@@ -503,7 +576,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"gray"
 	},
 	gtf:{
@@ -524,7 +597,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"gray"
 	},
 	bed:{
@@ -550,7 +623,7 @@ FEATURE_TYPES = {
 	        var hexColor = hex(rgbColor[0])+ hex(rgbColor[1]) + hex(rgbColor[2]);
 			return "#"+hexColor;
 		},
-		height:10,
+		height:8,
 		histogramColor:"orange"
 	},
 	bam:{
@@ -564,7 +637,6 @@ FEATURE_TYPES = {
 			return summary;
 		},
 		getLabel: function(f){
-			
 			return  "bam  "+f.chromosome+":"+f.start+"-"+f.end;
 		},
 		getTipTitle: function(f){
@@ -573,8 +645,9 @@ FEATURE_TYPES = {
 		getTipText: function(f){
 			f.strand = FEATURE_TYPES.bam.getStrand(f);
 			var one =  'cigar:&nbsp;<span class="ssel">'+f.cigar+'</span><br>'+
+				'insert size:&nbsp;<span class="ssel">'+f.inferredInsertSize+'</span><br>'+
 				FEATURE_TYPES.getTipCommons(f)+'<br>'+
-				FEATURE_TYPES.bam.explainFlags(f.flags);
+				this.explainFlags(f.flags);
 			
 			var three = '<div style="background:#FFEF93;font-weight:bold;">attributes</div>';
 			delete f.attributes["BQ"];//for now because is too long
@@ -585,11 +658,25 @@ FEATURE_TYPES = {
 			return '<div style="float:left">'+one+'</div>'+
 					'<div style="float:right">'+three+'</div>';
 		},
-		getColor: function(f){
-			return (parseInt(f.flags)&16) == 0 ? "DarkGray" : "LightGray";
+		getColor: function(f, chr){
+			if(f.mateReferenceName != chr){return "lightgreen";}
+			return (parseInt(f.flags)&(0x10)) == 0 ? "DarkGray" : "LightGray";/**/
+		},
+		getStrokeColor: function(f){
+			if(this.getMateUnmappedFlag(f)){return "tomato"}
+			return "whitesmoke";
 		},
 		getStrand: function(f){
-			return (parseInt(f.flags)&16) == 0 ? "Forward" : "Reverse";
+			return (parseInt(f.flags)&(0x10)) == 0 ? "Forward" : "Reverse";
+		},
+		getReadPairedFlag: function(f){
+			return (parseInt(f.flags)&(0x1)) == 0 ? false : true;
+		},
+		getFirstOfPairFlag: function(f){
+			return (parseInt(f.flags)&(0x40)) == 0 ? false : true;
+		},
+		getMateUnmappedFlag: function(f){
+			return (parseInt(f.flags)&(0x8)) == 0 ? false : true;
 		},
 		height:10,
 		histogramColor:"grey"
@@ -609,7 +696,7 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "black";
 		},
-		height:10,
+		height:8,
 		histogramColor:"orange"
 	}
 };

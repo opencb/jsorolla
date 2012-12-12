@@ -34,14 +34,8 @@ function UploadWidget (args){
         }
     }
 	
-	this.adapter = new GcsaManager();
-	this.adapter.onUploadDataToProject.addEventListener(function(sender,res){
-		if(res.status == 'done'){
-			_this.uploadComplete(res.data);
-		}else if (res.status == 'fail'){
-			_this.uploadFailed(res.data);
-		}
-	});
+	this.adapter = new WumAdapter();
+	
 	
 	this.uploadButtonId = this.id+'_uploadButton';
 	this.uploadFieldId = this.id+'_uploadField';
@@ -403,14 +397,10 @@ UploadWidget.prototype.uploadFile = function()  {
 	this.panel.disable();
 	
     var fd = new FormData();
-    var inputFileName = null;
     if(this.originCheck.getValue()){
-    	inputFileName = this.nameField.getValue();
     	fd.append("file", this.editor.getValue());
     }else{
-		var inputFile = document.getElementById(Ext.getCmp(this.uploadFieldId).fileInputEl.id).files[0];
-		inputFileName = inputFile.name;
-	    fd.append("file", inputFile);
+	    fd.append("file", document.getElementById(Ext.getCmp(this.uploadFieldId).fileInputEl.id).files[0]);
     }
     var sessionId = $.cookie('bioinfo_sid');
     
@@ -421,11 +411,31 @@ UploadWidget.prototype.uploadFile = function()  {
    	fd.append("date", this.acquisitiondate.getValue());
    	fd.append("description", this.textArea.getValue());
    	fd.append("sessionid", sessionId);
-
-   	var objectname = "hola:como:estas:"+inputFileName;
-	//accountid, sessionId, projectname, formData
-	this.adapter.uploadDataToProject($.cookie("bioinfo_account"), sessionId, "Default", objectname, fd);
-	
+   	
+    	
+//    var xhr2 = new XMLHttpRequest();
+//    xhr.upload.addEventListener("progress", this.uploadProgress, false);
+//    xhr.addEventListener("load", function(res){_this.uploadComplete(res);}, false);
+//    xhr.addEventListener("error", function(res){_this.uploadFailed(res);}, false);
+//    xhr.addEventListener("abort", this.uploadCanceled, false);
+//    xhr.open("POST", this.adapter.getHost()+'/rest/data/upload?sessionid='+sessionId, false);// si pones true es asíncrono, si pones false no
+//    															   // en asíncrono aparece el problema del cors
+//    xhr.send(fd);
+   	
+   	
+   var xhr = $.ajax({
+      url: this.adapter.getHost()+'/data/upload',
+      type: "POST",
+      data:fd,
+//      success:function(res){_this.uploadComplete(res);},
+//      error:function(res){_this.uploadFailed(res);},
+      processData: false,  // tell jQuery not to process the data
+      contentType: false   // tell jQuery not to set contentType
+    });  
+   xhr.done(function(res){_this.uploadComplete(res);});
+   xhr.fail(function(res){_this.uploadFailed(res);});
+//   xhr.progress(function(res){_this.uploadProgress(res);}); //solo en jquery 1.7.1 pero no funciona, en la 1.6.4 peta
+    
 };
 
 UploadWidget.prototype.uploadProgress = function(evt)  {

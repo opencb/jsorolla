@@ -40,10 +40,60 @@ function BamAdapter(args){
 		if(args.params != null){
 			this.params = args.params;
 		}
+		if(args.filters != null){
+			this.filters = args.filters;
+		}
+		if(args.options != null){
+			this.options = args.options;
+		}
+		if(args.featureConfig != null){
+			if(args.featureConfig.filters != null){
+				this.filtersConfig = args.featureConfig.filters;
+			}
+			if(args.featureConfig.options != null){//apply only check boxes
+				this.optionsConfig = args.featureConfig.options;
+				for(var i = 0; i < this.optionsConfig.length; i++){
+					if(this.optionsConfig[i].checked == true){
+						this.options[this.optionsConfig[i].name] = true;
+						this.params[this.optionsConfig[i].name] = true;
+					}				
+				}
+			}
+		}
 	}
 	this.featureCache =  new BamCache(argsFeatureCache);
 	this.onGetData = new Event();
 };
+
+BamAdapter.prototype.clearData = function(){
+	this.featureCache.clear();
+};
+
+BamAdapter.prototype.setFilters = function(filters){
+	this.clearData();
+	this.filters = filters;
+	for(filter in filters){
+		var value = filters[filter].toString();
+		delete this.params[filter];
+		if(value != ""){
+			this.params[filter] = value;
+		}
+	}
+};
+BamAdapter.prototype.setOption = function(opt, value){
+	if(opt.fetch){
+		this.clearData();
+	}
+	this.options[opt.name] = value;
+	for(option in this.options){
+		if(this.options[opt.name] != null){
+			this.params[opt.name] = this.options[opt.name];
+		}else{
+			delete this.params[opt.name];
+		}
+	}
+};
+
 
 BamAdapter.prototype.getData = function(args){
 	var _this = this;
@@ -83,8 +133,8 @@ BamAdapter.prototype.getData = function(args){
 	}
 	
 	//CellBase data process
-	var dqsManager = new DqsManager();
-	dqsManager.onRegion.addEventListener(function (evt, data){
+	var gcsaManager = new GcsaManager();
+	gcsaManager.onRegion.addEventListener(function (evt, data){
 		var dataType = "data";
 		if(data.params.histogram){
 			dataType = "histogram"+data.params.interval;
@@ -140,7 +190,7 @@ BamAdapter.prototype.getData = function(args){
 //		console.log(querys);
 		for ( var i = 0, li = querys.length; i < li; i++) {
 			console.time("dqs");
-			dqsManager.region(this.category, this.resource, querys[i], this.params);
+			gcsaManager.region(this.category, this.resource, querys[i], this.params);
 		}
 	}else{//no server call
 		if(itemList.length > 0){

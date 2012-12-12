@@ -19,18 +19,18 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-VariantEffectJobFormPanel.prototype.draw = JobFormPanel.prototype.draw;
-VariantEffectJobFormPanel.prototype.render = JobFormPanel.prototype.render;
-VariantEffectJobFormPanel.prototype.validateRunButton = JobFormPanel.prototype.validateRunButton;
-VariantEffectJobFormPanel.prototype.getRunButtonPanel = JobFormPanel.prototype.getRunButtonPanel;
-//VariantEffectJobFormPanel.prototype.getTreePanel = JobFormPanel.prototype.getTreePanel;
-//VariantEffectJobFormPanel.prototype.checkDataTypes = JobFormPanel.prototype.checkDataTypes;
+VCFToolsJobFormPanel.prototype.draw = JobFormPanel.prototype.draw;
+VCFToolsJobFormPanel.prototype.render = JobFormPanel.prototype.render;
+VCFToolsJobFormPanel.prototype.validateRunButton = JobFormPanel.prototype.validateRunButton;
+VCFToolsJobFormPanel.prototype.getRunButtonPanel = JobFormPanel.prototype.getRunButtonPanel;
+//VCFToolsJobFormPanel.prototype.getTreePanel = JobFormPanel.prototype.getTreePanel;
+//VCFToolsJobFormPanel.prototype.checkDataTypes = JobFormPanel.prototype.checkDataTypes;
 
-function VariantEffectJobFormPanel(args){
+function VCFToolsJobFormPanel(args){
 	if (args == null){
 		args = new Object();
 	}
-	args.title = "Variant effect job form";
+	args.title = "VCF Tools job form";
 	JobFormPanel.prototype.constructor.call(this, args);
 	
 	this.tags = ["vcf|bed|gff"];
@@ -53,18 +53,21 @@ function VariantEffectJobFormPanel(args){
 	
 };
 
-VariantEffectJobFormPanel.prototype.getForms = function (){
+VCFToolsJobFormPanel.prototype.getForms = function (){
 	var items = [
 	             	this._getSpeciesForm(),
 	             	this._getBrowseForm(),
+	             	this._getToolSelectForm(),
 	             	this._getFilterForm(),
-	             	this._getOutputForm(),
+	             	this._getMergeForm(),
+	             	this._getSplitForm(),
+	             	this._getStatsForm(),
 	             	this.getRunButtonPanel()
 	             ];
 
 	var form1234 = Ext.create('Ext.panel.Panel', {
 		border:true,
-//		layout:{type:'vbox', align: 'stretch'},
+		layout:{type:'vbox', align: 'stretch'},
 		buttonAlign:'center',
 		//height:900,
 		//width: "600",
@@ -73,7 +76,7 @@ VariantEffectJobFormPanel.prototype.getForms = function (){
 	
 	return [this._getExampleForm(),form1234];
 };
-VariantEffectJobFormPanel.prototype._getSpeciesForm = function (){
+VCFToolsJobFormPanel.prototype._getSpeciesForm = function (){
 	var _this=this;
 	
 	var checkFlags = function(value){
@@ -141,28 +144,26 @@ VariantEffectJobFormPanel.prototype._getSpeciesForm = function (){
 };
 
 
-VariantEffectJobFormPanel.prototype._getExampleForm = function (){
+VCFToolsJobFormPanel.prototype._getExampleForm = function (){
 	var _this = this;
 	
 	var example1 = Ext.create('Ext.Component', {
-		width:275,
+		width:300,
 		html:'<span class="u"><span class="emph u">Load example 1.</span> <span class="info s110">VCF file with ~3500 variants</span></span>',
 		cls:'dedo',
 		listeners:{
 			afterrender:function(){
 				this.getEl().on("click",function(){_this.loadExample1();Ext.example.msg("Example loaded","");});
-				
 			}
 		}
 	});
 	var example2 = Ext.create('Ext.Component', {
-		width:275,
+		width:300,
 		html:'<span class="u"><span class="emph u">Load example 2.</span> <span class="info s110">VCF file with ~5000 variants</span></span>',
 		cls:'dedo',
 		listeners:{
 			afterrender:function(){
 				this.getEl().on("click",function(){_this.loadExample2();Ext.example.msg("Example loaded","");});
-				
 			}
 		}
 	});
@@ -177,7 +178,7 @@ VariantEffectJobFormPanel.prototype._getExampleForm = function (){
 };
 
 
-VariantEffectJobFormPanel.prototype._getBrowseForm = function (){
+VCFToolsJobFormPanel.prototype._getBrowseForm = function (){
 	var _this = this;
 	
 	var note1 = Ext.create('Ext.container.Container', {
@@ -223,8 +224,90 @@ VariantEffectJobFormPanel.prototype._getBrowseForm = function (){
 	return formBrowser;
 };
 
+VCFToolsJobFormPanel.prototype._getToolSelectForm = function (){
+	var _this=this;	
+	var items = [];
 
-VariantEffectJobFormPanel.prototype._getFilterForm = function (){
+	var note1 = Ext.create('Ext.Component', {
+		html:'Please choose one of the following tools:',
+		margin:"0 0 10 0"
+	});
+	items.push(note1);
+	
+	var tool1 = Ext.create('Ext.form.field.Radio', {
+		boxLabel :'Filter',
+		name : this.id+"toolGroup",
+		listeners:{
+			change:function(comp, newValue, oldValue, eOpts){
+				if(newValue){
+					Ext.getCmp(_this.id+"filterForm").show();
+					_this.paramsWS["tool"] = "filter";
+				}else{
+					Ext.getCmp(_this.id+"filterForm").hide();
+				}
+			}
+		}
+	});
+	var tool2 = Ext.create('Ext.form.field.Radio', {
+		boxLabel :'Merge',
+		name : this.id+"toolGroup",
+		listeners:{
+			change:function(comp, newValue, oldValue, eOpts){
+				if(newValue){
+					Ext.getCmp(_this.id+"mergeForm").show();
+					_this.paramsWS["tool"] = "merge";
+				}else{
+					Ext.getCmp(_this.id+"mergeForm").hide();
+				}
+			}
+		}
+	});
+	var tool3 = Ext.create('Ext.form.field.Radio', {
+		boxLabel :'Split',
+		name : this.id+"toolGroup",
+		listeners:{
+			change:function(comp, newValue, oldValue, eOpts){
+				if(newValue){
+					Ext.getCmp(_this.id+"splitForm").show();
+					_this.paramsWS["tool"] = "split";
+				}else{
+					Ext.getCmp(_this.id+"splitForm").hide();
+				}
+			}
+		}
+	});
+	var tool4 = Ext.create('Ext.form.field.Radio', {
+		boxLabel :'Stats',
+		name : this.id+"toolGroup",
+		listeners:{
+			change:function(comp, newValue, oldValue, eOpts){
+				if(newValue){
+					Ext.getCmp(_this.id+"statsForm").show();
+					_this.paramsWS["tool"] = "stats";
+				}else{
+					Ext.getCmp(_this.id+"statsForm").hide();
+				}
+			}
+		}
+	});
+	
+	items.push(tool1);
+	items.push(tool2);
+	items.push(tool3);
+	items.push(tool4);
+
+	var form = Ext.create('Ext.form.Panel', {
+		title:"Tool Selection",
+		border:false,
+		cls:'panel-border-top',
+		bodyPadding:10,
+		items: items
+	});
+	
+	return form;
+};
+
+VCFToolsJobFormPanel.prototype._getFilterForm = function (){
 	var _this=this;
 	var items = [];
 	var coverage = Ext.create('Ext.form.field.Number', {
@@ -276,8 +359,10 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 	
 
 	var formFilterOptions = Ext.create('Ext.form.Panel', {
-		title:"Input data filter options",
+		id:this.id+"filterForm",
+		title:"Filter",
 		border:false,
+		hidden:true,
 		cls:'panel-border-top',
 		bodyPadding:10,
 		items: items
@@ -314,134 +399,116 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 	return formFilterOptions;
 };
 
-VariantEffectJobFormPanel.prototype._getOutputForm = function (){
-	var margin = 10;
+VCFToolsJobFormPanel.prototype._getMergeForm = function (){
+	var _this=this;	
 	var items = [];
-	items.push(this.createLabel("Consequence types"));
-	items.push(this.createCheckBox("Non-synonymous coding", true, margin));
-	items.push(this.createCheckBox("Synonymous coding", false, margin));
-	items.push(this.createCheckBox("Splice sites", true,margin));
-	items.push(this.createCheckBox("Stop gained/lost", false,margin));
-	items.push(this.createCheckBox("Upstream", true,margin));
-	items.push(this.createCheckBox("Downstream", true,margin));
-	items.push(this.createCheckBox("5' UTR", true,margin));
-	items.push(this.createCheckBox("3' UTR", true,margin));
-	items.push(this.createCheckBox("Non-coding RNA", true,margin));
-	items.push(this.createCheckBox("Intergenic", false,margin));
-	items.push(this.createLabel("Regulatory"));
-	items.push(this.createCheckBox("Jaspar TFBS regions", true,margin));
-	items.push(this.createCheckBox("miRNA targets", true,margin));
-	items.push(this.createCheckBox("Other regulatory regions (CTCF, DNaseI, ...)", false,margin));
-	items.push(this.createLabel("Variations"));
-	items.push(this.createCheckBox("SNPs", true,margin));
-	items.push(this.createCheckBox("Uniprot Natural Variants", false,margin));
-	items.push(this.createLabel("Phenotype and diseases"));
-	items.push(this.createCheckBox("Phenotypic annotated SNPs", false,margin));
-	items.push(this.createCheckBox("Disease mutations", false, margin));
-	 	
-	var form4 = Ext.create('Ext.form.Panel', {
-		id:this.id+"Output options",
-		title:"Output options",
+
+	var radioItems = [];
+	radioItems.push(this.createRadio("Missing","missing-mode",true));
+	radioItems.push(this.createRadio("Reference","missing-mode"));
+	var radioGroup = Ext.create('Ext.form.RadioGroup', {
+		fieldLabel: 'Missing Mode',
+		width:500,
+		items: radioItems,
+		listeners:{
+			validitychange:function(comp, newValue, oldValue, eOpts){
+				console.log(newValue);
+				console.log(oldValue);
+			}
+		}
+	});
+	items.push(radioGroup);
+
+	var form = Ext.create('Ext.form.Panel', {
+		id:this.id+"mergeForm",
+		title:"Merge",
 		border:false,
-//		cls:'panel-border-left',
-		flex:1,
-		bodyPadding:10,
+		hidden:true,
 		cls:'panel-border-top',
+		bodyPadding:10,
 		items: items
 	});
-	return form4;
+	
+	return form;
+};
+
+VCFToolsJobFormPanel.prototype._getSplitForm = function (){
+	var _this=this;	
+	var items = [];
+
+	var radioItems = [];
+	radioItems.push(this.createRadio("Chromosome","criterion",true));
+	//radioItems.push(this.createRadio("...","criterion"));
+	var radioGroup = Ext.create('Ext.form.RadioGroup', {
+		fieldLabel: 'Criterion',
+		width:500,
+		items: radioItems
+	});
+	items.push(radioGroup);
+
+	var form = Ext.create('Ext.form.Panel', {
+		id:this.id+"splitForm",
+		title:"Split",
+		border:false,
+		hidden:true,
+		cls:'panel-border-top',
+		bodyPadding:10,
+		items: items
+	});
+	
+	return form;
+};
+
+VCFToolsJobFormPanel.prototype._getStatsForm = function (){
+	var _this=this;	
+	var items = [];
+
+	var margin = 10;
+	items.push(this.createCheckBox("Variants", true, margin));
+	items.push(this.createCheckBox("Samples", true, margin));
+	
+	var form = Ext.create('Ext.form.Panel', {
+		id:this.id+"statsForm",
+		title:"Stats",
+		border:false,
+		hidden:true,
+		cls:'panel-border-top',
+		bodyPadding:10,
+		items: items
+	});
+	
+	return form;
 };
 
 
-VariantEffectJobFormPanel.prototype.loadExample1 = function (){
-	Ext.getCmp("jobNameField_"+this.id).setValue("Example vcf 3500");
-	this.paramsWS["vcf-file-fileid"] = "example1";
-	
-	
-	
-	Ext.getCmp("Only SNPs_"+this.id).setValue(true);
-	this.fileBrowserLabel.setText('<span class="emph">CHB_exon.vcf</span> <span class="info">(server)</span>',false);
-	
-	Ext.getCmp("Non-synonymous coding_"+this.id).setValue(true);
-	Ext.getCmp("Synonymous coding_"+this.id).setValue(true);
-	Ext.getCmp("Splice sites_"+this.id).setValue(true);
-	Ext.getCmp("Stop gained/lost_"+this.id).setValue(true);
-	Ext.getCmp("Upstream_"+this.id).setValue(true);
-	Ext.getCmp("Downstream_"+this.id).setValue(true);
-	Ext.getCmp("5' UTR_"+this.id).setValue(true);
-	Ext.getCmp("3' UTR_"+this.id).setValue(false);
-	Ext.getCmp("Non-coding RNA_"+this.id).setValue(true);
-	Ext.getCmp("Intergenic_"+this.id).setValue(false);
-	
-	Ext.getCmp("Jaspar TFBS regions_"+this.id).setValue(true);
-	Ext.getCmp("miRNA targets_"+this.id).setValue(true);
-	Ext.getCmp("Other regulatory regions (CTCF, DNaseI, ...)_"+this.id).setValue(false);
-	
-	Ext.getCmp("SNPs_"+this.id).setValue(true);
-	Ext.getCmp("Uniprot Natural Variants_"+this.id).setValue(false);
-	
-	Ext.getCmp("Phenotypic annotated SNPs_"+this.id).setValue(false);
-	Ext.getCmp("Disease mutations_"+this.id).setValue(false);
-	Ext.getCmp(this.id+"speciesCombo").select(Ext.getCmp(this.id+"speciesCombo").findRecordByValue("hsa"));
-	console.log(this.paramsWS);
-	this.validateRunButton();
-
+VCFToolsJobFormPanel.prototype.loadExample1 = function (){
+this.runButton.enable();
 };
-VariantEffectJobFormPanel.prototype.loadExample2 = function (){
-	Ext.getCmp("jobNameField_"+this.id).setValue("Example vcf 5000");
-	this.paramsWS["vcf-file-fileid"] = "example2";
-	
-	
-	
-	Ext.getCmp("Only SNPs_"+this.id).setValue(true);
-	this.fileBrowserLabel.setText('<span class="emph">1000genomes_5000_variants.vcf</span> <span class="info">(server)</span>',false);
-	
-	Ext.getCmp("Non-synonymous coding_"+this.id).setValue(true);
-	Ext.getCmp("Synonymous coding_"+this.id).setValue(true);
-	Ext.getCmp("Splice sites_"+this.id).setValue(true);
-	Ext.getCmp("Stop gained/lost_"+this.id).setValue(true);
-	Ext.getCmp("Upstream_"+this.id).setValue(true);
-	Ext.getCmp("Downstream_"+this.id).setValue(true);
-	Ext.getCmp("5' UTR_"+this.id).setValue(true);
-	Ext.getCmp("3' UTR_"+this.id).setValue(true);
-	Ext.getCmp("Non-coding RNA_"+this.id).setValue(true);
-	Ext.getCmp("Intergenic_"+this.id).setValue(false);
-	
-	Ext.getCmp("Jaspar TFBS regions_"+this.id).setValue(true);
-	Ext.getCmp("miRNA targets_"+this.id).setValue(true);
-	Ext.getCmp("Other regulatory regions (CTCF, DNaseI, ...)_"+this.id).setValue(false);
-	
-	Ext.getCmp("SNPs_"+this.id).setValue(true);
-	Ext.getCmp("Uniprot Natural Variants_"+this.id).setValue(false);
-	
-	Ext.getCmp("Phenotypic annotated SNPs_"+this.id).setValue(false);
-	Ext.getCmp("Disease mutations_"+this.id).setValue(false);
-	Ext.getCmp(this.id+"speciesCombo").select(Ext.getCmp(this.id+"speciesCombo").findRecordByValue("hsa"));
-	console.log(this.paramsWS);
-	this.validateRunButton();
+VCFToolsJobFormPanel.prototype.loadExample2 = function (){
 
 };
 
 
-VariantEffectJobFormPanel.prototype.validateRunButton = function (){
-	if(this.paramsWS["vcf-file-fileid"] != null && Ext.getCmp("jobNameField_"+this.id).getValue()!=""){
+VCFToolsJobFormPanel.prototype.validateRunButton = function (){
+	if(this.paramsWS["vcf-file-fileid"] != null && Ext.getCmp("jobNameField_"+this.id).getValue()!="" && this.paramsWS["tool"] != null){
 		this.runButton.enable();
 	}else{
 		this.runButton.disable();
 	}
 //	this.runButton.enable();
 };
-VariantEffectJobFormPanel.prototype.getCheckValue = function (checkbox){
+
+VCFToolsJobFormPanel.prototype.getCheckValue = function (checkbox){
 	if(checkbox.getValue())
 		return null;
 	return "";
 };
-VariantEffectJobFormPanel.prototype.runJob = function (){
+VCFToolsJobFormPanel.prototype.runJob = function (){
 		
 		this.paramsWS["sessionid"] = $.cookie('bioinfo_sid');
 		this.paramsWS["jobname"] = Ext.getCmp("jobNameField_"+this.id).getValue();
 		
-		
+		/*FILTER*/
 		//validate regions
 		var regions = "";
 		var regionPatt = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
@@ -459,10 +526,10 @@ VariantEffectJobFormPanel.prototype.runJob = function (){
 			this.paramsWS["coverage"] = Ext.getCmp(this.id+"coverage").getValue();
 		}
 		if(Ext.getCmp(this.id+"quality").getValue()!=null){
-			this.paramsWS["quality"] = Ext.getCmp(this.id+"coverage").getValue();
+			this.paramsWS["quality"] = Ext.getCmp(this.id+"quality").getValue();
 		}
 		if(Ext.getCmp(this.id+"alleles").getValue()!=null){
-			this.paramsWS["alleles"] = Ext.getCmp(this.id+"coverage").getValue();
+			this.paramsWS["alleles"] = Ext.getCmp(this.id+"alleles").getValue();
 		}
 		if(Ext.getCmp(this.id+"minAlleles").getValue()!=null){
 			this.paramsWS["maf"] = Ext.getCmp(this.id+"minAlleles").getValue();
@@ -475,82 +542,47 @@ VariantEffectJobFormPanel.prototype.runJob = function (){
 			this.paramsWS["snp"] = "exclude";
 		}
 		
-		var soTerms = new Array();
-		if(!Ext.getCmp("Non-synonymous coding_"+this.id).getValue()){
-			soTerms.push("non_synonymous_codon");
+		/*END FILTER*/
+
+		/*MERGE*/
+		if(Ext.getCmp("Missing_"+this.id).getValue()){
+			this.paramsWS["missing-mode"] = "missing";
 		}
-		if(!Ext.getCmp("Synonymous coding_"+this.id).getValue()){
-			soTerms.push("synonymous_codon");
+		if(Ext.getCmp("Reference_"+this.id).getValue()){
+			this.paramsWS["missing-mode"] = "reference";
 		}
-		if(!Ext.getCmp("Splice sites_"+this.id).getValue()){
-			soTerms.push("splice_donor_variant");
-			soTerms.push("splice_acceptor_variant");
-			soTerms.push("splice_region_variant");
-		}
-		if(!Ext.getCmp("Stop gained/lost_"+this.id).getValue()){
-			soTerms.push("stop_gained");
-			soTerms.push("stop_lost");
-		}
-		if(!Ext.getCmp("Upstream_"+this.id).getValue()){
-			soTerms.push("5KB_upstream_variant");
-		}
-		if(!Ext.getCmp("Downstream_"+this.id).getValue()){
-			soTerms.push("5KB_downstream_variant");
-		}
-		if(!Ext.getCmp("5' UTR_"+this.id).getValue()){
-			soTerms.push("5_prime_UTR_variant");
-		}
-		if(!Ext.getCmp("3' UTR_"+this.id).getValue()){
-			soTerms.push("3_prime_UTR_variant");
-		}
-		if(!Ext.getCmp("Non-coding RNA_"+this.id).getValue()){
-			soTerms.push("pseudogene");
-			soTerms.push("nc_transcript_variant");
-			soTerms.push("miRNA");
-			soTerms.push("lincRNA");
-		}
-		if(!Ext.getCmp("Intergenic_"+this.id).getValue()){
-			soTerms.push("intergenic_variant");
-		}
-		if(!Ext.getCmp("Jaspar TFBS regions_"+this.id).getValue()){
-			soTerms.push("TF_binding_site_variant");
-		}
-		if(!Ext.getCmp("miRNA targets_"+this.id).getValue()){
-			soTerms.push("miRNA_target_site");
-		}
-		if(!Ext.getCmp("Other regulatory regions (CTCF, DNaseI, ...)_"+this.id).getValue()){
-			soTerms.push("regulatory_region_variant");
-			soTerms.push("DNAseI_hypersensitive_site");
-			soTerms.push("RNA_polymerase_promoter");
-		}
-		if(!Ext.getCmp("SNPs_"+this.id).getValue()){
-			soTerms.push("SNP");
-		}
+		/*END MERGE*/
+
 		
-//		if(!Ext.getCmp("Uniprot Natural Variants_"+this.id).getValue())
-//			
-//		}
-		if(Ext.getCmp("Phenotypic annotated SNPs_"+this.id).getValue()){
-			this.paramsWS["no-phenotype"] = "";
+		/*SPLIT*/
+		if(Ext.getCmp("Chromosome_"+this.id).getValue()){
+			this.paramsWS["criterion"] = "chromosome";
 		}
-		if(Ext.getCmp("Disease mutations_"+this.id).getValue()){
-			this.paramsWS["no-phenotype"] = "";
+		/*END SPLIT*/
+
+		/*STATS*/
+		if(Ext.getCmp("Variants_"+this.id).getValue()){
+			this.paramsWS["variants"] = "";
 		}
-		if(soTerms.length > 0){
-			this.paramsWS["exclude"] = soTerms.toString();
+		if(Ext.getCmp("Samples_"+this.id).getValue()){
+			this.paramsWS["samples"] = "";
 		}
+		/*END STATS*/
+
+		//FALTA APLICAR SOLO LOS DE LA TOOL ELEGIDA
 		
-		this.paramsWS["command"] = "effect";
+		this.paramsWS["command"] = "hpg-var-vcf";
 		
 		console.log(this.paramsWS);
 		//this.adapter.variantAnalysis(this.paramsWS);
 		//this.panel.close();
+
 };
 
 
 
 //helping functions
-VariantEffectJobFormPanel.prototype.createCheckBox = function (name, checked, margin){
+VCFToolsJobFormPanel.prototype.createCheckBox = function (name, checked, margin){
 	if(checked == null)
 		cheched = false;
 	if(margin == null)
@@ -564,19 +596,18 @@ VariantEffectJobFormPanel.prototype.createCheckBox = function (name, checked, ma
 	});
 	return cb;
 };
-VariantEffectJobFormPanel.prototype.createLabel = function (text, margin){
+VCFToolsJobFormPanel.prototype.createLabel = function (text, margin){
 	if(margin == null){
 		margin = "15 0 0 0";
 	}
 	var label = Ext.create('Ext.form.Label', {
-		id:text+"_"+this.id,
 		margin:margin,
 		html:'<span class="emph">'+text+'</span>'
 	});
 	
 	return label;
 };
-VariantEffectJobFormPanel.prototype.createTextFields = function (name){
+VCFToolsJobFormPanel.prototype.createTextFields = function (name){
 	var tb = Ext.create('Ext.form.field.Text', {
 		id:name+"_"+this.id,
 		fieldLabel : name,
@@ -585,7 +616,7 @@ VariantEffectJobFormPanel.prototype.createTextFields = function (name){
 	});
 	return tb;
 };
-VariantEffectJobFormPanel.prototype.createTextAreas = function (name, emptyText){
+VCFToolsJobFormPanel.prototype.createTextAreas = function (name, emptyText){
 	var tb = Ext.create('Ext.form.field.TextArea', {
 		id:name+"_"+this.id,
 		fieldLabel : name,
@@ -596,7 +627,7 @@ VariantEffectJobFormPanel.prototype.createTextAreas = function (name, emptyText)
 	});
 	return tb;
 };
-VariantEffectJobFormPanel.prototype.createTextField = function (name, emptyText){
+VCFToolsJobFormPanel.prototype.createTextField = function (name, emptyText){
 	var tb = Ext.create('Ext.form.field.Text', {
 		id:name+"_"+this.id,
 		fieldLabel : name,
@@ -607,7 +638,7 @@ VariantEffectJobFormPanel.prototype.createTextField = function (name, emptyText)
 	});
 	return tb;
 };
-VariantEffectJobFormPanel.prototype.createRadio = function (name, group, checked, hidden){
+VCFToolsJobFormPanel.prototype.createRadio = function (name, group, checked, hidden){
 	var cb = Ext.create('Ext.form.field.Radio', {
 		 id:name+"_"+this.id,
 		 boxLabel : name,

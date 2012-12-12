@@ -96,9 +96,7 @@ FeatureCache.prototype.getFeatureChunksByRegion = function(region){
 
 FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, featureType, dataType){
 	var key, firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, feature, gzipFeature;
-	
-	console.time("-----"+featureType);
-	//var ssss = 0;
+
 	
 	//initialize region
 	firstRegionChunk = this._getChunk(region.start);
@@ -128,10 +126,8 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 		
 		if(this.gzip) {
 			gzipFeature = RawDeflate.deflate(JSON.stringify(feature));
-			//ssss+=gzipFeature.length;
 		}else{
 			gzipFeature = feature;
-			//ssss+=JSON.stringify(gzipFeature).length;
 		}
 		
 		for(var i=firstChunk; i<=lastChunk; i++) {
@@ -141,8 +137,6 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 			}
 		}
 	}
-	console.timeEnd("-----"+featureType);
-	//console.log("-----"+ssss)
 };
 
 
@@ -364,44 +358,44 @@ FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dataTyp
 
 
 //NOT USED dev not tested
-FeatureCache.prototype.histogram = function(region, interval){
-
-	var intervals = (region.end-region.start+1)/interval;
-	var intervalList = [];
-	
-	for ( var i = 0; i < intervals; i++) {
-		var featuresInterval = 0;
-		
-		var intervalStart = i*interval;//deberia empezar en 1...
-		var intervalEnd = ((i+1)*interval)-1;
-		
-		var firstChunk = this._getChunk(intervalStart+region.start);
-		var lastChunk = this._getChunk(intervalEnd+region.start);
-		
-		console.log(this.cache);
-		for(var j=firstChunk; j<=lastChunk; j++){
-			var key = region.chromosome+":"+j;
-			console.log(key);
-			console.log(this.cache[key]);
-			for ( var k = 0, len = this.cache[key].length; k < len; k++) {
-				if(this.gzip) {
-					feature = JSON.parse(RawDeflate.inflate(this.cache[key][k]));
-				}else{
-					feature = this.cache[key][k];
-				}
-				if(feature.start > intervalStart && feature.start < intervalEnd);
-				featuresInterval++;
-			}
-			
-		}
-		intervalList[i]=featuresInterval;
-		
-		if(this.maxFeaturesInterval<featuresInterval){
-			this.maxFeaturesInterval = featuresInterval;
-		}
-	}
-	
-	for ( var inter in  intervalList) {
-		intervalList[inter]=intervalList[inter]/this.maxFeaturesInterval;
-	}
-};
+//FeatureCache.prototype.histogram = function(region, interval){
+//
+	//var intervals = (region.end-region.start+1)/interval;
+	//var intervalList = [];
+	//
+	//for ( var i = 0; i < intervals; i++) {
+		//var featuresInterval = 0;
+		//
+		//var intervalStart = i*interval;//deberia empezar en 1...
+		//var intervalEnd = ((i+1)*interval)-1;
+		//
+		//var firstChunk = this._getChunk(intervalStart+region.start);
+		//var lastChunk = this._getChunk(intervalEnd+region.start);
+		//
+		//console.log(this.cache);
+		//for(var j=firstChunk; j<=lastChunk; j++){
+			//var key = region.chromosome+":"+j;
+			//console.log(key);
+			//console.log(this.cache[key]);
+			//for ( var k = 0, len = this.cache[key].length; k < len; k++) {
+				//if(this.gzip) {
+					//feature = JSON.parse(RawDeflate.inflate(this.cache[key][k]));
+				//}else{
+					//feature = this.cache[key][k];
+				//}
+				//if(feature.start > intervalStart && feature.start < intervalEnd);
+				//featuresInterval++;
+			//}
+			//
+		//}
+		//intervalList[i]=featuresInterval;
+		//
+		//if(this.maxFeaturesInterval<featuresInterval){
+			//this.maxFeaturesInterval = featuresInterval;
+		//}
+	//}
+	//
+	//for ( var inter in  intervalList) {
+		//intervalList[inter]=intervalList[inter]/this.maxFeaturesInterval;
+	//}
+//};

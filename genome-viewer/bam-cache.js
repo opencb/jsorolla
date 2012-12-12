@@ -38,11 +38,11 @@ function BamCache(args) {
 	}
 	
 	this.cache = {};
-	this.chunksDisplayed = {};
+
+	//deprecated trackSvg has this object now
+	//this.chunksDisplayed = {};
 	
 	this.maxFeaturesInterval = 0;//for local histogram
-	
-	
 	
 	//XXX
 	this.gzip = false;
@@ -155,6 +155,11 @@ BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType
 	console.log("BamCache.prototype.putFeaturesByRegion"+ssss)
 };
 
+BamCache.prototype.clear = function(){
+	this.size = 0;		
+	this.cache = {};
+	console.log("bamCache cleared")
+};
 
 /*
 BamCache.prototype.getFeaturesByChunk = function(key, dataType){
@@ -258,10 +263,7 @@ BamCache.prototype.getFeaturesByRegion = function(region, dataType){
 //	}
 //};
 //
-//BamCache.prototype.clear = function(){
-//		this.size = 0;		
-//		this.cache = {};
-//};
+
 //
 //BamCache.prototype.clearType = function(dataType){
 //	this.cache[dataType] = null;

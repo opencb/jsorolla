@@ -25,13 +25,13 @@ function TrackSvg(parent, args) {
 	this.parent = parent;
 	
 	this.y = 0;
-	this.height = 50;
+	this.height = 25;
 	this.width = 200;
 	this.title = "track";
 //	this.type = "generic";
-	this.renderedArea = {};
+	this.renderedArea = {};//used for renders to store binary trees
 	
-	this.lienzo=7000000;//mesa
+	this.lienzo=500000;//mesa
 	this.pixelPosition=this.lienzo/2;
 	
 	this.histogramZoom = -1000;//no histogram by default
@@ -51,6 +51,9 @@ function TrackSvg(parent, args) {
 		if(args.id != null){
 			this.id = args.id;
 		}
+		if(args.type != null){
+			this.type = args.type;
+		}
 		if(args.trackSvgLayout != null){
 			this.trackSvgLayout = args.trackSvgLayout;
 		}
@@ -66,8 +69,8 @@ function TrackSvg(parent, args) {
 		if(args.height != null){
 			this.height = args.height;
 		}
-		if(args.position != null){
-			this.position = args.position;
+		if(args.region != null){
+			this.region = args.region;
 		}
 		if(args.zoom != null){
 			this.zoom = args.zoom;
@@ -96,6 +99,9 @@ function TrackSvg(parent, args) {
 		if(args.titleVisibility != null){
 			this.titleVisibility = args.titleVisibility;
 		}
+		if(args.visibleRange != null){
+			this.visibleRange = args.visibleRange;
+		}
 		if(args.featuresRender != null){
 			switch(args.featuresRender){
 				case "MultiFeatureRender": this.featuresRender = this.MultiFeatureRender; break;
@@ -107,10 +113,12 @@ function TrackSvg(parent, args) {
 			this.defaultRender = this.featuresRender;
 		}
 	}
+
+	this.position = this.region.center();
 	
 	//flags
 	this.rendered = false;//svg structure already draw, svg elements can be used from now
-	
+	this.status = null;
 	
 	this.interval=null;
 	this.histogram=null;
@@ -131,6 +139,7 @@ TrackSvg.prototype.setHeight = function(height){
 	if(this.rendered){
 		this.main.setAttribute("height",height);
 		this.features.setAttribute("height",height);
+		this.titlebar.setAttribute("height",height);
 	}
 };
 
@@ -143,49 +152,95 @@ TrackSvg.prototype.setWidth = function(width){
 
 TrackSvg.prototype.setLoading = function(bool){
 	if(bool){
-		this.titleGroup.setAttribute("transform","translate(40)");
+		//this.titleGroup.setAttribute("transform","translate(40)");
 		this.loading.setAttribute("visibility", "visible");
+		this.status = "rendering";
 	}else{
-		this.titleGroup.setAttribute("transform","translate(0)");
+		//this.titleGroup.setAttribute("transform","translate(0)");
 		this.loading.setAttribute("visibility", "hidden");
+		this.status = "ready";
 	}
-	
 };
 
+TrackSvg.prototype.setFilters = function(filters){
+	this.trackData.setFilters(filters);
+	this.regionChange();
+};
+TrackSvg.prototype.getFilters = function(){
+	return this.trackData.adapter.filters;
+};
+TrackSvg.prototype.getFiltersConfig = function(){
+	return this.trackData.adapter.filtersConfig;
+};
+TrackSvg.prototype.setOption = function(option, value){
+	this.trackData.setOption(option, value);
+	this.regionChange();
+};
+TrackSvg.prototype.getOptions = function(){
+	return this.trackData.adapter.options;
+};
+TrackSvg.prototype.getOptionsConfig = function(){
+	return this.trackData.adapter.optionsConfig;
+};
+
+TrackSvg.prototype.cleanSvg = function(filters){
+		console.time("-----------------------------------------empty");
+		//$(this.features).empty();
+//		this.features.textContent = "";
+		while (this.features.firstChild) {
+			this.features.removeChild(this.features.firstChild);
+		}
+		console.timeEnd("-----------------------------------------empty");
+		//deprecated, diplayed object is now in trackSvg class
+		//this.adapter.featureCache.chunksDisplayed = {};
+		this.chunksDisplayed = {};
+		this.renderedArea = {};
+};
+
+TrackSvg.prototype.setTitle = function(title){
+	this.titleText.textContent =  title;
+	//this.titlebar.setAttribute("width", (15+title.length*6));
+};
+
+TrackSvg.prototype.getTitle = function(){
+	return this.titleText.textContent;
+};
 
 TrackSvg.prototype.draw = function(){
 	var _this = this;
-	
 	var main = SVG.addChild(this.parent,"svg",{
 //		"style":"border:1px solid #e0e0e0;",
 		"id":this.id,
+		"class":"trackSvg",
 		"x":0,
 		"y":this.y,
 		"width":this.width,
 		"height":this.height
 	});
 	
-	var features = SVG.addChild(main,"svg",{
-		"class":"features",
-		"x":-this.pixelPosition,
-		"width":this.lienzo,
-		"height":this.height
-	});
+
 	
 	var titleGroup = SVG.addChild(main,"g",{
-		visibility:this.titleVisibility	
+		"class":"trackTitle"
+		//visibility:this.titleVisibility	
 	});
-	
-	var textWidth = 15+this.id.length*6;
+
+
+	var text = this.title;
+	var textWidth = 15+text.length*6;
 	var titlebar = SVG.addChild(titleGroup,"rect",{
 		"x":0,
 		"y":0,
-		"width":textWidth,
-		"height":22,
-		"stroke":"deepSkyBlue",
-		"stroke-width":"1",
+		//"width":textWidth,
+		"width":this.width,
+		//"height":22,
+		"height":this.getHeight(),
+		//"stroke":"lightgray",
+		//"stroke":"deepSkyBlue",
+		//"stroke-width":"1",
 		"opacity":"0.6",
-		"fill":"honeydew"
+		//"fill":"honeydew"
+		"fill":"transparent"
 	});
 	var titleText = SVG.addChild(titleGroup,"text",{
 		"x":4,
@@ -195,46 +250,52 @@ TrackSvg.prototype.draw = function(){
 		"fill":"black"
 //		"transform":"rotate(-90 50,50)"
 	});
-	titleText.textContent = this.id;
+	titleText.textContent =  text;
 
-	var settingsRect = SVG.addChildImage(titleGroup,{
-		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
-		"x":4+textWidth,
-		"y":3,
-		"width":17,
-		"height":17,
-		"opacity":"0.6",
-		"visibility":"hidden"
+	var features = SVG.addChild(titleGroup,"svg",{
+		"class":"features",
+		"x":-this.pixelPosition,
+		"width":this.lienzo,
+		"height":this.height
 	});
-	
-	var upRect = SVG.addChildImage(titleGroup,{
-		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAD9JREFUOI1jYKAhEGBgYJgPxWSB+QwMDP+hmGRDkDWTbAg2zUQbgk8zQUOI0Uyyd2AacAImYk0aNWAwG0AxAABRBSdztC0IxQAAAABJRU5ErkJggg==",
-		"x":22+textWidth,
-		"y":4,
-	    "width":16,
-	    "height":16,
-	    "opacity":"0.6",
-	    "visibility":"hidden"
-	});
-	
-	var downRect = SVG.addChildImage(titleGroup,{
-		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAERJREFUOI1jYKAx+A/FOAETpTaMGjDYDJjPgIh39PhHF5+Py0BshhCtmRhDCGrGZwjRmrEZQrJmZEPmMzAwCJBrAEEAANCqJXdWrFuyAAAAAElFTkSuQmCC",
-		"x":36+textWidth,
-		"y":4,
-		"width":16,
-		"height":16,
-		"opacity":"0.6",
-		"visibility":"hidden"
-	});
-	var hideRect = SVG.addChildImage(titleGroup,{
-		"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAJFJREFUOI2tks0NgzAMhb+wAFP05FM2aCdjtDBCLjkxBRO4F4JoAONIfVKkyHk/sl4CQIyRFqpKzvk0/zvCMRSYgU9LEpH9XkpJwFtEgqr+8NJmkozAR45F2N+WcTQyrk3c4lYwbadLXFGFCkx34sHr9lrXrvTLFXrFx509Fd+K3SaeqkwTb1XV5Axvz73/wcQXYitIjMzG550AAAAASUVORK5CYII=",
-		"x":52+textWidth,
-		"y":4,
-		"width":16,
-		"height":16,
-		"opacity":"0.6",
-		"visibility":"hidden"
-	});
+	//var settingsRect = SVG.addChildImage(titleGroup,{
+		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
+		//"x":4+textWidth,
+		//"y":3,
+		//"width":17,
+		//"height":17,
+		//"opacity":"0.6",
+		//"visibility":"hidden"
+	//});
+	//
+	//var upRect = SVG.addChildImage(titleGroup,{
+		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAD9JREFUOI1jYKAhEGBgYJgPxWSB+QwMDP+hmGRDkDWTbAg2zUQbgk8zQUOI0Uyyd2AacAImYk0aNWAwG0AxAABRBSdztC0IxQAAAABJRU5ErkJggg==",
+		//"x":22+textWidth,
+		//"y":4,
+	    //"width":16,
+	    //"height":16,
+	    //"opacity":"0.6",
+	    //"visibility":"hidden"
+	//});
+	//
+	//var downRect = SVG.addChildImage(titleGroup,{
+		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAERJREFUOI1jYKAx+A/FOAETpTaMGjDYDJjPgIh39PhHF5+Py0BshhCtmRhDCGrGZwjRmrEZQrJmZEPmMzAwCJBrAEEAANCqJXdWrFuyAAAAAElFTkSuQmCC",
+		//"x":36+textWidth,
+		//"y":4,
+		//"width":16,
+		//"height":16,
+		//"opacity":"0.6",
+		//"visibility":"hidden"
+	//});
+	//var hideRect = SVG.addChildImage(titleGroup,{
+		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAJFJREFUOI2tks0NgzAMhb+wAFP05FM2aCdjtDBCLjkxBRO4F4JoAONIfVKkyHk/sl4CQIyRFqpKzvk0/zvCMRSYgU9LEpH9XkpJwFtEgqr+8NJmkozAR45F2N+WcTQyrk3c4lYwbadLXFGFCkx34sHr9lrXrvTLFXrFx509Fd+K3SaeqkwTb1XV5Axvz73/wcQXYitIjMzG550AAAAASUVORK5CYII=",
+		//"x":52+textWidth,
+		//"y":4,
+		//"width":16,
+		//"height":16,
+		//"opacity":"0.6",
+		//"visibility":"hidden"
+	//});
 	
 	//bamStrandPatt
 //	var bamStrandPatt = SVG.addChild(main,"pattern",{
@@ -249,29 +310,31 @@ TrackSvg.prototype.draw = function(){
 //	var bamStrandPattArrow = SVG.addChild(bamStrandPatt,"path",{
 //		"d":"M 1 1 L 8 5 L 1 9 Z",
 //	});
-	
-	var bamStrandForward = SVG.addChild(main,"linearGradient",{
-		"id":this.id+"bamStrandForward"
-	});
-	var bamStrandReverse = SVG.addChild(main,"linearGradient",{
-		"id":this.id+"bamStrandReverse"
-	});
-	var stop1 = SVG.addChild(bamStrandForward,"stop",{
-		"offset":"5%",
-		"stop-color":"#666"
-	});
-	var stop2 = SVG.addChild(bamStrandForward,"stop",{
-		"offset":"95%",
-		"stop-color":"#BBB"
-	});
-	var stop1 = SVG.addChild(bamStrandReverse,"stop",{
-		"offset":"5%",
-		"stop-color":"#BBB"
-	});
-	var stop2 = SVG.addChild(bamStrandReverse,"stop",{
-		"offset":"95%",
-		"stop-color":"#666"
-	});
+
+	/*GRADIENT*/
+	//var bamStrandForward = SVG.addChild(main,"linearGradient",{
+		//"id":this.id+"bamStrandForward"
+	//});
+	//var bamStrandReverse = SVG.addChild(main,"linearGradient",{
+		//"id":this.id+"bamStrandReverse"
+	//});
+	//var stop1 = SVG.addChild(bamStrandForward,"stop",{
+		//"offset":"5%",
+		//"stop-color":"#666"
+	//});
+	//var stop2 = SVG.addChild(bamStrandForward,"stop",{
+		//"offset":"95%",
+		//"stop-color":"#BBB"
+	//});
+	//var stop1 = SVG.addChild(bamStrandReverse,"stop",{
+		//"offset":"5%",
+		//"stop-color":"#BBB"
+	//});
+	//var stop2 = SVG.addChild(bamStrandReverse,"stop",{
+		//"offset":"95%",
+		//"stop-color":"#666"
+	//});
+	/*GRADIENT*/
 	
 ////	XXX para mañana, arrastrar para ordenar verticalmente
 //	$(titleGroup).mousedown(function(event){
@@ -299,58 +362,63 @@ TrackSvg.prototype.draw = function(){
 //		"fill":"deepskyblue"
 //	});
 	
-	
-	
-	$(titleGroup).mouseenter(function(event){
+	this.fnTitleMouseEnter = function(){
 //		over.setAttribute("opacity","0.1");
-		titlebar.setAttribute("width",74+textWidth);
-		titlebar.setAttribute("opacity","1.0");
+		//titlebar.setAttribute("width",74+textWidth);
+		titlebar.setAttribute("opacity","0.1");
+		titlebar.setAttribute("fill","gray");
 		titleText.setAttribute("opacity","1.0");
-		upRect.setAttribute("visibility","visible");
-		downRect.setAttribute("visibility","visible");
-		if(_this.closable == true){ hideRect.setAttribute("visibility","visible"); }
+		//upRect.setAttribute("visibility","visible");
+		//downRect.setAttribute("visibility","visible");
+		//if(_this.closable == true){ hideRect.setAttribute("visibility","visible"); }
 //		settingsRect.setAttribute("visibility","visible");//TODO not implemented yet, hidden for now...
-	});
-	$(titleGroup).mouseleave(function(event){
+	};
+	this.fnTitleMouseLeave = function(){
 ////	over.setAttribute("opacity","0.0");
-		titlebar.setAttribute("width",textWidth);
+		//titlebar.setAttribute("width",textWidth);
 		titlebar.setAttribute("opacity","0.6");
+		titlebar.setAttribute("fill","transparent");
 		titleText.setAttribute("opacity","0.4");
-		upRect.setAttribute("visibility","hidden");
-		downRect.setAttribute("visibility","hidden");
-		hideRect.setAttribute("visibility","hidden");
-		settingsRect.setAttribute("visibility","hidden");
-	});
-	
-	$([upRect,downRect,hideRect,settingsRect]).mouseover(function(event){
-		this.setAttribute("opacity","1.0");
-	});
-	$([upRect,downRect,hideRect,settingsRect]).mouseleave(function(event){
-		this.setAttribute("opacity","0.6");
-	});
+		//upRect.setAttribute("visibility","hidden");
+		//downRect.setAttribute("visibility","hidden");
+		//hideRect.setAttribute("visibility","hidden");
+		//settingsRect.setAttribute("visibility","hidden");
+	};
 
-	$(settingsRect).mouseover(function(event){
-		titlebar.setAttribute("height",22+22);
-	});
-	$(settingsRect).mouseleave(function(event){
-		titlebar.setAttribute("height",22);
-	});
+	$(titleGroup).off("mouseenter");
+	$(titleGroup).off("mouseleave");
+	$(titleGroup).mouseenter(this.fnTitleMouseEnter);
+	$(titleGroup).mouseleave(this.fnTitleMouseLeave);
 	
+	//$([upRect,downRect,hideRect,settingsRect]).mouseover(function(event){
+		//this.setAttribute("opacity","1.0");
+	//});
+	//$([upRect,downRect,hideRect,settingsRect]).mouseleave(function(event){
+		//this.setAttribute("opacity","0.6");
+	//});
+//
+	//$(settingsRect).mouseover(function(event){
+		//titlebar.setAttribute("height",22+22);
+	//});
+	//$(settingsRect).mouseleave(function(event){
+		//titlebar.setAttribute("height",22);
+	//});
+	//
 	//set initial values when hide due mouseleave event not fires when hideTrack from TrackSvgLayout
-	$(hideRect).click(function(event){
-		titlebar.setAttribute("width",textWidth);
-		titlebar.setAttribute("opacity","0.6");
-		titleText.setAttribute("opacity","0.4");
-		upRect.setAttribute("visibility","hidden");
-		downRect.setAttribute("visibility","hidden");
-		hideRect.setAttribute("visibility","hidden");
-		settingsRect.setAttribute("visibility","hidden");
-	});
+	//$(hideRect).click(function(event){
+		//titlebar.setAttribute("width",textWidth);
+		//titlebar.setAttribute("opacity","0.6");
+		//titleText.setAttribute("opacity","0.4");
+		//upRect.setAttribute("visibility","hidden");
+		//downRect.setAttribute("visibility","hidden");
+		//hideRect.setAttribute("visibility","hidden");
+		//settingsRect.setAttribute("visibility","hidden");
+	//});
 	
 	
-	this.invalidZoomText = SVG.addChild(main,"text",{
+	this.invalidZoomText = SVG.addChild(titleGroup,"text",{
 		"x":154,
-		"y":14,
+		"y":24,
 		"font-size": 10,
 		"opacity":"0.6",
 		"fill":"black",
@@ -403,13 +471,14 @@ TrackSvg.prototype.draw = function(){
 	this.titleGroup = titleGroup;
 	this.titlebar = titlebar;
 	this.titleText = titleText;
-	this.upRect = upRect;
-	this.downRect = downRect;
-	this.hideRect = hideRect;
-	this.settingsRect = settingsRect;
+	//this.upRect = upRect;
+	//this.downRect = downRect;
+	//this.hideRect = hideRect;
+	//this.settingsRect = settingsRect;
 	this.features = features;
 	
 	this.rendered = true;
+	this.status = "ready";
 };
 
 
@@ -419,7 +488,7 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 	var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
 	var _this = this;
-	console.time("Multirender "+featureList.length);
+	console.time("Multirender ["+featureList.length+"] "+ response.params.resource);
 //	console.log(featureList.length);
 	var draw = function(feature){
 		var start = feature.start;
@@ -446,13 +515,11 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 			
 		}
 		
-		
-		
 		//transform to pixel position
 		width = width * _this.pixelBase;
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
 		
-		var textHeight = 12;
+		var textHeight = 9;
 		if(_this.zoom > _this.labelZoom){
 			try{
 				var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
@@ -465,7 +532,7 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 		}
 		
 		
-		var rowHeight = textHeight+12;
+		var rowHeight = textHeight+10;
 		var rowY = 0;
 		var textY = textHeight+settings.height;
 		
@@ -524,19 +591,50 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 	if(newHeight>0){
 		this.setHeight(newHeight+/*margen entre tracks*/10);
 	}
-	console.timeEnd("Multirender "+featureList.length);
+	console.timeEnd("Multirender ["+featureList.length+"] "+ response.params.resource);
 };
 
 TrackSvg.prototype.BamRender = function(response){
 	var _this = this;
 
+	//CHECK VISUALIZATON MODE
+	var viewAsPairs = false;
+	if(response.params["view_as_pairs"] != null){
+		viewAsPairs = true;
+	}
+	console.log("viewAsPairs "+viewAsPairs);
+	var insertSizeMin = 0;
+	var insertSizeMax = 0;
+	var variantColor = "orangered";
+	if(response.params["insert_size_interval"] != null){
+		insertSizeMin = response.params["insert_size_interval"].split(",")[0];
+		insertSizeMax = response.params["insert_size_interval"].split(",")[1];
+	}
+	console.log("insertSizeMin "+insertSizeMin);
+	console.log("insertSizeMin "+insertSizeMax);
+
+	//Prevent browser context menu
+	$(this.features).contextmenu(function(e) {
+		console.log("click derecho")
+		//e.preventDefault();
+	});
+	
+	console.time("BamRender "+ response.params.resource);
+	
 	response = this._removeDisplayedChunks(response);
 	var chunkList = response.items;
 
 	var middle = this.width/2;
-
 	
-	var bamGroup = SVG.addChild(_this.features,"g");
+	var bamCoverGroup = SVG.addChild(_this.features,"g",{
+		"class":"bamCoverage",
+		"cursor": "pointer"
+	});
+	var bamReadGroup = SVG.addChild(_this.features,"g",{
+		"class":"bamReads",
+		"cursor": "pointer"
+	});
+
 	var drawCoverage = function(chunk){
 		//var coverageList = chunk.coverage.all;
 		var coverageList = chunk.coverage.all;
@@ -544,7 +642,6 @@ TrackSvg.prototype.BamRender = function(response){
 		var coverageListC = chunk.coverage.c;
 		var coverageListG = chunk.coverage.g;
 		var coverageListT = chunk.coverage.t;
-		var readList = chunk.data;
 		var start = parseInt(chunk.start);
 		var end = parseInt(chunk.end);
 		var pixelWidth = (end-start+1)*_this.pixelBase;
@@ -571,14 +668,6 @@ TrackSvg.prototype.BamRender = function(response){
 			
 			p++;
 		}
-		var dummyRect = SVG.addChild(bamGroup,"rect",{
-			"x":_this.pixelPosition+middle-((_this.position-start)*_this.pixelBase),
-			"y":0,
-			"width":pixelWidth,
-			"height":covHeight,
-			"fill": "transparent",
-			"cursor": "pointer"
-		});
 
 		//reverse to draw the polylines(polygons) for each nucleotid
 		var rlineC = lineC.split(" ").reverse().join(" ").trim();
@@ -587,84 +676,84 @@ TrackSvg.prototype.BamRender = function(response){
 		
 		var firstPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.start))*_this.pixelBase)+baseMid;
 		var lastPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.end))*_this.pixelBase)+baseMid;
-        var polA = SVG.addChild(bamGroup,"polyline",{
+        var polA = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":firstPoint+",0 "+lineA+lastPoint+",0",
-			"opacity":"0.4",
+			//"opacity":"1",
 			//"stroke-width":"1",
 			//"stroke":"gray",
 			"fill":"green"
 		});
-        var polC = SVG.addChild(bamGroup,"polyline",{
+        var polC = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":lineA+" "+rlineC,
-			"opacity":"0.4",
+			//"opacity":"1",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"blue"
 		});
-        var polG = SVG.addChild(bamGroup,"polyline",{
+        var polG = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":lineC+" "+rlineG,
-			"opacity":"0.4",
+			//"opacity":"1",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"gold"
 		});
-        var polT = SVG.addChild(bamGroup,"polyline",{
+        var polT = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":lineG+" "+rlineT,
-			"opacity":"0.4",
+			//"opacity":"1",
 			//"stroke-width":"1",
 			//"stroke":"black",
 			"fill":"red"
+		});
+		
+		var dummyRect = SVG.addChild(bamCoverGroup,"rect",{
+			"x":_this.pixelPosition+middle-((_this.position-start)*_this.pixelBase),
+			"y":0,
+			"width":pixelWidth,
+			"height":covHeight,
+			"opacity":"0.5",
+			"fill": "lightgray",
+			"cursor": "pointer"
 		});
 		$(dummyRect).qtip({
 			content:" ",
 			position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
 			style: { width:true, classes: 'ui-tooltip-shadow'}
 		});
-		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,mousePos){
-			var str = 'depth: <span class="ssel">'+coverageList[mousePos-parseInt(chunk.start)]+'</span><br>'+
-					'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[mousePos-parseInt(chunk.start)]+'</span><br>'+
-					'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[mousePos-parseInt(chunk.start)]+'</span><br>'+
-					'<span style="color:darkgoldenrod">G</span>: <span class="ssel">'+chunk.coverage.g[mousePos-parseInt(chunk.start)]+'</span><br>'+
-					'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[mousePos-parseInt(chunk.start)]+'</span><br>';
-			$(dummyRect).qtip('option', 'content.text', str ); 
+		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,obj){
+			var pos = obj.mousePos-parseInt(chunk.start);
+			//if(coverageList[pos]!=null){
+				var str = 'depth: <span class="ssel">'+coverageList[pos]+'</span><br>'+
+						'<span style="color:green">A</span>: <span class="ssel">'+chunk.coverage.a[pos]+'</span><br>'+
+						'<span style="color:blue">C</span>: <span class="ssel">'+chunk.coverage.c[pos]+'</span><br>'+
+						'<span style="color:darkgoldenrod">G</span>: <span class="ssel">'+chunk.coverage.g[pos]+'</span><br>'+
+						'<span style="color:red">T</span>: <span class="ssel">'+chunk.coverage.t[pos]+'</span><br>';
+				$(dummyRect).qtip('option', 'content.text', str ); 
+			//}
 		});
-		
-		for ( var i = 0, li = readList.length; i < li; i++) {
-			draw(readList[i]);
-		}
 	};
 	
-	var draw = function(feature){
-		var start = feature.start;
-		var end = feature.end;
-		var width = (end-start)+1;
-		
-		var middle = _this.width/2;
-		//get type settings object
+	var drawSingleRead = function(feature){
+		//var start = feature.start;
+		//var end = feature.end;
+		var start = feature.unclippedStart;
+		var end = feature.unclippedEnd;
+		var diff = feature.diff;
+		/*get type settings object*/
 		var settings = _this.types[feature.featureType];
-		var color = settings.getColor(feature);
+		var strand = settings.getStrand(feature);
+		var color = settings.getColor(feature, _this.region.chromosome);
 		
-		//if(feature.read !=  "SRR077487.3945695"){color="red";fea1234 = feature}
-/**/
-		var seqTrack = _this.trackSvgLayout.getTrackSvgById("Sequence");
-		if( seqTrack != null){
-			var startKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(start);
-			var endKey  = _this.trackSvgLayout.chromosome+":"+seqTrack.trackData.adapter.featureCache._getChunk(end);
-			var r = seqTrack.trackData.adapter.featureCache.getFeatureChunk(startKey);
-			if(startKey == endKey && r != null){//only ones cached and inside the same chunk
-			//debugger
-				var originalSeq = r.data[0].sequence.substring((start - r.data[0].start),((end+1) - r.data[0].start));
-				if(feature.read == originalSeq){
-				}else{
-					color="lightsalmon";
-				}
-				//......................................MORE
+		if(insertSizeMin != 0 && insertSizeMax != 0 && !settings.getMateUnmappedFlag(feature)){
+			if(Math.abs(feature.inferredInsertSize) > insertSizeMax){
+				color = 'maroon';
+			}
+			if(Math.abs(feature.inferredInsertSize) < insertSizeMin){
+				color = 'navy';
 			}
 		}
-/**/
-		
-		//transform to pixel position
-		width = width * _this.pixelBase;
+
+		/*transform to pixel position*/
+		var width = ((end-start)+1)*_this.pixelBase;
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
 		
 		try{
@@ -672,88 +761,70 @@ TrackSvg.prototype.BamRender = function(response){
 		}catch(e){
 			var maxWidth = 72;
 		}
-		
+
 		var rowHeight = 12;
 		var rowY = 70;
 //		var textY = 12+settings.height;
-		
 		while(true){
 			if(_this.renderedArea[rowY] == null){
 				_this.renderedArea[rowY] = new FeatureBinarySearchTree();
 			}
 			var enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
-			
 			if(enc){
-				
-				var strand = settings.getStrand(feature);
-				var rect = SVG.addChild(bamGroup,"rect",{
-					"x":x,
-					"y":rowY,
-					"width":width,
-					"height":settings.height,
-					"stroke": "white",
+				var readEls = [];
+				var points = {
+					"Reverse":x+","+(rowY+(settings.height/2))+" "+(x+5)+","+rowY+" "+(x+width-5)+","+rowY+" "+(x+width-5)+","+(rowY+settings.height)+" "+(x+5)+","+(rowY+settings.height),
+					"Forward":x+","+rowY+" "+(x+width-5)+","+rowY+" "+(x+width)+","+(rowY+(settings.height/2))+" "+(x+width-5)+","+(rowY+settings.height)+" "+x+","+(rowY+settings.height)
+				}
+				var poly = SVG.addChild(bamReadGroup,"polygon",{
+					"points":points[strand],
+					"stroke": settings.getStrokeColor(feature),
 					"stroke-width": 1,
 					"fill": color,
-					//"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
 					"cursor": "pointer"
 				});
-				var	t = SVG.addChild(bamGroup,"text",{
-					"x":x+1,
-					"y":rowY+settings.height,
-					"font-size":16,
-					"style":"letter-spacing:2;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
-					"font-family": "Ubuntu Mono"
-				});
-				//var rect = SVG.addChild(bamGroup,"text",{
-					//"x":x,
-					//"y":rowY+settings.height,
-					//"font-size":14,
-					//"style":"letter-spacing:3;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
-					//"font-family": "Ubuntu Mono"
+				readEls.push(poly);
+
+				//var rect = SVG.addChild(bamReadGroup,"rect",{
+					//"x":x+offset[strand],
+					//"y":rowY,
+					//"width":width-4,
+					//"height":settings.height,
+					//"stroke": "white",
+					//"stroke-width":1,
+					//"fill": color,
+					//"clip-path":"url(#"+_this.id+"cp)",
+					//"fill": 'url(#'+_this.id+'bamStrand'+strand+')',
 				//});
-				//rect.textContent = feature.read;
+				//readEls.push(rect);
 				
-//				var d = 'M '+x+' '+rowY+' L '+(x+width)+' '+rowY+' L '+(x+width)+' '+(rowY+settings.height)+' L '+x+' '+(rowY+settings.height)+' Z';
-//				var rect = SVG.addChild(bamGroup,"path",{
-////					"x":x,
-////					"y":rowY,
-////					"width":width,
-////					"height":settings.height,
-//					"d":d,
-//					"stroke": "white",
-//					"stroke-width": 1,
-//					"fill": color,
-//					"cursor": "pointer"
-//				});
-////				console.log(d)
-		
+				if(diff != null && _this.zoom > 95){
+					//var	t = SVG.addChild(bamReadGroup,"text",{
+						//"x":x+1,
+						//"y":rowY+settings.height-1,
+						//"font-size":13,
+						//"fill":"darkred",
+						//"textLength":width,
+						//"cursor": "pointer",
+						//"font-family": "Ubuntu Mono"
+					//});
+					//t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space","preserve");
+					//t.textContent = diff;
+					//readEls.push(t);
+					var path = SVG.addChild(bamReadGroup,"path",{
+						"d":Compbio.genBamVariants(diff, _this.pixelBase, x, rowY),
+						"fill":variantColor
+					});
+					readEls.push(path);
+				}
 				
-//				var text = SVG.addChild(_this.features,"text",{
-//					"i":i,
-//					"x":x,
-//					"y":textY,
-//					"font-size":10,
-//					"opacity":null,
-//					"fill":"black",
-//					"cursor": "pointer"
-//				});
-//				text.textContent = settings.getLabel(feature);
-
-				$([rect,t]).mouseenter(function(e) {
-					t.textContent = feature.read;
-				});
-				$([rect,t]).mouseleave(function(event) {
-					t.textContent = "";
-				});
-
-				$([rect,t]).qtip({
+				$(readEls).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
 					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
 					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
 				});
-				
-				$([rect,t]).click(function(event){
-					console.log("bamClick")
+				$(readEls).click(function(event){
+					console.log(feature);
 					_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
 				});
 				break;
@@ -762,13 +833,168 @@ TrackSvg.prototype.BamRender = function(response){
 //			textY += rowHeight;
 		}
 	};
+
+	var drawPairedReads = function(read, mate){
+		var readStart = read.unclippedStart;
+		var readEnd = read.unclippedEnd;
+		var mateStart = mate.unclippedStart;
+		var mateEnd = mate.unclippedEnd;
+		var readDiff = read.diff;
+		var mateDiff = mate.diff;
+		/*get type settings object*/
+		var readSettings = _this.types[read.featureType];
+		var mateSettings = _this.types[mate.featureType];
+		var readColor = readSettings.getColor(read, _this.region.chromosome);
+		var mateColor = mateSettings.getColor(mate, _this.region.chromosome);
+		var readStrand = readSettings.getStrand(read);
+		var matestrand = mateSettings.getStrand(mate);
+
+		if(insertSizeMin != 0 && insertSizeMax != 0){
+			if(Math.abs(read.inferredInsertSize) > insertSizeMax){
+				readColor = 'maroon';
+				mateColor = 'maroon';
+			}
+			if(Math.abs(read.inferredInsertSize) < insertSizeMin){
+				readColor = 'navy';
+				mateColor = 'navy';
+			}
+		}
+
+		var pairStart = readStart;
+		var pairEnd = mateEnd;
+		if(mateStart <= readStart){
+			pairStart = mateStart;
+		}
+		if(readEnd >= mateEnd){
+			pairEnd = readEnd;
+		}
+		
+		/*transform to pixel position*/
+		var pairWidth = ((pairEnd-pairStart)+1)*_this.pixelBase;
+		var pairX = _this.pixelPosition+middle-((_this.position-pairStart)*_this.pixelBase);
+		
+		var readWidth = ((readEnd-readStart)+1)*_this.pixelBase;
+		var readX = _this.pixelPosition+middle-((_this.position-readStart)*_this.pixelBase);
+		
+		var mateWidth = ((mateEnd-mateStart)+1)*_this.pixelBase;
+		var mateX = _this.pixelPosition+middle-((_this.position-mateStart)*_this.pixelBase);
+
+		var rowHeight = 12;
+		var rowY = 70;
+//		var textY = 12+settings.height;
+
+		while(true){
+			if(_this.renderedArea[rowY] == null){
+				_this.renderedArea[rowY] = new FeatureBinarySearchTree();
+			}
+			var enc = _this.renderedArea[rowY].add({start: pairX, end: pairX+pairWidth-1});
+			if(enc){
+				var readEls = [];
+				var mateEls = [];
+				var readPoints = {
+					"Reverse":readX+","+(rowY+(readSettings.height/2))+" "+(readX+5)+","+rowY+" "+(readX+readWidth-5)+","+rowY+" "+(readX+readWidth-5)+","+(rowY+readSettings.height)+" "+(readX+5)+","+(rowY+readSettings.height),
+					"Forward":readX+","+rowY+" "+(readX+readWidth-5)+","+rowY+" "+(readX+readWidth)+","+(rowY+(readSettings.height/2))+" "+(readX+readWidth-5)+","+(rowY+readSettings.height)+" "+readX+","+(rowY+readSettings.height)
+				}
+				var readPoly = SVG.addChild(bamReadGroup,"polygon",{
+					"points":readPoints[readStrand],
+					"stroke": readSettings.getStrokeColor(read),
+					"stroke-width": 1,
+					"fill": readColor,
+					"cursor": "pointer"
+				});
+				readEls.push(readPoly);
+				var matePoints = {
+					"Reverse":mateX+","+(rowY+(mateSettings.height/2))+" "+(mateX+5)+","+rowY+" "+(mateX+mateWidth-5)+","+rowY+" "+(mateX+mateWidth-5)+","+(rowY+mateSettings.height)+" "+(mateX+5)+","+(rowY+mateSettings.height),
+					"Forward":mateX+","+rowY+" "+(mateX+mateWidth-5)+","+rowY+" "+(mateX+mateWidth)+","+(rowY+(mateSettings.height/2))+" "+(mateX+mateWidth-5)+","+(rowY+mateSettings.height)+" "+mateX+","+(rowY+mateSettings.height)
+				}
+				var matePoly = SVG.addChild(bamReadGroup,"polygon",{
+					"points":matePoints[matestrand],
+					"stroke": mateSettings.getStrokeColor(mate),
+					"stroke-width": 1,
+					"fill": mateColor,
+					"cursor": "pointer"
+				});
+				mateEls.push(matePoly);
+
+				var line = SVG.addChild(bamReadGroup,"line",{
+					"x1":(readX+readWidth),
+					"y1":(rowY+(readSettings.height/2)),
+					"x2":mateX,
+					"y2":(rowY+(readSettings.height/2)),
+					"stroke-width": "1",
+					"stroke": "gray",
+					//"stroke-color": "black",
+					"cursor": "pointer"
+				});
+				
+				if(_this.zoom > 95){
+					if(readDiff != null){
+						var readPath = SVG.addChild(bamReadGroup,"path",{
+							"d":Compbio.genBamVariants(readDiff, _this.pixelBase, readX, rowY),
+							"fill":variantColor
+						});
+						readEls.push(readPath);
+					}
+					if(mateDiff != null){
+						var matePath = SVG.addChild(bamReadGroup,"path",{
+							"d":Compbio.genBamVariants(mateDiff, _this.pixelBase, mateX, rowY),
+							"fill":variantColor
+						});
+						mateEls.push(matePath);
+					}
+				}
+				
+				$(readEls).qtip({
+					content: {text:readSettings.getTipText(read), title:readSettings.getTipTitle(read)},
+					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
+					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
+				});
+				$(readEls).click(function(event){
+					console.log(read);
+					_this.showInfoWidget({query:read[readSettings.infoWidgetId], feature:read, featureType:read.featureType, adapter:_this.trackData.adapter});
+				});
+				$(mateEls).qtip({
+					content: {text:mateSettings.getTipText(mate), title:mateSettings.getTipTitle(mate)},
+					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
+					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
+				});
+				$(mateEls).click(function(event){
+					console.log(mate);
+					_this.showInfoWidget({query:mate[mateSettings.infoWidgetId], feature:mate, featureType:mate.featureType, adapter:_this.trackData.adapter});
+				});
+				break;
+			}
+			rowY += rowHeight;
+//			textY += rowHeight;
+		}
+	};
+
+	var drawChunk = function(chunk){
+		drawCoverage(chunk);
+		var readList = chunk.data;
+		for ( var i = 0, li = readList.length; i < li; i++) {
+			var read = readList[i];
+			if(viewAsPairs){
+				var nextRead = readList[i+1];
+				if(nextRead!=null){
+					if(read.name == nextRead.name){
+						drawPairedReads(read,nextRead);
+						i++;
+					}else{
+						drawSingleRead(read);
+					}
+				}
+			}else{
+				drawSingleRead(read);
+			}
+		}
+	};
 	
 	//process features
-	console.time("BamRender");
 	if(chunkList.length>0){
 		for ( var i = 0, li = chunkList.length; i < li; i++) {
 					if(chunkList[i].data.length > 0){
-						drawCoverage(chunkList[i]);
+						drawChunk(chunkList[i]);
 					}
 		}
 		var newHeight = Object.keys(this.renderedArea).length*24;
@@ -776,7 +1002,7 @@ TrackSvg.prototype.BamRender = function(response){
 			this.setHeight(newHeight+/*margen entre tracks*/10+70);
 		}
 	}
-	console.timeEnd("BamRender");
+	console.timeEnd("BamRender "+ response.params.resource);
 };
 
 TrackSvg.prototype.GeneTranscriptRender = function(response){
@@ -806,9 +1032,9 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 			var maxWidth = 72;
 		}
 		
-		var rowHeight = 24;
+		var rowHeight = 20;
 		var rowY = 0;
-		var textY = 12+settings.height;
+		var textY = 10+settings.height;
 		
 		
 		while(true){
@@ -873,7 +1099,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 				var checkRowY = rowY+rowHeight;
 				var checkTextY = textY+rowHeight;
 				if(feature.transcripts!=null){
-					for(var i = 0, leni = feature.transcripts.length; i < leni; i++){//XXX loop over transcripts
+					for(var i = 0, leni = feature.transcripts.length; i < leni; i++){/*Loop over transcripts*/
 						if(_this.renderedArea[checkRowY] == null){
 							_this.renderedArea[checkRowY] = new FeatureBinarySearchTree();
 						}
@@ -903,9 +1129,9 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 						
 						var rect = SVG.addChild(transcriptGroup,"rect",{//this rect its like a line
 							"x":transcriptX,
-							"y":checkRowY+2,
+							"y":checkRowY+1,
 							"width":transcriptWidth,
-							"height":settings.height-3,
+							"height":settings.height,
 							"fill": "gray",
 							"cursor": "pointer"
 						});
@@ -931,7 +1157,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 						});
 
 						//paint exons
-						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){//XXX loop over exons
+						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){/* loop over exons*/
 							var e2t = feature.transcripts[i].exonToTranscripts[e];
 							var exonSettings = _this.types[e2t.exon.featureType];
 							var exonStart = parseInt(e2t.exon.start);
@@ -953,7 +1179,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 								"x":exonX,
 								"y":checkRowY-1,
 								"width":exonWidth,
-								"height":exonSettings.height+3,
+								"height":exonSettings.height,
 								"stroke": "gray",
 								"stroke-width": 1,
 								"fill": "white",
@@ -993,20 +1219,20 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 									"x":codingX,
 									"y":checkRowY-1,
 									"width":codingWidth,
-									"height":exonSettings.height+3,
+									"height":exonSettings.height,
 									"stroke": color,
 									"stroke-width": 1,
 									"fill": color,
 									"cursor": "pointer"
 								});
 								//XXX draw phase only at zoom 100, where this.pixelBase=10
-								for(var p = 0, lenp = 3 - e2t.phase; p < lenp && _this.pixelBase==10 && e2t.phase!=-1; p++){//==10 for max zoom only
+								for(var p = 0, lenp = 3 - e2t.phase; p < lenp && Math.round(_this.pixelBase)==10 && e2t.phase!=-1; p++){//==10 for max zoom only
 									SVG.addChild(exonGroup,"rect",{
 										"i":i,
 										"x":codingX+(p*10),
 										"y":checkRowY-1,
 										"width":_this.pixelBase,
-										"height":settings.height+3,
+										"height":exonSettings.height,
 										"stroke": color,
 										"stroke-width": 1,
 										"fill": 'white',
@@ -1041,9 +1267,9 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 };
 
 TrackSvg.prototype.SequenceRender = function(response){
-	var featureList = this._getFeaturesByChunks(response);
+	//var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
-
+	console.time("Sequence render "+response.items.sequence.length);
 		var chromeFontSize = "16";
 		var firefoxFontSize = "19";
 		var chromeFontOff = "16";
@@ -1054,22 +1280,25 @@ TrackSvg.prototype.SequenceRender = function(response){
 			fontOff = 0;
 		}
 
+		
 		this.invalidZoomText.setAttribute("visibility", "hidden");
 		var middle = this.width/2;
 
 		
 		//if(featureList.length > 0){//???
-		for ( var j = 0; j < featureList.length; j++) {
-			var seqString = featureList[j].sequence;
-			var seqStart = featureList[j].start;
+		//for ( var j = 0; j < featureList.length; j++) {
+			//var seqString = featureList[j].sequence;
+			//var seqStart = featureList[j].start;
 			var width = 1*this.pixelBase;
 			
 	//		if(!this.settings.color){
 	//			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
 	//		}
 			
-			var start = featureList[j].start;
-			
+			var start = response.items.start;
+			var seqStart = response.items.start;
+			var seqString = response.items.sequence;
+
 			if(jQuery.browser.mozilla){
 				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
 				var text = SVG.addChild(this.features,"text",{
@@ -1101,10 +1330,10 @@ TrackSvg.prototype.SequenceRender = function(response){
 				}
 				
 			}
-		}
+		//}
 			
 		//}
-		console.timeEnd("all");
+		console.timeEnd("Sequence render "+response.items.sequence.length);
 		this.trackSvgLayout.setNucleotidPosition(this.position);
 };
 
@@ -1189,14 +1418,14 @@ TrackSvg.prototype.showInfoWidget = function(args){
 	}
 };
 
-TrackSvg.prototype._getFeaturesByChunks = function(response){
+TrackSvg.prototype._getFeaturesByChunks = function(response, filters){
 	//Returns an array avoiding already drawn features in this.chunksDisplayed
 	var chunks = response.items;
 	var dataType = response.params.dataType;
 	var chromosome = response.params.chromosome;
 	var features = [];
 	
-	var feature, displayed, firstChunk, lastChunk, features = [];
+	var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {
 		if(this.chunksDisplayed[chunks[i].key+dataType]!=true){//check if any chunk is already displayed and skip it
 
@@ -1205,9 +1434,9 @@ TrackSvg.prototype._getFeaturesByChunks = function(response){
 
 					//check if any feature has been already displayed by another chunk
 					displayed = false;
-					firstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
-					lastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
-					for(var f=firstChunk; f<=lastChunk; f++){
+					featureFirstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
+					featureLastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
+					for(var f=featureFirstChunk; f<=featureLastChunk; f++){
 						var fkey = chromosome+":"+f;
 						if(this.chunksDisplayed[fkey+dataType]==true){
 							displayed = true;
@@ -1215,6 +1444,17 @@ TrackSvg.prototype._getFeaturesByChunks = function(response){
 						}
 					}
 					if(!displayed){
+						//apply filter
+						// if(filters != null) {
+						//		var pass = true;
+						// 		for(filter in filters) {
+						// 			pass = pass && filters[filter](feature);
+						//			if(pass == false) {
+						//				break;
+						//			}				
+						// 		}
+						//		if(pass) features.push(feature);
+						// } else {
 						features.push(feature);
 					}
 			}
@@ -1238,7 +1478,7 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 	var chromosome = response.params.chromosome;
 	var features = [];
 	
-	var feature, displayed, firstChunk, lastChunk, features = [];
+	var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
 		if(this.chunksDisplayed[chunks[i].key+dataType] != true){//check if any chunk is already displayed and skip it
 		
@@ -1248,9 +1488,9 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 
 					//check if any feature has been already displayed by another chunk
 					displayed = false;
-					firstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
-					lastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
-					for(var f=firstChunk; f<=lastChunk; f++){//loop over chunks touched by this feature
+					featureFirstChunk = this.trackData.adapter.featureCache._getChunk(feature.start);
+					featureLastChunk = this.trackData.adapter.featureCache._getChunk(feature.end);
+					for(var f=featureFirstChunk; f<=featureLastChunk; f++){//loop over chunks touched by this feature
 						var fkey = chromosome+":"+f;
 						if(this.chunksDisplayed[fkey+dataType]==true){
 							displayed = true;

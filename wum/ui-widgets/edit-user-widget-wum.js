@@ -30,26 +30,11 @@ function EditUserWidget(args){
         }
     }
 	
-	this.adapter = new GcsaManager();
+	this.adapter = new WumAdapter();
 	
-	this.adapter.onChangePassword.addEventListener(function (sender, data){
+	this.adapter.onEditPassword.addEventListener(function (sender, data){
 			_this.panel.setLoading(false);
 			console.log(_this.id+' EDIT PASS RESPONSE -> '+data);
-			if(data.indexOf("ERROR")==-1){
-				Ext.getCmp(_this.fldOldId).setValue(null);
-				Ext.getCmp(_this.fldNew1Id).setValue(null);
-				Ext.getCmp(_this.fldNew2Id).setValue(null);
-			}
-			Ext.getCmp(_this.labelPassId).setText(data, false);
-//			_this.??.notify();
-	});
-	this.adapter.onChangeEmail.addEventListener(function (sender, data){
-			_this.panel.setLoading(false);
-			console.log(_this.id+' EDIT EMAIL RESPONSE -> '+data);
-			if(data.indexOf("ERROR")==-1){
-				Ext.getCmp(_this.fldEmailId).setValue(null);
-				Ext.getCmp(_this.fldEmailId).setFieldLabel('e-maill', false);
-			}
 			Ext.getCmp(_this.labelPassId).setText(data, false);
 //			_this.??.notify();
 	});
@@ -57,7 +42,6 @@ function EditUserWidget(args){
 	this.fldOldId = this.id+"fldOld";
 	this.fldNew1Id = this.id+"fldNew1";
 	this.fldNew2Id = this.id+"fldNew2";
-	this.fldEmailId = this.id+"fldEmail";
 	this.btnChangeId = this.id+"btnChange";
 	
 	this.labelPassId = this.id+"labelPass";
@@ -72,17 +56,9 @@ EditUserWidget.prototype.getNewPassword = function (){
 	return $.sha1(Ext.getCmp(this.fldNew1Id).getValue());
 };
 
-EditUserWidget.prototype.getLogin = function (){
-	return Ext.getCmp(this.fldEmailId).getValue();
-};
-
 EditUserWidget.prototype.change = function (){ 
 	if(this.checkpass()){
-		this.adapter.changePassword($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), this.getOldPassword(), this.getNewPassword(), this.getNewPassword());
-		this.panel.setLoading('Waiting for the server to respond...');
-	}
-	if(this.checkemail()){
-		this.adapter.changeEmail($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), this.getLogin());
+		this.adapter.editPassword(this.getOldPassword(),this.getNewPassword(), $.cookie('bioinfo_sid'));
 		this.panel.setLoading('Waiting for the server to respond...');
 	}
 }
@@ -117,7 +93,7 @@ EditUserWidget.prototype.render = function (){
 		this.pan = Ext.create('Ext.panel.Panel', {
 			bodyPadding:20,
 		    width: 350,
-		    height:155,
+		    height:135,
 		    border:false,
 		    bbar:{items:[labelPass]},
 		    items: [{
@@ -144,17 +120,6 @@ EditUserWidget.prototype.render = function (){
 		        listeners: {
 			        scope: this,
 			        change: this.checkpass
-			    }
-		    },{
-		    	id: this.fldEmailId,
-		    	xtype:'textfield',
-		        fieldLabel: 'e-mail',
-//		        enableKeyEvents: true,
-//		        emptyText:'please enter your email',
-		        listeners: {
-			        change: function(){
-			        	_this.checkemail();
-			        }
 			    }
 		    }
 		    ]
@@ -212,16 +177,4 @@ EditUserWidget.prototype.checkpass = function (){
 			Ext.getCmp(this.labelPassId).setText('<p class="err">Password must be at least 4 characters</p>', false);
 			return false;
 		}
-};
-EditUserWidget.prototype.checkemail = function (a,b,c){
-	var email = Ext.getCmp(this.fldEmailId).getValue();
-	var patt = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-	
-	if (patt.test(email)){
-		Ext.getCmp(this.fldEmailId).setFieldLabel('<span class="ok">e-mail</span>', false);
-		return true;
-	}else{
-		Ext.getCmp(this.fldEmailId).setFieldLabel('<span class="err">e-mail</span>', false);
-		return false;
-	}
 };

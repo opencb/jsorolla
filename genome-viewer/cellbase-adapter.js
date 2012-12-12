@@ -46,12 +46,63 @@ function CellBaseAdapter(args){
 		if(args.params != null){
 			this.params = args.params;
 		}
+		if(args.filters != null){
+			this.filters = args.filters;
+		}
+		if(args.options != null){
+			this.options = args.options;
+		}
+		if(args.featureConfig != null){
+			if(args.featureConfig.filters != null){
+				this.filtersConfig = args.featureConfig.filters;
+			}
+			if(args.featureConfig.options != null){
+				this.optionsConfig = args.featureConfig.options;
+				for(var i = 0; i < this.optionsConfig.length; i++){
+					if(this.optionsConfig[i].checked == true){
+						this.options[this.optionsConfig[i].name] = true;
+						this.params[this.optionsConfig[i].name] = true;
+					}				
+				}
+			}
+		}
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
 	this.onGetData = new Event();
 };
 
+CellBaseAdapter.prototype.clearData = function(){
+	this.featureCache.clear();
+};
+
+CellBaseAdapter.prototype.setFilters = function(filters){
+	this.clearData();
+	this.filters = filters;
+	for(filter in filters){
+		var value = filters[filter].toString();
+		delete this.params[filter];
+		if(value != ""){
+			this.params[filter] = value;
+		}
+	}
+};
+CellBaseAdapter.prototype.setOption = function(opt, value){
+	if(opt.fetch){
+		this.clearData();
+	}
+	this.options[opt.name] = value;
+	for(option in this.options){
+		if(this.options[opt.name] != null){
+			this.params[opt.name] = this.options[opt.name];
+		}else{
+			delete this.params[opt.name];
+		}
+	}
+};
+
+
 CellBaseAdapter.prototype.getData = function(args){
+	var rnd = String.fromCharCode(65+Math.round(Math.random()*10));
 	var _this = this;
 	//region check
 	this.params["histogram"] = args.histogram;
@@ -126,17 +177,17 @@ CellBaseAdapter.prototype.getData = function(args){
 				for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
 					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
 						data.result[i][j].transcripts[t].featureType = "transcript";
-						//for de exones
+						//loop over exons
 						for (var e = 0, lene = data.result[i][j].transcripts[t].exonToTranscripts.length; e < lene; e++){
 							data.result[i][j].transcripts[t].exonToTranscripts[e].exon.featureType = "exon";
 						}
 					}
 				}
 			}
-			
+			console.time(_this.resource+" save "+rnd);
 			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, dataType);
 			var items = _this.featureCache.getFeatureChunksByRegion(queryList[i]);
-			console.timeEnd("insertCache"+" "+data.resource);
+			console.timeEnd(_this.resource+" save "+rnd);
 			if(items != null){
 				itemList = itemList.concat(items);
 			}
@@ -144,6 +195,7 @@ CellBaseAdapter.prototype.getData = function(args){
 		if(itemList.length > 0){
 			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
 		}
+		console.timeEnd(_this.resource+" get and save "+rnd);
 	});
 
 	var querys = [];
@@ -180,7 +232,7 @@ CellBaseAdapter.prototype.getData = function(args){
 			}
 		}
 //		console.log(querys);
-		console.time("cellbase");
+		console.time(_this.resource+" get and save "+rnd);
 		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, this.params);
 	}else{
 		if(itemList.length > 0){

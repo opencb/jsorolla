@@ -44,8 +44,8 @@ GTFFileWidget.prototype.loadFileFromLocal = function(file){
 	this.adapter.onLoad.addEventListener(function(sender){
 		console.log(_this.adapter.featuresByChromosome);
 		_this._loadChartInfo();
-		_this.btnOk.enable();
 	});
+	_this.btnOk.enable();
 };
 
 

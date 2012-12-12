@@ -62,9 +62,7 @@ LegendPanel.prototype.getColorItems = function(legend){
 				}]
 		});
 		
-		//Remove "_" and UpperCase first letter
-		var name = item.replace(/_/gi, " ");
-		name = name.charAt(0).toUpperCase() + name.slice(1);
+		var name = Compbio.formatText(item, "_");
 		
 		var panel = Ext.create('Ext.panel.Panel', {
 			height:size,
