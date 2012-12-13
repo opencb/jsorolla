@@ -102,6 +102,7 @@ ResultWidget.prototype.render = function (){
 	var _this=this;
 	
 	console.log(this.application);
+
 	
 		if(this.data.outputItems.length != 0){
 			

@@ -72,8 +72,8 @@ GcsaManager.prototype.logout = function (accountId, sessionId) {
 GcsaManager.prototype.createProject = function(projectname, description, accountId, sessionId){
 	this.manager.createProject(projectname, description, accountId, sessionId);
 };
-GcsaManager.prototype.uploadDataToProject = function(accountId, sessionId, projectname, objectname, formData){
-	this.manager.uploadDataToProject(accountId, sessionId, projectname, objectname, formData);
+GcsaManager.prototype.uploadDataToProject = function(accountId, sessionId, projectname, objectname, formData, parents){
+	this.manager.uploadDataToProject(accountId, sessionId, projectname, objectname, formData, parents);
 };
 /**/
 

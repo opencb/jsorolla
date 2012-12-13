@@ -184,9 +184,9 @@ GcsaRestManager.prototype.createProject = function(projectname, description, acc
 	this.doGet(url, success, error);
 //	console.log(url);
 };
-GcsaRestManager.prototype.uploadDataToProject = function(accountId, sessionId, projectname, objectname, formData){
+GcsaRestManager.prototype.uploadDataToProject = function(accountId, sessionId, projectname, objectname, formData, parents){
 	var _this=this;
-	var url = this.getHost()+'/'+accountId+'/'+projectname+'/'+objectname+'/upload?sessionid='+sessionId;
+	var url = this.getHost()+'/'+accountId+'/'+projectname+'/'+objectname+'/upload?sessionid='+sessionId+'&parents='+(parents || false);
 	
 	function success(data){
 		_this.onUploadDataToProject.notify({status:"done",data:data});

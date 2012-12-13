@@ -189,11 +189,11 @@ GcsaBrowserWidget.prototype.render = function (){
 				icon: Compbio.images.del,
 				handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
 					//this also fires itemclick event from tree panel
-						_this.onNeedRefresh.notify();
 					if(record.isLeaf()){
 						var id = record.data.trackId;
 						var checked = record.data.checked;
 						record.destroy();
+						_this.onNeedRefresh.notify();
 						if(checked){
 							_this.removeTrack(id);
 						}
