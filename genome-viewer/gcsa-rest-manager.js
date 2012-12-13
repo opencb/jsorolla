@@ -43,10 +43,9 @@ function GcsaRestManager (){
 	/*PROJECT*/
 	this.onCreateProject = new Event(this);
 	this.onUploadDataToProject = new Event(this);
-	/**/
 
 	
-	/** BAM **/
+	/*BAM*/
 	this.onBamList = new Event(this);
 	this.onGetAccountInfo = new Event(this);
 	this.onRegion = new Event(this);
@@ -201,7 +200,23 @@ GcsaRestManager.prototype.uploadDataToProject = function(accountId, sessionId, p
 };
 /**/
 
-
+/* Analysis */
+GcsaRestManager.prototype.runAnalysis = function(analysis, paramsWS){
+	var _this=this;
+	var url = this.getHost()+'/analysis/'+analysis+'/run';
+	console.log(url);
+	
+	function success(data){
+//		_this.onUploadDataToProject.notify({status:"done",data:data});
+	}
+	
+	function error(data){
+//		_this.onUploadDataToProject.notify({status:"fail",data:data});
+	}
+	
+//	this.doPost(url, paramsWS, success, error);
+};
+/**/
 
 /**General**/
 GcsaRestManager.prototype.experimentList = function(queryParams){
