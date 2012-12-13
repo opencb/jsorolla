@@ -340,6 +340,14 @@ AttributeManager.prototype.setAttributeByName = function(name, attribute, value)
 	}
 };
 
+AttributeManager.prototype.setAttributeById= function(id, attribute, value) {
+	var register = this.store.getAt(this.store.find("Id",  id));
+	if(register) { // if exists a row with this name
+		register.set(attribute, value);
+		register.commit();
+	}
+};
+
 AttributeManager.prototype.getAttrNameList = function() {
 	var nameList = [];
 	for(var i = 0; i < this.attributes.length; i++) {

@@ -19,35 +19,36 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-DOTNetworkFileWidget.prototype.draw = NetworkFileWidget.prototype.draw;
+StringNetworkFileWidget.prototype.draw = NetworkFileWidget.prototype.draw;
 
-function DOTNetworkFileWidget(args){
-	if(args == null) {
+function StringNetworkFileWidget(args){
+	if(args == null){
 		var args={};
 	}
 	else {
 		this.networkData = args.networkData;
 	}
-	args.title='Import a Network DOT file';
+	
+	args.title='Import a Network STRING file';
 	NetworkFileWidget.prototype.constructor.call(this, args);
 };
 
 
-DOTNetworkFileWidget.prototype.getFileUpload = function(){
+StringNetworkFileWidget.prototype.getFileUpload = function(){
 	var _this = this;
 	this.fileUpload = Ext.create('Ext.form.field.File', {
 		msgTarget: 'side',
 		allowBlank: false,
-		emptyText: 'DOT network file',
+		emptyText:'STRING DB file',
 		flex:1,
 		buttonText: 'Browse local',
 		listeners: {
 			change: function(){
 				var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];				
-				var dotDataAdapter = new DOTDataAdapter(new FileDataSource(file), {"networkData":_this.networkData});
-				dotDataAdapter.onLoad.addEventListener(function(sender,data){
+				var stringDataAdapter = new StringDataAdapter(new FileDataSource(file), {"networkData":_this.networkData});
+				stringDataAdapter.onLoad.addEventListener(function(sender,data){
 					try{
-						_this.content = dotDataAdapter.getNetworkData(); //para el onOK.notify event
+						_this.content = stringDataAdapter.getNetworkData(); //para el onOK.notify event
 						
 						var numNodes = _this.content.metaInfo.numNodes;
 						var numEdges = _this.content.metaInfo.numEdges;
