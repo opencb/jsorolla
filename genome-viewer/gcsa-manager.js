@@ -44,52 +44,60 @@ function GcsaManager(){
 	this.onError = this.manager.onError;
 }
 
-/*account management*/
-GcsaManager.prototype.getAccountInfo = function (accountId, sessionId, lastActivity) {
-	this.manager.getAccountInfo(accountId, sessionId, lastActivity);
-};
-GcsaManager.prototype.login = function (email, password, suiteId) {
-	this.manager.login(email, password, suiteId);
-};
-GcsaManager.prototype.register = function (accountId, email, name, password, suiteId) {
-	this.manager.register(accountId, email, name, password, suiteId);
-};
-GcsaManager.prototype.resetPassword = function (accountId, email) {
-	this.manager.resetPassword(accountId, email);
-};
-GcsaManager.prototype.changePassword = function (accountId, sessionId, password, nPassword1,nPassword2) {
-	this.manager.changePassword(accountId, sessionId, password, nPassword1,nPassword2);
-};
-GcsaManager.prototype.changeEmail = function (accountId, sessionId, nEmail) {
-	this.manager.changeEmail(accountId, sessionId, nEmail);
-};
-GcsaManager.prototype.logout = function (accountId, sessionId) {
-	this.manager.logout(accountId, sessionId);
-};
-/**/
+GcsaManager.prototype = new GcsaRestManager();
 
-/*project management*/
-GcsaManager.prototype.createProject = function(projectname, description, accountId, sessionId){
-	this.manager.createProject(projectname, description, accountId, sessionId);
-};
-GcsaManager.prototype.uploadDataToProject = function(accountId, sessionId, projectname, objectname, formData, parents){
-	this.manager.uploadDataToProject(accountId, sessionId, projectname, objectname, formData, parents);
-};
-/**/
-
-GcsaManager.prototype.bamList = function (queryParams) {
-	this.manager.bamList(queryParams);
-};
-
-GcsaManager.prototype.region = function (category, filename, region, queryParams) {
-	this.manager.region(category, filename, region, queryParams);
-};
-
-
-
-GcsaManager.prototype.getHost = function(){
-	return this.manager.getHost();
-};
-GcsaManager.prototype.setHost = function(hostUrl){
-	 return this.manager.setHost(hostUrl);
-};
+///*account management*/
+//GcsaManager.prototype.getAccountInfo = function (accountId, sessionId, lastActivity) {
+//	this.manager.getAccountInfo(accountId, sessionId, lastActivity);
+//};
+//GcsaManager.prototype.login = function (email, password, suiteId) {
+//	this.manager.login(email, password, suiteId);
+//};
+//GcsaManager.prototype.register = function (accountId, email, name, password, suiteId) {
+//	this.manager.register(accountId, email, name, password, suiteId);
+//};
+//GcsaManager.prototype.resetPassword = function (accountId, email) {
+//	this.manager.resetPassword(accountId, email);
+//};
+//GcsaManager.prototype.changePassword = function (accountId, sessionId, password, nPassword1,nPassword2) {
+//	this.manager.changePassword(accountId, sessionId, password, nPassword1,nPassword2);
+//};
+//GcsaManager.prototype.changeEmail = function (accountId, sessionId, nEmail) {
+//	this.manager.changeEmail(accountId, sessionId, nEmail);
+//};
+//GcsaManager.prototype.logout = function (accountId, sessionId) {
+//	this.manager.logout(accountId, sessionId);
+//};
+///**/
+//
+///*project management*/
+//GcsaManager.prototype.createProject = function(projectname, description, accountId, sessionId){
+//	this.manager.createProject(projectname, description, accountId, sessionId);
+//};
+//GcsaManager.prototype.uploadDataToProject = function(accountId, sessionId, projectname, objectname, formData){
+//	this.manager.uploadDataToProject(accountId, sessionId, projectname, objectname, formData);
+//};
+///**/
+//
+///*Analysis*/
+//GcsaManager.prototype.runAnalysis = function(analysis, paramsWS){
+//	this.manager.runAnalysis(analysis, paramsWS);
+//};
+///**/
+//
+//GcsaManager.prototype.bamList = function (queryParams) {
+//	this.manager.bamList(queryParams);
+//};
+//
+//GcsaManager.prototype.region = function (category, filename, region, queryParams) {
+//	this.manager.region(category, filename, region, queryParams);
+//};
+//
+//
+//
+//GcsaManager.prototype.getHost = function(){
+//	return this.manager.getHost();
+//};
+//GcsaManager.prototype.setHost = function(hostUrl){
+//	 return this.manager.setHost(hostUrl);
+//};

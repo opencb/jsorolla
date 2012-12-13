@@ -44,6 +44,7 @@ SIFNetworkFileWidget.prototype.getFileUpload = function(){
 		buttonText: 'Browse local',
 		listeners: {
 			change: function(){
+				_this.panel.setLoading(true);
 				var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];				
 				var sifDataAdapter = new SIFDataAdapter(new FileDataSource(file), {"networkData":_this.networkData});
 				sifDataAdapter.onLoad.addEventListener(function(sender,data){
@@ -66,6 +67,7 @@ SIFNetworkFileWidget.prototype.getFileUpload = function(){
 					}catch(e) {
 						_this.infoLabel.setText('<span class="err">File not valid </span>'+e,false);
 					};
+					_this.panel.setLoading(false);
 				});
 			}
 		}
