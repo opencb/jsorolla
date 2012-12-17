@@ -39,11 +39,12 @@ function GcsaRestManager (){
 	this.onChangeEmail = new Event(this);
 	this.onLogout = new Event(this);
 
-
 	/*PROJECT*/
 	this.onCreateProject = new Event(this);
 	this.onUploadDataToProject = new Event(this);
 
+	/*ANALYSIS*/
+	this.onRunAnalysis = new Event(this);
 	
 	/*BAM*/
 	this.onBamList = new Event(this);
@@ -205,16 +206,17 @@ GcsaRestManager.prototype.runAnalysis = function(analysis, paramsWS){
 	var _this=this;
 	var url = this.getHost()+'/analysis/'+analysis+'/run';
 	console.log(url);
+	console.log(paramsWS);
 	
 	function success(data){
-//		_this.onUploadDataToProject.notify({status:"done",data:data});
+		_this.onRunAnalysis.notify({status:"done",data:data});
 	}
 	
 	function error(data){
-//		_this.onUploadDataToProject.notify({status:"fail",data:data});
+		_this.onRunAnalysis.notify({status:"fail",data:data});
 	}
 	
-//	this.doPost(url, paramsWS, success, error);
+	$.ajax({type:"POST", url:url, data:paramsWS, success:success, error:error});
 };
 /**/
 
@@ -304,7 +306,7 @@ GcsaRestManager.prototype.doPost = function (url, formData, successCallback, err
 	$.ajax({
 		type: "POST",
 		url: url,
-		data:formData,
+		data: formData,
 		processData: false,  // tell jQuery not to process the data
 		contentType: false,  // tell jQuery not to set contentType
 		success: successCallback,

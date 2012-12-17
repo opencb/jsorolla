@@ -37,6 +37,9 @@ function GcsaManager(){
 	this.onCreateProject = this.manager.onCreateProject;
 	this.onUploadDataToProject = this.manager.onUploadDataToProject;
 	/**/
+	
+	/*ANALYSIS*/
+	this.onRunAnalysis = new Event(this);
 		
 	this.onBamList = this.manager.onBamList;
 	this.onRegion = this.manager.onRegion;
