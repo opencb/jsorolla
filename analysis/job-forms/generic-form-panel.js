@@ -3,6 +3,19 @@ function GenericFormPanel(analysis) {
 	this.form = null;
 	this.paramsWS = null;
 	this.gcsaManager = new GcsaManager();
+	this.panelId = this.analysis+"_FormPanel";
+	
+	this.gcsaManager.onRunAnalysis.addEventListener(function(sender, response){
+		if(response.data.indexOf("ERROR") != -1) {
+			Ext.Msg.show({
+				title:"Error",
+				msg: response.data,
+				buttons: Ext.Msg.OK,
+				icon: Ext.Msg.ERROR
+			});
+		}
+		else console.log(response.data);
+	});
 };
 
 GenericFormPanel.prototype.draw = function(args) {
@@ -60,6 +73,14 @@ GenericFormPanel.prototype.getJobPanel = function() {
 		emptyText:"Description"
 	});
 	
+	var bucketList= Ext.create('Ext.data.Store', {
+		fields: ['value', 'name'],
+		data : [
+		        {"value":"default", "name":"Default"}
+		       ]
+	});
+	var jobDestinationBucket = this.createCombobox("jobDestinationBucket", "Destination bucket", bucketList, 0, 100);
+	
 	var jobPanel = Ext.create('Ext.panel.Panel', {
 		title: 'Job',
 		border: true,
@@ -67,7 +88,7 @@ GenericFormPanel.prototype.getJobPanel = function() {
 		margin: "0 0 5 0",
 		width: "100%",
 		buttonAlign:'center',
-		items: [jobNameField,jobDescriptionField]
+		items: [jobNameField, jobDescriptionField, jobDestinationBucket]
 	});
 	
 	return jobPanel;
@@ -80,8 +101,10 @@ GenericFormPanel.prototype.getRunButton = function() {
 		disabled:true,
 		formBind: true, // only enabled if the form is valid
 		handler: function (){
+			_this.paramsWS = _this.getForm().getForm().getFieldValues();
+			_this.paramsWS["sessionid"] = $.cookie('bioinfo_sid');
 			_this.beforeRun();
-			if(_this.validate()) _this.run();
+			_this.run();
 		}
 	});
 };
@@ -90,22 +113,13 @@ GenericFormPanel.prototype.beforeRun = function() {
 	// To be implemented in inner class
 };
 
-GenericFormPanel.prototype.validate = function() {
-	// To be implemented in inner class
-	return true;
-};
-
 GenericFormPanel.prototype.run = function() {
-	this.paramsWS = this.getForm().getForm().getFieldValues();
-	this.paramsWS["sessionid"] = $.cookie('bioinfo_sid');
-	
 	this.gcsaManager.runAnalysis(this.analysis, this.paramsWS);
 	
-//	_this.onRun.notify();
 	Ext.example.msg('Job Launched', 'It will be listed soon');
 };
 
-GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultValue) {
+GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultValue, labelWidth, listeners) {
 	return Ext.create('Ext.form.field.ComboBox', {
 		name: name,
 	    fieldLabel: label,
@@ -114,10 +128,10 @@ GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultV
 	    displayField: 'name',
 	    valueField: 'value',
 	    value: data.getAt(defaultValue).get('value'),
-	    width: "100%",
-	    labelWidth: "12%",
+	    labelWidth: labelWidth,
 	    editable: false,
-	    allowBlank: false
+	    allowBlank: false,
+	    listeners: listeners
 	});
 };
 
