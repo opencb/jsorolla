@@ -19,7 +19,7 @@ function GenericFormPanel(analysis) {
 };
 
 GenericFormPanel.prototype.draw = function(args) {
-	if(args.type == "window") {
+	if(args != null && args.type == "window") {
 		Ext.create('Ext.ux.Window', {
 			title: args.title || "",
 			resizable: args.resizable || false,
@@ -32,6 +32,11 @@ GenericFormPanel.prototype.draw = function(args) {
 	}
 	else {
 		return Ext.create('Ext.container.Container', {
+			id:this.panelId,
+			title: args.title,
+		    closable:true,
+		    defaults:{margin:30},
+		    autoScroll:true,
 			items: this.getForm()
 		});
 	}
