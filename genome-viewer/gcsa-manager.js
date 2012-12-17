@@ -23,6 +23,7 @@ function GcsaManager(){
 	
 	this.manager = new GcsaRestManager();
 
+
 	/*account management*/
 	this.onGetAccountInfo = this.manager.onGetAccountInfo;
 	this.onLogin = this.manager.onLogin;
@@ -36,6 +37,7 @@ function GcsaManager(){
 	/*project management*/
 	this.onCreateProject = this.manager.onCreateProject;
 	this.onUploadDataToProject = this.manager.onUploadDataToProject;
+	this.onDeleteDataFromProject = this.manager.onDeleteDataFromProject;
 	/**/
 	
 	/*ANALYSIS*/

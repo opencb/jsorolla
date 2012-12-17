@@ -51,6 +51,7 @@ function LoginWidget (suiteId, args){
 				var pdata = JSON.parse(data);
 				if(pdata.currentSessionId!=null){
 					 $.cookie('bioinfo_sid', pdata.currentSessionId /*,{path: '/'}*/);
+					 $.cookie('bioinfo_bucket', 'default' /*,{path: '/'}*/);
 					_this.onSessionInitiated.notify();
 				}
 			}else{
@@ -124,6 +125,7 @@ LoginWidget.prototype.sign = function (){
 			//if (this.getLogin().indexOf("@")!=-1){
 				this.adapter.login(this.getLogin(), this.getPassword(), this.suiteId );
 				$.cookie('bioinfo_account',this.getLogin());
+				 $.cookie('bioinfo_bucket', 'default' /*,{path: '/'}*/);
 			//}else{
 				//this.adapter.login(this.getLogin()+"@cipf.es", this.getPassword(), this.suiteId );
 			//}
@@ -139,6 +141,7 @@ LoginWidget.prototype.register = function (){
 	if(this.checkAccountId()  && this.checkemail() && this.checkName() && this.checkpass()){
 		this.adapter.register(this.getLogin(), this.getEmail(), this.getAccountName(),this.getPasswordReg(), this.suiteId );
 		$.cookie('bioinfo_account',this.getLogin());
+		 $.cookie('bioinfo_bucket', 'default' /*,{path: '/'}*/);
 	}else{
 		Ext.getCmp(this.labelEmailId).setText('<span class="info">Fill all fields</span>', false);
 	}

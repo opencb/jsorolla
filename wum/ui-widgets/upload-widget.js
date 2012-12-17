@@ -66,6 +66,7 @@ UploadWidget.prototype.draw = function(){
 		                { text: "GFF3", tag:"gff3"},
 		                { text: "GTF", tag:"gtf"},
 		                { text: "BED", tag:"bed"},
+		                { text: "BAM", tag:"bam"},
 		                { text: "Expression", tag:"expression"}
 		            ] }
 		        ];
@@ -134,7 +135,7 @@ UploadWidget.prototype.render = function(dataTypes){
 		        children: dataTypes
 		    }
 		});
-		var height = Object.keys(store.tree.nodeHash).length*20;
+		var height = Object.keys(store.tree.nodeHash).length*23;
 		if (height<250){
 				height=250;
 		} 
@@ -422,9 +423,9 @@ UploadWidget.prototype.uploadFile = function()  {
    	fd.append("description", this.textArea.getValue());
    	fd.append("sessionid", sessionId);
 
-   	var objectname = "hola:como:estas:"+inputFileName;
+   	var objectname = inputFileName;
 	//accountid, sessionId, projectname, formData
-	this.adapter.uploadDataToProject($.cookie("bioinfo_account"), sessionId, "Default", objectname, fd);
+	this.adapter.uploadDataToProject($.cookie("bioinfo_account"), sessionId, $.cookie('bioinfo_bucket') , objectname, fd);
 	
 };
 
