@@ -61,8 +61,6 @@ function GcsaBrowserWidget(args){
     }
     
     this.adapter = new GcsaManager();
-
-
     
 	//this.adapter.onGetData.addEventListener(function (sender, data){
 		//_this.data=data;
@@ -98,13 +96,13 @@ GcsaBrowserWidget.prototype._updateFolderTree = function (){
 	if(this.accountData.accountId!=null){
 		this.folderStore.getRootNode().removeAll();
 		var files2 = [];
-		for ( var i = 0; i < this.accountData.projects.length; i++) {
+		for ( var i = 0; i < this.accountData.buckets.length; i++) {
 			var files = [];
-			for ( var j = 0; j < this.accountData.projects[i].data.length; j++) {
-				files.push({text:this.accountData.projects[i].data[j].creationTime, iconCls:"icon-blue-box", leaf:true});
-				files2.push(this.accountData.projects[i].data[j]);
+			for ( var j = 0; j < this.accountData.buckets[i].data.length; j++) {
+				files.push({text:this.accountData.buckets[i].data[j].fileName, iconCls:"icon-blue-box", leaf:true});
+				files2.push(this.accountData.buckets[i].data[j]);
 			}
-			this.folderStore.getRootNode().appendChild({text:this.accountData.projects[i].name, iconCls:"icon-box", expanded:true, children:files});
+			this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, iconCls:"icon-box", expanded:true, children:files});
 		}
 		this.filesStore.loadData(files2);
 	}		
@@ -193,7 +191,6 @@ GcsaBrowserWidget.prototype.render = function (){
 						var id = record.data.trackId;
 						var checked = record.data.checked;
 						record.destroy();
-						_this.onNeedRefresh.notify();
 						if(checked){
 							_this.removeTrack(id);
 						}
@@ -386,7 +383,30 @@ GcsaBrowserWidget.prototype.render = function (){
 			border:false,
 			columns: [
 				{ text: 'Name',  dataIndex: 'fileName', flex:1 },
-				{ text: 'Creation time', dataIndex: 'creationTime', flex:1 }
+				{ text: 'Creation time', dataIndex: 'creationTime', flex:1 },
+				{xtype: 'actioncolumn',menuDisabled: true,align: 'center',tooltip: 'Delete data!',width:30,icon: Compbio.images.del,
+					handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+						//this also fires itemclick event from tree panel
+						if(record != null){
+							Ext.MessageBox.confirm('Confirm', 'Are you sure you want to delete this file?<p class="emph">'+record.data.fileName+'<p>', function(answer){
+								if(answer == "yes"){
+									console.log("deleting")
+									var gcsaManager = new GcsaManager();
+									gcsaManager.onDeleteDataFromProject.addEventListener(function (sender, response){
+										if (response.indexOf("ERROR:") != -1){
+											Ext.example.msg("fdsa","asdf");
+										}else{
+											//delete complete
+											record.destroy();
+											_this.onNeedRefresh.notify();
+										}
+									});
+									gcsaManager.deleteDataFromProject($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), $.cookie('bioinfo_bucket'), record.data.id);
+								}
+							});
+						}
+					}
+			}
 			]
 		});
 		/**/

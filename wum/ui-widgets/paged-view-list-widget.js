@@ -345,7 +345,7 @@ PagedViewListWidget.prototype.render = function() {
 				
 				this.panel = Ext.create('Ext.panel.Panel', {
 					id : this.panelId,
-					title : this.title,
+					//title : this.title,
 					border:this.border,
 				    width: this.width,
 				    tbar : this.pagBar,
@@ -356,8 +356,8 @@ PagedViewListWidget.prototype.render = function() {
 				var target = Ext.getCmp(this.targetId);
 				if (target instanceof Ext.panel.Panel){
 					target.insert(this.order, this.panel);
-					target.setActiveTab(1);//si no se pone el active da un error de EXT
-					target.setActiveTab(0);//si no se pone el active da un error de EXT
+					//target.setActiveTab(1);//si no se pone el active da un error de EXT
+					//target.setActiveTab(0);//si no se pone el active da un error de EXT
 					pan.setHeight = this.panel.getHeight();
 				}else{
 					this.panel.render(this.targetId);

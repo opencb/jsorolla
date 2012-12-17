@@ -43,6 +43,7 @@ function GcsaRestManager (){
 	/*PROJECT*/
 	this.onCreateProject = new Event(this);
 	this.onUploadDataToProject = new Event(this);
+	this.onDeleteDataFromProject = new Event(this);
 
 	
 	/*BAM*/
@@ -168,9 +169,9 @@ GcsaRestManager.prototype.logout = function(accountId, sessionId){
 /*END ACCOUNT*/
 
 /*project management*/
-GcsaRestManager.prototype.createProject = function(projectname, description, accountId, sessionId){
+GcsaRestManager.prototype.createProject = function(bucketname, description, accountId, sessionId){
 	var _this=this;
-	var url = this.getHost()+'/account/'+accountId+'/createproject?projectname='+projectname+'&description='+description+'&sessionid='+sessionId;
+	var url = this.getHost()+'/account/'+accountId+'/'+bucketname+'/create?description='+description+'&sessionid='+sessionId;
 	
 	function success(data){
 		_this.onCreateProject.notify(data);
@@ -183,11 +184,13 @@ GcsaRestManager.prototype.createProject = function(projectname, description, acc
 	this.doGet(url, success, error);
 //	console.log(url);
 };
-GcsaRestManager.prototype.uploadDataToProject = function(accountId, sessionId, projectname, objectname, formData, parents){
+GcsaRestManager.prototype.uploadDataToProject = function(accountId, sessionId, bucketname, objectname, formData, parents){
+	objectname = objectname.replace(new RegExp("/", "gi"),":");
 	var _this=this;
-	var url = this.getHost()+'/'+accountId+'/'+projectname+'/'+objectname+'/upload?sessionid='+sessionId+'&parents='+(parents || false);
+	var url = this.getHost()+'/'+accountId+'/'+bucketname+'/'+objectname+'/upload?sessionid='+sessionId+'&parents='+(parents || false);
 	
 	function success(data){
+		console.log(data);
 		_this.onUploadDataToProject.notify({status:"done",data:data});
 	}
 	
@@ -198,6 +201,42 @@ GcsaRestManager.prototype.uploadDataToProject = function(accountId, sessionId, p
 	this.doPost(url, formData, success, error);
 //	console.log(url);
 };
+GcsaRestManager.prototype.deleteDataFromProject = function(accountId, sessionId, bucketname, objectname){
+	objectname = objectname.replace(new RegExp("/", "gi"),":");
+	var _this=this;
+	var url = this.getHost()+'/'+accountId+'/'+bucketname+'/'+objectname+'/delete?sessionid='+sessionId;
+	
+	function success(data){
+		console.log(data);
+		_this.onDeleteDataFromProject.notify(data);
+	}
+	
+	function error(data){
+		console.log("ERROR: " + data);
+	}
+	
+	this.doGet(url, success, error);
+//	console.log(url);
+};
+
+GcsaRestManager.prototype.region = function(accountId, sessionId, bucketname, objectname, region, queryParams){
+	var _this=this;
+	queryParams["sessionid"]=sessionId;
+	var url = this.getHost()+'/'+accountId+'/'+bucketname+'/'+objectname+'/'+region+'/region'+this.getQuery(queryParams);
+	console.log(url);
+	function success(data){
+		_this.onRegion.notify({resource:queryParams["category"],result:JSON.parse(data),filename:objectname,query:region,params:queryParams});
+	}
+	
+	function error(data){
+		console.log("ERROR: " + data);
+		console.log(data);
+	}
+	
+	this.doGet(url, success, error);
+	console.log(url);
+};
+
 /**/
 
 /* Analysis */
@@ -258,22 +297,23 @@ GcsaRestManager.prototype.bamList = function(queryParams){
 
 
 
-GcsaRestManager.prototype.region = function(category, filename, region, queryParams){
-	var _this=this;
-	var url = this.getHost()+'/'+category+'/'+filename+'/'+region+'/region'+this.getQuery(queryParams);
-	console.log(url);
-	function success(data){
-		_this.onRegion.notify({resource:category,result:JSON.parse(data),filename:filename,query:region,params:queryParams});
-	}
-	
-	function error(data){
-		console.log("ERROR: " + data);
-		console.log(data);
-	}
-	
-	this.doGet(url, success, error);
-//	console.log(url);
-};
+//old
+//GcsaRestManager.prototype.region = function(category, filename, region, queryParams){
+	//var _this=this;
+	//var url = this.getHost()+'/'+category+'/'+filename+'/'+region+'/region'+this.getQuery(queryParams);
+	//console.log(url);
+	//function success(data){
+		//_this.onRegion.notify({resource:category,result:JSON.parse(data),filename:filename,query:region,params:queryParams});
+	//}
+	//
+	//function error(data){
+		//console.log("ERROR: " + data);
+		//console.log(data);
+	//}
+	//
+	//this.doGet(url, success, error);
+	//console.log(url);
+//};
 
 GcsaRestManager.prototype.getQuery = function(paramsWS){
 	var query = "";

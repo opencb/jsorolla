@@ -72,7 +72,7 @@ function JobListWidget (args){
 	this.btnFinishedId =this.id + "_btnFinished";
 	this.btnVisitedId = this.id + "_btnVisited";
 	this.btnRunningId = this.id + "_btnRunning";
-	this.btnQueuedId = 	this.id + "_btnQueued";	
+	this.btnQueuedId = 	this.id + "_btnQueued";
 	
 	this.projectFilterButton = Ext.create("Ext.button.Button",{
 	    id : this.btnActivePrjId,
@@ -82,7 +82,7 @@ function JobListWidget (args){
 	    pressed: false,
 	    listeners: {
 	    	toggle:function(){
-	    	_this.selectProjectData();
+	    	//_this.selectProjectData();
 			_this.render();
 	    	}
 	    }
@@ -96,7 +96,7 @@ function JobListWidget (args){
 		style : 'border : 0',
 		dock : 'top',
 		items :  [
-                  this.projectFilterButton,
+                  //this.projectFilterButton,
                   {
                 	  id : this.btnAllId,
                 	  text: ' ',
@@ -122,7 +122,7 @@ function JobListWidget (args){
                 	  text: ' ',
                 	  tooltip:'Queued jobs'
                   }
-]
+		]
 	});	
 	
 	Ext.getCmp(this.btnAllId).on('click', this.filter, this);
@@ -133,13 +133,18 @@ function JobListWidget (args){
 	
 	this.allData = new Array();
 	
-	this.adapter = new WumAdapter();
-	this.adapter.onListProject.addEventListener(function (sender, data){
-//		console.log("onListProject");
-		_this.allData = JSON.parse(data);
-		_this.selectProjectData();
-		_this.render();
-	});	
+	//this.adapter = new WumAdapter();
+	//this.adapter.onListProject.addEventListener(function (sender, data){
+		//console.log("onListProject");
+		//_this.allData = JSON.parse(data);
+		//_this.selectProjectData();
+		//_this.render();
+	//});	
+};
+
+//override
+JobListWidget.prototype.draw = function (){
+	
 };
 
 JobListWidget.prototype.clean =  function (){
@@ -153,6 +158,22 @@ JobListWidget.prototype.clean =  function (){
 JobListWidget.prototype.getResponse = function (){
 	this.adapter.listProject($.cookie("bioinfo_sid"), this.suiteId);
 };
+
+JobListWidget.prototype.setAccountData = function (data){
+	this.accountData = data;
+	console.log("joblistwidget")
+
+	var projects = [];
+	var jobs = [];
+	for ( var i = 0; i < this.accountData.buckets.length; i++) {
+		for ( var j = 0; j < this.accountData.buckets[i].jobs.length; j++) {
+			jobs.push(this.accountData.buckets[i].jobs[j]);
+		}
+	}
+	this.data = jobs;
+	this.render();
+};
+
 
 JobListWidget.prototype.render =  function (){
 	this.pagedListViewWidget.draw(this.getData());

@@ -103,7 +103,8 @@ BamAdapter.prototype.getData = function(args){
 	this.params["transcript"] = args.transcript;
 	this.params["chromosome"] = args.chromosome;
 	this.params["resource"] = this.resource;
-	
+	this.params["category"] = this.category;
+
 	if(args.start<1){
 		args.start=1;
 	}
@@ -190,7 +191,8 @@ BamAdapter.prototype.getData = function(args){
 //		console.log(querys);
 		for ( var i = 0, li = querys.length; i < li; i++) {
 			console.time("dqs");
-			gcsaManager.region(this.category, this.resource, querys[i], this.params);
+			//accountId, sessionId, bucketname, objectname, region,
+			gcsaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource, querys[i], this.params);
 		}
 	}else{//no server call
 		if(itemList.length > 0){
