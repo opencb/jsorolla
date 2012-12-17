@@ -19,29 +19,53 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-VariantEffectJobFormPanel.prototype = new GenericFormPanel("hpg-variant.effect");
+VariantEffectJobFormPanel.prototype.draw = JobFormPanel.prototype.draw;
+VariantEffectJobFormPanel.prototype.render = JobFormPanel.prototype.render;
+VariantEffectJobFormPanel.prototype.validateRunButton = JobFormPanel.prototype.validateRunButton;
+VariantEffectJobFormPanel.prototype.getRunButtonPanel = JobFormPanel.prototype.getRunButtonPanel;
+//VariantEffectJobFormPanel.prototype.getTreePanel = JobFormPanel.prototype.getTreePanel;
+//VariantEffectJobFormPanel.prototype.checkDataTypes = JobFormPanel.prototype.checkDataTypes;
 
-function VariantEffectJobFormPanel(){
-	this.id = Math.round(Math.random() * 10000000);
+function VariantEffectJobFormPanel(args){
+	if (args == null){
+		args = new Object();
+	}
+	args.title = "Variant effect job form";
+	JobFormPanel.prototype.constructor.call(this, args);
 	
 	this.tags = ["vcf|bed|gff"];
-	this.paramsWS = {};//test
+	
+	
+	/** Params for WS **/
+	this.paramsWS = new Object();
+	this.paramsWS["sessionid"] = "";
+	this.paramsWS["vcf-file-fileid"] = null;
+//	this.paramsWS["num-threads"] = "12";
+	
+	this.adapter = new AnalysisAdapter();
+	var _this = this;
+	this.browserData = new BrowserDataWidget({retrieveData:false});
+	this.browserData.onSelect.addEventListener(function (sender, data){
+		_this.fileBrowserLabel.setText('<span class="emph">'+ data.filename +'</span> <span class="info">(server)</span>',false);
+		_this.paramsWS["vcf-file-fileid"] = data.dataId;
+		_this.validateRunButton();
+	});
+	
 };
 
-VariantEffectJobFormPanel.prototype.getPanels = function (){
+VariantEffectJobFormPanel.prototype.getForms = function (){
 	var items = [
 	             	this._getSpeciesForm(),
 	             	this._getBrowseForm(),
 	             	this._getFilterForm(),
-	             	this._getOutputForm()
+	             	this._getOutputForm(),
+	             	this.getRunButtonPanel()
 	             ];
 
 	var form1234 = Ext.create('Ext.panel.Panel', {
-		margin:"15 0 0 0",
 		border:true,
 //		layout:{type:'vbox', align: 'stretch'},
 		buttonAlign:'center',
-		width:"70%",
 		//height:900,
 		//width: "600",
 		items:items
