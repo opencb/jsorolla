@@ -37,7 +37,7 @@ function JobListWidget (args){
 											'<tpl if="visites == -2">Darkorange</tpl>'+
 											'">{name}</p>',
 						'<p style="color: #15428B"><i>{creationTime}</i></p>',
-						'<p style="color:steelblue"><i>- {toolName} -</i></p>',
+						'<p style="color:steelblue"><i>- {toolName} -</i> <span class="info"> {id} </span></p>',
 						'<p style="color:grey"><i>',
 //						'<tpl if="visites == 0">finished and unvisited</tpl>',
 //						'<tpl if="visites &gt; 0">{visites} visites</tpl>',

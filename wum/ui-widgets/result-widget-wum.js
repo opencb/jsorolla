@@ -36,7 +36,7 @@ function ResultWidget(args){
         }
     }
 	
-	this.adapter = new GcsaManager();
+	this.adapter = new WumAdapter();
 	
 	this.adapter.onJobResult.addEventListener(function (sender, data){
 //		console.log(data);
@@ -69,7 +69,7 @@ function ResultWidget(args){
 ResultWidget.prototype.draw = function (sid, record){
 //	console.log(record.data);
 	this.record = record;
-	this.jobId = this.record.data.id;
+	this.jobId = this.record.data.jobId;
 	this.id = this.jobId+this.id;
 	this.panelId = "ResultWidget_"+this.jobId;
 	this.networkViewerId = this.panelId+"_CellBrowserId";
@@ -91,11 +91,7 @@ ResultWidget.prototype.draw = function (sid, record){
 			Ext.getCmp(this.targetId).setActiveTab(this.panel);
 			this.panel.setLoading("Loading job info...");
 			Ext.getBody().mask();
-			
-			//this.adapter.jobResult(this.jobId, "json", sid);
-			//accountId, sessionId, bucketname, jobId, format
-			this.adapter.jobResult($.cookie("bioinfo_account"), sid, $.cookie("bioinfo_bucket"), this.jobId, "json");
-			//this.adapter.jobResult(this.jobId, "json", sid);
+			this.adapter.jobResult(this.jobId, "json", sid);
 		}else{
 //			this.panel.setLoading(false);
 			Ext.getCmp(this.targetId).setActiveTab(this.panel);
@@ -445,7 +441,7 @@ ResultWidget.prototype.drawHistograms = function (){
 //	console.log(this.resultHistograms);
 	for(id in this.resultHistograms){
 		
-		var adapterPoll = new GcsaManager();
+		var adapterPoll = new WumAdapter();
 		adapterPoll.onPoll.addEventListener(function(sender,data){
 			if(data!=""){
 				var lines = data.split("\n");
@@ -472,9 +468,8 @@ ResultWidget.prototype.drawHistograms = function (){
 				document.getElementById(id).innerHTML=img;
 			}
 		});
+		adapterPoll.poll(this.jobId,this.resultHistograms[id],false,$.cookie('bioinfo_sid'));
 		
-		//adapterPoll.poll(this.jobId,this.resultHistograms[id],false,$.cookie('bioinfo_sid'));
-		adapterPoll.poll($.cookie("bioinfo_account"), $.cookie('bioinfo_sid'), $.cookie("bioinfo_bucket"), this.jobId, this.resultHistograms[id], false);
 	}	
 };
 ResultWidget.prototype.drawGCharts = function (){
@@ -559,7 +554,7 @@ ResultWidget.prototype.createGenomeViewer = function (targetId){
 	});
 	genomeViewer.draw();
 	
-	var adapter = new GcsaManager();
+	var adapter = new WumRestAdapter();
 	adapter.onPoll.addEventListener(function(sender, data){
 		var vcfDataAdapter = new VCFDataAdapter(new StringDataSource(data),{async:false,species:genomeViewer.species});
 		var vcfTrack = new TrackData("VCF file",{
@@ -582,8 +577,7 @@ ResultWidget.prototype.createGenomeViewer = function (targetId){
 	
 //	console.log(this.filteredVcfFile)
 	if(this.filteredVcfFile != null){
-		adapter.poll($.cookie("bioinfo_account"), $.cookie('bioinfo_sid'), $.cookie("bioinfo_bucket"), _this.jobId, this.filteredVcfFile, false);
-		//adapter.poll(_this.jobId, this.filteredVcfFile, false, $.cookie('bioinfo_sid'));
+		adapter.poll(_this.jobId, this.filteredVcfFile, false, $.cookie('bioinfo_sid'));
 	}else{
 		console.log("No filtered VCF file.");
 	}

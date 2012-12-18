@@ -34,11 +34,16 @@ function GcsaManager(){
 	this.onLogout = this.manager.onLogout;
 	/**/
 
-	/*project management*/
+	/*bucket management*/
 	this.onCreateProject = this.manager.onCreateProject;
 	this.onUploadDataToProject = this.manager.onUploadDataToProject;
 	this.onDeleteDataFromProject = this.manager.onDeleteDataFromProject;
 	/**/
+
+	/*Jobs*/
+	this.onJobResult = this.manager.onJobResult;
+	this.onTable = this.manager.onTable;
+	this.onPoll = this.manager.onPoll;
 	
 	/*ANALYSIS*/
 	this.onRunAnalysis = new Event(this);
