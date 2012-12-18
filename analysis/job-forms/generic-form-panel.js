@@ -49,7 +49,7 @@ GenericFormPanel.prototype.getForm = function() {
 		items.push(this.getRunButton());
 		
 		this.form = Ext.create('Ext.form.Panel', {
-			border: true,
+			border: false,
 			bodyPadding: "5",
 			layout: 'vbox',
 			items: items
@@ -89,6 +89,7 @@ GenericFormPanel.prototype.getJobPanel = function() {
 	var jobPanel = Ext.create('Ext.panel.Panel', {
 		title: 'Job',
 		border: true,
+		padding:"5 0 0 0",
 		bodyPadding: "5",
 		margin: "0 0 5 0",
 		width: "100%",
@@ -119,7 +120,7 @@ GenericFormPanel.prototype.beforeRun = function() {
 };
 
 GenericFormPanel.prototype.run = function() {
-	this.gcsaManager.runAnalysis(this.analysis, this.paramsWS);
+	//this.gcsaManager.runAnalysis(this.analysis, this.paramsWS);
 	
 	Ext.example.msg('Job Launched', 'It will be listed soon');
 };

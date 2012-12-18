@@ -38,10 +38,10 @@ VariantEffectJobFormPanel.prototype.getPanels = function (){
 
 	var form1234 = Ext.create('Ext.panel.Panel', {
 		margin:"15 0 0 0",
-		border:true,
+		border:false,
 //		layout:{type:'vbox', align: 'stretch'},
 		buttonAlign:'center',
-		width:"70%",
+		width:"100%",
 		//height:900,
 		//width: "600",
 		items:items
@@ -76,7 +76,8 @@ VariantEffectJobFormPanel.prototype._getSpeciesForm = function (){
 
 	var speciesForm = Ext.create('Ext.panel.Panel', {
 		title:"Species",
-		border:false,
+		border:true,
+		padding:"5 0 0 0",
 		bodyPadding:10,
 		items: []
 	});
@@ -191,8 +192,9 @@ VariantEffectJobFormPanel.prototype._getBrowseForm = function (){
 	
 	var formBrowser = Ext.create('Ext.panel.Panel', {
 			title:"Select your data",
-			cls:'panel-border-top',
-			border:false,
+			//cls:'panel-border-top',
+			border:true,
+			padding:"5 0 0 0",
 			bodyPadding:10,
 			items: [note1,browse,note2,btnUpload]
 		});
@@ -253,8 +255,9 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 
 	var formFilterOptions = Ext.create('Ext.form.Panel', {
 		title:"Input data filter options",
-		border:false,
-		cls:'panel-border-top',
+		border:true,
+		padding:"5 0 0 0",
+		//cls:'panel-border-top',
 		bodyPadding:10,
 		items: items
 	});
@@ -318,11 +321,12 @@ VariantEffectJobFormPanel.prototype._getOutputForm = function (){
 	var form4 = Ext.create('Ext.form.Panel', {
 		id:this.id+"Output options",
 		title:"Output options",
-		border:false,
+		border:true,
+		padding:"5 0 0 0",
 //		cls:'panel-border-left',
 		flex:1,
 		bodyPadding:10,
-		cls:'panel-border-top',
+		//cls:'panel-border-top',
 		items: items
 	});
 	return form4;
@@ -412,11 +416,10 @@ VariantEffectJobFormPanel.prototype.getCheckValue = function (checkbox){
 		return null;
 	return "";
 };
-VariantEffectJobFormPanel.prototype.runJob = function (){
-		
-		this.paramsWS["sessionid"] = $.cookie('bioinfo_sid');
-		this.paramsWS["jobname"] = Ext.getCmp("jobNameField_"+this.id).getValue();
-		
+
+
+
+VariantEffectJobFormPanel.prototype.beforeRun = function (){
 		
 		//validate regions
 		var regions = "";
@@ -515,8 +518,6 @@ VariantEffectJobFormPanel.prototype.runJob = function (){
 		if(soTerms.length > 0){
 			this.paramsWS["exclude"] = soTerms.toString();
 		}
-		
-		this.paramsWS["command"] = "effect";
 		
 		console.log(this.paramsWS);
 		//this.adapter.variantAnalysis(this.paramsWS);

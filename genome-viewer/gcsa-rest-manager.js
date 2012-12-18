@@ -39,10 +39,15 @@ function GcsaRestManager (){
 	this.onChangeEmail = new Event(this);
 	this.onLogout = new Event(this);
 
-	/*PROJECT*/
+	/*Bucket*/
 	this.onCreateProject = new Event(this);
 	this.onUploadDataToProject = new Event(this);
 	this.onDeleteDataFromProject = new Event(this);
+
+	/*Jobs*/
+	this.onJobResult = new Event(this);
+	this.onTable = new Event(this);
+	this.onPoll = new Event(this);
 
 	/*ANALYSIS*/
 	this.onRunAnalysis = new Event(this);
@@ -219,6 +224,71 @@ GcsaRestManager.prototype.deleteDataFromProject = function(accountId, sessionId,
 	this.doGet(url, success, error);
 //	console.log(url);
 };
+
+
+GcsaRestManager.prototype.jobResult = function(accountId, sessionId, bucketname, jobId, format){
+	var _this=this;
+	//@Path("/{accountid}/{bucketname}/job/{jobid}/result.{format}")
+	var url = this.getHost()+'/'+accountId+'/'+bucketname+'/job/'+jobId+'/result.'+format+'?sessionid='+sessionId;
+	//var url = this.getHost() + '/job/'+jobId+'/result.'+format+'?incvisites=true&sessionid='+sessionId;
+	function success(data){
+		_this.onJobResult.notify(data);
+	}
+	
+	function error(data){
+		console.log("ERROR: " + data);
+	}
+	
+	this.doGet(url, success, error);
+//	console.log(url);
+};
+
+GcsaRestManager.prototype.table = function(accountId, sessionId, bucketname, jobId, filename, colNames, colVisibilty){
+	var _this=this;
+	var url = this.getHost()+'/'+accountId+'/'+bucketname+'/job/'+jobId+'/table?sessionid='+sessionId+'&filename='+filename+'&colNames='+colNames+'&colVisibility='+colVisibilty;
+		function success(data){
+			_this.onTable.notify(data);
+		}
+	
+		function error(data){
+			console.log("ERROR: " + data);
+		}
+		
+		this.doGet(url, success, error);
+//	console.log(url);
+};
+GcsaRestManager.prototype.tableurl = function(accountId, sessionId, bucketname, jobId, filename, colNames, colVisibilty){
+	return this.getHost()+'/'+accountId+'/'+bucketname+'/job/'+jobId+'/table?sessionid='+sessionId+'&filename='+filename+'&colNames='+colNames+'&colVisibility='+colVisibilty;
+};
+
+GcsaRestManager.prototype.poll = function(accountId, sessionId, bucketname, jobId, filename, zip){
+	debugger
+	var _this=this;
+	if(zip==true){
+		var url = this.getHost() +'/'+accountId+'/'+bucketname+'/job/'+jobId+'/poll?sessionid='+sessionId+'&filename='+filename;
+		open(url);
+	}else{
+		var url = this.getHost() +'/'+accountId+'/'+bucketname+'/job/'+jobId+'/poll?sessionid='+sessionId+'&filename='+filename+'&zip=false';
+		function success(data){
+			_this.onPoll.notify(data);
+		}
+	
+		function error(data){
+			console.log("ERROR: " + data);
+		}
+		
+		this.doGet(url, success, error);
+	}
+//	console.log(url);
+};
+
+GcsaRestManager.prototype.pollurl = function(accountId, sessionId, bucketname, jobId, filename){
+	debugger
+	return this.getHost() +'/'+accountId+'/'+bucketname+'/job/'+jobId+'/poll?sessionid='+sessionId+'&filename='+filename+'&zip=false';
+};
+
+
+
 
 GcsaRestManager.prototype.region = function(accountId, sessionId, bucketname, objectname, region, queryParams){
 	var _this=this;
