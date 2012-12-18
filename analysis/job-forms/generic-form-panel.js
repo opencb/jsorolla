@@ -124,7 +124,7 @@ GenericFormPanel.prototype.run = function() {
 	Ext.example.msg('Job Launched', 'It will be listed soon');
 };
 
-GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultValue, labelWidth, listeners) {
+GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultValue, labelWidth) {
 	return Ext.create('Ext.form.field.ComboBox', {
 		name: name,
 	    fieldLabel: label,
@@ -135,8 +135,7 @@ GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultV
 	    value: data.getAt(defaultValue).get('value'),
 	    labelWidth: labelWidth,
 	    editable: false,
-	    allowBlank: false,
-	    listeners: listeners
+	    allowBlank: false
 	});
 };
 
