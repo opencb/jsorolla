@@ -1,9 +1,10 @@
 function GenericFormPanel(analysis) {
 	this.analysis = analysis;
 	this.form = null;
-	this.paramsWS = null;
+	this.paramsWS = {};
 	this.gcsaManager = new GcsaManager();
 	this.panelId = this.analysis+"_FormPanel";
+	this.gcsaBrowserWidget = new GcsaBrowserWidget({});
 	
 	this.gcsaManager.onRunAnalysis.addEventListener(function(sender, response){
 		if(response.data.indexOf("ERROR") != -1) {
@@ -89,7 +90,6 @@ GenericFormPanel.prototype.getJobPanel = function() {
 	var jobPanel = Ext.create('Ext.panel.Panel', {
 		title: 'Job',
 		border: true,
-		padding:"5 0 0 0",
 		bodyPadding: "5",
 		margin: "0 0 5 0",
 		width: "100%",
@@ -120,12 +120,12 @@ GenericFormPanel.prototype.beforeRun = function() {
 };
 
 GenericFormPanel.prototype.run = function() {
-	//this.gcsaManager.runAnalysis(this.analysis, this.paramsWS);
+	this.gcsaManager.runAnalysis(this.analysis, this.paramsWS);
 	
 	Ext.example.msg('Job Launched', 'It will be listed soon');
 };
 
-GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultValue, labelWidth) {
+GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultValue, labelWidth, margin) {
 	return Ext.create('Ext.form.field.ComboBox', {
 		name: name,
 	    fieldLabel: label,
@@ -135,6 +135,7 @@ GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultV
 	    valueField: 'value',
 	    value: data.getAt(defaultValue).get('value'),
 	    labelWidth: labelWidth,
+	    margin: margin,
 	    editable: false,
 	    allowBlank: false
 	});
@@ -147,5 +148,26 @@ GenericFormPanel.prototype.createCheckBox = function(name, label, checked, margi
 		 checked: (checked || false),
 		 disabled: disabled,
 		 margin: (margin || '0 0 0 0')
+	});
+};
+
+GenericFormPanel.prototype.createGcsaBrowserCmp = function(label) {
+	var _this = this;
+	var btnBrowse = Ext.create('Ext.button.Button', {
+        text: 'Browse data',
+        margin: '0 0 0 10',
+        handler: function (){
+        	_this.gcsaBrowserWidget.draw();
+   		}
+	});
+	
+	return Ext.create('Ext.container.Container', {
+//		bodyPadding:10,
+//		defaults:{margin:'5 0 0 5'},
+//		margin: '5 0 0 0',
+		items: [
+		        {xtype: 'label', text: label, margin:'5 0 0 5'},
+		        btnBrowse
+		       ]
 	});
 };
