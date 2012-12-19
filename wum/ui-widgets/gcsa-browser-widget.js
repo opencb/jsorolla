@@ -59,9 +59,29 @@ function GcsaBrowserWidget(args){
 			});
         }
     }
+
+    
+	this.onSelect = new Event(this);
+	this.onNeedRefresh = new Event(this);
     
     this.adapter = new GcsaManager();
+	this.adapter.onCreateBucket.addEventListener(function (sender, data){
+		if(data.indexOf("ERROR") != -1) {
+			Ext.Msg.alert("Create project", "ERROR: could not create this project.");
+		} else {
+			_this.onNeedRefresh.notify();
+		}
+		_this.panel.setLoading(false);
+		Ext.getBody().unmask();
+	});
+
+	this.uploadWidget = new UploadWidget({suiteId:args.suiteId});
     
+    this.uploadWidget.adapter.onUploadDataToProject.addEventListener(function(sender,res){
+		if(res.status == 'done'){
+			_this.onNeedRefresh.notify();
+		}
+	});
 	//this.adapter.onGetData.addEventListener(function (sender, data){
 		//_this.data=data;
 		//_this.adapter.getSuiteList();
@@ -73,9 +93,6 @@ function GcsaBrowserWidget(args){
 		//_this.render();
 	//});	
 	
-	this.onSelect = new Event(this);
-
-	this.onNeedRefresh = new Event(this);
 
 
 	this.rendered = false;
@@ -90,6 +107,7 @@ GcsaBrowserWidget.prototype.setAccountData = function (data){
 	}
 }
 
+
 GcsaBrowserWidget.prototype._updateFolderTree = function (){
 	console.log("updating folder tree")
 	var _this=this;
@@ -97,12 +115,23 @@ GcsaBrowserWidget.prototype._updateFolderTree = function (){
 		this.folderStore.getRootNode().removeAll();
 		var files2 = [];
 		for ( var i = 0; i < this.accountData.buckets.length; i++) {
-			var files = [];
-			for ( var j = 0; j < this.accountData.buckets[i].data.length; j++) {
-				files.push({text:this.accountData.buckets[i].data[j].fileName, iconCls:"icon-blue-box", leaf:true});
-				files2.push(this.accountData.buckets[i].data[j]);
+			
+			var folders = [];
+			for ( var j = 0; j < this.accountData.buckets[i].objects.length; j++) {
+				var data = this.accountData.buckets[i].objects[j];
+				data["text"]=data.fileName;
+				data["iconCls"]="icon-blue-box";
+				data["leaf"]=true;
+				
+				data["bucketId"]=this.accountData.buckets[i].id;
+				
+				files2.push(data);
+
+				if(data.id.substr(-1) == ":"){
+					folders.push(data);
+				}
 			}
-			this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, iconCls:"icon-box", expanded:true, children:files});
+			this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, iconCls:"icon-box", expanded:true, children:folders});
 		}
 		this.filesStore.loadData(files2);
 	}		
@@ -136,7 +165,7 @@ GcsaBrowserWidget.prototype.render = function (){
 		this.grid = Ext.create('Ext.tree.Panel', {
 			//xtype:"treepanel",
 			id:this.id+"activeTracksTree",
-			title:"My Projects",
+			title:"My Buckets",
 			bodyPadding:"5 0 0 0",
 			margin:"-1 0 0 0",
 			border:false,
@@ -343,12 +372,13 @@ GcsaBrowserWidget.prototype.render = function (){
 		    tbar : {items:this.searchField}
 		});
 
-		/*MANAGE PROJECTS*/
+		/*MANAGE BUCKETS*/
 		var newProjectButton = Ext.create('Ext.button.Button',{
         	text : 'OK',
         	handler : function() {
         		_this.createProject("newProject");
-        		manageProjects.toggleCollapse();
+        		_this.grid.toggleCollapse();
+        		//manageProjects.toggleCollapse();
         	}
         });
         var newProjectNameField = Ext.create('Ext.form.field.Text',{
@@ -368,7 +398,7 @@ GcsaBrowserWidget.prototype.render = function (){
 			items:[newProjectNameField,newProjectDescriptionField]
 		});
 		var manageProjects = Ext.create('Ext.panel.Panel', {
-			title:"Project management",
+			title:"Bucket management",
 			bodyPadding:5,
 			border:false,
 			items:[newProjectNameField,newProjectDescriptionField,newProjectButton]
@@ -433,7 +463,11 @@ GcsaBrowserWidget.prototype.render = function (){
 		    height:this.height,
 		    width:this.width,
 		    layout: { type: 'hbox',align: 'stretch'},
-		    tbar:{items:[{text:'New project'}]},
+		    tbar:{items:[
+				{text:'New bucket',handler:function(){manageProjects.expand();}},
+				{text:'New folder',handler:function(){_this.createFolder();}},
+				{text:'Upload object',handler:function(){_this.uploadWidget.draw();}}
+			]},
 		    items: [panAccordion,filesGrid],
 		    buttonAlign:'right',
 		    buttons:[
@@ -514,19 +548,50 @@ GcsaBrowserWidget.prototype.createProject = function (){
 	var name = Ext.getCmp(this.id+"newProjectNameField").getValue();
 	var desc = Ext.getCmp(this.id+"newProjectDescriptionField").getValue();
 	if(name!=""){
-		this.adapter.onCreateProject.addEventListener(function (sender, data){
-			if(data.indexOf("ERROR") != -1) {
-				Ext.Msg.alert("Create project", "ERROR: could not create this project.");
-			}
-			else {
-				//_this.refreshListProject();
-			}
-			_this.panel.setLoading(false);
-			Ext.getBody().unmask();
-			_this.adapter.onCreateProject.removeEventListener();
-		});
 		Ext.getBody().mask();
 		_this.panel.setLoading("Creating project");
-		this.adapter.createProject(name, desc, $.cookie("bioinfo_account"), $.cookie("bioinfo_sid"));
+		this.adapter.createBucket(name, desc, $.cookie("bioinfo_account"), $.cookie("bioinfo_sid"));
+	}
+};
+GcsaBrowserWidget.prototype.createFolder = function (){
+	var _this = this;
+	debugger
+	if(this.accountData.buckets.length < 1){
+		Ext.MessageBox.alert('No buckets found', 'Please create and select a bucket.');
+	}else{
+		var selectedBuckets = this.grid.getSelectionModel().getSelection();
+		if(selectedBuckets.length < 1 ){
+			Ext.MessageBox.alert('No bucket selected', 'Please select a bucket.');
+		}else{
+			var bucketName = selectedBuckets[0];
+			Ext.Msg.prompt('New folder', 'Please enter a name for the new folder:', function(btn, text){
+				if (btn == 'ok'){
+					text = text.replace(/[^a-z0-9\s-_.]/gi,'');
+					text = text.trim()+":";
+					Ext.example.msg("Folder created"," ");
+
+					var gcsaManager = new GcsaManager();
+					gcsaManager.onUploadDataToProject.addEventListener(function(sender,res){
+						if(res.status == 'done'){
+							
+						}else if (res.status == 'fail'){
+							
+						}
+					});
+					 var fd = new FormData();
+					fd.append("file", this.editor.getValue());
+					fd.append("name", this.nameField.getValue()); 
+					fd.append("tags", "");
+					fd.append("fileType", "directory");
+					fd.append("responsible", this.responsableField.getValue());
+					fd.append("organization", this.organizationField.getValue());
+					fd.append("date", this.acquisitiondate.getValue());
+					fd.append("description", this.textArea.getValue());
+					fd.append("sessionid", sessionId);
+					gcsaManager.uploadDataToProject($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), bucketName , text, fd);
+					debugger
+				}
+			},null,null,"New Folder");
+		}
 	}
 };

@@ -188,6 +188,12 @@ HeaderWidget.prototype.render = function (){
 				this.tutorialLink="http://bioinfo.cipf.es/ecolopy/";
 				this.aboutText = '';
 				break;
+			case 22://Pathiways
+				this.homeLink="http://pathiways.bioinfo.cipf.es";
+				this.helpLink="http://bioinfo.cipf.es/pathiways";
+				this.tutorialLink="http://bioinfo.cipf.es/pathiways/tutorial";
+				this.aboutText = 'Pathiways!!!!!!!!!!!!!!!!!!!!!!!!!!';
+				break;
 			default:
 				this.homeLink="http://docs.bioinfo.cipf.es";
 				this.helpLink="http://docs.bioinfo.cipf.es";
@@ -380,7 +386,11 @@ HeaderWidget.prototype._getMenubarItems = function (){
 				_this.gcsaBrowserWidget.draw();
 			}
 	});
-	
+	/*
+	 */
+		setTimeout(function(){_this.gcsaBrowserWidget.draw();},500);
+	 /*
+	 * */
 	
 	return [this.manageProjects,this.manageProjectsButton,this.btnUpload];
 };

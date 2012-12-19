@@ -92,11 +92,15 @@ UploadWidget.prototype.draw = function(){
 	dataTypes["100"]=[
 		             {text : "Sequence", tag:"sequence"}
 		        ];
+	dataTypes["22"]=[
+		             {text : "Tabbed text file", tag:"txt"}
+		        ];
 	switch (this.suiteId){
 		case 9: this.checkDataTypes(dataTypes["9"]); this.render(dataTypes["9"]); break;
 		case 6: this.checkDataTypes(dataTypes["6"]); this.render(dataTypes["6"]); break;
 		case 11: this.checkDataTypes(dataTypes["11"]); this.render(dataTypes["11"]); break;
 		case 12: this.checkDataTypes(dataTypes["12"]); this.render(dataTypes["12"]); break;
+		case 22: this.checkDataTypes(dataTypes["22"]); this.render(dataTypes["22"]); break;
 		case 100: this.checkDataTypes(dataTypes["100"]); this.render(dataTypes["100"]); break;
 		case -1: break;
 		default: this.render([{text: "No data types defined"}]);		
