@@ -40,7 +40,7 @@ function GcsaRestManager (){
 	this.onLogout = new Event(this);
 
 	/*Bucket*/
-	this.onCreateProject = new Event(this);
+	this.onCreateBucket = new Event(this);
 	this.onUploadDataToProject = new Event(this);
 	this.onDeleteDataFromProject = new Event(this);
 
@@ -175,12 +175,12 @@ GcsaRestManager.prototype.logout = function(accountId, sessionId){
 /*END ACCOUNT*/
 
 /*project management*/
-GcsaRestManager.prototype.createProject = function(bucketname, description, accountId, sessionId){
+GcsaRestManager.prototype.createBucket = function(bucketname, description, accountId, sessionId){
 	var _this=this;
 	var url = this.getHost()+'/account/'+accountId+'/'+bucketname+'/create?description='+description+'&sessionid='+sessionId;
 	
 	function success(data){
-		_this.onCreateProject.notify(data);
+		_this.onCreateBucket.notify(data);
 	}
 	
 	function error(data){

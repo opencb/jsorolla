@@ -162,13 +162,10 @@ JobListWidget.prototype.getResponse = function (){
 JobListWidget.prototype.setAccountData = function (data){
 	this.accountData = data;
 	console.log("joblistwidget")
-
 	var projects = [];
 	var jobs = [];
-	for ( var i = 0; i < this.accountData.buckets.length; i++) {
-		for ( var j = 0; j < this.accountData.buckets[i].jobs.length; j++) {
-			jobs.push(this.accountData.buckets[i].jobs[j]);
-		}
+	for ( var i = 0; i < this.accountData.jobs.length; i++) {
+			jobs.push(this.accountData.jobs[i]);
 	}
 	this.data = jobs;
 	this.render();

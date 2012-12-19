@@ -53,24 +53,27 @@ VariantEffectJobFormPanel.prototype._getSpeciesForm = function (){
 	var _this=this;
 	
 	var checkFlags = function(value){
-		if(Ext.getCmp("SNPs_"+_this.id)){
-			if(value!="hsa"){
-				Ext.getCmp("Jaspar TFBS regions_"+_this.id).setValue(false).disable();
-				Ext.getCmp("miRNA targets_"+_this.id).setValue(false).disable();
-				Ext.getCmp("Other regulatory regions (CTCF, DNaseI, ...)_"+_this.id).setValue(false).disable();
-				Ext.getCmp("SNPs_"+_this.id).setValue(false).disable();
-				Ext.getCmp("Uniprot Natural Variants_"+_this.id).setValue(false).disable();
-				Ext.getCmp("Phenotypic annotated SNPs_"+_this.id).setValue(false).disable();
-				Ext.getCmp("Disease mutations_"+_this.id).setValue(false).disable();
-			}else{
-				Ext.getCmp("Jaspar TFBS regions_"+_this.id).setValue(false).enable();
-				Ext.getCmp("miRNA targets_"+_this.id).setValue(false).enable();
-				Ext.getCmp("Other regulatory regions (CTCF, DNaseI, ...)_"+_this.id).setValue(false).enable();
-				Ext.getCmp("SNPs_"+_this.id).setValue(false).enable();
-				Ext.getCmp("Uniprot Natural Variants_"+_this.id).setValue(false).enable();
-				Ext.getCmp("Phenotypic annotated SNPs_"+_this.id).setValue(false).enable();
-				Ext.getCmp("Disease mutations_"+_this.id).setValue(false).enable();
-			}
+		var outputOptions = Ext.getCmp('outputOptions'+_this.id);
+		if(value!="hsa"){
+			outputOptions.getChildByElement("TF_binding_site_variant").setValue(false).disable();
+			outputOptions.getChildByElement("miRNA_target_site").setValue(false).disable();
+			outputOptions.getChildByElement("other_regulatory").setValue(false).disable();
+			
+			outputOptions.getChildByElement("SNP").setValue(false).disable();
+			outputOptions.getChildByElement("uniprot_natural_variants").setValue(false).disable();
+			
+			outputOptions.getChildByElement("phenotypic_annotated_SNPs").setValue(false).disable();
+			outputOptions.getChildByElement("disease_mutations").setValue(false).disable();
+		}else{
+			outputOptions.getChildByElement("TF_binding_site_variant").setValue(false).enable();
+			outputOptions.getChildByElement("miRNA_target_site").setValue(false).enable();
+			outputOptions.getChildByElement("other_regulatory").setValue(false).enable();
+			
+			outputOptions.getChildByElement("SNP").setValue(false).enable();
+			outputOptions.getChildByElement("uniprot_natural_variants").setValue(false).enable();
+			
+			outputOptions.getChildByElement("phenotypic_annotated_SNPs").setValue(false).enable();
+			outputOptions.getChildByElement("disease_mutations").setValue(false).enable();
 		}
 	};
 
@@ -294,32 +297,43 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 };
 
 VariantEffectJobFormPanel.prototype._getOutputForm = function (){
-	var margin = 10;
-	var items = [];
-	items.push(this.createLabel("Consequence types"));
-	items.push(this.createCheckBox("Non-synonymous coding", true, margin));
-	items.push(this.createCheckBox("Synonymous coding", false, margin));
-	items.push(this.createCheckBox("Splice sites", true,margin));
-	items.push(this.createCheckBox("Stop gained/lost", false,margin));
-	items.push(this.createCheckBox("Upstream", true,margin));
-	items.push(this.createCheckBox("Downstream", true,margin));
-	items.push(this.createCheckBox("5' UTR", true,margin));
-	items.push(this.createCheckBox("3' UTR", true,margin));
-	items.push(this.createCheckBox("Non-coding RNA", true,margin));
-	items.push(this.createCheckBox("Intergenic", false,margin));
-	items.push(this.createLabel("Regulatory"));
-	items.push(this.createCheckBox("Jaspar TFBS regions", true,margin));
-	items.push(this.createCheckBox("miRNA targets", true,margin));
-	items.push(this.createCheckBox("Other regulatory regions (CTCF, DNaseI, ...)", false,margin));
-	items.push(this.createLabel("Variations"));
-	items.push(this.createCheckBox("SNPs", true,margin));
-	items.push(this.createCheckBox("Uniprot Natural Variants", false,margin));
-	items.push(this.createLabel("Phenotype and diseases"));
-	items.push(this.createCheckBox("Phenotypic annotated SNPs", false,margin));
-	items.push(this.createCheckBox("Disease mutations", false, margin));
-	 	
-	var form4 = Ext.create('Ext.form.Panel', {
-		id:this.id+"Output options",
+
+	var outputOptions = Ext.create('Ext.form.CheckboxGroup', {
+		id: 'outputOptions'+this.id,
+		columns: 1,
+		vertical: true,
+		defaults: {margin: '0 0 0 0'},
+		items: [
+				{ xtype:"label", html:'<span class="emph">Consequence types</span>'},
+		        { boxLabel: 'Non-synonymous coding', name: 'outputOptions', inputValue: 'non_synonymous_codon', checked:true },
+		        { boxLabel: 'Synonymous coding', name: 'outputOptions', inputValue: 'synonymous_codon' },
+		        { boxLabel: 'Splice sites', name: 'outputOptions', inputValue: 'splice_donor_variant,splice_acceptor_variant,splice_region_variant', checked:true },
+		        { boxLabel: 'Stop gained/lost', name: 'outputOptions', inputValue: 'stop_gained,stop_lost' },
+		        { boxLabel: 'Upstream', name: 'outputOptions', inputValue: '5KB_upstream_variant', checked:true },
+		        { boxLabel: 'Downstream', name: 'outputOptions', inputValue: '5KB_downstream_variant', checked:true },
+		        { boxLabel: "5' UTR", name: 'outputOptions', inputValue: '5_prime_UTR_variant', checked:true },
+		        { boxLabel: "3' UTR", name: 'outputOptions', inputValue: '3_prime_UTR_variant', checked:true },
+		        { boxLabel: 'Non-coding RNA', name: 'outputOptions', inputValue: 'pseudogene,nc_transcript_variant,miRNA,lincRNA', checked:true },
+		        { boxLabel: 'Intergenic', name: 'outputOptions', inputValue: 'intergenic_variant' },
+
+		        { xtype:"label", html:'<br><span class="emph">Regulatory</span>'},
+		        { boxLabel: 'Jaspar TFBS regions', name: 'outputOptions', inputValue: 'TF_binding_site_variant', id: 'TF_binding_site_variant' },
+		        { boxLabel: 'miRNA targets', name: 'outputOptions', inputValue: 'miRNA_target_site', id: 'miRNA_target_site' },
+		        { boxLabel: 'Other regulatory regions (CTCF, DNaseI, ...)', name: 'outputOptions', inputValue: 'regulatory_region_variant,DNAseI_hypersensitive_site,RNA_polymerase_promoter', id: 'other_regulatory' },
+
+
+				{ xtype:"label", html:'<br><span class="emph">Variations</span>'},
+		        { boxLabel: 'SNPs', name: 'outputOptions', inputValue: 'SNP', id: 'SNP' },
+		        { boxLabel: 'Uniprot Natural Variants', name: 'outputOptions', inputValue: '', id: 'uniprot_natural_variants' },//not yet
+
+		        
+				{ xtype:"label", html:'<br><span class="emph">Phenotype and diseases</span>'},
+		        { boxLabel: 'Phenotypic annotated SNPs', name: 'outputOptions', inputValue: '', id: 'phenotypic_annotated_SNPs' },//not yet --- "no-phenotype"
+		        { boxLabel: 'Disease mutations', name: 'outputOptions', inputValue: '', id: 'disease_mutations' }//not yet --- "no-phenotype"
+		       ]
+	});
+
+	var pan = Ext.create('Ext.form.Panel', {
 		title:"Output options",
 		border:true,
 		padding:"5 0 0 0",
@@ -327,9 +341,9 @@ VariantEffectJobFormPanel.prototype._getOutputForm = function (){
 		flex:1,
 		bodyPadding:10,
 		//cls:'panel-border-top',
-		items: items
+		items: outputOptions
 	});
-	return form4;
+	return pan;
 };
 
 
@@ -420,6 +434,9 @@ VariantEffectJobFormPanel.prototype.getCheckValue = function (checkbox){
 
 
 VariantEffectJobFormPanel.prototype.beforeRun = function (){
+
+		
+
 		
 		//validate regions
 		var regions = "";
@@ -453,71 +470,27 @@ VariantEffectJobFormPanel.prototype.beforeRun = function (){
 		if(Ext.getCmp("Only Non-SNPs_"+this.id).getValue()){
 			this.paramsWS["snp"] = "exclude";
 		}
+
+
 		
-		var soTerms = new Array();
-		if(!Ext.getCmp("Non-synonymous coding_"+this.id).getValue()){
-			soTerms.push("non_synonymous_codon");
-		}
-		if(!Ext.getCmp("Synonymous coding_"+this.id).getValue()){
-			soTerms.push("synonymous_codon");
-		}
-		if(!Ext.getCmp("Splice sites_"+this.id).getValue()){
-			soTerms.push("splice_donor_variant");
-			soTerms.push("splice_acceptor_variant");
-			soTerms.push("splice_region_variant");
-		}
-		if(!Ext.getCmp("Stop gained/lost_"+this.id).getValue()){
-			soTerms.push("stop_gained");
-			soTerms.push("stop_lost");
-		}
-		if(!Ext.getCmp("Upstream_"+this.id).getValue()){
-			soTerms.push("5KB_upstream_variant");
-		}
-		if(!Ext.getCmp("Downstream_"+this.id).getValue()){
-			soTerms.push("5KB_downstream_variant");
-		}
-		if(!Ext.getCmp("5' UTR_"+this.id).getValue()){
-			soTerms.push("5_prime_UTR_variant");
-		}
-		if(!Ext.getCmp("3' UTR_"+this.id).getValue()){
-			soTerms.push("3_prime_UTR_variant");
-		}
-		if(!Ext.getCmp("Non-coding RNA_"+this.id).getValue()){
-			soTerms.push("pseudogene");
-			soTerms.push("nc_transcript_variant");
-			soTerms.push("miRNA");
-			soTerms.push("lincRNA");
-		}
-		if(!Ext.getCmp("Intergenic_"+this.id).getValue()){
-			soTerms.push("intergenic_variant");
-		}
-		if(!Ext.getCmp("Jaspar TFBS regions_"+this.id).getValue()){
-			soTerms.push("TF_binding_site_variant");
-		}
-		if(!Ext.getCmp("miRNA targets_"+this.id).getValue()){
-			soTerms.push("miRNA_target_site");
-		}
-		if(!Ext.getCmp("Other regulatory regions (CTCF, DNaseI, ...)_"+this.id).getValue()){
-			soTerms.push("regulatory_region_variant");
-			soTerms.push("DNAseI_hypersensitive_site");
-			soTerms.push("RNA_polymerase_promoter");
-		}
-		if(!Ext.getCmp("SNPs_"+this.id).getValue()){
-			soTerms.push("SNP");
-		}
+
+		/*Input data filter options*/
 		
-//		if(!Ext.getCmp("Uniprot Natural Variants_"+this.id).getValue())
-//			
-//		}
-		if(Ext.getCmp("Phenotypic annotated SNPs_"+this.id).getValue()){
-			this.paramsWS["no-phenotype"] = "";
-		}
-		if(Ext.getCmp("Disease mutations_"+this.id).getValue()){
-			this.paramsWS["no-phenotype"] = "";
-		}
+		/*END Input data filter options*/
+		
+
+		/*Output options*/
+		var soTerms = [];
+		Ext.getCmp('outputOptions'+this.id).items.each(function(item) {
+			if(!item.isDisabled() && item.inputValue != null && item.inputValue != "" && !item.getValue()){
+				soTerms.push(item.inputValue);
+			}
+		});
 		if(soTerms.length > 0){
 			this.paramsWS["exclude"] = soTerms.toString();
 		}
+		/*END Output options*/
+		
 		
 		console.log(this.paramsWS);
 		//this.adapter.variantAnalysis(this.paramsWS);

@@ -35,7 +35,7 @@ function GcsaManager(){
 	/**/
 
 	/*bucket management*/
-	this.onCreateProject = this.manager.onCreateProject;
+	this.onCreateBucket = this.manager.onCreateBucket;
 	this.onUploadDataToProject = this.manager.onUploadDataToProject;
 	this.onDeleteDataFromProject = this.manager.onDeleteDataFromProject;
 	/**/

@@ -561,6 +561,9 @@ ResultWidget.prototype.createGenomeViewer = function (targetId){
 	
 	var adapter = new GcsaManager();
 	adapter.onPoll.addEventListener(function(sender, data){
+		if(data.indexOf("ERROR")!=1){
+			console.error(data);
+		}
 		var vcfDataAdapter = new VCFDataAdapter(new StringDataSource(data),{async:false,species:genomeViewer.species});
 		var vcfTrack = new TrackData("VCF file",{
 			adapter: vcfDataAdapter
