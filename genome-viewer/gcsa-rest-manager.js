@@ -43,6 +43,7 @@ function GcsaRestManager (){
 	this.onCreateBucket = new Event(this);
 	this.onUploadDataToProject = new Event(this);
 	this.onDeleteDataFromProject = new Event(this);
+	this.onCreateDirectory = new Event(this);
 
 	/*Jobs*/
 	this.onJobResult = new Event(this);
@@ -176,6 +177,7 @@ GcsaRestManager.prototype.logout = function(accountId, sessionId){
 
 /*project management*/
 GcsaRestManager.prototype.createBucket = function(bucketname, description, accountId, sessionId){
+	debugger
 	var _this=this;
 	var url = this.getHost()+'/account/'+accountId+'/'+bucketname+'/create?description='+description+'&sessionid='+sessionId;
 	
@@ -215,6 +217,24 @@ GcsaRestManager.prototype.deleteDataFromProject = function(accountId, sessionId,
 	function success(data){
 		console.log(data);
 		_this.onDeleteDataFromProject.notify(data);
+	}
+	
+	function error(data){
+		console.log("ERROR: " + data);
+	}
+	
+	this.doGet(url, success, error);
+//	console.log(url);
+};
+
+GcsaRestManager.prototype.createDirectory = function(accountId, sessionId, bucketname, objectname, parents){
+	objectname = objectname.replace(new RegExp("/", "gi"),":");
+	var _this=this;
+	var url = this.getHost()+'/'+accountId+'/'+bucketname+'/'+objectname+'/createdirectory?sessionid='+sessionId+'&parents='+(parents || false);
+	
+	function success(data){
+		console.log(data);
+		_this.onCreateDirectory.notify(data);
 	}
 	
 	function error(data){

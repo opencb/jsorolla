@@ -38,6 +38,7 @@ function GcsaManager(){
 	this.onCreateBucket = this.manager.onCreateBucket;
 	this.onUploadDataToProject = this.manager.onUploadDataToProject;
 	this.onDeleteDataFromProject = this.manager.onDeleteDataFromProject;
+	this.onCreateDirectory = this.manager.onCreateDirectory;
 	/**/
 
 	/*Jobs*/
