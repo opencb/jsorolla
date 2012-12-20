@@ -124,7 +124,6 @@ GcsaBrowserWidget.prototype._updateFolderTree = function (){
 				data["bucketId"]=this.accountData.buckets[i].id;
 
 				//sencha uses id so need to rename
-				debugger
 				if(data.id != null){
 					data["oid"] = data.id;
 					delete data.id;
@@ -482,7 +481,6 @@ GcsaBrowserWidget.prototype.render = function (){
 	       			//if(_this.retrieveData==true){
 	       				//_this.adapter.readData($.cookie('bioinfo_sid'),item.data.dataFiles[0].dataId,item.data.dataFiles[0].filename);	       				
 	       			//}
-	       			debugger
 	       			_this.onSelect.notify({id:item.raw.oid,bucketId:item.raw.bucketId});
 	       			_this.panel.close();
 	       	}
