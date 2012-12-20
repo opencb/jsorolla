@@ -157,7 +157,11 @@ GenericFormPanel.prototype.createGcsaBrowserCmp = function(label, dataParamName)
         margin: '0 0 0 10',
         handler: function (){
         	_this.gcsaBrowserWidget.draw();
-        	_this.dataIds[dataParamName] = data;
+        	var listenerIdx = _this.gcsaBrowserWidget.onSelect.addEventListener(function(sender, response){
+        		console.log(response);
+        		_this.gcsaBrowserWidget.onSelect.removeEventListener(listenerIdx);
+        	});
+//        	_this.dataIds[dataParamName] = data;
    		}
 	});
 	
