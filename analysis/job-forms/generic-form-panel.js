@@ -4,7 +4,6 @@ function GenericFormPanel(analysis) {
 	this.paramsWS = {};
 	this.gcsaManager = new GcsaManager();
 	this.panelId = this.analysis+"_FormPanel";
-	this.gcsaBrowserWidget = new GcsaBrowserWidget({});
 	
 	this.gcsaManager.onRunAnalysis.addEventListener(function(sender, response){
 		if(response.data.indexOf("ERROR") != -1) {
@@ -151,13 +150,14 @@ GenericFormPanel.prototype.createCheckBox = function(name, label, checked, margi
 	});
 };
 
-GenericFormPanel.prototype.createGcsaBrowserCmp = function(label) {
+GenericFormPanel.prototype.createGcsaBrowserCmp = function(label, dataParamName) {
 	var _this = this;
 	var btnBrowse = Ext.create('Ext.button.Button', {
         text: 'Browse data',
         margin: '0 0 0 10',
         handler: function (){
         	_this.gcsaBrowserWidget.draw();
+        	_this.dataIds[dataParamName] = data;
    		}
 	});
 	

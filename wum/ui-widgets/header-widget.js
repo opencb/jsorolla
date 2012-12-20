@@ -386,11 +386,6 @@ HeaderWidget.prototype._getMenubarItems = function (){
 				_this.gcsaBrowserWidget.draw();
 			}
 	});
-	/*
-	 */
-		setTimeout(function(){_this.gcsaBrowserWidget.draw();},500);
-	 /*
-	 * */
 	
 	return [this.manageProjects,this.manageProjectsButton,this.btnUpload];
 };
