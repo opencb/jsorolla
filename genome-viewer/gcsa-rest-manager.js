@@ -282,7 +282,7 @@ GcsaRestManager.prototype.tableurl = function(accountId, sessionId, bucketname, 
 };
 
 GcsaRestManager.prototype.poll = function(accountId, sessionId, bucketname, jobId, filename, zip){
-	debugger
+	//debugger
 	var _this=this;
 	if(zip==true){
 		var url = this.getHost() +'/'+accountId+'/'+bucketname+'/job/'+jobId+'/poll?sessionid='+sessionId+'&filename='+filename;
@@ -303,7 +303,7 @@ GcsaRestManager.prototype.poll = function(accountId, sessionId, bucketname, jobI
 };
 
 GcsaRestManager.prototype.pollurl = function(accountId, sessionId, bucketname, jobId, filename){
-	debugger
+	//debugger
 	return this.getHost() +'/'+accountId+'/'+bucketname+'/job/'+jobId+'/poll?sessionid='+sessionId+'&filename='+filename+'&zip=false';
 };
 

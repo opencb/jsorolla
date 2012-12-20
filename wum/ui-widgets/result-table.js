@@ -99,7 +99,6 @@ ResultTable.prototype.render = function (){
 	if(this.tableSkel.type == "text"){
 		
 		var adapterPoll = new WumAdapter();
-		adapterPoll.poll(this.jobId,this.fileName,false,$.cookie('bioinfo_sid'));
 		adapterPoll.onPoll.addEventListener(function(sender,data){
 			var altura = 75+22*2;
 			
@@ -120,12 +119,14 @@ ResultTable.prototype.render = function (){
 			});
 			
 		});
+		adapterPoll.poll(this.jobId,this.fileName,false,$.cookie('bioinfo_sid'));
 		
 	}else{
 		//accountId, sessionId, bucketname, jobId, filename, colNames, colVisibilty, sessionId
 		//var url = this.adapter.tableurl(this.jobId,this.fileName,this.colNames,this.colVisibilty,$.cookie('bioinfo_sid'));
+
 		var url = this.adapter.tableurl($.cookie("bioinfo_account"),$.cookie('bioinfo_sid'),$.cookie("bioinfo_bucket"),this.jobId,this.fileName,this.colNames,this.colVisibilty);
-//		console.log(url);
+		console.log(url);
 		
 		/*
 		http://ws.bioinfo.cipf.es/wum/rest/job/86232/table?
@@ -162,9 +163,9 @@ ResultTable.prototype.render = function (){
 			rows = this.numRows;
 		}
 		var itemsPerPage = rows; 
-		
+
 		this.st = Ext.create('Ext.data.Store', {
-			fields: filteredColNames,
+			fields: filteredColNames, //las colNames no pueden tener el caracter "."
 	    	pageSize: itemsPerPage,
 		    remoteSort:true,
 //		    remoteFilter:true,//TODO o no

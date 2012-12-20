@@ -111,25 +111,48 @@ GcsaBrowserWidget.prototype.setAccountData = function (data){
 GcsaBrowserWidget.prototype._updateFolderTree = function (){
 	console.log("updating folder tree")
 	var _this=this;
-	if(this.accountData.accountId!=null){
+	if(this.accountData!=null && this.accountData.accountId!=null){
 		this.folderStore.getRootNode().removeAll();
 		var files2 = [];
 		for ( var i = 0; i < this.accountData.buckets.length; i++) {
 			var folders = [];
 			for ( var j = 0; j < this.accountData.buckets[i].objects.length; j++) {
 				var data = this.accountData.buckets[i].objects[j];
-				data["text"]=data.fileName;
 				data["iconCls"]="icon-blue-box";
 				data["leaf"]=true;
 				data["bucketId"]=this.accountData.buckets[i].id;
-
-				//sencha uses id so need to rename
+				//sencha uses id so need to rename to oid
 				if(data.id != null){
 					data["oid"] = data.id;
 					delete data.id;
 				}
-				
+				data["text"]=data.oid;
+
 				if(data.fileType == "dir"){//is dir
+
+					/**/
+					//var pathArr = data.oid.split("/");
+					//var pathArr = "a/b/c/".split("/");
+					//var ch = [];
+					//var x = ch;
+					//var find = function(str, arr){
+						//for ( var i = 0; i< arr.length; i++){
+							//if(arr[i].text == str){
+								//return true;
+							//}
+						//}
+						//return false;
+					//};
+					//for ( var k = 0; k < pathArr.length-1; k++){
+						//var nch = [];
+						//find(pathArr[k],)
+						//ch.push({text:pathArr[k],children:nch});
+						//ch = nch;
+						//
+					//}
+					//debugger
+					/**/
+					
 					folders.push(data);
 				}else{
 					files2.push(data);
@@ -605,14 +628,12 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 			if(record.raw.fileType != null && record.raw.fileType == "dir"){
 				var path = record.getPath("text","/").substr(1);
 				var pathArr =  path.split("/",2);
-				var dirId = path.replace(pathArr.join("/"),"").substr(1)+"/";
+				var parent = path.replace(pathArr.join("/"),"").substr(1)+"/";
 				bucketName = pathArr[1];
 			}else{
-				bucketName = ecord.raw.text;
+				bucketName = record.raw.text;
 			}
 			
-			
-			var bucketName = record.raw.oid;
 			Ext.Msg.prompt('New folder', 'Please enter a name for the new folder:', function(btn, text){
 				if (btn == 'ok'){
 					text = text.replace(/[^a-z0-9\s-_.]/gi,'');
@@ -622,7 +643,7 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 						Ext.example.msg('Create folder', '</span class="emph">'+ res+'</span>');
 						_this.onNeedRefresh.notify();
 					});
-					gcsaManager.createDirectory($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), bucketName , text);
+					gcsaManager.createDirectory($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), bucketName , parent+text);
 				}
 			},null,null,"New Folder");
 		}

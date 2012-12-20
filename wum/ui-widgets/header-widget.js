@@ -388,7 +388,7 @@ HeaderWidget.prototype._getMenubarItems = function (){
 	});
 	/*
 	 */
-		setTimeout(function(){_this.gcsaBrowserWidget.draw();},500);
+		//setTimeout(function(){_this.gcsaBrowserWidget.draw();},500);
 	 /*
 	 * */
 	

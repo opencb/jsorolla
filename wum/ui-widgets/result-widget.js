@@ -106,7 +106,6 @@ ResultWidget.prototype.render = function (){
 	var _this=this;
 	
 	console.log(this.application);
-
 	
 		if(this.data.outputItems.length != 0){
 			
@@ -369,8 +368,8 @@ ResultWidget.prototype.showInfo = function (item){
 					
 	    			this.getEl().on("click",function(){
 	    				console.log(datos);
-	    				var value = datos.value;
-		    			_this.adapter.poll(_this.jobId, value, true, $.cookie('bioinfo_sid'));
+	    				var value = datos.value.trim();
+		    			_this.adapter.poll($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'),$.cookie('bioinfo_bucket'), _this.jobId, value, true);
 	    			});
 	    		}
 			}
@@ -388,7 +387,8 @@ ResultWidget.prototype.showTypeInfo = function (item){
 	switch(item.type){
 		case 'IMAGE':
 				/*width="400" height="200" */
-			box.html =  '<div><img width="900" src="'+_this.adapter.pollurl(_this.jobId,item.value,$.cookie('bioinfo_sid'))+'"></div>';
+			var filename = item.value.trim();
+			box.html =  '<div><img width="900" src="'+_this.adapter.pollurl($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), $.cookie('bioinfo_bucket'), _this.jobId,filename)+'"></div>';
 			return box;
 		break;
 		default: return null;
@@ -406,8 +406,8 @@ ResultWidget.prototype.showTagInfo = function (item){
 	for(var i = 0; i < item.tags.length ; i++){
     	switch(item.tags[i]){
     		case 'TABLE':
-        		var id = _this.jobId+item.value+item.tags;
-        		var value = item.value;
+        		var value = item.value.trim();
+        		var id = _this.jobId+value+item.tags;
 				_this.resultTables[id] =  new ResultTable (_this.jobId, value, item.tags,{targetId:'resultTable_'+id});
 //							_this.resultTables[id].onRendered.
 				box.html +=  '<div id="resultTable_'+id+'" style="padding:5px;"></div>';
