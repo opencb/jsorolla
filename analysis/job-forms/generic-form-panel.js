@@ -4,7 +4,6 @@ function GenericFormPanel(analysis) {
 	this.paramsWS = {};
 	this.gcsaManager = new GcsaManager();
 	this.panelId = this.analysis+"_FormPanel";
-	this.gcsaBrowserWidget = new GcsaBrowserWidget({});
 	
 	this.gcsaManager.onRunAnalysis.addEventListener(function(sender, response){
 		if(response.data.indexOf("ERROR") != -1) {
@@ -67,14 +66,14 @@ GenericFormPanel.prototype.getPanels = function() {
 GenericFormPanel.prototype.getJobPanel = function() {
 	var _this = this;
 	var jobNameField = Ext.create('Ext.form.field.Text', {
-		name: "jobName",
+		name: "jobname",
 		fieldLabel:'Job name',
 		emptyText:"Job name",
 		allowBlank: false
 	});
 	
 	var jobDescriptionField = Ext.create('Ext.form.field.TextArea', {
-		name:"jobDescription",
+		name:"jobdescription",
 		fieldLabel:'Description',
 		emptyText:"Description"
 	});
@@ -85,7 +84,7 @@ GenericFormPanel.prototype.getJobPanel = function() {
 		        {"value":"default", "name":"Default"}
 		       ]
 	});
-	var jobDestinationBucket = this.createCombobox("jobDestinationBucket", "Destination bucket", bucketList, 0, 100);
+	var jobDestinationBucket = this.createCombobox("jobdestinationbucket", "Destination bucket", bucketList, 0, 100);
 	
 	var jobPanel = Ext.create('Ext.panel.Panel', {
 		title: 'Job',
@@ -107,8 +106,12 @@ GenericFormPanel.prototype.getRunButton = function() {
 		disabled:true,
 		formBind: true, // only enabled if the form is valid
 		handler: function (){
-			_this.paramsWS = _this.getForm().getForm().getFieldValues();
+			var formParams = _this.getForm().getForm().getFieldValues();
+			for(var param in formParams) {
+				_this.paramsWS[param] = formParams[param];
+			}
 			_this.paramsWS["sessionid"] = $.cookie('bioinfo_sid');
+			_this.paramsWS["accountid"] = $.cookie('bioinfo_account');
 			_this.beforeRun();
 			_this.run();
 		}
@@ -151,15 +154,22 @@ GenericFormPanel.prototype.createCheckBox = function(name, label, checked, margi
 	});
 };
 
-GenericFormPanel.prototype.createGcsaBrowserCmp = function(label) {
+GenericFormPanel.prototype.createGcsaBrowserCmp = function(label, dataParamName) {
 	var _this = this;
 	var btnBrowse = Ext.create('Ext.button.Button', {
         text: 'Browse data',
         margin: '0 0 0 10',
         handler: function (){
         	_this.gcsaBrowserWidget.draw();
+        	var listenerIdx = _this.gcsaBrowserWidget.onSelect.addEventListener(function(sender, response){
+        		_this.paramsWS[dataParamName] = response.bucketId+':'+response.id;
+        		fileSelectedLabel.setText(response.id);
+        		_this.gcsaBrowserWidget.onSelect.removeEventListener(listenerIdx);
+        	});
    		}
 	});
+	
+	var fileSelectedLabel = Ext.create('Ext.form.Label', {text: "No file selected", margin:'5 0 0 15'});
 	
 	return Ext.create('Ext.container.Container', {
 //		bodyPadding:10,
@@ -167,7 +177,8 @@ GenericFormPanel.prototype.createGcsaBrowserCmp = function(label) {
 //		margin: '5 0 0 0',
 		items: [
 		        {xtype: 'label', text: label, margin:'5 0 0 5'},
-		        btnBrowse
+		        btnBrowse,
+		        fileSelectedLabel
 		       ]
 	});
 };
