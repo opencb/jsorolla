@@ -124,8 +124,10 @@ GcsaBrowserWidget.prototype._updateFolderTree = function (){
 				data["bucketId"]=this.accountData.buckets[i].id;
 
 				//sencha uses id so need to rename
-				data["oid"] = data.id;
-				delete data.id;
+				if(data.id != null){
+					data["oid"] = data.id;
+					delete data.id;
+				}
 				
 				if(data.fileType == "dir"){//is dir
 					folders.push(data);
@@ -162,7 +164,7 @@ GcsaBrowserWidget.prototype.render = function (){
 			fields:['id', 'type', 'fileName','multiple','diskUsage','creationTime','responsible','organization','date','description','status','statusMessage','members'],
 			data:[]
 		});
-		this._updateFolderTree();
+		
 
 		this.grid = Ext.create('Ext.tree.Panel', {
 			//xtype:"treepanel",
@@ -517,6 +519,8 @@ GcsaBrowserWidget.prototype.render = function (){
 	        }
 		});
 	}//if null
+
+	this._updateFolderTree();
 	this.panel.show();
 };
 
@@ -594,12 +598,19 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 		if(selectedBuckets.length < 1 ){
 			Ext.MessageBox.alert('No bucket selected', 'Please select a bucket or a folder.');
 		}else{
+
 			var record = selectedBuckets[0];
-			var path = record.getPath("text","/").substr(1);
-			var pathArr =  path.split("/",2);
-			var bucketName = pathArr[1];
-			var dirId = path.replace(pathArr.join("/"),"").substr(1)+"/";
-			debugger
+			var bucketName;
+			var parent = "";
+			if(record.raw.fileType != null && record.raw.fileType == "dir"){
+				var path = record.getPath("text","/").substr(1);
+				var pathArr =  path.split("/",2);
+				var dirId = path.replace(pathArr.join("/"),"").substr(1)+"/";
+				bucketName = pathArr[1];
+			}else{
+				bucketName = ecord.raw.text;
+			}
+			
 			
 			var bucketName = record.raw.oid;
 			Ext.Msg.prompt('New folder', 'Please enter a name for the new folder:', function(btn, text){
