@@ -51,13 +51,13 @@ function GcsaBrowserWidget(args){
         		this.notAvailableSuiteList.push(args.notAvailableSuites[i]);       
         	}
         }
-        if (args.onAccountDataUpdate!= null){
-        	this.onAccountDataUpdate = args.onAccountDataUpdate;       
-			this.onAccountDataUpdate.addEventListener(function (sender, data){
-				this.accountData = data;
-				console.log("------------------------------------------------")
-			});
-        }
+        //if (args.onAccountDataUpdate!= null){
+        	//this.onAccountDataUpdate = args.onAccountDataUpdate;       
+			//this.onAccountDataUpdate.addEventListener(function (sender, data){
+				//this.accountData = data;
+				//console.log("------------------------------------------------")
+			//});
+        //}
     }
 
     
@@ -115,26 +115,28 @@ GcsaBrowserWidget.prototype._updateFolderTree = function (){
 		this.folderStore.getRootNode().removeAll();
 		var files2 = [];
 		for ( var i = 0; i < this.accountData.buckets.length; i++) {
-			
 			var folders = [];
 			for ( var j = 0; j < this.accountData.buckets[i].objects.length; j++) {
 				var data = this.accountData.buckets[i].objects[j];
 				data["text"]=data.fileName;
 				data["iconCls"]="icon-blue-box";
 				data["leaf"]=true;
-				
 				data["bucketId"]=this.accountData.buckets[i].id;
-				
-				files2.push(data);
 
-				if(data.id.substr(-1) == ":"){
+				//sencha uses id so need to rename
+				data["oid"] = data.id;
+				delete data.id;
+				
+				if(data.fileType == "dir"){//is dir
 					folders.push(data);
+				}else{
+					files2.push(data);
 				}
 			}
 			this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, iconCls:"icon-box", expanded:true, children:folders});
 		}
 		this.filesStore.loadData(files2);
-	}		
+	}
 };
 
 GcsaBrowserWidget.prototype.draw = function (sessionID, tags){
@@ -411,6 +413,22 @@ GcsaBrowserWidget.prototype.render = function (){
 			store:this.filesStore,
 			flex:4,
 			border:false,
+			selModel: {
+                mode: 'SINGLE',
+                //allowDeselect:true,
+                listeners: {
+                	scope:this,
+                    selectionchange: function (este,item){
+						if(item.length>0){//se compr
+							this.selectButton.enable();
+							//this.selectedLabel.setText('<p>The selected file <span class="emph">'+item[0].data.fileName.substr(0,40)+'</span><span class="ok"> is allowed</span>.</p>',false);
+							//TODO por defecto cojo el primero pero que pasa si el data contiene varios ficheros??
+						}else{
+							this.selectButton.disable();
+						}
+					}
+				}
+			},
 			columns: [
 				{ text: 'Name',  dataIndex: 'fileName', flex:1 },
 				{ text: 'Creation time', dataIndex: 'creationTime', flex:1 },
@@ -451,6 +469,20 @@ GcsaBrowserWidget.prototype.render = function (){
 		    items : [this.grid, manageProjects, panFilter]
 		});
 
+
+
+		this.selectButton = Ext.create('Ext.button.Button', {
+			 text: 'Ok',
+			 disabled:true,
+			 handler: function(){
+	       			var item = filesGrid.getSelectionModel().getSelection()[0];
+	       			//if(_this.retrieveData==true){
+	       				//_this.adapter.readData($.cookie('bioinfo_sid'),item.data.dataFiles[0].dataId,item.data.dataFiles[0].filename);	       				
+	       			//}
+	       			_this.onSelect.notify({id:item.raw.oid,bucketId:item.raw.bucketId});
+	       			_this.panel.close();
+	       	}
+		});  
 		/**MAIN PANEL**/
 //		this.height=205+(26*suites.length);//segun el numero de suites
 		this.panel = Ext.create('Ext.window.Window', {
@@ -465,7 +497,7 @@ GcsaBrowserWidget.prototype.render = function (){
 		    layout: { type: 'hbox',align: 'stretch'},
 		    tbar:{items:[
 				{text:'New bucket',handler:function(){manageProjects.expand();}},
-				{text:'New folder',handler:function(){_this.createFolder();}},
+				{text:'New folder',handler:function(){_this.grid.expand();_this.createFolder();}},
 				{text:'Upload object',handler:function(){_this.uploadWidget.draw();}}
 			]},
 		    items: [panAccordion,filesGrid],
@@ -555,41 +587,31 @@ GcsaBrowserWidget.prototype.createProject = function (){
 };
 GcsaBrowserWidget.prototype.createFolder = function (){
 	var _this = this;
-	debugger
 	if(this.accountData.buckets.length < 1){
 		Ext.MessageBox.alert('No buckets found', 'Please create and select a bucket.');
 	}else{
 		var selectedBuckets = this.grid.getSelectionModel().getSelection();
 		if(selectedBuckets.length < 1 ){
-			Ext.MessageBox.alert('No bucket selected', 'Please select a bucket.');
+			Ext.MessageBox.alert('No bucket selected', 'Please select a bucket or a folder.');
 		}else{
-			var bucketName = selectedBuckets[0];
+			var record = selectedBuckets[0];
+			var path = record.getPath("text","/").substr(1);
+			var pathArr =  path.split("/",2);
+			var bucketName = pathArr[1];
+			var dirId = path.replace(pathArr.join("/"),"").substr(1)+"/";
+			debugger
+			
+			var bucketName = record.raw.oid;
 			Ext.Msg.prompt('New folder', 'Please enter a name for the new folder:', function(btn, text){
 				if (btn == 'ok'){
 					text = text.replace(/[^a-z0-9\s-_.]/gi,'');
 					text = text.trim()+":";
-					Ext.example.msg("Folder created"," ");
-
 					var gcsaManager = new GcsaManager();
-					gcsaManager.onUploadDataToProject.addEventListener(function(sender,res){
-						if(res.status == 'done'){
-							
-						}else if (res.status == 'fail'){
-							
-						}
+					gcsaManager.onCreateDirectory.addEventListener(function(sender,res){
+						Ext.example.msg('Create folder', '</span class="emph">'+ res+'</span>');
+						_this.onNeedRefresh.notify();
 					});
-					 var fd = new FormData();
-					fd.append("file", this.editor.getValue());
-					fd.append("name", this.nameField.getValue()); 
-					fd.append("tags", "");
-					fd.append("fileType", "directory");
-					fd.append("responsible", this.responsableField.getValue());
-					fd.append("organization", this.organizationField.getValue());
-					fd.append("date", this.acquisitiondate.getValue());
-					fd.append("description", this.textArea.getValue());
-					fd.append("sessionid", sessionId);
-					gcsaManager.uploadDataToProject($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), bucketName , text, fd);
-					debugger
+					gcsaManager.createDirectory($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), bucketName , text);
 				}
 			},null,null,"New Folder");
 		}
