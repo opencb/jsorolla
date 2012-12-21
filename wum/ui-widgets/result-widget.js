@@ -145,8 +145,10 @@ ResultWidget.prototype.render = function (){
 
 				}
 			}
-			
-			obj["Interactive Results"]={items:[]};
+
+			if(this.application == 'renato' || this.application == 'variant'){
+				obj["Interactive Results"]={items:[]};
+			}
 			console.log(obj);
 			
 			var topLink = Ext.create('Ext.container.Container', {html:'<a name="'+this.jobId+'top"></a>'});

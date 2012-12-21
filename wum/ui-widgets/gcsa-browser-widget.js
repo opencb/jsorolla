@@ -32,27 +32,30 @@ function GcsaBrowserWidget(args){
 
     if (args != null){
         if (args.targetId!= null){
-        	this.targetId = args.targetId;       
+        	this.targetId = args.targetId;
         }
         if (args.title!= null){
-        	this.title = args.title;       
+        	this.title = args.title;
         }
         if (args.width!= null){
-        	this.width = args.width;       
+        	this.width = args.width;
         }
         if (args.height!= null){
-        	this.height = args.height;       
+        	this.height = args.height;
         }
         if (args.retrieveData!= null){
-        	this.retrieveData = args.retrieveData;       
+        	this.retrieveData = args.retrieveData;
+        }
+        if (args.mode!= null){
+        	this.mode = args.mode;
         }
         if (args.notAvailableSuites!= null){
         	for(var i=0; i<args.notAvailableSuites.length; i++) {
-        		this.notAvailableSuiteList.push(args.notAvailableSuites[i]);       
+        		this.notAvailableSuiteList.push(args.notAvailableSuites[i]);
         	}
         }
         //if (args.onAccountDataUpdate!= null){
-        	//this.onAccountDataUpdate = args.onAccountDataUpdate;       
+        	//this.onAccountDataUpdate = args.onAccountDataUpdate;
 			//this.onAccountDataUpdate.addEventListener(function (sender, data){
 				//this.accountData = data;
 				//console.log("------------------------------------------------")
@@ -130,30 +133,49 @@ GcsaBrowserWidget.prototype._updateFolderTree = function (){
 
 				if(data.fileType == "dir"){//is dir
 
-					/**/
-					//var pathArr = data.oid.split("/");
+					/*
+					var pathArr = data.oid.split("/");
 					//var pathArr = "a/b/c/".split("/");
 					//var ch = [];
 					//var x = ch;
-					//var find = function(str, arr){
-						//for ( var i = 0; i< arr.length; i++){
-							//if(arr[i].text == str){
-								//return true;
-							//}
-						//}
-						//return false;
-					//};
-					//for ( var k = 0; k < pathArr.length-1; k++){
+					var find = function(str, arr){
+						for ( var i = 0; i< arr.length; i++){
+							if(arr[i].text == str){
+								return i;
+							}
+						}
+						return -1;
+					};
+					var current = folders;
+					for ( var k = 0; k < pathArr.length-1; k++){
+						debugger
+						var found = find(pathArr[k],current);
+						
+						if(found != -1){
+							current = current[i].children;
+						}else{
+							var nch = [];
+							var idx = current.push({text:pathArr[k],children:nch})+ 1;
+							current = nch;
+							if(pathArr[k+1]==""){//isLast
+								for(key in data){
+									debugger
+									current[idx][key] = data[key];
+								}
+							}
+						}
+
 						//var nch = [];
 						//find(pathArr[k],)
 						//ch.push({text:pathArr[k],children:nch});
 						//ch = nch;
-						//
-					//}
-					//debugger
-					/**/
+						
+					}
+					console.log(folders);
+					debugger
+					*/
 					
-					folders.push(data);
+					//folders.push(data);
 				}else{
 					files2.push(data);
 				}
@@ -189,7 +211,7 @@ GcsaBrowserWidget.prototype.render = function (){
 		});
 		
 
-		this.grid = Ext.create('Ext.tree.Panel', {
+		this.folderTree = Ext.create('Ext.tree.Panel', {
 			//xtype:"treepanel",
 			id:this.id+"activeTracksTree",
 			title:"My Buckets",
@@ -212,7 +234,7 @@ GcsaBrowserWidget.prototype.render = function (){
 				dataIndex: 'text',
 				flex:1,
 				editor: {xtype: 'textfield',allowBlank: false}
-			},
+			}
 			//{
 				//xtype: 'actioncolumn',
 				//menuDisabled: true,
@@ -234,25 +256,26 @@ GcsaBrowserWidget.prototype.render = function (){
 					//}
 				//}
 			//},
-			{
-				xtype: 'actioncolumn',
-				menuDisabled: true,
-				align: 'center',
-				tooltip: 'Remove',
-				width:30,
-				icon: Compbio.images.del,
-				handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-					//this also fires itemclick event from tree panel
-					if(record.isLeaf()){
-						var id = record.data.trackId;
-						var checked = record.data.checked;
-						record.destroy();
-						if(checked){
-							_this.removeTrack(id);
-						}
-					}
-				}
-			}],
+			//{
+				//xtype: 'actioncolumn',
+				//menuDisabled: true,
+				//align: 'center',
+				//tooltip: 'Remove',
+				//width:30,
+				//icon: Compbio.images.del,
+				//handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+					////this also fires itemclick event from tree panel
+					//if(record.isLeaf()){
+						//var id = record.data.trackId;
+						//var checked = record.data.checked;
+						//record.destroy();
+						//if(checked){
+							//_this.removeTrack(id);
+						//}
+					//}
+				//}
+			//}
+			],
 			viewConfig: {
 				markDirty:false,
 				plugins: {
@@ -309,40 +332,40 @@ GcsaBrowserWidget.prototype.render = function (){
 /*******************/
 /*******************/
 		/**ORIGIN FILTER**/
-		var origins = [{ suiteId: "all",name:"all"},{ suiteId: "Uploaded Data",name:"Uploaded Data"},{ suiteId: "Job Generated",name:"Job Generated"}];
-		
-	 	var stOrigin = Ext.create('Ext.data.Store', {
-	 		fields: ["suiteId","name"],
-	 		data : origins
-		});
-		this.viewOrigin = Ext.create('Ext.view.View', {
-		    store : stOrigin,
-            selModel: {
-                mode: 'SINGLE',
-//                allowDeselect:true,
-                listeners: {
+		//var origins = [{ suiteId: "all",name:"all"},{ suiteId: "Uploaded Data",name:"Uploaded Data"},{ suiteId: "Job Generated",name:"Job Generated"}];
+		//
+	 	//var stOrigin = Ext.create('Ext.data.Store', {
+	 		//fields: ["suiteId","name"],
+	 		//data : origins
+		//});
+		//this.viewOrigin = Ext.create('Ext.view.View', {
+		    //store : stOrigin,
+            //selModel: {
+                //mode: 'SINGLE',
+               // allowDeselect:true,
+                //listeners: {
                     //selectionchange:function(){_this.setFilter();}
-                }
-            },
-            cls: 'list',
-         	trackOver: true,
-            overItemCls: 'list-item-hover',
-            itemSelector: '.list-item',
-            tpl: '<tpl for="."><div class="list-item">{name}</div></tpl>'
-        });
-        
-        var panOrigin = Ext.create('Ext.panel.Panel', {
-        	title:'Search by origin',
-        	border:0,
-        	bodyPadding:5,
-        	style: 'border-bottom:1px solid #99bce8;',
-		    items : [this.viewOrigin]
-		});
+                //}
+            //},
+            //cls: 'list',
+         	//trackOver: true,
+            //overItemCls: 'list-item-hover',
+            //itemSelector: '.list-item',
+            //tpl: '<tpl for="."><div class="list-item">{name}</div></tpl>'
+        //});
+        //
+        //var panOrigin = Ext.create('Ext.panel.Panel', {
+        	//title:'Search by origin',
+        	//border:0,
+        	//bodyPadding:5,
+        	//style: 'border-bottom:1px solid #99bce8;',
+		    //items : [this.viewOrigin]
+		//});
         
 		
         /**SUITE FILTER**/
 		//var parsedSuites = JSON.parse(this.suiteList);
-		var suites = [{name:"bam"},{name:"vcf"},{name:"gff"},{name:"gtf"},{name:"bed"}];
+		//var suites = [{name:"bam"},{name:"vcf"},{name:"gff"},{name:"gtf"},{name:"bed"}];
 		// remove not available suites
 		//for(var i = 0; i < parsedSuites.length; i++) {
 			//if(this.notAvailableSuiteList.indexOf(parsedSuites[i].name)==-1){ // es que esta para quitar
@@ -350,61 +373,61 @@ GcsaBrowserWidget.prototype.render = function (){
 			//}
 		//}
 		
-        var stSuite = Ext.create('Ext.data.Store', {
-	 		fields: ["suiteId","name","description"],
-	 		data : suites
-		});
+        //var stSuite = Ext.create('Ext.data.Store', {
+	 		//fields: ["suiteId","name","description"],
+	 		//data : suites
+		//});
 		
-		this.viewSuite = Ext.create('Ext.view.View', {
-		    store : stSuite,
-            selModel: {
-                mode: 'SINGLE',
-//                allowDeselect:true,
-                listeners: {
-                	selectionchange:function(){_this.setFilter();}
-                }
-            },
-            cls: 'list',
-         	trackOver: true,
-            overItemCls: 'list-item-hover',
-            itemSelector: '.list-item',
-            tpl: '<tpl for="."><div class="list-item">{name}</div></tpl>'
-        });
-         
-        var panSuite = Ext.create('Ext.panel.Panel', {
-        	title:'Search by suite',
-        	border:0,
-        	bodyPadding:5,
-		    items : [this.viewSuite]
-		});
+		//this.viewSuite = Ext.create('Ext.view.View', {
+		    //store : stSuite,
+            //selModel: {
+                //mode: 'SINGLE',
+                ////allowDeselect:true,
+                //listeners: {
+                	//selectionchange:function(){_this.setFilter();}
+                //}
+            //},
+            //cls: 'list',
+         	//trackOver: true,
+            //overItemCls: 'list-item-hover',
+            //itemSelector: '.list-item',
+            //tpl: '<tpl for="."><div class="list-item">{name}</div></tpl>'
+        //});
+         //
+        //var panSuite = Ext.create('Ext.panel.Panel', {
+        	//title:'Search by suite',
+        	//border:0,
+        	//bodyPadding:5,
+		    //items : [this.viewSuite]
+		//});
 
 		
 		/**TEXT SEARCH FILTER**/
-        this.searchField = Ext.create('Ext.form.field.Text',{
-        	 id:this.searchFieldId,
-	         flex:1,
-			 emptyText: 'enter search term',
-			 enableKeyEvents:true,
-			 listeners:{
-			 	scope:this,
-			 	change:this.setFilter
-			 }
-        });
+        //this.searchField = Ext.create('Ext.form.field.Text',{
+        	 //id:this.searchFieldId,
+	         //flex:1,
+			 //emptyText: 'enter search term',
+			 //enableKeyEvents:true,
+			 //listeners:{
+			 	//scope:this,
+			 	//change:this.setFilter
+			 //}
+        //});
         
         /**FILTER PANEL**/
-         var panFilter = Ext.create('Ext.panel.Panel', {
-			title:"Filtering",
-		    border:false,
-		    items : [panOrigin,panSuite],
-		    tbar : {items:this.searchField}
-		});
+         //var panFilter = Ext.create('Ext.panel.Panel', {
+			//title:"Filtering",
+		    //border:false,
+		    //items : [panOrigin,panSuite],
+		    //tbar : {items:this.searchField}
+		//});
 
 		/*MANAGE BUCKETS*/
 		var newProjectButton = Ext.create('Ext.button.Button',{
         	text : 'OK',
         	handler : function() {
         		_this.createProject("newProject");
-        		_this.grid.toggleCollapse();
+        		_this.folderTree.toggleCollapse();
         		//manageProjects.toggleCollapse();
         	}
         });
@@ -425,7 +448,7 @@ GcsaBrowserWidget.prototype.render = function (){
 			items:[newProjectNameField,newProjectDescriptionField]
 		});
 		var manageProjects = Ext.create('Ext.panel.Panel', {
-			title:"Bucket management",
+			title:"Create bucket",
 			bodyPadding:5,
 			border:false,
 			items:[newProjectNameField,newProjectDescriptionField,newProjectButton]
@@ -491,7 +514,7 @@ GcsaBrowserWidget.prototype.render = function (){
 			cls:'panel-border-right',
 		    border:false,
 		    layout: 'accordion',
-		    items : [this.grid, manageProjects, panFilter]
+		    items : [this.folderTree, manageProjects, /*panFilter*/]
 		});
 
 
@@ -510,6 +533,16 @@ GcsaBrowserWidget.prototype.render = function (){
 		});  
 		/**MAIN PANEL**/
 //		this.height=205+(26*suites.length);//segun el numero de suites
+
+		var tbarObj;
+		if(this.mode != "select"){
+			tbarObj = {items:[
+				{text:'New bucket',handler:function(){manageProjects.expand();}},
+				{text:'New folder',handler:function(){_this.folderTree.expand();_this.createFolder();}},
+				{text:'Upload object',handler:function(){_this.uploadWidget.draw();}}
+			]}
+		}
+
 		this.panel = Ext.create('Ext.window.Window', {
 		    title: 'Browse Data',
 		    resizable: false,
@@ -520,11 +553,7 @@ GcsaBrowserWidget.prototype.render = function (){
 		    height:this.height,
 		    width:this.width,
 		    layout: { type: 'hbox',align: 'stretch'},
-		    tbar:{items:[
-				{text:'New bucket',handler:function(){manageProjects.expand();}},
-				{text:'New folder',handler:function(){_this.grid.expand();_this.createFolder();}},
-				{text:'Upload object',handler:function(){_this.uploadWidget.draw();}}
-			]},
+		    tbar:tbarObj,
 		    items: [panAccordion,filesGrid],
 		    buttonAlign:'right',
 		    buttons:[
@@ -617,7 +646,7 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 	if(this.accountData.buckets.length < 1){
 		Ext.MessageBox.alert('No buckets found', 'Please create and select a bucket.');
 	}else{
-		var selectedBuckets = this.grid.getSelectionModel().getSelection();
+		var selectedBuckets = this.folderTree.getSelectionModel().getSelection();
 		if(selectedBuckets.length < 1 ){
 			Ext.MessageBox.alert('No bucket selected', 'Please select a bucket or a folder.');
 		}else{

@@ -392,7 +392,7 @@ HeaderWidget.prototype._getMenubarItems = function (){
 	 /*
 	 * */
 	
-	return [this.manageProjects,this.manageProjectsButton,this.btnUpload];
+	return [this.manageProjects,/*this.manageProjectsButton,*/this.btnUpload];
 };
 
 HeaderWidget.prototype._enableMenubarItems = function (){

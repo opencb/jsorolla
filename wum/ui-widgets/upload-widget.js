@@ -176,7 +176,7 @@ UploadWidget.prototype.render = function(dataTypes){
 	        fieldLabel: 'Data name',
 	        labelWidth: 110,
 	        msgTarget: 'side',
-	        allowBlank: false,
+	        //allowBlank: false,
 	        enableKeyEvents: true,
 	        listeners: {
 		        scope: this,
@@ -302,7 +302,7 @@ UploadWidget.prototype.render = function(dataTypes){
 			dock:'top',
 			height:28,
 			border:false,
-			items:[this.originCheck,'->',this.dataTypeLabel,'-',this.dataNameLabel,'-',this.dataFieldLabel]
+			items:[this.originCheck,'->',this.dataTypeLabel,'-',/*this.dataNameLabel,'-',*/this.dataFieldLabel]
 		});
 		
 		var pan3 = Ext.create('Ext.panel.Panel', {
@@ -376,7 +376,7 @@ UploadWidget.prototype.validate = function (){
 //	console.log(this.nameField.getValue() !="");
 //	console.log((this.uploadField.getRawValue()!="" || this.editor.getValue()!=""));
 	
-	if (this.selectedDataType != null && this.nameField.getValue() !="" && (this.uploadField.getRawValue()!="" || this.editor.getValue()!="") ){
+	if (this.selectedDataType != null /*&& this.nameField.getValue() !=""*/ && (this.uploadField.getRawValue()!="" || this.editor.getValue()!="") ){
 		Ext.getCmp(this.uploadButtonId).enable();
 	}else{
 		Ext.getCmp(this.uploadButtonId).disable();
