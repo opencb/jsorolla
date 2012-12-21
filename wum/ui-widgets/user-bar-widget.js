@@ -69,7 +69,8 @@ UserBarWidget.prototype._setAccountInfo = function(data){
 	this.userInfo = '<b style="color:darkred">'+this.pdata.email+'</b>&nbsp;working&nbsp;on&nbsp;project';
 	this.userInfo2 = ' using&nbsp;<b style="color:chocolate">'+a+'</b>&nbsp;MB&nbsp;of&nbsp;<b style="color:blue">'+b+'</b>&nbsp;GB&nbsp;(<b>'+p+'%</b>)&nbsp;';
 
-	this.userInfo ='<b style="color:darkred">'+this.pdata.email+'</b> <b class="emph">'+$.cookie('bioinfo_bucket')+'</b>';
+	//this.userInfo ='<b style="color:darkred">'+this.pdata.email+'</b> <b class="emph">'+$.cookie('bioinfo_bucket')+'</b>';
+	this.userInfo ='<b style="color:darkred">'+this.pdata.email+'</b>';
 	this.userInfo2 = '';
 
 	this.render();

@@ -28,13 +28,17 @@ function UserListWidget (args){
 	this.timeout = 4000;
 	this.pagedViewList = args.pagedViewList;
 	this.suiteId=-1;
+	this.tools = [];
 	
 	if (args != null){
         if (args.timeout != null && args.timeout > 4000){
-        	this.timeout = args.timeout;       
+        	this.timeout = args.timeout;
         }
         if (args.suiteId != null){
-        	this.suiteId = args.suiteId;       
+        	this.suiteId = args.suiteId;
+        }
+        if (args.tools != null){
+        	this.tools = args.tools;
         }
     }
 //	console.warn(this.id+' Minimum period is 4000 milliseconds, smaller values will be ignored');

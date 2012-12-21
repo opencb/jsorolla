@@ -145,8 +145,10 @@ ResultWidget.prototype.render = function (){
 
 				}
 			}
-			
-			obj["Interactive Results"]={items:[]};
+
+			if(this.application == 'renato' || this.application == 'variant'){
+				obj["Interactive Results"]={items:[]};
+			}
 			console.log(obj);
 			
 			var topLink = Ext.create('Ext.container.Container', {html:'<a name="'+this.jobId+'top"></a>'});
@@ -154,8 +156,9 @@ ResultWidget.prototype.render = function (){
 				margin: "15 0 5 15",
 				html:'<p >The job named <span class="info">'+this.record.data.name+' </span>'+
 				'was launched on <span class="err">'+this.record.data.creationTime+' </span>'+
-				'and has been visited <span class="dis">'+this.record.data.visites+' times</span></p>'+
-				'You can download the job results by pressing the <b>download</b> button.'
+				//'and has been visited <span class="dis">'+this.record.data.visites+' times</span></p>'+
+				//'You can download the job results by pressing the <b>download</b> button.'
+				'<br>'
 			});
 			
 			var result = [];
@@ -164,7 +167,8 @@ ResultWidget.prototype.render = function (){
 			for (key in obj){
 				var groupBox = Ext.create('Ext.container.Container', {
 					padding:"0 0 2 15",
-					html:'<p class="s110 emph">'+i+'. <a href="#'+key+'">'+key+'</a></p>'
+					//html:'<p class="s110 emph">'+i+'. <a href="#'+key+'">'+key+'</a></p>'
+					html:'<p class="s110 emph">'+i+'. '+key+'</a></p>'
 				});
 				result.push(groupBox);
 				i++;
@@ -179,7 +183,9 @@ ResultWidget.prototype.render = function (){
 					infoId:infoId,
 					groupName:key,
 					padding:"60 15 5 15",
-					html:'<p class="panel-border-bottom"><span class="s140 emph">'+i+'. <a name="'+key+'" href="#'+this.jobId+'top">'+key+'</a>'+
+					//html:'<p class="panel-border-bottom"><span class="s140 emph">'+i+'. <a name="'+key+'" href="#'+this.jobId+'top">'+key+'</a>'+
+						//' </span><span class="info" id="'+infoId+'"></span></p>',
+					html:'<p class="panel-border-bottom"><span class="s140 emph">'+i+'. '+key+''+
 						' </span><span class="info" id="'+infoId+'"></span></p>',
 					listeners:{
 						afterrender:function(){
@@ -276,8 +282,8 @@ ResultWidget.prototype.render = function (){
 
 			this.panel.add(topLink);
 			this.panel.add(info);
-			this.panel.add(downloadButton);
-			this.panel.add(deleteJobButton);
+			//this.panel.add(downloadButton);
+			//this.panel.add(deleteJobButton);
 			this.panel.add(result);
 
 			_this.onViewRendered.notify();			

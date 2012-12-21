@@ -37,7 +37,7 @@ function JobListWidget (args){
 											'<tpl if="visites == -2">Darkorange</tpl>'+
 											'">{name}</p>',
 						'<p style="color: #15428B"><i>{creationTime}</i></p>',
-						'<p style="color:steelblue"><i>- {toolName} -</i> <span class="info"> {id} </span></p>',
+						'<p style="color:steelblue"><i>- {toolName} -</i></p>',
 						'<p style="color:grey"><i>',
 //						'<tpl if="visites == 0">finished and unvisited</tpl>',
 //						'<tpl if="visites &gt; 0">{visites} visites</tpl>',
@@ -155,9 +155,9 @@ JobListWidget.prototype.clean =  function (){
 	this.pagedListViewWidget.clean();
 };
 
-JobListWidget.prototype.getResponse = function (){
-	this.adapter.listProject($.cookie("bioinfo_sid"), this.suiteId);
-};
+//JobListWidget.prototype.getResponse = function (){
+	//this.adapter.listProject($.cookie("bioinfo_sid"), this.suiteId);
+//};
 
 JobListWidget.prototype.setAccountData = function (data){
 	this.accountData = data;
@@ -165,7 +165,9 @@ JobListWidget.prototype.setAccountData = function (data){
 	var projects = [];
 	var jobs = [];
 	for ( var i = 0; i < this.accountData.jobs.length; i++) {
+		if(this.tools.indexOf(this.accountData.jobs[i].toolName) != -1){
 			jobs.push(this.accountData.jobs[i]);
+		}
 	}
 	this.data = jobs;
 	this.render();
