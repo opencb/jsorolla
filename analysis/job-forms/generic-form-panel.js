@@ -66,6 +66,7 @@ GenericFormPanel.prototype.getPanels = function() {
 GenericFormPanel.prototype.getJobPanel = function() {
 	var _this = this;
 	var jobNameField = Ext.create('Ext.form.field.Text', {
+		id: "jobname",
 		name: "jobname",
 		fieldLabel:'Job name',
 		emptyText:"Job name",
@@ -73,6 +74,7 @@ GenericFormPanel.prototype.getJobPanel = function() {
 	});
 	
 	var jobDescriptionField = Ext.create('Ext.form.field.TextArea', {
+		id:"jobdescription",
 		name:"jobdescription",
 		fieldLabel:'Description',
 		emptyText:"Description"
@@ -130,6 +132,7 @@ GenericFormPanel.prototype.run = function() {
 
 GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultValue, labelWidth, margin) {
 	return Ext.create('Ext.form.field.ComboBox', {
+		id: name,
 		name: name,
 	    fieldLabel: label,
 	    store: data,
@@ -146,11 +149,12 @@ GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultV
 
 GenericFormPanel.prototype.createCheckBox = function(name, label, checked, margin, disabled, handler) {
 	return Ext.create('Ext.form.field.Checkbox', {
-		 boxLabel: label,
-		 name: name,
-		 checked: (checked || false),
-		 disabled: disabled,
-		 margin: (margin || '0 0 0 0')
+		id: name,
+		name: name,
+		boxLabel: label,
+		checked: (checked || false),
+		disabled: disabled,
+		margin: (margin || '0 0 0 0')
 	});
 };
 
@@ -169,7 +173,7 @@ GenericFormPanel.prototype.createGcsaBrowserCmp = function(label, dataParamName)
    		}
 	});
 	
-	var fileSelectedLabel = Ext.create('Ext.form.Label', {text: "No file selected", margin:'5 0 0 15'});
+	var fileSelectedLabel = Ext.create('Ext.form.Label', {id: dataParamName, text: "No file selected", margin:'5 0 0 15'});
 	
 	return Ext.create('Ext.container.Container', {
 //		bodyPadding:10,
