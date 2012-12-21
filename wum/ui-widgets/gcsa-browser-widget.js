@@ -538,7 +538,7 @@ GcsaBrowserWidget.prototype.render = function (){
 		if(this.mode != "select"){
 			tbarObj = {items:[
 				{text:'New bucket',handler:function(){manageProjects.expand();}},
-				{text:'New folder',handler:function(){_this.folderTree.expand();_this.createFolder();}},
+				//{text:'New folder',handler:function(){_this.folderTree.expand();_this.createFolder();}},
 				{text:'Upload object',handler:function(){_this.uploadWidget.draw();}}
 			]}
 		}

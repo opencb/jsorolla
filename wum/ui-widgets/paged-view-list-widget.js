@@ -358,7 +358,7 @@ PagedViewListWidget.prototype.render = function() {
 					target.insert(this.order, this.panel);
 					//target.setActiveTab(1);//si no se pone el active da un error de EXT
 					//target.setActiveTab(0);//si no se pone el active da un error de EXT
-					pan.setHeight = this.panel.getHeight();
+					//pan.setHeight = this.panel.getHeight();
 				}else{
 					this.panel.render(this.targetId);
 				}
