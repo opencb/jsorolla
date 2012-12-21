@@ -345,7 +345,7 @@ GcsaRestManager.prototype.runAnalysis = function(analysis, paramsWS){
 		_this.onRunAnalysis.notify({status:"fail",data:data});
 	}
 	
-	$.ajax({type:"POST", url:url, data:paramsWS, success:success, error:error});
+//	$.ajax({type:"POST", url:url, data:paramsWS, success:success, error:error});
 };
 /**/
 
