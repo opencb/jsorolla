@@ -93,7 +93,7 @@ GenericFormPanel.prototype.getJobPanel = function() {
 		border: true,
 		bodyPadding: "5",
 		margin: "0 0 5 0",
-		width: "100%",
+		width: "99%",
 		buttonAlign:'center',
 		items: [jobNameField, jobDescriptionField, jobDestinationBucket]
 	});
