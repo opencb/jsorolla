@@ -514,7 +514,8 @@ GcsaBrowserWidget.prototype.render = function (){
 			cls:'panel-border-right',
 		    border:false,
 		    layout: 'accordion',
-		    items : [this.folderTree, manageProjects, /*panFilter*/]
+		    items : [this.folderTree, manageProjects]
+//		    items : [this.folderTree, manageProjects, /*panFilter*/]
 		});
 
 
