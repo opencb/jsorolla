@@ -165,10 +165,24 @@ ResultWidget.prototype.render = function (){
 			//Solo grupos juntos al principio
 			var i=1;
 			for (key in obj){
+				var groupId = this.jobId+key+"group";
 				var groupBox = Ext.create('Ext.container.Container', {
 					padding:"0 0 2 15",
 					//html:'<p class="s110 emph">'+i+'. <a href="#'+key+'">'+key+'</a></p>'
-					html:'<p class="s110 emph">'+i+'. '+key+'</a></p>'
+					groupId:groupId,
+					html:'<span class="s110 emph">'+i+'. '+key+'</span>',
+					listeners:{
+						afterrender:function(){
+							this.getEl().addClsOnOver("ssel u");
+							this.getEl().addCls("dedo");
+							var groupId = this.groupId;
+							//inlineblock
+							this.getEl().on("click",function(){
+								var pos = $('#'+groupId).position().top;
+								$(_this.panel.getEl().dom).children().scrollTop(pos);
+							});
+						}
+					}
 				});
 				result.push(groupBox);
 				i++;
@@ -179,16 +193,23 @@ ResultWidget.prototype.render = function (){
 			for (key in obj){
 				//Grupo
 				var infoId = (this.jobId+key+"info").replace(/ /gi, "");
+				var groupId = this.jobId+key+"group";
 				var groupBox = Ext.create('Ext.container.Container', {
 					infoId:infoId,
 					groupName:key,
 					padding:"60 15 5 15",
 					//html:'<p class="panel-border-bottom"><span class="s140 emph">'+i+'. <a name="'+key+'" href="#'+this.jobId+'top">'+key+'</a>'+
 						//' </span><span class="info" id="'+infoId+'"></span></p>',
-					html:'<p class="panel-border-bottom"><span class="s140 emph">'+i+'. '+key+''+
+					html:'<p id="'+groupId+'" class="panel-border-bottom"><span class="s140 emph">'+i+'. '+key+''+
 						' </span><span class="info" id="'+infoId+'"></span></p>',
 					listeners:{
 						afterrender:function(){
+							this.getEl().addClsOnOver("ssel u");
+							this.getEl().addCls("dedo");
+							this.getEl().on("click",function(){
+								$(_this.panel.getEl().dom).children().scrollTop(0);
+							});
+							
 							var text = _this.getInfo(this.groupName);
 							if(text!=""){
 								$("#"+this.infoId).html("+info");
