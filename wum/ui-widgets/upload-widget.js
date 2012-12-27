@@ -53,7 +53,8 @@ function UploadWidget (args){
 //	return this.id+'_uploadButton';
 //};
 
-UploadWidget.prototype.draw = function(){
+UploadWidget.prototype.draw = function(gcsaLocation){
+	this.gcsaLocation = gcsaLocation;
 	var dataTypes = {};
 	dataTypes["9"]=[
 		            { text: "ID List", children: [
@@ -427,9 +428,9 @@ UploadWidget.prototype.uploadFile = function()  {
    	fd.append("description", this.textArea.getValue());
    	fd.append("sessionid", sessionId);
 
-   	var objectname = inputFileName;
+   	var objectname = this.gcsaLocation.directory+inputFileName;
 	//accountid, sessionId, projectname, formData
-	this.adapter.uploadDataToProject($.cookie("bioinfo_account"), sessionId, $.cookie('bioinfo_bucket') , objectname, fd);
+	this.adapter.uploadDataToProject($.cookie("bioinfo_account"), sessionId, this.gcsaLocation.bucketId , objectname, fd);
 	
 };
 

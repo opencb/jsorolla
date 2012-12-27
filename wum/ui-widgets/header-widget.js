@@ -379,20 +379,21 @@ HeaderWidget.prototype._getMenubarItems = function (){
 	
 	this.manageProjects = Ext.create('Ext.Button', {
 			id:this.id+"manageProjects",
-			text: 'GCSA',
+			text: 'My WebDrive',
 			iconCls: 'icon-project-manager',
 			disabled: true,
 			handler: function() {
-				_this.gcsaBrowserWidget.draw();
+				_this.gcsaBrowserWidget.draw("full");
 			}
 	});
-	/*
-	 */
-		//setTimeout(function(){_this.gcsaBrowserWidget.draw();},500);
+	
+	/* uncomment to DEBUG gcsaBrowserWidget
+	 */	
+		//setTimeout(function(){_this.gcsaBrowserWidget.draw("full");},100);
 	 /*
 	 * */
 	
-	return [this.manageProjects,/*this.manageProjectsButton,*/this.btnUpload];
+	return [this.manageProjects/*this.manageProjectsButton,this.btnUpload*/];
 };
 
 HeaderWidget.prototype._enableMenubarItems = function (){

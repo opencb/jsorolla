@@ -42,6 +42,7 @@ function GcsaManager(){
 	/**/
 
 	/*Jobs*/
+	this.onJobStatus = this.manager.onJobStatus;
 	this.onJobResult = this.manager.onJobResult;
 	this.onTable = this.manager.onTable;
 	this.onPoll = this.manager.onPoll;

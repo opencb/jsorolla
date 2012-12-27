@@ -24,9 +24,9 @@ JobListWidget.prototype.getData = UserListWidget.prototype.getData;
 JobListWidget.prototype.getCount = UserListWidget.prototype.getCount;
 
 function JobListWidget (args){
+	var _this = this;
 	UserListWidget.prototype.constructor.call(this, args);
 	this.counter = null;
-	var _this = this;
 	var jobstpl = [
 					'<tpl for=".">',
 					'<div class="joblist-item">',
@@ -42,11 +42,12 @@ function JobListWidget (args){
 //						'<tpl if="visites == 0">finished and unvisited</tpl>',
 //						'<tpl if="visites &gt; 0">{visites} visites</tpl>',
 						'<tpl if="visites == -1">',
-						'<div style="height:10px;width:{percentage/100*180}px;background:url(\'http://jsapi.bioinfo.cipf.es/ext/sencha/4.0.2/resources/themes/images/default/progress/progress-default-bg.gif\') repeat-x;">',
-						'&#160;</div>{percentage}%',
+						//'<div style="height:10px;width:{percentage/100*180}px;background:url(\'http://jsapi.bioinfo.cipf.es/ext/sencha/4.0.2/resources/themes/images/default/progress/progress-default-bg.gif\') repeat-x;">&#160;</div>',
+						//'{percentage}%',
+						'running, please wait...',
 						'</tpl>',
 						'<tpl if="visites == -2">waiting in the queue...</tpl>',
-						'<i></p>',
+						'</i></p>',
 					'</div>',
 					'</tpl>'
 					];
@@ -139,7 +140,32 @@ function JobListWidget (args){
 		//_this.allData = JSON.parse(data);
 		//_this.selectProjectData();
 		//_this.render();
-	//});	
+	//});
+
+
+
+
+
+/*HARDCODED check job status*/
+
+	var checkJobsStatus = function(){
+		if(_this.accountData != null){
+			var gcsaManager = new GcsaManager();
+			for ( var i = 0; i < _this.accountData.jobs.length; i++) {
+				if(_this.tools.indexOf(_this.accountData.jobs[i].toolName) != -1){
+					if(_this.accountData.jobs[i].visites<0){
+						gcsaManager.jobStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), "noneedbucket", _this.accountData.jobs[i].id);
+					}
+				}
+			}
+		}
+	}
+	
+	this.accountInfoInterval = setInterval(function(){checkJobsStatus();}, 4000);
+
+/*HARDCODED check job status*/
+
+	
 };
 
 //override
@@ -160,6 +186,8 @@ JobListWidget.prototype.clean =  function (){
 //};
 
 JobListWidget.prototype.setAccountData = function (data){
+
+	
 	this.accountData = data;
 	console.log("joblistwidget")
 	var projects = [];

@@ -38,31 +38,20 @@ function LoginWidget (suiteId, args){
 	/**Atach events i listen**/
 	this.adapter.onLogin.addEventListener(function (sender, data){
 		_this.panel.setLoading(false);
-//		console.log(data.length);
 		console.log(data);
-		data = data.replace(/^\s+|\s+$/g, '');
-		if(data.length == 20){
+		if(data.errorMessage == null){
 //			console.log(_this.id+' LOGIN RESPONSE -> '+data);
-			$.cookie('bioinfo_sid', data /*,{path: '/'}*/);//TODO ATENCION si se indica el path el 'bioinfo_sid' es comun entre dominios
+			$.cookie('bioinfo_sid', data.sessionId /*,{path: '/'}*/);//TODO ATENCION si se indica el path el 'bioinfo_sid' es comun entre dominios
+			$.cookie('bioinfo_account', data.accountId);
+			$.cookie('bioinfo_bucket', data.bucketId);
 			_this.onSessionInitiated.notify();
 		}else{
-			//login anonymous not working fix
-			if(data.indexOf("ERROR")==-1){
-				var pdata = JSON.parse(data);
-				if(pdata.currentSessionId!=null){
-					 $.cookie('bioinfo_sid', pdata.currentSessionId /*,{path: '/'}*/);
-					 $.cookie('bioinfo_bucket', 'default' /*,{path: '/'}*/);
-					_this.onSessionInitiated.notify();
-				}
-			}else{
-	//          console.log(_this.id+' SESSION ID FORMAT INVALID -> '+data);
-	            Ext.getCmp(_this.labelEmailId).setText('<span class="err">'+data+'</span>', false);
-	            //Se borran las cookies por si acaso
-				$.cookie('bioinfo_sid', null);
-				$.cookie('bioinfo_sid', null, {path: '/'});
-				$.cookie('bioinfo_account',null);
-				$.cookie('bioinfo_account', null, {path: '/'});
-			}
+			Ext.getCmp(_this.labelEmailId).setText('<span class="err">'+data.errorMessage+'</span>', false);
+			//Se borran las cookies por si acaso
+			$.cookie('bioinfo_sid', null);
+			$.cookie('bioinfo_sid', null, {path: '/'});
+			$.cookie('bioinfo_account',null);
+			$.cookie('bioinfo_account', null, {path: '/'});
 		}
 	});
 	this.adapter.onRegister.addEventListener(function (sender, data){
@@ -124,8 +113,6 @@ LoginWidget.prototype.sign = function (){
 		if(this.checkAccountId()){
 			//if (this.getLogin().indexOf("@")!=-1){
 				this.adapter.login(this.getLogin(), this.getPassword(), this.suiteId );
-				$.cookie('bioinfo_account',this.getLogin());
-				 $.cookie('bioinfo_bucket', 'default' /*,{path: '/'}*/);
 			//}else{
 				//this.adapter.login(this.getLogin()+"@cipf.es", this.getPassword(), this.suiteId );
 			//}
@@ -140,8 +127,8 @@ LoginWidget.prototype.sign = function (){
 LoginWidget.prototype.register = function (){ 
 	if(this.checkAccountId()  && this.checkemail() && this.checkName() && this.checkpass()){
 		this.adapter.register(this.getLogin(), this.getEmail(), this.getAccountName(),this.getPasswordReg(), this.suiteId );
-		$.cookie('bioinfo_account',this.getLogin());
-		 $.cookie('bioinfo_bucket', 'default' /*,{path: '/'}*/);
+		//$.cookie('bioinfo_account',this.getLogin());
+		 //$.cookie('bioinfo_bucket', 'default' /*,{path: '/'}*/);
 	}else{
 		Ext.getCmp(this.labelEmailId).setText('<span class="info">Fill all fields</span>', false);
 	}
@@ -284,7 +271,18 @@ LoginWidget.prototype.render = function (){
 		    	xtype:'checkboxfield',
 		    	padding:"10 0 0 0",
 		    	boxLabel:'Anonymous login <p class="tip s90">Your work will be lost after logout</p>',
-		    	margin:"0 0 0 50"
+		    	margin:"0 0 0 50",
+		    	listeners:{
+					change:function(me, newValue, oldValue, eOpts){
+						if(newValue){
+							Ext.getCmp(_this.id+"accountId").disable();
+							Ext.getCmp(_this.fldPasswordId).disable();
+						}else{
+							Ext.getCmp(_this.id+"accountId").enable();
+							Ext.getCmp(_this.fldPasswordId).enable();
+						}
+					}
+				}
 		    }
 		    ]
 		});

@@ -164,7 +164,7 @@ GenericFormPanel.prototype.createGcsaBrowserCmp = function(label, dataParamName)
         text: 'Browse data',
         margin: '0 0 0 10',
         handler: function (){
-        	_this.gcsaBrowserWidget.draw();
+        	_this.gcsaBrowserWidget.draw("full");
         	var listenerIdx = _this.gcsaBrowserWidget.onSelect.addEventListener(function(sender, response){
         		_this.paramsWS[dataParamName] = response.bucketId+':'+response.id;
         		fileSelectedLabel.setText(response.id);

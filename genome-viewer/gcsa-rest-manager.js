@@ -46,6 +46,7 @@ function GcsaRestManager (){
 	this.onCreateDirectory = new Event(this);
 
 	/*Jobs*/
+	this.onJobStatus = new Event(this);
 	this.onJobResult = new Event(this);
 	this.onTable = new Event(this);
 	this.onPoll = new Event(this);
@@ -65,9 +66,12 @@ function GcsaRestManager (){
 GcsaRestManager.prototype.getAccountInfo = function(accountId, sessionId, lastActivity){
 	var _this=this;
 	var url = this.getHost()+'/account/'+accountId+'/info?sessionid='+sessionId+'&lastactivity='+lastActivity;
-	
 	function success(data){
-		_this.onGetAccountInfo.notify(JSON.parse(data));
+		if(data.indexOf("ERROR") == -1){
+			_this.onGetAccountInfo.notify(JSON.parse(data));
+		}else{
+			console.log(data);
+		}
 	}
 	
 	function error(data){
@@ -86,7 +90,11 @@ GcsaRestManager.prototype.login = function(accountId, password, suiteId){
 	console.log(url);
 	
 	function success(data){
-		_this.onLogin.notify(data);
+		if(data.indexOf("ERROR") == -1){
+			_this.onLogin.notify(JSON.parse(data));
+		}else{
+			_this.onLogin.notify({errorMessage:data});
+		}
 	}
 	
 	function error(data){
@@ -253,6 +261,21 @@ GcsaRestManager.prototype.jobResult = function(accountId, sessionId, bucketname,
 	//var url = this.getHost() + '/job/'+jobId+'/result.'+format+'?incvisites=true&sessionid='+sessionId;
 	function success(data){
 		_this.onJobResult.notify(data);
+	}
+	
+	function error(data){
+		console.log("ERROR: " + data);
+	}
+	
+	this.doGet(url, success, error);
+//	console.log(url);
+};
+
+GcsaRestManager.prototype.jobStatus = function(accountId, sessionId, bucketname, jobId){
+	var _this=this;
+	var url = this.getHost()+'/'+accountId+'/'+bucketname+'/job/'+jobId+'/status?sessionid='+sessionId;
+	function success(data){
+		_this.onJobStatus.notify(data);
 	}
 	
 	function error(data){
