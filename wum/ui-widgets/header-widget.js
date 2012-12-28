@@ -178,8 +178,8 @@ HeaderWidget.prototype.render = function (){
 				break;
 			case 10://CellBrowser
 				this.homeLink="http://www.cellbrowser.org";
-				this.helpLink="http://docs.bioinfo.cipf.es";
-				this.tutorialLink="http://docs.bioinfo.cipf.es";
+				this.helpLink="http://docs.bioinfo.cipf.es/projects/cellbrowser";
+				this.tutorialLink="http://docs.bioinfo.cipf.es/projects/cellbrowser/wiki/Tutorial";
 				this.aboutText = '';
 				break;
 			case 12://UNTBgen
