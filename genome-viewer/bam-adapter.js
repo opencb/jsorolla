@@ -117,7 +117,7 @@ BamAdapter.prototype.getData = function(args){
 		dataType = "histogram"+args.interval;
 	}
 
-	this.params["dataType"] = dataType
+	this.params["dataType"] = dataType;
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);

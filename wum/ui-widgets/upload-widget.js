@@ -68,6 +68,7 @@ UploadWidget.prototype.draw = function(gcsaLocation){
 		                { text: "GTF", tag:"gtf"},
 		                { text: "BED", tag:"bed"},
 		                { text: "BAM", tag:"bam"},
+		                { text: "BAI", tag:"bai"},
 		                { text: "Expression", tag:"expression"}
 		            ] }
 		        ];

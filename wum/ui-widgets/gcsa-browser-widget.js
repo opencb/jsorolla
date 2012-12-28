@@ -105,11 +105,11 @@ GcsaBrowserWidget.prototype = {
 					if(data.fileType == "dir"){
 						var pathArr = data.oid.slice(0,-1).split("/");
 						data["expanded"]=true;
-						data["iconCls"]="icon-box";
+						data["icon"]=Compbio.images.dir;
 					}else{
 						var pathArr = data.oid.split("/");
 						data["leaf"]=true;
-						data["iconCls"]="icon-blue-box";
+						data["icon"]=Compbio.images.r;
 					}
 					//console.log(pathArr)
 
@@ -132,10 +132,9 @@ GcsaBrowserWidget.prototype = {
 						}
 					}
 				}
-				var folders2 = JSON.stringify(folders);
-				this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, iconCls:"icon-box", expanded:true, children:folders});
-				folders2 = JSON.parse(folders2);
-				this.allStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, iconCls:"icon-box", expanded:true, children:folders2});
+				var folders = JSON.stringify(folders);
+				this.allStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, icon:Compbio.images.box, expanded:true, children:JSON.parse(folders)});
+				this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, icon:Compbio.images.box, expanded:true, children:JSON.parse(folders)});
 			}
 		}
 		if(this.selectednodeOid!=null){ //devuelve el value y el field porque el bucket no tiene oid
@@ -458,8 +457,13 @@ GcsaBrowserWidget.prototype.render = function (mode){
 				}
 			},
 			columns: [
-				{ text: 'File type',  dataIndex: 'fileType', width:54 },
-				{ text: 'Name',  dataIndex: 'fileName', flex:1 },
+				{ text: 'File type', xtype: 'actioncolumn', menuDisabled: true, align: 'center', width:54, icon:Compbio.images.bluebox,
+					renderer: function(value, metaData, record){
+						this.icon = Compbio.images[record.data.fileType];
+						this.tooltip = record.data.fileType;
+					}
+				},
+				{ text: 'Name',  dataIndex: 'fileName', flex:2 },
 				{ text: 'Creation time', dataIndex: 'creationTime', flex:1 },
 				{ xtype: 'actioncolumn', menuDisabled: true, align: 'center', tooltip: 'Delete data!', width:30, icon: Compbio.images.del,
 					handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
@@ -629,7 +633,7 @@ GcsaBrowserWidget.prototype.drawUploadWidget = function (){
 	var _this = this;
 	var selectedBuckets = this.folderTree.getSelectionModel().getSelection();
 	if(selectedBuckets.length < 1 ){
-		Ext.MessageBox.alert('No bucket selected', 'Please select a bucket or a folder.');
+		Ext.example.msg('No folder selected', 'Please select a bucket or a folder.');
 	}else{
 		var record = selectedBuckets[0];
 		var bucketName;
@@ -653,7 +657,8 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 	}else{
 		var selectedBuckets = this.folderTree.getSelectionModel().getSelection();
 		if(selectedBuckets.length < 1 ){
-			Ext.MessageBox.alert('No bucket selected', 'Please select a bucket or a folder.');
+			Ext.example.msg('No folder selected', 'Please select a bucket or a folder.');
+			//Ext.MessageBox.alert('No bucket selected', 'Please select a bucket or a folder.');
 		}else{
 
 			var record = selectedBuckets[0];
