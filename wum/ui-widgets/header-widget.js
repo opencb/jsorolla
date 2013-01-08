@@ -192,7 +192,11 @@ HeaderWidget.prototype.render = function (){
 				this.homeLink="http://pathiways.bioinfo.cipf.es";
 				this.helpLink="http://bioinfo.cipf.es/pathiways";
 				this.tutorialLink="http://bioinfo.cipf.es/pathiways/tutorial";
-				this.aboutText = 'Pathiways!!!!!!!!!!!!!!!!!!!!!!!!!!';
+				this.aboutText = 'PATHiWAYS is built with open and free technologies like HTML5 and SVG inline, ' +
+                                'so no plug-in is needed in modern internet browsers<br><br>'+
+				'PATHiWAYS project has been developed in the <b>Computational Biology Unit</b>, at <b>Computational Medicine'+
+                                ' Institute</b> at CIPF in Valencia, Spain.<br><br>'+
+                                'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span>';
 				break;
 			default:
 				this.homeLink="http://docs.bioinfo.cipf.es";

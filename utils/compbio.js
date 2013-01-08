@@ -62,6 +62,9 @@ var Compbio = {
 	isString : function (s) {
 		return typeof(s) === 'string' || s instanceof String;
 	},
+	parseDate : function(strDate){
+		return strDate.substring(0,4)+" "+strDate.substring(4,6)+" "+strDate.substring(6,8)+", "+strDate.substring(8,10)+":"+strDate.substring(10,12)+":"+strDate.substring(12,14);
+	},
 	test : function(){
 		return this;
 	}

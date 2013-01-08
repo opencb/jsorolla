@@ -408,7 +408,7 @@ UploadWidget.prototype.uploadFile = function()  {
 	var _this=this;
 	Ext.getBody().mask('Uploading file...');
 	this.panel.disable();
-	
+
     var fd = new FormData();
     var inputFileName = null;
     if(this.originCheck.getValue()){
@@ -416,6 +416,7 @@ UploadWidget.prototype.uploadFile = function()  {
     	fd.append("file", this.editor.getValue());
     }else{
 		var inputFile = document.getElementById(Ext.getCmp(this.uploadFieldId).fileInputEl.id).files[0];
+        debugger
 		inputFileName = inputFile.name;
 	    fd.append("file", inputFile);
     }

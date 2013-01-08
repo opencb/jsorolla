@@ -168,6 +168,7 @@ ResultWidget.prototype.render = function (){
 				var groupId = this.jobId+key+"group";
 				var groupBox = Ext.create('Ext.container.Container', {
 					padding:"0 0 2 15",
+					width:(key.length*14),
 					//html:'<p class="s110 emph">'+i+'. <a href="#'+key+'">'+key+'</a></p>'
 					groupId:groupId,
 					html:'<span class="s110 emph">'+i+'. '+key+'</span>',
@@ -200,11 +201,11 @@ ResultWidget.prototype.render = function (){
 					padding:"60 15 5 15",
 					//html:'<p class="panel-border-bottom"><span class="s140 emph">'+i+'. <a name="'+key+'" href="#'+this.jobId+'top">'+key+'</a>'+
 						//' </span><span class="info" id="'+infoId+'"></span></p>',
-					html:'<p id="'+groupId+'" class="panel-border-bottom"><span class="s140 emph">'+i+'. '+key+''+
+					html:'<p id="'+groupId+'" class="panel-border-bottom"><span class="s140 emph">'+i+'. '+key+' &nbsp;&nbsp; &uarr;'+
 						' </span><span class="info" id="'+infoId+'"></span></p>',
 					listeners:{
 						afterrender:function(){
-							this.getEl().addClsOnOver("ssel u");
+							this.getEl().addClsOnOver("ssel");
 							this.getEl().addCls("dedo");
 							this.getEl().on("click",function(){
 								$(_this.panel.getEl().dom).children().scrollTop(0);
@@ -415,7 +416,7 @@ ResultWidget.prototype.showTypeInfo = function (item){
 		case 'IMAGE':
 				/*width="400" height="200" */
 			var filename = item.value.trim();
-			box.html =  '<div><img width="900" src="'+_this.adapter.pollurl($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), $.cookie('bioinfo_bucket'), _this.jobId,filename)+'"></div>';
+			box.html =  '<div><img src="'+_this.adapter.pollurl($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), $.cookie('bioinfo_bucket'), _this.jobId,filename)+'"></div>';
 			return box;
 		break;
 		default: return null;
