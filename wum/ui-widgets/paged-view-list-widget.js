@@ -214,7 +214,7 @@ PagedViewListWidget.prototype.render = function() {
 					    listeners : {
 					    	scope: this,
 					    	itemclick : function (este,record){
-					    		console.log("jobId: "+record.data.jobId+ "   dataId: "+record.data.dataId);
+							console.log(record.data);
 					    		this.onItemClick.notify(record);
 				    		}
 	//				    	itemmouseenter : function (este, record, item){

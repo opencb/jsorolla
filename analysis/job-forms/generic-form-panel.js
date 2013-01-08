@@ -105,6 +105,8 @@ GenericFormPanel.prototype.getRunButton = function() {
 	var _this = this;
 	return Ext.create('Ext.button.Button', {
 		text:'Run',
+		width:300,
+		height:35,
 		disabled:true,
 		formBind: true, // only enabled if the form is valid
 		handler: function (){
