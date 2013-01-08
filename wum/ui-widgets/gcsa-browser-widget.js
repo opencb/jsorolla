@@ -511,7 +511,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 	       			_this.onSelect.notify({id:item.raw.oid,bucketId:item.raw.bucketId});
 	       			_this.panel.close();
 	       	}
-		});  
+		});
 		/**MAIN PANEL**/
 //		this.height=205+(26*suites.length);//segun el numero de suites
 
