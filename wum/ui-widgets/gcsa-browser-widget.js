@@ -305,7 +305,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
                 listeners: {
                     selectionchange: function (este,item){
                         if(item.length>0){//se compr
-                            if(mode == "fileSelection" && node.raw.fileType=="dir"){
+                            if(mode == "fileSelection" && item[0].raw.fileType=="dir"){
                                 return;
                             }
                             _this.lastSelectedNode = item[0].raw;
