@@ -26,7 +26,7 @@ function GcsaBrowserWidget(args){
 		this.title = args.title || this.title;
 		this.width = args.width || this.width;
 		this.height = args.height || this.height;
-	};
+	}
     
     this.adapter = new GcsaManager();
 	this.adapter.onCreateBucket.addEventListener(function (sender, data){
@@ -60,7 +60,9 @@ GcsaBrowserWidget.prototype = {
 	width : 900,
 	height : 600,
 	rendered : false,
-	
+    selectedTreeNode:undefined,
+    lastSelectedNode:undefined,//can be set by the tree panel or the grid panel
+
 	/* Methods */
 	draw : function (mode){
 		//Ext.getBody().mask("Loading...");
@@ -102,14 +104,13 @@ GcsaBrowserWidget.prototype = {
 						data["oid"] = data.id;
 						delete data.id;
 					}
-					if(data.fileType == "dir"){
-						var pathArr = data.oid.slice(0,-1).split("/");
-						data["expanded"]=true;
-						data["icon"]=Compbio.images.dir;
-					}else{
-						var pathArr = data.oid.split("/");
-						data["leaf"]=true;
-						data["icon"]=Compbio.images.r;
+                    var pathArr = data.oid.split("/");
+                    if(data.fileType == "dir"){
+                        data["expanded"]=true;
+                        data["icon"]=Compbio.images.dir;
+                    }else{
+                        data["leaf"]=true;
+                        data["icon"]=Compbio.images.r;
 					}
 					//console.log(pathArr)
 
@@ -133,12 +134,12 @@ GcsaBrowserWidget.prototype = {
 					}
 				}
 				var folders = JSON.stringify(folders);
-				this.allStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, icon:Compbio.images.box, expanded:true, children:JSON.parse(folders)});
-				this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, icon:Compbio.images.box, expanded:true, children:JSON.parse(folders)});
+				this.allStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.box, expanded:true, children:JSON.parse(folders)});
+				this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.box, expanded:true, children:JSON.parse(folders)});
 			}
 		}
-		if(this.selectednodeOid!=null){ //devuelve el value y el field porque el bucket no tiene oid
-			var lastNode = this.allStore.getRootNode().findChild(this.selectednodeOid.field,this.selectednodeOid.value,true);
+		if(this.selectedTreeNode!=null){ //devuelve el value y el field porque el bucket no tiene oid
+			var lastNode = this.allStore.getRootNode().findChild(this.selectedTreeNode.field,this.selectedTreeNode.value,true);
 			if(lastNode!=null){
 				var childs = [];
 				lastNode.eachChild(function(n){
@@ -184,7 +185,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 			fields:['oid', 'fileBioType', 'fileType', 'fileFormat', 'fileName','multiple','diskUsage','creationTime','responsible','organization','date','description','status','statusMessage','members'],
 			data:[]
 		});
-		
+
 
 		this.folderTree = Ext.create('Ext.tree.Panel', {
 			//xtype:"treepanel",
@@ -210,48 +211,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 				dataIndex: 'text',
 				flex:1,
 				editor: {xtype: 'textfield',allowBlank: false}
-			}
-			//{
-				//xtype: 'actioncolumn',
-				//menuDisabled: true,
-				//align: 'center',
-				//tooltip: 'Edit',
-				//width:20,
-				//icon: Compbio.images.edit,
-				//handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-					//event.stopEvent();
-					//if(record.isLeaf()){
-						//var id = record.data.trackId;
-						//var track = _this.getTrackSvgById(id);
-						//if(track != null){
-							//var trackSettingsWidget = new TrackSettingsWidget({
-								//trackSvg:track,
-								//treeRecord:record
-							//});
-						//}
-					//}
-				//}
-			//},
-			//{
-				//xtype: 'actioncolumn',
-				//menuDisabled: true,
-				//align: 'center',
-				//tooltip: 'Remove',
-				//width:30,
-				//icon: Compbio.images.del,
-				//handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-					////this also fires itemclick event from tree panel
-					//if(record.isLeaf()){
-						//var id = record.data.trackId;
-						//var checked = record.data.checked;
-						//record.destroy();
-						//if(checked){
-							//_this.removeTrack(id);
-						//}
-					//}
-				//}
-			//}
-			],
+			}],
 			viewConfig: {
 				markDirty:false,
 				plugins: {
@@ -278,24 +238,18 @@ GcsaBrowserWidget.prototype.render = function (mode){
 					}
 					var node = _this.allStore.getRootNode().findChild(field, record.raw[field], deep);
 					var childs = [];
-					_this.selectednodeOid = {value:node.data[field],field:field};
+					_this.selectedTreeNode = {value:node.data[field],field:field};
 					node.eachChild(function(n){
 						childs.push(n.raw);
 					});
-					_this.filesGrid.setTitle(node.getPath("text"," / "));
-					_this.filesStore.loadData(childs);
+                    _this.filesGrid.setTitle(node.getPath("text"," / "));
+                    _this.filesStore.loadData(childs);
+                    if(mode == "folderSelection"){
+                        _this.lastSelectedNode = node.raw;
+                        _this.selectButton.enable();
+                    }
 				},
 				checkchange : function (node, checked){
-					var type = node.data.trackType;
-					var id = node.data.trackId;
-					if(checked){
-						var track = node.raw.track;
-						_this.restoreTrack(track, node.data.index);
-					}else{
-						var track = _this.removeTrack(id);
-						//save trackSvg pointer
-						node.raw.track = track;
-					}
 				},
 				itemmouseenter : function (este,record){
 				},
@@ -304,102 +258,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 			},
 			store: this.folderStore
 		});
-/*******************/
-/*******************/
-/*******************/
-/*******************/
-/*******************/
-/*******************/
-		/**ORIGIN FILTER**/
-		//var origins = [{ suiteId: "all",name:"all"},{ suiteId: "Uploaded Data",name:"Uploaded Data"},{ suiteId: "Job Generated",name:"Job Generated"}];
-		//
-	 	//var stOrigin = Ext.create('Ext.data.Store', {
-	 		//fields: ["suiteId","name"],
-	 		//data : origins
-		//});
-		//this.viewOrigin = Ext.create('Ext.view.View', {
-		    //store : stOrigin,
-            //selModel: {
-                //mode: 'SINGLE',
-               // allowDeselect:true,
-                //listeners: {
-                    //selectionchange:function(){_this.setFilter();}
-                //}
-            //},
-            //cls: 'list',
-         	//trackOver: true,
-            //overItemCls: 'list-item-hover',
-            //itemSelector: '.list-item',
-            //tpl: '<tpl for="."><div class="list-item">{name}</div></tpl>'
-        //});
-        //
-        //var panOrigin = Ext.create('Ext.panel.Panel', {
-        	//title:'Search by origin',
-        	//border:0,
-        	//bodyPadding:5,
-        	//style: 'border-bottom:1px solid #99bce8;',
-		    //items : [this.viewOrigin]
-		//});
-        
-		
-        /**SUITE FILTER**/
-		//var parsedSuites = JSON.parse(this.suiteList);
-		//var suites = [{name:"bam"},{name:"vcf"},{name:"gff"},{name:"gtf"},{name:"bed"}];
-		// remove not available suites
-		//for(var i = 0; i < parsedSuites.length; i++) {
-			//if(this.notAvailableSuiteList.indexOf(parsedSuites[i].name)==-1){ // es que esta para quitar
-				//suites.push(parsedSuites[i]);
-			//}
-		//}
-		
-        //var stSuite = Ext.create('Ext.data.Store', {
-	 		//fields: ["suiteId","name","description"],
-	 		//data : suites
-		//});
-		
-		//this.viewSuite = Ext.create('Ext.view.View', {
-		    //store : stSuite,
-            //selModel: {
-                //mode: 'SINGLE',
-                ////allowDeselect:true,
-                //listeners: {
-                	//selectionchange:function(){_this.setFilter();}
-                //}
-            //},
-            //cls: 'list',
-         	//trackOver: true,
-            //overItemCls: 'list-item-hover',
-            //itemSelector: '.list-item',
-            //tpl: '<tpl for="."><div class="list-item">{name}</div></tpl>'
-        //});
-         //
-        //var panSuite = Ext.create('Ext.panel.Panel', {
-        	//title:'Search by suite',
-        	//border:0,
-        	//bodyPadding:5,
-		    //items : [this.viewSuite]
-		//});
 
-		
-		/**TEXT SEARCH FILTER**/
-        //this.searchField = Ext.create('Ext.form.field.Text',{
-        	 //id:this.searchFieldId,
-	         //flex:1,
-			 //emptyText: 'enter search term',
-			 //enableKeyEvents:true,
-			 //listeners:{
-			 	//scope:this,
-			 	//change:this.setFilter
-			 //}
-        //});
-        
-        /**FILTER PANEL**/
-         //var panFilter = Ext.create('Ext.panel.Panel', {
-			//title:"Filtering",
-		    //border:false,
-		    //items : [panOrigin,panSuite],
-		    //tbar : {items:this.searchField}
-		//});
 
 		/*MANAGE BUCKETS*/
 		var newProjectButton = Ext.create('Ext.button.Button',{
@@ -444,14 +303,17 @@ GcsaBrowserWidget.prototype.render = function (mode){
                 mode: 'SINGLE',
                 //allowDeselect:true,
                 listeners: {
-                	scope:this,
                     selectionchange: function (este,item){
-						if(item.length>0){//se compr
-							this.selectButton.enable();
+                        if(item.length>0){//se compr
+                            if(mode == "fileSelection" && node.raw.fileType=="dir"){
+                                return;
+                            }
+                            _this.lastSelectedNode = item[0].raw;
+                            _this.selectButton.enable();
 							//this.selectedLabel.setText('<p>The selected file <span class="emph">'+item[0].data.fileName.substr(0,40)+'</span><span class="ok"> is allowed</span>.</p>',false);
 							//TODO por defecto cojo el primero pero que pasa si el data contiene varios ficheros??
 						}else{
-							this.selectButton.disable();
+							_this.selectButton.disable();
 						}
 					}
 				}
@@ -508,22 +370,34 @@ GcsaBrowserWidget.prototype.render = function (mode){
 			 text: 'Ok',
 			 disabled:true,
 			 handler: function(){
-	       			var item = _this.filesGrid.getSelectionModel().getSelection()[0];
+//	       			var item = _this.filesGrid.getSelectionModel().getSelection()[0];
+//                    var lastNode = _this.allStore.getRootNode().findChild(_this.selectedTreeNode.field,_this.selectedTreeNode.value,true);
 	       			//if(_this.retrieveData==true){
 	       				//_this.adapter.readData($.cookie('bioinfo_sid'),item.data.dataFiles[0].dataId,item.data.dataFiles[0].filename);	       				
 	       			//}
-	       			_this.onSelect.notify({id:item.raw.oid,bucketId:item.raw.bucketId});
-	       			_this.panel.close();
+                debugger
+                 _this.onSelect.notify({id:_this.lastSelectedNode.oid,bucketId: _this.lastSelectedNode.bucketId});
+
+                _this.panel.close();
 	       	}
 		});  
 		/**MAIN PANEL**/
 //		this.height=205+(26*suites.length);//segun el numero de suites
 
-		var tbarObj = {items:[
-			{text:'Upload object',handler:function(){_this.drawUploadWidget();}}
-		]};
+		var tbarObj = {items:[]};
 		switch(mode){
-			case "full" : var item;
+            case "folderSelection" : var item;
+                item = {text:'New folder',handler:function(){_this.folderTree.expand();_this.createFolder();}};
+                tbarObj.items.splice(0, 0, item);
+                item = {text:'New bucket',handler:function(){manageProjects.expand();}};
+                tbarObj.items.splice(0, 0, item);
+
+                this.filesStore.filter("fileType", /dir/);
+
+                break;
+			default : var item;
+                item = {text:'Upload object',handler:function(){_this.drawUploadWidget();}};
+                tbarObj.items.splice(0, 0, item);
 				item = {text:'New folder',handler:function(){_this.folderTree.expand();_this.createFolder();}};
 				tbarObj.items.splice(0, 0, item);
 				item = {text:'New bucket',handler:function(){manageProjects.expand();}};

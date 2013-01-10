@@ -36,7 +36,7 @@ function JobListWidget (args){
 											'<tpl if="visites == -1">red</tpl>'+
 											'<tpl if="visites == -2">Darkorange</tpl>'+
 											'">{name}</p>',
-						'<p style="color: #15428B"><i>{creationTime}</i></p>',
+						'<p style="color: #15428B"><i>{date}</i></p>',
 						'<p style="color:steelblue"><i>- {toolName} -</i></p>',
 						'<p style="color:grey"><i>',
 //						'<tpl if="visites == 0">finished and unvisited</tpl>',
@@ -52,7 +52,7 @@ function JobListWidget (args){
 					'</tpl>'
 					];
 
-	var	jobsfields = ['commandLine','creationTime','description','diskUsage','finishTime','inputData','jobId','message','name','outputData','ownerId','percentage','projectId','toolName','visites'];
+	var	jobsfields = ['commandLine','date','description','diskUsage','finishTime','inputData','jobId','message','name','outputData','ownerId','percentage','projectId','toolName','visites'];
 
 	this.pagedViewList.storeFields = jobsfields;
 	this.pagedViewList.template = jobstpl;
@@ -194,7 +194,7 @@ JobListWidget.prototype.setAccountData = function (data){
 	var jobs = [];
 	for ( var i = 0; i < this.accountData.jobs.length; i++) {
 		if(this.tools.indexOf(this.accountData.jobs[i].toolName) != -1){
-			this.accountData.jobs[i].creationTime = Compbio.parseDate(this.accountData.jobs[i].creationTime);
+			this.accountData.jobs[i].date = Compbio.parseDate(this.accountData.jobs[i].date);
 			jobs.push(this.accountData.jobs[i]);
 		}
 	}

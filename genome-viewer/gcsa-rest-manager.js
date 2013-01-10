@@ -111,7 +111,6 @@ GcsaRestManager.prototype.register = function(accountId, email, name, password, 
 	function success(data){
 		_this.onRegister.notify(data);
 	}
-	
 	function error(data){
 		console.log("ERROR: " + data);
 	}
