@@ -155,7 +155,7 @@ ResultWidget.prototype.render = function (){
 			var info = Ext.create('Ext.container.Container', {
 				margin: "15 0 5 15",
 				html:'<p >The job named <span class="info">'+this.record.data.name+' </span>'+
-				'was launched on <span class="err">'+this.record.data.creationTime+' </span>'+
+				'was launched on <span class="err">'+this.record.data.date+' </span>'+
 				//'and has been visited <span class="dis">'+this.record.data.visites+' times</span></p>'+
 				//'You can download the job results by pressing the <b>download</b> button.'
 				'<br>'
@@ -165,7 +165,7 @@ ResultWidget.prototype.render = function (){
 			//Solo grupos juntos al principio
 			var i=1;
 			for (key in obj){
-				var groupId = this.jobId+key+"group";
+				var groupId = this.jobId+key.replace(/\s/g, '_')+"group";
 				var groupBox = Ext.create('Ext.container.Container', {
 					padding:"0 0 2 15",
 					width:(key.length*14),
@@ -194,7 +194,7 @@ ResultWidget.prototype.render = function (){
 			for (key in obj){
 				//Grupo
 				var infoId = (this.jobId+key+"info").replace(/ /gi, "");
-				var groupId = this.jobId+key+"group";
+				var groupId = this.jobId+key.replace(/\s/g, '_')+"group";
 				var groupBox = Ext.create('Ext.container.Container', {
 					infoId:infoId,
 					groupName:key,

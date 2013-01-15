@@ -375,7 +375,6 @@ GcsaBrowserWidget.prototype.render = function (mode){
 	       			//if(_this.retrieveData==true){
 	       				//_this.adapter.readData($.cookie('bioinfo_sid'),item.data.dataFiles[0].dataId,item.data.dataFiles[0].filename);	       				
 	       			//}
-                debugger
                  _this.onSelect.notify({id:_this.lastSelectedNode.oid,bucketId: _this.lastSelectedNode.bucketId});
 
                 _this.panel.close();

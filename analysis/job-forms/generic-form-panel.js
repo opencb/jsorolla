@@ -171,7 +171,7 @@ GenericFormPanel.prototype.createGcsaBrowserCmp = function(fieldLabel, dataParam
         handler: function () {
         	_this.gcsaBrowserWidget.draw(mode);
         	var listenerIdx = _this.gcsaBrowserWidget.onSelect.addEventListener(function(sender, response){
-        		_this.paramsWS[dataParamName] = response.bucketId+':'+response.id;
+        		_this.paramsWS[dataParamName] = response.bucketId+':'+response.id.replace(/\//g,":");
         		fileSelectedLabel.setText('<span class="emph">'+response.bucketId+'/'+response.id+'</span>', false);
         		_this.gcsaBrowserWidget.onSelect.removeEventListener(listenerIdx);
         	});
