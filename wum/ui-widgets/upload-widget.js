@@ -35,7 +35,7 @@ function UploadWidget (args){
     }
 	
 	this.adapter = new GcsaManager();
-	this.adapter.onUploadDataToProject.addEventListener(function(sender,res){
+	this.adapter.onUploadObjectToBucket.addEventListener(function(sender,res){
 		if(res.status == 'done'){
 			_this.uploadComplete(res.data);
 		}else if (res.status == 'fail'){
@@ -47,7 +47,7 @@ function UploadWidget (args){
 	this.uploadFieldId = this.id+'_uploadField';
 	
 	this.selectedDataType = null;
-};
+}
 
 //UploadWidget.prototype.getsdf = function(){
 //	return this.id+'_uploadButton';
@@ -416,24 +416,44 @@ UploadWidget.prototype.uploadFile = function()  {
     	fd.append("file", this.editor.getValue());
     }else{
 		var inputFile = document.getElementById(Ext.getCmp(this.uploadFieldId).fileInputEl.id).files[0];
-        debugger
 		inputFileName = inputFile.name;
 	    fd.append("file", inputFile);
     }
     var sessionId = $.cookie('bioinfo_sid');
-    
+    var objectId = this.gcsaLocation.directory+inputFileName;
+    objectId = objectId.replace(new RegExp("/", "gi"),":");
+
    	fd.append("name", this.nameField.getValue()); 
    	fd.append("tags", this.selectedDataType);//TODO mirar bien los tags
    	fd.append("responsible", this.responsableField.getValue());
    	fd.append("organization", this.organizationField.getValue());
    	fd.append("date", this.acquisitiondate.getValue());
    	fd.append("description", this.textArea.getValue());
+   	fd.append("objectid", objectId);
    	fd.append("sessionid", sessionId);
 
-   	var objectname = this.gcsaLocation.directory+inputFileName;
 	//accountid, sessionId, projectname, formData
-	this.adapter.uploadDataToProject($.cookie("bioinfo_account"), sessionId, this.gcsaLocation.bucketId , objectname, fd);
+	this.adapter.uploadObjectToBucket($.cookie("bioinfo_account"), sessionId, this.gcsaLocation.bucketId, fd);
 	
+};
+
+UploadWidget.prototype.uploadFile2 = function()  {
+	var _this=this;
+	Ext.getBody().mask('Uploading file...');
+	this.panel.disable();
+
+    var inputFile = document.getElementById(Ext.getCmp(this.uploadFieldId).fileInputEl.id).files[0];
+    var inputFiles = [inputFile];
+
+    var fileuploadWorker = new Worker(WORKERS_PATH+'worker-fileupload.js');
+    fileuploadWorker.onmessage = function(e) {
+        _this.uploadComplete("done");
+        console.log("@@@@@@@@@@@@@@@@ WORKER event message");
+        console.log(e);
+    };
+    fileuploadWorker.postMessage({
+        'files' : inputFiles
+    });
 };
 
 UploadWidget.prototype.uploadProgress = function(evt)  {

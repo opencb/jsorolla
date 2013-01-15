@@ -54,7 +54,7 @@ function LoginWidget (suiteId, args){
 			$.cookie('bioinfo_account', null, {path: '/'});
 		}
 	});
-	this.adapter.onRegister.addEventListener(function (sender, data){
+	this.adapter.onCreateAccount.addEventListener(function (sender, data){
 		_this.panel.setLoading(false);
 //		console.log(data.length);
 		data = data.replace(/^\s+|\s+$/g, '');
@@ -126,7 +126,7 @@ LoginWidget.prototype.sign = function (){
 };
 LoginWidget.prototype.register = function (){ 
 	if(this.checkAccountId()  && this.checkemail() && this.checkName() && this.checkpass()){
-		this.adapter.register(this.getLogin(), this.getEmail(), this.getAccountName(),this.getPasswordReg(), this.suiteId );
+		this.adapter.createAccount(this.getLogin(), this.getEmail(), this.getAccountName(),this.getPasswordReg(), this.suiteId );
 		//$.cookie('bioinfo_account',this.getLogin());
 		 //$.cookie('bioinfo_bucket', 'default' /*,{path: '/'}*/);
 	}else{

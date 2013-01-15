@@ -132,7 +132,7 @@ function JobListWidget (args){
 	Ext.getCmp(this.btnRunningId).on('click', this.filter, this);
 	Ext.getCmp(this.btnQueuedId).on('click', this.filter, this);
 	
-	this.allData = new Array();
+	this.allData = [];
 	
 	//this.adapter = new WumAdapter();
 	//this.adapter.onListProject.addEventListener(function (sender, data){
@@ -154,7 +154,7 @@ function JobListWidget (args){
 			for ( var i = 0; i < _this.accountData.jobs.length; i++) {
 				if(_this.tools.indexOf(_this.accountData.jobs[i].toolName) != -1){
 					if(_this.accountData.jobs[i].visites<0){
-						gcsaManager.jobStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), "noneedbucket", _this.accountData.jobs[i].id);
+						gcsaManager.jobStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), _this.accountData.jobs[i].id);
 					}
 				}
 			}

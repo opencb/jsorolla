@@ -387,7 +387,7 @@ HeaderWidget.prototype._getMenubarItems = function (){
 			iconCls: 'icon-project-manager',
 			disabled: true,
 			handler: function() {
-				_this.gcsaBrowserWidget.draw("full");
+				_this.gcsaBrowserWidget.draw("manager");
 			}
 	});
 	

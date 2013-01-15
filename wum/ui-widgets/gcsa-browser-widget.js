@@ -41,7 +41,7 @@ function GcsaBrowserWidget(args){
 
 	this.uploadWidget = new UploadWidget({suiteId:args.suiteId});
     
-    this.uploadWidget.adapter.onUploadDataToProject.addEventListener(function(sender,res){
+    this.uploadWidget.adapter.onUploadObjectToBucket.addEventListener(function(sender,res){
 		if(res.status == 'done'){
 			_this.onNeedRefresh.notify();
 		}
@@ -100,6 +100,7 @@ GcsaBrowserWidget.prototype = {
 					var data = this.accountData.buckets[i].objects[j];
 					data["bucketId"]=this.accountData.buckets[i].id;
 					//sencha uses id so need to rename to oid, update: sencha can use id but dosent like char '/' on the id string
+
 					if(data.id != null){
 						data["oid"] = data.id;
 						delete data.id;
@@ -134,8 +135,8 @@ GcsaBrowserWidget.prototype = {
 					}
 				}
 				var folders = JSON.stringify(folders);
-				this.allStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.box, expanded:true, children:JSON.parse(folders)});
-				this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.box, expanded:true, children:JSON.parse(folders)});
+				this.allStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.bucket, expanded:true, children:JSON.parse(folders)});
+				this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.bucket, expanded:true, children:JSON.parse(folders)});
 			}
 		}
 		if(this.selectedTreeNode!=null){ //devuelve el value y el field porque el bucket no tiene oid
@@ -242,6 +243,8 @@ GcsaBrowserWidget.prototype.render = function (mode){
 					node.eachChild(function(n){
 						childs.push(n.raw);
 					});
+
+//                    debugger//check item click
                     _this.filesGrid.setTitle(node.getPath("text"," / "));
                     _this.filesStore.loadData(childs);
                     if(mode == "folderSelection"){
@@ -335,7 +338,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 								if(answer == "yes"){
 									console.log("deleting")
 									var gcsaManager = new GcsaManager();
-									gcsaManager.onDeleteDataFromProject.addEventListener(function (sender, response){
+									gcsaManager.onDeleteObjectFromBucket.addEventListener(function (sender, response){
 										if (response.indexOf("ERROR:") != -1){
 											Ext.example.msg("Deleting",response);
 										}else{
@@ -344,7 +347,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 											_this.onNeedRefresh.notify();
 										}
 									});
-									gcsaManager.deleteDataFromProject($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), $.cookie('bioinfo_bucket'), record.data.oid);
+									gcsaManager.deleteObjectFromBucket($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), $.cookie('bioinfo_bucket'), record.data.oid);
 								}
 							});
 						}
@@ -353,7 +356,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 			]
 		});
 		/**/
-		
+
 		var panAccordion = Ext.create('Ext.panel.Panel', {
 			minWidth: 125,
 		    minHeight : 370,
@@ -364,23 +367,15 @@ GcsaBrowserWidget.prototype.render = function (mode){
 		    items : [this.folderTree, manageProjects /*, panFilter*/]
 		});
 
-
-
-		this.selectButton = Ext.create('Ext.button.Button', {
+        this.selectButton = Ext.create('Ext.button.Button', {
 			 text: 'Ok',
 			 disabled:true,
 			 handler: function(){
-//	       			var item = _this.filesGrid.getSelectionModel().getSelection()[0];
-//                    var lastNode = _this.allStore.getRootNode().findChild(_this.selectedTreeNode.field,_this.selectedTreeNode.value,true);
-	       			//if(_this.retrieveData==true){
-	       				//_this.adapter.readData($.cookie('bioinfo_sid'),item.data.dataFiles[0].dataId,item.data.dataFiles[0].filename);	       				
-	       			//}
-                debugger
                  _this.onSelect.notify({id:_this.lastSelectedNode.oid,bucketId: _this.lastSelectedNode.bucketId});
-
                 _this.panel.close();
 	       	}
 		});
+
 		/**MAIN PANEL**/
 //		this.height=205+(26*suites.length);//segun el numero de suites
 
@@ -391,10 +386,17 @@ GcsaBrowserWidget.prototype.render = function (mode){
                 tbarObj.items.splice(0, 0, item);
                 item = {text:'New bucket',handler:function(){manageProjects.expand();}};
                 tbarObj.items.splice(0, 0, item);
-
                 this.filesStore.filter("fileType", /dir/);
-
-                break;
+            break;
+            case "manager" : var item;
+                item = {text:'Upload object',handler:function(){_this.drawUploadWidget();}};
+                tbarObj.items.splice(0, 0, item);
+                item = {text:'New folder',handler:function(){_this.folderTree.expand();_this.createFolder();}};
+                tbarObj.items.splice(0, 0, item);
+                item = {text:'New bucket',handler:function(){manageProjects.expand();}};
+                tbarObj.items.splice(0, 0, item);
+                this.selectButton.hide();
+            break;
 			default : var item;
                 item = {text:'Upload object',handler:function(){_this.drawUploadWidget();}};
                 tbarObj.items.splice(0, 0, item);
@@ -537,7 +539,7 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 
 			var record = selectedBuckets[0];
 			var bucketName;
-			var parent = "";
+			var parent = '';
 			if(record.raw.fileType != null && record.raw.fileType == "dir"){
 				var path = record.getPath("text","/").substr(1);
 				var pathArr =  path.split("/",2);
@@ -546,7 +548,7 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 			}else{
 				bucketName = record.raw.text;
 			}
-			
+
 			Ext.Msg.prompt('New folder', 'Please enter a name for the new folder:', function(btn, text){
 				if (btn == 'ok'){
 					text = text.replace(/[^a-z0-9\s-_.]/gi,'');
