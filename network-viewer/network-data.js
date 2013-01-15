@@ -123,10 +123,14 @@ NetworkData.prototype.removeEdge = function(edgeId) {
 NetworkData.prototype.clearNetwork = function() {
 	this.nodes = {};
 	this.edges = {};
+	this.subgraphs = {};
+	
 	this.nodeId = 0;
 	this.edgeId = 0;
 	this.metaInfo.numNodes = 0;
 	this.metaInfo.numEdges = 0;
+	
+	this.nodeNames = {};
 };
 
 NetworkData.prototype.loadJSON = function(jsonStr) {

@@ -469,6 +469,7 @@ GcsaRestManager.prototype = {
     getAnalysisUrl : function(accountId, analysis){return this.getAccountUrl(accountId)+'/analysis/'+analysis;},
     runAnalysis : function(analysis, paramsWS){
         var _this=this;
+        var accountId = paramsWS.accountid;
 
         var url = this.getAnalysisUrl(accountId, analysis)+'/run';
         console.log(url);
