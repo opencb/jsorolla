@@ -125,7 +125,7 @@ ResultTable.prototype.render = function (){
 		//accountId, sessionId, bucketname, jobId, filename, colNames, colVisibilty, sessionId
 		//var url = this.adapter.tableurl(this.jobId,this.fileName,this.colNames,this.colVisibilty,$.cookie('bioinfo_sid'));
 
-		var url = this.adapter.tableurl($.cookie("bioinfo_account"),$.cookie('bioinfo_sid'),$.cookie("bioinfo_bucket"),this.jobId,this.fileName,this.colNames,this.colVisibilty);
+		var url = this.adapter.tableurl($.cookie("bioinfo_account"),$.cookie('bioinfo_sid'),this.jobId,this.fileName,this.colNames,this.colVisibilty);
 		console.log(url);
 		
 		/*

@@ -27,7 +27,7 @@ function GcsaManager(){
 	/*account management*/
 	this.onGetAccountInfo = this.manager.onGetAccountInfo;
 	this.onLogin = this.manager.onLogin;
-	this.onRegister = this.manager.onRegister;
+	this.onCreateAccount = this.manager.onCreateAccount;
 	this.onResetPassword = this.manager.onResetPassword;
 	this.onChangePassword = this.manager.onChangePassword;
 	this.onChangeEmail = this.manager.onChangeEmail;
@@ -36,8 +36,8 @@ function GcsaManager(){
 
 	/*bucket management*/
 	this.onCreateBucket = this.manager.onCreateBucket;
-	this.onUploadDataToProject = this.manager.onUploadDataToProject;
-	this.onDeleteDataFromProject = this.manager.onDeleteDataFromProject;
+	this.onUploadObjectToBucket = this.manager.onUploadObjectToBucket;
+	this.onDeleteObjectFromBucket = this.manager.onDeleteObjectFromBucket;
 	this.onCreateDirectory = this.manager.onCreateDirectory;
 	/**/
 

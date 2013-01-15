@@ -94,7 +94,7 @@ ResultWidget.prototype.draw = function (sid, record){
 			
 			//this.adapter.jobResult(this.jobId, "json", sid);
 			//accountId, sessionId, bucketname, jobId, format
-			this.adapter.jobResult($.cookie("bioinfo_account"), sid, $.cookie("bioinfo_bucket"), this.jobId, "json");
+			this.adapter.jobResult($.cookie("bioinfo_account"), sid, this.jobId, "json");
 			//this.adapter.jobResult(this.jobId, "json", sid);
 		}else{
 //			this.panel.setLoading(false);
@@ -397,7 +397,7 @@ ResultWidget.prototype.showInfo = function (item){
 	    			this.getEl().on("click",function(){
 	    				console.log(datos);
 	    				var value = datos.value.trim();
-		    			_this.adapter.poll($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'),$.cookie('bioinfo_bucket'), _this.jobId, value, true);
+		    			_this.adapter.poll($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), _this.jobId, value, true);
 	    			});
 	    		}
 			}
@@ -416,7 +416,7 @@ ResultWidget.prototype.showTypeInfo = function (item){
 		case 'IMAGE':
 				/*width="400" height="200" */
 			var filename = item.value.trim();
-			box.html =  '<div><img src="'+_this.adapter.pollurl($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), $.cookie('bioinfo_bucket'), _this.jobId,filename)+'"></div>';
+			box.html =  '<div><img src="'+_this.adapter.pollurl($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), _this.jobId,filename)+'"></div>';
 			return box;
 		break;
 		default: return null;
@@ -502,7 +502,7 @@ ResultWidget.prototype.drawHistograms = function (){
 		});
 		
 		//adapterPoll.poll(this.jobId,this.resultHistograms[id],false,$.cookie('bioinfo_sid'));
-		adapterPoll.poll($.cookie("bioinfo_account"), $.cookie('bioinfo_sid'), $.cookie("bioinfo_bucket"), this.jobId, this.resultHistograms[id], false);
+		adapterPoll.poll($.cookie("bioinfo_account"), $.cookie('bioinfo_sid'), this.jobId, this.resultHistograms[id], false);
 	}	
 };
 ResultWidget.prototype.drawGCharts = function (){
@@ -613,7 +613,7 @@ ResultWidget.prototype.createGenomeViewer = function (targetId){
 	
 //	console.log(this.filteredVcfFile)
 	if(this.filteredVcfFile != null){
-		adapter.poll($.cookie("bioinfo_account"), $.cookie('bioinfo_sid'), $.cookie("bioinfo_bucket"), _this.jobId, this.filteredVcfFile, false);
+		adapter.poll($.cookie("bioinfo_account"), $.cookie('bioinfo_sid'), _this.jobId, this.filteredVcfFile, false);
 		//adapter.poll(_this.jobId, this.filteredVcfFile, false, $.cookie('bioinfo_sid'));
 	}else{
 		console.log("No filtered VCF file.");
