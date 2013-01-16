@@ -54,7 +54,7 @@ function HeaderWidget(args){
 	/** create widgets **/
 	this.loginWidget= new LoginWidget(this.args.suiteId);
 	this.userBarWidget = new UserBarWidget();
-	this.editUserWidget = new EditUserWidget();
+	this.editUserWidget = new ProfileWidget();
 	this.uploadWidget = new UploadWidget({suiteId:this.args.suiteId});
 	this.projectManager = new ManageProjectsWidget({width:800,height:500,suiteId:this.args.suiteId});
 	

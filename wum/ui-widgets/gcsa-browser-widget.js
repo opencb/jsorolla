@@ -48,7 +48,7 @@ function GcsaBrowserWidget(args){
 	});
 	/**ID**/
 	this.searchFieldId = this.id + "_searchField";
-};
+}
 
 GcsaBrowserWidget.prototype = {
 	/* Default properties */
@@ -80,7 +80,7 @@ GcsaBrowserWidget.prototype = {
 	
 	_updateFolderTree : function (){
 		var _this=this;
-		console.log("updating folder tree")
+		console.log("updating folder tree");
 		var find = function(str, arr){
 			for ( var i = 0; i< arr.length; i++){
 				if(arr[i].text == str){
@@ -134,9 +134,9 @@ GcsaBrowserWidget.prototype = {
 						}
 					}
 				}
-				var folders = JSON.stringify(folders);
-				this.allStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.bucket, expanded:true, children:JSON.parse(folders)});
-				this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.bucket, expanded:true, children:JSON.parse(folders)});
+				folders = JSON.stringify(folders);
+				this.allStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.bucket, expanded:true, isBucket:true, children:JSON.parse(folders)});
+				this.folderStore.getRootNode().appendChild({text:this.accountData.buckets[i].name, bucketId:this.accountData.buckets[i].name, oid:"", icon:Compbio.images.bucket, expanded:true, isBucket:true, children:JSON.parse(folders)});
 			}
 		}
 		if(this.selectedTreeNode!=null){ //devuelve el value y el field porque el bucket no tiene oid
@@ -169,7 +169,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 				beforeappend:function(este, node){
 					if(node.isLeaf()){
 						console.log(node.raw.oid+ " is a file" );
-						return false //cancel append because is leaf
+						return false; //cancel append because is leaf
 					}
 				}
 			}
@@ -232,7 +232,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 			listeners : {
 				itemclick : function (este, record, item, index, e, eOpts){
 					var field, deep;
-					if(record.raw.oid == null){//is a bucket
+					if(record.raw.isBucket != null){//is a bucket
 						field = 'text'; deep = false;
 					}else{
 						field = 'oid'; deep = true;
@@ -243,8 +243,6 @@ GcsaBrowserWidget.prototype.render = function (mode){
 					node.eachChild(function(n){
 						childs.push(n.raw);
 					});
-
-//                    debugger//check item click
                     _this.filesGrid.setTitle(node.getPath("text"," / "));
                     _this.filesStore.loadData(childs);
                     if(mode == "folderSelection"){
@@ -267,7 +265,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 		var newProjectButton = Ext.create('Ext.button.Button',{
         	text : 'OK',
         	handler : function() {
-        		_this.createProject("newProject");
+        		_this.createProject();
         		_this.folderTree.toggleCollapse();
         		//manageProjects.toggleCollapse();
         	}
@@ -517,7 +515,7 @@ GcsaBrowserWidget.prototype.drawUploadWidget = function (){
 		if(record.raw.fileType != null && record.raw.fileType == "dir"){
 			var path = record.getPath("text","/").substr(1);
 			var pathArr =  path.split("/",2);
-			var parent = path.replace(pathArr.join("/"),"").substr(1)+"/";
+			parent = path.replace(pathArr.join("/"),"").substr(1)+"/";
 			bucketName = pathArr[1];
 		}else{
 			bucketName = record.raw.text;
@@ -543,7 +541,7 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 			if(record.raw.fileType != null && record.raw.fileType == "dir"){
 				var path = record.getPath("text","/").substr(1);
 				var pathArr =  path.split("/",2);
-				var parent = path.replace(pathArr.join("/"),"").substr(1)+"/";
+				parent = path.replace(pathArr.join("/"),"").substr(1)+"/";
 				bucketName = pathArr[1];
 			}else{
 				bucketName = record.raw.text;
@@ -551,7 +549,7 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 
 			Ext.Msg.prompt('New folder', 'Please enter a name for the new folder:', function(btn, text){
 				if (btn == 'ok'){
-					text = text.replace(/[^a-z0-9\s-_.]/gi,'');
+					text = text.replace(/[^a-z0-9-_.\s]/gi,'');
 					text = text.trim()+"/";
 					var gcsaManager = new GcsaManager();
 					gcsaManager.onCreateDirectory.addEventListener(function(sender,res){

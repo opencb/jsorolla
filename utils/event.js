@@ -29,7 +29,7 @@
 function Event(sender) {
     this._sender = sender;
     this._listeners = [];
-};
+}
 
  
 Event.prototype = {

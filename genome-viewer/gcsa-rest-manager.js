@@ -177,9 +177,10 @@ GcsaRestManager.prototype = {
     //	console.log(url);
     },
     getAccountInfo : function(accountId, sessionId, lastActivity){
+        console.log(lastActivity)
         var _this=this;
         var queryParams = {
-            'lastActivity':lastActivity,
+            'last_activity':lastActivity,
             'sessionid':sessionId
         };
         var url =  this.getAccountUrl(accountId)+'/info'+this.getQuery(queryParams);
@@ -339,6 +340,7 @@ GcsaRestManager.prototype = {
     //	console.log(url);
     },
     region : function(accountId, sessionId, bucketId, objectId, region, queryParams){
+        objectId = objectId.replace(new RegExp("/", "gi"),":");
         var _this=this;
         queryParams["sessionid"] = sessionId;
         queryParams["region"] = region;

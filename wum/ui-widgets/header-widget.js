@@ -27,7 +27,7 @@ function HeaderWidget(args){
 	this.height = 67;
 //	this.menubar=null;
 	
-	this.args = new Object();
+	this.args = {};
 	this.args.appname="My new App";
 	this.args.description="My app description";
 	this.args.suiteId=-1;
@@ -57,7 +57,7 @@ function HeaderWidget(args){
 	/** create widgets **/
 	this.loginWidget= new LoginWidget(this.args.suiteId);
 	this.userBarWidget = new UserBarWidget();
-	this.editUserWidget = new EditUserWidget();
+	this.editUserWidget = new ProfileWidget();
 	this.uploadWidget = new UploadWidget({suiteId:this.args.suiteId});
 	this.projectManager = new ManageProjectsWidget({width:800,height:500,suiteId:this.args.suiteId});
 	this.gcsaBrowserWidget = new GcsaBrowserWidget(this.args);
@@ -306,7 +306,7 @@ HeaderWidget.prototype.render = function (){
 
 		this.btnEdit = Ext.create('Ext.Button', {
 			id :this.id+"btnEdit",
-	        text: '<span class="emph">edit</span>',
+	        text: '<span class="emph">profile</span>',
 	        scope:this,
 	        listeners: {
 			       scope: this,
