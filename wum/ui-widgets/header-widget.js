@@ -7,7 +7,7 @@
  *
  * JS Common Libs is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
  * JS Common Libs is distributed in the hope that it will be useful,
@@ -58,7 +58,7 @@ function HeaderWidget(args){
 	this.loginWidget= new LoginWidget(this.args.suiteId);
 	this.userBarWidget = new UserBarWidget();
 	this.editUserWidget = new ProfileWidget();
-	this.uploadWidget = new UploadWidget({suiteId:this.args.suiteId});
+	this.uploadWidget = new UploadWidget({suiteId:this.args.suiteId});//used now from gcsa-browser
 	this.projectManager = new ManageProjectsWidget({width:800,height:500,suiteId:this.args.suiteId});
 	this.gcsaBrowserWidget = new GcsaBrowserWidget(this.args);
 	
@@ -74,7 +74,6 @@ function HeaderWidget(args){
 	this.projectManager.onRefreshProjectList.addEventListener(function(sender,data){
 		_this.userBarWidget.createProjectMenuItems(data);
 	});
-	
 	this.adapter.onLogout.addEventListener(function (sender, data){
 		console.log(data);
 		//Se borran todas las cookies por si acaso
@@ -85,14 +84,13 @@ function HeaderWidget(args){
 		_this.sessionFinished();
 		_this.onLogout.notify();
 	});	
-	
-};
+}
 
 HeaderWidget.prototype.setAccountData = function (data){
 	this.accountData = data;
 	this.gcsaBrowserWidget.setAccountData(data);
 	this.userBarWidget.setAccountData(data);
-}
+};
 
 
 HeaderWidget.prototype.responseItemsReady = function(){
