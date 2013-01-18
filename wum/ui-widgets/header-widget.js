@@ -52,7 +52,8 @@ function HeaderWidget(args){
 	/** Events **/
 	this.onLogin = new Event();
 	this.onLogout = new Event();
-	
+	this.onGetAccountInfo = new Event();
+
 	
 	/** create widgets **/
 	this.loginWidget= new LoginWidget(this.args.suiteId);
@@ -83,13 +84,31 @@ function HeaderWidget(args){
 		$.cookie('bioinfo_account', null, {path: '/'});
 		_this.sessionFinished();
 		_this.onLogout.notify();
-	});	
+	});
+    this.gcsaBrowserWidget.onNeedRefresh.addEventListener(function(){
+        _this.getAccountInfo();
+    });
+    this.adapter.onGetAccountInfo.addEventListener(function (evt, response){
+        if(response.accountId != null){
+            _this.setAccountData(response);
+            _this.onGetAccountInfo.notify(response);
+            console.log("accountData has been modified since last call");
+        }
+    });
 }
 
 HeaderWidget.prototype.setAccountData = function (data){
 	this.accountData = data;
 	this.gcsaBrowserWidget.setAccountData(data);
 	this.userBarWidget.setAccountData(data);
+};
+
+HeaderWidget.prototype.getAccountInfo = function() {
+    var lastActivity = null;
+    if(this.accountData != null){
+        lastActivity =  this.accountData.lastActivity;
+    }
+    this.adapter.getAccountInfo($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), lastActivity);
 };
 
 
@@ -102,6 +121,7 @@ HeaderWidget.prototype.responseItemsReady = function(){
 };
 
 HeaderWidget.prototype.sessionInitiated = function(){
+    var _this = this;
 	/**HIDE**/
 	this.loginWidget.clean();
 	this.btnSignin.hide();
@@ -110,6 +130,11 @@ HeaderWidget.prototype.sessionInitiated = function(){
 	this.userBarWidget.draw(this.userbar);
 	this.btnLogout.show();
 	this.btnEdit.show();
+
+
+    /**LOAD GCSA**/
+    this.getAccountInfo();//first call
+    this.accountInfoInterval = setInterval(function(){_this.getAccountInfo();}, 4000);
 };
 
 HeaderWidget.prototype.sessionFinished = function(){
