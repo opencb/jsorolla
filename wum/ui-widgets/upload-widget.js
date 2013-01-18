@@ -443,16 +443,24 @@ UploadWidget.prototype.uploadFile2 = function()  {
 	this.panel.disable();
 
     var inputFile = document.getElementById(Ext.getCmp(this.uploadFieldId).fileInputEl.id).files[0];
-    var inputFiles = [inputFile];
+
+    var objectId = this.gcsaLocation.directory+inputFile.name;
+    objectId = objectId.replace(new RegExp("/", "gi"),":");
 
     var fileuploadWorker = new Worker(WORKERS_PATH+'worker-fileupload.js');
     fileuploadWorker.onmessage = function(e) {
-        _this.uploadComplete("done");
+        var res = e.data;
+        if(res.finished){
+            _this.uploadComplete("done");
+        }
         console.log("@@@@@@@@@@@@@@@@ WORKER event message");
         console.log(e);
     };
     fileuploadWorker.postMessage({
-        'files' : inputFiles
+        'file' : inputFile,
+        'objectId':objectId,
+        'bucketId':this.gcsaLocation.bucketId,
+        'resume' : true
     });
 };
 
