@@ -1063,12 +1063,15 @@ NetworkSvg.prototype.selectAllNodes = function(){
 };
 
 NetworkSvg.prototype.deselectAllNodes = function(){
+    var selectedNodesBck = [];
 	for (var id in this.selectedNodes){
 		this.countSelectedNodes--;
 		//Restore default color and delete from object
 		this.nodeSvgList[id].childNodes[0].setAttribute("fill", this.selectedNodes[id]);
 		delete this.selectedNodes[id];
-	}
+        selectedNodesBck.push(id);
+    }
+    return selectedNodesBck;
 };
 
 NetworkSvg.prototype.selectAdjacentNodes = function(){

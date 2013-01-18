@@ -415,9 +415,10 @@ NetworkViewer.prototype.loadNetwork = function(networkData, layout){
 };
 
 NetworkViewer.prototype.toJSON = function(){
-	this.networkSvg.deselectAllNodes();
+	var selectedNodes = this.networkSvg.deselectAllNodes();
 	this.networkData.updateFromSvg(this.networkSvg.getNodeMetainfo());
-	
+    this.networkSvg.selectNodes(selectedNodes);
+
 	return this.networkData.toJSON();
 };
 
@@ -591,44 +592,6 @@ NetworkViewer.prototype.getUnselectedNodes = function(selectedNodes) {
 };
 
 //TODO BORRAR
-/** For testing pathways **/
-//function test(arg){
-//	if (arg != null){
-//		NetworkViewer.counter = arg;
-//		NetworkViewer.pathwayTreeViewer.getData();
-//	}
-//	NetworkViewer.counter++;
-//	NetworkViewer.testPathways();
-//	setTimeout("test()",10000);
-//}
-//
-//
-//NetworkViewer.prototype.testPathways = function(){
-//	try{
-//		//this.counter++;
-//		this.testPathway(this.pathwayTreeViewer.getPathways()[this.counter]);
-//	}
-//	catch(e){
-//		console.log("ERROR en: " + this.pathwayTreeViewer.getPathways()[this.counter]);
-//	}
-//};
-//NetworkViewer.prototype.testPathway = function(id){
-//	console.log("[Testing Pathway] " + this.counter + " -->" + id);
-//	Ext.example.msg("[Testing Pathway] " + this.counter + " -->" + id, "");
-//	this.loadingImageWindow.show(); 
-//	this.pathwayTreeViewer.getDot(id);
-//	var _this = this;
-//	var _id = id;
-//	this.pathwayTreeViewer.rendered.addEventListener(function(){
-//		_this.loadingImageWindow.hide(); 
-//	});
-//	_this.pathwayTreeViewer.selected.addEventListener(function(){
-//		_this.loadingImageWindow.hide(); 
-//		_this.draw(_this.pathwayTreeViewer.dataset, _this.pathwayTreeViewer.formatter, _this.pathwayTreeViewer.layout);
-//	});
-//};
-/** End testing pathways **/
-
 /**********SBGN*********/
 //NetworkViewer.prototype.getSBGNToolBar = function() {
 //    this.entityNodeButton = Ext.create('Ext.button.Button',{
