@@ -405,7 +405,7 @@ NetworkViewer.prototype.calculateLayoutVertex = function(type, count){
 
 /**** NETWORK VIEWER API *****/
 NetworkViewer.prototype.loadNetwork = function(networkData, layout){
-	this.networkData = networkData;
+    this.networkData = networkData;
 	this.networkData.resize(this.drawZoneWidth, this.drawZoneHeight);
 	this.refresh(networkData);
 	
@@ -550,12 +550,13 @@ NetworkViewer.prototype.filterNodes = function(nodeList) {
 };
 
 NetworkViewer.prototype.refresh = function(networkData) {
-	this.networkSvg.refresh(networkData);
-	this.networkSvg.placeLabelsAndEdges(networkData);
+	networkData = networkData || this.networkData;
+    this.networkSvg.refresh(networkData);
+	this.networkSvg.placeLabelsAndEdges();
 	
 	if(this.overview) {
 		this.networkSvgOverview.refresh(networkData);
-		this.networkSvgOverview.placeLabelsAndEdges(networkData);
+		this.networkSvgOverview.placeLabelsAndEdges();
 	}
 };
 
@@ -581,6 +582,7 @@ NetworkViewer.prototype.addEdge = function(source, target, type, name, args) {
 
 NetworkViewer.prototype.clearNetwork = function() {
 	this.networkData.clearNetwork();
+    this.refresh();
 };
 
 NetworkViewer.prototype.getNodeLabelsFromNodeList= function(nodeList) {

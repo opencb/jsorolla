@@ -668,10 +668,7 @@ NetworkSvg.prototype.addEdge = function(args){
 	var _this = this;
 	
 	/** SVG **/
-//	var edgeType = args.markerEnd.split('-')[1];
-	
 	var tipOffset = 14;
-//	if(!args.markerArrow) {
 	if(!args.target) console.log(args);
 	var figure = this.nodeSvgList[args.target].childNodes[0];
 	// if is rect calculate the figure center
@@ -682,11 +679,7 @@ NetworkSvg.prototype.addEdge = function(args){
 	}else{
 		tipOffset = parseInt(figure.getAttribute("r")) || parseInt(figure.getAttribute("rx"));
 	}
-//	}
-//	else {
-//		tipOffset = args.markerArrow.split('-')[2].slice(0,-1);
-//	}
-	
+
 	// if not exists this marker, add new one to defs
 	var markerArrowId = "#arrow-"+args.type+"-"+tipOffset;
 	if($(markerArrowId).length == 0){
@@ -852,7 +845,6 @@ NetworkSvg.prototype.getSvgArgs = function(shape, nodeId, args){
 		};
 		break;
 	}
-	
 	return svgArgs;
 };
 
@@ -1507,8 +1499,6 @@ NetworkSvg.prototype.setNodeName = function(newName){
 			for (var nodeId in this.selectedNodes){
 				var figure = this.nodeSvgList[nodeId].childNodes[0];
 				figure.setAttribute("nodeName", newName);
-//				var text = this.nodeSvgList[nodeId].childNodes[1];
-//				text.textContent = newName;
 				this.networkData.getNodeAttributes.setName(nodeId, newName);
 				$(figure).qtip('option', 'content.title.text', newName);
 			}
@@ -1528,8 +1518,7 @@ NetworkSvg.prototype.setNodeLabel = function(newLabel){
 			figure.setAttribute("nodeLabel", newLabel);
 			var text = this.nodeSvgList[nodeId].childNodes[1];
 			text.textContent = newLabel;
-//			this.networkData.attributes.setName(nodeId, newLabel);
-			
+
 			// change qtip info
 			var oldContent = $(figure).qtip('option', 'content.text');
 			var oldLabel = oldContent.split("<br>")[0];
