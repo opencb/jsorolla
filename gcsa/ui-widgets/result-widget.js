@@ -106,7 +106,7 @@ ResultWidget.prototype.render = function (){
 	var _this=this;
 	
 	console.log(this.application);
-	
+	debugger
 		if(this.data.outputItems.length != 0){
 			
 			var outputItems = this.data.inputItems.concat(this.data.outputItems);

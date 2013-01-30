@@ -54,7 +54,7 @@ function ResultTable(jobId, filename, tags, args){
         }
     }
 	
-	this.adapter = new GcsaManager();
+	this.adapter = new WumAdapter();
 	
     this.table = null;
     
@@ -99,6 +99,7 @@ ResultTable.prototype.render = function (){
 	if(this.tableSkel.type == "text"){
 		
 		var adapterPoll = new WumAdapter();
+		adapterPoll.poll(this.jobId,this.fileName,false,$.cookie('bioinfo_sid'));
 		adapterPoll.onPoll.addEventListener(function(sender,data){
 			var altura = 75+22*2;
 			
@@ -119,17 +120,13 @@ ResultTable.prototype.render = function (){
 			});
 			
 		});
-		adapterPoll.poll(this.jobId,this.fileName,false,$.cookie('bioinfo_sid'));
 		
 	}else{
-		//accountId, sessionId, bucketname, jobId, filename, colNames, colVisibilty, sessionId
-		//var url = this.adapter.tableurl(this.jobId,this.fileName,this.colNames,this.colVisibilty,$.cookie('bioinfo_sid'));
-
-		var url = this.adapter.tableurl($.cookie("bioinfo_account"),$.cookie('bioinfo_sid'),this.jobId,this.fileName,this.colNames,this.colVisibilty);
-		console.log(url);
+		var url = this.adapter.tableurl(this.jobId,this.fileName,this.colNames,this.colVisibilty,$.cookie('bioinfo_sid'));
+//		console.log(url);
 		
 		/*
-		http://ws.bioinfo.cipf.es/wum/rest/job/86232/table?
+		http://ws.bioinfo.cipf.es/gcsa/rest/job/86232/table?
 				sessionid=QtjXeeOwKsRdTcyCF1vOiM2xbIC57fhlNvXafCjZMXCAFH2M6iZPfEXETt1Lp7F4
 				&filename=significant_your_annotation_0.1.txt
 				&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids
@@ -141,7 +138,7 @@ ResultTable.prototype.render = function (){
 				&sort=%5B%7B%22property%22%3A%22List1%20unannotateds%22%2C%22direction%22%3A%22DESC%22%7D%5D
 				&callback=Ext.data.JsonP.callback5
 		
-		http://ws.bioinfo.cipf.es/wum-beta/rest/job/42/table?
+		http://ws.bioinfo.cipf.es/gcsa-beta/rest/job/42/table?
 				sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll
 				&filename=significant_your_annotation_0.1.txt
 				&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids
@@ -152,10 +149,10 @@ ResultTable.prototype.render = function (){
 				&limit=5
 				&filter=%5B%7B%22property%22%3A%22Term%22%2C%22value%22%3Aundefined%7D%2C%7B%22property%22%3A%22Term%22%2C%22value%22%3Aundefined%7D%5D
 				&callback=Ext.data.JsonP.callback3
-		http://ws.bioinfo.cipf.es/wum-beta/rest/job/42/table?sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll&filename=significant_your_annotation_0.1.txt&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids&colVisibility=1,0,0,1,1,0,1,1,0,0,0,1,1,1,0,0&_dc=1326279241960&page=1&start=0&limit=5
+		http://ws.bioinfo.cipf.es/gcsa-beta/rest/job/42/table?sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll&filename=significant_your_annotation_0.1.txt&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids&colVisibility=1,0,0,1,1,0,1,1,0,0,0,1,1,1,0,0&_dc=1326279241960&page=1&start=0&limit=5
 		&filter=%5B%7B%22property%22%3A%22Term%22%2C%22value%22%3Aundefined%7D%5D
 		&callback=Ext.data.JsonP.callback7
-		http://ws.bioinfo.cipf.es/wum-beta/rest/job/42/table?sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll&filename=significant_your_annotation_0.1.txt&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids&colVisibility=1,0,0,1,1,0,1,1,0,0,0,1,1,1,0,0&_dc=1326279394677&page=1&start=0&limit=5
+		http://ws.bioinfo.cipf.es/gcsa-beta/rest/job/42/table?sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll&filename=significant_your_annotation_0.1.txt&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids&colVisibility=1,0,0,1,1,0,1,1,0,0,0,1,1,1,0,0&_dc=1326279394677&page=1&start=0&limit=5
 		&filter=%5B%7B%22property%22%3A%22Term%22%2C%22value%22%3Aundefined%7D%5D&callback=Ext.data.JsonP.callback2
 		*
 		*/
@@ -163,9 +160,9 @@ ResultTable.prototype.render = function (){
 			rows = this.numRows;
 		}
 		var itemsPerPage = rows; 
-
+		
 		this.st = Ext.create('Ext.data.Store', {
-			fields: filteredColNames, //las colNames no pueden tener el caracter "."
+			fields: filteredColNames,
 	    	pageSize: itemsPerPage,
 		    remoteSort:true,
 //		    remoteFilter:true,//TODO o no

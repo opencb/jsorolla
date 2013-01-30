@@ -271,7 +271,7 @@ UploadWidget.prototype.render = function(dataTypes){
 //				     title:'Uploading file',
 //				     msg: 'Please wait...'
 //				});
-				_this.uploadFile();
+				_this.uploadFile2();
 	        }
 		});
 		
@@ -454,7 +454,8 @@ UploadWidget.prototype.uploadFile2 = function()  {
             _this.uploadComplete("done");
         }
         console.log("@@@@@@@@@@@@@@@@ WORKER event message");
-        console.log(e);
+        console.log(res);
+        console.log(res.info);
     };
     fileuploadWorker.postMessage({
         'file' : inputFile,

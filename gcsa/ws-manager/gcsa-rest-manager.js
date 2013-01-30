@@ -360,14 +360,13 @@ GcsaRestManager.prototype = {
     },
 
     /* JOB METHODS */
-    jobResult : function(accountId, sessionId, jobId, format){
+    jobResult : function(accountId, sessionId, toolName,  jobId, format){
         var _this=this;
         //@Path("/{accountid}/{bucketname}/job/{jobid}/result.{format}")
         var queryParams = {
             'sessionid':sessionId
         };
-        var url = this.getJobUrl(accountId,jobId)+'/result.'+format+this.getQuery(queryParams);
-
+        var url = this.getJobAnalysisUrl(accountId,toolName,jobId)+'/result.js'+this.getQuery(queryParams);
         //var url = this.getHost() + '/job/'+jobId+'/result.'+format+'?incvisites=true&sessionid='+sessionId;
         function success(data){
             _this.onJobResult.notify(data);
@@ -379,6 +378,12 @@ GcsaRestManager.prototype = {
 
         this.doGet(url, success, error);
     //	console.log(url);
+    },
+    jobResultUrl : function(accountId, sessionId, toolName,  jobId, format){
+        var queryParams = {
+            'sessionid':sessionId
+        };
+        return this.getJobAnalysisUrl(accountId,toolName,jobId)+'/result.js'+this.getQuery(queryParams);
     },
     jobStatus : function(accountId, sessionId,  jobId){
         var _this=this;
@@ -427,7 +432,6 @@ GcsaRestManager.prototype = {
             'sessionid':sessionId
         };
         return this.getJobUrl(accountId,jobId)+'/table'+this.getQuery(queryParams);
-
     },
 
     poll : function(accountId, sessionId, jobId, filename, zip){
@@ -469,6 +473,7 @@ GcsaRestManager.prototype = {
 
     /* ANALYSIS */
     getAnalysisUrl : function(accountId, analysis){return this.getAccountUrl(accountId)+'/analysis/'+analysis;},
+    getJobAnalysisUrl : function(accountId, analysis,jobId){return this.getAccountUrl(accountId)+'/analysis/'+analysis+'/job/'+jobId;},
     runAnalysis : function(analysis, paramsWS){
         var _this=this;
         var accountId = paramsWS.accountid;
