@@ -117,22 +117,42 @@ GenericFormPanel.prototype.getRunButton = function() {
 			for(var param in formParams) {
 				_this.paramsWS[param] = formParams[param];
 			}
-			_this.paramsWS["sessionid"] = $.cookie('bioinfo_sid');
-			_this.paramsWS["accountid"] = $.cookie('bioinfo_account');
 			_this.beforeRun();
 			_this.run();
 		}
 	});
 };
 
+GenericFormPanel.prototype.setAccountParams = function() {
+    this.paramsWS["sessionid"] = $.cookie('bioinfo_sid');
+    this.paramsWS["accountid"] = $.cookie('bioinfo_account');
+};
+
 GenericFormPanel.prototype.beforeRun = function() {
 	// To be implemented in inner class
+
 };
 
 GenericFormPanel.prototype.run = function() {
-	this.gcsaManager.runAnalysis(this.analysis, this.paramsWS);
-	
-	Ext.example.msg('Job Launched', 'It will be listed soon');
+
+    var _this = this;
+    var action =function(){
+        _this.setAccountParams();
+        _this.gcsaManager.runAnalysis(_this.analysis, _this.paramsWS);
+        Ext.example.msg('Job Launched', 'It will be listed soon');
+    };
+
+    //check login
+    if(!$.cookie('bioinfo_sid')){
+        this.headerWidget.onLogin.addEventListener(function (sender, data){
+//            setTimeout(function(){action();},1001);
+            action();
+        });
+        this.headerWidget.loginWidget.anonymousSign();
+    }else{
+        action();
+    }
+
 };
 
 GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultValue, labelWidth, margin) {
