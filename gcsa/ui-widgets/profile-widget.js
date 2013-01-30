@@ -21,7 +21,7 @@
 
 function ProfileWidget(args){
 	var _this=this;
-	this.id = "EditUserWidget_"+ Math.round(Math.random()*10000000);
+	this.id = "EditUserWidget_"+ Math.round(Math.random()*10000);
 	this.targetId = null;
 
     if(typeof args != 'undefined'){

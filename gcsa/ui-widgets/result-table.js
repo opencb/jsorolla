@@ -32,29 +32,18 @@ function ResultTable(jobId, filename, tags, args){
 	this.collapsible=true;
 	this.border=true;
 	this.cls=null;
-	
-	if (args != null){
-		if (args.targetId!= null){
-        	this.targetId = args.targetId;       
-        }
-		if (args.numRows!= null){
-        	this.numRows = args.numRows;       
-        }
-		if (args.flex!= null){
-        	this.flex = args.flex;       
-        }
-		if (args.collapsible!= null){
-        	this.collapsible = args.collapsible;      
-        }
-		if (args.border!= null){
-        	this.border = args.border;      
-        }
-		if (args.cls!= null){
-        	this.cls = args.cls;      
-        }
+
+    if(typeof args != 'undefined'){
+        this.targetId = args.targetId || this.targetId;
+        this.numRows = args.numRows || this.numRows;
+        this.flex  = args.flex  || this.flex;
+        this.collapsible  = args.collapsible  || this.collapsible;
+        this.border  = args.border  || this.border;
+        this.cls  = args.cls  || this.cls;
+        this.tableLayout  = args.tableLayout  || this.tableLayout;
     }
-	
-	this.adapter = new WumAdapter();
+
+	this.adapter = new GcsaManager();
 	
     this.table = null;
     
@@ -77,29 +66,44 @@ ResultTable.prototype.render = function (){
 	
 	var filteredGridNames = new Array();
 	var filteredColNames = new Array();
-	for( var i =0; i < tables.length; i++){
-		if (this.tags.indexOf(tables[i].name)!= -1){//me quedo con la primera que encuentro
-			this.tableSkel = tables[i];
-			this.colNames = tables[i].colNames; 
-			this.colVisibilty = tables[i].colVisibility;
-			this.colTypes = tables[i].colTypes;
-			rows = tables[i].numRows;
-			
-			filteredGridNames = new Array();
-			filteredColNames = new Array();
-			for (var j=0;j<this.colNames.length; j++){
-				if (this.colVisibilty[j]==1){
-					filteredGridNames.push({header:this.colNames[j],dataIndex:this.colNames[j], flex:1});
-					filteredColNames.push({name:this.colNames[j],type:this.colTypes[j]});
-				}
-			}
-		break;
-		}
-	}
+//	for( var i =0; i < tables.length; i++){
+//		if (this.tags.indexOf(tables[i].name)!= -1){//me quedo con la primera que encuentro
+//			this.tableSkel = tables[i];
+//			this.colNames = tables[i].colNames;
+//			this.colVisibilty = tables[i].colVisibility;
+//			this.colTypes = tables[i].colTypes;
+//			rows = tables[i].numRows;
+//
+//			filteredGridNames = new Array();
+//			filteredColNames = new Array();
+//			for (var j=0;j<this.colNames.length; j++){
+//				if (this.colVisibilty[j]==1){
+//					filteredGridNames.push({header:this.colNames[j],dataIndex:this.colNames[j], flex:1});
+//					filteredColNames.push({name:this.colNames[j],type:this.colTypes[j]});
+//				}
+//			}
+//		break;
+//		}
+//	}
+    this.tableSkel = this.tableLayout;
+    this.colNames = this.tableSkel.colNames;
+    this.colVisibilty = this.tableSkel.colVisibility;
+    this.colTypes = this.tableSkel.colTypes;
+    rows = this.tableSkel.numRows;
+
+    filteredGridNames = new Array();
+    filteredColNames = new Array();
+    for (var j=0;j<this.colNames.length; j++){
+        if (this.colVisibilty[j]==1){
+            filteredGridNames.push({header:this.colNames[j],dataIndex:this.colNames[j], flex:1});
+            filteredColNames.push({name:this.colNames[j],type:this.colTypes[j]});
+        }
+    }
+
+
 	if(this.tableSkel.type == "text"){
 		
 		var adapterPoll = new WumAdapter();
-		adapterPoll.poll(this.jobId,this.fileName,false,$.cookie('bioinfo_sid'));
 		adapterPoll.onPoll.addEventListener(function(sender,data){
 			var altura = 75+22*2;
 			
@@ -120,13 +124,17 @@ ResultTable.prototype.render = function (){
 			});
 			
 		});
+		adapterPoll.poll(this.jobId,this.fileName,false,$.cookie('bioinfo_sid'));
 		
 	}else{
-		var url = this.adapter.tableurl(this.jobId,this.fileName,this.colNames,this.colVisibilty,$.cookie('bioinfo_sid'));
-//		console.log(url);
+		//accountId, sessionId, bucketname, jobId, filename, colNames, colVisibilty, sessionId
+		//var url = this.adapter.tableurl(this.jobId,this.fileName,this.colNames,this.colVisibilty,$.cookie('bioinfo_sid'));
+
+		var url = this.adapter.tableurl($.cookie("bioinfo_account"),$.cookie('bioinfo_sid'),this.jobId,this.fileName,this.colNames,this.colVisibilty);
+		console.log(url);
 		
 		/*
-		http://ws.bioinfo.cipf.es/wum/rest/job/86232/table?
+		http://ws.bioinfo.cipf.es/gcsa/rest/job/86232/table?
 				sessionid=QtjXeeOwKsRdTcyCF1vOiM2xbIC57fhlNvXafCjZMXCAFH2M6iZPfEXETt1Lp7F4
 				&filename=significant_your_annotation_0.1.txt
 				&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids
@@ -138,7 +146,7 @@ ResultTable.prototype.render = function (){
 				&sort=%5B%7B%22property%22%3A%22List1%20unannotateds%22%2C%22direction%22%3A%22DESC%22%7D%5D
 				&callback=Ext.data.JsonP.callback5
 		
-		http://ws.bioinfo.cipf.es/wum-beta/rest/job/42/table?
+		http://ws.bioinfo.cipf.es/gcsa-beta/rest/job/42/table?
 				sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll
 				&filename=significant_your_annotation_0.1.txt
 				&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids
@@ -149,10 +157,10 @@ ResultTable.prototype.render = function (){
 				&limit=5
 				&filter=%5B%7B%22property%22%3A%22Term%22%2C%22value%22%3Aundefined%7D%2C%7B%22property%22%3A%22Term%22%2C%22value%22%3Aundefined%7D%5D
 				&callback=Ext.data.JsonP.callback3
-		http://ws.bioinfo.cipf.es/wum-beta/rest/job/42/table?sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll&filename=significant_your_annotation_0.1.txt&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids&colVisibility=1,0,0,1,1,0,1,1,0,0,0,1,1,1,0,0&_dc=1326279241960&page=1&start=0&limit=5
+		http://ws.bioinfo.cipf.es/gcsa-beta/rest/job/42/table?sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll&filename=significant_your_annotation_0.1.txt&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids&colVisibility=1,0,0,1,1,0,1,1,0,0,0,1,1,1,0,0&_dc=1326279241960&page=1&start=0&limit=5
 		&filter=%5B%7B%22property%22%3A%22Term%22%2C%22value%22%3Aundefined%7D%5D
 		&callback=Ext.data.JsonP.callback7
-		http://ws.bioinfo.cipf.es/wum-beta/rest/job/42/table?sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll&filename=significant_your_annotation_0.1.txt&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids&colVisibility=1,0,0,1,1,0,1,1,0,0,0,1,1,1,0,0&_dc=1326279394677&page=1&start=0&limit=5
+		http://ws.bioinfo.cipf.es/gcsa-beta/rest/job/42/table?sessionid=6tpGsjjphxDMkCG74E89qMZTYTU26WGTXXoDLApUYoOJL07WyM2NGd0SbMhKe2Ll&filename=significant_your_annotation_0.1.txt&colNames=Term,Term%20size,Term%20size%20(in%20genome),List1%20annotateds,List1%20unannotateds,list1_per,List2%20annotateds,List2%20unannotateds,list2_per,List1%20annotated%20genes,List2%20annotated%20genes,Odds%20ratio%20(log%20e),pvalue,Adjusted%20pvalue,Term%20annotation%20%%20per%20list,Annotated%20ids&colVisibility=1,0,0,1,1,0,1,1,0,0,0,1,1,1,0,0&_dc=1326279394677&page=1&start=0&limit=5
 		&filter=%5B%7B%22property%22%3A%22Term%22%2C%22value%22%3Aundefined%7D%5D&callback=Ext.data.JsonP.callback2
 		*
 		*/
@@ -160,9 +168,9 @@ ResultTable.prototype.render = function (){
 			rows = this.numRows;
 		}
 		var itemsPerPage = rows; 
-		
+
 		this.st = Ext.create('Ext.data.Store', {
-			fields: filteredColNames,
+			fields: filteredColNames, //las colNames no pueden tener el caracter "."
 	    	pageSize: itemsPerPage,
 		    remoteSort:true,
 //		    remoteFilter:true,//TODO o no

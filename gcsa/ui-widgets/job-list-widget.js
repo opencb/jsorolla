@@ -133,37 +133,25 @@ function JobListWidget (args){
 	Ext.getCmp(this.btnQueuedId).on('click', this.filter, this);
 	
 	this.allData = [];
-	
-	//this.adapter = new WumAdapter();
-	//this.adapter.onListProject.addEventListener(function (sender, data){
-		//console.log("onListProject");
-		//_this.allData = JSON.parse(data);
-		//_this.selectProjectData();
-		//_this.render();
-	//});
 
 
-
-
-
-/*HARDCODED check job status*/
-
-	var checkJobsStatus = function(){
-		if(_this.accountData != null){
-			var gcsaManager = new GcsaManager();
-			for ( var i = 0; i < _this.accountData.jobs.length; i++) {
-				if(_this.tools.indexOf(_this.accountData.jobs[i].toolName) != -1){
-					if(_this.accountData.jobs[i].visites<0){
-						gcsaManager.jobStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), _this.accountData.jobs[i].id);
-					}
-				}
-			}
-		}
-	}
-	
-	this.accountInfoInterval = setInterval(function(){checkJobsStatus();}, 4000);
-
-/*HARDCODED check job status*/
+///*HARDCODED check job status*/
+//	var checkJobsStatus = function(){
+//		if(_this.accountData != null){
+//			var gcsaManager = new GcsaManager();
+//			for ( var i = 0; i < _this.accountData.jobs.length; i++) {
+//				if(_this.tools.indexOf(_this.accountData.jobs[i].toolName) != -1){
+//					if(_this.accountData.jobs[i].visites<0){
+//						gcsaManager.jobStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), _this.accountData.jobs[i].id);
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	this.accountInfoInterval = setInterval(function(){checkJobsStatus();}, 4000);
+//
+///*HARDCODED check job status*/
 
 	
 };
