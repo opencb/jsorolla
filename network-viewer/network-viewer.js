@@ -423,7 +423,9 @@ NetworkViewer.prototype.toJSON = function(){
 };
 
 NetworkViewer.prototype.loadJSON = function(data){
-	this.networkData.loadJSON(data.content);
+    var network = data;
+    if(data.content) network = data.content;
+	this.networkData.loadJSON(network);
 	this.refresh(this.networkData);
 	
 	if(data.layout && data.layout != "none") {

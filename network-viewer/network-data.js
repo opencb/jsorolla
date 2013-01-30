@@ -129,6 +129,9 @@ NetworkData.prototype.clearNetwork = function() {
 	this.edgeId = 0;
 	this.metaInfo.numNodes = 0;
 	this.metaInfo.numEdges = 0;
+
+    this.nodeAttributes.removeAll();
+    this.edgeAttributes.removeAll();
 	
 	this.nodeNames = {};
 };

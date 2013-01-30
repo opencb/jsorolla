@@ -143,7 +143,7 @@ AttributeManager.prototype.modifyAttributeOfRows = function(selectRows, attribut
 //------------------------------------------------------------------------------//
 AttributeManager.prototype.removeRow = function(attribute, value) {	
 	//obtenemos la posicion del dato y lo borramos
-	this.store.removeAt(this.store.find(attribute,  value));	
+	this.store.removeAt(this.store.find(attribute,  value));
 };
 
 
@@ -167,6 +167,13 @@ AttributeManager.prototype.removeRows = function(attribute, value) {
 
 		console.log(i);
 	}
+};
+
+/**
+ * Remove all stored attributes.
+ */
+AttributeManager.prototype.removeAll = function() {
+    this.store.removeAll(true);
 };
 
 
