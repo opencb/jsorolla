@@ -194,7 +194,7 @@ PagedViewListWidget.prototype.render = function() {
 				
 				this.store = Ext.create('Ext.data.Store', {
 			    	fields: this.storeFields,
-			    	sorters: [{ property : 'creationTime', direction: 'DESC'}],
+			    	sorters: [{ property : 'date', direction: 'DESC'}],
 					autoLoad: false
 			    });
 				
@@ -317,12 +317,12 @@ PagedViewListWidget.prototype.render = function() {
 							    handler: function(){
 							    	if(_this.sort=="DESC") {
 							    		_this.sort = "ASC";
-							    		_this.store.sort('creationTime', 'ASC');
+							    		_this.store.sort('date', 'ASC');
 							    		this.setIconCls('icon-order-asc');
 							    	}
 							    	else {
 							    		_this.sort = "DESC";
-							    		_this.store.sort('creationTime', 'DESC');
+							    		_this.store.sort('date', 'DESC');
 							    		this.setIconCls('icon-order-desc');
 							    	}
 							    }

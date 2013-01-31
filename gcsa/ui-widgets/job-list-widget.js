@@ -37,22 +37,23 @@ function JobListWidget (args){
 											'<tpl if="visites == -2">Darkorange</tpl>'+
 											'">{name}</p>',
 						'<p style="color: #15428B"><i>{date}</i></p>',
-						'<p style="color:steelblue"><i>- {toolName} -</i></p>',
+						'<p style="color:steelblue"><i>{toolName}</i></p>',
 						'<p style="color:grey"><i>',
 //						'<tpl if="visites == 0">finished and unvisited</tpl>',
 //						'<tpl if="visites &gt; 0">{visites} visites</tpl>',
-						'<tpl if="visites == -1">',
+//						'<tpl if="visites == -1">',
 						//'<div style="height:10px;width:{percentage/100*180}px;background:url(\'http://jsapi.bioinfo.cipf.es/ext/sencha/4.0.2/resources/themes/images/default/progress/progress-default-bg.gif\') repeat-x;">&#160;</div>',
 						//'{percentage}%',
-						'running, please wait...',
-						'</tpl>',
-						'<tpl if="visites == -2">waiting in the queue...</tpl>',
+//						'running, please wait...',
+//						'</tpl>',
+                        '{status}',
+						'<tpl if="visites &gt; -1"> - {visites} views</tpl>',
 						'</i></p>',
 					'</div>',
 					'</tpl>'
 					];
 
-	var	jobsfields = ['commandLine','date','description','diskUsage','finishTime','inputData','jobId','message','name','outputData','ownerId','percentage','projectId','toolName','visites'];
+	var	jobsfields = ['commandLine','date','description','diskUsage','status','finishTime','inputData','jobId','message','name','outputData','ownerId','percentage','projectId','toolName','visites'];
 
 	this.pagedViewList.storeFields = jobsfields;
 	this.pagedViewList.template = jobstpl;

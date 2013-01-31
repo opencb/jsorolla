@@ -27,17 +27,9 @@ function ResultWidget(args){
         this.application = args.application || this.application;
         this.app  = args.app  || this.app;
     }
+
 	this.adapter = new GcsaManager();
 	
-//	this.adapter.onJobResult.addEventListener(function (sender, resultData){
-//		console.log(resultData);
-//        debugger
-//		_this.data = JSON.parse(resultData);
-//		Ext.getBody().unmask();
-//		_this.panel.setLoading(false);
-//		_this.render(resultData);
-//	});
-
 	this.panelId=null;
 	this.networkViewerId = null;
 	this.genomeMapsId = null;
@@ -47,13 +39,10 @@ ResultWidget.prototype = {
     id : "ResultWidget"+ Math.round(Math.random()*10000),
     draw : function(sid, record){
         var _this = this;
-        //	console.log(record.data);
         this.job = record.raw;
         this.jobId = this.job.id;
         this.id = this.jobId+this.id;
         this.panelId = "ResultWidget_"+this.jobId;
-//        this.networkViewerId = this.panelId+"_CellBrowserId";
-//        this.genomeMapsId = this.panelId+"_GenomeMapsId";
 
         this.panel = Ext.getCmp(this.panelId);
         if(this.panel==null){
@@ -63,28 +52,19 @@ ResultWidget.prototype = {
                 title: this.job.name,
                 closable:true,
                 autoScroll:true
-                //html: this.tpl.applyTemplate(outputItems)
             });
 
             Ext.getCmp(this.targetId).add(this.panel);
             Ext.getCmp(this.targetId).setActiveTab(this.panel);
             this.panel.setLoading("Loading job info...");
-            Ext.getBody().mask();
-
-            //this.adapter.jobResult(this.jobId, "json", sid);
-            //accountId, sessionId, bucketname, jobId, format
 
             var url = this.adapter.jobResultUrl($.cookie("bioinfo_account"), sid, record.raw.toolName, this.jobId, "json");
             $.getScript(url,function(){
-                Ext.getBody().unmask();
 		        _this.panel.setLoading(false);
-                RESULT[_this.job.toolName].layout.outputItems = ['Example1ALL.txt','Example1_hsa03320.txt','Example1_hsa03320.jpeg','Example1_hsa03320.PathwayResult.jpeg'];
-//                RESULT[_this.job.toolName].layout.outputItems = _this.job.outputData;
+                RESULT[_this.job.toolName].layout.outputItems = _this.job.outputData;
 		        _this.render(RESULT);
             });
-            //this.adapter.jobResult(this.jobId, "json", sid);
         }else{
-//			this.panel.setLoading(false);
             Ext.getCmp(this.targetId).setActiveTab(this.panel);
         }
     },

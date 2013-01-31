@@ -96,7 +96,11 @@ HeaderWidget.prototype = {
         this.adapter.getAccountInfo($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), lastActivity);
     },
     _getAccountText : function(){
-        return 'logged in as <span style="color:darkred">'+this.accountData.accountId+'</span>'
+        var nameToShow = this.accountData.accountId;
+        if(nameToShow.indexOf('anonymous_')!=-1){
+            nameToShow='anonymous';
+        }
+        return 'logged in as <span style="color:darkred">'+nameToShow+'</span>'
     },
     sessionInitiated : function(){
         var _this = this;
