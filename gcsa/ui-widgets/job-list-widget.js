@@ -47,7 +47,7 @@ function JobListWidget (args){
 //						'running, please wait...',
 //						'</tpl>',
                         '{status}',
-						'<tpl if="visites &gt; -1"> - {visites} views</tpl>',
+						'<tpl if="visites &gt; -1"> - {visites} views - {id}</tpl>',
 						'</i></p>',
 					'</div>',
 					'</tpl>'

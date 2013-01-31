@@ -34,6 +34,7 @@ function HeaderWidget(args){
     if(typeof args != 'undefined'){
         this.appname = args.appname || this.appname;
         this.description = args.description || this.description;
+        this.version = args.version || this.version;
         this.suiteId = args.suiteId || this.suiteId;
         this.news = args.news || this.news;
     }
@@ -222,7 +223,16 @@ HeaderWidget.prototype = {
                     id: this.id + "appTextItem",
                     //		        	html: '<span class="appName">Vitis vinifera&nbsp; '+this.args.appname +'</span> <span class="appDesc">'+this.args.description+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span><img height="30" src="http://www.demeter.es/imagenes/l_demeter.gif"></span>',
                     text: '<span class="appName">' + this.appname + '</span> <span id="' + this.id + 'description" class="appDesc">' + this.description + '</span>',
-                    padding: '0 0 0 10'
+                    padding: '0 0 0 10',
+                    listeners:{
+                        afterrender:function(){
+                            $("#"+_this.id+"appTextItem").qtip({
+                                content: '<span class="info">'+_this.version+'</span>',
+                                position: {my:"bottom center",at:"top center",adjust: { y: 0, x:-25 }}
+
+                            });
+                        }
+                    }
                 },{
                     xtype:'tbtext',
                     id:this.id+"speciesTextItem",

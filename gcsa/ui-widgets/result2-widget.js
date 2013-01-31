@@ -73,8 +73,8 @@ ResultWidget.prototype = {
         console.log(this.application);
         var getJobInfo = function(){
             var itemTpl = new Ext.XTemplate(
-                '<p class="ssel border-bot">Information</p><br>',
-                '<p><span class="emph">{name}</span> - <span class="info"> {toolName} </span> - <span class="tip"> {date}</span></p><br>',
+                '<p><span class="ssel border-bot">Information </span><span style="color:gray"> &nbsp; &nbsp; {id}</span></p><br>',
+                '<p><span class="emph">{name}</span> - <span class="info"> {toolName} </span> - <span style="color:orangered"> {date}</span></p>',
                 '<p class="tip emph">{description}</p>'
             );
             return Ext.create('Ext.Component', {
@@ -96,8 +96,17 @@ ResultWidget.prototype = {
                     listeners:{
                         afterrender:function(este){
                             this.getEl().on("click",function(){
-                                var pos = $('#'+este.resultId).position().top;
-                                $(_this.panel.getEl().dom).children().scrollTop(pos-10);
+                                var pos = $('#'+este.resultId).position();
+                                if(typeof pos != 'undefined'){
+                                    var top = pos.top;
+                                    $(_this.panel.getEl().dom).children().scrollTop(top-10);
+                                }
+                                
+                                var tab = Ext.getCmp(este.resultId);//for tab mode
+                                var parent = tab.up();
+                                if(parent.isXType('tabpanel')){
+                                    parent.setActiveTab(tab);
+                                }
                             });
                         }
                     }
@@ -109,49 +118,109 @@ ResultWidget.prototype = {
             });
         };
 
-        var iter = function(item, isRoot){
-            var itemTpl = new Ext.XTemplate(
-                '<span class="s140 emph">{title}</span>',
-                '<span class="ok"> {pathi} </span>',
-                '<span class="info"> {date}</span><br>'
-            );
+        var itemTpl = new Ext.XTemplate(
+            '<span class="s140 emph">{title}</span>',
+            '<span class="ok"> {pathi} </span>',
+            '<span class="info"> {date}</span><br>'
+        );
+
+        var processLeafItem = function(item){
+            var boxes = [];
+            var itemBox;
+            for(var j = 0; j<item.renderers.length; j++){
+                var renderer = item.renderers[j];
+                switch(renderer.type){
+                    case 'file':
+                        itemBox = Ext.create('Ext.Component', {
+                            html:'<span class="key">'+item.title+'</span><span class="file">'+item.file+'</span>',
+                            item:item,
+                            padding:3,
+                            overCls:'encima',
+                            cls:'inlineblock whiteborder',
+                            listeners:{
+                                afterrender:function(){
+                                    var item = this.item;
+                                    this.getEl().on("click",function(){
+                                        console.log(item);
+                                        _this.adapter.poll($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), _this.jobId, item.file, true);
+                                    });
+                                }
+                            }
+                        });
+                        break;
+                    case 'image':
+                        itemBox = Ext.create('Ext.Component',{
+                            html:'<div><img src="'+_this.adapter.pollurl($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), _this.jobId,item.file)+'"></div>'
+                        });
+                        break;
+                    case 'grid':
+                        var id = 'resultTable_'+_this.jobId+item.file;
+                        var resultTable = new ResultTable (_this.jobId, item.file, item.tags,{targetId:id,tableLayout:renderer.tableLayout});
+                        itemBox = Ext.create('Ext.Component',{
+                            flex:1,
+                            resultTable:resultTable,
+                            html:'<div id="'+id+'" style="padding:5px;"> </div>',
+                            listeners:{
+                                afterrender:function(este){
+                                    este.resultTable.draw();
+                                }
+                            }
+                        });
+                        break;
+                }
+                boxes.push(itemBox);
+            }
+            return Ext.create('Ext.container.Container', {
+                title:item.title,
+                margin:'0 0 15 0',
+                items : boxes
+            });
+        };
+
+        var getDetailsAsDocument = function(item, isRoot){
             var boxes;
+            console.log(item);
             if(typeof item.children != 'undefined'){
                 if(typeof item.children == 'function'){
                     item.children = item.children();
                 }
                 boxes = [];
                 for(var i = 0; i<item.children.length; i++){
-                    boxes.push(iter(item.children[i]));
-                }
-                if(item.presentation=='tabs'){
-                    return Ext.create('Ext.container.Container', {
-                        items:[{xtype:'box',data:item,tpl:itemTpl},{
-                            xtype:'tabpanel',
-                            items:boxes
-                        }]
-
-                    });
+                    boxes.push(getDetailsAsDocument(item.children[i]));
                 }
                 if(isRoot == true){
+                    var detailsItemsContainer = {
+                        xtype:'container',
+                        items:boxes
+                    };
+                    if(item.presentation == 'tabs'){
+                        detailsItemsContainer = {
+                            xtype:'tabpanel',
+                            padding:'0 30 15 15',
+                            plain: true,
+                            border:0,
+                            defaults:{
+                                overflowX:'scroll',
+                                height:1950,
+                                padding: 10
+                            },
+                            items:boxes
+                        };
+                    }
                     return Ext.create('Ext.container.Container', {
                         title:item.title,
                         items:[{
-                            id:_this.jobId+item.title.replace(/ /g,''),
                             xtype:'box',
                             cls:'inlineblock ssel border-bot', margin:'15',
                             html:'Details'
-                        },{
-                            xtype:'container',
-                            items:boxes
-                        }]
+                        },detailsItemsContainer]
                     });
                 }else{
                     return Ext.create('Ext.container.Container', {
+                        id:_this.jobId+item.title.replace(/ /g,''),
                         title:item.title,
                         margin:'0 0 0 10',
                         items:[{
-                            id:_this.jobId+item.title.replace(/ /g,''),
                             xtype:'box',
                             overCls:'dedo',
                             cls:'panel-border-bottom', margin:'0 0 10 0',
@@ -170,61 +239,11 @@ ResultWidget.prototype = {
                     });
                 }
             }else{
-                boxes = [/*{xtype:'box',margin:'10 0 0 10',data:item,tpl:itemTpl}*/];
-                var itemBox;
-                for(var j = 0; j<item.renderers.length; j++){
-                    var renderer = item.renderers[j];
-                    switch(renderer.type){
-                        case 'file':
-                            itemBox = Ext.create('Ext.Component', {
-//                                title:item.title,
-                                html:'<span class="key">'+item.title+'</span><span class="file">'+item.file+'</span>',
-                                item:item,
-                                padding:3,
-                                overCls:'encima',
-                                cls:'inlineblock whiteborder',
-                                listeners:{
-                                    afterrender:function(){
-                                        var item = this.item;
-                                        this.getEl().on("click",function(){
-                                            console.log(item);
-                                            _this.adapter.poll($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), _this.jobId, item.file, true);
-                                        });
-                                    }
-                                }
-                            });
-                            break;
-                        case 'image':
-                            itemBox = Ext.create('Ext.Component',{
-                                html:'<div><img src="'+_this.adapter.pollurl($.cookie('bioinfo_account'),$.cookie('bioinfo_sid'), _this.jobId,item.file)+'"></div>'
-                            });
-                            break;
-                        case 'grid':
-                            var id = 'resultTable_'+_this.jobId+item.file;
-                            var resultTable = new ResultTable (_this.jobId, item.file, item.tags,{targetId:id,tableLayout:renderer.tableLayout});
-                            itemBox = Ext.create('Ext.Component',{
-                                flex:1,
-                                resultTable:resultTable,
-                                html:'<div id="'+id+'" style="padding:5px;"> </div>',
-                                listeners:{
-                                    afterrender:function(este){
-                                        este.resultTable.draw();
-                                    }
-                                }
-                            });
-                            break;
-                    }
-                    boxes.push(itemBox);
-                }
-                return Ext.create('Ext.container.Container', {
-                    title:item.title,
-                    margin:'0 0 15 0',
-                    items : boxes
-                });
+                return processLeafItem(item);
             }
         };
 
-        var detailedResutls = iter(resultData[this.job.toolName].layout,true);
+        var detailedResutls = getDetailsAsDocument(resultData[this.job.toolName].layout,true);
         var indexResutl = getResultIndex(resultData[this.job.toolName].layout.children);
         this.panel.add(getJobInfo());
         this.panel.insert(indexResutl);
