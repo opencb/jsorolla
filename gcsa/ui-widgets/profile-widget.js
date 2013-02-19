@@ -234,8 +234,6 @@ ProfileWidget.prototype = {
         var email = Ext.getCmp(this.id+'fldEmail').getValue();
         var patt = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
-        console.log(Ext.getCmp(this.id+'labelPass'));
-
         if (patt.test(email)){
             Ext.getCmp(this.id+'fldEmail').setFieldLabel('<span class="ok">e-mail</span>', false);
             return true;

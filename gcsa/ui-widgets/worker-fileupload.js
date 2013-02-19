@@ -20,8 +20,16 @@
  */
 
 
-var res = {finished:false, info:''};
+var res = {finished:false};
 var resumeInfo = {};
+var host = '';
+var accountId = '';
+var sessionId = '';
+
+
+function getTime(){
+    return Date.now()/1000;
+}
 
 function updateProgress(evt) {
     res+=" updateProgress";
@@ -33,17 +41,20 @@ function updateProgress(evt) {
 }
 
 function transferComplete(evt) {
-    res.info+=" transferComplete";
+//    res.info+=" transferComplete";
 }
 
 function transferFailed(evt) {
-    res.info+=" transferFailed";
+//    res.info+=" transferFailed";
 }
 
 function transferCanceled(evt) {
-    res.info+=" transferCanceled";
+//    res.info+=" transferCanceled";
 }
 
+function getUrl(){
+    return host+'/account/'+accountId+'/storage/'+bucketId+'/subir?sessionid='+sessionId;
+}
 
 function upload(formData) {
     var xhr = new XMLHttpRequest();
@@ -57,16 +68,13 @@ function upload(formData) {
 //    xhr.setRequestHeader("Content-type", "application/json");
 //    xhr.overrideMimeType("text/plain; charset=x-user-defined");
 
-    xhr.open('POST', 'http://ws-beta.bioinfo.cipf.es/gcsabeta/rest/account/paco/storage/subir', false);//false indicates sync call
-    xhr.onload = function(e) {
-        res.info += "loaded";
-    };
+    xhr.open('POST', getUrl(), false);//false indicates sync call
     xhr.send(formData);
 }
 
 function getResumeInfo(formData) {
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://ws-beta.bioinfo.cipf.es/gcsabeta/rest/account/paco/storage/subir', false);//false indicates sync call
+    xhr.open('POST', getUrl(), false);//false indicates sync call
     xhr.send(formData);
     return xhr.responseText;
 //    if (request.status === 200) {
@@ -75,18 +83,23 @@ function getResumeInfo(formData) {
 }
 
 
-function checkChunk(id, size, hash) {
+function checkChunk(id, size) {
     if(typeof resumeInfo[id] == 'undefined'){
         return false;
-    }else if(resumeInfo[id].size != size || resumeInfo[id].hash != hash){
+    }else if(resumeInfo[id].size != size /*|| resumeInfo[id].hash != hash*/){
         return false;
     }
     return true;
 }
 
 self.onmessage = function(e) {
-
     //e.data contains the postMessage object
+
+    host = e.data.host;
+    accountId = e.data.accountId;
+    sessionId = e.data.sessionId;
+
+
     var file = e.data.file;
     var resume = e.data.resume;
     var objectId = e.data.objectId;
@@ -95,14 +108,13 @@ self.onmessage = function(e) {
 //    for (var i = 0; i <files.length; i++) {
 //        var file = files[i];
 
-        const BYTES_PER_CHUNK = 10*1024*1024;
+        const BYTES_PER_CHUNK = 7*1024*1024;
         const SIZE = file.size;
         const NUM_CHUNKS = Math.ceil(SIZE/BYTES_PER_CHUNK);
         var start = 0;
         var end = BYTES_PER_CHUNK;
 
         var chunkId = 0;
-        var fr = new FileReaderSync();
 
         if(resume){
             var resumeFormData = new FormData();
@@ -114,15 +126,18 @@ self.onmessage = function(e) {
             resumeInfo = JSON.parse(str);
         }
 
+        var ft1,ut1;
         while (start < SIZE) {
             var chunkBlob = file.slice(start, end);
-            var hash = CryptoJS.SHA1(fr.readAsBinaryString(chunkBlob)).toString();
-            if(checkChunk(chunkId, chunkBlob.size, hash) == false){
+            res.chunkId = chunkId;
+            var t1 = getTime();
+            if(checkChunk(chunkId, chunkBlob.size) == false){
+                ft1 = getTime();
                 var formData = new FormData();
                 formData.append('chunk_content', chunkBlob);
                 formData.append('chunk_id', chunkId);
                 formData.append('chunk_size', chunkBlob.size);
-                formData.append('chunk_hash', hash);
+//                formData.append('chunk_hash', hash);
                 formData.append("filename", file.name);
                 formData.append('object_id', objectId);
                 formData.append('bucket_id', bucketId);
@@ -132,21 +147,27 @@ self.onmessage = function(e) {
                     formData.append("last_chunk", true);
                     formData.append("total_size", SIZE);
                 }
+                res.ft2 = getTime()-ft1;
+                self.postMessage(res);
+                ut1 = getTime();
                 upload(formData);
+                res.ut2 = getTime()-ut1;
+                self.postMessage(res);
             }
+            var t2 = getTime()-t1;
 
             res.start = start;
             res.end = end;
+            res.t = t2;
             self.postMessage(res);
 
             start = end;
             end = start + BYTES_PER_CHUNK;
             chunkId++;
         }
-//    }
 
-    res.finished = true;
-    self.postMessage(res);
+        res.finished = true;
+        self.postMessage(res);
 };
 
 

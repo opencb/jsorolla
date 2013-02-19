@@ -34,7 +34,6 @@ function VCFFileWidget(args){
 	args.title = "VCF";
 	args.tags = ["vcf"];
 	FileWidget.prototype.constructor.call(this, args);
-	
 };
 
 VCFFileWidget.prototype.loadFileFromLocal = function(file){

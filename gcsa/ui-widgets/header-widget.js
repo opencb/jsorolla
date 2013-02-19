@@ -30,6 +30,7 @@ function HeaderWidget(args){
 	this.description='';
 	this.suiteId=-1;
 	this.news='';
+    this.checkTimeInterval = 4000;
 
     if(typeof args != 'undefined'){
         this.appname = args.appname || this.appname;
@@ -111,15 +112,15 @@ HeaderWidget.prototype = {
         /**SHOW**/
         Ext.getCmp(this.id+'btnLogout').show();
         Ext.getCmp(this.id+'btnEdit').show();
-        Ext.getCmp(this.id+'btnGcsa').enable();
+        Ext.getCmp(this.id+'btnGcsa').show();
 
         /**START GCSA CHECK**/
         this.getAccountInfo();//first call
-        this.accountInfoInterval = setInterval(function(){_this.getAccountInfo();}, 4000);
+        this.accountInfoInterval = setInterval(function(){_this.getAccountInfo();}, this.checkTimeInterval);
     },
     sessionFinished : function(){
         /**HIDE**/
-        Ext.getCmp(this.id+'btnGcsa').disable();
+        Ext.getCmp(this.id+'btnGcsa').hide();
         Ext.getCmp(this.id+'btnLogout').hide();
         Ext.getCmp(this.id+'btnEdit').hide();
         /**SHOW**/
@@ -168,8 +169,8 @@ HeaderWidget.prototype = {
                     break;
                 case 9://GenomeMaps
                     this.homeLink="http://www.genomemaps.org";
-                    this.helpLink="http://docs.bioinfo.cipf.es/projects/genomemaps";
-                    this.tutorialLink="http://docs.bioinfo.cipf.es/projects/genomemaps/wiki/Tutorial";
+                    this.helpLink="http://bioinfo.cipf.es/docs/compbio/projects/visualization/doku.php?id=genome-maps:overview";
+                    this.tutorialLink="http://bioinfo.cipf.es/docs/compbio/projects/visualization/doku.php?id=genome-maps:tutorial";
                     this.aboutText = 'Genome Maps is built with open and free technologies like HTML5 and SVG inline, ' +
                         'so no plug-in is needed in modern internet browsers. We’ve focused on providing the ' +
                         'best user experience possible with a modern drag navigation and many features included.<br><br>' +
@@ -249,7 +250,7 @@ HeaderWidget.prototype = {
                     }
                 },{
                     id: this.id + "helpButton",
-                    text: 'help',
+                    text: 'documentation',
                     handler: function () {
                         window.open(_this.helpLink);
                     }
@@ -275,14 +276,6 @@ HeaderWidget.prototype = {
                             html: _this.aboutText
                         }).show();
                     }
-                },{
-                    id:this.id+'btnGcsa',
-                    text: 'My WebDrive',
-                    iconCls: 'icon-project-manager',
-                    disabled: true,
-                    handler: function() {
-                        _this.gcsaBrowserWidget.draw("manager");
-                    }
                 }]
             });
 
@@ -294,6 +287,7 @@ HeaderWidget.prototype = {
                 height:27,
                 minHeight:27,
                 maxHeight:27,
+                layout:'hbox',
                 items:[{
                     xtype:'tbtext',
                     id:this.id+'textNews',
@@ -302,6 +296,13 @@ HeaderWidget.prototype = {
                     xtype:'tbtext',
                     id:this.id+'textUser',
                     text:''
+                },{
+                    id:this.id+'btnGcsa',
+                    text: '<span class="emph">Upload & Manage</span>',
+                    iconCls: 'icon-project-manager',
+                    handler: function() {
+                        _this.gcsaBrowserWidget.draw("manager");
+                    }
                 },{
                     id: this.id+'btnSignin',
                     text: '<span class="emph">sign in</span>',

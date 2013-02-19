@@ -35,15 +35,16 @@ FileDataSource.prototype.error = function(){
 
 FileDataSource.prototype.fetch = function(async){
 	var _this = this;
-	if(this.file.size <= 314572800){
+	if(this.file.size <= 52428800){
 		if(async){
 			var  reader = new FileReader();
 			reader.onload = function(evt) {
+                debugger
 				_this.success.notify(evt.target.result);
 			};
 			reader.readAsText(this.file, "UTF-8");
 		}else{
-			// FileReaderSync no funciona
+			// FileReaderSync web workers only
 			var reader = new FileReaderSync();
 			return reader.readAsText(this.file, "UTF-8");
 		}

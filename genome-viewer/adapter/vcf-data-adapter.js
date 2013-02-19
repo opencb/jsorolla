@@ -39,15 +39,17 @@ function VCFDataAdapter(dataSource, args){
 			this.async = args.async;
 		}
 	}
-};
+}
 
 VCFDataAdapter.prototype.parse = function(data, region){
 	console.log(data);
 	var _this = this;
 	var dataType = "data";
 	var lines = data.split("\n");
+    debugger
 //	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){
+        debugger
 		var line = lines[i].replace(/^\s+|\s+$/g,"");
 		if ((line != null)&&(line.length > 0)){
 			var fields = line.split("\t");
@@ -67,8 +69,8 @@ VCFDataAdapter.prototype.parse = function(data, region){
 							"start": 		parseInt(fields[1]),//added
 							"end": 			parseInt(fields[1]),//added
 							"id":  			fields[2],
-							"ref": 			fields[3], 
-							"alt": 			fields[4], 
+							"reference": 			fields[3],
+							"alternate": 			fields[4],
 							"quality": 		fields[5], 
 							"filter": 		fields[6], 
 							"info": 		fields[7].replace(/;/gi,"<br>"), 

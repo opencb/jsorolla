@@ -46,10 +46,13 @@ function GcsaManager(){
 	this.onJobResult = this.manager.onJobResult;
 	this.onTable = this.manager.onTable;
 	this.onPoll = this.manager.onPoll;
-	
+	this.onDeleteJob = this.manager.onDeleteJob;
+
 	/*ANALYSIS*/
 	this.onRunAnalysis = new Event(this);
-		
+	this.onIndexer = this.manager.onIndexer;
+	this.onIndexerStatus = this.manager.onIndexerStatus;
+
 	this.onBamList = this.manager.onBamList;
 	this.onRegion = this.manager.onRegion;
 

@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function DqsAdapter(args){
+function GcsaAdapter(args){
 	this.host = null;
 	this.gzip = true;
 	
@@ -43,10 +43,9 @@ function DqsAdapter(args){
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
 	this.onGetData = new Event();
-};
+}
 
-DqsAdapter.prototype.getData = function(args){
-	debugger
+GcsaAdapter.prototype.getData = function(args){
 	var _this = this;
 	//region check
 	
@@ -77,7 +76,7 @@ DqsAdapter.prototype.getData = function(args){
 		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
 			chunks.push(i);
 		}else{
-			var items = this.featureCache.getFeaturesByChunk(key, type);
+			var items = this.featureCache.getFeatureChunk(key, type);
 			itemList = itemList.concat(items);
 		}
 	}
@@ -88,29 +87,36 @@ DqsAdapter.prototype.getData = function(args){
 	
 	
 	//CellBase data process
-	var dqsManager = new DqsManager();
+	var gcsaManager = new GcsaManager();
 	var calls = 0;
 	var querys = [];
-	dqsManager.onRegion.addEventListener(function (evt, data){
+	gcsaManager.onRegion.addEventListener(function (evt, data){
 		console.timeEnd("dqs");
 		console.time("dqs-cache");
 		var type = "data";
 		if(data.params.histogram){
 			type = "histogram"+data.params.interval;
 		}
+        _this.params["dataType"] = type;
 
 		var splitDots = data.query.split(":");
 		var splitDash = splitDots[1].split("-");
 		var query = {chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]};
 
-		_this.featureCache.putFeaturesByRegion(data.result, query, data.resource, type);
-		var items = _this.featureCache.getFeaturesByRegion(query, type);
+
+        for(var i = 0; i < data.result.length; i++) {
+            data.result[i]['start'] = data.result[i].position;
+            data.result[i]['end'] =  data.result[i].position;
+        }
+
+		_this.featureCache.putFeaturesByRegion(data.result, query, _this.category, type);
+		var items = _this.featureCache.getFeatureChunksByRegion(query, type);
 		console.timeEnd("dqs-cache");
 		if(items != null){
 			itemList = itemList.concat(items);
 		}
 		if(calls == querys.length ){
-			_this.onGetData.notify({data:itemList, params:_this.params, cached:false});
+			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
 		}
 	});
 
@@ -151,11 +157,12 @@ DqsAdapter.prototype.getData = function(args){
 		for ( var i = 0, li = querys.length; i < li; i++) {
 			console.time("dqs");
 			calls++;
-			dqsManager.region(this.category, this.resource, querys[i], this.params);
+//			gcsaManager.region(this.category, this.resource, querys[i], this.params);
+            gcsaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource, querys[i], this.params);
 		}
 	}else{
 		if(itemList.length > 0){
-			this.onGetData.notify({data:itemList, params:this.params});
+			this.onGetData.notify({items:itemList, params:this.params});
 		}
 	}
 };

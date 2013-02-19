@@ -48,7 +48,7 @@ function JobListWidget (args){
 //						'</tpl>',
                         '{status}',
 						'<tpl if="visites &gt; -1"> - {visites} views</tpl>',
-						'</i>  - {id}</p>',
+//						'</i>  - {id}</p>',
 					'</div>',
 					'</tpl>'
 					];
@@ -176,16 +176,18 @@ JobListWidget.prototype.clean =  function (){
 
 JobListWidget.prototype.setAccountData = function (data){
 
-	
 	this.accountData = data;
-	console.log("joblistwidget")
-	var projects = [];
+	console.log("joblistwidget");
 	var jobs = [];
-	for ( var i = 0; i < this.accountData.jobs.length; i++) {
-		if(this.tools.indexOf(this.accountData.jobs[i].toolName) != -1){
-			this.accountData.jobs[i].date = Compbio.parseDate(this.accountData.jobs[i].date);
-			jobs.push(this.accountData.jobs[i]);
-		}
+    var job;
+	for ( var i = 0; i < this.accountData.projects.length; i++) {
+        for ( var j = 0; j < this.accountData.projects[i].jobs.length; j++) {
+            job = this.accountData.projects[i].jobs[j];
+            if(this.tools.indexOf(job.toolName) != -1){
+                job.date = Compbio.parseDate(job.date);
+                jobs.push(job);
+            }
+        }
 	}
 	this.data = jobs;
 	this.render();

@@ -58,7 +58,7 @@ ResultWidget.prototype = {
             Ext.getCmp(this.targetId).setActiveTab(this.panel);
             this.panel.setLoading("Loading job info...");
 
-            var url = this.adapter.jobResultUrl($.cookie("bioinfo_account"), sid, record.raw.toolName, this.jobId, "json");
+            var url = this.adapter.jobResultUrl($.cookie("bioinfo_account"), sid, this.jobId, "json");
             $.getScript(url,function(){
 		        _this.panel.setLoading(false);
                 RESULT[_this.job.toolName].layout.outputItems = _this.job.outputData;
@@ -71,25 +71,79 @@ ResultWidget.prototype = {
     render : function(resultData){
         var _this=this;
         console.log(this.application);
+
+//        Ext.create('Ext.button.Button', {
+//            text: 'Delete',
+//            margin: "0 0 25 30",
+//        });
+
         var getJobInfo = function(){
             var itemTpl = new Ext.XTemplate(
-                '<p><span class="ssel border-bot">Information </span><span style="color:gray"> &nbsp; &nbsp; {id}</span></p><br>',
+                '<p><span class="ssel border-bot s120">Information </span><span style="color:gray"> &nbsp; &nbsp; {id}</span></p><br>',
                 '<p><span class="emph">{name}</span> - <span class="info"> {toolName} </span> - <span style="color:orangered"> {date}</span></p>',
-                '<p class="tip emph">{description}</p>'
+                '<p class="tip emph">{description}</p>',
+                '<p class="">{[ this.getInfo(values) ]}</p>',{
+                    getInfo: function(item){
+                        switch(item.toolName){
+                            case 'pathiways':
+                                var arr = item.commandLine.split(/ --/g);
+                                var str = arr[2].replace(/ /g,': ')+'<br>';
+                                str +=  arr[5].replace(/ /g,': ').replace('/httpd/bioinfo/gcsa/analysis/pathiways/examples/','')+'<br>';
+                                str +=  arr[1].replace(/ /g,': ').replace('/httpd/bioinfo/gcsa/analysis/pathiways/examples/','')+'<br>';
+                                str +=  arr[3].replace(/ /g,': ')+'<br>';
+                                str +=  arr[7].replace(/ /g,': ')+'<br>';
+                                str +=  arr[9].replace(/ /g,': ')+'<br>';
+                                return str;
+                            default : return '';
+                        }
+                    }
+                }
             );
-            return Ext.create('Ext.Component', {
-                margin:'15 0 20 15',
-                data:_this.job,
-                tpl:itemTpl
+            return Ext.create('Ext.container.Container',{
+                margin:'15 0 15 15',
+                items:[{
+                    xtype:'box',
+                    data:_this.job,
+                    tpl:itemTpl
+                },{
+                    xtype:'container', layout:'hbox', margin:'10 0 0 0',defaults:{margin:'0 5 0 5'},
+                    items:[{
+                        xtype:'button',
+                        text:'download',
+                        handler: function (){
+                            _this.adapter.downloadJob( $.cookie('bioinfo_account'), $.cookie('bioinfo_sid'),_this.jobId);
+                        }
+                    },{
+                        xtype:'button',
+                        text:'delete',
+                        handler: function () {
+                            Ext.Msg.confirm("Delete job", "Are you sure you want to delete this job?", function (btnClicked) {
+                                if (btnClicked == "yes") {
+                                    _this.adapter.onDeleteJob.addEventListener(function (sender, data) {
+                                        var msg = "";
+                                        if (data.indexOf("OK") != -1) {
+                                            Ext.getCmp(_this.targetId).getActiveTab().close();
+                                            msg = "The job has been succesfully deleted.";
+                                        }else {
+                                            msg = "ERROR: could not delete job.";
+                                        }
+                                        Ext.Msg.alert("Delete job", msg);
+                                    });
+                                    _this.adapter.deleteJob($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId);
+                                }
+                            });
+                        }
+                    }]
+                }]
             });
         };
 
         var getResultIndex = function(children){
-            var boxes = [{xtype:'box',cls:'inlineblock ssel border-bot',html:'Index',margin:15}];
+            var boxes = [{xtype:'box',cls:'inlineblock ssel border-bot s120',html:'Index',margin:15}];
             for(var i = 0; i<children.length; i++){
                 boxes.push(Ext.create('Ext.Component',{
                     margin:"0 15 0 15",
-                    cls:'dedo emph u',
+                    cls:'dedo emph',
                     overCls:'err',
                     resultId:_this.jobId+children[i].title.replace(/ /g,''),
                     html:children[i].title,
@@ -179,7 +233,6 @@ ResultWidget.prototype = {
 
         var getDetailsAsDocument = function(item, isRoot){
             var boxes;
-            console.log(item);
             if(typeof item.children != 'undefined'){
                 if(typeof item.children == 'function'){
                     item.children = item.children();
@@ -201,7 +254,7 @@ ResultWidget.prototype = {
                             border:0,
                             defaults:{
                                 overflowX:'scroll',
-                                height:1950,
+                                height:2000,
                                 padding: 10
                             },
                             items:boxes
@@ -211,7 +264,7 @@ ResultWidget.prototype = {
                         title:item.title,
                         items:[{
                             xtype:'box',
-                            cls:'inlineblock ssel border-bot', margin:'15',
+                            cls:'inlineblock ssel border-bot s120', margin:'15',
                             html:'Details'
                         },detailsItemsContainer]
                     });

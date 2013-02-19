@@ -45,7 +45,7 @@ function FeatureDataAdapter(dataSource, args){
 
 	//chromosomes loaded
 	this.chromosomesLoaded = {};
-};
+}
 
 FeatureDataAdapter.prototype.getData = function(region){
 	

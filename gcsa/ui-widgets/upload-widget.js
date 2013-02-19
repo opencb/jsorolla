@@ -37,6 +37,13 @@ function UploadWidget (args){
 	this.adapter = new GcsaManager();
 	this.adapter.onUploadObjectToBucket.addEventListener(function(sender,res){
 		if(res.status == 'done'){
+
+//            _this.adapter.onIndexer.addEventListener(function(sender,data){
+//                console.log(data);
+//                _this.uploadComplete(data);
+//            });
+//            _this.adapter.indexer($.cookie("bioinfo_account"),_this.objectID);
+
 			_this.uploadComplete(res.data);
 		}else if (res.status == 'fail'){
 			_this.uploadFailed(res.data);
@@ -63,6 +70,7 @@ UploadWidget.prototype.draw = function(gcsaLocation){
 		            ] },
 		            { text: "Feature", children: [
 		                { text: "VCF 4.0", tag:"vcf"},
+		                { text: "Tabix index", tag:"tbi"},
 		                { text: "GFF2", tag:"gff2"},
 		                { text: "GFF3", tag:"gff3"},
 		                { text: "GTF", tag:"gtf"},
@@ -271,7 +279,7 @@ UploadWidget.prototype.render = function(dataTypes){
 //				     title:'Uploading file',
 //				     msg: 'Please wait...'
 //				});
-				_this.uploadFile2();
+				_this.uploadFile();
 	        }
 		});
 		
@@ -432,8 +440,12 @@ UploadWidget.prototype.uploadFile = function()  {
    	fd.append("objectid", objectId);
    	fd.append("sessionid", sessionId);
 
+
+    //TODO DELETE THIS
+    this.objectID = this.gcsaLocation.bucketId+":"+objectId;
+
 	//accountid, sessionId, projectname, formData
-	this.adapter.uploadObjectToBucket($.cookie("bioinfo_account"), sessionId, this.gcsaLocation.bucketId, fd);
+	this.adapter.uploadObjectToBucket($.cookie("bioinfo_account"), sessionId, this.gcsaLocation.bucketId, objectId, fd);
 	
 };
 
@@ -451,13 +463,19 @@ UploadWidget.prototype.uploadFile2 = function()  {
     fileuploadWorker.onmessage = function(e) {
         var res = e.data;
         if(res.finished){
-            _this.uploadComplete("done");
+            _this.adapter.onIndexer(function(data){
+                console.log(data);
+                _this.uploadComplete(data);
+            });
+            _this.adapter.indexer($.cookie("bioinfo_account"),objectId);
         }
         console.log("@@@@@@@@@@@@@@@@ WORKER event message");
         console.log(res);
-        console.log(res.info);
     };
     fileuploadWorker.postMessage({
+        'host':GCSA_HOST,
+        'accountId': $.cookie("bioinfo_account"),
+        'sessionId': $.cookie("bioinfo_sid"),
         'file' : inputFile,
         'objectId':objectId,
         'bucketId':this.gcsaLocation.bucketId,

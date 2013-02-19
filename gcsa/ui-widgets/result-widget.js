@@ -1,4 +1,4 @@
-/*
++/*
  * Copyright (c) 2012 Francisco Salavert (ICM-CIPF)
  * Copyright (c) 2012 Ruben Sanchez (ICM-CIPF)
  * Copyright (c) 2012 Ignacio Medina (ICM-CIPF)

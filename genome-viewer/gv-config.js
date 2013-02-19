@@ -487,6 +487,7 @@ FEATURE_TYPES = {
 	},
 	vcf:{
 		getLabel: function(f){
+                return f.id;
 				try {
 						var fields = f.sampleData.split("\t");
 					} catch (e) {
@@ -525,7 +526,7 @@ FEATURE_TYPES = {
 			return 'VCF variant - <span class="ok">'+f.id+'</span>';
 		},
 		getTipText: function(f){
-			return 'alleles (ref/alt):&nbsp;<span class="emph">'+f.ref+"/"+f.alt+'</span><br>'+
+			return 'alleles (ref/alt):&nbsp;<span class="emph">'+f.reference+"/"+f.alternate+'</span><br>'+
 			'quality:&nbsp;<span class="emph">'+f.quality+'</span><br>'+
 			'filter:&nbsp;<span class="emph">'+f.filter+'</span><br>'+
 			FEATURE_TYPES.getTipCommons(f);

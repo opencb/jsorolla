@@ -48,10 +48,13 @@ function GcsaRestManager (){
 	this.onJobResult = new Event(this);
 	this.onTable = new Event(this);
 	this.onPoll = new Event(this);
+	this.onDeleteJob = new Event(this);
 
 	/*ANALYSIS*/
 	this.onRunAnalysis = new Event(this);
-	
+	this.onIndexer = new Event(this);
+	this.onIndexerStatus = new Event(this);
+
 	/*BAM*/
 	this.onBamList = new Event(this);
 	this.onGetAccountInfo = new Event(this);
@@ -68,16 +71,13 @@ GcsaRestManager.prototype = {
     setHost : function(hostUrl){
         this.host = hostUrl;
     },
-    doGet : function (url, successCallback, errorCallback, enctype){
-        if(!enctype) enctype = "application/x-www-form-urlencoded";
+    doGet : function (url, successCallback, errorCallback){
         $.ajax({
             type: "GET",
             url: url,
-            dataType: "text",
             cache: false,
             success: successCallback,
-            error: errorCallback,
-            contentType: enctype
+            error: errorCallback
         });
     },
     doPost : function (url, formData, successCallback, errorCallback){
@@ -109,14 +109,26 @@ GcsaRestManager.prototype = {
     getStorageUrl : function(accountId){
         return this.getAccountUrl(accountId)+'/storage';
     },
+    getAdminProfileUrl : function(accountId){
+        return this.getAccountUrl(accountId)+'/admin/profile';
+    },
+    getAdminBucketUrl : function(accountId,bucketId){
+        return this.getAccountUrl(accountId)+'/admin/bucket/'+bucketId;
+    },
+    getAdminProjectUrl : function(accountId,projectId){
+        return this.getAccountUrl(accountId)+'/admin/project/'+projectId;
+    },
     getBucketUrl : function(accountId, bucketId){
         return this.getStorageUrl(accountId)+'/'+bucketId;
     },
     getObjectUrl : function(accountId, bucketId, objectId){
         return this.getStorageUrl(accountId)+'/'+bucketId+'/'+objectId;
     },
-    getJobUrl : function(accountId, jobId){
-        return this.getAccountUrl(accountId)+'/storage/job/'+jobId;
+    getAnalysisUrl : function(accountId, analysis){
+        return this.getAccountUrl(accountId)+'/analysis/'+analysis;
+    },
+    getJobAnalysisUrl : function(accountId, jobId){
+        return this.getAccountUrl(accountId)+'/analysis/job/'+jobId;
     },
     /*ACCOUNT METHODS*/
     createAccount : function (accountId, email, name, password, suiteId){
@@ -206,7 +218,7 @@ GcsaRestManager.prototype = {
             'new_password2':new_password2,
             'sessionid':sessionId
         };
-        var url =  this.getAccountUrl(accountId)+'/profile/change_password'+this.getQuery(queryParams);
+        var url =  this.getAdminProfileUrl(accountId)+'/change_password'+this.getQuery(queryParams);
         function success(data){
             _this.onChangePassword.notify(data);
         }
@@ -223,7 +235,7 @@ GcsaRestManager.prototype = {
         var queryParams = {
             'email':email
         };
-        var url =  this.getAccountUrl(accountId)+'/profile/reset_password'+this.getQuery(queryParams);
+        var url =  this.getAdminProfileUrl(accountId)+'/reset_password'+this.getQuery(queryParams);
         function success(data){
             _this.onResetPassword.notify(data);
         }
@@ -241,7 +253,7 @@ GcsaRestManager.prototype = {
             'new_email':new_email,
             'sessionid':sessionId
         };
-        var url =  this.getAccountUrl(accountId)+'/profile/change_email'+this.getQuery(queryParams);
+        var url =  this.getAdminProfileUrl(accountId)+'/change_email'+this.getQuery(queryParams);
     	function success(data){
     		_this.onChangeEmail.notify(data);
     	}
@@ -265,7 +277,7 @@ GcsaRestManager.prototype = {
             'description':description,
             'sessionid':sessionId
         };
-        var url =  this.getBucketUrl(accountId,bucketId)+'/create'+this.getQuery(queryParams);
+        var url =  this.getAdminBucketUrl(accountId,bucketId)+'/create'+this.getQuery(queryParams);
         function success(data){
             _this.onCreateBucket.notify(data);
         }
@@ -281,13 +293,13 @@ GcsaRestManager.prototype = {
     deleteBucket : 'TODO',
     shareBucket : 'TODO',
 
-    uploadObjectToBucket : function(accountId, sessionId, bucketId, formData, parents){
+    uploadObjectToBucket : function(accountId, sessionId, bucketId, objectId, formData, parents){
         var _this=this;
         var queryParams = {
             'parents':(parents || false),
             'sessionid':sessionId
         };
-        var url =  this.getBucketUrl(accountId,bucketId)+'/upload'+this.getQuery(queryParams);
+        var url =  this.getObjectUrl(accountId,bucketId,objectId)+'/upload'+this.getQuery(queryParams);
 
         function success(data){
             console.log(data);
@@ -306,10 +318,9 @@ GcsaRestManager.prototype = {
 	    var _this=this;
         var queryParams = {
             'parents':(parents || false),
-            'objectid' : objectId,
             'sessionid':sessionId
         };
-        var url =  this.getBucketUrl(accountId,bucketId)+'/create_directory'+this.getQuery(queryParams);
+        var url =  this.getObjectUrl(accountId,bucketId,objectId)+'/create_directory'+this.getQuery(queryParams);
         function success(data){
             console.log(data);
             _this.onCreateDirectory.notify(data);
@@ -360,13 +371,13 @@ GcsaRestManager.prototype = {
     },
 
     /* JOB METHODS */
-    jobResult : function(accountId, sessionId, toolName,  jobId, format){
+    jobResult : function(accountId, sessionId, jobId, format){
         var _this=this;
         //@Path("/{accountid}/{bucketname}/job/{jobid}/result.{format}")
         var queryParams = {
             'sessionid':sessionId
         };
-        var url = this.getJobAnalysisUrl(accountId,toolName,jobId)+'/result.js'+this.getQuery(queryParams);
+        var url = this.getJobAnalysisUrl(accountId,jobId)+'/result.js'+this.getQuery(queryParams);
         //var url = this.getHost() + '/job/'+jobId+'/result.'+format+'?incvisites=true&sessionid='+sessionId;
         function success(data){
             _this.onJobResult.notify(data);
@@ -379,18 +390,18 @@ GcsaRestManager.prototype = {
         this.doGet(url, success, error);
     //	console.log(url);
     },
-    jobResultUrl : function(accountId, sessionId, toolName,  jobId, format){
+    jobResultUrl : function(accountId, sessionId, jobId, format){
         var queryParams = {
             'sessionid':sessionId
         };
-        return this.getJobAnalysisUrl(accountId,toolName,jobId)+'/result.js'+this.getQuery(queryParams);
+        return this.getJobAnalysisUrl(accountId,jobId)+'/result.js'+this.getQuery(queryParams);
     },
     jobStatus : function(accountId, sessionId,  jobId){
         var _this=this;
         var queryParams = {
             'sessionid':sessionId
         };
-        var url = this.getJobUrl(accountId,jobId)+'/status'+this.getQuery(queryParams);
+        var url = this.getJobAnalysisUrl(accountId,jobId)+'/status'+this.getQuery(queryParams);
         function success(data){
             _this.onJobStatus.notify(data);
         }
@@ -411,7 +422,7 @@ GcsaRestManager.prototype = {
             'colVisibility':colVisibility,
             'sessionid':sessionId
         };
-        var url = this.getJobUrl(accountId,jobId)+'/table'+this.getQuery(queryParams);
+        var url = this.getJobAnalysisUrl(accountId,jobId)+'/table'+this.getQuery(queryParams);
         function success(data){
             _this.onTable.notify(data);
         }
@@ -431,7 +442,7 @@ GcsaRestManager.prototype = {
             'colVisibility':colVisibility,
             'sessionid':sessionId
         };
-        return this.getJobUrl(accountId,jobId)+'/table'+this.getQuery(queryParams);
+        return this.getJobAnalysisUrl(accountId,jobId)+'/table'+this.getQuery(queryParams);
     },
 
     poll : function(accountId, sessionId, jobId, filename, zip){
@@ -443,11 +454,11 @@ GcsaRestManager.prototype = {
         };
         var url;
         if(zip==true){
-            url = this.getJobUrl(accountId,jobId)+'/poll'+this.getQuery(queryParams);
+            url = this.getJobAnalysisUrl(accountId,jobId)+'/poll'+this.getQuery(queryParams);
             open(url);
         }else{
             queryParams['zip']=false;
-            url = this.getJobUrl(accountId,jobId)+'/poll'+this.getQuery(queryParams);
+            url = this.getJobAnalysisUrl(accountId,jobId)+'/poll'+this.getQuery(queryParams);
             function success(data){
                 _this.onPoll.notify(data);
             }
@@ -465,20 +476,43 @@ GcsaRestManager.prototype = {
             'sessionid':sessionId,
             'zip':false
         };
-        return this.getJobUrl(accountId,jobId)+'/poll'+this.getQuery(queryParams);
+        return this.getJobAnalysisUrl(accountId,jobId)+'/poll'+this.getQuery(queryParams);
         //debugger
+    },
+
+    deleteJob : function(accountId, sessionId, jobId){
+        var _this=this;
+        var queryParams = {
+            'sessionid':sessionId
+        };
+        var url = this.getJobAnalysisUrl(accountId,jobId)+'/delete'+this.getQuery(queryParams);
+        function success(data){
+            _this.onDeleteJob.notify(data);
+        }
+        function error(data){
+            console.log("ERROR: " + data);
+        }
+        this.doGet(url, success, error);
+        //	console.log(url);
+    },
+
+    downloadJob : function(accountId, sessionId, jobId){
+        var queryParams = {
+            'sessionid':sessionId
+        };
+        open(this.getJobAnalysisUrl(accountId,jobId)+'/download'+this.getQuery(queryParams));
     },
 
 
 
     /* ANALYSIS */
-    getAnalysisUrl : function(accountId, analysis){return this.getAccountUrl(accountId)+'/analysis/'+analysis;},
-    getJobAnalysisUrl : function(accountId, analysis,jobId){return this.getAccountUrl(accountId)+'/analysis/'+analysis+'/job/'+jobId;},
     runAnalysis : function(analysis, paramsWS){
         var _this=this;
         var accountId = paramsWS.accountid;
-
-        var url = this.getAnalysisUrl(accountId, analysis)+'/run';
+        var queryParams = {
+//            'projectId':'default'
+        };
+        var url = this.getAnalysisUrl(accountId, analysis)+'/run'+this.getQuery(queryParams);
         console.log(url);
         console.log(paramsWS);
 
@@ -491,6 +525,40 @@ GcsaRestManager.prototype = {
         }
 
         $.ajax({type:"POST", url:url, data:paramsWS, success:success, error:error});
+    },
+    indexer : function(accountId, object){
+        var _this=this;
+        var queryParams = {
+            'object':object
+        };
+        var url = this.getAccountUrl(accountId)+'/index'+this.getQuery(queryParams);
+        console.log(url);
+
+        function success(data){
+            _this.onIndexer.notify(data);
+        }
+
+        function error(data){
+            _this.onIndexer.notify(data);
+        }
+        this.doGet(url, success, error);
+    },
+    indexerStatus : function(accountId, object){
+        var _this=this;
+        var queryParams = {
+            'object':object
+        };
+        var url = this.getAccountUrl(accountId)+'/index_status'+this.getQuery(queryParams);
+        console.log(url);
+
+        function success(data){
+            _this.onIndexerStatus.notify(data);
+        }
+
+        function error(data){
+            _this.onIndexer.notify(data);
+        }
+        this.doGet(url, success, error);
     }
 };
 

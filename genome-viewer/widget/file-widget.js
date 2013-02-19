@@ -51,20 +51,20 @@ function FileWidget(args){
 	this.dataAdapter = null;
 	this.onOk = new Event(this);
 	
-	this.browserData = new BrowserDataWidget();
+//	this.browserData = new BrowserDataWidget();
 	/** Events i listen **/
-	this.browserData.onSelect.addEventListener(function (sender, data){
-		_this.trackNameField.setValue(data.filename);
-		_this.fileNameLabel.setText('<span class="emph">'+ data.filename +'</span> <span class="info">(server)</span>',false);
-		_this.panel.setLoading();
-	});	
-    this.browserData.adapter.onReadData.addEventListener(function (sender, data){
-    	console.log(data)
-    	_this.trackNameField.setValue(data.filename);
-    	_this.fileNameLabel.setText('<span class="emph">'+ data.filename +'</span> <span class="info">(server)</span>',false);
-    	_this.loadFileFromServer(data);
-    	_this.panel.setLoading(false);
-	});	
+//	this.browserData.onSelect.addEventListener(function (sender, data){
+//		_this.trackNameField.setValue(data.filename);
+//		_this.fileNameLabel.setText('<span class="emph">'+ data.filename +'</span> <span class="info">(server)</span>',false);
+//		_this.panel.setLoading();
+//	});
+//    this.browserData.adapter.onReadData.addEventListener(function (sender, data){
+//    	console.log(data)
+//    	_this.trackNameField.setValue(data.filename);
+//    	_this.fileNameLabel.setText('<span class="emph">'+ data.filename +'</span> <span class="info">(server)</span>',false);
+//    	_this.loadFileFromServer(data);
+//    	_this.panel.setLoading(false);
+//	});
     
     this.chartWidgetByChromosome = new ChartWidget({height:200,width:570});
 };
@@ -90,15 +90,18 @@ FileWidget.prototype.getFileUpload = function(){
 	var _this = this;
 	this.uploadField = Ext.create('Ext.form.field.File', {
 		msgTarget : 'side',
-//		flex:1,
-		width:75,
-		emptyText: 'Choose a local file',
+		flex:1,
+        padding:1,
+//		width:75,
+		emptyText: 'Choose a file',
         allowBlank: false,
+        anchor: '100%',
 		buttonText : 'Browse local',
-		buttonOnly : true,
+//		buttonOnly : true,
 		listeners : {
 			change : {
 				fn : function() {
+                    debugger
 					_this.panel.setLoading();
 					var file = document.getElementById(_this.uploadField.fileInputEl.id).files[0];
 					_this.trackNameField.setValue(file.name);
@@ -166,17 +169,17 @@ FileWidget.prototype.draw = function(){
 		
 		
 		if(this.wum){
-			this.btnBrowse = Ext.create('Ext.button.Button', {
-		        text: 'Browse server',
-		        disabled:true,
-//		        iconCls:'icon-local',
-//		        cls:'x-btn-default-small',
-		        handler: function (){
-	    	   		_this.browserData.draw($.cookie('bioinfo_sid'),_this.tags);
-	       		}
-			});
+//			this.btnBrowse = Ext.create('Ext.button.Button', {
+//		        text: 'Browse server',
+//		        disabled:true,
+////		        iconCls:'icon-local',
+////		        cls:'x-btn-default-small',
+//		        handler: function (){
+//	    	   		_this.browserData.draw($.cookie('bioinfo_sid'),_this.tags);
+//	       		}
+//			});
 			
-			browseBar.add(this.btnBrowse);
+//			browseBar.add(this.btnBrowse);
 			
 			if($.cookie('bioinfo_sid') != null){
 				this.sessionInitiated();
@@ -186,16 +189,17 @@ FileWidget.prototype.draw = function(){
 		}
 		
 		this.fileNameLabel = Ext.create('Ext.toolbar.TextItem', {
-			text:'<span class="emph">Select a <span class="info">local</span> file or a <span class="info">server</span> file from your account.</span>'
+//			text:'<span class="emph">Select a <span class="info">local</span> file or a <span class="info">server</span> file from your account.</span>'
 		});
-		browseBar.add(['->',this.fileNameLabel]);
+//		browseBar.add(['->',this.fileNameLabel]);
 		
 		
 		
 		this.btnOk = Ext.create('Ext.button.Button', {
 			text:'Ok',
 			disabled:true,
-			handler: function(){ 
+			handler: function(){
+                debugger
 				_this.onOk.notify({fileName:_this.file.name, adapter:_this.adapter});
 				_this.openDialog.close();
 			}
@@ -207,7 +211,7 @@ FileWidget.prototype.draw = function(){
 			width : 600,
 	//		bodyPadding : 10,
 			resizable:false,
-			items : [browseBar, this.panel, panelSettings],
+			items : [browseBar, /*this.panel,*/ panelSettings],
 			buttons:[this.btnOk, 
 			         {text:'Cancel', handler: function(){_this.openDialog.close();}}],
 			listeners: {
@@ -240,12 +244,12 @@ FileWidget.prototype._loadChartInfo = function(){
 
 
 FileWidget.prototype.sessionInitiated = function (){
-	if(this.btnBrowse!=null){
-		this.btnBrowse.enable();
-	}
+//	if(this.btnBrowse!=null){
+//		this.btnBrowse.enable();
+//	}
 };
 FileWidget.prototype.sessionFinished = function (){
-	if(this.btnBrowse!=null){
-		this.btnBrowse.disable();
-	}
+//	if(this.btnBrowse!=null){
+//		this.btnBrowse.disable();
+//	}
 };

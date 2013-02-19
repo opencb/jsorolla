@@ -57,8 +57,8 @@ GcsaBrowserWidget.prototype = {
 	title:'Cloud data',
 	onSelect : new Event(this),
 	onNeedRefresh : new Event(this),
-	width : 900,
-	height : 600,
+	width : 800,
+	height : 375,
 	rendered : false,
     selectedTreeNode:undefined,
     lastSelectedNode:undefined,//can be set by the tree panel or the grid panel
@@ -191,7 +191,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 		this.folderTree = Ext.create('Ext.tree.Panel', {
 			//xtype:"treepanel",
 			id:this.id+"activeTracksTree",
-			title:"My WebDrive",
+			title:"Upload & Manage",
 			bodyPadding:"5 0 0 0",
 			margin:"-1 0 0 0",
 			border:false,
@@ -272,13 +272,13 @@ GcsaBrowserWidget.prototype.render = function (mode){
         });
         var newProjectNameField = Ext.create('Ext.form.field.Text',{
         	id:this.id+"newProjectNameField",
-        	width: 160,
+//        	width: 160,
         	emptyText: 'name',
         	allowBlank:false
         });
         var newProjectDescriptionField = Ext.create('Ext.form.field.TextArea',{
         	id:this.id+"newProjectDescriptionField",
-        	width: 160,
+//        	width: 160,
         	emptyText: 'description'
         });
 		var newProjectCont = Ext.create('Ext.container.Container', {
@@ -345,7 +345,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 											_this.onNeedRefresh.notify();
 										}
 									});
-									gcsaManager.deleteObjectFromBucket($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), $.cookie('bioinfo_bucket'), record.data.oid);
+									gcsaManager.deleteObjectFromBucket($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
 								}
 							});
 						}
@@ -357,7 +357,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 
 		var panAccordion = Ext.create('Ext.panel.Panel', {
 			minWidth: 125,
-		    minHeight : 370,
+		    minHeight : 250,
 			flex:1,
 			cls:'panel-border-right',
 		    border:false,
@@ -387,7 +387,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
                 this.filesStore.filter("fileType", /dir/);
             break;
             case "manager" : var item;
-                item = {text:'Upload object',handler:function(){_this.drawUploadWidget();}};
+                item = {text:'Upload',handler:function(){_this.drawUploadWidget();}};
                 tbarObj.items.splice(0, 0, item);
                 item = {text:'New folder',handler:function(){_this.folderTree.expand();_this.createFolder();}};
                 tbarObj.items.splice(0, 0, item);
@@ -396,7 +396,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
                 this.selectButton.hide();
             break;
 			default : var item;
-                item = {text:'Upload object',handler:function(){_this.drawUploadWidget();}};
+                item = {text:'Upload',handler:function(){_this.drawUploadWidget();}};
                 tbarObj.items.splice(0, 0, item);
 				item = {text:'New folder',handler:function(){_this.folderTree.expand();_this.createFolder();}};
 				tbarObj.items.splice(0, 0, item);
@@ -405,7 +405,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 			break;
 		}
 		this.panel = Ext.create('Ext.window.Window', {
-		    title: 'WebDrive Browser',
+		    title: 'Upload & Manage',
 		    resizable: false,
 		    minimizable :true,
 			constrain:true,
@@ -503,25 +503,33 @@ GcsaBrowserWidget.prototype.createProject = function (){
 	}
 };
 
+GcsaBrowserWidget.prototype._getFolderTreeSelection = function(){
+    var selectedBuckets = this.folderTree.getSelectionModel().getSelection();
+    if(selectedBuckets.length < 1 ){
+        Ext.example.msg('No folder selected', 'Please select a bucket or a folder.');
+        return null;
+    }else{
+        var record = selectedBuckets[0];
+        var bucketName;
+        var parent = '';
+        if(record.raw.fileType != null && record.raw.fileType == "dir"){
+            var path = record.getPath("text","/").substr(1);
+            var pathArr =  path.split("/",2);
+            parent = path.replace(pathArr.join("/"),"").substr(1)+"/";
+            bucketName = pathArr[1];
+        }else{
+            bucketName = record.raw.text;
+        }
+        return {bucketId:bucketName,directory:parent};
+    }
+};
+
 GcsaBrowserWidget.prototype.drawUploadWidget = function (){
 	var _this = this;
-	var selectedBuckets = this.folderTree.getSelectionModel().getSelection();
-	if(selectedBuckets.length < 1 ){
-		Ext.example.msg('No folder selected', 'Please select a bucket or a folder.');
-	}else{
-		var record = selectedBuckets[0];
-		var bucketName;
-		var parent = "";
-		if(record.raw.fileType != null && record.raw.fileType == "dir"){
-			var path = record.getPath("text","/").substr(1);
-			var pathArr =  path.split("/",2);
-			parent = path.replace(pathArr.join("/"),"").substr(1)+"/";
-			bucketName = pathArr[1];
-		}else{
-			bucketName = record.raw.text;
-		}
-		_this.uploadWidget.draw({bucketId:bucketName,directory:parent});
-	}
+    var folderSelection = this._getFolderTreeSelection();
+    if(folderSelection != null){
+        _this.uploadWidget.draw(folderSelection);
+    }
 };
 
 GcsaBrowserWidget.prototype.createFolder = function (){
@@ -529,40 +537,24 @@ GcsaBrowserWidget.prototype.createFolder = function (){
 	if(this.accountData.buckets.length < 1){
 		Ext.MessageBox.alert('No buckets found', 'Please create and select a bucket.');
 	}else{
-		var selectedBuckets = this.folderTree.getSelectionModel().getSelection();
-		if(selectedBuckets.length < 1 ){
-			Ext.example.msg('No folder selected', 'Please select a bucket or a folder.');
-			//Ext.MessageBox.alert('No bucket selected', 'Please select a bucket or a folder.');
-		}else{
-
-			var record = selectedBuckets[0];
-			var bucketName;
-			var parent = '';
-			if(record.raw.fileType != null && record.raw.fileType == "dir"){
-				var path = record.getPath("text","/").substr(1);
-				var pathArr =  path.split("/",2);
-				parent = path.replace(pathArr.join("/"),"").substr(1)+"/";
-				bucketName = pathArr[1];
-			}else{
-				bucketName = record.raw.text;
-			}
-
-			Ext.Msg.prompt('New folder', 'Please enter a name for the new folder:', function(btn, text){
-				if (btn == 'ok'){
-					text = text.replace(/[^a-z0-9-_.\s]/gi,'');
-					text = text.trim()+"/";
-					var gcsaManager = new GcsaManager();
-					gcsaManager.onCreateDirectory.addEventListener(function(sender,res){
-						Ext.example.msg('Create folder', '</span class="emph">'+ res+'</span>');
-						if(res.indexOf("ERROR")!= -1){
-							console.log(res);
-						}else{
-							_this.onNeedRefresh.notify();
-						}
-					});
-					gcsaManager.createDirectory($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), bucketName , parent+text);
-				}
-			},null,null,"New Folder");
-		}
+        var folderSelection = this._getFolderTreeSelection();
+        if(folderSelection != null){
+            Ext.Msg.prompt('New folder', 'Please enter a name for the new folder:', function(btn, text){
+                if (btn == 'ok'){
+                    text = text.replace(/[^a-z0-9-_.\s]/gi,'');
+                    text = text.trim()+"/";
+                    var gcsaManager = new GcsaManager();
+                    gcsaManager.onCreateDirectory.addEventListener(function(sender,res){
+                        Ext.example.msg('Create folder', '</span class="emph">'+ res+'</span>');
+                        if(res.indexOf("ERROR")!= -1){
+                            console.log(res);
+                        }else{
+                            _this.onNeedRefresh.notify();
+                        }
+                    });
+                    gcsaManager.createDirectory($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), folderSelection.bucketId , folderSelection.directory+text);
+                }
+            },null,null,"New Folder");
+        }
 	}
 };

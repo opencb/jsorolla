@@ -134,25 +134,9 @@ GenericFormPanel.prototype.beforeRun = function() {
 };
 
 GenericFormPanel.prototype.run = function() {
-
-    var _this = this;
-    var action =function(){
-        _this.setAccountParams();
-        _this.gcsaManager.runAnalysis(_this.analysis, _this.paramsWS);
-        Ext.example.msg('Job Launched', 'It will be listed soon');
-    };
-
-    //check login
-    if(!$.cookie('bioinfo_sid')){
-        this.headerWidget.onLogin.addEventListener(function (sender, data){
-//            setTimeout(function(){action();},1001);
-            action();
-        });
-        this.headerWidget.loginWidget.anonymousSign();
-    }else{
-        action();
-    }
-
+    this.setAccountParams();
+    this.gcsaManager.runAnalysis(this.analysis, this.paramsWS);
+    Ext.example.msg('Job Launched', 'It will be listed soon');
 };
 
 GenericFormPanel.prototype.createCombobox = function(name, label, data, defaultValue, labelWidth, margin) {

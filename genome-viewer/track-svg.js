@@ -1299,17 +1299,17 @@ TrackSvg.prototype.SequenceRender = function(response){
 			var seqStart = response.items.start;
 			var seqString = response.items.sequence;
 
-			if(jQuery.browser.mozilla){
-				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
-				var text = SVG.addChild(this.features,"text",{
-					"x":x+fontOff,
-					"y":13,
-					"font-size":firefoxFontSize,
-					"style":"letter-spacing:8;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
-					"font-family": "Ubuntu Mono"
-				});
-				text.textContent = seqString;
-			}else{
+//			if(jQuery.browser.mozilla){
+//				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
+//				var text = SVG.addChild(this.features,"text",{
+//					"x":x+fontOff,
+//					"y":13,
+//					"font-size":firefoxFontSize,
+//					"style":"letter-spacing:8;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
+//					"font-family": "Ubuntu Mono"
+//				});
+//				text.textContent = seqString;
+//			}else{
 				for ( var i = 0; i < seqString.length; i++) {
 					var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
 					start++;
@@ -1329,7 +1329,7 @@ TrackSvg.prototype.SequenceRender = function(response){
 					});
 				}
 				
-			}
+//			}
 		//}
 			
 		//}
@@ -1424,7 +1424,8 @@ TrackSvg.prototype._getFeaturesByChunks = function(response, filters){
 	var dataType = response.params.dataType;
 	var chromosome = response.params.chromosome;
 	var features = [];
-	
+
+
 	var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {
 		if(this.chunksDisplayed[chunks[i].key+dataType]!=true){//check if any chunk is already displayed and skip it

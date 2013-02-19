@@ -409,6 +409,14 @@ color:#0066FF;
 font-weight: bold;
 }
 
+.link{
+    color:#1155cc;
+}
+
+.bgama{
+    color:#ffffd6;
+}
+
 .w75{
 	display: inline-block;
 	width: 75px;

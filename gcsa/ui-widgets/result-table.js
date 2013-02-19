@@ -27,7 +27,7 @@ function ResultTable(jobId, filename, tags, args){
 	this.jobId = jobId;
 	this.fileName=filename;
 	this.tags=tags;
-	this.numRows=5;
+	this.numRows=10;
 	this.flex=null;
 	this.collapsible=true;
 	this.border=true;

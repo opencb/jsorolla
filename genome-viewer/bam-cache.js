@@ -131,7 +131,7 @@ BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType
 	var ssss = 0;
 	for(var index = 0, len = reads.length; index<len; index++) {
 		read = reads[index];
-		read.featureType = "bam";
+		read.featureType = 'bam';
 		firstChunk = this._getChunk(read.start);
 		lastChunk = this._getChunk(read.end == 0?read.end=-1:read.end);//0 is not a position, i set to -1 to avoid enter in for
 //		Some reads has end = 0. So will not be drawn IGV does not draw those reads
