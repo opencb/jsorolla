@@ -101,7 +101,6 @@ FileWidget.prototype.getFileUpload = function(){
 		listeners : {
 			change : {
 				fn : function() {
-                    debugger
 					_this.panel.setLoading();
 					var file = document.getElementById(_this.uploadField.fileInputEl.id).files[0];
 					_this.trackNameField.setValue(file.name);
@@ -199,7 +198,6 @@ FileWidget.prototype.draw = function(){
 			text:'Ok',
 			disabled:true,
 			handler: function(){
-                debugger
 				_this.onOk.notify({fileName:_this.file.name, adapter:_this.adapter});
 				_this.openDialog.close();
 			}

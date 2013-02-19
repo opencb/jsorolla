@@ -39,7 +39,6 @@ FileDataSource.prototype.fetch = function(async){
 		if(async){
 			var  reader = new FileReader();
 			reader.onload = function(evt) {
-                debugger
 				_this.success.notify(evt.target.result);
 			};
 			reader.readAsText(this.file, "UTF-8");
