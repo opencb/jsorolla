@@ -2,10 +2,10 @@ function GenericFormPanel(analysis) {
 	this.analysis = analysis;
 	this.form = null;
 	this.paramsWS = {};
-	this.gcsaManager = new GcsaManager();
+	this.opencgaManager = new OpencgaManager();
 	this.panelId = this.analysis+"_FormPanel";
 	
-	this.gcsaManager.onRunAnalysis.addEventListener(function(sender, response){
+	this.opencgaManager.onRunAnalysis.addEventListener(function(sender, response){
 		if(response.data.indexOf("ERROR") != -1) {
 			Ext.Msg.show({
 				title:"Error",
@@ -89,7 +89,7 @@ GenericFormPanel.prototype.getJobPanel = function() {
 //		       ]
 //	});
 //	var jobDestinationBucket = this.createCombobox("jobdestinationbucket", "Destination bucket", bucketList, 0, 100);
-	var jobFolder = this.createGcsaBrowserCmp('Folder:', 'outdir', 'folderSelection', '0 0 0 66', 'Default job folder');
+	var jobFolder = this.createOpencgaBrowserCmp('Folder:', 'outdir', 'folderSelection', '0 0 0 66', 'Default job folder');
 	
 	var jobPanel = Ext.create('Ext.panel.Panel', {
 		title: 'Job',
@@ -135,7 +135,8 @@ GenericFormPanel.prototype.beforeRun = function() {
 
 GenericFormPanel.prototype.run = function() {
     this.setAccountParams();
-    this.gcsaManager.runAnalysis(this.analysis, this.paramsWS);
+    this.paramsWS.pathways =  this.paramsWS.pathways.replace('mmu04620,','').replace(',mmu04620','').replace('mmu04620','');//TODO remove, temporal fix
+    this.opencgaManager.runAnalysis(this.analysis, this.paramsWS);
     Ext.example.msg('Job Launched', 'It will be listed soon');
 };
 
@@ -167,17 +168,17 @@ GenericFormPanel.prototype.createCheckBox = function(name, label, checked, margi
 	});
 };
 
-GenericFormPanel.prototype.createGcsaBrowserCmp = function(fieldLabel, dataParamName, mode,  btnMargin, defaultFileLabel) {
+GenericFormPanel.prototype.createOpencgaBrowserCmp = function(fieldLabel, dataParamName, mode,  btnMargin, defaultFileLabel) {
 	var _this = this;
 	var btnBrowse = Ext.create('Ext.button.Button', {
         text: 'Browse...',
         margin: btnMargin || '0 0 0 10',
         handler: function () {
-        	_this.gcsaBrowserWidget.draw(mode);
-        	var listenerIdx = _this.gcsaBrowserWidget.onSelect.addEventListener(function(sender, response){
+        	_this.opencgaBrowserWidget.draw(mode);
+        	var listenerIdx = _this.opencgaBrowserWidget.onSelect.addEventListener(function(sender, response){
         		_this.paramsWS[dataParamName] = response.bucketId+':'+response.id.replace(/\//g,":");
         		fileSelectedLabel.setText('<span class="emph">'+response.bucketId+'/'+response.id+'</span>', false);
-        		_this.gcsaBrowserWidget.onSelect.removeEventListener(listenerIdx);
+        		_this.opencgaBrowserWidget.onSelect.removeEventListener(listenerIdx);
         	});
    		}
 	});

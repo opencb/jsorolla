@@ -36,7 +36,7 @@ function ResultWidget(args){
         }
     }
 	
-	this.adapter = new GcsaManager();
+	this.adapter = new OpencgaManager();
 	
 	this.adapter.onJobResult.addEventListener(function (sender, data){
 //		console.log(data);
@@ -473,7 +473,7 @@ ResultWidget.prototype.drawHistograms = function (){
 //	console.log(this.resultHistograms);
 	for(id in this.resultHistograms){
 		
-		var adapterPoll = new GcsaManager();
+		var adapterPoll = new OpencgaManager();
 		adapterPoll.onPoll.addEventListener(function(sender,data){
 			if(data!=""){
 				var lines = data.split("\n");
@@ -587,7 +587,7 @@ ResultWidget.prototype.createGenomeViewer = function (targetId){
 	});
 	genomeViewer.draw();
 	
-	var adapter = new GcsaManager();
+	var adapter = new OpencgaManager();
 	adapter.onPoll.addEventListener(function(sender, data){
 		if(data.indexOf("ERROR")!=1){
 			console.error(data);

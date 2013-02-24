@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function GcsaAdapter(args){
+function OpencgaAdapter(args){
 	this.host = null;
 	this.gzip = true;
 	
@@ -45,7 +45,7 @@ function GcsaAdapter(args){
 	this.onGetData = new Event();
 }
 
-GcsaAdapter.prototype.getData = function(args){
+OpencgaAdapter.prototype.getData = function(args){
 	var _this = this;
 	//region check
 	
@@ -87,10 +87,10 @@ GcsaAdapter.prototype.getData = function(args){
 	
 	
 	//CellBase data process
-	var gcsaManager = new GcsaManager();
+	var opencgaManager = new OpencgaManager(this.host);
 	var calls = 0;
 	var querys = [];
-	gcsaManager.onRegion.addEventListener(function (evt, data){
+	opencgaManager.onRegion.addEventListener(function (evt, data){
 		console.timeEnd("dqs");
 		console.time("dqs-cache");
 		var type = "data";
@@ -157,8 +157,8 @@ GcsaAdapter.prototype.getData = function(args){
 		for ( var i = 0, li = querys.length; i < li; i++) {
 			console.time("dqs");
 			calls++;
-//			gcsaManager.region(this.category, this.resource, querys[i], this.params);
-            gcsaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource, querys[i], this.params);
+//			opencgaManager.region(this.category, this.resource, querys[i], this.params);
+            opencgaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource, querys[i], this.params);
 		}
 	}else{
 		if(itemList.length > 0){

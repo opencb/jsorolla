@@ -474,7 +474,7 @@ NetworkViewer.prototype.setLayout = function(type, nodeLst){
 	default:
 		var dotText = this.networkData.toDot();
 		var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/"+type+".coords";
-//		var url = "http://localhost:8080/gcsa/rest/utils/network/layout/"+type+".coords";
+//		var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
 		var _this = this;
 		
 		$.ajax({

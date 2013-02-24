@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function GcsaBrowserWidget(args){
+function OpencgaBrowserWidget(args){
 	var _this=this;
 	if(typeof args != 'undefined'){
 		this.targetId = args.targetId || this.targetId;
@@ -28,7 +28,7 @@ function GcsaBrowserWidget(args){
 		this.height = args.height || this.height;
 	}
     
-    this.adapter = new GcsaManager();
+    this.adapter = new OpencgaManager();
 	this.adapter.onCreateBucket.addEventListener(function (sender, data){
 		if(data.indexOf("ERROR") != -1) {
 			Ext.Msg.alert("Create project", "ERROR: could not create this project.");
@@ -50,9 +50,9 @@ function GcsaBrowserWidget(args){
 	this.searchFieldId = this.id + "_searchField";
 }
 
-GcsaBrowserWidget.prototype = {
+OpencgaBrowserWidget.prototype = {
 	/* Default properties */
-	id : "GcsaBrowserWidget_" + Math.round(Math.random()*10000000),
+	id : "OpencgaBrowserWidget_" + Math.round(Math.random()*10000000),
 	targetId:undefined,
 	title:'Cloud data',
 	onSelect : new Event(this),
@@ -154,7 +154,7 @@ GcsaBrowserWidget.prototype = {
 	//endclass
 };
 
-GcsaBrowserWidget.prototype.render = function (mode){
+OpencgaBrowserWidget.prototype.render = function (mode){
 	var _this=this;
 	if (this.panel == null){
 		
@@ -335,8 +335,8 @@ GcsaBrowserWidget.prototype.render = function (mode){
 							Ext.MessageBox.confirm('Confirm', 'Are you sure you want to delete this file?<p class="emph">'+record.data.fileName+'<p>', function(answer){
 								if(answer == "yes"){
 									console.log("deleting")
-									var gcsaManager = new GcsaManager();
-									gcsaManager.onDeleteObjectFromBucket.addEventListener(function (sender, response){
+									var opencgaManager = new OpencgaManager();
+									opencgaManager.onDeleteObjectFromBucket.addEventListener(function (sender, response){
 										if (response.indexOf("ERROR:") != -1){
 											Ext.example.msg("Deleting",response);
 										}else{
@@ -345,7 +345,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 											_this.onNeedRefresh.notify();
 										}
 									});
-									gcsaManager.deleteObjectFromBucket($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
+									opencgaManager.deleteObjectFromBucket($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
 								}
 							});
 						}
@@ -437,7 +437,7 @@ GcsaBrowserWidget.prototype.render = function (mode){
 	this.panel.show();
 };
 
-GcsaBrowserWidget.prototype.setFilter = function (){
+OpencgaBrowserWidget.prototype.setFilter = function (){
 	var _this=this;
 	var recordOrigin = this.viewOrigin.getSelectionModel().getSelection()[0];
 	var recordSuite = this.viewSuite.getSelectionModel().getSelection()[0];
@@ -467,7 +467,7 @@ GcsaBrowserWidget.prototype.setFilter = function (){
 		});
 };
 
-GcsaBrowserWidget.prototype.checkTags = function(tags){
+OpencgaBrowserWidget.prototype.checkTags = function(tags){
 	for(var i = 0; i < this.tags.length ; i++){
 		if (this.tags[i].indexOf('|')>-1){
 			var orTags = this.tags[i].split('|');
@@ -492,7 +492,7 @@ GcsaBrowserWidget.prototype.checkTags = function(tags){
 
 
 
-GcsaBrowserWidget.prototype.createProject = function (){
+OpencgaBrowserWidget.prototype.createProject = function (){
 	var _this = this;
 	var name = Ext.getCmp(this.id+"newProjectNameField").getValue();
 	var desc = Ext.getCmp(this.id+"newProjectDescriptionField").getValue();
@@ -503,7 +503,7 @@ GcsaBrowserWidget.prototype.createProject = function (){
 	}
 };
 
-GcsaBrowserWidget.prototype._getFolderTreeSelection = function(){
+OpencgaBrowserWidget.prototype._getFolderTreeSelection = function(){
     var selectedBuckets = this.folderTree.getSelectionModel().getSelection();
     if(selectedBuckets.length < 1 ){
         Ext.example.msg('No folder selected', 'Please select a bucket or a folder.');
@@ -524,7 +524,7 @@ GcsaBrowserWidget.prototype._getFolderTreeSelection = function(){
     }
 };
 
-GcsaBrowserWidget.prototype.drawUploadWidget = function (){
+OpencgaBrowserWidget.prototype.drawUploadWidget = function (){
 	var _this = this;
     var folderSelection = this._getFolderTreeSelection();
     if(folderSelection != null){
@@ -532,7 +532,7 @@ GcsaBrowserWidget.prototype.drawUploadWidget = function (){
     }
 };
 
-GcsaBrowserWidget.prototype.createFolder = function (){
+OpencgaBrowserWidget.prototype.createFolder = function (){
 	var _this = this;
 	if(this.accountData.buckets.length < 1){
 		Ext.MessageBox.alert('No buckets found', 'Please create and select a bucket.');
@@ -543,8 +543,8 @@ GcsaBrowserWidget.prototype.createFolder = function (){
                 if (btn == 'ok'){
                     text = text.replace(/[^a-z0-9-_.\s]/gi,'');
                     text = text.trim()+"/";
-                    var gcsaManager = new GcsaManager();
-                    gcsaManager.onCreateDirectory.addEventListener(function(sender,res){
+                    var opencgaManager = new OpencgaManager();
+                    opencgaManager.onCreateDirectory.addEventListener(function(sender,res){
                         Ext.example.msg('Create folder', '</span class="emph">'+ res+'</span>');
                         if(res.indexOf("ERROR")!= -1){
                             console.log(res);
@@ -552,7 +552,7 @@ GcsaBrowserWidget.prototype.createFolder = function (){
                             _this.onNeedRefresh.notify();
                         }
                     });
-                    gcsaManager.createDirectory($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), folderSelection.bucketId , folderSelection.directory+text);
+                    opencgaManager.createDirectory($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), folderSelection.bucketId , folderSelection.directory+text);
                 }
             },null,null,"New Folder");
         }

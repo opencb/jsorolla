@@ -33,7 +33,7 @@ function LoginWidget (suiteId, args){
 	/**Events i send**/
 	this.onSessionInitiated = new Event(this);
 
-	this.adapter = new GcsaManager();
+	this.adapter = new OpencgaManager();
 	
 	/**Atach events i listen**/
 	this.adapter.onLogin.addEventListener(function (sender, data){

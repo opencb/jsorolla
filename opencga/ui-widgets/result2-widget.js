@@ -28,7 +28,7 @@ function ResultWidget(args){
         this.app  = args.app  || this.app;
     }
 
-	this.adapter = new GcsaManager();
+	this.adapter = new OpencgaManager();
 	
 	this.panelId=null;
 	this.networkViewerId = null;
@@ -88,8 +88,8 @@ ResultWidget.prototype = {
                             case 'pathiways':
                                 var arr = item.commandLine.split(/ --/g);
                                 var str = arr[2].replace(/ /g,': ')+'<br>';
-                                str +=  arr[5].replace(/ /g,': ').replace('/httpd/bioinfo/gcsa/analysis/pathiways/examples/','')+'<br>';
-                                str +=  arr[1].replace(/ /g,': ').replace('/httpd/bioinfo/gcsa/analysis/pathiways/examples/','')+'<br>';
+                                str +=  arr[5].replace(/ /g,': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/','')+'<br>';
+                                str +=  arr[1].replace(/ /g,': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/','')+'<br>';
                                 str +=  arr[3].replace(/ /g,': ')+'<br>';
                                 str +=  arr[7].replace(/ /g,': ')+'<br>';
                                 str +=  arr[9].replace(/ /g,': ')+'<br>';

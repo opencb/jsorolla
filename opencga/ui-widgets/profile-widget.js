@@ -28,7 +28,7 @@ function ProfileWidget(args){
         this.targetId = args.targetId || this.targetId;
     }
 
-	this.adapter = new GcsaManager();
+	this.adapter = new OpencgaManager();
 	
 	this.adapter.onChangePassword.addEventListener(function (sender, data){
 			_this.panel.setLoading(false);

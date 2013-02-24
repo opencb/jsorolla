@@ -19,52 +19,56 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function GcsaRestManager (){
+function OpencgaManager(host){
 
-	//deprecated
-	//this.host = "http://bioinfo.cipf.es/dqs-naranjoma-ws/rest";
-	//if(window.location.host.indexOf("ralonso")!=-1){
-		//this.host = "http://ralonso:8080/dqs-naranjoma-ws/rest";
-	//}
-	
-	/** Events **/
-	/*ACCOUNT*/
-	this.onGetAccountInfo = new Event(this);
-	this.onLogin = new Event(this);
-	this.onCreateAccount = new Event(this);
-	this.onResetPassword = new Event(this);
-	this.onChangePassword = new Event(this);
-	this.onChangeEmail = new Event(this);
-	this.onLogout = new Event(this);
+    this.host = host || this.host;
+    //deprecated
+    //this.host = "http://bioinfo.cipf.es/dqs-naranjoma-ws/rest";
+    //if(window.location.host.indexOf("ralonso")!=-1){
+    //this.host = "http://ralonso:8080/dqs-naranjoma-ws/rest";
+    //}
 
-	/*Bucket*/
-	this.onCreateBucket = new Event(this);
-	this.onUploadObjectToBucket = new Event(this);
-	this.onDeleteObjectFromBucket = new Event(this);
-	this.onCreateDirectory = new Event(this);
+    /** Events **/
+    /*ACCOUNT*/
+    this.onGetAccountInfo = new Event(this);
+    this.onLogin = new Event(this);
+    this.onCreateAccount = new Event(this);
+    this.onResetPassword = new Event(this);
+    this.onChangePassword = new Event(this);
+    this.onChangeEmail = new Event(this);
+    this.onLogout = new Event(this);
 
-	/*Jobs*/
-	this.onJobStatus = new Event(this);
-	this.onJobResult = new Event(this);
-	this.onTable = new Event(this);
-	this.onPoll = new Event(this);
-	this.onDeleteJob = new Event(this);
+    /*Bucket*/
+    this.onCreateBucket = new Event(this);
+    this.onUploadObjectToBucket = new Event(this);
+    this.onDeleteObjectFromBucket = new Event(this);
+    this.onCreateDirectory = new Event(this);
 
-	/*ANALYSIS*/
-	this.onRunAnalysis = new Event(this);
-	this.onIndexer = new Event(this);
-	this.onIndexerStatus = new Event(this);
+    /*Jobs*/
+    this.onJobStatus = new Event(this);
+    this.onJobResult = new Event(this);
+    this.onTable = new Event(this);
+    this.onPoll = new Event(this);
+    this.onDeleteJob = new Event(this);
 
-	/*BAM*/
-	this.onBamList = new Event(this);
-	this.onGetAccountInfo = new Event(this);
-	this.onRegion = new Event(this);
-	
-	this.onError = new Event(this);
+    /*ANALYSIS*/
+    this.onRunAnalysis = new Event(this);
+    this.onIndexer = new Event(this);
+    this.onIndexerStatus = new Event(this);
+
+    /*BAM*/
+    this.onBamList = new Event(this);
+    this.onGetAccountInfo = new Event(this);
+    this.onRegion = new Event(this);
+
+
+    this.onLocalFileList = new Event(this);
+
+    this.onError = new Event(this);
 }
 
-GcsaRestManager.prototype = {
-    host : GCSA_HOST,
+OpencgaManager.prototype = {
+    host : OPENCGA_HOST,
     getHost : function(){
         return this.host;
     },
@@ -148,7 +152,7 @@ GcsaRestManager.prototype = {
         }
 
         this.doGet(url, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
     login : function(accountId, password, suiteId){
         var _this=this;
@@ -186,7 +190,7 @@ GcsaRestManager.prototype = {
         }
 
         this.doGet(url, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
     getAccountInfo : function(accountId, sessionId, lastActivity){
         console.log(lastActivity)
@@ -208,7 +212,7 @@ GcsaRestManager.prototype = {
             console.log(data);
         }
         this.doGet(url, success, error);
-    	console.log(url);
+        console.log(url);
     },
     changePassword : function(accountId, sessionId, old_password, new_password1, new_password2){
         var _this=this;
@@ -228,7 +232,7 @@ GcsaRestManager.prototype = {
         }
 
         this.doGet(url, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
     resetPassword : function(accountId, email){
         var _this=this;
@@ -245,25 +249,25 @@ GcsaRestManager.prototype = {
         }
 
         this.doGet(url, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
     changeEmail : function(accountId, sessionId, new_email){
-    	var _this=this;
+        var _this=this;
         var queryParams = {
             'new_email':new_email,
             'sessionid':sessionId
         };
         var url =  this.getAdminProfileUrl(accountId)+'/change_email'+this.getQuery(queryParams);
-    	function success(data){
-    		_this.onChangeEmail.notify(data);
-    	}
+        function success(data){
+            _this.onChangeEmail.notify(data);
+        }
 
-    	function error(data){
-    		console.log("ERROR: " + data);
-    	}
+        function error(data){
+            console.log("ERROR: " + data);
+        }
 
-    	this.doGet(url, success, error);
-    //	console.log(url);
+        this.doGet(url, success, error);
+        //	console.log(url);
     },
 
     /* BUCKET METHODS */
@@ -287,7 +291,7 @@ GcsaRestManager.prototype = {
         }
 
         this.doGet(url, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
     renameBucket : 'TODO',
     deleteBucket : 'TODO',
@@ -311,11 +315,11 @@ GcsaRestManager.prototype = {
         }
 
         this.doPost(url, formData, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
     createDirectory : function(accountId, sessionId, bucketId, objectId, parents){
         objectId = objectId.replace(new RegExp("/", "gi"),":");
-	    var _this=this;
+        var _this=this;
         var queryParams = {
             'parents':(parents || false),
             'sessionid':sessionId
@@ -348,14 +352,22 @@ GcsaRestManager.prototype = {
         }
 
         this.doGet(url, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
     region : function(accountId, sessionId, bucketId, objectId, region, queryParams){
         objectId = objectId.replace(new RegExp("/", "gi"),":");
         var _this=this;
         queryParams["sessionid"] = sessionId;
         queryParams["region"] = region;
-        var url = this.getObjectUrl(accountId,bucketId,objectId)+'/fetch'+this.getQuery(queryParams);
+
+        if(this.host.indexOf("localhost")!=-1){
+            var url =  this.host+'/storage/fetch?filepath='+objectId+'&region='+region;
+        }else{
+            var url = this.getObjectUrl(accountId,bucketId,objectId)+'/fetch'+this.getQuery(queryParams);
+        }
+
+
+
         console.log(url);
         function success(data){
             _this.onRegion.notify({resource:queryParams["category"],result:JSON.parse(data),filename:objectId,query:region,params:queryParams});
@@ -388,7 +400,7 @@ GcsaRestManager.prototype = {
         }
 
         this.doGet(url, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
     jobResultUrl : function(accountId, sessionId, jobId, format){
         var queryParams = {
@@ -411,7 +423,7 @@ GcsaRestManager.prototype = {
         }
 
         this.doGet(url, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
 
     table : function(accountId, sessionId, jobId, filename, colNames, colVisibility){
@@ -432,7 +444,7 @@ GcsaRestManager.prototype = {
         }
 
         this.doGet(url, success, error);
-    //	console.log(url);
+        //	console.log(url);
     },
 
     tableurl : function(accountId, sessionId, jobId, filename, colNames, colVisibility){
@@ -446,7 +458,6 @@ GcsaRestManager.prototype = {
     },
 
     poll : function(accountId, sessionId, jobId, filename, zip){
-        //debugger
         var _this=this;
         var queryParams = {
             'filename':filename,
@@ -467,7 +478,7 @@ GcsaRestManager.prototype = {
             }
             this.doGet(url, success, error);
         }
-    //	console.log(url);
+        //	console.log(url);
     },
 
     pollurl : function(accountId, sessionId, jobId, filename){
@@ -559,80 +570,21 @@ GcsaRestManager.prototype = {
             _this.onIndexer.notify(data);
         }
         this.doGet(url, success, error);
+    },
+
+    localFileList : function(){
+        var _this=this;
+
+        var url = this.host+'/getdirs';
+        console.log(url);
+
+        function success(data){
+            _this.onLocalFileList.notify(data);
+        }
+
+        function error(data){
+            _this.onLocalFileList.notify(data);
+        }
+        this.doGet(url, success, error);
     }
 };
-
-
-//
-///*project management*/
-
-//
-//
-//
-//
-
-//
-///**General**/
-//GcsaRestManager.prototype.experimentList = function(queryParams){
-//	var _this=this;
-//	var url = this.getHost()+'/experiment'+this.getQuery(queryParams);
-//
-//	function success(data){
-//		_this.onBamList.notify(JSON.parse(data));
-//	}
-//
-//	function error(data){
-//		console.log("ERROR: " + data);
-//		console.log(data);
-//	}
-//
-//	this.doGet(url, success, error);
-////	console.log(url);
-//
-//};
-//
-///**BAM**/
-//GcsaRestManager.prototype.bamList = function(queryParams){
-//	var _this=this;
-//	var url = this.getHost()+'/bam/list'+this.getQuery(queryParams);;
-//
-//	function success(data){
-//		_this.onBamList.notify(JSON.parse(data));
-//	}
-//
-//	function error(data){
-//		console.log("ERROR: " + data);
-//		console.log(data);
-//	}
-//
-//	this.doGet(url, success, error);
-////	console.log(url);
-//
-//};
-//
-//
-//
-////old
-////GcsaRestManager.prototype.region = function(category, filename, region, queryParams){
-//	//var _this=this;
-//	//var url = this.getHost()+'/'+category+'/'+filename+'/'+region+'/region'+this.getQuery(queryParams);
-//	//console.log(url);
-//	//function success(data){
-//		//_this.onRegion.notify({resource:category,result:JSON.parse(data),filename:filename,query:region,params:queryParams});
-//	//}
-//	//
-//	//function error(data){
-//		//console.log("ERROR: " + data);
-//		//console.log(data);
-//	//}
-//	//
-//	//this.doGet(url, success, error);
-//	//console.log(url);
-////};
-//
-
-//
-//
-
-//
-

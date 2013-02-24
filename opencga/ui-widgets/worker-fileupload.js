@@ -176,7 +176,7 @@ self.onmessage = function(e) {
 //fr.onload = function(evt) {
 //    $.ajax({
 //        type: "POST",
-//        url: "http://fsalavert:8080/gcsa/rest/subir",
+//        url: "http://fsalavert:8080/opencga/rest/subir",
 //        data: {a:evt.target.result},
 //        success: function(data){console.log(data);},
 //        error:  function(data){console.log(data);},

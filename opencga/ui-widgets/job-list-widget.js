@@ -139,11 +139,11 @@ function JobListWidget (args){
 ///*HARDCODED check job status*/
 //	var checkJobsStatus = function(){
 //		if(_this.accountData != null){
-//			var gcsaManager = new GcsaManager();
+//			var opencgaManager = new OpencgaManager();
 //			for ( var i = 0; i < _this.accountData.jobs.length; i++) {
 //				if(_this.tools.indexOf(_this.accountData.jobs[i].toolName) != -1){
 //					if(_this.accountData.jobs[i].visites<0){
-//						gcsaManager.jobStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), _this.accountData.jobs[i].id);
+//						opencgaManager.jobStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), _this.accountData.jobs[i].id);
 //					}
 //				}
 //			}

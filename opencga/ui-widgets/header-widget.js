@@ -40,7 +40,7 @@ function HeaderWidget(args){
         this.news = args.news || this.news;
     }
 
-	this.adapter = new GcsaManager();
+	this.adapter = new OpencgaManager();
 	
 	/** Events **/
 	this.onLogin = new Event();
@@ -50,9 +50,9 @@ function HeaderWidget(args){
 	/** create widgets **/
 	this.loginWidget= new LoginWidget(this.suiteId);
 	this.editUserWidget = new ProfileWidget();
-	this.uploadWidget = new UploadWidget({suiteId:this.suiteId});//used now from gcsa-browser
+	this.uploadWidget = new UploadWidget({suiteId:this.suiteId});//used now from opencga-browser
 	this.projectManager = new ManageProjectsWidget({width:800,height:500,suiteId:this.suiteId});
-	this.gcsaBrowserWidget = new GcsaBrowserWidget({suiteId:this.suiteId});
+	this.opencgaBrowserWidget = new OpencgaBrowserWidget({suiteId:this.suiteId});
 	
 	/**Atach events i listen**/
 	this.loginWidget.onSessionInitiated.addEventListener(function(){
@@ -72,7 +72,7 @@ function HeaderWidget(args){
 		_this.sessionFinished();
 		_this.onLogout.notify();
 	});
-    this.gcsaBrowserWidget.onNeedRefresh.addEventListener(function(){
+    this.opencgaBrowserWidget.onNeedRefresh.addEventListener(function(){
         _this.getAccountInfo();
     });
     this.adapter.onGetAccountInfo.addEventListener(function (evt, response){
@@ -87,7 +87,7 @@ function HeaderWidget(args){
 HeaderWidget.prototype = {
     setAccountData : function (data){
         this.accountData = data;
-        this.gcsaBrowserWidget.setAccountData(data);
+        this.opencgaBrowserWidget.setAccountData(data);
         Ext.getCmp(this.id+'textUser').setText(this._getAccountText());
     },
     getAccountInfo : function() {
@@ -95,7 +95,13 @@ HeaderWidget.prototype = {
         if(this.accountData != null){
             lastActivity =  this.accountData.lastActivity;
         }
-        this.adapter.getAccountInfo($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), lastActivity);
+        if(!$.cookie('bioinfo_account')){
+            console.log('cookie: bioinfo_account, is not set, session will be finished...');
+            this.sessionFinished();
+        }else{
+            this.adapter.getAccountInfo($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), lastActivity);
+        }
+
     },
     _getAccountText : function(){
         var nameToShow = this.accountData.accountId;
@@ -112,22 +118,22 @@ HeaderWidget.prototype = {
         /**SHOW**/
         Ext.getCmp(this.id+'btnLogout').show();
         Ext.getCmp(this.id+'btnEdit').show();
-        Ext.getCmp(this.id+'btnGcsa').show();
+        Ext.getCmp(this.id+'btnOpencga').show();
 
-        /**START GCSA CHECK**/
+        /**START OPENCGA CHECK**/
         this.getAccountInfo();//first call
         this.accountInfoInterval = setInterval(function(){_this.getAccountInfo();}, this.checkTimeInterval);
     },
     sessionFinished : function(){
         /**HIDE**/
-        Ext.getCmp(this.id+'btnGcsa').hide();
+        Ext.getCmp(this.id+'btnOpencga').hide();
         Ext.getCmp(this.id+'btnLogout').hide();
         Ext.getCmp(this.id+'btnEdit').hide();
         /**SHOW**/
         Ext.getCmp(this.id+'btnSignin').show();
 
         Ext.getCmp(this.id+'textUser').setText('');
-        /**CLEAR GCSA**/
+        /**CLEAR OPENCGA**/
         clearInterval(this.accountInfoInterval);
     },
     setDescription : function (text){
@@ -297,11 +303,11 @@ HeaderWidget.prototype = {
                     id:this.id+'textUser',
                     text:''
                 },{
-                    id:this.id+'btnGcsa',
+                    id:this.id+'btnOpencga',
                     text: '<span class="emph">Upload & Manage</span>',
                     iconCls: 'icon-project-manager',
                     handler: function() {
-                        _this.gcsaBrowserWidget.draw("manager");
+                        _this.opencgaBrowserWidget.draw("manager");
                     }
                 },{
                     id: this.id+'btnSignin',

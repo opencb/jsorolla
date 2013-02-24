@@ -34,7 +34,7 @@ function UploadWidget (args){
         }
     }
 	
-	this.adapter = new GcsaManager();
+	this.adapter = new OpencgaManager();
 	this.adapter.onUploadObjectToBucket.addEventListener(function(sender,res){
 		if(res.status == 'done'){
 
@@ -60,8 +60,8 @@ function UploadWidget (args){
 //	return this.id+'_uploadButton';
 //};
 
-UploadWidget.prototype.draw = function(gcsaLocation){
-	this.gcsaLocation = gcsaLocation;
+UploadWidget.prototype.draw = function(opencgaLocation){
+	this.opencgaLocation = opencgaLocation;
 	var dataTypes = {};
 	dataTypes["9"]=[
 		            { text: "ID List", children: [
@@ -428,7 +428,7 @@ UploadWidget.prototype.uploadFile = function()  {
 	    fd.append("file", inputFile);
     }
     var sessionId = $.cookie('bioinfo_sid');
-    var objectId = this.gcsaLocation.directory+inputFileName;
+    var objectId = this.opencgaLocation.directory+inputFileName;
     objectId = objectId.replace(new RegExp("/", "gi"),":");
 
    	fd.append("name", this.nameField.getValue()); 
@@ -442,10 +442,10 @@ UploadWidget.prototype.uploadFile = function()  {
 
 
     //TODO DELETE THIS
-    this.objectID = this.gcsaLocation.bucketId+":"+objectId;
+    this.objectID = this.opencgaLocation.bucketId+":"+objectId;
 
 	//accountid, sessionId, projectname, formData
-	this.adapter.uploadObjectToBucket($.cookie("bioinfo_account"), sessionId, this.gcsaLocation.bucketId, objectId, fd);
+	this.adapter.uploadObjectToBucket($.cookie("bioinfo_account"), sessionId, this.opencgaLocation.bucketId, objectId, fd);
 	
 };
 
@@ -456,7 +456,7 @@ UploadWidget.prototype.uploadFile2 = function()  {
 
     var inputFile = document.getElementById(Ext.getCmp(this.uploadFieldId).fileInputEl.id).files[0];
 
-    var objectId = this.gcsaLocation.directory+inputFile.name;
+    var objectId = this.opencgaLocation.directory+inputFile.name;
     objectId = objectId.replace(new RegExp("/", "gi"),":");
 
     var fileuploadWorker = new Worker(WORKERS_PATH+'worker-fileupload.js');
@@ -473,12 +473,12 @@ UploadWidget.prototype.uploadFile2 = function()  {
         console.log(res);
     };
     fileuploadWorker.postMessage({
-        'host':GCSA_HOST,
+        'host':OPENCGA_HOST,
         'accountId': $.cookie("bioinfo_account"),
         'sessionId': $.cookie("bioinfo_sid"),
         'file' : inputFile,
         'objectId':objectId,
-        'bucketId':this.gcsaLocation.bucketId,
+        'bucketId':this.opencgaLocation.bucketId,
         'resume' : true
     });
 };

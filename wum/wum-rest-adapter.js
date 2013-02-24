@@ -22,24 +22,24 @@
 function WumRestAdapter (){
 
 	//This line never changes
-	this.host = "http://ws.bioinfo.cipf.es/gcsa/rest";
+	this.host = "http://ws.bioinfo.cipf.es/opencga/rest";
 	
 	if(window.location.host.indexOf("fsalavert")!=-1 ||
 	   window.location.host.indexOf("rsanchez")!=-1 ||
 	   window.location.host.indexOf("imedina")!=-1 ||
 	   window.location.href.indexOf("http://bioinfo.cipf.es/apps-beta")!=-1
 	){
-		this.host = "http://ws-beta.bioinfo.cipf.es/gcsa/rest";
-//		this.host = "http://fsalavert:8080/gcsa/rest";
-//		this.host = "http://rsanchez:8080/gcsa/rest";
-//		this.host = "http://imedina:8080/gcsa/rest";
-//		this.host = "http://gen29:8080/gcsa/rest";
+		this.host = "http://ws-beta.bioinfo.cipf.es/opencga/rest";
+//		this.host = "http://fsalavert:8080/opencga/rest";
+//		this.host = "http://rsanchez:8080/opencga/rest";
+//		this.host = "http://imedina:8080/opencga/rest";
+//		this.host = "http://gen29:8080/opencga/rest";
 	}
 	
 	var url = $.url();
 	var prod = url.param('p');
 	if(prod != null) {
-		this.host = "http://ws.bioinfo.cipf.es/gcsa/rest";
+		this.host = "http://ws.bioinfo.cipf.es/opencga/rest";
 	}
 
 	WUMHOST = this.host;

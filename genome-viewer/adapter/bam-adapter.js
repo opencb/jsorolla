@@ -20,32 +20,16 @@
  */
 
 function BamAdapter(args){
-	this.host = null;
-	this.gzip = true;
-	
-	this.params={};
+    if(typeof args != 'undefined'){
+        this.host = args.host || this.host;
+        this.category = args.category || this.category;
+		this.resource = args.resource || this.resource;
+		this.params = args.params || this.params;
+		this.filters = args.filters || this.filters;
+		this.options = args.options || this.options;
+        var argsFeatureCache = args.featureCache || {};
+    }
 	if (args != null){
-		if(args.host != null){
-			this.host = args.host;
-		}
-		if(args.category != null){
-			this.category = args.category;
-		}
-		if(args.resource != null){
-			this.resource = args.resource;
-		}
-		if(args.featureCache != null){
-			var argsFeatureCache = args.featureCache;
-		}
-		if(args.params != null){
-			this.params = args.params;
-		}
-		if(args.filters != null){
-			this.filters = args.filters;
-		}
-		if(args.options != null){
-			this.options = args.options;
-		}
 		if(args.featureConfig != null){
 			if(args.featureConfig.filters != null){
 				this.filtersConfig = args.featureConfig.filters;
@@ -63,6 +47,12 @@ function BamAdapter(args){
 	}
 	this.featureCache =  new BamCache(argsFeatureCache);
 	this.onGetData = new Event();
+}
+
+BamAdapter.prototype = {
+    host : null,
+    gzip : true,
+    params : {}
 };
 
 BamAdapter.prototype.clearData = function(){
@@ -134,8 +124,8 @@ BamAdapter.prototype.getData = function(args){
 	}
 	
 	//CellBase data process
-	var gcsaManager = new GcsaManager();
-	gcsaManager.onRegion.addEventListener(function (evt, data){
+	var opencgaManager = new OpencgaManager(this.host);
+	opencgaManager.onRegion.addEventListener(function (evt, data){
 		var dataType = "data";
 		if(data.params.histogram){
 			dataType = "histogram"+data.params.interval;
@@ -192,7 +182,7 @@ BamAdapter.prototype.getData = function(args){
 		for ( var i = 0, li = querys.length; i < li; i++) {
 			console.time("dqs");
 			//accountId, sessionId, bucketname, objectname, region,
-			gcsaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource, querys[i], this.params);
+			opencgaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource, querys[i], this.params);
 		}
 	}else{//no server call
 		if(itemList.length > 0){

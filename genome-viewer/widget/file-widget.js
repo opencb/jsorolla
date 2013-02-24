@@ -103,6 +103,7 @@ FileWidget.prototype.getFileUpload = function(){
 				fn : function() {
 					_this.panel.setLoading();
 					var file = document.getElementById(_this.uploadField.fileInputEl.id).files[0];
+                    debugger
 					_this.trackNameField.setValue(file.name);
 					_this.fileNameLabel.setText('<span class="emph">'+ file.name +'</span> <span class="info">(local)</span>',false);
 					_this.loadFileFromLocal(file);
