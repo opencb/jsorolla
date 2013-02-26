@@ -117,7 +117,7 @@ function GenomeViewer(targetId, species, args) {
 	console.log(this.width+"x"+this.height);
 	console.log(this.targetId);
 	console.log(this.id);
-};
+}
 
 GenomeViewer.prototype.draw = function(){
 	this.render();
@@ -135,6 +135,7 @@ GenomeViewer.prototype.render = function(){
 		region : 'center',
 		margins : '0 0 0 0'
 	});
+
 	this.sideContainer = Ext.create('Ext.panel.Panel', {
 		id: this.id+"sideContainer",
 		region: "east",

@@ -27,6 +27,7 @@ function BamAdapter(args){
 		this.params = args.params || this.params;
 		this.filters = args.filters || this.filters;
 		this.options = args.options || this.options;
+        this.species = args.species || this.species;
         var argsFeatureCache = args.featureCache || {};
     }
 	if (args != null){
@@ -94,6 +95,8 @@ BamAdapter.prototype.getData = function(args){
 	this.params["chromosome"] = args.chromosome;
 	this.params["resource"] = this.resource;
 	this.params["category"] = this.category;
+	this.params["species"] = this.species;
+
 
 	if(args.start<1){
 		args.start=1;

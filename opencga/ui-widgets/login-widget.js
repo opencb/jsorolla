@@ -196,6 +196,7 @@ LoginWidget.prototype.render = function (){
 //		        emptyText:'please enter your password',
 		        listeners:{
 					specialkey: function(field, e){
+                        console.log("asdf");
 	                    if (e.getKey() == e.ENTER) {
 	                    	_this.sign();
 	                    }
@@ -427,7 +428,6 @@ LoginWidget.prototype.ShowNewacc = function (){
 };
 
 LoginWidget.prototype.checkpass = function (){
-	
 	var passwd1 = Ext.getCmp(this.fldNpass1Id).getValue();
 	var passwd2 = Ext.getCmp(this.fldNpass2Id).getValue();
 	var patt = new RegExp("[ *]");

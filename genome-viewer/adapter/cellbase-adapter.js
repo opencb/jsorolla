@@ -69,7 +69,7 @@ function CellBaseAdapter(args){
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
 	this.onGetData = new Event();
-};
+}
 
 CellBaseAdapter.prototype.clearData = function(){
 	this.featureCache.clear();

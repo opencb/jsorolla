@@ -367,10 +367,11 @@ OpencgaManager.prototype = {
         }
 
 
-
         console.log(url);
         function success(data){
-            _this.onRegion.notify({resource:queryParams["category"],result:JSON.parse(data),filename:objectId,query:region,params:queryParams});
+            if(!(data.substr(0,5).indexOf('ERROR') != -1)){
+                _this.onRegion.notify({resource:queryParams["category"],result:JSON.parse(data),filename:objectId,query:region,params:queryParams});
+            }
         }
 
         function error(data){
