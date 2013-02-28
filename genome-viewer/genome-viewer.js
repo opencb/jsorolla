@@ -37,8 +37,9 @@ function GenomeViewer(targetId, species, args) {
 	this.increment = 3;
 	this.zoom=100;
 
-	this.sidePanelCollapsed = false;
-	
+	this.confPanelCollapsed = false;
+	this.regionPanelHidden = false;
+
 	//Setting paramaters
 	if (targetId != null){
 		this.targetId=targetId;
@@ -68,8 +69,11 @@ function GenomeViewer(targetId, species, args) {
 		}else{
 			this.region = new Region(species.region);
 		}
-		if (args.sidePanelCollapsed != null) {
-			this.sidePanelCollapsed = args.sidePanelCollapsed;
+		if (args.confPanelCollapsed != null) {
+			this.confPanelCollapsed = args.confPanelCollapsed;
+		}
+		if (args.regionPanelHidden != null) {
+			this.regionPanelHidden = args.regionPanelHidden;
 		}
 		if (args.region != null && args.region.url != null) {
 			this._calculateZoomByRegion();
@@ -140,7 +144,7 @@ GenomeViewer.prototype.render = function(){
 		id: this.id+"sideContainer",
 		region: "east",
 		title: "Configuration",
-		collapsed:this.sidePanelCollapsed,
+		collapsed:this.confPanelCollapsed,
 		collapsible:true,
 		titleCollapse:true,
 		width: this.sidePanelWidth+260,
@@ -232,7 +236,7 @@ GenomeViewer.prototype.render = function(){
 	container.insert(1, this._drawChromosomePanel());
 	container.insert(2, tracksPanel);
 	container.insert(2, regionPanel);//rendered after trackspanel but inserted with minor index
-	
+
 	Ext.getCmp(this.id+"chromosomeMenuButton").setText("Chromosome "+this.region.chromosome);
 	Ext.getCmp(this.id+"chromosomePanel").setTitle("Chromosome "+this.region.chromosome);
 	Ext.getCmp(this.id+'tbCoordinate').setValue(this.region.toString());
@@ -488,7 +492,7 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		        	 id:this.id+"RegionToggleButton",
 		        	 text : 'Region',
 		        	 enableToggle:true,
-		        	 pressed:true,
+		        	 pressed:this.regionPanelHidden,
 		        	 toggleHandler:function() {
 		        		 if(this.pressed){
 		        			 Ext.getCmp(_this.id+"regionPanel").show();
@@ -898,6 +902,7 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 		height : 150,
 		title:'Region overview',
 		border:true,
+        hidden:!this.regionPanelHidden,
 		margin:'0 0 1 0',
 		layout: { type: 'vbox',align: 'stretch'},//scrollbar
 		//cls:'border-bot panel-border-top x-unselectable',

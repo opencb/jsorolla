@@ -61,7 +61,8 @@ ResultWidget.prototype = {
             var url = this.adapter.jobResultUrl($.cookie("bioinfo_account"), sid, this.jobId, "json");
             $.getScript(url,function(){
 		        _this.panel.setLoading(false);
-                RESULT[_this.job.toolName].layout.outputItems = _this.job.outputData;
+                var layout = RESULT[_this.job.toolName].layout;
+                layout.outputItems = _this.job.outputData.sort(layout.sortOutputItems);
 		        _this.render(RESULT);
             });
         }else{

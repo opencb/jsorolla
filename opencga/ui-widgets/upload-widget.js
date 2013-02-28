@@ -432,7 +432,7 @@ UploadWidget.prototype.uploadFile = function()  {
     objectId = objectId.replace(new RegExp("/", "gi"),":");
 
    	fd.append("name", this.nameField.getValue()); 
-   	fd.append("tags", this.selectedDataType);//TODO mirar bien los tags
+   	fd.append("fileFormat", this.selectedDataType);
    	fd.append("responsible", this.responsableField.getValue());
    	fd.append("organization", this.organizationField.getValue());
    	fd.append("date", this.acquisitiondate.getValue());
