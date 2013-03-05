@@ -135,7 +135,7 @@ GenericFormPanel.prototype.beforeRun = function() {
 
 GenericFormPanel.prototype.run = function() {
     this.setAccountParams();
-    this.paramsWS.pathways =  this.paramsWS.pathways.replace('mmu04620,','').replace(',mmu04620','').replace('mmu04620','');//TODO remove, temporal fix
+//    this.paramsWS.pathways =  this.paramsWS.pathways.replace('mmu04620,','').replace(',mmu04620','').replace('mmu04620','');//TODO remove, temporal fix
     this.opencgaManager.runAnalysis(this.analysis, this.paramsWS);
     Ext.example.msg('Job Launched', 'It will be listed soon');
 };

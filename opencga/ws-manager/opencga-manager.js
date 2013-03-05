@@ -401,7 +401,7 @@ OpencgaManager.prototype = {
         }
 
         this.doGet(url, success, error);
-        //	console.log(url);
+        	console.log(url);
     },
     jobResultUrl : function(accountId, sessionId, jobId, format){
         var queryParams = {
@@ -424,7 +424,7 @@ OpencgaManager.prototype = {
         }
 
         this.doGet(url, success, error);
-        //	console.log(url);
+        	console.log(url);
     },
 
     table : function(accountId, sessionId, jobId, filename, colNames, colVisibility){

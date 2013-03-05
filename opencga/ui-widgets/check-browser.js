@@ -20,6 +20,35 @@
  */
 
 function CheckBrowser(appName){
+
+    if(Ext.isIE){
+        //console.time implementation for IE
+        if(window.console && typeof(window.console.time) == "undefined") {
+            console.time = function(name, reset){
+                if(!name) { return; }
+                var time = new Date().getTime();
+                if(!console.timeCounters) { console.timeCounters = {} };
+                var key = "KEY" + name.toString();
+                if(!reset && console.timeCounters[key]) { return; }
+                console.timeCounters[key] = time;
+            };
+
+            console.timeEnd = function(name){
+                var time = new Date().getTime();
+                if(!console.timeCounters) { return; }
+                var key = "KEY" + name.toString();
+                var timeCounter = console.timeCounters[key];
+                if(timeCounter) {
+                    var diff = time - timeCounter;
+                    var label = name + ": " + diff + "ms";
+                    console.info(label);
+                    delete console.timeCounters[key];
+                }
+                return diff;
+            };
+        }
+    }
+
 	var browserOk = false;
 	switch (appName){
 	case "renato":
@@ -78,7 +107,7 @@ function CheckBrowser(appName){
 //				'<p class="emph">Google Chrome 14+</p>'+ 
 //				'<p class="emph">Apple Safari 5+</p>'+ 
 //				'Other browsers may rise some errors. Firefox11+ works very slow on Linux and Windows 7 and the usage it is not recommended. Internet Explorer 9 is not supported since they not support many of the features of HTML5, Internet Explorer 10 Consumer Preview works fine.')
-		.html('Genome Maps provides the best user experience with Google Chrome and Apple Safari, otherwise some latencies may be experienced when browsing due to some problems in Firefox.')
+		.html('This application provides the best user experience with Google Chrome and Apple Safari, otherwise some latencies may be experienced when browsing due to some problems in Firefox.')
 		.css('width','540px')
 		.css('height','40px')
 		.css('position','absolute')

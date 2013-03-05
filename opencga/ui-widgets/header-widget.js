@@ -175,8 +175,8 @@ HeaderWidget.prototype = {
                     break;
                 case 9://GenomeMaps
                     this.homeLink="http://www.genomemaps.org";
-                    this.helpLink="http://bioinfo.cipf.es/docs/compbio/projects/visualization/doku.php?id=genome-maps:overview";
-                    this.tutorialLink="http://bioinfo.cipf.es/docs/compbio/projects/visualization/doku.php?id=genome-maps:tutorial";
+                    this.helpLink="http://www.opencb.org/projects/visualization/doku.php?id=genome-maps:overview";
+                    this.tutorialLink="http://www.opencb.org/projects/visualization/doku.php?id=genome-maps:tutorial";
                     this.aboutText = 'Genome Maps is built with open and free technologies like HTML5 and SVG inline, ' +
                         'so no plug-in is needed in modern internet browsers. We’ve focused on providing the ' +
                         'best user experience possible with a modern drag navigation and many features included.<br><br>' +

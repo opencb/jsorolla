@@ -27,10 +27,10 @@ function UploadWidget (args){
 	
 	if (args != null){
 		if (args.targetId!= null){
-        	this.targetId = args.targetId;       
+        	this.targetId = args.targetId;
         }
 		if (args.suiteId!= null){
-        	this.suiteId = args.suiteId;       
+        	this.suiteId = args.suiteId;
         }
     }
 	
@@ -43,7 +43,7 @@ function UploadWidget (args){
 //                _this.uploadComplete(data);
 //            });
 //            _this.adapter.indexer($.cookie("bioinfo_account"),_this.objectID);
-
+            console.log(_this.objectID);
 			_this.uploadComplete(res.data);
 		}else if (res.status == 'fail'){
 			_this.uploadFailed(res.data);
