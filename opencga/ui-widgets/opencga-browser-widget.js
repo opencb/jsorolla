@@ -212,7 +212,35 @@ OpencgaBrowserWidget.prototype.render = function (mode){
 				dataIndex: 'text',
 				flex:1,
 				editor: {xtype: 'textfield',allowBlank: false}
-			}],
+			},{
+                xtype: 'actioncolumn',
+                menuDisabled: true,
+                align: 'center',
+                width:20,
+                renderer: function(value, metaData, record){
+                    if(record.raw.isBucket){
+                        this.icon = Compbio.images.refresh;
+                    }else{
+                        this.tooltip = null;
+                        this.icon = null;
+                    }
+                },
+                handler:function(grid, rowIndex, colIndex, actionItem, event, record, row){
+                    if(record.raw.isBucket){
+                        var opencgaManager = new OpencgaManager();
+                        opencgaManager.onRefreshBucket.addEventListener(function(sender,res){
+                            Ext.example.msg('Refresh bucket', '</span class="emph">'+ res+'</span>');
+                            if(res.indexOf("ERROR")!= -1){
+                                console.log(res);
+                            }else{
+                                _this.onNeedRefresh.notify();
+                            }
+                        });
+                        opencgaManager.refreshBucket($.cookie("bioinfo_account"),  record.raw.text ,$.cookie("bioinfo_sid"));
+                    }
+
+                }
+            }],
 			viewConfig: {
 				markDirty:false,
 				plugins: {

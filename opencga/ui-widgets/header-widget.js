@@ -290,6 +290,7 @@ HeaderWidget.prototype = {
                 dock: 'top',
                 border:true,
                 cls:'bio-userbar',
+//                cls:'bio-linkbar',
                 height:27,
                 minHeight:27,
                 maxHeight:27,

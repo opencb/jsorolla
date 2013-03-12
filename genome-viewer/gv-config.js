@@ -194,26 +194,28 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return "grey";
 		},
-//		infoWidgetId: "stableId",
+//		infoWidgetId: "id",
 		height:10
 //		histogramColor:"lightblue"
 	},
 	gene:{
 		getLabel: function(f){
 			var str = "";
-			str+= (f.strand < 0) ? "<" : "";
-			str+= " "+f.externalName+" ";
-			str+= (f.strand > 0) ? ">" : "";
-			str+= " ["+f.biotype+"]";
+			str+= (f.strand < 0 || f.strand == '-') ? "<" : "";
+			str+= " "+f.name+" ";
+			str+= (f.strand > 0 || f.strand == '+') ? ">" : "";
+            if(f.biotype != null && f.biotype != ''){
+			    str+= " ["+f.biotype+"]";
+            }
 			return str;
 		},
 		getTipTitle: function(f){
 			return FEATURE_TYPES.formatTitle(f.featureType) +
-			' - <span class="ok">'+f.externalName+'</span>';
+			' - <span class="ok">'+f.name+'</span>';
 		},
 		getTipText: function(f){
 			var color = GENE_BIOTYPE_COLORS[f.biotype];
-			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.stableId+'</span><br>'+
+			return	'id:&nbsp;<span class="ssel">'+f.id+'</span><br>'+
 			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
 			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
 			FEATURE_TYPES.getTipCommons(f)+
@@ -222,54 +224,56 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return GENE_BIOTYPE_COLORS[f.biotype];
 		},
-		infoWidgetId: "stableId",
+		infoWidgetId: "id",
 		height:4,
 		histogramColor:"lightblue"
 	},
-	geneorange:{
-		getLabel: function(f){
-			var str = "";
-			str+= (f.strand < 0) ? "<" : "";
-			str+= " "+f.externalName+" ";
-			str+= (f.strand > 0) ? ">" : "";
-			str+= " ["+f.biotype+"]";
-			return str;
-		},
-		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.featureType) +
-			' - <span class="ok">'+f.externalName+'</span>';
-		},
-		getTipText: function(f){
-			var color = GENE_BIOTYPE_COLORS[f.biotype];
-			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.stableId+'</span><br>'+
-			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
-			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
-			FEATURE_TYPES.getTipCommons(f)+
-			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
-		},
-		getColor: function(f){
-			return GENE_BIOTYPE_COLORS[f.biotype];
-		},
-		infoWidgetId: "stableId",
-		height:4,
-		histogramColor:"lightblue"
-	},
+//	geneorange:{
+//		getLabel: function(f){
+//			var str = "";
+//			str+= (f.strand < 0) ? "<" : "";
+//			str+= " "+f.name+" ";
+//			str+= (f.strand > 0) ? ">" : "";
+//			str+= " ["+f.biotype+"]";
+//			return str;
+//		},
+//		getTipTitle: function(f){
+//			return FEATURE_TYPES.formatTitle(f.featureType) +
+//			' - <span class="ok">'+f.name+'</span>';
+//		},
+//		getTipText: function(f){
+//			var color = GENE_BIOTYPE_COLORS[f.biotype];
+//			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.id+'</span><br>'+
+//			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
+//			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
+//			FEATURE_TYPES.getTipCommons(f)+
+//			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
+//		},
+//		getColor: function(f){
+//			return GENE_BIOTYPE_COLORS[f.biotype];
+//		},
+//		infoWidgetId: "id",
+//		height:4,
+//		histogramColor:"lightblue"
+//	},
 	transcript:{
 		getLabel: function(f){
 			var str = "";
 			str+= (f.strand < 0) ? "<" : "";
-			str+= " "+f.externalName+" ";
+			str+= " "+f.name+" ";
 			str+= (f.strand > 0) ? ">" : "";
-			str+= " ["+f.biotype+"]";
+            if(f.biotype != null && f.biotype != ''){
+                str+= " ["+f.biotype+"]";
+            }
 			return str;
 		},
 		getTipTitle: function(f){
 			return FEATURE_TYPES.formatTitle(f.featureType) +
-			' - <span class="ok">'+f.externalName+'</span>';
+			' - <span class="ok">'+f.name+'</span>';
 		},
 		getTipText: function(f){
 			var color = GENE_BIOTYPE_COLORS[f.biotype];
-			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.stableId+'</span><br>'+
+			return	'id:&nbsp;<span class="ssel">'+f.id+'</span><br>'+
 			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
 			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
 			FEATURE_TYPES.getTipCommons(f);
@@ -277,34 +281,34 @@ FEATURE_TYPES = {
 		getColor: function(f){
 			return GENE_BIOTYPE_COLORS[f.biotype];
 		},
-		infoWidgetId: "stableId",
+		infoWidgetId: "id",
 		height:1,
 		histogramColor:"lightblue"
 	},
 	exon:{//not yet
 		getLabel: function(f){
 			var str = "";
-			str+= f.stableId;
+			str+= f.id;
 			return str;
 		},
 		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.exon.featureType)+' - <span class="ok">'+f.exon.stableId+'</span>';
+			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+f.id+'</span>';
 		},
-		getTipText: function(e2t,t){
+		getTipText: function(e,t){
 			var color = GENE_BIOTYPE_COLORS[t.biotype];
-			return	'transcript name:&nbsp;<span class="ssel">'+t.externalName+'</span><br>'+
-			'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+t.stableId+'</span><br>'+
+			return	'transcript name:&nbsp;<span class="ssel">'+t.name+'</span><br>'+
+			'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+t.id+'</span><br>'+
 			'transcript biotype:&nbsp;<span class="emph" style="color:'+color+';">'+t.biotype+'</span><br>'+
 			'transcript description:&nbsp;<span class="emph">'+t.description+'</span><br>'+
 			'transcript start-end:&nbsp;<span class="emph">'+t.start+'-'+t.end+'</span><br>'+
-			'exon start-end:&nbsp;<span class="emph">'+e2t.exon.start+'-'+e2t.exon.end+'</span><br>'+
+			'exon start-end:&nbsp;<span class="emph">'+e.start+'-'+e.end+'</span><br>'+
 			'strand:&nbsp;<span class="emph">'+t.strand+'</span><br>'+
-			'length:&nbsp;<span class="info">'+(e2t.exon.end-e2t.exon.start+1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+'</span><br>';
+			'length:&nbsp;<span class="info">'+(e.end-e.start+1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+'</span><br>';
 		},
 		getColor: function(f){
 			return "black";
 		},
-		infoWidgetId: "stableId",
+		infoWidgetId: "id",
 		height:5,
 		histogramColor:"lightblue"
 	},

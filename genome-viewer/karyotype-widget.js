@@ -69,30 +69,40 @@ KaryotypeWidget.prototype.drawKaryotype = function(){
 
 	var sortfunction = function(a, b) {
 		var IsNumber = true;
-		for (var i = 0; i < a.length && IsNumber == true; i++) {
-			if (isNaN(a[i])) {
+		for (var i = 0; i < a.name.length && IsNumber == true; i++) {
+			if (isNaN(a.name[i])) {
 				IsNumber = false;
 			}
 		}
 		if (!IsNumber) return 1;
-		return (a - b);
+		return (a.name - b.name);
 	};
 	
+//	var cellBaseManager = new CellBaseManager(this.species);
+// 	cellBaseManager.success.addEventListener(function(sender,data){
+// 		_this.chromosomeList = data.result;
+// 		_this.chromosomeList.sort(sortfunction);
+// 		var cellBaseManager2 = new CellBaseManager(_this.species);
+// 		cellBaseManager2.success.addEventListener(function(sender,data2){
+// 			_this.data2 = data2;
+// 			_this._drawSvg(_this.chromosomeList,data2);
+// 		});
+// 		cellBaseManager2.get("genomic", "region", _this.chromosomeList.toString(),"cytoband");
+// 	});
+// 	cellBaseManager.get("feature", "karyotype", "none", "chromosome");
+
 	var cellBaseManager = new CellBaseManager(this.species);
- 	cellBaseManager.success.addEventListener(function(sender,data){
- 		_this.chromosomeList = data.result;
- 		_this.chromosomeList.sort(sortfunction);
- 		var cellBaseManager2 = new CellBaseManager(_this.species);
- 		cellBaseManager2.success.addEventListener(function(sender,data2){
- 			_this.data2 = data2;
- 			_this._drawSvg(_this.chromosomeList,data2);
- 		});
- 		cellBaseManager2.get("genomic", "region", _this.chromosomeList.toString(),"cytoband");
- 	});
- 	cellBaseManager.get("feature", "karyotype", "none", "chromosome");
+	cellBaseManager.success.addEventListener(function(sender,data){
+		_this.chromosomeList = data.result;
+		_this.chromosomeList.sort(sortfunction);
+        _this._drawSvg(_this.chromosomeList);
+	});
+	cellBaseManager.get('feature', 'chromosome', null , 'all');
+
+
 	
 };
-KaryotypeWidget.prototype._drawSvg = function(chromosomeList, data2){
+KaryotypeWidget.prototype._drawSvg = function(chromosomeList){
 	var _this = this;
 
 	var x = 20;
@@ -102,24 +112,27 @@ KaryotypeWidget.prototype._drawSvg = function(chromosomeList, data2){
 	///////////
 	var biggerChr = 0;
 	for(var i=0, len=chromosomeList.length; i<len; i++){
-		var size = data2.result[i][data2.result[i].length-1].end;
-		if(size > biggerChr) biggerChr = size;
+		var size = chromosomeList[i].size;
+		if(size > biggerChr){
+            biggerChr = size;
+        }
 	}
 	_this.pixelBase = (_this.height - 10) / biggerChr;
 	_this.chrOffsetY = {};
 	_this.chrOffsetX = {};
 
 	for(var i=0, len=chromosomeList.length; i<len; i++){ //loop over chromosomes
-		var chr = data2.result[i][0].chromosome;
-		chrSize = data2.result[i][data2.result[i].length-1].end * _this.pixelBase;
+        var chromosome = chromosomeList[i];
+//		var chr = chromosome.name;
+		var chrSize = chromosome.size * _this.pixelBase;
 		var y = yMargin + (biggerChr * _this.pixelBase) - chrSize;
-		_this.chrOffsetY[chr] = y;
+		_this.chrOffsetY[chromosome.name] = y;
 		var firstCentromere = true;
 		
 		var centerPosition = _this.region.center();
 		var pointerPosition = (centerPosition * _this.pixelBase);
 
-		var group = SVG.addChild(_this.svg,"g",{"cursor":"pointer","chr":chromosomeList[i]});
+		var group = SVG.addChild(_this.svg,"g",{"cursor":"pointer","chr":chromosome.name});
 		$(group).click(function(event){
 			var chrClicked = this.getAttribute("chr");
 //			for ( var k=0, len=chromosomeList.length; k<len; k++) {
@@ -143,14 +156,15 @@ KaryotypeWidget.prototype._drawSvg = function(chromosomeList, data2){
 			_this.onClick.notify(_this.region);
 		});
 
-		for ( var j=0, lenJ=data2.result[i].length; j<lenJ; j++){ //loop over chromosome objects
-			var height = _this.pixelBase * (data2.result[i][j].end - data2.result[i][j].start);
+		for ( var j=0, lenJ=chromosome.cytobands.length; j<lenJ; j++){ //loop over chromosome objects
+            var cytoband = chromosome.cytobands[j];
+			var height = _this.pixelBase * (cytoband.end - cytoband.start);
 			var width = 13;
 
-			var color = _this.colors[data2.result[i][j].stain];
+			var color = _this.colors[cytoband.stain];
 			if(color == null) color = "purple";
 
-			if(data2.result[i][j].stain == "acen"){
+			if(cytoband.stain == "acen"){
 				var points = "";
 				var middleX = x+width/2;
 				var middleY = y+height/2;
@@ -188,9 +202,9 @@ KaryotypeWidget.prototype._drawSvg = function(chromosomeList, data2){
 			"font-size":9,
 			"fill":"black"
 		});
-		text.textContent = chr;
+		text.textContent = chromosome.name;
 
-		_this.chrOffsetX[chr] = x;
+		_this.chrOffsetX[chromosome.name] = x;
 		x += xOffset;
 	}
 	_this.positionBox = SVG.addChild(_this.svg,"line",{

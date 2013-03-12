@@ -40,6 +40,7 @@ function OpencgaManager(host){
 
     /*Bucket*/
     this.onCreateBucket = new Event(this);
+    this.onRefreshBucket = new Event(this);
     this.onUploadObjectToBucket = new Event(this);
     this.onDeleteObjectFromBucket = new Event(this);
     this.onCreateDirectory = new Event(this);
@@ -292,6 +293,24 @@ OpencgaManager.prototype = {
 
         this.doGet(url, success, error);
         //	console.log(url);
+    },
+
+    refreshBucket : function(accountId, bucketId, sessionId){
+        var _this=this;
+        var queryParams = {
+            'sessionid':sessionId
+        };
+        var url =  this.getAdminBucketUrl(accountId,bucketId)+'/refresh'+this.getQuery(queryParams);
+        function success(data){
+            _this.onRefreshBucket.notify(data);
+        }
+
+        function error(data){
+            console.log("ERROR: " + data);
+        }
+
+        this.doGet(url, success, error);
+        console.log(url);
     },
     renameBucket : 'TODO',
     deleteBucket : 'TODO',

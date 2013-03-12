@@ -520,7 +520,7 @@ TrackSvgLayout.prototype.addTrack = function(trackData, args){
 	var checkHistogramZoom = function(){
 		if(_this.zoom <= trackSvg.histogramZoom){
 			trackSvg.histogram = true;
-			trackSvg.interval = Math.max(512, 5/_this.pixelBase);//server interval limit 512
+			trackSvg.interval = parseInt(Math.max(512, 5/_this.pixelBase));//server interval limit 512
 //			console.log(trackData.adapter.featureCache);
 		}else{
 			trackSvg.histogram = null;

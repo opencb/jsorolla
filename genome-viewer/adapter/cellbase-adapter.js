@@ -178,8 +178,8 @@ CellBaseAdapter.prototype.getData = function(args){
 					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
 						data.result[i][j].transcripts[t].featureType = "transcript";
 						//loop over exons
-						for (var e = 0, lene = data.result[i][j].transcripts[t].exonToTranscripts.length; e < lene; e++){
-							data.result[i][j].transcripts[t].exonToTranscripts[e].exon.featureType = "exon";
+						for (var e = 0, lene = data.result[i][j].transcripts[t].exons.length; e < lene; e++){
+							data.result[i][j].transcripts[t].exons[e].featureType = "exon";
 						}
 					}
 				}

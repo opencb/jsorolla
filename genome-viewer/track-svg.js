@@ -1015,9 +1015,8 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 		var start = feature.start;
 		var end = feature.end;
 		var width = (end-start)+1;
-		
+
 		var middle = _this.width/2;
-		
 		//get type settings object
 		var settings = _this.types[feature.featureType];
 		var color = settings.getColor(feature);
@@ -1091,6 +1090,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 				});
 
 				$([rect,text]).click(function(event){
+                    var settings = _this.types[feature.featureType];
 					_this.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType , adapter:_this.trackData.adapter});
 				});
 
@@ -1157,11 +1157,11 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 						});
 
 						//paint exons
-						for(var e = 0, lene = feature.transcripts[i].exonToTranscripts.length; e < lene; e++){/* loop over exons*/
-							var e2t = feature.transcripts[i].exonToTranscripts[e];
-							var exonSettings = _this.types[e2t.exon.featureType];
-							var exonStart = parseInt(e2t.exon.start);
-							var exonEnd =  parseInt(e2t.exon.end);
+						for(var e = 0, lene = feature.transcripts[i].exons.length; e < lene; e++){/* loop over exons*/
+							var exon = feature.transcripts[i].exons[e];
+							var exonSettings = _this.types[exon.featureType];
+							var exonStart = parseInt(exon.start);
+							var exonEnd =  parseInt(exon.end);
 
 							var exonX = _this.pixelPosition+middle-((_this.position-exonStart)*_this.pixelBase);
 							var exonWidth = (exonEnd-exonStart+1) * ( _this.pixelBase);
@@ -1169,7 +1169,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 							var exonGroup = SVG.addChild(_this.features,"g");
 							
 							$(exonGroup).qtip({
-								content: {text:exonSettings.getTipText(e2t,transcript), title:exonSettings.getTipTitle(e2t)},
+								content: {text:exonSettings.getTipText(exon,transcript), title:exonSettings.getTipTitle(exon)},
 								position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
 								style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
 							});
@@ -1185,27 +1185,26 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 								"fill": "white",
 								"cursor": "pointer"
 							});
-
 							//XXX now paint coding region
 							var	codingStart = 0;
 							var codingEnd = 0;
 							// 5'-UTR
-							if(transcript.codingRegionStart > exonStart && transcript.codingRegionStart < exonEnd){
-								codingStart = parseInt(transcript.codingRegionStart);
+							if(transcript.genomicCodingStart > exonStart && transcript.genomicCodingStart < exonEnd){
+								codingStart = parseInt(transcript.genomicCodingStart);
 								codingEnd = exonEnd;
 							}else {
 								// 3'-UTR
-								if(transcript.codingRegionEnd > exonStart && transcript.codingRegionEnd < exonEnd){
+								if(transcript.genomicCodingEnd > exonStart && transcript.genomicCodingEnd < exonEnd){
 									codingStart = exonStart;		
-									codingEnd = parseInt(transcript.codingRegionEnd);		
+									codingEnd = parseInt(transcript.genomicCodingEnd);		
 								}else
 									// all exon is transcribed
-									if(transcript.codingRegionStart < exonStart && transcript.codingRegionEnd > exonEnd){
+									if(transcript.genomicCodingStart < exonStart && transcript.genomicCodingEnd > exonEnd){
 										codingStart = exonStart;		
 										codingEnd = exonEnd;	
 									}
 //									else{
-//										if(exonEnd < transcript.codingRegionStart){
+//										if(exonEnd < transcript.genomicCodingStart){
 //										
 //									}
 							}
@@ -1226,7 +1225,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 									"cursor": "pointer"
 								});
 								//XXX draw phase only at zoom 100, where this.pixelBase=10
-								for(var p = 0, lenp = 3 - e2t.phase; p < lenp && Math.round(_this.pixelBase)==10 && e2t.phase!=-1; p++){//==10 for max zoom only
+								for(var p = 0, lenp = 3 - exon.phase; p < lenp && Math.round(_this.pixelBase)==10 && exon.phase!=-1; p++){//==10 for max zoom only
 									SVG.addChild(exonGroup,"rect",{
 										"i":i,
 										"x":codingX+(p*10),
@@ -1348,9 +1347,12 @@ TrackSvg.prototype.HistogramRender = function(response){
 	var points = "";
 	if(featureList.length>0) {
 		var firstx = this.pixelPosition+middle-((this.position-featureList[0].start)*this.pixelBase);
-		points = firstx+",50 ";
+		points = firstx+','+histogramHeight+' ';
 		
 	}
+
+    var maxValue = 0;
+
 	for ( var i = 0, len = featureList.length; i < len; i++) {
 		var feature = featureList[i];
 		var width = (feature.end-feature.start);
@@ -1360,7 +1362,7 @@ TrackSvg.prototype.HistogramRender = function(response){
 		
 		width = width * this.pixelBase;
 		var x = this.pixelPosition+middle-((this.position-feature.start)*this.pixelBase);
-		var height = histogramHeight * featureList[i].value;
+		var height = /*histogramHeight * */ featureList[i].value;
 		
 		//
 		if(featureList[i].value==null){
@@ -1380,10 +1382,16 @@ TrackSvg.prototype.HistogramRender = function(response){
 //			"fill": color,
 //			"cursor": "pointer"
 //		});
+
+
+        //calculate max for debug purposes
+        if(featureList[i].value>maxValue){
+            maxValue = featureList[i].value
+        }
 	}
 	if(featureList.length>0) {
 		var firstx = this.pixelPosition+middle-((this.position-featureList[featureList.length-1].start)*this.pixelBase);
-		points += firstx+",50 ";
+		points += firstx+','+histogramHeight+' ';
 		
 	}
 //	console.log(points);
@@ -1395,6 +1403,7 @@ TrackSvg.prototype.HistogramRender = function(response){
 		"cursor": "pointer"
 	});
 	this.setHeight(histogramHeight+/*margen entre tracks*/10);
+    console.log(maxValue);
 };
 
 

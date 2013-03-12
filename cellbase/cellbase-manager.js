@@ -24,7 +24,7 @@ function CellBaseManager(species, args) {
 	
 	this.host = CELLBASE_HOST;
 	
-	this.version = "latest";
+	this.version = "v3";
 	this.species = species;
 	
 	this.category = null;
@@ -36,7 +36,7 @@ function CellBaseManager(species, args) {
 	this.outputcompress = false;
 	this.dataType = "script";
 
-	this.query = "";
+	this.query = null;
 	this.originalQuery = "";
 	this.resource = "";
 
@@ -95,7 +95,6 @@ function CellBaseManager(species, args) {
 
 	this.getUrl = function() {
 		if (this.query != null) {
-			
 			return this.host + "/" + this.version + "/" + this.species + "/"+ this.category + "/" + this.subcategory + "/" + this.query+ "/" + this.resource; // + "?contentformat=" + this.contentformat;
 		} else {
 			return this.host + "/" + this.version + "/" + this.species + "/"+ this.category + "/" + this.subcategory + "/"+ this.resource; // + "?contentformat=" +;
@@ -107,26 +106,51 @@ function CellBaseManager(species, args) {
 		if(params!=null){
 			this.params = params;
 		}
-		if(query instanceof Array){
-				this.originalQuery = query;
-				this.batching = true;
-				this.results= new Array();
-				return this.getMultiple(category, subcategory, query, resource);
-		}
-		else{
-				query = new String(query);
-				query = query.replace(/\s/g, "");
-				var querySplitted = query.split(",");
-				this.originalQuery = querySplitted;
-				if (this.maxQuery <querySplitted.length){
-					this.batching = true;
-					this.getMultiple(category, subcategory, querySplitted, resource, callbackFunction);
-				}
-				else{
-					this.batching = false;
-					return this.getSingle(category, subcategory, query, resource, callbackFunction);
-				}
-		}
+//		if(query instanceof Array){
+//				this.originalQuery = query;
+//				this.batching = true;
+//				this.results= new Array();
+//				return this.getMultiple(category, subcategory, query, resource);
+//		}else{
+//				query = new String(query);
+//				query = query.replace(/\s/g, "");
+//				var querySplitted = query.split(",");
+//				this.originalQuery = querySplitted;
+//				if (this.maxQuery <querySplitted.length){
+//					this.batching = true;
+//					this.getMultiple(category, subcategory, querySplitted, resource, callbackFunction);
+//				}
+//				else{
+//					this.batching = false;
+//					return this.getSingle(category, subcategory, query, resource, callbackFunction);
+//				}
+//		}
+
+        if(query != null){
+            var querys;
+            if(query instanceof Array){
+                querys = query;
+            }else{
+                querys = query.split(',');
+            }
+            this.originalQuery = querys;
+            if(querys.length > 1){
+                this.batching = true;
+                this.results= new Array();
+                return this.getMultiple(category, subcategory, querys, resource);
+            }else{
+                if (this.maxQuery < querys.length){
+                    this.batching = true;
+                    this.getMultiple(category, subcategory, querys, resource, callbackFunction);
+                } else{
+                    this.batching = false;
+                    return this.getSingle(category, subcategory, querys[0], resource, callbackFunction);
+                }
+            }
+        }else{
+            return this.getSingle(category, subcategory, query, resource, callbackFunction);
+        }
+
 	},
 //	this.getAllSpecies = function() {
 //		

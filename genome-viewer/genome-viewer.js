@@ -697,7 +697,6 @@ GenomeViewer.prototype._updateChrStore = function(){
 	var chrStore = Ext.getStore(this.id+"chrStore");
 	var chrView = Ext.getCmp(this.id+"chrView");
 	var cellBaseManager = new CellBaseManager(this.species);
- 	cellBaseManager.get("feature", "karyotype", "none", "chromosome");
  	cellBaseManager.success.addEventListener(function(sender,data){
  		var chromosomeData = [];
  		var sortfunction = function(a, b) {
@@ -717,6 +716,7 @@ GenomeViewer.prototype._updateChrStore = function(){
 		chrStore.loadData(chromosomeData);
 //		chrView.getSelectionModel().select(chrStore.find("name",_this.chromosome));
  	});
+ 	cellBaseManager.get('feature', 'chromosome', null, 'list');
 };
 
 GenomeViewer.prototype._getZoomSlider = function() {

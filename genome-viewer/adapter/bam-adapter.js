@@ -46,7 +46,8 @@ function BamAdapter(args){
 			}
 		}
 	}
-	this.featureCache =  new BamCache(argsFeatureCache);
+
+	this.featureCache = new BamCache(argsFeatureCache);
 	this.onGetData = new Event();
 }
 

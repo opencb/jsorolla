@@ -46,7 +46,7 @@ function ChromosomeWidget(parent, args) {
 		"height":this.height
 	});
 	
-	this.colors = {gneg:"white", stalk:"#666666", gvar:"#CCCCCC", gpos25:"silver", gpos33:"lightgrey", gpos50:"gray", gpos66:"dimgray", gpos75:"darkgray", gpos100:"black", gpos:"gray", acen:"blue"};
+	this.colors = {gneg:"white", stalk:"#666666", gvar:"#CCCCCC", gpos25:"silver", gpos33:"lightgrey", gpos50:"gray", gpos66:"dimgray", gpos75:"darkgray", gpos100:"black", gpos:"gray", acen:"blue", clementina:'#ffc967'};
 	
 	this.data = null;
 };
@@ -63,20 +63,24 @@ ChromosomeWidget.prototype.setWidth = function(width){
 
 ChromosomeWidget.prototype.drawChromosome = function(){
 	var _this = this;
-	
+
+    var sortfunction = function(a, b) {
+        return (a.start - b.start);
+    };
+
 	var cellBaseManager = new CellBaseManager(this.species);
  	cellBaseManager.success.addEventListener(function(sender,data){
- 		_this.data = data;
- 		_this._drawSvg(data);
+ 		_this.data = data.result[0];
+        _this.data.cytobands.sort(sortfunction);
+ 		_this._drawSvg(_this.data);
  	});
- 	cellBaseManager.get("genomic", "region", this.region.chromosome,"cytoband");
+ 	cellBaseManager.get("feature", "chromosome", this.region.chromosome, "info");
  	this.lastChromosome = this.region.chromosome;
 };
 
-ChromosomeWidget.prototype._drawSvg = function(data){
+ChromosomeWidget.prototype._drawSvg = function(chromosome){
 	var _this = this;
-	
-	this.chromosomeLength = data.result[0][data.result[0].length-1].end;
+	this.chromosomeLength = chromosome.size;
 	_this.pixelBase = (_this.width - 40) / this.chromosomeLength;
 	var x = 20;
 	var y = 10;
@@ -196,16 +200,16 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 		selectingRegion = false;
 	});
 
-	for (var i = 0; i < data.result[0].length; i++) {
-		var width = _this.pixelBase * (data.result[0][i].end - data.result[0][i].start);
+	for (var i = 0; i < chromosome.cytobands.length; i++) {
+        var cytoband = chromosome.cytobands[i];
+		var width = _this.pixelBase * (cytoband.end - cytoband.start);
 		var height = 18;
-		var color = _this.colors[data.result[0][i].stain];
+		var color = _this.colors[cytoband.stain];
 		if(color == null) color = "purple";
-		var cytoband = data.result[0][i].cytoband;
 		var middleX = x+width/2;
 		var endY = y+height;
 
-		if(data.result[0][i].stain == "acen"){
+		if(cytoband.stain == "acen"){
 			var points = "";
 			var middleY = y+height/2;
 			var endX = x+width;
@@ -241,7 +245,7 @@ ChromosomeWidget.prototype._drawSvg = function(data){
 			"transform": "rotate(90, "+middleX+", "+textY+")",
 			"fill":"black"
 		});
-		text.textContent = cytoband;
+		text.textContent = cytoband.name;
 
 		x = x + width;
 	}

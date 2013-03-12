@@ -398,7 +398,7 @@ GeneInfoWidget.prototype.getData = function (){
 //	category, subcategory, query, resource, callbackFunction
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function(sender,data){
-		_this.dataReceived(JSON.parse(data.result));//TODO
+		_this.dataReceived(data.result);//TODO
 	});
 	cellBaseManager.get("feature","gene", this.query, "fullinfo");
 };
