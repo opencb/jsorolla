@@ -213,7 +213,7 @@ OpencgaManager.prototype = {
             console.log(data);
         }
         this.doGet(url, success, error);
-        console.log(url);
+//        console.log(url);
     },
     changePassword : function(accountId, sessionId, old_password, new_password1, new_password2){
         var _this=this;
