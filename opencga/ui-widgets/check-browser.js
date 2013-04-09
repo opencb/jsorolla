@@ -80,6 +80,9 @@ function CheckBrowser(appName){
 		if(Ext.safariVersion>=5){
 			browserOk = true;
 		}
+        if(Ext.isIE10>=5){
+            browserOk = true;
+        }
 	}
 //if(Ext.operaVersion<=0){
 //	browserOk = true;

@@ -49,9 +49,11 @@ function SequenceAdapter(args){
 	}
 	this.onGetData = new Event();
 	this.sequence = {};
+	this.phastCons = {};
+	this.phylop = {};
 	this.start = {};
 	this.end = {};
-};
+}
 
 SequenceAdapter.prototype.clearData = function(){
 	this.sequence = {};
@@ -100,7 +102,16 @@ SequenceAdapter.prototype.getData = function(args){
 		cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
 	}else{
 		if(this.sender != "onMove"){
-			this.onGetData.notify({items:{sequence:this.sequence[chromosome],start:this.start[chromosome],end:this.end[chromosome]},params:this.params});
+			this.onGetData.notify({
+                items:{
+                    sequence:this.sequence[chromosome],
+                    phastCons:this.phastCons[chromosome],
+                    phylop:this.phylop[chromosome],
+                    start:this.start[chromosome],
+                    end:this.end[chromosome]
+                },
+                params:this.params
+            });
 		}
 	}
 	
@@ -157,20 +168,44 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 		
 		if(this.sequence[chromosome] == null){
 			this.sequence[chromosome] = seqResponse[i].sequence;
+//			this.phastCons[chromosome] = seqResponse[i].phastCons;
+//			this.phylop[chromosome] = seqResponse[i].phylop;
 		}else{
 			if(queryStart == this.start[chromosome]){
 				this.sequence[chromosome] = seqResponse[i].sequence + this.sequence[chromosome];
+//				this.phastCons[chromosome] = seqResponse[i].phastCons.concat(this.phastCons[chromosome]);
+//				this.phylop[chromosome] = seqResponse[i].phylop.concat(this.phylop[chromosome]);
 			}else{
 				this.sequence[chromosome] = this.sequence[chromosome] + seqResponse[i].sequence;
+//				this.phastCons[chromosome] = this.phastCons[chromosome].concat(seqResponse[i].phastCons);
+//				this.phylop[chromosome] = this.phylop[chromosome].concat(seqResponse[i].phylop);
 			}
 		}
 		if(this.sender == "onMove" && throwNotify == true){
-			this.onGetData.notify({items:{sequence:seqResponse[i].sequence,start:queryStart,end:queryEnd},params:params});
+			this.onGetData.notify({
+                items:{
+                    sequence:seqResponse[i].sequence,
+                    phastCons:seqResponse[i].phastCons,
+                    phylop:seqResponse[i].phylop,
+                    start:queryStart,
+                    end:queryEnd
+                },
+                params:params
+            });
 		}
 	}
 	//if not onMove the svg was cleared so all sequence is sent to redraw
 	if(this.sender != "onMove" && throwNotify == true){
-		this.onGetData.notify({items:{sequence:this.sequence[chromosome],start:this.start[chromosome],end:this.end[chromosome]},params:params});
+		this.onGetData.notify({
+            items:{
+                sequence:this.sequence[chromosome],
+                phastCons:this.phastCons[chromosome],
+                phylop:this.phylop[chromosome],
+                start:this.start[chromosome],
+                end:this.end[chromosome]
+            },
+            params:params
+        });
 	}
 };
 

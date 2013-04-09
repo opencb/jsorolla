@@ -40,7 +40,8 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	return dataTypes=[
 	            { text: "Genomic", children: [
 	                { text: "Information"},
-	                { text: "Transcripts"}
+	                { text: "Transcripts"},
+                    { text: "Xref"},
 	            ] },
 	            { text: "Functional information", children: [
 	                { text: "GO"},
@@ -68,10 +69,11 @@ GeneInfoWidget.prototype.optionClick = function (item){
 		switch (item.text){
 			case "Information": this.panel.add(this.getGenePanel(this.data).show()); break;
 			case "Transcripts": this.panel.add(this.getTranscriptPanel(this.data.transcripts).show());  break;
+			case "Xref": this.panel.add(this.getXrefGrid(this.data.transcripts, 'Xref', 'transcript').show());  break;
 //			case "GO": this.panel.add(this.getGoGrid().show()); break;
-			case "GO": this.panel.add(this.getXrefGrid(this.data.go, "GO").show());  break;
-			case "Interpro": this.panel.add(this.getXrefGrid(this.data.interpro, "Interpro").show());  break;
-			case "Reactome": this.panel.add(this.getXrefGrid(this.data.reactome, "Reactome").show());  break;
+			case "GO": this.panel.add(this.getXrefGrid(this.data.transcripts, 'GO', 'transcript').show());  break;
+			case "Interpro": this.panel.add(this.getXrefGrid(this.data.transcripts, 'Interpro', 'transcript').show());  break;
+			case "Reactome": this.panel.add(this.getXrefGrid(this.data.transcripts, 'Reactome', 'transcript').show());  break;
 			case "TFBS": this.panel.add(this.getTfbsGrid(this.data.tfbs).show());  break;
 			case "miRNA targets": this.panel.add(this.getMirnaTargetGrid(this.data.mirnaTargets).show());  break;
 			case "Features": this.panel.add(this.getProteinFeaturesGrid(this.data.proteinFeatures).show());  break;
@@ -132,16 +134,35 @@ GeneInfoWidget.prototype.getTranscriptPanel = function(data){
 };
 
 
-GeneInfoWidget.prototype.getXrefGrid = function(data, dbname){
+GeneInfoWidget.prototype.getXrefGrid = function(transcripts, dbname, groupField){
+    var data = [];
+    for(var i = 0; i<transcripts.length; i++){
+        for(var j = 0; j<transcripts[i].xrefs.length; j++){
+            var xref = transcripts[i].xrefs[j];
+            if(dbname == 'Xref'){
+                var shortName  = xref.dbNameShort.toLowerCase();
+                if(shortName != 'go' && shortName != 'interpro' && shortName != 'reactome'){
+                    xref.transcript = transcripts[i].id;
+                    data.push(xref);
+                }
+            }else{
+                if(xref.dbNameShort.toLowerCase() == dbname.toLowerCase()){
+                    xref.transcript = transcripts[i].id;
+                    data.push(xref);
+                }
+            }
+        }
+    }
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}
     if(this[dbname+"Grid"]==null){
-    	var groupField = '';
+    	var groupField = groupField;
     	var modelName = dbname;
-    	var fields = ['description','displayId'];
+    	var fields = ['description','id', 'dbName', 'transcript'];
     	var columns = [
-    	               {header : 'Display Id',dataIndex: 'displayId',flex:1},
+    	               {header : 'Display Id',dataIndex: 'id',flex:1},
+    	               {header : 'DB name',dataIndex: 'dbName',flex:1},
     	               {header : 'Description',dataIndex: 'description',flex:3}
     	               ];
     	this[dbname+"Grid"] = this.doGrid(columns,fields,modelName,groupField);
@@ -286,20 +307,21 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
       	});
     	
     	var pdbs = [];
+
     	$.ajax({
 //    		  url: 'http://ws.bioinfo.cipf.es/celldb/rest/v1/hsa/feature/id/brca2/xref?dbname=pdb',
-    		  url:new CellBaseManager().host+'/latest/'+_this.species+'/feature/id/'+this.query+'/xref?dbname=pdb&header=false',
+    		  url:new CellBaseManager().host+'/v3/'+_this.species+'/feature/id/'+this.query+'/xref?dbname=pdb&of=json',
 //    		  data: data,
 //    		  dataType: dataType,
     		  async:false,
     		  success: function(data){
     			if(data!=""){
 //      	    		console.log(data.trim());
-      	    		pdbs = data.trim().split("\n");
+      	    		pdbs = data[0];
 //      	    		console.log(pdbs);
       	    		
       	    		for ( var i = 0; i < pdbs.length; i++) {
-      	    			var pdb_name=pdbs[i].trim();
+      	    			var pdb_name=pdbs[i].id;
       	    			var pan = Ext.create('Ext.panel.Panel',{
       	    				title:pdb_name,
       	    				bodyCls:'background-black',

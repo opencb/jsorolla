@@ -20,62 +20,57 @@
  */
 
 function Region(args) {
-	
-	this.start = null;
-	this.end = null;
-	this.chromosome = null;
-	
-	if (args != null){
-		if(args.start != null){
-			this.start = args.start;
-		}
-		if (args.end != null) {
-			this.end = args.end;
-		}
-		if (args.chromosome != null) {
-			this.chromosome = args.chromosome;
-		}
-		if (args.str != null) {
-			this.parse(args.str);
-		}
-	}
+
+    this.start = null;
+    this.end = null;
+    this.chromosome = null;
+
+    if (typeof args != 'undefined') {
+        this.start = args.start || this.start;
+        this.end = args.end || this.end;
+        this.chromosome = args.chromosome || this.chromosome;
+
+        if (args.str != null) {
+            this.parse(args.str);
+        }
+    }
+}
+
+Region.prototype = {
+    parse : function (str) {
+        var splitDots = str.split(":");
+        if (splitDots.length == 2) {
+            var splitDash = splitDots[1].split("-");
+            this.chromosome = splitDots[0];
+            this.start = parseInt(splitDash[0]);
+            if (splitDash.length == 2) {
+                this.end = parseInt(splitDash[1]);
+            } else {
+                this.end = this.start;
+            }
+        }
+    },
+    load : function (obj) {
+        this.start = obj.start;
+        this.end = obj.end;
+        this.chromosome = obj.chromosome;
+    },
+    center : function () {
+        return this.start + Math.floor((this.length()) / 2);
+    },
+
+    length : function () {
+        return this.end - this.start + 1;
+    },
+    toString : function (formated) {
+        var str;
+        if (formated == true) {
+            str = this.chromosome + ":" + Compbio.formatNumber(this.start) + "-" + Compbio.formatNumber(this.end);
+        } else {
+            str = this.chromosome + ":" + this.start + "-" + this.end;
+        }
+        return str;
+    }
 };
 
-Region.prototype.parse = function(str){
-	var splitDots = str.split(":");
-	if(splitDots.length == 2){
-		var splitDash = splitDots[1].split("-");
-		this.chromosome = splitDots[0];
-		this.start = parseInt(splitDash[0]);
-		if(splitDash.length == 2){
-			this.end = parseInt(splitDash[1]);
-		}else{
-			this.end = this.start;
-		}
-	}
-};
-
-Region.prototype.load = function(obj){
-	this.start = obj.start;
-	this.end = obj.end;
-	this.chromosome = obj.chromosome;
-};
-
-Region.prototype.center = function(){
-	return this.start+Math.floor((this.length())/2);
-};
-
-Region.prototype.length = function(){
-	return this.end-this.start+1;
-};
-
-Region.prototype.toString = function(formated){
-	var str;
-	if(formated == true){
-		str = this.chromosome + ":" + Compbio.formatNumber(this.start) + "-" + Compbio.formatNumber(this.end);
-	}else{
-		str = this.chromosome + ":" + this.start + "-" + this.end;
-	}
-	return str;
-};
 

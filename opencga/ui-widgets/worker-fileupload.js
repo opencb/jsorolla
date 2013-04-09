@@ -24,6 +24,8 @@ var res = {finished:false};
 var resumeInfo = {};
 var host = '';
 var accountId = '';
+var bucketId = '';
+var objectId = '';
 var sessionId = '';
 
 
@@ -53,7 +55,7 @@ function transferCanceled(evt) {
 }
 
 function getUrl(){
-    return host+'/account/'+accountId+'/storage/'+bucketId+'/subir?sessionid='+sessionId;
+    return host+'/account/'+accountId+'/storage/'+bucketId+'/'+objectId+'/chunk_upload?sessionid='+sessionId;
 }
 
 function upload(formData) {
@@ -93,81 +95,70 @@ function checkChunk(id, size) {
 }
 
 self.onmessage = function(e) {
-    //e.data contains the postMessage object
-
     host = e.data.host;
     accountId = e.data.accountId;
+    bucketId = e.data.bucketId;
     sessionId = e.data.sessionId;
+    objectId = e.data.objectId;
 
-
+    var fileFormat = e.data.fileFormat;
     var file = e.data.file;
     var resume = e.data.resume;
-    var objectId = e.data.objectId;
-    var bucketId = e.data.bucketId;
 
-//    for (var i = 0; i <files.length; i++) {
-//        var file = files[i];
+    const BYTES_PER_CHUNK = 7*1024*1024;
+    const SIZE = file.size;
+    const NUM_CHUNKS = Math.ceil(SIZE/BYTES_PER_CHUNK);
+    var start = 0;
+    var end = BYTES_PER_CHUNK;
+    var chunkId = 0;
+    res.total = NUM_CHUNKS;
 
-        const BYTES_PER_CHUNK = 7*1024*1024;
-        const SIZE = file.size;
-        const NUM_CHUNKS = Math.ceil(SIZE/BYTES_PER_CHUNK);
-        var start = 0;
-        var end = BYTES_PER_CHUNK;
+    if(resume){
+        var resumeFormData = new FormData();
+        resumeFormData.append('filename', file.name);
+        resumeFormData.append('object_id', objectId);
+        resumeFormData.append('bucket_id', bucketId);
+        resumeFormData.append('resume_upload', 'true');
+        var str = getResumeInfo(resumeFormData);
+        resumeInfo = JSON.parse(str);
+    }
 
-        var chunkId = 0;
-
-        if(resume){
-            var resumeFormData = new FormData();
-            resumeFormData.append('filename', file.name);
-            resumeFormData.append('object_id', objectId);
-            resumeFormData.append('bucket_id', bucketId);
-            resumeFormData.append('resume_upload', 'true');
-            var str = getResumeInfo(resumeFormData);
-            resumeInfo = JSON.parse(str);
-        }
-
-        var ft1,ut1;
-        while (start < SIZE) {
-            var chunkBlob = file.slice(start, end);
-            res.chunkId = chunkId;
-            var t1 = getTime();
-            if(checkChunk(chunkId, chunkBlob.size) == false){
-                ft1 = getTime();
-                var formData = new FormData();
-                formData.append('chunk_content', chunkBlob);
-                formData.append('chunk_id', chunkId);
-                formData.append('chunk_size', chunkBlob.size);
+    var t;
+    while (start < SIZE) {
+        t = getTime();
+        var chunkBlob = file.slice(start, end);
+        res.chunkId = chunkId;
+        if(checkChunk(chunkId, chunkBlob.size) == false){
+            var formData = new FormData();
+            formData.append('chunk_content', chunkBlob);
+            formData.append('chunk_id', chunkId);
+            formData.append('chunk_size', chunkBlob.size);
 //                formData.append('chunk_hash', hash);
-                formData.append("filename", file.name);
-                formData.append('object_id', objectId);
-                formData.append('bucket_id', bucketId);
-    //            formData.append('chunk_gzip', );
-                /**/
-                if(chunkId == (NUM_CHUNKS-1)){
-                    formData.append("last_chunk", true);
-                    formData.append("total_size", SIZE);
-                }
-                res.ft2 = getTime()-ft1;
-                self.postMessage(res);
-                ut1 = getTime();
-                upload(formData);
-                res.ut2 = getTime()-ut1;
-                self.postMessage(res);
+            formData.append("filename", file.name);
+            formData.append('object_id', objectId);
+            formData.append('bucket_id', bucketId);
+//            formData.append('chunk_gzip', );
+            /**/
+            if(chunkId == (NUM_CHUNKS-1)){
+                formData.append("last_chunk", true);
+                formData.append("fileFormat", fileFormat);
+                formData.append("total_size", SIZE);
             }
-            var t2 = getTime()-t1;
-
-            res.start = start;
-            res.end = end;
-            res.t = t2;
-            self.postMessage(res);
-
-            start = end;
-            end = start + BYTES_PER_CHUNK;
-            chunkId++;
+            upload(formData);
         }
 
-        res.finished = true;
+        res.start = start;
+        res.end = end;
+        res.t = getTime()-t;
         self.postMessage(res);
+
+        start = end;
+        end = start + BYTES_PER_CHUNK;
+        chunkId++;
+    }
+
+    res.finished = true;
+    self.postMessage(res);
 };
 
 

@@ -49,7 +49,8 @@ TranscriptInfoWidget.prototype.getdataTypes = function (){
 	            { text: "Genomic", children: [
 	                 { text: "Information"},
 	                 { text: "Gene"},
-	                 { text: "Exons"}
+	                 { text: "Exons"},
+	                 { text: "Xref"}
 	            ] },
 	            { text: "Functional information", children: [
 	                  { text: "GO"},
@@ -81,9 +82,10 @@ TranscriptInfoWidget.prototype.optionClick = function (item){
 			case "Information": this.panel.add(this.getInfoPanel(this.data).show()); break;
 			case "Gene": this.panel.add(this.getGenePanel(this.data.gene).show());  break;
 			case "Exons": this.panel.add(this.getExonsGrid(this.data.exons).show());  break;
-			case "GO": this.panel.add(this.getXrefGrid(this.data.go, "GO").show());  break;
-			case "Interpro": this.panel.add(this.getXrefGrid(this.data.interpro, "Interpro").show());  break;
-			case "Reactome": this.panel.add(this.getXrefGrid(this.data.reactome, "Reactome").show());  break;
+			case "Xref": this.panel.add(this.getXrefGrid([this.data], "Xref", 'dbName').show());  break;
+			case "GO": this.panel.add(this.getXrefGrid([this.data], "GO").show());  break;
+			case "Interpro": this.panel.add(this.getXrefGrid([this.data], "Interpro").show());  break;
+			case "Reactome": this.panel.add(this.getXrefGrid([this.data], "Reactome").show());  break;
 			case "SNPs": this.panel.add(this.getSnpsGrid(this.data.snps).show());  break;
 			case "Mutations": this.panel.add(this.getMutationsGrid(this.data.mutations).show());  break;
 			case "TFBS": this.panel.add(this.getTfbsGrid(this.data.tfbs).show());  break;
@@ -200,12 +202,12 @@ TranscriptInfoWidget.prototype.getData = function (){
 	
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function(sender,data){
-		_this.dataReceived(JSON.parse(data.result));//TODO
+		_this.dataReceived(data.result);//TODO
 	});
 	cellBaseManager.get("feature","transcript", this.query, "fullinfo");
 };
 TranscriptInfoWidget.prototype.dataReceived = function (data){
-	this.data=data[0];
+	this.data=data[0][0];
 	console.log(this.data);
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();

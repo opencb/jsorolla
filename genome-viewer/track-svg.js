@@ -28,11 +28,10 @@ function TrackSvg(parent, args) {
 	this.height = 25;
 	this.width = 200;
 	this.title = "track";
-//	this.type = "generic";
 	this.renderedArea = {};//used for renders to store binary trees
 	
-	this.lienzo=500000;//mesa
-	this.pixelPosition=this.lienzo/2;
+	this.maxPixelWidth=500000;//mesa
+	this.pixelPosition=this.maxPixelWidth/2;
 	
 	this.histogramZoom = -1000;//no histogram by default
 	
@@ -43,65 +42,26 @@ function TrackSvg(parent, args) {
 	
 	
 	this.labelZoom = -1;
-	
-	if (args != null){
-		if(args.title != null){
-			this.title = args.title;
-		}
-		if(args.id != null){
-			this.id = args.id;
-		}
-		if(args.type != null){
-			this.type = args.type;
-		}
-		if(args.trackSvgLayout != null){
-			this.trackSvgLayout = args.trackSvgLayout;
-		}
-		if(args.trackData != null){
-			this.trackData = args.trackData;
-		}
-		if(args.clase != null){
-			this.clase = args.clase;
-		}
-		if(args.width != null){
-			this.width = args.width;
-		}
-		if(args.height != null){
-			this.height = args.height;
-		}
-		if(args.region != null){
-			this.region = args.region;
-		}
-		if(args.zoom != null){
-			this.zoom = args.zoom;
-		}
-		if(args.pixelBase != null){
-			this.pixelBase = args.pixelBase;
-		}
-//		if(args.type != null){
-//			this.type = args.type;
-//		}
-		if(args.closable != null){
-			this.closable = args.closable;
-		}
-		if(args.labelZoom != null){
-			this.labelZoom = args.labelZoom;
-		}
-		if(args.histogramZoom != null){
-			this.histogramZoom = args.histogramZoom;
-		}
-		if(args.transcriptZoom != null){//gene only
-			this.transcriptZoom = args.transcriptZoom;
-		}
-		if(args.featureTypes != null){
-			this.featureTypes = args.featureTypes;
-		}
-		if(args.titleVisibility != null){
-			this.titleVisibility = args.titleVisibility;
-		}
-		if(args.visibleRange != null){
-			this.visibleRange = args.visibleRange;
-		}
+
+    if (typeof args != 'undefined') {
+        this.id = args.id || this.id;
+        this.title = args.title || this.title;
+        this.type = args.type || this.type;
+        this.trackSvgLayout = args.trackSvgLayout || this.trackSvgLayout;
+        this.trackData = args.trackData || this.trackData;
+        this.width = args.width || this.width;
+        this.height = args.height || this.height;
+        this.zoom = args.zoom || this.zoom;
+        this.region = args.region || this.region;
+        this.pixelBase = args.pixelBase || this.pixelBase;
+        this.closable = args.closable || this.closable;
+        this.labelZoom = args.labelZoom || this.labelZoom;
+        this.histogramZoom = args.histogramZoom || this.histogramZoom;
+        this.transcriptZoom = args.transcriptZoom || this.transcriptZoom;
+        this.featureTypes = args.featureTypes || this.featureTypes;
+        this.titleVisibility = args.titleVisibility || this.titleVisibility;
+        this.visibleRange = args.visibleRange || this.visibleRange;
+
 		if(args.featuresRender != null){
 			switch(args.featuresRender){
 				case "MultiFeatureRender": this.featuresRender = this.MultiFeatureRender; break;
@@ -112,7 +72,7 @@ function TrackSvg(parent, args) {
 			}
 			this.defaultRender = this.featuresRender;
 		}
-	}
+    }
 
 	this.position = this.region.center();
 	
@@ -126,178 +86,184 @@ function TrackSvg(parent, args) {
 
 	//diplayed boolean object
 	this.chunksDisplayed = {};
-};
+}
 
-TrackSvg.prototype.setY = function(value){
-	this.y = value;
-};
-TrackSvg.prototype.getHeight = function(){
-	return this.height;
-};
-TrackSvg.prototype.setHeight = function(height){
-	this.height=height;
-	if(this.rendered){
-		this.main.setAttribute("height",height);
-		this.features.setAttribute("height",height);
-		this.titlebar.setAttribute("height",height);
-	}
-};
+TrackSvg.prototype = {
+    setY : function(value){
+        this.y = value;
+    },
 
-TrackSvg.prototype.setWidth = function(width){
-	this.width=width;
-	if(this.rendered){
-		this.main.setAttribute("width",width);
-	}
-};
+    getHeight : function(){
+        return this.height;
+    },
 
-TrackSvg.prototype.setLoading = function(bool){
-	if(bool){
-		//this.titleGroup.setAttribute("transform","translate(40)");
-		this.loading.setAttribute("visibility", "visible");
-		this.status = "rendering";
-	}else{
-		//this.titleGroup.setAttribute("transform","translate(0)");
-		this.loading.setAttribute("visibility", "hidden");
-		this.status = "ready";
-	}
-};
+    setHeight : function(height){
+        this.height=height;
+        if(this.rendered){
+            this.main.setAttribute("height",height);
+            this.features.setAttribute("height",height);
+            this.titlebar.setAttribute("height",height);
+        }
+    },
 
-TrackSvg.prototype.setFilters = function(filters){
-	this.trackData.setFilters(filters);
-	this.regionChange();
-};
-TrackSvg.prototype.getFilters = function(){
-	return this.trackData.adapter.filters;
-};
-TrackSvg.prototype.getFiltersConfig = function(){
-	return this.trackData.adapter.filtersConfig;
-};
-TrackSvg.prototype.setOption = function(option, value){
-	this.trackData.setOption(option, value);
-	this.regionChange();
-};
-TrackSvg.prototype.getOptions = function(){
-	return this.trackData.adapter.options;
-};
-TrackSvg.prototype.getOptionsConfig = function(){
-	return this.trackData.adapter.optionsConfig;
-};
+    setWidth : function(width){
+        this.width=width;
+        if(this.rendered){
+            this.main.setAttribute("width",width);
+        }
+    },
 
-TrackSvg.prototype.cleanSvg = function(filters){
-		console.time("-----------------------------------------empty");
-		//$(this.features).empty();
+    setLoading : function(bool){
+        if(bool){
+            //this.titleGroup.setAttribute("transform","translate(40)");
+            this.loading.setAttribute("visibility", "visible");
+            this.status = "rendering";
+        }else{
+            //this.titleGroup.setAttribute("transform","translate(0)");
+            this.loading.setAttribute("visibility", "hidden");
+            this.status = "ready";
+        }
+    },
+
+    setFilters : function(filters){
+        this.trackData.setFilters(filters);
+        this.regionChange();
+    },
+
+    getFilters : function(){
+        return this.trackData.adapter.filters;
+    },
+
+    getFiltersConfig : function(){
+        return this.trackData.adapter.filtersConfig;
+    },
+
+    setOption : function(option, value){
+        this.trackData.setOption(option, value);
+        this.regionChange();
+    },
+
+    getOptions : function(){
+        return this.trackData.adapter.options;
+    },
+
+    getOptionsConfig : function(){
+        return this.trackData.adapter.optionsConfig;
+    },
+
+    cleanSvg : function(filters){
+        console.time("-----------------------------------------empty");
+        //$(this.features).empty();
 //		this.features.textContent = "";
-		while (this.features.firstChild) {
-			this.features.removeChild(this.features.firstChild);
-		}
-		console.timeEnd("-----------------------------------------empty");
-		//deprecated, diplayed object is now in trackSvg class
-		//this.adapter.featureCache.chunksDisplayed = {};
-		this.chunksDisplayed = {};
-		this.renderedArea = {};
-};
+        while (this.features.firstChild) {
+            this.features.removeChild(this.features.firstChild);
+        }
+        console.timeEnd("-----------------------------------------empty");
+        //deprecated, diplayed object is now in trackSvg class
+        //this.adapter.featureCache.chunksDisplayed = {};
+        this.chunksDisplayed = {};
+        this.renderedArea = {};
+    },
 
-TrackSvg.prototype.setTitle = function(title){
-	this.titleText.textContent =  title;
-	//this.titlebar.setAttribute("width", (15+title.length*6));
-};
+    setTitle : function(title){
+        this.titleText.textContent =  title;
+        //this.titlebar.setAttribute("width", (15+title.length*6));
+    },
 
-TrackSvg.prototype.getTitle = function(){
-	return this.titleText.textContent;
-};
+    getTitle : function(){
+        return this.titleText.textContent;
+    },
 
-TrackSvg.prototype.draw = function(){
-	var _this = this;
-	var main = SVG.addChild(this.parent,"svg",{
+    draw : function(){
+        var _this = this;
+        var main = SVG.addChild(this.parent,"svg",{
 //		"style":"border:1px solid #e0e0e0;",
-		"id":this.id,
-		"class":"trackSvg",
-		"x":0,
-		"y":this.y,
-		"width":this.width,
-		"height":this.height
-	});
-	
+            "id":this.id,
+            "class":"trackSvg",
+            "x":0,
+            "y":this.y,
+            "width":this.width,
+            "height":this.height
+        });
 
-	
-	var titleGroup = SVG.addChild(main,"g",{
-		"class":"trackTitle"
-		//visibility:this.titleVisibility	
-	});
+        var titleGroup = SVG.addChild(main,"g",{
+            "class":"trackTitle"
+            //visibility:this.titleVisibility
+        });
 
 
-	var text = this.title;
-	var textWidth = 15+text.length*6;
-	var titlebar = SVG.addChild(titleGroup,"rect",{
-		"x":0,
-		"y":0,
-		//"width":textWidth,
-		"width":this.width,
-		//"height":22,
-		"height":this.getHeight(),
-		//"stroke":"lightgray",
-		//"stroke":"deepSkyBlue",
-		//"stroke-width":"1",
-		"opacity":"0.6",
-		//"fill":"honeydew"
-		"fill":"transparent"
-	});
-	var titleText = SVG.addChild(titleGroup,"text",{
-		"x":4,
-		"y":14,
-		"font-size": 10,
-		"opacity":"0.4",
-		"fill":"black"
+        var text = this.title;
+        var textWidth = 15+text.length*6;
+        var titlebar = SVG.addChild(titleGroup,"rect",{
+            "x":0,
+            "y":0,
+            //"width":textWidth,
+            "width":this.width,
+            //"height":22,
+            "height":this.getHeight(),
+            //"stroke":"lightgray",
+            //"stroke":"deepSkyBlue",
+            //"stroke-width":"1",
+            "opacity":"0.6",
+            //"fill":"honeydew"
+            "fill":"transparent"
+        });
+        var titleText = SVG.addChild(titleGroup,"text",{
+            "x":4,
+            "y":14,
+            "font-size": 10,
+            "opacity":"0.4",
+            "fill":"black"
 //		"transform":"rotate(-90 50,50)"
-	});
-	titleText.textContent =  text;
+        });
+        titleText.textContent =  text;
 
-	var features = SVG.addChild(titleGroup,"svg",{
-		"class":"features",
-		"x":-this.pixelPosition,
-		"width":this.lienzo,
-		"height":this.height
-	});
-	//var settingsRect = SVG.addChildImage(titleGroup,{
-		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
-		//"x":4+textWidth,
-		//"y":3,
-		//"width":17,
-		//"height":17,
-		//"opacity":"0.6",
-		//"visibility":"hidden"
-	//});
-	//
-	//var upRect = SVG.addChildImage(titleGroup,{
-		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAD9JREFUOI1jYKAhEGBgYJgPxWSB+QwMDP+hmGRDkDWTbAg2zUQbgk8zQUOI0Uyyd2AacAImYk0aNWAwG0AxAABRBSdztC0IxQAAAABJRU5ErkJggg==",
-		//"x":22+textWidth,
-		//"y":4,
-	    //"width":16,
-	    //"height":16,
-	    //"opacity":"0.6",
-	    //"visibility":"hidden"
-	//});
-	//
-	//var downRect = SVG.addChildImage(titleGroup,{
-		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAERJREFUOI1jYKAx+A/FOAETpTaMGjDYDJjPgIh39PhHF5+Py0BshhCtmRhDCGrGZwjRmrEZQrJmZEPmMzAwCJBrAEEAANCqJXdWrFuyAAAAAElFTkSuQmCC",
-		//"x":36+textWidth,
-		//"y":4,
-		//"width":16,
-		//"height":16,
-		//"opacity":"0.6",
-		//"visibility":"hidden"
-	//});
-	//var hideRect = SVG.addChildImage(titleGroup,{
-		//"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAJFJREFUOI2tks0NgzAMhb+wAFP05FM2aCdjtDBCLjkxBRO4F4JoAONIfVKkyHk/sl4CQIyRFqpKzvk0/zvCMRSYgU9LEpH9XkpJwFtEgqr+8NJmkozAR45F2N+WcTQyrk3c4lYwbadLXFGFCkx34sHr9lrXrvTLFXrFx509Fd+K3SaeqkwTb1XV5Axvz73/wcQXYitIjMzG550AAAAASUVORK5CYII=",
-		//"x":52+textWidth,
-		//"y":4,
-		//"width":16,
-		//"height":16,
-		//"opacity":"0.6",
-		//"visibility":"hidden"
-	//});
-	
-	//bamStrandPatt
+        var features = SVG.addChild(titleGroup,"svg",{
+            "class":"features",
+            "x":-this.pixelPosition,
+            "width":this.maxPixelWidth,
+            "height":this.height
+        });
+        //var settingsRect = SVG.addChildImage(titleGroup,{
+        //"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAABHNCSVQICAgIfAhkiAAAAPJJREFUOI2llD0OgkAQhb/QExuPQGWIB/A63IAbGLwG0dNQWxPt6GmoELMWzuJk3IUYJ5mQnXlv/nYWnHOEFCgAp7SIYRPiclg5f0SyJkCmqtgBrankBuwVJwMS59xsKAV4Bc7AwwTwOgEXwTmgFD5boI+QnkAn35C/Fz7HSMYTkErXqZynAPYIkAN346giI6wM7g7kfiYbYFAtpJYtuFS1NggPvRejODtLNvvTCW60GaKVmADhSpZmEqgiPBNWbkdVsHg7/+/Jjxv7EP+8sXqwCe+34CX0dlqxe8mE9zV9LbUJUluAl+CvQAI2xtxYjE/8Ak/JC4Cb6l5eAAAAAElFTkSuQmCC",
+        //"x":4+textWidth,
+        //"y":3,
+        //"width":17,
+        //"height":17,
+        //"opacity":"0.6",
+        //"visibility":"hidden"
+        //});
+        //
+        //var upRect = SVG.addChildImage(titleGroup,{
+        //"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAD9JREFUOI1jYKAhEGBgYJgPxWSB+QwMDP+hmGRDkDWTbAg2zUQbgk8zQUOI0Uyyd2AacAImYk0aNWAwG0AxAABRBSdztC0IxQAAAABJRU5ErkJggg==",
+        //"x":22+textWidth,
+        //"y":4,
+        //"width":16,
+        //"height":16,
+        //"opacity":"0.6",
+        //"visibility":"hidden"
+        //});
+        //
+        //var downRect = SVG.addChildImage(titleGroup,{
+        //"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAERJREFUOI1jYKAx+A/FOAETpTaMGjDYDJjPgIh39PhHF5+Py0BshhCtmRhDCGrGZwjRmrEZQrJmZEPmMzAwCJBrAEEAANCqJXdWrFuyAAAAAElFTkSuQmCC",
+        //"x":36+textWidth,
+        //"y":4,
+        //"width":16,
+        //"height":16,
+        //"opacity":"0.6",
+        //"visibility":"hidden"
+        //});
+        //var hideRect = SVG.addChildImage(titleGroup,{
+        //"xlink:href":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAJFJREFUOI2tks0NgzAMhb+wAFP05FM2aCdjtDBCLjkxBRO4F4JoAONIfVKkyHk/sl4CQIyRFqpKzvk0/zvCMRSYgU9LEpH9XkpJwFtEgqr+8NJmkozAR45F2N+WcTQyrk3c4lYwbadLXFGFCkx34sHr9lrXrvTLFXrFx509Fd+K3SaeqkwTb1XV5Axvz73/wcQXYitIjMzG550AAAAASUVORK5CYII=",
+        //"x":52+textWidth,
+        //"y":4,
+        //"width":16,
+        //"height":16,
+        //"opacity":"0.6",
+        //"visibility":"hidden"
+        //});
+
+        //bamStrandPatt
 //	var bamStrandPatt = SVG.addChild(main,"pattern",{
 //		"id":this.id+"bamStrandPatt",
 //		"patternUnits":"userSpaceOnUse",
@@ -306,39 +272,39 @@ TrackSvg.prototype.draw = function(){
 //		"width":30,
 //		"height":10
 //	});
-//	
+//
 //	var bamStrandPattArrow = SVG.addChild(bamStrandPatt,"path",{
 //		"d":"M 1 1 L 8 5 L 1 9 Z",
 //	});
 
-	/*GRADIENT*/
-	//var bamStrandForward = SVG.addChild(main,"linearGradient",{
-		//"id":this.id+"bamStrandForward"
-	//});
-	//var bamStrandReverse = SVG.addChild(main,"linearGradient",{
-		//"id":this.id+"bamStrandReverse"
-	//});
-	//var stop1 = SVG.addChild(bamStrandForward,"stop",{
-		//"offset":"5%",
-		//"stop-color":"#666"
-	//});
-	//var stop2 = SVG.addChild(bamStrandForward,"stop",{
-		//"offset":"95%",
-		//"stop-color":"#BBB"
-	//});
-	//var stop1 = SVG.addChild(bamStrandReverse,"stop",{
-		//"offset":"5%",
-		//"stop-color":"#BBB"
-	//});
-	//var stop2 = SVG.addChild(bamStrandReverse,"stop",{
-		//"offset":"95%",
-		//"stop-color":"#666"
-	//});
-	/*GRADIENT*/
-	
+        /*GRADIENT*/
+        //var bamStrandForward = SVG.addChild(main,"linearGradient",{
+        //"id":this.id+"bamStrandForward"
+        //});
+        //var bamStrandReverse = SVG.addChild(main,"linearGradient",{
+        //"id":this.id+"bamStrandReverse"
+        //});
+        //var stop1 = SVG.addChild(bamStrandForward,"stop",{
+        //"offset":"5%",
+        //"stop-color":"#666"
+        //});
+        //var stop2 = SVG.addChild(bamStrandForward,"stop",{
+        //"offset":"95%",
+        //"stop-color":"#BBB"
+        //});
+        //var stop1 = SVG.addChild(bamStrandReverse,"stop",{
+        //"offset":"5%",
+        //"stop-color":"#BBB"
+        //});
+        //var stop2 = SVG.addChild(bamStrandReverse,"stop",{
+        //"offset":"95%",
+        //"stop-color":"#666"
+        //});
+        /*GRADIENT*/
+
 ////	XXX para mañana, arrastrar para ordenar verticalmente
 //	$(titleGroup).mousedown(function(event){
-//		main.parentNode.appendChild(main); 
+//		main.parentNode.appendChild(main);
 ////		var x = parseInt(main.getAttribute("x")) - event.offsetX;
 //		var y = parseInt(main.getAttribute("y")) - event.clientY;
 //		$(this.parentNode).mousemove(function(event){
@@ -349,8 +315,8 @@ TrackSvg.prototype.draw = function(){
 //	$(main).mouseup(function(event){
 //		$(this).off('mousemove');
 //	});
-	
-	
+
+
 //	var over = SVG.addChild(main,"rect",{
 //		"x":0,
 //		"y":0,
@@ -361,129 +327,131 @@ TrackSvg.prototype.draw = function(){
 //		"stroke-width":"1",
 //		"fill":"deepskyblue"
 //	});
-	
-	this.fnTitleMouseEnter = function(){
+
+        this.fnTitleMouseEnter = function(){
 //		over.setAttribute("opacity","0.1");
-		//titlebar.setAttribute("width",74+textWidth);
-		titlebar.setAttribute("opacity","0.1");
-		titlebar.setAttribute("fill","gray");
-		titleText.setAttribute("opacity","1.0");
-		//upRect.setAttribute("visibility","visible");
-		//downRect.setAttribute("visibility","visible");
-		//if(_this.closable == true){ hideRect.setAttribute("visibility","visible"); }
+            //titlebar.setAttribute("width",74+textWidth);
+            titlebar.setAttribute("opacity","0.1");
+            titlebar.setAttribute("fill","gray");
+            titleText.setAttribute("opacity","1.0");
+            //upRect.setAttribute("visibility","visible");
+            //downRect.setAttribute("visibility","visible");
+            //if(_this.closable == true){ hideRect.setAttribute("visibility","visible"); }
 //		settingsRect.setAttribute("visibility","visible");//TODO not implemented yet, hidden for now...
-	};
-	this.fnTitleMouseLeave = function(){
+        };
+        this.fnTitleMouseLeave = function(){
 ////	over.setAttribute("opacity","0.0");
-		//titlebar.setAttribute("width",textWidth);
-		titlebar.setAttribute("opacity","0.6");
-		titlebar.setAttribute("fill","transparent");
-		titleText.setAttribute("opacity","0.4");
-		//upRect.setAttribute("visibility","hidden");
-		//downRect.setAttribute("visibility","hidden");
-		//hideRect.setAttribute("visibility","hidden");
-		//settingsRect.setAttribute("visibility","hidden");
-	};
+            //titlebar.setAttribute("width",textWidth);
+            titlebar.setAttribute("opacity","0.6");
+            titlebar.setAttribute("fill","transparent");
+            titleText.setAttribute("opacity","0.4");
+            //upRect.setAttribute("visibility","hidden");
+            //downRect.setAttribute("visibility","hidden");
+            //hideRect.setAttribute("visibility","hidden");
+            //settingsRect.setAttribute("visibility","hidden");
+        };
 
-	$(titleGroup).off("mouseenter");
-	$(titleGroup).off("mouseleave");
-	$(titleGroup).mouseenter(this.fnTitleMouseEnter);
-	$(titleGroup).mouseleave(this.fnTitleMouseLeave);
-	
-	//$([upRect,downRect,hideRect,settingsRect]).mouseover(function(event){
-		//this.setAttribute("opacity","1.0");
-	//});
-	//$([upRect,downRect,hideRect,settingsRect]).mouseleave(function(event){
-		//this.setAttribute("opacity","0.6");
-	//});
+        $(titleGroup).off("mouseenter");
+        $(titleGroup).off("mouseleave");
+        $(titleGroup).mouseenter(this.fnTitleMouseEnter);
+        $(titleGroup).mouseleave(this.fnTitleMouseLeave);
+
+        //$([upRect,downRect,hideRect,settingsRect]).mouseover(function(event){
+        //this.setAttribute("opacity","1.0");
+        //});
+        //$([upRect,downRect,hideRect,settingsRect]).mouseleave(function(event){
+        //this.setAttribute("opacity","0.6");
+        //});
 //
-	//$(settingsRect).mouseover(function(event){
-		//titlebar.setAttribute("height",22+22);
-	//});
-	//$(settingsRect).mouseleave(function(event){
-		//titlebar.setAttribute("height",22);
-	//});
-	//
-	//set initial values when hide due mouseleave event not fires when hideTrack from TrackSvgLayout
-	//$(hideRect).click(function(event){
-		//titlebar.setAttribute("width",textWidth);
-		//titlebar.setAttribute("opacity","0.6");
-		//titleText.setAttribute("opacity","0.4");
-		//upRect.setAttribute("visibility","hidden");
-		//downRect.setAttribute("visibility","hidden");
-		//hideRect.setAttribute("visibility","hidden");
-		//settingsRect.setAttribute("visibility","hidden");
-	//});
-	
-	
-	this.invalidZoomText = SVG.addChild(titleGroup,"text",{
-		"x":154,
-		"y":24,
-		"font-size": 10,
-		"opacity":"0.6",
-		"fill":"black",
-		"visibility":"hidden"
-	});
-	this.invalidZoomText.textContent = "This level of zoom isn't appropiate for this track";
+        //$(settingsRect).mouseover(function(event){
+        //titlebar.setAttribute("height",22+22);
+        //});
+        //$(settingsRect).mouseleave(function(event){
+        //titlebar.setAttribute("height",22);
+        //});
+        //
+        //set initial values when hide due mouseleave event not fires when hideTrack from TrackSvgLayout
+        //$(hideRect).click(function(event){
+        //titlebar.setAttribute("width",textWidth);
+        //titlebar.setAttribute("opacity","0.6");
+        //titleText.setAttribute("opacity","0.4");
+        //upRect.setAttribute("visibility","hidden");
+        //downRect.setAttribute("visibility","hidden");
+        //hideRect.setAttribute("visibility","hidden");
+        //settingsRect.setAttribute("visibility","hidden");
+        //});
 
 
-	var loadingImg = '<?xml version="1.0" encoding="utf-8"?>'+
-	'<svg version="1.1" width="22px" height="22px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'+
-	'<defs>'+
-		'<g id="pair">'+
-			'<ellipse cx="7" cy="0" rx="4" ry="1.7" style="fill:#ccc; fill-opacity:0.5;"/>'+
-			'<ellipse cx="-7" cy="0" rx="4" ry="1.7" style="fill:#aaa; fill-opacity:1.0;"/>'+
-		'</g>'+
-	'</defs>'+
-	'<g transform="translate(11,11)">'+
-		'<g>'+
-			'<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.5s" repeatDur="indefinite"/>'+
-			'<use xlink:href="#pair"/>'+
-			'<use xlink:href="#pair" transform="rotate(45)"/>'+
-			'<use xlink:href="#pair" transform="rotate(90)"/>'+
-			'<use xlink:href="#pair" transform="rotate(135)"/>'+
-		'</g>'+
-	'</g>'+
-	'</svg>';
-	
-	this.loading = SVG.addChildImage(main,{
-		"xlink:href":"data:image/svg+xml,"+encodeURIComponent(loadingImg),
-		"x":10,
-		"y":0,
-		"width":22,
-		"height":22,
-		"visibility":"hidden"
-	});
-	
-	//ya no se usa, es track svg layout el q captura el evento de click y arrastrar
-	//$(this.parent).mousedown(function(event) {
-		//var x = parseInt(features.getAttribute("x")) - event.clientX;
-		//$(this).mousemove(function(event){
-			//features.setAttribute("x",x + event.clientX);
-		//});
-	//});
-	//$(this.parent).mouseup(function(event) {
-		//$(this).off('mousemove');
-	//});
-	
-	
-	this.main = main;
-	this.titleGroup = titleGroup;
-	this.titlebar = titlebar;
-	this.titleText = titleText;
-	//this.upRect = upRect;
-	//this.downRect = downRect;
-	//this.hideRect = hideRect;
-	//this.settingsRect = settingsRect;
-	this.features = features;
-	
-	this.rendered = true;
-	this.status = "ready";
+        this.invalidZoomText = SVG.addChild(titleGroup,"text",{
+            "x":154,
+            "y":24,
+            "font-size": 10,
+            "opacity":"0.6",
+            "fill":"black",
+            "visibility":"hidden"
+        });
+        this.invalidZoomText.textContent = "This level of zoom isn't appropiate for this track";
+
+
+        var loadingImg = '<?xml version="1.0" encoding="utf-8"?>'+
+            '<svg version="1.1" width="22px" height="22px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'+
+            '<defs>'+
+            '<g id="pair">'+
+            '<ellipse cx="7" cy="0" rx="4" ry="1.7" style="fill:#ccc; fill-opacity:0.5;"/>'+
+            '<ellipse cx="-7" cy="0" rx="4" ry="1.7" style="fill:#aaa; fill-opacity:1.0;"/>'+
+            '</g>'+
+            '</defs>'+
+            '<g transform="translate(11,11)">'+
+            '<g>'+
+            '<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.5s" repeatDur="indefinite"/>'+
+            '<use xlink:href="#pair"/>'+
+            '<use xlink:href="#pair" transform="rotate(45)"/>'+
+            '<use xlink:href="#pair" transform="rotate(90)"/>'+
+            '<use xlink:href="#pair" transform="rotate(135)"/>'+
+            '</g>'+
+            '</g>'+
+            '</svg>';
+
+        this.loading = SVG.addChildImage(main,{
+            "xlink:href":"data:image/svg+xml,"+encodeURIComponent(loadingImg),
+            "x":10,
+            "y":0,
+            "width":22,
+            "height":22,
+            "visibility":"hidden"
+        });
+
+        //ya no se usa, es track svg layout el q captura el evento de click y arrastrar
+        //$(this.parent).mousedown(function(event) {
+        //var x = parseInt(features.getAttribute("x")) - event.clientX;
+        //$(this).mousemove(function(event){
+        //features.setAttribute("x",x + event.clientX);
+        //});
+        //});
+        //$(this.parent).mouseup(function(event) {
+        //$(this).off('mousemove');
+        //});
+
+
+        this.main = main;
+        this.titleGroup = titleGroup;
+        this.titlebar = titlebar;
+        this.titleText = titleText;
+        //this.upRect = upRect;
+        //this.downRect = downRect;
+        //this.hideRect = hideRect;
+        //this.settingsRect = settingsRect;
+        this.features = features;
+
+        this.rendered = true;
+        this.status = "ready";
+    }
 };
 
 
-//RENDERS for MultiFeatureRender, sequence, Snp, Histogram
 
+
+//RENDERS for MultiFeatureRender, sequence, Snp, Histogram
 TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 	var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
@@ -1266,85 +1234,101 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 };
 
 TrackSvg.prototype.SequenceRender = function(response){
-	//var featureList = this._getFeaturesByChunks(response);
-	//here we got features array
+    /*conserved region beta*/
+    var v = function(){
+       return (Math.random()*40)-20;
+    };
+
+
+    var text = SVG.addChild(this.titleGroup,"text",{
+        "x":14,
+        "y":24,
+        "font-size": 12,
+        "opacity":"0.9",
+        "fill":"blue",
+        "visibility":"visible"
+    });
+    text.textContent = "4";
+    var text2 = SVG.addChild(this.titleGroup,"text",{
+        "x":10,
+        "y":84,
+        "font-size": 12,
+        "opacity":"0.9",
+        "fill":"blue",
+        "visibility":"visible"
+    });
+    text2.textContent = "-4";
+
+    /**/
+
+    this.invalidZoomText.setAttribute("visibility", "hidden");
+
 	console.time("Sequence render "+response.items.sequence.length);
-		var chromeFontSize = "16";
-		var firefoxFontSize = "19";
-		var chromeFontOff = "16";
-		var fontOff = 1;
-		if(this.zoom == 95){
-			chromeFontSize = "10";
-			firefoxFontSize = "10";
-			fontOff = 0;
-		}
+    var chromeFontSize = "16";
+    if(this.zoom == 95){
+        chromeFontSize = "10";
+    }
 
-		
-		this.invalidZoomText.setAttribute("visibility", "hidden");
-		var middle = this.width/2;
+    var middle = this.width/2;
 
-		
-		//if(featureList.length > 0){//???
-		//for ( var j = 0; j < featureList.length; j++) {
-			//var seqString = featureList[j].sequence;
-			//var seqStart = featureList[j].start;
-			var width = 1*this.pixelBase;
-			
-	//		if(!this.settings.color){
-	//			this.settings.color = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
-	//		}
-			
-			var start = response.items.start;
-			var seqStart = response.items.start;
-			var seqString = response.items.sequence;
+    var start = response.items.start;
+    var seqStart = response.items.start;
+    var seqString = response.items.sequence;
+//    var phastCons = response.items.phastCons;
+//    var phylop = response.items.phylop;
 
-//			if(jQuery.browser.mozilla){
-//				var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
-//				var text = SVG.addChild(this.features,"text",{
-//					"x":x+fontOff,
-//					"y":13,
-//					"font-size":firefoxFontSize,
-//					"style":"letter-spacing:8;",//not implemented in firefox, https://developer.mozilla.org/en-US/docs/SVG_in_Firefox
-//					"font-family": "Ubuntu Mono"
-//				});
-//				text.textContent = seqString;
-//			}else{
-				for ( var i = 0; i < seqString.length; i++) {
-					var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
-					start++;
-					var text = SVG.addChild(this.features,"text",{
-						"x":x+fontOff,
-						"y":12,
-						"font-size":chromeFontSize,
-						"font-family": "Ubuntu Mono",
-						"fill":SEQUENCE_COLORS[seqString.charAt(i)]
-					});
-					text.textContent = seqString.charAt(i);
-					
-					$(text).qtip({
-						content:seqString.charAt(i)+" "+(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"),
-						position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
-						style: { width:true, classes: 'ui-tooltip-light ui-tooltip-shadow'}
-					});
-				}
-				
-//			}
-		//}
-			
-		//}
-		console.timeEnd("Sequence render "+response.items.sequence.length);
-		this.trackSvgLayout.setNucleotidPosition(this.position);
+    var points = '';
+    var firstx = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
+    points += firstx+','+50+' ';
+
+    for ( var i = 0; i < seqString.length; i++) {
+        var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
+        start++;
+
+        var height = /*histogramHeight * */ v();
+        var width = this.pixelBase;
+        points += (x+(width/2))+","+(50 - height)+' ';
+
+        var text = SVG.addChild(this.features,"text",{
+            "x":x,
+            "y":12,
+            "font-size":chromeFontSize,
+            "font-family": "Ubuntu Mono",
+            "fill":SEQUENCE_COLORS[seqString.charAt(i)]
+        });
+        text.textContent = seqString.charAt(i);
+        $(text).qtip({
+            content:seqString.charAt(i)+" "+(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")/*+'<br>'+phastCons[i]+'<br>'+phylop[i]*/,
+            position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
+            style: { width:true, classes: 'qtip-light qtip-shadow'}
+        });
+    }
+
+    var lastx = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
+    points += lastx+','+50+' ';
+
+    var pol = SVG.addChild(this.features,"polyline",{
+        "points":points,
+        "stroke": "#000000",
+        "stroke-width": 0.2,
+        "fill": 'red',
+        "cursor": "pointer"
+    });
+
+
+    console.timeEnd("Sequence render "+response.items.sequence.length);
+    this.trackSvgLayout.setNucleotidPosition(this.position);
 };
 
 
 TrackSvg.prototype.HistogramRender = function(response){
 	var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
-	
+
 	var middle = this.width/2;
 //	console.log(featureList);
 	var histogramHeight = 50;
-	var points = "";
+	var points = '';
 	if(featureList.length>0) {
 		var firstx = this.pixelPosition+middle-((this.position-featureList[0].start)*this.pixelBase);
 		points = firstx+','+histogramHeight+' ';
@@ -1478,7 +1462,7 @@ TrackSvg.prototype._getFeaturesByChunks = function(response, filters){
 	//if(feature.end > region.start && feature.start < region.end){
 
 	//}
-}
+};
 
 TrackSvg.prototype._removeDisplayedChunks = function(response){
 	//Returns an array avoiding already drawn features in this.chunksDisplayed
@@ -1486,8 +1470,7 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 	var newChunks = []; 
 	var dataType = response.params.dataType;
 	var chromosome = response.params.chromosome;
-	var features = [];
-	
+
 	var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
 		if(this.chunksDisplayed[chunks[i].key+dataType] != true){//check if any chunk is already displayed and skip it
@@ -1518,4 +1501,4 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 	}
 	response.items = newChunks;
 	return response;
-}
+};

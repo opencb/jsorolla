@@ -28,7 +28,7 @@ function InfoWidget(targetId, species, args){
 	this.title = null;
 	this.featureId = null;
 	this.width = 800;
-	this.height = 430;
+	this.height = 440;
 	
 	this.feature = null;
 	this.query = null;
@@ -256,8 +256,8 @@ InfoWidget.prototype.getData = function (){
 
 InfoWidget.prototype.getGeneTemplate = function (){
 	return  new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
-			' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Location/View?g={stableId}">Ensembl</a>',
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {id} </span></span>',
+			' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Location/View?g={id}">Ensembl</a>',
 			' &nbsp; <a target="_blank" href="http://wikipathways.org//index.php?query={externalName}&species='+this.wikipathwaysSpecie+'&title=Special%3ASearchPathways&doSearch=1">Wikipathways</a>',
 			'</p><br>',
 		    '<p><span class="w75 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
@@ -265,23 +265,22 @@ InfoWidget.prototype.getGeneTemplate = function (){
 		    '<p><span class="w75 dis s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></p>',
 		    '<br>',
 		    '<p><span class="w75 dis s90">Source: </span> <span class="s110">{source}</span></p>',
-		    '<p><span class="w75 dis s90">External DB: </span> {externalDb}</p>',
+//		    '<p><span class="w75 dis s90">External DB: </span> {externalDb}</p>',
 		    '<p><span class="w75 dis s90">Status: </span> {status}</p>' // +  '<br>'+str
 	);
 };
 InfoWidget.prototype.getTranscriptTemplate = function (){
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{externalName}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
-		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Transcript/Transcript?t={stableId}">Ensembl</a>',
+		    '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {id} </span></span>',
+		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Transcript/Transcript?t={id}">Ensembl</a>',
 		    ' &nbsp; <a target="_blank" href="http://wikipathways.org//index.php?query={externalName}&species='+this.wikipathwaysSpecie+'&title=Special%3ASearchPathways&doSearch=1">Wikipathways</a>',
 		    '</p><br>',
 		    '<p><span class="w100 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
 		    '<p><span class="w100 dis s90">Biotype: </span> {biotype}</p>',
 		    '<p><span class="w100 dis s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></p>',
 		    '<br>',
-		    '<p><span class="w100 dis s90">CDS &nbsp; (start-end): </span> {codingRegionStart}-{codingRegionEnd} <span style="margin-left:50px" class="w100 dis s90">CDNA (start-end): </span> {cdnaCodingStart}-{cdnaCodingEnd}</p>',
-		    '<br>',
-		    '<p><span class="w100 dis s90">External DB: </span> {externalDb}</p>',
+		    '<p><span class="w100 dis s90">CDS &nbsp; (start-end): </span> {genomicCodingStart}-{genomicCodingEnd} <span style="margin-left:50px" class="w100 dis s90">CDNA (start-end): </span> {cdnaCodingStart}-{cdnaCodingEnd}</p>',
+		    '<br><p><span class="w100 dis s90">External DB: </span> {externalDb}</p>',
 		    '<p><span class="w100 dis s90">Status: </span> {status}</p><br>'// +  '<br>'+str
 		);
 };
@@ -305,7 +304,7 @@ InfoWidget.prototype.getSnpTemplate = function (){
 
 InfoWidget.prototype.getExonTemplate = function (){
 	return new Ext.XTemplate(
-			'<span><span class="panel-border-bottom"><span class="ssel s110">{stableId}</span></span></span>',
+			'<span><span class="panel-border-bottom"><span class="ssel s110">{id}</span></span></span>',
 			'<span><span style="margin-left:30px" class="dis s90"> Location: </span> <span class="">{chromosome}:{start}-{end} </span></span>',
 			'<span><span style="margin-left:30px" class="dis s90"> Strand: </span> {strand}</span>'
 		);

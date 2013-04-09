@@ -113,8 +113,9 @@ LegendPanel.prototype.getButton = function(legend){
 		this.button = Ext.create('Ext.button.Button', {
 			text : this.title,
 			menu : {
-					items: [this.getPanel(legend)]
-				}
+                plain:true,
+                items: [this.getPanel(legend)]
+            }
 		});
 	}	
 	return this.button;

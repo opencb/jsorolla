@@ -557,12 +557,12 @@ OpencgaManager.prototype = {
 
         $.ajax({type:"POST", url:url, data:paramsWS, success:success, error:error});
     },
-    indexer : function(accountId, object){
+    indexer : function(accountId, sessionId, bucketId, objectId){
         var _this=this;
         var queryParams = {
-            'object':object
+            'sessionid':sessionId
         };
-        var url = this.getAccountUrl(accountId)+'/index'+this.getQuery(queryParams);
+        var url =  this.getObjectUrl(accountId,bucketId,objectId)+'/index'+this.getQuery(queryParams);
         console.log(url);
 
         function success(data){
@@ -574,20 +574,20 @@ OpencgaManager.prototype = {
         }
         this.doGet(url, success, error);
     },
-    indexerStatus : function(accountId, object){
+    indexerStatus : function(accountId, sessionId, bucketId, objectId, indexerId){
         var _this=this;
         var queryParams = {
-            'object':object
+            'sessionid':sessionId,
+            'indexerid':indexerId
         };
-        var url = this.getAccountUrl(accountId)+'/index_status'+this.getQuery(queryParams);
+        var url = this.getObjectUrl(accountId,bucketId,objectId)+'/index_status'+this.getQuery(queryParams);
         console.log(url);
 
         function success(data){
             _this.onIndexerStatus.notify(data);
         }
-
         function error(data){
-            _this.onIndexer.notify(data);
+            _this.onIndexerStatus.notify(data);
         }
         this.doGet(url, success, error);
     },

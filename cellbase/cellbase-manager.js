@@ -227,11 +227,13 @@ function CellBaseManager(species, args) {
 				$.ajax({
 					type : "GET",
 					url : url,
+                    dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
 					async : this.async,
 					success : function(data, textStatus, jqXHR) {
-							if(data==""){console.log("data is empty");data="[]";}
-							var jsonResponse = JSON.parse(data);
-							
+//							if(data==""){console.log("data is empty");data="[]";}
+//							var jsonResponse = JSON.parse(data);
+							var jsonResponse = data;
+
 							if (_this.batching){
 								_this.batchSuccessed.notify({data:jsonResponse, id:batchID});
 							}else{
@@ -263,6 +265,7 @@ function CellBaseManager(species, args) {
 				$.ajax({
 					type : "GET",
 					url : url,
+                    dataType: 'json',
 					async : this.async,
 					success : function(data, textStatus, jqXHR) {
 							if(data==""){console.log("data is empty");data="[]";}

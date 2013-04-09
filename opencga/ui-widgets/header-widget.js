@@ -121,8 +121,10 @@ HeaderWidget.prototype = {
         Ext.getCmp(this.id+'btnOpencga').show();
 
         /**START OPENCGA CHECK**/
-        this.getAccountInfo();//first call
-        this.accountInfoInterval = setInterval(function(){_this.getAccountInfo();}, this.checkTimeInterval);
+        if(this.accountInfoInterval == null){
+            this.getAccountInfo();//first call
+            this.accountInfoInterval = setInterval(function(){_this.getAccountInfo();}, this.checkTimeInterval);
+        }
     },
     sessionFinished : function(){
         /**HIDE**/

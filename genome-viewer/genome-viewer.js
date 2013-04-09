@@ -659,7 +659,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
  	var chrView = Ext.create('Ext.view.View', {
  		id:this.id+"chrView",
  		width:125,
- 		style:'background-color:#fff',
+// 		style:'background-color:#fff',
  		store : chrStore,
  		selModel: {
  			mode: 'SINGLE',
@@ -682,11 +682,32 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
 //	        tpl: '<tpl for="."><div class="chromosome-item">chr {name}</div></tpl>'
  	});
 	/*END chromolendar*/
- 	
+
+
  	var chromosomeMenu = Ext.create('Ext.menu.Menu', {
  		id:this.id+"chromosomeMenu",
  		almacen :chrStore,
+        plain: true,
 		items : [chrView]
+//        items:[ //TODO alternative
+//            {
+//                xtype: 'buttongroup',
+//                title: 'User options',
+//                columns: 2,
+//                defaults: {
+//                    xtype: 'button',
+//                    scale: 'large',
+//                    iconAlign: 'left',
+//                    handler:function(){}
+//                },
+//                items: [{
+//                    text: 'aaaaaaaa',
+////                    icon: 'edit',
+//                    width: 100,
+//                    displayText: 'User manager'
+//                }]
+//            }
+//        ]
 	});
  	this._updateChrStore();
 	return chromosomeMenu;

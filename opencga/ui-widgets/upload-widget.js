@@ -25,15 +25,12 @@ function UploadWidget (args){
 	this.targetId = null;
 	this.suiteId=null;
 	
-	if (args != null){
-		if (args.targetId!= null){
-        	this.targetId = args.targetId;
-        }
-		if (args.suiteId!= null){
-        	this.suiteId = args.suiteId;
-        }
+    if(typeof args != 'undefined'){
+        this.targetId = args.targetId || this.targetId;
+        this.suiteId = args.suiteId || this.suiteId;
+        this.opencgaBrowserWidget = args.opencgaBrowserWidget || this.opencgaBrowserWidget;
     }
-	
+
 	this.adapter = new OpencgaManager();
 	this.adapter.onUploadObjectToBucket.addEventListener(function(sender,res){
 		if(res.status == 'done'){
@@ -279,7 +276,7 @@ UploadWidget.prototype.render = function(dataTypes){
 //				     title:'Uploading file',
 //				     msg: 'Please wait...'
 //				});
-				_this.uploadFile();
+				_this.uploadFile2();
 	        }
 		});
 		
@@ -451,8 +448,6 @@ UploadWidget.prototype.uploadFile = function()  {
 
 UploadWidget.prototype.uploadFile2 = function()  {
 	var _this=this;
-	Ext.getBody().mask('Uploading file...');
-	this.panel.disable();
 
     var inputFile = document.getElementById(Ext.getCmp(this.uploadFieldId).fileInputEl.id).files[0];
 
@@ -460,27 +455,18 @@ UploadWidget.prototype.uploadFile2 = function()  {
     objectId = objectId.replace(new RegExp("/", "gi"),":");
 
     var fileuploadWorker = new Worker(WORKERS_PATH+'worker-fileupload.js');
-    fileuploadWorker.onmessage = function(e) {
-        var res = e.data;
-        if(res.finished){
-            _this.adapter.onIndexer(function(data){
-                console.log(data);
-                _this.uploadComplete(data);
-            });
-            _this.adapter.indexer($.cookie("bioinfo_account"),objectId);
-        }
-        console.log("@@@@@@@@@@@@@@@@ WORKER event message");
-        console.log(res);
-    };
+    this.opencgaBrowserWidget.addUpload(inputFile, fileuploadWorker);
     fileuploadWorker.postMessage({
         'host':OPENCGA_HOST,
         'accountId': $.cookie("bioinfo_account"),
         'sessionId': $.cookie("bioinfo_sid"),
         'file' : inputFile,
         'objectId':objectId,
+        'fileFormat': this.selectedDataType,
         'bucketId':this.opencgaLocation.bucketId,
         'resume' : true
     });
+    this.panel.close();
 };
 
 UploadWidget.prototype.uploadProgress = function(evt)  {
