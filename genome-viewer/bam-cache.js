@@ -93,14 +93,14 @@ BamCache.prototype.putFeaturesByRegion = function(resultObj, region, featureType
 	var chunkIndex = 0;
 	console.time("BamCache.prototype.putFeaturesByRegion1")
 	//TODO the region for now is a chunk region, so this for is always 1 loop
-	for(var i=firstRegionChunk; i<=lastRegionChunk; i++){
+	for(var i=firstRegionChunk, c=0; i<=lastRegionChunk; i++, c++){
 		key = region.chromosome+":"+i;
 		if(this.cache[key]==null){
 			this.cache[key] = {};
 			this.cache[key][dataType] = [];
 			this.cache[key].key = key;
-			this.cache[key].start = region.start;
-			this.cache[key].end = region.end;
+			this.cache[key].start = parseInt(region.start)+(c*this.chunkSize);
+			this.cache[key].end = parseInt(region.start)+((c+1)*this.chunkSize)-1;
 		}
 
 		//divide the coverage array in multiple arrays of chunksize length

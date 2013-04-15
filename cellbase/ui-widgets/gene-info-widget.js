@@ -41,7 +41,7 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	            { text: "Genomic", children: [
 	                { text: "Information"},
 	                { text: "Transcripts"},
-                    { text: "Xref"},
+                    { text: "Xref"}
 	            ] },
 	            { text: "Functional information", children: [
 	                { text: "GO"},

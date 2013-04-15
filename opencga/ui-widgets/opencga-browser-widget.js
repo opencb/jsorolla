@@ -93,7 +93,8 @@ OpencgaBrowserWidget.prototype = {
         if (this.accountData != null && this.accountData.accountId != null) {
             this.folderStore.getRootNode().removeAll();
             this.allStore.getRootNode().removeAll();
-            this.folderTree.getSelectionModel().deselectAll();
+            this.filesStore.removeAll();
+//            this.folderTree.getSelectionModel().deselectAll();
             for (var i = 0; i < this.accountData.buckets.length; i++) {
                 var folders = [];
                 for (var j = 0; j < this.accountData.buckets[i].objects.length; j++) {
@@ -140,6 +141,11 @@ OpencgaBrowserWidget.prototype = {
             }
         }
 
+        //collapse and expand to update the view after append, possible ExtJS 4.2.0 bug
+        this.folderStore.getRootNode().collapse();
+        this.folderStore.getRootNode().expand();
+
+
         //reselect nodes after account update
         if (this.selectedFolderNode != null) { //devuelve el value y el field porque el bucket no tiene oid
             var lastNode = this.folderTree.getRootNode().findChild(this.selectedFolderNode.field, this.selectedFolderNode.value, true);
@@ -154,6 +160,7 @@ OpencgaBrowserWidget.prototype = {
             }
         }
     },
+
     addUpload: function (file, fileuploadWorker) {
         var pbar = Ext.create('Ext.ProgressBar', {
             text: 'Ready',
@@ -217,6 +224,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
     if (this.panel == null) {
 
         this.folderStore = Ext.create('Ext.data.TreeStore', {
+            id:this.id+'folderStore',
             fields: ['text', 'oid'],
             root: {
                 expanded: true,
@@ -233,6 +241,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
             }
         });
         this.allStore = Ext.create('Ext.data.TreeStore', {
+            id:this.id+'allStore',
             fields: ['text', 'oid'],
             root: {
                 expanded: true,
@@ -425,7 +434,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
             }
         });
         var contextMenu = Ext.create('Ext.menu.Menu', {
-            items: [showName,/*sellAction*/]
+            items: [showName/*,sellAction*/]
         });
 
         this.filesGrid = Ext.create('Ext.grid.Panel', {

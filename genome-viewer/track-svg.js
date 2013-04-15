@@ -1235,29 +1235,29 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 
 TrackSvg.prototype.SequenceRender = function(response){
     /*conserved region beta*/
-    var v = function(){
-       return (Math.random()*40)-20;
-    };
+//    var v = function(){
+//       return (Math.random()*40)-20;
+//    };
 
 
-    var text = SVG.addChild(this.titleGroup,"text",{
-        "x":14,
-        "y":24,
-        "font-size": 12,
-        "opacity":"0.9",
-        "fill":"blue",
-        "visibility":"visible"
-    });
-    text.textContent = "4";
-    var text2 = SVG.addChild(this.titleGroup,"text",{
-        "x":10,
-        "y":84,
-        "font-size": 12,
-        "opacity":"0.9",
-        "fill":"blue",
-        "visibility":"visible"
-    });
-    text2.textContent = "-4";
+//    var text = SVG.addChild(this.titleGroup,"text",{
+//        "x":14,
+//        "y":24,
+//        "font-size": 12,
+//        "opacity":"0.9",
+//        "fill":"blue",
+//        "visibility":"visible"
+//    });
+//    text.textContent = "4";
+//    var text2 = SVG.addChild(this.titleGroup,"text",{
+//        "x":10,
+//        "y":84,
+//        "font-size": 12,
+//        "opacity":"0.9",
+//        "fill":"blue",
+//        "visibility":"visible"
+//    });
+//    text2.textContent = "-4";
 
     /**/
 
@@ -1277,17 +1277,17 @@ TrackSvg.prototype.SequenceRender = function(response){
 //    var phastCons = response.items.phastCons;
 //    var phylop = response.items.phylop;
 
-    var points = '';
-    var firstx = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
-    points += firstx+','+50+' ';
+//    var points = '';
+//    var firstx = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
+//    points += firstx+','+50+' ';
 
     for ( var i = 0; i < seqString.length; i++) {
         var x = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
         start++;
 
-        var height = /*histogramHeight * */ v();
-        var width = this.pixelBase;
-        points += (x+(width/2))+","+(50 - height)+' ';
+//        var height = /*histogramHeight * */ v();
+//        var width = this.pixelBase;
+//        points += (x+(width/2))+","+(50 - height)+' ';
 
         var text = SVG.addChild(this.features,"text",{
             "x":x,
@@ -1304,16 +1304,16 @@ TrackSvg.prototype.SequenceRender = function(response){
         });
     }
 
-    var lastx = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
-    points += lastx+','+50+' ';
+//    var lastx = this.pixelPosition+middle-((this.position-start)*this.pixelBase);
+//    points += lastx+','+50+' ';
 
-    var pol = SVG.addChild(this.features,"polyline",{
-        "points":points,
-        "stroke": "#000000",
-        "stroke-width": 0.2,
-        "fill": 'red',
-        "cursor": "pointer"
-    });
+//    var pol = SVG.addChild(this.features,"polyline",{
+//        "points":points,
+//        "stroke": "#000000",
+//        "stroke-width": 0.2,
+//        "fill": 'red',
+//        "cursor": "pointer"
+//    });
 
 
     console.timeEnd("Sequence render "+response.items.sequence.length);
