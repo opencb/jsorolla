@@ -89,7 +89,7 @@ ResultWidget.prototype = {
                             case 'pathiways':
                                 var arr = item.commandLine.split(/ --/g);
                                 var str = arr[2].replace(/ /g,': ')+'<br>';
-                                str +=  arr[5].replace(/ /g,': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/','')+'<br>';
+                                str +=  arr[5].replace(/ /g,': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/','').replace('/httpd/bioinfo/opencga/accounts/','')+'<br>';
                                 str +=  arr[1].replace(/ /g,': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/','')+'<br>';
                                 str +=  arr[3].replace(/ /g,': ')+'<br>';
                                 str +=  arr[7].replace(/ /g,': ')+'<br>';
