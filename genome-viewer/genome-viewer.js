@@ -184,7 +184,7 @@ GenomeViewer.prototype.render = function(){
 			_this.onRegionChange.notify({sender:"trackSvgLayout"});
 		});
 		_this.trackSvgLayout.onMousePosition.addEventListener(function(sender,data){
-			Ext.getCmp(_this.id+"mouseLabel").setText('<span class="ssel">Position: '+Compbio.formatNumber(data.mousePos)+'</span>');
+			Ext.getCmp(_this.id+"mouseLabel").setText('<span class="ssel">Position: '+Utils.formatNumber(data.mousePos)+'</span>');
 			$('#'+_this.id+"mouseLabel").qtip({content:'Mouse position',style:{width:95},position: {my:"bottom center",at:"top center"}});
 			Ext.getCmp(_this.id+"mouseNucleotidLabel").setText(data.baseHtml);
 		});
@@ -265,7 +265,7 @@ GenomeViewer.prototype.setSize = function(width,height) {
 };
 
 GenomeViewer.prototype._calculateRegionByZoom = function() {
-	var zoomBaseLength = parseInt(this.width/Compbio.getPixelBaseByZoom(this.zoom));
+	var zoomBaseLength = parseInt(this.width/Utils.getPixelBaseByZoom(this.zoom));
 	var centerPosition = this.region.center();
 	var aux = Math.ceil((zoomBaseLength/2)-1);
 	this.region.start = Math.floor(centerPosition-aux);
@@ -274,7 +274,7 @@ GenomeViewer.prototype._calculateRegionByZoom = function() {
 
 GenomeViewer.prototype._calculateZoomByRegion = function() {
 	this._getZoomSlider().suspendEvents();
-	this.setZoom(Math.round(Compbio.getZoomByPixelBase((this.width/this.region.length()))));
+	this.setZoom(Math.round(Utils.getZoomByPixelBase((this.width/this.region.length()))));
 	this._getZoomSlider().resumeEvents();
 };
 
@@ -954,6 +954,7 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 							shrinkWrap:1,
 		layout: { type: 'vbox',align: 'stretch'},//scrollbar
 		border:true,
+        cls:'x-unselectable',
 		//cls:"border-bot panel-border-top x-unselectable",
 		flex: 1,
 		items:[c1,c2]

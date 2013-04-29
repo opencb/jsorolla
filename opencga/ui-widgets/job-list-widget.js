@@ -184,7 +184,7 @@ JobListWidget.prototype.setAccountData = function (data){
         for ( var j = 0; j < this.accountData.projects[i].jobs.length; j++) {
             job = this.accountData.projects[i].jobs[j];
             if(this.tools.indexOf(job.toolName) != -1){
-                job.date = Compbio.parseDate(job.date);
+                job.date = Utils.parseDate(job.date);
                 jobs.push(job);
             }
         }

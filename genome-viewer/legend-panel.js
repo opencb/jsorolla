@@ -62,7 +62,7 @@ LegendPanel.prototype.getColorItems = function(legend){
 				}]
 		});
 		
-		var name = Compbio.formatText(item, "_");
+		var name = Utils.formatText(item, "_");
 		
 		var panel = Ext.create('Ext.panel.Panel', {
 			height:size,

@@ -724,11 +724,13 @@ TrackSvg.prototype.BamRender = function(response){
 		var width = ((end-start)+1)*_this.pixelBase;
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
 		
-		try{
-			var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
-		}catch(e){
-			var maxWidth = 72;
-		}
+//		try{
+//			var maxWidth = Math.max(width, /*settings.getLabel(feature).length*8*/0); //XXX cuidado : text.getComputedTextLength()
+//		}catch(e){
+//			var maxWidth = 72;
+//		}
+        maxWidth = width;
+
 
 		var rowHeight = 12;
 		var rowY = 70;
@@ -780,7 +782,7 @@ TrackSvg.prototype.BamRender = function(response){
 					//t.textContent = diff;
 					//readEls.push(t);
 					var path = SVG.addChild(bamReadGroup,"path",{
-						"d":Compbio.genBamVariants(diff, _this.pixelBase, x, rowY),
+						"d":Utils.genBamVariants(diff, _this.pixelBase, x, rowY),
 						"fill":variantColor
 					});
 					readEls.push(path);
@@ -898,14 +900,14 @@ TrackSvg.prototype.BamRender = function(response){
 				if(_this.zoom > 95){
 					if(readDiff != null){
 						var readPath = SVG.addChild(bamReadGroup,"path",{
-							"d":Compbio.genBamVariants(readDiff, _this.pixelBase, readX, rowY),
+							"d":Utils.genBamVariants(readDiff, _this.pixelBase, readX, rowY),
 							"fill":variantColor
 						});
 						readEls.push(readPath);
 					}
 					if(mateDiff != null){
 						var matePath = SVG.addChild(bamReadGroup,"path",{
-							"d":Compbio.genBamVariants(mateDiff, _this.pixelBase, mateX, rowY),
+							"d":Utils.genBamVariants(mateDiff, _this.pixelBase, mateX, rowY),
 							"fill":variantColor
 						});
 						mateEls.push(matePath);
@@ -938,7 +940,7 @@ TrackSvg.prototype.BamRender = function(response){
 	};
 
 	var drawChunk = function(chunk){
-		drawCoverage(chunk);
+		drawCoverage(chunk);//TODO testing
 		var readList = chunk.data;
 		for ( var i = 0, li = readList.length; i < li; i++) {
 			var read = readList[i];
@@ -969,6 +971,8 @@ TrackSvg.prototype.BamRender = function(response){
 		if(newHeight>0){
 			this.setHeight(newHeight+/*margen entre tracks*/10+70);
 		}
+        //TEST
+//        this.setHeight(200);
 	}
 	console.timeEnd("BamRender "+ response.params.resource);
 };

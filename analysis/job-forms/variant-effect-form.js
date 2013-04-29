@@ -19,16 +19,69 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-VariantEffectJobFormPanel.prototype = new GenericFormPanel("hpg-variant.effect");
+VariantEffectForm.prototype = new GenericFormPanel("hpg-variant.effect");
 
-function VariantEffectJobFormPanel(){
-	this.id = Math.round(Math.random() * 10000000);
-	
-	this.tags = ["vcf|bed|gff"];
-	this.paramsWS = {};//test
+function VariantEffectForm(webapp){
+	this.id = Utils.genId("VariantEffectForm");
+    this.headerWidget =  webapp.headerWidget;
+    this.opencgaBrowserWidget = webapp.headerWidget.opencgaBrowserWidget;
+}
+
+VariantEffectForm.prototype.beforeRun = function (){
+    //validate regions
+    var regions = "";
+    var regionPatt = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
+    for ( var i = 0; i < this.regionFields.length; i++) {
+        var value = this.regionFields[i].getValue();
+        if (value!="" && regionPatt.test(value)){
+            regions +=value+",";
+        }
+    }
+    if(regions != ''){
+        this.paramsWS["region"] = regions.substring(0, regions.length - 1);
+    }
+
+    if(this.paramsWS["coverage"]==''){
+        delete this.paramsWS["coverage"];
+    }
+    if(this.paramsWS["quality"]==''){
+        delete this.paramsWS["quality"];
+    }
+    if(this.paramsWS["alleles"]==''){
+        delete this.paramsWS["alleles"];
+    }
+    if(this.paramsWS["maf"]==''){
+        delete this.paramsWS["maf"];
+    }
+
+    if(Ext.getCmp("Only SNPs_"+this.id).getValue()){
+        this.paramsWS["snp"] = "include";
+    }
+    if(Ext.getCmp("Only Non-SNPs_"+this.id).getValue()){
+        this.paramsWS["snp"] = "exclude";
+    }
+
+    /*Input data filter options*/
+
+    /*END Input data filter options*/
+
+    /*Output options*/
+    var soTerms = [];
+    Ext.getCmp('outputOptions'+this.id).items.each(function(item) {
+        if(!item.isDisabled() && item.inputValue != null && item.inputValue != "" && !item.getValue()){
+            soTerms.push(item.inputValue);
+        }
+    });
+    if(soTerms.length > 0){
+        this.paramsWS["exclude"] = soTerms.toString();
+    }
+
+    delete this.paramsWS["outputOptions"];
+    /*END Output options*/
 };
 
-VariantEffectJobFormPanel.prototype.getPanels = function (){
+
+VariantEffectForm.prototype.getPanels = function (){
 	var items = [
 	             	this._getSpeciesForm(),
 	             	this._getBrowseForm(),
@@ -36,7 +89,7 @@ VariantEffectJobFormPanel.prototype.getPanels = function (){
 	             	this._getOutputForm()
 	             ];
 
-	var form1234 = Ext.create('Ext.panel.Panel', {
+	var form = Ext.create('Ext.panel.Panel', {
 		margin:"15 0 0 0",
 		border:false,
 //		layout:{type:'vbox', align: 'stretch'},
@@ -47,9 +100,9 @@ VariantEffectJobFormPanel.prototype.getPanels = function (){
 		items:items
 	});
 	
-	return [this._getExampleForm(),form1234];
+	return [this._getExampleForm(),form];
 };
-VariantEffectJobFormPanel.prototype._getSpeciesForm = function (){
+VariantEffectForm.prototype._getSpeciesForm = function (){
 	var _this=this;
 	
 	var checkFlags = function(value){
@@ -85,7 +138,7 @@ VariantEffectJobFormPanel.prototype._getSpeciesForm = function (){
 		items: []
 	});
 	
-	$.ajax({url:new CellBaseManager().host+"/latest/species?of=json",success:function(data, textStatus, jqXHR){
+	$.ajax({url:CELLBASE_HOST+"/latest/species?of=json",success:function(data, textStatus, jqXHR){
 		// Create the combo box, attached to the states data store
 		var objdata = JSON.parse(data);
 		for ( var i = 0; i < objdata.length; i++) {
@@ -98,17 +151,18 @@ VariantEffectJobFormPanel.prototype._getSpeciesForm = function (){
 		});
 		var speciesCombo = Ext.create('Ext.form.field.ComboBox', {
 			id:_this.id+"speciesCombo",
+		    name:'species',
 		    fieldLabel: 'Choose Species',
 		    displayField: 'sciAsembly',
 		    valueField: 'species',
-		    editable:false,
+            editable:false,
 		    width:350,
+            allowBlank:false,
 		    store: species,
 			listeners:{
 				 change:function(){
 					 if(this.getValue()){
 						 checkFlags(this.getValue());
-						 _this.paramsWS["species"]=this.getValue();
 			  		}
 				 }
 			 }
@@ -120,8 +174,31 @@ VariantEffectJobFormPanel.prototype._getSpeciesForm = function (){
   	return speciesForm;
 };
 
+VariantEffectForm.prototype._getBrowseForm = function (){
+    var _this = this;
 
-VariantEffectJobFormPanel.prototype._getExampleForm = function (){
+    var note1 = Ext.create('Ext.container.Container', {
+        html:'<p>Please select a file from your <span class="info">server account</span> using the <span class="emph">Browse</span> button.</p>'
+    });
+
+    var formBrowser = Ext.create('Ext.panel.Panel', {
+        title:"Select your data",
+        //cls:'panel-border-top',
+        border:true,
+        padding:"5 0 0 0",
+        bodyPadding:10,
+        items: [note1,this.createOpencgaBrowserCmp({
+            fieldLabel: 'Input VCF file:',
+            dataParamName: 'vcf-file',
+            mode: 'fileSelection',
+            allowBlank:false
+        })]
+    });
+    return formBrowser;
+};
+
+
+VariantEffectForm.prototype._getExampleForm = function (){
 	var _this = this;
 	
 	var example1 = Ext.create('Ext.Component', {
@@ -157,60 +234,13 @@ VariantEffectJobFormPanel.prototype._getExampleForm = function (){
 };
 
 
-VariantEffectJobFormPanel.prototype._getBrowseForm = function (){
-	var _this = this;
-	
-	var note1 = Ext.create('Ext.container.Container', {
-		html:'<p>Please select a file from your <span class="info">server account</span> using the <span class="emph">Browse data</span> button.</p>'
-	});
-	this.fileBrowserLabel = Ext.create('Ext.toolbar.TextItem', {
-		margin:"2 0 0 5",
-		html:'<p class="emph">No file selected.</p>'
-	});
-	var btnBrowse = Ext.create('Ext.button.Button', {
-        text: 'Browse data',
-        handler: function (){
-	   		_this.browserData.draw($.cookie('bioinfo_sid'),_this.tags);
-   		}
-	});
-	var browse = Ext.create('Ext.container.Container', {
-		margin:"5 0 0 0",
-		layout: 'hbox',
-		items:[btnBrowse,this.fileBrowserLabel]
-	});
-
-	
-	var note2 = Ext.create('Ext.container.Container', {
-		margin:"20 0 0 0",
-		html:'<p>Remember that files must be uploaded before using them. To upload a file, please use the <span class="emph">Upload data</span> button.</p>'
-	});	
-	var btnUpload = Ext.create('Ext.button.Button', {
-		margin:"5 0 0 0",
-		text: 'Upload data',
-		iconCls:'icon-upload',
-		handler: function (){
-			_this.uploadWidget.draw();
-		}
-	});
-	
-	var formBrowser = Ext.create('Ext.panel.Panel', {
-			title:"Select your data",
-			//cls:'panel-border-top',
-			border:true,
-			padding:"5 0 0 0",
-			bodyPadding:10,
-			items: [note1,browse,note2,btnUpload]
-		});
-	return formBrowser;
-};
-
-
-VariantEffectJobFormPanel.prototype._getFilterForm = function (){
+VariantEffectForm.prototype._getFilterForm = function (){
 	var _this=this;
 	var items = [];
 	var coverage = Ext.create('Ext.form.field.Number', {
 		id:this.id+"coverage",
 		fieldLabel: 'Coverage (min)',
+        name:'coverage',
 		width:500,
 		minValue:0,
 		allowDecimals:false
@@ -219,6 +249,7 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 	var quality = Ext.create('Ext.form.field.Number', {
 		id:this.id+"quality",
 		fieldLabel: 'VCF Quality (min)',
+        name:'quality',
 		width:500,
 		minValue:0,
 		allowDecimals:false
@@ -227,6 +258,7 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 	var alleles = Ext.create('Ext.form.field.Number', {
 		id:this.id+"alleles",
 		fieldLabel: 'Alleles',
+        name:'alleles',
 		width:500,
 		minValue:1,
 		allowDecimals:false
@@ -235,6 +267,7 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 	var minAlleles = Ext.create('Ext.form.field.Number', {
 		id:this.id+"minAlleles",
 		fieldLabel: 'Min Alleles Freq (max)',
+        name:'maf',
 		width:500,
 		minValue:0,
 		maxValue:1,
@@ -270,6 +303,7 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 	var region = Ext.create('Ext.form.field.Text', {
 		id:this.id+"region",
 		fieldLabel: 'Region',
+        name:'region',
 		width:500,
 		emptyText:"chr:start-end",
 		regex : /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/
@@ -283,6 +317,7 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 		handler: function(){
 			var reg = Ext.create('Ext.form.field.Text', {
 				fieldLabel: 'Region',
+                name:'region',
 				width:500,
 				emptyText:"chr:start-end",
 				regex : /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/
@@ -296,12 +331,13 @@ VariantEffectJobFormPanel.prototype._getFilterForm = function (){
 	return formFilterOptions;
 };
 
-VariantEffectJobFormPanel.prototype._getOutputForm = function (){
+VariantEffectForm.prototype._getOutputForm = function (){
 
 	var outputOptions = Ext.create('Ext.form.CheckboxGroup', {
 		id: 'outputOptions'+this.id,
 		columns: 1,
 		vertical: true,
+        submitValue:false,
 		defaults: {margin: '0 0 0 0'},
 		items: [
 				{ xtype:"label", html:'<span class="emph">Consequence types</span>'},
@@ -347,7 +383,7 @@ VariantEffectJobFormPanel.prototype._getOutputForm = function (){
 };
 
 
-VariantEffectJobFormPanel.prototype.loadExample1 = function (){
+VariantEffectForm.prototype.loadExample1 = function (){
 	Ext.getCmp("jobNameField_"+this.id).setValue("Example vcf 3500");
 	this.paramsWS["vcf-file-fileid"] = "example1";
 	
@@ -381,7 +417,7 @@ VariantEffectJobFormPanel.prototype.loadExample1 = function (){
 	this.validateRunButton();
 
 };
-VariantEffectJobFormPanel.prototype.loadExample2 = function (){
+VariantEffectForm.prototype.loadExample2 = function (){
 	Ext.getCmp("jobNameField_"+this.id).setValue("Example vcf 5000");
 	this.paramsWS["vcf-file-fileid"] = "example2";
 	
@@ -417,7 +453,7 @@ VariantEffectJobFormPanel.prototype.loadExample2 = function (){
 };
 
 
-VariantEffectJobFormPanel.prototype.validateRunButton = function (){
+VariantEffectForm.prototype.validateRunButton = function (){
 	if(this.paramsWS["vcf-file-fileid"] != null && Ext.getCmp("jobNameField_"+this.id).getValue()!=""){
 		this.runButton.enable();
 	}else{
@@ -425,146 +461,33 @@ VariantEffectJobFormPanel.prototype.validateRunButton = function (){
 	}
 //	this.runButton.enable();
 };
-VariantEffectJobFormPanel.prototype.getCheckValue = function (checkbox){
+VariantEffectForm.prototype.getCheckValue = function (checkbox){
 	if(checkbox.getValue())
 		return null;
 	return "";
 };
 
 
-
-VariantEffectJobFormPanel.prototype.beforeRun = function (){
-
-		
-
-		
-		//validate regions
-		var regions = "";
-		var regionPatt = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
-		for ( var i = 0; i < this.regionFields.length; i++) {
-			var value = this.regionFields[i].getValue();
-			if (value!="" && regionPatt.test(value)){
-				regions +=value+",";
-			}
-		}
-		if(regions != ""){
-			this.paramsWS["region"] = regions;
-		}
-		
-		if(Ext.getCmp(this.id+"coverage").getValue()!=null){
-			this.paramsWS["coverage"] = Ext.getCmp(this.id+"coverage").getValue();
-		}
-		if(Ext.getCmp(this.id+"quality").getValue()!=null){
-			this.paramsWS["quality"] = Ext.getCmp(this.id+"coverage").getValue();
-		}
-		if(Ext.getCmp(this.id+"alleles").getValue()!=null){
-			this.paramsWS["alleles"] = Ext.getCmp(this.id+"coverage").getValue();
-		}
-		if(Ext.getCmp(this.id+"minAlleles").getValue()!=null){
-			this.paramsWS["maf"] = Ext.getCmp(this.id+"minAlleles").getValue();
-		}
-		
-		if(Ext.getCmp("Only SNPs_"+this.id).getValue()){
-			this.paramsWS["snp"] = "include";
-		}
-		if(Ext.getCmp("Only Non-SNPs_"+this.id).getValue()){
-			this.paramsWS["snp"] = "exclude";
-		}
-
-
-		
-
-		/*Input data filter options*/
-		
-		/*END Input data filter options*/
-		
-
-		/*Output options*/
-		var soTerms = [];
-		Ext.getCmp('outputOptions'+this.id).items.each(function(item) {
-			if(!item.isDisabled() && item.inputValue != null && item.inputValue != "" && !item.getValue()){
-				soTerms.push(item.inputValue);
-			}
-		});
-		if(soTerms.length > 0){
-			this.paramsWS["exclude"] = soTerms.toString();
-		}
-		/*END Output options*/
-		
-		
-		console.log(this.paramsWS);
-		//this.adapter.variantAnalysis(this.paramsWS);
-		//this.panel.close();
-};
-
-
-
-//helping functions
-VariantEffectJobFormPanel.prototype.createCheckBox = function (name, checked, margin){
-	if(checked == null)
-		cheched = false;
-	if(margin == null)
-		margin = 0;
-	var cb = Ext.create('Ext.form.field.Checkbox', {
-		 id:name+"_"+this.id,
-		 boxLabel : name,
-		 name : name,
-		 checked : checked,
-		 margin: '0 0 0 '+margin
-	});
-	return cb;
-};
-VariantEffectJobFormPanel.prototype.createLabel = function (text, margin){
-	if(margin == null){
-		margin = "15 0 0 0";
-	}
-	var label = Ext.create('Ext.form.Label', {
-		id:text+"_"+this.id,
-		margin:margin,
-		html:'<span class="emph">'+text+'</span>'
-	});
-	
-	return label;
-};
-VariantEffectJobFormPanel.prototype.createTextFields = function (name){
-	var tb = Ext.create('Ext.form.field.Text', {
-		id:name+"_"+this.id,
-		fieldLabel : name,
-		name : name
-//		allowBlank: false
-	});
-	return tb;
-};
-VariantEffectJobFormPanel.prototype.createTextAreas = function (name, emptyText){
-	var tb = Ext.create('Ext.form.field.TextArea', {
-		id:name+"_"+this.id,
-		fieldLabel : name,
-		name : name,
-		width:500,
-		emptyText:emptyText
-//		allowBlank: false
-	});
-	return tb;
-};
-VariantEffectJobFormPanel.prototype.createTextField = function (name, emptyText){
-	var tb = Ext.create('Ext.form.field.Text', {
-		id:name+"_"+this.id,
-		fieldLabel : name,
-		name : name,
-		width:500,
-		emptyText:emptyText
-//		allowBlank: false
-	});
-	return tb;
-};
-VariantEffectJobFormPanel.prototype.createRadio = function (name, group, checked, hidden){
-	var cb = Ext.create('Ext.form.field.Radio', {
-		 id:name+"_"+this.id,
-		 boxLabel : name,
-		 inputValue : name,
-		 checked:checked,
-		 name : group,
-		 hidden: hidden
-	});
-	return cb;
-};
+//help create functions
+//VariantEffectForm.prototype.createTextAreas = function (name, emptyText){
+//	var tb = Ext.create('Ext.form.field.TextArea', {
+//		id:name+"_"+this.id,
+//		fieldLabel : name,
+//		name : name,
+//		width:500,
+//		emptyText:emptyText
+////		allowBlank: false
+//	});
+//	return tb;
+//};
+//VariantEffectForm.prototype.createTextField = function (name, emptyText){
+//	var tb = Ext.create('Ext.form.field.Text', {
+//		id:name+"_"+this.id,
+//		fieldLabel : name,
+//		name : name,
+//		width:500,
+//		emptyText:emptyText
+////		allowBlank: false
+//	});
+//	return tb;
+//};

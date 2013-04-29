@@ -109,10 +109,10 @@ OpencgaBrowserWidget.prototype = {
                     var pathArr = data.oid.split("/");
                     if (data.fileType == "dir") {
                         data["expanded"] = true;
-                        data["icon"] = Compbio.images.dir;
+                        data["icon"] = Utils.images.dir;
                     } else {
                         data["leaf"] = true;
-                        data["icon"] = Compbio.images.r;
+                        data["icon"] = Utils.images.r;
                     }
                     //console.log(pathArr)
 
@@ -136,8 +136,8 @@ OpencgaBrowserWidget.prototype = {
                     }
                 }
                 folders = JSON.stringify(folders);
-                this.allStore.getRootNode().appendChild({text: this.accountData.buckets[i].name, bucketId: this.accountData.buckets[i].name, oid: "", icon: Compbio.images.bucket, expanded: true, isBucket: true, children: JSON.parse(folders)});
-                this.folderStore.getRootNode().appendChild({text: this.accountData.buckets[i].name, bucketId: this.accountData.buckets[i].name, oid: "", icon: Compbio.images.bucket, expanded: true, isBucket: true, children: JSON.parse(folders)});
+                this.allStore.getRootNode().appendChild({text: this.accountData.buckets[i].name, bucketId: this.accountData.buckets[i].name, oid: "", icon: Utils.images.bucket, expanded: true, isBucket: true, children: JSON.parse(folders)});
+                this.folderStore.getRootNode().appendChild({text: this.accountData.buckets[i].name, bucketId: this.accountData.buckets[i].name, oid: "", icon: Utils.images.bucket, expanded: true, isBucket: true, children: JSON.parse(folders)});
             }
         }
 
@@ -288,7 +288,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                     width: 30,
                     renderer: function (value, metaData, record) {
                         if (record.raw.isBucket) {
-                            this.icon = Compbio.images.refresh;
+                            this.icon = Utils.images.refresh;
                             this.tooltip = 'Refresh bucket to find new files';
                         } else {
                             this.tooltip = null;
@@ -412,7 +412,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
 
         /*Files grid*/
         var sellAction = Ext.create('Ext.Action', {
-            icon   : Compbio.images.del,  // Use a URL in the icon config
+            icon   : Utils.images.del,  // Use a URL in the icon config
             text: 'Remove',
 //            disabled: true,
             handler: function(widget, event) {
@@ -423,7 +423,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
             }
         });
         var showName = Ext.create('Ext.Action', {
-            icon: Compbio.images.info,
+            icon: Utils.images.info,
             text: 'Show name',
 //            disabled: true,
             handler: function(widget, event) {
@@ -472,21 +472,21 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                 }
             },
             columns: [
-                { text: 'File type', xtype: 'actioncolumn', menuDisabled: true, align: 'center', width: 54, icon: Compbio.images.bluebox,
+                { text: 'File type', xtype: 'actioncolumn', menuDisabled: true, align: 'center', width: 54, icon: Utils.images.bluebox,
                     renderer: function (value, metaData, record) {
-                        this.icon = Compbio.images[record.data.fileType];
+                        this.icon = Utils.images[record.data.fileType];
                         this.tooltip = record.data.fileType;
                     }
                 },
                 { text: 'Name', dataIndex: 'fileName', flex: 2 },
                 { text: 'Creation time', dataIndex: 'creationTime', flex: 1 },
                 {
-                    xtype: 'actioncolumn', menuDisabled: true, align: 'center', tooltip: 'Delete data!', width: 30, icon: Compbio.images.del,
+                    xtype: 'actioncolumn', menuDisabled: true, align: 'center', tooltip: 'Delete data!', width: 30, icon: Utils.images.del,
                     renderer: function (value, metaData, record) {
                         this.tooltip = null;
                         this.icon = null;
                         if (record.raw.fileFormat == 'bam') {
-                            this.icon = Compbio.images.info;
+                            this.icon = Utils.images.info;
                             this.tooltip = 'Create bai index';
                         }
                     },
@@ -523,7 +523,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                     }
                 },
                 {
-                    xtype: 'actioncolumn', menuDisabled: true, align: 'center', tooltip: 'Delete data!', width: 30, icon: Compbio.images.del,
+                    xtype: 'actioncolumn', menuDisabled: true, align: 'center', tooltip: 'Delete data!', width: 30, icon: Utils.images.del,
                     handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
                         //this also fires itemclick event from tree panel
                         if (record != null) {

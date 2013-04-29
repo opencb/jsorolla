@@ -54,7 +54,7 @@ function ChromosomeWidget(parent, args) {
 ChromosomeWidget.prototype.setWidth = function(width){
 	this.width=width;
 	this.svg.setAttribute("width",width);
-	this.tracksViewedRegion = this.width/Compbio.getPixelBaseByZoom(this.zoom);
+	this.tracksViewedRegion = this.width/Utils.getPixelBaseByZoom(this.zoom);
 	while (this.svg.firstChild) {
 		this.svg.removeChild(this.svg.firstChild);
 	}
@@ -303,11 +303,11 @@ ChromosomeWidget.prototype.setRegion = function(item){//item.chromosome, item.re
 
 //ChromosomeWidget.prototype.setZoom = function(zoom){
 	//this.zoom=zoom;
-	//this.tracksViewedRegion = this.width/Compbio.getPixelBaseByZoom(this.zoom);
+	//this.tracksViewedRegion = this.width/Utils.getPixelBaseByZoom(this.zoom);
 	//var width = this.tracksViewedRegion*this.pixelBase;
 	//this.positionBox.setAttribute("width",width);
 //
-	//var centerPosition = Compbio.centerPosition(this.region);
+	//var centerPosition = Utils.centerPosition(this.region);
 	//var pointerPosition = centerPosition*this.pixelBase+20;
 	//this.positionBox.setAttribute("x",pointerPosition-(width/2));
 //};

@@ -65,7 +65,7 @@ Region.prototype = {
     toString : function (formated) {
         var str;
         if (formated == true) {
-            str = this.chromosome + ":" + Compbio.formatNumber(this.start) + "-" + Compbio.formatNumber(this.end);
+            str = this.chromosome + ":" + Utils.formatNumber(this.start) + "-" + Utils.formatNumber(this.end);
         } else {
             str = this.chromosome + ":" + this.start + "-" + this.end;
         }

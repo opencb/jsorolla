@@ -806,7 +806,7 @@ TrackSvgLayout.prototype = {
         this.pixelBase = Math.max(this.pixelBase,(10/Math.pow(2,20)));
 
         this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
-        this.zoom = Math.round(Compbio.getZoomByPixelBase(this.pixelBase));
+        this.zoom = Math.round(Utils.getZoomByPixelBase(this.pixelBase));
     },
 
     _setTextPosition : function(){
@@ -816,9 +816,9 @@ TrackSvgLayout.prototype = {
         this.visualRegion.start = Math.floor(centerPosition-aux);
         this.visualRegion.end = Math.floor(centerPosition+aux-1);
 
-        this.positionText.textContent = Compbio.formatNumber(centerPosition);
-        this.firstPositionText.textContent = Compbio.formatNumber(this.visualRegion.start);
-        this.lastPositionText.textContent = Compbio.formatNumber(this.visualRegion.end);
+        this.positionText.textContent = Utils.formatNumber(centerPosition);
+        this.firstPositionText.textContent = Utils.formatNumber(this.visualRegion.start);
+        this.lastPositionText.textContent = Utils.formatNumber(this.visualRegion.end);
 
         this.viewNtsText.textContent = "Window size: "+this.visualRegion.length()+" nts";
         this.windowSize = this.viewNtsText.textContent;
@@ -853,8 +853,8 @@ TrackSvgLayout.prototype = {
 
     _calculateMinRegion : function() {
         var regionLength = this.region.length();
-        var minimumBaseLength = parseInt(this.width/Compbio.getPixelBaseByZoom(100));//for zoom 100
-        //this.minRectWidth = regionLength*Compbio.getPixelBaseByZoom(100);
+        var minimumBaseLength = parseInt(this.width/Utils.getPixelBaseByZoom(100));//for zoom 100
+        //this.minRectWidth = regionLength*Utils.getPixelBaseByZoom(100);
         if(regionLength < minimumBaseLength){
             //the zoom will be 100, region must be recalculated
             var centerPosition = this.region.center();

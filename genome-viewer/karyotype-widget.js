@@ -255,7 +255,7 @@ KaryotypeWidget.prototype.updatePositionBox = function(){
 	this.positionBox.setAttribute("x1",this.chrOffsetX[this.region.chromosome]-10);
 	this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
 
-	var centerPosition = Compbio.centerPosition(this.region);
+	var centerPosition = Utils.centerPosition(this.region);
 	var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
 	this.positionBox.setAttribute("y1",pointerPosition);
 	this.positionBox.setAttribute("y2",pointerPosition);
