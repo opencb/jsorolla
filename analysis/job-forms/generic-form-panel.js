@@ -163,6 +163,7 @@ GenericFormPanel.prototype.beforeRun = function () {
 
 GenericFormPanel.prototype.run = function () {
     this.setAccountParams();
+    (this.paramsWS['outdir'] === '') ? delete this.paramsWS['outdir'] : console.log(this.paramsWS['outdir']);
     this.opencgaManager.runAnalysis(this.analysis, this.paramsWS);
     Ext.example.msg('Job Launched', 'It will be listed soon');
     //debug
