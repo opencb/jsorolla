@@ -241,6 +241,10 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
         text: 'Browse...',
         margin: args.btnMargin || '0 0 0 10',
         handler: function () {
+            _this.opencgaBrowserWidget.allowedTypes = args.allowedTypes;
+            if(args.beforeClick != null){
+                args.beforeClick();
+            }
             var listenerIdx = _this.opencgaBrowserWidget.onSelect.addEventListener(function (sender, response) {
                 fileSelectedLabel.setText('<span class="emph">' + response.bucketId + '/' + response.id + '</span>', false);
                 hiddenField.setValue(response.bucketId + ':' + response.id.replace(/\//g, ":"));//this is send to the ws
