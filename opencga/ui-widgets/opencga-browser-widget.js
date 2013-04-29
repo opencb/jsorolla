@@ -657,6 +657,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
             buttons: [
                 {
                     text: 'Close', handler: function () {
+                    _this.onSelect = new Event();
                     _this.panel.hide();
                 }},
                 this.selectButton

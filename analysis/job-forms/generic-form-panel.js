@@ -162,9 +162,9 @@ GenericFormPanel.prototype.beforeRun = function () {
 };
 
 GenericFormPanel.prototype.run = function () {
-//    this.setAccountParams();
-//    this.opencgaManager.runAnalysis(this.analysis, this.paramsWS);
-//    Ext.example.msg('Job Launched', 'It will be listed soon');
+    this.setAccountParams();
+    this.opencgaManager.runAnalysis(this.analysis, this.paramsWS);
+    Ext.example.msg('Job Launched', 'It will be listed soon');
     //debug
     console.log(this.paramsWS);
 };
@@ -240,12 +240,12 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
         text: 'Browse...',
         margin: args.btnMargin || '0 0 0 10',
         handler: function () {
-            _this.opencgaBrowserWidget.draw(args.mode);
             var listenerIdx = _this.opencgaBrowserWidget.onSelect.addEventListener(function (sender, response) {
                 fileSelectedLabel.setText('<span class="emph">' + response.bucketId + '/' + response.id + '</span>', false);
                 hiddenField.setValue(response.bucketId + ':' + response.id.replace(/\//g, ":"));//this is send to the ws
                 _this.opencgaBrowserWidget.onSelect.removeEventListener(listenerIdx);
             });
+            _this.opencgaBrowserWidget.draw(args.mode);
         }
     });
 
@@ -257,6 +257,7 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
 
     //not shown, just for validation
     var hiddenField = Ext.create('Ext.form.field.Text', {
+        id: args.dataParamName+'hidden',
         name: args.dataParamName,
         hidden: true,
         allowBlank: (args.allowBlank || false),
