@@ -130,18 +130,19 @@ BamAdapter.prototype.getData = function(args){
 	//CellBase data process
 	var opencgaManager = new OpencgaManager(this.host);
 	opencgaManager.onRegion.addEventListener(function (evt, data){
-		var dataType = "data";
-		if(data.params.histogram){
-			dataType = "histogram"+data.params.interval;
-		}
-
 		var splitDots = data.query.split(":");
 		var splitDash = splitDots[1].split("-");
 		var query = {chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]};
-		
-		
-		
-		_this.featureCache.putFeaturesByRegion(data.result, query, data.resource, dataType);
+
+
+		var dataType = "data";
+		if(data.params.histogram){
+			dataType = "histogram"+data.params.interval;
+		    _this.featureCache.putHistogramFeaturesByRegion(data.result, query, data.resource, dataType);
+		}else{
+		    _this.featureCache.putFeaturesByRegion(data.result, query, data.resource, dataType);
+        }
+
 		var items = _this.featureCache.getFeatureChunksByRegion(query, dataType);
 		itemList = itemList.concat(items);
 		if(itemList.length > 0){

@@ -98,7 +98,7 @@ GENE_BIOTYPE_COLORS = {
 		"processed_transcript":"#0000ff",
 		"protein_coding":"#a00000",
 		"pseudogene":"#666666",
-		"retained_intron":"gold",
+		"retained_intron":"goldenrod",
 		"retrotransposed":"lightsalmon",
 		"rRNA":"indianred",
 		"sense_intronic":"#20B2AA",
@@ -683,7 +683,7 @@ FEATURE_TYPES = {
 		getMateUnmappedFlag: function(f){
 			return (parseInt(f.flags)&(0x8)) == 0 ? false : true;
 		},
-		height:10,
+		height:8,
 		histogramColor:"grey"
 	},
 	das:{

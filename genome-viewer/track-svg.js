@@ -211,7 +211,7 @@ TrackSvg.prototype = {
         var titleText = SVG.addChild(titleGroup,"text",{
             "x":4,
             "y":14,
-            "font-size": 10,
+            "font-size": 12,
             "opacity":"0.4",
             "fill":"black"
 //		"transform":"rotate(-90 50,50)"
@@ -332,7 +332,7 @@ TrackSvg.prototype = {
 //		over.setAttribute("opacity","0.1");
             //titlebar.setAttribute("width",74+textWidth);
             titlebar.setAttribute("opacity","0.1");
-            titlebar.setAttribute("fill","gray");
+            titlebar.setAttribute("fill","greenyellow");
             titleText.setAttribute("opacity","1.0");
             //upRect.setAttribute("visibility","visible");
             //downRect.setAttribute("visibility","visible");
@@ -445,6 +445,8 @@ TrackSvg.prototype = {
 
         this.rendered = true;
         this.status = "ready";
+
+
     }
 };
 
@@ -613,7 +615,8 @@ TrackSvg.prototype.BamRender = function(response){
 		var start = parseInt(chunk.start);
 		var end = parseInt(chunk.end);
 		var pixelWidth = (end-start+1)*_this.pixelBase;
-		
+
+
 		var points = "", pointsA = "", pointsC = "", pointsG = "", pointsT = "";
 		var baseMid = (_this.pixelBase/2)-0.5;//4.5 cuando pixelBase = 10
 		
@@ -644,6 +647,7 @@ TrackSvg.prototype.BamRender = function(response){
 		
 		var firstPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.start))*_this.pixelBase)+baseMid;
 		var lastPoint = _this.pixelPosition+middle-((_this.position-parseInt(chunk.end))*_this.pixelBase)+baseMid;
+
         var polA = SVG.addChild(bamCoverGroup,"polyline",{
 			"points":firstPoint+",0 "+lineA+lastPoint+",0",
 			//"opacity":"1",
@@ -682,6 +686,8 @@ TrackSvg.prototype.BamRender = function(response){
 			"fill": "lightgray",
 			"cursor": "pointer"
 		});
+
+
 		$(dummyRect).qtip({
 			content:" ",
 			position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
@@ -723,7 +729,6 @@ TrackSvg.prototype.BamRender = function(response){
 		/*transform to pixel position*/
 		var width = ((end-start)+1)*_this.pixelBase;
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
-		
 //		try{
 //			var maxWidth = Math.max(width, /*settings.getLabel(feature).length*8*/0); //XXX cuidado : text.getComputedTextLength()
 //		}catch(e){
@@ -791,7 +796,9 @@ TrackSvg.prototype.BamRender = function(response){
 				$(readEls).qtip({
 					content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
 					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
-					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
+					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'},
+                    show: 'click',
+                    hide: 'click mouseleave'
 				});
 				$(readEls).click(function(event){
 					console.log(feature);
@@ -917,7 +924,9 @@ TrackSvg.prototype.BamRender = function(response){
 				$(readEls).qtip({
 					content: {text:readSettings.getTipText(read), title:readSettings.getTipTitle(read)},
 					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
-					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
+					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'},
+                    show: 'click',
+                    hide: 'click mouseleave'
 				});
 				$(readEls).click(function(event){
 					console.log(read);
@@ -926,7 +935,9 @@ TrackSvg.prototype.BamRender = function(response){
 				$(mateEls).qtip({
 					content: {text:mateSettings.getTipText(mate), title:mateSettings.getTipTitle(mate)},
 					position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
-					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'}
+					style: { width:280,classes: 'ui-tooltip ui-tooltip-shadow'},
+                    show: 'click',
+                    hide: 'click mouseleave'
 				});
 				$(mateEls).click(function(event){
 					console.log(mate);
@@ -1328,13 +1339,15 @@ TrackSvg.prototype.SequenceRender = function(response){
 TrackSvg.prototype.HistogramRender = function(response){
 	var featureList = this._getFeaturesByChunks(response);
 	//here we got features array
-
 	var middle = this.width/2;
+    var multiplier = 4;
 //	console.log(featureList);
-	var histogramHeight = 50;
+	var histogramHeight = 75;
 	var points = '';
 	if(featureList.length>0) {
-		var firstx = this.pixelPosition+middle-((this.position-featureList[0].start)*this.pixelBase);
+
+
+		var firstx = this.pixelPosition+middle-((this.position-parseInt(featureList[0].start))*this.pixelBase);
 		points = firstx+','+histogramHeight+' ';
 		
 	}
@@ -1342,7 +1355,10 @@ TrackSvg.prototype.HistogramRender = function(response){
     var maxValue = 0;
 
 	for ( var i = 0, len = featureList.length; i < len; i++) {
+
 		var feature = featureList[i];
+        feature.start = parseInt(feature.start);
+        feature.end = parseInt(feature.end);
 		var width = (feature.end-feature.start);
 		//get type settings object
 		var settings = this.types[feature.featureType];
@@ -1350,16 +1366,24 @@ TrackSvg.prototype.HistogramRender = function(response){
 		
 		width = width * this.pixelBase;
 		var x = this.pixelPosition+middle-((this.position-feature.start)*this.pixelBase);
+
+
+
+
 		var height = /*histogramHeight * */ featureList[i].value;
-		
+		if(height == null){
+            height = featureList[i].features_count;
+        }
+        height = height*multiplier;
+
 		//
-		if(featureList[i].value==null){
-			console.log(featureList[i]);
-		}
+//		if(featureList[i].value==null){
+//			console.log(featureList[i]);
+//		}
 
 		//TODO FOR POLYLINE Width/2 to center the point
 		points += (x+(width/2))+","+(histogramHeight - height)+" ";
-		
+
 //		var rect = SVG.addChild(this.features,"rect",{
 //			"x":x,
 //			"y":histogramHeight - height,
@@ -1373,15 +1397,16 @@ TrackSvg.prototype.HistogramRender = function(response){
 
 
         //calculate max for debug purposes
-        if(featureList[i].value>maxValue){
-            maxValue = featureList[i].value
-        }
+//        if(featureList[i].value>maxValue){
+//            maxValue = featureList[i].value
+//        }
 	}
 	if(featureList.length>0) {
-		var firstx = this.pixelPosition+middle-((this.position-featureList[featureList.length-1].start)*this.pixelBase);
+		var firstx = this.pixelPosition+middle-((this.position-parseInt(featureList[featureList.length-1].start))*this.pixelBase);
 		points += firstx+','+histogramHeight+' ';
 		
 	}
+
 //	console.log(points);
 	var pol = SVG.addChild(this.features,"polyline",{
 		"points":points,
@@ -1390,8 +1415,21 @@ TrackSvg.prototype.HistogramRender = function(response){
 		"fill": color,
 		"cursor": "pointer"
 	});
-	this.setHeight(histogramHeight+/*margen entre tracks*/10);
+
+    this.setHeight(histogramHeight+/*margen entre tracks*/10);
     console.log(maxValue);
+
+    if(response.params.category){
+        var text2 = SVG.addChild(this.titleGroup,"text",{
+            "x":10,
+            "y":histogramHeight,
+            "font-size": 12,
+            "opacity":"0.9",
+            "fill":"blue",
+            "visibility":"visible"
+        });
+        text2.textContent = "10";
+    }
 };
 
 
@@ -1478,7 +1516,7 @@ TrackSvg.prototype._removeDisplayedChunks = function(response){
 	var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
 	for ( var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
 		if(this.chunksDisplayed[chunks[i].key+dataType] != true){//check if any chunk is already displayed and skip it
-		
+
 			features = []; //initialize array, will contain features not drawn by other drawn chunks
 			for ( var j = 0, lenj = chunks[i][dataType].length; j < lenj; j++) {
 				feature = chunks[i][dataType][j];

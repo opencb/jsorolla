@@ -45,8 +45,8 @@ function GenomeViewer(targetId, species, args) {
 		this.targetId=targetId;
 	}
 	if (species != null) {
-		this.species = species.species;
-		this.speciesName = species.name;
+		this.species = Utils.getSpeciesCode(species.text);
+		this.speciesName = species.text + ' ' + species.assembly;
 	}
 	if (args != null){
 		if(args.toolbar != null){
@@ -283,7 +283,7 @@ GenomeViewer.prototype.setRegion = function(data) {
 	case "setSpecies":
 		this._calculateZoomByRegion();
 		this.species = data.species;
-		this.speciesName = data.name;
+		this.speciesName = data.text;
 		Ext.example.msg('Species', this.speciesName+' selected.');
 		Ext.getCmp(this.id+"speciesMenuButton").setText(this.speciesName);
 		
@@ -364,7 +364,7 @@ GenomeViewer.prototype.setRegion = function(data) {
 		this._calculateZoomByRegion();
 		if(data.species != null){
 			this.species = data.species;
-			this.speciesName = data.name;
+			this.speciesName = data.text;
 			Ext.example.msg('Species', this.speciesName+' selected.');
 			this.onSpeciesChange.notify();
 		}
@@ -406,8 +406,10 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		id : this.id+'quickSearch',
 		displayField: 'displayId',
 		valueField: 'displayId',
-		emptyText:'Quick search: gene, snp',
+		emptyText:'gene, snp',
 		hideTrigger: true,
+        fieldLabel:'Quick search:',
+        labelWidth:70,
 		width:150,
 		store: searchResults,
 		queryMode: 'local',
@@ -617,6 +619,7 @@ GenomeViewer.prototype._getSpeciesMenu = function() {
 			id:this.id+"_specieMenu",
 			margin : '0 0 10 0',
 			floating : true,
+            plain:true,
 			items : []
 		});
 	}
@@ -625,22 +628,41 @@ GenomeViewer.prototype._getSpeciesMenu = function() {
 //Sets the species buttons in the menu
 GenomeViewer.prototype.setSpeciesMenu = function(speciesObj) {
 	var _this = this;
-	//Auto generate menu items depending of AVAILABLE_SPECIES config
 	var menu = this._getSpeciesMenu();
+	//Auto generate menu items depending of AVAILABLE_SPECIES config
 	menu.hide();//Hide the menu panel before remove
 	menu.removeAll(); // Remove the old species
-	for ( var i = 0; i < speciesObj.length; i++) {
-		menu.add({	
-					id:this.id+speciesObj[i].name,
-					text:speciesObj[i].name,
-					speciesObj:speciesObj[i],
-					handler:function(me){
-						//can't use the i from the FOR so i create the object again
-						_this.setSpecies(me.speciesObj);
-				}
-		});
-	};
+
+    var popularSpecies = [];
+
+    for(var i = 0; i < speciesObj.items.length; i++){
+        var phyloSpecies = speciesObj.items[i].items;
+        var pyhlo = speciesObj.items[i];
+        pyhlo.menu = {items:phyloSpecies};
+        for(var j = 0; j < phyloSpecies.length; j++){
+            var species = phyloSpecies[j];
+            var text = species.text+' '+species.assembly;
+//            species.id = this.id+text;
+            species.name = species.text;
+            species.species = Utils.getSpeciesCode(species.text);
+            species.text = text;
+            species.speciesObj = species;
+            species.iconCls = '';
+//            species.icon = 'http://static.ensembl.org/i/species/48/Danio_rerio.png';
+            species.handler = function(me){
+                _this.setSpecies(me.speciesObj);
+            };
+
+            if(POPULAR_SPECIES.indexOf(species.name) != -1){
+                popularSpecies.push(species);
+            }
+        }
+    }
+    popularSpecies.push('-');
+    var items = popularSpecies.concat(speciesObj.items);
+    menu.add(items);
 };
+
 //Sets the new specie and fires an event
 GenomeViewer.prototype.setSpecies = function(data){
 	this.region.load(data.region);
@@ -659,7 +681,7 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
  	var chrView = Ext.create('Ext.view.View', {
  		id:this.id+"chrView",
  		width:125,
-// 		style:'background-color:#fff',
+		style:'background-color:#fff',
  		store : chrStore,
  		selModel: {
  			mode: 'SINGLE',
@@ -683,29 +705,25 @@ GenomeViewer.prototype._getChromosomeMenu = function() {
  	});
 	/*END chromolendar*/
 
-
  	var chromosomeMenu = Ext.create('Ext.menu.Menu', {
  		id:this.id+"chromosomeMenu",
  		almacen :chrStore,
         plain: true,
-		items : [chrView]
+		items : [/*{xtype:'textfield', width:125},*/chrView]
 //        items:[ //TODO alternative
 //            {
 //                xtype: 'buttongroup',
-//                title: 'User options',
-//                columns: 2,
+//                id:this.id+'chrButtonGroup',
+////                title: 'User options',
+//                columns: 5,
 //                defaults: {
 //                    xtype: 'button',
-//                    scale: 'large',
+////                    scale: 'large',
 //                    iconAlign: 'left',
 //                    handler:function(){}
 //                },
-//                items: [{
-//                    text: 'aaaaaaaa',
-////                    icon: 'edit',
-//                    width: 100,
-//                    displayText: 'User manager'
-//                }]
+////                items : [chrView]
+////                items: []
 //            }
 //        ]
 	});
@@ -717,9 +735,11 @@ GenomeViewer.prototype._updateChrStore = function(){
 	var _this = this;
 	var chrStore = Ext.getStore(this.id+"chrStore");
 	var chrView = Ext.getCmp(this.id+"chrView");
+//	var chrButtonGroup = Ext.getCmp(this.id+"chrButtonGroup");
 	var cellBaseManager = new CellBaseManager(this.species);
  	cellBaseManager.success.addEventListener(function(sender,data){
  		var chromosomeData = [];
+ 		var chrItems = [];
  		var sortfunction = function(a, b) {
  			var IsNumber = true;
  			for (var i = 0; i < a.length && IsNumber == true; i++) {
@@ -733,8 +753,11 @@ GenomeViewer.prototype._updateChrStore = function(){
  		data.result.sort(sortfunction);
 		for (var i = 0; i < data.result.length; i++) {
 			chromosomeData.push({'name':data.result[i]});
+//            chrItems.push({text:data.result[i],iconAlign: 'left'});
 		}
 		chrStore.loadData(chromosomeData);
+//        chrButtonGroup.removeAll();
+//        chrButtonGroup.add(chrItems);
 //		chrView.getSelectionModel().select(chrStore.find("name",_this.chromosome));
  	});
  	cellBaseManager.get('feature', 'chromosome', null, 'list');
@@ -746,8 +769,8 @@ GenomeViewer.prototype._getZoomSlider = function() {
 		this._zoomSlider = Ext.create('Ext.slider.Single', {
 			id : this.id+'zoomSlider',
 			width : 170,
-			minValue : 0,
 			maxValue : 100,
+			minValue : 0,
 			value : this.zoom,
 			useTips : true,
 			increment : 1,
@@ -921,7 +944,7 @@ GenomeViewer.prototype._drawRegionPanel = function() {
 		id:this.id+"regionPanel",
 		//style:'background:whitesmoke',
 		height : 150,
-		title:'Region overview',
+		title:'Region overview <span class="ssel" id="'+this.id+"regionPanelZoom"+'"></span>',
 		border:true,
         hidden:!this.regionPanelHidden,
 		margin:'0 0 1 0',
@@ -950,8 +973,8 @@ GenomeViewer.prototype._drawTracksPanel = function() {
 	
 	var panel = Ext.create('Ext.panel.Panel', {
 		id:this.id+"tracksPanel",
-		title:'Detailed information',
-							shrinkWrap:1,
+		title:'Detailed information <span class="ssel" id="'+this.id+"regionPanelZoom"+'"></span>',
+        shrinkWrap:1,
 		layout: { type: 'vbox',align: 'stretch'},//scrollbar
 		border:true,
         cls:'x-unselectable',

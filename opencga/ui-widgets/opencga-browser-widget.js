@@ -234,7 +234,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
             listeners: {
                 beforeappend: function (este, node) {
                     if (node.isLeaf()) {
-                        console.log(node.raw.oid + " is a file");
+//                        console.log(node.raw.oid + " is a file");
                         return false; //cancel append because is leaf
                     }
                 }
@@ -254,6 +254,28 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
             data: []
         });
 
+        var refreshBucketAction = Ext.create('Ext.Action', {
+            icon: Utils.images.refresh,
+            text: 'Refresh bucket',
+//            disabled: true,
+            handler: function(widget, event) {
+                var record = _this.folderTree.getSelectionModel().getSelection()[0];
+                if (record) {
+                    if (record.raw.isBucket) {
+                        var opencgaManager = new OpencgaManager();
+                        opencgaManager.onRefreshBucket.addEventListener(function (sender, res) {
+                            Ext.example.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
+                            if (res.indexOf("ERROR") != -1) {
+                                console.log(res);
+                            } else {
+                                _this.onNeedRefresh.notify();
+                            }
+                        });
+                        opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.raw.text, $.cookie("bioinfo_sid"));
+                    }
+                }
+            }
+        });
 
         this.folderTree = Ext.create('Ext.tree.Panel', {
             //xtype:"treepanel",
@@ -280,37 +302,38 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                     dataIndex: 'text',
                     flex: 1,
                     editor: {xtype: 'textfield', allowBlank: false}
-                },
-                {
-                    xtype: 'actioncolumn',
-                    menuDisabled: true,
-                    align: 'center',
-                    width: 30,
-                    renderer: function (value, metaData, record) {
-                        if (record.raw.isBucket) {
-                            this.icon = Utils.images.refresh;
-                            this.tooltip = 'Refresh bucket to find new files';
-                        } else {
-                            this.tooltip = null;
-                            this.icon = null;
-                        }
-                    },
-                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-                        if (record.raw.isBucket) {
-                            var opencgaManager = new OpencgaManager();
-                            opencgaManager.onRefreshBucket.addEventListener(function (sender, res) {
-                                Ext.example.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
-                                if (res.indexOf("ERROR") != -1) {
-                                    console.log(res);
-                                } else {
-                                    _this.onNeedRefresh.notify();
-                                }
-                            });
-                            opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.raw.text, $.cookie("bioinfo_sid"));
-                        }
-
-                    }
                 }
+//                ,
+//                {
+//                    xtype: 'actioncolumn',
+//                    menuDisabled: true,
+//                    align: 'center',
+//                    width: 30,
+//                    renderer: function (value, metaData, record) {
+//                        if (record.raw.isBucket) {
+//                            this.icon = Utils.images.refresh;
+//                            this.tooltip = 'Refresh bucket to find new files';
+//                        } else {
+//                            this.tooltip = null;
+//                            this.icon = null;
+//                        }
+//                    },
+//                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+//                        if (record.raw.isBucket) {
+//                            var opencgaManager = new OpencgaManager();
+//                            opencgaManager.onRefreshBucket.addEventListener(function (sender, res) {
+//                                Ext.example.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
+//                                if (res.indexOf("ERROR") != -1) {
+//                                    console.log(res);
+//                                } else {
+//                                    _this.onNeedRefresh.notify();
+//                                }
+//                            });
+//                            opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.raw.text, $.cookie("bioinfo_sid"));
+//                        }
+//
+//                    }
+//                }
             ],
             viewConfig: {
                 markDirty: false,
@@ -325,6 +348,19 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                             var id = record.data.trackId;
                             _this.setTrackIndex(id, record.data.index);
                         }
+                    },
+                    itemcontextmenu: function(este, record, item, index, e) {
+                        e.stopEvent();
+                        var items = [];
+                        console.log(record)
+                        if (record.raw.isBucket) {
+                            items.push(refreshBucketAction);
+                            var contextMenu = Ext.create('Ext.menu.Menu', {
+                                items: items
+                            });
+                            contextMenu.showAt(e.getXY());
+                        }
+                        return false;
                     }
                 }
             },
@@ -411,19 +447,61 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
 
 
         /*Files grid*/
-        var sellAction = Ext.create('Ext.Action', {
-            icon   : Utils.images.del,  // Use a URL in the icon config
-            text: 'Remove',
+        var indexAction = Ext.create('Ext.Action', {
+            icon   : Utils.images.info,  // Use a URL in the icon config
+            text: 'Create index',
 //            disabled: true,
             handler: function(widget, event) {
-                var rec = _this.filesGrid.getSelectionModel().getSelection()[0];
-                if (rec) {
-                    Ext.example.msg('objectId', '' + rec.get('oid'));
+                var record = _this.filesGrid.getSelectionModel().getSelection()[0];
+                if (record) {
+                    var opencgaManager = new OpencgaManager();
+                    opencgaManager.onIndexer.addEventListener(function (sender, response) {
+                        console.log(response);
+                        Ext.example.msg("indexer", response);
+                        record.raw.indexerId = response;
+//                                if (response.indexOf("ERROR:") != -1){
+//                                }else{
+//                                    //delete complete
+////                                    record.destroy();
+//                                    _this.onNeedRefresh.notify();
+//                                }
+                    });
+                    opencgaManager.indexer($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
+
+
+//                    console.log(record.raw.status);
+//                    if (record.raw.status.indexOf('indexer') == -1) {
+//                        opencgaManager.onIndexer.addEventListener(function (sender, response) {
+//                            console.log(response)
+//                            Ext.example.msg("indexer", response);
+//                            record.raw.indexerId = response;
+////                                if (response.indexOf("ERROR:") != -1){
+////                                }else{
+////                                    //delete complete
+//////                                    record.destroy();
+////                                    _this.onNeedRefresh.notify();
+////                                }
+//                        });
+//                        opencgaManager.indexer($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
+//                    } else {
+//                        Ext.example.msg('Indexer', 'The file is already being indexed');
+//                        opencgaManager.onIndexerStatus.addEventListener(function (sender, response) {
+//                            console.log(response)
+//                            Ext.example.msg("indexer status", response);
+////                                if (response.indexOf("ERROR:") != -1){
+////                                }else{
+////                                    //delete complete
+//////                                    record.destroy();
+////                                    _this.onNeedRefresh.notify();
+////                                }
+//                        });
+//                        opencgaManager.indexerStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid, record.raw.status);
+//                    }
                 }
             }
         });
         var showName = Ext.create('Ext.Action', {
-            icon: Utils.images.info,
+//            icon: Utils.images.info,
             text: 'Show name',
 //            disabled: true,
             handler: function(widget, event) {
@@ -433,8 +511,32 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                 }
             }
         });
-        var contextMenu = Ext.create('Ext.menu.Menu', {
-            items: [showName/*,sellAction*/]
+
+        var deleteAction = Ext.create('Ext.Action', {
+            icon: Utils.images.del,
+            text: 'Delete this file',
+//            disabled: true,
+            handler: function(widget, event) {
+                var record = _this.filesGrid.getSelectionModel().getSelection()[0];
+                if (record) {
+                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to delete this file?<p class="emph">' + record.data.fileName + '<p>', function (answer) {
+                        if (answer == "yes") {
+                            console.log("deleting")
+                            var opencgaManager = new OpencgaManager();
+                            opencgaManager.onDeleteObjectFromBucket.addEventListener(function (sender, response) {
+                                if (response.indexOf("ERROR:") != -1) {
+                                    Ext.example.msg("Deleting", response);
+                                } else {
+                                    //delete complete
+                                    record.destroy();
+                                    _this.onNeedRefresh.notify();
+                                }
+                            });
+                            opencgaManager.deleteObjectFromBucket($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
+                        }
+                    });
+                }
+            }
         });
 
         this.filesGrid = Ext.create('Ext.grid.Panel', {
@@ -447,6 +549,15 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                 listeners: {
                     itemcontextmenu: function(este, record, item, index, e) {
                         e.stopEvent();
+                        var items = [showName];
+                        console.log(record)
+                        if (record.raw.fileFormat == 'bam' || record.raw.fileFormat == 'vcf') {
+                            items.push(indexAction);
+                        }
+                        items.push(deleteAction);
+                        var contextMenu = Ext.create('Ext.menu.Menu', {
+                            items: items
+                        });
                         contextMenu.showAt(e.getXY());
                         return false;
                     }
@@ -479,73 +590,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                     }
                 },
                 { text: 'Name', dataIndex: 'fileName', flex: 2 },
-                { text: 'Creation time', dataIndex: 'creationTime', flex: 1 },
-                {
-                    xtype: 'actioncolumn', menuDisabled: true, align: 'center', tooltip: 'Delete data!', width: 30, icon: Utils.images.del,
-                    renderer: function (value, metaData, record) {
-                        this.tooltip = null;
-                        this.icon = null;
-                        if (record.raw.fileFormat == 'bam') {
-                            this.icon = Utils.images.info;
-                            this.tooltip = 'Create bai index';
-                        }
-                    },
-                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-                        var opencgaManager = new OpencgaManager();
-                        console.log(record.raw.status);
-                        if (record.raw.status.indexOf('indexer') == -1) {
-                            opencgaManager.onIndexer.addEventListener(function (sender, response) {
-                                console.log(response)
-                                Ext.example.msg("indexer", response);
-                                record.raw.indexerId = response;
-//                                if (response.indexOf("ERROR:") != -1){
-//                                }else{
-//                                    //delete complete
-////                                    record.destroy();
-//                                    _this.onNeedRefresh.notify();
-//                                }
-                            });
-                            opencgaManager.indexer($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
-                        } else {
-                            Ext.example.msg('Indexer', 'The file is already being indexed');
-                            opencgaManager.onIndexerStatus.addEventListener(function (sender, response) {
-                                console.log(response)
-                                Ext.example.msg("indexer status", response);
-//                                if (response.indexOf("ERROR:") != -1){
-//                                }else{
-//                                    //delete complete
-////                                    record.destroy();
-//                                    _this.onNeedRefresh.notify();
-//                                }
-                            });
-                            opencgaManager.indexerStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid, record.raw.status);
-                        }
-                    }
-                },
-                {
-                    xtype: 'actioncolumn', menuDisabled: true, align: 'center', tooltip: 'Delete data!', width: 30, icon: Utils.images.del,
-                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-                        //this also fires itemclick event from tree panel
-                        if (record != null) {
-                            Ext.MessageBox.confirm('Confirm', 'Are you sure you want to delete this file?<p class="emph">' + record.data.fileName + '<p>', function (answer) {
-                                if (answer == "yes") {
-                                    console.log("deleting")
-                                    var opencgaManager = new OpencgaManager();
-                                    opencgaManager.onDeleteObjectFromBucket.addEventListener(function (sender, response) {
-                                        if (response.indexOf("ERROR:") != -1) {
-                                            Ext.example.msg("Deleting", response);
-                                        } else {
-                                            //delete complete
-                                            record.destroy();
-                                            _this.onNeedRefresh.notify();
-                                        }
-                                    });
-                                    opencgaManager.deleteObjectFromBucket($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
-                                }
-                            });
-                        }
-                    }
-                }
+                { text: 'Creation time', dataIndex: 'creationTime', flex: 1 }
             ]
         });
         /**/

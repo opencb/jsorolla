@@ -136,33 +136,40 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"fill":"green"
 	});
 	this.viewNtsArrow = SVG.addChild(this.svgTop,"rect",{
-		"x":16,
-		"y":2,
-		"width":this.width-32,
-		"height":10,
-		"opacity":"0.7",
-		"fill":"grey"
+		"x":2,
+		"y":6,
+		"width":this.width-4,
+		"height":2,
+		"opacity":"0.5",
+		"fill":"black"
 	});
 	this.viewNtsArrowLeft = SVG.addChild(this.svgTop,"polyline",{
-		"points":"0,7 16,0 16,14",
-		"opacity":"0.7",
-		"fill":"grey"
+		"points":"0,1 2,1 2,13 0,13",
+		"opacity":"0.5",
+		"fill":"black"
 	});
 	this.viewNtsArrowRight = SVG.addChild(this.svgTop,"polyline",{
-		"points":this.width+",7 "+(this.width-16)+",0 "+(this.width-16)+",14",
-		"opacity":"0.7",
-		"fill":"grey"
+		"points":this.width+",1 "+(this.width-2)+",1 "+(this.width-2)+",13 "+this.width+",13",
+		"opacity":"0.5",
+		"fill":"black"
 	});
+	this.windowSize = "Window size: "+this.region.length()+" nts";
+    this.viewNtsTextBack = SVG.addChild(this.svgTop,"rect",{
+        "x":mid-40,
+        "y":0,
+        "width":this.windowSize.length*6,
+        "height":13,
+        "fill":"whitesmoke"
+    });
 	this.viewNtsText = SVG.addChild(this.svgTop,"text",{
 		"x":mid-30,
 		"y":11,
 		"font-size":10,
-		"fill":"white"
+		"fill":"black"
 	});
-	this.windowSize = "Window size: "+this.region.length()+" nts";
 	this.viewNtsText.textContent = this.windowSize;
 	this._setTextPosition();
-	
+
 	this.currentLine = SVG.addChild(this.svg,"rect",{
 		"id":this.id+"centerLine",
 		"x":mid,
@@ -223,6 +230,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		});
 		
 		$(this.svg).mousedown(function(event) {
+//            $('.qtip').qtip('hide').qtip('disable'); // Hide AND disable all tooltips
 //			_this.mouseLine.setAttribute("visibility","hidden");
 			this.setAttribute("cursor", "move");
 			var downX = event.clientX;
@@ -246,6 +254,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 			});
 		});
 		$(this.svg).mouseup(function(event) {
+//            $('.qtip').qtip('enable'); // To enable them again ;)
 			_this.mouseLine.setAttribute("visibility","visible");
 			this.setAttribute("cursor", "default");
 			$(this).off('mousemove');
@@ -257,6 +266,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		});
 		
 		$(this.svg).mouseenter(function(e) {
+//            $('.qtip').qtip('enable'); // To enable them again ;)
 			$("body").off('keydown');
 			enableKeys();
 		});
@@ -821,6 +831,7 @@ TrackSvgLayout.prototype = {
         this.lastPositionText.textContent = Utils.formatNumber(this.visualRegion.end);
 
         this.viewNtsText.textContent = "Window size: "+this.visualRegion.length()+" nts";
+        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length*6);
         this.windowSize = this.viewNtsText.textContent;
     },
 

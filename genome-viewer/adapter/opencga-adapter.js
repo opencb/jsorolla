@@ -103,10 +103,12 @@ OpencgaAdapter.prototype.getData = function(args){
 		var splitDash = splitDots[1].split("-");
 		var query = {chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]};
 
-
-        for(var i = 0; i < data.result.length; i++) {
-            data.result[i]['start'] = data.result[i].position;
-            data.result[i]['end'] =  data.result[i].position;
+        //check if features contains positon or start-end
+        if(data.result[0] != null && data.result[0]['position'] != null){
+            for(var i = 0; i < data.result.length; i++) {
+                data.result[i]['start'] = data.result[i].position;
+                data.result[i]['end'] =  data.result[i].position;
+            }
         }
 
 		_this.featureCache.putFeaturesByRegion(data.result, query, _this.category, type);

@@ -21,11 +21,11 @@
 
 function UploadWidget (args){
 	var _this=this;
-	this.id = "uploadWidget_"+ Math.round(Math.random()*10000000);
+	this.id = Utils.genId("uploadWidget");
 	this.targetId = null;
 	this.suiteId=null;
 	
-    if(typeof args != 'undefined'){
+    if(typeof args !== 'undefined'){
         this.targetId = args.targetId || this.targetId;
         this.suiteId = args.suiteId || this.suiteId;
         this.opencgaBrowserWidget = args.opencgaBrowserWidget || this.opencgaBrowserWidget;
@@ -57,6 +57,16 @@ function UploadWidget (args){
 //	return this.id+'_uploadButton';
 //};
 
+UploadWidget.prototype = {
+    getTypeValidation : function(types){
+        return function(filename){
+            var regex = new RegExp('^.*\\.('+types+')$', 'i');
+            return regex.test(filename);
+        }
+    }
+};
+
+
 UploadWidget.prototype.draw = function(opencgaLocation){
 	this.opencgaLocation = opencgaLocation;
 	var dataTypes = {};
@@ -66,14 +76,14 @@ UploadWidget.prototype.draw = function(opencgaLocation){
 		                { text: "Gene/Transcript",tag:"idlist:gene:transcript"}//si son varios van separados por ->  :
 		            ] },
 		            { text: "Feature", children: [
-		                { text: "VCF 4.0", tag:"vcf"},
-		                { text: "Tabix index", tag:"tbi"},
+		                { text: "VCF 4.0", tag:"vcf", validate:this.getTypeValidation('vcf')},
+//		                { text: "Tabix index", tag:"tbi"},
 		                { text: "GFF2", tag:"gff2"},
 		                { text: "GFF3", tag:"gff3"},
 		                { text: "GTF", tag:"gtf"},
 		                { text: "BED", tag:"bed"},
-		                { text: "BAM", tag:"bam"},
-		                { text: "BAI", tag:"bai"},
+		                { text: "BAM", tag:"bam", validate:this.getTypeValidation('bam')},
+		                { text: "BAI", tag:"bai", validate:this.getTypeValidation('bai')},
 		                { text: "Expression", tag:"expression"}
 		            ] }
 		        ];
@@ -99,9 +109,10 @@ UploadWidget.prototype.draw = function(opencgaLocation){
 	dataTypes["100"]=[
 		             {text : "Sequence", tag:"sequence"}
 		        ];
-	dataTypes["22"]=[
-		             {text : "Tabbed text file", tag:"txt"}
-		        ];
+    dataTypes["22"]=[
+        {text : "Tabbed text file", tag:"txt", validate:this.getTypeValidation('txt|text')},
+        {text : "CEL compressed file", tag:"cel", validate:this.getTypeValidation('zip|tar|tar.gz|tgz')}
+    ];
 	switch (this.suiteId){
 		case 9: this.checkDataTypes(dataTypes["9"]); this.render(dataTypes["9"]); break;
 		case 6: this.checkDataTypes(dataTypes["6"]); this.render(dataTypes["6"]); break;
@@ -168,9 +179,11 @@ UploadWidget.prototype.render = function(dataTypes){
 			    	itemclick : function (este,record){
 			    		if(record.data.leaf){
 			    			this.selectedDataType = record.raw.tag;
+			    			this.selectedDataTypeObj = record.raw;
 			    			this.dataTypeLabel.setText('<span class="info">Type:</span><span class="ok"> OK </span>',false);
 			    		}else{
 			    			this.selectedDataType = null;
+			    			this.selectedDataTypeObj = null;
 			    			this.dataTypeLabel.setText('<span class="info">Select a data type</span><span class="err"> !!!</span>',false);
 			    		}
 			    		this.validate();
@@ -382,12 +395,19 @@ UploadWidget.prototype.validate = function (){
 //	console.log(this.selectedDataType != null);
 //	console.log(this.nameField.getValue() !="");
 //	console.log((this.uploadField.getRawValue()!="" || this.editor.getValue()!=""));
-	
-	if (this.selectedDataType != null /*&& this.nameField.getValue() !=""*/ && (this.uploadField.getRawValue()!="" || this.editor.getValue()!="") ){
-		Ext.getCmp(this.uploadButtonId).enable();
-	}else{
-		Ext.getCmp(this.uploadButtonId).disable();
-	}
+
+    var extensionValid = true;
+    if(this.selectedDataTypeObj.validate != null){
+        extensionValid = this.selectedDataTypeObj.validate(Ext.getCmp(this.uploadFieldId).getValue());
+    }
+
+    if (extensionValid && this.selectedDataType != null /*&& this.nameField.getValue() !=""*/ && (this.uploadField.getRawValue()!="" || this.editor.getValue()!="") ){
+        Ext.getCmp(this.uploadButtonId).enable();
+        this.dataTypeLabel.setText('<span class="info">Type:</span><span class="ok"> OK </span>',false);
+    }else{
+        Ext.getCmp(this.uploadButtonId).disable();
+        this.dataTypeLabel.setText('<span class="info">Type:</span><span class="err"> Not valid </span>',false);
+    }
 };
 
 
@@ -469,18 +489,18 @@ UploadWidget.prototype.uploadFile2 = function()  {
     this.panel.close();
 };
 
-UploadWidget.prototype.uploadProgress = function(evt)  {
-	console.log("Progress...");
-    if (evt.lengthComputable) {
-      var percentComplete = Math.round(evt.loaded * 100 / evt.total);
-  		console.log(percentComplete);
-//      document.getElementById('progressNumber').innerHTML = percentComplete.toString() + '%';
-    }
-    else {
-    	console.log('unable to compute');
-//      document.getElementById('progressNumber').innerHTML = 'unable to compute';
-    }
-};
+//UploadWidget.prototype.uploadProgress = function(evt)  {
+//	console.log("Progress...");
+//    if (evt.lengthComputable) {
+//      var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+//  		console.log(percentComplete);
+////      document.getElementById('progressNumber').innerHTML = percentComplete.toString() + '%';
+//    }
+//    else {
+//    	console.log('unable to compute');
+////      document.getElementById('progressNumber').innerHTML = 'unable to compute';
+//    }
+//};
 
 UploadWidget.prototype.uploadComplete = function(response)  {
 	/* This event is raised when the server send back a response */

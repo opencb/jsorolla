@@ -87,18 +87,41 @@ var Utils = {
         // Using Math.round() will give you a non-uniform distribution!
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
+    endsWithIgnoreCase: function(str, test){
+        var regex = new RegExp('^.*\\.('+test+')$', 'i');
+        return regex.test(str);
+    },
+    endsWith: function(str, test){
+        var regex = new RegExp('^.*\\.('+test+')$');
+        return regex.test(str);
+    },
+    randomColor : function(){
+        var color = "";
+        for(var i=0; i<6;i++){
+            color += ([0,1,2,3,4,5,6,7,8,9,'a','b','c','d','e','f'][Math.floor(Math.random()*16)]);
+        }
+        return "#"+color;
+    },
+    getSpeciesFromAvailable : function(availableSpecies, speciesCode){
+        for(var i = 0; i < availableSpecies.items.length; i++){
+            var phylos = availableSpecies.items[i].items;
+            for(var j = 0; j < phylos.length; j++){
+                var species = phylos[j];
+                if(this.getSpeciesCode(species.text)==speciesCode){
+                    return species;
+                }
+            }
+        }
+    },
+    getSpeciesCode: function(speciesName){
+        var pair = speciesName.split(" ");
+        return (pair[0].charAt(0)+pair[1].substring(0,2)).toLowerCase();
+    },
 	test : function(){
 		return this;
 	}
 };
 
-Utils.randomColor = function(){
-	var color = "";
-	for(var i=0; i<6;i++){
-		color += ([0,1,2,3,4,5,6,7,8,9,'a','b','c','d','e','f'][Math.floor(Math.random()*16)]);
-	}
-	return "#"+color;
-};
 
 Utils.images = {
 	add:"data:image/gif;base64,R0lGODlhEAAQAIcAAD2GNUKNNkOPOESMO0WNPEmPP0iNQUmPQlOVTFWWTVCZQVeeRV6cVmGeWGSgVWSgV2aiWGejW2WrVWirU2uqWGqsW2yqWm61WG+1WG+1WXS3W3S3XHC4WXK5W3O6XHG+X3asZ3iuaHe8YHi0ZH+yany6ZH28Zn2+Z3m9bn25an25a3+5bUD/QHDBY3nBZHrGa3zDa37BaX7Hb4K1boO1boa3cYi4d4y7doq5eYm+eI2+e5O/f4HMdYbJeobJfIXNeYrCeY/CfYnIf4rPfZW/gozLgY7MhI7Sg5LFgJXAgpfHhZfMhZPNiJjLhpjMh5jMipvBl5vBmJTTipbTiZXUipbUi5fVi5nRi53YkqTOlKbPlqbQlqDZlaDZlqXbm6rUnavUnKbIoKfJoa/fpa/fprPZpbTZpbTaprLbqLPdqbXbqLfaqrTdqrXfrLbdrLjVr7jdr7vcr7rWsbfgr77itr3ktsTcuMXducXowMvmw87pydTrz9fu0tzx2ODy3P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAMAACwALAAAAAAQABAAAAi/AFkIHEiwoME7SWrMwCHH4MAdWfLs0QNnRQiHN+L4qeOlyxg8QCAU3LGmDxYmRqpQOTJHRYSBdpTw4SJFyJ8/P2DIaLNAjEAibsgU8YHiZgURHq4gaSCQBh0rPW5K/cMhxpcCAkmkGcJj6k0OJ8AMEGjjyZQXLSR85dBhiY4EAt9MYOPig4ivFzacEQBlIIgUaJByyIBBQxkLBwo6GKHGiYkSTcxQAODwgYIgW7TkCGDAocAwDAoQQBDFs2mCAQEAOw==",
@@ -197,6 +220,14 @@ Utils.genBamVariants = function(seq, size, x, y){
 					"l-"+(3*s)+",-"+(4.5*s)+
 					" ";
 					break;
+                case "d" :
+                    d+="M"+((0*s)+x)+","+((2.5*s)+y)+
+                        "l"+(6*s)+",0"+
+                        "l0,"+(s)+
+                        "l-"+(6*s)+",0"+
+                        "l0,-"+(s)+
+                        " ";
+                    break;
 				default:d+="M0,0";break;
 			}
 			x += size;
