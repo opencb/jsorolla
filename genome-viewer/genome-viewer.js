@@ -58,8 +58,11 @@ function GenomeViewer(targetId, species, args) {
 		if (args.height != null) {
 			this.height = args.height;
 		}
+        if (args.popularSpecies != null) {
+            this.popularSpecies = args.popularSpecies;
+        }
 		if (args.availableSpecies != null) {
-			this.setSpeciesMenu(args.availableSpecies);
+			this.setSpeciesMenu(args.availableSpecies, this.popularSpecies);
 		}
 		if (args.zoom != null) {//evaluate zoom after
 			this.zoom = args.zoom;
@@ -626,7 +629,7 @@ GenomeViewer.prototype._getSpeciesMenu = function() {
 	return this._specieMenu;
 };
 //Sets the species buttons in the menu
-GenomeViewer.prototype.setSpeciesMenu = function(speciesObj) {
+GenomeViewer.prototype.setSpeciesMenu = function(speciesObj, popular) {
 	var _this = this;
 	var menu = this._getSpeciesMenu();
 	//Auto generate menu items depending of AVAILABLE_SPECIES config
@@ -653,7 +656,7 @@ GenomeViewer.prototype.setSpeciesMenu = function(speciesObj) {
                 _this.setSpecies(me.speciesObj);
             };
 
-            if(POPULAR_SPECIES.indexOf(species.name) != -1){
+            if(popular.indexOf(species.name) != -1){
                 popularSpecies.push(species);
             }
         }

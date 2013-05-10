@@ -257,7 +257,6 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
         var refreshBucketAction = Ext.create('Ext.Action', {
             icon: Utils.images.refresh,
             text: 'Refresh bucket',
-//            disabled: true,
             handler: function(widget, event) {
                 var record = _this.folderTree.getSelectionModel().getSelection()[0];
                 if (record) {
@@ -272,6 +271,35 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                             }
                         });
                         opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.raw.text, $.cookie("bioinfo_sid"));
+                    }
+                }
+            }
+        });
+
+        var renameBucketAction = Ext.create('Ext.Action', {
+//            icon: Utils.images.refresh,
+            text: 'Rename bucket',
+            handler: function(widget, event) {
+                var record = _this.folderTree.getSelectionModel().getSelection()[0];
+                if (record) {
+                    if (record.raw.isBucket) {
+                        Ext.Msg.prompt('Rename bucket', 'Please enter a new name:', function (btn, text) {
+                            if (btn == 'ok') {
+                                text = text.replace(/[^a-z0-9-_.\/\s]/gi, '').trim();
+
+                                var opencgaManager = new OpencgaManager();
+                                opencgaManager.onRenameBucket.addEventListener(function (sender, res) {
+                                    Ext.example.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
+                                    if (res.indexOf("ERROR") != -1) {
+                                        console.log(res);
+                                    } else {
+                                        _this.onNeedRefresh.notify();
+                                    }
+                                });
+//                                accountId, bucketId, newBucketId, sessionId
+                                opencgaManager.renameBucket($.cookie("bioinfo_account"), record.raw.bucketId, text, $.cookie("bioinfo_sid"));
+                            }
+                        }, null, null, "new name");
                     }
                 }
             }
@@ -355,6 +383,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                         console.log(record)
                         if (record.raw.isBucket) {
                             items.push(refreshBucketAction);
+                            items.push(renameBucketAction);
                             var contextMenu = Ext.create('Ext.menu.Menu', {
                                 items: items
                             });

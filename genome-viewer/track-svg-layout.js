@@ -497,10 +497,14 @@ TrackSvgLayout.prototype = {
         var checkHistogramZoom = function(){
             if(_this.zoom <= trackSvg.histogramZoom){
                 trackSvg.histogram = true;
+                trackSvg.histogramLogarithm = true;
+                trackSvg.histogramMax = 500;
                 trackSvg.interval = parseInt(Math.max(512, 5/_this.pixelBase));//server interval limit 512
 //			console.log(trackData.adapter.featureCache);
             }else{
                 trackSvg.histogram = null;
+                trackSvg.histogramLogarithm = null;
+                trackSvg.histogramMax = null;
             }
         };
         var checkTranscriptZoom = function(){ //for genes only
@@ -535,6 +539,8 @@ TrackSvgLayout.prototype = {
                     start:virtualStart,
                     end:vitualEnd,
                     histogram:trackSvg.histogram,
+                    histogramLogarithm:trackSvg.histogramLogarithm,
+                    histogramMax:trackSvg.histogramMax,
                     interval:trackSvg.interval,
                     transcript:trackSvg.transcript,
                     sender:sender

@@ -1,4 +1,7 @@
 @import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono);
+@import url(http://fonts.googleapis.com/css?family=Ubuntu);
+@import url(http://fonts.googleapis.com/css?family=Oxygen);
+@import url(http://fonts.googleapis.com/css?family=Handlee);
 
 .app-header {
     background-color : darkred;
@@ -77,16 +80,18 @@ a:hover {text-decoration: underline; color: #15428B;}
 	border-right: 0px;
 }
 .appName{
+    font-family: 'Oxygen';
 	text-decoration: none;
 	color: #596F8F;
-	font-size: 20px;
+	font-size: 22px;
 	text-shadow: 0 1px 0 white;
 }
 
 .appDesc{
+    font-family: 'Oxygen';
 	text-decoration: none;
 	color: #596F8F;
-	font-size: 1.3em;
+	font-size: 16px;
 	text-shadow: 0 1px 0 white;
 }
 

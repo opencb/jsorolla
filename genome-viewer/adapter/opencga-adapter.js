@@ -50,6 +50,8 @@ OpencgaAdapter.prototype.getData = function(args){
 	//region check
 	
 	this.params["histogram"] = args.histogram;
+    this.params["histogramLogarithm"] = args.histogramLogarithm;
+    this.params["histogramMax"] = args.histogramMax;
 	this.params["interval"] = args.interval;
 	this.params["transcript"] = args.transcript;
 	
