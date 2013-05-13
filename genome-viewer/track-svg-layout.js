@@ -386,9 +386,10 @@ TrackSvgLayout.prototype = {
         this.positionText.setAttribute("x",mid-30);
         this.nucleotidText.setAttribute("x",mid+35);
         this.lastPositionText.setAttribute("x",width-70);
-        this.viewNtsArrow.setAttribute("width",width-32);
-        this.viewNtsArrowRight.setAttribute("points",width+",7 "+(width-16)+",0 "+(width-16)+",14");
+        this.viewNtsArrow.setAttribute("width",width-4);
+        this.viewNtsArrowRight.setAttribute("points",width+",1 "+(width-2)+",1 "+(width-2)+",13 "+width+",13");
         this.viewNtsText.setAttribute("x",mid-30);
+        this.viewNtsTextBack.setAttribute("x",mid-40);
         this.currentLine.setAttribute("x",mid);
         this.currentLine.setAttribute("width", this.pixelBase);
         this.mouseLine.setAttribute("width", this.pixelBase);
@@ -850,8 +851,15 @@ TrackSvgLayout.prototype = {
     },
 
     getMousePosition : function(position){
-        var base = this.getSequenceNucleotid(position);
-        return '<span style="font-family: Ubuntu Mono;font-size:19px;color:'+SEQUENCE_COLORS[base]+'">'+base+'</span>';
+        var base = '';
+        var colorStyle = '';
+        if(position>0){
+            base = this.getSequenceNucleotid(position);
+            colorStyle = 'color:'+SEQUENCE_COLORS[base];
+        }
+        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
+//        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
+        return '<span style="font-family: Ubuntu Mono;font-size:19px;'+colorStyle+'">'+base+'</span>';
     },
 
     getSequenceNucleotid : function(position){
@@ -859,7 +867,7 @@ TrackSvgLayout.prototype = {
         if( seqTrack != null && this.zoom >= seqTrack.visibleRange.start-this.zoomOffset && this.zoom <= seqTrack.visibleRange.end){
             return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.region.chromosome})
         }
-        return "";
+        return '';
     },
 
     setNucleotidPosition : function(position){

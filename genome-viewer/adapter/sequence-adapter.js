@@ -69,6 +69,9 @@ SequenceAdapter.prototype.getData = function(args){
 	if(args.start<1){
 		args.start=1;
 	}
+    if(args.end<1){
+        args.end=1;
+    }
 	if(args.end>300000000){
 		args.end=300000000;
 	}
@@ -135,6 +138,7 @@ SequenceAdapter.prototype._getSequenceQuery = function(args){
 		if(args.start <= _this.start[chromosome]){
 			s = args.start;
 			e = _this.start[chromosome]-1;
+            e = (e<1) ? args.end=1 : e ;
 			_this.start[chromosome] = s;
 			query = args.chromosome+":"+s+"-"+e;
 			querys.push(query);
@@ -238,20 +242,22 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 //Used by bam to get the mutations
 SequenceAdapter.prototype.getNucleotidByPosition = function(args){
 	var _this=this;
-	var queryString = this._getSequenceQuery(args);
-	
-	var chromosome = args.chromosome;
-	
-	if(queryString != ""){
-		var cellBaseManager = new CellBaseManager(this.species,{host: this.host, async:false});
-		var data = cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
-		_this._processSequenceQuery(data);
-	}
-	if(this.sequence[chromosome] != null){
-		var referenceSubStr = this.sequence[chromosome].substr((args.start-this.start[chromosome]),1);
-		return referenceSubStr;
-	}else{
-		console.log("SequenceRender: this.sequence[chromosome] is undefined");
-		return "";
-	}
+    if(args.start > 0 && args.end>0){
+        var queryString = this._getSequenceQuery(args);
+
+        var chromosome = args.chromosome;
+
+        if(queryString != ""){
+            var cellBaseManager = new CellBaseManager(this.species,{host: this.host, async:false});
+            var data = cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
+            _this._processSequenceQuery(data);
+        }
+        if(this.sequence[chromosome] != null){
+            var referenceSubStr = this.sequence[chromosome].substr((args.start-this.start[chromosome]),1);
+            return referenceSubStr;
+        }else{
+            console.log("SequenceRender: this.sequence[chromosome] is undefined");
+            return "";
+        }
+    }
 };

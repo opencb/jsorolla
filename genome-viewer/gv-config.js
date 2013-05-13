@@ -145,7 +145,7 @@ SNP_BIOTYPE_COLORS = {
 };
 
 
-SEQUENCE_COLORS = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"}
+SEQUENCE_COLORS = {A:"#009900", C:"#0000FF", G:"#857A00", T:"#aa0000", N:"#555555"};
 
 SAM_FLAGS = [["read paired", 0x1],
              ["read mapped in proper pair", 0x2],
@@ -200,9 +200,10 @@ FEATURE_TYPES = {
 	},
 	gene:{
 		getLabel: function(f){
+            var name = (f.name != null) ? f.name : f.id;
 			var str = "";
 			str+= (f.strand < 0 || f.strand == '-') ? "<" : "";
-			str+= " "+f.name+" ";
+			str+= " "+name+" ";
 			str+= (f.strand > 0 || f.strand == '+') ? ">" : "";
             if(f.biotype != null && f.biotype != ''){
 			    str+= " ["+f.biotype+"]";
@@ -210,8 +211,9 @@ FEATURE_TYPES = {
 			return str;
 		},
 		getTipTitle: function(f){
+            var name = (f.name != null) ? f.name : f.id;
 			return FEATURE_TYPES.formatTitle(f.featureType) +
-			' - <span class="ok">'+f.name+'</span>';
+			' - <span class="ok">'+name+'</span>';
 		},
 		getTipText: function(f){
 			var color = GENE_BIOTYPE_COLORS[f.biotype];
@@ -258,9 +260,10 @@ FEATURE_TYPES = {
 //	},
 	transcript:{
 		getLabel: function(f){
+            var name = (f.name != null) ? f.name : f.id;
 			var str = "";
 			str+= (f.strand < 0) ? "<" : "";
-			str+= " "+f.name+" ";
+			str+= " "+name+" ";
 			str+= (f.strand > 0) ? ">" : "";
             if(f.biotype != null && f.biotype != ''){
                 str+= " ["+f.biotype+"]";
@@ -268,8 +271,9 @@ FEATURE_TYPES = {
 			return str;
 		},
 		getTipTitle: function(f){
+            var name = (f.name != null) ? f.name : f.id;
 			return FEATURE_TYPES.formatTitle(f.featureType) +
-			' - <span class="ok">'+f.name+'</span>';
+			' - <span class="ok">'+name+'</span>';
 		},
 		getTipText: function(f){
 			var color = GENE_BIOTYPE_COLORS[f.biotype];

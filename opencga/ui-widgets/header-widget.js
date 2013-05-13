@@ -231,7 +231,7 @@ HeaderWidget.prototype = {
                     xtype: 'tbtext',
                     id: this.id + "appTextItem",
                     //		        	html: '<span class="appName">Vitis vinifera&nbsp; '+this.args.appname +'</span> <span class="appDesc">'+this.args.description+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span><img height="30" src="http://www.demeter.es/imagenes/l_demeter.gif"></span>',
-                    text: '<span class="appName">' + this.appname + '</span> <span id="' + this.id + 'description" class="appDesc">' + this.description + '</span>',
+                    text: '<span class="appName">' + this.appname + '</span> <span id="' + this.id + 'description" class="appDesc">' + this.description + '</span><span class="appDesc" style="color:orangered;margin-left:20px">version 3.1 beta</span>',
                     padding: '0 0 0 10',
                     listeners:{
                         afterrender:function(){

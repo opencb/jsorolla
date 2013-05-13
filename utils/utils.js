@@ -115,7 +115,7 @@ var Utils = {
     },
     getSpeciesCode: function(speciesName){
         var pair = speciesName.split(" ");
-        return (pair[0].charAt(0)+pair[1].substring(0,2)).toLowerCase();
+        return (pair[0].charAt(0)+pair[1]).toLowerCase();
     },
 	test : function(){
 		return this;

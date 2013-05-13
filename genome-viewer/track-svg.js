@@ -1305,7 +1305,7 @@ TrackSvg.prototype.SequenceRender = function(response){
 //        points += (x+(width/2))+","+(50 - height)+' ';
 
         var text = SVG.addChild(this.features,"text",{
-            "x":x,
+            "x":x+1,
             "y":12,
             "font-size":chromeFontSize,
             "font-family": "Ubuntu Mono",

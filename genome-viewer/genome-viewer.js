@@ -37,7 +37,7 @@ function GenomeViewer(targetId, species, args) {
 	this.increment = 3;
 	this.zoom=100;
 
-	this.confPanelCollapsed = false;
+	this.confPanelHidden = false;
 	this.regionPanelHidden = false;
 
 	//Setting paramaters
@@ -72,8 +72,8 @@ function GenomeViewer(targetId, species, args) {
 		}else{
 			this.region = new Region(species.region);
 		}
-		if (args.confPanelCollapsed != null) {
-			this.confPanelCollapsed = args.confPanelCollapsed;
+		if (args.confPanelHidden != null) {
+			this.confPanelHidden = args.confPanelHidden;
 		}
 		if (args.regionPanelHidden != null) {
 			this.regionPanelHidden = args.regionPanelHidden;
@@ -147,7 +147,7 @@ GenomeViewer.prototype.render = function(){
 		id: this.id+"sideContainer",
 		region: "east",
 		title: "Configuration",
-		collapsed:this.confPanelCollapsed,
+		collapsed:this.confPanelHidden,
 		collapsible:true,
 		titleCollapse:true,
 		width: this.sidePanelWidth+260,

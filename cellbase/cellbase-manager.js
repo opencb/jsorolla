@@ -268,8 +268,8 @@ function CellBaseManager(species, args) {
                     dataType: 'json',
 					async : this.async,
 					success : function(data, textStatus, jqXHR) {
-							if(data==""){console.log("data is empty");data="[]";}
-							var jsonResponse = JSON.parse(data);
+//							if(data==""){console.log("data is empty");data="[]";}
+							var jsonResponse = data;
 							response =  {
 									"result": jsonResponse,
 									"category":  _this.category,
