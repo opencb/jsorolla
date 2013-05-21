@@ -484,7 +484,8 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 			debugger
 			
 		}
-		
+
+
 		//transform to pixel position
 		width = width * _this.pixelBase;
 		var x = _this.pixelPosition+middle-((_this.position-start)*_this.pixelBase);
@@ -497,7 +498,7 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 				var maxWidth = 72;
 			}
 		}else{
-			var maxWidth = Math.max(width,10);
+			var maxWidth = Math.max(width,2);
 			textHeight = 0;
 		}
 		
@@ -1344,12 +1345,12 @@ TrackSvg.prototype.HistogramRender = function(response){
 //	console.log(featureList);
 	var histogramHeight = 75;
 	var points = '';
-	if(featureList.length>0) {
-
-
-		var firstx = this.pixelPosition+middle-((this.position-parseInt(featureList[0].start))*this.pixelBase);
-		points = firstx+','+histogramHeight+' ';
-		
+//debugger
+	if(featureList.length>0) {//Force first point at histogramHeight
+        var firstFeature = featureList[0];
+        var width = (firstFeature.end-firstFeature.start)* this.pixelBase;
+		var x = this.pixelPosition+middle-((this.position-parseInt(firstFeature.start))*this.pixelBase);
+		points = (x+(width/2))+','+histogramHeight+' ';
 	}
 
     var maxValue = 0;
@@ -1401,9 +1402,11 @@ TrackSvg.prototype.HistogramRender = function(response){
 //            maxValue = featureList[i].value
 //        }
 	}
-	if(featureList.length>0) {
-		var firstx = this.pixelPosition+middle-((this.position-parseInt(featureList[featureList.length-1].start))*this.pixelBase);
-		points += firstx+','+histogramHeight+' ';
+	if(featureList.length>0) {//force last point at histogramHeight
+        var lastFeature = featureList[featureList.length-1];
+        var width = (lastFeature.end-lastFeature.start)* this.pixelBase;
+		var x = this.pixelPosition+middle-((this.position-parseInt(lastFeature.start))*this.pixelBase);
+		points += (x+(width/2))+','+histogramHeight+' ';
 		
 	}
 
@@ -1441,7 +1444,6 @@ TrackSvg.prototype.showInfoWidget = function(args){
 		if(args.featureType.indexOf("transcript")!=-1)
 			args.featureType="transcriptorange";
 	}
-	
 	switch (args.featureType) {
 	case "gene": new GeneInfoWidget(null,this.trackData.adapter.species).draw(args); break;
 	case "geneorange": new GeneOrangeInfoWidget(null,this.trackData.adapter.species).draw(args); break;

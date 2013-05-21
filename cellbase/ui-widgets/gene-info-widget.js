@@ -41,7 +41,7 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	            { text: "Genomic", children: [
 	                { text: "Information"},
 	                { text: "Transcripts"},
-                    { text: "Xref"}
+                    { text: "Xrefs"}
 	            ] },
 	            { text: "Functional information", children: [
 	                { text: "GO"},
@@ -49,8 +49,8 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	                { text: "Interpro"}
 	            ] },
 	            { text: "Regulatory", children: [
-	                { text: "TFBS"},
-	                { text: "miRNA targets"}                   
+	                { text: "TFBS"}
+//	                { text: "miRNA targets"}
 	            ]},
 	            { text:"Protein", children: [
 	                { text: "Features"},//protein profile
@@ -69,12 +69,12 @@ GeneInfoWidget.prototype.optionClick = function (item){
 		switch (item.text){
 			case "Information": this.panel.add(this.getGenePanel(this.data).show()); break;
 			case "Transcripts": this.panel.add(this.getTranscriptPanel(this.data.transcripts).show());  break;
-			case "Xref": this.panel.add(this.getXrefGrid(this.data.transcripts, 'Xref', 'transcript').show());  break;
+			case "Xrefs": this.panel.add(this.getXrefGrid(this.data.transcripts, 'Xref', 'transcript').show());  break;
 //			case "GO": this.panel.add(this.getGoGrid().show()); break;
 			case "GO": this.panel.add(this.getXrefGrid(this.data.transcripts, 'GO', 'transcript').show());  break;
 			case "Interpro": this.panel.add(this.getXrefGrid(this.data.transcripts, 'Interpro', 'transcript').show());  break;
 			case "Reactome": this.panel.add(this.getXrefGrid(this.data.transcripts, 'Reactome', 'transcript').show());  break;
-			case "TFBS": this.panel.add(this.getTfbsGrid(this.data.tfbs).show());  break;
+			case "TFBS": this.panel.add(this.getTfbsGrid(this.data.transcripts).show());  break;
 			case "miRNA targets": this.panel.add(this.getMirnaTargetGrid(this.data.mirnaTargets).show());  break;
 			case "Features": this.panel.add(this.getProteinFeaturesGrid(this.data.proteinFeatures).show());  break;
 			case "3D structure": this.panel.add(this.get3Dprotein(this.data.snps).show());  break;
@@ -206,13 +206,31 @@ GeneInfoWidget.prototype.getXrefGrid = function(transcripts, dbname, groupField)
 
 
 GeneInfoWidget.prototype.getTfbsGrid = function(data){
-	if(data.length<=0){
+    if(data.length<=0){
 		return this.notFoundPanel;
 	}
+    var groupField = '';
+    //check data are transcripts or tfbss
+
+    if(data[0].id != null){
+        var data2 = [];
+        groupField = 'transcriptId';
+        for(var i = 0; i<data.length; i++){
+            transcript = data[i];
+            if(transcript.tfbs != null){
+                for(var j = 0; j<transcript.tfbs.length; j++){
+                    transcript.tfbs[j].transcriptId = transcript.id;
+                }
+                data2 = data2.concat(transcript.tfbs);
+            }
+        }
+        data = data2;
+    }
+
     if(this.tfbsGrid==null){
-    	var groupField = "";
+    	var groupField = groupField;
     	var modelName = "TFBS";
-	    var fields = ["chromosome","start","end","strand","tfName","relativeStart","relativeEnd","targetGeneName","score","sequence"];
+	    var fields = ["chromosome","start","end","strand","tfName","relativeStart","relativeEnd","targetGeneName","score","sequence","transcriptId"];
 		var columns = [
 		                {header : 'Name',dataIndex: 'tfName',flex:1},
 		            	{header : 'Location: chr:start-end (strand)', xtype:'templatecolumn', tpl:'{chromosome}:{start}-{end} ({strand})',flex:2.5},
@@ -271,6 +289,7 @@ GeneInfoWidget.prototype.getProteinFeaturesGrid = function(data){
 
 
 GeneInfoWidget.prototype.getProteinFeaturesGrid = function(data){
+    debugger
 	if(data.length<=0){
 		return this.notFoundPanel;
 	}

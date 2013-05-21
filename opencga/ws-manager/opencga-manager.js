@@ -396,9 +396,12 @@ OpencgaManager.prototype = {
         var _this=this;
         queryParams["sessionid"] = sessionId;
         queryParams["region"] = region;
+        queryParams["cellbasehost"] = CELLBASE_HOST+'/'+CELLBASE_VERSION;
 
         if(this.host.indexOf("localhost")!=-1){
-            var url =  this.host+'/storage/fetch?filepath='+objectId+'&region='+region;
+            queryParams["region"] = region;
+            queryParams["filepath"] = objectId;
+            var url =  this.host+'/storage/fetch'+this.getQuery(queryParams);
         }else{
             var url = this.getObjectUrl(accountId,bucketId,objectId)+'/fetch'+this.getQuery(queryParams);
         }

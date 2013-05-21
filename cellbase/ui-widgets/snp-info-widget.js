@@ -46,8 +46,8 @@ SnpInfoWidget.prototype.getdataTypes = function (){
 	                { text: "Transcripts"}
 	            ] },
 	            { text: "Consequence type"},
-	            { text: "Annotated phenotype"},
-	            { text: "Population frequency"}
+	            { text: "Annotated phenotype"}
+//	            { text: "Population frequency"}
 	           
 	        ];
 };
@@ -60,10 +60,10 @@ SnpInfoWidget.prototype.optionClick = function (item){
 		}
 		switch (item.text){
 			case "Information":  this.panel.add(this.getInfoPanel(this.data).show()); break;
-			case "Transcripts": this.panel.add(this.getSnpTranscriptPanel(this.data.snptotranscript).show()); break;
-			case "Consequence type": this.panel.add(this.getConsequenceTypePanel(this.data.snptotranscript).show()); break;
+			case "Transcripts": this.panel.add(this.getSnpTranscriptPanel(this.data.transcriptVariations).show()); break;
+			case "Consequence type": this.panel.add(this.getConsequenceTypePanel(this.data.transcriptVariations).show()); break;
 			case "Annotated phenotype": this.panel.add(this.getPhenotypePanel(this.data.phenotype).show()); break;
-			case "Population frequency": this.panel.add(this.getPopulationPanel(this.data.population).show()); break;
+//			case "Population frequency": this.panel.add(this.getPopulationPanel(this.data.population).show()); break;
 		}
 	}
 };
@@ -217,18 +217,20 @@ SnpInfoWidget.prototype.getData = function (){
 //	category, subcategory, query, resource, callbackFunction
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function (sender,data){
-		_this.dataReceived(JSON.parse(data.result));//TODO
+        _this.dataReceived(data.result);//TODO
 	});
-	cellBaseManager.get("feature","snp", this.query, "fullinfo");
+	cellBaseManager.get("feature","snp", this.query, "info");
 };
 SnpInfoWidget.prototype.dataReceived = function (data){
-	var mappedSnps = data[0];
-	for ( var i = 0; i < mappedSnps.length; i++) {
-		if (mappedSnps[i].chromosome == this.feature.chromosome && mappedSnps[i].start == this.feature.start && mappedSnps[i].end == this.feature.end ){
-			this.data=mappedSnps[i];
-			console.log(mappedSnps[i]);
-		}
-	}
+//	var mappedSnps = data[0];
+//	for ( var i = 0; i < mappedSnps.length; i++) {
+//		if (mappedSnps[i].chromosome == this.feature.chromosome && mappedSnps[i].start == this.feature.start && mappedSnps[i].end == this.feature.end ){
+//			this.data=mappedSnps[i];
+//			console.log(mappedSnps[i]);
+//		}
+//	}
+    this.data=data[0][0];
+    console.log(this.data);
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();
 	this.panel.setLoading(false);

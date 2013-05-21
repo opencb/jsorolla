@@ -291,14 +291,17 @@ FEATURE_TYPES = {
 	},
 	exon:{//not yet
 		getLabel: function(f){
-			var str = "";
-			str+= f.id;
-			return str;
+            var name = (f.name != null) ? f.name : f.id;
+			return name;
 		},
 		getTipTitle: function(f){
-			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+f.id+'</span>';
+            var name = (f.name != null) ? f.name : f.id;
+            if (name == null){name = ''}
+			return FEATURE_TYPES.formatTitle(f.featureType)+' - <span class="ok">'+name+'</span>';
 		},
 		getTipText: function(e,t){
+            var ename = (e.name != null) ? e.name : e.id;
+            var tname = (t.name != null) ? t.name : t.id;
 			var color = GENE_BIOTYPE_COLORS[t.biotype];
 			return	'transcript name:&nbsp;<span class="ssel">'+t.name+'</span><br>'+
 			'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+t.id+'</span><br>'+
@@ -318,25 +321,28 @@ FEATURE_TYPES = {
 	},
 	snp:{
 		getLabel: function(f){
-			return f.name;
+            var name = (f.name != null) ? f.name : f.id;
+			return name;
 		},
 		getTipTitle: function(f){
+            var name = (f.name != null) ? f.name : f.id;
 			return f.featureType.toUpperCase() +
-			' - <span class="ok">'+f.name+'</span>';
+			' - <span class="ok">'+name+'</span>';
 		},
 		getTipText: function(f){
 			var color = SNP_BIOTYPE_COLORS[f.displaySoConsequence];
 			return 'alleles:&nbsp;<span class="ssel">'+f.alleleString+'</span><br>'+
-			'ancestral allele:&nbsp;<span class="ssel">'+f.ancestralAllele+'</span><br>'+
-			'SO consequence:&nbsp;<span class="emph" style="color:'+color+';">'+f.displaySoConsequence+'</span><br>'+
+//			'ancestral allele:&nbsp;<span class="ssel">'+f.ancestralAllele+'</span><br>'+
+//			'SO consequence:&nbsp;<span class="emph" style="color:'+color+';">'+f.displaySoConsequence+'</span><br>'+
 			FEATURE_TYPES.getTipCommons(f)+
 			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
 			
 		},
 		getColor: function(f){
-			return SNP_BIOTYPE_COLORS[f.displaySoConsequence];
+//			return SNP_BIOTYPE_COLORS[f.displaySoConsequence];
+			return 'lightblue';
 		},
-		infoWidgetId: "name",
+		infoWidgetId: "id",
 		height:8,
 		histogramColor:"orange"
 	},
@@ -410,18 +416,21 @@ FEATURE_TYPES = {
 	},
 	tfbs:{
 		getLabel: function(f){
-			return f.tfName;
+            var name = (f.name != null) ? f.name : f.id;
+			return name;
 		},
 		getTipTitle: function(f){
-			return 'TFBS - <span class="ok">'+f.tfName+'</span>';
+            var name = (f.name != null) ? f.name : f.id;
+			return 'TFBS - <span class="ok">'+name+'</span>';
 		},
 		getTipText: function(f){
-			return 'TF name:&nbsp;<span class="ssel">'+f.tfName+'</span><br>'+
-			'relative start:&nbsp;<span class="ssel">'+f.relativeStart+'</span><br>'+
-			'relative end:&nbsp;<span class="ssel">'+f.relativeEnd+'</span><br>'+
-			'target gene name:&nbsp;<span class="ssel">'+f.targetGeneName+'</span><br>'+
+            var name = (f.name != null) ? f.name : f.id;
+			return 'TF name:&nbsp;<span class="ssel">'+name+'</span><br>'+
+//			'relative start:&nbsp;<span class="ssel">'+f.relativeStart+'</span><br>'+
+//			'relative end:&nbsp;<span class="ssel">'+f.relativeEnd+'</span><br>'+
+//			'target gene name:&nbsp;<span class="ssel">'+f.targetGeneName+'</span><br>'+
 			'score:&nbsp;<span class="ssel">'+f.score+'</span><br>'+
-			'sequence:&nbsp;<span class="ssel">'+f.sequence+'</span><br>'+
+//			'sequence:&nbsp;<span class="ssel">'+f.sequence+'</span><br>'+
 			FEATURE_TYPES.getTipCommons(f)+
 			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
 		},
@@ -434,14 +443,17 @@ FEATURE_TYPES = {
 	},
 	mirna_target:{
 		getLabel: function(f){
-			return f.mirbaseId;
+            var name = (f.name != null) ? f.name : f.id;
+			return name;
 		},
 		getTipTitle: function(f){
-			return 'miRNA target - <span class="ok">'+f.mirbaseId+'</span>';
+            var name = (f.name != null) ? f.name : f.id;
+			return 'miRNA target - <span class="ok">'+name+'</span>';
 		},
 		getTipText: function(f){
-			return 'gene target name:&nbsp;<span class="ssel">'+f.geneTargetName+'</span><br>'+
-			'experimental method:&nbsp;<span class="ssel">'+f.experimentalMethod+'</span><br>'+
+			return ''+
+//            'gene target name:&nbsp;<span class="ssel">'+f.geneTargetName+'</span><br>'+
+//			'experimental method:&nbsp;<span class="ssel">'+f.experimentalMethod+'</span><br>'+
 			'score:&nbsp;<span class="ssel">'+f.score+'</span><br>'+
 			FEATURE_TYPES.getTipCommons(f)+
 			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';

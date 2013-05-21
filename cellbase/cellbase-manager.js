@@ -23,8 +23,8 @@ function CellBaseManager(species, args) {
 //	console.log(species);
 	
 	this.host = CELLBASE_HOST;
-	
-	this.version = "v3";
+	this.version = CELLBASE_VERSION;
+
 	this.species = species;
 	
 	this.category = null;

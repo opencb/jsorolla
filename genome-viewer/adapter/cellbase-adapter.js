@@ -126,7 +126,7 @@ CellBaseAdapter.prototype.getData = function(args){
 		dataType = "withTranscripts";
 	}
 
-	this.params["dataType"] = dataType
+	this.params["dataType"] = dataType;
 	
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
@@ -157,6 +157,8 @@ CellBaseAdapter.prototype.getData = function(args){
 		if(data.params.histogram == true){
 			data.result = [data.result];
 		}
+
+        var featureType = data.resource;
 		//XXX
 		
 		var queryList = [];
@@ -173,7 +175,7 @@ CellBaseAdapter.prototype.getData = function(args){
 				data.result[i] = [data.result[i]];
 			}
 			
-			if(data.resource == "gene" && data.params.transcript!=null){
+			if(featureType == "gene" && data.params.transcript!=null){
 				for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
 					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
 						data.result[i][j].transcripts[t].featureType = "transcript";
@@ -184,8 +186,16 @@ CellBaseAdapter.prototype.getData = function(args){
 					}
 				}
 			}
+
+            if(featureType == "regulatory"){
+                featureType = data.params.type;
+                if(featureType == 'TF_binding_site_motif'){
+                    featureType = 'tfbs';
+                }
+            }
+
 			console.time(_this.resource+" save "+rnd);
-			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], data.resource, dataType);
+			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], featureType, dataType);
 			var items = _this.featureCache.getFeatureChunksByRegion(queryList[i]);
 			console.timeEnd(_this.resource+" save "+rnd);
 			if(items != null){

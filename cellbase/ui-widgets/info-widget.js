@@ -28,7 +28,7 @@ function InfoWidget(targetId, species, args){
 	this.title = null;
 	this.featureId = null;
 	this.width = 800;
-	this.height = 440;
+	this.height = 460;
 	
 	this.feature = null;
 	this.query = null;
@@ -51,7 +51,7 @@ function InfoWidget(targetId, species, args){
     }
 	
 	switch (species){
-	case "hsa": 
+	case "hsapiens":
 		this.ensemblSpecie = "Homo_sapiens"; 
 		this.reactomeSpecie = "48887"; 
 		this.wikipathwaysSpecie = "Homo+sapiens"; 
@@ -62,7 +62,7 @@ function InfoWidget(targetId, species, args){
 		this.haphapSpecie = ""; 
 //		this.Specie = ""; 
 		break;
-	case "mmu":
+	case "mmusculus":
 		this.ensemblSpecies = "Mus_musculus"; 
 		this.reactomeSpecies = "48892";
 		this.wikipathwaysSpecie = "Mus+musculus"; 
@@ -73,7 +73,7 @@ function InfoWidget(targetId, species, args){
 		this.haphapSpecie = ""; 
 //		this.Specie = ""; 
 		break;
-	case "dre":
+	case "drerio":
 		this.ensemblSpecie = "Danio_rerio"; 
 		this.reactomeSpecie = "68323"; 
 		this.wikipathwaysSpecie = "Danio+rerio"; 
@@ -256,95 +256,118 @@ InfoWidget.prototype.getData = function (){
 
 InfoWidget.prototype.getGeneTemplate = function (){
 	return  new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {id} </span></span>',
+		    '<div style="font-family:Oxygen"><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {id} </span></span>',
 			' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Location/View?g={id}">Ensembl</a>',
 			' &nbsp; <a target="_blank" href="http://wikipathways.org//index.php?query={externalName}&species='+this.wikipathwaysSpecie+'&title=Special%3ASearchPathways&doSearch=1">Wikipathways</a>',
-			'</p><br>',
-		    '<p><span class="w75 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
-		    '<p><span class="w75 dis s90">Biotype: </span> {biotype}</p>',
-		    '<p><span class="w75 dis s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></p>',
-		    '<br>',
-		    '<p><span class="w75 dis s90">Source: </span> <span class="s110">{source}</span></p>',
-//		    '<p><span class="w75 dis s90">External DB: </span> {externalDb}</p>',
-		    '<p><span class="w75 dis s90">Status: </span> {status}</p>' // +  '<br>'+str
+			'</div><br>',
+		    '<div><span class="w75 infokey s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" infokey s90">Strand: </span> {strand}</div>',
+		    '<div><span class="w75 infokey s90">Biotype: </span> {biotype}</div>',
+		    '<div><span class="w75 infokey s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></div>',
+		    '<div><span class="w75 infokey s90">Source: </span> <span class="s110">{source}</span></div>',
+//		    '<div><span class="w75 infokey s90">External DB: </span> {externalDb}</div>',
+		    '<div><span class="w75 infokey s90">Status: </span> {status}</div>' // +  '<br>'+str
 	);
 };
 InfoWidget.prototype.getTranscriptTemplate = function (){
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {id} </span></span>',
+		    '<div style="font-family:Oxygen"><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {id} </span></span>',
 		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Transcript/Transcript?t={id}">Ensembl</a>',
 		    ' &nbsp; <a target="_blank" href="http://wikipathways.org//index.php?query={externalName}&species='+this.wikipathwaysSpecie+'&title=Special%3ASearchPathways&doSearch=1">Wikipathways</a>',
-		    '</p><br>',
-		    '<p><span class="w100 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
-		    '<p><span class="w100 dis s90">Biotype: </span> {biotype}</p>',
-		    '<p><span class="w100 dis s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></p>',
-		    '<br>',
-		    '<p><span class="w100 dis s90">CDS &nbsp; (start-end): </span> {genomicCodingStart}-{genomicCodingEnd} <span style="margin-left:50px" class="w100 dis s90">CDNA (start-end): </span> {cdnaCodingStart}-{cdnaCodingEnd}</p>',
-		    '<br><p><span class="w100 dis s90">External DB: </span> {externalDb}</p>',
-		    '<p><span class="w100 dis s90">Status: </span> {status}</p><br>'// +  '<br>'+str
+		    '</div><br>',
+		    '<div><span class="w100 infokey s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" infokey s90">Strand: </span> {strand}</div>',
+		    '<div><span class="w100 infokey s90">Biotype: </span> {biotype}</div>',
+		    '<div><span class="w100 infokey s90">Description: </span> <span><tpl if="description == &quot;&quot;">No description available</tpl>{description}</span></div>',
+		    '',
+		    '<div><span class="w100 infokey s90">CDS &nbsp; (start-end): </span> {genomicCodingStart}-{genomicCodingEnd} <span style="margin-left:50px" class="w100 infokey s90">CDNA (start-end): </span> {cdnaCodingStart}-{cdnaCodingEnd}</div>',
+		    '<div><span class="w100 infokey s90">External DB: </span> {externalDb}</div>',
+		    '<div><span class="w100 infokey s90">Status: </span> {status}</div><br>'// +  '<br>'+str
 		);
 };
 InfoWidget.prototype.getSnpTemplate = function (){
+
+//
+//    alleleString: "C/T"
+//    alternate: "T"
+//    assembly: ""
+//    chromosome: "13"
+//    end: 32889669
+//    featureAlias: "featureAlias"
+//    featureId: "featureId"
+//    id: "rs55880202"
+//    populationFrequencies: null
+//    reference: "C"
+//    samples: Array[0]
+//    source: ""
+//    species: ""
+//    start: 32889669
+//    strand: "1"
+//    transcriptVariations: Array[6]
+//    type: "SNV"
+//    validationStatus: "freq,1000Genome"
+//    variantFreq: "variantFreq"
+//    version: ""
+//    xrefs: Array[0]
+
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span></span>',
-		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Variation/Summary?v={name}">Ensembl</a>',
-		    '</p><br>',
-		    '<p><span class="w140 dis s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" dis s90">Strand: </span> {strand}</p>',
-		    '<p><span class="w140 dis s90">Source: </span> <span class="s110">{source}</span></p>',
-		    '<br>',
-		    '<p><span class="w140 dis s90">Map weight: </span> {mapWeight}</p>',
-		    '<p><span class="w140 dis s90">Allele string: </span> {alleleString}</p>',
-		    '<p><span class="w140 dis s90">Ancestral allele: </span> {ancestralAllele}</p>',
-		    '<p><span class="w140 dis s90">Display So consequence: </span> {displaySoConsequence}</p>',
-		    '<p><span class="w140 dis s90">So consequence type: </span> {soConsequenceType}</p>',
-		    '<p><span class="w140 dis s90">Display consequence: </span> {displayConsequence}</p>',
-		    '<p><span class="w140 dis s90">Sequence: </span> {sequence}</p>' // +  '<br>'+str
+		    '<div style="font-family:Oxygen"><span class="panel-border-bottom"><span class="ssel s130">{id}</span></span>',
+		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Variation/Summary?v={id}">Ensembl</a>',
+		    '</div><br>',
+		    '<div><span class="w140 infokey s90">Location: </span> <span class="">{chromosome}:{start}-{end} </span><span style="margin-left:50px" class=" infokey s90">Strand: </span> {strand}</div>',
+		    '<div><span class="w140 infokey s90">Source: </span> <span class="s110">{source}</span></div>',
+		    '<div><span class="w140 infokey s90">Type: </span> <span class="s110">{type}</span></div>',
+		    '<div><span class="w140 infokey s90">Map weight: </span> {mapWeight}</div>',
+		    '<div><span class="w140 infokey s90">Allele string: </span> {alleleString}</div>',
+		    '<div><span class="w140 infokey s90">Ancestral allele: </span> {ancestralAllele}</div>',
+		    '<div><span class="w140 infokey s90">Display SO consequence type: </span> {displayConsequenceType}</div>',
+		    '<div><span class="w140 infokey s90">SO consequence types: </span> {consequenceTypes}</div>'
+//		    '<div><span class="w140 infokey s90">Xrefs: </span> {xrefs}</div>'
+//		    '<div><span class="w140 infokey s90">Sequence: </span> {sequence}</div>' // +  '<br>'+str
 		);
 };
 
 InfoWidget.prototype.getExonTemplate = function (){
 	return new Ext.XTemplate(
-			'<span><span class="panel-border-bottom"><span class="ssel s110">{id}</span></span></span>',
-			'<span><span style="margin-left:30px" class="dis s90"> Location: </span> <span class="">{chromosome}:{start}-{end} </span></span>',
-			'<span><span style="margin-left:30px" class="dis s90"> Strand: </span> {strand}</span>'
+			'<span style="font-family:Oxygen" ><span class="panel-border-bottom"><span class="ssel s110">{id}</span></span></span>',
+			'<span><span style="margin-left:30px" class="infokey s90"> Location: </span> <span class="">{chromosome}:{start}-{end} </span></span>',
+			'<span><span style="margin-left:30px" class="infokey s90"> Strand: </span> {strand}</span>'
 		);
 };
 
 InfoWidget.prototype.getProteinTemplate = function (){
 	return new Ext.XTemplate(
-			 '<p><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {primaryAccession} </span></span></p>',
+			 '<div style="font-family:Oxygen"><span class="panel-border-bottom"><span class="ssel s130">{name}</span> &nbsp; <span class="emph s120"> {primaryAccession} </span></span></div>',
 			 '<br>',
-			 '<p><span class="w100 dis s90">Full name: </span> <span class="">{fullName}</span></p>',
-			 '<p><span class="w100 dis s90">Gene name: </span> <span class="">{geneName}</span></p>',
-			 '<p><span class="w100 dis s90">Organism: </span> <span class="">{organism}</span></p>'
+			 '<div><span class="w100 infokey s90">Full name: </span> <span class="">{fullName}</span></div>',
+			 '<div><span class="w100 infokey s90">Gene name: </span> <span class="">{geneName}</span></div>',
+			 '<div><span class="w100 infokey s90">Organism: </span> <span class="">{organism}</span></div>'
 		);
 };
 
 
 InfoWidget.prototype.getVCFVariantTemplate = function (){
 	return new Ext.XTemplate(
-			'<p><span><span class="panel-border-bottom"><span class="ssel s130">{chromosome}:{start}-{alt}</span> &nbsp; <span class="emph s120"> {label} </span></span></span></p><br>',
-			'<p><span class="w75 dis s90">Alt: </span> {alt}</p>',
-			'<p><span class="w75 dis s90">Ref: </span> {ref}</p>',
-			'<p><span class="w75 dis s90">Quality: </span> {quality}</p>',
-			'<p><span class="w75 dis s90">Format: </span> {format}</p>',
-			'<p><span class="w75 dis s90">Samples: </span> {samples}</p>',
-			'<p><span class="w75 dis s90">Info: <br></span> {info}</p>'
+			'<div style="font-family:Oxygen"><span><span class="panel-border-bottom"><span class="ssel s130">{chromosome}:{start}-{alt}</span> &nbsp; <span class="emph s120"> {label} </span></span></span></div><br>',
+			'<div><span class="w75 infokey s90">Alt: </span> {alt}</div>',
+			'<div><span class="w75 infokey s90">Ref: </span> {ref}</div>',
+			'<div><span class="w75 infokey s90">Quality: </span> {quality}</div>',
+			'<div><span class="w75 infokey s90">Format: </span> {format}</div>',
+			'<div><span class="w75 infokey s90">Samples: </span> {samples}</div>',
+			'<div><span class="w75 infokey s90">Info: <br></span> {info}</div>'
 		);
 };
 
 InfoWidget.prototype.getPWMTemplate = function (){
 	return new Ext.XTemplate(
-			 '<p><span class="panel-border-bottom"><span class="ssel s130">{accession}</span> &nbsp; <span class="emph s120"> {tfName} </span></span></p>',
+			 '<div style="font-family:Oxygen"><span class="panel-border-bottom"><span class="ssel s130">{accession}</span> &nbsp; <span class="emph s120"> {tfName} </span></span></div>',
 			 '<br>',
-			 '<p><span class="w100 dis s90">Type: </span> <span class="">{source}</span></p>',
-			 '<p><span class="w100 dis s90">Source: </span> <span class="">{type}</span></p>',
-			 '<p><span class="w100 dis s90">Description: </span> <span class="">{description}</span></p>',
-			 '<p><span class="w100 dis s90">Length: </span> <span class="">{length}</span></p>',
-			 '<p><span class="w100 dis s90">Frequencies: </span> <span class="">{[this.parseFrequencies(values.frequencies)]}</span></p>',
+			 '<div><span class="w100 infokey s90">Type: </span> <span class="">{source}</span></div>',
+			 '<div><span class="w100 infokey s90">Source: </span> <span class="">{type}</span></div>',
+			 '<div><span class="w100 infokey s90">Description: </span> <span class="">{description}</span></div>',
+			 '<div><span class="w100 infokey s90">Length: </span> <span class="">{length}</span></div>',
+			 '<div><span class="w100 infokey s90">Frequencies: </span> <span class="">{[this.parseFrequencies(values.frequencies)]}</span></div>',
 			 {
 				 parseFrequencies: function(values){
-					 return '<p>'+values.replace(/,/gi, '<br>')+"</p>";
+					 return '<div>'+values.replace(/,/gi, '<br>')+"</div>";
 				 }
 			 }
 		);
@@ -352,7 +375,7 @@ InfoWidget.prototype.getPWMTemplate = function (){
 
 InfoWidget.prototype.getProteinXrefTemplate = function (){
 	return new Ext.XTemplate(
-			'<p><span class="w75 emph s100">{[values.source.toUpperCase()]}</span> &nbsp; <span class="emph w125 s100"> {[this.generateLink(values)]} <span class="info">&raquo;</span> </span></p>',
+			'<div style="font-family:Oxygen"><span class="w75 emph s100">{[values.source.toUpperCase()]}</span> &nbsp; <span class="emph w125 s100"> {[this.generateLink(values)]} <span class="info">&raquo;</span> </span></div>',
 			{
 				generateLink: function(values){
 					if(values.source!=null){
@@ -378,24 +401,46 @@ InfoWidget.prototype.getProteinXrefTemplate = function (){
 };
 
 InfoWidget.prototype.getSnpTranscriptTemplate = function (){
+//    alleleString: "C/T"
+//    cdnEnd: 0
+//    cdnaStart: 0
+//    cdsEnd: 0
+//    cdsStart: 0
+//    codonAlleleString: ""
+//    consequenceTypes: Array[1]
+//    distanceToTranscript: 188
+//    hgvsGenomic: "13:g.32889669C>T"
+//    hgvsProtein: ""
+//    hgvsTranscript: ""
+//    peptideAlleleString: ""
+//    polyphenPrediction: ""
+//    polyphenScore: 0
+//    siftPrediction: ""
+//    siftScore: 0
+//    somatic: "0"
+//    transcriptId: "ENST00000533490"
+//    translationEnd: 0
+//    translationStart: 0
+
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{[this.getStableId(values)]}</span> &nbsp; <span class="emph s120"> {stableId} </span></span>',
+		    '<div style="font-family:Oxygen"><span class="panel-border-bottom"><span class="ssel s130">{[this.getStableId(values)]}</span></span>',
 		    ' &nbsp; <a target="_blank" href="http://www.ensembl.org/'+this.ensemblSpecie+'/Transcript/Transcript?t={[this.getStableId(values)]}">Ensembl</a>',
-		    '</p><br>',
-		    '<p><span class="w140 dis s90">CDS &nbsp; (start : end): </span> {cdsStart} : {cdsEnd} <span style="margin-left:50px" class="w100 dis s90">cDNA (start : end): </span> {cdnaStart} : {cdnaEnd}</p>',
-		    '<p><span class="w140 dis s90">Translation (start : end): </span> {translationStart} : {translationEnd}</p>',
-		    '<p><span class="w140 dis s90">Peptide allele: </span> {peptideAlleleString}</p>',
-		    '<p><span class="w140 dis s90">Alt. peptide allele: </span> {alternativePeptideAlleleString}</p>',
-			'<p><span class="w140 dis s90">Codon: </span> {codon}</p>',
-			'<p><span class="w140 dis s90">Reference codon: </span> {referenceCodon}</p>',
-			'<p><span class="w140 dis s90">Polyphen prediction: </span> {polyphenPrediction}',
-			'<span style="margin-left:50px" class="w140 dis s90">Polyphen score: </span> {polyphenScore}</p>',
-			'<p><span class="w140 dis s90">Sift prediction: </span> {siftPrediction}',
-			'<span style="margin-left:50px" class="w140 dis s90">Sift score: </span> {siftScore}</p>',
+		    '</div><br>',
+		    '<div><span class="w140 infokey s90">CDS &nbsp; (start : end): </span> {cdsStart} : {cdsEnd} <span style="margin-left:50px" class="w100 infokey s90">cDNA (start : end): </span> {cdnaStart} : {cdnaEnd}</div>',
+		    '<div><span class="w140 infokey s90">Translation (start : end): </span> {translationStart} : {translationEnd}</div>',
+		    '<div><span class="w140 infokey s90">Peptide allele: </span> {peptideAlleleString}</div>',
+//		    '<div><span class="w140 infokey s90">Alt. peptide allele: </span> {alternativePeptideAlleleString}</div>',
+			'<div><span class="w140 infokey s90">Codon: </span> {codonAlleleString}</div>',
+//			'<div><span class="w140 infokey s90">Reference codon: </span> {referenceCodon}</div>',
+			'<div><span class="w140 infokey s90">Polyphen prediction: </span> {polyphenPrediction}',
+			'<span style="margin-left:50px" class="w140 infokey s90">Polyphen score: </span> {polyphenScore}</div>',
+			'<div><span class="w140 infokey s90">Sift prediction: </span> {siftPrediction}',
+			'<span style="margin-left:50px" class="w140 infokey s90">Sift score: </span> {siftScore}</div>',
+            '<div><span class="w140 infokey s90">SO consequence types: </span> {consequenceTypes}</div><br>',
 		    {
 		    	getStableId: function(values){
-		    		if(values.transcript!=""){
-		    			return values.transcript.stableId;
+		    		if(values.transcriptId!=""){
+		    			return values.transcriptId;
 		    		}
 		    		return "Intergenic SNP";
 		    	}
@@ -406,44 +451,44 @@ InfoWidget.prototype.getSnpTranscriptTemplate = function (){
 
 InfoWidget.prototype.getConsequenceTypeTemplate = function (){
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{transcript.stableId}</span> &nbsp; <span class="emph s120"> {consequenceType.description} </span></span><br><br>',
-		    '<p><span class="w100 dis s90">SO accesion: </span> {consequenceType.soAccession}</p>',
-		    '<p><span class="w100 dis s90">SO term: </span> {consequenceType.soTerm}</p>',
-		    '<p><span class="w100 dis s90">Feature So term: </span> {consequenceType.featureSoTerm}</p>',
-		    '<p><span class="w100 dis s90">NCBI term: </span> {consequenceType.ncbiTerm}</p>',
-		    '<p><span class="w100 dis s90">Rank: </span> {consequenceType.rank}</p><br>'
+		    '<div><span class="panel-border-bottom"><span class="ssel s130">{transcriptId}</span> &nbsp; </span></div><br>',
+		    '<div><span class="w140 infokey s90">SO consequence types: </span> {consequenceTypes}</div><br>'
+//		    '<div><span class="w100 infokey s90">SO term: </span> {consequenceType.soTerm}</div>',
+//		    '<div><span class="w100 infokey s90">Feature So term: </span> {consequenceType.featureSoTerm}</div>',
+//		    '<div><span class="w100 infokey s90">NCBI term: </span> {consequenceType.ncbiTerm}</div>',
+//		    '<div><span class="w100 infokey s90">Rank: </span> {consequenceType.rank}</div><br>'
 		);
 };
 
 
 InfoWidget.prototype.getPhenotypeTemplate = function (){
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{phenotypeDescription}</span> &nbsp; <span class="emph s120"> {source} </span></span><br><br>',
-			'<p><span class="w150 dis s90">PValue: </span>{PValue}</p>',
-			'<p><span class="w150 dis s90">Assoc. gene name: </span>{associatedGeneName}</p>',
-			'<p><span class="w150 dis s90">Assoc. variant risk allele: </span>{associatedVariantRiskAllele}</p>',
-			'<p><span class="w150 dis s90">Phenotype description: </span>{phenotypeDescription}</p>',
-			'<p><span class="w150 dis s90">Phenotype name: </span>{phenotypeName}</p>',
-			'<p><span class="w150 dis s90">Risk allele freq in controls: </span>{riskAlleleFrequencyInControls}</p>',
-			'<p><span class="w150 dis s90">Source: </span>{source}</p>',
-			'<p><span class="w150 dis s90">Study name: </span>{studyName}</p>',
-			'<p><span class="w150 dis s90">Study type: </span>{studyType}</p>',
-			'<p><span class="w150 dis s90">Study URL: </span>{studyUrl}</p>',
-			'<p><span class="w150 dis s90">Study description: </span>{studyDescription}</p>'
+		    '<div><span class="panel-border-bottom"><span class="ssel s130">{phenotypeDescription}</span> &nbsp; <span class="emph s120"> {source} </span></span></div><br>',
+			'<div><span class="w150 infokey s90">PValue: </span>{PValue}</div>',
+			'<div><span class="w150 infokey s90">Assoc. gene name: </span>{associatedGeneName}</div>',
+			'<div><span class="w150 infokey s90">Assoc. variant risk allele: </span>{associatedVariantRiskAllele}</div>',
+			'<div><span class="w150 infokey s90">Phenotype description: </span>{phenotypeDescription}</div>',
+			'<div><span class="w150 infokey s90">Phenotype name: </span>{phenotypeName}</div>',
+			'<div><span class="w150 infokey s90">Risk allele freq in controls: </span>{riskAlleleFrequencyInControls}</div>',
+			'<div><span class="w150 infokey s90">Source: </span>{source}</div>',
+			'<div><span class="w150 infokey s90">Study name: </span>{studyName}</div>',
+			'<div><span class="w150 infokey s90">Study type: </span>{studyType}</div>',
+			'<div><span class="w150 infokey s90">Study URL: </span>{studyUrl}</div>',
+			'<div><span class="w150 infokey s90">Study description: </span>{studyDescription}</div>'
 		);
 };
 
 InfoWidget.prototype.getPopulationTemplate = function (){
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{population}</span> &nbsp; <span class="emph s120"> {source} </span></span><br><br>',
-		    '<p><span class="w140 dis s90">Ref allele:  </span>{refAllele} ({refAlleleFrequency})</p>',
-		    '<p><span class="w140 dis s90">Other allele:  </span>{otherAllele} ({otherAlleleFrequency})</p>',
-		    '<p><span class="w140 dis s90">Ref allele homozygote:  </span>{refAlleleHomozygote} ({refAlleleHomozygoteFrequency})</p>',
-		    '<p><span class="w140 dis s90">Allele heterozygote:  </span>{alleleHeterozygote} ({alleleHeterozygoteFrequency})</p>',
-			 '<p><span class="w140 dis s90">Other allele homozygote:  </span>{otherAlleleHomozygote} ({otherAlleleHeterozygoteFrequency})</p>',
-//			 'TODO cuidado <p><span class="w140 dis s90">other allele heterozygote Frequency:  </span>{otherAlleleHeterozygoteFrequency}</p>',
-			 '<p><span class="w140 dis s90">Source:  </span>{source}</p>',
-			 '<p><span class="w140 dis s90">Population:  </span>{population}</p>'
+		    '<div><span class="panel-border-bottom"><span class="ssel s130">{population}</span> &nbsp; <span class="emph s120"> {source} </span></span></div><br>',
+		    '<div><span class="w140 infokey s90">Ref allele:  </span>{refAllele} ({refAlleleFrequency})</div>',
+		    '<div><span class="w140 infokey s90">Other allele:  </span>{otherAllele} ({otherAlleleFrequency})</div>',
+		    '<div><span class="w140 infokey s90">Ref allele homozygote:  </span>{refAlleleHomozygote} ({refAlleleHomozygoteFrequency})</div>',
+		    '<div><span class="w140 infokey s90">Allele heterozygote:  </span>{alleleHeterozygote} ({alleleHeterozygoteFrequency})</div>',
+			 '<div><span class="w140 infokey s90">Other allele homozygote:  </span>{otherAlleleHomozygote} ({otherAlleleHeterozygoteFrequency})</div>',
+//			 'TODO cuidado <div><span class="w140 infokey s90">other allele heterozygote Frequency:  </span>{otherAlleleHeterozygoteFrequency}</div>',
+			 '<div><span class="w140 infokey s90">Source:  </span>{source}</div>',
+			 '<div><span class="w140 infokey s90">Population:  </span>{population}</div>'
 		);
 };
 
@@ -451,6 +496,6 @@ InfoWidget.prototype.getPopulationTemplate = function (){
 InfoWidget.prototype.getVariantEffectTemplate = function (){
 		
 	return new Ext.XTemplate(
-		    '<p><span class="panel-border-bottom"><span class="ssel s130">{consequenceTypeObo}</span> &nbsp; <span class="emph s120"> {featureBiotype} </span></span><br><br>'
+		    '<div><span class="panel-border-bottom"><span class="ssel s130">{consequenceTypeObo}</span> &nbsp; <span class="emph s120"> {featureBiotype} </span></span></div><br>'
 		);
 };

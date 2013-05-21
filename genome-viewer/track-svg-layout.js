@@ -500,7 +500,8 @@ TrackSvgLayout.prototype = {
                 trackSvg.histogram = true;
                 trackSvg.histogramLogarithm = true;
                 trackSvg.histogramMax = 500;
-                trackSvg.interval = parseInt(Math.max(512, 5/_this.pixelBase));//server interval limit 512
+//                trackSvg.interval = parseInt(Math.min(512, 5/_this.pixelBase));
+                trackSvg.interval = parseInt(5/_this.pixelBase);//server interval limit 512
 //			console.log(trackData.adapter.featureCache);
             }else{
                 trackSvg.histogram = null;
@@ -857,7 +858,7 @@ TrackSvgLayout.prototype = {
             base = this.getSequenceNucleotid(position);
             colorStyle = 'color:'+SEQUENCE_COLORS[base];
         }
-        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
+//        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
 //        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
         return '<span style="font-family: Ubuntu Mono;font-size:19px;'+colorStyle+'">'+base+'</span>';
     },

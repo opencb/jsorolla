@@ -90,7 +90,7 @@ a:hover {text-decoration: underline; color: #15428B;}
 .appDesc{
     font-family: 'Oxygen';
 	text-decoration: none;
-	color: #596F8F;
+	color: #637c9f;
 	font-size: 16px;
 	text-shadow: 0 1px 0 white;
 }
@@ -396,6 +396,12 @@ a:hover {text-decoration: underline; color: #15428B;}
 	font-weight: bold; 
     color: gray;
 }
+
+.infokey{
+    font-weight: bold;
+    color: gray;
+}
+
 .tip{
 	font-style:italic;
     color: gray;

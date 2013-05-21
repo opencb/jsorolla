@@ -411,8 +411,8 @@ GenomeViewer.prototype._getNavigationBar = function() {
 		valueField: 'displayId',
 		emptyText:'gene, snp',
 		hideTrigger: true,
-        fieldLabel:'Quick search:',
-        labelWidth:70,
+        fieldLabel:'Search:',
+        labelWidth:40,
 		width:150,
 		store: searchResults,
 		queryMode: 'local',
@@ -517,8 +517,9 @@ GenomeViewer.prototype._getNavigationBar = function() {
 //		         }, 
 		         {
 		        	 id:this.id+"zoomOutButton",
-		        	 margin : '0 0 0 10',
+                     tooltip:'Zoom out',
 		        	 iconCls:'icon-zoom-out',
+		        	 margin : '0 0 0 10',
 		        	 listeners : {
 		        		 click:{
 		        			 fn :function() {
@@ -528,11 +529,12 @@ GenomeViewer.prototype._getNavigationBar = function() {
 //		        			 buffer : 300
 		        		 }
 		        	 }
-		         }, 
-		         this._getZoomSlider(), 
+		         },
+		         this._getZoomSlider(),
 		         {
 		        	 id:this.id+"zoomInButton",
 		        	 margin:'0 5 0 0',
+                     tooltip:'Zoom in',
 		        	 iconCls:'icon-zoom-in',
 		        	 listeners : {
 		        		 click:{
@@ -631,6 +633,7 @@ GenomeViewer.prototype._getSpeciesMenu = function() {
 //Sets the species buttons in the menu
 GenomeViewer.prototype.setSpeciesMenu = function(speciesObj, popular) {
 	var _this = this;
+
 	var menu = this._getSpeciesMenu();
 	//Auto generate menu items depending of AVAILABLE_SPECIES config
 	menu.hide();//Hide the menu panel before remove
@@ -644,7 +647,7 @@ GenomeViewer.prototype.setSpeciesMenu = function(speciesObj, popular) {
         pyhlo.menu = {items:phyloSpecies};
         for(var j = 0; j < phyloSpecies.length; j++){
             var species = phyloSpecies[j];
-            var text = species.text+' '+species.assembly;
+            var text = species.text+' ('+species.assembly+')';
 //            species.id = this.id+text;
             species.name = species.text;
             species.species = Utils.getSpeciesCode(species.text);
@@ -661,6 +664,7 @@ GenomeViewer.prototype.setSpeciesMenu = function(speciesObj, popular) {
             }
         }
     }
+    popularSpecies.sort(function(a, b) {return a.text.localeCompare(b.text);});
     popularSpecies.push('-');
     var items = popularSpecies.concat(speciesObj.items);
     menu.add(items);
@@ -774,7 +778,7 @@ GenomeViewer.prototype._getZoomSlider = function() {
 			width : 170,
 			maxValue : 100,
 			minValue : 0,
-			value : this.zoom,
+//			value : this.zoom,
 			useTips : true,
 			increment : 1,
 			tipText : function(thumb) {

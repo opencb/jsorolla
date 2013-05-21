@@ -50,7 +50,7 @@ TranscriptInfoWidget.prototype.getdataTypes = function (){
 	                 { text: "Information"},
 	                 { text: "Gene"},
 	                 { text: "Exons"},
-	                 { text: "Xref"}
+	                 { text: "Xrefs"}
 	            ] },
 	            { text: "Functional information", children: [
 	                  { text: "GO"},
@@ -82,7 +82,7 @@ TranscriptInfoWidget.prototype.optionClick = function (item){
 			case "Information": this.panel.add(this.getInfoPanel(this.data).show()); break;
 			case "Gene": this.panel.add(this.getGenePanel(this.data.gene).show());  break;
 			case "Exons": this.panel.add(this.getExonsGrid(this.data.exons).show());  break;
-			case "Xref": this.panel.add(this.getXrefGrid([this.data], "Xref", 'dbName').show());  break;
+			case "Xrefs": this.panel.add(this.getXrefGrid([this.data], "Xref", 'dbName').show());  break;
 			case "GO": this.panel.add(this.getXrefGrid([this.data], "GO").show());  break;
 			case "Interpro": this.panel.add(this.getXrefGrid([this.data], "Interpro").show());  break;
 			case "Reactome": this.panel.add(this.getXrefGrid([this.data], "Reactome").show());  break;
