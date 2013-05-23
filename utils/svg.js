@@ -97,7 +97,7 @@ var SVG = {
 	    }
 	    return el;
 	},
-	
+
 	init : function (parent, attributes){
 		return this.addChild(parent, "svg", attributes);
 	}

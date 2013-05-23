@@ -115,24 +115,27 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"x":mid-30,
 		"y":22,
 		"font-size":10,
+        "font-family": "Oxygen Mono",
 		"fill":"green"
 	});
 	this.nucleotidText = SVG.addChild(this.svgTop,"text",{
 		"x":mid+35,
 		"y":22,
-		"font-family": "Ubuntu Mono",
+        "font-family": "Oxygen Mono",
 		"font-size":13
 	});
 	this.firstPositionText = SVG.addChild(this.svgTop,"text",{
 		"x":0,
 		"y":22,
 		"font-size":10,
+        "font-family": "Oxygen Mono",
 		"fill":"green"
 	});
 	this.lastPositionText = SVG.addChild(this.svgTop,"text",{
 		"x":this.width-70,
 		"y":22,
 		"font-size":10,
+        "font-family": "Oxygen Mono",
 		"fill":"green"
 	});
 	this.viewNtsArrow = SVG.addChild(this.svgTop,"rect",{
@@ -157,7 +160,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
     this.viewNtsTextBack = SVG.addChild(this.svgTop,"rect",{
         "x":mid-40,
         "y":0,
-        "width":this.windowSize.length*6,
+        "width":this.windowSize.length*7,
         "height":13,
         "fill":"whitesmoke"
     });
@@ -165,6 +168,7 @@ function TrackSvgLayout(parent, args) {//parent is a DOM div element
 		"x":mid-30,
 		"y":11,
 		"font-size":10,
+        "font-family": "Oxygen Mono",
 		"fill":"black"
 	});
 	this.viewNtsText.textContent = this.windowSize;
@@ -563,8 +567,10 @@ TrackSvgLayout.prototype = {
         trackSvg.getData = function(sender,response){
             if(response.params.histogram == true){
                 trackSvg.featuresRender = trackSvg.HistogramRender;
+                trackSvg.setHistogramLegend(true);
             }else{
                 trackSvg.featuresRender = trackSvg.defaultRender;
+                trackSvg.setHistogramLegend(false);
             }
 
             _this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
@@ -839,7 +845,7 @@ TrackSvgLayout.prototype = {
         this.lastPositionText.textContent = Utils.formatNumber(this.visualRegion.end);
 
         this.viewNtsText.textContent = "Window size: "+this.visualRegion.length()+" nts";
-        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length*6);
+        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length*7);
         this.windowSize = this.viewNtsText.textContent;
     },
 

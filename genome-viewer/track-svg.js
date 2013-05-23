@@ -81,7 +81,7 @@ function TrackSvg(parent, args) {
 	this.status = null;
 	
 	this.interval=null;
-	this.histogram=null;
+	this.histogram=null;//histogram flag
 	this.transcript=null;
 
 	//diplayed boolean object
@@ -122,6 +122,14 @@ TrackSvg.prototype = {
             //this.titleGroup.setAttribute("transform","translate(0)");
             this.loading.setAttribute("visibility", "hidden");
             this.status = "ready";
+        }
+    },
+
+    setHistogramLegend : function(bool){
+        if(bool){
+            this.histogramLegend.setAttribute("transform", "translate(0)");
+        }else{
+            this.histogramLegend.setAttribute("transform", "translate(-1000)");
         }
     },
 
@@ -213,6 +221,7 @@ TrackSvg.prototype = {
             "y":14,
             "font-size": 12,
             "opacity":"0.4",
+            "font-family": "Oxygen",
             "fill":"black"
 //		"transform":"rotate(-90 50,50)"
         });
@@ -388,6 +397,7 @@ TrackSvg.prototype = {
             "font-size": 10,
             "opacity":"0.6",
             "fill":"black",
+            "font-family": "Oxygen",
             "visibility":"hidden"
         });
         this.invalidZoomText.textContent = "This level of zoom isn't appropiate for this track";
@@ -446,6 +456,7 @@ TrackSvg.prototype = {
         this.rendered = true;
         this.status = "ready";
 
+        this.histogramLegend =  SVG.addChild(this.titleGroup,"g");
 
     }
 };
@@ -474,7 +485,7 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 			width=1;
 		}
 		
-		//get type settings object
+		//get featureType settings object
 		var settings = _this.types[feature.featureType];
 		try {
 			var color = settings.getColor(feature);
@@ -511,17 +522,18 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 			if(_this.renderedArea[rowY] == null){
 				_this.renderedArea[rowY] = new FeatureBinarySearchTree();
 			}
-			var enc = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
+			var found = _this.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
 			
-			if(enc){
+			if(found){
 				var featureGroup = SVG.addChild(_this.features,"g");
 				var rect = SVG.addChild(featureGroup,"rect",{
 					"x":x,
 					"y":rowY,
 					"width":width,
 					"height":settings.height,
-					"stroke": "#3B0B0B",
-					"stroke-width": 0.5,
+					"stroke": "black",
+					"stroke-width": 1,
+					"stroke-opacity": 0.5,
 					"fill": color,
 					"cursor": "pointer"
 				});
@@ -533,6 +545,7 @@ TrackSvg.prototype.MultiFeatureRender = function(response){//featureList
 						"font-size":10,
 						"opacity":null,
 						"fill":"black",
+                        "font-family": "Oxygen Mono",
 						"cursor": "pointer"
 					});
 					text.textContent = settings.getLabel(feature);
@@ -1063,6 +1076,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 					"font-size":10,
 					"opacity":null,
 					"fill":"black",
+                    "font-family": "Oxygen Mono",
 					"cursor": "pointer"
 				});
 				text.textContent = settings.getLabel(feature);
@@ -1125,6 +1139,7 @@ TrackSvg.prototype.GeneTranscriptRender = function(response){
 							"font-size":10,
 							"opacity":null,
 							"fill":"black",
+                            "font-family": "Oxygen Mono",
 							"cursor": "pointer"
 						});
 						text.textContent = settings.getLabel(transcript);
@@ -1280,7 +1295,7 @@ TrackSvg.prototype.SequenceRender = function(response){
     this.invalidZoomText.setAttribute("visibility", "hidden");
 
 	console.time("Sequence render "+response.items.sequence.length);
-    var chromeFontSize = "16";
+    var chromeFontSize = "14";
     if(this.zoom == 95){
         chromeFontSize = "10";
     }
@@ -1309,7 +1324,7 @@ TrackSvg.prototype.SequenceRender = function(response){
             "x":x+1,
             "y":12,
             "font-size":chromeFontSize,
-            "font-family": "Ubuntu Mono",
+            "font-family": "Oxygen Mono",
             "fill":SEQUENCE_COLORS[seqString.charAt(i)]
         });
         text.textContent = seqString.charAt(i);
@@ -1339,9 +1354,11 @@ TrackSvg.prototype.SequenceRender = function(response){
 
 TrackSvg.prototype.HistogramRender = function(response){
 	var featureList = this._getFeaturesByChunks(response);
+    console.log("HISTOGRAM LENGTH: " + featureList.length);
+
 	//here we got features array
 	var middle = this.width/2;
-    var multiplier = 4;
+    var multiplier = 5;
 //	console.log(featureList);
 	var histogramHeight = 75;
 	var points = '';
@@ -1422,16 +1439,48 @@ TrackSvg.prototype.HistogramRender = function(response){
     this.setHeight(histogramHeight+/*margen entre tracks*/10);
     console.log(maxValue);
 
-    if(response.params.category){
-        var text2 = SVG.addChild(this.titleGroup,"text",{
+    if(!this.axis){//Create axis values for histogram
+        this.axis = true;
+        var text = SVG.addChild(this.histogramLegend,"text",{
             "x":10,
-            "y":histogramHeight,
+            "y":histogramHeight+4,
             "font-size": 12,
             "opacity":"0.9",
             "fill":"blue",
+            "font-family": "Oxygen Mono",
             "visibility":"visible"
         });
-        text2.textContent = "10";
+        text.textContent = "-0";
+        var text = SVG.addChild(this.histogramLegend,"text",{
+            "x":10,
+            "y":histogramHeight+4 - (Math.log(10)*multiplier),
+            "font-size": 12,
+            "opacity":"0.9",
+            "fill":"blue",
+            "font-family": "Oxygen Mono",
+            "visibility":"visible"
+        });
+        text.textContent = "-10";
+        var text = SVG.addChild(this.histogramLegend,"text",{
+            "x":10,
+            "y":histogramHeight+4 - (Math.log(100)*multiplier),
+            "font-size": 12,
+            "opacity":"0.9",
+            "fill":"blue",
+            "font-family": "Oxygen Mono",
+            "visibility":"visible"
+        });
+        text.textContent = "-100";
+        var text = SVG.addChild(this.histogramLegend,"text",{
+            "x":10,
+            "y":histogramHeight+4 - (Math.log(1000)*multiplier),
+            "font-size": 12,
+            "opacity":"0.9",
+            "fill":"blue",
+            "font-family": "Oxygen Mono",
+            "visibility":"visible"
+        });
+        text.textContent = "-1000";
     }
 };
 
