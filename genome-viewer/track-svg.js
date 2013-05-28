@@ -1446,7 +1446,7 @@ TrackSvg.prototype.HistogramRender = function(response){
             "y":histogramHeight+4,
             "font-size": 12,
             "opacity":"0.9",
-            "fill":"blue",
+            "fill":"gray",
             "font-family": "Oxygen Mono",
             "visibility":"visible"
         });
@@ -1456,7 +1456,7 @@ TrackSvg.prototype.HistogramRender = function(response){
             "y":histogramHeight+4 - (Math.log(10)*multiplier),
             "font-size": 12,
             "opacity":"0.9",
-            "fill":"blue",
+            "fill":"gray",
             "font-family": "Oxygen Mono",
             "visibility":"visible"
         });
@@ -1466,7 +1466,7 @@ TrackSvg.prototype.HistogramRender = function(response){
             "y":histogramHeight+4 - (Math.log(100)*multiplier),
             "font-size": 12,
             "opacity":"0.9",
-            "fill":"blue",
+            "fill":"gray",
             "font-family": "Oxygen Mono",
             "visibility":"visible"
         });
@@ -1476,7 +1476,7 @@ TrackSvg.prototype.HistogramRender = function(response){
             "y":histogramHeight+4 - (Math.log(1000)*multiplier),
             "font-size": 12,
             "opacity":"0.9",
-            "fill":"blue",
+            "fill":"gray",
             "font-family": "Oxygen Mono",
             "visibility":"visible"
         });

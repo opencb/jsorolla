@@ -474,7 +474,7 @@ UploadWidget.prototype.uploadFile2 = function()  {
     var objectId = this.opencgaLocation.directory+inputFile.name;
     objectId = objectId.replace(new RegExp("/", "gi"),":");
 
-    var fileuploadWorker = new Worker(WORKERS_PATH+'worker-fileupload.js');
+    var fileuploadWorker = new Worker(UPLOAD_WORKER);
     this.opencgaBrowserWidget.addUpload(inputFile, fileuploadWorker);
     fileuploadWorker.postMessage({
         'host':OPENCGA_HOST,
