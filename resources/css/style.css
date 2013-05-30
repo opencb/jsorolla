@@ -21,6 +21,15 @@ a:visited {text-decoration: none; color: #15428B;}
 a:active {text-decoration: none; color: #15428B;}
 a:hover {text-decoration: underline; color: #15428B;}
 
+.x-unselectable {
+    user-select:none;
+    -o-user-select:none;
+    -ms-user-select:none;
+    -moz-user-select:-moz-none;
+    -webkit-user-select:none;
+    cursor:default
+}
+
 .u{
 	text-decoration: underline;
 }
