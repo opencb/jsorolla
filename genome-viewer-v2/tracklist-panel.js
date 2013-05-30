@@ -62,7 +62,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 	this.visualRegion.load(this.region);
 	
 	/********/
-	this._calculateMinRegion();
+//	this._calculateMinRegion();
 	this._calculatePixelBase();
 	/********/
 	
@@ -435,7 +435,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 			moveX = null;
 		});
 	}
-}
+};
 
 TrackListPanel.prototype = {
     setHeight : function(height){
@@ -895,16 +895,32 @@ TrackListPanel.prototype = {
         this._redraw();
     },
 
+    _calculateMinRegion : function() {
+        var regionLength = this.region.length();
+        var minimumBaseLength = parseInt(this.width/Utils.getPixelBaseByZoom(100));//for zoom 100
+        //this.minRectWidth = regionLength*Utils.getPixelBaseByZoom(100);
+        if(regionLength < minimumBaseLength){
+            //the zoom will be 100, region must be recalculated
+            var centerPosition = this.region.center();
+            var aux = Math.ceil((minimumBaseLength/2)-1);
+            this.region.start = Math.floor(centerPosition-aux);
+            this.region.end = Math.floor(centerPosition+aux);
+        }
+    },
+
     _calculatePixelBase : function(){
         this.pixelBase = this.width/this.region.length();
         this.pixelBase = this.pixelBase / this.zoomMultiplier;
-        this.pixelBase = Math.max(this.pixelBase,(10/Math.pow(2,20)));
+        // At maximum zoom a bp is 10px, for each zoom level (5% of zoom)
+        // pixels are divided by two.
+//        return Math.max(this.pixelBase, (10/Math.pow(2,20)));
+        this.pixelBase = Math.max(this.pixelBase, (10/Math.pow(2,20)));
 
         this.halfVirtualBase = (this.width*3/2) / this.pixelBase;
         this.zoom = Math.round(Utils.getZoomByPixelBase(this.pixelBase));
     },
 
-    _setTextPosition : function(){
+    _setTextPosition : function() {
         var centerPosition = this.region.center();
         var baseLength = parseInt(this.width/this.pixelBase);//for zoom 100
         var aux = Math.ceil((baseLength/2)-1);
@@ -952,18 +968,5 @@ TrackListPanel.prototype = {
         var base = this.getSequenceNucleotid(position);
         this.nucleotidText.setAttribute("fill",SEQUENCE_COLORS[base]);
         this.nucleotidText.textContent = base;
-    },
-
-    _calculateMinRegion : function() {
-        var regionLength = this.region.length();
-        var minimumBaseLength = parseInt(this.width/Utils.getPixelBaseByZoom(100));//for zoom 100
-        //this.minRectWidth = regionLength*Utils.getPixelBaseByZoom(100);
-        if(regionLength < minimumBaseLength){
-            //the zoom will be 100, region must be recalculated
-            var centerPosition = this.region.center();
-            var aux = Math.ceil((minimumBaseLength/2)-1);
-            this.region.start = Math.floor(centerPosition-aux);
-            this.region.end = Math.floor(centerPosition+aux);
-        }
     }
 };

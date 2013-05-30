@@ -14,6 +14,8 @@ function NavigationBar (targetId, args) {
 
     this.options = args;
 
+    this.id = Utils.genId("TrackListPanel");
+
     this.region = new Region();
     this.targetId = targetId;
     this.species = 'Homo sapiens';
@@ -36,8 +38,6 @@ function NavigationBar (targetId, args) {
     }
 
 
-
-
     // Visual components creation, all theses components will be
     // added to the navigation bar below.
     this.speciesMenu = this._createSpeciesMenu();
@@ -47,12 +47,12 @@ function NavigationBar (targetId, args) {
 
 
     var navToolbar = Ext.create('Ext.toolbar.Toolbar', {
-        id:this.id+"navToolbar",
+        id: this.id+"navToolbar",
         renderTo: this.targetId,
         cls:"bio-toolbar",
         region:"north",
-        border:true,
-        height:35,
+        border: true,
+        height: 35,
 //		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
         items : [
             {
@@ -66,7 +66,7 @@ function NavigationBar (targetId, args) {
             },
             '-',
             {
-                id:this.id+"karyotypeButton",
+                id: this.id+"karyotypeToogleButton",
                 text : 'Karyotype',
                 enableToggle: true,
                 pressed: false,
@@ -76,6 +76,7 @@ function NavigationBar (targetId, args) {
                     }else{
                         Ext.getCmp(_this.id+"karyotypePanel").hide();
                     }
+                    _this.trigger('karyotype-toogle:change', {selected: this.pressed, sender: _this});
                 }
             },
             {
@@ -89,6 +90,7 @@ function NavigationBar (targetId, args) {
                     }else{
                         Ext.getCmp(_this.id+"chromosomePanel").hide();
                     }
+                    _this.trigger('chromosome-toogle:change', {selected: this.pressed, sender: _this});
                 }
             },
             {
@@ -102,6 +104,7 @@ function NavigationBar (targetId, args) {
                     }else{
                         Ext.getCmp(_this.id+"regionPanel").hide();
                     }
+                    _this.trigger('region-toogle:change', {selected: this.pressed, sender: _this});
                 }
             },
             '-',
@@ -360,6 +363,10 @@ NavigationBar.prototype = {
         return this.chromosomeMenu;
     },
 
+    getKaryotypeToogleButton: function() {
+        return this.chromosomeMenu;
+    },
+
     _updateChrStore: function() {
         var _this = this;
         var chrStore = Ext.getStore(this.id+"chrStore");
@@ -480,7 +487,6 @@ NavigationBar.prototype = {
 
     _handleNavigationBar: function(action, args) {
 //	var _this = this;
-        debugger
         if (action == 'OptionMenuClick'){
             this.genomeWidget.showTranscripts = Ext.getCmp("showTranscriptCB").checked;
             this.genomeWidgetProperties.setShowTranscripts(Ext.getCmp("showTranscriptCB").checked);

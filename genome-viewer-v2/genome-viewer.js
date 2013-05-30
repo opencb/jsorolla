@@ -48,11 +48,7 @@ function GenomeViewer(targetId, species, args) {
 	if (targetId != null){
 		this.targetId=targetId;
 	}
-	if (species != null) {
-        console.log("In genome-viewer: "+species.text)
-		this.species = Utils.getSpeciesCode(species.text);
-		this.speciesName = species.text + ' ' + species.assembly;
-	}
+
 	if (args != null){
 		if(args.toolbar != null){
 			this.toolbar = args.toolbar;
@@ -63,6 +59,11 @@ function GenomeViewer(targetId, species, args) {
 		if (args.height != null) {
 			this.height = args.height;
 		}
+        if (args.species != null) {
+            console.log("In genome-viewer: "+args.species.text)
+            this.species = Utils.getSpeciesCode(args.species.text);
+            this.speciesName = species.text + ' ' + args.species.assembly;
+        }
         if (args.popularSpecies != null) {
             this.popularSpecies = args.popularSpecies;
         }
@@ -136,7 +137,7 @@ function GenomeViewer(targetId, species, args) {
 
 GenomeViewer.prototype = {
 
-    initialize: function(){
+    initialize: function() {
         console.debug("Initializing GenomeViewer structure.");
 
         $('#' + this.targetId).append('<div id="genome-viewer" style=""></div>');
