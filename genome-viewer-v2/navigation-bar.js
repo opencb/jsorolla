@@ -42,6 +42,9 @@ function NavigationBar (targetId, args) {
     // added to the navigation bar below.
     this.speciesMenu = this._createSpeciesMenu();
     this.chromosomeMenu = this._createChromosomeMenu();
+    this.karyotypeButton = this._createKaryotypeButton();
+    this.chromosomeButton = this._createChromosomeButton();
+    this.regionButton = this._createRegionButton();
     // ...
     this.searchComboBox = this._createSearchComboBox();
 
@@ -59,54 +62,16 @@ function NavigationBar (targetId, args) {
                 id: this.id+"speciesMenuButton",
                 text : 'Species',
                 menu: this.speciesMenu
-            },{
+            },
+            {
                 id: this.id + "chromosomeMenuButton",
                 text : 'Chromosome',
                 menu: this.chromosomeMenu
             },
             '-',
-            {
-                id: this.id+"karyotypeToogleButton",
-                text : 'Karyotype',
-                enableToggle: true,
-                pressed: false,
-                toggleHandler: function() {
-                    if(this.pressed){
-                        Ext.getCmp(_this.id+"karyotypePanel").show();
-                    }else{
-                        Ext.getCmp(_this.id+"karyotypePanel").hide();
-                    }
-                    _this.trigger('karyotype-toogle:change', {selected: this.pressed, sender: _this});
-                }
-            },
-            {
-                id:this.id+"ChromosomeToggleButton",
-                text : 'Chromosome',
-                enableToggle: true,
-                pressed: true,
-                toggleHandler: function() {
-                    if(this.pressed){
-                        Ext.getCmp(_this.id+"chromosomePanel").show();
-                    }else{
-                        Ext.getCmp(_this.id+"chromosomePanel").hide();
-                    }
-                    _this.trigger('chromosome-toogle:change', {selected: this.pressed, sender: _this});
-                }
-            },
-            {
-                id:this.id+"RegionToggleButton",
-                text : 'Region',
-                enableToggle: true,
-                pressed:this.regionPanelHidden,
-                toggleHandler:function() {
-                    if(this.pressed){
-                        Ext.getCmp(_this.id+"regionPanel").show();
-                    }else{
-                        Ext.getCmp(_this.id+"regionPanel").hide();
-                    }
-                    _this.trigger('region-toogle:change', {selected: this.pressed, sender: _this});
-                }
-            },
+            this.karyotypeButton,
+            this.chromosomeButton,
+            this.regionButton,
             '-',
 //		         {
 //		        	 id:this.id+"left1posButton",
@@ -216,6 +181,12 @@ function NavigationBar (targetId, args) {
 
     //    return navToolbar;
     this.setSpeciesMenu({}, this.availableSpecies);
+
+    this.on('species:change', function(event) {
+        console.log(event.species);
+        Ext.getCmp(this.id+"speciesMenuButton").setText(event.species);
+//        this.speciesMenu.setText(event.species);
+    });
 };
 
 NavigationBar.prototype = {
@@ -227,7 +198,7 @@ NavigationBar.prototype = {
 
     _createSpeciesMenu: function() {
         //items must be added by using  setSpeciesMenu()
-        this.speciesMenu = Ext.create('Ext.menu.Menu', {
+        var speciesMenu = Ext.create('Ext.menu.Menu', {
             id:this.id+"speciesMenu",
             margin : '0 0 10 0',
             floating : true,
@@ -235,7 +206,7 @@ NavigationBar.prototype = {
             items : []
         });
 
-        return this.speciesMenu;
+        return speciesMenu;
     },
 
     getSpeciesMenu: function() {
@@ -276,7 +247,7 @@ NavigationBar.prototype = {
                     species.iconCls = '';
 //            species.icon = 'http://static.ensembl.org/i/species/48/Danio_rerio.png';
                     species.handler = function(me){
-                        _this.setSpecies(me.speciesObj);
+                        _this.selectSpecies(me.speciesObj.text);
                     };
 
                     if(popular.indexOf(species.name) != -1){
@@ -290,11 +261,11 @@ NavigationBar.prototype = {
     },
 
 //Sets the new specie and fires an event
-    setSpecies: function(data){
-        this.region.load(data.region);
+    selectSpecies: function(data){
+//        this.region.load(data.region);
         data["sender"]="setSpecies";
 //        this.onRegionChange.notify(data);
-        _this.trigger('species:change', {region: _this.region, sender: this});
+        this.trigger('species:change', {species: data, sender: this});
     },
 
 
@@ -355,7 +326,12 @@ NavigationBar.prototype = {
 //            }
 //        ]
         });
-        this._updateChrStore();
+        var chromosomeData = [];
+        for (var i = 0; i < this.availableSpecies[1].chromosomes.length; i++) {
+            chromosomeData.push({'name':this.availableSpecies[1].chromosomes[i]});
+        }
+        chrStore.loadData(chromosomeData);
+//        this.setChromosomes(this.availableSpecies[1].chromosomes);
         return chromosomeMenu;
     },
 
@@ -363,40 +339,107 @@ NavigationBar.prototype = {
         return this.chromosomeMenu;
     },
 
-    getKaryotypeToogleButton: function() {
-        return this.chromosomeMenu;
-    },
-
-    _updateChrStore: function() {
+    setChromosomes: function(chromosomes) {
         var _this = this;
         var chrStore = Ext.getStore(this.id+"chrStore");
         var chrView = Ext.getCmp(this.id+"chrView");
+
+        var chromosomeData = [];
+        for (var i = 0; i < chromosomes.length; i++) {
+            chromosomeData.push({'name':chromosomes[i]});
+        }
+        chrStore.loadData(chromosomeData);
+
 //	var chrButtonGroup = Ext.getCmp(this.id+"chrButtonGroup");
-        var cellBaseManager = new CellBaseManager(this.species);
-        cellBaseManager.success.addEventListener(function(sender,data){
-            var chromosomeData = [];
-            var chrItems = [];
-            var sortfunction = function(a, b) {
-                var IsNumber = true;
-                for (var i = 0; i < a.length && IsNumber == true; i++) {
-                    if (isNaN(a[i])) {
-                        IsNumber = false;
-                    }
+//        var cellBaseManager = new CellBaseManager(this.species);
+//        cellBaseManager.success.addEventListener(function(sender,data){
+//            var chromosomeData = [];
+//            var chrItems = [];
+//            var sortfunction = function(a, b) {
+//                var IsNumber = true;
+//                for (var i = 0; i < a.length && IsNumber == true; i++) {
+//                    if (isNaN(a[i])) {
+//                        IsNumber = false;
+//                    }
+//                }
+//                if (!IsNumber) return 1;
+//                return (a - b);
+//            };
+//            data.result.sort(sortfunction);
+//            for (var i = 0; i < data.result.length; i++) {
+//                chromosomeData.push({'name':data.result[i]});
+////            chrItems.push({text:data.result[i],iconAlign: 'left'});
+//            }
+//            chrStore.loadData(chromosomeData);
+////        chrButtonGroup.removeAll();
+////        chrButtonGroup.add(chrItems);
+////		chrView.getSelectionModel().select(chrStore.find("name",_this.chromosome));
+//        });
+//        cellBaseManager.get('feature', 'chromosome', null, 'list');
+    },
+
+
+    _createKaryotypeButton: function() {
+        var karyotypeButton = Ext.create('Ext.Button', {
+            id: this.id+"karyotypeButton",
+            text : 'Karyotype',
+            enableToggle: true,
+            pressed: false,
+            toggleHandler: function() {
+                if(this.pressed){
+                    Ext.getCmp(_this.id+"karyotypePanel").show();
+                }else{
+                    Ext.getCmp(_this.id+"karyotypePanel").hide();
                 }
-                if (!IsNumber) return 1;
-                return (a - b);
-            };
-            data.result.sort(sortfunction);
-            for (var i = 0; i < data.result.length; i++) {
-                chromosomeData.push({'name':data.result[i]});
-//            chrItems.push({text:data.result[i],iconAlign: 'left'});
+                _this.trigger('karyotype-button:change', {selected: this.pressed, sender: _this});
             }
-            chrStore.loadData(chromosomeData);
-//        chrButtonGroup.removeAll();
-//        chrButtonGroup.add(chrItems);
-//		chrView.getSelectionModel().select(chrStore.find("name",_this.chromosome));
         });
-        cellBaseManager.get('feature', 'chromosome', null, 'list');
+        return karyotypeButton;
+    },
+
+    getKaryotypeButton: function(presses) {
+        return this.karyotypeButton;
+    },
+
+    setKaryotypeToogleButton: function() {
+        // this.karyotypeButton;
+    },
+
+    _createChromosomeButton: function() {
+        var chromosomeButton = Ext.create('Ext.Button', {
+            id:this.id+"ChromosomeButton",
+            text : 'Chromosome',
+            enableToggle: true,
+            pressed: true,
+            toggleHandler: function() {
+                if(this.pressed){
+                    Ext.getCmp(_this.id+"chromosomePanel").show();
+                }else{
+                    Ext.getCmp(_this.id+"chromosomePanel").hide();
+                }
+                _this.trigger('chromosome-button:change', {selected: this.pressed, sender: _this});
+            }
+        });
+        return chromosomeButton;
+    },
+
+    _createRegionButton: function() {
+        var regionButton = Ext.create('Ext.Button', {
+            id:this.id+"RegionButton",
+            text : 'Region',
+            enableToggle: true,
+            pressed:this.regionPanelHidden,
+            toggleHandler:function() {
+                if(this.pressed){
+                    Ext.getCmp(_this.id+"regionPanel").show();
+                }else{
+                    Ext.getCmp(_this.id+"regionPanel").hide();
+                }
+                _this.trigger('region-button:change', {selected: this.pressed, sender: _this});
+            }
+
+        });
+        return regionButton;
     },
 
     _getZoomSlider: function() {
