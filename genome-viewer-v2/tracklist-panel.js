@@ -82,18 +82,16 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     var tlHeaderDiv = $('<div id="tl-header"></div>')[0];
 
     var panelDiv = $('<div id="tl-panel"></div>')[0];
+    $(panelDiv).css({position:'relative'});
 
-    var linesDiv = $('<div id="tl-lines"></div>')[0];
-    $(linesDiv).css({position:'absolute','z-index':1});
 
     this.tlTracksDiv = $('<div id="tl-tracks"></div>')[0];
-    $(this.tlTracksDiv).css({ 'z-index':3});
+    $(this.tlTracksDiv).css({ position:'relative','z-index':3});
 
 
     $(targetDiv).append(tlHeaderDiv);
     $(targetDiv).append(panelDiv);
 
-    $(panelDiv).append(linesDiv);
     $(panelDiv).append(this.tlTracksDiv);
 
 
@@ -208,14 +206,14 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 
 
     this.currentLine = $('<div id="'+this.id+'centerLine"></div>')[0];
-    $(linesDiv).append(this.currentLine);
+    $(panelDiv).append(this.currentLine);
     $(this.currentLine).css({
         'z-index': 2,
         'position': 'absolute',
         'left': mid,
         'top':0,
         'width':this.pixelBase,
-		'height':this.height,
+		'height':'100%',
         'opacity':0.5,
         'border':'1px solid orangered',
         'background-color':'orange'
@@ -223,14 +221,14 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 
 
     this.mouseLine = $('<div id="'+this.id+'mouseLine"></div>')[0];
-    $(linesDiv).append(this.mouseLine);
+    $(panelDiv).append(this.mouseLine);
     $(this.mouseLine).css({
         'z-index': 1,
         'position': 'absolute',
         'left': -20,
         'top':0,
         'width':this.pixelBase,
-        'height':this.height,
+        'height':'100%',
         'border':'1px solid lightgray',
         'opacity':0.7,
         'background-color':'gainsboro'
@@ -443,8 +441,8 @@ TrackListPanel.prototype = {
 //        $(this.tlTracksDiv).css('height',height);
 //        //this.grid.setAttribute("height",height);
 //        //this.grid2.setAttribute("height",height);
-        $(this.currentLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
-        $(this.mouseLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
+//        $(this.currentLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
+//        $(this.mouseLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
     },
 
     setWidth : function(width){

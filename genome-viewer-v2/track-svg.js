@@ -197,6 +197,8 @@ TrackSvg.prototype = {
         $(resizediv).css({'background-color':'lightgray','height':5});
 
         $(resizediv).mousedown(function(event) {
+            debugger
+            $('body').addClass("x-unselectable");
             event.stopPropagation();
             var downY = event.clientY;
             $('body').mousemove(function(event){
@@ -207,6 +209,7 @@ TrackSvg.prototype = {
             });
         });
         $('body').mouseup(function(event) {
+            $(this).removeClass("x-unselectable");
             $(this).off('mousemove');
         });
 
