@@ -301,7 +301,7 @@ ChromosomePanel.prototype = {
     },
 
     setRegion: function (region) {//item.chromosome, item.region
-
+        this.region.load(region);
         var needDraw = false;
 //        if (item.species != null) {
 //            this.species = item.species;
