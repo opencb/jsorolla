@@ -11,10 +11,14 @@ function NavigationBar (targetId, args) {
     _.extend(this, Backbone.Events);
 
     var _this = this;
+
+    this.options = args;
+
     this.region = new Region();
     this.targetId = targetId;
+    this.species = 'Homo sapiens';
 
-    this.species = [{"text": "Mus musculus", "assembly": "GRCm38.p1",
+    this.availableSpecies = [{"text": "Mus musculus", "assembly": "GRCm38.p1",
         "region":{"chromosome":"1","start":18422009,"end":18422009},
         "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"],
         "url": "ftp://ftp.ensembl.org/pub/release-71/"},
@@ -24,7 +28,7 @@ function NavigationBar (targetId, args) {
             "url": "ftp://ftp.ensembl.org/pub/release-71/"}];
 
     if (typeof args != 'undefined') {
-//        this.species = args.species || this.species;
+        this.species = args.species || this.species;
         if (args.region != null) {
             this.region.load(args.region);
         }
@@ -32,61 +36,15 @@ function NavigationBar (targetId, args) {
     }
 
 
-    this.options = args;
 
-    var searchResults = Ext.create('Ext.data.Store', {
-        fields: ["xrefId", "displayId", "description"]
-    });
 
-    var searchCombo = Ext.create('Ext.form.field.ComboBox', {
-        id : this.id+'-quick-search',
-        displayField: 'displayId',
-        valueField: 'displayId',
-        emptyText:'gene, snp, ...',
-        hideTrigger: true,
-        fieldLabel:'Search:',
-        labelWidth: args.searchLabelWidth || 40,
-        width: 220,
-        store: searchResults,
-        queryMode: 'local',
-        typeAhead:false,
-        autoSelect:false,
-        queryDelay: 500,
-        listeners:{
-            change:function(){
-                var value = this.getValue();
-                var min = 2;
-                if(value && value.substring(0,3).toUpperCase() == "ENS"){
-                    min = 10;
-                }
-                if(value && value.length > min){
-                    $.ajax({
-//                        url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/"+this.getValue()+"/starts_with?of=json",
-                        url:"http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/feature/id/"+this.getValue()+"/starts_with?of=json",
-                        success:function(data, textStatus, jqXHR){
-                            var d = JSON.parse(data);
-                            searchResults.loadData(d[0]);
-                            console.log(searchResults)
-                        },
-                        error:function(jqXHR, textStatus, errorThrown){console.log(textStatus);}
-                    });
-                }
-            },
-            select: function(field, e){
-                _this._handleNavigationBar('GoToGene');
-            }
-//			,specialkey: function(field, e){
-//				if (e.getKey() == e.ENTER) {
-//					_this._handleNavigationBar('GoToGene');
-//				}
-//			}
-        },
-        tpl: Ext.create('Ext.XTemplate',
-            '<tpl for=".">',
-            '<div class="x-boundlist-item">{displayId} ({displayId})</div>',
-            '</tpl>'
-        )
-    });
+    // Visual components creation, all theses components will be
+    // added to the navigation bar below.
+    this.speciesMenu = this._createSpeciesMenu();
+    this.chromosomeMenu = this._createChromosomeMenu();
+    // ...
+    this.searchComboBox = this._createSearchComboBox();
+
 
     var navToolbar = Ext.create('Ext.toolbar.Toolbar', {
         id:this.id+"navToolbar",
@@ -99,20 +57,20 @@ function NavigationBar (targetId, args) {
         items : [
             {
                 id: this.id+"speciesMenuButton",
-                menu: this._createSpeciesMenu(),
-                text : "Homo sapiens" //this.speciesName,
+                text : 'Species',
+                menu: this.speciesMenu
             },{
                 id: this.id + "chromosomeMenuButton",
                 text : 'Chromosome',
-                menu: this._getChromosomeMenu()
+                menu: this.chromosomeMenu
             },
             '-',
             {
                 id:this.id+"karyotypeButton",
                 text : 'Karyotype',
-                enableToggle:true,
-                pressed:false,
-                toggleHandler:function() {
+                enableToggle: true,
+                pressed: false,
+                toggleHandler: function() {
                     if(this.pressed){
                         Ext.getCmp(_this.id+"karyotypePanel").show();
                     }else{
@@ -123,9 +81,9 @@ function NavigationBar (targetId, args) {
             {
                 id:this.id+"ChromosomeToggleButton",
                 text : 'Chromosome',
-                enableToggle:true,
-                pressed:true,
-                toggleHandler:function() {
+                enableToggle: true,
+                pressed: true,
+                toggleHandler: function() {
                     if(this.pressed){
                         Ext.getCmp(_this.id+"chromosomePanel").show();
                     }else{
@@ -136,7 +94,7 @@ function NavigationBar (targetId, args) {
             {
                 id:this.id+"RegionToggleButton",
                 text : 'Region',
-                enableToggle:true,
+                enableToggle: true,
                 pressed:this.regionPanelHidden,
                 toggleHandler:function() {
                     if(this.pressed){
@@ -224,7 +182,7 @@ function NavigationBar (targetId, args) {
 //		        	 text : 'Quick search:',
 //		        	 margins : '0 0 0 10'
 //		         },
-            searchCombo,
+            this.searchComboBox,
 //		         {
 //		        	 id : this.id+'quickSearch',
 //		        	 xtype : 'textfield',
@@ -254,7 +212,7 @@ function NavigationBar (targetId, args) {
     });
 
     //    return navToolbar;
-    this.setSpeciesMenu({}, this.species);
+    this.setSpeciesMenu({}, this.availableSpecies);
 };
 
 NavigationBar.prototype = {
@@ -269,7 +227,7 @@ NavigationBar.prototype = {
         this.speciesMenu = Ext.create('Ext.menu.Menu', {
             id:this.id+"speciesMenu",
             margin : '0 0 10 0',
-            floating : false,
+            floating : true,
             plain:true,
             items : []
         });
@@ -282,7 +240,7 @@ NavigationBar.prototype = {
     },
 
     //Sets the species buttons in the menu
-    setSpeciesMenu: function(speciesObj, popularSpecies) {
+    setSpeciesMenu: function(speciesObj, popular) {
         var _this = this;
 
         var menu = this.getSpeciesMenu();
@@ -290,8 +248,16 @@ NavigationBar.prototype = {
         menu.hide();//Hide the menu panel before remove
         menu.removeAll(); // Remove the old species
 
-//        var popularSpecies = [];
+        var popularSpecies = [];
+
+        var items;
+        if(typeof popular != 'undefined') {
+            popular.sort(function(a, b) {return a.text.localeCompare(b.text);});
+            items = popular;
+        }
+
         if(typeof speciesObj.items != 'undefined') {
+            items.push('-');
             for(var i = 0; i < speciesObj.items.length; i++){
                 var phylo = speciesObj.items[i];
                 var phyloSpecies = phylo.items;
@@ -310,15 +276,13 @@ NavigationBar.prototype = {
                         _this.setSpecies(me.speciesObj);
                     };
 
-//                if(popular.indexOf(species.name) != -1){
-//                    popularSpecies.push(species);
-//                }
+                    if(popular.indexOf(species.name) != -1){
+                        items.push(species);
+                    }
                 }
             }
         }
-        popularSpecies.sort(function(a, b) {return a.text.localeCompare(b.text);});
-        popularSpecies.push('-');
-        var items = popularSpecies.concat(speciesObj.items);
+
         menu.add(items);
     },
 
@@ -326,10 +290,12 @@ NavigationBar.prototype = {
     setSpecies: function(data){
         this.region.load(data.region);
         data["sender"]="setSpecies";
-        this.onRegionChange.notify(data);
+//        this.onRegionChange.notify(data);
+        _this.trigger('species:change', {region: _this.region, sender: this});
     },
 
-    _getChromosomeMenu: function() {
+
+    _createChromosomeMenu: function() {
         var _this = this;
         var chrStore = Ext.create('Ext.data.Store', {
             id:this.id+"chrStore",
@@ -339,13 +305,13 @@ NavigationBar.prototype = {
         /*Chromolendar*/
         var chrView = Ext.create('Ext.view.View', {
             id:this.id+"chrView",
-            width:125,
+            width: 125,
             style:'background-color:#fff',
             store : chrStore,
             selModel: {
                 mode: 'SINGLE',
                 listeners: {
-                    selectionchange:function(este,selNodes){
+                    selectionchange: function(este,selNodes){
                         if(selNodes.length>0){
                             _this.region.chromosome = selNodes[0].data.name;
                             _this.onRegionChange.notify({sender:"_getChromosomeMenu"});
@@ -388,6 +354,10 @@ NavigationBar.prototype = {
         });
         this._updateChrStore();
         return chromosomeMenu;
+    },
+
+    getChromosomeMenu: function() {
+        return this.chromosomeMenu;
     },
 
     _updateChrStore: function() {
@@ -447,6 +417,123 @@ NavigationBar.prototype = {
             });
         }
         return this._zoomSlider;
+    },
+
+    _createSearchComboBox: function() {
+        var _this = this;
+
+        var searchResults = Ext.create('Ext.data.Store', {
+            fields: ["xrefId", "displayId", "description"]
+        });
+
+        var searchCombo = Ext.create('Ext.form.field.ComboBox', {
+            id : this.id+'-quick-search',
+            displayField: 'displayId',
+            valueField: 'displayId',
+            emptyText:'gene, snp, ...',
+            hideTrigger: true,
+            fieldLabel:'Search:',
+            labelWidth: this.options.searchLabelWidth || 40,
+            width: 220,
+            store: searchResults,
+            queryMode: 'local',
+            typeAhead:false,
+            autoSelect:false,
+            queryDelay: 500,
+            listeners:{
+                change: function() {
+                    var value = this.getValue();
+                    var min = 2;
+                    if(value && value.substring(0,3).toUpperCase() == "ENS"){
+                        min = 10;
+                    }
+                    if(value && value.length > min){
+                        $.ajax({
+//                        url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/"+this.getValue()+"/starts_with?of=json",
+                            url:"http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/feature/id/"+this.getValue()+"/starts_with?of=json",
+                            success:function(data, textStatus, jqXHR){
+                                var d = JSON.parse(data);
+                                searchResults.loadData(d[0]);
+                                console.log(searchResults)
+                            },
+                            error:function(jqXHR, textStatus, errorThrown){console.log(textStatus);}
+                        });
+                    }
+                },
+                select: function(field, e){
+                    _this._handleNavigationBar('GoToGene');
+                }
+//			,specialkey: function(field, e){
+//				if (e.getKey() == e.ENTER) {
+//					_this._handleNavigationBar('GoToGene');
+//				}
+//			}
+            },
+            tpl: Ext.create('Ext.XTemplate',
+                '<tpl for=".">',
+                '<div class="x-boundlist-item">{displayId} ({displayId})</div>',
+                '</tpl>'
+            )
+        });
+        return searchCombo;
+    },
+
+    _handleNavigationBar: function(action, args) {
+//	var _this = this;
+        debugger
+        if (action == 'OptionMenuClick'){
+            this.genomeWidget.showTranscripts = Ext.getCmp("showTranscriptCB").checked;
+            this.genomeWidgetProperties.setShowTranscripts(Ext.getCmp("showTranscriptCB").checked);
+            this.refreshMasterGenomeViewer();
+        }
+        if (action == 'ZOOM'){
+            this.setZoom(args);
+            this.onRegionChange.notify({sender:"zoom"});
+        }
+        if (action == 'GoToGene'){
+            var geneName = Ext.getCmp(this.id+'quickSearch').getValue();
+            if(geneName != null){
+                if(geneName.slice(0, "rs".length) == "rs" || geneName.slice(0, "AFFY_".length) == "AFFY_" || geneName.slice(0, "SNP_".length) == "SNP_" || geneName.slice(0, "VAR_".length) == "VAR_" || geneName.slice(0, "CRTAP_".length) == "CRTAP_" || geneName.slice(0, "FKBP10_".length) == "FKBP10_" || geneName.slice(0, "LEPRE1_".length) == "LEPRE1_" || geneName.slice(0, "PPIB_".length) == "PPIB_") {
+                    this.openSNPListWidget(geneName);
+                }else{
+                    this.openGeneListWidget(geneName);
+                }
+            }
+        }
+        if (action == '+'){
+//  	var zoom = this.genomeWidgetProperties.getZoom();
+            var zoom = this.zoom;
+            if (zoom < 100){
+                this.setZoom(zoom + this.increment);
+            }
+        }
+        if (action == '-'){
+//    	 var zoom = this.genomeWidgetProperties.getZoom();
+            var zoom = this.zoom;
+            if (zoom >= 5){
+                this.setZoom(zoom - this.increment);
+            }
+        }
+
+        if (action == 'Go'){
+            var value = Ext.getCmp(this.id+'tbCoordinate').getValue();
+
+            var reg = new Region({str:value});
+
+            // Validate chromosome and position
+            if(isNaN(reg.start) || reg.start < 0){
+                Ext.getCmp(this.id+'tbCoordinate').markInvalid("Position must be a positive number");
+            }
+            else if(Ext.getCmp(this.id+"chromosomeMenu").almacen.find("name", reg.chromosome) == -1){
+                Ext.getCmp(this.id+'tbCoordinate').markInvalid("Invalid chromosome");
+            }
+            else{
+                this.region.load(reg);
+//            this.onRegionChange.notify({sender:"GoButton"});
+                this.trigger('region:change', {region: this.region, sender: this});
+            }
+
+        }
     }
 
 }
