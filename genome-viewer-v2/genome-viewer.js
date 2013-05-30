@@ -163,7 +163,6 @@ GenomeViewer.prototype = {
 
         $('#genome-viewer').append('<div id="gv-statusbar-panel" style="background-color: slateblue;">statusbar</div>');
 //        $('#' + this.targetId).disableTextSelect();
-
     },
     setRegion2: function(region) {
         this.region.load(region);
