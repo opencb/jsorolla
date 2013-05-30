@@ -139,18 +139,29 @@ GenomeViewer.prototype = {
     initialize: function(){
         console.debug("Initializing GenomeViewer structure.");
 
-        $('#' + this.targetId).append('<div id="gv-navigation-panel" style="border: 1px solid">toolbar</div>');
-        $('#' + this.targetId).append('<div id="gv-center-panel" style="border: 1px solid; height: 400px">center</div>');
-        $('#' + this.targetId).append('<div id="gv-statusbar-panel" style="border: 1px solid">status</div>');
+        $('#' + this.targetId).append('<div id="genome-viewer" style=""></div>');
+        this.width = $('#'+this.targetId).width();
 
-        $('#gv-center-panel').append('<div id="gv-sidebar-panel" style="float: right; z-index: 40;border: 1px solid red">sidebar</div>');
 
-        $('#gv-center-panel').append('<div id="gv-main-panel" style="width: 100%;float: left; z-index: 20">mp</div>');
-        $('#gv-main-panel').append('<div id="gv-karyotype-panel">kp</div>');
-        $('#gv-main-panel').append('<div id="gv-chromosome-panel"></div>');
-        $('#gv-main-panel').append('<div id="gv-region-panel">rp</div>');
-        $('#gv-main-panel').append('<div id="gv-tracks-panel">tp</div>');
+        $('#genome-viewer').append('<div id="gv-navigation-panel" style="background-color: greenyellow;"></div>');
+        $('#genome-viewer').append('<div id="gv-center-panel" style=""></div>');
 
+
+        $('#gv-center-panel').append('<div id="gv-sidebar-panel" style="background-color: yellow; position:absolute; right:0; z-index:50;width:20px;height:300px"></div>');
+        $('#gv-center-panel').append('<div id="gv-main-panel" style="z-index:1"></div>');
+        $('#gv-sidebar-panel').click(function(){
+            $(this).css({width:200})
+        });
+
+        $('#gv-main-panel').append('<div id="gv-karyotype-panel" style=""></div>');
+        $('#gv-main-panel').append('<div id="gv-chromosome-panel" style=""></div>');
+        $('#gv-main-panel').append('<div id="gv-region-panel" style=""></div>');
+        $('#gv-main-panel').append('<div id="gv-tracks-panel" style=""></div>');
+
+
+
+        $('#genome-viewer').append('<div id="gv-statusbar-panel" style="background-color: slateblue;">statusbar</div>');
+//        $('#' + this.targetId).disableTextSelect();
 
     },
     setRegion2: function(region) {
@@ -185,18 +196,13 @@ GenomeViewer.prototype = {
 };
 
 GenomeViewer.prototype.draw = function(){
-//	this.render();
     var _this = this;
 
-    // Sencha
-//    var chrPanel = new ChromosomePanel('gv-chromosome-panel', {
-//        region: this.region,
-//        width: this.width
-//    });
-//    chrPanel.drawChromosome();
-
-//    this._getNavigationBar();
-    this.navigationBar = new NavigationBar('gv-navigation-panel', {species: this.species, region: this.region});
+    /*Navigation Bar*/
+    this.navigationBar = new NavigationBar('gv-navigation-panel', {
+        species: this.species,
+        region: this.region
+    });
 
     this.navigationBar.on('region:change', function(event){
         this.trigger('region:change', event);
@@ -208,8 +214,34 @@ GenomeViewer.prototype.draw = function(){
         }
     });
 
+    /*Chromosome Panel*/
     this._drawChromosomePanel();
 
+    /*karyotype Panel*/
+
+
+    /*TrackList Panel*/
+    this.trackSvgLayout = new TrackListPanel('gv-tracks-panel',{
+        width:_this.width-18,
+//        height:200,
+        region:this.region,
+        genomeViewer:this
+    });
+    this.trackSvgLayout.on('region:move',function(event){
+        _this.trigger('region:change', event);
+    });
+    this.on('region:change', function(event) {
+        if(event.sender != _this.trackSvgLayout) {
+            _this.trackSvgLayout.setRegion(event.region);
+        }
+    });
+
+
+    /* debug*/
+    /*Region change log*/
+    this.on('region:change', function(event) {
+        console.log(event.sender)
+    });
 };
 
 
@@ -254,7 +286,12 @@ GenomeViewer.prototype._drawChromosomePanel = function() {
 };
 
 
-
+/**/
+/**/
+/**/
+/*OLD code*/
+/**/
+/**/
 
 GenomeViewer.prototype.render = function(){
 	var _this = this;

@@ -121,7 +121,8 @@
 	<script type="text/javascript" src="feature-binary-search-tree.js"></script>
 	<script type="text/javascript" src="navigation-bar.js"></script>
 	<script type="text/javascript" src="track-svg.js"></script>
-	<script type="text/javascript" src="track-svg-layout.js"></script>
+	<!--<script type="text/javascript" src="track-svg-layout.js"></script>-->
+	<script type="text/javascript" src="tracklist-panel.js"></script>
 	<script type="text/javascript" src="track-data.js"></script>
 	<script type="text/javascript" src="track-settings-widget.js"></script>
 	<script type="text/javascript" src="feature-cache.js"></script>
@@ -222,9 +223,66 @@
 //		CheckBrowser();
 // 		var pathname = window.location.href;
 // 		console.log(pathname);
-        var region = new Region({chromosome: "13", start: 60000, end: 80000});
-		genomeViewer = new GenomeViewer("genome-viewer", null, {region: region}); //the div must exist
+
+        var region = new Region({chromosome: "13", start: 32889550, end: 32889674});
+		genomeViewer = new GenomeViewer("application", null, {region: region}); //the div must exist
 		genomeViewer.draw();
+
+
+
+        var geneTrack = new TrackData(1,{
+            adapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "gene",
+                species: this.genomeViewer.species,
+                featureCache:{
+                    gzip: true,
+                    chunkSize:50000
+                },
+                filters:{},
+                options:{},
+                featureConfig:FEATURE_CONFIG.gene
+            })
+        });
+        this.genomeViewer.addTrack(geneTrack,{
+            id:2,
+            type:'Gene/Transcript',
+            title:'Gene/Transcript',
+            featuresRender:"GeneTranscriptRender",
+            histogramZoom:20,
+            transcriptZoom:50,
+            height:24,
+            visibleRange:{start:0,end:100},
+            featureTypes:FEATURE_TYPES
+        });
+
+        var geneTrack = new TrackData(1,{
+            adapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "gene",
+                species: this.genomeViewer.species,
+                featureCache:{
+                    gzip: true,
+                    chunkSize:50000
+                },
+                filters:{},
+                options:{},
+                featureConfig:FEATURE_CONFIG.gene
+            })
+        });
+        this.genomeViewer.addTrack(geneTrack,{
+            id:3,
+            type:'Gene/Transcript',
+            title:'Gene/Transcript',
+            featuresRender:"GeneTranscriptRender",
+            histogramZoom:20,
+            transcriptZoom:50,
+            height:24,
+            visibleRange:{start:0,end:100},
+            featureTypes:FEATURE_TYPES
+        });
 
 // 		genomeMaps.addPlugin();
 // 		console.log(Ext.ComponentManager.getCount());
@@ -251,8 +309,10 @@
 	
 	</script>
 </head>
-<body style="overflow: hidden">
-    <div id="genome-viewer"></div>
+<body style="overflow: hidden;">
+    <div id="application" style="width:100%;padding:20px;"></div>
+
+    <div style="">MAS COSAS</div>
 
 </body>
 </html>

@@ -176,7 +176,14 @@ TrackSvg.prototype = {
 
     draw : function(){
         var _this = this;
-        var main = SVG.addChild(this.parent,"svg",{
+        var div = $('<div id="'+this.id+'-div"></div>')[0];
+        var svgdiv = $('<div id="'+this.id+'-svgdiv"></div>')[0];
+
+        $(this.parent).addClass("x-unselectable");
+        $(this.parent).append(div);
+        $(div).append(svgdiv);
+        $(svgdiv).css({'z-index':3,'height':100,'overflow-y':'scroll'});
+        var main = SVG.addChild(svgdiv,"svg",{
 //		"style":"border:1px solid #e0e0e0;",
             "id":this.id,
             "class":"trackSvg",
@@ -185,6 +192,32 @@ TrackSvg.prototype = {
             "width":this.width,
             "height":this.height
         });
+
+        var resizediv = $('<div id="'+this.id+'-resizediv"></div>')[0];
+        $(resizediv).css({'background-color':'lightgray','height':5});
+
+        $(resizediv).mousedown(function(event) {
+            event.stopPropagation();
+            var downY = event.clientY;
+            $('body').mousemove(function(event){
+                var despY = (event.clientY - downY);
+                var actualHeight = $(svgdiv).outerHeight();
+                $(svgdiv).css({height:actualHeight+despY});
+                downY = event.clientY;
+            });
+        });
+        $('body').mouseup(function(event) {
+            $(this).off('mousemove');
+        });
+
+        $(resizediv).mouseenter(function(event) {
+            $(this).css({"cursor": "s-resize"});
+        });
+        $(resizediv).mouseleave(function(event) {
+            $(this).css({"cursor": "default"});
+        });
+
+        $(div).append(resizediv);
 
         var titleGroup = SVG.addChild(main,"g",{
             "class":"trackTitle"
