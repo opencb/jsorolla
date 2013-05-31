@@ -260,7 +260,7 @@ NavigationBar.prototype = {
         menu.add(items);
     },
 
-//Sets the new specie and fires an event
+    //Sets the new specie and fires an event
     selectSpecies: function(data){
 //        this.region.load(data.region);
         data["sender"]="setSpecies";
@@ -380,21 +380,31 @@ NavigationBar.prototype = {
 
 
     _createKaryotypeButton: function() {
+        var _this = this;
         var karyotypeButton = Ext.create('Ext.Button', {
             id: this.id+"karyotypeButton",
             text : 'Karyotype',
             enableToggle: true,
             pressed: false,
             toggleHandler: function() {
-                if(this.pressed){
-                    Ext.getCmp(_this.id+"karyotypePanel").show();
-                }else{
-                    Ext.getCmp(_this.id+"karyotypePanel").hide();
-                }
                 _this.trigger('karyotype-button:change', {selected: this.pressed, sender: _this});
             }
         });
         return karyotypeButton;
+    },
+
+    _createChromosomeButton: function() {
+        var _this = this;
+        var chromosomeButton = Ext.create('Ext.Button', {
+            id:this.id+"ChromosomeButton",
+            text : 'Chromosome',
+            enableToggle: true,
+            pressed: true,
+            toggleHandler: function() {
+                _this.trigger('chromosome-button:change', {selected: this.pressed, sender: _this});
+            }
+        });
+        return chromosomeButton;
     },
 
     getKaryotypeButton: function(presses) {
@@ -402,39 +412,18 @@ NavigationBar.prototype = {
     },
 
     setKaryotypeToogleButton: function() {
-        // this.karyotypeButton;
-    },
-
-    _createChromosomeButton: function() {
-        var chromosomeButton = Ext.create('Ext.Button', {
-            id:this.id+"ChromosomeButton",
-            text : 'Chromosome',
-            enableToggle: true,
-            pressed: true,
-            toggleHandler: function() {
-                if(this.pressed){
-                    Ext.getCmp(_this.id+"chromosomePanel").show();
-                }else{
-                    Ext.getCmp(_this.id+"chromosomePanel").hide();
-                }
-                _this.trigger('chromosome-button:change', {selected: this.pressed, sender: _this});
-            }
-        });
-        return chromosomeButton;
+//        this.karyotypeButton.set
+        this.trigger('karyotype-button:change', {selected: this.karyotypeButton.pressed, sender: _this});
     },
 
     _createRegionButton: function() {
+        var _this = this;
         var regionButton = Ext.create('Ext.Button', {
             id:this.id+"RegionButton",
             text : 'Region',
             enableToggle: true,
             pressed:this.regionPanelHidden,
             toggleHandler:function() {
-                if(this.pressed){
-                    Ext.getCmp(_this.id+"regionPanel").show();
-                }else{
-                    Ext.getCmp(_this.id+"regionPanel").hide();
-                }
                 _this.trigger('region-button:change', {selected: this.pressed, sender: _this});
             }
 

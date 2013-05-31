@@ -198,12 +198,11 @@ GenomeViewer.prototype = {
 GenomeViewer.prototype.draw = function(){
     var _this = this;
 
-    /*Navigation Bar*/
+    /* Navigation Bar */
     this.navigationBar = new NavigationBar('gv-navigation-panel', {
         species: this.species,
         region: this.region
     });
-
     this.navigationBar.on('region:change', function(event){
         this.trigger('region:change', event);
     });
@@ -214,8 +213,33 @@ GenomeViewer.prototype.draw = function(){
         }
     });
 
+    this.navigationBar.on('karyotype-button:change', function(event){
+        if(event.selected) {
+            _this.chromosomePanel.show();
+        }else {
+            _this.chromosomePanel.hide();
+        }
+    });
+
+    this.navigationBar.on('chromosome-button:change', function(event){
+        if(event.selected) {
+            _this.chromosomePanel.show();
+        }else {
+            _this.chromosomePanel.hide();
+        }
+    });
+
+    this.navigationBar.on('region-button:change', function(event){
+        if(event.selected) {
+            _this.chromosomePanel.show();
+        }else {
+            _this.chromosomePanel.hide();
+        }
+    });
+
+
     /*Chromosome Panel*/
-    this._drawChromosomePanel();
+    this.chromosomePanel = this._drawChromosomePanel();
 
     /*karyotype Panel*/
 
