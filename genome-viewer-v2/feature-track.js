@@ -30,6 +30,10 @@ FeatureTrack.prototype.initialize = function(targetId){
     var _this = this;
     this.initializeDom(targetId);
 
+    this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
+    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
+
     this.dataAdapter.on('data:ready',function(event){
         if(event.params.histogram == true){
             _this.renderer = HistogramRender;
@@ -89,6 +93,48 @@ FeatureTrack.prototype.draw = function(){
 };
 
 
+FeatureTrack.prototype.move = function(disp){
+    var _this = this;
+//    trackSvg.position = _this.region.center();
+    _this.region.center();
+    var pixelDisplacement = disp*_this.pixelBase;
+    this.pixelPosition-=pixelDisplacement;
+
+    //parseFloat important
+    var move =  parseFloat(this.svgCanvasFeatures.getAttribute("x")) + pixelDisplacement;
+    this.svgCanvasFeatures.setAttribute("x",move);
+
+    var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
+    var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
+    // check if track is visible in this zoom
+    if(this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end){
+
+        if(disp>0 && virtualStart < this.svgCanvasLeftLimit){
+            this.dataAdapter.getData({
+                chromosome:_this.region.chromosome,
+                start:parseInt(this.svgCanvasLeftLimit-this.svgCanvasOffset),
+                end:this.svgCanvasLeftLimit,
+                histogram:this.histogram,
+                interval:this.interval
+            });
+            this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
+        }
+
+        if(disp<0 && virtualEnd > this.svgCanvasRightLimit){
+            this.dataAdapter.getData({
+                chromosome:_this.region.chromosome,
+                start:this.svgCanvasRightLimit,
+                end:parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset),
+                histogram:this.histogram,
+                interval:this.interval,
+                transcript:this.transcript
+            });
+            this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset);
+        }
+
+    }
+
+};
 
 FeatureTrack.prototype._getFeaturesByChunks = function(response, filters){
     //Returns an array avoiding already drawn features in this.chunksDisplayed

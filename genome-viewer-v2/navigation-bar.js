@@ -448,7 +448,8 @@ NavigationBar.prototype = {
                 listeners : {
                     'change': {
                         fn :function(slider, newValue) {
-                            _this._handleNavigationBar("ZOOM", newValue);
+//                            _this._handleNavigationBar("ZOOM", newValue);
+                            _this.trigger('zoom:change', {zoom: newValue, sender: _this});
                         },
                         buffer : 500
                     }

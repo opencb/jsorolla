@@ -24,6 +24,9 @@ function Track(args) {
     this.interval;
     this.zoom;
 
+    this.svgCanvasLeftLimit;
+    this.svgCanvasRightLimit;
+
     this.labelZoom = -1;
 //    this.callstart;
 //    this.callEnd;
@@ -98,9 +101,6 @@ Track.prototype = {
 //    },
 
     initializeDom: function (targetId) {
-
-        this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
-
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];

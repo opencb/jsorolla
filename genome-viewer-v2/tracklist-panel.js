@@ -303,15 +303,15 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 			$(this).mousemove(function(event){
 				var newX = (downX - event.clientX)/_this.pixelBase | 0;//truncate always towards zero
 				if(newX!=lastX){
-					var desp = lastX-newX;
+					var disp = lastX-newX;
 					var centerPosition = _this.region.center();
-					var p = centerPosition - desp;
+					var p = centerPosition - disp;
 					if(p>0){//avoid 0 and negative positions
-						_this.region.start -= desp;
-						_this.region.end -= desp;
+						_this.region.start -= disp;
+						_this.region.end -= disp;
 						_this._setTextPosition();
-//						_this.onMove.notify(desp);
-                        _this.trigger('region:move', {region:_this.region, desp:desp, sender: _this});
+//						_this.onMove.notify(disp);
+                        _this.trigger('region:move', {region:_this.region, disp:disp, sender: _this});
 						lastX = newX;
 						_this.setNucleotidPosition(p);
 					}
@@ -343,20 +343,20 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 		var enableKeys = function(){
 			//keys
 			$("body").keydown(function(e) {
-				var desp = 0;
+				var disp = 0;
 				switch (e.keyCode){
 					case 37://left arrow
 						if(e.ctrlKey){
-							desp = Math.round(100/_this.pixelBase);
+                            disp = Math.round(100/_this.pixelBase);
 						}else{
-							desp = Math.round(10/_this.pixelBase);
+                            disp = Math.round(10/_this.pixelBase);
 						}
 					break;
 					case 39://right arrow
 						if(e.ctrlKey){
-							desp = Math.round(-100/_this.pixelBase)
+                            disp = Math.round(-100/_this.pixelBase)
 						}else{
-							desp = Math.round(-10/_this.pixelBase);
+                            disp = Math.round(-10/_this.pixelBase);
 						}
 					break;
 					case 109://minus key
@@ -370,12 +370,12 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 						}
 					break;
 				}
-				if(desp != 0){
-					_this.region.start -= desp;
-					_this.region.end -= desp;
+				if(disp != 0){
+					_this.region.start -= disp;
+					_this.region.end -= disp;
 					_this._setTextPosition();
-//					_this.onMove.notify(desp);
-                    _this.trigger('region:move', {region:_this.region, desp:desp, sender: _this});
+//					_this.onMove.notify(disp);
+                    _this.trigger('region:move', {region:_this.region, disp:disp, sender: _this});
 				}
 			});
 		};
@@ -383,8 +383,8 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 		_this.parentLayout.on('region:move',function(event){
             _this.region.load(event.region);
 			_this._setTextPosition();
-//			_this.onMove.notify(desp);
-            _this.trigger('region:move', {region:_this.region, desp:event.desp, sender: _this});
+//			_this.onMove.notify(disp);
+            _this.trigger('region:move', {region:_this.region, disp:event.disp, sender: _this});
 		});
 
 		//allow selection in trackSvgLayoutOverview
@@ -548,13 +548,22 @@ TrackListPanel.prototype = {
 
         track.draw();
 
-        this.on('trackRegion:change',function(){
+        this.on('trackRegion:change',function(event){
             track.set('pixelBase', this.pixelBase);
             track.set('zoom', this.zoom);
-            track.set('region', this.region);
+            track.set('region', event.region);
 //            trackSvg.position = trackSvg.region.center();
 //            setCallRegion();
             track.draw();
+        });
+
+        this.on('region:move',function(event){
+            track.set('region', event.region);
+            track.set('pixelBase', this.pixelBase);
+            track.set('zoom', this.zoom);
+//            trackSvg.position = trackSvg.region.center();
+//            setCallRegion();
+            track.move(event.disp);
         });
 
 //old
