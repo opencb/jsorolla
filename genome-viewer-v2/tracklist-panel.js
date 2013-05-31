@@ -505,6 +505,7 @@ TrackListPanel.prototype = {
                 }
             }
         }
+        this.trigger('trackRegion:change',{region:this.region,sender:this})
 
         this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
 
@@ -533,9 +534,35 @@ TrackListPanel.prototype = {
         //this.minRegionRect.setAttribute("x",(this.width/2)-(this.minRectWidth/2)+6);
     },
 
-    addTrack : function(trackData, args){
+    addTrack : function(track){//args antiguo
         var _this = this;
+        var i = this.trackSvgList.push(track);
+        this.swapHash[track.id] = {index:i-1,visible:true};
+
+        track.set('pixelBase', this.pixelBase);
+        track.set('zoom', this.zoom);
+        track.set('region', this.region);
+        track.set('width', this.width);
+
+        track.initialize(this.tlTracksDiv);
+
+        track.draw();
+
+        this.on('trackRegion:change',function(){
+            track.set('pixelBase', this.pixelBase);
+            track.set('zoom', this.zoom);
+            track.set('region', this.region);
+//            trackSvg.position = trackSvg.region.center();
+//            setCallRegion();
+            track.draw();
+        });
+
+//old
+/*
+
         var visibleRange = args.visibleRange;
+
+
 
         args["region"] = this.region;
         args["trackData"] = trackData;
@@ -738,6 +765,9 @@ TrackListPanel.prototype = {
         //$(trackSvg.settingsRect).bind("click",function(event){
         //console.log("settings click");//"this" is the svg element
         //});
+
+
+        */
     },
 
     removeTrack : function(trackId){

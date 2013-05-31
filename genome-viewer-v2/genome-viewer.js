@@ -248,10 +248,9 @@ GenomeViewer.prototype.draw = function(){
     this.trackSvgLayout = new TrackListPanel('gv-tracks-panel',{
         width:_this.width-18,
 //        height:200,
-        region:this.region,
-        genomeViewer:this
+        region:this.region
     });
-    this.trackSvgLayout.on('region:move',function(event){
+    this.trackSvgLayout.on('region:move region:change',function(event){
         _this.trigger('region:change', event);
     });
     this.on('region:change', function(event) {

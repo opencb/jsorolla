@@ -88,6 +88,11 @@
     <!-- Genome-viewer-v2 -->
     <script type="text/javascript" src="chromosome-panel.js"></script>
 
+    <script type="text/javascript" src="track.js"></script>
+    <script type="text/javascript" src="feature-track.js"></script>
+
+    <script type="text/javascript" src="renderers/renderer.js"></script>
+    <script type="text/javascript" src="renderers/feature-renderer.js"></script>
 
 
 
@@ -231,36 +236,51 @@
 		genomeViewer.draw();
 
 
+//
+//        var geneTrack = new TrackData(1,{
+//            adapter: new CellBaseAdapter({
+//                category: "genomic",
+//                subCategory: "region",
+//                resource: "gene",
+//                species: this.genomeViewer.species,
+//                featureCache:{
+//                    gzip: true,
+//                    chunkSize:50000
+//                },
+//                filters:{},
+//                options:{},
+//                featureConfig:FEATURE_CONFIG.gene
+//            })
+//        });
+//        this.genomeViewer.addTrack(geneTrack,{
+//            id:2,
+//            type:'Gene/Transcript',
+//            title:'Gene/Transcript',
+//            featuresRender:"GeneTranscriptRender",
+//            histogramZoom:20,
+//            transcriptZoom:50,
+//            height:24,
+//            visibleRange:{start:0,end:100},
+//            featureTypes:FEATURE_TYPES
+//        });
 
-        var geneTrack = new TrackData(1,{
-            adapter: new CellBaseAdapter({
-                category: "genomic",
-                subCategory: "region",
-                resource: "gene",
-                species: this.genomeViewer.species,
-                featureCache:{
-                    gzip: true,
-                    chunkSize:50000
-                },
-                filters:{},
-                options:{},
-                featureConfig:FEATURE_CONFIG.gene
-            })
-        });
-        this.genomeViewer.addTrack(geneTrack,{
+
+
+
+
+        this.t1 = new FeatureTrack({
+            targetId:null,
             id:2,
-            type:'Gene/Transcript',
-            title:'Gene/Transcript',
-            featuresRender:"GeneTranscriptRender",
+            title:'Gene',
             histogramZoom:20,
             transcriptZoom:50,
             height:24,
             visibleRange:{start:0,end:100},
-            featureTypes:FEATURE_TYPES
-        });
+            featureTypes:FEATURE_TYPES,
 
-        var geneTrack = new TrackData(1,{
-            adapter: new CellBaseAdapter({
+            renderer:new FeatureRenderer(),
+
+            dataAdapter:new CellBaseAdapter({
                 category: "genomic",
                 subCategory: "region",
                 resource: "gene",
@@ -274,17 +294,11 @@
                 featureConfig:FEATURE_CONFIG.gene
             })
         });
-        this.genomeViewer.addTrack(geneTrack,{
-            id:3,
-            type:'Gene/Transcript',
-            title:'Gene/Transcript',
-            featuresRender:"GeneTranscriptRender",
-            histogramZoom:20,
-            transcriptZoom:50,
-            height:24,
-            visibleRange:{start:0,end:100},
-            featureTypes:FEATURE_TYPES
-        });
+
+        this.genomeViewer.addTrack(this.t1);
+
+
+
 
 // 		genomeMaps.addPlugin();
 // 		console.log(Ext.ComponentManager.getCount());
