@@ -20,9 +20,13 @@
  */
 
 function CellBaseAdapter(args){
-	this.host = null;
+
+    _.extend(this, Backbone.Events);
+
+    this.host = null;
 	this.gzip = true;
-	
+
+
 	this.params={};
 	if (args != null){
 		if(args.host != null){
@@ -204,6 +208,7 @@ CellBaseAdapter.prototype.getData = function(args){
 		}
 		if(itemList.length > 0){
 			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
+			_this.trigger('data:ready',{items:itemList, params:_this.params, cached:false, sender:_this});
 		}
 		console.timeEnd(_this.resource+" get and save "+rnd);
 	});
@@ -247,6 +252,7 @@ CellBaseAdapter.prototype.getData = function(args){
 	}else{
 		if(itemList.length > 0){
 			this.onGetData.notify({items:itemList, params:this.params});
+            _this.trigger('data:ready',{items:itemList, params:this.params, sender:this});
 		}
 	}
 };

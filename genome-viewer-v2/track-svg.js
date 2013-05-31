@@ -151,7 +151,7 @@ TrackSvg.prototype = {
         return this.trackData.adapter.optionsConfig;
     },
 
-    cleanSvg : function(filters){
+    cleanSvg : function(filters){//clean
         console.time("-----------------------------------------empty");
         //$(this.features).empty();
 //		this.features.textContent = "";
@@ -172,6 +172,10 @@ TrackSvg.prototype = {
 
     getTitle : function(){
         return this.titleText.textContent;
+    },
+
+    initialize: function(){
+
     },
 
     draw : function(){
