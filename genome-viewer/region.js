@@ -21,14 +21,14 @@
 
 function Region(args) {
 
+    this.chromosome = null;
     this.start = null;
     this.end = null;
-    this.chromosome = null;
 
     if (typeof args != 'undefined') {
+        this.chromosome = args.chromosome || this.chromosome;
         this.start = args.start || this.start;
         this.end = args.end || this.end;
-        this.chromosome = args.chromosome || this.chromosome;
 
         if (args.str != null) {
             this.parse(args.str);
@@ -37,7 +37,13 @@ function Region(args) {
 }
 
 Region.prototype = {
-    parse : function (str) {
+    load : function (obj) {
+        this.chromosome = obj.chromosome;
+        this.start = obj.start;
+        this.end = obj.end;
+    },
+
+    parse: function (str) {
         var splitDots = str.split(":");
         if (splitDots.length == 2) {
             var splitDash = splitDots[1].split("-");
@@ -50,11 +56,7 @@ Region.prototype = {
             }
         }
     },
-    load : function (obj) {
-        this.start = obj.start;
-        this.end = obj.end;
-        this.chromosome = obj.chromosome;
-    },
+
     center : function () {
         return this.start + Math.floor((this.length()) / 2);
     },
@@ -62,6 +64,7 @@ Region.prototype = {
     length : function () {
         return this.end - this.start + 1;
     },
+
     toString : function (formated) {
         var str;
         if (formated == true) {

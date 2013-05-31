@@ -68,6 +68,7 @@ ChromosomeWidget.prototype.drawChromosome = function(){
         return (a.start - b.start);
     };
 
+    console.log('In chromosome-widget: '+this.region)
 	var cellBaseManager = new CellBaseManager(this.species);
  	cellBaseManager.success.addEventListener(function(sender,data){
  		_this.data = data.result[0];
@@ -156,7 +157,7 @@ ChromosomeWidget.prototype._drawSvg = function(chromosome){
 				}else{//click to move the positionBox
 					var w = _this.positionBox.getAttribute("width");
 					var pixS = moveX-(w/2);
-					var pixE = moveX+(w/2);
+					var pixE = moveX+(w/2);    e.re
 					var bioS = (pixS-offset)/_this.pixelBase;
 					var bioE = (pixE-offset)/_this.pixelBase;
 					_this.region.start = Math.round(bioS);
