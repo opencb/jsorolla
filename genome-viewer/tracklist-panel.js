@@ -21,40 +21,45 @@
 
 function TrackListPanel(targetId, args) {//parent is a DOM div element
 	var _this = this;
-	this.args = args;
 
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
+    //set default args
 	this.id = Utils.genId("TrackListPanel");
 
 	this.trackSvgList = [];
 	this.swapHash = {};
 	this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
-	//
-	
-	this.parentLayout = null;
-	this.mousePosition = null;
-	this.windowSize = null;
+
+	this.parentLayout;
+	this.mousePosition;
+	this.windowSize;
 
 	this.zoomMultiplier = 1;
 
-	//default values
-	this.height=0;
+    this.height=0;
 
-    this.region = new Region();
+    //set instantiation args, must be last
+    _.extend(this, args);
 
-    if (typeof args != 'undefined') {
-        this.width = args.width || this.width;
-        this.height = args.height || this.height;
-        this.zoomOffset = args.zoomOffset || this.zoomOffset;
-        this.zoomMultiplier = args.zoomMultiplier || this.zoomMultiplier;
-        this.parentLayout = args.parentLayout || this.parentLayout;
-        this.genomeViewer = args.genomeViewer || this.genomeViewer;
-        if (args.region != null) {
-            this.region.load(args.region);
-        }
-    }
+    //set new region object
+    this.region = new Region(args.region);
+    this.width -= 18;
+
+//    if (typeof args != 'undefined') {
+//        this.width = args.width || this.width;
+//        this.height = args.height || this.height;
+//        this.zoomOffset = args.zoomOffset || this.zoomOffset;
+//        this.zoomMultiplier = args.zoomMultiplier || this.zoomMultiplier;
+//        this.parentLayout = args.parentLayout || this.parentLayout;
+//        this.genomeViewer = args.genomeViewer || this.genomeViewer;
+//        if (args.region != null) {
+//            this.region.load(args.region);
+//        }
+//    }
+
+
 
 	//this region is used to do not modify original region, and will be used by trackSvg
     //Deprecated
@@ -95,29 +100,12 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     $(panelDiv).append(this.tlTracksDiv);
 
 
-//    $(tlHeaderDiv).css({
-//        "width":this.width,
-//        "height":25
-//    });
-//
-//    $(tlPanelDiv).css({
-//        "width":this.width,
-//        "height":this.height
-//    });
-
 	//Main SVG and his events
-//	this.parent = targetId;
 	this.svgTop = SVG.init(tlHeaderDiv,{
 		"width":this.width,
         "height":25
 	});
 	
-
-//	//Main SVG and his events
-//	this.svg = SVG.init(tlPanelDiv,{
-//		"width":this.width,
-//		"height":this.height
-//	});
 
 	//grid
 	//var patt = SVG.addChild(this.svg,"pattern",{
@@ -234,50 +222,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
         'background-color':'gainsboro'
     });
 
-//	this.currentLine = SVG.addChild(this.svg,"rect",{
-//		"id":this.id+"centerLine",
-//		"x":mid,
-//		"y":0,
-//		"width":this.pixelBase,
-//		"height":this.height,
-//		"stroke-width":"2",
-//		"stroke":"orangered",
-//		"opacity":"0.5",
-//		"fill":"orange"
-//	});
-
-
-//	this.mouseLine = SVG.addChild(this.svg,"rect",{
-//		"id":this.id+"mouseLine",
-//		"x":-20,
-//		"y":0,
-//		"width":this.pixelBase,
-//		"height":this.height,
-//		"stroke-width":"2",
-//		//"stroke":"LawnGreen",
-//		"stroke":"lightgray",
-//		"opacity":"0.7",
-//		//"fill":"GreenYellow"
-//		"fill":"gainsboro"
-//	});
-
 	if(this.parentLayout==null){
-		//this.minRegionRect = SVG.addChild(this.svg,"rect",{
-			//"x":mid,
-			//"y":this.height,
-			//"width":this.minRectWidth,
-			//"height":2000,
-			//"stroke-width":"2",
-			//"stroke":"gray",
-			//"opacity":"0.3",
-			//"fill":"lightgray",
-			//"visibility":"hidden",
-		//});
-	
-		
-		//Main svg  movement events
-//		this.svg.setAttribute("cursor", "move");
-
 
         $(targetDiv).mousemove(function(event) {
             var centerPosition = _this.region.center();
@@ -446,31 +391,39 @@ TrackListPanel.prototype = {
     },
 
     setWidth : function(width){
-        this.width=width;
-        this._calculateMinRegion();
-
-        //this._calculatePixelBase();
+        this.width=width-18;
         var mid = this.width/2;
-        this.svg.setAttribute("width",width);
-        this.svgTop.setAttribute("width",width);
-        //this.grid.setAttribute("x",parseInt(mid%10));
-        //this.grid2.setAttribute("width",width);
+        this._calculateMinRegion();
+        this._calculatePixelBase();
+
+        $(this.currentLine).css({'left':mid,'width':this.pixelBase});
+
+        this.svgTop.setAttribute('width',this.width);
         this.positionText.setAttribute("x",mid-30);
         this.nucleotidText.setAttribute("x",mid+35);
-        this.lastPositionText.setAttribute("x",width-70);
-        this.viewNtsArrow.setAttribute("width",width-4);
-        this.viewNtsArrowRight.setAttribute("points",width+",1 "+(width-2)+",1 "+(width-2)+",13 "+width+",13");
+        this.lastPositionText.setAttribute("x",this.width-70);
+        this.viewNtsArrow.setAttribute("width",this.width-4);
+        this.viewNtsArrowRight.setAttribute("points",this.width+",1 "+(this.width-2)+",1 "+(this.width-2)+",13 "+this.width+",13");
         this.viewNtsText.setAttribute("x",mid-30);
         this.viewNtsTextBack.setAttribute("x",mid-40);
-        this.currentLine.setAttribute("x",mid);
-        this.currentLine.setAttribute("width", this.pixelBase);
-        this.mouseLine.setAttribute("width", this.pixelBase);
-        for ( var i = 0; i < this.trackSvgList.length; i++) {
-            this.trackSvgList[i].setWidth(width);
-        }
+        this.trigger('trackWidth:change',{width:this.width,sender:this})
+
         this._setTextPosition();
+        /*
+
+        this.svg.setAttribute("width",width);
+        //this.grid.setAttribute("x",parseInt(mid%10));
+        //this.grid2.setAttribute("width",width);
         this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
         this.onRegionChange.notify();
+        */
+
+
+
+
+//        for ( var i = 0; i < this.trackSvgList.length; i++) {
+//            this.trackSvgList[i].setWidth(width);
+//        }
     },
 
     setZoom : function(zoom){
@@ -481,9 +434,9 @@ TrackListPanel.prototype = {
         this.region.load(region);
         var _this = this;
         this._calculateMinRegion();
+        this._calculatePixelBase();
         //get pixelbase by Region
 
-        this._calculatePixelBase();
 
         this.currentLine.setAttribute("width", this.pixelBase);
         this.mouseLine.setAttribute("width", this.pixelBase);
@@ -548,9 +501,10 @@ TrackListPanel.prototype = {
 
         track.draw();
 
+
         this.on('trackRegion:change',function(event){
-            track.set('pixelBase', this.pixelBase);
-            track.set('zoom', this.zoom);
+            track.set('pixelBase', _this.pixelBase);
+            track.set('zoom', _this.zoom);
             track.set('region', event.region);
 //            trackSvg.position = trackSvg.region.center();
 //            setCallRegion();
@@ -559,11 +513,21 @@ TrackListPanel.prototype = {
 
         this.on('region:move',function(event){
             track.set('region', event.region);
-            track.set('pixelBase', this.pixelBase);
-            track.set('zoom', this.zoom);
+            track.set('pixelBase', _this.pixelBase);
+            track.set('zoom', _this.zoom);
 //            trackSvg.position = trackSvg.region.center();
 //            setCallRegion();
             track.move(event.disp);
+        });
+
+        this.on('trackWidth:change',function(event){
+            track.set('pixelBase', _this.pixelBase);
+            track.set('zoom', _this.zoom);
+            track.set('region', _this.region);
+//            trackSvg.position = trackSvg.region.center();
+//            setCallRegion();
+            track.setWidth(event.width);
+            track.draw();
         });
 
 //old

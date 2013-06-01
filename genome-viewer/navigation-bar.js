@@ -19,6 +19,12 @@ function NavigationBar (targetId, args) {
     this.region = new Region();
     this.targetId = targetId;
     this.species = 'Homo sapiens';
+    this.zoom;
+
+    //set instantiation args, must be last
+    _.extend(this, args);
+
+
 
     this.availableSpecies = [{"text": "Mus musculus", "assembly": "GRCm38.p1",
         "region":{"chromosome":"1","start":18422009,"end":18422009},
@@ -439,7 +445,7 @@ NavigationBar.prototype = {
                 width : 170,
                 maxValue : 100,
                 minValue : 0,
-//			value : this.zoom,
+			    value : this.zoom,
                 useTips : true,
                 increment : 1,
                 tipText : function(thumb) {

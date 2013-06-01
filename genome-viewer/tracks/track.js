@@ -52,6 +52,11 @@ Track.prototype = {
         this[attr] = value;
     },
 
+    setWidth : function(width){
+        this.width=width;
+        this.main.setAttribute("width",width);
+    },
+
     setLoading: function (bool) {
         if (bool) {
             //this.titleGroup.setAttribute("transform","translate(40)");

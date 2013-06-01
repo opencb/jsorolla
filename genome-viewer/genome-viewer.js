@@ -154,7 +154,7 @@ GenomeViewer.prototype = {
         $('#genome-viewer').append('<div id="gv-center-panel" style=""></div>');
 
 
-        $('#gv-center-panel').append('<div id="gv-sidebar-panel" style="background-color: yellow; position:absolute; right:0; z-index:50;width:2px;height:300px"></div>');
+        $('#gv-center-panel').append('<div id="gv-sidebar-panel" style="background-color: yellow; position:absolute; right:0; z-index:50;width:0px;height:300px"></div>');
         $('#gv-center-panel').append('<div id="gv-main-panel" style="z-index:1"></div>');
         $('#gv-sidebar-panel').click(function () {
             $(this).css({width: 200})
@@ -218,164 +218,183 @@ GenomeViewer.prototype = {
     },
     _calculateZoomByRegion: function () {
         return Math.round(Utils.getZoomByPixelBase((this.width / this.region.length())))
-    }
-};
+    },
 
-GenomeViewer.prototype.draw = function () {
+    draw:function () {
 
-    var _this = this;
-
-
-    // Resize
-    $(window).smartresize(function (event) {
-        if (_this.resizable == true) {
-            _this.setWidth($('#' + _this.targetId).width());
-            _this.trigger('width:change', {width: $('#' + _this.targetId).width(), sender: _this});
-        }
-    });
+        var _this = this;
 
 
-    /* Navigation Bar */
-    this.navigationBar = this._createNavigationBar('gv-navigation-panel');
-
-    /*Chromosome Panel*/
-    this.chromosomePanel = this._drawChromosomePanel();
-
-    /*karyotype Panel*/
-
-
-    /*TrackList Panel*/
-    this.trackListPanel = new TrackListPanel('gv-tracks-panel', {
-        width: _this.width - 18,
-//        height:200,
-        region: this.region
-    });
-
-    this.trackListPanel.on('region:move', function (event) {
-        _this.trigger('region:change', event);
-    });
-    this.on('region:change', function (event) {
-        if (event.sender != _this.trackListPanel) {
-            _this.trackListPanel.setRegion(event.region);
-        }
-    });
-
-    this.trackListPanel.on('zoom:change', function (event) {
-        _this.trigger('zoom:change', event);
-    });
-    this.on('zoom:change', function (event) {
-        if (event.sender != _this.trackListPanel) {
-            _this.trackListPanel.setZoom(event.zoom);
-        }
-    });
+        // Resize
+        $(window).smartresize(function (event) {
+            if (_this.resizable == true) {
+                _this.setWidth($('#' + _this.targetId).width());
+                _this.trigger('width:change', {width: $('#' + _this.targetId).width(), sender: _this});
+            }
+        });
 
 
-    /* debug*/
-    /*Region change log*/
+        /* Navigation Bar */
+        this.navigationBar = this._createNavigationBar('gv-navigation-panel');
+
+        /*Chromosome Panel*/
+        this.chromosomePanel = this._drawChromosomePanel();
+
+        /*karyotype Panel*/
+
+
+        /*TrackList Panel*/
+        this.trackListPanel = this._createTrackListPanel('gv-tracks-panel');
+
+
+        /* debug*/
+        /*Region change log*/
 //    this.on('region:change', function(event) {
 //        console.log(event.sender)
 //    });
-};
+    },
 
-GenomeViewer.prototype._createNavigationBar = function (targetId) {
-    var _this = this;
-    var navigationBar = new NavigationBar(targetId, {
-        species: this.species,
-        region: this.region,
-        zoom: this.zoom
-    });
+    /**/
+    /*Components*/
+    /**/
 
-    navigationBar.on('region:change', function (event) {
-        _this.trigger('region:change', event);
-    });
+    _createNavigationBar:function (targetId) {
+        var _this = this;
+        var navigationBar = new NavigationBar(targetId, {
+            species: this.species,
+            region: this.region,
+            zoom: this.zoom
+        });
 
-    this.on('region:change', function (event) {
-        if (event.sender != navigationBar) {
-            _this.navigationBar.setRegion(event.region);
-        }
-    });
+        navigationBar.on('region:change', function (event) {
+            _this.trigger('region:change', event);
+        });
 
-    navigationBar.on('zoom:change', function (event) {
-        _this.trigger('zoom:change', event);
-    });
-
-    this.on('zoom:change', function (event) {
-        if (event.sender != navigationBar) {
-            _this.navigationBar.setZoom(event.region);
-        }
-    });
-
-    navigationBar.on('karyotype-button:change', function (event) {
-        if (event.selected) {
-            _this.chromosomePanel.show();
-        } else {
-            _this.chromosomePanel.hide();
-        }
-    });
-
-    navigationBar.on('chromosome-button:change', function (event) {
-        if (event.selected) {
-            _this.chromosomePanel.show();
-        } else {
-            _this.chromosomePanel.hide();
-        }
-    });
-
-    navigationBar.on('region-button:change', function (event) {
-        if (event.selected) {
-            _this.chromosomePanel.show();
-        } else {
-            _this.chromosomePanel.hide();
-        }
-    });
-    return navigationBar;
-};
-
-GenomeViewer.prototype._drawChromosomePanel = function () {
-    var _this = this;
-    var panel = Ext.create('Ext.panel.Panel', {
-        id: this.id + "chromosomePanel",
-        renderTo: 'gv-chromosome-panel',
-        height: 95,
-        title: 'Chromosome',
-        border: true,
-        margin: '0 0 1 0',
-        //cls:'border-bot panel-border-top',
-        html: '<div id="' + this.id + 'chromosomeSvg" style="margin-top:2px"></div>',
-        listeners: {
-            afterrender: function () {
-                var div = $('#' + _this.id + "chromosomeSvg")[0];
-//				_this.chromosomeWidget = new ChromosomeWidget(div,{
-                _this.chromosomeSVGPanel = new ChromosomePanel(_this.id + "chromosomeSvg", {
-                    width: _this.width,
-                    height: 65,
-                    species: _this.species,
-                    region: _this.region,
-                    zoom: _this.zoom
-                });
-
-                _this.chromosomeSVGPanel.on('region:change', function (event) {
-                    _this.trigger('region:change', event);
-                });
-
-                _this.on('region:change', function (event) {
-                    if (event.sender != _this.chromosomeSVGPanel) {
-                        _this.chromosomeSVGPanel.setRegion(event.region);
-                    }
-                });
-
-                _this.on('width:change', function (event) {
-                    console.log(event.width)
-                    _this.chromosomeSVGPanel.setWidth(event.width);
-                    _this.chromosomePanel.setWidth(event.width);
-                });
-
-                _this.chromosomeSVGPanel.drawChromosome();
+        this.on('region:change', function (event) {
+            if (event.sender != navigationBar) {
+                _this.navigationBar.setRegion(event.region);
             }
-        }
-    });
-    return panel;
+        });
+
+        navigationBar.on('zoom:change', function (event) {
+            _this.trigger('zoom:change', event);
+        });
+
+        this.on('zoom:change', function (event) {
+            if (event.sender != navigationBar) {
+                _this.navigationBar.setZoom(event.region);
+            }
+        });
+
+        navigationBar.on('karyotype-button:change', function (event) {
+            if (event.selected) {
+                _this.chromosomePanel.show();
+            } else {
+                _this.chromosomePanel.hide();
+            }
+        });
+
+        navigationBar.on('chromosome-button:change', function (event) {
+            if (event.selected) {
+                _this.chromosomePanel.show();
+            } else {
+                _this.chromosomePanel.hide();
+            }
+        });
+
+        navigationBar.on('region-button:change', function (event) {
+            if (event.selected) {
+                _this.chromosomePanel.show();
+            } else {
+                _this.chromosomePanel.hide();
+            }
+        });
+        return navigationBar;
+    },
+
+    _drawChromosomePanel: function () {
+        var _this = this;
+        var panel = Ext.create('Ext.panel.Panel', {
+            id: this.id + "chromosomePanel",
+            renderTo: 'gv-chromosome-panel',
+            height: 95,
+            title: 'Chromosome',
+            border: true,
+            margin: '0 0 1 0',
+            //cls:'border-bot panel-border-top',
+            html: '<div id="' + this.id + 'chromosomeSvg" style="margin-top:2px"></div>',
+            listeners: {
+                afterrender: function () {
+                    var div = $('#' + _this.id + "chromosomeSvg")[0];
+//				_this.chromosomeWidget = new ChromosomeWidget(div,{
+                    _this.chromosomeSVGPanel = new ChromosomePanel(_this.id + "chromosomeSvg", {
+                        width: _this.width,
+                        height: 65,
+                        species: _this.species,
+                        region: _this.region,
+                        zoom: _this.zoom
+                    });
+
+                    _this.chromosomeSVGPanel.on('region:change', function (event) {
+                        _this.trigger('region:change', event);
+                    });
+
+                    _this.on('region:change', function (event) {
+                        if (event.sender != _this.chromosomeSVGPanel) {
+                            _this.chromosomeSVGPanel.setRegion(event.region);
+                        }
+                    });
+
+                    _this.on('width:change', function (event) {
+                        console.log(event.width)
+                        _this.chromosomeSVGPanel.setWidth(event.width);
+                        _this.chromosomePanel.setWidth(event.width);
+                    });
+
+                    _this.chromosomeSVGPanel.drawChromosome();
+                }
+            }
+        });
+        return panel;
+    },
+    _createTrackListPanel: function (targetId) {
+        var _this = this;
+        var trackListPanel = new TrackListPanel(targetId, {
+            width: this.width,
+//        height:200,
+            region: this.region
+        });
+
+        trackListPanel.on('region:move', function (event) {
+            _this.trigger('region:change', event);
+        });
+        this.on('region:change', function (event) {
+            if (event.sender != trackListPanel) {
+                trackListPanel.setRegion(event.region);
+            }
+        });
+
+        trackListPanel.on('zoom:change', function (event) {
+            _this.trigger('zoom:change', event);
+        });
+        this.on('zoom:change', function (event) {
+            if (event.sender != trackListPanel) {
+                trackListPanel.setZoom(event.zoom);
+            }
+        });
+
+        this.on('width:change', function (event) {
+            trackListPanel.setWidth(event.width);
+        });
+
+
+        return  trackListPanel;
+    }
 };
+
+
+
+
 
 
 /**/
