@@ -960,7 +960,7 @@ TrackListPanel.prototype = {
     getSequenceNucleotid : function(position){
         var seqTrack = this.getTrackSvgById(1);
         if( seqTrack != null && this.zoom >= seqTrack.visibleRange.start-this.zoomOffset && this.zoom <= seqTrack.visibleRange.end){
-            return seqTrack.trackData.adapter.getNucleotidByPosition({start:position,end:position,chromosome:this.region.chromosome})
+            return seqTrack.dataAdapter.getNucleotidByPosition({start:position,end:position,chromosome:this.region.chromosome})
         }
         return '';
     },

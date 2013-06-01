@@ -28,6 +28,9 @@ function Track(args) {
     this.svgCanvasRightLimit;
 
     this.labelZoom = -1;
+
+    this.resizable = true;
+
 //    this.callstart;
 //    this.callEnd;
 //    this.virtualStart;
@@ -114,7 +117,7 @@ Track.prototype = {
         $(targetId).addClass("x-unselectable");
         $(targetId).append(div);
         $(div).append(svgdiv);
-        $(svgdiv).css({'z-index': 3, 'height': 100, 'overflow-y': 'scroll'});
+        $(svgdiv).css({'z-index': 3, 'overflow-y': 'scroll'});
         var main = SVG.addChild(svgdiv, "svg", {
 //		"style":"border:1px solid #e0e0e0;",
             "id": this.id,
@@ -125,33 +128,35 @@ Track.prototype = {
             "height": this.height
         });
 
-        var resizediv = $('<div id="' + this.id + '-resizediv"></div>')[0];
-        $(resizediv).css({'background-color': 'lightgray', 'height': 5});
+        if(this.resizable){
+            var resizediv = $('<div id="' + this.id + '-resizediv"></div>')[0];
+            $(resizediv).css({'background-color': 'lightgray', 'height': 5});
 
-        $(resizediv).mousedown(function (event) {
-            $('html').addClass("x-unselectable");
-            event.stopPropagation();
-            var downY = event.clientY;
-            $('body').mousemove(function (event) {
-                var despY = (event.clientY - downY);
-                var actualHeight = $(svgdiv).outerHeight();
-                $(svgdiv).css({height: actualHeight + despY});
-                downY = event.clientY;
+            $(resizediv).mousedown(function (event) {
+                $('html').addClass("x-unselectable");
+                event.stopPropagation();
+                var downY = event.clientY;
+                $('body').mousemove(function (event) {
+                    var despY = (event.clientY - downY);
+                    var actualHeight = $(svgdiv).outerHeight();
+                    $(svgdiv).css({height: actualHeight + despY});
+                    downY = event.clientY;
+                });
             });
-        });
-        $('body').mouseup(function (event) {
-            $('html').removeClass("x-unselectable");
-            $(this).off('mousemove');
-        });
+            $('body').mouseup(function (event) {
+                $('html').removeClass("x-unselectable");
+                $(this).off('mousemove');
+            });
 
-        $(resizediv).mouseenter(function (event) {
-            $(this).css({"cursor": "s-resize"});
-        });
-        $(resizediv).mouseleave(function (event) {
-            $(this).css({"cursor": "default"});
-        });
+            $(resizediv).mouseenter(function (event) {
+                $(this).css({"cursor": "s-resize"});
+            });
+            $(resizediv).mouseleave(function (event) {
+                $(this).css({"cursor": "default"});
+            });
 
-        $(div).append(resizediv);
+            $(div).append(resizediv);
+        }
 
         var titleGroup = SVG.addChild(main, "g", {
             "class": "trackTitle"

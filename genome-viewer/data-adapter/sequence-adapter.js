@@ -20,6 +20,9 @@
  */
 
 function SequenceAdapter(args){
+
+    _.extend(this, Backbone.Events);
+
 	this.host = null;
 	this.gzip = true;
 	
@@ -115,6 +118,17 @@ SequenceAdapter.prototype.getData = function(args){
                 },
                 params:this.params
             });
+            this.trigger('data:ready',{
+                items:{
+                    sequence:this.sequence[chromosome],
+                    phastCons:this.phastCons[chromosome],
+                    phylop:this.phylop[chromosome],
+                    start:this.start[chromosome],
+                    end:this.end[chromosome]
+                },
+                params:this.params,
+                sender:this
+            });
 		}
 	}
 	
@@ -196,6 +210,17 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
                 },
                 params:params
             });
+            this.trigger('data:ready',{
+                items:{
+                    sequence:seqResponse[i].sequence,
+                    phastCons:seqResponse[i].phastCons,
+                    phylop:seqResponse[i].phylop,
+                    start:queryStart,
+                    end:queryEnd
+                },
+                params:params,
+                sender:this
+            });
 		}
 	}
 	//if not onMove the svg was cleared so all sequence is sent to redraw
@@ -209,6 +234,17 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
                 end:this.end[chromosome]
             },
             params:params
+        });
+        this.trigger('data:ready',{
+            items:{
+                sequence:this.sequence[chromosome],
+                phastCons:this.phastCons[chromosome],
+                phylop:this.phylop[chromosome],
+                start:this.start[chromosome],
+                end:this.end[chromosome]
+            },
+            params:params,
+            sender:this
         });
 	}
 };
