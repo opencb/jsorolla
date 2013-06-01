@@ -124,7 +124,7 @@ Track.prototype = {
         $(resizediv).css({'background-color': 'lightgray', 'height': 5});
 
         $(resizediv).mousedown(function (event) {
-            $('body').addClass("x-unselectable");
+            $('html').addClass("x-unselectable");
             event.stopPropagation();
             var downY = event.clientY;
             $('body').mousemove(function (event) {
@@ -135,7 +135,7 @@ Track.prototype = {
             });
         });
         $('body').mouseup(function (event) {
-            $(this).removeClass("x-unselectable");
+            $('html').removeClass("x-unselectable");
             $(this).off('mousemove');
         });
 

@@ -32,17 +32,6 @@ var Utils = {
 		text = text.charAt(0).toUpperCase() + text.slice(1);
 		return text;
 	},
-    getZoomByRegion : function (width, region){
-        return this.getZoomByPixelBase(this.getPixelBaseByRegion(width,region));
-    },
-//    getRegionByZoom : function (zoom, width, position){
-//        var baseWidth = parseInt(width/10);
-//        var aux = Math.ceil((baseWidth/2)-1);
-//        var pixelBase = this.getPixelBaseByZoom(zoom);
-//        var start = Math.floor(position - aux);
-//        var end = Math.floor(position + aux);
-//        return {start:start,end:end};
-//    },
 	getPixelBaseByZoom : function (zoom){
 		//zoom [0-100] intervals of 5
 		zoom = Math.max(0,zoom);

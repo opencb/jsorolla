@@ -62,7 +62,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 	this.visualRegion.load(this.region);
 	
 	/********/
-//	this._calculateMinRegion();
+	this._calculateMinRegion();
 	this._calculatePixelBase();
 	/********/
 	

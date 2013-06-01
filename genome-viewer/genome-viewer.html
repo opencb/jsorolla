@@ -88,8 +88,8 @@
     <!-- Genome-viewer-v2 -->
     <script type="text/javascript" src="chromosome-panel.js"></script>
 
-    <script type="text/javascript" src="track.js"></script>
-    <script type="text/javascript" src="feature-track.js"></script>
+    <script type="text/javascript" src="tracks/track.js"></script>
+    <script type="text/javascript" src="tracks/feature-track.js"></script>
 
     <script type="text/javascript" src="renderers/renderer.js"></script>
     <script type="text/javascript" src="renderers/feature-renderer.js"></script>
@@ -137,17 +137,17 @@
 	<script type="text/javascript" src="chromosome-widget.js"></script>
 	<script type="text/javascript" src="circular-chromosome-widget.js"></script>
 	<script type="text/javascript" src="karyotype-widget.js"></script>
-	<script type="text/javascript" src="source/data-source.js"></script>
+	<!--<script type="text/javascript" src="source/data-source.js"></script>-->
 	<script type="text/javascript" src="data-adapter/cellbase-adapter.js"></script>
-	<script type="text/javascript" src="source/file-data-source.js"></script>
-	<script type="text/javascript" src="source/string-data-source.js"></script>
-	<script type="text/javascript" src="source/url-data-source.js"></script>
+	<!--<script type="text/javascript" src="source/file-data-source.js"></script>-->
+	<!--<script type="text/javascript" src="source/string-data-source.js"></script>-->
+	<!--<script type="text/javascript" src="source/url-data-source.js"></script>-->
 	<script type="text/javascript" src="data-adapter/vcf-data-adapter.js"></script>
 	<script type="text/javascript" src="data-adapter/gff2-data-adapter.js"></script>
 	<script type="text/javascript" src="data-adapter/gff3-data-adapter.js"></script>
 	<script type="text/javascript" src="data-adapter/gtf-data-adapter.js"></script>
 	<script type="text/javascript" src="data-adapter/bed-data-adapter.js"></script>
-	<script type="text/javascript" src="source/tabular-data-adapter.js"></script>
+	<!--<script type="text/javascript" src="source/tabular-data-adapter.js"></script>-->
 	<script type="text/javascript" src="data-adapter/das-adapter.js"></script>
 	<script type="text/javascript" src="widget/vcf-file-widget.js"></script>
 	<script type="text/javascript" src="widget/gff-file-widget.js"></script>
@@ -231,7 +231,7 @@
 // 		var pathname = window.location.href;
 // 		console.log(pathname);
 
-        var region = new Region({chromosome: "13", start: 32889550, end: 32889674});
+        var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
 		genomeViewer = new GenomeViewer("application", null, {region: region}); //the div must exist
 		genomeViewer.draw();
 

@@ -38,9 +38,9 @@ function Region(args) {
 
 Region.prototype = {
     load : function (obj) {
-        this.chromosome = obj.chromosome;
-        this.start = obj.start;
-        this.end = obj.end;
+        this.chromosome = obj.chromosome || this.chromosome;
+        this.start = obj.start || this.start;
+        this.end = obj.end || this.end;
     },
 
     parse: function (str) {
