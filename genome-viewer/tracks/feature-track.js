@@ -62,6 +62,9 @@ FeatureTrack.prototype.initialize = function(targetId){
 FeatureTrack.prototype.draw = function(){
     var _this = this;
 
+    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
+
     this.updateHistogramParams();
     this.cleanSvg();
 //    setCallRegion();

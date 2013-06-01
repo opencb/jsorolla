@@ -23,6 +23,7 @@ function SequenceRenderer(args){
 
 SequenceRenderer.prototype.render = function(features, args) {
 
+
     console.time("Sequence render "+features.items.sequence.length);
     var chromeFontSize = "16";
     if(this.zoom == 95){

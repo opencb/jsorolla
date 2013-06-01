@@ -107,7 +107,7 @@ SequenceAdapter.prototype.getData = function(args){
 	
 		cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
 	}else{
-		if(this.sender != "onMove"){
+		if(this.sender != "move"){
 			this.onGetData.notify({
                 items:{
                     sequence:this.sequence[chromosome],
@@ -199,7 +199,8 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 //				this.phylop[chromosome] = this.phylop[chromosome].concat(seqResponse[i].phylop);
 			}
 		}
-		if(this.sender == "onMove" && throwNotify == true){
+
+		if(this.sender == "move" && throwNotify == true){
 			this.onGetData.notify({
                 items:{
                     sequence:seqResponse[i].sequence,
@@ -224,7 +225,7 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 		}
 	}
 	//if not onMove the svg was cleared so all sequence is sent to redraw
-	if(this.sender != "onMove" && throwNotify == true){
+	if(this.sender != "move" && throwNotify == true){
 		this.onGetData.notify({
             items:{
                 sequence:this.sequence[chromosome],

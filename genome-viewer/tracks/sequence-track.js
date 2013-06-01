@@ -62,6 +62,9 @@ SequenceTrack.prototype.initialize = function(targetId){
 SequenceTrack.prototype.draw = function(){
     var _this = this;
 
+    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
+
     this.updateHistogramParams();
     this.cleanSvg();
 //    setCallRegion();
@@ -115,19 +118,22 @@ SequenceTrack.prototype.move = function(disp){
                 start:parseInt(this.svgCanvasLeftLimit-this.svgCanvasOffset),
                 end:this.svgCanvasLeftLimit,
                 histogram:this.histogram,
-                interval:this.interval
+                interval:this.interval,
+                sender:'move'
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
         }
 
         if(disp<0 && virtualEnd > this.svgCanvasRightLimit){
+            debugger
             this.dataAdapter.getData({
                 chromosome:_this.region.chromosome,
                 start:this.svgCanvasRightLimit,
                 end:parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset),
                 histogram:this.histogram,
                 interval:this.interval,
-                transcript:this.transcript
+                transcript:this.transcript,
+                sender:'move'
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset);
         }
