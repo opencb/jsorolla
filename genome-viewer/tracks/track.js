@@ -117,7 +117,12 @@ Track.prototype = {
         $(targetId).addClass("x-unselectable");
         $(targetId).append(div);
         $(div).append(svgdiv);
-        $(svgdiv).css({'z-index': 3, 'overflow-y': 'scroll'});
+
+        $(svgdiv).css({
+            'z-index': 3,
+            'overflow-y': (this.resizable) ? 'scroll' : 'hidden'
+        });
+
         var main = SVG.addChild(svgdiv, "svg", {
 //		"style":"border:1px solid #e0e0e0;",
             "id": this.id,
