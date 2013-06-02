@@ -16,13 +16,15 @@ function NavigationBar (targetId, args) {
 
     this.id = Utils.genId("TrackListPanel");
 
-    this.region = new Region();
     this.targetId = targetId;
     this.species = 'Homo sapiens';
     this.zoom;
 
     //set instantiation args, must be last
     _.extend(this, args);
+
+    //set new region object
+    this.region = new Region(this.region);
 
 
 
@@ -126,7 +128,7 @@ function NavigationBar (targetId, args) {
 //		        	 }
 //		         },
             {
-                id:this.id+"positionLabel",
+                id:this.id+'positionLabel',
                 xtype : 'label',
                 text : 'Position:',
                 margins : '0 0 0 10'
@@ -134,7 +136,7 @@ function NavigationBar (targetId, args) {
                 id : this.id+'tbCoordinate',
                 xtype : 'textfield',
                 width : 165,
-                value : this.region.chromosome + ":" + this.region.start,
+                value : this.region.toString(),
                 listeners:{
                     specialkey: function(field, e){
                         if (e.getKey() == e.ENTER) {
@@ -199,7 +201,7 @@ NavigationBar.prototype = {
 
     setRegion: function(region) {
         this.region.load(region);
-        Ext.getCmp(this.id+'tbCoordinate').setValue(region.toString());
+        Ext.getCmp(this.id+'tbCoordinate').setValue(this.region.toString());
     },
 
     _createSpeciesMenu: function() {

@@ -86,13 +86,6 @@ FeatureTrack.prototype.draw = function(){
         this.invalidZoomText.setAttribute("visibility", "visible");
     }
 
-
-//    var data = this._getFeaturesByChunks(response);
-
-//    this.renderer.render(data, {
-//        zoom:this.zoom,
-//        width:this.width
-//    });
 };
 
 

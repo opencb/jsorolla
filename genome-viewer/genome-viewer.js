@@ -50,6 +50,7 @@ function GenomeViewer(targetId, species, args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
+
     console.log(this.width + "x" + this.height);
     console.log(this.targetId);
     console.log(this.id);
@@ -146,8 +147,11 @@ GenomeViewer.prototype = {
     initialize: function () {
         console.debug("Initializing GenomeViewer structure.");
 
-        $('#' + this.targetId).append('<div id="genome-viewer" style=""></div>');
         this.setWidth($('#' + this.targetId).width());
+
+        Utils.setMinRegion(this.region,(this.width-18));
+
+        $('#' + this.targetId).append('<div id="genome-viewer" style=""></div>');
 
 
         $('#genome-viewer').append('<div id="gv-navigation-panel" style="background-color: greenyellow;"></div>');
@@ -194,6 +198,9 @@ GenomeViewer.prototype = {
 //            this.karyotypeWidget.setRegion({});
 //            Ext.getCmp(this.id + "container").setLoading();
         }
+    },
+    _setRegion:function(region){
+        this.region.load(region);
     },
     setZoom2: function (zoom) {
         this.zoom = zoom;
@@ -247,11 +254,13 @@ GenomeViewer.prototype = {
         this.trackListPanel = this._createTrackListPanel('gv-tracks-panel');
 
 
-        /* debug*/
-        /*Region change log*/
-//    this.on('region:change', function(event) {
-//        console.log(event.sender)
-//    });
+        this.on('region:change', function(event) {
+         if (event.sender != _this) {
+            _this._setRegion(event.region);
+         }
+         /*Region change log*/
+         //console.log(event.sender)
+        });
     },
 
     /**/
@@ -267,6 +276,7 @@ GenomeViewer.prototype = {
         });
 
         navigationBar.on('region:change', function (event) {
+            Utils.setMinRegion(event.region,(_this.width-18))
             _this.trigger('region:change', event);
         });
 

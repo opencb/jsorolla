@@ -44,7 +44,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     _.extend(this, args);
 
     //set new region object
-    this.region = new Region(args.region);
+    this.region = new Region(this.region);
     this.width -= 18;
 
 //    if (typeof args != 'undefined') {
@@ -63,11 +63,10 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 
 	//this region is used to do not modify original region, and will be used by trackSvg
     //Deprecated
-	this.visualRegion = new Region();
-	this.visualRegion.load(this.region);
-	
+	this.visualRegion = new Region(this.region);
+
 	/********/
-	this._calculateMinRegion();
+//	this._calculateMinRegion();
 	this._calculatePixelBase();
 	/********/
 	
@@ -393,10 +392,11 @@ TrackListPanel.prototype = {
     setWidth : function(width){
         this.width=width-18;
         var mid = this.width/2;
-        this._calculateMinRegion();
+//        this._calculateMinRegion();
         this._calculatePixelBase();
 
         $(this.currentLine).css({'left':mid,'width':this.pixelBase});
+        $(this.mouseLine).css({'width':this.pixelBase});
 
         this.svgTop.setAttribute('width',this.width);
         this.positionText.setAttribute("x",mid-30);
@@ -431,15 +431,16 @@ TrackListPanel.prototype = {
     },
 
     setRegion : function(region){//item.chromosome, item.position, item.species
-        this.region.load(region);
         var _this = this;
-        this._calculateMinRegion();
+        this.region.load(region);
+//        this._calculateMinRegion();
         this._calculatePixelBase();
         //get pixelbase by Region
 
 
-        this.currentLine.setAttribute("width", this.pixelBase);
-        this.mouseLine.setAttribute("width", this.pixelBase);
+        $(this.currentLine).css({'width':this.pixelBase});
+        $(this.mouseLine).css({'width':this.pixelBase});
+
         this.viewNtsText.textContent = "Window size: "+this.region.length()+" nts";
         this.windowSize = this.viewNtsText.textContent;
         this._setTextPosition();

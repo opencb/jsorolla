@@ -63,6 +63,17 @@ var Utils = {
 		}
 		return {pixelBase:pixelBase,zoom:this.getZoomByPixelBase(pixelBase)}
 	},
+    setMinRegion : function (region, width){
+        var regionLength = region.length();
+        var minimumWindowBaseLength = parseInt(width/this.getPixelBaseByZoom(100));//for zoom 100
+        if(regionLength < minimumWindowBaseLength){
+            //the zoom will be 100, region must be recalculated
+            var centerPosition = region.center();
+            var aux = Math.ceil((minimumWindowBaseLength/2)-1);
+            region.start = Math.floor(centerPosition-aux);
+            region.end = Math.floor(centerPosition+aux);
+        }
+    },
 	isString : function (s) {
 		return typeof(s) === 'string' || s instanceof String;
 	},

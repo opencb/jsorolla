@@ -87,12 +87,6 @@ SequenceTrack.prototype.draw = function(){
     }
 
 
-//    var data = this._getFeaturesByChunks(response);
-
-//    this.renderer.render(data, {
-//        zoom:this.zoom,
-//        width:this.width
-//    });
 };
 
 
