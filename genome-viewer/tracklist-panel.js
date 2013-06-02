@@ -427,7 +427,8 @@ TrackListPanel.prototype = {
     },
 
     setZoom : function(zoom){
-        throw("DEPRECATED: TrackSvgLayout.prototype.setZoom");
+        this.zoom = zoom;
+//        throw("DEPRECATED: TrackSvgLayout.prototype.setZoom");
     },
 
     setRegion : function(region){//item.chromosome, item.position, item.species

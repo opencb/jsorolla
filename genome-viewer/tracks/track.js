@@ -59,6 +59,16 @@ Track.prototype = {
         this.width=width;
         this.main.setAttribute("width",width);
     },
+    updateHeight : function(){
+        if(!this.histogram){
+            var height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
+        }else{
+            var height = this.height;
+        }
+        this.main.setAttribute("height",height);
+        this.svgCanvasFeatures.setAttribute("height",height);
+        this.titlebar.setAttribute("height",height);
+    },
 
     setLoading: function (bool) {
         if (bool) {
@@ -77,7 +87,7 @@ Track.prototype = {
             this.histogram = true;
             this.histogramLogarithm = true;
             this.histogramMax = 500;
-            this.interval = parseInt(5 / _this.pixelBase);//server interval limit 512
+            this.interval = parseInt(5 / this.pixelBase);//server interval limit 512
         } else {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
@@ -120,6 +130,7 @@ Track.prototype = {
 
         $(svgdiv).css({
             'z-index': 3,
+            'height':this.height,
             'overflow-y': (this.resizable) ? 'scroll' : 'hidden'
         });
 

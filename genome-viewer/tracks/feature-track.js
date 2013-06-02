@@ -17,6 +17,7 @@ function FeatureTrack(args) {
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
+    this.histogramRenderer = new HistogramRenderer();
 
 
     this.chunksDisplayed = {};
@@ -36,7 +37,7 @@ FeatureTrack.prototype.initialize = function(targetId){
 
     this.dataAdapter.on('data:ready',function(event){
         if(event.params.histogram == true){
-            _this.renderer = HistogramRender;
+            _this.renderer = _this.histogramRenderer;
         }else{
             _this.renderer = _this.defaultRenderer;
         }
@@ -55,6 +56,7 @@ FeatureTrack.prototype.initialize = function(targetId){
             pixelPosition : _this.pixelPosition
 
         });
+        _this.updateHeight();
         _this.setLoading(false);
     });
 };

@@ -12,12 +12,11 @@ function NavigationBar (targetId, args) {
 
     var _this = this;
 
-    this.options = args;
-
-    this.id = Utils.genId("TrackListPanel");
+    this.id = Utils.genId("NavigationBar");
 
     this.targetId = targetId;
     this.species = 'Homo sapiens';
+    this.increment = 3;
     this.zoom;
 
     //set instantiation args, must be last
@@ -202,6 +201,13 @@ NavigationBar.prototype = {
     setRegion: function(region) {
         this.region.load(region);
         Ext.getCmp(this.id+'tbCoordinate').setValue(this.region.toString());
+        this._setZoom();
+    },
+
+    _setZoom : function(){
+        Ext.getCmp(this.id+'zoomSlider').suspendEvents();
+        Ext.getCmp(this.id+'zoomSlider').setValue(this._calculateZoomByRegion());
+        Ext.getCmp(this.id+'zoomSlider').resumeEvents();
     },
 
     _createSpeciesMenu: function() {
@@ -456,8 +462,10 @@ NavigationBar.prototype = {
                 listeners : {
                     'change': {
                         fn :function(slider, newValue) {
-//                            _this._handleNavigationBar("ZOOM", newValue);
-                            _this.trigger('zoom:change', {zoom: newValue, sender: _this});
+                            _this.zoom = newValue;
+                            _this.region.load(_this._calculateRegionByZoom());
+                            Ext.getCmp(_this.id+'tbCoordinate').setValue(_this.region.toString());
+                            _this.trigger('region:change', {region: _this.region, sender: _this});
                         },
                         buffer : 500
                     }
@@ -465,6 +473,17 @@ NavigationBar.prototype = {
             });
         }
         return this._zoomSlider;
+    },
+    _calculateRegionByZoom: function () {
+        var zoomBaseLength = parseInt((this.width-18) / Utils.getPixelBaseByZoom(this.zoom));
+        var centerPosition = this.region.center();
+        var aux = Math.ceil((zoomBaseLength / 2) - 1);
+        var start = Math.floor(centerPosition - aux);
+        var end = Math.floor(centerPosition + aux);
+        return {start: start, end: end};
+    },
+    _calculateZoomByRegion: function () {
+        return Math.round(Utils.getZoomByPixelBase((this.width-18) / this.region.length()));
     },
 
     _createSearchComboBox: function() {
@@ -481,7 +500,7 @@ NavigationBar.prototype = {
             emptyText:'gene, snp, ...',
             hideTrigger: true,
             fieldLabel:'Search:',
-            labelWidth: this.options.searchLabelWidth || 40,
+            labelWidth: 40,
             width: 220,
             store: searchResults,
             queryMode: 'local',
@@ -533,10 +552,10 @@ NavigationBar.prototype = {
             this.genomeWidgetProperties.setShowTranscripts(Ext.getCmp("showTranscriptCB").checked);
             this.refreshMasterGenomeViewer();
         }
-        if (action == 'ZOOM'){
-            this.setZoom(args);
-            this.onRegionChange.notify({sender:"zoom"});
-        }
+//        if (action == 'ZOOM'){
+//            this.setZoom(args);
+//            this.onRegionChange.notify({sender:"zoom"});
+//        }
         if (action == 'GoToGene'){
             var geneName = Ext.getCmp(this.id+'quickSearch').getValue();
             if(geneName != null){
@@ -547,20 +566,20 @@ NavigationBar.prototype = {
                 }
             }
         }
-        if (action == '+'){
-//  	var zoom = this.genomeWidgetProperties.getZoom();
-            var zoom = this.zoom;
-            if (zoom < 100){
-                this.setZoom(zoom + this.increment);
-            }
-        }
-        if (action == '-'){
-//    	 var zoom = this.genomeWidgetProperties.getZoom();
-            var zoom = this.zoom;
-            if (zoom >= 5){
-                this.setZoom(zoom - this.increment);
-            }
-        }
+//        if (action == '+'){
+////  	var zoom = this.genomeWidgetProperties.getZoom();
+//            var zoom = this.zoom;
+//            if (zoom < 100){
+//                this.setZoom(zoom + this.increment);
+//            }
+//        }
+//        if (action == '-'){
+////    	 var zoom = this.genomeWidgetProperties.getZoom();
+//            var zoom = this.zoom;
+//            if (zoom >= 5){
+//                this.setZoom(zoom - this.increment);
+//            }
+//        }
 
         if (action == 'Go'){
             var value = Ext.getCmp(this.id+'tbCoordinate').getValue();
@@ -577,6 +596,8 @@ NavigationBar.prototype = {
             else{
                 this.region.load(reg);
 //            this.onRegionChange.notify({sender:"GoButton"});
+                this._setZoom();
+
                 this.trigger('region:change', {region: this.region, sender: this});
             }
 

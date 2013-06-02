@@ -24,22 +24,22 @@ function ChromosomePanel(targetId, args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
-    this.region = new Region();
+    this.id = Utils.genId('ChromosomePanel');
 
-    this.pixelBase = 0.0011;
-    this.id = Math.round(Math.random() * 10000000);
+    this.pixelBase;
     this.species = 'hsapiens';
-    if (typeof args != 'undefined') {
-        this.species = args.species || 'hsapiens';
-        if (args.region != null) {
-            this.region.load(args.region);
-        }
+    this.width = 600;
+    this.height = 75;
 
-        this.width = args.width || 600;
-        this.height = args.height || 75;
-    }
+    //set instantiation args, must be last
+    _.extend(this, args);
+
+    //set own region object
+    this.region = new Region(this.region);
+
 
     this.lastChromosome = "";
+
 
 //    this.onClick = new Event();
 
@@ -323,6 +323,7 @@ ChromosomePanel.prototype = {
             this.positionBox.setAttribute("x", pointerPosition - (positionBoxWidth / 2));
             var positionBoxWidth = this.region.length() * this.pixelBase;
             this.positionBox.setAttribute("width", positionBoxWidth);
+            console.log(positionBoxWidth)
         }
         if (needDraw) {
 //		$(this.svg).empty();
