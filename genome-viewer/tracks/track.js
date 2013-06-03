@@ -305,6 +305,38 @@ Track.prototype = {
 
     },
 
+    showInfoWidget: function (args) {
+        if (this.dataAdapter.species == "orange") {
+            //data.resource+="orange";
+            if (args.featureType.indexOf("gene") != -1)
+                args.featureType = "geneorange";
+            if (args.featureType.indexOf("transcript") != -1)
+                args.featureType = "transcriptorange";
+        }
+        switch (args.featureType) {
+            case "gene":
+                new GeneInfoWidget(null, this.dataAdapter.species).draw(args);
+                break;
+            case "geneorange":
+                new GeneOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
+                break;
+            case "transcriptorange":
+                new TranscriptOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
+                break;
+            case "transcript":
+                new TranscriptInfoWidget(null, this.dataAdapter.species).draw(args);
+                break;
+            case "snp" :
+                new SnpInfoWidget(null, this.dataAdapter.species).draw(args);
+                break;
+            case "vcf" :
+                new VCFVariantInfoWidget(null, this.dataAdapter.species).draw(args);
+                break;
+            default:
+                break;
+        }
+    },
+
     draw: function () {
 
     }

@@ -7,13 +7,13 @@
  */
 
 //Parent class for all renderers
-function Renderer(args){
+function Renderer(args) {
 
 };
 
 Renderer.prototype = {
 
-    render:function(items){
+    render: function (items) {
 
     }
 

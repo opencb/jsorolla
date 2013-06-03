@@ -112,7 +112,7 @@ GenomeViewer.prototype = {
         $('#' + this.targetId).append('<div id="genome-viewer" style=""></div>');
 
 
-        $('#genome-viewer').append('<div id="gv-navigation-panel" style="background-color: greenyellow;"></div>');
+        $('#genome-viewer').append('<div id="gv-navigation-panel" style=""></div>');
         $('#genome-viewer').append('<div id="gv-center-panel" style=""></div>');
 
 
@@ -269,7 +269,9 @@ GenomeViewer.prototype = {
                 _this.navigationBar.setRegion(event.region);
             }
         });
-
+        _this.on('width:change', function (event) {
+            _this.navigationBar.setWidth(event.width);
+        });
 //        navigationBar.on('zoom:change', function (event) {
 //            _this.trigger('zoom:change', event);
 //        });

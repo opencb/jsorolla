@@ -112,7 +112,7 @@ FeatureRenderer.prototype.render = function(features, args) {
                 });
 
                 $(featureGroup).click(function(event){
-                    args.showInfoWidget({query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType, adapter:_this.trackData.adapter});
+                    _this.trigger('feature:click',{query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType})
                 });
                 break;
             }

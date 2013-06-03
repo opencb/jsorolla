@@ -61,6 +61,7 @@ function NavigationBar (targetId, args) {
         renderTo: this.targetId,
         cls:"bio-toolbar",
         region:"north",
+        width:'100%',
         border: true,
         height: 35,
 //		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
@@ -203,7 +204,9 @@ NavigationBar.prototype = {
         Ext.getCmp(this.id+'tbCoordinate').setValue(this.region.toString());
         this._setZoom();
     },
-
+    setWidth: function(width) {
+        Ext.getCmp(this.id+'navToolbar').setWidth(width);
+    },
     _setZoom : function(){
         Ext.getCmp(this.id+'zoomSlider').suspendEvents();
         Ext.getCmp(this.id+'zoomSlider').setValue(this._calculateZoomByRegion());
@@ -501,7 +504,7 @@ NavigationBar.prototype = {
             hideTrigger: true,
             fieldLabel:'Search:',
             labelWidth: 40,
-            width: 220,
+            width: 150,
             store: searchResults,
             queryMode: 'local',
             typeAhead:false,

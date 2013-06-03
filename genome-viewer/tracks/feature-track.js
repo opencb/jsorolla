@@ -59,6 +59,10 @@ FeatureTrack.prototype.initialize = function(targetId){
         _this.updateHeight();
         _this.setLoading(false);
     });
+
+    this.renderer.on('feature:click',function(event){
+        _this.showInfoWidget(event);
+    });
 };
 
 FeatureTrack.prototype.draw = function(){
