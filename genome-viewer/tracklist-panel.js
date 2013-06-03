@@ -105,33 +105,8 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
         "height":25
 	});
 	
-
-	//grid
-	//var patt = SVG.addChild(this.svg,"pattern",{
-		//"id":this.id+"gridPatt",
-		//"patternUnits":"userSpaceOnUse",
-		//"x":0,
-		//"y":0,
-		//"width":_this.pixelBase,
-		//"height":2000
-	//});
-
 	var mid = this.width/2;
-	//this.grid = SVG.addChild(patt,"rect",{
-		//"x":parseInt(mid%10),
-		//"y":0,
-		//"width":1,
-		//"height":2000,
-		//"opacity":"0.15",
-		//"fill":"grey"
-	//});
-	//
-	//this.grid2 = SVG.addChild(this.svg,"rect",{
-		//"width":0,
-		//"height":2000,
-		//"x":0,
-		//"fill":"url(#"+this.id+"gridPatt)"
-	//});
+
 	this.positionText = SVG.addChild(this.svgTop,"text",{
 		"x":mid-30,
 		"y":22,
@@ -529,7 +504,7 @@ TrackListPanel.prototype = {
 //            trackSvg.position = trackSvg.region.center();
 //            setCallRegion();
             track.setWidth(event.width);
-            track.draw();
+//            track.draw();
         });
 
 //old

@@ -62,7 +62,6 @@ ChromosomePanel.prototype = {
         while (this.svg.firstChild) {
             this.svg.removeChild(this.svg.firstChild);
         }
-        console.log('aaaaa')
         this._drawSvg(this.data);
     },
 
