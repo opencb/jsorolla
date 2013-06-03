@@ -322,7 +322,6 @@ ChromosomePanel.prototype = {
             this.positionBox.setAttribute("x", pointerPosition - (positionBoxWidth / 2));
             var positionBoxWidth = this.region.length() * this.pixelBase;
             this.positionBox.setAttribute("width", positionBoxWidth);
-            console.log(positionBoxWidth)
         }
         if (needDraw) {
 //		$(this.svg).empty();

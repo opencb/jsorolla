@@ -66,8 +66,8 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 	this.visualRegion = new Region(this.region);
 
 	/********/
-//	this._calculateMinRegion();
-	this._calculatePixelBase();
+//	this._setMinRegion();
+	this._setPixelBaseAndZoom();
 	/********/
 	
 	//SVG structure and events initialization
@@ -367,8 +367,8 @@ TrackListPanel.prototype = {
     setWidth : function(width){
         this.width=width-18;
         var mid = this.width/2;
-//        this._calculateMinRegion();
-        this._calculatePixelBase();
+//        this._setMinRegion();
+        this._setPixelBaseAndZoom();
 
         $(this.currentLine).css({'left':mid,'width':this.pixelBase});
         $(this.mouseLine).css({'width':this.pixelBase});
@@ -384,33 +384,17 @@ TrackListPanel.prototype = {
         this.trigger('trackWidth:change',{width:this.width,sender:this})
 
         this._setTextPosition();
-        /*
-
-        this.svg.setAttribute("width",width);
-        //this.grid.setAttribute("x",parseInt(mid%10));
-        //this.grid2.setAttribute("width",width);
-        this.onWindowSize.notify({windowSize:this.viewNtsText.textContent});
-        this.onRegionChange.notify();
-        */
-
-
-
-
-//        for ( var i = 0; i < this.trackSvgList.length; i++) {
-//            this.trackSvgList[i].setWidth(width);
-//        }
     },
 
     setZoom : function(zoom){
-        this.zoom = zoom;
-//        throw("DEPRECATED: TrackSvgLayout.prototype.setZoom");
+//        this.zoom = zoom;
     },
 
     setRegion : function(region){//item.chromosome, item.position, item.species
         var _this = this;
         this.region.load(region);
-//        this._calculateMinRegion();
-        this._calculatePixelBase();
+//        this._setMinRegion();
+        this._setPixelBaseAndZoom();
         //get pixelbase by Region
 
 
@@ -498,12 +482,12 @@ TrackListPanel.prototype = {
         });
 
         this.on('trackWidth:change',function(event){
-            track.set('pixelBase', _this.pixelBase);
-            track.set('zoom', _this.zoom);
-            track.set('region', _this.region);
-//            trackSvg.position = trackSvg.region.center();
-//            setCallRegion();
             track.setWidth(event.width);
+//            track.set('pixelBase', _this.pixelBase);
+//            track.set('zoom', _this.zoom);
+//            track.set('region', _this.region);
+////            trackSvg.position = trackSvg.region.center();
+////            setCallRegion();
 //            track.draw();
         });
 
@@ -873,7 +857,7 @@ TrackListPanel.prototype = {
         this._redraw();
     },
 
-    _calculateMinRegion : function() {
+    _setMinRegion : function() {
         var regionLength = this.region.length();
         var minimumBaseLength = parseInt(this.width/Utils.getPixelBaseByZoom(100));//for zoom 100
         //this.minRectWidth = regionLength*Utils.getPixelBaseByZoom(100);
@@ -886,7 +870,7 @@ TrackListPanel.prototype = {
         }
     },
 
-    _calculatePixelBase : function(){
+    _setPixelBaseAndZoom : function(){
         this.pixelBase = this.width/this.region.length();
         this.pixelBase = this.pixelBase / this.zoomMultiplier;
         // At maximum zoom a bp is 10px, for each zoom level (5% of zoom)
