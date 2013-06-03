@@ -11,8 +11,19 @@ function Track(args) {
 //    this.width = 200;
 //    this.height = 200;
 
-    this.pixelBase;
+    this.labelZoom = -1;
+    this.resizable = true;
+    this.targetId;
+    this.id;
+    this.title;
+    this.histogramZoom;
+    this.transcriptZoom;
+    this.height = 100;
+    this.visibleRange = {start:0,end:100},
 
+    _.extend(this, args);
+
+    this.pixelBase;
     this.svgCanvasWidth = 500000;//mesa
     this.pixelPosition = this.svgCanvasWidth / 2;
     this.svgCanvasOffset;
@@ -27,9 +38,6 @@ function Track(args) {
     this.svgCanvasLeftLimit;
     this.svgCanvasRightLimit;
 
-    this.labelZoom = -1;
-
-    this.resizable = true;
 
 //    this.callstart;
 //    this.callEnd;
@@ -42,7 +50,6 @@ function Track(args) {
 
     this.renderedArea = {};//used for renders to store binary trees
 
-    _.extend(this, args);
 };
 
 Track.prototype = {

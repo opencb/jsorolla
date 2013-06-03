@@ -19,6 +19,7 @@ function FeatureRenderer(args){
     //set instantiation args
     _.extend(this, args);
 
+    this.fontFamily = 'Source Sans Pro';
 };
 
 
@@ -80,24 +81,26 @@ FeatureRenderer.prototype.render = function(features, args) {
             if(enc){
                 var featureGroup = SVG.addChild(args.svgCanvasFeatures,"g");
                 var rect = SVG.addChild(featureGroup,"rect",{
-                    "x":x,
-                    "y":rowY,
-                    "width":width,
-                    "height":settings.height,
-                    "stroke": "#3B0B0B",
-                    "stroke-width": 0.5,
-                    "fill": color,
-                    "cursor": "pointer"
+                    'x':x,
+                    'y':rowY,
+                    'width':width,
+                    'height':settings.height,
+                    'stroke': '#3B0B0B',
+                    'stroke-width': 0.5,
+                    'fill': color,
+                    'cursor': 'pointer'
                 });
                 if(args.zoom > args.labelZoom){
                     var text = SVG.addChild(featureGroup,"text",{
-                        "i":i,
-                        "x":x,
-                        "y":textY,
-                        "font-size":10,
-                        "opacity":null,
-                        "fill":"black",
-                        "cursor": "pointer"
+                        'i':i,
+                        'x':x,
+                        'y':textY,
+                        'font-size':12,
+                        'font-family':_this.fontFamily,
+                        'font-weight': 400,
+                        'opacity':null,
+                        'fill':'black',
+                        'cursor': 'pointer'
                     });
                     text.textContent = settings.getLabel(feature);
                 }

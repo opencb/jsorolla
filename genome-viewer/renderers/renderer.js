@@ -8,6 +8,7 @@
 
 //Parent class for all renderers
 function Renderer(args){
+
 };
 
 Renderer.prototype = {
