@@ -1,15 +1,28 @@
-/**
- * Created with IntelliJ IDEA.
- * User: imedina
- * Date: 5/28/13
- * Time: 6:36 PM
- * To change this template use File | Settings | File Templates.
+/*
+ * Copyright (c) 2012 Francisco Salavert (ICM-CIPF)
+ * Copyright (c) 2012 Ruben Sanchez (ICM-CIPF)
+ * Copyright (c) 2012 Ignacio Medina (ICM-CIPF)
+ *
+ * This file is part of JS Common Libs.
+ *
+ * JS Common Libs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * JS Common Libs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
 function Track(args) {
 
-//    this.width = 200;
-//    this.height = 200;
+    this.width = 200;
+    this.height = 200;
 
     this.labelZoom = -1;
     this.resizable = true;
@@ -39,13 +52,6 @@ function Track(args) {
     this.svgCanvasRightLimit;
 
 
-//    this.callstart;
-//    this.callEnd;
-//    this.virtualStart;
-//    this.vitualEnd;
-
-
-    //svg attributes
     this.invalidZoomText;
 
     this.renderedArea = {};//used for renders to store binary trees
@@ -79,11 +85,9 @@ Track.prototype = {
 
     setLoading: function (bool) {
         if (bool) {
-            //this.titleGroup.setAttribute("transform","translate(40)");
             this.svgLoading.setAttribute("visibility", "visible");
             this.status = "rendering";
         } else {
-            //this.titleGroup.setAttribute("transform","translate(0)");
             this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
         }
@@ -103,27 +107,14 @@ Track.prototype = {
     },
 
     cleanSvg : function(filters){//clean
-        console.time("-----------------------------------------empty");
-        //$(this.features).empty();
-//		this.features.textContent = "";
+//        console.time("-----------------------------------------empty");
         while (this.svgCanvasFeatures.firstChild) {
             this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
         }
-        console.timeEnd("-----------------------------------------empty");
-        //deprecated, diplayed object is now in trackSvg class
-        //this.adapter.featureCache.chunksDisplayed = {};
+//        console.timeEnd("-----------------------------------------empty");
         this.chunksDisplayed = {};
         this.renderedArea = {};
     },
-//    updateCallRegion : function (){
-//        //needed call variables
-//        callStart = parseInt(_this.region.start - _this.halfVirtualBase*2);
-//        callEnd = parseInt(_this.region.end + _this.halfVirtualBase*2);
-//        virtualStart = parseInt(_this.region.start - _this.halfVirtualBase*2);//for now
-//        vitualEnd = parseInt(_this.region.end + _this.halfVirtualBase*2);//for now
-//
-//        trackSvg.pixelBase = _this.pixelBase;
-//    },
 
     initializeDom: function (targetId) {
 
@@ -143,7 +134,6 @@ Track.prototype = {
         });
 
         var main = SVG.addChild(svgdiv, "svg", {
-//		"style":"border:1px solid #e0e0e0;",
             "id": this.id,
             "class": "trackSvg",
             "x": 0,
@@ -160,17 +150,19 @@ Track.prototype = {
                 $('html').addClass("x-unselectable");
                 event.stopPropagation();
                 var downY = event.clientY;
-                $('body').mousemove(function (event) {
+                $('html').mousemove(function (event) {
                     var despY = (event.clientY - downY);
                     var actualHeight = $(svgdiv).outerHeight();
                     $(svgdiv).css({height: actualHeight + despY});
                     downY = event.clientY;
                 });
             });
-            $('body').mouseup(function (event) {
+            $('html').mouseup(function (event) {
                 $('html').removeClass("x-unselectable");
-                $(this).off('mousemove');
+                $('html').off('mousemove');
             });
+
+
 
             $(resizediv).mouseenter(function (event) {
                 $(this).css({"cursor": "s-resize"});
@@ -193,15 +185,9 @@ Track.prototype = {
         var titlebar = SVG.addChild(titleGroup, "rect", {
             "x": 0,
             "y": 0,
-            //"width":textWidth,
             "width": this.width,
-            //"height":22,
             "height": this.height,
-            //"stroke":"lightgray",
-            //"stroke":"deepSkyBlue",
-            //"stroke-width":"1",
             "opacity": "0.6",
-            //"fill":"honeydew"
             "fill": "transparent"
         });
         var titleText = SVG.addChild(titleGroup, "text", {
@@ -210,7 +196,6 @@ Track.prototype = {
             "font-size": 12,
             "opacity": "0.4",
             "fill": "black"
-//		"transform":"rotate(-90 50,50)"
         });
         titleText.textContent = text;
 
@@ -223,26 +208,14 @@ Track.prototype = {
 
 
         this.fnTitleMouseEnter = function () {
-//		over.setAttribute("opacity","0.1");
-            //titlebar.setAttribute("width",74+textWidth);
             titlebar.setAttribute("opacity", "0.1");
             titlebar.setAttribute("fill", "greenyellow");
             titleText.setAttribute("opacity", "1.0");
-            //upRect.setAttribute("visibility","visible");
-            //downRect.setAttribute("visibility","visible");
-            //if(_this.closable == true){ hideRect.setAttribute("visibility","visible"); }
-//		settingsRect.setAttribute("visibility","visible");//TODO not implemented yet, hidden for now...
         };
         this.fnTitleMouseLeave = function () {
-////	over.setAttribute("opacity","0.0");
-            //titlebar.setAttribute("width",textWidth);
             titlebar.setAttribute("opacity", "0.6");
             titlebar.setAttribute("fill", "transparent");
             titleText.setAttribute("opacity", "0.4");
-            //upRect.setAttribute("visibility","hidden");
-            //downRect.setAttribute("visibility","hidden");
-            //hideRect.setAttribute("visibility","hidden");
-            //settingsRect.setAttribute("visibility","hidden");
         };
 
         $(titleGroup).off("mouseenter");
@@ -295,10 +268,6 @@ Track.prototype = {
         this.titleGroup = titleGroup;
         this.titlebar = titlebar;
         this.titleText = titleText;
-        //this.upRect = upRect;
-        //this.downRect = downRect;
-        //this.hideRect = hideRect;
-        //this.settingsRect = settingsRect;
 
         this.rendered = true;
         this.status = "ready";

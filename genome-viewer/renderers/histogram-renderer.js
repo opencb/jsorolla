@@ -1,12 +1,24 @@
-/**
- * Created with IntelliJ IDEA.
- * User: fsalavert
- * Date: 5/30/13
- * Time: 4:17 PM
- * To change this template use File | Settings | File Templates.
+/*
+ * Copyright (c) 2012 Francisco Salavert (ICM-CIPF)
+ * Copyright (c) 2012 Ruben Sanchez (ICM-CIPF)
+ * Copyright (c) 2012 Ignacio Medina (ICM-CIPF)
+ *
+ * This file is part of JS Common Libs.
+ *
+ * JS Common Libs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * JS Common Libs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//any item with chromosome start end
 HistogramRenderer.prototype = new Renderer({});
 
 function HistogramRenderer(args){
@@ -22,13 +34,11 @@ function HistogramRenderer(args){
 
 
 HistogramRenderer.prototype.render = function(features, args) {
-    //here we got features array
     var middle = args.width/2;
     var multiplier = 5;
-//	console.log(featureList);
     var histogramHeight = 75;
     var points = '';
-//debugger
+
     if(features.length>0) {//Force first point at histogramHeight
         var firstFeature = features[0];
         var width = (firstFeature.end-firstFeature.start)* args.pixelBase;
@@ -53,38 +63,14 @@ HistogramRenderer.prototype.render = function(features, args) {
         var x = args.pixelPosition+middle-((args.position-feature.start)*args.pixelBase);
 
 
-
-
         var height = /*histogramHeight * */ features[i].value;
         if(height == null){
             height = features[i].features_count;
         }
         height = height*multiplier;
 
-        //
-//		if(features[i].value==null){
-//			console.log(features[i]);
-//		}
-
-        //TODO FOR POLYLINE Width/2 to center the point
         points += (x+(width/2))+","+(histogramHeight - height)+" ";
 
-//		var rect = SVG.addChild(this.features,"rect",{
-//			"x":x,
-//			"y":histogramHeight - height,
-//			"width":width,
-//			"height":height,
-//			"stroke": "#3B0B0B",
-//			"stroke-width": 0.5,
-//			"fill": color,
-//			"cursor": "pointer"
-//		});
-
-
-        //calculate max for debug purposes
-//        if(featureList[i].value>maxValue){
-//            maxValue = featureList[i].value
-//        }
     }
     if(features.length>0) {//force last point at histogramHeight
         var lastFeature = features[features.length-1];
@@ -94,7 +80,6 @@ HistogramRenderer.prototype.render = function(features, args) {
 
     }
 
-//	console.log(points);
     var pol = SVG.addChild(args.svgCanvasFeatures,"polyline",{
         "points":points,
         "stroke": "#000000",
