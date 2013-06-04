@@ -43,10 +43,13 @@ function ChromosomePanel(targetId, args) {
 
 //    this.onClick = new Event();
 
-    this.svg = SVG.init($('#' + targetId)[0], {
+    this.targetDiv = $('#' + targetId)[0];
+
+    this.svg = SVG.init(this.targetDiv, {
         "width": this.width,
         "height": this.height
     });
+    $(this.targetDiv).addClass('x-unselectable');
 
     this.colors = {gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue", clementina: '#ffc967'};
 
@@ -112,121 +115,15 @@ ChromosomePanel.prototype = {
         var offset = 20;
         var centerPosition = _this.region.center();
 
+
+        /* status string */
+        var status = '';
+
         var pointerPosition = (centerPosition * _this.pixelBase) + offset;
 
         var group = SVG.addChild(_this.svg, "g", {"cursor": "pointer"});
 
-        var selBox = SVG.addChild(this.svg, "rect", {
-            "x": 0,
-            "y": 2,
-            "stroke-width": "2",
-            "stroke": "deepskyblue",
-            "opacity": "0.5",
-            "fill": "honeydew"
-        });
-
-        /*Remove event listeners*/
-        $(this.svg).off('contextmenu');
-        $(this.svg).off('mousedown');
-        $(this.svg).off('mouseup');
-        $(this.svg).off('mousemove');
-        $(this.svg).off('mouseleave');
-
-        //Prevent browser context menu
-        $(this.svg).contextmenu(function (e) {
-            e.preventDefault();
-        });
-        var overPositionBox = false;
-        var movingPositionBox = false;
-        var selectingRegion = false;
-        var downY, downX, moveX, moveY, lastX;
-        $(this.svg).mousedown(function (event) {
-            downX = (event.pageX - $(_this.svg).offset().left);
-            selBox.setAttribute("x", downX);
-            lastX = _this.positionBox.getAttribute("x");
-            $(this).mousemove(function (event) {
-                moveX = (event.pageX - $(_this.svg).offset().left);
-                if (overPositionBox == false && movingPositionBox == false) {
-                    selectingRegion = true;
-                    if (moveX < downX) {
-                        selBox.setAttribute("x", moveX);
-                    }
-                    selBox.setAttribute("width", Math.abs(moveX - downX));
-                    selBox.setAttribute("height", _this.height - 3);
-                } else if (selectingRegion == false) {
-                    movingPositionBox = true;
-                    var w = _this.positionBox.getAttribute("width");
-                    _this.positionBox.setAttribute("x", moveX - (w / 2));
-                }
-            });
-        });
-
-        $(this.svg).mouseup(function (event) {
-            $(this).off('mousemove');
-            if (downX != null) {
-                if (moveX != null) {
-                    if (overPositionBox == false && movingPositionBox == false) {
-                        var bioS = (downX - offset) / _this.pixelBase;
-                        var bioE = (moveX - offset) / _this.pixelBase;
-                        _this.region.start = parseInt(Math.min(bioS, bioE));
-                        _this.region.end = parseInt(Math.max(bioS, bioE));
-
-                        var w = Math.abs(downX - moveX);
-                        _this.positionBox.setAttribute("width", w);
-                        _this.positionBox.setAttribute("x", Math.abs((downX + moveX) / 2) - (w / 2));
-//                        _this.onClick.notify();
-                        _this.trigger('region:change', {region: _this.region, sender: _this});
-                        selectingRegion = false;
-                    } else {//click to move the positionBox
-                        var w = _this.positionBox.getAttribute("width");
-                        var pixS = moveX - (w / 2);
-                        var pixE = moveX + (w / 2);
-//                        e.re
-                        var bioS = (pixS - offset) / _this.pixelBase;
-                        var bioE = (pixE - offset) / _this.pixelBase;
-                        _this.region.start = Math.round(bioS);
-                        _this.region.end = Math.round(bioE);
-
-                        _this.positionBox.setAttribute("x", moveX - (w / 2));
-//                        _this.onClick.notify();
-                        _this.trigger('region:change', {region: _this.region, sender: _this});
-                        movingPositionBox = false;
-                    }
-                } else {
-                    var w = _this.positionBox.getAttribute("width");
-                    var pixS = downX - (w / 2);
-                    var pixE = downX + (w / 2);
-                    var bioS = (pixS - offset) / _this.pixelBase;
-                    var bioE = (pixE - offset) / _this.pixelBase;
-                    _this.region.start = Math.round(bioS);
-                    _this.region.end = Math.round(bioE);
-
-                    _this.positionBox.setAttribute("x", downX - (w / 2));
-//                    _this.onClick.notify();
-                    _this.trigger('region:change', {region: _this.region, sender: _this});
-                }
-            }
-            selBox.setAttribute("width", 0);
-            selBox.setAttribute("height", 0);
-            downX = null;
-            moveX = null;
-            lastX = _this.positionBox.getAttribute("x");
-        });
-        $(this.svg).mouseleave(function (event) {
-            $(this).off('mousemove')
-            if (lastX != null) {
-                _this.positionBox.setAttribute("x", lastX);
-            }
-            selBox.setAttribute("width", 0);
-            selBox.setAttribute("height", 0);
-            downX = null;
-            moveX = null;
-            lastX = null;
-            overPositionBox = false;
-            movingPositionBox = false;
-            selectingRegion = false;
-        });
-
+        //draw chromosome cytobands
         for (var i = 0; i < chromosome.cytobands.length; i++) {
             var cytoband = chromosome.cytobands[i];
             var width = _this.pixelBase * (cytoband.end - cytoband.start);
@@ -277,27 +174,249 @@ ChromosomePanel.prototype = {
             x = x + width;
         }
 
-        var positionBoxWidth = _this.region.length() * _this.pixelBase;
-        this.positionBox = SVG.addChild(group, "rect", {
-            "x": pointerPosition - (positionBoxWidth / 2),
-            "y": 2,
-            "width": positionBoxWidth,
-            "height": _this.height - 3,
-            "stroke": "orangered",
-            "stroke-width": 2,
-            "opacity": 0.5,
-            "fill": "navajowhite"
+        $(this.svg).on('mousedown',function (event) {
+            status = 'setRegion';
         });
+
+        // selection box, will appear when selection is detected
+        var selBox = SVG.addChild(this.svg, "rect", {
+            "x": 0,
+            "y": 2,
+            "stroke-width": "2",
+            "stroke": "deepskyblue",
+            "opacity": "0.5",
+            "fill": "honeydew"
+        });
+
+
+        var positionBoxWidth = _this.region.length() * _this.pixelBase;
+        var positionGroup = SVG.addChild(group, 'g');
+        this.positionBox = SVG.addChild(positionGroup, 'rect', {
+            'x': pointerPosition - (positionBoxWidth / 2),
+            'y': 2,
+            'width': positionBoxWidth,
+            'height': _this.height - 3,
+            'stroke': 'orangered',
+            'stroke-width': 2,
+            'opacity': 0.5,
+            'fill': 'navajowhite'
+        });
+        $(this.positionBox).on('mousedown',function (event) {
+            status = 'movePositionBox';
+        });
+
+
+        var resizeLeft = SVG.addChild(positionGroup, 'rect', {
+            'x': pointerPosition - (positionBoxWidth / 2),
+            'y': 2,
+            'width': 5,
+            'height': _this.height - 3,
+            'opacity': 0.5,
+            'fill': 'orangered',
+            'visibility': 'hidden'
+        });
+        $(resizeLeft).on('mousedown',function (event) {
+            status = 'resizePositionBoxLeft';
+        });
+
+        var resizeRight = SVG.addChild(positionGroup, 'rect', {
+            'x': positionBoxWidth-5,
+            'y': 2,
+            'width': 5,
+            'height': _this.height - 3,
+            'opacity': 0.5,
+            'fill': 'orangered',
+            'visibility': 'hidden'
+        });
+        $(resizeRight).on('mousedown',function (event) {
+            status = 'resizePositionBoxRight';
+        });
+
         $(this.positionBox).off('mouseenter');
         $(this.positionBox).off('mouseleave');
-        $(this.positionBox).mouseenter(function (event) {
-            if (selectingRegion == false) {
-                overPositionBox = true;
+//        $(this.positionBox).mouseenter(function (event) {
+//            if (selectingRegion == false) {
+//                overPositionBox = true;
+//            }
+//        });
+//        $(this.positionBox).mouseleave(function (event) {
+//            overPositionBox = false;
+//        });
+
+        var recalculateResizeControls = function () {
+            var postionBoxX = parseInt(_this.positionBox.getAttribute('x'));
+            var postionBoxWidth = parseInt(_this.positionBox.getAttribute('width'));
+            resizeLeft.setAttribute('x', postionBoxX-5);
+            resizeRight.setAttribute('x', (postionBoxX+postionBoxWidth));
+            $(resizeLeft).css({"cursor": "w-resize"});
+            $(resizeRight).css({"cursor": "e-resize"});
+        };
+
+        var hideResizeControls = function () {
+            resizeLeft.setAttribute('visibility', 'hidden');
+            resizeRight.setAttribute('visibility', 'hidden');
+        };
+
+        var showResizeControls = function () {
+            resizeLeft.setAttribute('visibility', 'visible');
+            resizeRight.setAttribute('visibility', 'visible');
+        };
+
+        $(positionGroup).mouseenter(function(event){
+            recalculateResizeControls();
+            showResizeControls();
+        });
+        $(positionGroup).mouseleave(function(event){
+            hideResizeControls();
+        });
+
+
+
+        /*Remove event listeners*/
+        $(this.svg).off('contextmenu');
+        $(this.svg).off('mousedown');
+        $(this.svg).off('mouseup');
+        $(this.svg).off('mousemove');
+        $(this.svg).off('mouseleave');
+
+        //Prevent browser context menu
+        $(this.svg).contextmenu(function (e) {
+            e.preventDefault();
+        });
+//        var overPositionBox = false;
+//        var movingPositionBox = false;
+//        var selectingRegion = false;
+        var downY, downX, moveX, moveY, lastX, increment;
+
+        $(this.svg).mousedown(function (event) {
+            downX = (event.pageX - $(_this.svg).offset().left);
+            selBox.setAttribute("x", downX);
+            lastX = _this.positionBox.getAttribute("x");
+            if(status == ''){
+                status = 'setRegion'
             }
+            console.log(status);
+            resizeLeft.setAttribute('visibility', 'hidden');
+            $(this).mousemove(function (event) {
+                moveX = (event.pageX - $(_this.svg).offset().left);
+                hideResizeControls();
+                switch (status) {
+                    case 'resizePositionBoxLeft' :
+                        var inc = moveX-downX;
+                        var newWidth = parseInt(_this.positionBox.getAttribute("width")) - inc;
+                        if(newWidth > 0){
+                            _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x"))+inc);
+                            _this.positionBox.setAttribute("width",newWidth);
+                        }
+                        downX = moveX;
+                        break;
+                    case 'resizePositionBoxRight' :
+                        var inc = moveX-downX;
+                        var newWidth = parseInt(_this.positionBox.getAttribute("width")) + inc;
+                        if(newWidth > 0){
+                            _this.positionBox.setAttribute("width",newWidth);
+                        }
+                        downX = moveX;
+                        break;
+                    case 'movePositionBox' :
+                        var inc = moveX-downX;
+//                        var w = _this.positionBox.getAttribute("width");
+//                        _this.positionBox.setAttribute("x", moveX - (w / 2));
+                        _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x"))+inc);
+                        downX = moveX;
+                        break;
+                    case 'setRegion':
+                    case 'selectingRegion' :
+                        status = 'selectingRegion';
+                        if (moveX < downX) {
+                            selBox.setAttribute("x", moveX);
+                        }
+                        selBox.setAttribute("width", Math.abs(moveX - downX));
+                        selBox.setAttribute("height", _this.height - 3);
+                        break;
+                }
+
+            });
         });
-        $(this.positionBox).mouseleave(function (event) {
+
+
+        $(this.svg).mouseup(function (event) {
+            $(this).off('mousemove');
+            if (downX != null) {
+
+                switch (status) {
+                    case 'resizePositionBoxLeft' :
+                    case 'resizePositionBoxRight' :
+                    case 'movePositionBox' :
+                        if (moveX != null) {
+                        var w = parseInt(_this.positionBox.getAttribute("width"));
+                        var x = parseInt(_this.positionBox.getAttribute("x"));
+                        var pixS = x;
+                        var pixE = x+w;
+                        var bioS = (pixS - offset) / _this.pixelBase;
+                        var bioE = (pixE - offset) / _this.pixelBase;
+                        _this.region.start = Math.round(bioS);
+                        _this.region.end = Math.round(bioE);
+                        recalculateResizeControls();
+                        showResizeControls();
+                        _this.trigger('region:change', {region: _this.region, sender: _this});
+                        recalculateResizeControls();
+                        showResizeControls();
+                        }
+                        break;
+                    case 'setRegion' :
+                        var w = _this.positionBox.getAttribute("width");
+                        var pixS = downX - (w / 2);
+                        var pixE = downX + (w / 2);
+                        var bioS = (pixS - offset) / _this.pixelBase;
+                        var bioE = (pixE - offset) / _this.pixelBase;
+                        _this.region.start = Math.round(bioS);
+                        _this.region.end = Math.round(bioE);
+
+                        _this.positionBox.setAttribute("x", downX - (w / 2));
+                        _this.trigger('region:change', {region: _this.region, sender: _this});
+                        break;
+                    case 'selectingRegion' :
+                        var bioS = (downX - offset) / _this.pixelBase;
+                        var bioE = (moveX - offset) / _this.pixelBase;
+                        _this.region.start = parseInt(Math.min(bioS, bioE));
+                        _this.region.end = parseInt(Math.max(bioS, bioE));
+
+                        var w = Math.abs(downX - moveX);
+                        _this.positionBox.setAttribute("width", w);
+                        _this.positionBox.setAttribute("x", Math.abs((downX + moveX) / 2) - (w / 2));
+                        _this.trigger('region:change', {region: _this.region, sender: _this});
+                        break;
+                }
+
+                console.log(status);
+                status = '';
+
+            }
+            selBox.setAttribute("width", 0);
+            selBox.setAttribute("height", 0);
+            downX = null;
+            moveX = null;
+            lastX = _this.positionBox.getAttribute("x");
+        });
+        $(this.svg).mouseleave(function (event) {
+            $(this).off('mousemove')
+            if (lastX != null) {
+                _this.positionBox.setAttribute("x", lastX);
+            }
+            selBox.setAttribute("width", 0);
+            selBox.setAttribute("height", 0);
+            downX = null;
+            moveX = null;
+            lastX = null;
             overPositionBox = false;
+            movingPositionBox = false;
+            selectingRegion = false;
         });
+
+
+
+
     },
 
     setRegion: function (region) {//item.chromosome, item.region

@@ -147,7 +147,7 @@ Track.prototype = {
             $(resizediv).css({'background-color': 'lightgray', 'height': 5});
 
             $(resizediv).mousedown(function (event) {
-                $('html').addClass("x-unselectable");
+                $('html').addClass('x-unselectable');
                 event.stopPropagation();
                 var downY = event.clientY;
                 $('html').mousemove(function (event) {
