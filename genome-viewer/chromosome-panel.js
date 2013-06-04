@@ -295,8 +295,7 @@ ChromosomePanel.prototype = {
             if(status == ''){
                 status = 'setRegion'
             }
-            console.log(status);
-            resizeLeft.setAttribute('visibility', 'hidden');
+            hideResizeControls();
             $(this).mousemove(function (event) {
                 moveX = (event.pageX - $(_this.svg).offset().left);
                 hideResizeControls();
@@ -388,8 +387,6 @@ ChromosomePanel.prototype = {
                         _this.trigger('region:change', {region: _this.region, sender: _this});
                         break;
                 }
-
-                console.log(status);
                 status = '';
 
             }
@@ -421,6 +418,7 @@ ChromosomePanel.prototype = {
 
     setRegion: function (region) {//item.chromosome, item.region
         this.region.load(region);
+        console.log(region.center())
         var needDraw = false;
 //        if (item.species != null) {
 //            this.species = item.species;
@@ -434,14 +432,14 @@ ChromosomePanel.prototype = {
             needDraw = true;
         }
 
-        var centerPosition = this.region.center();
-        if (!isNaN(centerPosition)) {
-            var pointerPosition = (centerPosition * this.pixelBase) + 20;
-            var positionBoxWidth = parseFloat(this.positionBox.getAttribute("width"));
-            this.positionBox.setAttribute("x", pointerPosition - (positionBoxWidth / 2));
-            var positionBoxWidth = this.region.length() * this.pixelBase;
-            this.positionBox.setAttribute("width", positionBoxWidth);
-        }
+
+        //recalculate positionBox
+        var genomicLength = this.region.length();
+        var pixelWidth = genomicLength * this.pixelBase;
+        var x = (this.region.start * this.pixelBase) + 20;//20 is the margin
+        this.positionBox.setAttribute("x", x);
+        this.positionBox.setAttribute("width", pixelWidth);
+
         if (needDraw) {
 //		$(this.svg).empty();
             while (this.svg.firstChild) {
@@ -450,6 +448,8 @@ ChromosomePanel.prototype = {
             this.drawChromosome();
         }
     }
+
+
 
 //ChromosomeWidget.prototype.setZoom = function(zoom){
     //this.zoom=zoom;
