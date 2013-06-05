@@ -157,9 +157,9 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 	this._setTextPosition();
 
 
-    this.currentLine = $('<div id="'+this.id+'centerLine"></div>')[0];
-    $(panelDiv).append(this.currentLine);
-    $(this.currentLine).css({
+    this.centerLine = $('<div id="'+this.id+'centerLine"></div>')[0];
+    $(panelDiv).append(this.centerLine);
+    $(this.centerLine).css({
         'z-index': 2,
         'position': 'absolute',
         'left': mid,
@@ -350,7 +350,7 @@ TrackListPanel.prototype = {
 //        $(this.tlTracksDiv).css('height',height);
 //        //this.grid.setAttribute("height",height);
 //        //this.grid2.setAttribute("height",height);
-//        $(this.currentLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
+//        $(this.centerLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
 //        $(this.mouseLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
     },
 
@@ -359,7 +359,7 @@ TrackListPanel.prototype = {
         var mid = this.width/2;
         this._setPixelBaseAndZoom();
 
-        $(this.currentLine).css({'left':mid,'width':this.pixelBase});
+        $(this.centerLine).css({'left':mid,'width':this.pixelBase});
         $(this.mouseLine).css({'width':this.pixelBase});
 
         this.svgTop.setAttribute('width',this.width);
@@ -386,7 +386,7 @@ TrackListPanel.prototype = {
         //get pixelbase by Region
 
 
-        $(this.currentLine).css({'width':this.pixelBase});
+        $(this.centerLine).css({'width':this.pixelBase});
         $(this.mouseLine).css({'width':this.pixelBase});
 
         this.viewNtsText.textContent = "Window size: "+this.region.length()+" nts";
