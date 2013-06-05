@@ -1,9 +1,17 @@
 @import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono);
 @import url(http://fonts.googleapis.com/css?family=Ubuntu);
-@import url(http://fonts.googleapis.com/css?family=Oxygen:700,400,300);
 @import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro);
-@import url(http://fonts.googleapis.com/css?family=Oxygen+Mono);
-@import url(http://fonts.googleapis.com/css?family=Handlee);
+
+.font-sourcesanspro{
+    font-family: 'Source Sans Pro';
+    font-size:13px;
+    line-height:120%;
+}
+.font-ubuntu{
+    font-family: 'Ubuntu';
+    font-size:13px;
+    line-height:120%;
+}
 
 .app-header {
     background-color : darkred;

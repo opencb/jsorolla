@@ -20,7 +20,6 @@
  */
 
 function Track(args) {
-
     this.width = 200;
     this.height = 200;
 
@@ -144,7 +143,7 @@ Track.prototype = {
 
         if(this.resizable){
             var resizediv = $('<div id="' + this.id + '-resizediv"></div>')[0];
-            $(resizediv).css({'background-color': 'lightgray', 'height': 5});
+            $(resizediv).css({'background-color': 'lightgray', 'height': 3, opacity:0.3});
 
             $(resizediv).mousedown(function (event) {
                 $('html').addClass('x-unselectable');
@@ -165,10 +164,12 @@ Track.prototype = {
 
 
             $(resizediv).mouseenter(function (event) {
-                $(this).css({"cursor": "s-resize"});
+                $(this).css({"cursor": "ns-resize"});
+                $(this).css({"opacity": 1});
             });
             $(resizediv).mouseleave(function (event) {
                 $(this).css({"cursor": "default"});
+                $(this).css({"opacity": 0.3});
             });
 
             $(div).append(resizediv);

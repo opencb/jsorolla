@@ -119,11 +119,13 @@
     <script type="text/javascript" src="tracks/track.js"></script>
     <script type="text/javascript" src="tracks/feature-track.js"></script>
     <script type="text/javascript" src="tracks/sequence-track.js"></script>
+    <script type="text/javascript" src="tracks/gene-track.js"></script>
 
     <script type="text/javascript" src="renderers/renderer.js"></script>
     <script type="text/javascript" src="renderers/feature-renderer.js"></script>
     <script type="text/javascript" src="renderers/sequence-renderer.js"></script>
     <script type="text/javascript" src="renderers/histogram-renderer.js"></script>
+    <script type="text/javascript" src="renderers/gene-renderer.js"></script>
 
 
 	<!--<script type="text/javascript" src="../ui-widgets/attributes/genomic-attributes-widget.js"></script>-->
@@ -212,7 +214,7 @@
 
 
 
-        this.t2 = new SequenceTrack({
+        this.sequence = new SequenceTrack({
             targetId:null,
             id:1,
             title:'Squence',
@@ -236,20 +238,19 @@
             })
         });
 
-        this.genomeViewer.addTrack(this.t2);
+        this.genomeViewer.addTrack(this.sequence);
 
-
-        this.t1 = new FeatureTrack({
+        this.gene = new GeneTrack({
             targetId:null,
-            id:2,
-            title:'Gene',
+            id:3,
+            title:'Gene & Transcript',
             histogramZoom:20,
             transcriptZoom:50,
             height:100,
             visibleRange:{start:0,end:100},
             featureTypes:FEATURE_TYPES,
 
-            renderer:new FeatureRenderer(),
+            renderer:new GeneRenderer(),
 
             dataAdapter:new CellBaseAdapter({
                 category: "genomic",
@@ -266,7 +267,39 @@
             })
         });
 
-        this.genomeViewer.addTrack(this.t1);
+        this.genomeViewer.addTrack(this.gene);
+
+        this.snp = new FeatureTrack({
+            targetId:null,
+            id:2,
+            title:'SNP',
+            histogramZoom:70,
+            labelZoom:80,
+            height:100,
+            visibleRange:{start:0,end:100},
+            featureTypes:FEATURE_TYPES,
+
+            renderer:new FeatureRenderer(),
+
+            dataAdapter:new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "snp",
+                params:{
+                    exclude:'transcriptVariations,xrefs,samples'
+                },
+                species: this.genomeViewer.species,
+                featureCache:{
+                    gzip: true,
+                    chunkSize:10000
+                },
+                filters:{},
+                options:{},
+                featureConfig:FEATURE_CONFIG.snp
+            })
+        });
+
+        this.genomeViewer.addTrack(this.snp);
 
 
 

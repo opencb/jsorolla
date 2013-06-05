@@ -72,7 +72,6 @@ function CellBaseAdapter(args){
 		}
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
-	this.onGetData = new Event();
 }
 
 CellBaseAdapter.prototype.clearData = function(){
@@ -207,7 +206,6 @@ CellBaseAdapter.prototype.getData = function(args){
 			}
 		}
 		if(itemList.length > 0){
-			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
 			_this.trigger('data:ready',{items:itemList, params:_this.params, cached:false, sender:_this});
 		}
 		console.timeEnd(_this.resource+" get and save "+rnd);
@@ -251,7 +249,6 @@ CellBaseAdapter.prototype.getData = function(args){
 		cellBaseManager.get(this.category, this.subCategory, querys, this.resource, this.params);
 	}else{
 		if(itemList.length > 0){
-			this.onGetData.notify({items:itemList, params:this.params});
             _this.trigger('data:ready',{items:itemList, params:this.params, sender:this});
 		}
 	}
