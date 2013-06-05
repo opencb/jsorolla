@@ -37,7 +37,7 @@ function KaryotypePanel(targetId, args) {
     //set own region object
     this.region = new Region(this.region);
 
-
+    this.lastSpecies = this.species;
 
     this.onClick = new Event();
     this.afterRender = new Event();
@@ -68,6 +68,29 @@ KaryotypePanel.prototype = {
             this.svg.removeChild(this.svg.firstChild);
         }
         this._drawSvg(this.chromosomeList,this.data2);
+    },
+
+    draw: function(){
+        var _this = this;
+
+        var sortfunction = function(a, b) {
+            var IsNumber = true;
+            for (var i = 0; i < a.name.length && IsNumber == true; i++) {
+                if (isNaN(a.name[i])) {
+                    IsNumber = false;
+                }
+            }
+            if (!IsNumber) return 1;
+            return (a.name - b.name);
+        };
+
+        var cellBaseManager = new CellBaseManager(this.species);
+        cellBaseManager.success.addEventListener(function(sender,data){
+            _this.chromosomeList = data.result;
+            _this.chromosomeList.sort(sortfunction);
+            _this._drawSvg(_this.chromosomeList);
+        });
+        cellBaseManager.get('feature', 'chromosome', null , 'all');
     },
 
     drawKaryotype: function(){
@@ -159,7 +182,8 @@ KaryotypePanel.prototype = {
                 _this.region.start = clickPosition;
                 _this.region.end = clickPosition;
 
-                _this.onClick.notify(_this.region);
+//                _this.onClick.notify(_this.region);
+                _this.trigger('region:change', {region: _this.region, sender: _this});
             });
 
             for ( var j=0, lenJ=chromosome.cytobands.length; j<lenJ; j++){ //loop over chromosome objects
@@ -228,25 +252,37 @@ KaryotypePanel.prototype = {
     },
 
 
-    setRegion: function(item){//item.chromosome, item.position, item.species
+    setRegion: function(region){//item.chromosome, item.position, item.species
+        this.region.load(region);
         var needDraw = false;
-        if(item.species!=null){
-            this.species = item.species;
+//        if(item.species!=null){
+//            this.species = item.species;
+//            needDraw = true;
+//        }
+//        if(item.species==null){
+//            this.positionBox.setAttribute("x1",this.chrOffsetX[this.region.chromosome]-10);
+//            this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
+//        }
+
+        if (this.lastSpecies != this.species) {
             needDraw = true;
-        }
-        if(item.species==null){
-            this.positionBox.setAttribute("x1",this.chrOffsetX[this.region.chromosome]-10);
-            this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
+            this.lastSpecies = species;
         }
 
+        //recalculate positionBox
         var centerPosition = this.region.center();
-        if(!isNaN(centerPosition)){
-            if(item.species==null){
-                var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
-                this.positionBox.setAttribute("y1", pointerPosition);
-                this.positionBox.setAttribute("y2", pointerPosition);
-            }
-        }
+        var x = (this.region.start * this.pixelBase) + 20;//20 is the margin
+        var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
+        this.positionBox.setAttribute("y1", pointerPosition);
+        this.positionBox.setAttribute("y2", pointerPosition);
+
+//        if(!isNaN(centerPosition)){
+//            if(item.species==null){
+//                var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
+//                this.positionBox.setAttribute("y1", pointerPosition);
+//                this.positionBox.setAttribute("y2", pointerPosition);
+//            }
+//        }
         if(needDraw){
 //		$(this.svg).empty();
             while (this.svg.firstChild) {

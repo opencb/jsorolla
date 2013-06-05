@@ -222,10 +222,11 @@ GenomeViewer.prototype = {
         /* Navigation Bar */
         this.navigationBar = this._createNavigationBar('gv-navigation-panel');
 
+        /*karyotype Panel*/
+        this.karyotypePanel = this._drawKaryotypePanel();
+
         /*Chromosome Panel*/
         this.chromosomePanel = this._drawChromosomePanel();
-
-        /*karyotype Panel*/
 
 
         /*TrackList Panel*/
@@ -284,9 +285,9 @@ GenomeViewer.prototype = {
 
         navigationBar.on('karyotype-button:change', function (event) {
             if (event.selected) {
-                _this.chromosomePanel.show();
+                _this.karyotypePanel.show();
             } else {
-                _this.chromosomePanel.hide();
+                _this.karyotypePanel.hide();
             }
         });
 
@@ -306,6 +307,50 @@ GenomeViewer.prototype = {
             }
         });
         return navigationBar;
+    },
+
+    _drawKaryotypePanel: function () {
+        var _this = this;
+        var panel = Ext.create('Ext.panel.Panel', {
+            id: this.id + "karyotypePanel",
+            renderTo: 'gv-karyotype-panel',
+            height: 165,
+            title: 'Karyotype',
+            border: true,
+            margin: '0 0 1 0',
+            //cls:'border-bot panel-border-top',
+            html: '<div id="' + this.id + 'karyotypeSvg" style="margin-top:2px"></div>',
+            listeners: {
+                afterrender: function () {
+                    var div = $('#' + _this.id + "karyotypeSvg")[0];
+//				_this.chromosomeWidget = new ChromosomeWidget(div,{
+                    _this.karyotypeSVGPanel = new KaryotypePanel(_this.id + "karyotypeSvg", {
+                        width: _this.width,
+                        height: 125,
+                        species: _this.species,
+                        region: _this.region
+                    });
+
+                    _this.karyotypeSVGPanel.on('region:change', function (event) {
+                        _this.trigger('region:change', event);
+                    });
+
+                    _this.on('region:change', function (event) {
+                        if (event.sender != _this.karyotypeSVGPanel) {
+                            _this.karyotypeSVGPanel.setRegion(event.region);
+                        }
+                    });
+
+                    _this.on('width:change', function (event) {
+                        _this.karyotypeSVGPanel.setWidth(event.width);
+                        _this.karyotypePanel.setWidth(event.width);
+                    });
+
+                    _this.karyotypeSVGPanel.draw();
+                }
+            }
+        });
+        return panel;
     },
 
     _drawChromosomePanel: function () {
@@ -351,6 +396,7 @@ GenomeViewer.prototype = {
         });
         return panel;
     },
+
     _createTrackListPanel: function (targetId) {
         var _this = this;
         var trackListPanel = new TrackListPanel(targetId, {

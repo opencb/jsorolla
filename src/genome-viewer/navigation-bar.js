@@ -402,7 +402,7 @@ NavigationBar.prototype = {
             id: this.id+"karyotypeButton",
             text : 'Karyotype',
             enableToggle: true,
-            pressed: false,
+            pressed: true,
             toggleHandler: function() {
                 _this.trigger('karyotype-button:change', {selected: this.pressed, sender: _this});
             }
