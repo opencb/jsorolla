@@ -42,7 +42,7 @@ module.exports = function (grunt) {
                     'src/genome-viewer/feature-cache.js',
                     'src/genome-viewer/navigation-bar.js',
                     'src/genome-viewer/chromosome-panel.js',
-                    'src/genome-viewer/karyotype-widget.js',
+                    'src/genome-viewer/karyotype-panel.js',
                     'src/genome-viewer/tracklist-panel.js',
                         /** tracks **/
                     'src/genome-viewer/tracks/track.js',
