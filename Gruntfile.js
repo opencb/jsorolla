@@ -5,73 +5,66 @@ module.exports = function (grunt) {
     grunt.initConfig({
         // Metadata.
         meta: {
-            version: '0.1.0'
+            version: '0.1.0',
+            versiongv: '0.1.2'
         },
         banner: '/*! PROJECT_NAME - v<%= meta.version %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
             '* http://PROJECT_WEBSITE/\n' +
             '* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
             'YOUR_NAME; Licensed GPLv2 */\n',
-        // Task configuration.
-        bannergv: '/*! PROJECT_NAME - v<%= meta.version %> - ' +
+        bannergv: '/*! Genome Viewer - v<%= meta.versiongv %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-            '* http://PROJECT_WEBSITE/\n' +
+            '* http://https://github.com/opencb-bigdata-viz/js-common-libs/\n' +
             '* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
-            'YOUR_NAME; Licensed GPLv2 */\n',
+            ' ' +
+            'Licensed GPLv2 */\n',
         // Task configuration.
         concat: {
             options: {
-                banner: '<%= banner %>',
+                banner: '<%= bannergv %>',
                 stripBanners: true
-            },
-            dist: {
-                src: ['lib/**/*.js'],
-                dest: 'dist/FILE_NAME.js'
             },
             gv: {
                 src: [
                     /** Utils **/
-                    'lib/utils/event.js','lib/utils/svg.js','lib/utils/utils.js',
+                    'src/utils/event.js','src/utils/svg.js','src/utils/utils.js',
                     /** config **/
-                    'lib/genome-viewer/gv-config.js',
-                    'lib/ui-widgets/ux-window.js',
+                    'src/genome-viewer/gv-config.js',
+                    'src/ui-widgets/ux-window.js',
                     /** cellbase **/
-                    'lib/cellbase/ui-widgets/info-widget.js','lib/cellbase/ui-widgets/*-info-widget.js','lib/cellbase/cellbase-manager.js',
+                    'src/cellbase/ui-widgets/info-widget.js','src/cellbase/ui-widgets/*-info-widget.js','src/cellbase/cellbase-manager.js',
                     /**  data-adapter **/
-                    'lib/genome-viewer/data-adapter/cellbase-adapter.js','lib/genome-viewer/data-adapter/sequence-adapter.js',
+                    'src/genome-viewer/data-adapter/cellbase-adapter.js','src/genome-viewer/data-adapter/sequence-adapter.js',
                     /** genome viewer **/
-                    'lib/genome-viewer/region.js',
-                    'lib/genome-viewer/feature-binary-search-tree.js',
-                    'lib/genome-viewer/feature-cache.js',
-                    'lib/genome-viewer/navigation-bar.js',
-                    'lib/genome-viewer/chromosome-panel.js',
-                    'lib/genome-viewer/karyotype-widget.js',
-                    'lib/genome-viewer/tracklist-panel.js',
+                    'src/genome-viewer/region.js',
+                    'src/genome-viewer/feature-binary-search-tree.js',
+                    'src/genome-viewer/feature-cache.js',
+                    'src/genome-viewer/navigation-bar.js',
+                    'src/genome-viewer/chromosome-panel.js',
+                    'src/genome-viewer/karyotype-widget.js',
+                    'src/genome-viewer/tracklist-panel.js',
                         /** tracks **/
-                    'lib/genome-viewer/tracks/track.js',
-                    'lib/genome-viewer/tracks/feature-track.js',
-                    'lib/genome-viewer/tracks/sequence-track.js',
+                    'src/genome-viewer/tracks/track.js',
+                    'src/genome-viewer/tracks/feature-track.js',
+                    'src/genome-viewer/tracks/sequence-track.js',
                         /** renderers **/
-                    'lib/genome-viewer/renderers/renderer.js',
-                    'lib/genome-viewer/renderers/feature-renderer.js',
-                    'lib/genome-viewer/renderers/sequence-renderer.js',
-                    'lib/genome-viewer/renderers/histogram-renderer.js',
-                    'lib/genome-viewer/genome-viewer.js'
+                    'src/genome-viewer/renderers/renderer.js',
+                    'src/genome-viewer/renderers/feature-renderer.js',
+                    'src/genome-viewer/renderers/sequence-renderer.js',
+                    'src/genome-viewer/renderers/histogram-renderer.js',
+                    'src/genome-viewer/genome-viewer.js'
                 ],
-                dest: 'dist/gv.js'
+                dest: 'dist/genome-viewer/<%= meta.versiongv %>/gv.js'
             }
         },
         uglify: {
             options: {
-                banner: ''
-            },
-            dist: {
-                src: '<%= concat.dist.dest %>',
-                dest: 'dist/FILE_NAME.min.js'
+                banner: '<%= bannergv %>'
             },
             gv: {
                 src: '<%= concat.gv.dest %>',
-                dest: 'dist/gv.min.js'
+                dest: 'dist/genome-viewer/<%= meta.versiongv %>/gv.min.js'
             }
         },
         jshint: {
@@ -94,7 +87,7 @@ module.exports = function (grunt) {
                 src: 'Gruntfile.js'
             },
             lib_test: {
-                src: ['lib/**/*.js', 'test/**/*.js']
+                src: ['src/**/*.js', 'test/**/*.js']
             }
         },
         qunit: {
@@ -112,22 +105,22 @@ module.exports = function (grunt) {
         },
 
         copy: {
-            resources: {
+            resourcesgv: {
                 files: [
-                    {expand: true, cwd:'lib/', src: ['resources/**'], dest: 'dist/'} // includes files in path and its subdirs
+                    {expand: true, cwd:'src/', src: ['resources/**'], dest: 'dist/genome-viewer/<%= meta.versiongv %>/'} // includes files in path and its subdirs
                 ]
             }
         },
 
-        resourcesPath: 'dist/resources',
+        resourcesPath: 'dist/genome-viewer/<%= meta.versiongv %>/resources',
         htmlbuild: {
             gv: {
-                src: 'lib/genome-viewer/genome-viewer.html',
-                dest: 'dist/',
+                src: 'src/genome-viewer/genome-viewer.html',
+                dest: 'dist/genome-viewer/<%= meta.versiongv %>/',
                 options: {
                     beautify: true,
                     scripts: {
-                        'min': 'dist/gv.min.js'
+                        'min': 'dist/genome-viewer/<%= meta.versiongv %>/gv.min.js'
                     },
                     styles: {
                         bundle: ['<%= resourcesPath %>/css/style.css']
@@ -142,13 +135,13 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 //    grunt.loadNpmTasks('grunt-contrib-qunit');
-//  grunt.loadNpmTasks('grunt-contrib-jshint');
-//  grunt.loadNpmTasks('grunt-contrib-watch');
+//    grunt.loadNpmTasks('grunt-contrib-jshint');
+//    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-html-build');
 
     // Default task.
-    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
-    grunt.registerTask('gv', ['concat:gv','uglify:gv', 'copy:resources' , 'htmlbuild:gv']);
+//    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
+    grunt.registerTask('gv', ['concat:gv','uglify:gv', 'copy:resourcesgv' , 'htmlbuild:gv']);
 
 };
