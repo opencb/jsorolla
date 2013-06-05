@@ -88,25 +88,26 @@ GeneRenderer.prototype.render = function(features, args) {
             }
 
             if(enc){//paint genes
-                var rect = SVG.addChild(args.svgCanvasFeatures,"rect",{
-                    "x":x,
-                    "y":rowY,
-                    "width":width,
-                    "height":settings.height,
-                    "stroke": "#3B0B0B",
-                    "stroke-width": 0.5,
-                    "fill": color,
-                    "cursor": "pointer"
+                var rect = SVG.addChild(args.svgCanvasFeatures,'rect',{
+                    'x':x,
+                    'y':rowY,
+                    'width':width,
+                    'height':settings.height,
+                    'stroke': '#3B0B0B',
+                    'stroke-width': 0.5,
+                    'fill': color,
+                    'cursor': 'pointer'
                 });
 
-                var text = SVG.addChild(args.svgCanvasFeatures,"text",{
-                    "i":i,
-                    "x":x,
-                    "y":textY,
-                    "font-size":10,
-                    "opacity":null,
-                    "fill":"black",
-                    "cursor": "pointer"
+                var text = SVG.addChild(args.svgCanvasFeatures,'text',{
+                    'i':i,
+                    'x':x,
+                    'y':textY,
+                    'font-size':12,
+                    'font-family':_this.fontFamily,
+                    'opacity':null,
+                    'fill':'black',
+                    'cursor': 'pointer'
                 });
                 text.textContent = settings.getLabel(feature);
 
@@ -149,26 +150,27 @@ GeneRenderer.prototype.render = function(features, args) {
                         args.renderedArea[checkRowY].add({start: x, end: x+maxWidth-1});
 
 
-                        var transcriptGroup = SVG.addChild(args.svgCanvasFeatures,"g",{
+                        var transcriptGroup = SVG.addChild(args.svgCanvasFeatures,'g',{
                             "widgetId":transcript[settings.infoWidgetId]
                         });
 
 
-                        var rect = SVG.addChild(transcriptGroup,"rect",{//this rect its like a line
-                            "x":transcriptX,
-                            "y":checkRowY+1,
-                            "width":transcriptWidth,
-                            "height":settings.height,
-                            "fill": "gray",
-                            "cursor": "pointer"
+                        var rect = SVG.addChild(transcriptGroup,'rect',{//this rect its like a line
+                            'x':transcriptX,
+                            'y':checkRowY+1,
+                            'width':transcriptWidth,
+                            'height':settings.height,
+                            'fill': 'gray',
+                            'cursor': 'pointer'
                         });
-                        var text = SVG.addChild(transcriptGroup,"text",{
-                            "x":transcriptX,
-                            "y":checkTextY,
-                            "font-size":10,
-                            "opacity":null,
-                            "fill":"black",
-                            "cursor": "pointer"
+                        var text = SVG.addChild(transcriptGroup,'text',{
+                            'x':transcriptX,
+                            'y':checkTextY,
+                            'font-size':12,
+                            'font-family':_this.fontFamily,
+                            'opacity':null,
+                            'fill':'black',
+                            'cursor': 'pointer'
                         });
                         text.textContent = settings.getLabel(transcript);
 
