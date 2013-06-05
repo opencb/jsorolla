@@ -323,7 +323,6 @@ GenomeViewer.prototype = {
             listeners: {
                 afterrender: function () {
                     var div = $('#' + _this.id + "karyotypeSvg")[0];
-//				_this.chromosomeWidget = new ChromosomeWidget(div,{
                     _this.karyotypeSVGPanel = new KaryotypePanel(_this.id + "karyotypeSvg", {
                         width: _this.width,
                         height: 125,
