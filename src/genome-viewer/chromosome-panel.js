@@ -199,7 +199,8 @@ ChromosomePanel.prototype = {
             'stroke': 'orangered',
             'stroke-width': 2,
             'opacity': 0.5,
-            'fill': 'navajowhite'
+            'fill': 'navajowhite',
+            'cursor': 'move'
         });
         $(this.positionBox).on('mousedown',function (event) {
             status = 'movePositionBox';
@@ -248,8 +249,8 @@ ChromosomePanel.prototype = {
             var postionBoxWidth = parseInt(_this.positionBox.getAttribute('width'));
             resizeLeft.setAttribute('x', postionBoxX-5);
             resizeRight.setAttribute('x', (postionBoxX+postionBoxWidth));
-            $(resizeLeft).css({"cursor": "w-resize"});
-            $(resizeRight).css({"cursor": "e-resize"});
+            $(resizeLeft).css({"cursor": "ew-resize"});
+            $(resizeRight).css({"cursor": "ew-resize"});
         };
 
         var hideResizeControls = function () {

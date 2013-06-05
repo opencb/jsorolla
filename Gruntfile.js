@@ -46,13 +46,10 @@ module.exports = function (grunt) {
                     'src/genome-viewer/tracklist-panel.js',
                         /** tracks **/
                     'src/genome-viewer/tracks/track.js',
-                    'src/genome-viewer/tracks/feature-track.js',
-                    'src/genome-viewer/tracks/sequence-track.js',
+                    'src/genome-viewer/tracks/*-track.js',
                         /** renderers **/
                     'src/genome-viewer/renderers/renderer.js',
-                    'src/genome-viewer/renderers/feature-renderer.js',
-                    'src/genome-viewer/renderers/sequence-renderer.js',
-                    'src/genome-viewer/renderers/histogram-renderer.js',
+                    'src/genome-viewer/renderers/*-renderer.js',
                     'src/genome-viewer/genome-viewer.js'
                 ],
                 dest: 'dist/genome-viewer/<%= meta.versiongv %>/gv.js'

@@ -221,9 +221,9 @@ FEATURE_TYPES = {
 			var color = GENE_BIOTYPE_COLORS[f.biotype];
 			return	'id:&nbsp;<span class="ssel">'+f.id+'</span><br>'+
 			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
-			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
 			FEATURE_TYPES.getTipCommons(f)+
-			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
+			'source:&nbsp;<span class="ssel">'+f.source+'</span><br><br>'+
+            'description:&nbsp;<span class="emph">'+f.description+'</span><br>';
 		},
 		getColor: function(f){
 			return GENE_BIOTYPE_COLORS[f.biotype];
