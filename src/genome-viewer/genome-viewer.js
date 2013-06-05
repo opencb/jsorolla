@@ -332,6 +332,7 @@ GenomeViewer.prototype = {
                     });
 
                     _this.karyotypeSVGPanel.on('region:change', function (event) {
+                        Utils.setMinRegion(event.region, (_this.width - 18))
                         _this.trigger('region:change', event);
                     });
 
