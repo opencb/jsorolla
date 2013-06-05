@@ -307,14 +307,14 @@ KaryotypePanel.prototype = {
         var _this = this;
 
         var mark = function (){
-
-            if(item.chromosome!=null && item.start!=null){
-                if(_this.chrOffsetX[item.chromosome]!= null){
-                    var x1 = _this.chrOffsetX[item.chromosome]-10;
-                    var x2 = _this.chrOffsetX[item.chromosome];
-                    var y1 = (item.start * _this.pixelBase + _this.chrOffsetY[item.chromosome]) - 4;
-                    var y2 = item.start * _this.pixelBase + _this.chrOffsetY[item.chromosome];
-                    var y3 = (item.start * _this.pixelBase + _this.chrOffsetY[item.chromosome]) + 4;
+debugger
+            if(_this.region.chromosome!=null && _this.region.start!=null){
+                if(_this.chrOffsetX[_this.region.chromosome]!= null){
+                    var x1 = _this.chrOffsetX[_this.region.chromosome]-10;
+                    var x2 = _this.chrOffsetX[_this.region.chromosome];
+                    var y1 = (_this.region.start * _this.pixelBase + _this.chrOffsetY[_this.region.chromosome]) - 4;
+                    var y2 = _this.region.start * _this.pixelBase + _this.chrOffsetY[_this.region.chromosome];
+                    var y3 = (_this.region.start * _this.pixelBase + _this.chrOffsetY[_this.region.chromosome]) + 4;
                     var points = x1+","+y1+" "+x2+","+y2+" "+x1+","+y3+" "+x1+","+y1;
                     SVG.addChild(_this.markGroup,"polyline",{
                         "points":points,
