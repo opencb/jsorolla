@@ -88,7 +88,6 @@ HistogramRenderer.prototype.render = function(features, args) {
         "cursor": "pointer"
     });
 
-    console.log(maxValue);
 
 //    if(!this.axis){//Create axis values for histogram
 //        this.axis = true;
