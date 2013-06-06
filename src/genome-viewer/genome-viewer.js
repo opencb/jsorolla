@@ -116,7 +116,7 @@ GenomeViewer.prototype = {
         $('#genome-viewer').append('<div id="gv-center-panel" style=""></div>');
 
 
-        $('#gv-center-panel').append('<div id="gv-sidebar-panel" style="background-color: yellow; position:absolute; right:0; z-index:50;width:0px;height:300px"></div>');
+        $('#gv-center-panel').append('<div id="gv-sidebar-panel" style="position:absolute; right:0; z-index:50;width:0px;height:300px"></div>');
         $('#gv-center-panel').append('<div id="gv-main-panel" style="z-index:1"></div>');
         $('#gv-sidebar-panel').click(function () {
             $(this).css({width: 200})
@@ -128,7 +128,7 @@ GenomeViewer.prototype = {
         $('#gv-main-panel').append('<div id="gv-tracks-panel" style=""></div>');
 
 
-        $('#genome-viewer').append('<div id="gv-statusbar-panel" style="background-color: slateblue;">statusbar</div>');
+        $('#genome-viewer').append('<div id="gv-statusbar-panel" class="title">statusbar...</div>');
 
     },
     setWidth: function (width) {
@@ -222,18 +222,21 @@ GenomeViewer.prototype = {
         /* Navigation Bar */
         this.navigationBar = this._createNavigationBar('gv-navigation-panel');
 
+
         /*karyotype Panel*/
 //        this.karyotypePanel = this._drawKaryotypePanel();
 
-        /*Chromosome Panel*/
+        /* Chromosome Panel */
         this.chromosomePanel = this._drawChromosomePanel();
 
+        /* Region Panel, is a TrackListPanel Class */
+        this.regionOverviewPanel = this._createRegionOverviewPanel('gv-region-panel');
 
         /*TrackList Panel*/
         this.trackListPanel = this._createTrackListPanel('gv-tracks-panel');
 
 
-        this.on('region:change', function (event) {
+        this.on('region:change region:move', function (event) {
             if (event.sender != _this) {
                 _this._setRegion(event.region);
             }
@@ -265,7 +268,7 @@ GenomeViewer.prototype = {
             _this.trigger('region:change', event);
         });
 
-        this.on('region:change', function (event) {
+        this.on('region:change region:move', function (event) {
             if (event.sender != navigationBar) {
                 _this.navigationBar.setRegion(event.region);
             }
@@ -301,9 +304,9 @@ GenomeViewer.prototype = {
 
         navigationBar.on('region-button:change', function (event) {
             if (event.selected) {
-                _this.chromosomePanel.show();
+                _this.regionOverviewPanel.show();
             } else {
-                _this.chromosomePanel.hide();
+                _this.regionOverviewPanel.hide();
             }
         });
         return navigationBar;
@@ -311,90 +314,155 @@ GenomeViewer.prototype = {
 
     _drawKaryotypePanel: function () {
         var _this = this;
-        var panel = Ext.create('Ext.panel.Panel', {
-            id: this.id + "karyotypePanel",
-            renderTo: 'gv-karyotype-panel',
-            height: 165,
-            title: 'Karyotype',
-            border: true,
-            margin: '0 0 1 0',
-            //cls:'border-bot panel-border-top',
-            html: '<div id="' + this.id + 'karyotypeSvg" style="margin-top:2px"></div>',
-            listeners: {
-                afterrender: function () {
-                    var div = $('#' + _this.id + "karyotypeSvg")[0];
-                    _this.karyotypeSVGPanel = new KaryotypePanel(_this.id + "karyotypeSvg", {
-                        width: _this.width,
-                        height: 125,
-                        species: _this.species,
-                        region: _this.region
-                    });
 
-                    _this.karyotypeSVGPanel.on('region:change', function (event) {
-                        Utils.setMinRegion(event.region, (_this.width - 18))
-                        _this.trigger('region:change', event);
-                    });
+        this.karyotypePanel = new KaryotypePanel('gv-karyotype-panel', {
+            width: this.width,
+            height: 125,
+            species: this.species,
+            title:'Karyotype',
+            region: this.region
+        });
 
-                    _this.on('region:change', function (event) {
-                        if (event.sender != _this.karyotypeSVGPanel) {
-                            _this.karyotypeSVGPanel.setRegion(event.region);
-                        }
-                    });
+        this.karyotypePanel.on('region:change', function (event) {
+            Utils.setMinRegion(event.region, (_this.width - 18))
+            _this.trigger('region:change', event);
+        });
 
-                    _this.on('width:change', function (event) {
-                        _this.karyotypeSVGPanel.setWidth(event.width);
-                        _this.karyotypePanel.setWidth(event.width);
-                    });
-
-                    _this.karyotypeSVGPanel.draw();
-                }
+        this.on('region:change region:move', function (event) {
+            if (event.sender != _this.karyotypePanel) {
+                _this.karyotypePanel.setRegion(event.region);
             }
         });
-        return panel;
+
+        this.on('width:change', function (event) {
+            _this.karyotypePanel.setWidth(event.width);
+            _this.karyotypePanel.setWidth(event.width);
+        });
+
+        this.karyotypePanel.draw();
+
+        return this.karyotypePanel;
     },
 
     _drawChromosomePanel: function () {
         var _this = this;
-        var panel = Ext.create('Ext.panel.Panel', {
-            id: this.id + "chromosomePanel",
-            renderTo: 'gv-chromosome-panel',
-            height: 95,
-            title: 'Chromosome',
-            border: true,
-            margin: '0 0 1 0',
-            //cls:'border-bot panel-border-top',
-            html: '<div id="' + this.id + 'chromosomeSvg" style="margin-top:2px"></div>',
-            listeners: {
-                afterrender: function () {
-                    var div = $('#' + _this.id + "chromosomeSvg")[0];
-//				_this.chromosomeWidget = new ChromosomeWidget(div,{
-                    _this.chromosomeSVGPanel = new ChromosomePanel(_this.id + "chromosomeSvg", {
-                        width: _this.width,
-                        height: 65,
-                        species: _this.species,
-                        region: _this.region
-                    });
 
-                    _this.chromosomeSVGPanel.on('region:change', function (event) {
-                        _this.trigger('region:change', event);
-                    });
 
-                    _this.on('region:change', function (event) {
-                        if (event.sender != _this.chromosomeSVGPanel) {
-                            _this.chromosomeSVGPanel.setRegion(event.region);
-                        }
-                    });
+        this.chromosomePanel = new ChromosomePanel('gv-chromosome-panel', {
+            width: this.width,
+            height: 65,
+            species: this.species,
+            title:'Chromosome',
+            region: this.region
+        });
 
-                    _this.on('width:change', function (event) {
-                        _this.chromosomeSVGPanel.setWidth(event.width);
-                        _this.chromosomePanel.setWidth(event.width);
-                    });
+        this.chromosomePanel.on('region:change', function (event) {
+            _this.trigger('region:change', event);
+        });
 
-                    _this.chromosomeSVGPanel.drawChromosome();
-                }
+        this.on('region:change region:move', function (event) {
+            console.log(event.region.toString())
+            if (event.sender != _this.chromosomePanel) {
+                _this.chromosomePanel.setRegion(event.region);
             }
         });
-        return panel;
+
+        this.on('width:change', function (event) {
+            _this.chromosomePanel.setWidth(event.width);
+            _this.chromosomePanel.setWidth(event.width);
+        });
+
+        this.chromosomePanel.drawChromosome();
+
+//        var panel = Ext.create('Ext.panel.Panel', {
+//            id: this.id + "chromosomePanel",
+//            renderTo: 'gv-chromosome-panel',
+//            height: 95,
+//            title: 'Chromosome',
+//            border: true,
+//            margin: '0 0 1 0',
+//            //cls:'border-bot panel-border-top',
+//            html: '<div id="' + this.id + 'chromosomeSvg" style="margin-top:2px"></div>',
+//            listeners: {
+//                afterrender: function () {
+//                    var div = $('#' + _this.id + "chromosomeSvg")[0];
+////				_this.chromosomeWidget = new ChromosomeWidget(div,{
+//
+//                }
+//            }
+//        });
+        return this.chromosomePanel;
+    },
+
+    _createRegionOverviewPanel: function (targetId) {
+        var _this = this;
+        var trackListPanel = new TrackListPanel(targetId, {
+            width: this.width,
+            zoom: this.zoom,
+//        height:200,
+            title:'Region overview',
+            region: this.region
+        });
+        var gene = new FeatureTrack({
+            targetId:null,
+            id:2,
+            title:'Gene',
+            histogramZoom:10,
+            labelZoom:20,
+            height:100,
+            visibleRange:{start:0,end:100},
+            titleVisibility:'hidden',
+            featureTypes:FEATURE_TYPES,
+
+            renderer:new FeatureRenderer(),
+
+            dataAdapter:new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "gene",
+                species: this.species,
+                featureCache:{
+                    gzip: true,
+                    chunkSize:50000
+                }
+            })
+        });
+        trackListPanel.addTrack(gene);
+
+        trackListPanel.on('region:change', function (event) {
+            event.sender = {};
+            Utils.setMinRegion(event.region, (_this.width - 18))
+            _this.trigger('region:change', event);
+        });
+        trackListPanel.on('region:move', function (event) {
+            _this.trigger('region:move', event);
+        });
+
+        this.on('region:change', function (event) {
+            if (event.sender != trackListPanel) {
+                trackListPanel.setRegion(event.region);
+            }
+        });
+
+        this.on('region:move', function (event) {
+            if (event.sender != trackListPanel) {
+                trackListPanel.moveRegion(event);
+            }
+        });
+
+//        trackListPanel.on('zoom:change', function (event) {
+//            _this.trigger('zoom:change', event);
+//        });
+//        this.on('zoom:change', function (event) {
+//            if (event.sender != trackListPanel) {
+//                trackListPanel.setZoom(event.zoom);
+//            }
+//        });
+
+        this.on('width:change', function (event) {
+            trackListPanel.setWidth(event.width);
+        });
+        return  trackListPanel;
     },
 
     _createTrackListPanel: function (targetId) {
@@ -403,15 +471,27 @@ GenomeViewer.prototype = {
             width: this.width,
             zoom: this.zoom,
 //        height:200,
+            title:'Detailed information',
             region: this.region
         });
 
-        trackListPanel.on('region:move', function (event) {
+        trackListPanel.on('region:change', function (event) {
+            event.sender = {};
+            Utils.setMinRegion(event.region, (_this.width - 18))
             _this.trigger('region:change', event);
+        });
+        trackListPanel.on('region:move', function (event) {
+            _this.trigger('region:move', event);
         });
         this.on('region:change', function (event) {
             if (event.sender != trackListPanel) {
                 trackListPanel.setRegion(event.region);
+            }
+        });
+
+        this.on('region:move', function (event) {
+            if (event.sender != trackListPanel) {
+                trackListPanel.moveRegion(event);
             }
         });
 

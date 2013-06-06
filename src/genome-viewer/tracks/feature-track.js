@@ -130,6 +130,8 @@ FeatureTrack.prototype.move = function(disp){
                 start:parseInt(this.svgCanvasLeftLimit-this.svgCanvasOffset),
                 end:this.svgCanvasLeftLimit,
                 histogram:this.histogram,
+                histogramLogarithm:this.histogramLogarithm,
+                histogramMax:this.histogramMax,
                 interval:this.interval
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -141,8 +143,9 @@ FeatureTrack.prototype.move = function(disp){
                 start:this.svgCanvasRightLimit,
                 end:parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset),
                 histogram:this.histogram,
-                interval:this.interval,
-                transcript:this.transcript
+                histogramLogarithm:this.histogramLogarithm,
+                histogramMax:this.histogramMax,
+                interval:this.interval
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset);
         }

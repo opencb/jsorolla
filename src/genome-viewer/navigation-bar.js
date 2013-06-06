@@ -442,7 +442,7 @@ NavigationBar.prototype = {
             id:this.id+"RegionButton",
             text : 'Region',
             enableToggle: true,
-            pressed:this.regionPanelHidden,
+            pressed:true,
             toggleHandler:function() {
                 _this.trigger('region-button:change', {selected: this.pressed, sender: _this});
             }

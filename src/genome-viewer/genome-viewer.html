@@ -188,37 +188,6 @@
 		genomeViewer = new GenomeViewer("application", null, {region: region}); //the div must exist
 		genomeViewer.draw();
 
-
-//
-//        var geneTrack = new TrackData(1,{
-//            adapter: new CellBaseAdapter({
-//                category: "genomic",
-//                subCategory: "region",
-//                resource: "gene",
-//                species: this.genomeViewer.species,
-//                featureCache:{
-//                    gzip: true,
-//                    chunkSize:50000
-//                },
-//                filters:{},
-//                options:{},
-//                featureConfig:FEATURE_CONFIG.gene
-//            })
-//        });
-//        this.genomeViewer.addTrack(geneTrack,{
-//            id:2,
-//            type:'Gene/Transcript',
-//            title:'Gene/Transcript',
-//            featuresRender:"GeneTranscriptRender",
-//            histogramZoom:20,
-//            transcriptZoom:50,
-//            height:24,
-//            visibleRange:{start:0,end:100},
-//            featureTypes:FEATURE_TYPES
-//        });
-
-
-
         this.sequence = new SequenceTrack({
             targetId:null,
             id:1,

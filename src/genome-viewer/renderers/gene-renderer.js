@@ -114,7 +114,7 @@ GeneRenderer.prototype.render = function(features, args) {
                 $([rect,text]).qtip({
                     content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
                     position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
-                    style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+                    style: { width:true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
                 });
 
                 $([rect,text]).click(function(event){
@@ -178,7 +178,7 @@ GeneRenderer.prototype.render = function(features, args) {
                         $(transcriptGroup).qtip({
                             content: {text:settings.getTipText(transcript), title:settings.getTipTitle(transcript)},
                             position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
-                            style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+                            style: { width:true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
                         });
                         $(transcriptGroup).click(function(event){
                             var query = this.getAttribute("widgetId");
@@ -200,7 +200,7 @@ GeneRenderer.prototype.render = function(features, args) {
                             $(exonGroup).qtip({
                                 content: {text:exonSettings.getTipText(exon,transcript), title:exonSettings.getTipTitle(exon)},
                                 position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
-                                style: { width:true, classes: 'ui-tooltip ui-tooltip-shadow'}
+                                style: { width:true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
                             });
 
                             var eRect = SVG.addChild(exonGroup,"rect",{//paint exons in white without coding region
