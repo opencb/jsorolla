@@ -246,6 +246,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
                             _this._setTextPosition();
                             //						_this.onMove.notify(disp);
                             _this.trigger('region:move', {region: _this.region, disp: disp, sender: _this});
+                            _this.trigger('trackRegion:move', {region: _this.region, disp: disp, sender: _this});
                             lastX = newX;
                             _this.setNucleotidPosition(p);
                         }
@@ -364,6 +365,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
                 _this._setTextPosition();
 //					_this.onMove.notify(disp);
                 _this.trigger('region:move', {region: _this.region, disp: disp, sender: _this});
+                _this.trigger('trackRegion:move', {region: _this.region, disp: disp, sender: _this});
             }
         });
     };
@@ -422,6 +424,10 @@ TrackListPanel.prototype = {
 
     setZoom: function (zoom) {
 //        this.zoom = zoom;
+    },
+
+    moveRegion: function (event) {
+        this.trigger('trackRegion:move', event);
     },
 
     setRegion: function (region) {//item.chromosome, item.position, item.species
@@ -503,7 +509,7 @@ TrackListPanel.prototype = {
             track.draw();
         });
 
-        this.on('region:move', function (event) {
+        this.on('trackRegion:move', function (event) {
             track.set('region', event.region);
             track.set('pixelBase', _this.pixelBase);
             track.set('zoom', _this.zoom);
@@ -523,7 +529,7 @@ TrackListPanel.prototype = {
 
         // delete listeners
         this.onRegionChange.removeEventListener(this.trackSvgList[i].onRegionChangeIdx);
-        this.off('region:move', this.trackSvgList[i].move);
+        this.off('trackRegion:move', this.trackSvgList[i].move);
 //        this.onMove.removeEventListener(this.trackSvgList[i].onMoveIdx);
 
         // delete data

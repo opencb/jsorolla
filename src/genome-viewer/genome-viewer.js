@@ -235,7 +235,7 @@ GenomeViewer.prototype = {
         this.trackListPanel = this._createTrackListPanel('gv-tracks-panel');
 
 
-        this.on('region:change', function (event) {
+        this.on('region:change region:move', function (event) {
             if (event.sender != _this) {
                 _this._setRegion(event.region);
             }
@@ -267,7 +267,7 @@ GenomeViewer.prototype = {
             _this.trigger('region:change', event);
         });
 
-        this.on('region:change', function (event) {
+        this.on('region:change region:move', function (event) {
             if (event.sender != navigationBar) {
                 _this.navigationBar.setRegion(event.region);
             }
@@ -327,7 +327,7 @@ GenomeViewer.prototype = {
             _this.trigger('region:change', event);
         });
 
-        this.on('region:change', function (event) {
+        this.on('region:change region:move', function (event) {
             if (event.sender != _this.karyotypePanel) {
                 _this.karyotypePanel.setRegion(event.region);
             }
@@ -359,7 +359,8 @@ GenomeViewer.prototype = {
             _this.trigger('region:change', event);
         });
 
-        this.on('region:change', function (event) {
+        this.on('region:change region:move', function (event) {
+            console.log(event.region.toString())
             if (event.sender != _this.chromosomePanel) {
                 _this.chromosomePanel.setRegion(event.region);
             }
@@ -427,12 +428,24 @@ GenomeViewer.prototype = {
         });
         trackListPanel.addTrack(gene);
 
-        trackListPanel.on('region:move', function (event) {
+        trackListPanel.on('region:change', function (event) {
+            event.sender = {};
+            Utils.setMinRegion(event.region, (_this.width - 18))
             _this.trigger('region:change', event);
         });
+        trackListPanel.on('region:move', function (event) {
+            _this.trigger('region:move', event);
+        });
+
         this.on('region:change', function (event) {
             if (event.sender != trackListPanel) {
                 trackListPanel.setRegion(event.region);
+            }
+        });
+
+        this.on('region:move', function (event) {
+            if (event.sender != trackListPanel) {
+                trackListPanel.moveRegion(event);
             }
         });
 
@@ -461,12 +474,23 @@ GenomeViewer.prototype = {
             region: this.region
         });
 
-        trackListPanel.on('region:move', function (event) {
+        trackListPanel.on('region:change', function (event) {
+            event.sender = {};
+            Utils.setMinRegion(event.region, (_this.width - 18))
             _this.trigger('region:change', event);
+        });
+        trackListPanel.on('region:move', function (event) {
+            _this.trigger('region:move', event);
         });
         this.on('region:change', function (event) {
             if (event.sender != trackListPanel) {
                 trackListPanel.setRegion(event.region);
+            }
+        });
+
+        this.on('region:move', function (event) {
+            if (event.sender != trackListPanel) {
+                trackListPanel.moveRegion(event);
             }
         });
 
