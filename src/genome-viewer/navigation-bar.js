@@ -52,9 +52,10 @@ function NavigationBar (targetId, args) {
     this.karyotypeButton = this._createKaryotypeButton();
     this.chromosomeButton = this._createChromosomeButton();
     this.regionButton = this._createRegionButton();
+
     // ...
     this.searchComboBox = this._createSearchComboBox();
-
+    this.fullscreenButton = this._createFullScreenButton();
 
     var navToolbar = Ext.create('Ext.toolbar.Toolbar', {
         id: this.id+"navToolbar",
@@ -184,7 +185,9 @@ function NavigationBar (targetId, args) {
                 handler : function() {
                     _this._handleNavigationBar('GoToGene');
                 }
-            }]
+            },
+            this.fullscreenButton
+        ]
     });
 
     //    return navToolbar;
@@ -402,7 +405,7 @@ NavigationBar.prototype = {
             id: this.id+"karyotypeButton",
             text : 'Karyotype',
             enableToggle: true,
-            pressed: true,
+            pressed: false,
             toggleHandler: function() {
                 _this.trigger('karyotype-button:change', {selected: this.pressed, sender: _this});
             }
@@ -546,6 +549,30 @@ NavigationBar.prototype = {
             )
         });
         return searchCombo;
+    },
+
+    _createFullScreenButton: function() {
+        var _this = this;
+        var regionButton = Ext.create('Ext.Button', {
+            id:this.id+"FullScreenButton",
+            text : 'F11',
+            cls: 'x-btn-text-icon',
+            enableToggle: false,
+            toggleHandler:function() {
+                var elem = document.getElementById("genome-viewer");
+//                req = elem.requestFullScreen || elem.webkitRequestFullScreen || elem.mozRequestFullScreen;
+//                req.call(elem);
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                }
+            }
+
+        });
+        return regionButton;
     },
 
     _handleNavigationBar: function(action, args) {

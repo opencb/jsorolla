@@ -446,8 +446,11 @@ TrackListPanel.prototype = {
         track.set('region', this.region);
         track.set('width', this.width);
 
+        // Track must be initialized after we have created
+        // de DIV element in order to create the elements in the DOM
         track.initialize(this.tlTracksDiv);
 
+        // Once tack has been initialize we can call draw() function
         track.draw();
 
 

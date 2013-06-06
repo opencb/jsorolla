@@ -223,7 +223,7 @@ GenomeViewer.prototype = {
         this.navigationBar = this._createNavigationBar('gv-navigation-panel');
 
         /*karyotype Panel*/
-        this.karyotypePanel = this._drawKaryotypePanel();
+//        this.karyotypePanel = this._drawKaryotypePanel();
 
         /*Chromosome Panel*/
         this.chromosomePanel = this._drawChromosomePanel();

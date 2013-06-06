@@ -395,6 +395,33 @@ FEATURE_TYPES = {
 		height:8,
 		histogramColor:"Chartreuse"
 	},
+    icgc_mutation:{
+        getLabel: function(f){
+            return f.id;
+        },
+        getTipTitle: function(f){
+            return 'ICGC mutation'+' - <span class="ok">'+f.id+'</span>';
+        },
+        getTipText: function(f) {
+            var consequences = '';
+            for(var i = 0; i< f.consequences.length; i++) {
+                consequences += '&nbsp;'+f.consequences[i]+'<br>';
+            }
+            return 'mutation:&nbsp;<span class="ssel">'+f.mutation+'</span><br>'+
+                'reference allele:&nbsp;<span class="ssel">'+f.refGenAllele+'</span><br>'+
+                'mutation type:&nbsp;<span class="ssel">'+f.mutationType+'</span><br>'+
+                'project info:&nbsp;<span class="ssel">'+f.projectInfo[0]+'</span><br>'+
+                'consequences:<br>&nbsp;<span class="ssel">'+consequences+'</span><br>'+
+                'source:&nbsp;<span class="ssel">ICGC</span><br>' +
+                'start-end:&nbsp;<span class="emph">'+f.start+'-'+f.end+'</span><br>';
+        },
+        getColor: function(f){
+            return "Chartreuse";
+        },
+        infoWidgetId: "mutationCds",
+        height:8,
+        histogramColor:"Chartreuse"
+    },
 	structural_variation:{
 		getLabel: function(f){
 			return f.displayId;
