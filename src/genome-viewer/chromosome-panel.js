@@ -45,6 +45,11 @@ function ChromosomePanel(targetId, args) {
 
     this.targetDiv = $('#' + targetId)[0];
 
+    if ('title' in this && this.title !== '') {
+        this.titleDiv = $('<div id="tl-title" class="title x-unselectable">' + this.title + '</div>')[0];
+        $(this.targetDiv).append(this.titleDiv);
+    }
+
     this.svg = SVG.init(this.targetDiv, {
         "width": this.width,
         "height": this.height
@@ -57,7 +62,18 @@ function ChromosomePanel(targetId, args) {
 };
 
 ChromosomePanel.prototype = {
+    show: function () {
+        $(this.targetDiv).css({display: 'block'});
+    },
 
+    hide: function () {
+        $(this.targetDiv).css({display: 'none'});
+    },
+    setTitle: function (title) {
+        if('titleDiv' in this){
+            $(this.titleDiv).html(title);
+        }
+    },
     setWidth: function (width) {
         this.width = width;
         this.svg.setAttribute("width", width);

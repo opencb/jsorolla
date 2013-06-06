@@ -183,31 +183,31 @@
 		genomeViewer = new GenomeViewer("application", null, {region: region}); //the div must exist
 		genomeViewer.draw();
 
-        this.sequence = new SequenceTrack({
-            targetId:null,
-            id:1,
-            title:'Squence',
-            histogramZoom:20,
-            transcriptZoom:50,
-            height:30,
-            visibleRange:{start:100,end:100},
-            featureTypes:FEATURE_TYPES,
-
-            renderer:new SequenceRenderer(),
-
-            dataAdapter:new SequenceAdapter({
-                category: "genomic",
-                subCategory: "region",
-                resource: "sequence",
-                species: this.genomeViewer.species,
-                featureCache:{
-                    gzip: true,
-                    chunkSize:1000
-                }
-            })
-        });
-
-        this.genomeViewer.addTrack(this.sequence);
+//        this.sequence = new SequenceTrack({
+//            targetId:null,
+//            id:1,
+//            title:'Squence',
+//            histogramZoom:20,
+//            transcriptZoom:50,
+//            height:30,
+//            visibleRange:{start:100,end:100},
+//            featureTypes:FEATURE_TYPES,
+//
+//            renderer:new SequenceRenderer(),
+//
+//            dataAdapter:new SequenceAdapter({
+//                category: "genomic",
+//                subCategory: "region",
+//                resource: "sequence",
+//                species: this.genomeViewer.species,
+//                featureCache:{
+//                    gzip: true,
+//                    chunkSize:1000
+//                }
+//            })
+//        });
+//
+//        this.genomeViewer.addTrack(this.sequence);
 
         this.gene = new GeneTrack({
             targetId:null,
