@@ -101,7 +101,8 @@ FeatureRenderer.prototype.render = function(features, args) {
                     'stroke': '#3B0B0B',
                     'stroke-width': 0.5,
                     'fill': color,
-                    'cursor': 'pointer'
+                    'cursor': 'pointer',
+                    'feature_id': feature.id
                 });
                 if(args.zoom > args.labelZoom){
                     var text = SVG.addChild(featureGroup,"text",{

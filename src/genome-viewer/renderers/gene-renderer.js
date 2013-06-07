@@ -96,7 +96,8 @@ GeneRenderer.prototype.render = function(features, args) {
                     'stroke': '#3B0B0B',
                     'stroke-width': 0.5,
                     'fill': color,
-                    'cursor': 'pointer'
+                    'cursor': 'pointer',
+                    'feature_id': feature.id
                 });
 
                 var text = SVG.addChild(args.svgCanvasFeatures,'text',{
@@ -127,7 +128,7 @@ GeneRenderer.prototype.render = function(features, args) {
                 var checkRowY = rowY+rowHeight;
                 var checkTextY = textY+rowHeight;
                 if(feature.transcripts!=null){
-                    for(var i = 0, leni = feature.transcripts.length; i < leni; i++){/*Loop over transcripts*/
+                    for(var i = 0, leni = feature.transcripts.length; i < leni; i++){ /*Loop over transcripts*/
                         if(args.renderedArea[checkRowY] == null){
                             args.renderedArea[checkRowY] = new FeatureBinarySearchTree();
                         }
@@ -161,7 +162,8 @@ GeneRenderer.prototype.render = function(features, args) {
                             'width':transcriptWidth,
                             'height':settings.height,
                             'fill': 'gray',
-                            'cursor': 'pointer'
+                            'cursor': 'pointer',
+                            'feature_id': transcript.id
                         });
                         var text = SVG.addChild(transcriptGroup,'text',{
                             'x':transcriptX,
