@@ -577,15 +577,15 @@ NavigationBar.prototype = {
             enableToggle: false,
             toggleHandler:function() {
                 var elem = document.getElementById("genome-viewer");
-//                req = elem.requestFullScreen || elem.webkitRequestFullScreen || elem.mozRequestFullScreen;
-//                req.call(elem);
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.mozRequestFullScreen) {
-                    elem.mozRequestFullScreen();
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                }
+                req = elem.requestFullScreen || elem.webkitRequestFullScreen || elem.mozRequestFullScreen;
+                req.call(elem);
+//                if (elem.requestFullscreen) {
+//                    elem.requestFullscreen();
+//                } else if (elem.mozRequestFullScreen) {
+//                    elem.mozRequestFullScreen();
+//                } else if (elem.webkitRequestFullscreen) {
+//                    elem.webkitRequestFullscreen();
+//                }
             }
 
         });
