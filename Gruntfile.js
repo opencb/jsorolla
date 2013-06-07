@@ -53,7 +53,7 @@ module.exports = function (grunt) {
                     'src/genome-viewer/renderers/*-renderer.js',
                     'src/genome-viewer/genome-viewer.js'
                 ],
-                dest: 'dist/genome-viewer/<%= meta.versiongv %>/gv.js'
+                dest: 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.js'
             }
         },
         uglify: {
@@ -62,7 +62,7 @@ module.exports = function (grunt) {
             },
             gv: {
                 src: '<%= concat.gv.dest %>',
-                dest: 'dist/genome-viewer/<%= meta.versiongv %>/gv.min.js'
+                dest: 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js'
             }
         },
         jshint: {
@@ -118,7 +118,7 @@ module.exports = function (grunt) {
                 options: {
                     beautify: true,
                     scripts: {
-                        'min': 'dist/genome-viewer/<%= meta.versiongv %>/gv.min.js'
+                        'min': 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js'
                     },
                     styles: {
                         bundle: ['<%= resourcesPath %>/css/style.css']
