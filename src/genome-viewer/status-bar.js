@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function StatusBar (targetId, args) {
+function StatusBar(targetId, args) {
 
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
@@ -41,8 +41,32 @@ function StatusBar (targetId, args) {
 };
 
 StatusBar.prototype = {
-    initialize: function(){
+    initialize: function () {
+        this.targetDiv = $('#' + this.targetId)[0];
+        this.div = $('<div id="' + this.id + '" class="status" align="right"></div>')[0];
+        $(this.div).css({
+            width: this.width
+        });
+        $(this.targetDiv).append(this.div);
 
+        this.mousePositionDiv = $('<div id="' + this.id + 'position" style="display: inline">&nbsp;</div>')[0];
+        $(this.mousePositionDiv).css({
+            'margin-left': '5px',
+            'margin-right': '5px'
+        });
+
+        this.versionDiv = $('<div id="' + this.id + 'version" style="display: inline">' + this.version + '</div>')[0];
+        $(this.mousePositionDiv).css({
+            'margin-left': '5px',
+            'margin-right': '5px'
+        });
+
+
+        $(this.div).append(this.mousePositionDiv);
+        $(this.div).append(this.versionDiv);
+    },
+    setRegion: function (event) {
+        $(this.mousePositionDiv).html(Utils.formatNumber(event.region.center()));
     }
 
 }

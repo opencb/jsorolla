@@ -27,7 +27,7 @@ function GenomeViewer(targetId, species, args) {
     var _this = this;
 
     this.id = Utils.genId("GenomeViewer");
-
+    this.version = 'Genome Viewer v1';
     //set default args
     this.targetId = targetId;
     this.menuBar;
@@ -109,7 +109,7 @@ GenomeViewer.prototype = {
 
         Utils.setMinRegion(this.region, (this.width - 18));
 
-        $('#' + this.targetId).append('<div id="genome-viewer" style="border:1px solid lightgray"></div>');
+        $('#' + this.targetId).append('<div id="genome-viewer"></div>');
 
 
         $('#genome-viewer').append('<div id="gv-navigation-panel" style=""></div>');
@@ -128,7 +128,7 @@ GenomeViewer.prototype = {
         $('#gv-main-panel').append('<div id="gv-tracks-panel" style=""></div>');
 
 
-        $('#genome-viewer').append('<div id="gv-statusbar-panel" class="status">statusbar...</div>');
+        $('#genome-viewer').append('<div id="gv-statusbar-panel"></div>');
 
     },
     setWidth: function (width) {
@@ -236,10 +236,9 @@ GenomeViewer.prototype = {
         if ('attrValues' in args) {
             args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
             for (var key in args.attrValues) {
-                var rects = $('rect[' + attrName + '~=' + args.attrValues[key] + ']');
-                for (var r in rects) {
-                    rects[r].textContent = '';
-                    var animation = SVG.addChild(rects[r], 'animate', {
+                $('rect[' + attrName + '~=' + args.attrValues[key] + ']').each(function () {
+                    this.textContent = '';
+                    var animation = SVG.addChild(this, 'animate', {
                         'attributeName': 'opacity',
                         'attributeType': 'XML',
                         'begin': 'indefinite',
@@ -250,7 +249,7 @@ GenomeViewer.prototype = {
                         'repeatCount': '10'
                     });
                     animation.beginElement();
-                }
+                });
             }
         }
     },
@@ -280,6 +279,9 @@ GenomeViewer.prototype = {
 
         /*TrackList Panel*/
         this.trackListPanel = this._createTrackListPanel('gv-tracks-panel');
+
+        /*Status Bar*/
+        this.statusBar = this._createStatusBar('gv-statusbar-panel');
 
 
         this.on('region:change region:move', function (event) {
@@ -555,6 +557,20 @@ GenomeViewer.prototype = {
 
 
         return  trackListPanel;
+    },
+    _createStatusBar: function (targetId) {
+        var _this = this;
+        var statusBar = new StatusBar(targetId, {
+            region: this.region,
+            width: this.width,
+            version: this.version
+        });
+
+        this.on('region:change region:move', function (event) {
+            statusBar.setRegion(event);
+        });
+
+        return  statusBar;
     }
 };
 
