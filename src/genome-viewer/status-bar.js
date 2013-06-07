@@ -52,7 +52,8 @@ StatusBar.prototype = {
         this.mousePositionDiv = $('<div id="' + this.id + 'position" style="display: inline">&nbsp;</div>')[0];
         $(this.mousePositionDiv).css({
             'margin-left': '5px',
-            'margin-right': '5px'
+            'margin-right': '5px',
+            'font-size':'14px'
         });
 
         this.versionDiv = $('<div id="' + this.id + 'version" style="display: inline">' + this.version + '</div>')[0];
@@ -67,6 +68,9 @@ StatusBar.prototype = {
     },
     setRegion: function (event) {
         $(this.mousePositionDiv).html(Utils.formatNumber(event.region.center()));
+    },
+    setMousePosition: function (event) {
+        $(this.mousePositionDiv).html(event.baseHtml+' '+Utils.formatNumber(event.mousePos));
     }
 
 }

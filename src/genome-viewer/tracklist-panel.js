@@ -225,7 +225,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 //
         var posOffset = (mid / _this.pixelBase) | 0;
         _this.mousePosition = centerPosition + rcX - posOffset;
-        _this.onMousePosition.notify({mousePos: _this.mousePosition, baseHtml: _this.getMousePosition(_this.mousePosition)});
+        _this.trigger('mousePosition:change',{mousePos: _this.mousePosition, baseHtml: _this.getMousePosition(_this.mousePosition)});
     });
 
 
@@ -727,7 +727,7 @@ TrackListPanel.prototype = {
         }
 //        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
 //        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
-        return '<span style="font-family: Ubuntu Mono;font-size:19px;' + colorStyle + '">' + base + '</span>';
+        return '<span style="font-family: this.fontFamily; font-size:14px;' + colorStyle + '">' + base + '</span>';
     },
 
     getSequenceNucleotid: function (position) {
