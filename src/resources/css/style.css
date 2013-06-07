@@ -16,16 +16,16 @@
 }
 .font-lato{
     font-family: 'Lato';
-    font-size:13px;
+    font-size:12px;
     line-height:120%;
 }
 
 .title {
     font-family: 'Lato';
-    color: #555;
-    font-size: 14px;
+    color: #333;
+    font-size: 12px;
     padding: 3px 0 5px 5px;
-    background-image: linear-gradient(to bottom, #ffffff, #f0f0f0);
+    background-image: linear-gradient(to bottom, #ffffff, #d0d0d0);
     /*background-repeat: repeat-x;*/
     border: 1px solid #d4d4d4;
 }

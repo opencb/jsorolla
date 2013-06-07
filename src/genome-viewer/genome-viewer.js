@@ -224,7 +224,7 @@ GenomeViewer.prototype = {
 
 
         /*karyotype Panel*/
-//        this.karyotypePanel = this._drawKaryotypePanel();
+        this.karyotypePanel = this._drawKaryotypePanel();
 
         /* Chromosome Panel */
         this.chromosomePanel = this._drawChromosomePanel();

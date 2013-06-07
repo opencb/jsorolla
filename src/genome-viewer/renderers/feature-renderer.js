@@ -121,7 +121,7 @@ FeatureRenderer.prototype.render = function(features, args) {
                 $(featureGroup).qtip({
                     content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
                     position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
-                    style: { width:true, classes: 'font-lato qtip-shadow'}
+                    style: { width:true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
                 });
 
                 $(featureGroup).click(function(event){
