@@ -141,7 +141,7 @@ GenomeViewer.prototype = {
         this.region.load(region);
         this.zoom = this._calculateZoomByRegion();
     },
-    setRegion : function(region){
+    setRegion: function (region) {
         this.region.load(region);
         Utils.setMinRegion(this.region, (this.width - 18));
         this.trigger('region:change', {region: this.region, sender: this});
@@ -197,7 +197,7 @@ GenomeViewer.prototype = {
 //        return {start: start, end: end};
     },
     _calculateRegionByWidth: function () {
-        var zoomBaseLength = parseInt((this.width-18) / Utils.getPixelBaseByZoom(this.zoom));
+        var zoomBaseLength = parseInt((this.width - 18) / Utils.getPixelBaseByZoom(this.zoom));
         var regionCenter = this.region.center();
         var regionHalf = Math.ceil((zoomBaseLength / 2) - 1);
         return {
@@ -206,25 +206,53 @@ GenomeViewer.prototype = {
         }
     },
     _calculateZoomByRegion: function () {
-        return Math.round(Utils.getZoomByPixelBase(((this.width-18) / this.region.length())));
+        return Math.round(Utils.getZoomByPixelBase(((this.width - 18) / this.region.length())));
     },
 
-    emph: function(featureId){
-//        var rect = $('rect[feature_id~='+featureId+']')[0];
-//        rect.textContent = '';
-//        this.viewNtsText = SVG.addChild(rect, 'animate', {
-//            'attributeName': 'opacity',
-//            'attributeType': 'XML',
-//            'from': '0.0',
-//            'to':'1',
-//            'begin': '0s',
-//            'dur': '1s',
-//            'repeatCount' : '10'
-//        });
-        $('rect[feature_id~='+featureId+']').attr('class','feature-emph');
+    mark: function (args) {
+        var attrName = args.attrName || 'feature_id';
+        var cssClass = args.class || 'feature-emph';
+        if ('attrValues' in args) {
+            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
+            for (var key in args.attrValues) {
+                $('rect[' + attrName + '~=' + args.attrValues[key] + ']').attr('class', cssClass);
+            }
+
+        }
     },
-    unemph: function(featureId){
-        $('rect[feature_id~='+featureId+']').attr('class','');
+    unmark: function (args) {
+        var attrName = args.attrName || 'feature_id';
+        if ('attrValues' in args) {
+            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
+            for (var key in args.attrValues) {
+                $('rect[' + attrName + '~=' + args.attrValues[key] + ']').attr('class', '');
+            }
+
+        }
+    },
+
+    highlight: function (args) {
+        var attrName = args.attrName || 'feature_id';
+        if ('attrValues' in args) {
+            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
+            for (var key in args.attrValues) {
+                var rects = $('rect[' + attrName + '~=' + args.attrValues[key] + ']');
+                for (var r in rects) {
+                    rects[r].textContent = '';
+                    var animation = SVG.addChild(rects[r], 'animate', {
+                        'attributeName': 'opacity',
+                        'attributeType': 'XML',
+                        'begin': 'indefinite',
+                        'from': '0.0',
+                        'to': '1',
+                        'begin': '0s',
+                        'dur': '1s',
+                        'repeatCount': '10'
+                    });
+                    animation.beginElement();
+                }
+            }
+        }
     },
 
     draw: function () {
@@ -337,7 +365,7 @@ GenomeViewer.prototype = {
             width: this.width,
             height: 125,
             species: this.species,
-            title:'Karyotype',
+            title: 'Karyotype',
             region: this.region
         });
 
@@ -370,7 +398,7 @@ GenomeViewer.prototype = {
             width: this.width,
             height: 65,
             species: this.species,
-            title:'Chromosome',
+            title: 'Chromosome',
             region: this.region
         });
 
@@ -416,31 +444,31 @@ GenomeViewer.prototype = {
         var trackListPanel = new TrackListPanel(targetId, {
             width: this.width,
             zoom: this.zoom,
-            zoomMultiplier:4,
-            title:'Region overview',
+            zoomMultiplier: 8,
+            title: 'Region overview',
             region: this.region
         });
         var gene = new FeatureTrack({
-            targetId:null,
-            id:2,
-            title:'Gene',
-            histogramZoom:10,
-            labelZoom:20,
-            height:100,
-            visibleRange:{start:0,end:100},
-            titleVisibility:'hidden',
-            featureTypes:FEATURE_TYPES,
+            targetId: null,
+            id: 2,
+            title: 'Gene',
+            histogramZoom: 10,
+            labelZoom: 20,
+            height: 100,
+            visibleRange: {start: 0, end: 100},
+            titleVisibility: 'hidden',
+            featureTypes: FEATURE_TYPES,
 
-            renderer:new FeatureRenderer(),
+            renderer: new FeatureRenderer(),
 
-            dataAdapter:new CellBaseAdapter({
+            dataAdapter: new CellBaseAdapter({
                 category: "genomic",
                 subCategory: "region",
                 resource: "gene",
                 species: this.species,
-                featureCache:{
+                featureCache: {
                     gzip: true,
-                    chunkSize:50000
+                    chunkSize: 50000
                 }
             })
         });
@@ -488,7 +516,7 @@ GenomeViewer.prototype = {
             width: this.width,
             zoom: this.zoom,
 //        height:200,
-            title:'Detailed information',
+            title: 'Detailed information',
             region: this.region
         });
 
@@ -529,7 +557,6 @@ GenomeViewer.prototype = {
         return  trackListPanel;
     }
 };
-
 
 
 GenomeViewer.prototype.addTrack = function (trackData, args) {

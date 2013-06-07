@@ -200,7 +200,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     var selBox = $('<div id="' + this.id + 'selBox"></div>')[0];
     $(panelDiv).append(selBox);
     $(selBox).css({
-        'z-index': 1,
+        'z-index': 0,
         'position': 'absolute',
         'left': 0,
         'top': 0,
@@ -231,12 +231,12 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 
     var downX, moveX;
     $(this.tlTracksDiv).mousedown(function (event) {
-
+        $('html').addClass('x-unselectable');
+//                            $('.qtip').qtip('hide').qtip('disable'); // Hide AND disable all tooltips
+        $(_this.mouseLine).css({'visibility': 'hidden'});
         switch (event.which) {
             case 1: //Left mouse button pressed
-                //            $('.qtip').qtip('hide').qtip('disable'); // Hide AND disable all tooltips
                 $(this).css({"cursor": "move"});
-                $(_this.mouseLine).css({'visibility': 'hidden'});
                 downX = event.clientX;
                 var lastX = 0;
                 $(this).mousemove(function (event) {
@@ -260,7 +260,6 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 
                 break;
             case 2: //Middle mouse button pressed
-                $(_this.mouseLine).css({'visibility': 'hidden'});
                 $(selBox).css({'visibility': 'visible'});
                 $(selBox).css({'width': 0});
                 downX = (event.pageX - $(_this.tlTracksDiv).offset().left);
@@ -284,6 +283,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     });
 
     $(this.tlTracksDiv).mouseup(function (event) {
+        $('html').removeClass("x-unselectable");
         $(this).css({"cursor": "default"});
         $(_this.mouseLine).css({'visibility': 'visible'});
         $(this).off('mousemove');
@@ -374,13 +374,6 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
             }
         });
     };
-//	}else{
-//		_this.parentLayout.on('region:move',function(event){
-//            _this.region.load(event.region);
-//			_this._setTextPosition();
-////			_this.onMove.notify(disp);
-//            _this.trigger('region:move', {region:_this.region, disp:event.disp, sender: _this});
-//		});
 };
 
 TrackListPanel.prototype = {
