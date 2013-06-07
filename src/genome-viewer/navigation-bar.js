@@ -60,10 +60,10 @@ function NavigationBar (targetId, args) {
     var navToolbar = Ext.create('Ext.toolbar.Toolbar', {
         id: this.id+"navToolbar",
         renderTo: this.targetId,
-        cls:"bio-toolbar",
+        cls:'nav',
         region:"north",
         width:'100%',
-        border: true,
+        border: false,
         height: 35,
 //		enableOverflow:true,//if the field is hidden getValue() reads "" because seems the hidden field is a different object
         items : [

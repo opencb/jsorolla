@@ -20,6 +20,11 @@
     line-height:120%;
 }
 
+
+.feature-emph{
+    fill:yellow;
+}
+
 .title {
     font-family: 'Lato';
     color: #333;
@@ -28,7 +33,27 @@
     background-image: linear-gradient(to bottom, #ffffff, #d0d0d0);
     background-image: -webkit-linear-gradient(top, white, #d0d0d0);
     background-repeat: repeat-x;
-    border: 1px solid #d4d4d4;
+    border-top: 1px solid #d4d4d4;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+.nav {
+    font-family: 'Lato';
+    color: #333;
+    font-size: 12px;
+    padding: 3px 0 5px 5px;
+    background: whitesmoke;
+    background-color: whitesmoke;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+.status {
+    font-family: 'Lato';
+    color: #333;
+    font-size: 12px;
+    padding: 3px 0 5px 5px;
+    background-color: whitesmoke;
+    border-top: 1px solid #d4d4d4;
 }
 
 .app-header {

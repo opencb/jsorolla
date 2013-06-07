@@ -54,7 +54,6 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 
 
     //this region is used to do not modify original region, and will be used by trackSvg
-    //Deprecated
     this.visualRegion = new Region(this.region);
 
     /********/
@@ -63,9 +62,6 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 
         //Deprecated - SVG structure and events initialization
     this.onReady = new Event();
-    this.onRegionChange = new Event();
-    this.onRegionSelect = new Event();//only when parentLayout is not null
-//	this.onMove = new Event();
     this.onWindowSize = new Event();
     this.onMousePosition = new Event();
     this.onSvgRemoveTrack = new Event();
@@ -194,6 +190,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
         'height': '100%',
         'border': '1px solid lightgray',
         'opacity': 0.7,
+        'visibility': 'hidden',
         'background-color': 'gainsboro'
     });
 
@@ -208,8 +205,9 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
         'left': 0,
         'top': 0,
         'height': '100%',
-        'border': '1px solid deepskyblue',
+        'border': '2px solid deepskyblue',
         'opacity': 0.5,
+        'visibility': 'hidden',
         'background-color': 'honeydew'
     });
 
@@ -488,7 +486,7 @@ TrackListPanel.prototype = {
         };
         setTimeout(checkStatus, 10);
         /***************************/
-        this.onRegionChange.notify();
+//        this.onRegionChange.notify();
 
         //this.minRegionRect.setAttribute("width",this.minRectWidth);
         //this.minRegionRect.setAttribute("x",(this.width/2)-(this.minRectWidth/2)+6);

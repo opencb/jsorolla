@@ -109,7 +109,7 @@ GenomeViewer.prototype = {
 
         Utils.setMinRegion(this.region, (this.width - 18));
 
-        $('#' + this.targetId).append('<div id="genome-viewer" style=""></div>');
+        $('#' + this.targetId).append('<div id="genome-viewer" style="border:1px solid lightgray"></div>');
 
 
         $('#genome-viewer').append('<div id="gv-navigation-panel" style=""></div>');
@@ -128,7 +128,7 @@ GenomeViewer.prototype = {
         $('#gv-main-panel').append('<div id="gv-tracks-panel" style=""></div>');
 
 
-        $('#genome-viewer').append('<div id="gv-statusbar-panel" class="title">statusbar...</div>');
+        $('#genome-viewer').append('<div id="gv-statusbar-panel" class="status">statusbar...</div>');
 
     },
     setWidth: function (width) {
@@ -207,6 +207,24 @@ GenomeViewer.prototype = {
     },
     _calculateZoomByRegion: function () {
         return Math.round(Utils.getZoomByPixelBase(((this.width-18) / this.region.length())));
+    },
+
+    emph: function(featureId){
+//        var rect = $('rect[feature_id~='+featureId+']')[0];
+//        rect.textContent = '';
+//        this.viewNtsText = SVG.addChild(rect, 'animate', {
+//            'attributeName': 'opacity',
+//            'attributeType': 'XML',
+//            'from': '0.0',
+//            'to':'1',
+//            'begin': '0s',
+//            'dur': '1s',
+//            'repeatCount' : '10'
+//        });
+        $('rect[feature_id~='+featureId+']').attr('class','feature-emph');
+    },
+    unemph: function(featureId){
+        $('rect[feature_id~='+featureId+']').attr('class','');
     },
 
     draw: function () {
@@ -361,7 +379,6 @@ GenomeViewer.prototype = {
         });
 
         this.on('region:change region:move', function (event) {
-            console.log(event.region.toString())
             if (event.sender != _this.chromosomePanel) {
                 _this.chromosomePanel.setRegion(event.region);
             }
@@ -399,7 +416,7 @@ GenomeViewer.prototype = {
         var trackListPanel = new TrackListPanel(targetId, {
             width: this.width,
             zoom: this.zoom,
-//        height:200,
+            zoomMultiplier:4,
             title:'Region overview',
             region: this.region
         });
