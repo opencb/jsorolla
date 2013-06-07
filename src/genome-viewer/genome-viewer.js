@@ -528,8 +528,8 @@ GenomeViewer.prototype = {
             version: this.version
         });
 
-        this.on('region:change region:move', function (event) {
-            statusBar.setRegion(event);
+        this.trackListPanel.on('mousePosition:change', function (event) {
+            statusBar.setMousePosition(event);
         });
 
         return  statusBar;
