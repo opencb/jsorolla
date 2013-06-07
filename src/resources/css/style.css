@@ -25,6 +25,18 @@
     fill:yellow;
 }
 
+/*.x-custom-button-over{*/
+    /*background-color: lightgray;*/
+    /*background-image: none;*/
+    /*border-color: green;*/
+/*}*/
+
+/*.x-custom-button-pressed{*/
+    /*background-color: lightgray;*/
+    /*background-image: none;*/
+    /*border-color: red;*/
+/*}*/
+
 .title {
     font-family: 'Lato';
     color: #333;

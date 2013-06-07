@@ -435,6 +435,8 @@ NavigationBar.prototype = {
             text : 'Chromosome',
             enableToggle: true,
             pressed: true,
+//            overCls: 'custom-button-over',
+//            pressedCls: 'custom-button-pressed',
             toggleHandler: function() {
                 _this.trigger('chromosome-button:change', {selected: this.pressed, sender: _this});
             }
