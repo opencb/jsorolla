@@ -276,37 +276,37 @@
         this.genomeViewer.addTrack(this.icgcMutationsTrack);
 
 
-        this.snp = new FeatureTrack({
-            targetId:null,
-            id:4,
-            title:'SNP',
-            histogramZoom:70,
-            labelZoom:80,
-            height:100,
-            visibleRange:{start:0,end:100},
-            featureTypes:FEATURE_TYPES,
-
-            renderer:new FeatureRenderer(),
-
-            dataAdapter:new CellBaseAdapter({
-                category: "genomic",
-                subCategory: "region",
-                resource: "snp",
-                params:{
-                    exclude:'transcriptVariations,xrefs,samples'
-                },
-                species: this.genomeViewer.species,
-                featureCache:{
-                    gzip: true,
-                    chunkSize:10000
-                },
-                filters:{},
-                options:{},
-                featureConfig:FEATURE_CONFIG.snp
-            })
-        });
-
-        this.genomeViewer.addTrack(this.snp);
+//        this.snp = new FeatureTrack({
+//            targetId:null,
+//            id:4,
+//            title:'SNP',
+//            histogramZoom:70,
+//            labelZoom:80,
+//            height:100,
+//            visibleRange:{start:0,end:100},
+//            featureTypes:FEATURE_TYPES,
+//
+//            renderer:new FeatureRenderer(),
+//
+//            dataAdapter:new CellBaseAdapter({
+//                category: "genomic",
+//                subCategory: "region",
+//                resource: "snp",
+//                params:{
+//                    exclude:'transcriptVariations,xrefs,samples'
+//                },
+//                species: this.genomeViewer.species,
+//                featureCache:{
+//                    gzip: true,
+//                    chunkSize:10000
+//                },
+//                filters:{},
+//                options:{},
+//                featureConfig:FEATURE_CONFIG.snp
+//            })
+//        });
+//
+//        this.genomeViewer.addTrack(this.snp);
 
 
 

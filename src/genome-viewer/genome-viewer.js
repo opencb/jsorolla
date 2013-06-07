@@ -59,45 +59,6 @@ function GenomeViewer(targetId, species, args) {
 
     this.initialize();
 
-//  this.popularSpecies = args.popularSpecies;
-//	his.toolbar = args.toolbar;
-//	this.confPanelHidden = args.confPanelHidden;
-//	this.setSpeciesMenu(args.availableSpecies, this.popularSpecies);
-//	this.regionPanelHidden = args.regionPanelHidden;
-
-
-//	//Events i send
-//	this.onSpeciesChange = new Event();
-//	this.onRegionChange = new Event();
-//	this.afterLocationChange = new Event();
-//	this.afterRender = new Event();
-
-//	//Events i listen
-//	this.onRegionChange.addEventListener(function(sender,data){
-//		_this.setRegion(data);
-//		if(data.sender != "trackSvgLayout"){
-//			Ext.getCmp(_this.id+"regionHistory").add({
-//				xtype:'box',padding:"2 5 2 3",border:1,
-//				html:_this.region.toString(),
-//				s:_this.region.toString(),
-//				listeners:{
-//				afterrender:function(){
-//						var s = this.s;
-//						this.getEl().addClsOnOver("encima");
-//						this.getEl().addCls("whiteborder");
-//						this.getEl().on("click",function(){
-//							_this.region.parse(s);
-//							_this.setRegion({sender:"regionHistory"});
-//						});
-//					}
-//				}
-//			});
-//		}
-//	});
-
-    //Events i propagate
-//	this.onSvgRemoveTrack = null;//assigned later, the component must exist
-
 }
 
 GenomeViewer.prototype = {
@@ -527,6 +488,38 @@ GenomeViewer.prototype = {
 
 
         return  trackListPanel;
+    },
+
+    setSpeciesVisible: function(bool) {
+        this.navigationBar.setSpeciesVisible(bool);
+    },
+
+    setChromosomesVisible: function(bool) {
+        this.navigationBar.setChromosomeMenuVisible(bool);
+    },
+
+    setKaryotypePanelVisible: function(bool) {
+        this.karyotypePanel.setVisible(bool);
+        this.navigationBar.setKaryotypePanelButtonVisible(bool);
+    },
+
+    setChromosomePanelVisible: function(bool) {
+        this.chromosomePanel.setVisible(bool);
+        this.navigationBar.setChromosomePanelButtonVisible(bool);
+    },
+
+    setRegionOverviewPanelVisible: function(bool) {
+        this.regionOverviewPanel.setVisible(bool);
+        this.navigationBar.setRegionOverviewPanelButtonVisible(bool);
+    },
+    setRegionTextBoxVisible: function(bool) {
+        this.navigationBar.setRegionTextBoxVisible(bool);
+    },
+    setSearchVisible: function(bool) {
+        this.navigationBar.setSearchVisible(bool);
+    },
+    setFullScreenVisible: function(bool) {
+        this.navigationBar.setFullScreenButtonVisible(bool);
     }
 };
 

@@ -72,6 +72,13 @@ KaryotypePanel.prototype = {
     hide: function () {
         $(this.targetDiv).css({display: 'none'});
     },
+    setVisible: function (bool) {
+        if(bool) {
+            $(this.targetDiv).css({display: 'block'});
+        }else {
+            $(this.targetDiv).css({display: 'none'});
+        }
+    },
     setTitle: function (title) {
         if('titleDiv' in this){
             $(this.titleDiv).html(title);
