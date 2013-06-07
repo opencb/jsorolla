@@ -56,7 +56,7 @@ StatusBar.prototype = {
         });
 
         this.versionDiv = $('<div id="' + this.id + 'version" style="display: inline">' + this.version + '</div>')[0];
-        $(this.mousePositionDiv).css({
+        $(this.versionDiv).css({
             'margin-left': '5px',
             'margin-right': '5px'
         });

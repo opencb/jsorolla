@@ -61,6 +61,7 @@ function NavigationBar (targetId, args) {
 
     // Visual components creation, all theses components will be
     // added to the navigation bar below.
+
     this.speciesMenu = this._createSpeciesMenu();
     this.chromosomeMenu = this._createChromosomeMenu();
     this.karyotypeButton = this._createKaryotypeButton();
@@ -646,6 +647,52 @@ NavigationBar.prototype = {
             }
 
         }
+    },
+    setSpeciesVisible: function(bool) {
+        if(bool) {
+            Ext.getCmp(genomeViewer.navigationBar.id+"speciesMenuButton").show();
+        }else {
+            Ext.getCmp(genomeViewer.navigationBar.id+"speciesMenuButton").hide();
+        }
+    },
+    setChromosomeMenuVisible: function(bool) {
+        if(bool) {
+            Ext.getCmp(genomeViewer.navigationBar.id+"chromosomeMenuButton").show();
+        }else {
+            Ext.getCmp(genomeViewer.navigationBar.id+"chromosomeMenuButton").hide();
+        }
+    },
+    setKaryotypePanelButtonVisible: function(bool) {
+        this.karyotypeButton.setVisible(bool);
+    },
+    setChromosomePanelButtonVisible: function(bool) {
+        this.chromosomeButton.setVisible(bool);
+    },
+    setRegionOverviewPanelButtonVisible: function(bool) {
+        this.regionButton.setVisible(bool);
+    },
+    setRegionTextBoxVisible: function(bool) {
+        if(bool) {
+            Ext.getCmp(genomeViewer.navigationBar.id+"positionLabel").show();
+            Ext.getCmp(genomeViewer.navigationBar.id+"tbCoordinate").show();
+            Ext.getCmp(genomeViewer.navigationBar.id+"GoButton").show();
+        }else {
+            Ext.getCmp(genomeViewer.navigationBar.id+"positionLabel").hide();
+            Ext.getCmp(genomeViewer.navigationBar.id+"tbCoordinate").hide();
+            Ext.getCmp(genomeViewer.navigationBar.id+"GoButton").hide();
+        }
+    },
+    setSearchVisible: function(bool) {
+        if(bool) {
+            this.searchComboBox.show();
+            Ext.getCmp(genomeViewer.navigationBar.id+"GoToGeneButton").show();
+        }else {
+            this.searchComboBox.hide();
+            Ext.getCmp(genomeViewer.navigationBar.id+"GoToGeneButton").hide();
+        }
+    },
+    setFullScreenButtonVisible: function(bool) {
+        this.fullscreenButton.setVisible(bool);
     }
 
 }
