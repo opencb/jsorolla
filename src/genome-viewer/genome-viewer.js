@@ -207,7 +207,7 @@ GenomeViewer.prototype = {
                         'to': '1',
                         'begin': '0s',
                         'dur': '1s',
-                        'repeatCount': '10'
+                        'repeatCount': '5'
                     });
                     animation.beginElement();
                 });
