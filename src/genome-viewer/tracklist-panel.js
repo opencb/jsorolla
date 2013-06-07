@@ -38,6 +38,8 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 
     this.zoomMultiplier = 1;
 
+    this.fontFamily = 'Source Sans Pro';
+
     this.height = 0;
 
     //set instantiation args, must be last
@@ -103,26 +105,30 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
 
     this.positionText = SVG.addChild(this.svgTop, "text", {
         "x": mid - 30,
-        "y": 22,
-        "font-size": 10,
+        "y": 24,
+        "font-size": 12,
+        'font-family':_this.fontFamily,
         "fill": "green"
     });
     this.nucleotidText = SVG.addChild(this.svgTop, "text", {
         "x": mid + 35,
-        "y": 22,
-        "font-family": "Ubuntu Mono",
+        "y": 24,
+//        "font-family": "Ubuntu Mono",
+        'font-family':_this.fontFamily,
         "font-size": 13
     });
     this.firstPositionText = SVG.addChild(this.svgTop, "text", {
         "x": 0,
-        "y": 22,
-        "font-size": 10,
+        "y": 24,
+        "font-size": 12,
+        'font-family':_this.fontFamily,
         "fill": "green"
     });
     this.lastPositionText = SVG.addChild(this.svgTop, "text", {
         "x": this.width - 70,
-        "y": 22,
-        "font-size": 10,
+        "y": 24,
+        "font-size": 12,
+        'font-family':_this.fontFamily,
         "fill": "green"
     });
     this.viewNtsArrow = SVG.addChild(this.svgTop, "rect", {
@@ -154,7 +160,8 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     this.viewNtsText = SVG.addChild(this.svgTop, "text", {
         "x": mid - 30,
         "y": 11,
-        "font-size": 10,
+        "font-size": 12,
+        'font-family':_this.fontFamily,
         "fill": "black"
     });
     this.viewNtsText.textContent = this.windowSize;

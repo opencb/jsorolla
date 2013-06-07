@@ -32,6 +32,7 @@ function Track(args) {
     this.transcriptZoom;
     this.height = 100;
     this.visibleRange = {start:0,end:100},
+    this.fontFamily = 'Source Sans Pro';
 
     _.extend(this, args);
 
@@ -194,7 +195,8 @@ Track.prototype = {
         var titleText = SVG.addChild(titleGroup, "text", {
             "x": 4,
             "y": 14,
-            "font-size": 12,
+            "font-size": 14,
+            'font-family':_this.fontFamily,
             "opacity": "0.4",
             "fill": "black"
         });
@@ -227,8 +229,9 @@ Track.prototype = {
 
         this.invalidZoomText = SVG.addChild(titleGroup, "text", {
             "x": 154,
-            "y": 24,
-            "font-size": 10,
+            "y": 18,
+            "font-size": 12,
+            'font-family':_this.fontFamily,
             "opacity": "0.6",
             "fill": "black",
             "visibility": "hidden"
