@@ -438,6 +438,7 @@ TrackListPanel.prototype = {
     setRegion: function (region) {//item.chromosome, item.position, item.species
         var _this = this;
         this.region.load(region);
+        this.visualRegion.load(region);
         this._setPixelBaseAndZoom();
         //get pixelbase by Region
 
