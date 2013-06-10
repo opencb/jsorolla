@@ -75,6 +75,7 @@ SequenceTrack.prototype.initialize = function(targetId){
 SequenceTrack.prototype.draw = function(){
     var _this = this;
 
+    this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
 

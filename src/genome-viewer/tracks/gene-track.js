@@ -54,7 +54,6 @@ GeneTrack.prototype.initialize = function(targetId){
         }else{
             _this.renderer = _this.defaultRenderer;
         }
-
 //        _this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
         var features = _this._getFeaturesByChunks(event);
         _this.renderer.render(features, {
@@ -64,7 +63,6 @@ GeneTrack.prototype.initialize = function(targetId){
             pixelBase : _this.pixelBase,
             position : _this.region.center(),
             width : _this.width,
-            zoom : _this.zoom,
             zoom : _this.zoom,
             labelZoom : _this.labelZoom,
             pixelPosition : _this.pixelPosition
@@ -82,6 +80,7 @@ GeneTrack.prototype.initialize = function(targetId){
 GeneTrack.prototype.draw = function(){
     var _this = this;
 
+    this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
 
@@ -124,9 +123,15 @@ GeneTrack.prototype.move = function(disp){
     var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
     // check if track is visible in this zoom
+
+//    console.log(virtualStart+'  ----  '+virtualEnd)
+//    console.log(this.svgCanvasLeftLimit+'  ----  '+this.svgCanvasRightLimit)
+//    console.log(this.svgCanvasOffset)
+
     if(this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end){
 
         if(disp>0 && virtualStart < this.svgCanvasLeftLimit){
+            console.log('left')
             this.dataAdapter.getData({
                 chromosome:_this.region.chromosome,
                 start:parseInt(this.svgCanvasLeftLimit-this.svgCanvasOffset),
@@ -141,6 +146,7 @@ GeneTrack.prototype.move = function(disp){
         }
 
         if(disp<0 && virtualEnd > this.svgCanvasRightLimit){
+            console.log('right')
             this.dataAdapter.getData({
                 chromosome:_this.region.chromosome,
                 start:this.svgCanvasRightLimit,

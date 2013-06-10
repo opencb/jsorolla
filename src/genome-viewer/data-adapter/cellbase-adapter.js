@@ -122,11 +122,11 @@ CellBaseAdapter.prototype.getData = function(args){
 	}
 	
 	var dataType = "data";
-	if(args.histogram){
-		dataType = "histogram"+args.interval;
-	}
 	if(args.transcript){
 		dataType = "withTranscripts";
+	}
+	if(args.histogram){
+		dataType = "histogram"+args.interval;
 	}
 
 	this.params["dataType"] = dataType;
@@ -149,11 +149,11 @@ CellBaseAdapter.prototype.getData = function(args){
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 	cellBaseManager.success.addEventListener(function(sender,data){
 		var dataType = "data";
-		if(data.params.histogram){
-			dataType = "histogram"+data.params.interval;
-		}
 		if(data.params.transcript){
 			dataType = "withTranscripts";
+		}
+		if(data.params.histogram){
+			dataType = "histogram"+data.params.interval;
 		}
 
 		//XXX quitar cuando este arreglado el ws
@@ -177,8 +177,8 @@ CellBaseAdapter.prototype.getData = function(args){
 			if(data.result[i].constructor != Array){
 				data.result[i] = [data.result[i]];
 			}
-			
-			if(featureType == "gene" && data.params.transcript!=null){
+
+			if(data.params.histogram != true && featureType == "gene" && data.params.transcript!=null){
 				for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
 					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
 						data.result[i][j].transcripts[t].featureType = "transcript";
