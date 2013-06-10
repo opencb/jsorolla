@@ -74,13 +74,13 @@ GenomeViewer.prototype = {
 
 
         $('#genome-viewer').append('<div id="gv-navigation-panel" style=""></div>');
-        $('#genome-viewer').append('<div id="gv-center-panel" style=""></div>');
+        $('#genome-viewer').append('<div id="gv-center-panel" style="position:relative"></div>');
 
 
-        $('#gv-center-panel').append('<div id="gv-sidebar-panel" style="position:absolute; right:0; z-index:50;width:0px;height:300px"></div>');
+        $('#gv-center-panel').append('<div id="gv-sidebar-panel" style="position:absolute; right:0px; z-index:50;width:20px;height:300px;background: whitesmoke;">fds</div>');
         $('#gv-center-panel').append('<div id="gv-main-panel" style="z-index:1"></div>');
         $('#gv-sidebar-panel').click(function () {
-            $(this).css({width: 200})
+            $(this).hide()
         });
 
         $('#gv-main-panel').append('<div id="gv-karyotype-panel" style=""></div>');

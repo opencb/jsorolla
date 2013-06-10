@@ -178,7 +178,7 @@ CellBaseAdapter.prototype.getData = function(args){
 				data.result[i] = [data.result[i]];
 			}
 
-			if(data.params.histogram != true && featureType == "gene" && data.params.transcript!=null){
+			if(data.params.histogram != true && featureType == "gene" && data.params.transcript==true){
 				for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
 					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
 						data.result[i][j].transcripts[t].featureType = "transcript";

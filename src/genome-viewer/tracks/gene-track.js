@@ -38,6 +38,8 @@ function GeneTrack(args) {
 
     //set instantiation args, must be last
     _.extend(this, args);
+
+    this.transcript = true;
 };
 
 GeneTrack.prototype.initialize = function(targetId){
@@ -77,6 +79,14 @@ GeneTrack.prototype.initialize = function(targetId){
     });
 };
 
+GeneTrack.prototype.updateTranscriptParams =  function () {
+    if (this.transcriptZoom <=  this.zoom) {
+        this.transcript = true;
+    } else {
+        this.transcript = false;
+    }
+};
+
 GeneTrack.prototype.draw = function(){
     var _this = this;
 
@@ -84,6 +94,7 @@ GeneTrack.prototype.draw = function(){
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
 
+    this.updateTranscriptParams();
     this.updateHistogramParams();
     this.cleanSvg();
 //    setCallRegion();
@@ -94,7 +105,7 @@ GeneTrack.prototype.draw = function(){
             chromosome:this.region.chromosome,
             start:this.region.start-this.svgCanvasOffset*2,
             end:this.region.end+this.svgCanvasOffset*2,
-            transcript:true,
+            transcript:this.transcript,
             histogram:this.histogram,
             histogramLogarithm:this.histogramLogarithm,
             histogramMax:this.histogramMax,
@@ -136,7 +147,7 @@ GeneTrack.prototype.move = function(disp){
                 chromosome:_this.region.chromosome,
                 start:parseInt(this.svgCanvasLeftLimit-this.svgCanvasOffset),
                 end:this.svgCanvasLeftLimit,
-                transcript:true,
+                transcript:this.transcript,
                 histogram:this.histogram,
                 histogramLogarithm:this.histogramLogarithm,
                 histogramMax:this.histogramMax,
@@ -151,7 +162,7 @@ GeneTrack.prototype.move = function(disp){
                 chromosome:_this.region.chromosome,
                 start:this.svgCanvasRightLimit,
                 end:parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset),
-                transcript:true,
+                transcript:this.transcript,
                 histogram:this.histogram,
                 histogramLogarithm:this.histogramLogarithm,
                 histogramMax:this.histogramMax,

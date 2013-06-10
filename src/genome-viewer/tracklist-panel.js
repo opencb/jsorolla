@@ -432,6 +432,9 @@ TrackListPanel.prototype = {
     },
 
     moveRegion: function (event) {
+        this.region.load(event.region);
+        this.visualRegion.load(event.region);
+        this._setTextPosition();
         this.trigger('trackRegion:move', event);
     },
 
@@ -451,19 +454,19 @@ TrackListPanel.prototype = {
         this._setTextPosition();
         this.onWindowSize.notify({windowSize: this.viewNtsText.textContent});
 
-        if (region.species != null) {
-            //check species and modify CellBaseAdapter, clean cache
-            for (i in this.trackSvgList) {
-                if (this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter ||
-                    this.trackSvgList[i].trackData.adapter instanceof SequenceAdapter
-                    ) {
-                    this.trackSvgList[i].trackData.adapter.species = region.species;
-                    //this.trackSvgList[i].trackData.adapter.featureCache.clear();
-
-                    this.trackSvgList[i].trackData.adapter.clearData();
-                }
-            }
-        }
+//        if (region.species != null) {
+//            //check species and modify CellBaseAdapter, clean cache
+//            for (i in this.trackSvgList) {
+//                if (this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter ||
+//                    this.trackSvgList[i].trackData.adapter instanceof SequenceAdapter
+//                    ) {
+//                    this.trackSvgList[i].trackData.adapter.species = region.species;
+//                    //this.trackSvgList[i].trackData.adapter.featureCache.clear();
+//
+//                    this.trackSvgList[i].trackData.adapter.clearData();
+//                }
+//            }
+//        }
         this.trigger('trackRegion:change', {region: this.region, sender: this})
 
         this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
