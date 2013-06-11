@@ -75,7 +75,7 @@ function NavigationBar (targetId, args) {
     var navToolbar = Ext.create('Ext.toolbar.Toolbar', {
         id: this.id+"navToolbar",
         renderTo: this.targetId,
-        cls:'nav',
+        cls:'gv-nav',
         region:"north",
         width:'100%',
         border: false,
