@@ -70,7 +70,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     this.targetDiv = $('#' + targetId)[0];
 
     if ('title' in this && this.title !== '') {
-        var titleDiv = $('<div id="tl-title" class="title x-unselectable">' + this.title + '</div>')[0];
+        var titleDiv = $('<div id="tl-title" class="gv-panel-title x-unselectable">' + this.title + '</div>')[0];
         $(this.targetDiv).append(titleDiv);
     }
 
@@ -78,7 +78,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     var tlHeaderDiv = $('<div id="tl-header"></div>')[0];
 
     var panelDiv = $('<div id="tl-panel"></div>')[0];
-    $(panelDiv).css({position: 'relative'});
+    $(panelDiv).css({position: 'relative',width:this.width+17});
 
 
     this.tlTracksDiv = $('<div id="tl-tracks"></div>')[0];
@@ -432,12 +432,16 @@ TrackListPanel.prototype = {
     },
 
     moveRegion: function (event) {
+        this.region.load(event.region);
+        this.visualRegion.load(event.region);
+        this._setTextPosition();
         this.trigger('trackRegion:move', event);
     },
 
     setRegion: function (region) {//item.chromosome, item.position, item.species
         var _this = this;
         this.region.load(region);
+        this.visualRegion.load(region);
         this._setPixelBaseAndZoom();
         //get pixelbase by Region
 
@@ -450,19 +454,19 @@ TrackListPanel.prototype = {
         this._setTextPosition();
         this.onWindowSize.notify({windowSize: this.viewNtsText.textContent});
 
-        if (region.species != null) {
-            //check species and modify CellBaseAdapter, clean cache
-            for (i in this.trackSvgList) {
-                if (this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter ||
-                    this.trackSvgList[i].trackData.adapter instanceof SequenceAdapter
-                    ) {
-                    this.trackSvgList[i].trackData.adapter.species = region.species;
-                    //this.trackSvgList[i].trackData.adapter.featureCache.clear();
-
-                    this.trackSvgList[i].trackData.adapter.clearData();
-                }
-            }
-        }
+//        if (region.species != null) {
+//            //check species and modify CellBaseAdapter, clean cache
+//            for (i in this.trackSvgList) {
+//                if (this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter ||
+//                    this.trackSvgList[i].trackData.adapter instanceof SequenceAdapter
+//                    ) {
+//                    this.trackSvgList[i].trackData.adapter.species = region.species;
+//                    //this.trackSvgList[i].trackData.adapter.featureCache.clear();
+//
+//                    this.trackSvgList[i].trackData.adapter.clearData();
+//                }
+//            }
+//        }
         this.trigger('trackRegion:change', {region: this.region, sender: this})
 
         this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed

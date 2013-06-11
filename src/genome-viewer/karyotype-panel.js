@@ -47,7 +47,7 @@ function KaryotypePanel(targetId, args) {
     this.targetDiv = $('#' + targetId)[0];
 
     if ('title' in this && this.title !== '') {
-        this.titleDiv = $('<div id="tl-title" class="title x-unselectable">' + this.title + '</div>')[0];
+        this.titleDiv = $('<div id="tl-title" class="gv-panel-title x-unselectable">' + this.title + '</div>')[0];
         $(this.targetDiv).append(this.titleDiv);
     }
 

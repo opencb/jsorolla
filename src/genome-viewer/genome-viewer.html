@@ -37,8 +37,8 @@
 
 	<!-- jQuery -->
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />-->
+    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>-->
 
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
@@ -51,28 +51,28 @@
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.smartresize.js"></script>
     <script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.pulse.min.js"></script>
 
-	
+
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/xml2json.js"></script>
-	
+
 	<!-- Canvas to SVG converters -->
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/base64.js"></script>
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/canvas2image.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/canvg.js"></script> 
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/rgbcolor.js"></script> 
-	
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/rawdeflate.js"></script> 
-	
+	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/canvg.js"></script>
+	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/rgbcolor.js"></script>
+
+	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/rawdeflate.js"></script>
+
 <!-- 	<script type="text/javascript" src="https://raw.github.com/eligrey/BlobBuilder.js/master/BlobBuilder.min.js"/></script> -->
 <!-- 	<script type="text/javascript" src="https://raw.github.com/eligrey/canvas-toBlob.js/master/canvas-toBlob.min.js"/></script> -->
 <!-- 	<script type="text/javascript" src="https://raw.github.com/eligrey/FileSaver.js/master/FileSaver.min.js"/></script> -->
-	
-	
-	
+
+
+
 	<!-- CHEMDOODLE -->
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb-libs.js"></script>
 	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb.js"></script>
 
-	
+
 
 
     <!-- build:script min -->
@@ -159,7 +159,7 @@
 	// 	});
 
 //    UPLOAD_WORKER = "../opencga/ui-widgets/worker-fileupload.js";
-	
+
 	Ext.Loader.setConfig({enabled: true});
 	Ext.Loader.setPath('Ext.ux', 'http://cdn.sencha.io/ext-4.2.0-gpl/examples/ux');
 	Ext.QuickTips.init();
@@ -187,7 +187,10 @@
 // 		console.log(pathname);
 
         var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
-		genomeViewer = new GenomeViewer("application", null, {region: region}); //the div must exist
+		genomeViewer = new GenomeViewer("application", null, {
+            region: region,
+            sidePanel:false
+        }); //the div must exist
 		genomeViewer.draw();
 
         this.sequence = new SequenceTrack({
@@ -245,42 +248,10 @@
 
         this.genomeViewer.addTrack(this.gene);
 
-        this.icgcMutationsTrack = new IcgcTrack({
-            targetId:null,
-            id:3,
-            title:'ICGC Mutations',
-            histogramZoom:70,
-            labelZoom:80,
-            height:100,
-            visibleRange:{start:0,end:100},
-            featureTypes:FEATURE_TYPES,
-
-            renderer:new FeatureRenderer(),
-
-            dataAdapter:new IcgcAdapter({
-                category: "genomic",
-                subCategory: "region",
-                resource: "snp",
-                params:{
-                    exclude:'transcriptVariations,xrefs,samples'
-                },
-                species: this.genomeViewer.species,
-                featureCache:{
-                    gzip: true,
-                    chunkSize:10000
-                },
-                filters:{},
-                options:{},
-                featureConfig:FEATURE_CONFIG.snp
-            })
-        });
-        this.genomeViewer.addTrack(this.icgcMutationsTrack);
-
-
-//        this.snp = new FeatureTrack({
+//        this.icgcMutationsTrack = new IcgcTrack({
 //            targetId:null,
-//            id:4,
-//            title:'SNP',
+//            id:3,
+//            title:'ICGC Mutations',
 //            histogramZoom:70,
 //            labelZoom:80,
 //            height:100,
@@ -289,7 +260,7 @@
 //
 //            renderer:new FeatureRenderer(),
 //
-//            dataAdapter:new CellBaseAdapter({
+//            dataAdapter:new IcgcAdapter({
 //                category: "genomic",
 //                subCategory: "region",
 //                resource: "snp",
@@ -306,8 +277,40 @@
 //                featureConfig:FEATURE_CONFIG.snp
 //            })
 //        });
-//
-//        this.genomeViewer.addTrack(this.snp);
+//        this.genomeViewer.addTrack(this.icgcMutationsTrack);
+
+
+        this.snp = new FeatureTrack({
+            targetId:null,
+            id:4,
+            title:'SNP',
+            histogramZoom:70,
+            labelZoom:80,
+            height:100,
+            visibleRange:{start:0,end:100},
+            featureTypes:FEATURE_TYPES,
+
+            renderer:new FeatureRenderer(),
+
+            dataAdapter:new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "snp",
+                params:{
+                    exclude:'transcriptVariations,xrefs,samples'
+                },
+                species: this.genomeViewer.species,
+                featureCache:{
+                    gzip: true,
+                    chunkSize:10000
+                },
+                filters:{},
+                options:{},
+                featureConfig:FEATURE_CONFIG.snp
+            })
+        });
+
+        this.genomeViewer.addTrack(this.snp);
 
 
 

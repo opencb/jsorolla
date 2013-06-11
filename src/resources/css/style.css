@@ -4,6 +4,28 @@
 @import url(http://fonts.googleapis.com/css?family=Oxygen);
 @import url(http://fonts.googleapis.com/css?family=Lato);
 
+
+/*Google-like scrollbars webkit only*/
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #FFF;
+    -webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
+}
+::-webkit-scrollbar-thumb {
+    background: #CCC;
+    -webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #AAA;
+}
+::-webkit-scrollbar-thumb:active {
+    background: #888;
+    -webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+
 .font-sourcesanspro{
     font-family: 'Source Sans Pro';
     font-size:13px;
@@ -37,7 +59,7 @@
     /*border-color: red;*/
 /*}*/
 
-.title {
+.gv-panel-title {
     font-family: 'Lato';
     color: #333;
     font-size: 12px;
@@ -48,6 +70,25 @@
     border-top: 1px solid #d4d4d4;
     border-bottom: 1px solid #d4d4d4;
 }
+.gv-panel-title-v {
+    font-family: 'Lato';
+    color: #333;
+    font-size: 12px;
+    padding: 3px 0 5px 5px;
+    background-image: linear-gradient(to left, #ffffff, #d0d0d0);
+    background-image: -webkit-linear-gradient(right, white, #d0d0d0);
+    background-repeat: repeat-x;
+    border-top: 1px solid #d4d4d4;
+    border-bottom: 1px solid #d4d4d4;
+}
+.rotate-90 {
+    margin: 5px 0 0px 0px;
+    -ms-transform:rotate(90deg); /* IE 9 */
+    -moz-transform:rotate(90deg); /* Firefox */
+    -webkit-transform:rotate(90deg); /* Safari and Chrome */
+    -o-transform:rotate(90deg); /* Opera */
+}
+
 
 .nav {
     font-family: 'Lato';
