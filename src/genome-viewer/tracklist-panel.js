@@ -70,7 +70,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     this.targetDiv = $('#' + targetId)[0];
 
     if ('title' in this && this.title !== '') {
-        var titleDiv = $('<div id="tl-title" class="title x-unselectable">' + this.title + '</div>')[0];
+        var titleDiv = $('<div id="tl-title" class="gv-panel-title x-unselectable">' + this.title + '</div>')[0];
         $(this.targetDiv).append(titleDiv);
     }
 
@@ -78,7 +78,7 @@ function TrackListPanel(targetId, args) {//parent is a DOM div element
     var tlHeaderDiv = $('<div id="tl-header"></div>')[0];
 
     var panelDiv = $('<div id="tl-panel"></div>')[0];
-    $(panelDiv).css({position: 'relative'});
+    $(panelDiv).css({position: 'relative',width:this.width+17});
 
 
     this.tlTracksDiv = $('<div id="tl-tracks"></div>')[0];

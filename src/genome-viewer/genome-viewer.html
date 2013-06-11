@@ -37,8 +37,8 @@
 
 	<!-- jQuery -->
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />-->
+    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>-->
 
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
@@ -187,7 +187,10 @@
 // 		console.log(pathname);
 
         var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
-		genomeViewer = new GenomeViewer("application", null, {region: region}); //the div must exist
+		genomeViewer = new GenomeViewer("application", null, {
+            region: region,
+            sidePanel:false
+        }); //the div must exist
 		genomeViewer.draw();
 
         this.sequence = new SequenceTrack({
