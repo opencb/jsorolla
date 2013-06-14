@@ -22,8 +22,8 @@
 //any item with chromosome start end
 FeatureRenderer.prototype = new Renderer({});
 
-function FeatureRenderer(args){
-    Renderer.call(this,args);
+function FeatureRenderer(args) {
+    Renderer.call(this, args);
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
@@ -32,101 +32,102 @@ function FeatureRenderer(args){
     //set instantiation args
     _.extend(this, args);
 
+    if('handlers' in this){
+        for(eventName in this.handlers){
+            this.on(eventName,this.handlers[eventName]);
+        }
+    }
+
     this.fontFamily = 'Source Sans Pro';
 };
 
 
-FeatureRenderer.prototype.render = function(features, args) {
+FeatureRenderer.prototype.render = function (features, args) {
     var _this = this;
-    var draw = function(feature){
+    var draw = function (feature) {
+        //get feature render configuration
+        var color = Utils.isFunction(_this.color) ? _this.color(feature) : _this.color;
+        var label = Utils.isFunction(_this.label) ? _this.label(feature) : _this.label;
+        var height = Utils.isFunction(_this.height) ? _this.height(feature) : _this.height;
+        var tooltipTitle = Utils.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
+        var tooltipText = Utils.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
+        var infoWidgetId = Utils.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
+
+        //get feature genomic information
         var start = feature.start;
         var end = feature.end;
-        var width = (end-start)+1;
+        var length = (end - start) + 1;
 
-        var middle = args.width/2;
-
-        if(width<0){//snps can be negative
-            width=Math.abs(width);
-        }
-        if(width==0){//snps with same start - end
-            width=1;
-        }
-
-        //get type settings object
-        var settings = args.featureTypes[feature.featureType];
-        try {
-            var color = settings.getColor(feature);
-        } catch (e) {
-            //Uncaught TypeError: Cannot call method 'getColor' of undefined
-            console.log(e)
-            debugger
-
-        }
-
+        //check genomic length
+        length = (length < 0) ? Math.abs(length) : length;
+        length = (length == 0) ? 1 : length;
 
         //transform to pixel position
-        width = width * args.pixelBase;
-        var x = args.pixelPosition+middle-((args.position-start)*args.pixelBase);
+        var width = length * args.pixelBase;
 
-        var textHeight = 9;
-        if(args.zoom > args.labelZoom){
-            try{
-                var maxWidth = Math.max(width, settings.getLabel(feature).length*8); //XXX cuidado : text.getComputedTextLength()
-            }catch(e){
-                var maxWidth = 72;
-            }
-        }else{
-            var maxWidth = Math.max(width,2);
-            textHeight = 0;
+        //calculate x to draw svg rect
+        var x = _this.getFeatureX(feature, args);
+
+        var maxWidth = Math.max(width, 2);
+        var textHeight = 0;
+        if (args.zoom > args.labelZoom) {
+            textHeight = 9;
+            maxWidth = Math.max(width, label.length * 8);
         }
 
-
-        var rowHeight = textHeight+10;
         var rowY = 0;
-        var textY = textHeight+settings.height;
+        var textY = textHeight + height;
+        var rowHeight = textHeight + height + 2;
 
-        while(true){
-            if(args.renderedArea[rowY] == null){
+        while (true) {
+            if (!(rowY in args.renderedArea)) {
                 args.renderedArea[rowY] = new FeatureBinarySearchTree();
             }
-            var enc = args.renderedArea[rowY].add({start: x, end: x+maxWidth-1});
+            var foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
 
-            if(enc){
-                var featureGroup = SVG.addChild(args.svgCanvasFeatures,"g");
-                var rect = SVG.addChild(featureGroup,"rect",{
-                    'x':x,
-                    'y':rowY,
-                    'width':width,
-                    'height':settings.height,
+            if (foundArea) {
+                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g");
+                var rect = SVG.addChild(featureGroup, "rect", {
+                    'x': x,
+                    'y': rowY,
+                    'width': width,
+                    'height': height,
                     'stroke': '#3B0B0B',
-                    'stroke-width': 0.5,
+                    'stroke-width': 1,
+                    'stroke-opacity': 0.7,
                     'fill': color,
                     'cursor': 'pointer',
                     'feature_id': feature.id
                 });
-                if(args.zoom > args.labelZoom){
-                    var text = SVG.addChild(featureGroup,"text",{
-                        'i':i,
-                        'x':x,
-                        'y':textY,
-                        'font-size':12,
-                        'font-family':_this.fontFamily,
+                if (args.zoom > args.labelZoom) {
+                    var text = SVG.addChild(featureGroup, "text", {
+                        'i': i,
+                        'x': x,
+                        'y': textY,
+                        'font-size': 12,
+                        'font-family': _this.fontFamily,
                         'font-weight': 400,
-                        'opacity':null,
-                        'fill':'black',
+                        'opacity': null,
+                        'fill': 'black',
                         'cursor': 'pointer'
                     });
-                    text.textContent = settings.getLabel(feature);
+                    text.textContent = label;
                 }
 
-                $(featureGroup).qtip({
-                    content: {text:settings.getTipText(feature), title:settings.getTipTitle(feature)},
-                    position: {target:  "mouse", adjust: {x:15, y:0},  viewport: $(window), effect: false},
-                    style: { width:true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
+                if('tooltipText' in _this ){
+                    $(featureGroup).qtip({
+                        content: {text: tooltipText, title: tooltipTitle},
+                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
+                        style: { width: true, classes: 'font-lato'}
+                    });
+                }
+
+                $(featureGroup).mouseover(function (event) {
+                    _this.trigger('feature:mouseover', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType})
                 });
 
-                $(featureGroup).click(function(event){
-                    _this.trigger('feature:click',{query:feature[settings.infoWidgetId], feature:feature, featureType:feature.featureType})
+                $(featureGroup).click(function (event) {
+                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType})
                 });
                 break;
             }
@@ -136,7 +137,7 @@ FeatureRenderer.prototype.render = function(features, args) {
     };
 
     //process features
-    for ( var i = 0, leni = features.length; i < leni; i++) {
+    for (var i = 0, leni = features.length; i < leni; i++) {
         draw(features[i]);
     }
 };

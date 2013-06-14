@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function ChromosomePanel(targetId, args) {
+function ChromosomePanel(args) {
 
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
@@ -39,41 +39,33 @@ function ChromosomePanel(targetId, args) {
 
 
     this.lastChromosome = "";
+    this.data;
 
 
-//    this.onClick = new Event();
-
-    this.targetDiv = $('#' + targetId)[0];
-
-    if ('title' in this && this.title !== '') {
-        this.titleDiv = $('<div id="tl-title" class="gv-panel-title x-unselectable">' + this.title + '</div>')[0];
-        $(this.targetDiv).append(this.titleDiv);
+    if('handlers' in this){
+        for(eventName in this.handlers){
+            this.on(eventName,this.handlers[eventName]);
+        }
     }
 
-    this.svg = SVG.init(this.targetDiv, {
-        "width": this.width,
-        "height": this.height
-    });
-    $(this.targetDiv).addClass('x-unselectable');
-
-    this.colors = {gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue", clementina: '#ffc967'};
-
-    this.data = null;
+    this.rendered=false;
+    if(this.autoRender){
+        this.render();
+    }
 };
 
 ChromosomePanel.prototype = {
     show: function () {
-        $(this.targetDiv).css({display: 'block'});
+        $(this.div).css({display: 'block'});
     },
-
     hide: function () {
-        $(this.targetDiv).css({display: 'none'});
+        $(this.div).css({display: 'none'});
     },
     setVisible: function (bool) {
         if(bool) {
-            $(this.targetDiv).css({display: 'block'});
+            $(this.div).css({display: 'block'});
         }else {
-            $(this.targetDiv).css({display: 'none'});
+            $(this.div).css({display: 'none'});
         }
     },
     setTitle: function (title) {
@@ -91,25 +83,36 @@ ChromosomePanel.prototype = {
         this._drawSvg(this.data);
     },
 
-    draw: function () {
-        var _this = this;
+    render : function(targetId){
+        this.targetId = (targetId) ? targetId : this.targetId;
+        if($('#' + this.targetId).length < 1){
+            console.log('targetId not found in DOM');
+            return;
+        }
+        this.targetDiv = $('#' + this.targetId)[0];
+        this.div = $('<div id="chromosome-panel"></div>')[0];
+        $(this.targetDiv).append(this.div);
 
-        var sortfunction = function (a, b) {
-            return (a.start - b.start);
-        };
+        if ('title' in this && this.title !== '') {
+            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
+            $(this.div).append(this.titleDiv);
+        }
 
-        console.log('In chromosome-widget: ' + this.region)
-        var cellBaseManager = new CellBaseManager(this.species);
-        cellBaseManager.success.addEventListener(function (sender, data) {
-            _this.data = data.result[0];
-            _this.data.cytobands.sort(sortfunction);
-            _this._drawSvg(_this.data);
+        this.svg = SVG.init(this.div, {
+            "width": this.width,
+            "height": this.height
         });
-        cellBaseManager.get("feature", "chromosome", this.region.chromosome, "info");
-        this.lastChromosome = this.region.chromosome;
+        $(this.div).addClass('unselectable');
+
+        this.colors = {gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue", clementina: '#ffc967'};
+        this.rendered = true;
     },
 
-    drawChromosome: function () {
+    draw: function () {
+        if(!this.rendered){
+            console.info(this.id+' is not rendered yet');
+            return;
+        }
         var _this = this;
 
         var sortfunction = function (a, b) {
@@ -468,7 +471,7 @@ ChromosomePanel.prototype = {
             while (this.svg.firstChild) {
                 this.svg.removeChild(this.svg.firstChild);
             }
-            this.drawChromosome();
+            this.draw();
         }
     }
 

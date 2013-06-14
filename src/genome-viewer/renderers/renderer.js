@@ -28,6 +28,11 @@ Renderer.prototype = {
 
     render: function (items) {
 
-    }
+    },
 
+    getFeatureX: function (feature, args) {//returns svg feature x value from feature genomic position
+        var middle = args.width / 2;
+        var x = args.pixelPosition + middle - ((args.position - feature.start) * args.pixelBase);
+        return x;
+    }
 };
