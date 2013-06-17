@@ -63,11 +63,7 @@ function NavigationBar(args) {
 
     this.currentChromosomeList = [];
 
-    if ('handlers' in this) {
-        for (eventName in this.handlers) {
-            this.on(eventName, this.handlers[eventName]);
-        }
-    }
+    this.on(this.handlers);
 
     this.rendered = false;
     if (this.autoRender) {

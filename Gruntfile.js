@@ -59,9 +59,10 @@ module.exports = function (grunt) {
             nv:{
                 src: [
                     /** Utils **/
-                    'src/utils/event.js','src/utils/svg.js','src/utils/utils.js',
-                    /** config **/
-                    'src/ui-widgets/ux-window.js',
+                    'src/utils/svg.js','src/utils/utils.js',
+                    /** network viewer **/
+                    'src/network-viewer/tool-bar.js',
+                    'src/network-viewer/network-viewer.js'
                 ],
                 dest:'dist/network-viewer/<%= meta.versionnv %>/network-viewer.js'
             }
@@ -73,6 +74,10 @@ module.exports = function (grunt) {
             gv: {
                 src: '<%= concat.gv.dest %>',
                 dest: 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js'
+            },
+            nv: {
+                src: '<%= concat.nv.dest %>',
+                dest: 'dist/network-viewer/<%= meta.versionnv %>/network-viewer.min.js'
             }
         },
         jshint: {
@@ -151,6 +156,6 @@ module.exports = function (grunt) {
     // Default task.
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
     grunt.registerTask('gv', ['concat:gv','uglify:gv', 'copy:resourcesgv' , 'htmlbuild:gv']);
-    grunt.registerTask('nv', ['concat:nv']);
+    grunt.registerTask('nv', ['concat:nv','uglify:nv',]);
 
 };
