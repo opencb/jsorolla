@@ -100,13 +100,14 @@ NavigationBar.prototype = {
                 '<span id="chromosomeButton" class="btn btn-mini">Chromosome</span>' +
                 '<span id="regionButton" class="btn btn-mini">Region</span>' +
                 '</div>' +
-//                '<div class="btn-group">' +
-//                '<div class="input-append input-prepend" style="margin:0px">' +
-//                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
-//                '<input class="span2 input-medium" placeholder="" id="zoolField" style="height:22px;width:50px;font-size:12px" type="text">' +
-//                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
-//                '</div>' +
-//                '</div>' +
+                '<div class="btn-group">' +
+                '<div class="input-append input-prepend" style="margin:0px">' +
+                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
+                '<input class="span2 input-medium" placeholder="" id="zoolField" style="height:22px;width:50px;font-size:12px" type="text">' +
+                '<span id="zoomInButton" class="btn btn-mini"><span class="caret"></span></span>' +
+                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
+                '</div>' +
+                '</div>' +
                 '<div class="btn-group">' +
                 '<div class="input-append" style="margin:0px">' +
                 '<input class="span2" placeholder="Enter region..." id="regionField" style="height:22px;font-size:12px" type="text">' +
@@ -115,7 +116,7 @@ NavigationBar.prototype = {
                 '</div>' +
                 '<div class="btn-group pull-right">' +
                 '<div class="input-append" style="margin:0px">' +
-                '<input class="span2" placeholder="Quick search: gene, snp..." id="searchField" style="height:22px;font-size:12px" type="text">' +
+                '<input id="searchField" class="span2" placeholder="Quick search: gene, snp..." id="searchField" style="height:22px;font-size:12px" type="text">' +
                 '<span class="btn btn-mini" id="searchButton">Search</span>' +
                 '</div>' +
                 '</div>' +
@@ -159,7 +160,7 @@ NavigationBar.prototype = {
 
         });
         $(this.searchButton).click(function () {
-            console.log('search');
+            _this._goFeature();
         });
 
         $(this.regionField).bind('keypress', function (e) {
@@ -168,11 +169,19 @@ NavigationBar.prototype = {
                 _this._goRegion($(this).val());
             }
         });
+
+        $(this.searchField).typeahead({
+            source:function(query, process){
+                process(_this._quickSearch(query));
+            },
+            minLength:3,
+            items:50
+        });
+
         $(this.searchField).bind('keypress', function (e) {
             var code = (e.keyCode ? e.keyCode : e.which);
             if (code == 13) { //Enter keycode
-                //Do something
-                console.log("enter")
+                _this._goFeature();
             }
         });
 
@@ -241,6 +250,35 @@ NavigationBar.prototype = {
             this.region.load(reg);
             this._setZoom();
             this.trigger('region:change', {region: this.region, sender: this});
+        }
+    },
+
+    _quickSearch: function(query){
+        var results = [];
+        $.ajax({
+//                        url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/"+this.getValue()+"/starts_with?of=json",
+            url: "http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/feature/id/" + query + "/starts_with?of=json",
+            async:false,
+            dataType: 'json',
+            success: function (data, textStatus, jqXHR) {
+                for(var i in data[0]){
+                    results.push(data[0][i].displayId);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus);
+            }
+        });
+        return results;
+    },
+
+    _goFeature : function(featureName){
+        if (featureName != null) {
+            if (featureName.slice(0, "rs".length) == "rs" || featureName.slice(0, "AFFY_".length) == "AFFY_" || featureName.slice(0, "SNP_".length) == "SNP_" || featureName.slice(0, "VAR_".length) == "VAR_" || featureName.slice(0, "CRTAP_".length) == "CRTAP_" || featureName.slice(0, "FKBP10_".length) == "FKBP10_" || featureName.slice(0, "LEPRE1_".length) == "LEPRE1_" || featureName.slice(0, "PPIB_".length) == "PPIB_") {
+                this.openSNPListWidget(featureName);
+            } else {
+                this.openGeneListWidget(featureName);
+            }
         }
     },
 

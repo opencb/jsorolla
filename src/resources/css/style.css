@@ -327,12 +327,12 @@ a:hover {text-decoration: underline; color: #15428B;}
 .icon-select{
 	background:url(../img/jfk_sprite22.png) no-repeat -3px -1964px!important;
 }
-.icon-zoom-out{
-	background:url(../img/jfk_sprite22.png) no-repeat -3px -2787px!important;
-}
-.icon-zoom-in{
-	background:url(../img/jfk_sprite22.png) no-repeat -3px -2850px!important;
-}
+/*.icon-zoom-out{*/
+	/*background:url(../img/jfk_sprite22.png) no-repeat -3px -2787px!important;*/
+/*}*/
+/*.icon-zoom-in{*/
+	/*background:url(../img/jfk_sprite22.png) no-repeat -3px -2850px!important;*/
+/*}*/
 .icon-upload{
 	background:url(../img/jfk_sprite22.png) no-repeat -3px -2048px!important;
 }

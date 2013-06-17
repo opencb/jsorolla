@@ -6,7 +6,8 @@ module.exports = function (grunt) {
         // Metadata.
         meta: {
             version: '0.1.0',
-            versiongv: '0.1.2'
+            versiongv: '0.1.2',
+            versionnv: '0.0.1'
         },
         banner: '/*! PROJECT_NAME - v<%= meta.version %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
@@ -54,6 +55,15 @@ module.exports = function (grunt) {
                     'src/genome-viewer/genome-viewer.js'
                 ],
                 dest: 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.js'
+            },
+            nv:{
+                src: [
+                    /** Utils **/
+                    'src/utils/event.js','src/utils/svg.js','src/utils/utils.js',
+                    /** config **/
+                    'src/ui-widgets/ux-window.js',
+                ],
+                dest:'dist/network-viewer/<%= meta.versionnv %>/network-viewer.js'
             }
         },
         uglify: {
@@ -141,5 +151,6 @@ module.exports = function (grunt) {
     // Default task.
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
     grunt.registerTask('gv', ['concat:gv','uglify:gv', 'copy:resourcesgv' , 'htmlbuild:gv']);
+    grunt.registerTask('nv', ['concat:nv']);
 
 };
