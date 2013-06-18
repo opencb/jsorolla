@@ -148,7 +148,8 @@ module.exports = function (grunt) {
                                     'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap*/**/*.js',
                                     'dist/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.js',
                                     'dist/genome-viewer/<%= meta.versiongv %>/vendor/jquery-plugins/*.js',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.js'
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.js',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/jquery-ui-slider/*.js'
                             ]
                     },
                     styles: {
@@ -156,7 +157,8 @@ module.exports = function (grunt) {
                         'vendor': [ 'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap/**/*.css',
                                     'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap-*/**/*.css',
                                     'dist/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.css',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.css'
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.css',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/jquery-ui-slider/*.css'
                             ]
                     }
                 }
