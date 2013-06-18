@@ -4,9 +4,6 @@
 @import url(http://fonts.googleapis.com/css?family=Oxygen);
 @import url(http://fonts.googleapis.com/css?family=Lato);
 
-body {
-    line-height: 14px;
-}
 
 /*Google-like scrollbars webkit only*/
 ::-webkit-scrollbar {

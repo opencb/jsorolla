@@ -12,6 +12,7 @@
 <link href="../vendor/bootstrap-slider/css/slider.css" rel="stylesheet">
 <link href="../vendor/qtip2/jquery.qtip.min.css" rel="stylesheet">
 <link href="../vendor/ChemDoodleWeb-5.1.0/ChemDoodleWeb.css" rel="stylesheet">
+<link href="../vendor/jquery-ui-slider/jquery-ui-1.10.3.slider.min.css" rel="stylesheet">
 <!-- /build -->
 
 <!-- CSS from Genome Viewer -->
@@ -37,6 +38,7 @@
 <script type="text/javascript" src="../vendor/jquery-plugins/jquery.url.js"></script>
 <script type="text/javascript" src="../vendor/ChemDoodleWeb-5.1.0/ChemDoodleWeb-libs.js"></script>
 <script type="text/javascript" src="../vendor/ChemDoodleWeb-5.1.0/ChemDoodleWeb.js"></script>
+<script type="text/javascript" src="../vendor/jquery-ui-slider/jquery-ui-1.10.3.slider.min.js"></script>
 <!-- /build -->
 
 
@@ -132,18 +134,17 @@
 
 
 <script type="text/javascript">
-
+var genomeViewer = null;
     $(document).ready(function () {
-
         var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
-        this.genomeViewer = new GenomeViewer({
+        genomeViewer = new GenomeViewer({
             region: region,
             sidePanel: false,
             targetId: 'application',
             autoRender: true
 
         }); //the div must exist
-        this.genomeViewer.draw();
+        genomeViewer.draw();
 
         this.sequence = new SequenceTrack({
             targetId: null,
@@ -161,7 +162,7 @@
                 category: "genomic",
                 subCategory: "region",
                 resource: "sequence",
-                species: this.genomeViewer.species,
+                species: genomeViewer.species,
                 featureCache: {
                     gzip: true,
                     chunkSize: 1000
@@ -169,7 +170,7 @@
             })
         });
 
-        this.genomeViewer.addTrack(this.sequence);
+        genomeViewer.addTrack(this.sequence);
 
         this.gene = new GeneTrack({
             targetId: null,
@@ -187,7 +188,7 @@
                 category: "genomic",
                 subCategory: "region",
                 resource: "gene",
-                species: this.genomeViewer.species,
+                species: genomeViewer.species,
                 featureCache: {
                     gzip: true,
                     chunkSize: 50000
@@ -198,7 +199,7 @@
             })
         });
 
-        this.genomeViewer.addTrack(this.gene);
+        genomeViewer.addTrack(this.gene);
 
 //        this.icgcMutationsTrack = new IcgcTrack({
 //            targetId:null,
@@ -219,7 +220,7 @@
 //                params:{
 //                    exclude:'transcriptVariations,xrefs,samples'
 //                },
-//                species: this.genomeViewer.species,
+//                species: genomeViewer.species,
 //                featureCache:{
 //                    gzip: true,
 //                    chunkSize:10000
@@ -229,7 +230,7 @@
 //                featureConfig:FEATURE_CONFIG.snp
 //            })
 //        });
-//        this.genomeViewer.addTrack(this.icgcMutationsTrack);
+//        genomeViewer.addTrack(this.icgcMutationsTrack);
 
 
         this.snp = new FeatureTrack({
@@ -276,7 +277,7 @@
                 params: {
                     exclude: 'transcriptVariations,xrefs,samples'
                 },
-                species: this.genomeViewer.species,
+                species: genomeViewer.species,
                 featureCache: {
                     gzip: true,
                     chunkSize: 10000
@@ -287,7 +288,7 @@
             })
         });
 
-        this.genomeViewer.addTrack(this.snp);
+        genomeViewer.addTrack(this.snp);
     });
 
 </script>

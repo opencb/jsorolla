@@ -61,7 +61,6 @@ function NavigationBar(args) {
 //        }
 //    }
 
-
     this.currentChromosomeList = [];
 
     this.on(this.handlers);
@@ -83,22 +82,24 @@ NavigationBar.prototype = {
         }
 
         var navgationHtml =
-            '<div class="btn-group">' +
+//            '<div class="btn-toolbar">'+
+                '<div id="species" class="btn-group">' +
                 '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" href="#"> Species <span class="caret"></span></span>' +
                 '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="speciesMenu">' +
                 '</ul>' +
                 '</div>' +
-                '<div class="btn-group">' +
+                '<div id="chromosome" class="btn-group">' +
                 '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromsome <span class="caret"></span></span>' +
                 '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="chromsomeMenu"></ul>' +
                 '</div>' +
-                '<div class="btn-group" data-toggle="buttons-checkbox">' +
+                '<div id="panel" class="btn-group" data-toggle="buttons-checkbox">' +
                 '<span id="karyotypeButton" class="btn btn-mini">Karyotype</span>' +
                 '<span id="chromosomeButton" class="btn btn-mini">Chromosome</span>' +
                 '<span id="regionButton" class="btn btn-mini">Region</span>' +
                 '</div>' +
-                '<div class="btn-group">' +
-
+                '<div id="slider" style="width:200px;display:inline-block;top:3px;margin:0px 15px 0px 15px;"> ' +
+                '</div>' +
+//                '<div id="slider" style="width:100px;display:inline"></div>'+
 
 //                '<div class="input-append input-prepend" style="margin:0px">' +
 //                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
@@ -106,17 +107,17 @@ NavigationBar.prototype = {
 //                '<span id="zoomInButton" class="btn btn-mini"><span class="caret"></span></span>' +
 //                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
 //                '</div>' +
-                '</div>' +
-                '<div class="btn-group">' +
+                '<div id="position" class="btn-group">' +
                 '<div class="input-append" style="margin:0px">' +
                 '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px" type="text">' +
                 '<span class="btn btn-mini" id="goButton">Go!</span>' +
                 '</div>' +
                 '</div>' +
-                '<div class="btn-group pull-right">' +
+                '<div id="search" class="btn-group pull-right">' +
                 '<div class="input-append" style="margin:0px">' +
                 '<input id="searchField" class="span2" placeholder="Quick search: gene, snp..." id="searchField" style="height:12px;font-size:12px" type="text">' +
                 '<span class="btn btn-mini" id="searchButton">Search</span>' +
+                '</div>' +
                 '</div>' +
                 '</div>' +
                 '';
@@ -136,6 +137,7 @@ NavigationBar.prototype = {
         this.karyotypeButton = $(this.div).find('#karyotypeButton');
         this.chromosomeButton = $(this.div).find('#chromosomeButton');
         this.regionButton = $(this.div).find('#regionButton');
+        this.zoomSlider = $(this.div).find( "#slider" );
         this.goButton = $(this.div).find('#goButton');
         this.searchButton = $(this.div).find('#searchButton');
         this.regionField = $(this.div).find('#regionField')[0];
@@ -153,6 +155,15 @@ NavigationBar.prototype = {
         $(this.regionButton).click(function () {
             var pressed = ($(this).hasClass('active')) ? false : true;
             _this.trigger('region-button:change', {selected: pressed, sender: _this});
+        });
+        $(this.zoomSlider).slider({
+            range: "min",
+            value: 100,
+            min: 0,
+            max: 100,
+            stop: function( event, ui ) {
+                _this._handleZoomSlider(ui.value);
+            }
         });
         $(this.goButton).click(function () {
             _this._goRegion($(_this.regionField).val());
@@ -281,6 +292,24 @@ NavigationBar.prototype = {
         }
     },
 
+    _handleZoomSlider : function(value){
+        this.zoom = value;
+        this.region.load(this._calculateRegionByZoom());
+        $(this.regionField).val(this.region.toString());
+        this.trigger('region:change', {region: this.region, sender: this});
+    },
+
+    setVisible:function(obj){
+        for(key in obj){
+            var query = $(this.div).find('#'+key);
+            if(obj[key]){
+                query.css({display:'inline-block'})
+            }else{
+                query.css({display:'none'})
+            }
+        }
+    },
+
     setRegion: function (region) {
         this.region.load(region);
         $(this.regionField).val(this.region.toString());
@@ -293,7 +322,9 @@ NavigationBar.prototype = {
 
     _setZoom: function () {
         this._calculateZoomByRegion()
+        $(this.zoomSlider).slider( "value", this._calculateZoomByRegion() );
 //        Ext.getCmp(this.id + 'zoomSlider').suspendEvents();
+//
 //        Ext.getCmp(this.id + 'zoomSlider').setValue(this._calculateZoomByRegion());
 //        Ext.getCmp(this.id + 'zoomSlider').resumeEvents();
     },
@@ -698,35 +729,35 @@ NavigationBar.prototype = {
 //        return regionButton;
 //    },
 
-    _getZoomSlider: function () {
-        var _this = this;
-        if (this._zoomSlider == null) {
-            this._zoomSlider = Ext.create('Ext.slider.Single', {
-                id: this.id + 'zoomSlider',
-                width: 170,
-                maxValue: 100,
-                minValue: 0,
-                value: this.zoom,
-                useTips: true,
-                increment: 1,
-                tipText: function (thumb) {
-                    return Ext.String.format('<b>{0}%</b>', thumb.value);
-                },
-                listeners: {
-                    'change': {
-                        fn: function (slider, newValue) {
-                            _this.zoom = newValue;
-                            _this.region.load(_this._calculateRegionByZoom());
-                            Ext.getCmp(_this.id + 'tbCoordinate').setValue(_this.region.toString());
-                            _this.trigger('region:change', {region: _this.region, sender: _this});
-                        },
-                        buffer: 500
-                    }
-                }
-            });
-        }
-        return this._zoomSlider;
-    },
+//    _getZoomSlider: function () {
+//        var _this = this;
+//        if (this._zoomSlider == null) {
+//            this._zoomSlider = Ext.create('Ext.slider.Single', {
+//                id: this.id + 'zoomSlider',
+//                width: 170,
+//                maxValue: 100,
+//                minValue: 0,
+//                value: this.zoom,
+//                useTips: true,
+//                increment: 1,
+//                tipText: function (thumb) {
+//                    return Ext.String.format('<b>{0}%</b>', thumb.value);
+//                },
+//                listeners: {
+//                    'change': {
+//                        fn: function (slider, newValue) {
+//                            _this.zoom = newValue;
+//                            _this.region.load(_this._calculateRegionByZoom());
+//                            Ext.getCmp(_this.id + 'tbCoordinate').setValue(_this.region.toString());
+//                            _this.trigger('region:change', {region: _this.region, sender: _this});
+//                        },
+//                        buffer: 500
+//                    }
+//                }
+//            });
+//        }
+//        return this._zoomSlider;
+//    },
     _calculateRegionByZoom: function () {
         var zoomBaseLength = parseInt((this.width - 18) / Utils.getPixelBaseByZoom(this.zoom));
         var centerPosition = this.region.center();
@@ -739,90 +770,90 @@ NavigationBar.prototype = {
         return Math.round(Utils.getZoomByPixelBase((this.width - 18) / this.region.length()));
     },
 
-    _createSearchComboBox: function () {
-        var _this = this;
-
-        var searchResults = Ext.create('Ext.data.Store', {
-            fields: ["xrefId", "displayId", "description"]
-        });
-
-        var searchCombo = Ext.create('Ext.form.field.ComboBox', {
-            id: this.id + '-quick-search',
-            displayField: 'displayId',
-            valueField: 'displayId',
-            emptyText: 'gene, snp, ...',
-            hideTrigger: true,
-            fieldLabel: 'Search:',
-            labelWidth: 40,
-            width: 150,
-            store: searchResults,
-            queryMode: 'local',
-            typeAhead: false,
-            autoSelect: false,
-            queryDelay: 500,
-            listeners: {
-                change: function () {
-                    var value = this.getValue();
-                    var min = 2;
-                    if (value && value.substring(0, 3).toUpperCase() == "ENS") {
-                        min = 10;
-                    }
-                    if (value && value.length > min) {
-                        $.ajax({
-//                        url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/"+this.getValue()+"/starts_with?of=json",
-                            url: "http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/feature/id/" + this.getValue() + "/starts_with?of=json",
-                            success: function (data, textStatus, jqXHR) {
-                                var d = JSON.parse(data);
-                                searchResults.loadData(d[0]);
-                                console.log(searchResults)
-                            },
-                            error: function (jqXHR, textStatus, errorThrown) {
-                                console.log(textStatus);
-                            }
-                        });
-                    }
-                },
-                select: function (field, e) {
-                    _this._handleNavigationBar('GoToGene');
-                }
-//			,specialkey: function(field, e){
-//				if (e.getKey() == e.ENTER) {
-//					_this._handleNavigationBar('GoToGene');
-//				}
-//			}
-            },
-            tpl: Ext.create('Ext.XTemplate',
-                '<tpl for=".">',
-                '<div class="x-boundlist-item">{displayId} ({displayId})</div>',
-                '</tpl>'
-            )
-        });
-        return searchCombo;
-    },
-
-    _createFullScreenButton: function () {
-        var _this = this;
-        var regionButton = Ext.create('Ext.Button', {
-            id: this.id + "FullScreenButton",
-            text: 'F11',
-            cls: 'x-btn-text-icon',
-            enableToggle: false,
-            toggleHandler: function () {
-                var elem = document.getElementById("genome-viewer");
-                req = elem.requestFullScreen || elem.webkitRequestFullScreen || elem.mozRequestFullScreen;
-                req.call(elem);
-//                if (elem.requestFullscreen) {
-//                    elem.requestFullscreen();
-//                } else if (elem.mozRequestFullScreen) {
-//                    elem.mozRequestFullScreen();
-//                } else if (elem.webkitRequestFullscreen) {
-//                    elem.webkitRequestFullscreen();
+//    _createSearchComboBox: function () {
+//        var _this = this;
+//
+//        var searchResults = Ext.create('Ext.data.Store', {
+//            fields: ["xrefId", "displayId", "description"]
+//        });
+//
+//        var searchCombo = Ext.create('Ext.form.field.ComboBox', {
+//            id: this.id + '-quick-search',
+//            displayField: 'displayId',
+//            valueField: 'displayId',
+//            emptyText: 'gene, snp, ...',
+//            hideTrigger: true,
+//            fieldLabel: 'Search:',
+//            labelWidth: 40,
+//            width: 150,
+//            store: searchResults,
+//            queryMode: 'local',
+//            typeAhead: false,
+//            autoSelect: false,
+//            queryDelay: 500,
+//            listeners: {
+//                change: function () {
+//                    var value = this.getValue();
+//                    var min = 2;
+//                    if (value && value.substring(0, 3).toUpperCase() == "ENS") {
+//                        min = 10;
+//                    }
+//                    if (value && value.length > min) {
+//                        $.ajax({
+////                        url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/"+this.getValue()+"/starts_with?of=json",
+//                            url: "http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/feature/id/" + this.getValue() + "/starts_with?of=json",
+//                            success: function (data, textStatus, jqXHR) {
+//                                var d = JSON.parse(data);
+//                                searchResults.loadData(d[0]);
+//                                console.log(searchResults)
+//                            },
+//                            error: function (jqXHR, textStatus, errorThrown) {
+//                                console.log(textStatus);
+//                            }
+//                        });
+//                    }
+//                },
+//                select: function (field, e) {
+//                    _this._handleNavigationBar('GoToGene');
 //                }
-            }
-
-        });
-        return regionButton;
-    },
+////			,specialkey: function(field, e){
+////				if (e.getKey() == e.ENTER) {
+////					_this._handleNavigationBar('GoToGene');
+////				}
+////			}
+//            },
+//            tpl: Ext.create('Ext.XTemplate',
+//                '<tpl for=".">',
+//                '<div class="x-boundlist-item">{displayId} ({displayId})</div>',
+//                '</tpl>'
+//            )
+//        });
+//        return searchCombo;
+//    },
+//
+//    _createFullScreenButton: function () {
+//        var _this = this;
+//        var regionButton = Ext.create('Ext.Button', {
+//            id: this.id + "FullScreenButton",
+//            text: 'F11',
+//            cls: 'x-btn-text-icon',
+//            enableToggle: false,
+//            toggleHandler: function () {
+//                var elem = document.getElementById("genome-viewer");
+//                req = elem.requestFullScreen || elem.webkitRequestFullScreen || elem.mozRequestFullScreen;
+//                req.call(elem);
+////                if (elem.requestFullscreen) {
+////                    elem.requestFullscreen();
+////                } else if (elem.mozRequestFullScreen) {
+////                    elem.mozRequestFullScreen();
+////                } else if (elem.webkitRequestFullscreen) {
+////                    elem.webkitRequestFullscreen();
+////                }
+//            }
+//
+//        });
+//        return regionButton;
+//    },
 
     _handleNavigationBar: function (action, args) {
 ////	var _this = this;
