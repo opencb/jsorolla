@@ -97,22 +97,23 @@ NavigationBar.prototype = {
                 '<span id="regionButton" class="btn btn-mini">Region</span>' +
                 '</div>' +
                 '<div class="btn-group">' +
-                '<div class="input-append input-prepend" style="margin:0px">' +
-                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
-                '<input class="span2 input-medium" placeholder="" id="zoolField" style="height:22px;width:50px;font-size:12px" type="text">' +
-                '<span id="zoomInButton" class="btn btn-mini"><span class="caret"></span></span>' +
-                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
-                '</div>' +
+//                '<input type="text" class="span2" value="" data-slider-min="-20" data-slider-max="20" data-slider-step="1" data-slider-value="-14" data-slider-orientation="vertical" data-slider-selection="after"data-slider-tooltip="hide">'+
+//                '<div class="input-append input-prepend" style="margin:0px">' +
+//                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
+//                '<input class="span2 input-medium" placeholder="" id="zoolField" style="height:22px;width:50px;font-size:12px" type="text">' +
+//                '<span id="zoomInButton" class="btn btn-mini"><span class="caret"></span></span>' +
+//                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
+//                '</div>' +
                 '</div>' +
                 '<div class="btn-group">' +
                 '<div class="input-append" style="margin:0px">' +
-                '<input class="span2" placeholder="Enter region..." id="regionField" style="height:22px;font-size:12px" type="text">' +
+                '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px" type="text">' +
                 '<span class="btn btn-mini" id="goButton">Go!</span>' +
                 '</div>' +
                 '</div>' +
                 '<div class="btn-group pull-right">' +
                 '<div class="input-append" style="margin:0px">' +
-                '<input id="searchField" class="span2" placeholder="Quick search: gene, snp..." id="searchField" style="height:22px;font-size:12px" type="text">' +
+                '<input id="searchField" class="span2" placeholder="Quick search: gene, snp..." id="searchField" style="height:12px;font-size:12px" type="text">' +
                 '<span class="btn btn-mini" id="searchButton">Search</span>' +
                 '</div>' +
                 '</div>' +

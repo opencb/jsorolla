@@ -1,17 +1,35 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Genome Viewer Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Genome Viewer Demo</title>
+
+
+    <!--css vendor-->
+    <link href="../../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../vendor/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="../../vendor/bootstrap/slider/css/slider.css" rel="stylesheet">
+
+
+    <!--css-->
+    <!-- build:style bundle -->
+    <link href="../resources/css/style.css" rel="stylesheet">
+    <!-- /build -->
+
+    <!--js vendor-->
+    <script type="text/javascript" src="../../vendor/jquery/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../vendor/bootstrap/slider/js/bootstrap-slider.js"></script>
+
+    <script type="text/javascript" src="../../vendor/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../vendor/backbone/backbone-min.js"></script>
+
+
+
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext-4.2.0-gpl/resources/css/ext-all-gray.css"/>
-<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb.css"/>
-<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css"/>
-<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-<!-- build:style bundle -->
-<link rel="stylesheet" type="text/css" href="../resources/css/style.css"/>
-<!-- /build -->
+<!--<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb.css"/>-->
+<!--<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css"/>-->
 
 <!-- Google Analytics -->
 
@@ -33,21 +51,11 @@
 
 <!-- EXT-LIBS -->
 
-<!-- Ext-js -->
-<script type="text/javascript" src="http://cdn.sencha.io/ext-4.2.0-gpl/ext-all.js"></script>
-<script type="text/javascript" src="http://cdn.sencha.io/ext-4.2.0-gpl/examples/shared/examples.js"></script>
-
 
 <!-- jQuery -->
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />-->
 <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>-->
 
-<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-
-<script type="text/javascript"
-        src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
-<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
 
 <script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.sha1.js"></script>
@@ -94,7 +102,7 @@
 <script type="text/javascript" src="gv-config.js"></script>
 
 <!-- js-common-libs ui-widgets -->
-<script type="text/javascript" src="../ui-widgets/ux-window.js"></script>
+<!--<script type="text/javascript" src="../ui-widgets/ux-window.js"></script>-->
 
 <!-- js-common-libs cellbase ui-widgets -->
 <script type="text/javascript" src="../cellbase/ui-widgets/info-widget.js"></script>
@@ -153,108 +161,74 @@
 
 <!-- /build -->
 
-<script>
-// 	Ext.application({
-// 	    launch: run
-// 	});
+<script type="text/javascript">
 
-//    UPLOAD_WORKER = "../opencga/ui-widgets/worker-fileupload.js";
+    $(document).ready(function() {
 
-Ext.Loader.setConfig({enabled: true});
-Ext.Loader.setPath('Ext.ux', 'http://cdn.sencha.io/ext-4.2.0-gpl/examples/ux');
-Ext.QuickTips.init();
-Ext.require([
-    'Ext.ux.grid.FiltersFeature',
-    'Ext.grid.plugin.BufferedRenderer'
-//	    'Ext.grid.PagingScroller',
-//	    'Ext.ux.data.PagingMemoryProxy'
-]);
+        var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+        this.genomeViewer = new GenomeViewer({
+            region: region,
+            sidePanel: false,
+            targetId: 'application',
+            autoRender: true
 
-var counter = 1000000;
-function test(ms, positions) {
-    if (ms == null) {
-        ms = 200;
-    }
-    if (positions == null) {
-        positions = 250000;
-    }
-    genomeViewer.trackSvgLayout.onMove.notify(-1)
-    setTimeout("test()", ms);
-    counter = counter + positions;
-}
+        }); //the div must exist
+        this.genomeViewer.draw();
 
-Ext.onReady(run);
-var genomeViewer;
-function run() {
+        this.sequence = new SequenceTrack({
+            targetId: null,
+            id: 1,
+            title: 'Sequence',
+            histogramZoom: 20,
+            transcriptZoom: 50,
+            height: 30,
+            visibleRange: {start: 100, end: 100},
+            featureTypes: FEATURE_TYPES,
 
-//		CheckBrowser();
-// 		var pathname = window.location.href;
-// 		console.log(pathname);
+            renderer: new SequenceRenderer(),
 
-    var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
-    genomeViewer = new GenomeViewer({
-        region: region,
-        sidePanel: false,
-        targetId: 'application',
-        autoRender: true
+            dataAdapter: new SequenceAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "sequence",
+                species: this.genomeViewer.species,
+                featureCache: {
+                    gzip: true,
+                    chunkSize: 1000
+                }
+            })
+        });
 
-    }); //the div must exist
-    genomeViewer.draw();
+        this.genomeViewer.addTrack(this.sequence);
 
-    this.sequence = new SequenceTrack({
-        targetId: null,
-        id: 1,
-        title: 'Sequence',
-        histogramZoom: 20,
-        transcriptZoom: 50,
-        height: 30,
-        visibleRange: {start: 100, end: 100},
-        featureTypes: FEATURE_TYPES,
+        this.gene = new GeneTrack({
+            targetId: null,
+            id: 2,
+            title: 'Gene',
+            histogramZoom: 20,
+            transcriptZoom: 50,
+            height: 100,
+            visibleRange: {start: 0, end: 100},
+            featureTypes: FEATURE_TYPES,
 
-        renderer: new SequenceRenderer(),
+            renderer: new GeneRenderer(),
 
-        dataAdapter: new SequenceAdapter({
-            category: "genomic",
-            subCategory: "region",
-            resource: "sequence",
-            species: this.genomeViewer.species,
-            featureCache: {
-                gzip: true,
-                chunkSize: 1000
-            }
-        })
-    });
+            dataAdapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "gene",
+                species: this.genomeViewer.species,
+                featureCache: {
+                    gzip: true,
+                    chunkSize: 50000
+                },
+                filters: {},
+                options: {},
+                featureConfig: FEATURE_CONFIG.gene
+            })
+        });
 
-    this.genomeViewer.addTrack(this.sequence);
-
-    this.gene = new GeneTrack({
-        targetId: null,
-        id: 2,
-        title: 'Gene',
-        histogramZoom: 20,
-        transcriptZoom: 50,
-        height: 100,
-        visibleRange: {start: 0, end: 100},
-        featureTypes: FEATURE_TYPES,
-
-        renderer: new GeneRenderer(),
-
-        dataAdapter: new CellBaseAdapter({
-            category: "genomic",
-            subCategory: "region",
-            resource: "gene",
-            species: this.genomeViewer.species,
-            featureCache: {
-                gzip: true,
-                chunkSize: 50000
-            },
-            filters: {},
-            options: {},
-            featureConfig: FEATURE_CONFIG.gene
-        })
-    });
-
-    this.genomeViewer.addTrack(this.gene);
+        this.genomeViewer.addTrack(this.gene);
 
 //        this.icgcMutationsTrack = new IcgcTrack({
 //            targetId:null,
@@ -288,89 +262,67 @@ function run() {
 //        this.genomeViewer.addTrack(this.icgcMutationsTrack);
 
 
-    this.snp = new FeatureTrack({
-        targetId: null,
-        id: 4,
-        title: 'SNP',
-        histogramZoom: 70,
-        labelZoom: 80,
-        height: 100,
-        visibleRange: {start: 0, end: 100},
-        featureTypes: FEATURE_TYPES,
-        renderer: new FeatureRenderer({
-            label: function (f) {
-                return ('name' in f) ? f.name : f.id;
-            },
-            tooltipTitle: function (f) {
-                var name = (f.name != null) ? f.name : f.id;
-                return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
-            },
-            tooltipText: function (f) {
-                return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
-                        FEATURE_TYPES.getTipCommons(f) +
-                        'source:&nbsp;<span class="ssel">' + f.source + '</span><br>';
-
-            },
-            color: 'lightblue',
-            infoWidgetId: "id",
-            height: 8,
-            histogramColor: "orange",
-            handlers: {
-                'feature:mouseover': function (e) {
-                    console.log(e)
+        this.snp = new FeatureTrack({
+            targetId: null,
+            id: 4,
+            title: 'SNP',
+            histogramZoom: 70,
+            labelZoom: 80,
+            height: 100,
+            visibleRange: {start: 0, end: 100},
+            featureTypes: FEATURE_TYPES,
+            renderer: new FeatureRenderer({
+                label: function (f) {
+                    return ('name' in f) ? f.name : f.id;
                 },
-                'feature:click': function (event) {
-                    new SnpInfoWidget(null, genomeViewer.species).draw(event);
+                tooltipTitle: function (f) {
+                    var name = (f.name != null) ? f.name : f.id;
+                    return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
+                },
+                tooltipText: function (f) {
+                    return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
+                            FEATURE_TYPES.getTipCommons(f) +
+                            'source:&nbsp;<span class="ssel">' + f.source + '</span><br>';
+
+                },
+                color: 'lightblue',
+                infoWidgetId: "id",
+                height: 8,
+                histogramColor: "orange",
+                handlers: {
+                    'feature:mouseover': function (e) {
+                        console.log(e)
+                    },
+                    'feature:click': function (event) {
+                        new SnpInfoWidget(null, genomeViewer.species).draw(event);
+                    }
                 }
-            }
-        }),
+            }),
 
-        dataAdapter: new CellBaseAdapter({
-            category: "genomic",
-            subCategory: "region",
-            resource: "snp",
-            params: {
-                exclude: 'transcriptVariations,xrefs,samples'
-            },
-            species: this.genomeViewer.species,
-            featureCache: {
-                gzip: true,
-                chunkSize: 10000
-            },
-            filters: {},
-            options: {},
-            featureConfig: FEATURE_CONFIG.snp
-        })
+            dataAdapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "snp",
+                params: {
+                    exclude: 'transcriptVariations,xrefs,samples'
+                },
+                species: this.genomeViewer.species,
+                featureCache: {
+                    gzip: true,
+                    chunkSize: 10000
+                },
+                filters: {},
+                options: {},
+                featureConfig: FEATURE_CONFIG.snp
+            })
+        });
+
+        this.genomeViewer.addTrack(this.snp);
     });
-
-    this.genomeViewer.addTrack(this.snp);
-
-
-// 		genomeMaps.addPlugin();
-// 		console.log(Ext.ComponentManager.getCount());
-    // 	console.log(Ext.ComponentManager.getCount());
-
-// 		gv = new GenomeViewer("mydiv");
-// 		gv.draw();
-
-    //GenomeViewer v2
-// 	gv1 = new GenomeViewer("mydiv",AVAILABLE_SPECIES[0],{
-// 		//toolbar: Ext.create('Ext.toolbar.Toolbar', {height:27}),
-// 		availableSpecies: AVAILABLE_SPECIES
-// 	});
-// 	gv1.draw();
-
-//        cp = new ChromosomePanel('genome-viewer', {chromosome: "13", start: 60000, end: 80000});
-//	    cp.draw();
-    //RUN TEST
-    if ($.url().param('test') == "true") {
-        setTimeout("test()", 2000);
-    }
-
-}
 
 </script>
 </head>
+
 <body style="overflow: hidden;">
 <div style=""></div>
 <div id="application" style="position:relative; left:30px; top:30px;"></div>

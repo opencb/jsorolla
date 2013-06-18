@@ -32,7 +32,7 @@ module.exports = function (grunt) {
                     'src/utils/event.js','src/utils/svg.js','src/utils/utils.js',
                     /** config **/
                     'src/genome-viewer/gv-config.js',
-                    'src/ui-widgets/ux-window.js',
+//                    'src/ui-widgets/ux-window.js',
                     /** cellbase **/
                     'src/cellbase/ui-widgets/info-widget.js','src/cellbase/ui-widgets/*-info-widget.js','src/cellbase/cellbase-manager.js',
                     /**  data-adapter **/
