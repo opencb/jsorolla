@@ -3,6 +3,7 @@ module.exports = function (grunt) {
 
     // Project configuration.
     grunt.initConfig({
+
         // Metadata.
         meta: {
             version: '0.1.0',
@@ -118,14 +119,16 @@ module.exports = function (grunt) {
         },
 
         copy: {
-            resourcesgv: {
+            gv: {
                 files: [
-                    {expand: true, cwd:'src/', src: ['resources/**'], dest: 'dist/genome-viewer/<%= meta.versiongv %>/'} // includes files in path and its subdirs
+                    {   expand: true, cwd:'src/', src: ['vendor/**'], dest: 'dist/genome-viewer/<%= meta.versiongv %>/' },
+                    {   expand: true, cwd:'src/', src: ['styles/**'], dest: 'dist/genome-viewer/<%= meta.versiongv %>/' } // includes files in path and its subdirs
                 ]
             }
         },
 
-        resourcesPath: 'dist/genome-viewer/<%= meta.versiongv %>/resources',
+        vendorPath: 'dist/genome-viewer/<%= meta.versiongv %>/vendor',
+        stylesPath: 'dist/genome-viewer/<%= meta.versiongv %>/styles',
         htmlbuild: {
             gv: {
                 src: 'src/genome-viewer/genome-viewer.html',
@@ -133,10 +136,23 @@ module.exports = function (grunt) {
                 options: {
                     beautify: true,
                     scripts: {
-                        'min': 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js'
+                        'gv-js': 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js',
+                        'vendor': [ 'dist/genome-viewer/<%= meta.versiongv %>/vendor/underscore/*.js',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/backbone/*.js',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/rawdeflate/*.js',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/jquery/*.js',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap*/**/*.js',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.js',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/jquery-plugins/*.js',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.js'
+                            ]
                     },
                     styles: {
-                        bundle: ['<%= resourcesPath %>/css/style.css']
+                        'gv-css': ['<%= stylesPath %>/css/style.css'],
+                        'vendor': [ 'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap*/**/*.css',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.css',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.css'
+                            ]
                     }
                 }
             }
@@ -155,7 +171,7 @@ module.exports = function (grunt) {
 
     // Default task.
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
-    grunt.registerTask('gv', ['concat:gv','uglify:gv', 'copy:resourcesgv' , 'htmlbuild:gv']);
+    grunt.registerTask('gv', ['concat:gv','uglify:gv', 'copy:gv' , 'htmlbuild:gv']);
     grunt.registerTask('nv', ['concat:nv','uglify:nv',]);
 
 };

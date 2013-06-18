@@ -1,0 +1,2 @@
+http://qtip2.com/v/nightly/jquery.qtip.min.js
+http://qtip2.com/v/nightly/jquery.qtip.min.css
