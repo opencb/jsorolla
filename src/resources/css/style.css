@@ -4,6 +4,9 @@
 @import url(http://fonts.googleapis.com/css?family=Oxygen);
 @import url(http://fonts.googleapis.com/css?family=Lato);
 
+body {
+    line-height: 14px;
+}
 
 /*Google-like scrollbars webkit only*/
 ::-webkit-scrollbar {
@@ -59,10 +62,17 @@
     /*border-color: red;*/
 /*}*/
 
+.gv-navigation-bar {
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
+    background-repeat: repeat-x;
+    padding:5px;
+}
+
 .gv-panel-title {
-    font-family: 'Lato';
+    /*font-family: 'Lato';*/
     color: #333;
-    font-size: 12px;
+    font-size: 11px;
     padding: 3px 0 5px 5px;
     background-image: linear-gradient(to bottom, #ffffff, #d0d0d0);
     background-image: -webkit-linear-gradient(top, white, #d0d0d0);
@@ -71,9 +81,9 @@
     border-bottom: 1px solid #d4d4d4;
 }
 .gv-panel-title-v {
-    font-family: 'Lato';
+    /*font-family: 'Lato';*/
     color: #333;
-    font-size: 12px;
+    font-size: 11px;
     padding: 3px 0 5px 5px;
     background-image: linear-gradient(to left, #ffffff, #d0d0d0);
     background-image: -webkit-linear-gradient(right, white, #d0d0d0);
@@ -100,13 +110,22 @@
     border-bottom: 1px solid #d4d4d4;
 }
 
+.nv-toolbar {
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
+    background-repeat: repeat-x;
+    padding:5px;
+}
+
 .status {
-    font-family: 'Source Sans Pro';
+    /*font-family: 'Source Sans Pro';*/
     color: #333;
     font-size: 12px;
     padding: 3px 0 5px 5px;
-    background-color: whitesmoke;
     border-top: 1px solid #d4d4d4;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
+    background-repeat: repeat-x;
 }
 
 .app-header {
@@ -126,7 +145,7 @@ a:visited {text-decoration: none; color: #15428B;}
 a:active {text-decoration: none; color: #15428B;}
 a:hover {text-decoration: underline; color: #15428B;}
 
-.x-unselectable {
+.unselectable {
     user-select:none;
     -o-user-select:none;
     -ms-user-select:none;
@@ -315,12 +334,12 @@ a:hover {text-decoration: underline; color: #15428B;}
 .icon-select{
 	background:url(../img/jfk_sprite22.png) no-repeat -3px -1964px!important;
 }
-.icon-zoom-out{
-	background:url(../img/jfk_sprite22.png) no-repeat -3px -2787px!important;
-}
-.icon-zoom-in{
-	background:url(../img/jfk_sprite22.png) no-repeat -3px -2850px!important;
-}
+/*.icon-zoom-out{*/
+	/*background:url(../img/jfk_sprite22.png) no-repeat -3px -2787px!important;*/
+/*}*/
+/*.icon-zoom-in{*/
+	/*background:url(../img/jfk_sprite22.png) no-repeat -3px -2850px!important;*/
+/*}*/
 .icon-upload{
 	background:url(../img/jfk_sprite22.png) no-repeat -3px -2048px!important;
 }

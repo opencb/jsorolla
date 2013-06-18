@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Network Viewer Demo</title>
+
+
+    <!--css vendor-->
+    <link href="../../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../vendor/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="../../vendor/bootstrap/slider/css/slider.css" rel="stylesheet">
+
+
+    <!--css-->
+    <link href="../resources/css/style.css" rel="stylesheet">
+
+
+
+
+    <!--js vendor-->
+    <script type="text/javascript" src="../../vendor/jquery/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../vendor/bootstrap/slider/js/bootstrap-slider.js"></script>
+
+    <script type="text/javascript" src="../../vendor/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../vendor/backbone/backbone-min.js"></script>
+
+
+    <!--js-->
+    <script type="text/javascript" src="../utils/utils.js"></script>
+
+    <!--network viewer-->
+    <script type="text/javascript" src="./network-viewer.js"></script>
+    <script type="text/javascript" src="./tool-bar.js"></script>
+
+
+
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+        networkViewer = new NetworkViewer({
+            targetId:'application',
+            autoRender:true,
+            sidePanel: false,
+            overviewPanel: true
+        });
+        networkViewer.draw();
+    });
+
+    </script>
+
+</head>
+<body>
+<div id="application" style="position:relative; left:30px; top:30px;"></div>
+</body>
+</html>

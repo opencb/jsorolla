@@ -22,7 +22,7 @@
 GeneTrack.prototype = new Track({});
 
 function GeneTrack(args) {
-    Track.call(this,args);
+    Track.call(this, args);
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
@@ -40,96 +40,97 @@ function GeneTrack(args) {
     _.extend(this, args);
 
     this.transcript = true;
+
 };
 
-GeneTrack.prototype.initialize = function(targetId){
+GeneTrack.prototype.render = function (targetId) {
     var _this = this;
     this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
-    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
-    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
+    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
-    this.dataAdapter.on('data:ready',function(event){
-        if(event.params.histogram == true){
+    this.dataAdapter.on('data:ready', function (event) {
+        if (event.params.histogram == true) {
             _this.renderer = _this.histogramRenderer;
-        }else{
+        } else {
             _this.renderer = _this.defaultRenderer;
         }
 //        _this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
         var features = _this._getFeaturesByChunks(event);
         _this.renderer.render(features, {
-            svgCanvasFeatures : _this.svgCanvasFeatures,
-            featureTypes:_this.featureTypes,
-            renderedArea:_this.renderedArea,
-            pixelBase : _this.pixelBase,
-            position : _this.region.center(),
-            width : _this.width,
-            zoom : _this.zoom,
-            labelZoom : _this.labelZoom,
-            pixelPosition : _this.pixelPosition
+            svgCanvasFeatures: _this.svgCanvasFeatures,
+            featureTypes: _this.featureTypes,
+            renderedArea: _this.renderedArea,
+            pixelBase: _this.pixelBase,
+            position: _this.region.center(),
+            width: _this.width,
+            zoom: _this.zoom,
+            labelZoom: _this.labelZoom,
+            pixelPosition: _this.pixelPosition
 
         });
         _this.updateHeight();
         _this.setLoading(false);
     });
 
-    this.renderer.on('feature:click',function(event){
+    this.renderer.on('feature:click', function (event) {
         _this.showInfoWidget(event);
     });
 };
 
-GeneTrack.prototype.updateTranscriptParams =  function () {
-    if (this.transcriptZoom <=  this.zoom) {
+GeneTrack.prototype.updateTranscriptParams = function () {
+    if (this.transcriptZoom <= this.zoom) {
         this.transcript = true;
     } else {
         this.transcript = false;
     }
 };
 
-GeneTrack.prototype.draw = function(){
+GeneTrack.prototype.draw = function () {
     var _this = this;
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
-    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
-    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
+    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
     this.updateTranscriptParams();
     this.updateHistogramParams();
     this.cleanSvg();
 //    setCallRegion();
 
-    if( this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end ){
+    if (this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end) {
         this.setLoading(true);
         var data = this.dataAdapter.getData({
-            chromosome:this.region.chromosome,
-            start:this.region.start-this.svgCanvasOffset*2,
-            end:this.region.end+this.svgCanvasOffset*2,
-            transcript:this.transcript,
-            histogram:this.histogram,
-            histogramLogarithm:this.histogramLogarithm,
-            histogramMax:this.histogramMax,
-            interval:this.interval
+            chromosome: this.region.chromosome,
+            start: this.region.start - this.svgCanvasOffset * 2,
+            end: this.region.end + this.svgCanvasOffset * 2,
+            transcript: this.transcript,
+            histogram: this.histogram,
+            histogramLogarithm: this.histogramLogarithm,
+            histogramMax: this.histogramMax,
+            interval: this.interval
         });
 
         this.invalidZoomText.setAttribute("visibility", "hidden");
-    }else{
+    } else {
         this.invalidZoomText.setAttribute("visibility", "visible");
     }
 
 };
 
 
-GeneTrack.prototype.move = function(disp){
+GeneTrack.prototype.move = function (disp) {
     var _this = this;
 //    trackSvg.position = _this.region.center();
     _this.region.center();
-    var pixelDisplacement = disp*_this.pixelBase;
-    this.pixelPosition-=pixelDisplacement;
+    var pixelDisplacement = disp * _this.pixelBase;
+    this.pixelPosition -= pixelDisplacement;
 
     //parseFloat important
-    var move =  parseFloat(this.svgCanvasFeatures.getAttribute("x")) + pixelDisplacement;
-    this.svgCanvasFeatures.setAttribute("x",move);
+    var move = parseFloat(this.svgCanvasFeatures.getAttribute("x")) + pixelDisplacement;
+    this.svgCanvasFeatures.setAttribute("x", move);
 
     var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
@@ -139,43 +140,43 @@ GeneTrack.prototype.move = function(disp){
 //    console.log(this.svgCanvasLeftLimit+'  ----  '+this.svgCanvasRightLimit)
 //    console.log(this.svgCanvasOffset)
 
-    if(this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end){
+    if (this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end) {
 
-        if(disp>0 && virtualStart < this.svgCanvasLeftLimit){
+        if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             console.log('left')
             this.dataAdapter.getData({
-                chromosome:_this.region.chromosome,
-                start:parseInt(this.svgCanvasLeftLimit-this.svgCanvasOffset),
-                end:this.svgCanvasLeftLimit,
-                transcript:this.transcript,
-                histogram:this.histogram,
-                histogramLogarithm:this.histogramLogarithm,
-                histogramMax:this.histogramMax,
-                interval:this.interval
+                chromosome: _this.region.chromosome,
+                start: parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset),
+                end: this.svgCanvasLeftLimit,
+                transcript: this.transcript,
+                histogram: this.histogram,
+                histogramLogarithm: this.histogramLogarithm,
+                histogramMax: this.histogramMax,
+                interval: this.interval
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
         }
 
-        if(disp<0 && virtualEnd > this.svgCanvasRightLimit){
+        if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
             console.log('right')
             this.dataAdapter.getData({
-                chromosome:_this.region.chromosome,
-                start:this.svgCanvasRightLimit,
-                end:parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset),
-                transcript:this.transcript,
-                histogram:this.histogram,
-                histogramLogarithm:this.histogramLogarithm,
-                histogramMax:this.histogramMax,
-                interval:this.interval
+                chromosome: _this.region.chromosome,
+                start: this.svgCanvasRightLimit,
+                end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset),
+                transcript: this.transcript,
+                histogram: this.histogram,
+                histogramLogarithm: this.histogramLogarithm,
+                histogramMax: this.histogramMax,
+                interval: this.interval
             });
-            this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset);
+            this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
 
     }
 
 };
 
-GeneTrack.prototype._getFeaturesByChunks = function(response, filters){
+GeneTrack.prototype._getFeaturesByChunks = function (response, filters) {
     //Returns an array avoiding already drawn features in this.chunksDisplayed
     var chunks = response.items;
     var dataType = response.params.dataType;
@@ -184,24 +185,24 @@ GeneTrack.prototype._getFeaturesByChunks = function(response, filters){
 
 
     var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
-    for ( var i = 0, leni = chunks.length; i < leni; i++) {
-        if(this.chunksDisplayed[chunks[i].key+dataType]!=true){//check if any chunk is already displayed and skip it
+    for (var i = 0, leni = chunks.length; i < leni; i++) {
+        if (this.chunksDisplayed[chunks[i].key + dataType] != true) {//check if any chunk is already displayed and skip it
 
-            for ( var j = 0, lenj = chunks[i][dataType].length; j < lenj; j++) {
+            for (var j = 0, lenj = chunks[i][dataType].length; j < lenj; j++) {
                 feature = chunks[i][dataType][j];
 
                 //check if any feature has been already displayed by another chunk
                 displayed = false;
                 featureFirstChunk = this.dataAdapter.featureCache._getChunk(feature.start);
                 featureLastChunk = this.dataAdapter.featureCache._getChunk(feature.end);
-                for(var f=featureFirstChunk; f<=featureLastChunk; f++){
-                    var fkey = chromosome+":"+f;
-                    if(this.chunksDisplayed[fkey+dataType]==true){
+                for (var f = featureFirstChunk; f <= featureLastChunk; f++) {
+                    var fkey = chromosome + ":" + f;
+                    if (this.chunksDisplayed[fkey + dataType] == true) {
                         displayed = true;
                         break;
                     }
                 }
-                if(!displayed){
+                if (!displayed) {
                     //apply filter
                     // if(filters != null) {
                     //		var pass = true;
@@ -216,8 +217,21 @@ GeneTrack.prototype._getFeaturesByChunks = function(response, filters){
                     features.push(feature);
                 }
             }
-            this.chunksDisplayed[chunks[i].key+dataType]=true;
+            this.chunksDisplayed[chunks[i].key + dataType] = true;
         }
     }
     return features;
+};
+
+GeneTrack.prototype.showInfoWidget = function (args) {
+    switch (args.featureType) {
+        case "gene":
+            new GeneInfoWidget(null, this.dataAdapter.species).draw(args);
+            break;
+        case "transcript":
+            new TranscriptInfoWidget(null, this.dataAdapter.species).draw(args);
+            break;
+        default:
+            break;
+    }
 };

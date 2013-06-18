@@ -56,6 +56,16 @@ function Track(args) {
 
     this.renderedArea = {};//used for renders to store binary trees
 
+    if('handlers' in this){
+        for(eventName in this.handlers){
+            this.on(eventName,this.handlers[eventName]);
+        }
+    }
+
+    this.rendered = false;
+    if(this.autoRender){
+        this.render();
+    }
 };
 
 Track.prototype = {
@@ -122,7 +132,7 @@ Track.prototype = {
         var div = $('<div id="' + this.id + '-div"></div>')[0];
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
 
-        $(targetId).addClass("x-unselectable");
+        $(targetId).addClass("unselectable");
         $(targetId).append(div);
         $(div).append(svgdiv);
 
@@ -147,7 +157,7 @@ Track.prototype = {
             $(resizediv).css({'background-color': 'lightgray', 'height': 3, opacity:0.3});
 
             $(resizediv).mousedown(function (event) {
-                $('html').addClass('x-unselectable');
+                $('html').addClass('unselectable');
                 event.stopPropagation();
                 var downY = event.clientY;
                 $('html').mousemove(function (event) {
@@ -158,7 +168,7 @@ Track.prototype = {
                 });
             });
             $('html').mouseup(function (event) {
-                $('html').removeClass("x-unselectable");
+                $('html').removeClass("unselectable");
                 $('html').off('mousemove');
             });
 
@@ -278,37 +288,37 @@ Track.prototype = {
 
     },
 
-    showInfoWidget: function (args) {
-        if (this.dataAdapter.species == "orange") {
-            //data.resource+="orange";
-            if (args.featureType.indexOf("gene") != -1)
-                args.featureType = "geneorange";
-            if (args.featureType.indexOf("transcript") != -1)
-                args.featureType = "transcriptorange";
-        }
-        switch (args.featureType) {
-            case "gene":
-                new GeneInfoWidget(null, this.dataAdapter.species).draw(args);
-                break;
-            case "geneorange":
-                new GeneOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
-                break;
-            case "transcriptorange":
-                new TranscriptOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
-                break;
-            case "transcript":
-                new TranscriptInfoWidget(null, this.dataAdapter.species).draw(args);
-                break;
-            case "snp" :
-                new SnpInfoWidget(null, this.dataAdapter.species).draw(args);
-                break;
-            case "vcf" :
-                new VCFVariantInfoWidget(null, this.dataAdapter.species).draw(args);
-                break;
-            default:
-                break;
-        }
-    },
+//    showInfoWidget: function (args) {
+//        if (this.dataAdapter.species == "orange") {
+//            //data.resource+="orange";
+//            if (args.featureType.indexOf("gene") != -1)
+//                args.featureType = "geneorange";
+//            if (args.featureType.indexOf("transcript") != -1)
+//                args.featureType = "transcriptorange";
+//        }
+//        switch (args.featureType) {
+//            case "gene":
+//                new GeneInfoWidget(null, this.dataAdapter.species).draw(args);
+//                break;
+//            case "geneorange":
+//                new GeneOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
+//                break;
+//            case "transcriptorange":
+//                new TranscriptOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
+//                break;
+//            case "transcript":
+//                new TranscriptInfoWidget(null, this.dataAdapter.species).draw(args);
+//                break;
+//            case "snp" :
+//                new SnpInfoWidget(null, this.dataAdapter.species).draw(args);
+//                break;
+//            case "vcf" :
+//                new VCFVariantInfoWidget(null, this.dataAdapter.species).draw(args);
+//                break;
+//            default:
+//                break;
+//        }
+//    },
 
     draw: function () {
 

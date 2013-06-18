@@ -1,218 +1,200 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>Genome Viewer Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Genome Viewer Demo</title>
 
-	<!-- CSS -->
-	<link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext-4.2.0-gpl/resources/css/ext-all-gray.css"/>
-	<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb.css"/>
-	<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css"/>
 
+    <!--css vendor-->
+    <link href="../../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../vendor/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="../../vendor/bootstrap/slider/css/slider.css" rel="stylesheet">
+
+
+    <!--css-->
     <!-- build:style bundle -->
- 	<link rel="stylesheet" type="text/css" href="../resources/css/style.css"/>
+    <link href="../resources/css/style.css" rel="stylesheet">
     <!-- /build -->
 
-	<!-- Google Analytics -->
+    <!--js vendor-->
+    <script type="text/javascript" src="../../vendor/jquery/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../vendor/bootstrap/slider/js/bootstrap-slider.js"></script>
 
-	<script type="text/javascript">
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-16414504-2']);
-	  _gaq.push(['_trackPageview']);
-
-	  (function() {
-	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-	</script>
+    <script type="text/javascript" src="../../vendor/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../vendor/backbone/backbone-min.js"></script>
 
 
-	<!-- EXT-LIBS -->
-
-	<!-- Ext-js -->
-	<script type="text/javascript" src="http://cdn.sencha.io/ext-4.2.0-gpl/ext-all.js"></script>
-	<script type="text/javascript" src="http://cdn.sencha.io/ext-4.2.0-gpl/examples/shared/examples.js"></script>
 
 
-	<!-- jQuery -->
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />-->
-    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>-->
+<!-- CSS -->
+<!--<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb.css"/>-->
+<!--<link rel="stylesheet" type="text/css" href="http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css"/>-->
 
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<!-- Google Analytics -->
 
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.sha1.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.url.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.cookie.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jqXMLUtils.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.smartresize.js"></script>
-    <script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.pulse.min.js"></script>
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-16414504-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+</script>
 
 
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/xml2json.js"></script>
+<!-- EXT-LIBS -->
 
-	<!-- Canvas to SVG converters -->
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/base64.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/canvas2image.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/canvg.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/rgbcolor.js"></script>
 
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/rawdeflate.js"></script>
+<!-- jQuery -->
+<!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />-->
+<!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>-->
+
+
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.sha1.js"></script>
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.url.js"></script>
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.cookie.js"></script>
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jqXMLUtils.js"></script>
+<script type="text/javascript"
+        src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.smartresize.js"></script>
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.pulse.min.js"></script>
+
+
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/xml2json.js"></script>
+
+<!-- Canvas to SVG converters -->
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/base64.js"></script>
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/canvas2image.js"></script>
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/canvg.js"></script>
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/svg/rgbcolor.js"></script>
+
+<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/rawdeflate.js"></script>
 
 <!-- 	<script type="text/javascript" src="https://raw.github.com/eligrey/BlobBuilder.js/master/BlobBuilder.min.js"/></script> -->
 <!-- 	<script type="text/javascript" src="https://raw.github.com/eligrey/canvas-toBlob.js/master/canvas-toBlob.min.js"/></script> -->
 <!-- 	<script type="text/javascript" src="https://raw.github.com/eligrey/FileSaver.js/master/FileSaver.min.js"/></script> -->
 
 
-
-	<!-- CHEMDOODLE -->
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb-libs.js"></script>
-	<script type="text/javascript" src="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb.js"></script>
-
-
-
-
-    <!-- build:script min -->
-
-	<!-- LIBS -->
-	<!-- js-common-libs utils -->
-	<script type="text/javascript" src="../utils/event.js"></script>
-	<script type="text/javascript" src="../utils/svg.js"></script>
-	<script type="text/javascript" src="../utils/utils.js"></script>
+<!-- CHEMDOODLE -->
+<script type="text/javascript"
+        src="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb-libs.js"></script>
+<script type="text/javascript"
+        src="http://jsapi.bioinfo.cipf.es/ext-libs/ChemDoodleWeb-5.1.0/install/ChemDoodleWeb.js"></script>
 
 
+<!-- build:script min -->
 
-    <!-- Genome-viewer -->
-	<script type="text/javascript" src="gv-config.js"></script>
-
-	<!-- js-common-libs ui-widgets -->
-	<script type="text/javascript" src="../ui-widgets/ux-window.js"></script>
-
-    <!-- js-common-libs cellbase ui-widgets -->
-	<script type="text/javascript" src="../cellbase/ui-widgets/info-widget.js"></script>
-	<script type="text/javascript" src="../cellbase/ui-widgets/gene-info-widget.js"></script>
-	<script type="text/javascript" src="../cellbase/ui-widgets/protein-info-widget.js"></script>
-	<script type="text/javascript" src="../cellbase/ui-widgets/snp-info-widget.js"></script>
-	<script type="text/javascript" src="../cellbase/ui-widgets/transcript-info-widget.js"></script>
-	<script type="text/javascript" src="../cellbase/ui-widgets/vcf-variant-info-widget.js"></script>
-
-	<!-- js-common-libs cellbase ws-manager -->
-	<script type="text/javascript" src="../cellbase/cellbase-manager.js"></script>
-
-	<script type="text/javascript" src="data-adapter/cellbase-adapter.js"></script>
-	<script type="text/javascript" src="data-adapter/sequence-adapter.js"></script>
-
-	<script type="text/javascript" src="region.js"></script>
-	<script type="text/javascript" src="feature-binary-search-tree.js"></script>
-	<script type="text/javascript" src="feature-cache.js"></script>
+<!-- LIBS -->
+<!-- js-common-libs utils -->
+<script type="text/javascript" src="../utils/event.js"></script>
+<script type="text/javascript" src="../utils/svg.js"></script>
+<script type="text/javascript" src="../utils/utils.js"></script>
 
 
-	<script type="text/javascript" src="navigation-bar.js"></script>
-    <script type="text/javascript" src="chromosome-panel.js"></script>
-	<script type="text/javascript" src="karyotype-panel.js"></script>
-	<script type="text/javascript" src="tracklist-panel.js"></script>
-	<script type="text/javascript" src="status-bar.js"></script>
+<!-- Genome-viewer -->
+<script type="text/javascript" src="gv-config.js"></script>
+
+<!-- js-common-libs ui-widgets -->
+<!--<script type="text/javascript" src="../ui-widgets/ux-window.js"></script>-->
+
+<!-- js-common-libs cellbase ui-widgets -->
+<script type="text/javascript" src="../cellbase/ui-widgets/info-widget.js"></script>
+<script type="text/javascript" src="../cellbase/ui-widgets/gene-info-widget.js"></script>
+<script type="text/javascript" src="../cellbase/ui-widgets/protein-info-widget.js"></script>
+<script type="text/javascript" src="../cellbase/ui-widgets/snp-info-widget.js"></script>
+<script type="text/javascript" src="../cellbase/ui-widgets/transcript-info-widget.js"></script>
+<script type="text/javascript" src="../cellbase/ui-widgets/vcf-variant-info-widget.js"></script>
+
+<!-- js-common-libs cellbase ws-manager -->
+<script type="text/javascript" src="../cellbase/cellbase-manager.js"></script>
+
+<script type="text/javascript" src="data-adapter/cellbase-adapter.js"></script>
+<script type="text/javascript" src="data-adapter/sequence-adapter.js"></script>
+
+<script type="text/javascript" src="region.js"></script>
+<script type="text/javascript" src="feature-binary-search-tree.js"></script>
+<script type="text/javascript" src="feature-cache.js"></script>
 
 
-
-    <script type="text/javascript" src="tracks/track.js"></script>
-    <script type="text/javascript" src="tracks/feature-track.js"></script>
-    <script type="text/javascript" src="tracks/sequence-track.js"></script>
-    <script type="text/javascript" src="tracks/gene-track.js"></script>
-
-
-    <script type="text/javascript" src="data-adapter/icgc-adapter.js"></script>
-    <script type="text/javascript" src="tracks/icgc-track.js"></script>
+<script type="text/javascript" src="navigation-bar.js"></script>
+<script type="text/javascript" src="chromosome-panel.js"></script>
+<script type="text/javascript" src="karyotype-panel.js"></script>
+<script type="text/javascript" src="tracklist-panel.js"></script>
+<script type="text/javascript" src="status-bar.js"></script>
 
 
-    <script type="text/javascript" src="renderers/renderer.js"></script>
-    <script type="text/javascript" src="renderers/feature-renderer.js"></script>
-    <script type="text/javascript" src="renderers/sequence-renderer.js"></script>
-    <script type="text/javascript" src="renderers/histogram-renderer.js"></script>
-    <script type="text/javascript" src="renderers/gene-renderer.js"></script>
+<script type="text/javascript" src="tracks/track.js"></script>
+<script type="text/javascript" src="tracks/feature-track.js"></script>
+<script type="text/javascript" src="tracks/sequence-track.js"></script>
+<script type="text/javascript" src="tracks/gene-track.js"></script>
 
 
-	<!--<script type="text/javascript" src="../ui-widgets/attributes/genomic-attributes-widget.js"></script>-->
-	<!--<script type="text/javascript" src="../ui-widgets/attributes/expression-genomic-attributes-widget.js"></script>-->
-	<!--<script type="text/javascript" src="../ui-widgets/attributes/genotype-genomic-attributes-widget.js"></script>-->
-	<!--<script type="text/javascript" src="../ui-widgets/attributes/attributes-widget.js"></script>-->
-	<!--<script type="text/javascript" src="../ui-widgets/attributes/attributes-panel.js"></script>-->
-	<!---->
-	<!--<script type="text/javascript" src="../ui-widgets/list/list-panel.js"></script>-->
-	<!--<script type="text/javascript" src="../ui-widgets/list/list-widget.js"></script>-->
-	<!--<script type="text/javascript" src="../ui-widgets/list/genomic-list-panel.js"></script>-->
-	<!--<script type="text/javascript" src="../ui-widgets/list/genomic-list-widget.js"></script>-->
+<script type="text/javascript" src="renderers/renderer.js"></script>
+<script type="text/javascript" src="renderers/feature-renderer.js"></script>
+<script type="text/javascript" src="renderers/sequence-renderer.js"></script>
+<script type="text/javascript" src="renderers/histogram-renderer.js"></script>
+<script type="text/javascript" src="renderers/gene-renderer.js"></script>
 
-	<!--<script type="text/javascript" src="../ui-widgets/input-list-widget.js"></script>-->
-	<!--<script type="text/javascript" src="../ui-widgets/chart-widget.js"></script>-->
 
-	<script type="text/javascript" src="genome-viewer.js"></script>
+<!--<script type="text/javascript" src="../ui-widgets/attributes/genomic-attributes-widget.js"></script>-->
+<!--<script type="text/javascript" src="../ui-widgets/attributes/expression-genomic-attributes-widget.js"></script>-->
+<!--<script type="text/javascript" src="../ui-widgets/attributes/genotype-genomic-attributes-widget.js"></script>-->
+<!--<script type="text/javascript" src="../ui-widgets/attributes/attributes-widget.js"></script>-->
+<!--<script type="text/javascript" src="../ui-widgets/attributes/attributes-panel.js"></script>-->
+<!---->
+<!--<script type="text/javascript" src="../ui-widgets/list/list-panel.js"></script>-->
+<!--<script type="text/javascript" src="../ui-widgets/list/list-widget.js"></script>-->
+<!--<script type="text/javascript" src="../ui-widgets/list/genomic-list-panel.js"></script>-->
+<!--<script type="text/javascript" src="../ui-widgets/list/genomic-list-widget.js"></script>-->
 
-    <!-- /build -->
+<!--<script type="text/javascript" src="../ui-widgets/input-list-widget.js"></script>-->
+<!--<script type="text/javascript" src="../ui-widgets/chart-widget.js"></script>-->
 
-	<script>
-	// 	Ext.application({
-	// 	    launch: run
-	// 	});
+<script type="text/javascript" src="genome-viewer.js"></script>
 
-//    UPLOAD_WORKER = "../opencga/ui-widgets/worker-fileupload.js";
+<!-- /build -->
 
-	Ext.Loader.setConfig({enabled: true});
-	Ext.Loader.setPath('Ext.ux', 'http://cdn.sencha.io/ext-4.2.0-gpl/examples/ux');
-	Ext.QuickTips.init();
-	Ext.require([
-	    'Ext.ux.grid.FiltersFeature',
-        'Ext.grid.plugin.BufferedRenderer'
-//	    'Ext.grid.PagingScroller',
-//	    'Ext.ux.data.PagingMemoryProxy'
-	]);
-	
-	var counter = 1000000;
-	function test(ms,positions){
-		if (ms==null){ms = 200;}
-		if (positions==null){positions = 250000;}
-		genomeViewer.trackSvgLayout.onMove.notify(-1)
-		setTimeout("test()", ms);
-		counter = counter + positions;
-	}
-	
-	Ext.onReady(run);
-	var genomeViewer;
-	function run() {
-//		CheckBrowser();
-// 		var pathname = window.location.href;
-// 		console.log(pathname);
+<script type="text/javascript">
+
+    $(document).ready(function() {
 
         var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
-		genomeViewer = new GenomeViewer("application", null, {
+        this.genomeViewer = new GenomeViewer({
             region: region,
-            sidePanel:false
+            sidePanel: false,
+            targetId: 'application',
+            autoRender: true
+
         }); //the div must exist
-		genomeViewer.draw();
+        this.genomeViewer.draw();
 
         this.sequence = new SequenceTrack({
-            targetId:null,
-            id:1,
-            title:'Sequence',
-            histogramZoom:20,
-            transcriptZoom:50,
-            height:30,
-            visibleRange:{start:100,end:100},
-            featureTypes:FEATURE_TYPES,
+            targetId: null,
+            id: 1,
+            title: 'Sequence',
+            histogramZoom: 20,
+            transcriptZoom: 50,
+            height: 30,
+            visibleRange: {start: 100, end: 100},
+            featureTypes: FEATURE_TYPES,
 
-            renderer:new SequenceRenderer(),
+            renderer: new SequenceRenderer(),
 
-            dataAdapter:new SequenceAdapter({
+            dataAdapter: new SequenceAdapter({
                 category: "genomic",
                 subCategory: "region",
                 resource: "sequence",
                 species: this.genomeViewer.species,
-                featureCache:{
+                featureCache: {
                     gzip: true,
-                    chunkSize:1000
+                    chunkSize: 1000
                 }
             })
         });
@@ -220,29 +202,29 @@
         this.genomeViewer.addTrack(this.sequence);
 
         this.gene = new GeneTrack({
-            targetId:null,
-            id:2,
-            title:'Gene',
-            histogramZoom:20,
-            transcriptZoom:50,
-            height:100,
-            visibleRange:{start:0,end:100},
-            featureTypes:FEATURE_TYPES,
+            targetId: null,
+            id: 2,
+            title: 'Gene',
+            histogramZoom: 20,
+            transcriptZoom: 50,
+            height: 100,
+            visibleRange: {start: 0, end: 100},
+            featureTypes: FEATURE_TYPES,
 
-            renderer:new GeneRenderer(),
+            renderer: new GeneRenderer(),
 
-            dataAdapter:new CellBaseAdapter({
+            dataAdapter: new CellBaseAdapter({
                 category: "genomic",
                 subCategory: "region",
                 resource: "gene",
                 species: this.genomeViewer.species,
-                featureCache:{
+                featureCache: {
                     gzip: true,
-                    chunkSize:50000
+                    chunkSize: 50000
                 },
-                filters:{},
-                options:{},
-                featureConfig:FEATURE_CONFIG.gene
+                filters: {},
+                options: {},
+                featureConfig: FEATURE_CONFIG.gene
             })
         });
 
@@ -281,72 +263,70 @@
 
 
         this.snp = new FeatureTrack({
-            targetId:null,
-            id:4,
-            title:'SNP',
-            histogramZoom:70,
-            labelZoom:80,
-            height:100,
-            visibleRange:{start:0,end:100},
-            featureTypes:FEATURE_TYPES,
+            targetId: null,
+            id: 4,
+            title: 'SNP',
+            histogramZoom: 70,
+            labelZoom: 80,
+            height: 100,
+            visibleRange: {start: 0, end: 100},
+            featureTypes: FEATURE_TYPES,
+            renderer: new FeatureRenderer({
+                label: function (f) {
+                    return ('name' in f) ? f.name : f.id;
+                },
+                tooltipTitle: function (f) {
+                    var name = (f.name != null) ? f.name : f.id;
+                    return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
+                },
+                tooltipText: function (f) {
+                    return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
+                            FEATURE_TYPES.getTipCommons(f) +
+                            'source:&nbsp;<span class="ssel">' + f.source + '</span><br>';
 
-            renderer:new FeatureRenderer(),
+                },
+                color: 'lightblue',
+                infoWidgetId: "id",
+                height: 8,
+                histogramColor: "orange",
+                handlers: {
+                    'feature:mouseover': function (e) {
+                        console.log(e)
+                    },
+                    'feature:click': function (event) {
+                        new SnpInfoWidget(null, genomeViewer.species).draw(event);
+                    }
+                }
+            }),
 
-            dataAdapter:new CellBaseAdapter({
+            dataAdapter: new CellBaseAdapter({
                 category: "genomic",
                 subCategory: "region",
                 resource: "snp",
-                params:{
-                    exclude:'transcriptVariations,xrefs,samples'
+                params: {
+                    exclude: 'transcriptVariations,xrefs,samples'
                 },
                 species: this.genomeViewer.species,
-                featureCache:{
+                featureCache: {
                     gzip: true,
-                    chunkSize:10000
+                    chunkSize: 10000
                 },
-                filters:{},
-                options:{},
-                featureConfig:FEATURE_CONFIG.snp
+                filters: {},
+                options: {},
+                featureConfig: FEATURE_CONFIG.snp
             })
         });
 
         this.genomeViewer.addTrack(this.snp);
+    });
 
-
-
-
-
-// 		genomeMaps.addPlugin();
-// 		console.log(Ext.ComponentManager.getCount());
-	// 	console.log(Ext.ComponentManager.getCount());
-		
-// 		gv = new GenomeViewer("mydiv");
-// 		gv.draw();
-
-	//GenomeViewer v2
-// 	gv1 = new GenomeViewer("mydiv",AVAILABLE_SPECIES[0],{
-// 		//toolbar: Ext.create('Ext.toolbar.Toolbar', {height:27}),
-// 		availableSpecies: AVAILABLE_SPECIES
-// 	});
-// 	gv1.draw();
-
-//        cp = new ChromosomePanel('genome-viewer', {chromosome: "13", start: 60000, end: 80000});
-//	    cp.draw();
-		//RUN TEST
-		if($.url().param('test') == "true") {
-			setTimeout("test()", 2000);
-		}
-	
-	}
-	
-	</script>
+</script>
 </head>
+
 <body style="overflow: hidden;">
-    <div style=""></div>
-
-    <div id="application" style="width:90%; height:90%; margin:30px; border:1px solid lightgray"></div>
-
-    <div style=""></div>
+<div style=""></div>
+<div id="application" style="position:relative; left:30px; top:30px;"></div>
+<div style=""></div>
 
 </body>
 </html>

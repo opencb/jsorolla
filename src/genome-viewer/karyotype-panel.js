@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function KaryotypePanel(targetId, args) {
+function KaryotypePanel(args) {
 
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
@@ -39,44 +39,36 @@ function KaryotypePanel(targetId, args) {
 
     this.lastSpecies = this.species;
 
-    this.onClick = new Event();
     this.afterRender = new Event();
 
-    this.rendered=false;
+    this.chromosomeList;
+    this.data2;
 
-    this.targetDiv = $('#' + targetId)[0];
-
-    if ('title' in this && this.title !== '') {
-        this.titleDiv = $('<div id="tl-title" class="gv-panel-title x-unselectable">' + this.title + '</div>')[0];
-        $(this.targetDiv).append(this.titleDiv);
+    if('handlers' in this){
+        for(eventName in this.handlers){
+            this.on(eventName,this.handlers[eventName]);
+        }
     }
 
-    this.svg = SVG.init(this.targetDiv,{
-        "width":this.width,
-        "height":this.height
-    });
-    this.markGroup = SVG.addChild(this.svg,"g",{"cursor":"pointer"});
-    $(this.targetDiv).addClass('x-unselectable');
-
-    this.colors = {gneg:"white", stalk:"#666666", gvar:"#CCCCCC", gpos25:"silver", gpos33:"lightgrey", gpos50:"gray", gpos66:"dimgray", gpos75:"darkgray", gpos100:"black", gpos:"gray", acen:"blue"};
-
-    this.chromosomeList = null;
-    this.data2 = null;
+    this.rendered=false;
+    if(this.autoRender){
+        this.render();
+    }
 };
 
 KaryotypePanel.prototype = {
     show: function () {
-        $(this.targetDiv).css({display: 'block'});
+        $(this.div).css({display: 'block'});
     },
 
     hide: function () {
-        $(this.targetDiv).css({display: 'none'});
+        $(this.div).css({display: 'none'});
     },
     setVisible: function (bool) {
         if(bool) {
-            $(this.targetDiv).css({display: 'block'});
+            $(this.div).css({display: 'block'});
         }else {
-            $(this.targetDiv).css({display: 'none'});
+            $(this.div).css({display: 'none'});
         }
     },
     setTitle: function (title) {
@@ -93,7 +85,38 @@ KaryotypePanel.prototype = {
         this._drawSvg(this.chromosomeList,this.data2);
     },
 
+    render : function(targetId){
+        this.targetId = (targetId) ? targetId : this.targetId;
+        if($('#' + this.targetId).length < 1){
+            console.log('targetId not found in DOM');
+            return;
+        }
+        this.targetDiv = $('#' + this.targetId)[0];
+        this.div = $('<div id="karyotype-panel"></div>')[0];
+        $(this.targetDiv).append(this.div);
+
+        if ('title' in this && this.title !== '') {
+            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
+            $(this.div).append(this.titleDiv);
+        }
+
+        this.svg = SVG.init(this.div,{
+            "width":this.width,
+            "height":this.height
+        });
+        this.markGroup = SVG.addChild(this.svg,"g",{"cursor":"pointer"});
+        $(this.div).addClass('unselectable');
+
+        this.colors = {gneg:"white", stalk:"#666666", gvar:"#CCCCCC", gpos25:"silver", gpos33:"lightgrey", gpos50:"gray", gpos66:"dimgray", gpos75:"darkgray", gpos100:"black", gpos:"gray", acen:"blue"};
+
+        this.rendered = true;
+    },
+
     draw: function(){
+        if(!this.rendered){
+            console.info(this.id+' is not rendered yet');
+            return;
+        }
         var _this = this;
 
         var sortfunction = function(a, b) {
@@ -205,7 +228,6 @@ KaryotypePanel.prototype = {
                 _this.region.start = clickPosition;
                 _this.region.end = clickPosition;
 
-//                _this.onClick.notify(_this.region);
                 _this.trigger('region:change', {region: _this.region, sender: _this});
             });
 
@@ -330,7 +352,6 @@ KaryotypePanel.prototype = {
         var _this = this;
 
         var mark = function (){
-debugger
             if(_this.region.chromosome!=null && _this.region.start!=null){
                 if(_this.chrOffsetX[_this.region.chromosome]!= null){
                     var x1 = _this.chrOffsetX[_this.region.chromosome]-10;

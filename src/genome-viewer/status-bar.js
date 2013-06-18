@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function StatusBar(targetId, args) {
+function StatusBar(args) {
 
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
@@ -28,32 +28,34 @@ function StatusBar(targetId, args) {
 
     this.id = Utils.genId("StatusBar");
 
-    this.targetId = targetId;
-
     //set instantiation args, must be last
     _.extend(this, args);
 
     //set new region object
     this.region = new Region(this.region);
 
-    this.initialize();
-
+    this.rendered=false;
+    if(this.autoRender){
+        this.render();
+    }
 };
 
 StatusBar.prototype = {
-    initialize: function () {
+    render: function (targetId) {
+        this.targetId = (targetId) ? targetId : this.targetId;
+        if($('#' + this.targetId).length < 1){
+            console.log('targetId not found in DOM');
+            return;
+        }
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="' + this.id + '" class="status" align="right"></div>')[0];
-        $(this.div).css({
-            width: this.width
-        });
         $(this.targetDiv).append(this.div);
 
         this.mousePositionDiv = $('<div id="' + this.id + 'position" style="display: inline">&nbsp;</div>')[0];
         $(this.mousePositionDiv).css({
             'margin-left': '5px',
             'margin-right': '5px',
-            'font-size':'14px'
+            'font-size':'12px'
         });
 
         this.versionDiv = $('<div id="' + this.id + 'version" style="display: inline">' + this.version + '</div>')[0];
@@ -65,6 +67,8 @@ StatusBar.prototype = {
 
         $(this.div).append(this.mousePositionDiv);
         $(this.div).append(this.versionDiv);
+
+        this.rendered = true;
     },
     setRegion: function (event) {
         $(this.mousePositionDiv).html(Utils.formatNumber(event.region.center()));

@@ -35,12 +35,11 @@ function FeatureTrack(args) {
 
     this.chunksDisplayed = {};
 
-
     //set instantiation args, must be last
     _.extend(this, args);
 };
 
-FeatureTrack.prototype.initialize = function(targetId){
+FeatureTrack.prototype.render = function(targetId){
     var _this = this;
     this.initializeDom(targetId);
 
@@ -73,9 +72,6 @@ FeatureTrack.prototype.initialize = function(targetId){
         _this.setLoading(false);
     });
 
-    this.renderer.on('feature:click',function(event){
-        _this.showInfoWidget(event);
-    });
 };
 
 FeatureTrack.prototype.draw = function(){
