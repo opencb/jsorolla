@@ -88,13 +88,17 @@ NavigationBar.prototype = {
                 '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="speciesMenu">' +
                 '</ul>' +
                 '</div>' +
-                '<div id="chromosome" class="btn-group">' +
+                '<div id="chromosomes" class="btn-group">' +
                 '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromsome <span class="caret"></span></span>' +
                 '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="chromsomeMenu"></ul>' +
                 '</div>' +
-                '<div id="panel" class="btn-group" data-toggle="buttons-checkbox">' +
+                '<div id="karyotype" class="btn-group" data-toggle="buttons-checkbox">' +
                 '<span id="karyotypeButton" class="btn btn-mini">Karyotype</span>' +
+                '</div>' +
+                '<div id="chromosome" class="btn-group" data-toggle="buttons-checkbox">' +
                 '<span id="chromosomeButton" class="btn btn-mini">Chromosome</span>' +
+                '</div>' +
+                '<div id="region" class="btn-group" data-toggle="buttons-checkbox">' +
                 '<span id="regionButton" class="btn btn-mini">Region</span>' +
                 '</div>' +
                 '<div id="slider" style="width:200px;display:inline-block;top:3px;margin:0px 15px 0px 15px;"> ' +
@@ -107,7 +111,7 @@ NavigationBar.prototype = {
 //                '<span id="zoomInButton" class="btn btn-mini"><span class="caret"></span></span>' +
 //                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
 //                '</div>' +
-                '<div id="position" class="btn-group">' +
+                '<div id="location" class="btn-group">' +
                 '<div class="input-append" style="margin:0px">' +
                 '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px" type="text">' +
                 '<span class="btn btn-mini" id="goButton">Go!</span>' +

@@ -62,7 +62,7 @@ GenomeViewer.prototype = {
         }
         console.log("Initializing GenomeViewer structure.");
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="genome-viewer" style="width:90%; border:1px solid lightgray"></div>')[0];
+        this.div = $('<div id="genome-viewer" style="border:1px solid lightgray"></div>')[0];
         $(this.targetDiv).append(this.div);
 
 
@@ -595,17 +595,17 @@ GenomeViewer.prototype = {
 
     setKaryotypePanelVisible: function (bool) {
         this.karyotypePanel.setVisible(bool);
-        this.navigationBar.setKaryotypePanelButtonVisible(bool);
+        this.navigationBar.setVisible({'karyotype': bool});
     },
 
     setChromosomePanelVisible: function (bool) {
         this.chromosomePanel.setVisible(bool);
-        this.navigationBar.setChromosomePanelButtonVisible(bool);
+        this.navigationBar.setVisible({'chromosome': bool});
     },
 
     setRegionOverviewPanelVisible: function (bool) {
         this.regionOverviewPanel.setVisible(bool);
-        this.navigationBar.setRegionOverviewPanelButtonVisible(bool);
+        this.navigationBar.setVisible({'region': bool});
     },
     setRegionTextBoxVisible: function (bool) {
         this.navigationBar.setRegionTextBoxVisible(bool);
