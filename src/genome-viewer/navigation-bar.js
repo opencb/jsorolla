@@ -98,7 +98,8 @@ NavigationBar.prototype = {
                 '<span id="regionButton" class="btn btn-mini">Region</span>' +
                 '</div>' +
                 '<div class="btn-group">' +
-//                '<input type="text" class="span2" value="" data-slider-min="-20" data-slider-max="20" data-slider-step="1" data-slider-value="-14" data-slider-orientation="vertical" data-slider-selection="after"data-slider-tooltip="hide">'+
+
+
 //                '<div class="input-append input-prepend" style="margin:0px">' +
 //                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
 //                '<input class="span2 input-medium" placeholder="" id="zoolField" style="height:22px;width:50px;font-size:12px" type="text">' +

@@ -127,6 +127,10 @@ module.exports = function (grunt) {
             }
         },
 
+        clean: {
+            gv: ["dist/genome-viewer/<%= meta.versiongv %>/"]
+        },
+
         vendorPath: 'dist/genome-viewer/<%= meta.versiongv %>/vendor',
         stylesPath: 'dist/genome-viewer/<%= meta.versiongv %>/styles',
         htmlbuild: {
@@ -149,7 +153,8 @@ module.exports = function (grunt) {
                     },
                     styles: {
                         'gv-css': ['<%= stylesPath %>/css/style.css'],
-                        'vendor': [ 'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap*/**/*.css',
+                        'vendor': [ 'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap/**/*.css',
+                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap-*/**/*.css',
                                     'dist/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.css',
                                     'dist/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.css'
                             ]
@@ -167,11 +172,12 @@ module.exports = function (grunt) {
 //    grunt.loadNpmTasks('grunt-contrib-jshint');
 //    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-html-build');
 
     // Default task.
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
-    grunt.registerTask('gv', ['concat:gv','uglify:gv', 'copy:gv' , 'htmlbuild:gv']);
+    grunt.registerTask('gv', ['clean:gv','concat:gv','uglify:gv', 'copy:gv' , 'htmlbuild:gv']);
     grunt.registerTask('nv', ['concat:nv','uglify:nv',]);
 
 };
