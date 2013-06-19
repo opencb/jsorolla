@@ -717,7 +717,7 @@ TrackListPanel.prototype = {
         this.pixelBase = Math.max(this.pixelBase, (10 / Math.pow(2, 20)));
 
         this.halfVirtualBase = (this.width * 3 / 2) / this.pixelBase;
-        this.zoom = Math.round(Utils.getZoomByPixelBase(this.pixelBase));
+        this.zoom = Utils.getZoomByPixelBase(this.pixelBase);
     },
 
     _setTextPosition: function () {

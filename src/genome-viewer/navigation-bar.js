@@ -82,26 +82,30 @@ NavigationBar.prototype = {
         }
 
         var navgationHtml =
-//            '<div class="btn-toolbar">'+
                 '<div id="species" class="btn-group">' +
-                '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" href="#"> Species <span class="caret"></span></span>' +
-                '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="speciesMenu">' +
-                '</ul>' +
+                    '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" href="#"> Species <span class="caret"></span></span>' +
+                    '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="speciesMenu"></ul>' +
                 '</div>' +
                 '<div id="chromosomes" class="btn-group">' +
-                '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromsome <span class="caret"></span></span>' +
-                '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="chromsomeMenu"></ul>' +
+                    '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromsome <span class="caret"></span></span>' +
+                    '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="chromsomeMenu"></ul>' +
                 '</div>' +
                 '<div id="karyotype" class="btn-group" data-toggle="buttons-checkbox">' +
-                '<span id="karyotypeButton" class="btn btn-mini">Karyotype</span>' +
+                    '<span id="karyotypeButton" class="btn btn-mini">Karyotype</span>' +
                 '</div>' +
                 '<div id="chromosome" class="btn-group" data-toggle="buttons-checkbox">' +
-                '<span id="chromosomeButton" class="btn btn-mini">Chromosome</span>' +
+                    '<span id="chromosomeButton" class="btn btn-mini">Chromosome</span>' +
                 '</div>' +
                 '<div id="region" class="btn-group" data-toggle="buttons-checkbox">' +
-                '<span id="regionButton" class="btn btn-mini">Region</span>' +
+                    '<span id="regionButton" class="btn btn-mini">Region</span>' +
                 '</div>' +
-                '<div id="slider" style="width:200px;display:inline-block;top:3px;margin:0px 15px 0px 15px;"> ' +
+
+                '<div id="zoomOut" class="btn-group">' +
+                    '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
+                '</div>' +
+                '<div id="slider" style="width:120px;display:inline-block;top:3px;margin:0px 11px 0px 11px;"></div>' +
+                '<div id="zoomIn" class="btn-group">' +
+                    '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
                 '</div>' +
 //                '<div id="slider" style="width:100px;display:inline"></div>'+
 
@@ -112,17 +116,24 @@ NavigationBar.prototype = {
 //                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
 //                '</div>' +
                 '<div id="location" class="btn-group">' +
-                '<div class="input-append" style="margin:0px">' +
-                '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px" type="text">' +
-                '<span class="btn btn-mini" id="goButton">Go!</span>' +
+                    '<div class="input-append" style="margin:0px">' +
+                    '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px" type="text">' +
+                    '<span class="btn btn-mini" id="goButton">Go!</span>' +
+                    '</div>' +
                 '</div>' +
+                '<div id="movement" class="btn-group">' +
+                    '<span id="moveFurtherLeftButton" class="btn btn-mini"><i class="icon-backward"></i></span>' +
+                    '<span id="moveLeftButton" class="btn btn-mini"><i class="icon-chevron-left"></i></span>' +
+                    '<span id="moveRightButton" class="btn btn-mini"><i class="icon-chevron-right"></i></span>' +
+                    '<span id="moveFurtherRightButton" class="btn btn-mini"><i class="icon-forward"></i></span>' +
+                '</div>' +
+                '<div id="fullScreen" class="btn-group" data-toggle="buttons-checkbox">' +
+                    '<span id="fullScreenButton" class="btn btn-mini"><i class="icon-fullscreen"></i></span>' +
                 '</div>' +
                 '<div id="search" class="btn-group pull-right">' +
-                '<div class="input-append" style="margin:0px">' +
-                '<input id="searchField" class="span2" placeholder="Quick search: gene, snp..." id="searchField" style="height:12px;font-size:12px" type="text">' +
-                '<span class="btn btn-mini" id="searchButton">Search</span>' +
-                '</div>' +
-                '</div>' +
+                    '<div class="input-append" style="margin:0px">' +
+                    '<input id="searchField" class="span2" placeholder="gene, snp..." id="searchField" style="height:12px;font-size:12px;width:80px" type="text">' +
+                    '<span class="btn btn-mini" id="searchButton">Search</span>' +
                 '</div>' +
                 '';
 
@@ -146,7 +157,15 @@ NavigationBar.prototype = {
         this.searchButton = $(this.div).find('#searchButton');
         this.regionField = $(this.div).find('#regionField')[0];
         this.searchField = $(this.div).find('#searchField');
+        this.zoomInButton = $(this.div).find('#zoomInButton');
+        this.zoomOutButton = $(this.div).find('#zoomOutButton');
 
+        this.moveFurtherLeftButton = $(this.div).find('#moveFurtherLeftButton');
+        this.moveFurtherRightButton = $(this.div).find('#moveFurtherRightButton');
+        this.moveLeftButton = $(this.div).find('#moveLeftButton');
+        this.moveRightButton = $(this.div).find('#moveRightButton');
+
+        this.fullScreenButton = $(this.div).find('#fullScreenButton');
 
         $(this.karyotypeButton).click(function () {
             var pressed = ($(this).hasClass('active')) ? false : true;
@@ -160,21 +179,25 @@ NavigationBar.prototype = {
             var pressed = ($(this).hasClass('active')) ? false : true;
             _this.trigger('region-button:change', {selected: pressed, sender: _this});
         });
+
+        $(this.zoomOutButton).click(function () {
+            _this._handleZoomOutButton();
+        });
+
+
         $(this.zoomSlider).slider({
             range: "min",
-            value: 100,
+            value: this.zoom,
             min: 0,
             max: 100,
+            step:Number.MIN_VALUE,
             stop: function( event, ui ) {
                 _this._handleZoomSlider(ui.value);
             }
         });
-        $(this.goButton).click(function () {
-            _this._goRegion($(_this.regionField).val());
 
-        });
-        $(this.searchButton).click(function () {
-            _this._goFeature();
+        $(this.zoomInButton).click(function () {
+            _this._handleZoomInButton();
         });
 
         $(this.regionField).bind('keypress', function (e) {
@@ -183,6 +206,43 @@ NavigationBar.prototype = {
                 _this._goRegion($(this).val());
             }
         });
+        $(this.goButton).click(function () {
+            _this._goRegion($(_this.regionField).val());
+
+        });
+
+
+        $(this.moveFurtherLeftButton).click(function () {
+            _this._handleMoveRegion(10);
+        });
+
+        $(this.moveFurtherRightButton).click(function () {
+            _this._handleMoveRegion(-10);
+        });
+
+        $(this.moveLeftButton).click(function () {
+            _this._handleMoveRegion(1);
+        });
+
+        $(this.moveRightButton).click(function () {
+            _this._handleMoveRegion(-1);
+        });
+
+        $(this.fullScreenButton).click(function () {
+            var pressed = ($(this).hasClass('active')) ? false : true;
+            var elem = $(_this.targetDiv).parent()[0];
+            if(pressed){
+                Utils.launchFullScreen(elem);
+            }else{
+                Utils.cancelFullscreen();//no need to pass the dom object;
+            }
+        });
+
+
+        $(this.searchButton).click(function () {
+            _this._goFeature();
+        });
+
 
         $(this.searchField).typeahead({
             source:function(query, process){
@@ -262,7 +322,7 @@ NavigationBar.prototype = {
         } else {
             $(this.regionField).popover('destroy');
             this.region.load(reg);
-            this._setZoom();
+            this._recalculateZoom();
             this.trigger('region:change', {region: this.region, sender: this});
         }
     },
@@ -296,11 +356,28 @@ NavigationBar.prototype = {
         }
     },
 
+    _handleZoomOutButton : function(){
+        this._handleZoomSlider(Math.max(0,this.zoom-1));
+        $(this.zoomSlider).slider( "value",  this.zoom);
+    },
     _handleZoomSlider : function(value){
         this.zoom = value;
         this.region.load(this._calculateRegionByZoom());
         $(this.regionField).val(this.region.toString());
         this.trigger('region:change', {region: this.region, sender: this});
+    },
+    _handleZoomInButton : function(){
+        this._handleZoomSlider(Math.min(100,this.zoom+1));
+        $(this.zoomSlider).slider( "value",  this.zoom);
+    },
+
+    _handleMoveRegion:function(postions){
+        var pixelBase = (this.width-this.svgCanvasWidthOffset) / this.region.length();
+        var disp = Math.round((postions*10) / pixelBase);
+        this.region.start -= disp;
+        this.region.end -= disp;
+        $(this.regionField).val(this.region.toString());
+        this.trigger('region:move', {region: this.region, disp: disp, sender: this});
     },
 
     setVisible:function(obj){
@@ -317,20 +394,17 @@ NavigationBar.prototype = {
     setRegion: function (region) {
         this.region.load(region);
         $(this.regionField).val(this.region.toString());
-        this._setZoom();
+        this._recalculateZoom();
     },
 
     setWidth: function (width) {
-//        Ext.getCmp(this.id + 'navToolbar').setWidth(width);
+        this.width = width;
+        this._recalculateZoom();
     },
 
-    _setZoom: function () {
-        this._calculateZoomByRegion()
-        $(this.zoomSlider).slider( "value", this._calculateZoomByRegion() );
-//        Ext.getCmp(this.id + 'zoomSlider').suspendEvents();
-//
-//        Ext.getCmp(this.id + 'zoomSlider').setValue(this._calculateZoomByRegion());
-//        Ext.getCmp(this.id + 'zoomSlider').resumeEvents();
+    _recalculateZoom: function () {
+        this.zoom = this._calculateZoomByRegion();
+        $(this.zoomSlider).slider( "value",  this.zoom);
     },
 
     draw: function () {
@@ -763,7 +837,7 @@ NavigationBar.prototype = {
 //        return this._zoomSlider;
 //    },
     _calculateRegionByZoom: function () {
-        var zoomBaseLength = parseInt((this.width - 18) / Utils.getPixelBaseByZoom(this.zoom));
+        var zoomBaseLength = (this.width - this.svgCanvasWidthOffset) / Utils.getPixelBaseByZoom(this.zoom);
         var centerPosition = this.region.center();
         var aux = Math.ceil((zoomBaseLength / 2) - 1);
         var start = Math.floor(centerPosition - aux);
@@ -771,7 +845,7 @@ NavigationBar.prototype = {
         return {start: start, end: end};
     },
     _calculateZoomByRegion: function () {
-        return Math.round(Utils.getZoomByPixelBase((this.width - 18) / this.region.length()));
+        return Utils.getZoomByPixelBase((this.width - this.svgCanvasWidthOffset) / this.region.length());
     },
 
 //    _createSearchComboBox: function () {
@@ -910,7 +984,7 @@ NavigationBar.prototype = {
 //            else {
 //                this.region.load(reg);
 ////            this.onRegionChange.notify({sender:"GoButton"});
-//                this._setZoom();
+//                this._recalculateZoom();
 //
 //                this.trigger('region:change', {region: this.region, sender: this});
 //            }

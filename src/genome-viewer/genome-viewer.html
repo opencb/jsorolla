@@ -136,7 +136,8 @@
 <script type="text/javascript">
 var genomeViewer = null;
     $(document).ready(function () {
-        var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+        var region = new Region({chromosome: "13", start: 32889611, end: 32973805});
+//        var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
         genomeViewer = new GenomeViewer({
             region: region,
             sidePanel: false,
@@ -178,7 +179,7 @@ var genomeViewer = null;
             title: 'Gene',
             histogramZoom: 20,
             transcriptZoom: 50,
-            height: 100,
+            height: 140,
             visibleRange: {start: 0, end: 100},
             featureTypes: FEATURE_TYPES,
 
@@ -296,7 +297,7 @@ var genomeViewer = null;
 
 <body style="overflow: hidden;">
 <div style=""></div>
-<div id="application" style="width:95%; position:relative; left:30px; top:30px;"></div>
+<div id="application" style="width:98%; position:relative; left:10px; top:10px;"></div>
 <div style=""></div>
 
 </body>
