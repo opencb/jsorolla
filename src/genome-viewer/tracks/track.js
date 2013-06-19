@@ -277,11 +277,14 @@ Track.prototype = {
             "visibility": "hidden"
         });
 
+        this.div = div;
+        this.svgdiv = svgdiv;
 
         this.main = main;
         this.titleGroup = titleGroup;
         this.titlebar = titlebar;
         this.titleText = titleText;
+
 
         this.rendered = true;
         this.status = "ready";

@@ -371,9 +371,9 @@ NavigationBar.prototype = {
         $(this.zoomSlider).slider( "value",  this.zoom);
     },
 
-    _handleMoveRegion:function(postions){
+    _handleMoveRegion:function(positions){
         var pixelBase = (this.width-this.svgCanvasWidthOffset) / this.region.length();
-        var disp = Math.round((postions*10) / pixelBase);
+        var disp = Math.round((positions*10) / pixelBase);
         this.region.start -= disp;
         this.region.end -= disp;
         $(this.regionField).val(this.region.toString());

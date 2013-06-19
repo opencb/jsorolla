@@ -124,6 +124,13 @@ GenomeViewer.prototype = {
         Utils.setMinRegion(this.region, this.getSVGCanvasWidth());
         this.trigger('region:change', {region: this.region, sender: this});
     },
+    move: function (disp) {
+//        var pixelBase = (this.width-this.svgCanvasWidthOffset) / this.region.length();
+//        var disp = Math.round((disp*10) / pixelBase);
+        this.region.start += disp;
+        this.region.end += disp;
+        this.trigger('region:move', {region: this.region, disp: -disp, sender: this});
+    },
 
     _recalculateZoom: function () {
         this.zoom = this._calculateZoomByRegion();
@@ -164,26 +171,7 @@ GenomeViewer.prototype = {
     },
 
     highlight: function (args) {
-        var attrName = args.attrName || 'feature_id';
-        if ('attrValues' in args) {
-            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
-            for (var key in args.attrValues) {
-                $('rect[' + attrName + '~=' + args.attrValues[key] + ']').each(function () {
-                    this.textContent = '';
-                    var animation = SVG.addChild(this, 'animate', {
-                        'attributeName': 'opacity',
-                        'attributeType': 'XML',
-                        'begin': 'indefinite',
-                        'from': '0.0',
-                        'to': '1',
-                        'begin': '0s',
-                        'dur': '1s',
-                        'repeatCount': '3'
-                    });
-                    animation.beginElement();
-                });
-            }
-        }
+        this.trigger('feature:highlight',args);
     },
 
     draw: function () {
@@ -475,6 +463,10 @@ GenomeViewer.prototype = {
                     _this.trigger('region:move', event);
                 }
             }
+        });
+
+        this.on('feature:highlight', function (event) {
+            trackListPanel.highlight(event);
         });
 
         this.on('region:change', function (event) {

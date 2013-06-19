@@ -451,6 +451,11 @@ TrackListPanel.prototype = {
 //        this.zoom = zoom;
     },
 
+    highlight : function(event){
+        this.trigger('trackFeature:highlight', event)
+    },
+
+
     moveRegion: function (event) {
         this.region.load(event.region);
         this.visualRegion.load(event.region);
@@ -552,6 +557,37 @@ TrackListPanel.prototype = {
 
         this.on('trackWidth:change', function (event) {
             track.setWidth(event.width);
+        });
+
+        this.on('trackFeature:highlight', function (event) {
+            var attrName = event.attrName || 'feature_id';
+            if ('attrValue' in event) {
+                event.attrValue = ($.isArray(event.attrValue)) ? event.attrValue : [event.attrValue];
+                for (var key in event.attrValue) {
+                    var queryStr = attrName + '~=' + event.attrValue[key];
+                    var group = $(track.svgdiv).find('g[' + queryStr + ']')
+                    $(group).each(function () {
+                        var animation = $(this).find('animate');
+                        if(animation.length == 0) {
+                            animation = SVG.addChild(this, 'animate', {
+                                'attributeName': 'opacity',
+                                'attributeType': 'XML',
+                                'begin': 'indefinite',
+                                'from': '0.0',
+                                'to': '1',
+                                'begin': '0s',
+                                'dur': '0.5s',
+                                'repeatCount': '5'
+                            });
+                        }else {
+                            animation = animation[0];
+                        }
+                        var y = $(group).find('rect').attr("y");
+                        $(track.svgdiv).scrollTop(y);
+                        animation.beginElement();
+                    });
+                }
+            }
         });
     },
 

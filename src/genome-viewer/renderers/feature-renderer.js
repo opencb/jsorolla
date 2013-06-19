@@ -86,7 +86,7 @@ FeatureRenderer.prototype.render = function (features, args) {
             var foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
 
             if (foundArea) {
-                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g");
+                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
                 var rect = SVG.addChild(featureGroup, "rect", {
                     'x': x,
                     'y': rowY,
@@ -96,8 +96,7 @@ FeatureRenderer.prototype.render = function (features, args) {
                     'stroke-width': 1,
                     'stroke-opacity': 0.7,
                     'fill': color,
-                    'cursor': 'pointer',
-                    'feature_id': feature.id
+                    'cursor': 'pointer'
                 });
                 if (args.zoom > args.labelZoom) {
                     var text = SVG.addChild(featureGroup, "text", {
