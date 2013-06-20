@@ -407,7 +407,7 @@ GenomeViewer.prototype = {
                     return FEATURE_TYPES.formatTitle(f.featureType) +
                         ' - <span class="ok">' + name + '</span>';
                 },
-                toolTipText: function (f) {
+                tooltipText: function (f) {
                     var color = GENE_BIOTYPE_COLORS[f.biotype];
                     return    'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
                         'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +

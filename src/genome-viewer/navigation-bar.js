@@ -87,7 +87,7 @@ NavigationBar.prototype = {
                     '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="speciesMenu"></ul>' +
                 '</div>' +
                 '<div id="chromosomes" class="btn-group">' +
-                    '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromsome <span class="caret"></span></span>' +
+                    '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromosomes <span class="caret"></span></span>' +
                     '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="chromsomeMenu"></ul>' +
                 '</div>' +
                 '<div id="karyotype" class="btn-group" data-toggle="buttons-checkbox">' +
@@ -103,18 +103,13 @@ NavigationBar.prototype = {
                 '<div id="zoomOut" class="btn-group">' +
                     '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
                 '</div>' +
-                '<div id="slider" style="width:120px;display:inline-block;top:3px;margin:0px 11px 0px 11px;"></div>' +
+                '<div  style="display:inline-block;margin:0px 11px 0px 11px;position:relative;top:2px;font-size:10px">' +
+                    '<div id="slider" style="width:120px;"></div>' +
+                '</div>' +
                 '<div id="zoomIn" class="btn-group">' +
                     '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
                 '</div>' +
-//                '<div id="slider" style="width:100px;display:inline"></div>'+
 
-//                '<div class="input-append input-prepend" style="margin:0px">' +
-//                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
-//                '<input class="span2 input-medium" placeholder="" id="zoolField" style="height:22px;width:50px;font-size:12px" type="text">' +
-//                '<span id="zoomInButton" class="btn btn-mini"><span class="caret"></span></span>' +
-//                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
-//                '</div>' +
                 '<div id="location" class="btn-group">' +
                     '<div class="input-append" style="margin:0px">' +
                     '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px" type="text">' +

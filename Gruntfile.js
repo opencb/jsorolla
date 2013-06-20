@@ -55,7 +55,7 @@ module.exports = function (grunt) {
                     'src/genome-viewer/renderers/*-renderer.js',
                     'src/genome-viewer/genome-viewer.js'
                 ],
-                dest: 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.js'
+                dest: 'build/genome-viewer/<%= meta.versiongv %>/genome-viewer.js'
             },
             nv:{
                 src: [
@@ -65,7 +65,7 @@ module.exports = function (grunt) {
                     'src/network-viewer/tool-bar.js',
                     'src/network-viewer/network-viewer.js'
                 ],
-                dest:'dist/network-viewer/<%= meta.versionnv %>/network-viewer.js'
+                dest:'build/network-viewer/<%= meta.versionnv %>/network-viewer.js'
             }
         },
         uglify: {
@@ -74,11 +74,11 @@ module.exports = function (grunt) {
             },
             gv: {
                 src: '<%= concat.gv.dest %>',
-                dest: 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js'
+                dest: 'build/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js'
             },
             nv: {
                 src: '<%= concat.nv.dest %>',
-                dest: 'dist/network-viewer/<%= meta.versionnv %>/network-viewer.min.js'
+                dest: 'build/network-viewer/<%= meta.versionnv %>/network-viewer.min.js'
             }
         },
         jshint: {
@@ -121,44 +121,43 @@ module.exports = function (grunt) {
         copy: {
             gv: {
                 files: [
-                    {   expand: true, cwd:'src/', src: ['vendor/**'], dest: 'dist/genome-viewer/<%= meta.versiongv %>/' },
-                    {   expand: true, cwd:'src/', src: ['styles/**'], dest: 'dist/genome-viewer/<%= meta.versiongv %>/' } // includes files in path and its subdirs
+                    {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/genome-viewer/<%= meta.versiongv %>/' },
+                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/genome-viewer/<%= meta.versiongv %>/' } // includes files in path and its subdirs
                 ]
             }
         },
 
         clean: {
-            gv: ["dist/genome-viewer/<%= meta.versiongv %>/"]
+            gv: ["build/genome-viewer/<%= meta.versiongv %>/"]
         },
 
-        vendorPath: 'dist/genome-viewer/<%= meta.versiongv %>/vendor',
-        stylesPath: 'dist/genome-viewer/<%= meta.versiongv %>/styles',
+        vendorPath: 'build/genome-viewer/<%= meta.versiongv %>/vendor',
+        stylesPath: 'build/genome-viewer/<%= meta.versiongv %>/styles',
         htmlbuild: {
             gv: {
                 src: 'src/genome-viewer/genome-viewer.html',
-                dest: 'dist/genome-viewer/<%= meta.versiongv %>/',
+                dest: 'build/genome-viewer/<%= meta.versiongv %>/',
                 options: {
                     beautify: true,
                     scripts: {
-                        'gv-js': 'dist/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js',
-                        'vendor': [ 'dist/genome-viewer/<%= meta.versiongv %>/vendor/underscore/*.js',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/backbone/*.js',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/rawdeflate/*.js',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/jquery/*.js',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap*/**/*.js',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.js',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/jquery-plugins/*.js',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.js',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/jquery-ui-slider/*.js'
+                        'gv-js': 'build/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js',
+                        'vendor': [ 'build/genome-viewer/<%= meta.versiongv %>/vendor/underscore/*.js',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/backbone/*.js',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/rawdeflate/*.js',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/jquery/*.js',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap*/**/*.js',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.js',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/jquery-plugins/*.js',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.js',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/jquery-ui-slider/*.js'
                             ]
                     },
                     styles: {
                         'gv-css': ['<%= stylesPath %>/css/style.css'],
-                        'vendor': [ 'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap/**/*.css',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap-*/**/*.css',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.css',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.css',
-                                    'dist/genome-viewer/<%= meta.versiongv %>/vendor/jquery-ui-slider/*.css'
+                        'vendor': [ 'build/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap/**/*.css',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.css',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.css',
+                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/jquery-ui-slider/*.css'
                             ]
                     }
                 }
@@ -179,7 +178,7 @@ module.exports = function (grunt) {
 
     // Default task.
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
-    grunt.registerTask('gv', ['clean:gv','concat:gv','uglify:gv', 'copy:gv' , 'htmlbuild:gv']);
+    grunt.registerTask('gv', ['concat:gv','uglify:gv', 'copy:gv' , 'htmlbuild:gv']);
     grunt.registerTask('nv', ['concat:nv','uglify:nv',]);
 
 };
