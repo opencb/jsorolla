@@ -6,16 +6,20 @@ module.exports = function (grunt) {
 
         // Metadata.
         meta: {
-            version: '0.1.0',
-            versiongv: '0.1.2',
-            versionnv: '0.0.1'
+            version : {
+                gv:'1.0.2',
+                nv:'0.0.1',
+                cellbase:'1.0.0',
+                opencga:'1.0.0',
+                utils:'1.0.0'
+            }
         },
         banner: '/*! PROJECT_NAME - v<%= meta.version %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
             '* http://PROJECT_WEBSITE/\n' +
             '* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
-            'YOUR_NAME; Licensed GPLv2 */\n',
-        bannergv: '/*! Genome Viewer - v<%= meta.versiongv %> - ' +
+            'OpenCB; Licensed GPLv2 */\n',
+        bannergv: '/*! Genome Viewer - v<%= meta.version.gv %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
             '* http://https://github.com/opencb-bigdata-viz/js-common-libs/\n' +
             '* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
@@ -27,18 +31,37 @@ module.exports = function (grunt) {
                 banner: '<%= bannergv %>',
                 stripBanners: true
             },
+            utils:{
+                src: [
+                    'src/utils/utils.js',
+                    'src/utils/event.js',
+                    'src/utils/svg.js'
+                ],
+                dest: 'build/utils-<%= meta.version.utils %>.js'
+            },
+            cellbase: {
+                src: [
+                    'src/cellbase/cellbase-manager.js',
+                    'src/cellbase/ui-widgets/info-widget.js',
+                    'src/cellbase/ui-widgets/gene-info-widget.js',
+                    'src/cellbase/ui-widgets/*.js'
+                ],
+                dest: 'build/cellbase-<%= meta.version.cellbase %>.js'
+            },
+            opencga:{
+                src: [
+                    'src/opencga/**/user-list-widget.js',
+                    'src/opencga/**/*.js',
+                    '!src/opencga/worker-fileupload.js'
+                ],
+                dest: 'build/opencga-<%= meta.version.opencga %>.js'
+            },
             gv: {
                 src: [
-                    /** Utils **/
-                    'src/utils/event.js','src/utils/svg.js','src/utils/utils.js',
-                    /** config **/
+                    '<%= concat.utils.dest %>',
+                    '<%= concat.cellbase.dest %>',
                     'src/genome-viewer/gv-config.js',
-//                    'src/ui-widgets/ux-window.js',
-                    /** cellbase **/
-                    'src/cellbase/ui-widgets/info-widget.js','src/cellbase/ui-widgets/*-info-widget.js','src/cellbase/cellbase-manager.js',
-                    /**  data-adapter **/
                     'src/genome-viewer/data-adapter/cellbase-adapter.js','src/genome-viewer/data-adapter/sequence-adapter.js',
-                    /** genome viewer **/
                     'src/genome-viewer/region.js',
                     'src/genome-viewer/feature-binary-search-tree.js',
                     'src/genome-viewer/feature-cache.js',
@@ -55,7 +78,7 @@ module.exports = function (grunt) {
                     'src/genome-viewer/renderers/*-renderer.js',
                     'src/genome-viewer/genome-viewer.js'
                 ],
-                dest: 'build/genome-viewer/<%= meta.versiongv %>/genome-viewer.js'
+                dest: 'build/genome-viewer/<%= meta.version.gv %>/genome-viewer-<%= meta.version.gv %>.js'
             },
             nv:{
                 src: [
@@ -65,20 +88,32 @@ module.exports = function (grunt) {
                     'src/network-viewer/tool-bar.js',
                     'src/network-viewer/network-viewer.js'
                 ],
-                dest:'build/network-viewer/<%= meta.versionnv %>/network-viewer.js'
+                dest:'build/network-viewer/<%= meta.version.nv %>/network-viewer.js'
             }
         },
         uglify: {
             options: {
                 banner: '<%= bannergv %>'
             },
+            cellbase: {
+                src: '<%= concat.cellbase.dest %>',
+                dest: 'build/cellbase-<%= meta.version.cellbase %>.min.js'
+            },
+            opencga:{
+                src: '<%= concat.opencga.dest %>',
+                dest: 'build/opencga-<%= meta.version.opencga %>.min.js'
+            },
+            utils:{
+                src: '<%= concat.utils.dest %>',
+                dest: 'build/utils-<%= meta.version.utils %>.min.js'
+            },
             gv: {
                 src: '<%= concat.gv.dest %>',
-                dest: 'build/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js'
+                dest: 'build/genome-viewer/<%= meta.version.gv %>/genome-viewer-<%= meta.version.gv %>.min.js'
             },
             nv: {
                 src: '<%= concat.nv.dest %>',
-                dest: 'build/network-viewer/<%= meta.versionnv %>/network-viewer.min.js'
+                dest: 'build/network-viewer/<%= meta.version.nv %>/network-viewer.min.js'
             }
         },
         jshint: {
@@ -119,51 +154,95 @@ module.exports = function (grunt) {
         },
 
         copy: {
+            utils: {
+                files: [
+                    {   expand: true, cwd:'./build', src: ['utils*.js'], dest: 'build/utils/<%= meta.version.utils %>/' }
+                ]
+            },
+            cellbase: {
+                files: [
+                    {   expand: true, cwd:'./build', src: ['cellbase*.js'], dest: 'build/cellbase/<%= meta.version.cellbase %>/' },
+                    {   expand: true, cwd:'./build', src: ['utils*.js'], dest: 'build/cellbase/<%= meta.version.cellbase %>/' }
+                ]
+            },
+            opencga: {
+                files: [
+                    {   expand: true, cwd:'./build', src: ['opencga*.js'], dest: 'build/opencga/<%= meta.version.opencga %>/' },
+                    {   expand: true, cwd:'./build', src: ['utils*.js'], dest: 'build/opencga/<%= meta.version.opencga %>/' },
+                    {   expand: true, cwd:'./src/opencga', src: ['worker-fileupload.js'], dest: 'build/opencga/<%= meta.version.opencga %>/' }
+                ]
+            },
             gv: {
                 files: [
-                    {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/genome-viewer/<%= meta.versiongv %>/' },
-                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/genome-viewer/<%= meta.versiongv %>/' } // includes files in path and its subdirs
+                    {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' },
+                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' } // includes files in path and its subdirs
                 ]
             }
         },
 
         clean: {
-            gv: ["build/genome-viewer/<%= meta.versiongv %>/"]
+            utils:['<%= concat.utils.dest %>','<%= uglify.utils.dest %>'],
+            cellbase:['<%= concat.cellbase.dest %>','<%= uglify.cellbase.dest %>'],
+            opencga:['<%= concat.opencga.dest %>','<%= uglify.opencga.dest %>'],
+            gv: ['build/genome-viewer/<%= meta.version.gv %>/']
         },
 
-        vendorPath: 'build/genome-viewer/<%= meta.versiongv %>/vendor',
-        stylesPath: 'build/genome-viewer/<%= meta.versiongv %>/styles',
+        vendorPath: 'build/genome-viewer/<%= meta.version.gv %>/vendor',
+        stylesPath: 'build/genome-viewer/<%= meta.version.gv %>/styles',
         htmlbuild: {
             gv: {
                 src: 'src/genome-viewer/genome-viewer.html',
-                dest: 'build/genome-viewer/<%= meta.versiongv %>/',
+                dest: 'build/genome-viewer/<%= meta.version.gv %>/',
                 options: {
                     beautify: true,
                     scripts: {
-                        'gv-js': 'build/genome-viewer/<%= meta.versiongv %>/genome-viewer.min.js',
-                        'vendor': [ 'build/genome-viewer/<%= meta.versiongv %>/vendor/underscore/*.js',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/backbone/*.js',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/rawdeflate/*.js',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/jquery/*.js',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap*/**/*.js',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.js',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/jquery-plugins/*.js',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.js',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/jquery-ui-slider/*.js'
+                        'gv-js': 'build/genome-viewer/<%= meta.version.gv %>/genome-viewer.min.js',
+                        'vendor': [ 'build/genome-viewer/<%= meta.version.gv %>/vendor/underscore/*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/backbone/*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/rawdeflate/*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery/*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap*/**/*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/qtip2/*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-plugins/*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb-5.1.0/*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-slider/*.js'
                             ]
                     },
                     styles: {
                         'gv-css': ['<%= stylesPath %>/css/style.css'],
-                        'vendor': [ 'build/genome-viewer/<%= meta.versiongv %>/vendor/bootstrap/**/*.css',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/qtip2/*.css',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/ChemDoodleWeb-5.1.0/*.css',
-                                    'build/genome-viewer/<%= meta.versiongv %>/vendor/jquery-ui-slider/*.css'
+                        'vendor': [ 'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap/**/*.css',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/qtip2/*.css',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb-5.1.0/*.css',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-slider/*.css'
                             ]
                     }
                 }
             }
+        },
+        'curl-dir': {
+            long: {
+                src: [
+                    'http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js',
+                    'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js',
+                    'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js',
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css',
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.min.css',
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/img/glyphicons-halflings.png',
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/img/glyphicons-halflings-white.png',
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js',
+                    'http://hub.chemdoodle.com/cwc/5.1.0/ChemDoodleWeb.css',
+                    'http://hub.chemdoodle.com/cwc/5.1.0/ChemDoodleWeb.js',
+                    'http://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.0.6/jquery.mousewheel.min.js',
+                    'https://raw.github.com/toji/gl-matrix/master/dist/gl-matrix-min.js',
+                    'http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.js',
+                    'http://cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.2.1/purl.min.js',
+                    'http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.sha1.js',
+                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.js',
+                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css'
+                ],
+                dest: 'vendor'
+            }
         }
-
     });
 
     // These plugins provide necessary tasks.
@@ -176,9 +255,15 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-html-build');
 
+
+    grunt.registerTask('vendor', ['curl-dir']);
+
     // Default task.
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
-    grunt.registerTask('gv', ['concat:gv','uglify:gv', 'copy:gv' , 'htmlbuild:gv']);
-    grunt.registerTask('nv', ['concat:nv','uglify:nv',]);
+    grunt.registerTask('gv', ['concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
+    grunt.registerTask('nv', ['concat:nv','uglify:nv']);
 
+    grunt.registerTask('utils', ['concat:utils','uglify:utils','copy:utils','clean:utils']);
+    grunt.registerTask('cellbase', ['concat:utils','uglify:utils','concat:cellbase','uglify:cellbase','copy:cellbase','clean:cellbase','clean:utils']);
+    grunt.registerTask('opencga', ['concat:utils','uglify:utils','concat:opencga','uglify:opencga','copy:opencga','clean:opencga','clean:utils']);
 };

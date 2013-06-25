@@ -25,8 +25,13 @@ function CellBaseManager(species, args) {
 	this.host = CELLBASE_HOST;
 	this.version = CELLBASE_VERSION;
 
-	this.species = species;
-	
+    //species can be the species code or an object with text attribute
+    if(typeof species === 'string'){
+	    this.species = species;
+    }else if(species != null){
+        this.species = Utils.getSpeciesCode(species.text);
+    }
+
 	this.category = null;
 	this.subcategory = null;
 

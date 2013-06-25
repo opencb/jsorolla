@@ -21,7 +21,9 @@
 
 function OpencgaManager(host){
 
+    this.host = OPENCGA_HOST || this.host;
     this.host = host || this.host;
+
     //deprecated
     //this.host = "http://bioinfo.cipf.es/dqs-naranjoma-ws/rest";
     //if(window.location.host.indexOf("ralonso")!=-1){
@@ -70,7 +72,7 @@ function OpencgaManager(host){
 }
 
 OpencgaManager.prototype = {
-    host : OPENCGA_HOST,
+    host : 'http://ws.bioinfo.cipf.es/opencga/rest',
     getHost : function(){
         return this.host;
     },

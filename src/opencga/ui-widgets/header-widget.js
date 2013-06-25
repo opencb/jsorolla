@@ -51,7 +51,6 @@ function HeaderWidget(args){
 	this.loginWidget= new LoginWidget(this.suiteId);
 	this.editUserWidget = new ProfileWidget();
 	this.uploadWidget = new UploadWidget({suiteId:this.suiteId});//used now from opencga-browser
-	this.projectManager = new ManageProjectsWidget({width:800,height:500,suiteId:this.suiteId});
 	this.opencgaBrowserWidget = new OpencgaBrowserWidget({suiteId:this.suiteId});
 	
 	/**Atach events i listen**/
@@ -59,9 +58,7 @@ function HeaderWidget(args){
 		_this.sessionInitiated();
 		_this.onLogin.notify();
 	});
-	this.projectManager.onRefreshProjectList.addEventListener(function(sender,data){
-		_this.userBarWidget.createProjectMenuItems(data);
-	});
+
 	this.adapter.onLogout.addEventListener(function(sender, data){
 		console.log(data);
 		//Se borran todas las cookies por si acaso
@@ -231,7 +228,9 @@ HeaderWidget.prototype = {
                     xtype: 'tbtext',
                     id: this.id + "appTextItem",
                     //		        	html: '<span class="appName">Vitis vinifera&nbsp; '+this.args.appname +'</span> <span class="appDesc">'+this.args.description+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span><img height="30" src="http://www.demeter.es/imagenes/l_demeter.gif"></span>',
-                    text: '<span class="appName">' + this.appname + '</span> <span id="' + this.id + 'description" class="appDesc">' + this.description + '</span><span class="appDesc" style="color:orangered;margin-left:20px">New version 3.1 beta2</span>',
+                    text: '<span class="appName">' + this.appname + '</span> <span id="' + this.id + 'description" class="appDesc">' + this.description + '</span>' +
+//                        '<span class="appDesc" style="color:orangered;margin-left:20px">New version 3.1 beta2</span>' +
+                    '',
                     padding: '0 0 0 10',
                     listeners:{
                         afterrender:function(){

@@ -30,15 +30,15 @@ function JobListWidget (args){
 	var jobstpl = [
 					'<tpl for=".">',
 					'<div class="joblist-item">',
-						'<p style="color:'+
+						'<div style="color:'+
 											'<tpl if="visites == 0">green</tpl>'+
 											'<tpl if="visites &gt; 0">blue</tpl>'+
 											'<tpl if="visites == -1">red</tpl>'+
 											'<tpl if="visites == -2">Darkorange</tpl>'+
-											'">{name}</p>',
-						'<p style="color: #15428B"><i>{date}</i></p>',
-						'<p style="color:steelblue"><i>{toolName}</i></p>',
-						'<p style="color:grey"><i>',
+											'">{name}</div>',
+						'<div style="color: #15428B"><i>{date}</i></div>',
+						'<div style="color:steelblue"><i>{toolName}</i></div>',
+						'<div style="color:grey"><i>',
 //						'<tpl if="visites == 0">finished and unvisited</tpl>',
 //						'<tpl if="visites &gt; 0">{visites} visites</tpl>',
 //						'<tpl if="visites == -1">',
@@ -48,7 +48,9 @@ function JobListWidget (args){
 //						'</tpl>',
                         '{status}',
 						'<tpl if="visites &gt; -1"> - {visites} views</tpl>',
-//						'</i>  - {id}</p>',
+						'</i>' +
+//                        '  - {id}' +
+                        '</div>',
 					'</div>',
 					'</tpl>'
 					];

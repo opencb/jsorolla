@@ -38,29 +38,6 @@ function NavigationBar(args) {
     //set new region object
     this.region = new Region(this.region);
 
-
-    this.availableSpecies = [
-        {
-            "text": "Mus musculus", "assembly": "GRCm38.p1",
-            "region": {"chromosome": "1", "start": 18422009, "end": 18422009},
-            "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"],
-            "url": "ftp://ftp.ensembl.org/pub/release-71/"
-        },
-        {
-            "text": "Homo sapiens", "assembly": "GRCh37.p10",
-            "region": {"chromosome": "13", "start": 32889599, "end": 32889739},
-            "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"],
-            "url": "ftp://ftp.ensembl.org/pub/release-71/"
-        }
-    ];
-
-//    if (typeof args != 'undefined') {
-//        this.species = args.species || this.species;
-//        if (args.region != null) {
-//            this.region.load(args.region);
-//        }
-//    }
-
     this.currentChromosomeList = [];
 
     this.on(this.handlers);
@@ -82,53 +59,53 @@ NavigationBar.prototype = {
         }
 
         var navgationHtml =
-                '<div id="species" class="btn-group">' +
-                    '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" href="#"> Species <span class="caret"></span></span>' +
-                    '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="speciesMenu"></ul>' +
+            '<div class="btn-group">' +
+                '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" href="#"> <span id="speciesText">'+this.species.text+'</span> <span class="caret"></span></span>' +
+                '<ul id="speciesMenu" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu"></ul>' +
                 '</div>' +
                 '<div id="chromosomes" class="btn-group">' +
-                    '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromosomes <span class="caret"></span></span>' +
-                    '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="chromsomeMenu"></ul>' +
+                '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromosome <span id="chromosomeText">'+this.region.chromosome+'</span> <span class="caret"></span></span>' +
+                '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="chromosomeMenu"></ul>' +
                 '</div>' +
                 '<div id="karyotype" class="btn-group" data-toggle="buttons-checkbox">' +
-                    '<span id="karyotypeButton" class="btn btn-mini">Karyotype</span>' +
+                '<span id="karyotypeButton" class="btn btn-mini">Karyotype</span>' +
                 '</div>' +
                 '<div id="chromosome" class="btn-group" data-toggle="buttons-checkbox">' +
-                    '<span id="chromosomeButton" class="btn btn-mini">Chromosome</span>' +
+                '<span id="chromosomeButton" class="btn btn-mini">Chromosome</span>' +
                 '</div>' +
                 '<div id="region" class="btn-group" data-toggle="buttons-checkbox">' +
-                    '<span id="regionButton" class="btn btn-mini">Region</span>' +
+                '<span id="regionButton" class="btn btn-mini">Region</span>' +
                 '</div>' +
 
                 '<div id="zoomOut" class="btn-group">' +
-                    '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
+                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
                 '</div>' +
                 '<div  style="display:inline-block;margin:0px 11px 0px 11px;position:relative;top:2px;font-size:10px">' +
-                    '<div id="slider" style="width:120px;"></div>' +
+                '<div id="slider" style="width:120px;"></div>' +
                 '</div>' +
                 '<div id="zoomIn" class="btn-group">' +
-                    '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
+                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
                 '</div>' +
 
                 '<div id="location" class="btn-group">' +
-                    '<div class="input-append" style="margin:0px">' +
-                    '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px" type="text">' +
-                    '<span class="btn btn-mini" id="goButton">Go!</span>' +
-                    '</div>' +
+                '<div class="input-append" style="margin:0px">' +
+                '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px" type="text">' +
+                '<span class="btn btn-mini" id="goButton">Go!</span>' +
+                '</div>' +
                 '</div>' +
                 '<div id="movement" class="btn-group">' +
-                    '<span id="moveFurtherLeftButton" class="btn btn-mini"><i class="icon-backward"></i></span>' +
-                    '<span id="moveLeftButton" class="btn btn-mini"><i class="icon-chevron-left"></i></span>' +
-                    '<span id="moveRightButton" class="btn btn-mini"><i class="icon-chevron-right"></i></span>' +
-                    '<span id="moveFurtherRightButton" class="btn btn-mini"><i class="icon-forward"></i></span>' +
+                '<span id="moveFurtherLeftButton" class="btn btn-mini"><i class="icon-backward"></i></span>' +
+                '<span id="moveLeftButton" class="btn btn-mini"><i class="icon-chevron-left"></i></span>' +
+                '<span id="moveRightButton" class="btn btn-mini"><i class="icon-chevron-right"></i></span>' +
+                '<span id="moveFurtherRightButton" class="btn btn-mini"><i class="icon-forward"></i></span>' +
                 '</div>' +
                 '<div id="fullScreen" class="btn-group" data-toggle="buttons-checkbox">' +
-                    '<span id="fullScreenButton" class="btn btn-mini"><i class="icon-fullscreen"></i></span>' +
+                '<span id="fullScreenButton" class="btn btn-mini"><i class="icon-fullscreen"></i></span>' +
                 '</div>' +
                 '<div id="search" class="btn-group pull-right">' +
-                    '<div class="input-append" style="margin:0px">' +
-                    '<input id="searchField" class="span2" placeholder="gene, snp..." id="searchField" style="height:12px;font-size:12px;width:80px" type="text">' +
-                    '<span class="btn btn-mini" id="searchButton">Search</span>' +
+                '<div class="input-append" style="margin:0px">' +
+                '<input id="searchField" class="span2" placeholder="gene, snp..." id="searchField" style="height:12px;font-size:12px;width:80px" type="text">' +
+                '<span class="btn btn-mini" id="searchButton">Search</span>' +
                 '</div>' +
                 '';
 
@@ -139,15 +116,17 @@ NavigationBar.prototype = {
 
 
         this.speciesMenu = $(this.div).find('#speciesMenu');
+        this.speciesText = $(this.div).find('#speciesText');
         this._setSpeciesMenu();
-        this.chromsomeMenu = $(this.div).find('#chromsomeMenu');
+        this.chromosomeMenu = $(this.div).find('#chromosomeMenu');
+        this.chromosomeText = $(this.div).find('#chromosomeText');
         this._setChromosomeMenu();
 
 
         this.karyotypeButton = $(this.div).find('#karyotypeButton');
         this.chromosomeButton = $(this.div).find('#chromosomeButton');
         this.regionButton = $(this.div).find('#regionButton');
-        this.zoomSlider = $(this.div).find( "#slider" );
+        this.zoomSlider = $(this.div).find("#slider");
         this.goButton = $(this.div).find('#goButton');
         this.searchButton = $(this.div).find('#searchButton');
         this.regionField = $(this.div).find('#regionField')[0];
@@ -185,8 +164,8 @@ NavigationBar.prototype = {
             value: this.zoom,
             min: 0,
             max: 100,
-            step:Number.MIN_VALUE,
-            stop: function( event, ui ) {
+            step: Number.MIN_VALUE,
+            stop: function (event, ui) {
                 _this._handleZoomSlider(ui.value);
             }
         });
@@ -226,9 +205,9 @@ NavigationBar.prototype = {
         $(this.fullScreenButton).click(function () {
             var pressed = ($(this).hasClass('active')) ? false : true;
             var elem = $(_this.targetDiv).parent()[0];
-            if(pressed){
+            if (pressed) {
                 Utils.launchFullScreen(elem);
-            }else{
+            } else {
                 Utils.cancelFullscreen();//no need to pass the dom object;
             }
         });
@@ -240,11 +219,11 @@ NavigationBar.prototype = {
 
 
         $(this.searchField).typeahead({
-            source:function(query, process){
+            source: function (query, process) {
                 process(_this._quickSearch(query));
             },
-            minLength:3,
-            items:50
+            minLength: 3,
+            items: 50
         });
 
         $(this.searchField).bind('keypress', function (e) {
@@ -265,35 +244,52 @@ NavigationBar.prototype = {
     },
 
     _setChromosomeMenu: function () {
+        var _this = this;
         //find species object
         var list = [];
-        for (var species in this.availableSpecies) {
-            if (Utils.getSpeciesCode(this.availableSpecies[species].text) === this.species) {
-                list = this.availableSpecies[species].chromosomes;
-                break;
+        for (var i in this.availableSpecies.items) {
+            for (var j in this.availableSpecies.items[i].items) {
+                var species = this.availableSpecies.items[i].items[j];
+                if (species.text === this.species.text) {
+                    list = species.chromosomes;
+                    break;
+                }
             }
         }
+
         this.currentChromosomeList = list;
         //add bootstrap elements to the menu
         for (var i in list) {
             var menuEntry = $('<li><a tabindex="-1">' + list[i] + '</a></li>')[0];
-            $(this.chromsomeMenu).append(menuEntry);
+            $(this.chromosomeMenu).append(menuEntry);
             $(menuEntry).click(function () {
+                $(_this.chromosomeText).text($(this).text());
+                _this.region.chromosome = $(this).text();
+                _this.trigger('region:change', {region: _this.region, sender: _this});
                 console.log($(this).text());
             });
         }
     },
 
     _setSpeciesMenu: function () {
+        var _this = this;
+
+        var createEntry = function(species){
+            var menuEntry = $('<li><a tabindex="-1">' + species.text + '</a></li>')[0];
+            $(_this.speciesMenu).append(menuEntry);
+            $(menuEntry).click(function () {
+                $(_this.speciesText).text($(this).text());
+                _this.trigger('species:change', {species: species, sender: _this});
+            });
+        };
+
         //find species object
         var list = [];
-        for (var species in this.availableSpecies) {
-            var menuEntry = $('<li><a tabindex="-1">' + this.availableSpecies[species].text + '</a></li>')[0];
-            $(this.speciesMenu).append(menuEntry);
-            $(menuEntry).click(function () {
-                console.log($(this).text());
-//                this.trigger('species:change', {species: data, sender: this});
-            });
+        for (var i in this.availableSpecies.items) {
+            for (var j in this.availableSpecies.items[i].items) {
+                var species = this.availableSpecies.items[i].items[j];
+                createEntry(species);
+            }
         }
     },
 
@@ -303,16 +299,16 @@ NavigationBar.prototype = {
         if (isNaN(reg.start) || reg.start < 0) {
             $(this.regionField).popover('destroy');
             $(this.regionField).popover({
-                content:'Bad region format',
-                placement:'bottom',
-                trigger:'hover'
+                content: 'Bad region format',
+                placement: 'bottom',
+                trigger: 'hover'
             });
-        } else if (_.indexOf(this.currentChromosomeList, reg.chromosome) == -1 ) {
+        } else if (_.indexOf(this.currentChromosomeList, reg.chromosome) == -1) {
             $(this.regionField).popover('destroy');
             $(this.regionField).popover({
-                content:'Chromosome not found in this species',
-                placement:'bottom',
-                trigger:'hover'
+                content: 'Chromosome not found in this species',
+                placement: 'bottom',
+                trigger: 'hover'
             });
         } else {
             $(this.regionField).popover('destroy');
@@ -322,15 +318,17 @@ NavigationBar.prototype = {
         }
     },
 
-    _quickSearch: function(query){
+    _quickSearch: function (query) {
         var results = [];
+        var speciesCode = Utils.getSpeciesCode(this.species.text)
+//        var host = new CellBaseManager().host;
+        var host = 'http://ws.bioinfo.cipf.es/cellbase/rest';
         $.ajax({
-//                        url:new CellBaseManager().host+"/latest/"+_this.species+"/feature/id/"+this.getValue()+"/starts_with?of=json",
-            url: "http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/feature/id/" + query + "/starts_with?of=json",
-            async:false,
+            url: host + '/latest/' + speciesCode + '/feature/id/' + query + '/starts_with?of=json',
+            async: false,
             dataType: 'json',
             success: function (data, textStatus, jqXHR) {
-                for(var i in data[0]){
+                for (var i in data[0]) {
                     results.push(data[0][i].displayId);
                 }
             },
@@ -341,7 +339,7 @@ NavigationBar.prototype = {
         return results;
     },
 
-    _goFeature : function(featureName){
+    _goFeature: function (featureName) {
         if (featureName != null) {
             if (featureName.slice(0, "rs".length) == "rs" || featureName.slice(0, "AFFY_".length) == "AFFY_" || featureName.slice(0, "SNP_".length) == "SNP_" || featureName.slice(0, "VAR_".length) == "VAR_" || featureName.slice(0, "CRTAP_".length) == "CRTAP_" || featureName.slice(0, "FKBP10_".length) == "FKBP10_" || featureName.slice(0, "LEPRE1_".length) == "LEPRE1_" || featureName.slice(0, "PPIB_".length) == "PPIB_") {
                 this.openSNPListWidget(featureName);
@@ -351,37 +349,37 @@ NavigationBar.prototype = {
         }
     },
 
-    _handleZoomOutButton : function(){
-        this._handleZoomSlider(Math.max(0,this.zoom-1));
-        $(this.zoomSlider).slider( "value",  this.zoom);
+    _handleZoomOutButton: function () {
+        this._handleZoomSlider(Math.max(0, this.zoom - 1));
+        $(this.zoomSlider).slider("value", this.zoom);
     },
-    _handleZoomSlider : function(value){
+    _handleZoomSlider: function (value) {
         this.zoom = value;
         this.region.load(this._calculateRegionByZoom());
         $(this.regionField).val(this.region.toString());
         this.trigger('region:change', {region: this.region, sender: this});
     },
-    _handleZoomInButton : function(){
-        this._handleZoomSlider(Math.min(100,this.zoom+1));
-        $(this.zoomSlider).slider( "value",  this.zoom);
+    _handleZoomInButton: function () {
+        this._handleZoomSlider(Math.min(100, this.zoom + 1));
+        $(this.zoomSlider).slider("value", this.zoom);
     },
 
-    _handleMoveRegion:function(positions){
-        var pixelBase = (this.width-this.svgCanvasWidthOffset) / this.region.length();
-        var disp = Math.round((positions*10) / pixelBase);
+    _handleMoveRegion: function (positions) {
+        var pixelBase = (this.width - this.svgCanvasWidthOffset) / this.region.length();
+        var disp = Math.round((positions * 10) / pixelBase);
         this.region.start -= disp;
         this.region.end -= disp;
         $(this.regionField).val(this.region.toString());
         this.trigger('region:move', {region: this.region, disp: disp, sender: this});
     },
 
-    setVisible:function(obj){
-        for(key in obj){
-            var query = $(this.div).find('#'+key);
-            if(obj[key]){
-                query.css({display:'inline-block'})
-            }else{
-                query.css({display:'none'})
+    setVisible: function (obj) {
+        for (key in obj) {
+            var query = $(this.div).find('#' + key);
+            if (obj[key]) {
+                query.css({display: 'inline-block'})
+            } else {
+                query.css({display: 'none'})
             }
         }
     },
@@ -399,7 +397,7 @@ NavigationBar.prototype = {
 
     _recalculateZoom: function () {
         this.zoom = this._calculateZoomByRegion();
-        $(this.zoomSlider).slider( "value",  this.zoom);
+        $(this.zoomSlider).slider("value", this.zoom);
     },
 
     draw: function () {
@@ -407,11 +405,6 @@ NavigationBar.prototype = {
             console.info(this.id + ' is not rendered yet');
             return;
         }
-        this.on('species:change', function (event) {
-            console.log(event.species);
-            Ext.getCmp(this.id + "speciesMenuButton").setText(event.species);
-//        this.speciesMenu.setText(event.species);
-        });
 
         // Visual components creation, all theses components will be
         // added to the navigation bar below.

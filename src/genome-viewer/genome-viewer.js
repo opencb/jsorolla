@@ -32,8 +32,19 @@ function GenomeViewer(args) {
     this.resizable = true;
     this.sidePanel = true;//enable or disable sidePanel at construction
     this.trackPanelScrollWidth = 18;
-    this.species = "hsapiens";
-    this.speciesName = "Homo sapiens";
+    this.availableSpecies = {
+        "text": "Species",
+        "items": [
+            {
+                "text": "Vertebrates",
+                "items": [
+                    {"text": "Homo sapiens", "assembly": "GRCh37.p10", "region": {"chromosome": "13", "start": 32889611, "end": 32889611}, "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"], "url": "ftp://ftp.ensembl.org/pub/release-71/"},
+                    {"text": "Mus musculus", "assembly": "GRCm38.p1", "region":{"chromosome":"1","start":18422009,"end":18422009}, "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"], "url": "ftp://ftp.ensembl.org/pub/release-71/"},
+                ]
+            }
+        ]
+    };
+    this.species = this.availableSpecies.items[0].items[0];
     this.zoom = 100;
 
     //set instantiation args, must be last
@@ -45,6 +56,9 @@ function GenomeViewer(args) {
 
     console.log(this.targetId);
     console.log(this.id);
+
+    //events attachments
+    this.on(this.handlers);
 
     this.rendered = false;
     if (this.autoRender) {
@@ -171,7 +185,7 @@ GenomeViewer.prototype = {
     },
 
     highlight: function (args) {
-        this.trigger('feature:highlight',args);
+        this.trigger('feature:highlight', args);
     },
 
     draw: function () {
@@ -182,7 +196,7 @@ GenomeViewer.prototype = {
         var _this = this;
 
         // Resize
-        $(window).smartresize(function (event) {
+        $(window).resize(function (event) {
             if (_this.resizable == true) {
                 _this.setWidth($(_this.div).width());
             }
@@ -222,10 +236,11 @@ GenomeViewer.prototype = {
         var _this = this;
         var navigationBar = new NavigationBar({
             targetId: targetId,
+            availableSpecies: this.availableSpecies,
             species: this.species,
             region: this.region,
             width: this.width,
-            svgCanvasWidthOffset : this.trackPanelScrollWidth + this.sidePanelWidth,
+            svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
             zoom: this.zoom,
             autoRender: true,
             handlers: {
@@ -256,6 +271,10 @@ GenomeViewer.prototype = {
                 },
                 'region:move': function (event) {
                     _this.trigger('region:move', event);
+                },
+                'species:change': function (event) {
+                    _this.trigger('species:change', event);
+                    _this.setRegion(event.species.region);
                 }
             }
         });
@@ -276,7 +295,7 @@ GenomeViewer.prototype = {
 
     _drawKaryotypePanel: function (targetId) {
         var _this = this;
-        this.karyotypePanel = new KaryotypePanel({
+        karyotypePanel = new KaryotypePanel({
             targetId: targetId,
             width: this.width - this.sidePanelWidth,
             height: 125,
@@ -293,25 +312,29 @@ GenomeViewer.prototype = {
         });
 
         this.on('region:change region:move', function (event) {
-            if (event.sender != _this.karyotypePanel) {
-                _this.karyotypePanel.setRegion(event.region);
+            if (event.sender != karyotypePanel) {
+                karyotypePanel.setRegion(event.region);
             }
         });
 
         this.on('width:change', function (event) {
-            _this.karyotypePanel.setWidth(event.width - _this.sidePanelWidth);
+            karyotypePanel.setWidth(event.width - _this.sidePanelWidth);
         });
 
-        this.karyotypePanel.draw();
+        this.on('species:change', function (event) {
+            karyotypePanel.setSpecies(event.species);
+        });
 
-        return this.karyotypePanel;
+        karyotypePanel.draw();
+
+        return karyotypePanel;
     },
 
     _drawChromosomePanel: function (targetId) {
         var _this = this;
 
 
-        this.chromosomePanel = new ChromosomePanel({
+        var chromosomePanel = new ChromosomePanel({
             targetId: targetId,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
@@ -327,18 +350,22 @@ GenomeViewer.prototype = {
         });
 
         this.on('region:change region:move', function (event) {
-            if (event.sender != _this.chromosomePanel) {
-                _this.chromosomePanel.setRegion(event.region);
+            if (event.sender != chromosomePanel) {
+                chromosomePanel.setRegion(event.region);
             }
         });
 
         this.on('width:change', function (event) {
-            _this.chromosomePanel.setWidth(event.width - _this.sidePanelWidth);
+            chromosomePanel.setWidth(event.width - _this.sidePanelWidth);
         });
 
-        this.chromosomePanel.draw();
+        this.on('species:change', function (event) {
+            chromosomePanel.setSpecies(event.species);
+        });
 
-        return this.chromosomePanel;
+        chromosomePanel.draw();
+
+        return chromosomePanel;
     },
 
     _createRegionOverviewPanel: function (targetId) {
@@ -377,6 +404,10 @@ GenomeViewer.prototype = {
 
         this.on('width:change', function (event) {
             trackListPanel.setWidth(event.width - _this.sidePanelWidth);
+        });
+
+        this.on('species:change', function (event) {
+            trackListPanel.setSpecies(event.species);
         });
 
         var gene = new FeatureTrack({
@@ -482,6 +513,10 @@ GenomeViewer.prototype = {
         });
         this.on('width:change', function (event) {
             trackListPanel.setWidth(event.width - _this.sidePanelWidth);
+        });
+
+        this.on('species:change', function (event) {
+            trackListPanel.setSpecies(event.species);
         });
 
         return  trackListPanel;
