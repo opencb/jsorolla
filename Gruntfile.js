@@ -205,7 +205,7 @@ module.exports = function (grunt) {
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/qtip2/*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-plugins/*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb-5.1.0/*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-slider/*.js'
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-1.10.3*/js/jquery-ui*min.js'
                             ]
                     },
                     styles: {
@@ -225,11 +225,6 @@ module.exports = function (grunt) {
                     'http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js',
                     'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js',
                     'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js',
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css',
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.min.css',
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/img/glyphicons-halflings.png',
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/img/glyphicons-halflings-white.png',
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js',
                     'http://hub.chemdoodle.com/cwc/5.1.0/ChemDoodleWeb.css',
                     'http://hub.chemdoodle.com/cwc/5.1.0/ChemDoodleWeb.js',
                     'http://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.0.6/jquery.mousewheel.min.js',
@@ -241,6 +236,26 @@ module.exports = function (grunt) {
                     'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css'
                 ],
                 dest: 'vendor'
+            },
+            bootstrapjs: {
+                src: [
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js',
+                ],
+                dest: 'vendor/bootstrap/js/'
+            },
+            bootstrapcss: {
+                src: [
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css',
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.min.css',
+                ],
+                dest: 'vendor/bootstrap/css/'
+            },
+            bootstrapimg: {
+                src: [
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/img/glyphicons-halflings.png',
+                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/img/glyphicons-halflings-white.png',
+                ],
+                dest: 'vendor/bootstrap/img/'
             }
         }
     });
@@ -254,6 +269,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-html-build');
+    grunt.loadNpmTasks('grunt-curl');
 
 
     grunt.registerTask('vendor', ['curl-dir']);

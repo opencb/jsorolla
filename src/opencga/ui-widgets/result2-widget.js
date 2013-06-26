@@ -88,13 +88,19 @@ ResultWidget.prototype = {
                         switch(item.toolName){
                             case 'pathiways':
                                 var arr = item.commandLine.split(/ --/g);
-//                                var str = arr[2].replace(/ /g,': ')+'<br>';
-//                                str +=  arr[5].replace(/ /g,': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/','').replace('/httpd/bioinfo/opencga/accounts/','')+'<br>';
-//                                str +=  arr[1].replace(/ /g,': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/','')+'<br>';
-//                                str +=  arr[3].replace(/ /g,': ')+'<br>';
-//                                str +=  arr[7].replace(/ /g,': ')+'<br>';
+                                console.log(arr)
+                                var str = arr[1].replace(/ /g,': ')+'<br>';
+                                str +=  arr[2].replace(/ /g,': ')+'<br>';
+                                str +=  arr[3].replace(/ /g,': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/','').replace('/httpd/bioinfo/opencga/accounts/','')+'<br>';
+                                str +=  arr[4].replace(/ /g,': ')+'<br>';
+                                str +=  arr[5].replace(/ /g,': ')+'<br>';
+                                str +=  arr[6].replace(/ /g,': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/','').replace('/httpd/bioinfo/opencga/accounts/','')+'<br>';
+                                str +=  arr[7].replace(/ /g,': ')+'<br>';
+//                                str +=  arr[8].replace(/ /g,': ')+'<br>';
 //                                str +=  arr[9].replace(/ /g,': ')+'<br>';
-                                var str = item.commandLine;
+                                str +=  arr[10].replace(/ /g,': ')+'<br>';
+                                str +=  arr[12].replace(/ /g,': ');
+                                str +=  '<div style="width:400px">'+arr[11].replace(/ /g,': ').replace(/,/g,', ')+'</div>';
                                 return str;
                             default : return '';
                         }

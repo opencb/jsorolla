@@ -89,24 +89,11 @@ GenomeViewer.prototype = {
         $(this.div).append('<div id="gv-navigation-panel"></div>');
         $(this.div).append('<div id="gv-center-panel" style="position:relative"></div>');
 
-        $('#gv-center-panel').append('<div id="gv-sidebar-panel" style="position:absolute; z-index:50;right:0px;height:100%;"></div>');
-        $('#gv-center-panel').append('<div id="gv-main-panel" style="z-index:1"></div>');
 
-        if (this.sidePanel == true) {
-            $('#gv-sidebar-panel').append('<div id="gv-sidebar-title-h" style="position:relative;width:250px;height:100%;display:none;">' +
-                '<div class="gv-panel-title" style="border-left:1px solid darkgray;position:relative;height:24px;">configuration</div>' +
-                '<div class="" style="position:relative;height:100%;background:gray"></div>' +
-                '</div>');
-            $('#gv-sidebar-title-h').click(function () {
-                $('#gv-sidebar-title-v').show();
-                $('#gv-sidebar-title-h').hide();
-            });
-            $('#gv-sidebar-panel').append('<div id="gv-sidebar-title-v" class="gv-panel-title-v" style="position:relative;width:25px;height:100%;"><div class="rotate-90">Configuration</div></div>');
-            $('#gv-sidebar-title-v').click(function () {
-                $('#gv-sidebar-title-v').hide();
-                $('#gv-sidebar-title-h').show();
-            });
-        }
+        this.sidebarDiv = $('<div id="gv-sidebar-panel" style="position:absolute; z-index:50;right:0px;height:100%"></div>')[0];
+
+        $('#gv-center-panel').append(this.sidebarDiv);
+        $('#gv-center-panel').append('<div id="gv-main-panel" style="z-index:1"></div>');
 
         $('#gv-main-panel').append('<div id="gv-karyotype-panel"></div>');
         $('#gv-main-panel').append('<div id="gv-chromosome-panel"></div>');
@@ -117,6 +104,9 @@ GenomeViewer.prototype = {
         $('#genome-viewer').append('<div id="gv-statusbar-panel"></div>');
 
         this.rendered = true;
+    },
+    getSidebarId : function(){
+        return $(this.sidebarDiv).attr('id');
     },
     setWidth: function (width) {
         this.width = width;

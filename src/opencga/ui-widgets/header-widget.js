@@ -20,11 +20,16 @@
  */
 
 function HeaderWidget(args){
-	var _this=this;
-	this.id = "HeaderWidget"+ Math.round(Math.random()*10000);
-	this.targetId = null;
+
+    _.extend(this, Backbone.Events);
+
+    var _this = this;
+    this.id = Utils.genId("HeaderWidget");
+
+
+	this.targetId;
 	this.height = 67;
-	this.accountData = null;
+	this.accountData;
 
 	this.appname="My new App";
 	this.description='';
@@ -32,13 +37,8 @@ function HeaderWidget(args){
 	this.news='';
     this.checkTimeInterval = 4000;
 
-    if(typeof args != 'undefined'){
-        this.appname = args.appname || this.appname;
-        this.description = args.description || this.description;
-        this.version = args.version || this.version;
-        this.suiteId = args.suiteId || this.suiteId;
-        this.news = args.news || this.news;
-    }
+    //set instantiation args, must be last
+    _.extend(this, args);
 
 	this.adapter = new OpencgaManager();
 	
@@ -79,6 +79,11 @@ function HeaderWidget(args){
             console.log("accountData has been modified since last call");
         }
     });
+
+    this.rendered = false;
+    if (this.autoRender) {
+        this.render();
+    }
 }
 
 HeaderWidget.prototype = {
@@ -139,7 +144,12 @@ HeaderWidget.prototype = {
         $("#"+this.id+'description').text(text);
     },
     draw : function(){
-        this.render();
+        if (!this.rendered) {
+            console.info('Header Widget is not rendered yet');
+            return;
+        }
+        var _this = this;
+
         if($.cookie('bioinfo_sid') != null){
             this.sessionInitiated();
         }else{
@@ -155,8 +165,13 @@ HeaderWidget.prototype = {
         this.getPanel().setWidth(width);
         this.getPanel().updateLayout();//sencha 4.1.0 : items are not allocated in the correct position after setWidth
     },
-    render : function (){
+    render : function (targetId){
         var _this=this;
+        this.targetId = (targetId) ? targetId : this.targetId;
+        if ($('#' + this.targetId).length < 1) {
+            console.log('targetId not found in DOM');
+            return;
+        }
         if (this.panel==null){
 //		console.log(this.args.suiteId);
             switch(this.suiteId){
@@ -343,6 +358,7 @@ HeaderWidget.prototype = {
                 items:[userbar,linkbar]
             });
         }
+        this.rendered = true;
     }
 };
 

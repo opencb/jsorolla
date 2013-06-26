@@ -58,193 +58,196 @@ NavigationBar.prototype = {
             return;
         }
 
-        var navgationHtml =
-            '<div class="btn-group">' +
-                '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" href="#"> <span id="speciesText">'+this.species.text+'</span> <span class="caret"></span></span>' +
-                '<ul id="speciesMenu" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu"></ul>' +
-                '</div>' +
-                '<div id="chromosomes" class="btn-group">' +
-                '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromosome <span id="chromosomeText">'+this.region.chromosome+'</span> <span class="caret"></span></span>' +
-                '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="chromosomeMenu"></ul>' +
-                '</div>' +
-                '<div id="karyotype" class="btn-group" data-toggle="buttons-checkbox">' +
-                '<span id="karyotypeButton" class="btn btn-mini">Karyotype</span>' +
-                '</div>' +
-                '<div id="chromosome" class="btn-group" data-toggle="buttons-checkbox">' +
-                '<span id="chromosomeButton" class="btn btn-mini">Chromosome</span>' +
-                '</div>' +
-                '<div id="region" class="btn-group" data-toggle="buttons-checkbox">' +
-                '<span id="regionButton" class="btn btn-mini">Region</span>' +
-                '</div>' +
-
-                '<div id="zoomOut" class="btn-group">' +
-                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
-                '</div>' +
-                '<div  style="display:inline-block;margin:0px 11px 0px 11px;position:relative;top:2px;font-size:10px">' +
-                '<div id="slider" style="width:120px;"></div>' +
-                '</div>' +
-                '<div id="zoomIn" class="btn-group">' +
-                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
-                '</div>' +
-
-                '<div id="location" class="btn-group">' +
-                '<div class="input-append" style="margin:0px">' +
-                '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px" type="text">' +
-                '<span class="btn btn-mini" id="goButton">Go!</span>' +
-                '</div>' +
-                '</div>' +
-                '<div id="movement" class="btn-group">' +
-                '<span id="moveFurtherLeftButton" class="btn btn-mini"><i class="icon-backward"></i></span>' +
-                '<span id="moveLeftButton" class="btn btn-mini"><i class="icon-chevron-left"></i></span>' +
-                '<span id="moveRightButton" class="btn btn-mini"><i class="icon-chevron-right"></i></span>' +
-                '<span id="moveFurtherRightButton" class="btn btn-mini"><i class="icon-forward"></i></span>' +
-                '</div>' +
-                '<div id="fullScreen" class="btn-group" data-toggle="buttons-checkbox">' +
-                '<span id="fullScreenButton" class="btn btn-mini"><i class="icon-fullscreen"></i></span>' +
-                '</div>' +
-                '<div id="search" class="btn-group pull-right">' +
-                '<div class="input-append" style="margin:0px">' +
-                '<input id="searchField" class="span2" placeholder="gene, snp..." id="searchField" style="height:12px;font-size:12px;width:80px" type="text">' +
-                '<span class="btn btn-mini" id="searchButton">Search</span>' +
-                '</div>' +
-                '';
+//        var navgationHtml =
+//            '<div class="btn-group">' +
+//                '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" href="#"> <span id="speciesText">'+this.species.text+'</span> <span class="caret"></span></span>' +
+//                '<ul id="speciesMenu" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu"></ul>' +
+//                '</div>' +
+//                '<div id="chromosomes" class="btn-group">' +
+//                '<span class="btn dropdown-toggle  btn-mini" data-toggle="dropdown" > Chromosome <span id="chromosomeText">'+this.region.chromosome+'</span> <span class="caret"></span></span>' +
+//                '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="chromosomeMenu"></ul>' +
+//                '</div>' +
+//                '<div id="karyotype" class="btn-group" data-toggle="buttons-checkbox">' +
+//                '<span id="karyotypeButton" class="btn btn-mini">Karyotype</span>' +
+//                '</div>' +
+//                '<div id="chromosome" class="btn-group" data-toggle="buttons-checkbox">' +
+//                '<span id="chromosomeButton" class="btn btn-mini">Chromosome</span>' +
+//                '</div>' +
+//                '<div id="region" class="btn-group" data-toggle="buttons-checkbox">' +
+//                '<span id="regionButton" class="btn btn-mini">Region</span>' +
+//                '</div>' +
+//
+//                '<div id="zoomOut" class="btn-group">' +
+//                '<span id="zoomOutButton" class="btn btn-mini"><i class="icon-zoom-out"></i></span>' +
+//                '</div>' +
+//                '<div  style="display:inline-block;margin:0px 11px 0px 11px;position:relative;top:2px;font-size:10px">' +
+//                '<div id="slider" style="width:120px;"></div>' +
+//                '</div>' +
+//                '<div id="zoomIn" class="btn-group">' +
+//                '<span id="zoomInButton" class="btn btn-mini"><i class="icon-zoom-in"></i></span>' +
+//                '</div>' +
+//
+//                '<div id="location" class="btn-group">' +
+//                '<div class="input-append" style="margin:0px">' +
+//                '<input class="span2" placeholder="Enter region..." id="regionField" style="height:12px;font-size:12px;box-sizing:content-box" type="text">' +
+//                '<span class="btn btn-mini" id="goButton">Go!</span>' +
+//                '</div>' +
+//                '</div>' +
+//                '<div id="movement" class="btn-group">' +
+//                '<span id="moveFurtherLeftButton" class="btn btn-mini"><i class="icon-backward"></i></span>' +
+//                '<span id="moveLeftButton" class="btn btn-mini"><i class="icon-chevron-left"></i></span>' +
+//                '<span id="moveRightButton" class="btn btn-mini"><i class="icon-chevron-right"></i></span>' +
+//                '<span id="moveFurtherRightButton" class="btn btn-mini"><i class="icon-forward"></i></span>' +
+//                '</div>' +
+//                '<div id="fullScreen" class="btn-group" data-toggle="buttons-checkbox">' +
+//                '<span id="fullScreenButton" class="btn btn-mini"><i class="icon-fullscreen"></i></span>' +
+//                '</div>' +
+//                '<div id="search" class="btn-group pull-right">' +
+//                '<div class="input-append" style="margin:0px">' +
+//                '<input id="searchField" class="span2" placeholder="gene, snp..." id="searchField" style="height:12px;font-size:12px;width:80px;box-sizing:content-box" type="text">' +
+//                '<span class="btn btn-mini" id="searchButton">Search</span>' +
+//                '</div>' +
+//                '';
 
 
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="navigation-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
+        this.div = $('<div id="navigation-bar" class="gv-navigation-bar unselectable">' + '' + '</div>')[0];
         $(this.targetDiv).append(this.div);
 
 
-        this.speciesMenu = $(this.div).find('#speciesMenu');
-        this.speciesText = $(this.div).find('#speciesText');
-        this._setSpeciesMenu();
-        this.chromosomeMenu = $(this.div).find('#chromosomeMenu');
-        this.chromosomeText = $(this.div).find('#chromosomeText');
-        this._setChromosomeMenu();
-
-
-        this.karyotypeButton = $(this.div).find('#karyotypeButton');
-        this.chromosomeButton = $(this.div).find('#chromosomeButton');
-        this.regionButton = $(this.div).find('#regionButton');
-        this.zoomSlider = $(this.div).find("#slider");
-        this.goButton = $(this.div).find('#goButton');
-        this.searchButton = $(this.div).find('#searchButton');
-        this.regionField = $(this.div).find('#regionField')[0];
-        this.searchField = $(this.div).find('#searchField');
-        this.zoomInButton = $(this.div).find('#zoomInButton');
-        this.zoomOutButton = $(this.div).find('#zoomOutButton');
-
-        this.moveFurtherLeftButton = $(this.div).find('#moveFurtherLeftButton');
-        this.moveFurtherRightButton = $(this.div).find('#moveFurtherRightButton');
-        this.moveLeftButton = $(this.div).find('#moveLeftButton');
-        this.moveRightButton = $(this.div).find('#moveRightButton');
-
-        this.fullScreenButton = $(this.div).find('#fullScreenButton');
-
-        $(this.karyotypeButton).click(function () {
-            var pressed = ($(this).hasClass('active')) ? false : true;
-            _this.trigger('karyotype-button:change', {selected: pressed, sender: _this});
-        });
-        $(this.chromosomeButton).click(function () {
-            var pressed = ($(this).hasClass('active')) ? false : true;
-            _this.trigger('chromosome-button:change', {selected: pressed, sender: _this});
-        });
-        $(this.regionButton).click(function () {
-            var pressed = ($(this).hasClass('active')) ? false : true;
-            _this.trigger('region-button:change', {selected: pressed, sender: _this});
-        });
-
-        $(this.zoomOutButton).click(function () {
-            _this._handleZoomOutButton();
-        });
-
-
-        $(this.zoomSlider).slider({
-            range: "min",
-            value: this.zoom,
-            min: 0,
-            max: 100,
-            step: Number.MIN_VALUE,
-            stop: function (event, ui) {
-                _this._handleZoomSlider(ui.value);
-            }
-        });
-
-        $(this.zoomInButton).click(function () {
-            _this._handleZoomInButton();
-        });
-
-        $(this.regionField).bind('keypress', function (e) {
-            var code = (e.keyCode ? e.keyCode : e.which);
-            if (code == 13) { //Enter keycode
-                _this._goRegion($(this).val());
-            }
-        });
-        $(this.goButton).click(function () {
-            _this._goRegion($(_this.regionField).val());
-
-        });
-
-
-        $(this.moveFurtherLeftButton).click(function () {
-            _this._handleMoveRegion(10);
-        });
-
-        $(this.moveFurtherRightButton).click(function () {
-            _this._handleMoveRegion(-10);
-        });
-
-        $(this.moveLeftButton).click(function () {
-            _this._handleMoveRegion(1);
-        });
-
-        $(this.moveRightButton).click(function () {
-            _this._handleMoveRegion(-1);
-        });
-
-        $(this.fullScreenButton).click(function () {
-            var pressed = ($(this).hasClass('active')) ? false : true;
-            var elem = $(_this.targetDiv).parent()[0];
-            if (pressed) {
-                Utils.launchFullScreen(elem);
-            } else {
-                Utils.cancelFullscreen();//no need to pass the dom object;
-            }
-        });
-
-
-        $(this.searchButton).click(function () {
-            _this._goFeature();
-        });
-
-
-        $(this.searchField).typeahead({
-            source: function (query, process) {
-                process(_this._quickSearch(query));
-            },
-            minLength: 3,
-            items: 50
-        });
-
-        $(this.searchField).bind('keypress', function (e) {
-            var code = (e.keyCode ? e.keyCode : e.which);
-            if (code == 13) { //Enter keycode
-                _this._goFeature();
-            }
-        });
-
-        //by default all buttons are pressed
-        $(this.karyotypeButton).button('toggle');
-        $(this.chromosomeButton).button('toggle');
-        $(this.regionButton).button('toggle');
-
-        $(this.regionField).val(this.region.toString());
+//        this.speciesMenu = $(this.div).find('#speciesMenu');
+//        this.speciesText = $(this.div).find('#speciesText');
+//        this._setSpeciesMenu();
+//        this.chromosomeMenu = $(this.div).find('#chromosomeMenu');
+//        this.chromosomeText = $(this.div).find('#chromosomeText');
+//        this._setChromosomeMenu();
+//
+//
+//        this.karyotypeButton = $(this.div).find('#karyotypeButton');
+//        this.chromosomeButton = $(this.div).find('#chromosomeButton');
+//        this.regionButton = $(this.div).find('#regionButton');
+//        this.zoomSlider = $(this.div).find("#slider");
+//        this.goButton = $(this.div).find('#goButton');
+//        this.searchButton = $(this.div).find('#searchButton');
+//        this.regionField = $(this.div).find('#regionField')[0];
+//        this.searchField = $(this.div).find('#searchField');
+//        this.zoomInButton = $(this.div).find('#zoomInButton');
+//        this.zoomOutButton = $(this.div).find('#zoomOutButton');
+//
+//        this.moveFurtherLeftButton = $(this.div).find('#moveFurtherLeftButton');
+//        this.moveFurtherRightButton = $(this.div).find('#moveFurtherRightButton');
+//        this.moveLeftButton = $(this.div).find('#moveLeftButton');
+//        this.moveRightButton = $(this.div).find('#moveRightButton');
+//
+//        this.fullScreenButton = $(this.div).find('#fullScreenButton');
+//
+//        $(this.karyotypeButton).click(function () {
+//            var pressed = ($(this).hasClass('active')) ? false : true;
+//            _this.trigger('karyotype-button:change', {selected: pressed, sender: _this});
+//        });
+//        $(this.chromosomeButton).click(function () {
+//            var pressed = ($(this).hasClass('active')) ? false : true;
+//            _this.trigger('chromosome-button:change', {selected: pressed, sender: _this});
+//        });
+//        $(this.regionButton).click(function () {
+//            var pressed = ($(this).hasClass('active')) ? false : true;
+//            _this.trigger('region-button:change', {selected: pressed, sender: _this});
+//        });
+//
+//        $(this.zoomOutButton).click(function () {
+//            _this._handleZoomOutButton();
+//        });
+//
+//
+//        $(this.zoomSlider).slider({
+//            range: "min",
+//            value: this.zoom,
+//            min: 0,
+//            max: 100,
+//            step: Number.MIN_VALUE,
+//            stop: function (event, ui) {
+//                _this._handleZoomSlider(ui.value);
+//            }
+//        });
+//
+//        $(this.zoomInButton).click(function () {
+//            _this._handleZoomInButton();
+//        });
+//
+//        $(this.regionField).bind('keypress', function (e) {
+//            var code = (e.keyCode ? e.keyCode : e.which);
+//            if (code == 13) { //Enter keycode
+//                _this._goRegion($(this).val());
+//            }
+//        });
+//        $(this.goButton).click(function () {
+//            _this._goRegion($(_this.regionField).val());
+//
+//        });
+//
+//
+//        $(this.moveFurtherLeftButton).click(function () {
+//            _this._handleMoveRegion(10);
+//        });
+//
+//        $(this.moveFurtherRightButton).click(function () {
+//            _this._handleMoveRegion(-10);
+//        });
+//
+//        $(this.moveLeftButton).click(function () {
+//            _this._handleMoveRegion(1);
+//        });
+//
+//        $(this.moveRightButton).click(function () {
+//            _this._handleMoveRegion(-1);
+//        });
+//
+//        $(this.fullScreenButton).click(function () {
+//            var pressed = ($(this).hasClass('active')) ? false : true;
+//            var elem = $(_this.targetDiv).parent()[0];
+//            if (pressed) {
+//                Utils.launchFullScreen(elem);
+//            } else {
+//                Utils.cancelFullscreen();//no need to pass the dom object;
+//            }
+//        });
+//
+//
+//        $(this.searchButton).click(function () {
+//            _this._goFeature();
+//        });
+//
+//
+//        $(this.searchField).typeahead({
+//            source: function (query, process) {
+//                process(_this._quickSearch(query));
+//            },
+//            minLength: 3,
+//            items: 50
+//        });
+//
+//        $(this.searchField).bind('keypress', function (e) {
+//            var code = (e.keyCode ? e.keyCode : e.which);
+//            if (code == 13) { //Enter keycode
+//                _this._goFeature();
+//            }
+//        });
+//
+//        //by default all buttons are pressed
+//        $(this.karyotypeButton).button('toggle');
+//        $(this.chromosomeButton).button('toggle');
+//        $(this.regionButton).button('toggle');
+//
+//        $(this.regionField).val(this.region.toString());
 
         this.rendered = true;
     },
 
     _setChromosomeMenu: function () {
         var _this = this;
+
+        $(this.chromosomeMenu).empty();
+
         //find species object
         var list = [];
         for (var i in this.availableSpecies.items) {
@@ -278,7 +281,9 @@ NavigationBar.prototype = {
             var menuEntry = $('<li><a tabindex="-1">' + species.text + '</a></li>')[0];
             $(_this.speciesMenu).append(menuEntry);
             $(menuEntry).click(function () {
+                _this.species = species;
                 $(_this.speciesText).text($(this).text());
+                _this._setChromosomeMenu();
                 _this.trigger('species:change', {species: species, sender: _this});
             });
         };
@@ -313,6 +318,7 @@ NavigationBar.prototype = {
         } else {
             $(this.regionField).popover('destroy');
             this.region.load(reg);
+            $(this.chromosomeText).text(this.region.chromosome);
             this._recalculateZoom();
             this.trigger('region:change', {region: this.region, sender: this});
         }
@@ -386,6 +392,7 @@ NavigationBar.prototype = {
 
     setRegion: function (region) {
         this.region.load(region);
+        $(this.chromosomeText).text(this.region.chromosome);
         $(this.regionField).val(this.region.toString());
         this._recalculateZoom();
     },

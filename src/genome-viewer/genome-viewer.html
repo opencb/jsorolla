@@ -7,11 +7,12 @@
 
 <!-- CSS from vendors -->
 <!-- build:style vendor -->
-<link href="../../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<link href="../../vendor/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
-<link href="../../vendor/qtip2/jquery.qtip.min.css" rel="stylesheet">
-<link href="../../vendor/ChemDoodleWeb-5.1.0/ChemDoodleWeb.css" rel="stylesheet">
-<link href="../../vendor/jquery-ui-slider/jquery-ui-1.10.3.slider.min.css" rel="stylesheet">
+<!--<link href="../../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">-->
+<!--<link href="../../vendor/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">-->
+<link href="../../vendor/jquery.qtip.min.css" rel="stylesheet">
+<link href="../../vendor/ChemDoodleWeb.css" rel="stylesheet">
+<!--<link href="../../vendor/jquery-ui-slider/jquery-ui-1.10.3.slider.min.css" rel="stylesheet">-->
+<link href="../../vendor/jquery-ui-1.10.3.custom/css/smoothness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet">
 <!-- /build -->
 
 <!-- CSS from Genome Viewer -->
@@ -22,21 +23,21 @@
 
 <!-- JS from vendors -->
 <!-- build:script vendor -->
-<script type="text/javascript" src="../../vendor/underscore/underscore-min.js"></script>
-<script type="text/javascript" src="../../vendor/backbone/backbone-min.js"></script>
-<script type="text/javascript" src="../../vendor/rawdeflate/rawdeflate.js"></script>
-<script type="text/javascript" src="../../vendor/jquery/jquery-1.10.1.min.js"></script>
+<script type="text/javascript" src="../../vendor/underscore-min.js"></script>
+<script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+<script type="text/javascript" src="../../vendor/rawdeflate.js"></script>
+<script type="text/javascript" src="../../vendor/jquery.min.js"></script>
 
 <!-- These dependencies must go AFTER jquery -->
-<script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="../../vendor/qtip2/jquery.qtip.min.js"></script>
-<script type="text/javascript" src="../../vendor/jquery-plugins/jquery.cookie.js"></script>
-<script type="text/javascript" src="../../vendor/jquery-plugins/jquery.sha1.js"></script>
-<script type="text/javascript" src="../../vendor/jquery-plugins/jquery.smartresize.js"></script>
-<script type="text/javascript" src="../../vendor/jquery-plugins/jquery.url.js"></script>
-<script type="text/javascript" src="../../vendor/ChemDoodleWeb-5.1.0/ChemDoodleWeb-libs.js"></script>
-<script type="text/javascript" src="../../vendor/ChemDoodleWeb-5.1.0/ChemDoodleWeb.js"></script>
-<script type="text/javascript" src="../../vendor/jquery-ui-slider/jquery-ui-1.10.3.slider.min.js"></script>
+<!--<script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>-->
+<script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
+<script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
+<script type="text/javascript" src="../../vendor/purl.min.js"></script>
+<script type="text/javascript" src="../../vendor/jquery.mousewheel.min.js"></script>
+<script type="text/javascript" src="../../vendor/gl-matrix-min.js"></script>
+<script type="text/javascript" src="../../vendor/ChemDoodleWeb.js"></script>
+<script type="text/javascript" src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
 <!-- /build -->
 
 
@@ -130,9 +131,8 @@
 </script>
 
 
-
 <script type="text/javascript">
-var genomeViewer = null;
+    var genomeViewer = null;
     $(document).ready(function () {
         var region = new Region({chromosome: "13", start: 32889611, end: 32973805});
 //        var region = new Region({chromosome: "13", start: 32889611, end: 32889611});

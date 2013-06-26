@@ -67,35 +67,16 @@
 }
 
 .gv-panel-title {
-    /*font-family: 'Lato';*/
+    font-family:tahoma,arial,verdana,sans-serif;
     color: #333;
     font-size: 11px;
-    padding: 0px 0 2px 5px;
+    padding: 5px 0 6px 5px;
     background-image: linear-gradient(to bottom, #ffffff, #d0d0d0);
     background-image: -webkit-linear-gradient(top, white, #d0d0d0);
     background-repeat: repeat-x;
     border-top: 1px solid #d4d4d4;
     border-bottom: 1px solid #d4d4d4;
 }
-.gv-panel-title-v {
-    /*font-family: 'Lato';*/
-    color: #333;
-    font-size: 11px;
-    padding: 3px 0 5px 5px;
-    background-image: linear-gradient(to left, #ffffff, #d0d0d0);
-    background-image: -webkit-linear-gradient(right, white, #d0d0d0);
-    background-repeat: repeat-x;
-    border-top: 1px solid #d4d4d4;
-    border-bottom: 1px solid #d4d4d4;
-}
-.rotate-90 {
-    margin: 5px 0 0px 0px;
-    -ms-transform:rotate(90deg); /* IE 9 */
-    -moz-transform:rotate(90deg); /* Firefox */
-    -webkit-transform:rotate(90deg); /* Safari and Chrome */
-    -o-transform:rotate(90deg); /* Opera */
-}
-
 
 .gv-nav {
     font-family: 'Lato';
