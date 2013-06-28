@@ -109,7 +109,8 @@ LoginWidget.prototype.sign = function (){
 		if(this.checkAccountId()){
             this.adapter.login(this.getLogin(), this.getPassword(), this.suiteId );
 			this.panel.setLoading('Waiting server...');
-			$.cookie('bioinfo_user', this.getLogin(), {path:'/',expires: 7});
+            $.cookie('bioinfo_user', null, {path: '/'});
+			$.cookie('bioinfo_user', this.getLogin(), {expires: 7});
 		}
 	}
 };
@@ -196,7 +197,6 @@ LoginWidget.prototype.render = function (){
 //		        emptyText:'please enter your password',
 		        listeners:{
 					specialkey: function(field, e){
-                        console.log("asdf");
 	                    if (e.getKey() == e.ENTER) {
 	                    	_this.sign();
 	                    }
