@@ -463,6 +463,11 @@ TrackListPanel.prototype = {
         this.trigger('trackRegion:move', event);
     },
 
+    setSpecies : function(species){
+        this.species = species;
+        this.trigger('trackSpecies:change', {species: species, sender: this})
+    },
+
     setRegion: function (region) {//item.chromosome, item.position, item.species
         var _this = this;
         this.region.load(region);
@@ -540,6 +545,9 @@ TrackListPanel.prototype = {
         // Once tack has been initialize we can call draw() function
         track.draw();
 
+        this.on('trackSpecies:change', function (event) {
+            track.setSpecies(event.species);
+        });
 
         this.on('trackRegion:change', function (event) {
             track.set('pixelBase', _this.pixelBase);
@@ -557,6 +565,9 @@ TrackListPanel.prototype = {
 
         this.on('trackWidth:change', function (event) {
             track.setWidth(event.width);
+            track.set('pixelBase', _this.pixelBase);
+            track.set('zoom', _this.zoom);
+            track.draw();
         });
 
         this.on('trackFeature:highlight', function (event) {

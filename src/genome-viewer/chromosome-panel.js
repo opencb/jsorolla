@@ -108,12 +108,20 @@ ChromosomePanel.prototype = {
         this.rendered = true;
     },
 
+    setSpecies : function(species){
+        this.species = species;
+    },
+
     draw: function () {
         if(!this.rendered){
             console.info(this.id+' is not rendered yet');
             return;
         }
         var _this = this;
+
+        while (this.svg.firstChild) {
+            this.svg.removeChild(this.svg.firstChild);
+        }
 
         var sortfunction = function (a, b) {
             return (a.start - b.start);
@@ -467,10 +475,6 @@ ChromosomePanel.prototype = {
         this.positionBox.setAttribute("width", pixelWidth);
 
         if (needDraw) {
-//		$(this.svg).empty();
-            while (this.svg.firstChild) {
-                this.svg.removeChild(this.svg.firstChild);
-            }
             this.draw();
         }
     }

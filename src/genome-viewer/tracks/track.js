@@ -23,6 +23,9 @@ function Track(args) {
     this.width = 200;
     this.height = 200;
 
+
+    this.dataAdapter;
+    this.renderer;
     this.labelZoom = -1;
     this.resizable = true;
     this.targetId;
@@ -76,6 +79,11 @@ Track.prototype = {
 
     set: function (attr, value) {
         this[attr] = value;
+    },
+
+    setSpecies: function (species) {
+        this.species = species;
+        this.dataAdapter.species = this.species
     },
 
     setWidth : function(width){

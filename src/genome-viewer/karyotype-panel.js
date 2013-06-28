@@ -27,7 +27,7 @@ function KaryotypePanel(args) {
     this.id = Utils.genId('KaryotypePanel');
 
     this.pixelBase;
-    this.species = 'hsapiens';
+    this.species;
     this.width = 600;
     this.height = 75;
 
@@ -112,6 +112,11 @@ KaryotypePanel.prototype = {
         this.rendered = true;
     },
 
+    setSpecies : function(species){
+        this.lastSpecies = this.species;
+        this.species = species;
+    },
+
     draw: function(){
         if(!this.rendered){
             console.info(this.id+' is not rendered yet');
@@ -119,6 +124,10 @@ KaryotypePanel.prototype = {
         }
         var _this = this;
 
+        while (this.svg.firstChild) {
+            this.svg.removeChild(this.svg.firstChild);
+        }
+
         var sortfunction = function(a, b) {
             var IsNumber = true;
             for (var i = 0; i < a.name.length && IsNumber == true; i++) {
@@ -139,44 +148,6 @@ KaryotypePanel.prototype = {
         cellBaseManager.get('feature', 'chromosome', null , 'all');
     },
 
-    drawKaryotype: function(){
-        var _this = this;
-
-        var sortfunction = function(a, b) {
-            var IsNumber = true;
-            for (var i = 0; i < a.name.length && IsNumber == true; i++) {
-                if (isNaN(a.name[i])) {
-                    IsNumber = false;
-                }
-            }
-            if (!IsNumber) return 1;
-            return (a.name - b.name);
-        };
-
-//	var cellBaseManager = new CellBaseManager(this.species);
-// 	cellBaseManager.success.addEventListener(function(sender,data){
-// 		_this.chromosomeList = data.result;
-// 		_this.chromosomeList.sort(sortfunction);
-// 		var cellBaseManager2 = new CellBaseManager(_this.species);
-// 		cellBaseManager2.success.addEventListener(function(sender,data2){
-// 			_this.data2 = data2;
-// 			_this._drawSvg(_this.chromosomeList,data2);
-// 		});
-// 		cellBaseManager2.get("genomic", "region", _this.chromosomeList.toString(),"cytoband");
-// 	});
-// 	cellBaseManager.get("feature", "karyotype", "none", "chromosome");
-
-        var cellBaseManager = new CellBaseManager(this.species);
-        cellBaseManager.success.addEventListener(function(sender,data){
-            _this.chromosomeList = data.result;
-            _this.chromosomeList.sort(sortfunction);
-            _this._drawSvg(_this.chromosomeList);
-        });
-        cellBaseManager.get('feature', 'chromosome', null , 'all');
-
-
-
-    },
     _drawSvg: function(chromosomeList){
         var _this = this;
 
@@ -308,16 +279,18 @@ KaryotypePanel.prototype = {
 //            this.positionBox.setAttribute("x1",this.chrOffsetX[this.region.chromosome]-10);
 //            this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
 //        }
-
+//
+        console.log(this.lastSpecies != this.species)
         if (this.lastSpecies != this.species) {
             needDraw = true;
-            this.lastSpecies = species;
+            this.lastSpecies = this.species;
         }
 
         //recalculate positionBox
         var centerPosition = this.region.center();
-        var x = (this.region.start * this.pixelBase) + 20;//20 is the margin
         var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
+        this.positionBox.setAttribute("x1", this.chrOffsetX[this.region.chromosome]-10);
+        this.positionBox.setAttribute("x2", this.chrOffsetX[this.region.chromosome]+23);
         this.positionBox.setAttribute("y1", pointerPosition);
         this.positionBox.setAttribute("y2", pointerPosition);
 
@@ -329,11 +302,7 @@ KaryotypePanel.prototype = {
 //            }
 //        }
         if(needDraw){
-//		$(this.svg).empty();
-            while (this.svg.firstChild) {
-                this.svg.removeChild(this.svg.firstChild);
-            }
-            this.drawKaryotype();
+            this.draw();
         }
     },
 
