@@ -123,7 +123,7 @@ HeaderWidget.prototype = {
         Ext.getCmp(this.id+'btnOpencga').show();
 
         /**START OPENCGA CHECK**/
-        if(this.accountInfoInterval == null){
+        if(!this.accountInfoInterval){
             this.getAccountInfo();//first call
             this.accountInfoInterval = setInterval(function(){_this.getAccountInfo();}, this.checkTimeInterval);
         }
@@ -139,6 +139,7 @@ HeaderWidget.prototype = {
         Ext.getCmp(this.id+'textUser').setText('');
         /**CLEAR OPENCGA**/
         clearInterval(this.accountInfoInterval);
+        delete this.accountInfoInterval;
     },
     setDescription : function (text){
         $("#"+this.id+'description').text(text);

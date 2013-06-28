@@ -196,24 +196,28 @@ module.exports = function (grunt) {
                 options: {
                     beautify: true,
                     scripts: {
-                        'gv-js': 'build/genome-viewer/<%= meta.version.gv %>/genome-viewer.min.js',
-                        'vendor': [ 'build/genome-viewer/<%= meta.version.gv %>/vendor/underscore/*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/backbone/*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/rawdeflate/*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery/*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap*/**/*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/qtip2/*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-plugins/*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb-5.1.0/*.js',
+                        'gv-js': '<%= uglify.gv.dest %>',
+                        'vendor': [
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/underscore*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/backbone*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/rawdeflate*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.min.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.qtip*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.cookie*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.sha1*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/purl*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.mousewheel*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/gl-matrix-min*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-1.10.3*/js/jquery-ui*min.js'
                             ]
                     },
                     styles: {
                         'gv-css': ['<%= stylesPath %>/css/style.css'],
-                        'vendor': [ 'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap/**/*.css',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/qtip2/*.css',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb-5.1.0/*.css',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-slider/*.css'
+                        'vendor': [
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.qtip*.css',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb*.css',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-1.10.3*/css/**/jquery-ui*min.css'
                             ]
                     }
                 }
