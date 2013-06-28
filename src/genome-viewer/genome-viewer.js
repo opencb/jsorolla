@@ -218,7 +218,9 @@ GenomeViewer.prototype = {
         }
 
         /* Navigation Bar */
-        this.navigationBar = this._createNavigationBar('gv-navigation-panel');
+        if(!this.navigationBar){
+            this.navigationBar = this._createNavigationBar('gv-navigation-panel');
+        }
 
         /*karyotype Panel*/
         this.karyotypePanel = this._drawKaryotypePanel('gv-karyotype-panel');
@@ -249,7 +251,7 @@ GenomeViewer.prototype = {
 
     _createNavigationBar: function (targetId) {
         var _this = this;
-        var navigationBar = new NavigationBar({
+        var navigationBar = new IcgcNavigationBar({
             targetId: targetId,
             availableSpecies: this.availableSpecies,
             species: this.species,
