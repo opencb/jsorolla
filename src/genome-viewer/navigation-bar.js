@@ -79,10 +79,8 @@ NavigationBar.prototype = {
                 '<a id="moveRightButton">&nbsp;</a>' +
                 '<a id="moveFurtherRightButton">&nbsp;</a>' +
                 '</div>'+
-                '<div class="" style="align: right;float:right;padding-top:1px;">'+
                 '<label class="ocb-text" style="margin-left:10px" for="searchField">Search</label><input id="searchField" class="ocb-input-text" placeholder="gene, snp..." size="8" type="text">' +
                 '<input type="checkbox" id="fullScreenButton"/><label  style="margin-left:10px" for="fullScreenButton">&nbsp;</label>' +
-                '</div>'+
                 '';
 
 
@@ -206,17 +204,10 @@ NavigationBar.prototype = {
         });
 
 
-        this.fullScreenButton = $(this.div).find('#fullScreenButton').button({icons: {primary: 'icon-collapse'}, text: false});
+        this.fullScreenButton = $(this.div).find('#fullScreenButton').button({icons: {primary: 'ocb-icon-resize'}, text: false});
 
         $(this.fullScreenButton).click(function () {
-            var elem = $(_this.targetDiv).parent()[0];
-            if ($(this).is(':checked')) {
-                $(elem).css({width:screen.width});
-                Utils.launchFullScreen(elem);
-            } else {
-                $(elem).css({width:'auto'});
-                Utils.cancelFullscreen();//no need to pass the dom object;
-            }
+            _this.trigger('fullscreen:change',{fullscreen:$(this).is(':checked'),sender:_this})
         });
 
 //        this.searchButton = $(this.div).find('#searchButton');

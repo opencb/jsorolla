@@ -48,7 +48,7 @@ StatusBar.prototype = {
             return;
         }
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="' + this.id + '" class="status" align="right"></div>')[0];
+        this.div = $('<div id="' + this.id + '" class="gv-status-bar" align="right"></div>')[0];
         $(this.targetDiv).append(this.div);
 
         this.mousePositionDiv = $('<div id="' + this.id + 'position" style="display: inline">&nbsp;</div>')[0];

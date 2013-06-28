@@ -88,6 +88,17 @@
     padding:5px;
 }
 
+.gv-status-bar {
+    font-family:tahoma,arial,verdana,sans-serif;
+    font-size: 11px;
+    color: #333;
+    padding: 3px 0 5px 5px;
+    border-top: 1px solid #d4d4d4;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
+    background-repeat: repeat-x;
+}
+
 .gv-panel-title {
     font-family:tahoma,arial,verdana,sans-serif;
     font-weight: bold;
@@ -116,17 +127,6 @@
     background-image: -webkit-linear-gradient(top, white, #f2f2f2);
     background-repeat: repeat-x;
     padding:5px;
-}
-
-.status {
-    /*font-family: 'Source Sans Pro';*/
-    color: #333;
-    font-size: 12px;
-    padding: 3px 0 5px 5px;
-    border-top: 1px solid #d4d4d4;
-    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
-    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
-    background-repeat: repeat-x;
 }
 
 .app-header {
@@ -307,6 +307,7 @@ a:hover {text-decoration: underline; color: #15428B;}
     width: 16px;
     height: 16px;
 }
+.ocb-icon-resize{background:url(../img/resize.png)!important;}
 
 .icon-save{
 	background:url('../img/save.png');
@@ -354,9 +355,7 @@ a:hover {text-decoration: underline; color: #15428B;}
 .icon-local{
 	background:url(../img/local.png)!important;
 }
-.icon-node-size{
-	background:url(../img/resize.png)!important;
-}
+.icon-node-size{background:url(../img/resize.png)!important;}
 .icon-fill-color{
 	background:url(../img/jfk_sprite40.png) no-repeat -24px -1545px!important;
 }

@@ -29,6 +29,7 @@ function GenomeViewer(args) {
     //set default args
     this.version = 'Genome Viewer v1';
     this.targetId;
+    this.border = true;
     this.resizable = true;
     this.sidePanel = true;//enable or disable sidePanel at construction
     this.trackPanelScrollWidth = 18;
@@ -39,7 +40,7 @@ function GenomeViewer(args) {
                 "text": "Vertebrates",
                 "items": [
                     {"text": "Homo sapiens", "assembly": "GRCh37.p10", "region": {"chromosome": "13", "start": 32889611, "end": 32889611}, "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"], "url": "ftp://ftp.ensembl.org/pub/release-71/"},
-                    {"text": "Mus musculus", "assembly": "GRCm38.p1", "region":{"chromosome":"1","start":18422009,"end":18422009}, "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"], "url": "ftp://ftp.ensembl.org/pub/release-71/"},
+                    {"text": "Mus musculus", "assembly": "GRCm38.p1", "region":{"chromosome":"1","start":18422009,"end":18422009}, "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"], "url": "ftp://ftp.ensembl.org/pub/release-71/"}
                 ]
             }
         ]
@@ -71,6 +72,7 @@ function GenomeViewer(args) {
 GenomeViewer.prototype = {
 
     render: function (targetId) {
+        var _this = this;
         this.targetId = (targetId) ? targetId : this.targetId;
         if ($('#' + this.targetId).length < 1) {
             console.log('targetId not found in DOM');
@@ -78,8 +80,14 @@ GenomeViewer.prototype = {
         }
         console.log("Initializing GenomeViewer structure.");
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="genome-viewer" style="border:1px solid lightgray"></div>')[0];
+        this.div = $('<div id="genome-viewer"></div>')[0];
         $(this.targetDiv).append(this.div);
+
+        if(this.border){
+            var border = (Utils.isString(this.border)) ? this.border : '1px solid lightgray';
+            $(this.div).css({border:border});
+        }
+
 
         this.setWidth($(this.div).width());
 
@@ -188,17 +196,26 @@ GenomeViewer.prototype = {
         var _this = this;
 
         // Resize
-        $(window).resize(function (event) {
-            if(!_this.resizing){//avoid multiple resize events
-                _this.resizing = true;
-                if (_this.resizable == true) {
-                    _this.setWidth($(_this.div).width());
+        if(this.resizable){
+            $(window).resize(function (event) {
+                if(event.target == window){
+                    if(!_this.resizing){//avoid multiple resize events
+                        _this.resizing = true;
+                        _this.setWidth($(_this.div).width());
+                        setTimeout(function () {
+                            _this.resizing = false;
+                        }, 400);
+                    }
                 }
-                setTimeout(function () {
-                    _this.resizing = false;
-                }, 300);
-            }
-        });
+            });
+            $(this.targetDiv).resizable({
+                handles: 'e, s',
+                ghost: true,
+                stop: function( event, ui ) {
+                    _this.setWidth($(_this.targetDiv).width());
+                }
+            });
+        }
 
         /* Navigation Bar */
         this.navigationBar = this._createNavigationBar('gv-navigation-panel');
@@ -273,6 +290,15 @@ GenomeViewer.prototype = {
                 'species:change': function (event) {
                     _this.trigger('species:change', event);
                     _this.setRegion(event.species.region);
+                },
+                'fullscreen:change': function (event) {
+                    if (event.fullscreen) {
+                        $(_this.div).css({width:screen.width});
+                        Utils.launchFullScreen(_this.div);
+                    } else {
+                        $(_this.div).css({width:'auto'});
+                        Utils.cancelFullscreen();//no need to pass the dom object;
+                    }
                 }
             }
         });
