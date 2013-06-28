@@ -75,7 +75,8 @@
 <script type="text/javascript" src="feature-cache.js"></script>
 
 
-<script type="text/javascript" src="navigation-bar.js"></script>
+<!--<script type="text/javascript" src="navigation-bar.js"></script>-->
+<script type="text/javascript" src="icgc-navigation-bar.js"></script>
 <script type="text/javascript" src="chromosome-panel.js"></script>
 <script type="text/javascript" src="karyotype-panel.js"></script>
 <script type="text/javascript" src="tracklist-panel.js"></script>
@@ -144,6 +145,8 @@
 
         }); //the div must exist
         genomeViewer.draw();
+
+        genomeViewer
 
         this.sequence = new SequenceTrack({
             targetId: null,

@@ -22,7 +22,7 @@
 .ocb-zoom-slider{
     vertical-align: middle;
     margin:0 10px;
-    display:inline-block;
+    display:inline-block!important;
     width:120px;
 }
 

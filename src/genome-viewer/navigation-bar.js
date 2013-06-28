@@ -380,9 +380,9 @@ NavigationBar.prototype = {
         for (key in obj) {
             var query = $(this.div).find('#' + key);
             if (obj[key]) {
-                query.css({display: 'inline-block'})
+                query.show();
             } else {
-                query.css({display: 'none'})
+                query.hide();
             }
         }
     },
