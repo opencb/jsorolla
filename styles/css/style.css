@@ -4,6 +4,27 @@
 @import url(http://fonts.googleapis.com/css?family=Oxygen);
 @import url(http://fonts.googleapis.com/css?family=Lato);
 
+.ocb-input-text{
+    vertical-align: middle;
+    padding: 1px 3px;
+    border: 1px solid;
+    background-color: white;
+    color: black;
+    border-color: #b5b8c8;
+}
+
+.ocb-text{
+    vertical-align: middle;
+    font-family: tahoma, arial, verdana, sans-serif;
+    font-size:1.1em;
+}
+
+.ocb-zoom-slider{
+    vertical-align: middle;
+    margin:0 10px;
+    display:inline-block;
+    width:120px;
+}
 
 /*Google-like scrollbars webkit only*/
 ::-webkit-scrollbar {
@@ -60,6 +81,7 @@
 /*}*/
 
 .gv-navigation-bar {
+    font-size: 10px;
     background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
     background-image: -webkit-linear-gradient(top, white, #f2f2f2);
     background-repeat: repeat-x;
@@ -68,6 +90,7 @@
 
 .gv-panel-title {
     font-family:tahoma,arial,verdana,sans-serif;
+    font-weight: bold;
     color: #333;
     font-size: 11px;
     padding: 5px 0 6px 5px;
@@ -81,7 +104,7 @@
 .gv-nav {
     font-family: 'Lato';
     color: #333;
-    font-size: 12px;
+    font-size: 11px;
     padding: 3px 0 5px 5px;
     background: whitesmoke;
     background-color: whitesmoke;
@@ -278,6 +301,13 @@ a:hover {text-decoration: underline; color: #15428B;}
 	width: 15px;
 	height: 15px;
 }
+
+.ocb-icon{
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+}
+
 .icon-save{
 	background:url('../img/save.png');
 }
@@ -312,20 +342,20 @@ a:hover {text-decoration: underline; color: #15428B;}
 .icon-select{
 	background:url(../img/jfk_sprite22.png) no-repeat -3px -1964px!important;
 }
-/*.icon-zoom-out{*/
-	/*background:url(../img/jfk_sprite22.png) no-repeat -3px -2787px!important;*/
-/*}*/
-/*.icon-zoom-in{*/
-	/*background:url(../img/jfk_sprite22.png) no-repeat -3px -2850px!important;*/
-/*}*/
+.icon-zoom-out{
+	background:url(../img/jfk_sprite22.png) no-repeat -3px -2787px!important;
+}
+.icon-zoom-in{
+	background:url(../img/jfk_sprite22.png) no-repeat -3px -2850px!important;
+}
 .icon-upload{
 	background:url(../img/jfk_sprite22.png) no-repeat -3px -2048px!important;
 }
 .icon-local{
-	background:url(../img/local.png);
+	background:url(../img/local.png)!important;
 }
 .icon-node-size{
-	background:url(../img/resize.png);
+	background:url(../img/resize.png)!important;
 }
 .icon-fill-color{
 	background:url(../img/jfk_sprite40.png) no-repeat -24px -1545px!important;
@@ -358,7 +388,7 @@ a:hover {text-decoration: underline; color: #15428B;}
 	background:url(../img/icon-layout.png);
 }
 .icon-collapse{
-	background:url(../img/icon-collapse.png);
+	background:url(../img/icon-collapse.png)!important;
 }
 .icon-auto-select{
 	background:url(../img/icon-auto-select.png);

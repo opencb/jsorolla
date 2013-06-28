@@ -34,6 +34,8 @@ function Region(args) {
             this.parse(args.str);
         }
     }
+
+    this.regionPattern = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
 }
 
 Region.prototype = {
@@ -44,6 +46,9 @@ Region.prototype = {
     },
 
     parse: function (str) {
+        if(!this.regionPattern.test(str)){
+            return false;
+        }
         var splitDots = str.split(":");
         if (splitDots.length == 2) {
             var splitDash = splitDots[1].split("-");
@@ -55,6 +60,7 @@ Region.prototype = {
                 this.end = this.start;
             }
         }
+        return true
     },
 
     center : function () {

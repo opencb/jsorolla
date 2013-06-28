@@ -565,6 +565,9 @@ TrackListPanel.prototype = {
 
         this.on('trackWidth:change', function (event) {
             track.setWidth(event.width);
+            track.set('pixelBase', _this.pixelBase);
+            track.set('zoom', _this.zoom);
+            track.draw();
         });
 
         this.on('trackFeature:highlight', function (event) {

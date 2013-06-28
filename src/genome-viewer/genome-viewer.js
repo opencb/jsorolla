@@ -60,6 +60,8 @@ function GenomeViewer(args) {
     //events attachments
     this.on(this.handlers);
 
+    this.resizing = false;
+
     this.rendered = false;
     if (this.autoRender) {
         this.render();
@@ -187,8 +189,14 @@ GenomeViewer.prototype = {
 
         // Resize
         $(window).resize(function (event) {
-            if (_this.resizable == true) {
-                _this.setWidth($(_this.div).width());
+            if(!_this.resizing){//avoid multiple resize events
+                _this.resizing = true;
+                if (_this.resizable == true) {
+                    _this.setWidth($(_this.div).width());
+                }
+                setTimeout(function () {
+                    _this.resizing = false;
+                }, 300);
             }
         });
 
