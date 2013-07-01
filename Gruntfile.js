@@ -65,7 +65,7 @@ module.exports = function (grunt) {
                     'src/genome-viewer/region.js',
                     'src/genome-viewer/feature-binary-search-tree.js',
                     'src/genome-viewer/feature-cache.js',
-                    'src/genome-viewer/*-navigation-bar.js',
+                    'src/genome-viewer/navigation-bar.js',
                     'src/genome-viewer/chromosome-panel.js',
                     'src/genome-viewer/karyotype-panel.js',
                     'src/genome-viewer/tracklist-panel.js',

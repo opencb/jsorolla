@@ -29,6 +29,7 @@ function GenomeViewer(args) {
     //set default args
     this.version = 'Genome Viewer v1';
     this.targetId;
+    this.drawNavigationBar = true;
     this.border = true;
     this.resizable = true;
     this.sidePanel = true;//enable or disable sidePanel at construction
@@ -61,7 +62,9 @@ function GenomeViewer(args) {
     //events attachments
     this.on(this.handlers);
 
+    this.fullscreen = false;
     this.resizing = false;
+
 
     this.rendered = false;
     if (this.autoRender) {
@@ -95,12 +98,13 @@ GenomeViewer.prototype = {
 
         Utils.setMinRegion(this.region, this.getSVGCanvasWidth());
 
+        this.navigationbarDiv = $('<div id="gv-navigation-panel"></div>')[0];
+        $(this.div).append(this.navigationbarDiv);
 
-        $(this.div).append('<div id="gv-navigation-panel"></div>');
         $(this.div).append('<div id="gv-center-panel" style="position:relative"></div>');
 
-
         this.sidebarDiv = $('<div id="gv-sidebar-panel" style="position:absolute; z-index:50;right:0px;height:100%"></div>')[0];
+
 
         $('#gv-center-panel').append(this.sidebarDiv);
         $('#gv-center-panel').append('<div id="gv-main-panel" style="z-index:1"></div>');
@@ -115,15 +119,32 @@ GenomeViewer.prototype = {
 
         this.rendered = true;
     },
-    getSidebarId : function(){
+    getSidePanelId : function(){
         return $(this.sidebarDiv).attr('id');
+    },
+    getNavigationPanelId : function(){
+        return $(this.navigationbarDiv).attr('id');
+    },
+    setNavigationBar : function(navigationBar){
+        this.navigationBar = navigationBar;
+        var config = {
+            availableSpecies: this.availableSpecies,
+            species: this.species,
+            region: this.region,
+            width: this.width,
+            svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
+            zoom: this.zoom
+        };
+        _.extend(this.navigationBar, config);
+        if(navigationBar.autoRender){
+            navigationBar.render(this.getNavigationPanelId());
+        }
     },
     setWidth: function (width) {
         this.width = width;
         this._recalculateZoom();
         this.trigger('width:change', {width: this.width, sender: this});
-//        this.region.load(this._calculateRegionByWidth());
-//        this.trigger('region:change', {region: this.region, sender: this});
+        $(this.div).width(width);
     },
     getSVGCanvasWidth: function () {
         return $(this.div).width() - this.trackPanelScrollWidth - this.sidePanelWidth;
@@ -201,6 +222,7 @@ GenomeViewer.prototype = {
                 if(event.target == window){
                     if(!_this.resizing){//avoid multiple resize events
                         _this.resizing = true;
+                        $(_this.div).width('auto');
                         _this.setWidth($(_this.div).width());
                         setTimeout(function () {
                             _this.resizing = false;
@@ -218,7 +240,7 @@ GenomeViewer.prototype = {
         }
 
         /* Navigation Bar */
-        if(!this.navigationBar){
+        if(this.drawNavigationBar){
             this.navigationBar = this._createNavigationBar('gv-navigation-panel');
         }
 
@@ -251,7 +273,7 @@ GenomeViewer.prototype = {
 
     _createNavigationBar: function (targetId) {
         var _this = this;
-        var navigationBar = new IcgcNavigationBar({
+        var navigationBar = new NavigationBar({
             targetId: targetId,
             availableSpecies: this.availableSpecies,
             species: this.species,
@@ -293,13 +315,15 @@ GenomeViewer.prototype = {
                     _this.trigger('species:change', event);
                     _this.setRegion(event.species.region);
                 },
-                'fullscreen:change': function (event) {
-                    if (event.fullscreen) {
-                        $(_this.div).css({width:screen.width});
-                        Utils.launchFullScreen(_this.div);
-                    } else {
+                'fullscreen:click': function (event) {
+                    if (_this.fullscreen) {
                         $(_this.div).css({width:'auto'});
                         Utils.cancelFullscreen();//no need to pass the dom object;
+                        _this.fullscreen = false;
+                    } else {
+                        $(_this.div).css({width:screen.width});
+                        Utils.launchFullScreen(_this.div);
+                        _this.fullscreen = true;
                     }
                 }
             }

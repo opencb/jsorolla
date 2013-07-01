@@ -76,7 +76,7 @@
 
 
 <!--<script type="text/javascript" src="navigation-bar.js"></script>-->
-<script type="text/javascript" src="icgc-navigation-bar.js"></script>
+<script type="text/javascript" src="navigation-bar.js"></script>
 <script type="text/javascript" src="chromosome-panel.js"></script>
 <script type="text/javascript" src="karyotype-panel.js"></script>
 <script type="text/javascript" src="tracklist-panel.js"></script>
@@ -137,16 +137,16 @@
     $(document).ready(function () {
         var region = new Region({chromosome: "13", start: 32889611, end: 32973805});
 //        var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+
         genomeViewer = new GenomeViewer({
             region: region,
             sidePanel: false,
             targetId: 'application',
             autoRender: true
-
         }); //the div must exist
+
         genomeViewer.draw();
 
-        genomeViewer
 
         this.sequence = new SequenceTrack({
             targetId: null,
