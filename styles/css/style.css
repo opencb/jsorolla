@@ -308,6 +308,13 @@ a:hover {text-decoration: underline; color: #15428B;}
     height: 16px;
 }
 .ocb-icon-resize{background:url(../img/resize.png)!important;}
+.ocb-icon-plus{background:url(../img/ocb-icon-plus.png)!important;}
+.ocb-icon-minus{background:url(../img/ocb-icon-minus.png)!important;}
+
+.ocb-icon-arrow-e{background:url(../img/ocb-icon-arrow-e.png)!important;}
+.ocb-icon-arrow-w{background:url(../img/ocb-icon-arrow-w.png)!important;}
+.ocb-icon-arrow-e-bold{background:url(../img/ocb-icon-arrow-e-bold.png)!important;}
+.ocb-icon-arrow-w-bold{background:url(../img/ocb-icon-arrow-w-bold.png)!important;}
 
 .icon-save{
 	background:url('../img/save.png');

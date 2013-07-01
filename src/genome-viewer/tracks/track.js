@@ -138,11 +138,19 @@ Track.prototype = {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
+        var titlediv = $('<div id="' + this.id + '-titlediv">'+this.title+'</div>')[0];
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
 
         $(targetId).addClass("unselectable");
         $(targetId).append(div);
+        $(div).append(titlediv);
         $(div).append(svgdiv);
+
+        $(titlediv).css({
+            'font-family':'Source Sans Pro',
+            'font-size':'14px',
+            'height':'16px'
+        });
 
         $(svgdiv).css({
             'z-index': 3,
@@ -181,7 +189,6 @@ Track.prototype = {
             });
 
 
-
             $(resizediv).mouseenter(function (event) {
                 $(this).css({"cursor": "ns-resize"});
                 $(this).css({"opacity": 1});
@@ -210,15 +217,15 @@ Track.prototype = {
             "opacity": "0.6",
             "fill": "transparent"
         });
-        var titleText = SVG.addChild(titleGroup, "text", {
-            "x": 4,
-            "y": 14,
-            "font-size": 14,
-            'font-family':_this.fontFamily,
-            "opacity": "0.4",
-            "fill": "black"
-        });
-        titleText.textContent = text;
+//        var titleText = SVG.addChild(titleGroup, "text", {
+//            "x": 4,
+//            "y": 14,
+//            "font-size": 14,
+//            'font-family':_this.fontFamily,
+//            "opacity": "0.4",
+//            "fill": "black"
+//        });
+//        titleText.textContent = text;
 
         this.svgCanvasFeatures = SVG.addChild(titleGroup, "svg", {
             "class": "features",
@@ -231,12 +238,12 @@ Track.prototype = {
         this.fnTitleMouseEnter = function () {
             titlebar.setAttribute("opacity", "0.1");
             titlebar.setAttribute("fill", "greenyellow");
-            titleText.setAttribute("opacity", "1.0");
+//            titleText.setAttribute("opacity", "1.0");
         };
         this.fnTitleMouseLeave = function () {
             titlebar.setAttribute("opacity", "0.6");
             titlebar.setAttribute("fill", "transparent");
-            titleText.setAttribute("opacity", "0.4");
+//            titleText.setAttribute("opacity", "0.4");
         };
 
         $(titleGroup).off("mouseenter");
@@ -287,11 +294,12 @@ Track.prototype = {
 
         this.div = div;
         this.svgdiv = svgdiv;
+        this.titlediv = titlediv;
 
         this.main = main;
         this.titleGroup = titleGroup;
         this.titlebar = titlebar;
-        this.titleText = titleText;
+//        this.titleText = titleText;
 
 
         this.rendered = true;

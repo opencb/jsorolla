@@ -80,7 +80,7 @@ NavigationBar.prototype = {
                 '<a id="moveFurtherRightButton">&nbsp;</a>' +
                 '</div>'+
                 '<label class="ocb-text" style="margin-left:10px" for="searchField">Search</label><input id="searchField" class="ocb-input-text" placeholder="gene, snp..." size="8" type="text">' +
-                '<input type="checkbox" id="fullScreenButton"/><label  style="margin-left:10px" for="fullScreenButton">&nbsp;</label>' +
+                '<a id="fullScreenButton" style="margin-left:10px" >&nbsp;</a>' +
                 '';
 
 
@@ -158,8 +158,8 @@ NavigationBar.prototype = {
             }
         });
 
-        this.zoomInButton = $(this.div).find('#zoomInButton').button({icons: {primary: 'ui-icon-plus'}, text: false});
-        this.zoomOutButton = $(this.div).find('#zoomOutButton').button({icons: {primary: 'ui-icon-minus'}, text: false});
+        this.zoomInButton = $(this.div).find('#zoomInButton').button({icons: {primary: 'ocb-icon-plus'}, text: false});
+        this.zoomOutButton = $(this.div).find('#zoomOutButton').button({icons: {primary: 'ocb-icon-minus'}, text: false});
         $(this.zoomOutButton).click(function () {
             _this._handleZoomOutButton();
         });
@@ -182,10 +182,10 @@ NavigationBar.prototype = {
 
         });
 
-        this.moveFurtherLeftButton = $(this.div).find('#moveFurtherLeftButton').button({icons: {primary: 'ui-icon-arrowthick-1-w'}, text: false});
-        this.moveFurtherRightButton = $(this.div).find('#moveFurtherRightButton').button({icons: {primary: 'ui-icon-arrowthick-1-e'}, text: false});
-        this.moveLeftButton = $(this.div).find('#moveLeftButton').button({icons: {primary: 'ui-icon-arrow-1-w'}, text: false});
-        this.moveRightButton = $(this.div).find('#moveRightButton').button({icons: {primary: 'ui-icon-arrow-1-e'}, text: false});
+        this.moveFurtherLeftButton = $(this.div).find('#moveFurtherLeftButton').button({icons: {primary: 'ocb-icon-arrow-w-bold'}, text: false});
+        this.moveFurtherRightButton = $(this.div).find('#moveFurtherRightButton').button({icons: {primary: 'ocb-icon-arrow-e-bold'}, text: false});
+        this.moveLeftButton = $(this.div).find('#moveLeftButton').button({icons: {primary: 'ocb-icon-arrow-w'}, text: false});
+        this.moveRightButton = $(this.div).find('#moveRightButton').button({icons: {primary: 'ocb-icon-arrow-e'}, text: false});
 
         $(this.moveFurtherLeftButton).click(function () {
             _this._handleMoveRegion(10);
@@ -206,8 +206,8 @@ NavigationBar.prototype = {
 
         this.fullScreenButton = $(this.div).find('#fullScreenButton').button({icons: {primary: 'ocb-icon-resize'}, text: false});
 
-        $(this.fullScreenButton).click(function () {
-            _this.trigger('fullscreen:change',{fullscreen:$(this).is(':checked'),sender:_this})
+        $(this.fullScreenButton).click(function (e) {
+            _this.trigger('fullscreen:click',{clickEvent:e,sender:_this})
         });
 
 //        this.searchButton = $(this.div).find('#searchButton');
