@@ -59,9 +59,12 @@ NavigationBar.prototype = {
         }
 
         var navgationHtml =
+                '<a id="restoreDefaultRegionButton">&nbsp;</a>' +
+                '<button id="regionHistoryButton">Region history </button>' +
+                '<ul id="regionHistoryMenu" style="display: inline-block; position: absolute; width: 150px; z-index:100000"></ul>' +
                 '<button id="speciesButton"><span id="speciesText">'+this.species.text+'</span></button>' +
                 '<ul id="speciesMenu" style="display: inline-block; position: absolute; width: 100px; z-index:100000"></ul>' +
-                '<button id="chromosomesButton">Chromosome <span id="chromosomesText">'+this.region.chromosome+'</span></button>' +
+                '<button id="chromosomesButton"> <span id="chromosomesText">'+this.region.chromosome+'</span></button>' +
                 '<ul id="chromosomesMenu" style="display: inline-block; position: absolute; width: 100px; z-index:100000"></ul>' +
                 '<div class="buttonset inlineblock">'+
                 '<input type="checkbox" checked="true" id="karyotypeButton" /><label for="karyotypeButton">Karyotype</label>' +
@@ -84,13 +87,37 @@ NavigationBar.prototype = {
                 '';
 
 
-
-
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="navigation-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
         $(this.targetDiv).append(this.div);
 
         $(this.div).find('.buttonset').buttonset().css({margin:'0px 10px'});
+
+
+        this.restoreDefaultRegionButton = $(this.div).find('#restoreDefaultRegionButton').button({icons: {primary: 'ocb-icon-repeat'}, text: false});
+
+        $(this.restoreDefaultRegionButton).click(function (e) {
+            _this.trigger('restoreDefaultRegion:click',{clickEvent:e,sender:{}})
+        });
+
+
+
+        this.regionHistoryButton = $(this.div).find('#regionHistoryButton').button({
+            icons: {primary: 'ocb-icon-clock',secondary: 'ui-icon-triangle-1-s'},text:false
+        });
+        this.regionHistoryMenu = $(this.div).find('#regionHistoryMenu').hide().menu();
+        this._addRegionHistoryMenuItem(this.region);
+        $(this.regionHistoryButton).click(function () {
+            var menu = $( _this.regionHistoryMenu ).show().position({
+                my: "left top",
+                at: "left bottom",
+                of: this
+            });
+            $( document).one( "click", function() {
+                menu.hide();
+            });
+            return false;
+        });
 
 
         this.speciesButton = $(this.div).find('#speciesButton').button({
@@ -113,7 +140,7 @@ NavigationBar.prototype = {
         });
 
         this.chromosomesButton = $(this.div).find('#chromosomesButton').button({
-            icons: {secondary: 'ui-icon-triangle-1-s'}
+            icons: {primary:'ocb-icon-chromosome',secondary: 'ui-icon-triangle-1-s'}
         });
         this.chromosomesText = $(this.div).find('#chromosomesText');
         this.chromosomesMenu = $(this.div).find('#chromosomesMenu').hide().menu();
@@ -132,8 +159,8 @@ NavigationBar.prototype = {
         });
 
 
-        this.karyotypeButton = $(this.div).find('#karyotypeButton').button();
-        this.chromosomeButton = $(this.div).find('#chromosomeButton').button();
+        this.karyotypeButton = $(this.div).find('#karyotypeButton').button({icons: {primary:'ocb-icon-karyotype'},text:false});
+        this.chromosomeButton = $(this.div).find('#chromosomeButton').button({icons: {primary:'ocb-icon-chromosome'},text:false});
         this.regionButton = $(this.div).find('#regionButton').button();
 
         $(this.karyotypeButton).click(function () {
@@ -207,7 +234,7 @@ NavigationBar.prototype = {
         this.fullScreenButton = $(this.div).find('#fullScreenButton').button({icons: {primary: 'ocb-icon-resize'}, text: false});
 
         $(this.fullScreenButton).click(function (e) {
-            _this.trigger('fullscreen:click',{clickEvent:e,sender:_this})
+            _this.trigger('fullscreen:click',{clickEvent:e,sender:{}})
         });
 
 //        this.searchButton = $(this.div).find('#searchButton');
@@ -254,6 +281,18 @@ NavigationBar.prototype = {
         this.rendered = true;
     },
 
+    _addRegionHistoryMenuItem: function (region) {
+        var _this = this;
+        var menuEntry = $('<li class="ui-menu-item" role="presentation"><a id="ui-id-1" class="ui-corner-all" tabindex="-1" role="menuitem">'+region.toString()+'</a></li>')[0];
+        $(this.regionHistoryMenu).append(menuEntry);
+        $(menuEntry).click(function () {
+            _this.region.parse($(this).text());
+            _this._recalculateZoom();
+            _this.trigger('region:change', {region: _this.region, sender: _this});
+            console.log($(this).text());
+        });
+    },
+
     _setChromosomeMenu: function () {
         var _this = this;
 
@@ -279,6 +318,8 @@ NavigationBar.prototype = {
             $(menuEntry).click(function () {
                 $(_this.chromosomesText).text($(this).text());
                 _this.region.chromosome = $(this).text();
+                _this._recalculateZoom();
+                _this._addRegionHistoryMenuItem(_this.region);
                 _this.trigger('region:change', {region: _this.region, sender: _this});
                 console.log($(this).text());
             });
@@ -317,6 +358,7 @@ NavigationBar.prototype = {
             this.region.load(reg);
             $(this.chromosomeText).text(this.region.chromosome);
             this._recalculateZoom();
+            this._addRegionHistoryMenuItem(this.region);
             this.trigger('region:change', {region: this.region, sender: this});
         }
     },
@@ -360,6 +402,7 @@ NavigationBar.prototype = {
         this.zoom = value;
         this.region.load(this._calculateRegionByZoom());
         $(this.regionField).val(this.region.toString());
+        this._addRegionHistoryMenuItem(this.region);
         this.trigger('region:change', {region: this.region, sender: this});
     },
     _handleZoomInButton: function () {
@@ -388,6 +431,13 @@ NavigationBar.prototype = {
     },
 
     setRegion: function (region) {
+        this.region.load(region);
+        $(this.chromosomeText).text(this.region.chromosome);
+        $(this.regionField).val(this.region.toString());
+        this._recalculateZoom();
+        this._addRegionHistoryMenuItem(region);
+    },
+    moveRegion: function (region) {
         this.region.load(region);
         $(this.chromosomeText).text(this.region.chromosome);
         $(this.regionField).val(this.region.toString());

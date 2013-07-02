@@ -26,16 +26,12 @@ function Region(args) {
     this.end = null;
 
     if (typeof args != 'undefined') {
-        this.chromosome = args.chromosome || this.chromosome;
-        this.start = args.start || this.start;
-        this.end = args.end || this.end;
+        this.load(args);
 
         if (args.str != null) {
             this.parse(args.str);
         }
     }
-
-    this.regionPattern = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
 }
 
 Region.prototype = {
@@ -43,10 +39,14 @@ Region.prototype = {
         this.chromosome = obj.chromosome || this.chromosome;
         this.start = obj.start || this.start;
         this.end = obj.end || this.end;
+
+        this.start = parseInt(this.start);
+        this.end = parseInt(this.end);
     },
 
     parse: function (str) {
-        if(!this.regionPattern.test(str)){
+        var pattern = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
+        if(!pattern.test(str)){
             return false;
         }
         var splitDots = str.split(":");

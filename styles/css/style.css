@@ -316,6 +316,11 @@ a:hover {text-decoration: underline; color: #15428B;}
 .ocb-icon-arrow-e-bold{background:url(../img/ocb-icon-arrow-e-bold.png)!important;}
 .ocb-icon-arrow-w-bold{background:url(../img/ocb-icon-arrow-w-bold.png)!important;}
 
+.ocb-icon-clock{background:url(../img/ocb-icon-clock.png)!important;}
+.ocb-icon-repeat{background:url(../img/ocb-icon-repeat.png)!important;}
+.ocb-icon-karyotype{background:url(../img/ocb-icon-karyotype.png)!important;}
+.ocb-icon-chromosome{background:url(../img/ocb-icon-chromosome.png)!important;}
+
 .icon-save{
 	background:url('../img/save.png');
 }

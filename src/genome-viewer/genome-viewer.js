@@ -52,6 +52,8 @@ function GenomeViewer(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.defaultRegion = new Region(this.region);
+
     this.width;
     this.height;
     this.sidePanelWidth = (this.sidePanel) ? 25 : 0;
@@ -83,8 +85,15 @@ GenomeViewer.prototype = {
         }
         console.log("Initializing GenomeViewer structure.");
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="genome-viewer"></div>')[0];
+        this.div = $('<div id="'+this.id+'"></div>')[0];
         $(this.targetDiv).append(this.div);
+
+        var width = Math.max($(this.div).width(), $(this.targetDiv).width())
+        if(width == 0){
+            console.log('target div width is zero');
+            return
+        }
+        this._setWidth(width);
 
         if(this.border){
             var border = (Utils.isString(this.border)) ? this.border : '1px solid lightgray';
@@ -92,30 +101,34 @@ GenomeViewer.prototype = {
         }
 
 
-        this.setWidth($(this.div).width());
-
+        Utils.setMinRegion(this.region, this.getSVGCanvasWidth());
         this._recalculateZoom();
 
-        Utils.setMinRegion(this.region, this.getSVGCanvasWidth());
 
-        this.navigationbarDiv = $('<div id="gv-navigation-panel"></div>')[0];
+        this.navigationbarDiv = $('<div id="navigation-'+this.id+'"></div>')[0];
         $(this.div).append(this.navigationbarDiv);
 
-        $(this.div).append('<div id="gv-center-panel" style="position:relative"></div>');
+        this.centerPanelDiv = $('<div id="center-'+this.id+'" style="position:relative"></div>')[0];
+        $(this.div).append(this.centerPanelDiv);
 
-        this.sidebarDiv = $('<div id="gv-sidebar-panel" style="position:absolute; z-index:50;right:0px;height:100%"></div>')[0];
+        this.sidebarDiv = $('<div id="sidebar-'+this.id+'" style="position:absolute; z-index:50;right:0px;height:100%"></div>')[0];
+        $(this.centerPanelDiv).append(this.sidebarDiv);
 
+        this.mainPanel = $('<div id="main-'+this.id+'" style="z-index:1"></div>')[0];
+        $(this.centerPanelDiv).append(this.mainPanel);
 
-        $('#gv-center-panel').append(this.sidebarDiv);
-        $('#gv-center-panel').append('<div id="gv-main-panel" style="z-index:1"></div>');
+        this.karyotypeDiv = $('<div id="karyotype-'+this.id+'"></div>');
+        this.chromosomeDiv = $('<div id="chromosome-'+this.id+'"></div>');
+        this.regionDiv = $('<div id="region-'+this.id+'"></div>');
+        this.tracksDiv = $('<div id="tracks-'+this.id+'"></div>');
 
-        $('#gv-main-panel').append('<div id="gv-karyotype-panel"></div>');
-        $('#gv-main-panel').append('<div id="gv-chromosome-panel"></div>');
-        $('#gv-main-panel').append('<div id="gv-region-panel"></div>');
-        $('#gv-main-panel').append('<div id="gv-tracks-panel"></div>');
+        $(this.mainPanel).append(this.karyotypeDiv);
+        $(this.mainPanel).append(this.chromosomeDiv);
+        $(this.mainPanel).append(this.regionDiv);
+        $(this.mainPanel).append(this.tracksDiv);
 
-
-        $('#genome-viewer').append('<div id="gv-statusbar-panel"></div>');
+        this.statusbarDiv = $('<div id="statusbar-'+this.id+'"></div>');
+        $(this.div).append(this.statusbarDiv);
 
         this.rendered = true;
     },
@@ -140,14 +153,17 @@ GenomeViewer.prototype = {
             navigationBar.render(this.getNavigationPanelId());
         }
     },
-    setWidth: function (width) {
+    _setWidth: function (width) {
         this.width = width;
         this._recalculateZoom();
         this.trigger('width:change', {width: this.width, sender: this});
+    },
+    setWidth: function (width) {
         $(this.div).width(width);
+        this._setWidth(width);
     },
     getSVGCanvasWidth: function () {
-        return $(this.div).width() - this.trackPanelScrollWidth - this.sidePanelWidth;
+        return this.width - this.trackPanelScrollWidth - this.sidePanelWidth;
     },
     _setRegion: function (region) {
         //update internal parameters
@@ -222,8 +238,7 @@ GenomeViewer.prototype = {
                 if(event.target == window){
                     if(!_this.resizing){//avoid multiple resize events
                         _this.resizing = true;
-                        $(_this.div).width('auto');
-                        _this.setWidth($(_this.div).width());
+                        _this._setWidth($(_this.div).width());
                         setTimeout(function () {
                             _this.resizing = false;
                         }, 400);
@@ -234,30 +249,30 @@ GenomeViewer.prototype = {
                 handles: 'e, s',
                 ghost: true,
                 stop: function( event, ui ) {
-                    _this.setWidth($(_this.targetDiv).width());
+                    _this._setWidth($(_this.targetDiv).width());
                 }
             });
         }
 
         /* Navigation Bar */
         if(this.drawNavigationBar){
-            this.navigationBar = this._createNavigationBar('gv-navigation-panel');
+            this.navigationBar = this._createNavigationBar($(this.navigationbarDiv).attr('id'));
         }
 
         /*karyotype Panel*/
-        this.karyotypePanel = this._drawKaryotypePanel('gv-karyotype-panel');
+        this.karyotypePanel = this._drawKaryotypePanel($(this.karyotypeDiv).attr('id'));
 
         /* Chromosome Panel */
-        this.chromosomePanel = this._drawChromosomePanel('gv-chromosome-panel');
+        this.chromosomePanel = this._drawChromosomePanel($(this.chromosomeDiv).attr('id'));
 
         /* Region Panel, is a TrackListPanel Class */
-        this.regionOverviewPanel = this._createRegionOverviewPanel('gv-region-panel');
+        this.regionOverviewPanel = this._createRegionOverviewPanel($(this.regionDiv).attr('id'));
 
         /*TrackList Panel*/
-        this.trackListPanel = this._createTrackListPanel('gv-tracks-panel');
+        this.trackListPanel = this._createTrackListPanel($(this.tracksDiv).attr('id'));
 
         /*Status Bar*/
-        this.statusBar = this._createStatusBar('gv-statusbar-panel');
+        this.statusBar = this._createStatusBar($(this.statusbarDiv).attr('id'));
 
 
         this.on('region:change region:move', function (event) {
@@ -325,13 +340,23 @@ GenomeViewer.prototype = {
                         Utils.launchFullScreen(_this.div);
                         _this.fullscreen = true;
                     }
+                },
+                'restoreDefaultRegion:click': function (event) {
+                    Utils.setMinRegion(_this.defaultRegion, _this.getSVGCanvasWidth());
+                    event.region = _this.defaultRegion;
+                    _this.trigger('region:change', event);
                 }
             }
         });
 
-        this.on('region:change region:move', function (event) {
+        this.on('region:change', function (event) {
             if (event.sender != navigationBar) {
                 _this.navigationBar.setRegion(event.region);
+            }
+        });
+        this.on('region:move', function (event) {
+            if (event.sender != navigationBar) {
+                _this.navigationBar.moveRegion(event.region);
             }
         });
         this.on('width:change', function (event) {
