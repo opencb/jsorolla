@@ -95,7 +95,8 @@ GeneRenderer.prototype.render = function (features, args) {
                 foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
             }
 
-            if (foundArea) {//paint genes
+            //paint genes
+            if (foundArea) {
                 var rect = SVG.addChild(args.svgCanvasFeatures, 'rect', {
                     'x': x,
                     'y': rowY,
@@ -121,7 +122,8 @@ GeneRenderer.prototype.render = function (features, args) {
 
                 $([rect, text]).qtip({
                     content: {text: settings.getTipText(feature), title: settings.getTipTitle(feature)},
-                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+//                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                    position: {target: "mouse", adjust: {x: 25, y: 15}},
                     style: { width: true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
                 });
 
@@ -183,7 +185,8 @@ GeneRenderer.prototype.render = function (features, args) {
 
                         $(transcriptGroup).qtip({
                             content: {text: settings.getTipText(transcript), title: settings.getTipTitle(transcript)},
-                            position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+//                            position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                            position: {target: "mouse", adjust: {x: 25, y: 15}},
                             style: { width: true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
                         });
                         $(transcriptGroup).click(function (event) {
@@ -206,7 +209,8 @@ GeneRenderer.prototype.render = function (features, args) {
 
                             $(exonGroup).qtip({
                                 content: {text: exonSettings.getTipText(exon, transcript), title: exonSettings.getTipTitle(exon)},
-                                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+//                                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                                position: {target: "mouse", adjust: {x: 25, y: 15}},
                                 style: { width: true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
                             });
 

@@ -71,10 +71,11 @@ StatusBar.prototype = {
         this.rendered = true;
     },
     setRegion: function (event) {
+        this.region.load(event.region);
         $(this.mousePositionDiv).html(Utils.formatNumber(event.region.center()));
     },
     setMousePosition: function (event) {
-        $(this.mousePositionDiv).html(event.baseHtml+' '+Utils.formatNumber(event.mousePos));
+        $(this.mousePositionDiv).html(event.baseHtml+' '+this.region.chromosome+':'+Utils.formatNumber(event.mousePos));
     }
 
 }

@@ -101,6 +101,10 @@ Track.prototype = {
         this.titlebar.setAttribute("height",height);
     },
 
+    setTitle : function(title){
+        $(this.titlediv).html(title);
+    },
+
     setLoading: function (bool) {
         if (bool) {
             this.svgLoading.setAttribute("visibility", "visible");

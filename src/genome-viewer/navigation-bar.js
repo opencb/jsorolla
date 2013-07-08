@@ -59,29 +59,29 @@ NavigationBar.prototype = {
         }
 
         var navgationHtml =
-                '<a id="restoreDefaultRegionButton">&nbsp;</a>' +
-                '<button id="regionHistoryButton">Region history </button>' +
+            '<a id="restoreDefaultRegionButton">&nbsp;</a>' +
+                '<button id="regionHistoryButton">&nbsp;</button>' +
                 '<ul id="regionHistoryMenu" style="display: inline-block; position: absolute; width: 150px; z-index:100000"></ul>' +
-                '<button id="speciesButton"><span id="speciesText">'+this.species.text+'</span></button>' +
-                '<ul id="speciesMenu" style="display: inline-block; position: absolute; width: 100px; z-index:100000"></ul>' +
-                '<button id="chromosomesButton"> <span id="chromosomesText">'+this.region.chromosome+'</span></button>' +
+                '<button id="speciesButton"><span id="speciesText">' + this.species.text + '</span></button>' +
+                '<ul id="speciesMenu" style="display: inline-block; position: absolute; width: 200px; z-index:100000"></ul>' +
+                '<button id="chromosomesButton"> <span id="chromosomesText">' + this.region.chromosome + '</span></button>' +
                 '<ul id="chromosomesMenu" style="display: inline-block; position: absolute; width: 100px; z-index:100000"></ul>' +
-                '<div class="buttonset inlineblock">'+
-                '<input type="checkbox" checked="true" id="karyotypeButton" /><label for="karyotypeButton">Karyotype</label>' +
-                '<input type="checkbox" checked="true" id="chromosomeButton" /><label for="chromosomeButton">Chromosome</label>' +
-                '<input type="checkbox" checked="true" id="regionButton" /><label for="regionButton">Region</label>' +
-                '</div>'+
+                '<div class="buttonset inlineblock">' +
+                '<input type="checkbox" checked="true" id="karyotypeButton" /><label for="karyotypeButton"></label>' +
+                '<input type="checkbox" checked="true" id="chromosomeButton" /><label for="chromosomeButton"></label>' +
+                '<input type="checkbox" checked="true" id="regionButton" /><label for="regionButton"></label>' +
+                '</div>' +
                 '<a id="zoomOutButton">&nbsp;</a>' +
                 '<div id="slider" class="ocb-zoom-slider"></div>' +
                 '<a id="zoomInButton">&nbsp;</a>' +
                 '<label class="ocb-text" style="margin-left:10px" for="regionField">Position:</label><input id="regionField" class="ocb-input-text" placeholder="Enter region..." type="text">' +
                 '<button id="goButton">Go!</button>' +
-                '<div class="buttonset inlineblock">'+
+                '<div class="buttonset inlineblock">' +
                 '<a id="moveFurtherLeftButton">&nbsp;</a>' +
                 '<a id="moveLeftButton">&nbsp;</a>' +
                 '<a id="moveRightButton">&nbsp;</a>' +
                 '<a id="moveFurtherRightButton">&nbsp;</a>' +
-                '</div>'+
+                '</div>' +
                 '<label class="ocb-text" style="margin-left:10px" for="searchField">Search</label><input id="searchField" class="ocb-input-text" placeholder="gene, snp..." size="8" type="text">' +
                 '<a id="fullScreenButton" style="margin-left:10px" >&nbsp;</a>' +
                 '';
@@ -91,31 +91,35 @@ NavigationBar.prototype = {
         this.div = $('<div id="navigation-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
         $(this.targetDiv).append(this.div);
 
-        $(this.div).find('.buttonset').buttonset().css({margin:'0px 10px'});
+        $(this.div).find('.buttonset').buttonset().css({margin: '0px 10px'});
 
 
         this.restoreDefaultRegionButton = $(this.div).find('#restoreDefaultRegionButton').button({icons: {primary: 'ocb-icon-repeat'}, text: false});
 
         $(this.restoreDefaultRegionButton).click(function (e) {
-            _this.trigger('restoreDefaultRegion:click',{clickEvent:e,sender:{}})
+            _this.trigger('restoreDefaultRegion:click', {clickEvent: e, sender: {}})
         });
 
 
-
         this.regionHistoryButton = $(this.div).find('#regionHistoryButton').button({
-            icons: {primary: 'ocb-icon-clock',secondary: 'ui-icon-triangle-1-s'},text:false
+            icons: {primary: 'ocb-icon-clock', secondary: 'ui-icon-triangle-1-s'}, text: ' '
         });
         this.regionHistoryMenu = $(this.div).find('#regionHistoryMenu').hide().menu();
         this._addRegionHistoryMenuItem(this.region);
         $(this.regionHistoryButton).click(function () {
-            var menu = $( _this.regionHistoryMenu ).show().position({
-                my: "left top",
-                at: "left bottom",
-                of: this
-            });
-            $( document).one( "click", function() {
+            var menu = $(_this.regionHistoryMenu);
+            if ($(menu).css('display') == 'none') {
+                $(menu).show().position({
+                    my: "left top",
+                    at: "left bottom",
+                    of: this
+                });
+                $(document).one("click", function () {
+                    menu.hide();
+                });
+            } else {
                 menu.hide();
-            });
+            }
             return false;
         });
 
@@ -128,40 +132,52 @@ NavigationBar.prototype = {
         this._setSpeciesMenu();
 
         $(this.speciesButton).click(function () {
-            var menu = $( _this.speciesMenu ).show().position({
-                my: "left top",
-                at: "left bottom",
-                of: this
-            });
-            $( document).one( "click", function() {
-                menu.hide();
-            });
-            return false;
-        });
+                var menu = $(_this.speciesMenu);
+                if ($(menu).css('display') == 'none') {
+                    $(menu).show().position({
+                        my: "left top",
+                        at: "left bottom",
+                        of: this
+                    });
+                    $(document).one("click", function () {
+                        menu.hide();
+                    });
+                } else {
+                    menu.hide();
+                }
+                return false;
+            }
+        )
+        ;
 
         this.chromosomesButton = $(this.div).find('#chromosomesButton').button({
-            icons: {primary:'ocb-icon-chromosome',secondary: 'ui-icon-triangle-1-s'}
+            icons: {primary: 'ocb-icon-chromosome', secondary: 'ui-icon-triangle-1-s'}
         });
         this.chromosomesText = $(this.div).find('#chromosomesText');
         this.chromosomesMenu = $(this.div).find('#chromosomesMenu').hide().menu();
         this._setChromosomeMenu();
 
         $(this.chromosomesButton).click(function () {
-            var menu = $( _this.chromosomesMenu ).show().position({
-                my: "left top",
-                at: "left bottom",
-                of: this
-            });
-            $( document).one( "click", function() {
+            var menu = $(_this.chromosomesMenu);
+            if ($(menu).css('display') == 'none') {
+                $(menu).show().position({
+                    my: "left top",
+                    at: "left bottom",
+                    of: this
+                });
+                $(document).one("click", function () {
+                    menu.hide();
+                });
+            } else {
                 menu.hide();
-            });
+            }
             return false;
         });
 
-
-        this.karyotypeButton = $(this.div).find('#karyotypeButton').button({icons: {primary:'ocb-icon-karyotype'},text:false});
-        this.chromosomeButton = $(this.div).find('#chromosomeButton').button({icons: {primary:'ocb-icon-chromosome'},text:false});
-        this.regionButton = $(this.div).find('#regionButton').button();
+        this.karyotypeButton = $(this.div).find('#karyotypeButton').button({icons: {primary: 'ocb-icon-karyotype'}, text: false, label: 'karyotype'});
+        this.chromosomeButton = $(this.div).find('#chromosomeButton').button({icons: {primary: 'ocb-icon-chromosome'}, text: false, label: 'chromosome'});
+        this.regionButton = $(this.div).find('#regionButton').button({icons: {primary: 'ocb-icon-region'}, text: false, label: 'region'});
+        $(this.div).find('.buttonset').find('.ui-icon').css({'margin-left': '-9px'});
 
         $(this.karyotypeButton).click(function () {
             _this.trigger('karyotype-button:change', {selected: $(this).is(':checked'), sender: _this});
@@ -234,14 +250,14 @@ NavigationBar.prototype = {
         this.fullScreenButton = $(this.div).find('#fullScreenButton').button({icons: {primary: 'ocb-icon-resize'}, text: false});
 
         $(this.fullScreenButton).click(function (e) {
-            _this.trigger('fullscreen:click',{clickEvent:e,sender:{}})
+            _this.trigger('fullscreen:click', {clickEvent: e, sender: {}})
         });
 
 //        this.searchButton = $(this.div).find('#searchButton');
         this.searchField = $(this.div).find('#searchField');
 
 
-        $( this.searchField ).autocomplete({
+        $(this.searchField).autocomplete({
             source: function (query, process) {
                 process(_this._quickSearch(query));
             },
@@ -283,7 +299,7 @@ NavigationBar.prototype = {
 
     _addRegionHistoryMenuItem: function (region) {
         var _this = this;
-        var menuEntry = $('<li class="ui-menu-item" role="presentation"><a id="ui-id-1" class="ui-corner-all" tabindex="-1" role="menuitem">'+region.toString()+'</a></li>')[0];
+        var menuEntry = $('<li class="ui-menu-item" role="presentation"><a id="ui-id-1" class="ui-corner-all" tabindex="-1" role="menuitem">' + region.toString() + '</a></li>')[0];
         $(this.regionHistoryMenu).append(menuEntry);
         $(menuEntry).click(function () {
             _this.region.parse($(this).text());
@@ -313,7 +329,7 @@ NavigationBar.prototype = {
         this.currentChromosomeList = list;
         //add bootstrap elements to the menu
         for (var i in list) {
-            var menuEntry = $('<li class="ui-menu-item" role="presentation"><a id="ui-id-1" class="ui-corner-all" tabindex="-1" role="menuitem">'+list[i]+'</a></li>')[0];
+            var menuEntry = $('<li class="ui-menu-item" role="presentation"><a id="ui-id-1" class="ui-corner-all" tabindex="-1" role="menuitem">' + list[i] + '</a></li>')[0];
             $(this.chromosomesMenu).append(menuEntry);
             $(menuEntry).click(function () {
                 $(_this.chromosomesText).text($(this).text());
@@ -329,7 +345,7 @@ NavigationBar.prototype = {
     _setSpeciesMenu: function () {
         var _this = this;
 
-        var createEntry = function(species){
+        var createEntry = function (species) {
             var menuEntry = $('<li class="ui-menu-item" role="presentation"><a id="ui-id-1" class="ui-corner-all" tabindex="-1" role="menuitem">' + species.text + '</a></li>')[0];
             $(_this.speciesMenu).append(menuEntry);
             $(menuEntry).click(function () {
@@ -351,9 +367,9 @@ NavigationBar.prototype = {
 
     _goRegion: function (value) {
         var reg = new Region();
-        if(!reg.parse(value) || reg.start < 0 || reg.end < 0 || _.indexOf(this.currentChromosomeList, reg.chromosome) == -1 ){
+        if (!reg.parse(value) || reg.start < 0 || reg.end < 0 || _.indexOf(this.currentChromosomeList, reg.chromosome) == -1) {
             $(this.regionField).css({opacity: 0.0});
-            $(this.regionField).animate({opacity: 1},700);
+            $(this.regionField).animate({opacity: 1}, 700);
         } else {
             this.region.load(reg);
             $(this.chromosomeText).text(this.region.chromosome);
@@ -365,7 +381,7 @@ NavigationBar.prototype = {
 
     _quickSearch: function (query) {
         var results = [];
-        var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0,3);
+        var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
 //        var host = new CellBaseManager().host;
         var host = 'http://ws.bioinfo.cipf.es/cellbase/rest';
         $.ajax({

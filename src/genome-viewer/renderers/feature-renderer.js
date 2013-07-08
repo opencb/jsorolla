@@ -116,17 +116,18 @@ FeatureRenderer.prototype.render = function (features, args) {
                 if('tooltipText' in _this ){
                     $(featureGroup).qtip({
                         content: {text: tooltipText, title: tooltipTitle},
-                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
+//                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
+                        position: {target: "mouse", adjust: {x: 25, y: 15}},
                         style: { width: true,  classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
                     });
                 }
 
                 $(featureGroup).mouseover(function (event) {
-                    _this.trigger('feature:mouseover', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType})
+                    _this.trigger('feature:mouseover', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, mouseoverEvent:event})
                 });
 
                 $(featureGroup).click(function (event) {
-                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType})
+                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent : event})
                 });
                 break;
             }
