@@ -28,15 +28,16 @@ function FeatureRenderer(args) {
     _.extend(this, Backbone.Events);
 
     //set default args
-
-    //set instantiation args
-    _.extend(this, args);
-
-    if('handlers' in this){
-        for(eventName in this.handlers){
-            this.on(eventName,this.handlers[eventName]);
-        }
+    if (_.isString(args)) {
+        var config = this.getDefaultConfig(args);
+        _.extend(this, config);
     }
+    //set instantiation args
+    else if (_.isObject(args)) {
+        _.extend(this, args);
+    }
+
+    this.on(this.handlers);
 
     this.fontFamily = 'Source Sans Pro';
 };
@@ -46,12 +47,12 @@ FeatureRenderer.prototype.render = function (features, args) {
     var _this = this;
     var draw = function (feature) {
         //get feature render configuration
-        var color = Utils.isFunction(_this.color) ? _this.color(feature) : _this.color;
-        var label = Utils.isFunction(_this.label) ? _this.label(feature) : _this.label;
-        var height = Utils.isFunction(_this.height) ? _this.height(feature) : _this.height;
-        var tooltipTitle = Utils.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
-        var tooltipText = Utils.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
-        var infoWidgetId = Utils.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
+        var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
+        var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
+        var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
+        var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
+        var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
+        var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
 
         //get feature genomic information
         var start = feature.start;
@@ -113,21 +114,21 @@ FeatureRenderer.prototype.render = function (features, args) {
                     text.textContent = label;
                 }
 
-                if('tooltipText' in _this ){
+                if ('tooltipText' in _this) {
                     $(featureGroup).qtip({
                         content: {text: tooltipText, title: tooltipTitle},
 //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
                         position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: { width: true,  classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
+                        style: { width: true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
                     });
                 }
 
                 $(featureGroup).mouseover(function (event) {
-                    _this.trigger('feature:mouseover', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, mouseoverEvent:event})
+                    _this.trigger('feature:mouseover', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, mouseoverEvent: event})
                 });
 
                 $(featureGroup).click(function (event) {
-                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent : event})
+                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent: event})
                 });
                 break;
             }

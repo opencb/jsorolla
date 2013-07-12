@@ -159,7 +159,7 @@ Track.prototype = {
         $(svgdiv).css({
             'z-index': 3,
             'height':this.height,
-            'overflow-y': (this.resizable) ? 'scroll' : 'hidden',
+            'overflow-y': (this.resizable) ? 'auto' : 'hidden',
             'overflow-x': 'hidden'
         });
 

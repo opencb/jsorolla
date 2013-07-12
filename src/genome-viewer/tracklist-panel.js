@@ -61,11 +61,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.onWindowSize = new Event();
     this.onMousePosition = new Event();
 
-    if('handlers' in this){
-        for(eventName in this.handlers){
-            this.on(eventName,this.handlers[eventName]);
-        }
-    }
+    this.on(this.handlers);
 
     this.rendered = false;
     if(this.autoRender){
@@ -85,7 +81,7 @@ TrackListPanel.prototype = {
         var _this = this;
 
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="tracklist-panel"></div>')[0];
+        this.div = $('<div id="tracklist-panel" style="height:100%;position: relative;"></div>')[0];
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
@@ -623,7 +619,7 @@ TrackListPanel.prototype = {
         this.on('trackSpecies:change', track.get('trackSpecies:change'));
         this.on('trackRegion:change', track.get('trackRegion:change'));
         this.on('trackRegion:move',track.get('trackRegion:move'));
-        this.on('trackWidth:change',track.set('trackWidth:change'));
+        this.on('trackWidth:change',track.get('trackWidth:change'));
         this.on('trackFeature:highlight', track.get('trackFeature:highlight'));
     },
 

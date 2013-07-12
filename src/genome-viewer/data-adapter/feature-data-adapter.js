@@ -21,6 +21,7 @@
 
 function FeatureDataAdapter(dataSource, args){
 	var _this = this;
+    _.extend(this, Backbone.Events);
 	
 	this.dataSource = dataSource;
 	this.gzip = true;
@@ -40,8 +41,8 @@ function FeatureDataAdapter(dataSource, args){
 	
 	this.featureCache =  new FeatureCache({chunkSize:10000, gzip:this.gzip});
 	
-	this.onLoad = new Event();	
-	this.onGetData = new Event();
+//	this.onLoad = new Event();
+//	this.onGetData = new Event();
 
 	//chromosomes loaded
 	this.chromosomesLoaded = {};
@@ -62,7 +63,8 @@ FeatureDataAdapter.prototype.getData = function(region){
 	
 	var itemList = this.featureCache.getFeatureChunksByRegion(region);
 	if(itemList != null){
-		this.onGetData.notify({items:itemList, params:this.params, cached:true});
+//		this.onGetData.notify({items:itemList, params:this.params, cached:true});
+		this.trigger('data:ready',{items:itemList, params:this.params, cached:true, sender:this});
 	}
 };
 
@@ -72,7 +74,8 @@ FeatureDataAdapter.prototype._fetchData = function(region){
 		if(this.async){
 			this.dataSource.success.addEventListener(function(sender,data){
 				_this.parse(data, region);
-				_this.onLoad.notify();
+//				_this.onLoad.notify();
+                _this.trigger('file:load',{sender:_this});
 			});
 			this.dataSource.fetch(this.async);
 		}else{

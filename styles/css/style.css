@@ -4,6 +4,9 @@
 @import url(http://fonts.googleapis.com/css?family=Oxygen);
 @import url(http://fonts.googleapis.com/css?family=Lato);
 
+.ocb-scroll-x { overflow-x: auto; }
+.ocb-scroll-y { overflow-y: auto; }
+
 .ocb-input-text{
     vertical-align: middle;
     padding: 1px 3px;
@@ -27,24 +30,67 @@
 }
 
 /*Google-like scrollbars webkit only*/
-::-webkit-scrollbar {
-    width: 10px;
+/*::-webkit-scrollbar {*/
+    /*width: 10px;*/
+/*}*/
+/*::-webkit-scrollbar-track {*/
+    /*background: #FFF;*/
+    /*-webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);*/
+/*}*/
+/*::-webkit-scrollbar-thumb {*/
+    /*background: #CCC;*/
+    /*-webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);*/
+/*}*/
+/*::-webkit-scrollbar-thumb:hover {*/
+    /*background: #AAA;*/
+/*}*/
+/*::-webkit-scrollbar-thumb:active {*/
+    /*background: #888;*/
+    /*-webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.3);*/
+/*}*/
+
+/*Genome viewer Layout*/
+/*.ocb-box-vertical{*/
+    /*display : box;*/
+    /*display : -moz-box;*/
+    /*display : -webkit-box;*/
+
+    /*box-orient : vertical;*/
+    /*-moz-box-orient : vertical;*/
+    /*-webkit-box-orient : vertical;*/
+/*}*/
+.ocb-gv {
+    position:relative;
+    background-color:white;
 }
-::-webkit-scrollbar-track {
-    background: #FFF;
-    -webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
-}
-::-webkit-scrollbar-thumb {
-    background: #CCC;
-    -webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #AAA;
-}
-::-webkit-scrollbar-thumb:active {
-    background: #888;
-    -webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.3);
-}
+/*.ocb-gv-navigation{*/
+    /*height:37px;*/
+/*}*/
+/*.ocb-gv-center{*/
+    /*position:relative;*/
+    /*height:100%*/
+
+    /*box-flex:1;*/
+    /*-moz-box-flex:1;*/
+    /*-webkit-box-flex:1;*/
+    /*overflow-y: scroll;*/
+    /*overflow-x: hidden;*/
+/*}*/
+/*.ocb-gv-status{*/
+    /*height:25px;*/
+/*}*/
+
+/*.ocb-tlp-tracks{*/
+    /*position: relative;*/
+    /*z-index: 3;*/
+    /*box-flex:1;*/
+    /*-moz-box-flex:1;*/
+    /*-webkit-box-flex:1;*/
+    /*overflow-y: scroll;*/
+    /*overflow-x: hidden;*/
+/*}*/
+
+/*END Genome viewer Layout*/
 
 
 .font-sourcesanspro{
@@ -86,6 +132,11 @@
     background-image: -webkit-linear-gradient(top, white, #f2f2f2);
     background-repeat: repeat-x;
     padding:5px;
+}
+.gm-navigation-bar {
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
+    background-repeat: repeat-x;
 }
 
 .gv-status-bar {
@@ -321,6 +372,7 @@ a:hover {text-decoration: underline; color: #15428B;}
 .ocb-icon-karyotype{background:url(../img/ocb-icon-karyotype.png)!important;}
 .ocb-icon-chromosome{background:url(../img/ocb-icon-chromosome.png)!important;}
 .ocb-icon-region{background:url(../img/ocb-icon-region.png)!important;}
+.ocb-icon-find{background:url(../img/ocb-icon-find.png);}
 
 .icon-save{
 	background:url('../img/save.png');

@@ -46,21 +46,23 @@ Region.prototype = {
 
     parse: function (str) {
         var pattern = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
-        if(!pattern.test(str)){
+        var pattern2 = /^([a-zA-Z0-9])+\:([0-9])+$/;
+        if(pattern.test(str) || pattern2.test(str) ){
+            var splitDots = str.split(":");
+            if (splitDots.length == 2) {
+                var splitDash = splitDots[1].split("-");
+                this.chromosome = splitDots[0];
+                this.start = parseInt(splitDash[0]);
+                if (splitDash.length == 2) {
+                    this.end = parseInt(splitDash[1]);
+                } else {
+                    this.end = this.start;
+                }
+            }
+            return true
+        }else{
             return false;
         }
-        var splitDots = str.split(":");
-        if (splitDots.length == 2) {
-            var splitDash = splitDots[1].split("-");
-            this.chromosome = splitDots[0];
-            this.start = parseInt(splitDash[0]);
-            if (splitDash.length == 2) {
-                this.end = parseInt(splitDash[1]);
-            } else {
-                this.end = this.start;
-            }
-        }
-        return true
     },
 
     center : function () {

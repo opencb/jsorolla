@@ -305,9 +305,9 @@ HeaderWidget.prototype = {
             var userbar = new Ext.create('Ext.toolbar.Toolbar', {
                 id : this.id+'userbar',
                 dock: 'top',
-                border:true,
-                cls:'bio-userbar',
-//                cls:'bio-linkbar',
+                border:false,
+//                cls:'bio-userbar',
+                cls:'bio-linkbar',
                 height:27,
                 minHeight:27,
                 maxHeight:27,

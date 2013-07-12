@@ -172,7 +172,7 @@ CellBaseAdapter.prototype.getData = function(args){
 		}
 		
 		for(var i = 0; i < data.result.length; i++) {
-			
+
 			//Check if is a single object
 			if(data.result[i].constructor != Array){
 				data.result[i] = [data.result[i]];
