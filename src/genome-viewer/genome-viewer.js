@@ -119,8 +119,8 @@ GenomeViewer.prototype = {
         $(this.div).append(this.statusbarDiv);
 
 
-        this.rightSidebarDiv = $('<div id="rightsidebar-' + this.id + '" style="position:absolute; z-index:50;right:0px;box-shadow: 2px 2px 1px #bbbbbb;"></div>')[0];
-        this.leftSidebarDiv = $('<div id="leftsidebar-' + this.id + '" style="position:absolute; z-index:50;left:0px;box-shadow: 2px 2px 1px #bbbbbb;"></div>')[0];
+        this.rightSidebarDiv = $('<div id="rightsidebar-' + this.id + '" style="position:absolute; z-index:50;right:0px;"></div>')[0];
+        this.leftSidebarDiv = $('<div id="leftsidebar-' + this.id + '" style="position:absolute; z-index:50;left:0px;"></div>')[0];
         $(this.centerPanelDiv).append(this.rightSidebarDiv);
         $(this.centerPanelDiv).append(this.leftSidebarDiv);
 

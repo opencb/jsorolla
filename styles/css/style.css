@@ -133,10 +133,16 @@
     background-repeat: repeat-x;
     padding:5px;
 }
-.gm-navigation-bar {
+.gm-navigation-bar{
     background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
     background-image: -webkit-linear-gradient(top, white, #f2f2f2);
     background-repeat: repeat-x;
+}
+.gm-login-bar{
+    background: white;
+    /*background-image: linear-gradient(to top, #ffffff, #f2f2f2);*/
+    /*background-image: -webkit-linear-gradient(bottom, white, #f2f2f2);*/
+    /*background-repeat: repeat-x;*/
 }
 
 .gv-status-bar {
@@ -269,7 +275,7 @@ a:hover {text-decoration: underline; color: #15428B;}
     font-family: 'Oxygen';
 	text-decoration: none;
 	color: #596F8F;
-	font-size: 22px;
+	font-size: 28px;
 	text-shadow: 0 1px 0 white;
 }
 
@@ -277,7 +283,7 @@ a:hover {text-decoration: underline; color: #15428B;}
     font-family: 'Oxygen';
 	text-decoration: none;
 	color: #637c9f;
-	font-size: 16px;
+	font-size: 20px;
 	text-shadow: 0 1px 0 white;
 }
 
