@@ -60,7 +60,7 @@ function GenomeViewer(args) {
 
     this.width;
     this.height;
-    this.sidePanelWidth = (this.sidePanel) ? 25 : 18;
+    this.sidePanelWidth = (this.sidePanel) ? 25 : 0;
 
     console.log(this.targetId);
     console.log(this.id);

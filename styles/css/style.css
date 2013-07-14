@@ -280,6 +280,8 @@ a:hover {text-decoration: underline; color: #15428B;}
 }
 
 .appDesc{
+    margin-left:20px;
+    margin-right:20px;
     font-family: 'Oxygen';
 	text-decoration: none;
 	color: #637c9f;
