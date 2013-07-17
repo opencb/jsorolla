@@ -53,7 +53,7 @@ GeneRenderer.prototype.render = function (features, args) {
         //get feature render configuration
         _this.setFeatureConfig('gene');
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
-        var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
+        var label = _.isFunction(_this.label) ? _this.label(feature, args.zoom) : _this.label;
         var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
         var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
         var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;

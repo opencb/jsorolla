@@ -215,13 +215,13 @@ FEATURE_TYPES = {
 //		histogramColor:"lightblue"
     },
     gene: {
-        label: function (f) {
+        label: function (f, zoom) {
             var name = (f.name != null) ? f.name : f.id;
             var str = "";
             str += (f.strand < 0 || f.strand == '-') ? "<" : "";
             str += " " + name + " ";
             str += (f.strand > 0 || f.strand == '+') ? ">" : "";
-            if (f.biotype != null && f.biotype != '') {
+            if (f.biotype != null && f.biotype != '' && zoom > 25) {
                 str += " [" + f.biotype + "]";
             }
             return str;

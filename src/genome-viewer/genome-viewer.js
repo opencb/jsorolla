@@ -33,6 +33,7 @@ function GenomeViewer(args) {
     this.drawKaryotypePanel = true;
     this.drawChromosomePanel = true;
     this.drawRegionOverviewPanel = true;
+    this.drawStatusBar = true;
     this.border = true;
     this.resizable = true;
     this.sidePanel = true;//enable or disable sidePanel at construction
@@ -143,10 +144,13 @@ GenomeViewer.prototype = {
         return $(this.rightSidebarDiv).attr('id');
     },
     getLeftSidePanelId: function () {
-        return $(this.rightSidebarDiv).attr('id');
+        return $(this.leftSidebarDiv).attr('id');
     },
     getNavigationPanelId: function () {
         return $(this.navigationbarDiv).attr('id');
+    },
+    getStatusPanelId: function () {
+        return $(this.statusbarDiv).attr('id');
     },
     setNavigationBar: function (navigationBar) {
         this.navigationBar = navigationBar;
@@ -253,13 +257,13 @@ GenomeViewer.prototype = {
                     }
                 }
             });
-            $(this.targetDiv).resizable({
-                handles: 'e',
-                ghost: true,
-                stop: function (event, ui) {
-                    _this._setWidth($(_this.targetDiv).width());
-                }
-            });
+//            $(this.targetDiv).resizable({
+//                handles: 'e',
+//                ghost: true,
+//                stop: function (event, ui) {
+//                    _this._setWidth($(_this.targetDiv).width());
+//                }
+//            });
         }
 
         /* Navigation Bar */
@@ -285,7 +289,9 @@ GenomeViewer.prototype = {
         this.trackListPanel = this._createTrackListPanel($(this.tracksDiv).attr('id'));
 
         /*Status Bar*/
-        this.statusBar = this._createStatusBar($(this.statusbarDiv).attr('id'));
+        if (this.drawStatusBar) {
+            this.statusBar = this._createStatusBar($(this.statusbarDiv).attr('id'));
+        }
 
 
         this.on('region:change region:move', function (event) {

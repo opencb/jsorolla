@@ -129,13 +129,13 @@
 .gv-navigation-bar {
     font-size: 10px;
     background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
-    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
     background-repeat: repeat-x;
     padding:5px;
 }
 .gm-navigation-bar{
-    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
-    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
+    background-image: linear-gradient(to bottom, #ffffff,#eeeeee);
+    background-image: -webkit-linear-gradient(top, #ffffff,#eeeeee);
     background-repeat: repeat-x;
 }
 .gm-login-bar{
@@ -280,12 +280,23 @@ a:hover {text-decoration: underline; color: #15428B;}
 }
 
 .appDesc{
-    margin-left:20px;
+    margin-left:10px;
     margin-right:20px;
     font-family: 'Oxygen';
 	text-decoration: none;
-	color: #637c9f;
+	/*color: #637c9f;*/
+	color: #6599FF;
 	font-size: 20px;
+	text-shadow: 0 1px 0 white;
+}
+
+.appVersion{
+    margin-left:10px;
+    margin-right:20px;
+    font-family: 'Oxygen';
+	text-decoration: none;
+	color: orange;
+	font-size: 18px;
 	text-shadow: 0 1px 0 white;
 }
 
@@ -381,6 +392,7 @@ a:hover {text-decoration: underline; color: #15428B;}
 .ocb-icon-chromosome{background:url(../img/ocb-icon-chromosome.png)!important;}
 .ocb-icon-region{background:url(../img/ocb-icon-region.png)!important;}
 .ocb-icon-find{background:url(../img/ocb-icon-find.png);}
+.ocb-icon-gear{background:url(../img/ocb-icon-gear.png);}
 
 .icon-save{
 	background:url('../img/save.png');
@@ -784,4 +796,15 @@ font-weight: bold;
 /********************/
 .x-toolbar .x-toolbar-separator-horizontal {
 	border-left-color: #bbb;
+}
+
+/*EXTJS 4.2 BUG FIX FOR TOOLTIPS*/
+.x-tip {
+    width: auto !important;
+}
+.x-tip-body {
+    width: auto !important;
+}
+.x-tip-body span {
+    width: auto !important;
 }

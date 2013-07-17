@@ -35,7 +35,8 @@ module.exports = function (grunt) {
                 src: [
                     'src/utils/utils.js',
                     'src/utils/event.js',
-                    'src/utils/svg.js'
+                    'src/utils/svg.js',
+                    'src/ui-widgets/ux-window.js'
                 ],
                 dest: 'build/utils-<%= meta.version.utils %>.js'
             },
@@ -72,6 +73,8 @@ module.exports = function (grunt) {
                     'src/genome-viewer/karyotype-panel.js',
                     'src/genome-viewer/tracklist-panel.js',
                     'src/genome-viewer/status-bar.js',
+                    'src/genome-viewer/legend-panel.js',
+                    'src/genome-viewer/legend-widget.js',
                         /** tracks **/
                     'src/genome-viewer/tracks/track.js',
                     'src/genome-viewer/tracks/*-track.js',
