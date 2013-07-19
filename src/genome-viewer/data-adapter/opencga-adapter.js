@@ -20,6 +20,9 @@
  */
 
 function OpencgaAdapter(args){
+
+    _.extend(this, Backbone.Events);
+
 	this.host = null;
 	this.gzip = true;
 	
@@ -42,7 +45,7 @@ function OpencgaAdapter(args){
 		}
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
-	this.onGetData = new Event();
+//	this.onGetData = new Event();
 }
 
 OpencgaAdapter.prototype.getData = function(args){
@@ -120,7 +123,8 @@ OpencgaAdapter.prototype.getData = function(args){
 			itemList = itemList.concat(items);
 		}
 		if(calls == querys.length ){
-			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
+//			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
+            _this.trigger('data:ready',{items:itemList, params:_this.params, cached:false, sender:_this});
 		}
 	});
 
@@ -162,11 +166,12 @@ OpencgaAdapter.prototype.getData = function(args){
 			console.time("dqs");
 			calls++;
 //			opencgaManager.region(this.category, this.resource, querys[i], this.params);
-            opencgaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource, querys[i], this.params);
+            opencgaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource.id, querys[i], this.params);
 		}
 	}else{
 		if(itemList.length > 0){
-			this.onGetData.notify({items:itemList, params:this.params});
+            this.trigger('data:ready',{items:itemList, params:this.params, cached:false, sender:this});
+//			this.onGetData.notify({items:itemList, params:this.params});
 		}
 	}
 };

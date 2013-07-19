@@ -35,8 +35,8 @@ module.exports = function (grunt) {
                 src: [
                     'src/utils/utils.js',
                     'src/utils/event.js',
-                    'src/utils/svg.js',
-                    'src/ui-widgets/ux-window.js'
+                    'src/utils/svg.js'
+//                    'src/ui-widgets/ux-window.js'
                 ],
                 dest: 'build/utils-<%= meta.version.utils %>.js'
             },
@@ -63,11 +63,15 @@ module.exports = function (grunt) {
                     '<%= concat.cellbase.dest %>',
                     'src/genome-viewer/gv-config.js',
                     'src/genome-viewer/data-source/data-source.js','src/genome-viewer/data-source/*-data-source.js',
-                    'src/genome-viewer/data-adapter/cellbase-adapter.js','src/genome-viewer/data-adapter/sequence-adapter.js',
+                    'src/genome-viewer/data-adapter/cellbase-adapter.js',
+                    'src/genome-viewer/data-adapter/sequence-adapter.js',
+                    'src/genome-viewer/data-adapter/bam-adapter.js',
+                    'src/genome-viewer/data-adapter/opencga-adapter.js',
                     'src/genome-viewer/data-adapter/feature-data-adapter.js','src/genome-viewer/data-adapter/*-data-adapter.js',
                     'src/genome-viewer/region.js',
                     'src/genome-viewer/feature-binary-search-tree.js',
                     'src/genome-viewer/feature-cache.js',
+                    'src/genome-viewer/bam-cache.js',
                     'src/genome-viewer/navigation-bar.js',
                     'src/genome-viewer/chromosome-panel.js',
                     'src/genome-viewer/karyotype-panel.js',
@@ -247,8 +251,10 @@ module.exports = function (grunt) {
                     'http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.js',
                     'http://cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.2.1/purl.min.js',
                     'http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.sha1.js',
-                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.js',
-                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css',
+                    'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.1.1/jquery.qtip.min.js',
+                    'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.1.1/jquery.qtip.min.css',
+//                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.js',
+//                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css',
                     'http://jsapi.bioinfo.cipf.es/ext-libs/rawdeflate.js'
                 ],
                 dest: 'vendor'

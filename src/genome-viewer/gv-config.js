@@ -540,14 +540,14 @@ FEATURE_TYPES = {
             }
             return summary;
         },
-        getLabel: function (f) {
+        label: function (f) {
             return  "bam  " + f.chromosome + ":" + f.start + "-" + f.end;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return FEATURE_TYPES.formatTitle(f.featureType) + ' - <span class="ok">' + f.name + '</span>';
         },
-        getTipText: function (f) {
-            f.strand = FEATURE_TYPES.bam.getStrand(f);
+        tooltipText: function (f) {
+            f.strand = FEATURE_TYPES.bam.strand(f);
             var one = 'cigar:&nbsp;<span class="ssel">' + f.cigar + '</span><br>' +
                 'insert size:&nbsp;<span class="ssel">' + f.inferredInsertSize + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f) + '<br>' +
@@ -562,31 +562,32 @@ FEATURE_TYPES = {
             return '<div style="float:left">' + one + '</div>' +
                 '<div style="float:right">' + three + '</div>';
         },
-        getColor: function (f, chr) {
+        color: function (f, chr) {
             if (f.mateReferenceName != chr) {
                 return "lightgreen";
             }
             return (parseInt(f.flags) & (0x10)) == 0 ? "DarkGray" : "LightGray";
             /**/
         },
-        getStrokeColor: function (f) {
-            if (this.getMateUnmappedFlag(f)) {
+        strokeColor: function (f) {
+            if (this.mateUnmappedFlag(f)) {
                 return "tomato"
             }
             return "whitesmoke";
         },
-        getStrand: function (f) {
+        strand: function (f) {
             return (parseInt(f.flags) & (0x10)) == 0 ? "Forward" : "Reverse";
         },
-        getReadPairedFlag: function (f) {
+        readPairedFlag: function (f) {
             return (parseInt(f.flags) & (0x1)) == 0 ? false : true;
         },
-        getFirstOfPairFlag: function (f) {
+        firstOfPairFlag: function (f) {
             return (parseInt(f.flags) & (0x40)) == 0 ? false : true;
         },
-        getMateUnmappedFlag: function (f) {
+        mateUnmappedFlag: function (f) {
             return (parseInt(f.flags) & (0x8)) == 0 ? false : true;
         },
+        infoWidgetId: "id",
         height: 8,
         histogramColor: "grey"
     },

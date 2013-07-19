@@ -125,7 +125,7 @@ InfoWidget.prototype.draw = function (args){
 
 InfoWidget.prototype.render = function (){
 		/**MAIN PANEL**/
-		this.panel = Ext.create('Ext.ux.Window', {
+		this.panel = Ext.create('Ext.window.Window', {
 		    title: this.title +" "+ this.query,
 		    id : this.title +" "+ this.query,
 //		    resizable: false,
