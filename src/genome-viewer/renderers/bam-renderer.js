@@ -281,7 +281,7 @@ BamRenderer.prototype.render = function (response, args) {
                 $(featureGroup).qtip({
                     content: {text:tooltipText, title: tooltipTitle},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: 300, classes: 'font-lato ui-tooltip ui-tooltip-shadow'},
+                    style: { width: 300, classes: 'ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
                     hide: 'click mouseleave'
                 });

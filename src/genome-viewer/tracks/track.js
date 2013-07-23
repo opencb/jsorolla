@@ -125,6 +125,7 @@ Track.prototype = {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
             this.histogramMax = undefined;
+            this.interval = undefined;
         }
     },
 

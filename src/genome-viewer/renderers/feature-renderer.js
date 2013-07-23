@@ -119,7 +119,7 @@ FeatureRenderer.prototype.render = function (features, args) {
                         content: {text: tooltipText, title: tooltipTitle},
 //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
                         position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: { width: true, classes: 'font-lato ui-tooltip ui-tooltip-shadow'}
+                        style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
                     });
                 }
 

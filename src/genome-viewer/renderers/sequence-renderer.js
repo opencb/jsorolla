@@ -62,7 +62,7 @@ SequenceRenderer.prototype.render = function(features, args) {
         $(text).qtip({
             content:seqString.charAt(i)+" "+(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")/*+'<br>'+phastCons[i]+'<br>'+phylop[i]*/,
             position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
-            style: { width:true, classes: 'font-lato qtip-light qtip-shadow'}
+            style: { width:true, classes: 'qtip-light qtip-shadow'}
         });
     }
 
