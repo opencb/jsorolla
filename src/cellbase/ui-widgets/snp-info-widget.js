@@ -125,7 +125,21 @@ SnpInfoWidget.prototype.getConsequenceTypePanel = function(data){
 	}
     if(this.consequencePanel==null){
     	var tpl = this.getConsequenceTypeTemplate();
-    	
+
+
+//        var groupField = '';
+//        var modelName = 'SNPs';
+//        var fields = ['chromosome','start','end','name',"strand","alleleString","displaySoConsequence"];
+//        var columns = [
+//            {header : 'Name',dataIndex: 'name',flex:2},
+//            {header : 'Location: chr:start-end (strand)', xtype:'templatecolumn', tpl:'{chromosome}:{start}-{end} ({strand})',flex:2},
+//            {header : 'Alleles',dataIndex: 'alleleString',flex:0.7},
+//            {header : 'Most severe SO term',dataIndex: 'displaySoConsequence',flex:2}
+//        ];
+//        this.snpsGrid = this.doGrid(columns,fields,modelName,groupField);
+//        this.snpsGrid.store.loadData(data);
+
+//        debugger
     	var panels = [];
     	for ( var i = 0; i < data.length; i++) {	
 			var consPanel = Ext.create('Ext.container.Container',{

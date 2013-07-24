@@ -166,7 +166,7 @@ OpencgaAdapter.prototype.getData = function(args){
 			console.time("dqs");
 			calls++;
 //			opencgaManager.region(this.category, this.resource, querys[i], this.params);
-            opencgaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource.id, querys[i], this.params);
+            opencgaManager.region(this.resource.account, $.cookie("bioinfo_sid"),this.resource.bucketId, this.resource.id, querys[i], this.params);
 		}
 	}else{
 		if(itemList.length > 0){

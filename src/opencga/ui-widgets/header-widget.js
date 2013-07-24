@@ -351,8 +351,7 @@ HeaderWidget.prototype = {
                         //		        	html: '<span class="appName">Vitis vinifera&nbsp; '+this.args.appname +'</span> <span class="appDesc">'+this.args.description+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span><img height="30" src="http://www.demeter.es/imagenes/l_demeter.gif"></span>',
                         text: '<span class="appName">' + this.appname + '</span> ' +
                             '<span id="' + this.id + 'description" class="appDesc">' + this.description + '</span>' +
-                            '<span id="' + this.id + 'version" class="appVersion">' + this.version + '</span>' +
-//                        '<span class="appDesc" style="color:orangered;margin-left:20px">New version 3.1 beta2</span>' +
+                            '<span id="' + this.id + 'version" class="appVersion"></span>' +
                             '',
                         padding: '0 0 0 10',
                         listeners:{
