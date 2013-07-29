@@ -237,7 +237,7 @@ SnpInfoWidget.prototype.getData = function (){
 //	category, subcategory, query, resource, callbackFunction
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function (sender,data){
-        _this.dataReceived(data.result);//TODO
+        _this.dataReceived(data[_this.query].result[0]);
 	});
 	cellBaseManager.get("feature","snp", this.query, "info");
 };
@@ -249,7 +249,7 @@ SnpInfoWidget.prototype.dataReceived = function (data){
 //			console.log(mappedSnps[i]);
 //		}
 //	}
-    this.data=data[0][0];
+    this.data=data;
     console.log(this.data);
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();

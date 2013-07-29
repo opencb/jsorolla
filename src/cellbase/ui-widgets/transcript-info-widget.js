@@ -202,12 +202,12 @@ TranscriptInfoWidget.prototype.getData = function (){
 	
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function(sender,data){
-		_this.dataReceived(data.result);//TODO
+        _this.dataReceived(data[_this.query].result[0].transcripts);
 	});
-	cellBaseManager.get("feature","transcript", this.query, "fullinfo");
+	cellBaseManager.get("feature","transcript", this.query, "info");
 };
 TranscriptInfoWidget.prototype.dataReceived = function (data){
-	this.data=data[0][0];
+	this.data=data;
 	console.log(this.data);
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();

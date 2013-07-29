@@ -126,10 +126,12 @@ CellBaseManager.prototype = {
                 dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
                 async: this.async,
                 success: function (data, textStatus, jqXHR) {
-                    data.metadata.params = _this.params;
-                    data.metadata.resource = _this.resource;
-                    data.metadata.category = _this.category;
-                    data.metadata.subcategory = _this.subcategory;
+                    if(data.metadata){
+                        data.metadata.params = _this.params;
+                        data.metadata.resource = _this.resource;
+                        data.metadata.category = _this.category;
+                        data.metadata.subcategory = _this.subcategory;
+                    }
                     _this.success.notify(data);
                 },
                 complete: function () {
@@ -149,10 +151,12 @@ CellBaseManager.prototype = {
                 dataType: 'json',
                 async: this.async,
                 success: function (data, textStatus, jqXHR) {
-                    data.metadata.params = _this.params;
-                    data.metadata.resource = _this.resource;
-                    data.metadata.category = _this.category;
-                    data.metadata.subcategory = _this.subcategory;
+                    if(data.metadata){
+                        data.metadata.params = _this.params;
+                        data.metadata.resource = _this.resource;
+                        data.metadata.category = _this.category;
+                        data.metadata.subcategory = _this.subcategory;
+                    }
                     response = data;
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
