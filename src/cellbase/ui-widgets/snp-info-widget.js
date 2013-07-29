@@ -127,37 +127,43 @@ SnpInfoWidget.prototype.getConsequenceTypePanel = function(data){
     	var tpl = this.getConsequenceTypeTemplate();
 
 
-//        var groupField = '';
-//        var modelName = 'SNPs';
-//        var fields = ['chromosome','start','end','name',"strand","alleleString","displaySoConsequence"];
-//        var columns = [
-//            {header : 'Name',dataIndex: 'name',flex:2},
-//            {header : 'Location: chr:start-end (strand)', xtype:'templatecolumn', tpl:'{chromosome}:{start}-{end} ({strand})',flex:2},
-//            {header : 'Alleles',dataIndex: 'alleleString',flex:0.7},
-//            {header : 'Most severe SO term',dataIndex: 'displaySoConsequence',flex:2}
-//        ];
-//        this.snpsGrid = this.doGrid(columns,fields,modelName,groupField);
-//        this.snpsGrid.store.loadData(data);
+        var data2 = [];
+        for(var i = 0; i<data.length; i++){
+            for(var j = 0; j<data[i].consequenceTypes.length; j++){
+                var consequenceType = data[i].consequenceTypes[j];
+                data[i].consequenceType = consequenceType;
+                data2.push(data[i]);
+            }
+        }
 
-//        debugger
-    	var panels = [];
-    	for ( var i = 0; i < data.length; i++) {	
-			var consPanel = Ext.create('Ext.container.Container',{
-				padding:5,
-				data:data[i],
-				tpl:tpl
-			});
-			panels.push(consPanel);
-    	}
-		this.consequencePanel = Ext.create('Ext.panel.Panel',{
-			title:"Consequence type ("+i+")",
-			border:false,
-			cls:'panel-border-left',
-			flex:3,    
-			bodyPadding:5,
-			autoScroll:true,
-			items:panels
-		});
+        var groupField = 'consequenceType';
+        var modelName = 'transcriptVariation';
+        var fields = ['transcriptId','consequenceType'];
+        var columns = [
+            {header : 'Transcript id',dataIndex: 'transcriptId',flex:1},
+            {header : 'Consequence type',dataIndex: 'consequenceType',flex:1}
+        ];
+        this.consequencePanel = this.doGrid(columns,fields,modelName,groupField);
+        this.consequencePanel.store.loadData(data2);
+
+//    	var panels = [];
+//    	for ( var i = 0; i < data.length; i++) {
+//			var consPanel = Ext.create('Ext.container.Container',{
+//				padding:5,
+//				data:data[i],
+//				tpl:tpl
+//			});
+//			panels.push(consPanel);
+//    	}
+//		this.consequencePanel = Ext.create('Ext.panel.Panel',{
+//			title:"Consequence type ("+i+")",
+//			border:false,
+//			cls:'panel-border-left',
+//			flex:3,
+//			bodyPadding:5,
+//			autoScroll:true,
+//			items:panels
+//		});
     }
     return this.consequencePanel;
 };

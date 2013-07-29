@@ -50,6 +50,8 @@ function KaryotypePanel(args) {
         }
     }
 
+    this.contentHidden=false;
+
     this.rendered=false;
     if(this.autoRender){
         this.render();
@@ -60,9 +62,16 @@ KaryotypePanel.prototype = {
     show: function () {
         $(this.div).css({display: 'block'});
     },
-
     hide: function () {
         $(this.div).css({display: 'none'});
+    },
+    showContent: function () {
+        $(this.svg).css({display: 'inline'});
+        this.contentHidden=false;
+    },
+    hideContent: function () {
+        $(this.svg).css({display: 'none'});
+        this.contentHidden=true;
     },
     setVisible: function (bool) {
         if(bool) {
@@ -86,6 +95,7 @@ KaryotypePanel.prototype = {
     },
 
     render : function(targetId){
+        var _this = this;
         this.targetId = (targetId) ? targetId : this.targetId;
         if($('#' + this.targetId).length < 1){
             console.log('targetId not found in DOM');
@@ -96,7 +106,23 @@ KaryotypePanel.prototype = {
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
+            this.collapseDiv = $('<div class="ocb-icon ocb-icon-collapse" style="margin:0px 0px -2px 10px;display:inline-block; vertical-align:bottom"></div>');
             this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
+            $(this.titleDiv).dblclick(function(){
+                if(_this.contentHidden){
+                    _this.showContent();
+                }else{
+                    _this.hideContent();
+                }
+            });
+            $(this.collapseDiv).click(function(){
+                if(_this.contentHidden){
+                    _this.showContent();
+                }else{
+                    _this.hideContent();
+                }
+            });
+            $(this.titleDiv).append(this.collapseDiv);
             $(this.div).append(this.titleDiv);
         }
 
@@ -141,11 +167,11 @@ KaryotypePanel.prototype = {
 
         var cellBaseManager = new CellBaseManager(this.species);
         cellBaseManager.success.addEventListener(function(sender,data){
-            _this.chromosomeList = data.result;
+            _this.chromosomeList = data.result.result[0].chromosomes;
             _this.chromosomeList.sort(sortfunction);
             _this._drawSvg(_this.chromosomeList);
         });
-        cellBaseManager.get('feature', 'chromosome', null , 'all');
+        cellBaseManager.get('genomic', 'chromosome', null , 'all');
     },
 
     _drawSvg: function(chromosomeList){

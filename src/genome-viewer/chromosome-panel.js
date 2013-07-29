@@ -48,7 +48,8 @@ function ChromosomePanel(args) {
         }
     }
 
-    this.rendered=false;
+    this.contentHidden=false;
+
     if(this.autoRender){
         this.render();
     }
@@ -60,6 +61,14 @@ ChromosomePanel.prototype = {
     },
     hide: function () {
         $(this.div).css({display: 'none'});
+    },
+    showContent: function () {
+        $(this.svg).css({display: 'inline'});
+        this.contentHidden=false;
+    },
+    hideContent: function () {
+        $(this.svg).css({display: 'none'});
+        this.contentHidden=true;
     },
     setVisible: function (bool) {
         if(bool) {
@@ -84,6 +93,7 @@ ChromosomePanel.prototype = {
     },
 
     render : function(targetId){
+        var _this = this;
         this.targetId = (targetId) ? targetId : this.targetId;
         if($('#' + this.targetId).length < 1){
             console.log('targetId not found in DOM');
@@ -94,7 +104,23 @@ ChromosomePanel.prototype = {
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
+            this.collapseDiv = $('<div class="ocb-icon ocb-icon-collapse" style="margin:0px 0px -2px 10px;display:inline-block; vertical-align:bottom"></div>');
             this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
+            $(this.titleDiv).dblclick(function(){
+                if(_this.contentHidden){
+                    _this.showContent();
+                }else{
+                    _this.hideContent();
+                }
+            });
+            $(this.collapseDiv).click(function(){
+                if(_this.contentHidden){
+                    _this.showContent();
+                }else{
+                    _this.hideContent();
+                }
+            });
+            $(this.titleDiv).append(this.collapseDiv);
             $(this.div).append(this.titleDiv);
         }
 
@@ -130,11 +156,11 @@ ChromosomePanel.prototype = {
         console.log('In chromosome-widget: ' + this.region)
         var cellBaseManager = new CellBaseManager(this.species);
         cellBaseManager.success.addEventListener(function (sender, data) {
-            _this.data = data.result[0];
+            _this.data = data.result.result[0].chromosomes;
             _this.data.cytobands.sort(sortfunction);
             _this._drawSvg(_this.data);
         });
-        cellBaseManager.get("feature", "chromosome", this.region.chromosome, "info");
+        cellBaseManager.get("genomic", "chromosome", this.region.chromosome, "info");
         this.lastChromosome = this.region.chromosome;
     },
 

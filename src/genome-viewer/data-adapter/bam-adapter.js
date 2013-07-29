@@ -193,8 +193,9 @@ BamAdapter.prototype.getData = function(args){
 		for ( var i = 0, li = querys.length; i < li; i++) {
 			console.time("dqs");
 			//accountId, sessionId, bucketname, objectname, region,
-
-			opencgaManager.region(this.resource.account, $.cookie("bioinfo_sid"),this.resource.bucketId, this.resource.id, querys[i], this.params);
+            var cookie = $.cookie("bioinfo_sid");
+            cookie = ( cookie != '' && cookie != null ) ?  cookie : 'dummycookie';
+			opencgaManager.region(this.resource.account, cookie ,this.resource.bucketId, this.resource.id, querys[i], this.params);
 		}
 	}else{//no server call
 		if(itemList.length > 0){

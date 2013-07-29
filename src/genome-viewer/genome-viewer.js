@@ -91,6 +91,9 @@ GenomeViewer.prototype = {
         console.log("Initializing GenomeViewer structure.");
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="' + this.id + '" class="ocb-gv ocb-box-vertical"></div>')[0];
+//        $(this.div).css({
+//            position:'relative'
+//        });
         $(this.targetDiv).append(this.div);
 
         var width = Math.max($(this.div).width(), $(this.targetDiv).width())
@@ -117,6 +120,12 @@ GenomeViewer.prototype = {
         $(this.div).append(this.centerPanelDiv);
 
         this.statusbarDiv = $('<div id="statusbar-' + this.id + '" class="ocb-gv-status"></div>');
+//        $(this.statusbarDiv).css({
+//            position:'absolute',
+//            bottom:'0px',
+//            'z-index':'10',
+//            height:'26'
+//        });
         $(this.div).append(this.statusbarDiv);
 
 
@@ -504,6 +513,14 @@ GenomeViewer.prototype = {
             trackListPanel.setSpecies(event.species);
         });
 
+
+        var renderer = new FeatureRenderer('gene');
+        renderer.on({
+            'feature:click': function (event) {
+                console.log(event)
+                new GeneInfoWidget(null, _this.species).draw(event);
+            }
+        });
         var gene = new FeatureTrack({
             targetId: null,
             id: 2,
@@ -515,12 +532,15 @@ GenomeViewer.prototype = {
             titleVisibility: 'hidden',
             featureTypes: FEATURE_TYPES,
 
-            renderer: new FeatureRenderer('gene'),
+            renderer: renderer,
 
             dataAdapter: new CellBaseAdapter({
                 category: "genomic",
                 subCategory: "region",
                 resource: "gene",
+                params:{
+                    exclude:'transcripts'
+                },
                 species: this.species,
                 featureCache: {
                     gzip: true,
@@ -529,6 +549,7 @@ GenomeViewer.prototype = {
             })
         });
         trackListPanel.addTrack(gene);
+
 
         return  trackListPanel;
     },

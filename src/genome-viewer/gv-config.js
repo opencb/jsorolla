@@ -244,13 +244,7 @@ FEATURE_TYPES = {
         },
         infoWidgetId: "id",
         height: 4,
-        histogramColor: "lightblue",
-        handlers: {
-            'feature:click': function (event) {
-                console.log(event)
-                new GeneInfoWidget(null, _this.species).draw(event);
-            }
-        }
+        histogramColor: "lightblue"
     },
 //	geneorange:{
 //		getLabel: function(f){
