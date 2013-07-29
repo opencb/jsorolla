@@ -28,26 +28,37 @@ function GeneRenderer(args) {
     _.extend(this, Backbone.Events);
 
     //set default args
-
-    //set instantiation args
-    _.extend(this, args);
-
-    if ('at' in this) {
-        for (eventName in this.at) {
-            this.on(eventName, this.at[eventName]);
-        }
+    if (_.isString(args)) {
+        _.extend(this, this.getDefaultConfig(args));
     }
+    //set instantiation args
+    else if (_.isObject(args)) {
+        _.extend(this, args);
+    }
+
+    this.on(this.handlers);
 
     this.fontFamily = 'Source Sans Pro';
 };
 
+GeneRenderer.prototype.setFeatureConfig = function(type){
+    _.extend(this, this.getDefaultConfig(type));
+};
 
 GeneRenderer.prototype.render = function (features, args) {
     var _this = this;
     var draw = function (feature) {
         //get feature render configuration
-        var settings = _this.featureConfig[feature.featureType];
-        var color = settings.getColor(feature);
+
+        //get feature render configuration
+        _this.setFeatureConfig('gene');
+        var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
+        var label = _.isFunction(_this.label) ? _this.label(feature, args.zoom) : _this.label;
+        var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
+        var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
+        var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
+        var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
+
 
         //get feature genomic information
         var start = feature.start;
@@ -64,12 +75,12 @@ GeneRenderer.prototype.render = function (features, args) {
         var textHeight = 0;
         if (args.zoom > args.labelZoom) {
             textHeight = 9;
-            maxWidth = Math.max(width, settings.getLabel(feature).length * 8);
+            maxWidth = Math.max(width, label.length * 9);
         }
 
         var rowY = 0;
-        var textY = textHeight + settings.height + 1;
-        var rowHeight = textHeight + settings.height + 5;
+        var textY = textHeight + height + 1;
+        var rowHeight = textHeight + height + 5;
 
         while (true) {
             if (!(rowY in args.renderedArea)) {
@@ -95,12 +106,13 @@ GeneRenderer.prototype.render = function (features, args) {
                 foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
             }
 
-            if (foundArea) {//paint genes
+            //paint genes
+            if (foundArea) {
                 var rect = SVG.addChild(args.svgCanvasFeatures, 'rect', {
                     'x': x,
                     'y': rowY,
                     'width': width,
-                    'height': settings.height,
+                    'height': height,
                     'stroke': '#3B0B0B',
                     'stroke-width': 0.5,
                     'fill': color,
@@ -117,17 +129,17 @@ GeneRenderer.prototype.render = function (features, args) {
                     'fill': 'black',
                     'cursor': 'pointer'
                 });
-                text.textContent = settings.getLabel(feature);
+                text.textContent = label;
 
                 $([rect, text]).qtip({
-                    content: {text: settings.getTipText(feature), title: settings.getTipTitle(feature)},
-                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                    style: { width: true, classes: 'font-sourcesanspro ui-tooltip ui-tooltip-shadow'}
+                    content: {text: tooltipText, title: tooltipTitle},
+//                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                    position: {target: "mouse", adjust: {x: 25, y: 15}},
+                    style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
                 });
 
                 $([rect, text]).click(function (event) {
-                    var settings = _this.featureConfig[feature.featureType];
-                    _this.trigger('feature:click', {query: feature[settings.infoWidgetId], feature: feature, featureType: feature.featureType});
+                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent: event});
                 });
 
 
@@ -144,11 +156,16 @@ GeneRenderer.prototype.render = function (features, args) {
                         var transcriptWidth = (transcript.end - transcript.start + 1) * ( args.pixelBase);
 
                         //get type settings object
-                        var settings = _this.featureConfig[transcript.featureType];
-                        var color = settings.getColor(transcript);
+                        _this.setFeatureConfig('transcript');
+                        var transcriptColor = _.isFunction(_this.color) ? _this.color(transcript) : _this.color;
+                        var label = _.isFunction(_this.label) ? _this.label(transcript) : _this.label;
+                        var height = _.isFunction(_this.height) ? _this.height(transcript) : _this.height;
+                        var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(transcript) : _this.tooltipTitle;
+                        var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(transcript) : _this.tooltipText;
+                        var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(transcript) : _this.infoWidgetId;
 
                         //se resta el trozo del final del gen hasta el principio del transcrito y se le suma el texto del transcrito
-                        var maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + settings.getLabel(transcript).length * 7);
+                        var maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + label.length * 7);
 
 
                         //add to the tree the transcripts size
@@ -156,7 +173,7 @@ GeneRenderer.prototype.render = function (features, args) {
 
 
                         var transcriptGroup = SVG.addChild(args.svgCanvasFeatures, 'g', {
-                            "widgetId": transcript[settings.infoWidgetId]
+                            "widgetId": transcript[infoWidgetId]
                         });
 
 
@@ -164,7 +181,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             'x': transcriptX,
                             'y': checkRowY + 1,
                             'width': transcriptWidth,
-                            'height': settings.height,
+                            'height': height,
                             'fill': 'gray',
                             'cursor': 'pointer',
                             'feature_id': transcript.id
@@ -178,23 +195,23 @@ GeneRenderer.prototype.render = function (features, args) {
                             'fill': 'black',
                             'cursor': 'pointer'
                         });
-                        text.textContent = settings.getLabel(transcript);
+                        text.textContent = label;
 
 
                         $(transcriptGroup).qtip({
-                            content: {text: settings.getTipText(transcript), title: settings.getTipTitle(transcript)},
-                            position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                            style: { width: true, classes: 'font-sourcesanspro ui-tooltip ui-tooltip-shadow'}
+                            content: {text: tooltipText, title: tooltipTitle},
+//                            position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                            position: {target: "mouse", adjust: {x: 25, y: 15}},
+                            style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
                         });
                         $(transcriptGroup).click(function (event) {
                             var query = this.getAttribute("widgetId");
-                            _this.trigger('feature:click', {query: query, feature: transcript, featureType: transcript.featureType});
+                            _this.trigger('feature:click', {query: query, feature: transcript, featureType: transcript.featureType, clickEvent: event});
                         });
 
                         //paint exons
                         for (var e = 0, lene = feature.transcripts[i].exons.length; e < lene; e++) {/* loop over exons*/
                             var exon = feature.transcripts[i].exons[e];
-                            var exonSettings = _this.featureConfig[exon.featureType];
                             var exonStart = parseInt(exon.start);
                             var exonEnd = parseInt(exon.end);
                             var middle = args.width / 2;
@@ -202,12 +219,22 @@ GeneRenderer.prototype.render = function (features, args) {
                             var exonX = args.pixelPosition + middle - ((args.position - exonStart) * args.pixelBase);
                             var exonWidth = (exonEnd - exonStart + 1) * ( args.pixelBase);
 
+
+                            _this.setFeatureConfig('exon');
+                            var color = _.isFunction(_this.color) ? _this.color(exon) : _this.color;
+                            var label = _.isFunction(_this.label) ? _this.label(exon) : _this.label;
+                            var height = _.isFunction(_this.height) ? _this.height(exon) : _this.height;
+                            var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(exon) : _this.tooltipTitle;
+                            var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(exon,transcript) : _this.tooltipText;
+                            var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(exon) : _this.infoWidgetId;
+
                             var exonGroup = SVG.addChild(args.svgCanvasFeatures, "g");
 
                             $(exonGroup).qtip({
-                                content: {text: exonSettings.getTipText(exon, transcript), title: exonSettings.getTipTitle(exon)},
-                                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                                style: { width: true, classes: 'font-sourcesanspro ui-tooltip ui-tooltip-shadow'}
+                                content: {text: tooltipText, title: tooltipTitle},
+//                                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                                position: {target: "mouse", adjust: {x: 25, y: 15}},
+                                style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
                             });
 
                             var eRect = SVG.addChild(exonGroup, "rect", {//paint exons in white without coding region
@@ -215,7 +242,7 @@ GeneRenderer.prototype.render = function (features, args) {
                                 "x": exonX,
                                 "y": checkRowY - 1,
                                 "width": exonWidth,
-                                "height": exonSettings.height,
+                                "height": height,
                                 "stroke": "gray",
                                 "stroke-width": 1,
                                 "fill": "white",
@@ -254,10 +281,10 @@ GeneRenderer.prototype.render = function (features, args) {
                                     "x": codingX,
                                     "y": checkRowY - 1,
                                     "width": codingWidth,
-                                    "height": exonSettings.height,
-                                    "stroke": color,
+                                    "height": height,
+                                    "stroke": transcriptColor,
                                     "stroke-width": 1,
-                                    "fill": color,
+                                    "fill": transcriptColor,
                                     "cursor": "pointer"
                                 });
                                 //XXX draw phase only at zoom 100, where this.pixelBase=10
@@ -267,7 +294,7 @@ GeneRenderer.prototype.render = function (features, args) {
                                         "x": codingX + (p * 10),
                                         "y": checkRowY - 1,
                                         "width": args.pixelBase,
-                                        "height": exonSettings.height,
+                                        "height": height,
                                         "stroke": color,
                                         "stroke-width": 1,
                                         "fill": 'white',
@@ -294,102 +321,4 @@ GeneRenderer.prototype.render = function (features, args) {
     for (var i = 0, leni = features.length; i < leni; i++) {
         draw(features[i]);
     }
-};
-
-GeneRenderer.prototype.featureConfig = {
-    gene: {
-        getLabel: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            var str = "";
-            str += (f.strand < 0 || f.strand == '-') ? "<" : "";
-            str += " " + name + " ";
-            str += (f.strand > 0 || f.strand == '+') ? ">" : "";
-            if (f.biotype != null && f.biotype != '') {
-                str += " [" + f.biotype + "]";
-            }
-            return str;
-        },
-        getTipTitle: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            return FEATURE_TYPES.formatTitle(f.featureType) +
-                ' - <span class="ok">' + name + '</span>';
-        },
-        getTipText: function (f) {
-            var color = GENE_BIOTYPE_COLORS[f.biotype];
-            return    'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
-                'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
-                FEATURE_TYPES.getTipCommons(f) +
-                'source:&nbsp;<span class="ssel">' + f.source + '</span><br><br>' +
-                'description:&nbsp;<span class="emph">' + f.description + '</span><br>';
-        },
-        getColor: function (f) {
-            return GENE_BIOTYPE_COLORS[f.biotype];
-        },
-        infoWidgetId: "id",
-        height: 4,
-        histogramColor: "lightblue"
-    },
-    transcript: {
-        getLabel: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            var str = "";
-            str += (f.strand < 0) ? "<" : "";
-            str += " " + name + " ";
-            str += (f.strand > 0) ? ">" : "";
-            if (f.biotype != null && f.biotype != '') {
-                str += " [" + f.biotype + "]";
-            }
-            return str;
-        },
-        getTipTitle: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            return FEATURE_TYPES.formatTitle(f.featureType) +
-                ' - <span class="ok">' + name + '</span>';
-        },
-        getTipText: function (f) {
-            var color = GENE_BIOTYPE_COLORS[f.biotype];
-            return    'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
-                'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
-                'description:&nbsp;<span class="emph">' + f.description + '</span><br>' +
-                FEATURE_TYPES.getTipCommons(f);
-        },
-        getColor: function (f) {
-            return GENE_BIOTYPE_COLORS[f.biotype];
-        },
-        infoWidgetId: "id",
-        height: 1,
-        histogramColor: "lightblue"
-    },
-    exon: {
-        getLabel: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            return name;
-        },
-        getTipTitle: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            if (name == null) {
-                name = ''
-            }
-            return FEATURE_TYPES.formatTitle(f.featureType) + ' - <span class="ok">' + name + '</span>';
-        },
-        getTipText: function (e, t) {
-            var ename = (e.name != null) ? e.name : e.id;
-            var tname = (t.name != null) ? t.name : t.id;
-            var color = GENE_BIOTYPE_COLORS[t.biotype];
-            return    'transcript name:&nbsp;<span class="ssel">' + t.name + '</span><br>' +
-                'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">' + t.id + '</span><br>' +
-                'transcript biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + t.biotype + '</span><br>' +
-                'transcript description:&nbsp;<span class="emph">' + t.description + '</span><br>' +
-                'transcript start-end:&nbsp;<span class="emph">' + t.start + '-' + t.end + '</span><br>' +
-                'exon start-end:&nbsp;<span class="emph">' + e.start + '-' + e.end + '</span><br>' +
-                'strand:&nbsp;<span class="emph">' + t.strand + '</span><br>' +
-                'length:&nbsp;<span class="info">' + (e.end - e.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
-        },
-        getColor: function (f) {
-            return "black";
-        },
-        infoWidgetId: "id",
-        height: 5,
-        histogramColor: "lightblue"
-    },
 };

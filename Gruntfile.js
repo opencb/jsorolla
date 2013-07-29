@@ -8,7 +8,7 @@ module.exports = function (grunt) {
         meta: {
             version : {
                 gv:'1.0.2',
-                nv:'0.0.1',
+                nv:'1.0.0',
                 cellbase:'1.0.0',
                 opencga:'1.0.0',
                 utils:'1.0.0'
@@ -36,6 +36,7 @@ module.exports = function (grunt) {
                     'src/utils/utils.js',
                     'src/utils/event.js',
                     'src/utils/svg.js'
+//                    'src/ui-widgets/ux-window.js'
                 ],
                 dest: 'build/utils-<%= meta.version.utils %>.js'
             },
@@ -61,34 +62,48 @@ module.exports = function (grunt) {
                     '<%= concat.utils.dest %>',
                     '<%= concat.cellbase.dest %>',
                     'src/genome-viewer/gv-config.js',
-                    'src/genome-viewer/data-adapter/cellbase-adapter.js','src/genome-viewer/data-adapter/sequence-adapter.js',
+                    'src/genome-viewer/data-source/data-source.js','src/genome-viewer/data-source/*-data-source.js',
+                    'src/genome-viewer/data-adapter/cellbase-adapter.js',
+                    'src/genome-viewer/data-adapter/sequence-adapter.js',
+                    'src/genome-viewer/data-adapter/bam-adapter.js',
+                    'src/genome-viewer/data-adapter/opencga-adapter.js',
+                    'src/genome-viewer/data-adapter/feature-data-adapter.js','src/genome-viewer/data-adapter/*-data-adapter.js',
                     'src/genome-viewer/region.js',
                     'src/genome-viewer/feature-binary-search-tree.js',
                     'src/genome-viewer/feature-cache.js',
+                    'src/genome-viewer/bam-cache.js',
                     'src/genome-viewer/navigation-bar.js',
                     'src/genome-viewer/chromosome-panel.js',
                     'src/genome-viewer/karyotype-panel.js',
                     'src/genome-viewer/tracklist-panel.js',
                     'src/genome-viewer/status-bar.js',
+                    'src/genome-viewer/legend-panel.js',
+                    'src/genome-viewer/legend-widget.js',
                         /** tracks **/
                     'src/genome-viewer/tracks/track.js',
                     'src/genome-viewer/tracks/*-track.js',
                         /** renderers **/
                     'src/genome-viewer/renderers/renderer.js',
                     'src/genome-viewer/renderers/*-renderer.js',
+                        /** widgets **/
+                    'src/genome-viewer/widget/file-widget.js',
+                    'src/genome-viewer/widget/*-file-widget.js',
+
                     'src/genome-viewer/genome-viewer.js'
+
                 ],
                 dest: 'build/genome-viewer/<%= meta.version.gv %>/genome-viewer-<%= meta.version.gv %>.js'
             },
             nv:{
                 src: [
-                    /** Utils **/
-                    'src/utils/svg.js','src/utils/utils.js',
-                    /** network viewer **/
-                    'src/network-viewer/tool-bar.js',
+                    '<%= concat.utils.dest %>',
+                    '<%= concat.cellbase.dest %>',
                     'src/network-viewer/network-viewer.js'
+                    /** network viewer **/
+
+                   /** src/network-viewer ..... **/
                 ],
-                dest:'build/network-viewer/<%= meta.version.nv %>/network-viewer.js'
+                dest:'build/network-viewer/<%= meta.version.nv %>/network-viewer-<%= meta.version.nv %>.js'
             }
         },
         uglify: {
@@ -113,7 +128,7 @@ module.exports = function (grunt) {
             },
             nv: {
                 src: '<%= concat.nv.dest %>',
-                dest: 'build/network-viewer/<%= meta.version.nv %>/network-viewer.min.js'
+                dest: 'build/network-viewer/<%= meta.version.nv %>/network-viewer-<%= meta.version.nv %>.min.js'
             }
         },
         jshint: {
@@ -236,30 +251,13 @@ module.exports = function (grunt) {
                     'http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.js',
                     'http://cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.2.1/purl.min.js',
                     'http://jsapi.bioinfo.cipf.es/ext-libs/jquery-plugins/jquery.sha1.js',
-                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.js',
-                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css'
+                    'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.1.1/jquery.qtip.min.js',
+                    'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.1.1/jquery.qtip.min.css',
+//                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.js',
+//                    'http://jsapi.bioinfo.cipf.es/ext-libs/qtip2/jquery.qtip.min.css',
+                    'http://jsapi.bioinfo.cipf.es/ext-libs/rawdeflate.js'
                 ],
                 dest: 'vendor'
-            },
-            bootstrapjs: {
-                src: [
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js',
-                ],
-                dest: 'vendor/bootstrap/js/'
-            },
-            bootstrapcss: {
-                src: [
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css',
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.min.css',
-                ],
-                dest: 'vendor/bootstrap/css/'
-            },
-            bootstrapimg: {
-                src: [
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/img/glyphicons-halflings.png',
-                    'http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/img/glyphicons-halflings-white.png',
-                ],
-                dest: 'vendor/bootstrap/img/'
             }
         }
     });
@@ -281,7 +279,7 @@ module.exports = function (grunt) {
     // Default task.
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
     grunt.registerTask('gv', ['concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
-    grunt.registerTask('nv', ['concat:nv','uglify:nv']);
+    grunt.registerTask('nv', ['concat:utils','concat:cellbase','concat:nv','uglify:nv', 'clean:utils','clean:cellbase']);
 
     grunt.registerTask('utils', ['concat:utils','uglify:utils','copy:utils','clean:utils']);
     grunt.registerTask('cellbase', ['concat:utils','uglify:utils','concat:cellbase','uglify:cellbase','copy:cellbase','clean:cellbase','clean:utils']);

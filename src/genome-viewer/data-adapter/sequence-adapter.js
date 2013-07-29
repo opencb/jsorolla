@@ -174,68 +174,119 @@ SequenceAdapter.prototype._getSequenceQuery = function(args){
 
 SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 	var _this = this;
-	var seqResponse = data.result;
-	var params = data.params;
-	var chromosome = data.params.chromosome;
+	var params = data.metadata.params;
 
-	for(var i = 0; i < seqResponse.length; i++){
-		var splitDots = data.query[i].split(":");
-		var splitDash = splitDots[1].split("-");
-		var queryStart = parseInt(splitDash[0]);
-		var queryEnd = parseInt(splitDash[1]);
-		
-		if(this.sequence[chromosome] == null){
-			this.sequence[chromosome] = seqResponse[i].sequence;
-//			this.phastCons[chromosome] = seqResponse[i].phastCons;
+    for(i in data.metadata.queryIds) {
+
+        var splitDots = data.metadata.queryIds[i].split(":");
+        var splitDash = splitDots[1].split("-");
+        var queryStart = parseInt(splitDash[0]);
+        var queryEnd = parseInt(splitDash[1]);
+
+        var queryId = data.metadata.queryIds[i];
+	    var seqResponse = data[queryId].result;
+	    var chromosome = seqResponse.chromosome;
+
+        if(this.sequence[chromosome] == null){
+            this.sequence[chromosome] =  seqResponse.sequence;
+//          this.phastCons[chromosome] = seqResponse[i].phastCons;
 //			this.phylop[chromosome] = seqResponse[i].phylop;
-		}else{
-			if(queryStart == this.start[chromosome]){
-				this.sequence[chromosome] = seqResponse[i].sequence + this.sequence[chromosome];
+        }else{
+            if(queryStart == this.start[chromosome]){
+                this.sequence[chromosome] = seqResponse.sequence + this.sequence[chromosome];
 //				this.phastCons[chromosome] = seqResponse[i].phastCons.concat(this.phastCons[chromosome]);
 //				this.phylop[chromosome] = seqResponse[i].phylop.concat(this.phylop[chromosome]);
-			}else{
-				this.sequence[chromosome] = this.sequence[chromosome] + seqResponse[i].sequence;
+            }else{
+                this.sequence[chromosome] = this.sequence[chromosome] + seqResponse.sequence;
 //				this.phastCons[chromosome] = this.phastCons[chromosome].concat(seqResponse[i].phastCons);
 //				this.phylop[chromosome] = this.phylop[chromosome].concat(seqResponse[i].phylop);
-			}
-		}
+            }
+        }
 
-		if(this.sender == "move" && throwNotify == true){
-			this.onGetData.notify({
-                items:{
-                    sequence:seqResponse[i].sequence,
-                    phastCons:seqResponse[i].phastCons,
-                    phylop:seqResponse[i].phylop,
-                    start:queryStart,
-                    end:queryEnd
-                },
-                params:params
-            });
+        if(this.sender == "move" && throwNotify == true){
+//            this.onGetData.notify({
+//                items:{
+//                    sequence:seqResponse.sequence,
+////                    phastCons:seqResponse[i].phastCons,
+////                    phylop:seqResponse[i].phylop,
+//                    start:queryStart,
+//                    end:queryEnd
+//                },
+//                params:params
+//            });
             this.trigger('data:ready',{
                 items:{
-                    sequence:seqResponse[i].sequence,
-                    phastCons:seqResponse[i].phastCons,
-                    phylop:seqResponse[i].phylop,
+                    sequence:seqResponse.sequence,
+//                    phastCons:seqResponse[i].phastCons,
+//                    phylop:seqResponse[i].phylop,
                     start:queryStart,
                     end:queryEnd
                 },
                 params:params,
                 sender:this
             });
-		}
-	}
+        }
+    }
+
+
+//	for(var i = 0; i < seqResponse.length; i++){
+//		var splitDots = data.query[i].split(":");
+//		var splitDash = splitDots[1].split("-");
+//		var queryStart = parseInt(splitDash[0]);
+//		var queryEnd = parseInt(splitDash[1]);
+//
+//		if(this.sequence[chromosome] == null){
+//			this.sequence[chromosome] = seqResponse[i].sequence;
+////			this.phastCons[chromosome] = seqResponse[i].phastCons;
+////			this.phylop[chromosome] = seqResponse[i].phylop;
+//		}else{
+//			if(queryStart == this.start[chromosome]){
+//				this.sequence[chromosome] = seqResponse[i].sequence + this.sequence[chromosome];
+////				this.phastCons[chromosome] = seqResponse[i].phastCons.concat(this.phastCons[chromosome]);
+////				this.phylop[chromosome] = seqResponse[i].phylop.concat(this.phylop[chromosome]);
+//			}else{
+//				this.sequence[chromosome] = this.sequence[chromosome] + seqResponse[i].sequence;
+////				this.phastCons[chromosome] = this.phastCons[chromosome].concat(seqResponse[i].phastCons);
+////				this.phylop[chromosome] = this.phylop[chromosome].concat(seqResponse[i].phylop);
+//			}
+//		}
+//
+//		if(this.sender == "move" && throwNotify == true){
+//			this.onGetData.notify({
+//                items:{
+//                    sequence:seqResponse[i].sequence,
+//                    phastCons:seqResponse[i].phastCons,
+//                    phylop:seqResponse[i].phylop,
+//                    start:queryStart,
+//                    end:queryEnd
+//                },
+//                params:params
+//            });
+//            this.trigger('data:ready',{
+//                items:{
+//                    sequence:seqResponse[i].sequence,
+//                    phastCons:seqResponse[i].phastCons,
+//                    phylop:seqResponse[i].phylop,
+//                    start:queryStart,
+//                    end:queryEnd
+//                },
+//                params:params,
+//                sender:this
+//            });
+//		}
+//	}
 	//if not onMove the svg was cleared so all sequence is sent to redraw
 	if(this.sender != "move" && throwNotify == true){
-		this.onGetData.notify({
-            items:{
-                sequence:this.sequence[chromosome],
-                phastCons:this.phastCons[chromosome],
-                phylop:this.phylop[chromosome],
-                start:this.start[chromosome],
-                end:this.end[chromosome]
-            },
-            params:params
-        });
+//		this.onGetData.notify({
+//            items:{
+//                sequence:this.sequence[chromosome],
+//                phastCons:this.phastCons[chromosome],
+//                phylop:this.phylop[chromosome],
+//                start:this.start[chromosome],
+//                end:this.end[chromosome]
+//            },
+//            params:params
+//        });
         this.trigger('data:ready',{
             items:{
                 sequence:this.sequence[chromosome],

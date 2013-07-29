@@ -25,6 +25,7 @@ function GenericFormPanel(analysis) {
     this.paramsWS = {};
     this.opencgaManager = new OpencgaManager();
     this.panelId = this.analysis + "-FormPanel";
+    this.testing = false;
 
     this.opencgaManager.onRunAnalysis.addEventListener(function (sender, response) {
         if (response.data.indexOf("ERROR") != -1) {
@@ -164,7 +165,11 @@ GenericFormPanel.prototype.beforeRun = function () {
 GenericFormPanel.prototype.run = function () {
     this.setAccountParams();
     (this.paramsWS['outdir'] === '') ? delete this.paramsWS['outdir'] : console.log(this.paramsWS['outdir']);
-    this.opencgaManager.runAnalysis(this.analysis, this.paramsWS);
+
+    if(!this.testing){
+        this.opencgaManager.runAnalysis(this.analysis, this.paramsWS);
+    }
+
     Ext.example.msg('Job Launched', 'It will be listed soon');
     //debug
     console.log(this.paramsWS);

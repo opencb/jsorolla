@@ -155,9 +155,10 @@ TrackSvg.prototype = {
         console.time("-----------------------------------------empty");
         //$(this.features).empty();
 //		this.features.textContent = "";
-        while (this.features.firstChild) {
-            this.features.removeChild(this.features.firstChild);
-        }
+        $(this.features).empty();
+//        while (this.features.firstChild) {
+//            this.features.removeChild(this.features.firstChild);
+//        }
         console.timeEnd("-----------------------------------------empty");
         //deprecated, diplayed object is now in trackSvg class
         //this.adapter.featureCache.chunksDisplayed = {};

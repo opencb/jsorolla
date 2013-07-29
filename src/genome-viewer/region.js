@@ -26,16 +26,12 @@ function Region(args) {
     this.end = null;
 
     if (typeof args != 'undefined') {
-        this.chromosome = args.chromosome || this.chromosome;
-        this.start = args.start || this.start;
-        this.end = args.end || this.end;
+        this.load(args);
 
         if (args.str != null) {
             this.parse(args.str);
         }
     }
-
-    this.regionPattern = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
 }
 
 Region.prototype = {
@@ -43,24 +39,30 @@ Region.prototype = {
         this.chromosome = obj.chromosome || this.chromosome;
         this.start = obj.start || this.start;
         this.end = obj.end || this.end;
+
+        this.start = parseInt(this.start);
+        this.end = parseInt(this.end);
     },
 
     parse: function (str) {
-        if(!this.regionPattern.test(str)){
+        var pattern = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
+        var pattern2 = /^([a-zA-Z0-9])+\:([0-9])+$/;
+        if(pattern.test(str) || pattern2.test(str) ){
+            var splitDots = str.split(":");
+            if (splitDots.length == 2) {
+                var splitDash = splitDots[1].split("-");
+                this.chromosome = splitDots[0];
+                this.start = parseInt(splitDash[0]);
+                if (splitDash.length == 2) {
+                    this.end = parseInt(splitDash[1]);
+                } else {
+                    this.end = this.start;
+                }
+            }
+            return true
+        }else{
             return false;
         }
-        var splitDots = str.split(":");
-        if (splitDots.length == 2) {
-            var splitDash = splitDots[1].split("-");
-            this.chromosome = splitDots[0];
-            this.start = parseInt(splitDash[0]);
-            if (splitDash.length == 2) {
-                this.end = parseInt(splitDash[1]);
-            } else {
-                this.end = this.start;
-            }
-        }
-        return true
     },
 
     center : function () {

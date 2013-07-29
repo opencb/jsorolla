@@ -125,25 +125,45 @@ SnpInfoWidget.prototype.getConsequenceTypePanel = function(data){
 	}
     if(this.consequencePanel==null){
     	var tpl = this.getConsequenceTypeTemplate();
-    	
-    	var panels = [];
-    	for ( var i = 0; i < data.length; i++) {	
-			var consPanel = Ext.create('Ext.container.Container',{
-				padding:5,
-				data:data[i],
-				tpl:tpl
-			});
-			panels.push(consPanel);
-    	}
-		this.consequencePanel = Ext.create('Ext.panel.Panel',{
-			title:"Consequence type ("+i+")",
-			border:false,
-			cls:'panel-border-left',
-			flex:3,    
-			bodyPadding:5,
-			autoScroll:true,
-			items:panels
-		});
+
+
+        var data2 = [];
+        for(var i = 0; i<data.length; i++){
+            for(var j = 0; j<data[i].consequenceTypes.length; j++){
+                var consequenceType = data[i].consequenceTypes[j];
+                data[i].consequenceType = consequenceType;
+                data2.push(data[i]);
+            }
+        }
+
+        var groupField = 'consequenceType';
+        var modelName = 'transcriptVariation';
+        var fields = ['transcriptId','consequenceType'];
+        var columns = [
+            {header : 'Transcript id',dataIndex: 'transcriptId',flex:1},
+            {header : 'Consequence type',dataIndex: 'consequenceType',flex:1}
+        ];
+        this.consequencePanel = this.doGrid(columns,fields,modelName,groupField);
+        this.consequencePanel.store.loadData(data2);
+
+//    	var panels = [];
+//    	for ( var i = 0; i < data.length; i++) {
+//			var consPanel = Ext.create('Ext.container.Container',{
+//				padding:5,
+//				data:data[i],
+//				tpl:tpl
+//			});
+//			panels.push(consPanel);
+//    	}
+//		this.consequencePanel = Ext.create('Ext.panel.Panel',{
+//			title:"Consequence type ("+i+")",
+//			border:false,
+//			cls:'panel-border-left',
+//			flex:3,
+//			bodyPadding:5,
+//			autoScroll:true,
+//			items:panels
+//		});
     }
     return this.consequencePanel;
 };
@@ -217,7 +237,7 @@ SnpInfoWidget.prototype.getData = function (){
 //	category, subcategory, query, resource, callbackFunction
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function (sender,data){
-        _this.dataReceived(data.result);//TODO
+        _this.dataReceived(data[_this.query].result[0]);
 	});
 	cellBaseManager.get("feature","snp", this.query, "info");
 };
@@ -229,7 +249,7 @@ SnpInfoWidget.prototype.dataReceived = function (data){
 //			console.log(mappedSnps[i]);
 //		}
 //	}
-    this.data=data[0][0];
+    this.data=data;
     console.log(this.data);
 	this.optionClick({"text":"Information","leaf":"true"});
 	this.panel.enable();

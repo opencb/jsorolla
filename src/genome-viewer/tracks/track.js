@@ -101,6 +101,10 @@ Track.prototype = {
         this.titlebar.setAttribute("height",height);
     },
 
+    setTitle : function(title){
+        $(this.titlediv).html(title);
+    },
+
     setLoading: function (bool) {
         if (bool) {
             this.svgLoading.setAttribute("visibility", "visible");
@@ -121,6 +125,7 @@ Track.prototype = {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
             this.histogramMax = undefined;
+            this.interval = undefined;
         }
     },
 
@@ -155,7 +160,7 @@ Track.prototype = {
         $(svgdiv).css({
             'z-index': 3,
             'height':this.height,
-            'overflow-y': (this.resizable) ? 'scroll' : 'hidden',
+            'overflow-y': (this.resizable) ? 'auto' : 'hidden',
             'overflow-x': 'hidden'
         });
 

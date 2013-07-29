@@ -36,6 +36,7 @@ function HeaderWidget(args){
 	this.suiteId=-1;
 	this.news='';
     this.checkTimeInterval = 4000;
+    this.version = '';
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -142,7 +143,7 @@ HeaderWidget.prototype = {
         delete this.accountInfoInterval;
     },
     setDescription : function (text){
-        $("#"+this.id+'description').text(text);
+        $("#"+this.id+'description').html(text);
     },
     draw : function(){
         if (!this.rendered) {
@@ -241,23 +242,6 @@ HeaderWidget.prototype = {
                 minHeight:40,
                 maxHeight:40,
                 items: [{
-                    xtype: 'tbtext',
-                    id: this.id + "appTextItem",
-                    //		        	html: '<span class="appName">Vitis vinifera&nbsp; '+this.args.appname +'</span> <span class="appDesc">'+this.args.description+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span><img height="30" src="http://www.demeter.es/imagenes/l_demeter.gif"></span>',
-                    text: '<span class="appName">' + this.appname + '</span> <span id="' + this.id + 'description" class="appDesc">' + this.description + '</span>' +
-//                        '<span class="appDesc" style="color:orangered;margin-left:20px">New version 3.1 beta2</span>' +
-                    '',
-                    padding: '0 0 0 10',
-                    listeners:{
-                        afterrender:function(){
-                            $("#"+_this.id+"appTextItem").qtip({
-                                content: '<span class="info">'+_this.version+'</span>',
-                                position: {my:"bottom center",at:"top center",adjust: { y: 0, x:-25 }}
-
-                            });
-                        }
-                    }
-                },{
                     xtype:'tbtext',
                     id:this.id+"speciesTextItem",
                     text:''
@@ -305,9 +289,9 @@ HeaderWidget.prototype = {
             var userbar = new Ext.create('Ext.toolbar.Toolbar', {
                 id : this.id+'userbar',
                 dock: 'top',
-                border:true,
-                cls:'bio-userbar',
-//                cls:'bio-linkbar',
+                border:false,
+//                cls:'bio-userbar',
+                cls:'gm-login-bar',
                 height:27,
                 minHeight:27,
                 maxHeight:27,
@@ -356,7 +340,36 @@ HeaderWidget.prototype = {
                 height : this.height,
                 minHeight: this.height,
                 maxHeigth: this.height,
-                items:[userbar,linkbar]
+                layout:'hbox',
+                items:[{
+                    xtype:'container',
+//                    flex:1,
+                    items:[{
+                        id: this.id + "appTextItem",
+                        xtype: 'tbtext',
+                        margin:'15 0 0 20',
+                        //		        	html: '<span class="appName">Vitis vinifera&nbsp; '+this.args.appname +'</span> <span class="appDesc">'+this.args.description+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span><img height="30" src="http://www.demeter.es/imagenes/l_demeter.gif"></span>',
+                        text: '<span class="appName">' + this.appname + '</span> ' +
+                            '<span id="' + this.id + 'description" class="appDesc">' + this.description + '</span>' +
+                            '<span id="' + this.id + 'version" class="appVersion"></span>' +
+                            '',
+                        padding: '0 0 0 10',
+                        listeners:{
+                            afterrender:function(){
+                                $("#"+_this.id+"appTextItem").qtip({
+                                    content: '<span class="info">'+_this.version+'</span>',
+                                    position: {my:"bottom center",at:"top center",adjust: { y: 12, x:-25 }}
+
+                                });
+                            }
+                        }
+                    }]
+                },{
+                    xtype:'container',
+                    flex:2,
+                    layout:{type:'vbox',align:'right'},
+                    items:[userbar,linkbar]
+                }]
             });
         }
         this.rendered = true;

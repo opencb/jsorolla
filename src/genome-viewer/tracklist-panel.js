@@ -61,11 +61,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.onWindowSize = new Event();
     this.onMousePosition = new Event();
 
-    if('handlers' in this){
-        for(eventName in this.handlers){
-            this.on(eventName,this.handlers[eventName]);
-        }
-    }
+    this.on(this.handlers);
 
     this.rendered = false;
     if(this.autoRender){
@@ -85,7 +81,7 @@ TrackListPanel.prototype = {
         var _this = this;
 
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="tracklist-panel"></div>')[0];
+        this.div = $('<div id="tracklist-panel" style="height:100%;position: relative;"></div>')[0];
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
@@ -524,6 +520,10 @@ TrackListPanel.prototype = {
         //this.minRegionRect.setAttribute("x",(this.width/2)-(this.minRectWidth/2)+6);
     },
 
+    draw: function(){
+        this.trigger('track:draw',{sender:this});
+    },
+
     addTrack: function (track) {
         if(!this.rendered){
             console.info(this.id+' is not rendered yet');
@@ -540,37 +540,51 @@ TrackListPanel.prototype = {
 
         // Track must be initialized after we have created
         // de DIV element in order to create the elements in the DOM
-        track.render(this.tlTracksDiv);
+        if(!track.rendered){
+            track.render(this.tlTracksDiv);
+        }
 
         // Once tack has been initialize we can call draw() function
         track.draw();
 
-        this.on('trackSpecies:change', function (event) {
+
+        //trackEvents
+        track.set('track:draw',function (event) {
+            track.draw();
+        });
+
+
+        track.set('trackSpecies:change', function (event) {
             track.setSpecies(event.species);
         });
 
-        this.on('trackRegion:change', function (event) {
+
+        track.set('trackRegion:change', function (event) {
             track.set('pixelBase', _this.pixelBase);
             track.set('zoom', _this.zoom);
             track.set('region', event.region);
             track.draw();
         });
 
-        this.on('trackRegion:move', function (event) {
+
+        track.set('trackRegion:move', function (event) {
             track.set('region', event.region);
             track.set('pixelBase', _this.pixelBase);
             track.set('zoom', _this.zoom);
             track.move(event.disp);
         });
 
-        this.on('trackWidth:change', function (event) {
+
+        track.set('trackWidth:change', function (event) {
             track.setWidth(event.width);
             track.set('pixelBase', _this.pixelBase);
             track.set('zoom', _this.zoom);
             track.draw();
         });
 
-        this.on('trackFeature:highlight', function (event) {
+
+
+        track.set('trackFeature:highlight', function (event) {
             var attrName = event.attrName || 'feature_id';
             if ('attrValue' in event) {
                 event.attrValue = ($.isArray(event.attrValue)) ? event.attrValue : [event.attrValue];
@@ -600,6 +614,13 @@ TrackListPanel.prototype = {
                 }
             }
         });
+
+        this.on('track:draw', track.get('track:draw'));
+        this.on('trackSpecies:change', track.get('trackSpecies:change'));
+        this.on('trackRegion:change', track.get('trackRegion:change'));
+        this.on('trackRegion:move',track.get('trackRegion:move'));
+        this.on('trackWidth:change',track.get('trackWidth:change'));
+        this.on('trackFeature:highlight', track.get('trackFeature:highlight'));
     },
 
     removeTrack: function (trackId) {
@@ -608,15 +629,19 @@ TrackListPanel.prototype = {
 
         var i = this.swapHash[trackId].index;
 
-        // delete listeners
-        this.onRegionChange.removeEventListener(this.trackSvgList[i].onRegionChangeIdx);
-        this.off('trackRegion:move', this.trackSvgList[i].move);
-//        this.onMove.removeEventListener(this.trackSvgList[i].onMoveIdx);
-
-        // delete data
+        // remove track from list and hash data
         var track = this.trackSvgList.splice(i, 1)[0];
-
         delete this.swapHash[trackId];
+
+        // delete listeners
+        this.off('track:draw', track.get('track:draw'));
+        this.off('trackSpecies:change', track.get('trackSpecies:change'));
+        this.off('trackRegion:change', track.get('trackRegion:change'));
+        this.off('trackRegion:move',track.get('trackRegion:move'));
+        this.off('trackWidth:change',track.set('trackWidth:change'));
+        this.off('trackFeature:highlight', track.get('trackFeature:highlight'));
+
+
         //uddate swapHash with correct index after splice
         for (var i = 0; i < this.trackSvgList.length; i++) {
             this.swapHash[this.trackSvgList[i].id].index = i;
@@ -624,39 +649,24 @@ TrackListPanel.prototype = {
         return track;
     },
 
-    restoreTrack: function (trackSvg, index) {
+    restoreTrack: function (track, index) {
         var _this = this;
 
-        trackSvg.region = this.region;
-        trackSvg.zoom = this.zoom;
-        trackSvg.pixelBase = this.pixelBase;
-        trackSvg.width = this.width;
-
-        var i = this.trackSvgList.push(trackSvg);
-        this.swapHash[trackSvg.id] = {index: i - 1, visible: true};
-        trackSvg.setY(this.height);
-        trackSvg.draw();
-        this.setHeight(this.height + trackSvg.getHeight());
-
-        trackSvg.onRegionChangeIdx = this.onRegionChange.addEventListener(trackSvg.regionChange);
-        trackSvg.onMoveIdx = this.onMove.addEventListener(trackSvg.move);
-
-        trackSvg.regionChange();
+        this.addTrack(track);
 
         if (index != null) {
-            this.setTrackIndex(trackSvg.id, index);
+            this.setTrackIndex(track.id, index);
         }
+//        this._showTrack(track.id);
     },
 
     _redraw: function () {
-        var _this = this;
-        var trackSvg = null;
-        var lastY = 0;
+        $(this.tlTracksDiv)
         for (var i = 0; i < this.trackSvgList.length; i++) {
-            trackSvg = this.trackSvgList[i];
-            if (this.swapHash[trackSvg.id].visible) {
-                trackSvg.main.setAttribute("y", lastY);
-                lastY += trackSvg.getHeight();
+            var track = this.trackSvgList[i];
+            $(track.div).detach();
+            if (this.swapHash[track.id].visible) {
+                $(this.tlTracksDiv).append(track.div);
             }
         }
     },
@@ -719,7 +729,8 @@ TrackListPanel.prototype = {
         for (var i = 0; i < this.trackSvgList.length; i++) {
             this.swapHash[this.trackSvgList[i].id].index = i;
         }
-        //update svg coordinates
+
+        //update track div positions
         this._redraw();
     },
 
@@ -728,29 +739,36 @@ TrackListPanel.prototype = {
         if (swapTrack != null) {
             var i = swapTrack.index;
             var track = this.trackSvgList[i];
-            $(this.svg).parent().parent().scrollTop(track.main.getAttribute("y"));
+            var y = $(track.div).position().top;
+            $(this.tlTracksDiv).scrollTop(y);
+
+//            $(this.svg).parent().parent().scrollTop(track.main.getAttribute("y"));
         }
     },
 
 
-    _hideTrack: function (trackMainId) {
-        this.swapHash[trackMainId].visible = false;
-        var i = this.swapHash[trackMainId].index;
+    _hideTrack: function (trackId) {
+        this.swapHash[trackId].visible = false;
+        var i = this.swapHash[trackId].index;
         var track = this.trackSvgList[i];
-        this.svg.removeChild(track.main);
 
-        this.setHeight(this.height - track.getHeight());
+        $(track.div).css({display:'hidden'});
+
+//        this.setHeight(this.height - track.getHeight());
 
         this._redraw();
     },
 
-    _showTrack: function (trackMainId) {
-        this.swapHash[trackMainId].visible = true;
-        var i = this.swapHash[trackMainId].index;
+    _showTrack: function (trackId) {
+        this.swapHash[trackId].visible = true;
+        var i = this.swapHash[trackId].index;
         var track = this.trackSvgList[i];
-        this.svg.appendChild(track.main);
 
-        this.setHeight(this.height + track.getHeight());
+        $(track.div).css({display:'auto'});
+
+//        this.svg.appendChild(track.main);
+
+//        this.setHeight(this.height + track.getHeight());
 
         this._redraw();
     },
@@ -800,7 +818,7 @@ TrackListPanel.prototype = {
         }
 //        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
 //        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
-        return '<span style="font-family: this.fontFamily; font-size:14px;' + colorStyle + '">' + base + '</span>';
+        return '<span style="' + colorStyle + '">' + base + '</span>';
     },
 
     getSequenceNucleotid: function (position) {

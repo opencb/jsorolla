@@ -48,6 +48,7 @@
 <script type="text/javascript" src="../utils/event.js"></script>
 <script type="text/javascript" src="../utils/svg.js"></script>
 <script type="text/javascript" src="../utils/utils.js"></script>
+<script type="text/javascript" src="../ui-widgets/ux-window.js"></script>
 
 
 <!-- Genome-viewer -->
@@ -81,6 +82,8 @@
 <script type="text/javascript" src="karyotype-panel.js"></script>
 <script type="text/javascript" src="tracklist-panel.js"></script>
 <script type="text/javascript" src="status-bar.js"></script>
+<script type="text/javascript" src="legend-panel.js"></script>
+<script type="text/javascript" src="legend-widget.js"></script>
 
 
 <script type="text/javascript" src="tracks/track.js"></script>
@@ -135,14 +138,21 @@
 <script type="text/javascript">
     var genomeViewer = null;
     $(document).ready(function () {
-        var region = new Region({chromosome: "13", start: 32889611, end: 32973805});
-//        var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+//        var region = new Region({chromosome: "13", start: 32889611, end: 32973805});
+        var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
 
         genomeViewer = new GenomeViewer({
             region: region,
             sidePanel: false,
             targetId: 'application',
-            autoRender: true
+            autoRender: true,
+            border: true,
+            resizable:true,
+//            trackListTitle: ''
+//            drawNavigationBar = true;
+//            drawKaryotypePanel: false,
+//            drawChromosomePanel: false,
+//            drawRegionOverviewPanel: false
         }); //the div must exist
 
         genomeViewer.draw();
@@ -203,36 +213,36 @@
 
         genomeViewer.addTrack(this.gene);
 
-//        this.icgcMutationsTrack = new IcgcTrack({
-//            targetId:null,
-//            id:3,
-//            title:'ICGC Mutations',
-//            histogramZoom:70,
-//            labelZoom:80,
-//            height:100,
-//            visibleRange:{start:0,end:100},
-//            featureTypes:FEATURE_TYPES,
-//
-//            renderer:new FeatureRenderer(),
-//
-//            dataAdapter:new IcgcAdapter({
-//                category: "genomic",
-//                subCategory: "region",
-//                resource: "snp",
-//                params:{
-//                    exclude:'transcriptVariations,xrefs,samples'
-//                },
-//                species: genomeViewer.species,
-//                featureCache:{
-//                    gzip: true,
-//                    chunkSize:10000
-//                },
-//                filters:{},
-//                options:{},
-//                featureConfig:FEATURE_CONFIG.snp
-//            })
-//        });
-//        genomeViewer.addTrack(this.icgcMutationsTrack);
+        //        this.icgcMutationsTrack = new IcgcTrack({
+        //            targetId:null,
+        //            id:3,
+        //            title:'ICGC Mutations',
+        //            histogramZoom:70,
+        //            labelZoom:80,
+        //            height:100,
+        //            visibleRange:{start:0,end:100},
+        //            featureTypes:FEATURE_TYPES,
+        //
+        //            renderer:new FeatureRenderer(),
+        //
+        //            dataAdapter:new IcgcAdapter({
+        //                category: "genomic",
+        //                subCategory: "region",
+        //                resource: "snp",
+        //                params:{
+        //                    exclude:'transcriptVariations,xrefs,samples'
+        //                },
+        //                species: genomeViewer.species,
+        //                featureCache:{
+        //                    gzip: true,
+        //                    chunkSize:10000
+        //                },
+        //                filters:{},
+        //                options:{},
+        //                featureConfig:FEATURE_CONFIG.snp
+        //            })
+        //        });
+        //        genomeViewer.addTrack(this.icgcMutationsTrack);
 
 
         this.snp = new FeatureTrack({
@@ -244,33 +254,7 @@
             height: 100,
             visibleRange: {start: 0, end: 100},
             featureTypes: FEATURE_TYPES,
-            renderer: new FeatureRenderer({
-                label: function (f) {
-                    return ('name' in f) ? f.name : f.id;
-                },
-                tooltipTitle: function (f) {
-                    var name = (f.name != null) ? f.name : f.id;
-                    return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
-                },
-                tooltipText: function (f) {
-                    return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
-                            FEATURE_TYPES.getTipCommons(f) +
-                            'source:&nbsp;<span class="ssel">' + f.source + '</span><br>';
-
-                },
-                color: 'lightblue',
-                infoWidgetId: "id",
-                height: 8,
-                histogramColor: "orange",
-                handlers: {
-                    'feature:mouseover': function (e) {
-                        console.log(e)
-                    },
-                    'feature:click': function (event) {
-                        new SnpInfoWidget(null, genomeViewer.species).draw(event);
-                    }
-                }
-            }),
+            renderer: new FeatureRenderer('snp'),
 
             dataAdapter: new CellBaseAdapter({
                 category: "genomic",
@@ -291,14 +275,34 @@
         });
 
         genomeViewer.addTrack(this.snp);
-    });
+    })
+    ;
 
 </script>
+
+<style type="text/css">
+    html, body {
+        /*height: 100%;*/
+        /*position:relative;*/
+    }
+    body {
+        /*overflow: hidden;*/
+        /*padding:50px;*/
+    }
+    #application{
+        width:1200px;
+        height:800px;
+        /*overflow-y: auto;*/
+        /*overflow-x: hidden;*/
+        padding:10px;
+    }
+</style>
+
 </head>
 
-<body style="overflow: hidden;">
+<body>
 <div style=""></div>
-<div id="application" style="width:98%; position:relative; left:10px; top:10px;"></div>
+<div id="application"></div>
 <div style=""></div>
 
 </body>

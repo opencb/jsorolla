@@ -35,7 +35,7 @@ FileDataSource.prototype.error = function(){
 
 FileDataSource.prototype.fetch = function(async){
 	var _this = this;
-	if(this.file.size <= 52428800){
+	if(this.file.size <= (52428800*1)){
 		if(async){
 			var  reader = new FileReader();
 			reader.onload = function(evt) {

@@ -56,18 +56,24 @@ HistogramRenderer.prototype.render = function(features, args) {
         var width = (feature.end-feature.start);
         //get type settings object
 
-        var settings = args.featureTypes[feature.featureType];
-        var color = settings.histogramColor;
+        try{
+            var settings = args.featureTypes[feature.featureType];
+            var color = settings.histogramColor;
+        }catch(e){
+            var color = 'gray'
+        }
 
         width = width * args.pixelBase;
         var x = args.pixelPosition+middle-((args.position-feature.start)*args.pixelBase);
 
 
-        var height = /*histogramHeight * */ features[i].value;
+        var height = /*histogramHeight * */ features[i].features_count;
         if(height == null){
-            height = features[i].features_count;
+            height = features[i].value;
+            height = histogramHeight * height;
+        }else{
+            height = height*multiplier;
         }
-        height = height*multiplier;
 
         points += (x+(width/2))+","+(histogramHeight - height)+" ";
 

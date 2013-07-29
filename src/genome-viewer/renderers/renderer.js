@@ -22,6 +22,7 @@
 //Parent class for all renderers
 function Renderer(args) {
 
+
 };
 
 Renderer.prototype = {
@@ -34,5 +35,10 @@ Renderer.prototype = {
         var middle = args.width / 2;
         var x = args.pixelPosition + middle - ((args.position - feature.start) * args.pixelBase);
         return x;
+    },
+
+    getDefaultConfig: function (type) {
+        return FEATURE_TYPES[type];
     }
-};
+}
+;

@@ -149,57 +149,62 @@ CellBaseAdapter.prototype.getData = function(args){
 	var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
 	cellBaseManager.success.addEventListener(function(sender,data){
 		var dataType = "data";
-		if(data.params.transcript){
+		if(data.metadata.params.transcript){
 			dataType = "withTranscripts";
 		}
-		if(data.params.histogram){
-			dataType = "histogram"+data.params.interval;
+		if(data.metadata.params.histogram){
+			dataType = "histogram"+data.metadata.params.interval;
 		}
 
 		//XXX quitar cuando este arreglado el ws
-		if(data.params.histogram == true){
+		if(data.metadata.params.histogram == true){
 			data.result = [data.result];
 		}
 
-        var featureType = data.resource;
+        var featureType = data.metadata.resource;
 		//XXX
+//		var queryList = [];
+//		for(var i = 0; i < data.metadata.queryIds.length; i++) {
+//			var splitDots = data.metadata.queryIds[i].split(":");
+//			var splitDash = splitDots[1].split("-");
+//			queryList.push({chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]});
+//		}
 		
-		var queryList = [];
-		for(var i = 0; i < data.query.length; i++) {
-			var splitDots = data.query[i].split(":");
-			var splitDash = splitDots[1].split("-");
-			queryList.push({chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]});
-		}
-		
-		for(var i = 0; i < data.result.length; i++) {
-			
-			//Check if is a single object
-			if(data.result[i].constructor != Array){
-				data.result[i] = [data.result[i]];
-			}
+		for(var i = 0; i < data.metadata.queryIds.length; i++) {
+            var splitDots = data.metadata.queryIds[i].split(":");
+            var splitDash = splitDots[1].split("-");
+            var q = {chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]};
 
-			if(data.params.histogram != true && featureType == "gene" && data.params.transcript==true){
-				for ( var j = 0, lenj = data.result[i].length; j < lenj; j++) {
-					for (var t = 0, lent = data.result[i][j].transcripts.length; t < lent; t++){
-						data.result[i][j].transcripts[t].featureType = "transcript";
+            var queryId = data.metadata.queryIds[i];
+            var features = data[queryId].result;
+
+//			//Check if is a single object
+//			if(data.result[i].constructor != Array){
+//				data.result[i] = [data.result[i]];
+//			}
+
+			if(data.metadata.params.histogram != true && featureType == "gene" && data.metadata.params.transcript==true){
+				for ( var j = 0, lenj = features.length; j < lenj; j++) {
+					for (var t = 0, lent = features[j].transcripts.length; t < lent; t++){
+                        features[j].transcripts[t].featureType = "transcript";
 						//loop over exons
-						for (var e = 0, lene = data.result[i][j].transcripts[t].exons.length; e < lene; e++){
-							data.result[i][j].transcripts[t].exons[e].featureType = "exon";
+						for (var e = 0, lene = features[j].transcripts[t].exons.length; e < lene; e++){
+                            features[j].transcripts[t].exons[e].featureType = "exon";
 						}
 					}
 				}
 			}
 
             if(featureType == "regulatory"){
-                featureType = data.params.type;
+                featureType = data.metadata.params.type;
                 if(featureType == 'TF_binding_site_motif'){
                     featureType = 'tfbs';
                 }
             }
 
 			console.time(_this.resource+" save "+rnd);
-			_this.featureCache.putFeaturesByRegion(data.result[i], queryList[i], featureType, dataType);
-			var items = _this.featureCache.getFeatureChunksByRegion(queryList[i]);
+			_this.featureCache.putFeaturesByRegion(features, q, featureType, dataType);
+			var items = _this.featureCache.getFeatureChunksByRegion(q);
 			console.timeEnd(_this.resource+" save "+rnd);
 			if(items != null){
 				itemList = itemList.concat(items);

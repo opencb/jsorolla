@@ -20,6 +20,9 @@
  */
 
 function BamAdapter(args){
+
+    _.extend(this, Backbone.Events);
+
     if(typeof args != 'undefined'){
         this.host = args.host || this.host;
         this.category = args.category || this.category;
@@ -48,7 +51,7 @@ function BamAdapter(args){
 	}
 
 	this.featureCache = new BamCache(argsFeatureCache);
-	this.onGetData = new Event();
+//	this.onGetData = new Event();
 }
 
 BamAdapter.prototype = {
@@ -96,9 +99,9 @@ BamAdapter.prototype.getData = function(args){
 	this.params["interval"] = args.interval;
 	this.params["transcript"] = args.transcript;
 	this.params["chromosome"] = args.chromosome;
-	this.params["resource"] = this.resource;
+	this.params["resource"] = this.resource.id;
 	this.params["category"] = this.category;
-	this.params["species"] = this.species;
+	this.params["species"] = Utils.getSpeciesCode(this.species.text);
 
 
 	if(args.start<1){
@@ -148,7 +151,8 @@ BamAdapter.prototype.getData = function(args){
 		var items = _this.featureCache.getFeatureChunksByRegion(query, dataType);
 		itemList = itemList.concat(items);
 		if(itemList.length > 0){
-			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
+            _this.trigger('data:ready',{items:itemList, params:_this.params, cached:false, sender:_this});
+//			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
 		}
 	});
 
@@ -189,11 +193,14 @@ BamAdapter.prototype.getData = function(args){
 		for ( var i = 0, li = querys.length; i < li; i++) {
 			console.time("dqs");
 			//accountId, sessionId, bucketname, objectname, region,
-			opencgaManager.region($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"),"default", this.resource, querys[i], this.params);
+            var cookie = $.cookie("bioinfo_sid");
+            cookie = ( cookie != '' && cookie != null ) ?  cookie : 'dummycookie';
+			opencgaManager.region(this.resource.account, cookie ,this.resource.bucketId, this.resource.id, querys[i], this.params);
 		}
 	}else{//no server call
 		if(itemList.length > 0){
-			this.onGetData.notify({items:itemList, params:this.params});
+            _this.trigger('data:ready',{items:itemList, params:this.params, cached:false, sender:this});
+//			this.onGetData.notify({items:itemList, params:this.params});
 		}
 	}
 };

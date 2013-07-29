@@ -40,9 +40,9 @@ VCFFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
 	this.adapter = new VCFDataAdapter(new FileDataSource(file),{species:this.viewer.species});
-	this.adapter.onLoad.addEventListener(function(sender){
+	this.adapter.on('file:load',function(sender){
 		console.log(_this.adapter.featuresByChromosome);
-		_this._loadChartInfo();
+//		_this._loadChartInfo();
 	});
 	_this.btnOk.enable();
 };
@@ -50,7 +50,7 @@ VCFFileWidget.prototype.loadFileFromLocal = function(file){
 VCFFileWidget.prototype.loadFileFromServer = function(data){
 	this.file = {name:data.filename};
 	this.adapter = new VCFDataAdapter(new StringDataSource(data.data),{async:false,species:this.viewer.species});
-	this._loadChartInfo();
+//	this._loadChartInfo();
 	this.btnOk.enable();
 };
 
