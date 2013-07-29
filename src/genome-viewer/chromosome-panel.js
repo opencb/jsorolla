@@ -65,10 +65,14 @@ ChromosomePanel.prototype = {
     showContent: function () {
         $(this.svg).css({display: 'inline'});
         this.contentHidden=false;
+        $(this.collapseDiv).addClass('ocb-icon-collapse');
+        $(this.collapseDiv).removeClass('ocb-icon-expand');
     },
     hideContent: function () {
         $(this.svg).css({display: 'none'});
         this.contentHidden=true;
+        $(this.collapseDiv).addClass('ocb-icon-expand');
+        $(this.collapseDiv).removeClass('ocb-icon-collapse');
     },
     setVisible: function (bool) {
         if(bool) {
