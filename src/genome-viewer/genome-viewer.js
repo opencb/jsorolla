@@ -404,6 +404,7 @@ GenomeViewer.prototype = {
             height: 125,
             species: this.species,
             title: 'Karyotype',
+            titleCollapse: true,
             region: this.region,
             autoRender: true,
             handlers: {

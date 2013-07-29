@@ -30,6 +30,7 @@ function KaryotypePanel(args) {
     this.species;
     this.width = 600;
     this.height = 75;
+    this.titleCollapse = false,
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -176,6 +177,11 @@ KaryotypePanel.prototype = {
             _this._drawSvg(_this.chromosomeList);
         });
         cellBaseManager.get('genomic', 'chromosome', null , 'all');
+
+
+        if(this.titleCollapse){
+            _this.hideContent();
+        }
     },
 
     _drawSvg: function(chromosomeList){
