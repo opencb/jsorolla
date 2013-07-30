@@ -51,6 +51,7 @@ function CellBaseManager(species, args) {
     this.async = true;
 
     //set instantiation args, must be last
+
     _.extend(this, args);
 
     this.host = CELLBASE_HOST || this.host;

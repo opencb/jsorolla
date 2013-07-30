@@ -98,7 +98,7 @@ VCFVariantInfoWidget.prototype.getEffectPanel = function(data){
 		if(data[i].aminoacidChange == ""){data[i].aminoacidChange="-";}
 
 	}
-	
+
     if(this.effectGrid==null){
     	var groupField = 'consequence';
     	var modelName = "effectGridModel";
@@ -196,10 +196,13 @@ VCFVariantInfoWidget.prototype.getData = function (){
 	this.panel.setLoading("Getting information...");
 //	category, subcategory, query, resource, callbackFunction
 	var cellBaseManager = new CellBaseManager(this.species);
+    cellBaseManager.host = 'http://ws-beta.bioinfo.cipf.es/cellbase/rest';
+    cellBaseManager.species = cellBaseManager.species.substr(0,3);
+    cellBaseManager.version = 'v2';
 	cellBaseManager.success.addEventListener(function(sender,data){
-		_this.dataReceived(data.result);
+		_this.dataReceived(data);
 	});
-	var query = this.feature.chromosome+":"+this.feature.start+":"+this.feature.ref+":"+this.feature.alt;
+	var query = this.feature.chromosome+":"+this.feature.start+":"+this.feature.reference+":"+this.feature.alternate;
 	cellBaseManager.get("genomic","variant", query, "consequence_type");
 };
 

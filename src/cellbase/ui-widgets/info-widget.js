@@ -349,9 +349,9 @@ InfoWidget.prototype.getProteinTemplate = function (){
 
 InfoWidget.prototype.getVCFVariantTemplate = function (){
 	return new Ext.XTemplate(
-			'<div><span><span class="panel-border-bottom"><span class="ssel s130">{chromosome}:{start}-{alt}</span> &nbsp; <span class="emph s120"> {label} </span></span></span></div><br>',
-			'<div><span class="w75 infokey s90">Alt: </span> {alt}</div>',
-			'<div><span class="w75 infokey s90">Ref: </span> {ref}</div>',
+			'<div><span><span class="panel-border-bottom"><span class="ssel s130">{chromosome}:{start}-{alternate}</span> &nbsp; <span class="emph s120"> {id} </span></span></span></div><br>',
+			'<div><span class="w75 infokey s90">Alt: </span> {alternate}</div>',
+			'<div><span class="w75 infokey s90">Ref: </span> {reference}</div>',
 			'<div><span class="w75 infokey s90">Quality: </span> {quality}</div>',
 			'<div><span class="w75 infokey s90">Format: </span> {format}</div>',
 			'<div><span class="w75 infokey s90">Samples: </span> {samples}</div>',
