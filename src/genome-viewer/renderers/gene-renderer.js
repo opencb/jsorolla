@@ -287,7 +287,7 @@ GeneRenderer.prototype.render = function (features, args) {
                                     "cursor": "pointer"
                                 });
                                 //XXX draw phase only at zoom 100, where this.pixelBase=10
-                                for (var p = 0, lenp = 3 - exon.phase; p < lenp && Math.round(args.pixelBase) == 10 && exon.phase != -1; p++) {//==10 for max zoom only
+                                for (var p = 0, lenp = 3 - exon.phase; p < lenp && Math.round(args.pixelBase) == 10 && exon.phase != -1 && exon.phase != null; p++) {//==10 for max zoom only
                                     SVG.addChild(exonGroup, "rect", {
                                         "i": i,
                                         "x": codingX + (p * 10),
