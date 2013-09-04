@@ -63,8 +63,8 @@ function GenomeViewer(args) {
     this.height;
     this.sidePanelWidth = (this.sidePanel) ? 25 : 0;
 
-    console.log(this.targetId);
-    console.log(this.id);
+//    console.log(this.targetId);
+//    console.log(this.id);
 
     //events attachments
     this.on(this.handlers);
@@ -88,7 +88,7 @@ GenomeViewer.prototype = {
             console.log('targetId not found in DOM');
             return;
         }
-        console.log("Initializing GenomeViewer structure.");
+//        console.log("Initializing GenomeViewer structure.");
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="' + this.id + '" class="ocb-gv ocb-box-vertical"></div>')[0];
 //        $(this.div).css({
@@ -481,6 +481,7 @@ GenomeViewer.prototype = {
             zoom: this.zoom,
             zoomMultiplier: 8,
             title: 'Region overview',
+            showRegionOverviewBox : true,
             region: this.region,
             handlers: {
                 'region:change': function (event) {

@@ -35,7 +35,7 @@ function Track(args) {
     this.transcriptZoom;
     this.height = 100;
     this.visibleRange = {start:0,end:100},
-    this.fontFamily = 'Source Sans Pro';
+    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
 
@@ -151,10 +151,11 @@ Track.prototype = {
         $(div).append(titlediv);
         $(div).append(svgdiv);
 
+        $(titlediv).addClass(this.fontClass);
         $(titlediv).css({
-            'font-family':'Source Sans Pro',
-            'font-size':'14px',
-            'height':'16px'
+            'height':'16px',
+            'line-height':'16px',
+            'padding-left':'4px'
         });
 
         $(svgdiv).css({
@@ -174,8 +175,7 @@ Track.prototype = {
         });
 
         if(this.resizable){
-            var resizediv = $('<div id="' + this.id + '-resizediv"></div>')[0];
-            $(resizediv).css({'background-color': 'lightgray', 'height': 3, opacity:0.3});
+            var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
 
             $(resizediv).mousedown(function (event) {
                 $('html').addClass('unselectable');
@@ -225,8 +225,6 @@ Track.prototype = {
 //        var titleText = SVG.addChild(titleGroup, "text", {
 //            "x": 4,
 //            "y": 14,
-//            "font-size": 14,
-//            'font-family':_this.fontFamily,
 //            "opacity": "0.4",
 //            "fill": "black"
 //        });
@@ -238,6 +236,7 @@ Track.prototype = {
             "width": this.svgCanvasWidth,
             "height": this.height
         });
+
 
 
         this.fnTitleMouseEnter = function () {
@@ -260,11 +259,10 @@ Track.prototype = {
         this.invalidZoomText = SVG.addChild(titleGroup, "text", {
             "x": 154,
             "y": 18,
-            "font-size": 12,
-            'font-family':_this.fontFamily,
             "opacity": "0.6",
             "fill": "black",
-            "visibility": "hidden"
+            "visibility": "hidden",
+            "class":this.fontClass
         });
         this.invalidZoomText.textContent = "This level of zoom isn't appropiate for this track";
 
