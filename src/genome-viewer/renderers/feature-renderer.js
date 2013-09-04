@@ -27,6 +27,9 @@ function FeatureRenderer(args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
+    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
+    this.toolTipfontClass = 'ocb-font-default';
+
     //set default args
     if (_.isString(args)) {
         var config = this.getDefaultConfig(args);
@@ -38,8 +41,6 @@ function FeatureRenderer(args) {
     }
 
     this.on(this.handlers);
-
-    this.fontFamily = 'Source Sans Pro';
 };
 
 
@@ -104,12 +105,11 @@ FeatureRenderer.prototype.render = function (features, args) {
                         'i': i,
                         'x': x,
                         'y': textY,
-                        'font-size': 12,
-                        'font-family': _this.fontFamily,
                         'font-weight': 400,
                         'opacity': null,
                         'fill': 'black',
-                        'cursor': 'pointer'
+                        'cursor': 'pointer',
+                        'class':_this.fontClass
                     });
                     text.textContent = label;
                 }
@@ -119,7 +119,7 @@ FeatureRenderer.prototype.render = function (features, args) {
                         content: {text: tooltipText, title: tooltipTitle},
 //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
                         position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
+                        style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'}
                     });
                 }
 

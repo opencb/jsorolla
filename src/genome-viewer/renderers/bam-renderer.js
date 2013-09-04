@@ -27,6 +27,9 @@ function BamRenderer(args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
+    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
+    this.toolTipfontClass = 'ocb-font-default';
+
     //set default args
     if (_.isString(args)) {
         var config = this.getDefaultConfig(args);
@@ -38,8 +41,6 @@ function BamRenderer(args) {
     }
 
     this.on(this.handlers);
-
-    this.fontFamily = 'Source Sans Pro';
 };
 
 
@@ -169,7 +170,7 @@ BamRenderer.prototype.render = function (response, args) {
         $(dummyRect).qtip({
             content: " ",
             position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-            style: { width: true, classes: 'ui-tooltip-shadow'}
+            style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip-shadow'}
         });
 
 
@@ -264,11 +265,9 @@ BamRenderer.prototype.render = function (response, args) {
                     //var	t = SVG.addChild(featureGroup,"text",{
                     //"x":x+1,
                     //"y":rowY+settings.height-1,
-                    //"font-size":13,
                     //"fill":"darkred",
                     //"textLength":width,
-                    //"cursor": "pointer",
-                    //"font-family": "Ubuntu Mono"
+                    //"cursor": "pointer"
                     //});
                     //t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space","preserve");
                     //t.textContent = diff;
@@ -281,7 +280,7 @@ BamRenderer.prototype.render = function (response, args) {
                 $(featureGroup).qtip({
                     content: {text:tooltipText, title: tooltipTitle},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: 300, classes: 'ui-tooltip ui-tooltip-shadow'},
+                    style: { width: 300, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
                     hide: 'click mouseleave'
                 });
@@ -412,7 +411,7 @@ BamRenderer.prototype.render = function (response, args) {
                 $(readEls).qtip({
                     content: {text: readSettings.getTipText(read), title: readSettings.getTipTitle(read)},
                     position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                    style: { width: 280, classes: 'ui-tooltip ui-tooltip-shadow'},
+                    style: { width: 280, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
                     hide: 'click mouseleave'
                 });
@@ -423,7 +422,7 @@ BamRenderer.prototype.render = function (response, args) {
                 $(mateEls).qtip({
                     content: {text: mateSettings.getTipText(mate), title: mateSettings.getTipTitle(mate)},
                     position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                    style: { width: 280, classes: 'ui-tooltip ui-tooltip-shadow'},
+                    style: { width: 280, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
                     hide: 'click mouseleave'
                 });

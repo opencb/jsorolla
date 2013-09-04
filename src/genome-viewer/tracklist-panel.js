@@ -37,6 +37,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.windowSize;
 
     this.zoomMultiplier = 1;
+    this.showRegionOverviewBox = false;
 
     this.fontFamily = 'Source Sans Pro';
 
@@ -186,7 +187,8 @@ TrackListPanel.prototype = {
             'left': mid,
             'top': 0,
             'width': this.pixelBase,
-            'height': '100%',
+//            'height': '100%',
+            'height': 'calc(100% - 8px)',
             'opacity': 0.5,
             'border': '1px solid orangered',
             'background-color': 'orange'
@@ -201,7 +203,7 @@ TrackListPanel.prototype = {
             'left': -20,
             'top': 0,
             'width': this.pixelBase,
-            'height': '100%',
+            'height': 'calc(100% - 8px)',
             'border': '1px solid lightgray',
             'opacity': 0.7,
             'visibility': 'hidden',
@@ -225,7 +227,40 @@ TrackListPanel.prototype = {
             'background-color': 'honeydew'
         });
 
-//	if(this.parentLayout==null){
+        if(this.showRegionOverviewBox){
+            var regionOverviewBoxLeft = $('<div id="' + this.id + 'regionOverviewBoxLeft"></div>')[0];
+            var regionOverviewBoxRight = $('<div id="' + this.id + 'regionOverviewBoxRight"></div>')[0];
+            $(panelDiv).append(regionOverviewBoxLeft);
+            $(panelDiv).append(regionOverviewBoxRight);
+            var regionOverviewBoxWidth = this.region.length()*this.pixelBase;
+            var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth)/ 2
+//            debugger
+            $(regionOverviewBoxLeft).css({
+                'z-index': 0,
+                'position': 'absolute',
+                'left': 1,
+                'top': 0,
+                'width': regionOverviewDarkBoxWidth,
+                'height': 'calc(100% - 8px)',
+                'border': '1px solid gray',
+                'opacity': 0.5,
+                //            'visibility': 'hidden',
+                'background-color': 'lightgray'
+            });
+            $(regionOverviewBoxRight).css({
+                'z-index': 0,
+                'position': 'absolute',
+                'left': (regionOverviewDarkBoxWidth + regionOverviewBoxWidth),
+                'top': 0,
+                'width': regionOverviewDarkBoxWidth,
+                'height': 'calc(100% - 8px)',
+                'border': '1px solid gray',
+                'opacity': 0.5,
+                //            'visibility': 'hidden',
+                'background-color': 'lightgray'
+            });
+        }
+
 
         $(this.div).mousemove(function (event) {
             var centerPosition = _this.region.center();
@@ -585,6 +620,8 @@ TrackListPanel.prototype = {
 
 
         track.set('trackFeature:highlight', function (event) {
+
+
             var attrName = event.attrName || 'feature_id';
             if ('attrValue' in event) {
                 event.attrValue = ($.isArray(event.attrValue)) ? event.attrValue : [event.attrValue];

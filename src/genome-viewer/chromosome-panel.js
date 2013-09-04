@@ -157,7 +157,6 @@ ChromosomePanel.prototype = {
             return (a.start - b.start);
         };
 
-        console.log('In chromosome-widget: ' + this.region)
         var cellBaseManager = new CellBaseManager(this.species);
         cellBaseManager.success.addEventListener(function (sender, data) {
             _this.data = data.result.result[0].chromosomes;

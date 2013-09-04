@@ -242,8 +242,10 @@ module.exports = function (grunt) {
             long: {
                 src: [
                     'http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js',
+                    'http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.map',
                     'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js',
                     'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js',
+                    'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.map',
                     'http://hub.chemdoodle.com/cwc/5.1.0/ChemDoodleWeb.css',
                     'http://hub.chemdoodle.com/cwc/5.1.0/ChemDoodleWeb.js',
                     'http://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.0.6/jquery.mousewheel.min.js',
@@ -259,6 +261,13 @@ module.exports = function (grunt) {
                 ],
                 dest: 'vendor'
             }
+        },
+        watch: {
+            gv: {
+                files: ['src/genome-viewer/**', 'src/utils/**', 'src/cellbase/**', 'src/opencga/**', 'styles/**'],
+                tasks: ['gv'],
+                options: {spawn: false}
+            }
         }
     });
 
@@ -272,6 +281,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-html-build');
     grunt.loadNpmTasks('grunt-curl');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
 
     grunt.registerTask('vendor', ['curl-dir']);

@@ -27,6 +27,9 @@ function GeneRenderer(args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
+    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
+    this.toolTipfontClass = 'ocb-font-default';
+
     //set default args
     if (_.isString(args)) {
         _.extend(this, this.getDefaultConfig(args));
@@ -37,8 +40,6 @@ function GeneRenderer(args) {
     }
 
     this.on(this.handlers);
-
-    this.fontFamily = 'Source Sans Pro';
 };
 
 GeneRenderer.prototype.setFeatureConfig = function(type){
@@ -124,10 +125,9 @@ GeneRenderer.prototype.render = function (features, args) {
                     'i': i,
                     'x': x,
                     'y': textY,
-                    'font-size': 12,
-                    'font-family': _this.fontFamily,
                     'fill': 'black',
-                    'cursor': 'pointer'
+                    'cursor': 'pointer',
+                    'class':_this.fontClass
                 });
                 text.textContent = label;
 
@@ -135,7 +135,7 @@ GeneRenderer.prototype.render = function (features, args) {
                     content: {text: tooltipText, title: tooltipTitle},
 //                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
+                    style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'}
                 });
 
                 $([rect, text]).click(function (event) {
@@ -189,11 +189,10 @@ GeneRenderer.prototype.render = function (features, args) {
                         var text = SVG.addChild(transcriptGroup, 'text', {
                             'x': transcriptX,
                             'y': checkTextY,
-                            'font-size': 12,
-                            'font-family': _this.fontFamily,
                             'opacity': null,
                             'fill': 'black',
-                            'cursor': 'pointer'
+                            'cursor': 'pointer',
+                            'class':_this.fontClass
                         });
                         text.textContent = label;
 
@@ -202,7 +201,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             content: {text: tooltipText, title: tooltipTitle},
 //                            position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                             position: {target: "mouse", adjust: {x: 25, y: 15}},
-                            style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
+                            style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'}
                         });
                         $(transcriptGroup).click(function (event) {
                             var query = this.getAttribute("widgetId");
@@ -234,7 +233,7 @@ GeneRenderer.prototype.render = function (features, args) {
                                 content: {text: tooltipText, title: tooltipTitle},
 //                                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                                 position: {target: "mouse", adjust: {x: 25, y: 15}},
-                                style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
+                                style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'}
                             });
 
                             var eRect = SVG.addChild(exonGroup, "rect", {//paint exons in white without coding region
@@ -288,7 +287,7 @@ GeneRenderer.prototype.render = function (features, args) {
                                     "cursor": "pointer"
                                 });
                                 //XXX draw phase only at zoom 100, where this.pixelBase=10
-                                for (var p = 0, lenp = 3 - exon.phase; p < lenp && Math.round(args.pixelBase) == 10 && exon.phase != -1; p++) {//==10 for max zoom only
+                                for (var p = 0, lenp = 3 - exon.phase; p < lenp && Math.round(args.pixelBase) == 10 && exon.phase != -1 && exon.phase != null; p++) {//==10 for max zoom only
                                     SVG.addChild(exonGroup, "rect", {
                                         "i": i,
                                         "x": codingX + (p * 10),

@@ -316,7 +316,7 @@ KaryotypePanel.prototype = {
 //            this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
 //        }
 //
-        console.log(this.lastSpecies != this.species)
+//        console.log(this.lastSpecies != this.species)
         if (this.lastSpecies != this.species) {
             needDraw = true;
             this.lastSpecies = this.species;

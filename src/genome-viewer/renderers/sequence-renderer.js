@@ -26,6 +26,9 @@ function SequenceRenderer(args){
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
+    this.fontClass = 'ocb-font-ubuntumono ocb-font-size-16';
+    this.toolTipfontClass = 'ocb-font-default';
+
     //set default args
     //set instantiation args
     _.extend(this, args);
@@ -36,11 +39,6 @@ function SequenceRenderer(args){
 SequenceRenderer.prototype.render = function(features, args) {
 
     console.time("Sequence render "+features.items.sequence.length);
-    var chromeFontSize = "16";
-    if(this.zoom == 95){
-        chromeFontSize = "10";
-    }
-
     var middle = args.width/2;
 
     var start = features.items.start;
@@ -52,17 +50,16 @@ SequenceRenderer.prototype.render = function(features, args) {
         start++;
 
         var text = SVG.addChild(args.svgCanvasFeatures,"text",{
-            "x":x+1,
-            "y":12,
-            "font-size":chromeFontSize,
-            "font-family": "Ubuntu Mono",
-            "fill":SEQUENCE_COLORS[seqString.charAt(i)]
+            'x':x+1,
+            'y':12,
+            'fill':SEQUENCE_COLORS[seqString.charAt(i)],
+            'class': this.fontClass
         });
         text.textContent = seqString.charAt(i);
         $(text).qtip({
             content:seqString.charAt(i)+" "+(seqStart+i).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")/*+'<br>'+phastCons[i]+'<br>'+phylop[i]*/,
             position: {target: 'mouse', adjust: {x:15, y:0}, viewport: $(window), effect: false},
-            style: { width:true, classes: 'qtip-light qtip-shadow'}
+            style: { width:true, classes: this.toolTipfontClass+' qtip-light qtip-shadow'}
         });
     }
 
