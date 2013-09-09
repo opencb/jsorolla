@@ -72,7 +72,8 @@ GenericFormPanel.prototype.getForm = function () {
 
         this.form = Ext.create('Ext.form.Panel', {
             border: false,
-            bodyPadding: "5",
+            bodyPadding: '5',
+            width:'95%',
             layout: 'vbox',
             items: items
         });
@@ -125,7 +126,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
         border: true,
         bodyPadding: "5",
         margin: "0 0 5 0",
-        width: "99%",
+        width:'99%',
         buttonAlign: 'center',
         items: [jobNameField, jobDescriptionField, jobFolder]
     });

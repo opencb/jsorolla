@@ -37,6 +37,7 @@ function HeaderWidget(args){
 	this.news='';
     this.checkTimeInterval = 4000;
     this.version = '';
+    this.allowLogin = true;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -313,6 +314,7 @@ HeaderWidget.prototype = {
                     }
                 },{
                     id: this.id+'btnSignin',
+                    disabled:!this.allowLogin,
                     text: '<span class="emph">sign in</span>',
                     handler: function (){
                         _this.loginWidget.draw();
@@ -347,7 +349,7 @@ HeaderWidget.prototype = {
                     items:[{
                         id: this.id + "appTextItem",
                         xtype: 'tbtext',
-                        margin:'15 0 0 20',
+                        margin:'25 0 0 20',
                         //		        	html: '<span class="appName">Vitis vinifera&nbsp; '+this.args.appname +'</span> <span class="appDesc">'+this.args.description+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span><img height="30" src="http://www.demeter.es/imagenes/l_demeter.gif"></span>',
                         text: '<span class="appName">' + this.appname + '</span> ' +
                             '<span id="' + this.id + 'description" class="appDesc">' + this.description + '</span>' +

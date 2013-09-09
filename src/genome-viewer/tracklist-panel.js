@@ -28,6 +28,8 @@ function TrackListPanel(args) {//parent is a DOM div element
     //set default args
     this.id = Utils.genId("TrackListPanel");
 
+    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
+
     this.trackSvgList = [];
     this.swapHash = {};
     this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
@@ -39,7 +41,6 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.zoomMultiplier = 1;
     this.showRegionOverviewBox = false;
 
-    this.fontFamily = 'Source Sans Pro';
 
     this.height = 0;
 
@@ -114,66 +115,60 @@ TrackListPanel.prototype = {
 
         var mid = this.width / 2;
 
-        this.positionText = SVG.addChild(this.svgTop, "text", {
-            "x": mid - 30,
-            "y": 24,
-            "font-size": 12,
-            'font-family':_this.fontFamily,
-            "fill": "green"
+        this.positionText = SVG.addChild(this.svgTop, 'text', {
+            'x': mid - 30,
+            'y': 24,
+            'fill': 'green',
+            'class': this.fontClass
         });
-        this.nucleotidText = SVG.addChild(this.svgTop, "text", {
-            "x": mid + 35,
-            "y": 24,
-//        "font-family": "Ubuntu Mono",
-            'font-family':_this.fontFamily,
-            "font-size": 13
+        this.nucleotidText = SVG.addChild(this.svgTop, 'text', {
+            'x': mid + 35,
+            'y': 24,
+            'class': this.fontClass
         });
-        this.firstPositionText = SVG.addChild(this.svgTop, "text", {
-            "x": 0,
-            "y": 24,
-            "font-size": 12,
-            'font-family':_this.fontFamily,
-            "fill": "green"
+        this.firstPositionText = SVG.addChild(this.svgTop, 'text', {
+            'x': 0,
+            'y': 24,
+            'fill': 'green',
+            'class': this.fontClass
         });
-        this.lastPositionText = SVG.addChild(this.svgTop, "text", {
-            "x": this.width - 70,
-            "y": 24,
-            "font-size": 12,
-            'font-family':_this.fontFamily,
-            "fill": "green"
+        this.lastPositionText = SVG.addChild(this.svgTop, 'text', {
+            'x': this.width - 70,
+            'y': 24,
+            'fill': 'green',
+            'class': this.fontClass
         });
-        this.viewNtsArrow = SVG.addChild(this.svgTop, "rect", {
-            "x": 2,
-            "y": 6,
-            "width": this.width - 4,
-            "height": 2,
-            "opacity": "0.5",
-            "fill": "black"
+        this.viewNtsArrow = SVG.addChild(this.svgTop, 'rect', {
+            'x': 2,
+            'y': 6,
+            'width': this.width - 4,
+            'height': 2,
+            'opacity': '0.5',
+            'fill': 'black'
         });
-        this.viewNtsArrowLeft = SVG.addChild(this.svgTop, "polyline", {
-            "points": "0,1 2,1 2,13 0,13",
-            "opacity": "0.5",
-            "fill": "black"
+        this.viewNtsArrowLeft = SVG.addChild(this.svgTop, 'polyline', {
+            'points': '0,1 2,1 2,13 0,13',
+            'opacity': '0.5',
+            'fill': 'black'
         });
-        this.viewNtsArrowRight = SVG.addChild(this.svgTop, "polyline", {
-            "points": this.width + ",1 " + (this.width - 2) + ",1 " + (this.width - 2) + ",13 " + this.width + ",13",
-            "opacity": "0.5",
-            "fill": "black"
+        this.viewNtsArrowRight = SVG.addChild(this.svgTop, 'polyline', {
+            'points': this.width + ',1 ' + (this.width - 2) + ',1 ' + (this.width - 2) + ',13 ' + this.width + ',13',
+            'opacity': '0.5',
+            'fill': 'black'
         });
-        this.windowSize = "Window size: " + this.region.length() + " nts";
-        this.viewNtsTextBack = SVG.addChild(this.svgTop, "rect", {
-            "x": mid - 40,
-            "y": 0,
-            "width": this.windowSize.length * 6,
-            "height": 13,
-            "fill": "white"
+        this.windowSize = 'Window size: ' + this.region.length() + ' nts';
+        this.viewNtsTextBack = SVG.addChild(this.svgTop, 'rect', {
+            'x': mid - 40,
+            'y': 0,
+            'width': this.windowSize.length * 7,
+            'height': 13,
+            'fill': 'white'
         });
-        this.viewNtsText = SVG.addChild(this.svgTop, "text", {
-            "x": mid - 30,
-            "y": 11,
-            "font-size": 12,
-            'font-family':_this.fontFamily,
-            "fill": "black"
+        this.viewNtsText = SVG.addChild(this.svgTop, 'text', {
+            'x': mid - 30,
+            'y': 11,
+            'fill': 'black',
+            'class': this.fontClass
         });
         this.viewNtsText.textContent = this.windowSize;
         this._setTextPosition();
@@ -834,7 +829,7 @@ TrackListPanel.prototype = {
         this.lastPositionText.textContent = Utils.formatNumber(this.visualRegion.end);
 
         this.viewNtsText.textContent = "Window size: " + this.visualRegion.length() + " nts";
-        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length * 6);
+        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length * 7);
         this.windowSize = this.viewNtsText.textContent;
     },
 

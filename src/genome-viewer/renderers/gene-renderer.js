@@ -76,7 +76,7 @@ GeneRenderer.prototype.render = function (features, args) {
         var textHeight = 0;
         if (args.zoom > args.labelZoom) {
             textHeight = 9;
-            maxWidth = Math.max(width, label.length * 9);
+            maxWidth = Math.max(width, label.length * 12);
         }
 
         var rowY = 0;

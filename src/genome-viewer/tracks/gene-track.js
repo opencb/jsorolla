@@ -171,7 +171,6 @@ GeneTrack.prototype.move = function (disp) {
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
-
     }
 
 };
