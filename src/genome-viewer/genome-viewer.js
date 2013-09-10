@@ -246,6 +246,11 @@ GenomeViewer.prototype = {
         this.trigger('feature:highlight', args);
     },
 
+    enableAutoHeight: function(){
+        this.trackListPanel.enableAutoHeight();
+        this.regionOverviewPanel.enableAutoHeight();
+    },
+
     draw: function () {
         if (!this.rendered) {
             console.info('Genome Viewer is not rendered yet');

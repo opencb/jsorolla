@@ -28,6 +28,7 @@ function Track(args) {
     this.renderer;
     this.labelZoom = -1;
     this.resizable = true;
+    this.autoHeight = true;
     this.targetId;
     this.id;
     this.title;
@@ -96,9 +97,17 @@ Track.prototype = {
         }else{
             var height = this.height;
         }
-        this.main.setAttribute("height",height);
-        this.svgCanvasFeatures.setAttribute("height",height);
-        this.titlebar.setAttribute("height",height);
+        this.main.setAttribute('height',height);
+        this.svgCanvasFeatures.setAttribute('height',height);
+        this.titlebar.setAttribute('height',height);
+
+        if(this.autoHeight){
+            $(this.svgdiv).css({'height': height+10});
+        }
+    },
+    enableAutoHeight: function(){
+        this.autoHeight = true;
+        this.updateHeight();
     },
 
     setTitle : function(title){
@@ -186,6 +195,7 @@ Track.prototype = {
                     var actualHeight = $(svgdiv).outerHeight();
                     $(svgdiv).css({height: actualHeight + despY});
                     downY = event.clientY;
+                    _this.autoHeight = false;
                 });
             });
             $('html').mouseup(function (event) {

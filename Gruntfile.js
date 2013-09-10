@@ -263,11 +263,11 @@ module.exports = function (grunt) {
             }
         },
         watch: {
-            gv: {
+            scripts: {
                 files: ['src/genome-viewer/**', 'src/utils/**', 'src/cellbase/**', 'src/opencga/**', 'styles/**'],
-                tasks: ['gv'],
+                tasks: ['gv','opencga'],
                 options: {spawn: false}
-            }
+            },
         }
     });
 
@@ -276,12 +276,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
 //    grunt.loadNpmTasks('grunt-contrib-qunit');
 //    grunt.loadNpmTasks('grunt-contrib-jshint');
-//    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-html-build');
     grunt.loadNpmTasks('grunt-curl');
-    grunt.loadNpmTasks('grunt-contrib-watch');
 
 
     grunt.registerTask('vendor', ['curl-dir']);

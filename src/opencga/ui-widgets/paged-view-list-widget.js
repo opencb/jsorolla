@@ -206,7 +206,7 @@ PagedViewListWidget.prototype.render = function() {
 						padding:15,
 						store: this.store,
 					    tpl: this.tpl,
-					    height:$(document).height()-200,
+					    height:this.height,
 					    trackOver: true,
 					    autoScroll:true,
 	           			overItemCls: 'list-item-hover',
@@ -345,14 +345,14 @@ PagedViewListWidget.prototype.render = function() {
 				
 				this.panel = Ext.create('Ext.panel.Panel', {
 					id : this.panelId,
-					//title : this.title,
+					title : this.title,
 					border:this.border,
 				    width: this.width,
 				    tbar : this.pagBar,
 				    items: [pan]
 				});
+
 //				this.view.setHeight(this.panel.getHeight());
-				
 				var target = Ext.getCmp(this.targetId);
 				if (target instanceof Ext.panel.Panel){
 					target.insert(this.order, this.panel);
@@ -365,6 +365,16 @@ PagedViewListWidget.prototype.render = function() {
 	}
 };
 
+PagedViewListWidget.prototype.show = function (){
+    if (this.panel != null){
+        this.panel.show();
+    }
+};
+PagedViewListWidget.prototype.hide = function (){
+    if (this.panel != null){
+        this.panel.hide();
+    }
+};
 
 /** Paging bar Events **/
 //PagedViewListWidget.prototype.onPageChange = function (object, event, option){

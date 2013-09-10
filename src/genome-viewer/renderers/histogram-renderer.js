@@ -97,7 +97,7 @@ HistogramRenderer.prototype.render = function(features, args) {
 
 //    if(!this.axis){//Create axis values for histogram
 //        this.axis = true;
-//        var text = SVG.addChild(this.histogramLegend,"text",{
+//        var text = SVG.addChild(args.frontSvg,"text",{
 //            "x":10,
 //            "y":histogramHeight+4,
 //            "font-size": 12,
@@ -107,7 +107,7 @@ HistogramRenderer.prototype.render = function(features, args) {
 //            "visibility":"visible"
 //        });
 //        text.textContent = "-0";
-//        var text = SVG.addChild(this.histogramLegend,"text",{
+//        var text = SVG.addChild(args.frontSvg,"text",{
 //            "x":10,
 //            "y":histogramHeight+4 - (Math.log(10)*multiplier),
 //            "font-size": 12,
@@ -117,7 +117,7 @@ HistogramRenderer.prototype.render = function(features, args) {
 //            "visibility":"visible"
 //        });
 //        text.textContent = "-10";
-//        var text = SVG.addChild(this.histogramLegend,"text",{
+//        var text = SVG.addChild(args.frontSvg,"text",{
 //            "x":10,
 //            "y":histogramHeight+4 - (Math.log(100)*multiplier),
 //            "font-size": 12,
@@ -127,7 +127,7 @@ HistogramRenderer.prototype.render = function(features, args) {
 //            "visibility":"visible"
 //        });
 //        text.textContent = "-100";
-//        var text = SVG.addChild(this.histogramLegend,"text",{
+//        var text = SVG.addChild(args.frontSvg,"text",{
 //            "x":10,
 //            "y":histogramHeight+4 - (Math.log(1000)*multiplier),
 //            "font-size": 12,

@@ -68,7 +68,8 @@ GeneTrack.prototype.render = function (targetId) {
             width: _this.width,
             zoom: _this.zoom,
             labelZoom: _this.labelZoom,
-            pixelPosition: _this.pixelPosition
+            pixelPosition: _this.pixelPosition,
+            frontSvg:_this.titlebar
 
         });
         _this.updateHeight();
@@ -171,7 +172,6 @@ GeneTrack.prototype.move = function (disp) {
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
-
     }
 
 };

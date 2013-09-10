@@ -97,7 +97,6 @@ function JobListWidget (args){
 	this.bar = new Ext.create('Ext.toolbar.Toolbar', {
 //		vertical : true,
 		id:this.id+"jobsFilterBar",
-		style : 'border : 0',
 		dock : 'top',
 		items :  [
                   //this.projectFilterButton,
@@ -157,6 +156,13 @@ function JobListWidget (args){
 ///*HARDCODED check job status*/
 
 	
+};
+
+JobListWidget.prototype.show = function (){
+    this.pagedListViewWidget.show();
+};
+JobListWidget.prototype.hide = function (){
+    this.pagedListViewWidget.hide();
 };
 
 //override
