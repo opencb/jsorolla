@@ -38,6 +38,8 @@ function HeaderWidget(args){
     this.checkTimeInterval = 4000;
     this.version = '';
     this.allowLogin = true;
+    this.width;
+    this.height;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -166,7 +168,6 @@ HeaderWidget.prototype = {
     setWidth : function (width){
         this.width=width;
         this.getPanel().setWidth(width);
-        this.getPanel().updateLayout();//sencha 4.1.0 : items are not allocated in the correct position after setWidth
     },
     render : function (targetId){
         var _this=this;
@@ -342,6 +343,7 @@ HeaderWidget.prototype = {
                 height : this.height,
                 minHeight: this.height,
                 maxHeigth: this.height,
+                width:this.width,
                 layout:'hbox',
                 items:[{
                     xtype:'container',
