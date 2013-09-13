@@ -35,8 +35,8 @@ function Track(args) {
     this.histogramZoom;
     this.transcriptZoom;
     this.height = 100;
-    this.visibleRange = {start:0,end:100},
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
+    this.visibleRange = {start: 0, end: 100},
+        this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
 
@@ -60,14 +60,14 @@ function Track(args) {
 
     this.renderedArea = {};//used for renders to store binary trees
 
-    if('handlers' in this){
-        for(eventName in this.handlers){
-            this.on(eventName,this.handlers[eventName]);
+    if ('handlers' in this) {
+        for (eventName in this.handlers) {
+            this.on(eventName, this.handlers[eventName]);
         }
     }
 
     this.rendered = false;
-    if(this.autoRender){
+    if (this.autoRender) {
         this.render();
     }
 };
@@ -87,30 +87,30 @@ Track.prototype = {
         this.dataAdapter.species = this.species
     },
 
-    setWidth : function(width){
-        this.width=width;
-        this.main.setAttribute("width",width);
+    setWidth: function (width) {
+        this.width = width;
+        this.main.setAttribute("width", width);
     },
-    updateHeight : function(){
-        if(!this.histogram){
+    updateHeight: function () {
+        if (!this.histogram) {
             var height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
-        }else{
+        } else {
             var height = this.height;
         }
-        this.main.setAttribute('height',height);
-        this.svgCanvasFeatures.setAttribute('height',height);
-        this.titlebar.setAttribute('height',height);
+        this.main.setAttribute('height', height);
+        this.svgCanvasFeatures.setAttribute('height', height);
+        this.titlebar.setAttribute('height', height);
 
-        if(this.autoHeight){
-            $(this.svgdiv).css({'height': height+10});
+        if (this.autoHeight) {
+            $(this.svgdiv).css({'height': height + 10});
         }
     },
-    enableAutoHeight: function(){
+    enableAutoHeight: function () {
         this.autoHeight = true;
         this.updateHeight();
     },
 
-    setTitle : function(title){
+    setTitle: function (title) {
         $(this.titlediv).html(title);
     },
 
@@ -136,9 +136,17 @@ Track.prototype = {
             this.histogramMax = undefined;
             this.interval = undefined;
         }
+
+        if (this.histogramRenderer) {
+            if (this.zoom <= this.histogramZoom) {
+                this.histogramGroup.setAttribute('visibility', 'visible');
+            } else {
+                this.histogramGroup.setAttribute('visibility', 'hidden');
+            }
+        }
     },
 
-    cleanSvg : function(filters){//clean
+    cleanSvg: function (filters) {//clean
 //        console.time("-----------------------------------------empty");
         while (this.svgCanvasFeatures.firstChild) {
             this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
@@ -152,7 +160,7 @@ Track.prototype = {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
-        var titlediv = $('<div id="' + this.id + '-titlediv">'+this.title+'</div>')[0];
+        var titlediv = $('<div id="' + this.id + '-titlediv">' + this.title + '</div>')[0];
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
 
         $(targetId).addClass("unselectable");
@@ -162,28 +170,28 @@ Track.prototype = {
 
         $(titlediv).addClass(this.fontClass);
         $(titlediv).css({
-            'height':'16px',
-            'line-height':'16px',
-            'padding-left':'4px'
+            'height': '16px',
+            'line-height': '16px',
+            'padding-left': '4px'
         });
 
         $(svgdiv).css({
             'z-index': 3,
-            'height':this.height,
+            'height': this.height,
             'overflow-y': (this.resizable) ? 'auto' : 'hidden',
             'overflow-x': 'hidden'
         });
 
-        var main = SVG.addChild(svgdiv, "svg", {
-            "id": this.id,
-            "class": "trackSvg",
-            "x": 0,
-            "y": 0,
-            "width": this.width,
-            "height": this.height
+        var main = SVG.addChild(svgdiv, 'svg', {
+            'id': this.id,
+            'class': 'trackSvg',
+            'x': 0,
+            'y': 0,
+            'width': this.width,
+            'height': this.height
         });
 
-        if(this.resizable){
+        if (this.resizable) {
             var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
 
             $(resizediv).mousedown(function (event) {
@@ -199,40 +207,39 @@ Track.prototype = {
                 });
             });
             $('html').mouseup(function (event) {
-                $('html').removeClass("unselectable");
+                $('html').removeClass('unselectable');
                 $('html').off('mousemove');
             });
 
 
             $(resizediv).mouseenter(function (event) {
-                $(this).css({"cursor": "ns-resize"});
-                $(this).css({"opacity": 1});
+                $(this).css({'cursor': 'ns-resize'});
+                $(this).css({'opacity': 1});
             });
             $(resizediv).mouseleave(function (event) {
-                $(this).css({"cursor": "default"});
-                $(this).css({"opacity": 0.3});
+                $(this).css({'cursor': 'default'});
+                $(this).css({'opacity': 0.3});
             });
 
             $(div).append(resizediv);
         }
 
-        var titleGroup = SVG.addChild(main, "g", {
+        this.svgGroup = SVG.addChild(main, "g", {
             "class": "trackTitle"
             //visibility:this.titleVisibility
         });
 
-
         var text = this.title;
         var textWidth = 15 + text.length * 6;
-        var titlebar = SVG.addChild(titleGroup, "rect", {
-            "x": 0,
-            "y": 0,
-            "width": this.width,
-            "height": this.height,
-            "opacity": "0.6",
-            "fill": "transparent"
+        var titlebar = SVG.addChild(this.svgGroup, 'rect', {
+            'x': 0,
+            'y': 0,
+            'width': this.width,
+            'height': this.height,
+            'opacity': '0.6',
+            'fill': 'transparent'
         });
-//        var titleText = SVG.addChild(titleGroup, "text", {
+//        var titleText = SVG.addChild(this.svgGroup, "text", {
 //            "x": 4,
 //            "y": 14,
 //            "opacity": "0.4",
@@ -240,41 +247,40 @@ Track.prototype = {
 //        });
 //        titleText.textContent = text;
 
-        this.svgCanvasFeatures = SVG.addChild(titleGroup, "svg", {
-            "class": "features",
-            "x": -this.pixelPosition,
-            "width": this.svgCanvasWidth,
-            "height": this.height
+        this.svgCanvasFeatures = SVG.addChild(this.svgGroup, 'svg', {
+            'class': 'features',
+            'x': -this.pixelPosition,
+            'width': this.svgCanvasWidth,
+            'height': this.height
         });
-
 
 
         this.fnTitleMouseEnter = function () {
-            titlebar.setAttribute("opacity", "0.1");
-            titlebar.setAttribute("fill", "greenyellow");
-//            titleText.setAttribute("opacity", "1.0");
+            titlebar.setAttribute('opacity', '0.1');
+            titlebar.setAttribute('fill', 'greenyellow');
+//            titleText.setAttribute('opacity', '1.0');
         };
         this.fnTitleMouseLeave = function () {
-            titlebar.setAttribute("opacity", "0.6");
-            titlebar.setAttribute("fill", "transparent");
-//            titleText.setAttribute("opacity", "0.4");
+            titlebar.setAttribute('opacity', '0.6');
+            titlebar.setAttribute('fill', 'transparent');
+//            titleText.setAttribute('opacity', '0.4');
         };
 
-        $(titleGroup).off("mouseenter");
-        $(titleGroup).off("mouseleave");
-        $(titleGroup).mouseenter(this.fnTitleMouseEnter);
-        $(titleGroup).mouseleave(this.fnTitleMouseLeave);
+        $(this.svgGroup).off('mouseenter');
+        $(this.svgGroup).off('mouseleave');
+        $(this.svgGroup).mouseenter(this.fnTitleMouseEnter);
+        $(this.svgGroup).mouseleave(this.fnTitleMouseLeave);
 
 
-        this.invalidZoomText = SVG.addChild(titleGroup, "text", {
-            "x": 154,
-            "y": 18,
-            "opacity": "0.6",
-            "fill": "black",
-            "visibility": "hidden",
-            "class":this.fontClass
+        this.invalidZoomText = SVG.addChild(this.svgGroup, 'text', {
+            'x': 154,
+            'y': 18,
+            'opacity': '0.6',
+            'fill': 'black',
+            'visibility': 'hidden',
+            'class': this.fontClass
         });
-        this.invalidZoomText.textContent = "This level of zoom isn't appropiate for this track";
+        this.invalidZoomText.textContent = "Zoom in to view the sequence";
 
 
         var loadingImg = '<?xml version="1.0" encoding="utf-8"?>' +
@@ -310,14 +316,62 @@ Track.prototype = {
         this.titlediv = titlediv;
 
         this.main = main;
-        this.titleGroup = titleGroup;
         this.titlebar = titlebar;
 //        this.titleText = titleText;
 
 
+        if (this.histogramRenderer) {
+            this._drawHistogramLegend();
+        }
+
         this.rendered = true;
         this.status = "ready";
 
+    },
+    _drawHistogramLegend: function () {
+        var histogramHeight = this.histogramRenderer.histogramHeight;
+        var multiplier = this.histogramRenderer.multiplier;
+
+        this.histogramGroup = SVG.addChild(this.svgGroup, 'g', {
+            'class': 'histogramGroup',
+            'visibility': 'hidden'
+        });
+        var text = SVG.addChild(this.histogramGroup, "text", {
+            "x": 21,
+            "y": histogramHeight + 4,
+            "font-size": 12,
+            "opacity": "0.9",
+            "fill": "orangered",
+            'class': this.fontClass
+        });
+        text.textContent = "0-";
+        var text = SVG.addChild(this.histogramGroup, "text", {
+            "x": 14,
+            "y": histogramHeight + 4 - (Math.log(10) * multiplier),
+            "font-size": 12,
+            "opacity": "0.9",
+            "fill": "orangered",
+            'class': this.fontClass
+        });
+        text.textContent = "10-";
+        var text = SVG.addChild(this.histogramGroup, "text", {
+            "x": 7,
+            "y": histogramHeight + 4 - (Math.log(100) * multiplier),
+            "font-size": 12,
+            "opacity": "0.9",
+            "fill": "orangered",
+            'class': this.fontClass
+        });
+        text.textContent = "100-";
+        var text = SVG.addChild(this.histogramGroup, "text", {
+            "x": 0,
+            "y": histogramHeight + 4 - (Math.log(1000) * multiplier),
+            "font-size": 12,
+            "opacity": "0.9",
+            "fill": "orangered",
+            'class': this.fontClass
+        });
+        text.textContent = "1000-";
     },
 
 //    showInfoWidget: function (args) {

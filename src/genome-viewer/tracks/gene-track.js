@@ -68,8 +68,7 @@ GeneTrack.prototype.render = function (targetId) {
             width: _this.width,
             zoom: _this.zoom,
             labelZoom: _this.labelZoom,
-            pixelPosition: _this.pixelPosition,
-            frontSvg:_this.titlebar
+            pixelPosition: _this.pixelPosition
 
         });
         _this.updateHeight();

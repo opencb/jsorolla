@@ -89,7 +89,7 @@ GenericFormPanel.prototype.getPanels = function () {
 GenericFormPanel.prototype.getJobPanel = function () {
     var _this = this;
     var jobNameField = Ext.create('Ext.form.field.Text', {
-        id: "jobname",
+        id: this.id+"jobname",
         name: "jobname",
         fieldLabel: 'Name',
         emptyText: "Job name",
@@ -98,7 +98,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
     });
 
     var jobDescriptionField = Ext.create('Ext.form.field.TextArea', {
-        id: "jobdescription",
+        id: this.id+"jobdescription",
         name: "jobdescription",
         fieldLabel: 'Description',
         emptyText: "Description",
@@ -113,6 +113,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
 //	});
 //	var jobDestinationBucket = this.createCombobox("jobdestinationbucket", "Destination bucket", bucketList, 0, 100);
     var jobFolder = this.createOpencgaBrowserCmp({
+        id:Utils.genId('jobFolder'),
         fieldLabel: 'Folder:',
         dataParamName: 'outdir',
         mode: 'folderSelection',
@@ -261,14 +262,14 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
     });
 
     var fileSelectedLabel = Ext.create('Ext.form.Label', {
-        id: args.dataParamName,
+        id: args.id,
         text: args.defaultFileLabel || "No file selected",
         margin: '5 0 0 15'
     });
 
     //not shown, just for validation
     var hiddenField = Ext.create('Ext.form.field.Text', {
-        id: args.dataParamName+'hidden',
+        id: args.id+'hidden',
         name: args.dataParamName,
         hidden: true,
         allowBlank: (args.allowBlank || false),
