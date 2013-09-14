@@ -46,11 +46,6 @@ function HeaderWidget(args){
 
 	this.adapter = new OpencgaManager();
 	
-	/** Events **/
-	this.onLogin = new Event();
-	this.onLogout = new Event();
-	this.onGetAccountInfo = new Event();
-
 	/** create widgets **/
 	this.loginWidget= new LoginWidget(this.suiteId);
 	this.editUserWidget = new ProfileWidget();
@@ -60,7 +55,7 @@ function HeaderWidget(args){
 	/**Atach events i listen**/
 	this.loginWidget.onSessionInitiated.addEventListener(function(){
 		_this.sessionInitiated();
-		_this.onLogin.notify();
+		_this.trigger('login',{sender:this});
 	});
 
 	this.adapter.onLogout.addEventListener(function(sender, data){
@@ -71,7 +66,7 @@ function HeaderWidget(args){
 		$.cookie('bioinfo_account', null);
 		$.cookie('bioinfo_account', null, {path: '/'});
 		_this.sessionFinished();
-		_this.onLogout.notify();
+        _this.trigger('logout',{sender:this});
 	});
     this.opencgaBrowserWidget.onNeedRefresh.addEventListener(function(){
         _this.getAccountInfo();
@@ -79,10 +74,13 @@ function HeaderWidget(args){
     this.adapter.onGetAccountInfo.addEventListener(function (evt, response){
         if(response.accountId != null){
             _this.setAccountData(response);
-            _this.onGetAccountInfo.notify(response);
+            _this.trigger('account:change',{sender:this,response:response});
             console.log("accountData has been modified since last call");
         }
     });
+
+
+    this.on(this.handlers);
 
     this.rendered = false;
     if (this.autoRender) {

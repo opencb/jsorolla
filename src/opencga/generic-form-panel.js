@@ -69,6 +69,7 @@ GenericFormPanel.prototype.draw = function (args) {
                 defaults: {margin: 30},
                 autoScroll: true,
                 items: this.getForm(),
+                border:0,
                 listeners:{
                     beforeclose:function(){
                         console.log('closing');
@@ -89,7 +90,7 @@ GenericFormPanel.prototype.getForm = function () {
         items.push(this.getRunButton());
 
         this.form = Ext.create('Ext.form.Panel', {
-            border: false,
+            border: 0,
             bodyPadding: '5',
             width: '95%',
             layout: 'vbox',
@@ -271,8 +272,12 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
                 args.beforeClick(args);
             }
             var listenerIdx = _this.opencgaBrowserWidget.onSelect.addEventListener(function (sender, response) {
-                fileSelectedLabel.setText('<span class="emph">' + response.bucketId + '/' + response.id + '</span>', false);
-                hiddenField.setValue(response.bucketId + ':' + response.id.replace(/\//g, ":"));//this is send to the ws
+
+                var label = response.bucketId + '/' + response.id;
+                var value = response.bucketId + ':' + response.id.replace(/\//g, ":");
+                fileSelectedLabel.setText('<span class="emph">' + label + '</span>', false);
+                hiddenField.setValue(value);//this is send to the ws
+
                 _this.opencgaBrowserWidget.onSelect.removeEventListener(listenerIdx);
             });
             _this.opencgaBrowserWidget.draw({mode: args.mode, allowedTypes: args.allowedTypes});

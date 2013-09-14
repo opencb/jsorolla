@@ -40,6 +40,9 @@ ResultWidget.prototype = {
     draw: function (sid, record) {
         var _this = this;
         this.job = record.raw;
+
+        this.job['command'] = this.parseCommand(this.job);
+
         this.jobId = this.job.id;
         this.id = this.jobId + this.id;
         this.panelId = "ResultWidget_" + this.jobId;
@@ -75,60 +78,13 @@ ResultWidget.prototype = {
         var _this = this;
         console.log(this.application);
 
-//        Ext.create('Ext.button.Button', {
-//            text: 'Delete',
-//            margin: "0 0 25 30",
-//        });
-
         var getJobInfo = function (args) {
             var args = args || {};
             var itemTpl = new Ext.XTemplate(
                 '<p><span class="ssel border-bot s120">Information </span><span style="color:steelblue"> &nbsp; &nbsp; Job Id: <span><span style="color:slategrey">{id}</span></p><br>',
                 '<p><span class="emph">{name}</span> - <span class="info"> {toolName} </span> - <span style="color:orangered"> {date}</span></p>',
                 '<p class="tip emph">{description}</p>',
-                '<p class="">{[ this.getInfo(values) ]}</p>', {
-                    getInfo: function (item) {
-                        var tableHtml = '';
-                        switch (item.toolName) {
-                            case 'pathiways':
-                            case 'pathiways.pathiways':
-                            case 'pathiways.pathipred':
-                                var commandObject = {};
-                                var commandArray = item.commandLine.split(/ -{1,2}/g);
-                                var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
-                                tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
-                                tableHtml += '<td style="min-width:50px;border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Parameter</td>';
-                                tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Value</td>';
-                                tableHtml += '</tr>';
-                                for (var i = 1; i < commandArray.length; i++) {
-                                    //ignore first argument
-                                    var paramenter = commandArray[i];
-                                    paramenter = paramenter.replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/', '');
-                                    paramenter = paramenter.replace('/httpd/bioinfo/opencga/accounts/', '');
-                                    var paramenterArray = paramenter.split(/ {1}/g);
-                                    var name = '';
-                                    var value = '';
-                                    if (paramenterArray.length < 2) {
-                                        name = paramenterArray[0];
-                                        value = '<span color:darkgray;font-weight:bold;>This paramenter is a flag</span>';
-                                    } else {
-                                        name = paramenterArray[0];
-                                        value = paramenterArray[1];
-                                    }
-                                    value = value.replace(/,/g, ", ");
-                                    tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
-                                    tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + name + '</td>';
-                                    tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + value + '</td>';
-                                    tableHtml += '</tr>';
-                                }
-                                tableHtml += '</tbody></table>';
-                                break;
-                            default :
-                                return '';
-                        }
-                        return tableHtml;
-                    }
-                }
+                '<p class="">{command.html}</p>'
             );
             var container = Ext.create('Ext.container.Container', {
                 margin: '15 0 15 15',
@@ -312,6 +268,7 @@ ResultWidget.prototype = {
             });
         };
 
+        /* Process recursively the result structure */
         var getDetailsAsDocument = function (item, isRoot) {
             var boxes;
             if (typeof item.children != 'undefined') {
@@ -389,5 +346,40 @@ ResultWidget.prototype = {
         this.panel.insert(indexResutl);
         this.panel.add(detailedResutls);
 
-    }//end render
+    },//end render
+    parseCommand: function (item) {
+        var commandObject = {};
+        var commandArray = item.commandLine.split(/ -{1,2}/g);
+        var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
+        tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
+        tableHtml += '<td style="min-width:50px;border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Parameter</td>';
+        tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Value</td>';
+        tableHtml += '</tr>';
+        for (var i = 1; i < commandArray.length; i++) {
+            //ignore first argument
+            var paramenter = commandArray[i];
+            var paramenterArray = paramenter.split(/ {1}/g);
+            var name = '';
+            var value = '';
+            if (paramenterArray.length < 2) {
+                name = paramenterArray[0];
+                value = '<span color:darkgray;font-weight:bold;>This paramenter is a flag</span>';
+            } else {
+                name = paramenterArray[0];
+                value = paramenterArray[1];
+            }
+            commandObject[name] = value;
+            /* clean values for viz*/
+            value = value.replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/', '');
+            value = value.replace('/httpd/bioinfo/opencga/accounts/', '');
+            value = value.replace(/,/g, ", ");
+
+            tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
+            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + name + '</td>';
+            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + value + '</td>';
+            tableHtml += '</tr>';
+        }
+        tableHtml += '</tbody></table>';
+        return {html:tableHtml, data:commandObject};
+    }
 };
