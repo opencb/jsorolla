@@ -219,12 +219,18 @@ OpencgaBrowserWidget.prototype = {
     //endclass
 };
 
-OpencgaBrowserWidget.prototype.render = function (mode) {
+OpencgaBrowserWidget.prototype.render = function (args) {
     var _this = this;
+
+    var args = args || {};
+    var mode = args.mode;
+    this.allowedTypes = args.allowedTypes;
+
+
     if (this.panel == null) {
 
         this.folderStore = Ext.create('Ext.data.TreeStore', {
-            id:this.id+'folderStore',
+            id: this.id + 'folderStore',
             fields: ['text', 'oid'],
             root: {
                 expanded: true,
@@ -241,7 +247,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
             }
         });
         this.allStore = Ext.create('Ext.data.TreeStore', {
-            id:this.id+'allStore',
+            id: this.id + 'allStore',
             fields: ['text', 'oid'],
             root: {
                 expanded: true,
@@ -257,7 +263,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
         var refreshBucketAction = Ext.create('Ext.Action', {
             icon: Utils.images.refresh,
             text: 'Refresh bucket',
-            handler: function(widget, event) {
+            handler: function (widget, event) {
                 var record = _this.folderTree.getSelectionModel().getSelection()[0];
                 if (record) {
                     if (record.raw.isBucket) {
@@ -279,7 +285,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
         var renameBucketAction = Ext.create('Ext.Action', {
 //            icon: Utils.images.refresh,
             text: 'Rename bucket',
-            handler: function(widget, event) {
+            handler: function (widget, event) {
                 var record = _this.folderTree.getSelectionModel().getSelection()[0];
                 if (record) {
                     if (record.raw.isBucket) {
@@ -377,7 +383,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                             _this.setTrackIndex(id, record.data.index);
                         }
                     },
-                    itemcontextmenu: function(este, record, item, index, e) {
+                    itemcontextmenu: function (este, record, item, index, e) {
                         e.stopEvent();
                         var items = [];
                         console.log(record)
@@ -420,12 +426,12 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                     }
                 },
                 viewready: function (este, eOpts) {//Fires when the grid view is available (use this for selecting a default row).
-                    setTimeout(function(){ // forced to do this because some ExtJS 4.2.0 event problem
+                    setTimeout(function () { // forced to do this because some ExtJS 4.2.0 event problem
                         var node = este.getRootNode().getChildAt(0);
                         if (typeof node != 'undefined') {
                             este.getSelectionModel().select(node);
                         }
-                    },0);
+                    }, 0);
                 },
                 checkchange: function (node, checked) {
                 },
@@ -472,15 +478,12 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
         /*END MANAGE PROJECTS*/
 
 
-
-
-
         /*Files grid*/
         var indexAction = Ext.create('Ext.Action', {
-            icon   : Utils.images.info,  // Use a URL in the icon config
+            icon: Utils.images.info,  // Use a URL in the icon config
             text: 'Create index',
 //            disabled: true,
-            handler: function(widget, event) {
+            handler: function (widget, event) {
                 var record = _this.filesGrid.getSelectionModel().getSelection()[0];
                 if (record) {
                     var opencgaManager = new OpencgaManager();
@@ -533,7 +536,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
 //            icon: Utils.images.info,
             text: 'Show name',
 //            disabled: true,
-            handler: function(widget, event) {
+            handler: function (widget, event) {
                 var rec = _this.filesGrid.getSelectionModel().getSelection()[0];
                 if (rec) {
                     Ext.example.msg('objectId', '' + rec.get('oid'));
@@ -545,7 +548,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
             icon: Utils.images.del,
             text: 'Delete this file',
 //            disabled: true,
-            handler: function(widget, event) {
+            handler: function (widget, event) {
                 var record = _this.filesGrid.getSelectionModel().getSelection()[0];
                 if (record) {
                     Ext.MessageBox.confirm('Confirm', 'Are you sure you want to delete this file?<p class="emph">' + record.data.fileName + '<p>', function (answer) {
@@ -576,7 +579,7 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
             viewConfig: {
                 stripeRows: true,
                 listeners: {
-                    itemcontextmenu: function(este, record, item, index, e) {
+                    itemcontextmenu: function (este, record, item, index, e) {
                         e.stopEvent();
                         var items = [showName];
                         console.log(record)
@@ -599,9 +602,17 @@ OpencgaBrowserWidget.prototype.render = function (mode) {
                     selectionchange: function (este, item) {
                         if (item.length > 0) {//se compr
                             _this.selectedFileNode = item[0].raw;
-                            if (mode == "fileSelection" && item[0].raw.fileType == "dir") {
+                            var type = item[0].raw.fileType;
+                            var fileFormat = item[0].raw.fileFormat;
+                            if (mode == "fileSelection" && type == "dir") {
                                 return;
                             }
+                            console.log(_this.allowedTypes)
+                            if (typeof _this.allowedTypes != 'undefined' && _this.allowedTypes.indexOf(fileFormat) == -1) {
+                                console.log('file format NOT allowed -'+ fileFormat +'- ')
+                                return;
+                            }
+                            console.log('file format allowed -'+ fileFormat +'- ')
                             _this.selectButton.enable();
                             //this.selectedLabel.setText('<p>The selected file <span class="emph">'+item[0].data.fileName.substr(0,40)+'</span><span class="ok"> is allowed</span>.</p>',false);
                             //TODO por defecto cojo el primero pero que pasa si el data contiene varios ficheros??

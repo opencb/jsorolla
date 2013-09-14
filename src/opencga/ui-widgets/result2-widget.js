@@ -22,11 +22,11 @@
 function ResultWidget(args) {
     var _this = this;
 
-    if (typeof args != 'undefined') {
-        this.targetId = args.targetId || this.targetId;
-        this.application = args.application || this.application;
-        this.app = args.app || this.app;
-    }
+    //set default args
+    this.extItems = [];
+
+    //set instantiation args, must be last
+    _.extend(this, args);
 
     this.adapter = new OpencgaManager();
 
@@ -80,37 +80,57 @@ ResultWidget.prototype = {
 //            margin: "0 0 25 30",
 //        });
 
-        var getJobInfo = function () {
+        var getJobInfo = function (args) {
+            var args = args || {};
             var itemTpl = new Ext.XTemplate(
                 '<p><span class="ssel border-bot s120">Information </span><span style="color:steelblue"> &nbsp; &nbsp; Job Id: <span><span style="color:slategrey">{id}</span></p><br>',
                 '<p><span class="emph">{name}</span> - <span class="info"> {toolName} </span> - <span style="color:orangered"> {date}</span></p>',
                 '<p class="tip emph">{description}</p>',
                 '<p class="">{[ this.getInfo(values) ]}</p>', {
                     getInfo: function (item) {
+                        var tableHtml = '';
                         switch (item.toolName) {
                             case 'pathiways':
-                                var arr = item.commandLine.split(/ --/g);
-                                console.log(arr)
-                                var str = arr[1].replace(/ /g, ': ') + '<br>';
-                                str += arr[2].replace(/ /g, ': ') + '<br>';
-                                str += arr[3].replace(/ /g, ': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/', '').replace('/httpd/bioinfo/opencga/accounts/', '') + '<br>';
-                                str += arr[4].replace(/ /g, ': ') + '<br>';
-                                str += arr[5].replace(/ /g, ': ') + '<br>';
-                                str += arr[6].replace(/ /g, ': ').replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/', '').replace('/httpd/bioinfo/opencga/accounts/', '') + '<br>';
-                                str += arr[7].replace(/ /g, ': ') + '<br>';
-//                                str +=  arr[8].replace(/ /g,': ')+'<br>';
-//                                str +=  arr[9].replace(/ /g,': ')+'<br>';
-                                str += arr[10].replace(/ /g, ': ') + '<br>';
-                                str += arr[12].replace(/ /g, ': ');
-                                str += '<div style="width:400px">' + arr[11].replace(/ /g, ': ').replace(/,/g, ', ') + '</div>';
-                                return str;
+                            case 'pathiways.pathiways':
+                            case 'pathiways.pathipred':
+                                var commandObject = {};
+                                var commandArray = item.commandLine.split(/ -{1,2}/g);
+                                var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
+                                tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
+                                tableHtml += '<td style="min-width:50px;border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Parameter</td>';
+                                tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Value</td>';
+                                tableHtml += '</tr>';
+                                for (var i = 1; i < commandArray.length; i++) {
+                                    //ignore first argument
+                                    var paramenter = commandArray[i];
+                                    paramenter = paramenter.replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/', '');
+                                    paramenter = paramenter.replace('/httpd/bioinfo/opencga/accounts/', '');
+                                    var paramenterArray = paramenter.split(/ {1}/g);
+                                    var name = '';
+                                    var value = '';
+                                    if (paramenterArray.length < 2) {
+                                        name = paramenterArray[0];
+                                        value = '<span color:darkgray;font-weight:bold;>This paramenter is a flag</span>';
+                                    } else {
+                                        name = paramenterArray[0];
+                                        value = paramenterArray[1];
+                                    }
+                                    value = value.replace(/,/g, ", ");
+                                    tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
+                                    tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + name + '</td>';
+                                    tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + value + '</td>';
+                                    tableHtml += '</tr>';
+                                }
+                                tableHtml += '</tbody></table>';
+                                break;
                             default :
                                 return '';
                         }
+                        return tableHtml;
                     }
                 }
             );
-            return Ext.create('Ext.container.Container', {
+            var container = Ext.create('Ext.container.Container', {
                 margin: '15 0 15 15',
                 items: [
                     {
@@ -153,6 +173,10 @@ ResultWidget.prototype = {
                     }
                 ]
             });
+            if (typeof args.items != 'undefined') {
+                container.child('container').add(args.items);
+            }
+            return container;
         };
 
         var getResultIndex = function (children) {
@@ -254,9 +278,9 @@ ResultWidget.prototype = {
                                     var line = lines[i];
                                     if (line.charAt(0) != '#' && line.trim() != '') {
                                         numLines++;
-                                        if(renderer.header && numLines == 1){
+                                        if (renderer.header && numLines == 1) {
                                             tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
-                                        }else{
+                                        } else {
                                             tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
                                         }
                                         var fields = line.split('\t');
@@ -361,7 +385,7 @@ ResultWidget.prototype = {
 
         var detailedResutls = getDetailsAsDocument(resultData[this.job.toolName].layout, true);
         var indexResutl = getResultIndex(resultData[this.job.toolName].layout.children);
-        this.panel.add(getJobInfo());
+        this.panel.add(getJobInfo({items: this.extItems}));
         this.panel.insert(indexResutl);
         this.panel.add(detailedResutls);
 
