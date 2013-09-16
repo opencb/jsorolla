@@ -29,12 +29,14 @@ function CircosWidget(args) {
 
     //set default args
     this.radius = 200;
-    this.x = 250;
-    this.y = 250;
-    this.arcWidth = 35;
+    this.arcWidth = 70;
+
 
     //set instantiation args, must be last
     _.extend(this, args);
+
+    this.x = this.width / 2;
+    this.y = this.arcWidth - this.radius+200;
 
     //events attachments
     this.on(this.handlers);
@@ -50,6 +52,7 @@ function CircosWidget(args) {
 
 CircosWidget.prototype = {
     render: function () {
+        var _this = this;
 
         this.circumferenceLength = 2 * Math.PI * this.radius;
         console.log("Circumference length: " + this.circumferenceLength);
@@ -63,53 +66,148 @@ CircosWidget.prototype = {
             "height": this.height
         });
 
-        this.markGroup = SVG.addChild(this.svg, "g", {"cursor": "pointer"});
+        this.minus = SVG.addChild(this.svg, 'circle', {
+            "cx": this.x - 20,
+            "cy": this.arcWidth * 5,
+            "r": 10,
+            fill: 'red'
+        });
+
+        this.plus = SVG.addChild(this.svg, 'circle', {
+            "cx": this.x + 20,
+            "cy": this.arcWidth * 5,
+            "r": 10,
+            fill: 'blue'
+        });
+        this.g = SVG.addChild(this.svg, 'g');
+
+        var downX, moveX, lastDegree = 0, degree;
+        $(this.g).mousedown(function (event) {
+            downX = event.clientX;
+                $(this).mousemove(function (event) {
+                    var newX = (downX - event.clientX)
+                    degree = (newX*0.2)+lastDegree;
+                    _this.g.setAttribute('transform','rotate('+degree+' '+_this.x+' '+ _this.y+')')
+                    console.log(degree)
+                });
+        });
+        $(this.svg).mouseup(function (event) {
+            $(_this.g).off('mousemove');
+            downX = null;
+            moveX = null;
+            console.log(degree)
+            lastDegree = degree;
+        });
+
+        $(this.minus).click(function () {
+            if (_this.radius-100 > 0) {
+                _this.radius -= 100;
+                console.log(_this.radius)
+                _this.y = _this.arcWidth - _this.radius+200;
+                _this.draw();
+            }
+        });
+        $(this.plus).click(function () {
+            _this.radius += 100;
+            console.log(_this.radius)
+            _this.y = _this.arcWidth - _this.radius+200;
+            _this.draw();
+        });
+
         this.cytobandDashArray = {};
         this.chromosomeList = null;
         this.data2 = null;
 
     },
     draw: function () {
+        var _this = this;
+        this.clean();
+
         this.fetchData();
-        this.drawGeneric([
+
+        this.components = [
             {
                 id: 'hsapiens',
-                position: 8,
-                size: 3
+                position: 0,
+                size: 3,
+                segments: [
+                    {
+                        id: '5',
+                        size: 180915260
+                    },
+                    {
+                        id: '19',
+                        size: 59128983
+
+                    }
+                ]
             },
             {
                 id: 'mmusculus',
-                size: 1
+                size: 1,
+                segments: []
             },
             {
                 id: 'cfamiliaris',
-                position:0,
-                size: 2
+                position: 0,
+                size: 2,
+                segments: []
             }
-        ]);
+        ];
+        this.componentData = {};
+
+
+        this.drawComponents(this.components);
+//        this.drawCytobandTrack(this.json);
+        var features = [
+            {
+                id: 'uno',
+                component: 'hsapiens',
+                segment: '5',
+                start: 62072704,
+                end: 72073090
+            },
+            {
+                id: 'dos',
+                component: 'hsapiens',
+                segment: '6',
+                start: 32072704,
+                end: 42073090
+            }
+
+        ]
+        this.drawCytobandTrack(this.chromosomes);
+        this.drawFeatureTrack(features);
     },
-    drawGeneric: function (json) {
-        json.sort(function (a, b) {
-            var flag = false;
-            if (typeof a.position == 'undefined') {
-                a.position = Number.MAX_VALUE;;
-            }
-            if (typeof b.position == 'undefined') {
-                b.position = Number.MAX_VALUE;;
-            }
-            return a.position - b.position;
-        });
-
-        var component;
+    clean: function () {
+        $(this.g).empty();
+    },
+    _calculateTotalSize: function (items) {
         var totalSize = 0;
-        for (var i = 0; i < json.length; i++) {
-            component = json[i];
-            totalSize += component.size;
+        for (var i = 0; i < items.length; i++) {
+            totalSize += items[i].size;
         }
+        return totalSize;
+    },
+    _sortFunction: function (a, b) {
+        var flag = false;
+        if (typeof a.position == 'undefined') {
+            a.position = Number.MAX_VALUE;
+        }
+        if (typeof b.position == 'undefined') {
+            b.position = Number.MAX_VALUE;
+        }
+        return a.position - b.position;
+    },
+    drawComponents: function (json) {
+        json.sort(this._sortFunction);
 
+        var totalSize = this._calculateTotalSize(json);
         var c = 360 / totalSize;
         var angleOffset = 0;
         var component_d = [];
+        var segment_d = [];
+        var component;
         for (var i = 0; i < json.length; i++) {
             component = json[i];
             component.angleSize = component.size * c;
@@ -118,10 +216,35 @@ CircosWidget.prototype = {
             component.angleEnd = angleOffset;
 
             component_d.push(SVG.describeArc(this.x, this.y, this.radius, component.angleStart, component.angleEnd) + ' ');
+
+            this.componentData[component.id] = component;
+            this.componentData[component.id]['segmentData'] = {};
+
+            //check segments
+            if (typeof component.segments != 'undefined') {
+                component.segments.sort(this._sortFunction);
+                var totalSegmentsSize = this._calculateTotalSize(component.segments);
+                var segmentAngleOffset = 0;
+                var c_s = component.angleSize / totalSegmentsSize;
+                var segment;
+                for (var j = 0; j < component.segments.length; j++) {
+                    segment = component.segments[j];
+                    segment.angleSize = segment.size * c_s;
+
+                    segment.angleStart = component.angleStart + segmentAngleOffset;
+                    segmentAngleOffset += segment.angleSize;
+                    segment.angleEnd = component.angleStart + segmentAngleOffset;
+
+                    segment_d.push(SVG.describeArc(this.x, this.y, this.radius, segment.angleStart, segment.angleEnd) + ' ');
+
+                    this.componentData[component.id]['segmentData'][segment.id] = segment;
+                }
+            }
+
         }
 
         for (var i = 0; i < component_d.length; i++) {
-            var curve = SVG.addChild(this.svg, "path", {
+            var curve = SVG.addChild(this.g, "path", {
                 "d": component_d[i],
 //                "stroke": 'lightblue',
                 "stroke": Utils.randomColor(),
@@ -129,88 +252,184 @@ CircosWidget.prototype = {
                 "fill": "none"
             });
         }
+        for (var i = 0; i < segment_d.length; i++) {
+            var curve = SVG.addChild(this.g, "path", {
+                "d": segment_d[i],
+//                "stroke": 'lightblue',
+                "stroke": Utils.randomColor(),
+                "stroke-width": this.arcWidth - 20,
+                "fill": "none"
+            });
+        }
 
         console.log(json)
 
     },
-    drawChromosomes2: function (chromosomes) {
+    drawFeatureTrack: function (features) {
+        console.log(features)
+        var feature;
+        var segmentId;
+        var segment;
+        var componentId;
+        for (var i = 0; i < features.length; i++) {
+            var feature = features[i];
+            segmentId = feature.segment;
+            componentId = feature.component;
+            segment = this.componentData[componentId]['segmentData'][segmentId];
+            if (segment) {
+                var c = segment.angleSize / segment.size;
+                feature.angleStart = feature.start * c;
+                feature.angleEnd = feature.end * c;
 
-//        chromosomes = [chromosomes[0]];
-//        chromosomes = [chromosomes[0],chromosomes[1]];
-
-        /* Calculate total genome size */
-        var genomeSize = 0;
-        var chromosome;
-        for (var i = 0; i < chromosomes.length; i++) {
-            chromosome = chromosomes[i];
-            genomeSize += chromosome.size;
-        }
-
-        var chromosomes_d = [];
-        var c = 360 / genomeSize;
-        var angleOffset = 0;
-        var cytobandsByStain = {};
-
-        for (var i = 0; i < chromosomes.length; i++) {
-            chromosome = chromosomes[i];
-            chromosome.angleSize = chromosome.size * c;
-            chromosome.angleStart = angleOffset;
-            angleOffset += chromosome.angleSize;
-            chromosome.angleEnd = angleOffset;
-
-            chromosomes_d.push(SVG.describeArc(250, 250, this.radius, chromosome.angleStart, chromosome.angleEnd) + ' ');
-            // sort cytobands
-            chromosome.cytobands.sort(function (a, b) {
-                return a.start - b.start;
-            });
-
-            var b = chromosome.angleSize / chromosome.size;
-
-            var cytobandAngleOffset = 0;
-
-            // loop over cytobands
-            for (var j = 0; j < chromosome.cytobands.length; j++) {
-                var cytoband = chromosome.cytobands[j];
-                cytoband.size = cytoband.end - cytoband.start + 1;
-                cytoband.angleSize = cytoband.size * b;
-                cytoband.angleStart = chromosome.angleStart + cytobandAngleOffset;
-                cytobandAngleOffset += cytoband.angleSize;
-                cytoband.angleEnd = chromosome.angleStart + cytobandAngleOffset;
-
-                if (typeof cytobandsByStain[cytoband.stain] == "undefined") cytobandsByStain[cytoband.stain] = [];
-                cytobandsByStain[cytoband.stain].push(cytoband);
-
-            }
-
-            for (var cytobandStain in cytobandsByStain) {
-                var cytobands_d = '';
-                for (var j = 0; j < cytobandsByStain[cytobandStain].length; j++) {
-                    var cytoband = cytobandsByStain[cytobandStain][j];
-                    cytobands_d += SVG.describeArc(250, 250, this.radius, cytoband.angleStart, cytoband.angleEnd) + ' ';
-                }
-                var curve = SVG.addChild(this.svg, "path", {
-                    "d": cytobands_d,
-                    "stroke": this.colors[cytobandStain],
-                    "stroke-width": this.arcWidth,
+                var curve = SVG.addChild(this.g, "path", {
+                    "d": SVG.describeArc(this.x, this.y, this.radius + this.arcWidth, feature.angleStart, feature.angleEnd),
+//                "stroke": 'lightblue',
+                    "stroke": Utils.randomColor(),
+                    "stroke-width": 10,
                     "fill": "none"
                 });
             }
         }
 
+    },
+    drawCytobandTrack: function (chromosomes) {
+        console.log(chromosomes);
+        var species = 'hsapiens';
 
-        console.log(cytobandsByStain);
+        var segment;
+        var chromosome;
+        var cytobands;
+        var angleOffset = 0;
+        var cytobandsByStain = {};
+        for (var i = 0; i < chromosomes.length; i++) {
+            chromosome = chromosomes[i];
+            segment = this.componentData[species]['segmentData'][chromosome.name];
+            if (segment) {
+                cytobands = chromosome.cytobands;
+                var c = segment.angleSize / segment.size;
 
+                // loop over cytobands
+                for (var j = 0; j < cytobands.length; j++) {
+                    var cytoband = cytobands[j];
 
-        for (var i = 0; i < chromosomes_d.length; i++) {
-            var curve = SVG.addChild(this.svg, "path", {
-                "d": chromosomes_d[i],
-                "stroke": 'lightblue',
-//                "stroke": Utils.randomColor(),
-                "stroke-width": this.arcWidth + 10,
-                "fill": "none"
-            }, 0);
+                    cytoband.angleStart = (cytoband.start * c) + angleOffset;
+                    cytoband.angleEnd = (cytoband.end * c) + angleOffset;
+
+                    if (typeof cytobandsByStain[cytoband.stain] == "undefined") cytobandsByStain[cytoband.stain] = [];
+                    cytobandsByStain[cytoband.stain].push(cytoband);
+
+                }
+
+                for (var cytobandStain in cytobandsByStain) {
+                    var cytobands_d = '';
+                    for (var j = 0; j < cytobandsByStain[cytobandStain].length; j++) {
+                        var cytoband = cytobandsByStain[cytobandStain][j];
+                        cytobands_d += SVG.describeArc(this.x, this.y, this.radius, cytoband.angleStart, cytoband.angleEnd) + ' ';
+                    }
+                    var curve = SVG.addChild(this.g, "path", {
+                        "d": cytobands_d,
+                        "stroke": this.colors[cytobandStain],
+                        "stroke-width": this.arcWidth - 40,
+                        "fill": "none"
+                    });
+                }
+
+                angleOffset += segment.angleSize;
+            }
         }
 
+
+//
+//
+//        /**/
+//        /**/
+//
+//
+//
+////        chromosomes = [chromosomes[0]];
+////        chromosomes = [chromosomes[0],chromosomes[1]];
+//
+//        /* Calculate total genome size */
+//
+//        chromosomes = [chromosomes[0]]
+//
+//        var genomeSize = 0;
+//        var chromosome;
+//        for (var i = 0; i < chromosomes.length; i++) {
+//            chromosome = chromosomes[i];
+//            genomeSize += chromosome.size;
+//        }
+//
+//        var chromosomes_d = [];
+//        var c = 180 / genomeSize;
+//        var angleOffset = 0;
+//        var cytobandsByStain = {};
+//
+//
+//
+//        for (var i = 0; i < chromosomes.length; i++) {
+//            chromosome = chromosomes[i];
+//            chromosome.angleSize = chromosome.size * c;
+//            chromosome.angleStart = angleOffset;
+//            angleOffset += chromosome.angleSize;
+//            chromosome.angleEnd = angleOffset;
+//
+//            chromosomes_d.push(SVG.describeArc(900, 350, this.radius, chromosome.angleStart, chromosome.angleEnd) + ' ');
+//
+//            // sort cytobands
+//            chromosome.cytobands.sort(function (a, b) {
+//                return a.start - b.start;
+//            });
+//
+//            console.log(chromosome.cytobands);
+//
+//            var b = chromosome.angleSize / chromosome.size;
+//
+//            var cytobandAngleOffset = 0;
+//
+//            // loop over cytobands
+//            for (var j = 0; j < chromosome.cytobands.length; j++) {
+//                var cytoband = chromosome.cytobands[j];
+//                cytoband.size = cytoband.end - cytoband.start + 1;
+//                cytoband.angleSize = cytoband.size * b;
+//                cytoband.angleStart = chromosome.angleStart + cytobandAngleOffset;
+//                cytobandAngleOffset += cytoband.angleSize;
+//                cytoband.angleEnd = chromosome.angleStart + cytobandAngleOffset;
+//
+//                if (typeof cytobandsByStain[cytoband.stain] == "undefined") cytobandsByStain[cytoband.stain] = [];
+//                cytobandsByStain[cytoband.stain].push(cytoband);
+//
+//            }
+//
+//            for (var cytobandStain in cytobandsByStain) {
+//                var cytobands_d = '';
+//                for (var j = 0; j < cytobandsByStain[cytobandStain].length; j++) {
+//                    var cytoband = cytobandsByStain[cytobandStain][j];
+//                    cytobands_d += SVG.describeArc(900, 350, this.radius, cytoband.angleStart, cytoband.angleEnd) + ' ';
+//                }
+//                var curve = SVG.addChild(this.g, "path", {
+//                    "d": cytobands_d,
+//                    "stroke": this.colors[cytobandStain],
+//                    "stroke-width": this.arcWidth,
+//                    "fill": "none"
+//                });
+//            }
+//        }
+//
+//
+//        console.log(cytobandsByStain);
+//
+//
+//        for (var i = 0; i < chromosomes_d.length; i++) {
+//            var curve = SVG.addChild(this.g, "path", {
+//                "d": chromosomes_d[i],
+//                "stroke": 'lightblue',
+////                "stroke": Utils.randomColor(),
+//                "stroke-width": this.arcWidth + 10,
+//                "fill": "none"
+//            }, 0);
+//        }
+//
     }
 
 }
@@ -235,7 +454,7 @@ CircosWidget.prototype.drawChromosomes = function (chromosomeCirclesPosition) {
 
         for (var cytoband in chromosomeCirclesPosition[chromosomePosition]) {
             console.log(chromosomeCirclesPosition[chromosomePosition][cytoband]);
-            var c = SVG.addChild(this.svg, "circle", {
+            var c = SVG.addChild(this.g, "circle", {
                 "cx": 350,
                 "cy": 350,
                 "r": this.radius,
@@ -455,7 +674,7 @@ CircosWidget.prototype._drawSvg = function (chromosomeList, data2) {
     }
 
 
-//	_this.positionBox = SVG.addChild(_this.svg,"line",{
+//	_this.positionBox = SVG.addChild(_this.g,"line",{
 //		"x1":_this.chrOffsetX[_this.region.chromosome]-10,
 //		"y1":pointerPosition + _this.chrOffsetY[_this.region.chromosome],
 //		"x2":_this.chrOffsetX[_this.region.chromosome]+23,
@@ -490,9 +709,9 @@ CircosWidget.prototype._drawSvg = function (chromosomeList, data2) {
 //		}
 //	}
 //	if(needDraw){
-////		$(this.svg).empty();
-//		while (this.svg.firstChild) {
-//			this.svg.removeChild(this.svg.firstChild);
+////		$(this.g).empty();
+//		while (this.g.firstChild) {
+//			this.g.removeChild(this.g.firstChild);
 //		}
 //		this.drawKaryotype();
 //	}
@@ -577,7 +796,7 @@ CircosWidget.prototype.test = function () {
 //    }
 
     var lc = 2 * Math.PI * 100;
-    var circle = SVG.addChild(this.svg, "circle", {
+    var circle = SVG.addChild(this.g, "circle", {
         "cx": 500,
         "cy": 200,
         "r": 100,
@@ -586,7 +805,7 @@ CircosWidget.prototype.test = function () {
         "fill": "none",
         "stroke-dasharray": '40,' + lc
     });
-    var circle = SVG.addChild(this.svg, "circle", {
+    var circle = SVG.addChild(this.g, "circle", {
         "cx": 500,
         "cy": 200,
         "r": 130,
@@ -595,7 +814,7 @@ CircosWidget.prototype.test = function () {
         "fill": "none",
         "stroke-dasharray": '0,100,' + lc
     });
-//    var circle = SVG.addChild(this.svg,"circle",{
+//    var circle = SVG.addChild(this.g,"circle",{
 //        "cx":400,
 //        "cy":400,
 //        "r":80,
@@ -609,7 +828,7 @@ CircosWidget.prototype.test = function () {
         console.log(this)
     });
 
-//    var path = SVG.addChild(this.svg,"path",{
+//    var path = SVG.addChild(this.g,"path",{
 //        "stroke":'black',
 //        "stroke-width":20,
 //        "d":'M 500 100 l 0 50 l 100 0 l 0 -50 m 50 0 l 0 50 100 0 l 0 -50 z',
@@ -620,7 +839,7 @@ CircosWidget.prototype.test = function () {
 //        console.log(this)
 //    });
 
-//    var curve = SVG.addChild(this.svg,"path",{
+//    var curve = SVG.addChild(this.g,"path",{
 //        "d":describeArc(200, 200, 100, 270, 90),
 //        "stroke":'orangered',
 //        "stroke-width":10,
@@ -630,7 +849,7 @@ CircosWidget.prototype.test = function () {
 //    });
 
 
-    var curve = SVG.addChild(this.svg, "path", {
+    var curve = SVG.addChild(this.g, "path", {
         "d": describeArc(500, 500, 80, 60.8, 61) + "  " + describeArc(500, 500, 85, 60, 110),
         "stroke": 'orangered',
         "stroke-width": 2,
