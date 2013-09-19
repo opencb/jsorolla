@@ -30,6 +30,7 @@ function ChromosomePanel(args) {
     this.species = 'hsapiens';
     this.width = 600;
     this.height = 75;
+    this.collapsed = false;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -41,16 +42,10 @@ function ChromosomePanel(args) {
     this.lastChromosome = "";
     this.data;
 
+    this.on(this.handlers);
 
-    if('handlers' in this){
-        for(eventName in this.handlers){
-            this.on(eventName,this.handlers[eventName]);
-        }
-    }
-
-    this.contentHidden=false;
-
-    if(this.autoRender){
+    this.rendered = false;
+    if (this.autoRender) {
         this.render();
     }
 };
@@ -64,25 +59,25 @@ ChromosomePanel.prototype = {
     },
     showContent: function () {
         $(this.svg).css({display: 'inline'});
-        this.contentHidden=false;
+        this.collapsed = false;
         $(this.collapseDiv).addClass('ocb-icon-collapse');
         $(this.collapseDiv).removeClass('ocb-icon-expand');
     },
     hideContent: function () {
         $(this.svg).css({display: 'none'});
-        this.contentHidden=true;
+        this.collapsed = true;
         $(this.collapseDiv).addClass('ocb-icon-expand');
         $(this.collapseDiv).removeClass('ocb-icon-collapse');
     },
     setVisible: function (bool) {
-        if(bool) {
+        if (bool) {
             $(this.div).css({display: 'block'});
-        }else {
+        } else {
             $(this.div).css({display: 'none'});
         }
     },
     setTitle: function (title) {
-        if('titleDiv' in this){
+        if ('titleDiv' in this) {
             $(this.titleDiv).html(title);
         }
     },
@@ -90,16 +85,15 @@ ChromosomePanel.prototype = {
         this.width = width;
         this.svg.setAttribute("width", width);
         this.tracksViewedRegion = this.width / Utils.getPixelBaseByZoom(this.zoom);
-        while (this.svg.firstChild) {
-            this.svg.removeChild(this.svg.firstChild);
-        }
+
+        this.clean();
         this._drawSvg(this.data);
     },
 
-    render : function(targetId){
+    render: function (targetId) {
         var _this = this;
         this.targetId = (targetId) ? targetId : this.targetId;
-        if($('#' + this.targetId).length < 1){
+        if ($('#' + this.targetId).length < 1) {
             console.log('targetId not found in DOM');
             return;
         }
@@ -110,17 +104,17 @@ ChromosomePanel.prototype = {
         if ('title' in this && this.title !== '') {
             this.collapseDiv = $('<div class="ocb-icon ocb-icon-collapse" style="margin:0px 0px -2px 10px;display:inline-block; vertical-align:bottom"></div>');
             this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
-            $(this.titleDiv).dblclick(function(){
-                if(_this.contentHidden){
+            $(this.titleDiv).dblclick(function () {
+                if (_this.collapsed) {
                     _this.showContent();
-                }else{
+                } else {
                     _this.hideContent();
                 }
             });
-            $(this.collapseDiv).click(function(){
-                if(_this.contentHidden){
+            $(this.collapseDiv).click(function () {
+                if (_this.collapsed) {
                     _this.showContent();
-                }else{
+                } else {
                     _this.hideContent();
                 }
             });
@@ -134,97 +128,81 @@ ChromosomePanel.prototype = {
         });
         $(this.div).addClass('unselectable');
 
-        this.colors = {gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue", clementina: '#ffc967'};
+        this.colors = {gneg: "#eeeeee", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue", clementina: '#ffc967'};
         this.rendered = true;
     },
 
-    setSpecies : function(species){
+    setSpecies: function (species) {
         this.species = species;
     },
-
+    clean: function () {
+        $(this.svg).empty();
+    },
     draw: function () {
-        if(!this.rendered){
-            console.info(this.id+' is not rendered yet');
+        if (!this.rendered) {
+            console.info(this.id + ' is not rendered yet');
             return;
         }
         var _this = this;
 
-        while (this.svg.firstChild) {
-            this.svg.removeChild(this.svg.firstChild);
-        }
+        this.clean();
 
-        var sortfunction = function (a, b) {
-            return (a.start - b.start);
-        };
-
-        var cellBaseManager = new CellBaseManager(this.species);
-        cellBaseManager.success.addEventListener(function (sender, data) {
-            _this.data = data.result.result[0].chromosomes;
-            _this.data.cytobands.sort(sortfunction);
-            _this._drawSvg(_this.data);
+        CellBaseManager.get({
+            species: this.species,
+            category: 'genomic',
+            subCategory: 'chromosome',
+            query: this.region.chromosome,
+            resource: 'info',
+            success: function (data) {
+                _this.data = data.response[0].result.chromosomes;
+                _this.data.cytobands.sort(function (a, b) {
+                    return (a.start - b.start);
+                });
+                _this._drawSvg(_this.data);
+            }
         });
-        cellBaseManager.get("genomic", "chromosome", this.region.chromosome, "info");
+
         this.lastChromosome = this.region.chromosome;
+
+
+        if (this.collapsed) {
+            _this.hideContent();
+        }
     },
-
     _drawSvg: function (chromosome) {
+        // This method uses less svg elements
         var _this = this;
-        this.chromosomeLength = chromosome.size;
-        _this.pixelBase = (_this.width - 40) / this.chromosomeLength;
-        var x = 20;
-        var y = 10;
-        var firstCentromere = true;
-
         var offset = 20;
-        var centerPosition = _this.region.center();
-
-
-        /* status string */
-        var status = '';
-
-        var pointerPosition = (centerPosition * _this.pixelBase) + offset;
-
         var group = SVG.addChild(_this.svg, "g", {"cursor": "pointer"});
+        this.chromosomeLength = chromosome.size;
+        this.pixelBase = (this.width - 40) / this.chromosomeLength;
 
-        //draw chromosome cytobands
+        /**/
+        /*Draw Chromosome*/
+        /**/
+        var backrect = SVG.addChild(group, 'rect', {
+            'x': offset,
+            'y': 4,
+            'width': this.width - 40 + 1,
+            'height': 22,
+            'fill': '#555555'
+        });
+
+        var cytobandsByStain = {};
+        var textDrawingOffset = offset;
         for (var i = 0; i < chromosome.cytobands.length; i++) {
             var cytoband = chromosome.cytobands[i];
-            var width = _this.pixelBase * (cytoband.end - cytoband.start);
-            var height = 18;
-            var color = _this.colors[cytoband.stain];
-            if (color == null) color = "purple";
-            var middleX = x + width / 2;
-            var endY = y + height;
+            cytoband.pixelStart = cytoband.start * this.pixelBase;
+            cytoband.pixelEnd = cytoband.end * this.pixelBase;
+            cytoband.pixelSize = cytoband.pixelEnd - cytoband.pixelStart;
 
-            if (cytoband.stain == "acen") {
-                var points = "";
-                var middleY = y + height / 2;
-                var endX = x + width;
-                if (firstCentromere) {
-                    points = x + "," + y + " " + middleX + "," + y + " " + endX + "," + middleY + " " + middleX + "," + endY + " " + x + "," + endY;
-                    firstCentromere = false;
-                } else {
-                    points = x + "," + middleY + " " + middleX + "," + y + " " + endX + "," + y + " " + endX + "," + endY + " " + middleX + "," + endY;
-                }
-                SVG.addChild(group, "polyline", {
-                    "points": points,
-                    "stroke": "black",
-                    "opacity": 0.8,
-                    "fill": color
-                });
-            } else {
-                SVG.addChild(group, "rect", {
-                    "x": x,
-                    "y": y,
-                    "width": width,
-                    "height": height,
-                    "stroke": "black",
-                    "opacity": 0.8,
-                    "fill": color
-                });
+            if (typeof cytobandsByStain[cytoband.stain] == 'undefined') {
+                cytobandsByStain[cytoband.stain] = [];
             }
+            cytobandsByStain[cytoband.stain].push(cytoband);
 
-            var textY = endY + 2;
+            var middleX = textDrawingOffset + (cytoband.pixelSize / 2);
+            var textY = 28;
             var text = SVG.addChild(group, "text", {
                 "x": middleX,
                 "y": textY,
@@ -233,11 +211,65 @@ ChromosomePanel.prototype = {
                 "fill": "black"
             });
             text.textContent = cytoband.name;
-
-            x = x + width;
+            textDrawingOffset += cytoband.pixelSize;
         }
 
-        $(this.svg).on('mousedown',function (event) {
+        for (var cytobandStain in cytobandsByStain) {
+            var cytobands_d = '';
+            if (cytobandStain != 'acen') {
+                for (var j = 0; j < cytobandsByStain[cytobandStain].length; j++) {
+                    var cytoband = cytobandsByStain[cytobandStain][j];
+                    cytobands_d += 'M' + (cytoband.pixelStart + offset + 1) + ',15' + ' L' + (cytoband.pixelEnd + offset) + ',15 ';
+                }
+                var path = SVG.addChild(group, 'path', {
+                    "d": cytobands_d,
+                    "stroke": this.colors[cytobandStain],
+//                "stroke": 'red',
+                    "stroke-width": 20,
+                    "fill": 'none'
+                });
+            }
+        }
+        var firstStain = cytobandsByStain['acen'][0];
+        var lastStain = cytobandsByStain['acen'][1];
+        var backrect = SVG.addChild(group, 'rect', {
+            'x': (firstStain.pixelStart + offset + 1),
+            'y': 4,
+            'width': (lastStain.pixelEnd + offset) - (firstStain.pixelStart + offset + 1),
+            'height': 22,
+            'fill': 'white'
+        });
+        var firstStainXStart = (firstStain.pixelStart + offset + 1);
+        var firstStainXEnd = (firstStain.pixelEnd + offset);
+        var lastStainXStart = (lastStain.pixelStart + offset + 1);
+        var lastStainXEnd = (lastStain.pixelEnd + offset);
+        var path = SVG.addChild(group, 'path', {
+            'd': 'M' + firstStainXStart + ',4' + ' L' + (firstStainXEnd - 5) + ',4 ' + ' L' + firstStainXEnd + ',15 ' + ' L ' + (firstStainXEnd - 5) + ',26 ' + ' L ' + firstStainXStart + ',26 z',
+            'fill': this.colors['acen']
+        });
+        var path = SVG.addChild(group, 'path', {
+            'd': 'M' + lastStainXStart + ',15' + ' L' + (lastStainXStart + 5) + ',4 ' + ' L' + lastStainXEnd + ',4 ' + ' L ' + lastStainXEnd + ',26 ' + ' L ' + (lastStainXStart + 5) + ',26 z',
+            'fill': this.colors['acen']
+        });
+
+//        if (cytoband.stain == 'acen') {
+//            if (!firstAcenStainCalculated) {
+//                cytobands_d += 'M' + (cytoband.pixelStart + offset + 1) + ',15' + ' L' + (cytoband.pixelEnd + offset - 5) + ',15 ';
+//                cytobands_d += ' L' + (cytoband.pixelEnd + offset - 5) + ',7.5 ';
+//                firstAcenStainCalculated = true;
+//            } else {
+//                cytobands_d += 'M' + (cytoband.pixelStart + offset + 1 + 5) + ',15' + ' L' + (cytoband.pixelEnd + offset) + ',15 ';
+//            }
+//        } else {
+//        }
+
+        /**/
+        /* Resize elements and events*/
+        /**/
+        var status = '';
+        var centerPosition = _this.region.center();
+        var pointerPosition = (centerPosition * _this.pixelBase) + offset;
+        $(this.svg).on('mousedown', function (event) {
             status = 'setRegion';
         });
 
@@ -265,7 +297,7 @@ ChromosomePanel.prototype = {
             'fill': 'navajowhite',
             'cursor': 'move'
         });
-        $(this.positionBox).on('mousedown',function (event) {
+        $(this.positionBox).on('mousedown', function (event) {
             status = 'movePositionBox';
         });
 
@@ -279,12 +311,12 @@ ChromosomePanel.prototype = {
             'fill': 'orangered',
             'visibility': 'hidden'
         });
-        $(resizeLeft).on('mousedown',function (event) {
+        $(resizeLeft).on('mousedown', function (event) {
             status = 'resizePositionBoxLeft';
         });
 
         var resizeRight = SVG.addChild(positionGroup, 'rect', {
-            'x': positionBoxWidth-5,
+            'x': positionBoxWidth - 5,
             'y': 2,
             'width': 5,
             'height': _this.height - 3,
@@ -292,7 +324,7 @@ ChromosomePanel.prototype = {
             'fill': 'orangered',
             'visibility': 'hidden'
         });
-        $(resizeRight).on('mousedown',function (event) {
+        $(resizeRight).on('mousedown', function (event) {
             status = 'resizePositionBoxRight';
         });
 
@@ -310,8 +342,8 @@ ChromosomePanel.prototype = {
         var recalculateResizeControls = function () {
             var postionBoxX = parseInt(_this.positionBox.getAttribute('x'));
             var postionBoxWidth = parseInt(_this.positionBox.getAttribute('width'));
-            resizeLeft.setAttribute('x', postionBoxX-5);
-            resizeRight.setAttribute('x', (postionBoxX+postionBoxWidth));
+            resizeLeft.setAttribute('x', postionBoxX - 5);
+            resizeRight.setAttribute('x', (postionBoxX + postionBoxWidth));
             $(resizeLeft).css({"cursor": "ew-resize"});
             $(resizeRight).css({"cursor": "ew-resize"});
         };
@@ -326,14 +358,13 @@ ChromosomePanel.prototype = {
             resizeRight.setAttribute('visibility', 'visible');
         };
 
-        $(positionGroup).mouseenter(function(event){
+        $(positionGroup).mouseenter(function (event) {
             recalculateResizeControls();
             showResizeControls();
         });
-        $(positionGroup).mouseleave(function(event){
+        $(positionGroup).mouseleave(function (event) {
             hideResizeControls();
         });
-
 
 
         /*Remove event listeners*/
@@ -356,7 +387,7 @@ ChromosomePanel.prototype = {
             downX = (event.pageX - $(_this.svg).offset().left);
             selBox.setAttribute("x", downX);
             lastX = _this.positionBox.getAttribute("x");
-            if(status == ''){
+            if (status == '') {
                 status = 'setRegion'
             }
             hideResizeControls();
@@ -365,27 +396,27 @@ ChromosomePanel.prototype = {
                 hideResizeControls();
                 switch (status) {
                     case 'resizePositionBoxLeft' :
-                        var inc = moveX-downX;
+                        var inc = moveX - downX;
                         var newWidth = parseInt(_this.positionBox.getAttribute("width")) - inc;
-                        if(newWidth > 0){
-                            _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x"))+inc);
-                            _this.positionBox.setAttribute("width",newWidth);
+                        if (newWidth > 0) {
+                            _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
+                            _this.positionBox.setAttribute("width", newWidth);
                         }
                         downX = moveX;
                         break;
                     case 'resizePositionBoxRight' :
-                        var inc = moveX-downX;
+                        var inc = moveX - downX;
                         var newWidth = parseInt(_this.positionBox.getAttribute("width")) + inc;
-                        if(newWidth > 0){
-                            _this.positionBox.setAttribute("width",newWidth);
+                        if (newWidth > 0) {
+                            _this.positionBox.setAttribute("width", newWidth);
                         }
                         downX = moveX;
                         break;
                     case 'movePositionBox' :
-                        var inc = moveX-downX;
+                        var inc = moveX - downX;
 //                        var w = _this.positionBox.getAttribute("width");
 //                        _this.positionBox.setAttribute("x", moveX - (w / 2));
-                        _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x"))+inc);
+                        _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
                         downX = moveX;
                         break;
                     case 'setRegion':
@@ -412,19 +443,19 @@ ChromosomePanel.prototype = {
                     case 'resizePositionBoxRight' :
                     case 'movePositionBox' :
                         if (moveX != null) {
-                        var w = parseInt(_this.positionBox.getAttribute("width"));
-                        var x = parseInt(_this.positionBox.getAttribute("x"));
-                        var pixS = x;
-                        var pixE = x+w;
-                        var bioS = (pixS - offset) / _this.pixelBase;
-                        var bioE = (pixE - offset) / _this.pixelBase;
-                        _this.region.start = Math.round(bioS);
-                        _this.region.end = Math.round(bioE);
-                        recalculateResizeControls();
-                        showResizeControls();
-                        _this.trigger('region:change', {region: _this.region, sender: _this});
-                        recalculateResizeControls();
-                        showResizeControls();
+                            var w = parseInt(_this.positionBox.getAttribute("width"));
+                            var x = parseInt(_this.positionBox.getAttribute("x"));
+                            var pixS = x;
+                            var pixE = x + w;
+                            var bioS = (pixS - offset) / _this.pixelBase;
+                            var bioE = (pixE - offset) / _this.pixelBase;
+                            _this.region.start = Math.round(bioS);
+                            _this.region.end = Math.round(bioE);
+                            recalculateResizeControls();
+                            showResizeControls();
+                            _this.trigger('region:change', {region: _this.region, sender: _this});
+                            recalculateResizeControls();
+                            showResizeControls();
                         }
                         break;
                     case 'setRegion' :
@@ -474,27 +505,14 @@ ChromosomePanel.prototype = {
             movingPositionBox = false;
             selectingRegion = false;
         });
-
-
-
-
     },
-
     setRegion: function (region) {//item.chromosome, item.region
         this.region.load(region);
         var needDraw = false;
-//        if (item.species != null) {
-//            this.species = item.species;
-//            needDraw = true;
-//        }
-//        if(this.region.chromosome == region.chromosome) {
-//            return;
-//        }
 
         if (this.lastChromosome != this.region.chromosome) {
             needDraw = true;
         }
-
 
         //recalculate positionBox
         var genomicLength = this.region.length();
@@ -507,17 +525,4 @@ ChromosomePanel.prototype = {
             this.draw();
         }
     }
-
-
-
-//ChromosomeWidget.prototype.setZoom = function(zoom){
-    //this.zoom=zoom;
-    //this.tracksViewedRegion = this.width/Utils.getPixelBaseByZoom(this.zoom);
-    //var width = this.tracksViewedRegion*this.pixelBase;
-    //this.positionBox.setAttribute("width",width);
-//
-    //var centerPosition = Utils.centerPosition(this.region);
-    //var pointerPosition = centerPosition*this.pixelBase+20;
-    //this.positionBox.setAttribute("x",pointerPosition-(width/2));
-//};
 }

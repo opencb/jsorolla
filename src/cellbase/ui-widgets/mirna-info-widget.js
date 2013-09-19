@@ -100,7 +100,7 @@ MirnaInfoWidget.prototype.getMirnaPanel = function(data){
 		this.mirnaPanel = Ext.create('Ext.panel.Panel',{
 			title:"miRNA",
 			border:false,
-			cls:'panel-border-left',
+			cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:5,
 			autoScroll:true,
@@ -131,7 +131,7 @@ MirnaInfoWidget.prototype.getTranscriptPanel = function(data){
 		this.transcriptGrid = Ext.create('Ext.panel.Panel',{
 			title:"Transcripts ("+i+")",
 			border:false,
-			cls:'panel-border-left',
+			cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:5,
 			autoScroll:true,
@@ -161,7 +161,7 @@ MirnaInfoWidget.prototype.getGenePanel = function(data){
 		this.genePanel = Ext.create('Ext.panel.Panel',{
 			title:"Genes ("+i+")",
 			border:false,
-			cls:'panel-border-left',
+			cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:5,
 			autoScroll:true,

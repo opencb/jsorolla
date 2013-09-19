@@ -99,13 +99,21 @@ SequenceAdapter.prototype.getData = function(args){
 	var queryString = this._getSequenceQuery(args);
 
 	if(queryString != ""){
-		var cellBaseManager = new CellBaseManager(this.species,{host: this.host});
-//
-		cellBaseManager.success.addEventListener(function(sender,data){
-			_this._processSequenceQuery(data,true);
-		});
-	
-		cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
+
+        CellBaseManager.get({
+            host: this.host,
+            species: this.species,
+            category:this.category,
+            subCategory:this.subCategory,
+            query:queryString,
+            resource: this.resource,
+            params: this.params,
+            success:function (event) {
+                _this._processSequenceQuery(event.data,true);
+            }
+        });
+
+
 	}else{
 		if(this.sender != "move"){
 			this.onGetData.notify({
@@ -174,17 +182,18 @@ SequenceAdapter.prototype._getSequenceQuery = function(args){
 
 SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 	var _this = this;
-	var params = data.metadata.params;
+	var params = data.params;
 
-    for(i in data.metadata.queryIds) {
 
-        var splitDots = data.metadata.queryIds[i].split(":");
+    for(var i = 0; i < data.response.length; i++) {
+        var queryResponse = data.response[i];
+        var splitDots = queryResponse.id.split(":");
         var splitDash = splitDots[1].split("-");
         var queryStart = parseInt(splitDash[0]);
         var queryEnd = parseInt(splitDash[1]);
 
-        var queryId = data.metadata.queryIds[i];
-	    var seqResponse = data[queryId].result;
+        var queryId = queryResponse.id;
+	    var seqResponse = queryResponse.result;
 	    var chromosome = seqResponse.chromosome;
 
         if(this.sequence[chromosome] == null){
@@ -336,9 +345,20 @@ SequenceAdapter.prototype.getNucleotidByPosition = function(args){
         var chromosome = args.chromosome;
 
         if(queryString != ""){
-            var cellBaseManager = new CellBaseManager(this.species,{host: this.host, async:false});
-            var data = cellBaseManager.get(this.category, this.subCategory, queryString, this.resource, this.params);
+
+
+            var data = CellBaseManager.get({
+                host: this.host,
+                species: this.species,
+                category:this.category,
+                subCategory:this.subCategory,
+                query:queryString,
+                resource: this.resource,
+                params: this.params,
+                async:false
+            });
             _this._processSequenceQuery(data);
+
         }
         if(this.sequence[chromosome] != null){
             var referenceSubStr = this.sequence[chromosome].substr((args.start-this.start[chromosome]),1);

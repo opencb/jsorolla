@@ -92,7 +92,7 @@ TFInfoWidget.prototype.getProteinPanel = function(data){
 		this.proteinPanel = Ext.create('Ext.panel.Panel',{
 			title:"Protein",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:10,
 			data:data[0],
@@ -124,7 +124,7 @@ TFInfoWidget.prototype.getTranscriptPanel = function(data){
 		this.transcriptGrid = Ext.create('Ext.panel.Panel',{
 			title:"Transcripts ("+i+")",
 			border:false,
-			cls:'panel-border-left',
+			cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:5,
 			autoScroll:true,
@@ -145,7 +145,7 @@ TFInfoWidget.prototype.getGenePanel = function(data){
 		this.genePanel = Ext.create('Ext.panel.Panel',{
 			title:"Gene information",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,
 			bodyPadding:10,
 			data:data,
@@ -175,7 +175,7 @@ TFInfoWidget.prototype.getPWMPanel = function(data){
 		this.pwmPanel = Ext.create('Ext.panel.Panel',{
 			title:"PWM ("+i+")",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,
 			bodyPadding:5,
 			autoScroll:true,
@@ -303,7 +303,7 @@ TFInfoWidget.prototype.getProteinXrefPanel = function(data, type){
     	this[type+"panel"] = Ext.create('Ext.panel.Panel',{
 			title:type+" ("+i+")",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,
 			bodyPadding:5,
 			autoScroll:true,

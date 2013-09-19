@@ -104,7 +104,7 @@ GenomeViewer.prototype = {
         this._setWidth(width);
 
         if (this.border) {
-            var border = (Utils.isString(this.border)) ? this.border : '1px solid lightgray';
+            var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
             $(this.div).css({border: border});
         }
 
@@ -409,7 +409,7 @@ GenomeViewer.prototype = {
             height: 125,
             species: this.species,
             title: 'Karyotype',
-            titleCollapse: true,
+            collapsed: true,
             region: this.region,
             autoRender: true,
             handlers: {
@@ -450,6 +450,7 @@ GenomeViewer.prototype = {
             height: 65,
             species: this.species,
             title: 'Chromosome',
+            collapsed: true,
             region: this.region,
             handlers: {
                 'region:change': function (event) {

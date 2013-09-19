@@ -95,8 +95,7 @@ ProfileWidget.prototype = {
 
             var labelPass = Ext.create('Ext.toolbar.TextItem', {
                 id : this.id+'labelPass',
-                padding:3,
-                text:'&nbsp'
+                text:'Modify your password or email.'
             });
             var changePasswordForm = Ext.create('Ext.form.Panel', {
                 title:'Change password',
@@ -168,11 +167,12 @@ ProfileWidget.prototype = {
                 }
                 ]
             });
-            var profileTabPanel = Ext.create('Ext.tab.Panel', {
+            var profileTabPanel = Ext.create('Ext.panel.Panel', {
                 width: 350,
-                height:175,
+                height:225,
                 border:false,
-                bbar:{items:[labelPass]},
+                tbar:{items:['->',labelPass]},
+                layout:'accordion',
                 items: [changePasswordForm,changeEmailForm],
                 listeners:{
                     tabchange:function(){
@@ -214,18 +214,18 @@ ProfileWidget.prototype = {
         if(oldPass != ''){
             if(!patt.test(passwd1) && passwd1.length > 3){
                 if (passwd1 == passwd2){
-                    Ext.getCmp(this.id+'labelPass').setText('<p class="ok">Passwords match</p>', false);
+                    Ext.getCmp(this.id+'labelPass').setText('<span class="ok">Passwords match</span>', false);
                     return true;
                 }else{
-                    Ext.getCmp(this.id+'labelPass').setText('<p class="err">Passwords does not match</p>', false);
+                    Ext.getCmp(this.id+'labelPass').setText('<span class="err">Passwords does not match</span>', false);
                     return false;
                 }
             }else{
-                Ext.getCmp(this.id+'labelPass').setText('<p class="err">Password must be at least 4 characters</p>', false);
+                Ext.getCmp(this.id+'labelPass').setText('<span class="err">Password must be at least 4 characters</span>', false);
                 return false;
             }
         }else{
-            Ext.getCmp(this.id+'labelPass').setText('<p class="err">Old password is empty</p>', false);
+            Ext.getCmp(this.id+'labelPass').setText('<span class="err">Old password is empty</span>', false);
             return false;
         }
 

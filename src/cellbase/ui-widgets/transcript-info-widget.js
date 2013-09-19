@@ -107,7 +107,7 @@ TranscriptInfoWidget.prototype.getInfoPanel = function(data){
 		this.infoPanel = Ext.create('Ext.panel.Panel',{
 			title:"Information",
 			border:false,
-			cls:'panel-border-left',
+			cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:10,
 			autoScroll:true,
@@ -139,7 +139,7 @@ TranscriptInfoWidget.prototype.getExonsGrid = function(data){
 		this.exonsGrid = Ext.create('Ext.panel.Panel',{
 			title:"Exons ("+i+")",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,
 			bodyPadding:5,
 			autoScroll:true,
@@ -202,7 +202,7 @@ TranscriptInfoWidget.prototype.getData = function (){
 	
 	var cellBaseManager = new CellBaseManager(this.species);
 	cellBaseManager.success.addEventListener(function(sender,data){
-        _this.dataReceived(data[_this.query].result[0].transcripts);
+        _this.dataReceived(data.response[0].result[0].transcripts);
 	});
 	cellBaseManager.get("feature","transcript", this.query, "info");
 };

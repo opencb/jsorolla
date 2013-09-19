@@ -74,9 +74,6 @@ var Utils = {
             region.end = Math.floor(centerPosition + aux);
         }
     },
-    isString: function (s) {
-        return typeof(s) === 'string' || s instanceof String;
-    },
     isFunction: function (s) {
         return typeof(s) === 'function' || s instanceof Function;
     },
@@ -108,6 +105,20 @@ var Utils = {
     endsWith: function (str, test) {
         var regex = new RegExp('^.*\\.(' + test + ')$');
         return regex.test(str);
+    },
+    addQueryParamtersToUrl: function (paramsWS, url) {
+        var chr = "?";
+        if (url.indexOf("?") != -1) {
+            chr = "&";
+        }
+        var query = "";
+        for (var key in paramsWS) {
+            if (paramsWS[key] != null)
+                query += key + "=" + paramsWS[key].toString() + "&";
+        }
+        if (query != "")
+            query = chr + query.substring(0, query.length - 1);
+        return url+query;
     },
     randomColor: function () {
         var color = "";

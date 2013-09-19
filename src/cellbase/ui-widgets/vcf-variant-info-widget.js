@@ -73,7 +73,7 @@ VCFVariantInfoWidget.prototype.getInfoPanel = function(data){
 		this.infoPanel = Ext.create('Ext.panel.Panel',{
 			title:"Information",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:10,
 			data:data,
@@ -137,7 +137,7 @@ VCFVariantInfoWidget.prototype.getEffectPanel = function(data){
 //		this.effectPanel = Ext.create('Ext.panel.Panel',{
 //			title:"Effects ("+i+")",
 //			border:false,
-//			cls:'panel-border-left',
+//			cls:'ocb-border-left-lightgrey',
 //			flex:3,    
 //			bodyPadding:5,
 //			autoScroll:true,
@@ -156,7 +156,7 @@ VCFVariantInfoWidget.prototype.getHeaderPanel = function(data){
 		this.headerPanel = Ext.create('Ext.panel.Panel',{
 			title:"Information",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:10,
 			html:data

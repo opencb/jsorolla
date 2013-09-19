@@ -39,7 +39,7 @@ function OpencgaBrowserWidget(args) {
         Ext.getBody().unmask();
     });
 
-    this.uploadWidget = new UploadWidget({suiteId: args.suiteId, opencgaBrowserWidget: this});
+    this.uploadWidget = new UploadWidget({suiteId: args.suiteId, opencgaBrowserWidget: this,chunkedUpload:true});
 
     this.uploadWidget.adapter.onUploadObjectToBucket.addEventListener(function (sender, res) {
         if (res.status == 'done') {
@@ -58,7 +58,7 @@ OpencgaBrowserWidget.prototype = {
     onSelect: new Event(this),
     onNeedRefresh: new Event(this),
     width: 800,
-    height: 375,
+    height: 575,
     rendered: false,
 //    selectedFolderNode:undefined,
 //    selectedFileNode:undefined,//can be set by the tree panel or the grid panel
@@ -609,10 +609,10 @@ OpencgaBrowserWidget.prototype.render = function (args) {
                             }
                             console.log(_this.allowedTypes)
                             if (typeof _this.allowedTypes != 'undefined' && _this.allowedTypes.indexOf(fileFormat) == -1) {
-                                console.log('file format NOT allowed -'+ fileFormat +'- ')
+                                console.log('file format NOT allowed -' + fileFormat + '- ')
                                 return;
                             }
-                            console.log('file format allowed -'+ fileFormat +'- ')
+                            console.log('file format allowed -' + fileFormat + '- ')
                             _this.selectButton.enable();
                             //this.selectedLabel.setText('<p>The selected file <span class="emph">'+item[0].data.fileName.substr(0,40)+'</span><span class="ok"> is allowed</span>.</p>',false);
                             //TODO por defecto cojo el primero pero que pasa si el data contiene varios ficheros??
@@ -639,7 +639,7 @@ OpencgaBrowserWidget.prototype.render = function (args) {
             minWidth: 125,
             minHeight: 250,
             flex: 1,
-            cls: 'panel-border-right',
+            cls: 'ocb-border-right-lightgrey',
             border: false,
             layout: 'accordion',
             items: [this.folderTree, manageProjects /*, panFilter*/]
@@ -654,8 +654,15 @@ OpencgaBrowserWidget.prototype.render = function (args) {
             }
         });
 
-        this.activeUploadsCont = Ext.create('Ext.container.Container', {
+        this.activeUploadsCont = Ext.create('Ext.panel.Panel', {
+            title:'Active uploads',
+            animCollapse:false,
+            hidden:true,
+            bodyPadding:'10 0 10 0',
             autoScroll: true,
+            height: 125,
+            border:0,
+            cls:'ocb-border-top-lightgrey',
             items: []
         });
 
@@ -720,9 +727,11 @@ OpencgaBrowserWidget.prototype.render = function (args) {
             pressed: false,
             toggleHandler: function () {
                 if (this.pressed) {
-                    _this.viewUploads();
+                    _this.activeUploadsCont.show();
+//                    _this.viewUploads();
                 } else {
-                    _this.viewBuckets();
+                    _this.activeUploadsCont.hide();
+//                    _this.viewBuckets();
                 }
             }
         });
@@ -734,10 +743,22 @@ OpencgaBrowserWidget.prototype.render = function (args) {
             closable: false,
             modal: true,
             height: this.height,
+            minHeight: this.height,
             width: this.width,
-            layout: { type: 'hbox', align: 'stretch'},
+            minWidth: this.width,
+            resizable:true,
+            layout: { type: 'vbox', align: 'stretch'},
             tbar: tbarObj,
-            items: [this.panAccordion, this.filesGrid],
+            items: [
+                {
+                    xtype: 'container',
+                    flex: 3,
+                    minWidth: 125,
+                    layout: { type: 'hbox', align: 'stretch'},
+                    items: [this.panAccordion, this.filesGrid]
+                },
+                this.activeUploadsCont
+            ],
             buttonAlign: 'right',
             buttons: [
                 {

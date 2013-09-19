@@ -179,7 +179,7 @@ TrackListPanel.prototype = {
         $(this.centerLine).css({
             'z-index': 2,
             'position': 'absolute',
-            'left': mid,
+            'left': mid-1,
             'top': 0,
             'width': this.pixelBase,
 //            'height': '100%',
@@ -264,7 +264,7 @@ TrackListPanel.prototype = {
             var offsetX = (event.clientX - $(_this.tlTracksDiv).offset().left);
             var cX = offsetX - mouseLineOffset;
             var rcX = (cX / _this.pixelBase) | 0;
-            var pos = (rcX * _this.pixelBase) + mid % _this.pixelBase;
+            var pos = (rcX * _this.pixelBase) + (mid % _this.pixelBase) - 1;
             $(_this.mouseLine).css({'left': pos});
 //
             var posOffset = (mid / _this.pixelBase) | 0;
@@ -457,7 +457,7 @@ TrackListPanel.prototype = {
         var mid = this.width / 2;
         this._setPixelBaseAndZoom();
 
-        $(this.centerLine).css({'left': mid, 'width': this.pixelBase});
+        $(this.centerLine).css({'left': mid -1 , 'width': this.pixelBase});
         $(this.mouseLine).css({'width': this.pixelBase});
 
         this.svgTop.setAttribute('width', this.width);
