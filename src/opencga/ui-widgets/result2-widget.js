@@ -310,6 +310,12 @@ ResultWidget.prototype = {
                         ]
                     });
                 } else {
+
+                    if(_.isUndefined(item.title)){
+
+                    debugger
+                    }
+
                     return Ext.create('Ext.container.Container', {
                         id: _this.jobId + item.title.replace(/ /g, ''),
                         title: item.title,

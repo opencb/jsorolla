@@ -92,17 +92,20 @@ Track.prototype = {
         this.main.setAttribute("width", width);
     },
     updateHeight: function () {
-        if (!this.histogram) {
-            var height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
-        } else {
-            var height = this.height;
-        }
-        this.main.setAttribute('height', height);
-        this.svgCanvasFeatures.setAttribute('height', height);
-        this.titlebar.setAttribute('height', height);
+        if (this.resizable) {
+            if (!this.histogram) {
+                var height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
+            } else {
+                var height = this.height;
+            }
+            this.main.setAttribute('height', height);
+            this.svgCanvasFeatures.setAttribute('height', height);
+            this.titlebar.setAttribute('height', height);
 
-        if (this.autoHeight) {
-            $(this.svgdiv).css({'height': height + 10});
+
+            if (this.autoHeight) {
+                $(this.svgdiv).css({'height': height + 10});
+            }
         }
     },
     enableAutoHeight: function () {

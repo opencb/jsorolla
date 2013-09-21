@@ -194,16 +194,20 @@ VCFVariantInfoWidget.prototype.getData = function (){
 	var _this = this;
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
-//	category, subcategory, query, resource, callbackFunction
-	var cellBaseManager = new CellBaseManager(this.species);
-    cellBaseManager.host = 'http://ws-beta.bioinfo.cipf.es/cellbase/rest';
-    cellBaseManager.species = cellBaseManager.species.substr(0,3);
-    cellBaseManager.version = 'v2';
-	cellBaseManager.success.addEventListener(function(sender,data){
-		_this.dataReceived(data);
-	});
+
 	var query = this.feature.chromosome+":"+this.feature.start+":"+this.feature.reference+":"+this.feature.alternate;
-	cellBaseManager.get("genomic","variant", query, "consequence_type");
+    CellBaseManager.get({
+        host : 'http://ws-beta.bioinfo.cipf.es/cellbase/rest',
+        version : 'v2',
+        species:Utils.getSpeciesCode(this.species.text).substring(0,3),
+        category:'genomic',
+        subCategory:'variant',
+        query:query,
+        resource:'consequence_type',
+        success:function(data){
+            _this.dataReceived(data);
+        }
+    });
 };
 
 VCFVariantInfoWidget.prototype.dataReceived = function (data){

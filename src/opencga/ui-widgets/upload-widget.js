@@ -32,7 +32,6 @@ function UploadWidget (args){
         this.opencgaBrowserWidget = args.opencgaBrowserWidget || this.opencgaBrowserWidget;
         this.chunkedUpload = args.chunkedUpload || this.chunkedUpload;
     }
-
 	this.adapter = new OpencgaManager();
 	this.adapter.onUploadObjectToBucket.addEventListener(function(sender,res){
 		if(res.status == 'done'){

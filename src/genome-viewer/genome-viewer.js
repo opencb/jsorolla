@@ -521,44 +521,6 @@ GenomeViewer.prototype = {
             trackListPanel.setSpecies(event.species);
         });
 
-
-        var renderer = new FeatureRenderer('gene');
-        renderer.on({
-            'feature:click': function (event) {
-                console.log(event)
-                new GeneInfoWidget(null, _this.species).draw(event);
-            }
-        });
-        var gene = new FeatureTrack({
-            targetId: null,
-            id: 2,
-            title: 'Gene',
-            histogramZoom: 10,
-            labelZoom: 20,
-            height: 100,
-            visibleRange: {start: 0, end: 100},
-            titleVisibility: 'hidden',
-            featureTypes: FEATURE_TYPES,
-
-            renderer: renderer,
-
-            dataAdapter: new CellBaseAdapter({
-                category: "genomic",
-                subCategory: "region",
-                resource: "gene",
-                params:{
-                    exclude:'transcripts'
-                },
-                species: this.species,
-                featureCache: {
-                    gzip: true,
-                    chunkSize: 50000
-                }
-            })
-        });
-        trackListPanel.addTrack(gene);
-
-
         return  trackListPanel;
     },
 
@@ -662,6 +624,10 @@ GenomeViewer.prototype = {
     }
 };
 
+
+GenomeViewer.prototype.addOverviewTrack = function (trackData, args) {
+    this.regionOverviewPanel.addTrack(trackData, args);
+};
 
 GenomeViewer.prototype.addTrack = function (trackData, args) {
     this.trackListPanel.addTrack(trackData, args);

@@ -40,6 +40,7 @@ function HeaderWidget(args){
     this.allowLogin = true;
     this.width;
     this.height;
+    this.chunkedUpload = false;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -48,9 +49,8 @@ function HeaderWidget(args){
 	
 	/** create widgets **/
 	this.loginWidget= new LoginWidget(this.suiteId);
-	this.editUserWidget = new ProfileWidget();
-	this.uploadWidget = new UploadWidget({suiteId:this.suiteId});//used now from opencga-browser
-	this.opencgaBrowserWidget = new OpencgaBrowserWidget({suiteId:this.suiteId});
+	this.profileWidget = new ProfileWidget();
+	this.opencgaBrowserWidget = new OpencgaBrowserWidget({suiteId:this.suiteId,chunkedUpload:this.chunkedUpload});
 	
 	/**Atach events i listen**/
 	this.loginWidget.onSessionInitiated.addEventListener(function(){
@@ -142,6 +142,9 @@ HeaderWidget.prototype = {
         /**CLEAR OPENCGA**/
         clearInterval(this.accountInfoInterval);
         delete this.accountInfoInterval;
+
+        this.profileWidget.hide();
+        this.opencgaBrowserWidget.hide();
     },
     setDescription : function (text){
         $("#"+this.id+'description').html(text);
@@ -322,7 +325,7 @@ HeaderWidget.prototype = {
                     id: this.id+'btnEdit',
                     text: '<span class="emph">profile</span>',
                     handler: function (){
-                        _this.editUserWidget.draw();
+                        _this.profileWidget.draw();
                     }
                 },{
                     id :this.id+'btnLogout',

@@ -23,12 +23,10 @@ var CellBaseManager = {
     get: function (args) {
         var success = args.success;
         var error = args.error;
-        var async = args.async || true;
-        delete args.success;
-        delete args.error;
-        delete args.async;
+        var async = (_.isUndefined(args.async) || _.isNull(args.async) ) ? true : args.async;
+        var urlConfig = _.omit(args, ['success', 'error', 'async']);
 
-        var url = CellBaseManager.url(args);
+        var url = CellBaseManager.url(urlConfig);
         console.log(url);
 
         var d;
@@ -42,18 +40,19 @@ var CellBaseManager = {
                 data.resource = args.resource;
                 data.category = args.category;
                 data.subCategory = args.subCategory;
-                if (success) success(data);
+                if (_.isFunction(success)) success(data);
                 d = data;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log("CellBaseManager: Ajax call returned : " + errorThrown + '\t' + textStatus + '\t' + jqXHR.statusText + " END");
-                if (error)error(jqXHR, textStatus, errorThrown);
+                if (_.isFunction(error)) error(jqXHR, textStatus, errorThrown);
             }
         });
         return d;
     },
     url: function (args) {
-        if (!args) args = {};
+        if (!_.isObject(args)) args = {};
+        if (!_.isObject(args.params)) args.params = {};
 
         if (_.isUndefined(args.host) || _.isNull(args.host)) {
             delete args.host;
@@ -64,8 +63,7 @@ var CellBaseManager = {
 
         var config = {
             host: CELLBASE_HOST,
-            version: CELLBASE_VERSION,
-            params : {}
+            version: CELLBASE_VERSION
         };
         var params = {
             of: 'json'
@@ -75,9 +73,9 @@ var CellBaseManager = {
         _.extend(config.params, params);
 
         var query = '';
-        if (typeof config.query != 'undefined' && config.query != null) {
+        if (!_.isUndefined(config.query) && !_.isNull(config.query)) {
             if (_.isArray(config.query)) {
-                config.query.toString();
+                config.query = config.query.toString();
             }
             query = '/' + config.query;
         }

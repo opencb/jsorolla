@@ -140,7 +140,15 @@ var Utils = {
     },
     getSpeciesCode: function (speciesName) {
         var pair = speciesName.split(" ");
-        return (pair[0].charAt(0) + pair[1]).toLowerCase();
+        var code;
+        if(pair.length < 3){
+            code =  (pair[0].charAt(0) + pair[1]).toLowerCase();
+        }else{
+            code = (pair[0].charAt(0) + pair[1] + pair[pair.length-1].replace(/[/_().\-]/g,'')).toLowerCase();
+
+        }
+        return code;
+
     },
     test: function () {
         return this;

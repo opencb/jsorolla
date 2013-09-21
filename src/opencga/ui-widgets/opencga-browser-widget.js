@@ -21,11 +21,13 @@
 
 function OpencgaBrowserWidget(args) {
     var _this = this;
+        this.chunkedUpload=false;
     if (typeof args != 'undefined') {
         this.targetId = args.targetId || this.targetId;
         this.title = args.title || this.title;
         this.width = args.width || this.width;
         this.height = args.height || this.height;
+        this.chunkedUpload = args.chunkedUpload || this.chunkedUpload;
     }
 
     this.adapter = new OpencgaManager();
@@ -39,7 +41,7 @@ function OpencgaBrowserWidget(args) {
         Ext.getBody().unmask();
     });
 
-    this.uploadWidget = new UploadWidget({suiteId: args.suiteId, opencgaBrowserWidget: this,chunkedUpload:true});
+    this.uploadWidget = new UploadWidget({suiteId: args.suiteId, opencgaBrowserWidget: this,chunkedUpload:this.chunkedUpload});
 
     this.uploadWidget.adapter.onUploadObjectToBucket.addEventListener(function (sender, res) {
         if (res.status == 'done') {
@@ -64,6 +66,9 @@ OpencgaBrowserWidget.prototype = {
 //    selectedFileNode:undefined,//can be set by the tree panel or the grid panel
 
     /* Methods */
+    hide:function(){
+        this.panel.hide();
+    },
     draw: function (mode) {
         //Ext.getBody().mask("Loading...");
         //this.adapter.getData(sessionID, -1);
@@ -720,21 +725,23 @@ OpencgaBrowserWidget.prototype.render = function (args) {
                 break;
         }
 
-        tbarObj.items.push({
-            id: this.id + 'activeUploadsButton',
-            text: 'Active uploads',
-            enableToggle: true,
-            pressed: false,
-            toggleHandler: function () {
-                if (this.pressed) {
-                    _this.activeUploadsCont.show();
-//                    _this.viewUploads();
-                } else {
-                    _this.activeUploadsCont.hide();
-//                    _this.viewBuckets();
+        if(this.chunkedUpload == true){
+            tbarObj.items.push({
+                id: this.id + 'activeUploadsButton',
+                text: 'Active uploads',
+                enableToggle: true,
+                pressed: false,
+                toggleHandler: function () {
+                    if (this.pressed) {
+                        _this.activeUploadsCont.show();
+    //                    _this.viewUploads();
+                    } else {
+                        _this.activeUploadsCont.hide();
+    //                    _this.viewBuckets();
+                    }
                 }
-            }
-        });
+            });
+        }
         this.panel = Ext.create('Ext.window.Window', {
             title: 'Upload & Manage',
             resizable: false,

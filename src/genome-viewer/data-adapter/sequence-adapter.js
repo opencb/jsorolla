@@ -108,8 +108,8 @@ SequenceAdapter.prototype.getData = function(args){
             query:queryString,
             resource: this.resource,
             params: this.params,
-            success:function (event) {
-                _this._processSequenceQuery(event.data,true);
+            success:function (data) {
+                _this._processSequenceQuery(data,true);
             }
         });
 
@@ -345,7 +345,6 @@ SequenceAdapter.prototype.getNucleotidByPosition = function(args){
         var chromosome = args.chromosome;
 
         if(queryString != ""){
-
 
             var data = CellBaseManager.get({
                 host: this.host,

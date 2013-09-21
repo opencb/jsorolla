@@ -81,6 +81,9 @@ ProfileWidget.prototype = {
     draw : function (){
         this.render();
     },
+    hide:function(){
+        this.panel.hide();
+    },
     clean : function (){
         if (this.panel != null){
             this.panel.destroy();
