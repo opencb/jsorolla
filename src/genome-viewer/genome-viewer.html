@@ -182,7 +182,7 @@
             })
         });
 
-        genomeViewer.addTrack(this.sequence);
+//        genomeViewer.addTrack(this.sequence);
 
         this.gene = new GeneTrack({
             targetId: null,
@@ -212,6 +212,44 @@
         });
 
         genomeViewer.addTrack(this.gene);
+
+
+        var renderer = new FeatureRenderer('gene');
+        renderer.on({
+            'feature:click': function (event) {
+                console.log(event)
+                new GeneInfoWidget(null, genomeViewer.species).draw(event);
+            }
+        });
+        var gene = new FeatureTrack({
+            targetId: null,
+            id: 2,
+            title: 'Gene',
+            histogramZoom: 10,
+            labelZoom: 20,
+            height: 100,
+            visibleRange: {start: 0, end: 100},
+            titleVisibility: 'hidden',
+            featureTypes: FEATURE_TYPES,
+
+            renderer: renderer,
+
+            dataAdapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "gene",
+                params:{
+                    exclude:'transcripts'
+                },
+                species: genomeViewer.species,
+                featureCache: {
+                    gzip: true,
+                    chunkSize: 50000
+                }
+            })
+        });
+//        genomeViewer.addOverviewTrack(gene);
+
 
         //        this.icgcMutationsTrack = new IcgcTrack({
         //            targetId:null,
@@ -275,7 +313,7 @@
             })
         });
 
-        genomeViewer.addTrack(this.snp);
+//        genomeViewer.addTrack(this.snp);
     })
     ;
 

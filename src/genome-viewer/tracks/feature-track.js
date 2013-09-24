@@ -101,7 +101,7 @@ FeatureTrack.prototype.draw = function(){
     }else{
         this.invalidZoomText.setAttribute("visibility", "visible");
     }
-
+    _this.updateHeight();
 };
 
 

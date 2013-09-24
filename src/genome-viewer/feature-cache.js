@@ -144,7 +144,7 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 			}
 		}
 	}
-        console.log(this.cache[region.chromosome+":"+firstRegionChunk][dataType].length)
+//        console.log(this.cache[region.chromosome+":"+firstRegionChunk][dataType].length)
 };
 
 

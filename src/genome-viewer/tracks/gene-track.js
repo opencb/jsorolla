@@ -119,7 +119,7 @@ GeneTrack.prototype.draw = function () {
     } else {
         this.invalidZoomText.setAttribute("visibility", "visible");
     }
-
+    _this.updateHeight();
 };
 
 
@@ -174,7 +174,6 @@ GeneTrack.prototype.move = function (disp) {
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
     }
-
 };
 
 GeneTrack.prototype._getFeaturesByChunks = function (response, filters) {
