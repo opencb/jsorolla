@@ -118,7 +118,7 @@ TrackListPanel.prototype = {
         this.positionText = SVG.addChild(this.svgTop, 'text', {
             'x': mid - 30,
             'y': 24,
-            'fill': 'green',
+            'fill': 'steelblue',
             'class': this.fontClass
         });
         this.nucleotidText = SVG.addChild(this.svgTop, 'text', {
@@ -129,48 +129,48 @@ TrackListPanel.prototype = {
         this.firstPositionText = SVG.addChild(this.svgTop, 'text', {
             'x': 0,
             'y': 24,
-            'fill': 'green',
+            'fill': 'steelblue',
             'class': this.fontClass
         });
         this.lastPositionText = SVG.addChild(this.svgTop, 'text', {
             'x': this.width - 70,
             'y': 24,
-            'fill': 'green',
+            'fill': 'steelblue',
             'class': this.fontClass
         });
-        this.viewNtsArrow = SVG.addChild(this.svgTop, 'rect', {
-            'x': 2,
-            'y': 6,
-            'width': this.width - 4,
-            'height': 2,
-            'opacity': '0.5',
-            'fill': 'black'
-        });
-        this.viewNtsArrowLeft = SVG.addChild(this.svgTop, 'polyline', {
-            'points': '0,1 2,1 2,13 0,13',
-            'opacity': '0.5',
-            'fill': 'black'
-        });
-        this.viewNtsArrowRight = SVG.addChild(this.svgTop, 'polyline', {
-            'points': this.width + ',1 ' + (this.width - 2) + ',1 ' + (this.width - 2) + ',13 ' + this.width + ',13',
-            'opacity': '0.5',
-            'fill': 'black'
-        });
+//        this.viewNtsArrow = SVG.addChild(this.svgTop, 'rect', {
+//            'x': 2,
+//            'y': 6,
+//            'width': this.width - 4,
+//            'height': 2,
+//            'opacity': '0.5',
+//            'fill': 'black'
+//        });
+//        this.viewNtsArrowLeft = SVG.addChild(this.svgTop, 'polyline', {
+//            'points': '0,1 2,1 2,13 0,13',
+//            'opacity': '0.5',
+//            'fill': 'black'
+//        });
+//        this.viewNtsArrowRight = SVG.addChild(this.svgTop, 'polyline', {
+//            'points': this.width + ',1 ' + (this.width - 2) + ',1 ' + (this.width - 2) + ',13 ' + this.width + ',13',
+//            'opacity': '0.5',
+//            'fill': 'black'
+//        });
         this.windowSize = 'Window size: ' + Utils.formatNumber(this.region.length()) + ' nts';
-        this.viewNtsTextBack = SVG.addChild(this.svgTop, 'rect', {
-            'x': mid - 40,
-            'y': 0,
-            'width': 0,
-            'height': 13,
-            'fill': 'white'
-        });
+//        this.viewNtsTextBack = SVG.addChild(this.svgTop, 'rect', {
+//            'x': mid - 40,
+//            'y': 0,
+//            'width': 0,
+//            'height': 13,
+//            'fill': 'white'
+//        });
         this.viewNtsText = SVG.addChild(this.svgTop, 'text', {
-            'x': mid - 30,
+            'x': mid - (this.windowSize.length*7/2),
             'y': 11,
             'fill': 'black',
             'class': this.fontClass
         });
-        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
+//        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
         this.viewNtsText.textContent = this.windowSize;
         this._setTextPosition();
 
@@ -465,10 +465,10 @@ TrackListPanel.prototype = {
         this.positionText.setAttribute("x", mid - 30);
         this.nucleotidText.setAttribute("x", mid + 35);
         this.lastPositionText.setAttribute("x", this.width - 70);
-        this.viewNtsArrow.setAttribute("width", this.width - 4);
-        this.viewNtsArrowRight.setAttribute("points", this.width + ",1 " + (this.width - 2) + ",1 " + (this.width - 2) + ",13 " + this.width + ",13");
-        this.viewNtsText.setAttribute("x", mid - 30);
-        this.viewNtsTextBack.setAttribute("x", mid - 40);
+//        this.viewNtsArrow.setAttribute("width", this.width - 4);
+//        this.viewNtsArrowRight.setAttribute("points", this.width + ",1 " + (this.width - 2) + ",1 " + (this.width - 2) + ",13 " + this.width + ",13");
+        this.viewNtsText.setAttribute("x", mid - (this.windowSize.length*7/2));
+//        this.viewNtsTextBack.setAttribute("x", mid - 40);
         this.trigger('trackWidth:change', {width: this.width, sender: this})
 
         this._setTextPosition();
@@ -496,9 +496,6 @@ TrackListPanel.prototype = {
     },
 
     setRegion: function (region) {//item.chromosome, item.position, item.species
-        if(this.trackSvgList.length == 3){
-            console.log('******--------------/////////////fdsafdsafdsafdsasdf'+this.trackSvgList.length);
-        }
         var _this = this;
         this.region.load(region);
         this.visualRegion.load(region);
@@ -840,7 +837,7 @@ TrackListPanel.prototype = {
 
         this.viewNtsText.textContent = "Window size: " + Utils.formatNumber(this.visualRegion.length()) + " nts";
 //        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length * 7);
-        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
+//        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
         this.windowSize = this.viewNtsText.textContent;
     },
 

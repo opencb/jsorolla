@@ -42,7 +42,7 @@ function GeneRenderer(args) {
     this.on(this.handlers);
 };
 
-GeneRenderer.prototype.setFeatureConfig = function(type){
+GeneRenderer.prototype.setFeatureConfig = function (type) {
     _.extend(this, this.getDefaultConfig(type));
 };
 
@@ -92,7 +92,7 @@ GeneRenderer.prototype.render = function (features, args) {
 
             //check if gene transcripts can be painted
             var checkRowY = rowY;
-            if (feature.transcripts != null) {
+            if (!_.isEmpty(feature.transcripts)) {
                 for (var i = 0, leni = feature.transcripts.length + 1; i < leni; i++) {
                     if (!(checkRowY in args.renderedArea)) {
                         args.renderedArea[checkRowY] = new FeatureBinarySearchTree();
@@ -127,7 +127,7 @@ GeneRenderer.prototype.render = function (features, args) {
                     'y': textY,
                     'fill': 'black',
                     'cursor': 'pointer',
-                    'class':_this.fontClass
+                    'class': _this.fontClass
                 });
                 text.textContent = label;
 
@@ -135,7 +135,7 @@ GeneRenderer.prototype.render = function (features, args) {
                     content: {text: tooltipText, title: tooltipTitle},
 //                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'}
+                    style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
                 });
 
                 $([rect, text]).click(function (event) {
@@ -146,7 +146,7 @@ GeneRenderer.prototype.render = function (features, args) {
                 //paint transcripts
                 var checkRowY = rowY + rowHeight;
                 var checkTextY = textY + rowHeight;
-                if (feature.transcripts != null) {
+                if (!_.isEmpty(feature.transcripts)) {
                     for (var i = 0, leni = feature.transcripts.length; i < leni; i++) { /*Loop over transcripts*/
                         if (!(checkRowY in args.renderedArea)) {
                             args.renderedArea[checkRowY] = new FeatureBinarySearchTree();
@@ -192,7 +192,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             'opacity': null,
                             'fill': 'black',
                             'cursor': 'pointer',
-                            'class':_this.fontClass
+                            'class': _this.fontClass
                         });
                         text.textContent = label;
 
@@ -201,7 +201,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             content: {text: tooltipText, title: tooltipTitle},
 //                            position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                             position: {target: "mouse", adjust: {x: 25, y: 15}},
-                            style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'}
+                            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
                         });
                         $(transcriptGroup).click(function (event) {
                             var query = this.getAttribute("widgetId");
@@ -224,7 +224,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             var label = _.isFunction(_this.label) ? _this.label(exon) : _this.label;
                             var height = _.isFunction(_this.height) ? _this.height(exon) : _this.height;
                             var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(exon) : _this.tooltipTitle;
-                            var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(exon,transcript) : _this.tooltipText;
+                            var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(exon, transcript) : _this.tooltipText;
                             var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(exon) : _this.infoWidgetId;
 
                             var exonGroup = SVG.addChild(args.svgCanvasFeatures, "g");
@@ -233,7 +233,7 @@ GeneRenderer.prototype.render = function (features, args) {
                                 content: {text: tooltipText, title: tooltipTitle},
 //                                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                                 position: {target: "mouse", adjust: {x: 25, y: 15}},
-                                style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'}
+                                style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
                             });
 
                             var eRect = SVG.addChild(exonGroup, "rect", {//paint exons in white without coding region

@@ -95,6 +95,21 @@ Track.prototype = {
         if (this.resizable) {
             if (!this.histogram) {
                 var height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
+                /**/
+                var x = this.renderer.getFeatureX(this.region, {width: this.width, pixelPosition: this.pixelPosition, pixelBase: this.pixelBase, position: this.region.center()});
+                var width = this.region.length() * this.pixelBase;
+                var countTrees = 0;
+                for (var i in this.renderedArea) {
+                    var foundArea = this.renderedArea[i].add({start: x, end: x + width });
+                    countTrees++;
+                    if (foundArea && i != "0") {
+                        break;
+                    }
+                }
+                var divHeight = countTrees * 18;
+                /**/
+
+
             } else {
                 var height = this.height;
             }
@@ -104,7 +119,7 @@ Track.prototype = {
 
 
             if (this.autoHeight) {
-                $(this.svgdiv).css({'height': height + 10});
+                $(this.svgdiv).css({'height': divHeight + 10});
             }
         }
     },

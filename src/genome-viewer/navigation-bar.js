@@ -83,7 +83,8 @@ NavigationBar.prototype = {
                 '<a id="moveFurtherRightButton">&nbsp;</a>' +
                 '</div>' +
                 '<label class="ocb-text" style="margin-left:10px" for="searchField">Search</label><input id="searchField" class="ocb-input-text" placeholder="gene, snp..." size="8" type="text">' +
-                '<a id="fullScreenButton" style="margin-left:10px" >&nbsp;</a>' +
+//                '<a id="fullScreenButton" style="margin-left:10px" >&nbsp;</a>' +
+                '<a id="autoheightButton" style="margin-left:10px" >&nbsp;</a>' +
                 '';
 
 
@@ -252,6 +253,13 @@ NavigationBar.prototype = {
         $(this.fullScreenButton).click(function (e) {
             _this.trigger('fullscreen:click', {clickEvent: e, sender: {}})
         });
+
+        this.autoheightButton = $(this.div).find('#autoheightButton').button({icons: {primary: 'ocb-icon-track-autoheight'}, text: false});
+
+        $(this.autoheightButton).click(function (e) {
+            _this.trigger('autoHeight-button:click', {clickEvent: e,sender: _this});
+        });
+
 
 //        this.searchButton = $(this.div).find('#searchButton');
         this.searchField = $(this.div).find('#searchField');
