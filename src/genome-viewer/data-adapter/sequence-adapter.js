@@ -22,6 +22,14 @@
 function SequenceAdapter(args){
 
     _.extend(this, Backbone.Events);
+    this.id = Utils.genId("TrackListPanel");
+
+    //set default args
+
+    //set instantiation args, must be last
+    _.extend(this, args);
+
+
 
 	this.host = null;
 	this.gzip = true;
@@ -50,12 +58,19 @@ function SequenceAdapter(args){
 			this.params = args.params;
 		}
 	}
-	this.onGetData = new Event();
 	this.sequence = {};
 	this.phastCons = {};
 	this.phylop = {};
 	this.start = {};
 	this.end = {};
+
+
+    this.on(this.handlers);
+
+    this.rendered = false;
+    if (this.autoRender) {
+        this.render();
+    }
 }
 
 SequenceAdapter.prototype.clearData = function(){
@@ -116,7 +131,7 @@ SequenceAdapter.prototype.getData = function(args){
 
 	}else{
 		if(this.sender != "move"){
-			this.onGetData.notify({
+			this.trigger('data:ready',{
                 items:{
                     sequence:this.sequence[chromosome],
                     phastCons:this.phastCons[chromosome],
@@ -213,7 +228,7 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
         }
 
         if(this.sender == "move" && throwNotify == true){
-//            this.onGetData.notify({
+//            this.trigger('data:ready',{
 //                items:{
 //                    sequence:seqResponse.sequence,
 ////                    phastCons:seqResponse[i].phastCons,
@@ -261,7 +276,7 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 //		}
 //
 //		if(this.sender == "move" && throwNotify == true){
-//			this.onGetData.notify({
+//			this.trigger('data:ready',{
 //                items:{
 //                    sequence:seqResponse[i].sequence,
 //                    phastCons:seqResponse[i].phastCons,
@@ -286,7 +301,7 @@ SequenceAdapter.prototype._processSequenceQuery = function(data, throwNotify){
 //	}
 	//if not onMove the svg was cleared so all sequence is sent to redraw
 	if(this.sender != "move" && throwNotify == true){
-//		this.onGetData.notify({
+//		this.trigger('data:ready',{
 //            items:{
 //                sequence:this.sequence[chromosome],
 //                phastCons:this.phastCons[chromosome],

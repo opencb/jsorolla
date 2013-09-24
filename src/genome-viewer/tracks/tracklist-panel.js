@@ -59,10 +59,6 @@ function TrackListPanel(args) {//parent is a DOM div element
     this._setPixelBaseAndZoom();
     /********/
 
-        //Deprecated - SVG structure and events initialization
-    this.onWindowSize = new Event();
-    this.onMousePosition = new Event();
-
     this.on(this.handlers);
 
     this.rendered = false;
@@ -509,7 +505,7 @@ TrackListPanel.prototype = {
         this.viewNtsText.textContent = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
         this.windowSize = this.viewNtsText.textContent;
         this._setTextPosition();
-        this.onWindowSize.notify({windowSize: this.viewNtsText.textContent});
+        this.trigger('window:size',{windowSize: this.viewNtsText.textContent});
 
 //        if (region.species != null) {
 //            //check species and modify CellBaseAdapter, clean cache

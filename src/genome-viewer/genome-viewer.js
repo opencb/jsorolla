@@ -88,12 +88,9 @@ GenomeViewer.prototype = {
             console.log('targetId not found in DOM');
             return;
         }
-//        console.log("Initializing GenomeViewer structure.");
+
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="' + this.id + '" class="ocb-gv ocb-box-vertical"></div>')[0];
-//        $(this.div).css({
-//            position:'relative'
-//        });
         $(this.targetDiv).append(this.div);
 
         var width = Math.max($(this.div).width(), $(this.targetDiv).width())
@@ -120,12 +117,6 @@ GenomeViewer.prototype = {
         $(this.div).append(this.centerPanelDiv);
 
         this.statusbarDiv = $('<div id="statusbar-' + this.id + '" class="ocb-gv-status"></div>');
-//        $(this.statusbarDiv).css({
-//            position:'absolute',
-//            bottom:'0px',
-//            'z-index':'10',
-//            height:'26'
-//        });
         $(this.div).append(this.statusbarDiv);
 
 
@@ -149,108 +140,6 @@ GenomeViewer.prototype = {
 
         this.rendered = true;
     },
-    getRightSidePanelId: function () {
-        return $(this.rightSidebarDiv).attr('id');
-    },
-    getLeftSidePanelId: function () {
-        return $(this.leftSidebarDiv).attr('id');
-    },
-    getNavigationPanelId: function () {
-        return $(this.navigationbarDiv).attr('id');
-    },
-    getStatusPanelId: function () {
-        return $(this.statusbarDiv).attr('id');
-    },
-    setNavigationBar: function (navigationBar) {
-        this.navigationBar = navigationBar;
-        var config = {
-            availableSpecies: this.availableSpecies,
-            species: this.species,
-            region: this.region,
-            width: this.width,
-            svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
-            zoom: this.zoom
-        };
-        _.extend(this.navigationBar, config);
-        navigationBar.render(this.getNavigationPanelId());
-    },
-    _setWidth: function (width) {
-        this.width = width;
-        this._recalculateZoom();
-        this.trigger('width:change', {width: this.width, sender: this});
-    },
-    setWidth: function (width) {
-        $(this.div).width(width);
-        this._setWidth(width);
-    },
-    getSVGCanvasWidth: function () {
-        return this.width - this.trackPanelScrollWidth - this.sidePanelWidth;
-    },
-    _setRegion: function (region) {
-        //update internal parameters
-        this.region.load(region);
-        this._recalculateZoom();
-    },
-    setRegion: function (region) {
-        this.region.load(region);
-        Utils.setMinRegion(this.region, this.getSVGCanvasWidth());
-        this.trigger('region:change', {region: this.region, sender: this});
-    },
-    move: function (disp) {
-//        var pixelBase = (this.width-this.svgCanvasWidthOffset) / this.region.length();
-//        var disp = Math.round((disp*10) / pixelBase);
-        this.region.start += disp;
-        this.region.end += disp;
-        this.trigger('region:move', {region: this.region, disp: -disp, sender: this});
-    },
-
-    _recalculateZoom: function () {
-        this.zoom = this._calculateZoomByRegion();
-    },
-    _calculateRegionByWidth: function () {
-        var zoomBaseLength = parseInt(this.getSVGCanvasWidth() / Utils.getPixelBaseByZoom(this.zoom));
-        var regionCenter = this.region.center();
-        var regionHalf = Math.ceil((zoomBaseLength / 2) - 1);
-        return {
-            start: Math.floor(regionCenter - regionHalf),
-            end: Math.floor(regionCenter + regionHalf)
-        }
-    },
-    _calculateZoomByRegion: function () {
-        return Utils.getZoomByPixelBase((this.getSVGCanvasWidth() / this.region.length()));
-    },
-
-    mark: function (args) {
-        var attrName = args.attrName || 'feature_id';
-        var cssClass = args.class || 'feature-emph';
-        if ('attrValues' in args) {
-            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
-            for (var key in args.attrValues) {
-                $('rect[' + attrName + '~=' + args.attrValues[key] + ']').attr('class', cssClass);
-            }
-
-        }
-    },
-    unmark: function (args) {
-        var attrName = args.attrName || 'feature_id';
-        if ('attrValues' in args) {
-            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
-            for (var key in args.attrValues) {
-                $('rect[' + attrName + '~=' + args.attrValues[key] + ']').attr('class', '');
-            }
-
-        }
-    },
-
-    highlight: function (args) {
-        this.trigger('feature:highlight', args);
-    },
-
-    enableAutoHeight: function(){
-        this.trackListPanel.enableAutoHeight();
-        this.regionOverviewPanel.enableAutoHeight();
-    },
-
     draw: function () {
         if (!this.rendered) {
             console.info('Genome Viewer is not rendered yet');
@@ -487,7 +376,7 @@ GenomeViewer.prototype = {
             zoom: this.zoom,
             zoomMultiplier: 8,
             title: 'Region overview',
-            showRegionOverviewBox : true,
+            showRegionOverviewBox: true,
             region: this.region,
             handlers: {
                 'region:change': function (event) {
@@ -591,6 +480,109 @@ GenomeViewer.prototype = {
         return  statusBar;
     },
 
+    getRightSidePanelId: function () {
+        return $(this.rightSidebarDiv).attr('id');
+    },
+    getLeftSidePanelId: function () {
+        return $(this.leftSidebarDiv).attr('id');
+    },
+    getNavigationPanelId: function () {
+        return $(this.navigationbarDiv).attr('id');
+    },
+    getStatusPanelId: function () {
+        return $(this.statusbarDiv).attr('id');
+    },
+    setNavigationBar: function (navigationBar) {
+        this.navigationBar = navigationBar;
+        var config = {
+            availableSpecies: this.availableSpecies,
+            species: this.species,
+            region: this.region,
+            width: this.width,
+            svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
+            zoom: this.zoom
+        };
+        _.extend(this.navigationBar, config);
+        navigationBar.render(this.getNavigationPanelId());
+    },
+    _setWidth: function (width) {
+        this.width = width;
+        this._recalculateZoom();
+        this.trigger('width:change', {width: this.width, sender: this});
+    },
+    setWidth: function (width) {
+        $(this.div).width(width);
+        this._setWidth(width);
+    },
+    getSVGCanvasWidth: function () {
+        return this.width - this.trackPanelScrollWidth - this.sidePanelWidth;
+    },
+    _setRegion: function (region) {
+        //update internal parameters
+        this.region.load(region);
+        this._recalculateZoom();
+    },
+    setRegion: function (region) {
+        this.region.load(region);
+        Utils.setMinRegion(this.region, this.getSVGCanvasWidth());
+        this.trigger('region:change', {region: this.region, sender: this});
+    },
+    move: function (disp) {
+//        var pixelBase = (this.width-this.svgCanvasWidthOffset) / this.region.length();
+//        var disp = Math.round((disp*10) / pixelBase);
+        this.region.start += disp;
+        this.region.end += disp;
+        this.trigger('region:move', {region: this.region, disp: -disp, sender: this});
+    },
+
+    _recalculateZoom: function () {
+        this.zoom = this._calculateZoomByRegion();
+    },
+    _calculateRegionByWidth: function () {
+        var zoomBaseLength = parseInt(this.getSVGCanvasWidth() / Utils.getPixelBaseByZoom(this.zoom));
+        var regionCenter = this.region.center();
+        var regionHalf = Math.ceil((zoomBaseLength / 2) - 1);
+        return {
+            start: Math.floor(regionCenter - regionHalf),
+            end: Math.floor(regionCenter + regionHalf)
+        }
+    },
+    _calculateZoomByRegion: function () {
+        return Utils.getZoomByPixelBase((this.getSVGCanvasWidth() / this.region.length()));
+    },
+
+    mark: function (args) {
+        var attrName = args.attrName || 'feature_id';
+        var cssClass = args.class || 'feature-emph';
+        if ('attrValues' in args) {
+            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
+            for (var key in args.attrValues) {
+                $('rect[' + attrName + '~=' + args.attrValues[key] + ']').attr('class', cssClass);
+            }
+
+        }
+    },
+    unmark: function (args) {
+        var attrName = args.attrName || 'feature_id';
+        if ('attrValues' in args) {
+            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
+            for (var key in args.attrValues) {
+                $('rect[' + attrName + '~=' + args.attrValues[key] + ']').attr('class', '');
+            }
+
+        }
+    },
+
+    highlight: function (args) {
+        this.trigger('feature:highlight', args);
+    },
+
+    enableAutoHeight: function () {
+        this.trackListPanel.enableAutoHeight();
+        this.regionOverviewPanel.enableAutoHeight();
+    },
+
+
     setSpeciesVisible: function (bool) {
         this.navigationBar.setSpeciesVisible(bool);
     },
@@ -621,223 +613,51 @@ GenomeViewer.prototype = {
     },
     setFullScreenVisible: function (bool) {
         this.navigationBar.setFullScreenButtonVisible(bool);
+    },
+
+    /*Track management*/
+    addOverviewTrack: function (trackData, args) {
+        this.regionOverviewPanel.addTrack(trackData, args);
+    },
+
+    addTrack: function (trackData, args) {
+        this.trackListPanel.addTrack(trackData, args);
+    },
+
+    getTrackSvgById: function (trackId) {
+        return this.trackListPanel.getTrackSvgById(trackId);
+    },
+
+    removeTrack: function (trackId) {
+        return this.trackListPanel.removeTrack(trackId);
+    },
+
+    restoreTrack: function (trackSvg, index) {
+        return this.trackListPanel.restoreTrack(trackSvg, index);
+    },
+
+    setTrackIndex: function (trackId, newIndex) {
+        return this.trackListPanel.setTrackIndex(trackId, newIndex);
+    },
+
+    scrollToTrack: function (trackId) {
+        return this.trackListPanel.scrollToTrack(trackId);
+    },
+
+    showTrack: function (trackId) {
+        this.trackListPanel._showTrack(trackId);
+    },
+
+    hideTrack: function (trackId) {
+        this.trackListPanel._hideTrack(trackId);
+    },
+
+    checkRenderedTrack: function (trackId) {
+        if (this.trackListPanel.swapHash[trackId]) {
+            return true;
+        }
+        return false;
     }
 };
 
 
-GenomeViewer.prototype.addOverviewTrack = function (trackData, args) {
-    this.regionOverviewPanel.addTrack(trackData, args);
-};
-
-GenomeViewer.prototype.addTrack = function (trackData, args) {
-    this.trackListPanel.addTrack(trackData, args);
-};
-
-GenomeViewer.prototype.getTrackSvgById = function (trackId) {
-    return this.trackListPanel.getTrackSvgById(trackId);
-};
-
-GenomeViewer.prototype.removeTrack = function (trackId) {
-    return this.trackListPanel.removeTrack(trackId);
-};
-
-GenomeViewer.prototype.restoreTrack = function (trackSvg, index) {
-    return this.trackListPanel.restoreTrack(trackSvg, index);
-};
-
-GenomeViewer.prototype.setTrackIndex = function (trackId, newIndex) {
-    return this.trackListPanel.setTrackIndex(trackId, newIndex);
-};
-
-GenomeViewer.prototype.scrollToTrack = function (trackId) {
-    return this.trackListPanel.scrollToTrack(trackId);
-};
-
-GenomeViewer.prototype.showTrack = function (trackId) {
-    this.trackListPanel._showTrack(trackId);
-};
-
-GenomeViewer.prototype.hideTrack = function (trackId) {
-    this.trackListPanel._hideTrack(trackId);
-};
-
-GenomeViewer.prototype.checkRenderedTrack = function (trackId) {
-    if (this.trackListPanel.swapHash[trackId]) {
-        return true;
-    }
-    return false;
-};
-
-
-//OLD BOTTOM BAR
-
-//GenomeViewer.prototype._getBottomBar = function () {
-//    var geneLegendPanel = new LegendPanel({title: 'Gene legend'});
-//    var snpLegendPanel = new LegendPanel({title: 'SNP legend'});
-//
-////	var scaleLabel = Ext.create('Ext.draw.Component', {
-////		id:this.id+"scaleLabel",
-////        width: 100,
-////        height: 20,
-////        items:[
-////            {type: 'text',text: 'Scale number',fill: '#000000',x: 10,y: 9,width: 5, height: 20},
-////            {type: 'rect',fill: '#000000',x: 0,y: 0,width: 2, height: 20},
-////			{type: 'rect',fill: '#000000',x: 2,y: 12, width: 100,height: 3},
-////			{type: 'rect',fill: '#000000',x: 101,y: 0, width: 2,height: 20}
-////		]
-////	});
-////	scale.surface.items.items[0].setAttributes({text:'num'},true);
-//
-//    var versionLabel = Ext.create('Ext.toolbar.TextItem', {
-//        id: this.id + "versionLabel",
-//        text: ''
-//    });
-//
-//    var mouseLabel = Ext.create('Ext.toolbar.TextItem', {
-//        id: this.id + "mouseLabel",
-//        width: 110,
-//        text: '<span class="ssel">Position: -</span>'
-//    });
-//    var mouseNucleotidLabel = Ext.create('Ext.toolbar.TextItem', {
-//        id: this.id + "mouseNucleotidLabel",
-//        width: 10,
-//        text: '-'
-//    });
-//    var windowSize = Ext.create('Ext.toolbar.TextItem', {
-//        id: this.id + "windowSize",
-//        width: 150,
-//        text: '<span class="emph">Window size: -</span>'
-//    });
-//
-//    var taskbar = Ext.create('Ext.toolbar.Toolbar', {
-//        id: this.id + 'uxTaskbar',
-//        winMgr: new Ext.ZIndexManager(),
-//        enableOverflow: true,
-//        cls: 'bio-hiddenbar',
-//        height: 28,
-//        flex: 1
-//    });
-//
-//    var legendBar = Ext.create('Ext.toolbar.Toolbar', {
-//        id: this.id + 'legendBar',
-//        cls: 'bio-hiddenbar',
-//        width: 610,
-//        height: 28,
-//        items: [/*scaleLabel, */
-//            '-', mouseLabel, mouseNucleotidLabel, windowSize,
-//            geneLegendPanel.getButton(GENE_BIOTYPE_COLORS),
-//            snpLegendPanel.getButton(SNP_BIOTYPE_COLORS),
-//            '->', versionLabel]
-//    });
-//
-//    var bottomBar = Ext.create('Ext.container.Container', {
-//        id: this.id + 'bottomBar',
-//        layout: 'hbox',
-//        region: "south",
-//        cls: "bio-botbar unselectable",
-//        height: 30,
-//        border: true,
-//        items: [taskbar, legendBar]
-//    });
-//    return bottomBar;
-//};
-////BOTTOM BAR
-//
-//
-//GenomeViewer.prototype.openListWidget = function (args) {
-//    var _this = this;
-//
-//    console.log(args.query)
-//
-//    var cellBaseManager = new CellBaseManager(this.species);
-//    cellBaseManager.success.addEventListener(function (evt, data) {
-//        if (data.result[0].length > 1) {
-//            var genomicListWidget = new GenomicListWidget(_this.species, {title: args.title, gridFields: args.gridField, viewer: _this});
-//            genomicListWidget.draw(data);
-//
-//            genomicListWidget.onSelected.addEventListener(function (evt, feature) {
-////			console.log(feature);
-//                if (feature != null && feature.chromosome != null) {
-//                    if (_this.chromosome != feature.chromosome || _this.position != feature.start) {
-//                        _this.onRegionChange.notify({sender: "", chromosome: feature.chromosome, position: feature.start});
-//                    }
-//                }
-//            });
-//
-//            genomicListWidget.onTrackAddAction.addEventListener(function (evt, event) {
-//                var track = new TrackData(event.fileName, {
-//                    adapter: event.adapter
-//                });
-//                _this.trackSvgLayout.addTrack(track, {
-//                    id: event.fileName,
-//                    featuresRender: "MultiFeatureRender",
-////					histogramZoom:80,
-//                    height: 150,
-//                    visibleRange: {start: 0, end: 100},
-//                    featureTypes: FEATURE_TYPES
-//                });
-//            });
-//        } else {
-//            var feature = data.result[0][0];
-//            if (feature != null) {
-//                _this.region.load(feature);
-//                _this.onRegionChange.notify({sender: ""});
-//            } else {
-//                Ext.example.msg('Feature <span class="ssel">' + args.query + '</span> not found', "");
-//            }
-//        }
-//    });
-//    cellBaseManager.get(args.category, args.subcategory, args.query, args.resource, args.params);
-//};
-//GenomeViewer.prototype.openGeneListWidget = function (name) {
-//    this.openListWidget({
-//        category: "feature",
-//        subcategory: "id",
-//        query: name.toString(),
-//        resource: "gene",
-//        title: "Gene List"
-//    });
-//};
-//
-//GenomeViewer.prototype.openTranscriptListWidget = function (name) {
-//    this.openListWidget({
-//        category: "feature",
-//        subcategory: "transcript",
-//        query: name.toString(),
-//        resource: "info",
-//        title: "Transcript List",
-//        gridField: ["externalName", "stableId", "biotype", "chromosome", "start", "end", "strand", "description"]
-//    });
-//};
-//
-//GenomeViewer.prototype.openExonListWidget = function (name) {
-//    this.openListWidget({
-//        category: "feature",
-//        subcategory: "exon",
-//        query: name.toString(),
-//        resource: "info",
-//        title: "Exon List",
-//        gridField: ["stableId", "chromosome", "start", "end", "strand"]
-//    });
-//};
-//
-//GenomeViewer.prototype.openSNPListWidget = function (name) {
-//    this.openListWidget({
-//        category: "feature",
-//        subcategory: "id",
-//        query: name.toString(),
-//        resource: "snp",
-//        title: "SNP List",
-//        gridField: ["name", "variantAlleles", "ancestralAllele", "mapWeight", "position", "sequence", "chromosome", "start", "end"]
-//    });
-//};
-//
-//GenomeViewer.prototype.openGOListWidget = function (name) {
-//    this.openListWidget({
-//        category: "feature",
-//        subcategory: "id",
-//        query: name.toString(),
-//        resource: "gene",
-//        title: "Gene List by GO"
-//    });
-//};

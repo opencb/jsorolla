@@ -32,7 +32,7 @@ function KaryotypePanel(args) {
     this.height = 75;
     this.collapsed = false,
 
-        //set instantiation args, must be last
+//set instantiation args, must be last
         _.extend(this, args);
 
     //set own region object
@@ -40,14 +40,10 @@ function KaryotypePanel(args) {
 
     this.lastSpecies = this.species;
 
-    this.afterRender = new Event();
-
     this.chromosomeList;
     this.data2;
 
-
     this.on(this.handlers);
-
 
     this.rendered = false;
     if (this.autoRender) {
@@ -300,7 +296,7 @@ KaryotypePanel.prototype = {
         });
 
         _this.rendered = true;
-        _this.afterRender.notify();
+        _this.trigger('after:render',{sender:_this});
     },
 
 
@@ -378,7 +374,7 @@ KaryotypePanel.prototype = {
         if (this.rendered) {
             mark();
         } else {
-            this.afterRender.addEventListener(function (sender, data) {
+            _this.on('after:render',function (e) {
                 mark();
             });
         }

@@ -515,14 +515,14 @@ a:hover {
 }
 
 .ocb-icon-find {
-    background: url(../img/ocb-icon-find.png);
+    background: url(../img/ocb-icon-find.png) !important;
 }
 
 .ocb-icon-gear {
-    background: url(../img/ocb-icon-gear.png);
+    background: url(../img/ocb-icon-gear.png) !important;
 }
 .ocb-icon-track-autoheight {
-    background: url(../img/ocb-icon-track-autoheight.png);
+    background: url(../img/ocb-icon-track-autoheight.png) !important;
 }
 
 .icon-save {
