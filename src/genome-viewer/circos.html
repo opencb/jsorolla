@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Genome Maps</title>
+
+
+    <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
+    <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
+
+
+
+	<script type="text/javascript" src="./circos-widget.js"  ></script>
+    <script type="text/javascript" src="../utils/svg.js"></script>
+    <script type="text/javascript" src="../utils/utils.js"></script>
+
+
+	<script>
+        CELLBASE_HOST = "http://ws.bioinfo.cipf.es/cellbase/rest";
+
+        _this = this;
+        $(document).ready(function() {
+            var div = $('#mydiv')[0];
+
+            _this.circosWidget = new CircosWidget({
+                targetId: div,
+                autoRender:true,
+                width:1600,
+                height:900,
+                species:'hsa',
+                radius: 1000,
+                handlers : {
+                    'chromosomes:loaded' : function(event){
+                        console.log(event)
+                    }
+                }
+                //region:_this.region
+            });
+            _this.circosWidget.draw();
+
+//            _this.circosWidget.test();
+        });
+	</script>
+
+</head>
+<body style="overflow:hidden;margin:0px">
+	<div style="background:lightyellow;" id="mydiv"></div>
+</body>
+</html>

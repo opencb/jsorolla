@@ -73,7 +73,7 @@ VCFVariantInfoWidget.prototype.getInfoPanel = function(data){
 		this.infoPanel = Ext.create('Ext.panel.Panel',{
 			title:"Information",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:10,
 			data:data,
@@ -137,7 +137,7 @@ VCFVariantInfoWidget.prototype.getEffectPanel = function(data){
 //		this.effectPanel = Ext.create('Ext.panel.Panel',{
 //			title:"Effects ("+i+")",
 //			border:false,
-//			cls:'panel-border-left',
+//			cls:'ocb-border-left-lightgrey',
 //			flex:3,    
 //			bodyPadding:5,
 //			autoScroll:true,
@@ -156,7 +156,7 @@ VCFVariantInfoWidget.prototype.getHeaderPanel = function(data){
 		this.headerPanel = Ext.create('Ext.panel.Panel',{
 			title:"Information",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:10,
 			html:data
@@ -194,16 +194,20 @@ VCFVariantInfoWidget.prototype.getData = function (){
 	var _this = this;
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
-//	category, subcategory, query, resource, callbackFunction
-	var cellBaseManager = new CellBaseManager(this.species);
-    cellBaseManager.host = 'http://ws-beta.bioinfo.cipf.es/cellbase/rest';
-    cellBaseManager.species = cellBaseManager.species.substr(0,3);
-    cellBaseManager.version = 'v2';
-	cellBaseManager.success.addEventListener(function(sender,data){
-		_this.dataReceived(data);
-	});
+
 	var query = this.feature.chromosome+":"+this.feature.start+":"+this.feature.reference+":"+this.feature.alternate;
-	cellBaseManager.get("genomic","variant", query, "consequence_type");
+    CellBaseManager.get({
+        host : 'http://ws-beta.bioinfo.cipf.es/cellbase/rest',
+        version : 'v2',
+        species:Utils.getSpeciesCode(this.species.text).substring(0,3),
+        category:'genomic',
+        subCategory:'variant',
+        query:query,
+        resource:'consequence_type',
+        success:function(data){
+            _this.dataReceived(data);
+        }
+    });
 };
 
 VCFVariantInfoWidget.prototype.dataReceived = function (data){

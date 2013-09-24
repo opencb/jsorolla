@@ -88,7 +88,7 @@ function InfoWidget(targetId, species, args){
 	
 	this.notFoundPanel = Ext.create('Ext.panel.Panel',{
 		id:this.id+"notFoundPanel",
-		cls:'panel-border-left',
+		cls:'ocb-border-left-lightgrey',
 		border:false,
 		flex:3,
 		bodyPadding:'40',
@@ -211,7 +211,7 @@ InfoWidget.prototype.doGrid = function (columns,fields,modelName,groupField){
 	        store: store,
 	        title : modelName,
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,        
 	        features: [groupFeature,filters],
 	        viewConfig: {

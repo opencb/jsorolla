@@ -19,154 +19,74 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function CellBaseManager(species, args) {
-//	console.log(species);
+var CellBaseManager = {
+    get: function (args) {
+        var success = args.success;
+        var error = args.error;
+        var async = (_.isUndefined(args.async) || _.isNull(args.async) ) ? true : args.async;
+        var urlConfig = _.omit(args, ['success', 'error', 'async']);
 
-    _.extend(this, Backbone.Events);
-
-    this.version = CELLBASE_VERSION;
-
-    //species can be the species code or an object with text attribute
-    if (typeof species === 'string') {
-        this.species = species;
-    } else if (species != null) {
-        this.species = Utils.getSpeciesCode(species.text);
-    }
-
-    this.category = null;
-    this.subcategory = null;
-
-    // commons query params
-    this.contentformat = "json";
-    this.fileformat = "";
-    this.outputcompress = false;
-    this.dataType = "script";
-
-    this.query = null;
-    this.originalQuery = "";
-    this.resource = "";
-
-    this.params = {};
-
-    this.async = true;
-
-    //set instantiation args, must be last
-
-    _.extend(this, args);
-
-    this.host = CELLBASE_HOST || this.host;
-
-    //Events
-    this.completed = new Event();
-    this.success = new Event();
-    this.batchSuccessed = new Event();
-    this.error = new Event();
-}
-
-CellBaseManager.prototype = {
-    setVersion : function (version) {
-        this.version = version;
-    },
-    setSpecies : function (specie) {
-        this.species = specie;
-    },
-    getVersion : function () {
-        return this.version;
-    },
-    getSpecies : function () {
-        return this.species;
-    },
-    setAsync : function (async) {
-        this.async = async;
-    },
-
-    getQuery: function (paramsWS, url) {
-        var chr = "?";
-        if (url.indexOf("?") != -1) {
-            chr = "&";
-        }
-        var query = "";
-        for (var key in paramsWS) {
-            if (paramsWS[key] != null)
-                query += key + "=" + paramsWS[key].toString() + "&";
-        }
-        if (query != "")
-            query = chr + query.substring(0, query.length - 1);
-        return query;
-    },
-    getUrl: function () {
-        if (this.query != null) {
-            return this.host + "/" + this.version + "/" + this.species + "/" + this.category + "/" + this.subcategory + "/" + this.query + "/" + this.resource;
-        } else {
-            return this.host + "/" + this.version + "/" + this.species + "/" + this.category + "/" + this.subcategory + "/" + this.resource;
-        }
-    },
-    get: function (category, subcategory, query, resource, params) {
-        var _this = this;
-        if (params != null) {
-            this.params = params;
-        }
-        this.category = category;
-        this.subcategory = subcategory;
-        if(_.isArray(query)){
-            query = query.toString();
-        }
-        this.query = query;
-
-        this.resource = resource;
-
-        var url = this.getUrl();
-        this.params["of"] = this.contentformat;
-        url = url + this.getQuery(this.params, url);
+        var url = CellBaseManager.url(urlConfig);
         console.log(url);
 
-        if (this.async == true) {
-            $.ajax({
-                type: "GET",
-                url: url,
-                dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
-                async: this.async,
-                success: function (data, textStatus, jqXHR) {
-                    if(data.metadata){
-                        data.metadata.params = _this.params;
-                        data.metadata.resource = _this.resource;
-                        data.metadata.category = _this.category;
-                        data.metadata.subcategory = _this.subcategory;
-                    }
-                    _this.success.notify(data);
-                },
-                complete: function () {
-                    _this.completed.notify();
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.log("CellBaseManager: Ajax call returned : " + errorThrown + '\t' + textStatus + '\t' + jqXHR.statusText + " END");
-                    _this.error.notify();
+        var d;
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            async: async,
+            success: function (data, textStatus, jqXHR) {
+                data.params = args.params;
+                data.resource = args.resource;
+                data.category = args.category;
+                data.subCategory = args.subCategory;
+                if (_.isFunction(success)) success(data);
+                d = data;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("CellBaseManager: Ajax call returned : " + errorThrown + '\t' + textStatus + '\t' + jqXHR.statusText + " END");
+                if (_.isFunction(error)) error(jqXHR, textStatus, errorThrown);
+            }
+        });
+        return d;
+    },
+    url: function (args) {
+        if (!_.isObject(args)) args = {};
+        if (!_.isObject(args.params)) args.params = {};
 
-                }
-            });
-        } else {
-            var response = null;
-            $.ajax({
-                type: "GET",
-                url: url,
-                dataType: 'json',
-                async: this.async,
-                success: function (data, textStatus, jqXHR) {
-                    if(data.metadata){
-                        data.metadata.params = _this.params;
-                        data.metadata.resource = _this.resource;
-                        data.metadata.category = _this.category;
-                        data.metadata.subcategory = _this.subcategory;
-                    }
-                    response = data;
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.log("CellBaseManager: Ajax call returned : " + errorThrown + '\t' + textStatus + '\t' + jqXHR.statusText + " END");
-                    _this.error.notify();
-
-                }
-            });
-            return response;
+        if (_.isUndefined(args.host) || _.isNull(args.host)) {
+            delete args.host;
         }
+        if (_.isUndefined(args.version) || _.isNull(args.version)) {
+            delete args.version;
+        }
+
+        var config = {
+            host: CELLBASE_HOST,
+            version: CELLBASE_VERSION
+        };
+        var params = {
+            of: 'json'
+        };
+
+        _.extend(config, args);
+        _.extend(config.params, params);
+
+        var query = '';
+        if (!_.isUndefined(config.query) && !_.isNull(config.query)) {
+            if (_.isArray(config.query)) {
+                config.query = config.query.toString();
+            }
+            query = '/' + config.query;
+        }
+
+        //species can be the species code(String) or an object with text attribute
+        if (!_.isString(config.species)) {
+            config.species = Utils.getSpeciesCode(config.species.text);
+        }
+
+        var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
+        url = Utils.addQueryParamtersToUrl(config.params, url);
+        return url;
     }
 };

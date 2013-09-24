@@ -38,27 +38,24 @@ function HeaderWidget(args){
     this.checkTimeInterval = 4000;
     this.version = '';
     this.allowLogin = true;
+    this.width;
+    this.height;
+    this.chunkedUpload = false;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
 	this.adapter = new OpencgaManager();
 	
-	/** Events **/
-	this.onLogin = new Event();
-	this.onLogout = new Event();
-	this.onGetAccountInfo = new Event();
-
 	/** create widgets **/
 	this.loginWidget= new LoginWidget(this.suiteId);
-	this.editUserWidget = new ProfileWidget();
-	this.uploadWidget = new UploadWidget({suiteId:this.suiteId});//used now from opencga-browser
-	this.opencgaBrowserWidget = new OpencgaBrowserWidget({suiteId:this.suiteId});
+	this.profileWidget = new ProfileWidget();
+	this.opencgaBrowserWidget = new OpencgaBrowserWidget({suiteId:this.suiteId,chunkedUpload:this.chunkedUpload});
 	
 	/**Atach events i listen**/
 	this.loginWidget.onSessionInitiated.addEventListener(function(){
 		_this.sessionInitiated();
-		_this.onLogin.notify();
+		_this.trigger('login',{sender:this});
 	});
 
 	this.adapter.onLogout.addEventListener(function(sender, data){
@@ -69,7 +66,7 @@ function HeaderWidget(args){
 		$.cookie('bioinfo_account', null);
 		$.cookie('bioinfo_account', null, {path: '/'});
 		_this.sessionFinished();
-		_this.onLogout.notify();
+        _this.trigger('logout',{sender:this});
 	});
     this.opencgaBrowserWidget.onNeedRefresh.addEventListener(function(){
         _this.getAccountInfo();
@@ -77,10 +74,13 @@ function HeaderWidget(args){
     this.adapter.onGetAccountInfo.addEventListener(function (evt, response){
         if(response.accountId != null){
             _this.setAccountData(response);
-            _this.onGetAccountInfo.notify(response);
+            _this.trigger('account:change',{sender:this,response:response});
             console.log("accountData has been modified since last call");
         }
     });
+
+
+    this.on(this.handlers);
 
     this.rendered = false;
     if (this.autoRender) {
@@ -142,6 +142,9 @@ HeaderWidget.prototype = {
         /**CLEAR OPENCGA**/
         clearInterval(this.accountInfoInterval);
         delete this.accountInfoInterval;
+
+        this.profileWidget.hide();
+        this.opencgaBrowserWidget.hide();
     },
     setDescription : function (text){
         $("#"+this.id+'description').html(text);
@@ -166,7 +169,6 @@ HeaderWidget.prototype = {
     setWidth : function (width){
         this.width=width;
         this.getPanel().setWidth(width);
-        this.getPanel().updateLayout();//sencha 4.1.0 : items are not allocated in the correct position after setWidth
     },
     render : function (targetId){
         var _this=this;
@@ -323,7 +325,7 @@ HeaderWidget.prototype = {
                     id: this.id+'btnEdit',
                     text: '<span class="emph">profile</span>',
                     handler: function (){
-                        _this.editUserWidget.draw();
+                        _this.profileWidget.draw();
                     }
                 },{
                     id :this.id+'btnLogout',
@@ -342,6 +344,7 @@ HeaderWidget.prototype = {
                 height : this.height,
                 minHeight: this.height,
                 maxHeigth: this.height,
+                width:this.width,
                 layout:'hbox',
                 items:[{
                     xtype:'container',

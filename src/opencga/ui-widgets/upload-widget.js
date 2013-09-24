@@ -24,13 +24,14 @@ function UploadWidget (args){
 	this.id = Utils.genId("uploadWidget");
 	this.targetId = null;
 	this.suiteId=null;
-	
+	this.chunkedUpload=false;
+
     if(typeof args !== 'undefined'){
         this.targetId = args.targetId || this.targetId;
         this.suiteId = args.suiteId || this.suiteId;
         this.opencgaBrowserWidget = args.opencgaBrowserWidget || this.opencgaBrowserWidget;
+        this.chunkedUpload = args.chunkedUpload || this.chunkedUpload;
     }
-
 	this.adapter = new OpencgaManager();
 	this.adapter.onUploadObjectToBucket.addEventListener(function(sender,res){
 		if(res.status == 'done'){
@@ -268,12 +269,14 @@ UploadWidget.prototype.render = function(dataTypes){
 			      			this.editor.show();
 			      			this.uploadField.destroy();
 			      			this.uploadField.setRawValue(null);
+                            this.pan3.setHeight(153);
 			       		}else{
 			       			this.dataFieldLabel.setText('<span class="info">Select a data file</span>',false);
 			       			this.editor.hide();
 							this.uploadBar.show();
 			       			this.editor.setRawValue(null);
 			       			this.createUploadField();
+                            this.pan3.setHeight(82);
 			       		}
 			       		this.validate();
 			       }
@@ -289,7 +292,11 @@ UploadWidget.prototype.render = function(dataTypes){
 //				     title:'Uploading file',
 //				     msg: 'Please wait...'
 //				});
-				_this.uploadFile2();
+                 if(_this.chunkedUpload){
+				    _this.uploadFile2();
+                 }else{
+                     _this.uploadFile();
+                 }
 	        }
 		});
 		
@@ -315,7 +322,7 @@ UploadWidget.prototype.render = function(dataTypes){
 	        }
 		});
 		
-		this.uploadBar = Ext.create('Ext.toolbar.Toolbar',{cls:"bio-border-false"});
+		this.uploadBar = Ext.create('Ext.toolbar.Toolbar',{cls:"bio-border-false",dock:'top',height:28});
 		this.createUploadField();
 		
 		this.modebar = Ext.create('Ext.toolbar.Toolbar',{
@@ -331,10 +338,12 @@ UploadWidget.prototype.render = function(dataTypes){
 		    border:false,
 		    width: pan1Width+pan2Width,
 		    cls:'panel-border-top',
-//		    bodyStyle:{"background-color":"#d3e1f1"}, 
-		    items:[this.uploadBar,this.editor],
-		    bbar:this.modebar
+            height:82,
+//		    bodyStyle:{"background-color":"#d3e1f1"},
+		    items:[this.editor],
+		    dockedItems:[this.modebar,this.uploadBar]
 		});
+        this.pan3 = pan3;
 
 		this.panel = Ext.create('Ext.window.Window', {
 		    title: 'Upload a data file'+' -  <span class="err">ZIP files will be allowed shortly</span>',
@@ -474,7 +483,7 @@ UploadWidget.prototype.uploadFile2 = function()  {
     var objectId = this.opencgaLocation.directory+inputFile.name;
     objectId = objectId.replace(new RegExp("/", "gi"),":");
 
-    var fileuploadWorker = new Worker(UPLOAD_WORKER);
+    var fileuploadWorker = new Worker(WORKERS_PATH+'worker-fileupload.js');
     this.opencgaBrowserWidget.addUpload(inputFile, fileuploadWorker);
     fileuploadWorker.postMessage({
         'host':OPENCGA_HOST,

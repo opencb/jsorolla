@@ -521,6 +521,9 @@ a:hover {
 .ocb-icon-gear {
     background: url(../img/ocb-icon-gear.png);
 }
+.ocb-icon-track-autoheight {
+    background: url(../img/ocb-icon-track-autoheight.png);
+}
 
 .icon-save {
     background: url('../img/save.png');

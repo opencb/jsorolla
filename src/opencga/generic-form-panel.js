@@ -20,6 +20,8 @@
  */
 
 function GenericFormPanel(analysis) {
+    _.extend(this, Backbone.Events);
+
     this.analysis = analysis;
     this.form = null;
     this.paramsWS = {};
@@ -38,30 +40,47 @@ function GenericFormPanel(analysis) {
         }
         else console.log(response.data);
     });
+
+    //events attachments
+    this.on(this.handlers);
+
 }
 
 GenericFormPanel.prototype.draw = function (args) {
-    if (args != null && args.type == "window") {
-        Ext.create('Ext.ux.Window', {
-            title: args.title || "",
-            resizable: args.resizable || false,
-            width: args.width || 500,
-            height: args.height,
-            overflowY: 'auto',
-            taskbar: args.taskbar,
-            items: this.getForm()
-        }).show();
+    var _this = this;
+    if (this.panel == null) {
+        if (args != null && args.type == "window") {
+            this.panel = Ext.create('Ext.ux.Window', {
+                title: args.title || "",
+                resizable: args.resizable || false,
+                width: args.width || 500,
+                height: args.height,
+                overflowY: 'auto',
+                taskbar: args.taskbar,
+                closable:false,
+                items: this.getForm()
+            }).show();
+        }
+        else {
+            this.panel = Ext.create('Ext.panel.Panel', {
+                id: this.panelId,
+                title: args.title,
+                closable: true,
+                defaults: {margin: 30},
+                autoScroll: true,
+                items: this.getForm(),
+                border:0,
+                listeners:{
+                    beforeclose:function(){
+                        console.log('closing');
+                        args.tabpanel.remove(_this.panel,false);
+                        return false;
+                    }
+                }
+            });
+        }
     }
-    else {
-        return Ext.create('Ext.container.Container', {
-            id: this.panelId,
-            title: args.title,
-            closable: true,
-            defaults: {margin: 30},
-            autoScroll: true,
-            items: this.getForm()
-        });
-    }
+    return this.panel;
 };
 
 GenericFormPanel.prototype.getForm = function () {
@@ -71,9 +90,9 @@ GenericFormPanel.prototype.getForm = function () {
         items.push(this.getRunButton());
 
         this.form = Ext.create('Ext.form.Panel', {
-            border: false,
+            border: 0,
             bodyPadding: '5',
-            width:'95%',
+            width: '95%',
             layout: 'vbox',
             items: items
         });
@@ -89,7 +108,7 @@ GenericFormPanel.prototype.getPanels = function () {
 GenericFormPanel.prototype.getJobPanel = function () {
     var _this = this;
     var jobNameField = Ext.create('Ext.form.field.Text', {
-        id: "jobname",
+        id: this.id + "jobname",
         name: "jobname",
         fieldLabel: 'Name',
         emptyText: "Job name",
@@ -98,7 +117,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
     });
 
     var jobDescriptionField = Ext.create('Ext.form.field.TextArea', {
-        id: "jobdescription",
+        id: this.id + "jobdescription",
         name: "jobdescription",
         fieldLabel: 'Description',
         emptyText: "Description",
@@ -113,6 +132,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
 //	});
 //	var jobDestinationBucket = this.createCombobox("jobdestinationbucket", "Destination bucket", bucketList, 0, 100);
     var jobFolder = this.createOpencgaBrowserCmp({
+        id: Utils.genId('jobFolder'),
         fieldLabel: 'Folder:',
         dataParamName: 'outdir',
         mode: 'folderSelection',
@@ -126,7 +146,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
         border: true,
         bodyPadding: "5",
         margin: "0 0 5 0",
-        width:'99%',
+        width: '99%',
         buttonAlign: 'center',
         items: [jobNameField, jobDescriptionField, jobFolder]
     });
@@ -167,13 +187,14 @@ GenericFormPanel.prototype.run = function () {
     this.setAccountParams();
     (this.paramsWS['outdir'] === '') ? delete this.paramsWS['outdir'] : console.log(this.paramsWS['outdir']);
 
-    if(!this.testing){
+    if (!this.testing) {
         this.opencgaManager.runAnalysis(this.analysis, this.paramsWS);
     }
 
     Ext.example.msg('Job Launched', 'It will be listed soon');
     //debug
     console.log(this.paramsWS);
+    this.trigger('after:run', {sender: this});
 };
 
 
@@ -247,28 +268,31 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
         text: 'Browse...',
         margin: args.btnMargin || '0 0 0 10',
         handler: function () {
-            _this.opencgaBrowserWidget.allowedTypes = args.allowedTypes;
-            if(args.beforeClick != null){
-                args.beforeClick();
+            if (args.beforeClick != null) {
+                args.beforeClick(args);
             }
             var listenerIdx = _this.opencgaBrowserWidget.onSelect.addEventListener(function (sender, response) {
-                fileSelectedLabel.setText('<span class="emph">' + response.bucketId + '/' + response.id + '</span>', false);
-                hiddenField.setValue(response.bucketId + ':' + response.id.replace(/\//g, ":"));//this is send to the ws
+
+                var label = response.bucketId + '/' + response.id;
+                var value = response.bucketId + ':' + response.id.replace(/\//g, ":");
+                fileSelectedLabel.setText('<span class="emph">' + label + '</span>', false);
+                hiddenField.setValue(value);//this is send to the ws
+
                 _this.opencgaBrowserWidget.onSelect.removeEventListener(listenerIdx);
             });
-            _this.opencgaBrowserWidget.draw(args.mode);
+            _this.opencgaBrowserWidget.draw({mode: args.mode, allowedTypes: args.allowedTypes});
         }
     });
 
     var fileSelectedLabel = Ext.create('Ext.form.Label', {
-        id: args.dataParamName,
+        id: args.id,
         text: args.defaultFileLabel || "No file selected",
         margin: '5 0 0 15'
     });
 
     //not shown, just for validation
     var hiddenField = Ext.create('Ext.form.field.Text', {
-        id: args.dataParamName+'hidden',
+        id: args.id + 'hidden',
         name: args.dataParamName,
         hidden: true,
         allowBlank: (args.allowBlank || false),

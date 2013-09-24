@@ -78,7 +78,7 @@ SnpInfoWidget.prototype.getInfoPanel = function(data){
 		this.infoPanel = Ext.create('Ext.panel.Panel',{
 			title:"Information",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:10,
 			data:data,
@@ -109,7 +109,7 @@ SnpInfoWidget.prototype.getSnpTranscriptPanel = function(data){
 		this.snpTranscriptGrid = Ext.create('Ext.panel.Panel',{
 			title:"Transcripts ("+i+")",
 			border:false,
-			cls:'panel-border-left',
+			cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:5,
 			autoScroll:true,
@@ -158,7 +158,7 @@ SnpInfoWidget.prototype.getConsequenceTypePanel = function(data){
 //		this.consequencePanel = Ext.create('Ext.panel.Panel',{
 //			title:"Consequence type ("+i+")",
 //			border:false,
-//			cls:'panel-border-left',
+//			cls:'ocb-border-left-lightgrey',
 //			flex:3,
 //			bodyPadding:5,
 //			autoScroll:true,
@@ -188,7 +188,7 @@ SnpInfoWidget.prototype.getPhenotypePanel = function(data){
 		this.phenotypePanel = Ext.create('Ext.panel.Panel',{
 			title:"Phenotype ("+i+")",
 			border:false,
-			cls:'panel-border-left',
+			cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:5,
 			autoScroll:true,
@@ -219,7 +219,7 @@ SnpInfoWidget.prototype.getPopulationPanel = function(data){
 		this.populationPanel = Ext.create('Ext.panel.Panel',{
 			title:"Population ("+i+")",
 			border:false,
-			cls:'panel-border-left',
+			cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:5,
 			autoScroll:true,
@@ -234,12 +234,18 @@ SnpInfoWidget.prototype.getData = function (){
 	var _this = this;
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
-//	category, subcategory, query, resource, callbackFunction
-	var cellBaseManager = new CellBaseManager(this.species);
-	cellBaseManager.success.addEventListener(function (sender,data){
-        _this.dataReceived(data[_this.query].result[0]);
-	});
-	cellBaseManager.get("feature","snp", this.query, "info");
+
+    CellBaseManager.get({
+        species:this.species,
+        category:'feature',
+        subCategory:'snp',
+        query:this.query,
+        resource:"info",
+        success:function(data){
+            _this.dataReceived(data.response[0].result[0]);
+        }
+    });
+
 };
 SnpInfoWidget.prototype.dataReceived = function (data){
 //	var mappedSnps = data[0];

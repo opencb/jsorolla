@@ -92,7 +92,7 @@ GeneInfoWidget.prototype.getGenePanel = function(data){
 		this.genePanel = Ext.create('Ext.panel.Panel',{
 			title:"Gene information",
 	        border:false,
-	        cls:'panel-border-left',
+	        cls:'ocb-border-left-lightgrey',
 			flex:3,
 			bodyPadding:10,
 			data:data,
@@ -123,7 +123,7 @@ GeneInfoWidget.prototype.getTranscriptPanel = function(data){
 		this.transcriptGrid = Ext.create('Ext.panel.Panel',{
 			title:"Transcripts ("+i+")",
 			border:false,
-			cls:'panel-border-left',
+			cls:'ocb-border-left-lightgrey',
 			flex:3,    
 			bodyPadding:5,
 			autoScroll:true,
@@ -318,7 +318,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
       	this.p3dProtein = Ext.create('Ext.tab.Panel',{
       		title:"3D Protein Viewer",
       		border:false,
-      		cls:'panel-border-left',
+      		cls:'ocb-border-left-lightgrey',
       		flex:3,
 //    		bodyPadding:5,
       		autoScroll:true
@@ -411,7 +411,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
 //		var pan = Ext.create('Ext.panel.Panel',{
 //			title:"3D Protein Viewer",
 //	        border:false,
-//	        cls:'panel-border-left',
+//	        cls:'ocb-border-left-lightgrey',
 //			flex:3,
 //			bodyPadding:5,
 //			autoScroll:true,
@@ -437,11 +437,16 @@ GeneInfoWidget.prototype.getData = function (){
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
 //	category, subcategory, query, resource, callbackFunction
-	var cellBaseManager = new CellBaseManager(this.species);
-	cellBaseManager.success.addEventListener(function(sender,data){
-		_this.dataReceived(data[_this.query].result[0]);
-	});
-	cellBaseManager.get("feature","gene", this.query, "info");
+	CellBaseManager.get({
+        species:this.species,
+        category:'feature',
+        subCategory:'gene',
+        query:this.query,
+        resource:"info",
+        success:function(data){
+            _this.dataReceived(data.response[0].result[0]);
+        }
+    });
 };
 GeneInfoWidget.prototype.dataReceived = function (data){
 	this.data=data;

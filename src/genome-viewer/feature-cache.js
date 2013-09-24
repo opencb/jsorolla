@@ -44,6 +44,7 @@ function FeatureCache(args) {
 	
 	//XXX
 	this.gzip = false;
+
 };
 
 FeatureCache.prototype._getChunk = function(position){
@@ -97,27 +98,33 @@ FeatureCache.prototype.getFeatureChunksByRegion = function(region){
 FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, featureType, dataType){
 	var key, firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, feature, gzipFeature;
 
-	
+
 	//initialize region
 	firstRegionChunk = this._getChunk(region.start);
 	lastRegionChunk = this._getChunk(region.end);
+
 	for(var i=firstRegionChunk; i<=lastRegionChunk; i++){
 		key = region.chromosome+":"+i;
 		if(this.cache[key]==null){
 			this.cache[key] = {};
 			this.cache[key].key = key;
 		}
+//        else{
+//            // TODO
+//            console.log(region.chromosome+region.start+region.end+'-'+featureType+'-'+dataType);
+////            return;
+//        }
 		if(this.cache[key][dataType]==null){
 			this.cache[key][dataType] = [];
 		}
 	}
-	
-	//Check if is a single object
-	if(featureDataList.constructor != Array){
-		featureDataList = [featureDataList];
-	}
-	
-	//loop over features and set on corresponding chunks
+
+    //Check if is a single object
+    if(featureDataList.constructor != Array){
+        featureDataList = [featureDataList];
+    }
+
+    //loop over features and set on corresponding chunks
 	for(var index = 0, len = featureDataList.length; index<len; index++) {
 		feature = featureDataList[index];
 		feature.featureType = featureType;
@@ -137,6 +144,7 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 			}
 		}
 	}
+        console.log(this.cache[region.chromosome+":"+firstRegionChunk][dataType].length)
 };
 
 

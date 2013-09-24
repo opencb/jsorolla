@@ -208,6 +208,10 @@ OpencgaManager.prototype = {
             if(data.indexOf("ERROR") == -1){
                 _this.onGetAccountInfo.notify(JSON.parse(data));
             }else{
+                $.cookie('bioinfo_sid', null);
+                $.cookie('bioinfo_sid', null, {path: '/'});
+                $.cookie('bioinfo_account',null);
+                $.cookie('bioinfo_account', null, {path: '/'});
                 console.log(data);
             }
         }
