@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Genome Viewer Demo</title>
+
+
+<script type="text/javascript">
+
+</script>
+
+<style type="text/css">
+    html, body {
+        height: 100%;
+        /*position:relative;*/
+    }
+    body {
+        /*overflow: hidden;*/
+        margin:0px;
+    }
+    #application{
+        /*display: box;*/
+        /*box-orient: vertical;*/
+        width:100%;
+        height: 100%;
+    }
+    #gv{
+        /*background-color: black;*/
+        /*height:100%;*/
+        /*position:relative;*/
+        /*margin:50px;*/
+        /*width:100%;*/
+        /*top:20px;*/
+        /*left:20px;*/
+        /*right:20px;*/
+        /*bottom:20px;*/
+        height: 300px;
+        display : box;
+        display : -moz-box;
+        display : -webkit-box;
+
+        box-orient : vertical;
+        -moz-box-orient : vertical;
+        -webkit-box-orient : vertical;
+
+    }
+    #header{
+        background-color: blue;
+        /*position:absolute;*/
+        /*top:0px;*/
+        /*left:0px;*/
+        /*right:0px;*/
+        height:25px;
+    }
+    #center{
+        background-color: green;
+        box-flex:1;
+        -moz-box-flex:1;
+        -webkit-box-flex:1;
+    }
+    #footer{
+        background-color: red;
+        /*position:absolute;*/
+        /*left:0px;*/
+        /*right:0px;*/
+        /*bottom:0px;*/
+        height:25px;
+    }
+</style>
+
+</head>
+
+<body>
+<div style=""></div>
+<div id="application">
+    <div id="gv">
+    <div id="header" class="">header</div>
+    <div id="center" class="">center</div>
+    <div id="footer" class="">footer</div>
+    </div>
+</div>
+<div style=""></div>
+
+</body>
+</html>
