@@ -75,6 +75,14 @@ FeatureCache.prototype.getFeatureChunk = function(key){
 	}
 	return null;
 };
+FeatureCache.prototype.getFeatureChunkByDataType = function(key,dataType){
+	if(this.cache[key] != null) {
+        if(this.cache[key][dataType] != null){
+		    return this.cache[key][dataType];
+        }
+	}
+	return null;
+};
 //new
 FeatureCache.prototype.getFeatureChunksByRegion = function(region){
 	var firstRegionChunk, lastRegionChunk,  chunks = [], key;

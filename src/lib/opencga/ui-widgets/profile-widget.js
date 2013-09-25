@@ -231,7 +231,7 @@ ProfileWidget.prototype = {
     },
     changePassword: function () {
         if (this.checkpass()) {
-            this.adapter.changePassword({
+            OpencgaManager.changePassword({
                 accountId: $.cookie('bioinfo_account'),
                 sessionId: $.cookie('bioinfo_sid'),
                 old_password: this.getOldPassword(),

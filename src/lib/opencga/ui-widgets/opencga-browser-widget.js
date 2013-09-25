@@ -45,7 +45,7 @@ function OpencgaBrowserWidget(args) {
 
 OpencgaBrowserWidget.prototype = {
     show: function (args) {
-        if(!_.isUndefined(args)){
+        if (!_.isUndefined(args)) {
             this.mode = args.mode;
             this.allowedTypes = args.allowedTypes;
         }
@@ -88,7 +88,7 @@ OpencgaBrowserWidget.prototype = {
         this.panel = this._createPanel(this.targetId);
 //        this.panel.show();
     },
-    _createUploadWidget:function(){
+    _createUploadWidget: function () {
         var _this = this;
         var uploadWidget = new UploadWidget({
             suiteId: this.suiteId,
@@ -146,16 +146,20 @@ OpencgaBrowserWidget.prototype = {
                 var record = _this.folderTree.getSelectionModel().getSelection()[0];
                 if (record) {
                     if (record.raw.isBucket) {
-                        var opencgaManager = new OpencgaManager();
-                        opencgaManager.onRefreshBucket.addEventListener(function (sender, res) {
-                            Ext.example.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
-                            if (res.indexOf("ERROR") != -1) {
-                                console.log(res);
-                            } else {
-                                _this.trigger('need:refresh', {sender: _this});
+                        OpencgaManager.refreshBucket({
+                            accountId: $.cookie("bioinfo_account"),
+                            bucketId: record.raw.text,
+                            sessionId: $.cookie("bioinfo_sid"),
+                            success: function (data) {
+                                Ext.example.msg('Refresh Bucket', '</span class="emph">' + data + '</span>');
+                                if (data.indexOf("ERROR") != -1) {
+                                    console.log(data);
+                                } else {
+                                    _this.trigger('need:refresh', {sender: _this});
+                                }
                             }
                         });
-                        opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.raw.text, $.cookie("bioinfo_sid"));
+
                     }
                 }
             }
@@ -172,17 +176,20 @@ OpencgaBrowserWidget.prototype = {
                             if (btn == 'ok') {
                                 text = text.replace(/[^a-z0-9-_.\/\s]/gi, '').trim();
 
-                                var opencgaManager = new OpencgaManager();
-                                opencgaManager.onRenameBucket.addEventListener(function (sender, res) {
-                                    Ext.example.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
-                                    if (res.indexOf("ERROR") != -1) {
-                                        console.log(res);
-                                    } else {
-                                        _this.trigger('need:refresh', {sender: _this});
+                                opencgaManager.renameBucket({
+                                    accountId: $.cookie("bioinfo_account"),
+                                    bucketId: record.raw.bucketId,
+                                    newBucketId: text,
+                                    sessionId: $.cookie("bioinfo_sid"),
+                                    success: function (data) {
+                                        Ext.example.msg('Refresh Bucket', '</span class="emph">' + data + '</span>');
+                                        if (data.indexOf("ERROR") != -1) {
+                                            console.log(data);
+                                        } else {
+                                            _this.trigger('need:refresh', {sender: _this});
+                                        }
                                     }
                                 });
-//                                accountId, bucketId, newBucketId, sessionId
-                                opencgaManager.renameBucket($.cookie("bioinfo_account"), record.raw.bucketId, text, $.cookie("bioinfo_sid"));
                             }
                         }, null, null, "new name");
                     }
@@ -365,19 +372,24 @@ OpencgaBrowserWidget.prototype = {
             handler: function (widget, event) {
                 var record = _this.filesGrid.getSelectionModel().getSelection()[0];
                 if (record) {
-                    var opencgaManager = new OpencgaManager();
-                    opencgaManager.onIndexer.addEventListener(function (sender, response) {
-                        console.log(response);
-                        Ext.example.msg("indexer", response);
-                        record.raw.indexerId = response;
+
+                    OpencgaManager.indexer({
+                        accountId: $.cookie("bioinfo_account"),
+                        sessionId: $.cookie("bioinfo_sid"),
+                        bucketId: record.raw.bucketId,
+                        objectId: record.data.oid,
+                        success: function (sender, response) {
+                            console.log(response);
+                            Ext.example.msg("indexer", response);
+                            record.raw.indexerId = response;
 //                                if (response.indexOf("ERROR:") != -1){
 //                                }else{
 //                                    //delete complete
 ////                                    record.destroy();
 //                                    _this.trigger('need:refresh',{sender:_this});
 //                                }
+                        }
                     });
-                    opencgaManager.indexer($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
 
 
 //                    console.log(record.raw.status);
@@ -433,17 +445,22 @@ OpencgaBrowserWidget.prototype = {
                     Ext.MessageBox.confirm('Confirm', 'Are you sure you want to delete this file?<p class="emph">' + record.data.fileName + '<p>', function (answer) {
                         if (answer == "yes") {
                             console.log("deleting")
-                            var opencgaManager = new OpencgaManager();
-                            opencgaManager.onDeleteObjectFromBucket.addEventListener(function (sender, response) {
-                                if (response.indexOf("ERROR:") != -1) {
-                                    Ext.example.msg("Deleting", response);
-                                } else {
-                                    //delete complete
-                                    record.destroy();
-                                    _this.trigger('need:refresh', {sender: _this});
+
+                            OpencgaManager.deleteObjectFromBucket({
+                                accountId: $.cookie("bioinfo_account"),
+                                sessionId: $.cookie("bioinfo_sid"),
+                                bucketId: record.raw.bucketId,
+                                objectId: record.data.oid,
+                                success: function (data) {
+                                    if (data.indexOf("ERROR:") != -1) {
+                                        Ext.example.msg("Deleting", data);
+                                    } else {
+                                        //delete complete
+                                        record.destroy();
+                                        _this.trigger('need:refresh', {sender: _this});
+                                    }
                                 }
                             });
-                            opencgaManager.deleteObjectFromBucket($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
                         }
                     });
                 }
@@ -937,16 +954,22 @@ OpencgaBrowserWidget.prototype.createFolder = function () {
                 if (btn == 'ok') {
                     text = text.replace(/[^a-z0-9-_.\s]/gi, '');
                     text = text.trim() + "/";
-                    var opencgaManager = new OpencgaManager();
-                    opencgaManager.onCreateDirectory.addEventListener(function (sender, res) {
-                        Ext.example.msg('Create folder', '</span class="emph">' + res + '</span>');
-                        if (res.indexOf("ERROR") != -1) {
-                            console.log(res);
-                        } else {
-                            _this.trigger('need:refresh', {sender: _this});
+
+                    OpencgaManager.createDirectory({
+                        accountId: $.cookie("bioinfo_account"),
+                        sessionId: $.cookie("bioinfo_sid"),
+                        bucketId: folderSelection.bucketId,
+                        objectId: folderSelection.directory + text,
+                        success: function (data) {
+                            Ext.example.msg('Create folder', '</span class="emph">' + data + '</span>');
+                            if (data.indexOf("ERROR") != -1) {
+                                console.log(data);
+                            } else {
+                                _this.trigger('need:refresh', {sender: _this});
+                            }
                         }
                     });
-                    opencgaManager.createDirectory($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), folderSelection.bucketId, folderSelection.directory + text);
+
                 }
             }, null, null, "New Folder");
         }
