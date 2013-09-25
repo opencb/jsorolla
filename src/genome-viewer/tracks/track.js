@@ -112,7 +112,7 @@ Track.prototype = {
 
             } else {
                 var height = this.height;
-                $(this.svgdiv).css({'height': height+3});
+                $(this.svgdiv).css({'height': height+10});
 
             }
             this.main.setAttribute('height', height);
