@@ -17,78 +17,26 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-function OpencgaManager(host){
-
-    this.host = OPENCGA_HOST || this.host;
-    this.host = host || this.host;
-
-    //deprecated
-    //this.host = "http://bioinfo.cipf.es/dqs-naranjoma-ws/rest";
-    //if(window.location.host.indexOf("ralonso")!=-1){
-    //this.host = "http://ralonso:8080/dqs-naranjoma-ws/rest";
-    //}
-
-    /** Events **/
-    /*ACCOUNT*/
-    this.onGetAccountInfo = new Event(this);
-    this.onLogin = new Event(this);
-    this.onCreateAccount = new Event(this);
-    this.onResetPassword = new Event(this);
-    this.onChangePassword = new Event(this);
-    this.onChangeEmail = new Event(this);
-    this.onLogout = new Event(this);
-
-    /*Bucket*/
-    this.onCreateBucket = new Event(this);
-    this.onRefreshBucket = new Event(this);
-    this.onRenameBucket = new Event(this);
-    this.onUploadObjectToBucket = new Event(this);
-    this.onDeleteObjectFromBucket = new Event(this);
-    this.onCreateDirectory = new Event(this);
-
-    /*Jobs*/
-    this.onJobStatus = new Event(this);
-    this.onJobResult = new Event(this);
-    this.onTable = new Event(this);
-    this.onPoll = new Event(this);
-    this.onDeleteJob = new Event(this);
-
-    /*ANALYSIS*/
-    this.onRunAnalysis = new Event(this);
-    this.onIndexer = new Event(this);
-    this.onIndexerStatus = new Event(this);
-
-    /*BAM*/
-    this.onBamList = new Event(this);
-    this.onGetAccountInfo = new Event(this);
-    this.onRegion = new Event(this);
-
-
-    this.onLocalFileList = new Event(this);
-
-    this.onError = new Event(this);
-}
-
-OpencgaManager.prototype = {
-    host : 'http://ws.bioinfo.cipf.es/opencga/rest',
-    getHost : function(){
-        return this.host;
+var OpencgaManager = {
+    host: (_.isUndefined(OPENCGA_HOST) ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST),
+    getHost: function () {
+        return OpencgaManager.host;
     },
-    setHost : function(hostUrl){
-        this.host = hostUrl;
+    setHost: function (hostUrl) {
+        OpencgaManager.host = hostUrl;
     },
-    doGet : function (url, successCallback, errorCallback){
+    doGet: function (url, successCallback, errorCallback) {
         $.ajax({
             type: "GET",
             url: url,
-            cache: false,
             success: successCallback,
             error: errorCallback
         });
     },
-    doPost : function (url, formData, successCallback, errorCallback){
+    doPost: function (url, formData, successCallback, errorCallback) {
         $.ajax({
             type: "POST",
             url: url,
@@ -99,114 +47,120 @@ OpencgaManager.prototype = {
             error: errorCallback
         });
     },
-    getQuery : function(paramsWS){
+    getQuery: function (paramsWS) {
         var query = "";
-        for ( var key in paramsWS) {
-            if(paramsWS[key]!=null)
-                query+=key+'='+paramsWS[key]+'&';
+        for (var key in paramsWS) {
+            if (paramsWS[key] != null)
+                query += key + '=' + paramsWS[key] + '&';
         }
-        if(query!='')
-            query = "?"+query.slice(0,-1);
+        if (query != '')
+            query = "?" + query.slice(0, -1);
         return query;
     },
 
 
-    getAccountUrl : function(accountId){
-        return this.getHost()+'/account/'+accountId;
+    getAccountUrl: function (accountId) {
+        return OpencgaManager.getHost() + '/account/' + accountId;
     },
-    getStorageUrl : function(accountId){
-        return this.getAccountUrl(accountId)+'/storage';
+    getStorageUrl: function (accountId) {
+        return OpencgaManager.getAccountUrl(accountId) + '/storage';
     },
-    getAdminProfileUrl : function(accountId){
-        return this.getAccountUrl(accountId)+'/admin/profile';
+    getAdminProfileUrl: function (accountId) {
+        return OpencgaManager.getAccountUrl(accountId) + '/admin/profile';
     },
-    getAdminBucketUrl : function(accountId,bucketId){
-        return this.getAccountUrl(accountId)+'/admin/bucket/'+bucketId;
+    getAdminBucketUrl: function (accountId, bucketId) {
+        return OpencgaManager.getAccountUrl(accountId) + '/admin/bucket/' + bucketId;
     },
-    getAdminProjectUrl : function(accountId,projectId){
-        return this.getAccountUrl(accountId)+'/admin/project/'+projectId;
+    getAdminProjectUrl: function (accountId, projectId) {
+        return OpencgaManager.getAccountUrl(accountId) + '/admin/project/' + projectId;
     },
-    getBucketUrl : function(accountId, bucketId){
-        return this.getStorageUrl(accountId)+'/'+bucketId;
+    getBucketUrl: function (accountId, bucketId) {
+        return OpencgaManager.getStorageUrl(accountId) + '/' + bucketId;
     },
-    getObjectUrl : function(accountId, bucketId, objectId){
-        return this.getStorageUrl(accountId)+'/'+bucketId+'/'+objectId;
+    getObjectUrl: function (accountId, bucketId, objectId) {
+        return OpencgaManager.getStorageUrl(accountId) + '/' + bucketId + '/' + objectId;
     },
-    getAnalysisUrl : function(accountId, analysis){
-        return this.getAccountUrl(accountId)+'/analysis/'+analysis;
+    getAnalysisUrl: function (accountId, analysis) {
+        return OpencgaManager.getAccountUrl(accountId) + '/analysis/' + analysis;
     },
-    getJobAnalysisUrl : function(accountId, jobId){
-        return this.getAccountUrl(accountId)+'/analysis/job/'+jobId;
+    getJobAnalysisUrl: function (accountId, jobId) {
+        return OpencgaManager.getAccountUrl(accountId) + '/analysis/job/' + jobId;
     },
     /*ACCOUNT METHODS*/
-    createAccount : function (accountId, email, name, password, suiteId){
-        var _this = this;
+    createAccount: function (args) {
+//      accountId, email, name, password, suiteId
         var queryParams = {
-            'name':name,
-            'email':email,
-            'password':password,
-            'suiteid':suiteId
+            'name': args.name,
+            'email': args.email,
+            'password': args.password,
+            'suiteid': args.suiteId
         };
-        var url =  this.getAccountUrl(accountId)+'/create'+this.getQuery(queryParams);
-        function success(data){
-            _this.onCreateAccount.notify(data);
-        }
-        function error(data){
-            console.log("ERROR: " + data);
+        var url = OpencgaManager.getAccountUrl(args.accountId) + '/create' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data)
         }
 
-        this.doGet(url, success, error);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
+        }
+
+        OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     },
-    login : function(accountId, password, suiteId){
-        var _this=this;
+    login: function (args) {
+//        accountId, password, suiteId
         var queryParams = {
-            'password':password,
-            'suiteid':suiteId
+            'password': args.password,
+            'suiteid': args.suiteId
         };
-        var url =  this.getAccountUrl(accountId)+'/login'+this.getQuery(queryParams);
-        function success(data){
+        var url = OpencgaManager.getAccountUrl(args.accountId) + '/login' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
             if(data.indexOf("ERROR") == -1){
-                _this.onLogin.notify(JSON.parse(data));
+                args.success(JSON.parse(data))
             }else{
-                _this.onLogin.notify({errorMessage:data});
+                args.success({errorMessage:data})
             }
         }
-        function error(data){
-            console.log("ERROR: " + data);
+
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
-        this.doGet(url, success, error);
+
+        OpencgaManager.doGet(url, success, error);
     },
-    logout : function(accountId, sessionId){
-        var _this=this;
+    logout: function (args) {
+//        accountId, sessionId
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        var url =  this.getAccountUrl(accountId)+'/logout'+this.getQuery(queryParams);
-        function success(data){
-            _this.onLogout.notify(data);
+        var url = OpencgaManager.getAccountUrl(args.accountId) + '/logout' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            $.cookie('bioinfo_sid', null);
-            $.cookie('bioinfo_sid', null, {path: '/'});
-            console.log("ERROR: " + data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     },
-    getAccountInfo : function(accountId, sessionId, lastActivity){
-        console.log(lastActivity)
-        var _this=this;
+    getAccountInfo: function (args) {
+//        accountId, sessionId, lastActivity
+        console.log(args.lastActivity)
         var queryParams = {
-            'last_activity':lastActivity,
-            'sessionid':sessionId
+            'last_activity': args.lastActivity,
+            'sessionid': args.sessionId
         };
-        var url =  this.getAccountUrl(accountId)+'/info'+this.getQuery(queryParams);
-        function success(data){
+        var url = OpencgaManager.getAccountUrl(args.accountId) + '/info' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+
             if(data.indexOf("ERROR") == -1){
-                _this.onGetAccountInfo.notify(JSON.parse(data));
+                args.success(JSON.parse(data));
             }else{
                 $.cookie('bioinfo_sid', null);
                 $.cookie('bioinfo_sid', null, {path: '/'});
@@ -215,422 +169,449 @@ OpencgaManager.prototype = {
                 console.log(data);
             }
         }
-        function error(data){
-            console.log("ERROR: " + data);
-            console.log(data);
+
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
-        this.doGet(url, success, error);
+
+        OpencgaManager.doGet(url, success, error);
 //        console.log(url);
     },
-    changePassword : function(accountId, sessionId, old_password, new_password1, new_password2){
-        var _this=this;
+    changePassword: function (args) {
+//        accountId, sessionId, old_password, new_password1, new_password2
         var queryParams = {
-            'old_password':old_password,
-            'new_password1':new_password1,
-            'new_password2':new_password2,
-            'sessionid':sessionId
+            'old_password': args.old_password,
+            'new_password1': args.new_password1,
+            'new_password2': args.new_password2,
+            'sessionid': args.sessionId
         };
-        var url =  this.getAdminProfileUrl(accountId)+'/change_password'+this.getQuery(queryParams);
-        function success(data){
-            _this.onChangePassword.notify(data);
+        var url = OpencgaManager.getAdminProfileUrl(args.accountId) + '/change_password' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data)
         }
 
-        function error(data){
+        function error(data) {
             console.log("ERROR: " + data);
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     },
-    resetPassword : function(accountId, email){
-        var _this=this;
+    resetPassword: function (args) {
+//        accountId, email
         var queryParams = {
-            'email':email
+            'email': args.email
         };
-        var url =  this.getAdminProfileUrl(accountId)+'/reset_password'+this.getQuery(queryParams);
-        function success(data){
-            _this.onResetPassword.notify(data);
+        var url = OpencgaManager.getAdminProfileUrl(args.accountId) + '/reset_password' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data)
         }
 
-        function error(data){
+        function error(data) {
             console.log("ERROR: " + data);
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     },
-    changeEmail : function(accountId, sessionId, new_email){
-        var _this=this;
+    changeEmail: function (args) {
+//        accountId, sessionId, new_email
         var queryParams = {
-            'new_email':new_email,
-            'sessionid':sessionId
+            'new_email': args.new_email,
+            'sessionid': args.sessionId
         };
-        var url =  this.getAdminProfileUrl(accountId)+'/change_email'+this.getQuery(queryParams);
-        function success(data){
-            _this.onChangeEmail.notify(data);
+        var url = OpencgaManager.getAdminProfileUrl(args.accountId) + '/change_email' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            console.log("ERROR: " + data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     },
 
     /* BUCKET METHODS */
-    getBuckets : function(){
+    getBuckets: function () {
         return 'TODO';
     },
 
-    createBucket : function(bucketId, description, accountId, sessionId){
-        var _this=this;
+    createBucket: function (args) {
+//        bucketId, description, accountId, sessionId
         var queryParams = {
-            'description':description,
-            'sessionid':sessionId
+            'description': args.description,
+            'sessionid': args.sessionId
         };
-        var url =  this.getAdminBucketUrl(accountId,bucketId)+'/create'+this.getQuery(queryParams);
-        function success(data){
-            _this.onCreateBucket.notify(data);
+        var url = OpencgaManager.getAdminBucketUrl(args.accountId, args.bucketId) + '/create' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            console.log("ERROR: " + data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     },
 
-    refreshBucket : function(accountId, bucketId, sessionId){
-        var _this=this;
+    refreshBucket: function (args) {
+//        accountId, bucketId, sessionId
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        var url =  this.getAdminBucketUrl(accountId,bucketId)+'/refresh'+this.getQuery(queryParams);
-        function success(data){
-            _this.onRefreshBucket.notify(data);
+        var url = OpencgaManager.getAdminBucketUrl(args.accountId, args.bucketId) + '/refresh' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            console.log("ERROR: " + data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         console.log(url);
     },
 
-    renameBucket : function(accountId, bucketId, newBucketId, sessionId){
-        var _this=this;
+    renameBucket: function (args) {
+//        accountId, bucketId, newBucketId, sessionId
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        var url =  this.getAdminBucketUrl(accountId,bucketId)+'/rename/'+newBucketId+this.getQuery(queryParams);
-        function success(data){
-            _this.onRenameBucket.notify(data);
+        var url = OpencgaManager.getAdminBucketUrl(args.accountId, args.bucketId) + '/rename/' + args.newBucketId + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            console.log("ERROR: " + data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         console.log(url);
     },
-    deleteBucket : 'TODO',
-    shareBucket : 'TODO',
+    deleteBucket: 'TODO',
+    shareBucket: 'TODO',
 
-    uploadObjectToBucket : function(accountId, sessionId, bucketId, objectId, formData, parents){
-        var _this=this;
+    uploadObjectToBucket: function (args) {
+//        accountId, sessionId, bucketId, objectId, formData, parents
         var queryParams = {
-            'parents':(parents || false),
-            'sessionid':sessionId
+            'parents': (args.parents || false),
+            'sessionid': args.sessionId
         };
-        var url =  this.getObjectUrl(accountId,bucketId,objectId)+'/upload'+this.getQuery(queryParams);
+        var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/upload' + OpencgaManager.getQuery(queryParams);
+
 
         function success(data){
             console.log(data);
-            _this.onUploadObjectToBucket.notify({status:"done",data:data});
+            args.success({status:"done",data:data});
         }
 
         function error(data){
-            _this.onUploadObjectToBucket.notify({status:"fail",data:data});
+            if(_.isFunction(args.error)) args.error({status:"fail",data:data});
         }
 
-        this.doPost(url, formData, success, error);
+        OpencgaManager.doPost(url, args.formData, success, error);
         //	console.log(url);
     },
-    createDirectory : function(accountId, sessionId, bucketId, objectId, parents){
-        objectId = objectId.replace(new RegExp("/", "gi"),":");
-        var _this=this;
+    createDirectory: function (args) {
+//        accountId, sessionId, bucketId, objectId, parents
+        args.objectId = args.objectId.replace(new RegExp("/", "gi"), ":");
         var queryParams = {
-            'parents':(parents || false),
-            'sessionid':sessionId
+            'parents': (args.parents || false),
+            'sessionid': args.sessionId
         };
-        var url =  this.getObjectUrl(accountId,bucketId,objectId)+'/create_directory'+this.getQuery(queryParams);
-        function success(data){
-            console.log(data);
-            _this.onCreateDirectory.notify(data);
+        var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/create_directory' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data);
         }
-        function error(data){
-            console.log("ERROR: " + data);
+
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
-        this.doGet(url, success, error);
+
+        OpencgaManager.doGet(url, success, error);
     },
-    deleteObjectFromBucket : function(accountId, sessionId, bucketId, objectId){
-        objectId = objectId.replace(new RegExp("/", "gi"),":");
-        var _this=this;
+    deleteObjectFromBucket: function (args) {
+//        accountId, sessionId, bucketId, objectId
+        args.objectId = args.objectId.replace(new RegExp("/", "gi"), ":");
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        var url =  this.getObjectUrl(accountId,bucketId,objectId)+'/delete'+this.getQuery(queryParams);
+        var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/delete' + OpencgaManager.getQuery(queryParams);
 
-        function success(data){
-            console.log(data);
-            _this.onDeleteObjectFromBucket.notify(data);
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            console.log("ERROR: " + data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     },
-    region : function(accountId, sessionId, bucketId, objectId, region, queryParams){
-        objectId = objectId.replace(new RegExp("/", "gi"),":");
-        var _this=this;
-        queryParams["sessionid"] = sessionId;
-        queryParams["region"] = region;
-        queryParams["cellbasehost"] = CELLBASE_HOST+'/'+CELLBASE_VERSION;
+    region: function (args) {
+//        accountId, sessionId, bucketId, objectId, region, queryParams
+        args.objectId = args.objectId.replace(new RegExp("/", "gi"), ":");
+        args.queryParams["sessionid"] = args.sessionId;
+        args.queryParams["region"] = args.region;
+        args.queryParams["cellbasehost"] = CELLBASE_HOST + '/' + CELLBASE_VERSION;
 
-        if(this.host.indexOf("localhost")!=-1){
-            queryParams["region"] = region;
-            queryParams["filepath"] = objectId;
-            var url =  this.host+'/storage/fetch'+this.getQuery(queryParams);
-        }else{
-            var url = this.getObjectUrl(accountId,bucketId,objectId)+'/fetch'+this.getQuery(queryParams);
+        if (OpencgaManager.host.indexOf("localhost") != -1) {
+            args.queryParams["region"] = args.region;
+            args.queryParams["filepath"] = args.objectId;
+            var url = OpencgaManager.host + '/storage/fetch' + OpencgaManager.getQuery(args.queryParams);
+        } else {
+            var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/fetch' + OpencgaManager.getQuery(args.queryParams);
         }
 
 
-        function success(data){
-            if(!(data.substr(0,5).indexOf('ERROR') != -1)){
-                _this.onRegion.notify({resource:queryParams["category"],result:JSON.parse(data),filename:objectId,query:region,params:queryParams});
+        function success(data) {
+            if (!(data.substr(0, 5).indexOf('ERROR') != -1)) {
+                args.success({resource: args.queryParams["category"], result: data, filename: args.objectId, query: args.region, params: args.queryParams});
             }
         }
 
-        function error(data){
-            console.log("ERROR: " + data);
-            console.log(data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         console.log(url);
     },
 
     /* JOB METHODS */
-    jobResult : function(accountId, sessionId, jobId, format){
-        var _this=this;
+    jobResult: function (args) {
+//        accountId, sessionId, jobId, format
         //@Path("/{accountid}/{bucketname}/job/{jobid}/result.{format}")
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        var url = this.getJobAnalysisUrl(accountId,jobId)+'/result.js'+this.getQuery(queryParams);
-        //var url = this.getHost() + '/job/'+jobId+'/result.'+format+'?incvisites=true&sessionid='+sessionId;
-        function success(data){
-            _this.onJobResult.notify(data);
+        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/result.js' + OpencgaManager.getQuery(queryParams);
+        //var url = OpencgaManager.getHost() + '/job/'+jobId+'/result.'+format+'?incvisites=true&sessionid='+sessionId;
+
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            console.log("ERROR: " + data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
-        	console.log(url);
+        OpencgaManager.doGet(url, success, error);
+        console.log(url);
     },
-    jobResultUrl : function(accountId, sessionId, jobId, format){
+    jobResultUrl: function (args) {
+//        accountId, sessionId, jobId, format
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        return this.getJobAnalysisUrl(accountId,jobId)+'/result.js'+this.getQuery(queryParams);
+        return OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/result.js' + OpencgaManager.getQuery(queryParams);
     },
-    jobStatus : function(accountId, sessionId,  jobId){
-        var _this=this;
+    jobStatus: function (args) {
+//        accountId, sessionId, jobId
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        var url = this.getJobAnalysisUrl(accountId,jobId)+'/status'+this.getQuery(queryParams);
-        function success(data){
-            _this.onJobStatus.notify(data);
+        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/status' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            console.log("ERROR: " + data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
-        	console.log(url);
+        OpencgaManager.doGet(url, success, error);
+        console.log(url);
     },
 
-    table : function(accountId, sessionId, jobId, filename, colNames, colVisibility){
-        var _this=this;
+    table: function (args) {
+//        accountId, sessionId, jobId, filename, colNames, colVisibility
         var queryParams = {
-            'filename':filename,
-            'colNames':colNames,
-            'colVisibility':colVisibility,
-            'sessionid':sessionId
+            'filename': args.filename,
+            'colNames': args.colNames,
+            'colVisibility': args.colVisibility,
+            'sessionid': args.sessionId
         };
-        var url = this.getJobAnalysisUrl(accountId,jobId)+'/table'+this.getQuery(queryParams);
-        function success(data){
-            _this.onTable.notify(data);
+        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/table' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            console.log("ERROR: " + data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
 
-        this.doGet(url, success, error);
+        OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     },
 
-    tableurl : function(accountId, sessionId, jobId, filename, colNames, colVisibility){
+    tableurl: function (args) {
+//        accountId, sessionId, jobId, filename, colNames, colVisibility
         var queryParams = {
-            'filename':filename,
-            'colNames':colNames,
-            'colVisibility':colVisibility,
-            'sessionid':sessionId
+            'filename': args.filename,
+            'colNames': args.colNames,
+            'colVisibility': args.colVisibility,
+            'sessionid': args.sessionId
         };
-        return this.getJobAnalysisUrl(accountId,jobId)+'/table'+this.getQuery(queryParams);
+        return OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/table' + OpencgaManager.getQuery(queryParams);
     },
 
-    poll : function(accountId, sessionId, jobId, filename, zip){
-        var _this=this;
+    poll: function (args) {
+//        accountId, sessionId, jobId, filename, zip
         var queryParams = {
-            'filename':filename,
-            'sessionid':sessionId
+            'filename': args.filename,
+            'sessionid': args.sessionId
         };
         var url;
-        if(zip==true){
-            url = this.getJobAnalysisUrl(accountId,jobId)+'/poll'+this.getQuery(queryParams);
+        if (args.zip == true) {
+            url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/poll' + OpencgaManager.getQuery(queryParams);
             open(url);
-        }else{
-            queryParams['zip']=false;
-            url = this.getJobAnalysisUrl(accountId,jobId)+'/poll'+this.getQuery(queryParams);
-            function success(data){
-                _this.onPoll.notify(data);
+        } else {
+            queryParams['zip'] = false;
+            url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/poll' + OpencgaManager.getQuery(queryParams);
+
+            function success(data) {
+                args.success(data);
             }
-            function error(data){
-                console.log("ERROR: " + data);
+
+            function error(data) {
+                if(_.isFunction(args.error)) args.error(data);
             }
-            this.doGet(url, success, error);
+
+            OpencgaManager.doGet(url, success, error);
         }
         //	console.log(url);
     },
 
-    pollurl : function(accountId, sessionId, jobId, filename){
+    pollurl: function (args) {
+//        accountId, sessionId, jobId, filename
         var queryParams = {
-            'filename':filename,
-            'sessionid':sessionId,
-            'zip':false
+            'filename': args.filename,
+            'sessionid': args.sessionId,
+            'zip': false
         };
-        return this.getJobAnalysisUrl(accountId,jobId)+'/poll'+this.getQuery(queryParams);
+        return OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/poll' + OpencgaManager.getQuery(queryParams);
         //debugger
     },
 
-    deleteJob : function(accountId, sessionId, jobId){
-        var _this=this;
+    deleteJob: function (args) {
+//        accountId, sessionId, jobId
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        var url = this.getJobAnalysisUrl(accountId,jobId)+'/delete'+this.getQuery(queryParams);
-        function success(data){
-            _this.onDeleteJob.notify(data);
+        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/delete' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            args.success(data);
         }
-        function error(data){
-            console.log("ERROR: " + data);
+
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
-        this.doGet(url, success, error);
+
+        OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     },
 
-    downloadJob : function(accountId, sessionId, jobId){
+    downloadJob: function (args) {
+//        accountId, sessionId, jobId
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        open(this.getJobAnalysisUrl(accountId,jobId)+'/download'+this.getQuery(queryParams));
+        open(OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/download' + OpencgaManager.getQuery(queryParams));
     },
-
 
 
     /* ANALYSIS */
-    runAnalysis : function(analysis, paramsWS){
-        var _this=this;
-        var accountId = paramsWS.accountid;
+    runAnalysis: function (args) {
+//        analysis, paramsWS
+        var accountId = args.paramsWS.accountid;
         var queryParams = {
 //            'projectId':'default'
         };
-        var url = this.getAnalysisUrl(accountId, analysis)+'/run'+this.getQuery(queryParams);
+        var url = OpencgaManager.getAnalysisUrl(accountId, args.analysis) + '/run' + OpencgaManager.getQuery(queryParams);
         console.log(url);
-        console.log(paramsWS);
+        console.log(args.paramsWS);
+
 
         function success(data){
-            _this.onRunAnalysis.notify({status:"done",data:data});
+            args.success({status:"done",data:data});
         }
 
         function error(data){
-            _this.onRunAnalysis.notify({status:"fail",data:data});
+            if(_.isFunction(args.error)) args.error({status:"fail",data:data});
         }
 
-        $.ajax({type:"POST", url:url, data:paramsWS, success:success, error:error});
+
+        $.ajax({type: "POST", url: url, data: args.paramsWS, success: success, error: error});
     },
-    indexer : function(accountId, sessionId, bucketId, objectId){
-        var _this=this;
+    indexer: function (args) {
+//        accountId, sessionId, bucketId, objectId
         var queryParams = {
-            'sessionid':sessionId
+            'sessionid': args.sessionId
         };
-        var url =  this.getObjectUrl(accountId,bucketId,objectId)+'/index'+this.getQuery(queryParams);
+        var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/index' + OpencgaManager.getQuery(queryParams);
         console.log(url);
 
-        function success(data){
-            _this.onIndexer.notify(data);
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            _this.onIndexer.notify(data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
-        this.doGet(url, success, error);
+
+        OpencgaManager.doGet(url, success, error);
     },
-    indexerStatus : function(accountId, sessionId, bucketId, objectId, indexerId){
-        var _this=this;
+    indexerStatus: function (args) {
+//        accountId, sessionId, bucketId, objectId, indexerId
         var queryParams = {
-            'sessionid':sessionId,
-            'indexerid':indexerId
+            'sessionid': args.sessionId,
+            'indexerid': args.indexerId
         };
-        var url = this.getObjectUrl(accountId,bucketId,objectId)+'/index_status'+this.getQuery(queryParams);
+        var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/index_status' + OpencgaManager.getQuery(queryParams);
         console.log(url);
 
-        function success(data){
-            _this.onIndexerStatus.notify(data);
+        function success(data) {
+            args.success(data);
         }
-        function error(data){
-            _this.onIndexerStatus.notify(data);
+
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
-        this.doGet(url, success, error);
+
+        OpencgaManager.doGet(url, success, error);
     },
 
-    localFileList : function(){
-        var _this=this;
+    localFileList: function (args) {
 
-        var url = this.host+'/getdirs';
+        var url = OpencgaManager.host + '/getdirs';
         console.log(url);
 
-        function success(data){
-            _this.onLocalFileList.notify(data);
+        function success(data) {
+            args.success(data);
         }
 
-        function error(data){
-            _this.onLocalFileList.notify(data);
+        function error(data) {
+            if(_.isFunction(args.error)) args.error(data);
         }
-        this.doGet(url, success, error);
+
+        OpencgaManager.doGet(url, success, error);
     }
 };

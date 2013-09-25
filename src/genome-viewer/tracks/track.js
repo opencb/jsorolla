@@ -112,6 +112,8 @@ Track.prototype = {
 
             } else {
                 var height = this.height;
+                $(this.svgdiv).css({'height': height+3});
+
             }
             this.main.setAttribute('height', height);
             this.svgCanvasFeatures.setAttribute('height', height);

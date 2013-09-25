@@ -21,7 +21,9 @@
 
 function UploadWidget (args){
 	var _this=this;
+    _.extend(this, Backbone.Events);
 	this.id = Utils.genId("uploadWidget");
+
 	this.targetId = null;
 	this.suiteId=null;
 	this.chunkedUpload=false;
@@ -32,8 +34,7 @@ function UploadWidget (args){
         this.opencgaBrowserWidget = args.opencgaBrowserWidget || this.opencgaBrowserWidget;
         this.chunkedUpload = args.chunkedUpload || this.chunkedUpload;
     }
-	this.adapter = new OpencgaManager();
-	this.adapter.onUploadObjectToBucket.addEventListener(function(sender,res){
+	this.uploadObjectToBucketSuccess = function(res){
 		if(res.status == 'done'){
 
 //            _this.adapter.onIndexer.addEventListener(function(sender,data){
@@ -46,12 +47,19 @@ function UploadWidget (args){
 		}else if (res.status == 'fail'){
 			_this.uploadFailed(res.data);
 		}
-	});
+        _this.trigger('object:upload',{sender:_this,data:res});
+	};
 	
 	this.uploadButtonId = this.id+'_uploadButton';
 	this.uploadFieldId = this.id+'_uploadField';
 	
 	this.selectedDataType = null;
+
+    //set instantiation args, must be last
+    _.extend(this, args);
+
+    this.on(this.handlers);
+
 }
 
 //UploadWidget.prototype.getsdf = function(){
@@ -471,7 +479,16 @@ UploadWidget.prototype.uploadFile = function()  {
     this.objectID = this.opencgaLocation.bucketId+":"+objectId;
 
 	//accountid, sessionId, projectname, formData
-	this.adapter.uploadObjectToBucket($.cookie("bioinfo_account"), sessionId, this.opencgaLocation.bucketId, objectId, fd);
+
+
+    OpencgaManager.uploadObjectToBucket({
+        accountId:$.cookie("bioinfo_account"),
+        sessionId:sessionId,
+        bucketId:this.opencgaLocation.bucketId,
+        objectId:objectId,
+        formData:fd,
+        success:this.uploadObjectToBucketSuccess
+    });
 	
 };
 
