@@ -33,6 +33,14 @@ function GenomeViewer(args) {
     this.drawKaryotypePanel = true;
     this.drawChromosomePanel = true;
     this.drawRegionOverviewPanel = true;
+    this.karyotypePanelConfig = {
+        collapsed:false,
+        collapsible:true
+    }
+    this.chromosomePanelConfig = {
+        collapsed:false,
+        collapsible:true
+    }
     this.drawStatusBar = true;
     this.border = true;
     this.resizable = true;
@@ -298,7 +306,8 @@ GenomeViewer.prototype = {
             height: 125,
             species: this.species,
             title: 'Karyotype',
-            collapsed: true,
+            collapsed: this.karyotypePanelConfig.collapsed,
+            collapsible: this.karyotypePanelConfig.collapsible,
             region: this.region,
             autoRender: true,
             handlers: {
@@ -339,7 +348,8 @@ GenomeViewer.prototype = {
             height: 65,
             species: this.species,
             title: 'Chromosome',
-            collapsed: true,
+            collapsed: this.chromosomePanelConfig.collapsed,
+            collapsible: this.chromosomePanelConfig.collapsible,
             region: this.region,
             handlers: {
                 'region:change': function (event) {
