@@ -106,7 +106,7 @@ Track.prototype = {
                         break;
                     }
                 }
-                var divHeight = countTrees * 18;
+                var divHeight = (countTrees+1) * 18;
                 /**/
 
 
