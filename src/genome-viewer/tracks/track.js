@@ -100,9 +100,9 @@ Track.prototype = {
                 var width = this.region.length() * this.pixelBase;
                 var countTrees = 0;
                 for (var i in this.renderedArea) {
-                    var foundArea = this.renderedArea[i].add({start: x, end: x + width });
-                    countTrees++;
-                    if (foundArea && i != "0") {
+                    if (this.renderedArea[i].contains({start: x, end: x + width })) {
+                        countTrees++;
+                    }else{
                         break;
                     }
                 }

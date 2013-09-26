@@ -92,16 +92,20 @@ GeneRenderer.prototype.render = function (features, args) {
 
             //check if gene transcripts can be painted
             var checkRowY = rowY;
+            var foundTranscriptsArea = true;
             if (!_.isEmpty(feature.transcripts)) {
                 for (var i = 0, leni = feature.transcripts.length + 1; i < leni; i++) {
                     if (!(checkRowY in args.renderedArea)) {
                         args.renderedArea[checkRowY] = new FeatureBinarySearchTree();
                     }
-                    foundArea = !args.renderedArea[checkRowY].contains({start: x, end: x + maxWidth - 1});
-                    if (foundArea == false) {
+                    if (args.renderedArea[checkRowY].contains({start: x, end: x + maxWidth - 1})) {
+                        foundTranscriptsArea = false;
                         break;
                     }
                     checkRowY += rowHeight;
+                }
+                if(foundTranscriptsArea == true){
+                    foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
                 }
             } else {
                 foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
