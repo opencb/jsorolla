@@ -380,7 +380,7 @@ var OpencgaManager = {
 
         function success(data) {
             if (!(data.substr(0, 5).indexOf('ERROR') != -1)) {
-                args.success({resource: args.queryParams["category"], result: data, filename: args.objectId, query: args.region, params: args.queryParams});
+                args.success({resource: args.queryParams["category"], result: JSON.parse(data), filename: args.objectId, query: args.region, params: args.queryParams});
             }
         }
 

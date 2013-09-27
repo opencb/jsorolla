@@ -58,6 +58,8 @@ function Track(args) {
 
     this.invalidZoomText;
 
+    this.status;
+
     this.renderedArea = {};//used for renders to store binary trees
 
     if ('handlers' in this) {
