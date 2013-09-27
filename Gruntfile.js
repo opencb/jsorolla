@@ -289,9 +289,9 @@ module.exports = function (grunt) {
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
 
     grunt.registerTask('utils', ['concat:utils','uglify:utils','copy:utils','clean:utils']);
-//    grunt.registerTask('cellbase', ['concat:utils','uglify:utils','concat:cellbase','uglify:cellbase','copy:cellbase','clean:cellbase','clean:utils']);
+
     grunt.registerTask('cellbase', ['concat:cellbase','uglify:cellbase','copy:cellbase','clean:cellbase']);
-//    grunt.registerTask('opencga', ['concat:utils','uglify:utils','concat:opencga','uglify:opencga','copy:opencga','clean:opencga','clean:utils']);
+
     grunt.registerTask('opencga', ['concat:opencga','uglify:opencga','copy:opencga','clean:opencga']);
 
 
