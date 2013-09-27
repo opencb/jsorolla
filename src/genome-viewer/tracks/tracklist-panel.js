@@ -52,6 +52,8 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.width -= 18;
 
 
+    this.status;
+
     //this region is used to do not modify original region, and will be used by trackSvg
     this.visualRegion = new Region(this.region);
 
@@ -161,7 +163,7 @@ TrackListPanel.prototype = {
 //            'fill': 'white'
 //        });
         this.viewNtsText = SVG.addChild(this.svgTop, 'text', {
-            'x': mid - (this.windowSize.length*7/2),
+            'x': mid - (this.windowSize.length * 7 / 2),
             'y': 11,
             'fill': 'black',
             'class': this.fontClass
@@ -269,6 +271,11 @@ TrackListPanel.prototype = {
             _this.trigger('mousePosition:change', {mousePos: _this.mousePosition, baseHtml: _this.getMousePosition(_this.mousePosition)});
         });
 
+        $(this.div).dblclick(function (event) {
+            var halfLength = _this.region.length() / 2;
+            var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition - halfLength, end: _this.mousePosition + halfLength})
+            _this.trigger('region:change', {region: mouseRegion, sender: _this});
+        });
 
         var downX, moveX;
         $(this.tlTracksDiv).mousedown(function (event) {
@@ -463,7 +470,7 @@ TrackListPanel.prototype = {
         this.lastPositionText.setAttribute("x", this.width - 70);
 //        this.viewNtsArrow.setAttribute("width", this.width - 4);
 //        this.viewNtsArrowRight.setAttribute("points", this.width + ",1 " + (this.width - 2) + ",1 " + (this.width - 2) + ",13 " + this.width + ",13");
-        this.viewNtsText.setAttribute("x", mid - (this.windowSize.length*7/2));
+        this.viewNtsText.setAttribute("x", mid - (this.windowSize.length * 7 / 2));
 //        this.viewNtsTextBack.setAttribute("x", mid - 40);
         this.trigger('trackWidth:change', {width: this.width, sender: this})
 
@@ -505,7 +512,7 @@ TrackListPanel.prototype = {
         this.viewNtsText.textContent = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
         this.windowSize = this.viewNtsText.textContent;
         this._setTextPosition();
-        this.trigger('window:size',{windowSize: this.viewNtsText.textContent});
+        this.trigger('window:size', {windowSize: this.viewNtsText.textContent});
 
 //        if (region.species != null) {
 //            //check species and modify CellBaseAdapter, clean cache
@@ -524,23 +531,8 @@ TrackListPanel.prototype = {
 
         this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
 
+        this.status = 'rendering';
 
-        /************ Loading ************/
-        var checkAllTrackStatus = function (status) {
-            for (i in _this.trackSvgList) {
-                if (_this.trackSvgList[i].status != status) return false;
-            }
-            return true;
-        };
-        var checkStatus = function () {
-            if (checkAllTrackStatus('ready')) {
-                _this.trigger('tracks:ready', {sender: _this});
-            } else {
-                setTimeout(checkStatus, 100);
-            }
-        };
-        setTimeout(checkStatus, 10);
-        /***************************/
 //        this.onRegionChange.notify();
 
         //this.minRegionRect.setAttribute("width",this.minRectWidth);
@@ -550,7 +542,30 @@ TrackListPanel.prototype = {
     draw: function () {
         this.trigger('track:draw', {sender: this});
     },
-
+    checkTracksReady: function () {
+        var _this = this;
+        /************ Loading ************/
+        var checkAllTrackStatus = function (status) {
+            for (i in _this.trackSvgList) {
+                if (_this.trackSvgList[i].status != status) return false;
+            }
+            return true;
+        };
+        if (checkAllTrackStatus('ready')) {
+            console.log('all ready')
+            this.status = 'ready';
+            _this.trigger('tracks:ready', {sender: _this});
+        }
+//        var checkStatus = function () {
+//            if (checkAllTrackStatus('ready')) {
+//                _this.trigger('tracks:ready', {sender: _this});
+//            } else {
+//                setTimeout(checkStatus, 100);
+//            }
+//        };
+//        setTimeout(checkStatus, 10);
+        /***************************/
+    },
     addTrack: function (track) {
         if (!this.rendered) {
             console.info(this.id + ' is not rendered yet');
@@ -649,6 +664,10 @@ TrackListPanel.prototype = {
         this.on('trackRegion:move', track.get('trackRegion:move'));
         this.on('trackWidth:change', track.get('trackWidth:change'));
         this.on('trackFeature:highlight', track.get('trackFeature:highlight'));
+
+        track.on('track:ready', function () {
+            _this.checkTracksReady();
+        });
     },
 
     removeTrack: function (trackId) {

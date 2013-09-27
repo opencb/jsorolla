@@ -396,6 +396,9 @@ GenomeViewer.prototype = {
                 },
                 'region:move': function (event) {
                     _this.trigger('region:move', event);
+                },
+                'tracks:ready':function(){
+                    _this.checkTrackListReady();
                 }
             }
         });
@@ -440,6 +443,9 @@ GenomeViewer.prototype = {
                 },
                 'region:move': function (event) {
                     _this.trigger('region:move', event);
+                },
+                'tracks:ready':function(){
+                    _this.checkTrackListReady();
                 }
             }
         });
@@ -488,6 +494,28 @@ GenomeViewer.prototype = {
         });
 
         return  statusBar;
+    },
+
+    checkTrackListReady: function () {
+        var _this = this;
+        var checkAllTrackListStatus = function (status) {
+            if(_this.trackListPanel.status != status || _this.regionOverviewPanel.status != status){
+               return false;
+            }
+            return true;
+        };
+        if (checkAllTrackListStatus('ready')) {
+            console.log('-------------all tracklist ready')
+            _this.trigger('tracks:ready', {sender: _this});
+        }
+//        var checkStatus = function () {
+//            if (checkAllTrackStatus('ready')) {
+//                _this.trigger('tracks:ready', {sender: _this});
+//            } else {
+//                setTimeout(checkStatus, 100);
+//            }
+//        };
+//        setTimeout(checkStatus, 10);
     },
 
     getRightSidePanelId: function () {

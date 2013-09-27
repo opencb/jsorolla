@@ -45,7 +45,7 @@ function Track(args) {
     this.pixelPosition = this.svgCanvasWidth / 2;
     this.svgCanvasOffset;
     this.svgCanvasFeatures;
-    this.status = undefined;
+    this.status;
     this.histogram;
     this.histogramLogarithm;
     this.histogramMax;
@@ -57,8 +57,6 @@ function Track(args) {
 
 
     this.invalidZoomText;
-
-    this.status;
 
     this.renderedArea = {};//used for renders to store binary trees
 
@@ -143,6 +141,7 @@ Track.prototype = {
         } else {
             this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
+            this.trigger('track:ready',{sender:this});
         }
     },
 
