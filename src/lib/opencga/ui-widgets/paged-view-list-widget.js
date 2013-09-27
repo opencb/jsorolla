@@ -21,8 +21,10 @@
 
 function PagedViewListWidget(args){
 	var _this=this;
+    _.extend(this, Backbone.Events);
+    this.id = Utils.genId("PagedViewListWidget");
+
 	this._data = null;
-	this.id = "PagedViewListWidget_"+ Math.round(Math.random()*10000);
 	this.targetId = null;
 	
 	this.pageSize = 6;
@@ -36,39 +38,7 @@ function PagedViewListWidget(args){
 	this.mode = "view";
 	this.sort = 'DESC';
 
-	
-	if (args != null){
-		if (args.pageSize != null){
-			this.pageSize = args.pageSize; 
-		}
-		if (args.storeFields != null){
-			this.storeFields = args.storeFields;
-		}
-		if (args.template != null){
-			this.template = args.template;
-		}
-		if (args.targetId != null){
-			this.targetId = args.targetId;
-		}
-		if (args.width != null){
-        	this.width = args.width;
-        }
-        if (args.height != null){
-        	this.height = args.height;      
-        }
-        if (args.title != null){
-        	this.title = args.title;      
-        }
-        if (args.order != null){
-        	this.order = args.order;      
-        }
-        if (args.border != null){
-        	this.border = args.border;      
-        }
-        if (args.mode != null){
-        	this.mode = args.mode;      
-        }
-    }
+    _.extend(this, args);
     
 	this.currentPage = 1;
 	this.pageFieldId = this.id + '_pageField';
@@ -77,9 +47,7 @@ function PagedViewListWidget(args){
 	this.panelId = this.id + '_panel';
 	
 	/**Events i send**/
-	this.onItemClick = new Event(this);
-	
-	
+
 	this.textFilterFunction = function(item){
 		var str = Ext.getCmp(_this.id+"searchField").getValue().toLowerCase();
 		if(item.data.name.toLowerCase().indexOf(str)<0){
@@ -87,7 +55,9 @@ function PagedViewListWidget(args){
 		}
 		return true;
 	};
-	
+
+    this.on(this.handlers);
+
 };
 
 PagedViewListWidget.prototype.getData = function (){
@@ -212,10 +182,9 @@ PagedViewListWidget.prototype.render = function() {
 	           			overItemCls: 'list-item-hover',
 	           			itemSelector: '.joblist-item',
 					    listeners : {
-					    	scope: this,
 					    	itemclick : function (este,record){
 							console.log(record.data);
-					    		this.onItemClick.notify(record);
+					    		_this.trigger('item:click',{sender:_this,item:record});
 				    		}
 	//				    	itemmouseenter : function (este, record, item){
 	//				    		item.style.cursor="pointer";

@@ -28,8 +28,6 @@ function ResultWidget(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.adapter = new OpencgaManager();
-
     this.panelId = null;
     this.networkViewerId = null;
     this.genomeMapsId = null;
@@ -61,8 +59,12 @@ ResultWidget.prototype = {
             Ext.getCmp(this.targetId).setActiveTab(this.panel);
             this.panel.setLoading("Loading job info...");
 
-
-            var url = this.adapter.jobResultUrl($.cookie("bioinfo_account"), sid, this.jobId, "json");
+            var url = OpencgaManager.jobResultUrl({
+                accountId: $.cookie("bioinfo_account"),
+                sessionId: sid,
+                jobId: this.jobId,
+                format: "json"
+            });
             console.log(url);
             $.getScript(url, function () {
                 _this.panel.setLoading(false);
@@ -101,7 +103,7 @@ ResultWidget.prototype = {
                                 xtype: 'button',
                                 text: 'download',
                                 handler: function () {
-                                    _this.adapter.downloadJob($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId);
+                                    OpencgaManager.downloadJob($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId);
                                 }
                             },
                             {
@@ -110,17 +112,21 @@ ResultWidget.prototype = {
                                 handler: function () {
                                     Ext.Msg.confirm("Delete job", "Are you sure you want to delete this job?", function (btnClicked) {
                                         if (btnClicked == "yes") {
-                                            _this.adapter.onDeleteJob.addEventListener(function (sender, data) {
-                                                var msg = "";
-                                                if (data.indexOf("OK") != -1) {
-                                                    Ext.getCmp(_this.targetId).getActiveTab().close();
-                                                    msg = "The job has been succesfully deleted.";
-                                                } else {
-                                                    msg = "ERROR: could not delete job.";
+                                            OpencgaManager.deleteJob({
+                                                accountId: $.cookie('bioinfo_account'),
+                                                sessionId: $.cookie('bioinfo_sid'),
+                                                jobId: _this.jobId,
+                                                success: function (sender, data) {
+                                                    var msg = "";
+                                                    if (data.indexOf("OK") != -1) {
+                                                        Ext.getCmp(_this.targetId).getActiveTab().close();
+                                                        msg = "The job has been succesfully deleted.";
+                                                    } else {
+                                                        msg = "ERROR: could not delete job.";
+                                                    }
+                                                    Ext.Msg.alert("Delete job", msg);
                                                 }
-                                                Ext.Msg.alert("Delete job", msg);
                                             });
-                                            _this.adapter.deleteJob($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId);
                                         }
                                     });
                                 }
@@ -195,15 +201,26 @@ ResultWidget.prototype = {
                                     var item = this.item;
                                     this.getEl().on("click", function () {
                                         console.log(item);
-                                        _this.adapter.poll($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId, item.file, true);
+                                        OpencgaManager.poll({
+                                            accountId: $.cookie('bioinfo_account'),
+                                            sessionId: $.cookie('bioinfo_sid'),
+                                            jobId: _this.jobId,
+                                            filename: item.file,
+                                            zip: true});
                                     });
                                 }
                             }
                         });
                         break;
                     case 'image':
+                        var url = OpencgaManager.pollurl({
+                            accountId: $.cookie('bioinfo_account'),
+                            sessionId: $.cookie('bioinfo_sid'),
+                            jobId: _this.jobId,
+                            filename: item.file
+                        });
                         itemBox = Ext.create('Ext.Component', {
-                            html: '<div><img src="' + _this.adapter.pollurl($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId, item.file) + '"></div>'
+                            html: '<div><img src="' + url + '"></div>'
                         });
                         break;
                     case 'grid':
@@ -221,7 +238,12 @@ ResultWidget.prototype = {
                         });
                         break;
                     case 'table':
-                        var url = _this.adapter.pollurl($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId, item.file);
+                        var url = OpencgaManager.pollurl({
+                            accountId: $.cookie('bioinfo_account'),
+                            sessionId: $.cookie('bioinfo_sid'),
+                            jobId: _this.jobId,
+                            filename: item.file
+                        });
                         $.ajax({
                             type: "GET",
                             async: false,
@@ -311,9 +333,9 @@ ResultWidget.prototype = {
                     });
                 } else {
 
-                    if(_.isUndefined(item.title)){
+                    if (_.isUndefined(item.title)) {
 
-                    debugger
+                        debugger
                     }
 
                     return Ext.create('Ext.container.Container', {
@@ -386,6 +408,6 @@ ResultWidget.prototype = {
             tableHtml += '</tr>';
         }
         tableHtml += '</tbody></table>';
-        return {html:tableHtml, data:commandObject};
+        return {html: tableHtml, data: commandObject};
     }
 };
