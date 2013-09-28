@@ -452,7 +452,7 @@ HeaderWidget.prototype = {
     },
     setWidth: function (width) {
         this.width = width;
-        this.getPanel().setWidth(width);
+        this.panel.setWidth(width);
     }
 
 };
