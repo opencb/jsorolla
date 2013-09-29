@@ -92,12 +92,14 @@ Track.prototype = {
         this.main.setAttribute("width", width);
     },
     updateHeight: function () {
+
         if (this.resizable) {
+            var height = this.height;
             if (!this.histogram) {
-                var height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
+                height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
                 /**/
-                var x = this.renderer.getFeatureX(this.region, {width: this.width, pixelPosition: this.pixelPosition, pixelBase: this.pixelBase, position: this.region.center()});
-                var width = this.region.length() * this.pixelBase;
+                var x = this.pixelPosition;
+                var width = this.width;
                 var countTrees = 0;
                 for (var i in this.renderedArea) {
                     if (this.renderedArea[i].contains({start: x, end: x + width })) {
@@ -107,6 +109,9 @@ Track.prototype = {
                     }
                 }
                 var divHeight = (countTrees+1) * 18;
+                if (this.autoHeight) {
+                    $(this.svgdiv).css({'height': divHeight + 10});
+                }
                 /**/
 
 
@@ -118,11 +123,6 @@ Track.prototype = {
             this.main.setAttribute('height', height);
             this.svgCanvasFeatures.setAttribute('height', height);
             this.titlebar.setAttribute('height', height);
-
-
-            if (this.autoHeight) {
-                $(this.svgdiv).css({'height': divHeight + 10});
-            }
         }
     },
     enableAutoHeight: function () {
@@ -230,7 +230,9 @@ Track.prototype = {
             $('html').mouseup(function (event) {
                 $('html').removeClass('unselectable');
                 $('html').off('mousemove');
+                _this.updateHeight();
             });
+
 
 
             $(resizediv).mouseenter(function (event) {
