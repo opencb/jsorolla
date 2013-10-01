@@ -661,6 +661,7 @@ ResultWidget.prototype = {
                 filename: filteredFile,
                 zip: false,
                 success:function(data){
+                    debugger
                     if(data.indexOf("ERROR")!=-1){
                         console.error(data);
                     }

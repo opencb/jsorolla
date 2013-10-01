@@ -46,10 +46,10 @@ VCFDataAdapter.prototype.parse = function(data, region){
 	var _this = this;
 	var dataType = "data";
 	var lines = data.split("\n");
-    debugger
+//    debugger
 //	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){
-        debugger
+//        debugger
 		var line = lines[i].replace(/^\s+|\s+$/g,"");
 		if ((line != null)&&(line.length > 0)){
 			var fields = line.split("\t");
