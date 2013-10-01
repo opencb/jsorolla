@@ -67,6 +67,8 @@ FeatureRenderer.prototype.render = function (features, args) {
         //transform to pixel position
         var width = length * args.pixelBase;
 
+        var svgLabelWidth = _this.getLabelWidth(label, args);
+
         //calculate x to draw svg rect
         var x = _this.getFeatureX(feature, args);
 
@@ -74,8 +76,9 @@ FeatureRenderer.prototype.render = function (features, args) {
         var textHeight = 0;
         if (args.zoom > args.labelZoom) {
             textHeight = 9;
-            maxWidth = Math.max(width, label.length * 8);
+            maxWidth = Math.max(width, svgLabelWidth);
         }
+
 
         var rowY = 0;
         var textY = textHeight + height;

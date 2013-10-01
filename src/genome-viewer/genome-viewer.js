@@ -140,11 +140,14 @@ GenomeViewer.prototype = {
         this.chromosomeDiv = $('<div id="chromosome-' + this.id + '"></div>');
         $(this.centerPanelDiv).append(this.chromosomeDiv);
 
-        this.regionDiv = $('<div id="region-' + this.id + '" ></div>');
-        $(this.centerPanelDiv).append(this.regionDiv);
+        this.trackListPanelsDiv = $('<div id="trackListPanels-' + this.id + '" class="trackListPanels" ></div>');
+        $(this.centerPanelDiv).append(this.trackListPanelsDiv);
 
-        this.tracksDiv = $('<div id="tracks-' + this.id + '" ></div>');
-        $(this.centerPanelDiv).append(this.tracksDiv);
+        this.regionDiv = $('<div id="region-' + this.id + '" ></div>');
+        $(this.trackListPanelsDiv).append(this.regionDiv);
+
+        this.tracksDiv = $('<div id="tracks-' + this.id + '"></div>');
+        $(this.trackListPanelsDiv).append(this.tracksDiv);
 
         this.rendered = true;
     },

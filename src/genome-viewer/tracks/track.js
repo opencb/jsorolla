@@ -93,31 +93,51 @@ Track.prototype = {
     },
     updateHeight: function () {
 
+//        $(this.rrr).remove();
+//        delete this.rrr;
+//        this.rrr = SVG.addChild(this.svgCanvasFeatures, "rect", {
+//            'x': 0,
+//            'y': 0,
+//            'width': 0,
+//            'height': 18,
+//            'stroke': '#3B0B0B',
+//            'stroke-width': 1,
+//            'stroke-opacity': 1,
+//            'fill': 'black',
+//            'cursor': 'pointer'
+//        });
+
+        var height = this.height;
         if (this.resizable) {
-            var height = this.height;
             if (!this.histogram) {
                 height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
                 /**/
                 var x = this.pixelPosition;
                 var width = this.width;
-                var countTrees = 0;
+//                var countTrees = 0;
+                var lastContains = 0;
                 for (var i in this.renderedArea) {
                     if (this.renderedArea[i].contains({start: x, end: x + width })) {
-                        countTrees++;
-                    }else{
-                        break;
+                        lastContains = i;
+//                        console.log(lastContains)
                     }
+//                    countTrees++;
                 }
-                var divHeight = (countTrees+1) * 18;
+
+//                var divHeight = (countTrees + 1) * 18;
+                var divHeight = parseInt(lastContains) + 20;
                 if (this.autoHeight) {
                     $(this.svgdiv).css({'height': divHeight + 10});
                 }
+
+//                this.rrr.setAttribute('x', x);
+//                this.rrr.setAttribute('y', divHeight);
+//                this.rrr.setAttribute('width', width);
                 /**/
 
 
             } else {
-                var height = this.height;
-                $(this.svgdiv).css({'height': height+10});
+                $(this.svgdiv).css({'height': height + 10});
 
             }
             this.main.setAttribute('height', height);
@@ -141,7 +161,7 @@ Track.prototype = {
         } else {
             this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
-            this.trigger('track:ready',{sender:this});
+            this.trigger('track:ready', {sender: this});
         }
     },
 
@@ -230,9 +250,10 @@ Track.prototype = {
             $('html').mouseup(function (event) {
                 $('html').removeClass('unselectable');
                 $('html').off('mousemove');
+            });
+            $(svgdiv).closest(".trackListPanels").mouseup(function (event) {
                 _this.updateHeight();
             });
-
 
 
             $(resizediv).mouseenter(function (event) {

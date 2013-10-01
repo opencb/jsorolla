@@ -89,7 +89,7 @@ TrackListPanel.prototype = {
             $(this.div).append(titleDiv);
         }
 
-        var tlHeaderDiv = $('<div id="tl-header"></div>')[0];
+        var tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];
 
         var panelDiv = $('<div id="tl-panel"></div>')[0];
         $(panelDiv).css({position: 'relative', width: '100%'});
