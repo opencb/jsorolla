@@ -505,6 +505,7 @@ OpencgaBrowserWidget.prototype = {
                             }
                             console.log(_this.allowedTypes)
                             if (typeof _this.allowedTypes != 'undefined' && _this.allowedTypes.indexOf(fileFormat) == -1) {
+                                _this.selectButton.disable();
                                 console.log('file format NOT allowed -' + fileFormat + '- ')
                                 return;
                             }

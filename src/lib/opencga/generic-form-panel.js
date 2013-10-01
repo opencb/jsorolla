@@ -274,7 +274,7 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
             if (args.beforeClick != null) {
                 args.beforeClick(args);
             }
-            _this.opencgaBrowserWidget.once('select',function (sender, response) {
+            _this.opencgaBrowserWidget.once('select',function (response) {
                 var label = response.bucketId + '/' + response.id;
                 var value = response.bucketId + ':' + response.id.replace(/\//g, ":");
                 fileSelectedLabel.setText('<span class="emph">' + label + '</span>', false);
