@@ -140,14 +140,11 @@ GenomeViewer.prototype = {
         this.chromosomeDiv = $('<div id="chromosome-' + this.id + '"></div>');
         $(this.centerPanelDiv).append(this.chromosomeDiv);
 
-        this.trackListPanelsDiv = $('<div id="trackListPanels-' + this.id + '" class="trackListPanels" ></div>');
-        $(this.centerPanelDiv).append(this.trackListPanelsDiv);
-
         this.regionDiv = $('<div id="region-' + this.id + '" ></div>');
-        $(this.trackListPanelsDiv).append(this.regionDiv);
+        $(this.centerPanelDiv).append(this.regionDiv);
 
-        this.tracksDiv = $('<div id="tracks-' + this.id + '"></div>');
-        $(this.trackListPanelsDiv).append(this.tracksDiv);
+        this.tracksDiv = $('<div id="tracks-' + this.id + '" ></div>');
+        $(this.centerPanelDiv).append(this.tracksDiv);
 
         this.rendered = true;
     },
@@ -278,6 +275,9 @@ GenomeViewer.prototype = {
                     Utils.setMinRegion(_this.defaultRegion, _this.getSVGCanvasWidth());
                     event.region = _this.defaultRegion;
                     _this.trigger('region:change', event);
+                },
+                'autoHeight-button:click':function(event){
+                    _this.enableAutoHeight();
                 }
             }
         });
