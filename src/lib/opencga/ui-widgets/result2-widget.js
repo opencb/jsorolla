@@ -445,8 +445,8 @@ ResultWidget.prototype = {
             }
         };
 
-        var detailedResutls = getDetailsAsDocument(resultData[this.job.toolName].layout, true);
-        var indexResutl = getResultIndex(resultData[this.job.toolName].layout.children);
+        var detailedResutls = getDetailsAsDocument(resultData[this.layoutName].layout, true);
+        var indexResutl = getResultIndex(resultData[this.layoutName].layout.children);
         this.panel.add(getJobInfo({items: this.extItems}));
         this.panel.insert(indexResutl);
         this.panel.add(detailedResutls);
