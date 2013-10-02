@@ -5,38 +5,60 @@
     <title>Network Viewer Demo</title>
 
 
+
+    <!-- CSS from vendors -->
+    <!-- build:style vendor -->
+    <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
+    <link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
+    <link type="text/css" rel="stylesheet"
+          href="../../vendor/jquery-ui-1.10.3.custom/css/smoothgray/jquery-ui-1.10.3.custom.min.css">
+    <!-- /build -->
+
     <!--css vendor-->
-    <link href="../../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../../vendor/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
-    <link href="../../vendor/bootstrap-slider/css/slider.css" rel="stylesheet">
 
 
-    <!--css-->
+    <!-- CSS from Genome Viewer -->
+    <!-- build:style gv-css -->
     <link href="../../styles/css/style.css" rel="stylesheet">
+    <!-- /build -->
 
 
+    <!-- JS from vendors -->
+    <!-- build:script vendor -->
+    <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
+    <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+    <script type="text/javascript" src="../../vendor/rawdeflate.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
+
+    <!-- These dependencies must go AFTER jquery -->
+    <!--<script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>-->
+    <script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
+    <script type="text/javascript" src="../../vendor/purl.min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <!-- /build -->
 
 
-    <!--js vendor-->
-    <script type="text/javascript" src="../../vendor/jquery/jquery-1.10.1.min.js"></script>
-    <script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../vendor/bootstrap-slider/js/bootstrap-slider.js"></script>
-
-    <script type="text/javascript" src="../../vendor/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="../../vendor/backbone/backbone-min.js"></script>
+    <!-- JS from Genome Viewer -->
+    <!-- Genome-viewer -->
+    <script type="text/javascript" src="nv-config.js"></script>
 
 
-    <!--js-->
+    <!-- build:script gv-js -->
+
+    <!-- js-common-libs utils -->
+    <script type="text/javascript" src="../lib/utils/svg.js"></script>
     <script type="text/javascript" src="../lib/utils/utils.js"></script>
 
-    <!--network viewer-->
-    <script type="text/javascript" src="./network-viewer.js"></script>
-    <script type="text/javascript" src="./tool-bar.js"></script>
 
-
+    <script type="text/javascript" src="tool-bar.js"></script>
+    <script type="text/javascript" src="network-viewer.js"></script>
+    <!-- /build -->
 
 
     <script type="text/javascript">
+    var networkViewer;
     $(document).ready(function() {
         networkViewer = new NetworkViewer({
             targetId:'application',
@@ -46,7 +68,6 @@
         });
         networkViewer.draw();
     });
-
     </script>
 
 </head>
