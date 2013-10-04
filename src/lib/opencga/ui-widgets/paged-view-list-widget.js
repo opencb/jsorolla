@@ -19,53 +19,53 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function PagedViewListWidget(args){
-	var _this=this;
+function PagedViewListWidget(args) {
+    var _this = this;
     _.extend(this, Backbone.Events);
     this.id = Utils.genId("PagedViewListWidget");
 
-	this._data = null;
-	this.targetId = null;
-	
-	this.pageSize = 6;
-	this.storeFields = new Object();
-	this.template = new Object();
-	this.width = 280;
-	this.height = 550;
-	this.title = "";
-	this.order = 0;
-	this.border = 0;
-	this.mode = "view";
-	this.sort = 'DESC';
+    this._data = null;
+    this.targetId = null;
+
+    this.pageSize = 6;
+    this.storeFields = new Object();
+    this.template = new Object();
+    this.width = 280;
+    this.height = 550;
+    this.title = "";
+    this.order = 0;
+    this.border = 0;
+    this.mode = "view";
+    this.sort = 'DESC';
 
     _.extend(this, args);
-    
-	this.currentPage = 1;
-	this.pageFieldId = this.id + '_pageField';
-	this.pageLabelId = this.id + '_pageLabel';
-	this.pagbarId = this.id + '_pagbar';
-	this.panelId = this.id + '_panel';
-	
-	/**Events i send**/
 
-	this.textFilterFunction = function(item){
-		var str = Ext.getCmp(_this.id+"searchField").getValue().toLowerCase();
-		if(item.data.name.toLowerCase().indexOf(str)<0){
-			return false;
-		}
-		return true;
-	};
+    this.currentPage = 1;
+    this.pageFieldId = this.id + '_pageField';
+    this.pageLabelId = this.id + '_pageLabel';
+    this.pagbarId = this.id + '_pagbar';
+    this.panelId = this.id + '_panel';
+
+    /**Events i send**/
+
+    this.textFilterFunction = function (item) {
+        var str = Ext.getCmp(_this.id + "searchField").getValue().toLowerCase();
+        if (item.data.name.toLowerCase().indexOf(str) < 0) {
+            return false;
+        }
+        return true;
+    };
 
     this.on(this.handlers);
 
 };
 
-PagedViewListWidget.prototype.getData = function (){
-	return this._data;
+PagedViewListWidget.prototype.getData = function () {
+    return this._data;
 };
 
-PagedViewListWidget.prototype._setData = function (data){
-	this._data = data;
+PagedViewListWidget.prototype._setData = function (data) {
+    this._data = data;
 };
 
 //PagedViewListWidget.prototype.getPageSize = function (){
@@ -81,39 +81,39 @@ PagedViewListWidget.prototype._setData = function (data){
 //};
 
 /**FILTER **/
-PagedViewListWidget.prototype.setFilter = function(filterFunction) {
-	this.store.clearFilter();
-	
-	if(filterFunction!=null){
-		this.filterFunction = filterFunction;
-		this.store.filter([filterFunction,this.textFilterFunction]);
-	}else{
-		this.store.filter([this.textFilterFunction]);
-	}
-	
+PagedViewListWidget.prototype.setFilter = function (filterFunction) {
+    this.store.clearFilter();
+
+    if (filterFunction != null) {
+        this.filterFunction = filterFunction;
+        this.store.filter([filterFunction, this.textFilterFunction]);
+    } else {
+        this.store.filter([this.textFilterFunction]);
+    }
+
 };
 
 /** DRAW **/
-PagedViewListWidget.prototype.draw = function(data) {
-	
-	this._setData(data);
+PagedViewListWidget.prototype.draw = function (data) {
+
+    this._setData(data);
 //	this.changeOrder();
-	this.render();
-	
-	this.store.loadData(this.getData());
-	if (this.filterFunction != null ){
-		this.setFilter(this.filterFunction);
+    this.render();
+
+    this.store.loadData(this.getData());
+    if (this.filterFunction != null) {
+        this.setFilter(this.filterFunction);
 //		this._setData(this.store.data.items);
-	}
+    }
 //	this.changePage(this.currentPage, this.getData(), true);
-	
+
 };
 /** CLEAN **/
-PagedViewListWidget.prototype.clean =  function (){
-	if (this.panel != null){
-		this.panel.destroy();
-		delete this.panel;
-	}
+PagedViewListWidget.prototype.clean = function () {
+    if (this.panel != null) {
+        this.panel.destroy();
+        delete this.panel;
+    }
 };
 
 
@@ -157,83 +157,80 @@ PagedViewListWidget.prototype.clean =  function (){
 //	}
 //};
 
-PagedViewListWidget.prototype.render = function() {
-	var _this = this;
-	if (this.panel == null){
-				this.tpl = new Ext.XTemplate(this.template);
-				
-				this.store = Ext.create('Ext.data.Store', {
-			    	fields: this.storeFields,
-			    	sorters: [{ property : 'date', direction: 'DESC'}],
-					autoLoad: false
-			    });
-				
-			   var pan=null;
-				
-			   if(this.mode == "view"){
-				   	this.view = Ext.create('Ext.view.View', {
-				   		id : this.id+"view",
-						padding:15,
-						store: this.store,
-					    tpl: this.tpl,
-					    height:this.height,
-					    trackOver: true,
-					    autoScroll:true,
-	           			overItemCls: 'list-item-hover',
-	           			itemSelector: '.joblist-item',
-					    listeners : {
-					    	itemclick : function (este,record){
-							console.log(record.data);
-					    		_this.trigger('item:click',{sender:_this,item:record});
-				    		}
-	//				    	itemmouseenter : function (este, record, item){
-	//				    		item.style.cursor="pointer";
-	//				    		item.firstChild.style.cursor="pointer";
-	//				    		item.style.border = "1px solid deepSkyBlue";
-	//				    		item.style.background = "honeydew";
-	//				    	},
-	//			    		itemmouseleave : function (este, record, item){
-	//				    		item.style.background = "white";	
-	//				    		item.style.border = "1px solid #ffffff";
-	//				    	}
-					    }
-					});
-				   	
-					pan = this.view;
-				}
-				
-				
-				if(this.mode == "grid"){
-					var columns = [];
-					for (var j=0;j<this.storeFields.length; j++){
-						columns.push({header:this.storeFields[j],dataIndex:this.storeFields[j], flex:1});
-					}
-					this.grid = Ext.create('Ext.grid.Panel', {
-					    store: this.store,
-					    columns: columns,
-					    border:0
-					});
-					pan = this.grid;
-				}
-				
-				/**TEXT SEARCH FILTER**/
-		        var searchField = Ext.create('Ext.form.field.Text',{
-		        	 id:this.id+"searchField",
-			         flex:1,
-			         margin:"0 1 0 0",
-					 emptyText: 'enter search term',
-					 enableKeyEvents:true,
-					 listeners:{
-					 	change:function (){
-					 		_this.setFilter(null);
-					 	}
-					 }
-		        });
-				
-				this.pagBar = Ext.create('Ext.toolbar.Toolbar', {
-					id : this.pagbarId,
-					style:'border: '+this.border,
-				    items: [
+PagedViewListWidget.prototype.render = function () {
+    var _this = this;
+    if (this.panel == null) {
+        this.tpl = new Ext.XTemplate(this.template);
+
+        this.store = Ext.create('Ext.data.Store', {
+            fields: this.storeFields,
+            sorters: [
+                { property: 'date', direction: 'DESC'}
+            ],
+            autoLoad: false
+        });
+
+        var pan = null;
+
+        if (this.mode == "view") {
+            this.view = Ext.create('Ext.view.View', {
+                id: this.id + "view",
+                padding: 15,
+                store: this.store,
+                tpl: this.tpl,
+                height: this.height,
+                trackOver: true,
+                autoScroll: true,
+                overItemCls: 'list-item-hover',
+                itemSelector: '.joblist-item',
+                listeners: {
+                    itemclick: function (este, record) {
+                        console.log(record.data);
+                        _this.trigger('item:click', {sender: _this, item: record});
+                    },
+                    itemcontextmenu: function (este, record, item, index, e) {
+                        e.stopEvent();
+                        _this.trigger('item:contextmenu', {sender: _this, record: record, originalEvent:e});
+                        return false;
+                    }
+                }
+            });
+
+            pan = this.view;
+        }
+
+
+        if (this.mode == "grid") {
+            var columns = [];
+            for (var j = 0; j < this.storeFields.length; j++) {
+                columns.push({header: this.storeFields[j], dataIndex: this.storeFields[j], flex: 1});
+            }
+            this.grid = Ext.create('Ext.grid.Panel', {
+                store: this.store,
+                columns: columns,
+                border: 0
+            });
+            pan = this.grid;
+        }
+
+        /**TEXT SEARCH FILTER**/
+        var searchField = Ext.create('Ext.form.field.Text', {
+            id: this.id + "searchField",
+            flex: 1,
+            margin: "0 1 0 0",
+            emptyText: 'enter search term',
+            enableKeyEvents: true,
+            listeners: {
+                change: function () {
+                    _this.setFilter(null);
+                }
+            }
+        });
+
+        this.pagBar = Ext.create('Ext.toolbar.Toolbar', {
+            id: this.pagbarId,
+            style: 'border: ' + this.border,
+            items: [
 //							{
 //							    id : this.id+'btnPrev',
 //							    iconCls: Ext.baseCSSPrefix + 'tbar-page-prev',
@@ -279,68 +276,68 @@ PagedViewListWidget.prototype.render = function() {
 //							    text: '',
 //							    margins: '5 0 0 5'
 //							},
-							{
-							    id : this.id+'btnSort',
-							    iconCls: 'icon-order-desc',
-							    tooltip:'Change order',
-							    handler: function(){
-							    	if(_this.sort=="DESC") {
-							    		_this.sort = "ASC";
-							    		_this.store.sort('date', 'ASC');
-							    		this.setIconCls('icon-order-asc');
-							    	}
-							    	else {
-							    		_this.sort = "DESC";
-							    		_this.store.sort('date', 'DESC');
-							    		this.setIconCls('icon-order-desc');
-							    	}
-							    }
-							},
-							searchField,
-							{
-							    id : this.id+'btnClear',
+                {
+                    id: this.id + 'btnSort',
+                    iconCls: 'icon-order-desc',
+                    tooltip: 'Change order',
+                    handler: function () {
+                        if (_this.sort == "DESC") {
+                            _this.sort = "ASC";
+                            _this.store.sort('date', 'ASC');
+                            this.setIconCls('icon-order-asc');
+                        }
+                        else {
+                            _this.sort = "DESC";
+                            _this.store.sort('date', 'DESC');
+                            this.setIconCls('icon-order-desc');
+                        }
+                    }
+                },
+                searchField,
+                {
+                    id: this.id + 'btnClear',
 //							    iconCls: 'icon-delete',
-							    text: 'X',
-							    margin: "0 2 0 0",
-							    tooltip: 'Clear search box',
-							    handler: function(){
-							    	searchField.reset();
-							    }
-							}
-							
-				    ]
-				});
+                    text: 'X',
+                    margin: "0 2 0 0",
+                    tooltip: 'Clear search box',
+                    handler: function () {
+                        searchField.reset();
+                    }
+                }
+
+            ]
+        });
 //				this.currentPage = Ext.getCmp(this.pageFieldId).getValue();
-				
-				this.panel = Ext.create('Ext.panel.Panel', {
-					id : this.panelId,
-					title : this.title,
-					border:this.border,
-				    width: this.width,
-				    tbar : this.pagBar,
-				    items: [pan]
-				});
+
+        this.panel = Ext.create('Ext.panel.Panel', {
+            id: this.panelId,
+            title: this.title,
+            border: this.border,
+            width: this.width,
+            tbar: this.pagBar,
+            items: [pan]
+        });
 
 //				this.view.setHeight(this.panel.getHeight());
-				var target = Ext.getCmp(this.targetId);
-				if (target instanceof Ext.panel.Panel){
-					target.insert(this.order, this.panel);
-					//target.setActiveTab(1);//si no se pone el active da un error de EXT
-					//target.setActiveTab(0);//si no se pone el active da un error de EXT
-					//pan.setHeight = this.panel.getHeight();
-				}else{
-					this.panel.render(this.targetId);
-				}
-	}
+        var target = Ext.getCmp(this.targetId);
+        if (target instanceof Ext.panel.Panel) {
+            target.insert(this.order, this.panel);
+            //target.setActiveTab(1);//si no se pone el active da un error de EXT
+            //target.setActiveTab(0);//si no se pone el active da un error de EXT
+            //pan.setHeight = this.panel.getHeight();
+        } else {
+            this.panel.render(this.targetId);
+        }
+    }
 };
 
-PagedViewListWidget.prototype.show = function (){
-    if (this.panel != null){
+PagedViewListWidget.prototype.show = function () {
+    if (this.panel != null) {
         this.panel.show();
     }
 };
-PagedViewListWidget.prototype.hide = function (){
-    if (this.panel != null){
+PagedViewListWidget.prototype.hide = function () {
+    if (this.panel != null) {
         this.panel.hide();
     }
 };

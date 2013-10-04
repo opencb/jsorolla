@@ -118,7 +118,7 @@ ResultWidget.prototype = {
                                                 accountId: $.cookie('bioinfo_account'),
                                                 sessionId: $.cookie('bioinfo_sid'),
                                                 jobId: _this.jobId,
-                                                success: function (sender, data) {
+                                                success: function (data) {
                                                     var msg = "";
                                                     if (data.indexOf("OK") != -1) {
                                                         Ext.getCmp(_this.targetId).getActiveTab().close();
