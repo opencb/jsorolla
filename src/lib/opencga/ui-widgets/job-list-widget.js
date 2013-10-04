@@ -95,7 +95,7 @@ function JobListWidget(args) {
                                             } else {
                                                 msg = "ERROR: could not delete job.";
                                             }
-                                            Ext.Msg.alert("Delete job", msg);
+                                            Ext.example.msg("Delete job", msg);
                                         }
                                     });
                                 }
