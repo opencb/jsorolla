@@ -1,30 +1,58 @@
-.ocb-font-default{
+.ocb-font-default {
     font-family: tahoma, arial, verdana, sans-serif;
 }
+
 .ocb-font-sourcesanspro {
     font-family: 'Source Sans Pro';
 }
+
 .ocb-font-ubuntu {
     font-family: 'Ubuntu';
 }
+
 .ocb-font-ubuntumono {
     font-family: 'Ubuntu Mono';
 }
+
 .ocb-font-lato {
     font-family: 'Lato';
 }
 
-.ocb-font-size-16{ font-size: 16px;}
-.ocb-font-size-15{ font-size: 15px;}
-.ocb-font-size-14{ font-size: 14px;}
-.ocb-font-size-13{ font-size: 13px;}
-.ocb-font-size-12{ font-size: 12px;}
-.ocb-font-size-11{ font-size: 11px;}
-.ocb-font-size-10{ font-size: 10px;}
-.ocb-font-size-9{ font-size: 9px;}
-.ocb-font-size-8{ font-size: 8px;}
+.ocb-font-size-16 {
+    font-size: 16px;
+}
 
+.ocb-font-size-15 {
+    font-size: 15px;
+}
 
+.ocb-font-size-14 {
+    font-size: 14px;
+}
+
+.ocb-font-size-13 {
+    font-size: 13px;
+}
+
+.ocb-font-size-12 {
+    font-size: 12px;
+}
+
+.ocb-font-size-11 {
+    font-size: 11px;
+}
+
+.ocb-font-size-10 {
+    font-size: 10px;
+}
+
+.ocb-font-size-9 {
+    font-size: 9px;
+}
+
+.ocb-font-size-8 {
+    font-size: 8px;
+}
 
 .ocb-border-bot-lightgrey {
     border-bottom: 1px solid lightgrey;
@@ -149,9 +177,8 @@
     opacity: 0.3;
     border-top: 1px solid gray;
     border-bottom: 1px solid gray;
-    box-sizing:border-box;
+    box-sizing: border-box;
 }
-
 
 .feature-emph {
     fill: yellow;
@@ -521,6 +548,7 @@ a:hover {
 .ocb-icon-gear {
     background: url(../img/ocb-icon-gear.png) !important;
 }
+
 .ocb-icon-track-autoheight {
     background: url(../img/ocb-icon-track-autoheight.png) !important;
 }
@@ -606,27 +634,27 @@ a:hover {
 }
 
 .icon-background-option {
-    background: url(../img/icon-background.png);
+    background: url(../img/icon-background.png) !important;
 }
 
 .icon-node-opacity {
-    background: url(../img/opacity.png);
+    background: url(../img/opacity.png) !important;
 }
 
 .icon-edge-type {
-    background: url(../img/edgetype.png);
+    background: url(../img/edgetype.png) !important;
 }
 
 .icon-find {
-    background: url(../img/find.png);
+    background: url(../img/find.png) !important;
 }
 
 .icon-label-size {
-    background: url(../img/label-size.png);
+    background: url(../img/label-size.png) !important;
 }
 
 .icon-layout {
-    background: url(../img/icon-layout.png);
+    background: url(../img/icon-layout.png) !important;
 }
 
 .icon-collapse {
@@ -634,15 +662,15 @@ a:hover {
 }
 
 .icon-auto-select {
-    background: url(../img/icon-auto-select.png);
+    background: url(../img/icon-auto-select.png) !important;
 }
 
 .icon-project-delete {
-    background: url(../img/icon-project-delete.png);
+    background: url(../img/icon-project-delete.png) !important;
 }
 
 .icon-project-all {
-    background: url(../img/icon-project-all.png);
+    background: url(../img/icon-project-all.png) !important;
 }
 
 .icon-project-manager {
@@ -1122,9 +1150,6 @@ a:hover {
     width: auto !important;
 }
 
-
-
-
 /*@import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono);*/
 /*@import url(http://fonts.googleapis.com/css?family=Ubuntu);*/
 /*@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro);*/
@@ -1137,6 +1162,7 @@ a:hover {
     font-weight: 400;
     src: local('Ubuntu'), url(../fonts/ubuntu.woff) format('woff');
 }
+
 @font-face {
     font-family: 'Ubuntu Mono';
     font-style: normal;

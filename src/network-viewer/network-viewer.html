@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Network Viewer Demo</title>
 
-
+    <link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext/gpl/4.2.1/resources/css/ext-all-gray.css">
 
     <!-- CSS from vendors -->
     <!-- build:style vendor -->
@@ -23,11 +23,15 @@
     <!-- /build -->
 
 
+    <!-- Sencha Ext -->
+    <script type="text/javascript" src="http://cdn.sencha.io/ext/gpl/4.2.1/ext-all.js"></script>
+    <script type="text/javascript" src="http://cdn.sencha.io/ext/gpl/4.2.1/examples/shared/examples.js"></script>
+
+
     <!-- JS from vendors -->
     <!-- build:script vendor -->
     <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
     <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
-    <script type="text/javascript" src="../../vendor/rawdeflate.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
 
     <!-- These dependencies must go AFTER jquery -->
@@ -36,7 +40,8 @@
     <script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
     <script type="text/javascript" src="../../vendor/purl.min.js"></script>
-    <script type="text/javascript" src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript"
+            src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
     <!-- /build -->
 
 
@@ -53,21 +58,36 @@
 
 
     <script type="text/javascript" src="tool-bar.js"></script>
+    <script type="text/javascript" src="edition-bar.js"></script>
+    <script type="text/javascript" src="attribute-manager.js"></script>
+    <script type="text/javascript" src="network-data.js"></script>
+    <script type="text/javascript" src="network-svg.js"></script>
+    <script type="text/javascript" src="network-background-settings.js"></script>
     <script type="text/javascript" src="network-viewer.js"></script>
     <!-- /build -->
 
 
     <script type="text/javascript">
-    var networkViewer;
-    $(document).ready(function() {
-        networkViewer = new NetworkViewer({
-            targetId:'application',
-            autoRender:true,
-            sidePanel: false,
-            overviewPanel: true
+        Ext.Loader.setConfig({enabled: true});
+        Ext.Loader.setPath('Ext.ux', 'http://cdn.sencha.io/ext/gpl/4.2.1/examples/ux');
+        Ext.QuickTips.init();
+        Ext.require([
+            'Ext.ux.grid.FiltersFeature',
+            'Ext.grid.plugin.BufferedRenderer'
+//	    'Ext.grid.PagingScroller',
+//	    'Ext.ux.data.PagingMemoryProxy'
+        ]);
+
+        var networkViewer;
+        Ext.onReady(function () {
+            networkViewer = new NetworkViewer({
+                targetId: 'application',
+                autoRender: true,
+                sidePanel: false,
+                overviewPanel: false
+            });
+            networkViewer.draw();
         });
-        networkViewer.draw();
-    });
     </script>
 
 </head>
