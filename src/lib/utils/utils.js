@@ -170,6 +170,41 @@ var Utils = {
         } else if (element.webkitRequestFullScreen) {
             element.webkitRequestFullScreen();
         }
+    },
+    parseJobCommand: function (item) {
+        var commandObject = {};
+        var commandArray = item.commandLine.split(/ -{1,2}/g);
+        var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
+        tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
+        tableHtml += '<td style="min-width:50px;border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Parameter</td>';
+        tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Value</td>';
+        tableHtml += '</tr>';
+        for (var i = 1; i < commandArray.length; i++) {
+            //ignore first argument
+            var paramenter = commandArray[i];
+            var paramenterArray = paramenter.split(/ {1}/g);
+            var name = '';
+            var value = '';
+            if (paramenterArray.length < 2) {
+                name = paramenterArray[0];
+                value = '<span color:darkgray;font-weight:bold;>This paramenter is a flag</span>';
+            } else {
+                name = paramenterArray[0];
+                value = paramenterArray[1];
+            }
+            commandObject[name] = value;
+            /* clean values for viz*/
+            value = value.replace(/\/httpd\/bioinfo\/opencga\/analysis\/.+\/examples\//, '');
+            value = value.replace('/httpd/bioinfo/opencga/accounts/', '');
+            value = value.replace(/,/g, ", ");
+
+            tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
+            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + name + '</td>';
+            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + value + '</td>';
+            tableHtml += '</tr>';
+        }
+        tableHtml += '</tbody></table>';
+        return {html: tableHtml, data: commandObject};
     }
 
 };
