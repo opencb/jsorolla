@@ -102,7 +102,8 @@ UploadWidget.prototype.draw = function(opencgaLocation){
 		                { text: "GFF2", tag:"gff2"},
 		                { text: "GFF3", tag:"gff3"},
 		                { text: "GTF", tag:"gtf"},
-		                { text: "BED", tag:"bed"}
+		                { text: "BED", tag:"bed"},
+		                { text: "PED", tag:"ped"}
 		            ] }
 		        ];
 	dataTypes["11"]=[
