@@ -20,194 +20,220 @@
  */
 
 var Utils = {
-    //properties
-    characters: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+        //properties
+        characters: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
 
-    //Methods
-    formatNumber: function (position) {
-        return position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-    },
-    formatText: function (text, spaceChar) {
-        text = text.replace(new RegExp(spaceChar, "gi"), " ");
-        text = text.charAt(0).toUpperCase() + text.slice(1);
-        return text;
-    },
-    getPixelBaseByZoom: function (zoom) {
-        //zoom [0-100] intervals of 5
-        zoom = Math.max(0, zoom);
-        zoom = Math.min(100, zoom);
-        return 10 / (Math.pow(2, (20 - (zoom / 5))));
-    },
-    getZoomByPixelBase: function (pixelBase) {
-        //pixelBase [10 - 0];
-        pixelBase = Math.max(0, pixelBase);
-        pixelBase = Math.min(10, pixelBase);
-        return 100 - ((Math.log(10 / pixelBase) / (Math.log(2))) * 5);
-    },
-    getPixelBaseByRegion: function (width, region) {
-        return width / region.length();
-    },
-    calculatePixelBaseAndZoomByRegion: function (args) {
-        var regionLength = this.regionLength(args.region);
-        var pixelBase = args.width / regionLength;
-        var baseWidth = parseInt(args.width / 10);//10 is the max pixelbase at max zoom 100
+        //Methods
+        formatNumber: function (position) {
+            return position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+        },
+        formatText: function (text, spaceChar) {
+            text = text.replace(new RegExp(spaceChar, "gi"), " ");
+            text = text.charAt(0).toUpperCase() + text.slice(1);
+            return text;
+        },
+        getPixelBaseByZoom: function (zoom) {
+            //zoom [0-100] intervals of 5
+            zoom = Math.max(0, zoom);
+            zoom = Math.min(100, zoom);
+            return 10 / (Math.pow(2, (20 - (zoom / 5))));
+        },
+        getZoomByPixelBase: function (pixelBase) {
+            //pixelBase [10 - 0];
+            pixelBase = Math.max(0, pixelBase);
+            pixelBase = Math.min(10, pixelBase);
+            return 100 - ((Math.log(10 / pixelBase) / (Math.log(2))) * 5);
+        },
+        getPixelBaseByRegion: function (width, region) {
+            return width / region.length();
+        },
+        calculatePixelBaseAndZoomByRegion: function (args) {
+            var regionLength = this.regionLength(args.region);
+            var pixelBase = args.width / regionLength;
+            var baseWidth = parseInt(args.width / 10);//10 is the max pixelbase at max zoom 100
 
-        if (regionLength < baseWidth) {//region is too small, start and end must be recalculated for the max allowed zoom
-            pixelBase = this.getPixelBaseByZoom(args.zoom);
-            var centerPosition = this.centerPosition(args.region);
-            var aux = Math.ceil((baseWidth / 2) - 1);
-            args.region.start = Math.floor(centerPosition - aux);
-            args.region.end = Math.floor(centerPosition + aux);
+            if (regionLength < baseWidth) {//region is too small, start and end must be recalculated for the max allowed zoom
+                pixelBase = this.getPixelBaseByZoom(args.zoom);
+                var centerPosition = this.centerPosition(args.region);
+                var aux = Math.ceil((baseWidth / 2) - 1);
+                args.region.start = Math.floor(centerPosition - aux);
+                args.region.end = Math.floor(centerPosition + aux);
 
-            //modify the start and end
-        }
-        return {pixelBase: pixelBase, zoom: this.getZoomByPixelBase(pixelBase)}
-    },
-    setMinRegion: function (region, width) {
-        var regionLength = region.length();
-        var minimumWindowBaseLength = parseInt(width / this.getPixelBaseByZoom(100));//for zoom 100
-        if (regionLength < minimumWindowBaseLength) {
-            //the zoom will be 100, region must be recalculated
-            var centerPosition = region.center();
-            var aux = Math.ceil((minimumWindowBaseLength / 2) - 1);
-            region.start = Math.floor(centerPosition - aux);
-            region.end = Math.floor(centerPosition + aux);
-        }
-    },
-    isFunction: function (s) {
-        return typeof(s) === 'function' || s instanceof Function;
-    },
-    parseDate: function (strDate) {
-        return strDate.substring(0, 4) + " " + strDate.substring(4, 6) + " " + strDate.substring(6, 8) + ", " + strDate.substring(8, 10) + ":" + strDate.substring(10, 12) + ":" + strDate.substring(12, 14);
-    },
-    genId: function (prefix) {
-        prefix = prefix || '';
-        prefix = prefix.length == 0 ? prefix : prefix + '-';
-        return prefix + this.randomString();
-    },
-    randomString: function (length) {
-        length = length || 10;
-        var str = "";
-        for (var i = 0; i < length; i++) {
-            str += this.characters.charAt(this.getRandomInt(0, this.characters.length - 1));
-        }
-        return str;
-    },
-    getRandomInt: function (min, max) {
-        // https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Math/random
-        // Using Math.round() will give you a non-uniform distribution!
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    },
-    endsWithIgnoreCase: function (str, test) {
-        var regex = new RegExp('^.*\\.(' + test + ')$', 'i');
-        return regex.test(str);
-    },
-    endsWith: function (str, test) {
-        var regex = new RegExp('^.*\\.(' + test + ')$');
-        return regex.test(str);
-    },
-    addQueryParamtersToUrl: function (paramsWS, url) {
-        var chr = "?";
-        if (url.indexOf("?") != -1) {
-            chr = "&";
-        }
-        var query = "";
-        for (var key in paramsWS) {
-            if (paramsWS[key] != null)
-                query += key + "=" + paramsWS[key].toString() + "&";
-        }
-        if (query != "")
-            query = chr + query.substring(0, query.length - 1);
-        return url+query;
-    },
-    randomColor: function () {
-        var color = "";
-        for (var i = 0; i < 6; i++) {
-            color += ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'][Math.floor(Math.random() * 16)]);
-        }
-        return "#" + color;
-    },
-    getSpeciesFromAvailable: function (availableSpecies, speciesCode) {
-        for (var i = 0; i < availableSpecies.items.length; i++) {
-            var phylos = availableSpecies.items[i].items;
-            for (var j = 0; j < phylos.length; j++) {
-                var species = phylos[j];
-                if (this.getSpeciesCode(species.text) == speciesCode) {
-                    return species;
+                //modify the start and end
+            }
+            return {pixelBase: pixelBase, zoom: this.getZoomByPixelBase(pixelBase)}
+        },
+        setMinRegion: function (region, width) {
+            var regionLength = region.length();
+            var minimumWindowBaseLength = parseInt(width / this.getPixelBaseByZoom(100));//for zoom 100
+            if (regionLength < minimumWindowBaseLength) {
+                //the zoom will be 100, region must be recalculated
+                var centerPosition = region.center();
+                var aux = Math.ceil((minimumWindowBaseLength / 2) - 1);
+                region.start = Math.floor(centerPosition - aux);
+                region.end = Math.floor(centerPosition + aux);
+            }
+        },
+        isFunction: function (s) {
+            return typeof(s) === 'function' || s instanceof Function;
+        },
+        parseDate: function (strDate) {
+            return strDate.substring(0, 4) + " " + strDate.substring(4, 6) + " " + strDate.substring(6, 8) + ", " + strDate.substring(8, 10) + ":" + strDate.substring(10, 12) + ":" + strDate.substring(12, 14);
+        },
+        genId: function (prefix) {
+            prefix = prefix || '';
+            prefix = prefix.length == 0 ? prefix : prefix + '-';
+            return prefix + this.randomString();
+        },
+        randomString: function (length) {
+            length = length || 10;
+            var str = "";
+            for (var i = 0; i < length; i++) {
+                str += this.characters.charAt(this.getRandomInt(0, this.characters.length - 1));
+            }
+            return str;
+        },
+        getRandomInt: function (min, max) {
+            // https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Math/random
+            // Using Math.round() will give you a non-uniform distribution!
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        },
+        endsWithIgnoreCase: function (str, test) {
+            var regex = new RegExp('^.*\\.(' + test + ')$', 'i');
+            return regex.test(str);
+        },
+        endsWith: function (str, test) {
+            var regex = new RegExp('^.*\\.(' + test + ')$');
+            return regex.test(str);
+        },
+        addQueryParamtersToUrl: function (paramsWS, url) {
+            var chr = "?";
+            if (url.indexOf("?") != -1) {
+                chr = "&";
+            }
+            var query = "";
+            for (var key in paramsWS) {
+                if (paramsWS[key] != null)
+                    query += key + "=" + paramsWS[key].toString() + "&";
+            }
+            if (query != "")
+                query = chr + query.substring(0, query.length - 1);
+            return url + query;
+        },
+        randomColor: function () {
+            var color = "";
+            for (var i = 0; i < 6; i++) {
+                color += ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'][Math.floor(Math.random() * 16)]);
+            }
+            return "#" + color;
+        },
+        randomColor: function () {
+            var color = "";
+            for (var i = 0; i < 6; i++) {
+                color += ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'][Math.floor(Math.random() * 16)]);
+            }
+            return "#" + color;
+        },
+        colorLuminance: function (hex, lum) {
+            // validate hex string
+            hex = String(hex).replace(/[^0-9a-f]/gi, '');
+            if (hex.length < 6) {
+                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+            }
+            lum = lum || 0;
+
+            // convert to decimal and change luminosity
+            var rgb = "#", c, i;
+            for (i = 0; i < 3; i++) {
+                c = parseInt(hex.substr(i * 2, 2), 16);
+                c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+                rgb += ("00" + c).substr(c.length);
+            }
+
+            return rgb;
+        },
+        getSpeciesFromAvailable: function (availableSpecies, speciesCode) {
+            for (var i = 0; i < availableSpecies.items.length; i++) {
+                var phylos = availableSpecies.items[i].items;
+                for (var j = 0; j < phylos.length; j++) {
+                    var species = phylos[j];
+                    if (this.getSpeciesCode(species.text) == speciesCode) {
+                        return species;
+                    }
                 }
             }
-        }
-    },
-    getSpeciesCode: function (speciesName) {
-        var pair = speciesName.split(" ");
-        var code;
-        if(pair.length < 3){
-            code =  (pair[0].charAt(0) + pair[1]).toLowerCase();
-        }else{
-            code = (pair[0].charAt(0) + pair[1] + pair[pair.length-1].replace(/[/_().\-]/g,'')).toLowerCase();
-
-        }
-        return code;
-
-    },
-    test: function () {
-        return this;
-    },
-    cancelFullscreen: function () {
-        if (document.cancelFullScreen) {
-            document.cancelFullScreen();
-        } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else if (document.webkitCancelFullScreen) {
-            document.webkitCancelFullScreen();
-        }
-    },
-    launchFullScreen: function (element) {
-        if (element.requestFullScreen) {
-            element.requestFullScreen();
-        } else if (element.mozRequestFullScreen) {
-            element.mozRequestFullScreen();
-        } else if (element.webkitRequestFullScreen) {
-            element.webkitRequestFullScreen();
-        }
-    },
-    parseJobCommand: function (item) {
-        var commandObject = {};
-        var commandArray = item.commandLine.split(/ -{1,2}/g);
-        var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
-        tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
-        tableHtml += '<td style="min-width:50px;border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Parameter</td>';
-        tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Value</td>';
-        tableHtml += '</tr>';
-        for (var i = 1; i < commandArray.length; i++) {
-            //ignore first argument
-            var paramenter = commandArray[i];
-            var paramenterArray = paramenter.split(/ {1}/g);
-            var name = '';
-            var value = '';
-            if (paramenterArray.length < 2) {
-                name = paramenterArray[0];
-                value = '<span color:darkgray;font-weight:bold;>This paramenter is a flag</span>';
+        },
+        getSpeciesCode: function (speciesName) {
+            var pair = speciesName.split(" ");
+            var code;
+            if (pair.length < 3) {
+                code = (pair[0].charAt(0) + pair[1]).toLowerCase();
             } else {
-                name = paramenterArray[0];
-                value = paramenterArray[1];
+                code = (pair[0].charAt(0) + pair[1] + pair[pair.length - 1].replace(/[/_().\-]/g, '')).toLowerCase();
+
             }
-            commandObject[name] = value;
-            /* clean values for viz*/
-            value = value.replace(/\/httpd\/bioinfo\/opencga\/analysis\/.+\/examples\//, '');
-            value = value.replace('/httpd/bioinfo/opencga/accounts/', '');
-            value = value.replace(/,/g, ", ");
+            return code;
 
-            tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
-            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + name + '</td>';
-            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + value + '</td>';
+        },
+        test: function () {
+            return this;
+        },
+        cancelFullscreen: function () {
+            if (document.cancelFullScreen) {
+                document.cancelFullScreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            }
+        },
+        launchFullScreen: function (element) {
+            if (element.requestFullScreen) {
+                element.requestFullScreen();
+            } else if (element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullScreen) {
+                element.webkitRequestFullScreen();
+            }
+        },
+        parseJobCommand: function (item) {
+            var commandObject = {};
+            var commandArray = item.commandLine.split(/ -{1,2}/g);
+            var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
+            tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
+            tableHtml += '<td style="min-width:50px;border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Parameter</td>';
+            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Value</td>';
             tableHtml += '</tr>';
-        }
-        tableHtml += '</tbody></table>';
-        return {html: tableHtml, data: commandObject};
-    }
+            for (var i = 1; i < commandArray.length; i++) {
+                //ignore first argument
+                var paramenter = commandArray[i];
+                var paramenterArray = paramenter.split(/ {1}/g);
+                var name = '';
+                var value = '';
+                if (paramenterArray.length < 2) {
+                    name = paramenterArray[0];
+                    value = '<span color:darkgray;font-weight:bold;>This paramenter is a flag</span>';
+                } else {
+                    name = paramenterArray[0];
+                    value = paramenterArray[1];
+                }
+                commandObject[name] = value;
+                /* clean values for viz*/
+                value = value.replace(/\/httpd\/bioinfo\/opencga\/analysis\/.+\/examples\//, '');
+                value = value.replace('/httpd/bioinfo/opencga/accounts/', '');
+                value = value.replace(/,/g, ", ");
 
-};
+                tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
+                tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + name + '</td>';
+                tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + value + '</td>';
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</tbody></table>';
+            return {html: tableHtml, data: commandObject};
+        }
+
+    }
+    ;
 
 
 Utils.images = {

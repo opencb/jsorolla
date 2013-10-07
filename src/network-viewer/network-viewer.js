@@ -25,7 +25,6 @@ function NetworkViewer(args) {
     this.id = Utils.genId('networkviewer');
 
 
-
     //set default args
     this.targetId;
     this.autoRender = false;
@@ -112,21 +111,19 @@ NetworkViewer.prototype = {
     },
 
     _createToolBar: function (targetId) {
+        var _this = this;
         var toolBar = new ToolBar({
             targetId: targetId,
             autoRender: true,
             handlers: {
                 'layout:change': function (event) {
-                    console.log(event.option);
-                    //todo
+                    _this.setLayout(event.option);
                 },
                 'labelSize:change': function (event) {
-                    console.log(event.option);
-                    //todo
+                    _this.setLabelSize(event.option);
                 },
-                'labelSize:change': function (event) {
-                    console.log(event.option);
-                    //todo
+                'select:change': function (event) {
+                    _this.select(event.option);
                 },
                 'backgroundButton:click': function (event) {
                     console.log(event);
@@ -154,22 +151,51 @@ NetworkViewer.prototype = {
             targetId: targetId,
             autoRender: true,
             handlers: {
-                'select': function (event) {
+                'mode:select': function (event) {
                     _this.networkSvg.setMode("select");
                 },
-                'add': function (event) {
+                'mode:add': function (event) {
                     _this.networkSvg.setMode("add");
                 },
-                'join': function (event) {
+                'mode:join': function (event) {
                     _this.networkSvg.setMode("join");
                 },
-                'delete': function (event) {
+                'mode:delete': function (event) {
                     _this.networkSvg.setMode("delete");
                 },
-                'nameField:change': function (value) {
+                'nodeName:change': function (value) {
                     _this.networkSvg.setNodeName(value);
+                },
+                'nodeLabel:change': function (value) {
+                    _this.networkSvg.setNodeLabel(value);
+                },
+                'nodeShape:change': function (value) {
+                    _this.networkSvg.setNodeShape(value);
+                },
+                'nodeColor:change': function (value) {
+                    _this.networkSvg.setNodeColor(value);
+                },
+                'nodeStrokeColor:change': function (value) {
+                    _this.networkSvg.setNodeStrokeColor(value);
+                },
+                'nodeSize:change': function (value) {
+                    _this.networkSvg.setNodeSize(value);
+                },
+                'nodeStrokeSize:change': function (value) {
+                    _this.networkSvg.setNodeStrokeSize(value);
+                },
+                'nodeOpacity:change': function (value) {
+                    _this.networkSvg.setNodeOpacity(value);
+                },
+                'edgeLabel:change': function (value) {
+                    _this.networkSvg.setEdgeLabel(value);
+                },
+                'edgeColor:change': function (value) {
+                    _this.networkSvg.setEdgeColor(value);
+                },
+                'edgeType:change': function (value) {
+                    _this.networkSvg.setEdgeType(value);
                 }
-
             }
         });
         return editionBar;
@@ -180,11 +206,11 @@ NetworkViewer.prototype = {
         var networkSvg = new NetworkSvg({
             targetId: targetId,
             width: 1000,
-            height: 300,
+            height: 800,
             networkData: this.networkData,
-            autoRender:true,
+            autoRender: true,
             handlers: {
-                'node:click':function(e){
+                'node:click': function (e) {
                     if (_this.networkSvg.countSelectedNodes == 1) {
                         _this.editionBar.showNodeButtons();
                         _this.editionBar.hideEdgeButtons();
@@ -194,7 +220,7 @@ NetworkViewer.prototype = {
                         _this.editionBar.unsetNodeButtons();
                     }
                 },
-                'edge:click':function(e){
+                'edge:click': function (e) {
                     if (_this.networkSvg.countSelectedEdges == 1) {
                         _this.editionBar.showEdgeButtons();
                         _this.editionBar.hideNodeButtons();
@@ -204,7 +230,7 @@ NetworkViewer.prototype = {
                         _this.editionBar.unsetEdgeButtons();
                     }
                 },
-                'svg:click':function(e){
+                'svg:click': function (e) {
                     if (_this.networkSvg.countSelectedNodes == 1) {
                         _this.editionBar.showNodeButtons();
                         _this.editionBar.hideEdgeButtons();
@@ -217,16 +243,17 @@ NetworkViewer.prototype = {
                         _this.editionBar.hideEdgeButtons();
                     }
                 },
-                'selection:change':function(e){
+                'selection:change': function (e) {
                     console.log(e);
+                    _this.trigger('selection:change',e);
                 },
-                'node:add':function(e){
+                'node:add': function (e) {
                     _this.editionBar.textBoxName.setValue(e);
                 },
-                'node:move':function(e){
+                'node:move': function (e) {
                     console.log(e);
                 },
-                'change':function(e){
+                'change': function (e) {
                     console.log(e);
                 }
             }
@@ -237,13 +264,98 @@ NetworkViewer.prototype = {
         var _this = this;
         var networkSvg = new NetworkSvg({
             targetId: targetId,
-            width: 1000*0.2,
-            height: 300*0.2,
+            width: 1000 * 0.2,
+            height: 300 * 0.2,
             networkData: this.networkData,
-            autoRender:true,
+            autoRender: true,
             handlers: {
             }
         });
         return networkSvg;
+    },
+    setLayout: function (type, nodeLst) {
+        var nodeList = nodeLst || this.networkData.getNodesList();
+        switch (type) {
+            case "Circle":
+                var vertexCoordinates = this.calculateLayoutVertex(type, nodeList.length);
+                var aux = 0;
+                for (var i = 0; i < nodeList.length; i++) {
+                    var x = this.networkSvg.getWidth() * (0.05 + 0.85 * vertexCoordinates[aux].x);
+                    var y = this.networkSvg.getHeight() * (0.05 + 0.85 * vertexCoordinates[aux].y);
+                    this.networkSvg.moveNode(nodeList[i], x, y);
+                    aux++;
+                }
+                break;
+            case "Square":
+                var vertexCoordinates = this.calculateLayoutVertex(type, nodeList.length);
+                var aux = 0;
+                for (var i = 0; i < nodeList.length; i++) {
+                    var x = this.networkSvg.getWidth() * (0.05 + 0.85 * vertexCoordinates[aux].x);
+                    var y = this.networkSvg.getHeight() * (0.05 + 0.85 * vertexCoordinates[aux].y);
+                    this.networkSvg.moveNode(nodeList[i], x, y);
+                    aux++;
+                }
+                break;
+            case "Random":
+                for (var i = 0; i < nodeList.length; i++) {
+                    var x = this.networkSvg.getWidth() * (0.05 + 0.85 * Math.random());
+                    var y = this.networkSvg.getHeight() * (0.05 + 0.85 * Math.random());
+                    this.networkSvg.moveNode(nodeList[i], x, y);
+                }
+                break;
+            default:
+                var dotText = this.networkData.toDot();
+                var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type + ".coords";
+//		var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
+                var _this = this;
+
+                $.ajax({
+                    async: false,
+                    type: "POST",
+                    url: url,
+                    dataType: "text",
+                    data: {
+                        dot: dotText
+                    },
+                    cache: false,
+                    success: function (data) {
+                        var response = JSON.parse(data);
+                        for (var nodeId in response) {
+                            var x = _this.networkSvg.getWidth() * (0.05 + 0.85 * response[nodeId].x);
+                            var y = _this.networkSvg.getHeight() * (0.05 + 0.85 * response[nodeId].y);
+                            _this.networkSvg.moveNode(nodeId, x, y);
+                        }
+                    }
+                });
+                break;
+        }
+        this.networkData.updateFromSvg(this.networkSvg.getNodeMetainfo());
+    },
+    select: function (option) {
+        switch (option) {
+            case 'All Nodes' :
+                this.networkSvg.selectAllNodes();
+                break;
+            case 'All Edges' :
+                this.networkSvg.selectAllEdges();
+                break;
+            case 'Everything' :
+                this.networkSvg.selectAll();
+                break;
+            case 'Adjacent' :
+                this.networkSvg.selectAdjacentNodes();
+                break;
+            case 'Neighbourhood' :
+                this.networkSvg.selectNeighbourhood();
+                break;
+            case 'Connected' :
+                this.networkSvg.selectConnectedNodes();
+                break;
+            default :
+                console.log(option + " not yet defined");
+        }
+    },
+    setLabelSize: function (option) {
+        this.networkSvg.setLabelSize(option);
     }
 }

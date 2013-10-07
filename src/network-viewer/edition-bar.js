@@ -70,7 +70,7 @@ EditionBar.prototype = {
             disabled: true,
             listeners: {
                 keyup: function () {
-                    _this.trigger('nameField:change', this.getValue())
+                    _this.trigger('nodeName:change', this.getValue())
                 }
             }
         });
@@ -81,9 +81,8 @@ EditionBar.prototype = {
             enableKeyEvents: true,
             disabled: true,
             listeners: {
-                scope: this,
                 keyup: function () {
-                    _this.networkSvg.setNodeLabel(this.textBoxLabel.getValue());
+                    _this.trigger('nodeLabel:change', this.getValue())
                 }
             }
         });
@@ -94,9 +93,8 @@ EditionBar.prototype = {
             enableKeyEvents: true,
             disabled: true,
             listeners: {
-                scope: this,
                 keyup: function () {
-                    _this.networkSvg.setEdgeLabel(this.textBoxEdgeName.getValue());
+                    _this.trigger('edgeLabel:change', this.getValue())
                 }
             }
         });
@@ -105,7 +103,7 @@ EditionBar.prototype = {
             value: '000000',
             listeners: {
                 select: function (picker, selColor) {
-                    _this.networkSvg.setEdgeColor("#" + selColor);
+                    _this.trigger('edgeColor:change', "#" + selColor)
                 }
             }
         });
@@ -123,7 +121,7 @@ EditionBar.prototype = {
             value: '993300',
             listeners: {
                 select: function (picker, selColor) {
-                    _this.networkSvg.setNodeColor("#" + selColor);
+                    _this.trigger('nodeColor:change', "#" + selColor)
                 }
             }
         });
@@ -140,9 +138,8 @@ EditionBar.prototype = {
         this.strokeColorPicker = Ext.create('Ext.picker.Color', {
             value: '993300', // initial selected color
             listeners: {
-                scope: this,
                 select: function (picker, selColor) {
-                    _this.networkSvg.setNodeStrokeColor("#" + selColor);
+                    _this.trigger('nodeStrokeColor:change', "#" + selColor)
                 }
             }
         });
@@ -223,6 +220,7 @@ EditionBar.prototype = {
                 plain: true
             }
         });
+
 
         this.comboStrokeWidthId = "Stroke size";
         var buttons = this._createButtons({
@@ -384,128 +382,6 @@ EditionBar.prototype = {
             }
         });
 
-        this.backgroundButton = Ext.create('Ext.button.Button', {
-            iconCls: 'icon-background-option',
-            tooltip: "Background settings...",
-            handler: function () {
-                _this.networkSvg.networkBackgroundSettings.draw(_this.networkSvg);
-            }
-        });
-
-        this.labelSizeButtonId = "Label size";
-        var buttons = this._createButtons({
-            group: this.labelSizeButtonId,
-            data: [
-                {
-                    text: "None"
-                },
-                {
-                    text: "Small"
-                },
-                {
-                    text: "Medium"
-                },
-                {
-                    text: "Large"
-                },
-                {
-                    text: "x-Large"
-                }
-            ]
-        });
-        this.labelSizeButton = Ext.create('Ext.button.Button', {
-            iconCls: 'icon-label-size',
-            tooltip: this.labelSizeButtonId,
-            menu: {
-                items: buttons,
-                plain: true
-            }
-        });
-
-        this.layoutButtonId = "Layout";
-        var buttons = this._createButtons({
-            group: this.layoutButtonId,
-            data: [
-                /* {text:"Custom"}, */{
-                    text: "dot"
-                },
-                {
-                    text: "neato"
-                },
-                {
-                    text: "twopi"
-                },
-                {
-                    text: "circo"
-                },
-                {
-                    text: "fdp"
-                },
-                {
-                    text: "sfdp"
-                },
-                {
-                    text: "Random"
-                },
-                {
-                    text: "Circle"
-                },
-                {
-                    text: "Square"
-                }
-            ]
-        });
-        this.layoutButton = Ext.create('Ext.button.Button', {
-            iconCls: 'icon-layout',
-            tooltip: this.layoutButtonId,
-            menu: {
-                items: buttons,
-                plain: true
-            }
-        });
-
-        this.collapseButton = Ext.create('Ext.button.Button', {
-            iconCls: 'icon-collapse',
-            tooltip: "Collapse",
-            handler: function () {
-                _this.networkSvg.collapse();
-            }
-        });
-
-        this.selectButtonId = "Select";
-        var buttons = this._createButtons({
-            group: this.selectButtonId,
-            data: [
-                {
-                    text: "All Nodes"
-                },
-                {
-                    text: "All Edges"
-                },
-                {
-                    text: "Everything"
-                },
-                {
-                    text: "Adjacent"
-                },
-                {
-                    text: "Neighbourhood"
-                },
-                {
-                    text: "Connected"
-                }
-            ]
-        });
-        this.selectButton = Ext.create('Ext.button.Button', {
-            iconCls: 'icon-auto-select',
-            tooltip: this.selectButtonId,
-            menu: {
-                items: buttons,
-                plain: true
-            }
-        });
-
-
         var toolbar = Ext.create('Ext.toolbar.Toolbar', {
             id: this.id + "navToolbar",
             renderTo: $(this.div).attr('id'),
@@ -526,7 +402,7 @@ EditionBar.prototype = {
                         this.toggle(true);
                         _this.hideNodeButtons();
                         _this.hideEdgeButtons();
-                        _this.trigger('select', {sender: _this});
+                        _this.trigger('mode:select', {sender: _this});
 //                        _this.networkViewer.handleActionMenu("select");
                     }
                 },
@@ -539,7 +415,7 @@ EditionBar.prototype = {
                         this.toggle(true);
                         _this.showNodeButtons();
                         _this.hideEdgeButtons();
-                        _this.trigger('add', {sender: _this});
+                        _this.trigger('mode:add', {sender: _this});
 //                        _this.networkViewer.handleActionMenu("add");
                     }
                 },
@@ -551,7 +427,7 @@ EditionBar.prototype = {
                         this.toggle(true);
                         _this.hideNodeButtons();
                         _this.showEdgeButtons();
-                        _this.trigger('join', {sender: _this});
+                        _this.trigger('mode:join', {sender: _this});
 //                        _this.networkViewer.handleActionMenu("join");
                     }
                 },
@@ -563,15 +439,11 @@ EditionBar.prototype = {
                         this.toggle(true);
                         _this.hideNodeButtons();
                         _this.hideEdgeButtons();
-                        _this.trigger('delete', {sender: _this});
+                        _this.trigger('mode:delete', {sender: _this});
 //                        _this.networkViewer.handleActionMenu("delete");
                     }
                 },
 
-                // this.collapseButton,
-                // this.layoutButton,
-                // this.labelSizeButton,
-                // this.selectButton,
                 "-",
                 this.comboBoxNode,
                 this.comboSize,
@@ -767,28 +639,29 @@ EditionBar.prototype = {
             // this.textBoxName.disable(false);
         }
     },
-    changeOpacity: function (opacityString) {
-        var opacity = 1;
-        switch (opacityString) {
-            case "none" :
-                opacity = 1;
-                break;
-            case "low" :
-                opacity = 0.8;
-                break;
-            case "medium" :
-                opacity = 0.5;
-                break;
-            case "high" :
-                opacity = 0.2;
-                break;
-            case "invisible" :
-                opacity = 0;
-                break;
-        }
 
-        this.networkSvg.setNodeOpacity(opacity);
-    },
+//    changeOpacity: function (opacityString) {
+//        var opacity = 1;
+//        switch (opacityString) {
+//            case "none" :
+//                opacity = 1;
+//                break;
+//            case "low" :
+//                opacity = 0.8;
+//                break;
+//            case "medium" :
+//                opacity = 0.5;
+//                break;
+//            case "high" :
+//                opacity = 0.2;
+//                break;
+//            case "invisible" :
+//                opacity = 0;
+//                break;
+//        }
+//
+//
+//    },
     changeStroke: function (color) {
         for (var i = 0; i < this.networkWidget.getSelectedVertices().length; i++) {
             this.networkWidget.setVertexStroke(this.networkWidget
@@ -861,63 +734,29 @@ EditionBar.prototype = {
         return buttons;
     },
     _handleButtons: function (config) {
-        var _this = this;
         switch (config.parent) {
-            case this.selectButtonId :
-                switch (config.text) {
-                    case 'All Nodes' :
-                        _this.networkSvg.selectAllNodes();
-                        break;
-                    case 'All Edges' :
-                        _this.networkSvg.selectAllEdges();
-                        break;
-                    case 'Everything' :
-                        _this.networkSvg.selectAll();
-                        break;
-                    case 'Adjacent' :
-                        _this.networkSvg.selectAdjacentNodes();
-                        break;
-                    case 'Neighbourhood' :
-                        _this.networkSvg.selectNeighbourhood();
-                        break;
-                    case 'Connected' :
-                        _this.networkSvg.selectConnectedNodes();
-                        break;
-                    default :
-                        console.log(config.text + " not yet defined");
-                }
-                break;
-
-            case this.layoutButtonId :
-                _this.networkViewer.setLayout(config.text);
-                break;
-            case this.labelSizeButtonId :
-                var hash = {
-                    "None": 0,
-                    "Small": 8,
-                    "Medium": 10,
-                    "Large": 12,
-                    "x-Large": 16
-                };
-                _this.networkSvg.setLabelSize(hash[config.text]);
-                break;
-
             case this.comboBoxNodeId :
-                _this.networkSvg.setNodeShape(config.text);
+                this.trigger('nodeShape:change',config.text);
                 break;
             case this.comboBoxEdgeId :
-                _this.networkSvg.setEdgeType(config.text);
+                this.trigger('edgeType:change',config.text);
                 break;
             case this.comboSizeId :
-                _this.networkSvg.setNodeSize(config.text);
+                this.trigger('nodeSize:change',config.text);
                 break;
             case this.comboStrokeWidthId :
-                _this.networkSvg.setNodeStrokeSize(config.text);
+                this.trigger('nodeStrokeSize:change',config.text);
                 break;
             case this.comboBoxOpacityId :
-                _this.changeOpacity(config.text);
+                var opacity = {
+                    "none": 1,
+                    "low": 0.8,
+                    "medium": 5,
+                    "high": 0.2,
+                    "invisible": 0
+                };
+                this.trigger('nodeOpacity:change',opacity[config.text]);
                 break;
-
             default :
                 console.log(config.parent + " not yet defined");
         }

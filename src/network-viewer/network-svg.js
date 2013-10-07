@@ -55,7 +55,7 @@ function NetworkSvg(args) {
     /** Draw default values **/
     this.nodeShape = "circle";
     this.nodeSize = 7;
-    this.nodeColor = "lightblue";
+    this.nodeColor = "#99CCFF";
     this.nodeStrokeColor = "#000000";
     this.nodeStrokeSize = 2;
     this.nodeOpacity = 1;
@@ -1370,6 +1370,7 @@ NetworkSvg.prototype.setNodeShape = function (newShape) {
                 var figure = nodeGroup.childNodes[0];
                 var shape = figure.getAttribute("shape");
                 if (shape != newShape) {
+
                     nodeGroup.removeChild(figure);
 
                     var id = figure.getAttribute("id");

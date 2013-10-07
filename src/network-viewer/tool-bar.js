@@ -214,12 +214,19 @@ ToolBar.prototype = {
     },
     _setLabelSizeMenu: function () {
         var _this = this;
+        var size = {
+            "None": 0,
+            "Small": 8,
+            "Medium": 10,
+            "Large": 12,
+            "x-Large": 16
+        };
         var options = ['None', 'Small', 'Medium', 'Large', 'x-Large'];
         for (var i in options) {
             var menuEntry = $('<li class="ui-menu-item" role="presentation"><a id="ui-id-1" class="ui-corner-all" tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
             $(this.labelSizeMenu).append(menuEntry);
             $(menuEntry).click(function () {
-                _this.trigger('labelSize:change', {option: $(this).text(), sender: _this});
+                _this.trigger('labelSize:change', {option: size[$(this).text()], sender: _this});
             });
         }
     },
@@ -230,7 +237,7 @@ ToolBar.prototype = {
             var menuEntry = $('<li class="ui-menu-item" role="presentation"><a id="ui-id-1" class="ui-corner-all" tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
             $(this.autoSelectMenu).append(menuEntry);
             $(menuEntry).click(function () {
-                _this.trigger('labelSize:change', {option: $(this).text(), sender: _this});
+                _this.trigger('select:change', {option: $(this).text(), sender: _this});
             });
         }
     },

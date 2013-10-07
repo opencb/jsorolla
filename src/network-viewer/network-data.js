@@ -94,6 +94,11 @@ NetworkData.prototype.removeNode = function(nodeId) {
 	delete this.nodes[nodeId];
 };
 
+
+NetworkData.prototype.getNode = function(nodeId) {
+    return this.nodes[nodeId];
+};
+
 NetworkData.prototype.addEdge = function(source, target, type, name, args) {
 	this.metaInfo.numEdges++;
 	this.edges[this.edgeId] = {};
