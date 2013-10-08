@@ -505,7 +505,10 @@ GenomeViewer.prototype = {
     checkTrackListReady: function () {
         var _this = this;
         var checkAllTrackListStatus = function (status) {
-            if(_this.trackListPanel.status != status || _this.regionOverviewPanel.status != status){
+            if(_this.regionOverviewPanel && _this.regionOverviewPanel.status != status){
+                return false;
+            }
+            if(_this.trackListPanel.status != status ){
                return false;
             }
             return true;
