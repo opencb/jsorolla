@@ -368,7 +368,7 @@ TrackListPanel.prototype = {
             $(this).css({"cursor": "default"});
             $(_this.mouseLine).css({'visibility': 'hidden'});
             $(this).off('mousemove');
-            $("body").off('keydown');
+            $("body").off('keydown.genomeViewer');
 
             $(selBox).css({'visibility': 'hidden'});
             downX = null;
@@ -378,13 +378,13 @@ TrackListPanel.prototype = {
         $(this.tlTracksDiv).mouseenter(function (e) {
 //            $('.qtip').qtip('enable'); // To enable them again ;)
             $(_this.mouseLine).css({'visibility': 'visible'});
-            $("body").off('keydown');
+            $("body").off('keydown.genomeViewer');
             enableKeys();
         });
 
         var enableKeys = function () {
             //keys
-            $("body").keydown(function (e) {
+            $("body").bind('keydown.genomeViewer', function (e) {
                 var disp = 0;
                 switch (e.keyCode) {
                     case 37://left arrow
@@ -566,7 +566,16 @@ TrackListPanel.prototype = {
 //        setTimeout(checkStatus, 10);
         /***************************/
     },
-    addTrack: function (track) {
+    addTrack :function(track){
+        if(_.isArray(track)){
+            for(var i in track){
+                this._addTrack(track[i]);
+            }
+        }else{
+            this._addTrack(track);
+        }
+    },
+    _addTrack: function (track) {
         if (!this.rendered) {
             console.info(this.id + ' is not rendered yet');
             return;

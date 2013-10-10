@@ -176,7 +176,6 @@ OpencgaAdapter.prototype.getData = function(args){
                 queryParams: this.params,
                 success:regionSuccess
             });
-
 		}
 	}else{
 		if(itemList.length > 0){

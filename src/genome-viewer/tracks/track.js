@@ -239,7 +239,7 @@ Track.prototype = {
                 $('html').addClass('unselectable');
                 event.stopPropagation();
                 var downY = event.clientY;
-                $('html').mousemove(function (event) {
+                $('html').bind('mousemove.genomeViewer',function (event) {
                     var despY = (event.clientY - downY);
                     var actualHeight = $(svgdiv).outerHeight();
                     $(svgdiv).css({height: actualHeight + despY});
@@ -247,9 +247,9 @@ Track.prototype = {
                     _this.autoHeight = false;
                 });
             });
-            $('html').mouseup(function (event) {
+            $('html').bind('mouseup.genomeViewer',function (event) {
                 $('html').removeClass('unselectable');
-                $('html').off('mousemove');
+                $('html').off('mousemove.genomeViewer');
             });
             $(svgdiv).closest(".trackListPanels").mouseup(function (event) {
                 _this.updateHeight();

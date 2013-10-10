@@ -118,9 +118,10 @@
 
 <script type="text/javascript">
     var genomeViewer = null;
-    $(document).ready(function () {
+    var run = function () {
 //        var region = new Region({chromosome: "13", start: 32889611, end: 32973805});
         var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+
 
         genomeViewer = new GenomeViewer({
             region: region,
@@ -147,6 +148,7 @@
         genomeViewer.draw();
 
 
+        tracks = [];
         this.sequence = new SequenceTrack({
             targetId: null,
             id: 1,
@@ -171,7 +173,7 @@
             })
         });
 
-        genomeViewer.addTrack(this.sequence);
+        tracks.push(this.sequence);
 
         this.gene = new GeneTrack({
             targetId: null,
@@ -200,7 +202,7 @@
             })
         });
 
-        genomeViewer.addTrack(this.gene);
+        tracks.push(this.gene);
 
 
         var renderer = new FeatureRenderer('gene');
@@ -302,10 +304,12 @@
             })
         });
 
-        genomeViewer.addTrack(this.snp);
-    })
-    ;
+        tracks.push(this.snp);
 
+        genomeViewer.addTrack(tracks);
+    };
+
+    $(document).ready(run);
 </script>
 
 <style type="text/css">

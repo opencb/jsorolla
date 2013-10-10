@@ -194,7 +194,6 @@ VCFVariantInfoWidget.prototype.getData = function (){
 	var _this = this;
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
-
 	var query = this.feature.chromosome+":"+this.feature.start+":"+this.feature.reference+":"+this.feature.alternate;
     CellBaseManager.get({
         host : 'http://ws-beta.bioinfo.cipf.es/cellbase/rest',
@@ -211,6 +210,7 @@ VCFVariantInfoWidget.prototype.getData = function (){
 };
 
 VCFVariantInfoWidget.prototype.dataReceived = function (data){
+    debugger
 	this.data = new Object();
 	this.data["header"] = this.adapter.header;
 	this.data["samples"] = this.adapter.samples;
