@@ -85,20 +85,51 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
         var rowHeight = textHeight + height + 2;
 
 
-        var d = '';
+
+//        azul osucuro: 0/0
+//        negro: ./.
+//        rojo: 1/1
+//        naranja 0/1
+
+        var d00 = '';
+        var dDD = '';
+        var d11 = '';
+        var d01 = '';
         var xs = x; // x start
         var xe = x + width; // x end
         var ys = 1; // y
-        var yi = 2; //y increment
-        var yi2 = 6; //y increment
+        var yi = 6; //y increment
+        var yi2 = 10; //y increment
         for (var i = 0, leni = feature.samples.length; i < leni; i++) {
             args.renderedArea[ys] = new FeatureBinarySearchTree();
             args.renderedArea[ys].add({start: xs, end: xe});
-            d += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-            d += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+            var genotype = feature.samples[i].split(':')[0];
+            switch(genotype){
+                case '0|0':
+                case '0/0':
+                        d00 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                        d00 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    break;
+                case '.|.':
+                case './.':
+                        dDD += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                    dDD += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    break;
+                case '1|1':
+                case '1/1':
+                        d11 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                        d11 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    break;
+                case '0|1':
+                case '0/1':
+                case '1|0':
+                case '1/0':
+                        d01 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                        d01 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    break;
+            }
             ys += yi2;
         }
-        rowHeight = ys;
         var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
         var dummyRect = SVG.addChild(featureGroup, "rect", {
             'x': xs,
@@ -109,10 +140,27 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
             'cursor': 'pointer'
         });
         var path = SVG.addChild(featureGroup, "path", {
-            'd': d,
-            'fill': 'lightskyblue',
+            'd': d00,
+            'fill': 'blue',
             'cursor': 'pointer'
         });
+        var path = SVG.addChild(featureGroup, "path", {
+            'd': dDD,
+            'fill': 'black',
+            'cursor': 'pointer'
+        });
+        var path = SVG.addChild(featureGroup, "path", {
+            'd': d11,
+            'fill': 'red',
+            'cursor': 'pointer'
+        });
+        var path = SVG.addChild(featureGroup, "path", {
+            'd': d01,
+            'fill': 'orange',
+            'cursor': 'pointer'
+        });
+
+
         var lastSampleIndex = 0;
         $(featureGroup).qtip({
             content: {text: tooltipText+'<br>'+feature.samples[lastSampleIndex], title: tooltipTitle},
