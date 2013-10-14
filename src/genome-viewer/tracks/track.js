@@ -45,7 +45,7 @@ function Track(args) {
     this.pixelPosition = this.svgCanvasWidth / 2;
     this.svgCanvasOffset;
     this.svgCanvasFeatures;
-    this.status = undefined;
+    this.status;
     this.histogram;
     this.histogramLogarithm;
     this.histogramMax;
@@ -92,35 +92,57 @@ Track.prototype = {
         this.main.setAttribute("width", width);
     },
     updateHeight: function () {
+
+//        $(this.rrr).remove();
+//        delete this.rrr;
+//        this.rrr = SVG.addChild(this.svgCanvasFeatures, "rect", {
+//            'x': 0,
+//            'y': 0,
+//            'width': 0,
+//            'height': 18,
+//            'stroke': '#3B0B0B',
+//            'stroke-width': 1,
+//            'stroke-opacity': 1,
+//            'fill': 'black',
+//            'cursor': 'pointer'
+//        });
+
+        var height = this.height;
         if (this.resizable) {
             if (!this.histogram) {
-                var height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
+                height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
                 /**/
-                var x = this.renderer.getFeatureX(this.region, {width: this.width, pixelPosition: this.pixelPosition, pixelBase: this.pixelBase, position: this.region.center()});
-                var width = this.region.length() * this.pixelBase;
-                var countTrees = 0;
+                var x = this.pixelPosition;
+                var width = this.width;
+//                var countTrees = 0;
+                var lastContains = 0;
                 for (var i in this.renderedArea) {
-                    var foundArea = this.renderedArea[i].add({start: x, end: x + width });
-                    countTrees++;
-                    if (foundArea && i != "0") {
-                        break;
+                    if (this.renderedArea[i].contains({start: x, end: x + width })) {
+                        lastContains = i;
+//                        console.log(lastContains)
                     }
+//                    countTrees++;
                 }
-                var divHeight = countTrees * 18;
+
+//                var divHeight = (countTrees + 1) * 18;
+                var divHeight = parseInt(lastContains) + 20;
+                if (this.autoHeight) {
+                    $(this.svgdiv).css({'height': divHeight + 10});
+                }
+
+//                this.rrr.setAttribute('x', x);
+//                this.rrr.setAttribute('y', divHeight);
+//                this.rrr.setAttribute('width', width);
                 /**/
 
 
             } else {
-                var height = this.height;
+                $(this.svgdiv).css({'height': height + 10});
+
             }
             this.main.setAttribute('height', height);
             this.svgCanvasFeatures.setAttribute('height', height);
             this.titlebar.setAttribute('height', height);
-
-
-            if (this.autoHeight) {
-                $(this.svgdiv).css({'height': divHeight + 10});
-            }
         }
     },
     enableAutoHeight: function () {
@@ -139,6 +161,7 @@ Track.prototype = {
         } else {
             this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
+            this.trigger('track:ready', {sender: this});
         }
     },
 
@@ -216,7 +239,7 @@ Track.prototype = {
                 $('html').addClass('unselectable');
                 event.stopPropagation();
                 var downY = event.clientY;
-                $('html').mousemove(function (event) {
+                $('html').bind('mousemove.genomeViewer',function (event) {
                     var despY = (event.clientY - downY);
                     var actualHeight = $(svgdiv).outerHeight();
                     $(svgdiv).css({height: actualHeight + despY});
@@ -224,9 +247,12 @@ Track.prototype = {
                     _this.autoHeight = false;
                 });
             });
-            $('html').mouseup(function (event) {
+            $('html').bind('mouseup.genomeViewer',function (event) {
                 $('html').removeClass('unselectable');
-                $('html').off('mousemove');
+                $('html').off('mousemove.genomeViewer');
+            });
+            $(svgdiv).closest(".trackListPanels").mouseup(function (event) {
+                _this.updateHeight();
             });
 
 

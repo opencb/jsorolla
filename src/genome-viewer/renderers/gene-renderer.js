@@ -69,6 +69,8 @@ GeneRenderer.prototype.render = function (features, args) {
         //transform to pixel position
         var width = length * args.pixelBase;
 
+        var svgLabelWidth = _this.getLabelWidth(label, args);
+
         //calculate x to draw svg rect
         var x = _this.getFeatureX(feature, args);
 
@@ -76,7 +78,7 @@ GeneRenderer.prototype.render = function (features, args) {
         var textHeight = 0;
         if (args.zoom > args.labelZoom) {
             textHeight = 9;
-            maxWidth = Math.max(width, label.length * 12);
+            maxWidth = Math.max(width, svgLabelWidth);
         }
 
         var rowY = 0;
@@ -92,16 +94,20 @@ GeneRenderer.prototype.render = function (features, args) {
 
             //check if gene transcripts can be painted
             var checkRowY = rowY;
+            var foundTranscriptsArea = true;
             if (!_.isEmpty(feature.transcripts)) {
                 for (var i = 0, leni = feature.transcripts.length + 1; i < leni; i++) {
                     if (!(checkRowY in args.renderedArea)) {
                         args.renderedArea[checkRowY] = new FeatureBinarySearchTree();
                     }
-                    foundArea = !args.renderedArea[checkRowY].contains({start: x, end: x + maxWidth - 1});
-                    if (foundArea == false) {
+                    if (args.renderedArea[checkRowY].contains({start: x, end: x + maxWidth - 1})) {
+                        foundTranscriptsArea = false;
                         break;
                     }
                     checkRowY += rowHeight;
+                }
+                if(foundTranscriptsArea == true){
+                    foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
                 }
             } else {
                 foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
@@ -165,7 +171,8 @@ GeneRenderer.prototype.render = function (features, args) {
                         var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(transcript) : _this.infoWidgetId;
 
                         //se resta el trozo del final del gen hasta el principio del transcrito y se le suma el texto del transcrito
-                        var maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + label.length * 7);
+                        var svgLabelWidth = _this.getLabelWidth(label, args);
+                        var maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + svgLabelWidth);
 
 
                         //add to the tree the transcripts size

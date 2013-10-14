@@ -23,14 +23,14 @@ StringDataSource.prototype.fetch = DataSource.prototype.fetch;
 
 function StringDataSource(str) {
 	DataSource.prototype.constructor.call(this);
-	
+
+    _.extend(this, Backbone.Events);
 	this.str = str;
-	this.success = new Event();
 };
 
 StringDataSource.prototype.fetch = function(async){
 	if(async){
-		this.success.notify(this.str);
+		this.trigger('success',this.str);
 	}else{
 		return this.str;
 	}

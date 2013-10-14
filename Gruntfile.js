@@ -33,27 +33,26 @@ module.exports = function (grunt) {
             },
             utils:{
                 src: [
-                    'src/utils/utils.js',
-                    'src/utils/event.js',
-                    'src/utils/svg.js'
-//                    'src/ui-widgets/ux-window.js'
+                    'src/lib/utils/utils.js',
+                    'src/lib/utils/svg.js',
+                    'src/lib/region.js'
                 ],
                 dest: 'build/utils-<%= meta.version.utils %>.js'
             },
             cellbase: {
                 src: [
-                    'src/cellbase/cellbase-manager.js',
-                    'src/cellbase/ui-widgets/info-widget.js',
-                    'src/cellbase/ui-widgets/gene-info-widget.js',
-                    'src/cellbase/ui-widgets/*.js'
+                    'src/lib/cellbase/cellbase-manager.js',
+                    'src/lib/cellbase/ui-widgets/info-widget.js',
+                    'src/lib/cellbase/ui-widgets/gene-info-widget.js',
+                    'src/lib/cellbase/ui-widgets/*.js'
                 ],
                 dest: 'build/cellbase-<%= meta.version.cellbase %>.js'
             },
             opencga:{
                 src: [
-                    'src/opencga/**/user-list-widget.js',
-                    'src/opencga/**/*.js',
-                    '!src/opencga/worker-fileupload.js'
+                    'src/lib/opencga/**/user-list-widget.js',
+                    'src/lib/opencga/**/*.js',
+                    '!src/lib/opencga/worker-fileupload.js'
                 ],
                 dest: 'build/opencga-<%= meta.version.opencga %>.js'
             },
@@ -61,31 +60,31 @@ module.exports = function (grunt) {
                 src: [
                     '<%= concat.utils.dest %>',
                     '<%= concat.cellbase.dest %>',
-                    'src/genome-viewer/gv-config.js',
+//                    'src/genome-viewer/gv-config.js',
+                    'src/genome-viewer/feature-binary-search-tree.js',
+                    'src/genome-viewer/navigation-bar.js',
+                    'src/genome-viewer/chromosome-panel.js',
+                    'src/genome-viewer/karyotype-panel.js',
+                    'src/genome-viewer/status-bar.js',
+                        /** data-adapter **/
                     'src/genome-viewer/data-source/data-source.js','src/genome-viewer/data-source/*-data-source.js',
                     'src/genome-viewer/data-adapter/cellbase-adapter.js',
                     'src/genome-viewer/data-adapter/sequence-adapter.js',
                     'src/genome-viewer/data-adapter/bam-adapter.js',
                     'src/genome-viewer/data-adapter/opencga-adapter.js',
                     'src/genome-viewer/data-adapter/feature-data-adapter.js','src/genome-viewer/data-adapter/*-data-adapter.js',
-                    'src/genome-viewer/region.js',
-                    'src/genome-viewer/feature-binary-search-tree.js',
-                    'src/genome-viewer/feature-cache.js',
-                    'src/genome-viewer/bam-cache.js',
-                    'src/genome-viewer/navigation-bar.js',
-                    'src/genome-viewer/chromosome-panel.js',
-                    'src/genome-viewer/karyotype-panel.js',
-                    'src/genome-viewer/tracklist-panel.js',
-                    'src/genome-viewer/status-bar.js',
-                    'src/genome-viewer/legend-panel.js',
-                    'src/genome-viewer/legend-widget.js',
+                        /** cache **/
+                    'src/genome-viewer/cache/*-cache.js',
                         /** tracks **/
+                    'src/genome-viewer/tracks/tracklist-panel.js',
                     'src/genome-viewer/tracks/track.js',
                     'src/genome-viewer/tracks/*-track.js',
                         /** renderers **/
                     'src/genome-viewer/renderers/renderer.js',
                     'src/genome-viewer/renderers/*-renderer.js',
                         /** widgets **/
+                    'src/genome-viewer/widget/legend-panel.js',
+                    'src/genome-viewer/widget/legend-widget.js',
                     'src/genome-viewer/widget/file-widget.js',
                     'src/genome-viewer/widget/*-file-widget.js',
 
@@ -190,7 +189,8 @@ module.exports = function (grunt) {
             gv: {
                 files: [
                     {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' },
-                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' } // includes files in path and its subdirs
+                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' }, // includes files in path and its subdirs
+                    {   expand: true, cwd:'./src/genome-viewer/', src: ['gv-config.js'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' }
                 ]
             }
         },
@@ -267,7 +267,7 @@ module.exports = function (grunt) {
                 files: ['src/genome-viewer/**', 'src/utils/**', 'src/cellbase/**', 'src/opencga/**', 'styles/**'],
                 tasks: ['gv','opencga'],
                 options: {spawn: false}
-            },
+            }
         }
     });
 
@@ -287,10 +287,15 @@ module.exports = function (grunt) {
 
     // Default task.
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
-    grunt.registerTask('gv', ['concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
-    grunt.registerTask('nv', ['concat:utils','concat:cellbase','concat:nv','uglify:nv', 'clean:utils','clean:cellbase']);
 
     grunt.registerTask('utils', ['concat:utils','uglify:utils','copy:utils','clean:utils']);
-    grunt.registerTask('cellbase', ['concat:utils','uglify:utils','concat:cellbase','uglify:cellbase','copy:cellbase','clean:cellbase','clean:utils']);
-    grunt.registerTask('opencga', ['concat:utils','uglify:utils','concat:opencga','uglify:opencga','copy:opencga','clean:opencga','clean:utils']);
+
+    grunt.registerTask('cellbase', ['concat:cellbase','uglify:cellbase','copy:cellbase','clean:cellbase']);
+
+    grunt.registerTask('opencga', ['concat:opencga','uglify:opencga','copy:opencga','clean:opencga']);
+
+
+    grunt.registerTask('gv', ['clean:gv','concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
+    grunt.registerTask('nv', ['concat:utils','concat:cellbase','concat:nv','uglify:nv', 'clean:utils','clean:cellbase']);
+
 };

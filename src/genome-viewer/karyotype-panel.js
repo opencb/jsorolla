@@ -30,9 +30,11 @@ function KaryotypePanel(args) {
     this.species;
     this.width = 600;
     this.height = 75;
-    this.collapsed = false,
+    this.collapsed = false;
+    this.collapsible = true;
 
-        //set instantiation args, must be last
+
+//set instantiation args, must be last
         _.extend(this, args);
 
     //set own region object
@@ -40,14 +42,10 @@ function KaryotypePanel(args) {
 
     this.lastSpecies = this.species;
 
-    this.afterRender = new Event();
-
     this.chromosomeList;
     this.data2;
 
-
     this.on(this.handlers);
-
 
     this.rendered = false;
     if (this.autoRender) {
@@ -107,24 +105,27 @@ KaryotypePanel.prototype = {
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
-            this.collapseDiv = $('<div class="ocb-icon ocb-icon-collapse" style="margin:0px 0px -2px 10px;display:inline-block; vertical-align:bottom"></div>');
             this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
-            $(this.titleDiv).dblclick(function () {
-                if (_this.collapsed) {
-                    _this.showContent();
-                } else {
-                    _this.hideContent();
-                }
-            });
-            $(this.collapseDiv).click(function () {
-                if (_this.collapsed) {
-                    _this.showContent();
-                } else {
-                    _this.hideContent();
-                }
-            });
-            $(this.titleDiv).append(this.collapseDiv);
             $(this.div).append(this.titleDiv);
+
+            if(this.collapsible == true){
+                this.collapseDiv = $('<div class="ocb-icon ocb-icon-collapse" style="margin:0px 0px -2px 10px;display:inline-block; vertical-align:bottom"></div>');
+                $(this.titleDiv).dblclick(function () {
+                    if (_this.collapsed) {
+                        _this.showContent();
+                    } else {
+                        _this.hideContent();
+                    }
+                });
+                $(this.collapseDiv).click(function () {
+                    if (_this.collapsed) {
+                        _this.showContent();
+                    } else {
+                        _this.hideContent();
+                    }
+                });
+                $(this.titleDiv).append(this.collapseDiv);
+            }
         }
 
         this.svg = SVG.init(this.div, {
@@ -300,7 +301,7 @@ KaryotypePanel.prototype = {
         });
 
         _this.rendered = true;
-        _this.afterRender.notify();
+        _this.trigger('after:render',{sender:_this});
     },
 
 
@@ -378,7 +379,7 @@ KaryotypePanel.prototype = {
         if (this.rendered) {
             mark();
         } else {
-            this.afterRender.addEventListener(function (sender, data) {
+            _this.on('after:render',function (e) {
                 mark();
             });
         }

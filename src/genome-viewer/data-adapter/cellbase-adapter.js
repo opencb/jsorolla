@@ -101,7 +101,7 @@ CellBaseAdapter.prototype.setOption = function (opt, value) {
 
 
 CellBaseAdapter.prototype.getData = function (args) {
-    var rnd = String.fromCharCode(65 + Math.round(Math.random() * 10));
+    var rnd = Utils.randomString(2);
     var _this = this;
     //region check
     this.params["histogram"] = args.histogram;

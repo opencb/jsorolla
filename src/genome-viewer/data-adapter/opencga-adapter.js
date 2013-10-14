@@ -25,7 +25,7 @@ function OpencgaAdapter(args){
 
 	this.host = null;
 	this.gzip = true;
-	
+
 	this.params={};
 	if (args != null){
 		if(args.host != null){
@@ -45,32 +45,31 @@ function OpencgaAdapter(args){
 		}
 	}
 	this.featureCache =  new FeatureCache(argsFeatureCache);
-//	this.onGetData = new Event();
 }
 
 OpencgaAdapter.prototype.getData = function(args){
 	var _this = this;
 	//region check
-	
+
 	this.params["histogram"] = args.histogram;
     this.params["histogramLogarithm"] = args.histogramLogarithm;
     this.params["histogramMax"] = args.histogramMax;
 	this.params["interval"] = args.interval;
 	this.params["transcript"] = args.transcript;
-	
-	
+
+
 	if(args.start<1){
 		args.start=1;
 	}
 	if(args.end>300000000){
 		args.end=300000000;
 	}
-	
+
 	var type = "data";
 	if(args.histogram){
 		type = "histogram"+args.interval;
 	}
-	
+
 	var firstChunk = this.featureCache._getChunk(args.start);
 	var lastChunk = this.featureCache._getChunk(args.end);
 
@@ -89,13 +88,13 @@ OpencgaAdapter.prototype.getData = function(args){
 //	if(itemList.length>0){
 //		this.onGetData.notify({data:itemList, params:this.params, cached:true});
 //	}
-	
-	
+
+
 	//CellBase data process
-	var opencgaManager = new OpencgaManager(this.host);
+    //TODO check host
 	var calls = 0;
 	var querys = [];
-	opencgaManager.onRegion.addEventListener(function (evt, data){
+	regionSuccess = function (data){
 		console.timeEnd("dqs");
 		console.time("dqs-cache");
 		var type = "data";
@@ -126,15 +125,15 @@ OpencgaAdapter.prototype.getData = function(args){
 //			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
             _this.trigger('data:ready',{items:itemList, params:_this.params, cached:false, sender:_this});
 		}
-	});
+	};
 
 	var updateStart = true;
 	var updateEnd = true;
 	if(chunks.length > 0){
 //		console.log(chunks);
-		
+
 		for ( var i = 0; i < chunks.length; i++) {
-			
+
 			if(updateStart){
 				var chunkStart = parseInt(chunks[i] * this.featureCache.chunkSize);
 				updateStart = false;
@@ -143,7 +142,7 @@ OpencgaAdapter.prototype.getData = function(args){
 				var chunkEnd = parseInt((chunks[i] * this.featureCache.chunkSize) + this.featureCache.chunkSize-1);
 				updateEnd = false;
 			}
-			
+
 			if(chunks[i+1]!=null){
 				if(chunks[i]+1==chunks[i+1]){
 					updateEnd =true;
@@ -155,7 +154,7 @@ OpencgaAdapter.prototype.getData = function(args){
 				}
 			}else{
 				var query = args.chromosome+":"+chunkStart+"-"+chunkEnd;
-				
+
 				querys.push(query);
 				updateStart = true;
 				updateEnd = true;
@@ -168,7 +167,15 @@ OpencgaAdapter.prototype.getData = function(args){
 //			opencgaManager.region(this.category, this.resource, querys[i], this.params);
             var cookie = $.cookie("bioinfo_sid");
             cookie = ( cookie != '' && cookie != null ) ?  cookie : 'dummycookie';
-            opencgaManager.region(this.resource.account, cookie,this.resource.bucketId, this.resource.id, querys[i], this.params);
+            OpencgaManager.region({
+                accountId: this.resource.account,
+                sessionId: cookie,
+                bucketId: this.resource.bucketId,
+                objectId: this.resource.oid,
+                region: querys[i],
+                queryParams: this.params,
+                success:regionSuccess
+            });
 		}
 	}else{
 		if(itemList.length > 0){
