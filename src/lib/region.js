@@ -37,6 +37,8 @@ function Region(args) {
 Region.prototype = {
     load : function (obj) {
         this.chromosome = obj.chromosome || this.chromosome;
+        this.chromosome = this.chromosome.toUpperCase();
+
         this.start = obj.start || this.start;
         this.end = obj.end || this.end;
 
@@ -51,7 +53,7 @@ Region.prototype = {
             var splitDots = str.split(":");
             if (splitDots.length == 2) {
                 var splitDash = splitDots[1].split("-");
-                this.chromosome = splitDots[0];
+                this.chromosome = splitDots[0].toUpperCase();
                 this.start = parseInt(splitDash[0]);
                 if (splitDash.length == 2) {
                     this.end = parseInt(splitDash[1]);

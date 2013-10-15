@@ -28,7 +28,7 @@ function Track(args) {
     this.renderer;
     this.labelZoom = -1;
     this.resizable = true;
-    this.autoHeight = true;
+    this.autoHeight = false;
     this.targetId;
     this.id;
     this.title;

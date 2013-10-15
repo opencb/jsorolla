@@ -44,15 +44,16 @@ GFF3DataAdapter.prototype.parse = function(data, region){
 	
 	//parse attributes column
 	var getAttr = function(column){
-		var arr = column.split(";");
 		var obj = {};
-		for (var i = 0, li = arr.length; i<li ; i++){
-			var item = arr[i].split("=");
-			obj[item[0]] = item[1];
-		}
+        if(typeof column !== 'undefined'){
+            var arr = column.replace(/ /g,'').split(";");
+            for (var i = 0, li = arr.length; i<li ; i++){
+                var item = arr[i].split("=");
+                obj[item[0]] = item[1];
+            }
+        }
 		return obj;
 	};
-	
 	var dataType = "data";
 	var lines = data.split("\n");
 //	console.log("creating objects");

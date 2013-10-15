@@ -21,36 +21,24 @@
 
 function FileWidget(args){
 	var _this=this;
-	this.targetId = null;
-	this.id = "FileWidget_" + Math.round(Math.random()*100000);
+
+    _.extend(this, Backbone.Events);
+
+    this.id = Utils.genId("FileWidget");
+	this.targetId;
 	this.wum = true;
 	this.tags = [];
-	
-	this.args = args;
-	
-	if (args != null){
-		if (args.targetId!= null){
-			this.targetId = args.targetId;       
-		}
-		if (args.title!= null){
-			this.title = args.title;    
-			this.id = this.title+this.id;
-		}
-		if (args.wum!= null){
-			this.wum = args.wum;    
-		}
-        if (args.tags!= null){
-        	this.tags = args.tags;       
-        }
-        if (args.viewer!= null){
-        	this.viewer = args.viewer;       
-        }
-        
-	}
-	
-	this.dataAdapter = null;
-	this.onOk = new Event(this);
-	
+    this.viewer;
+    this.title;
+	this.dataAdapter;
+
+    this.args = args;
+
+    _.extend(this, args);
+
+
+    this.on(this.handlers);
+
 //	this.browserData = new BrowserDataWidget();
 	/** Events i listen **/
 //	this.browserData.onSelect.addEventListener(function (sender, data){
@@ -199,7 +187,7 @@ FileWidget.prototype.draw = function(){
 			text:'Ok',
 			disabled:true,
 			handler: function(){
-				_this.onOk.notify({fileName:_this.file.name, adapter:_this.adapter});
+				_this.trigger('okButton:click',{fileName:_this.file.name, adapter:_this.adapter});
 				_this.openDialog.close();
 			}
 		});
