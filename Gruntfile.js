@@ -85,6 +85,7 @@ module.exports = function (grunt) {
                         /** widgets **/
                     'src/genome-viewer/widget/legend-panel.js',
                     'src/genome-viewer/widget/legend-widget.js',
+                    'src/genome-viewer/widget/url-widget.js',
                     'src/genome-viewer/widget/file-widget.js',
                     'src/genome-viewer/widget/*-file-widget.js',
 

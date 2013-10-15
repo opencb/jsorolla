@@ -85,7 +85,6 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
         var rowHeight = textHeight + height + 2;
 
 
-
 //        azul osucuro: 0/0
 //        negro: ./.
 //        rojo: 1/1
@@ -104,28 +103,28 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
             args.renderedArea[ys] = new FeatureBinarySearchTree();
             args.renderedArea[ys].add({start: xs, end: xe});
             var genotype = feature.samples[i].split(':')[0];
-            switch(genotype){
+            switch (genotype) {
                 case '0|0':
                 case '0/0':
-                        d00 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                        d00 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    d00 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                    d00 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
                     break;
                 case '.|.':
                 case './.':
-                        dDD += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                    dDD += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
                     dDD += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
                     break;
                 case '1|1':
                 case '1/1':
-                        d11 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                        d11 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    d11 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                    d11 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
                     break;
                 case '0|1':
                 case '0/1':
                 case '1|0':
                 case '1/0':
-                        d01 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                        d01 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    d01 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                    d01 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
                     break;
             }
             ys += yi2;
@@ -139,40 +138,48 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
             'fill': 'transparent',
             'cursor': 'pointer'
         });
-        var path = SVG.addChild(featureGroup, "path", {
-            'd': d00,
-            'fill': 'blue',
-            'cursor': 'pointer'
-        });
-        var path = SVG.addChild(featureGroup, "path", {
-            'd': dDD,
-            'fill': 'black',
-            'cursor': 'pointer'
-        });
-        var path = SVG.addChild(featureGroup, "path", {
-            'd': d11,
-            'fill': 'red',
-            'cursor': 'pointer'
-        });
-        var path = SVG.addChild(featureGroup, "path", {
-            'd': d01,
-            'fill': 'orange',
-            'cursor': 'pointer'
-        });
+        if (d00 != '') {
+            var path = SVG.addChild(featureGroup, "path", {
+                'd': d00,
+                'fill': 'blue',
+                'cursor': 'pointer'
+            });
+        }
+        if (dDD != '') {
+            var path = SVG.addChild(featureGroup, "path", {
+                'd': dDD,
+                'fill': 'black',
+                'cursor': 'pointer'
+            });
+        }
+        if (d11 != '') {
+            var path = SVG.addChild(featureGroup, "path", {
+                'd': d11,
+                'fill': 'red',
+                'cursor': 'pointer'
+            });
+        }
+        if (d01 != '') {
+            var path = SVG.addChild(featureGroup, "path", {
+                'd': d01,
+                'fill': 'orange',
+                'cursor': 'pointer'
+            });
+        }
 
 
         var lastSampleIndex = 0;
         $(featureGroup).qtip({
-            content: {text: tooltipText+'<br>'+feature.samples[lastSampleIndex], title: tooltipTitle},
+            content: {text: tooltipText + '<br>' + feature.samples[lastSampleIndex], title: tooltipTitle},
 //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
             position: {target: "mouse", adjust: {x: 25, y: 15}},
-            style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'}
+            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
         });
         $(featureGroup).mousemove(function (event) {
-            var sampleIndex =  parseInt(event.offsetY / yi2);
-            if(sampleIndex != lastSampleIndex){
+            var sampleIndex = parseInt(event.offsetY / yi2);
+            if (sampleIndex != lastSampleIndex) {
                 console.log(sampleIndex);
-                $(featureGroup).qtip('option', 'content.text', tooltipText+'<br>'+feature.samples[sampleIndex]);
+                $(featureGroup).qtip('option', 'content.text', tooltipText + '<br>' + feature.samples[sampleIndex]);
             }
             lastSampleIndex = sampleIndex;
         });
@@ -180,7 +187,6 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
 
     //process features
     for (var i = 0, leni = features.length; i < leni; i++) {
-        console.log('(>··)>')
         var feature = features[i];
         draw(feature);
     }

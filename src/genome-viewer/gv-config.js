@@ -586,22 +586,31 @@ FEATURE_TYPES = {
         histogramColor: "grey"
     },
     das: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.id;
             return str;
         },
-        getTipTitle: function (f) {
-            return FEATURE_TYPES.formatTitle(f.featureType);
+        tooltipTitle: function (f) {
+            return FEATURE_TYPES.formatTitle(f.featureType) + ('id' in f) ? f.id : '';
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
-            return "black";
+        color: function (f) {
+            return "lightblue";
         },
         height: 8,
-        histogramColor: "orange"
+        histogramColor: "orange",
+        infoWidgetId: 'id',
+        handlers: {
+            'feature:mouseover': function (e) {
+                console.log(e)
+            },
+            'feature:click': function (e) {
+                console.log(e)
+            }
+        }
     }
 };
 
