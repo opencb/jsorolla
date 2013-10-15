@@ -9,6 +9,7 @@ module.exports = function (grunt) {
             version : {
                 gv:'1.0.2',
                 nv:'1.0.0',
+                threedv:'0.0.1',
                 cellbase:'1.0.0',
                 opencga:'1.0.0',
                 utils:'1.0.0'
@@ -97,13 +98,21 @@ module.exports = function (grunt) {
             nv:{
                 src: [
                     '<%= concat.utils.dest %>',
-                    '<%= concat.cellbase.dest %>',
+                    'src/lib/cellbase/cellbase-manager.js',
                     'src/network-viewer/network-viewer.js'
                     /** network viewer **/
 
                    /** src/network-viewer ..... **/
                 ],
                 dest:'build/network-viewer/<%= meta.version.nv %>/network-viewer-<%= meta.version.nv %>.js'
+            },
+            threedv:{
+                src: [
+                    '<%= concat.utils.dest %>',
+                    '<%= concat.cellbase.dest %>',
+                    'src/3d-viewer/threed-viewer.js'
+                ],
+                dest:'build/3d-viewer/<%= meta.version.threedv %>/threed-viewer-<%= meta.version.threedv %>.js'
             }
         },
         uglify: {
@@ -129,6 +138,10 @@ module.exports = function (grunt) {
             nv: {
                 src: '<%= concat.nv.dest %>',
                 dest: 'build/network-viewer/<%= meta.version.nv %>/network-viewer-<%= meta.version.nv %>.min.js'
+            },
+            threedv:{
+                src: '<%= concat.threedv.dest %>',
+                dest:'build/3d-viewer/<%= meta.version.threedv %>/threed-viewer-<%= meta.version.threedv %>.min.js'
             }
         },
         jshint: {
@@ -193,6 +206,13 @@ module.exports = function (grunt) {
                     {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' }, // includes files in path and its subdirs
                     {   expand: true, cwd:'./src/genome-viewer/', src: ['gv-config.js'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' }
                 ]
+            },
+            threedv: {
+                files: [
+                    {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' },
+                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }, // includes files in path and its subdirs
+                    {   expand: true, cwd:'./src/3d-viewer/', src: ['threedv-config.js'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }
+                ]
             }
         },
 
@@ -200,7 +220,8 @@ module.exports = function (grunt) {
             utils:['<%= concat.utils.dest %>','<%= uglify.utils.dest %>'],
             cellbase:['<%= concat.cellbase.dest %>','<%= uglify.cellbase.dest %>'],
             opencga:['<%= concat.opencga.dest %>','<%= uglify.opencga.dest %>'],
-            gv: ['build/genome-viewer/<%= meta.version.gv %>/']
+            gv: ['build/genome-viewer/<%= meta.version.gv %>/'],
+            threedv: ['build/3d-viewer/<%= meta.version.threedv %>/']
         },
 
         vendorPath: 'build/genome-viewer/<%= meta.version.gv %>/vendor',
@@ -235,6 +256,28 @@ module.exports = function (grunt) {
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb*.css',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-1.10.3*/css/**/jquery-ui*min.css'
                             ]
+                    }
+                }
+            },
+            threedv:{
+                src: 'src/3d-viewer/threed-viewer.html',
+                dest: 'build/3d-viewer/<%= meta.version.threedv %>/',
+                options: {
+                    beautify: true,
+                    scripts: {
+                        'js': '<%= uglify.threedv.dest %>',
+                        'vendor': [
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/underscore*.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/backbone*.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/jquery.min.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/jquery-ui-1.10.3*/js/jquery-ui*min.js'
+                        ]
+                    },
+                    styles: {
+                        'css': ['<%= stylesPath %>/css/style.css'],
+                        'vendor': [
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/jquery-ui-1.10.3*/css/**/jquery-ui*min.css'
+                        ]
                     }
                 }
             }
@@ -298,5 +341,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('gv', ['clean:gv','concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
     grunt.registerTask('nv', ['concat:utils','concat:cellbase','concat:nv','uglify:nv', 'clean:utils','clean:cellbase']);
+    grunt.registerTask('threedv', ['clean:threedv','concat:threedv','uglify:threedv','copy:threedv','htmlbuild:threedv']);
 
 };
