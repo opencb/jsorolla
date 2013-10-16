@@ -65,7 +65,7 @@ ThreeDViewer.prototype = {
             return;
         }
 
-        this.torus = _createTorus($(this.torusDiv).attr('id'));
+        //this.torus = _createTorus($(this.torusDiv).attr('id'));
 
 
 
