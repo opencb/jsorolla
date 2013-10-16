@@ -117,7 +117,7 @@ OpencgaBrowserWidget.prototype = {
                 children: []
             },
             listeners: {
-                beforeappend: function (este, node) {
+                beforeinsert: function (este, node) {
                     if (node.isLeaf()) {
 //                        console.log(node.raw.oid + " is a file");
                         return false; //cancel append because is leaf
@@ -456,8 +456,9 @@ OpencgaBrowserWidget.prototype = {
                                         Ext.example.msg("Deleting", data);
                                     } else {
                                         //delete complete
-                                        record.destroy();
-                                        _this.trigger('need:refresh', {sender: _this});
+//                                        record.destroy();
+                                        _this.filesGrid.store.remove(record);
+//                                        _this.trigger('need:refresh', {sender: _this});
                                     }
                                 }
                             });
@@ -690,7 +691,7 @@ OpencgaBrowserWidget.prototype = {
 
     _updateFolderTree: function () {
         var _this = this;
-        console.log("updating folder tree");
+//        console.log("updating folder tree");
         var find = function (str, arr) {
             for (var i = 0; i < arr.length; i++) {
                 if (arr[i].text == str) {
@@ -701,11 +702,13 @@ OpencgaBrowserWidget.prototype = {
         };
 
         if (this.accountData != null && this.accountData.accountId != null) {
+//            console.log('generating tree..')
             this.folderStore.getRootNode().removeAll();
             this.allStore.getRootNode().removeAll();
             this.filesStore.removeAll();
 //            this.folderTree.getSelectionModel().deselectAll();
             for (var i = 0; i < this.accountData.buckets.length; i++) {
+                var files = [];
                 var folders = [];
                 for (var j = 0; j < this.accountData.buckets[i].objects.length; j++) {
                     var data = this.accountData.buckets[i].objects[j];
@@ -726,34 +729,72 @@ OpencgaBrowserWidget.prototype = {
                     }
                     //console.log(pathArr)
 
-                    var current = folders;
+                    var currentFiles = files;
+                    var currentFolders = folders;
+
                     for (var k = 0; k < pathArr.length; k++) {
-                        var found = find(pathArr[k], current);
+                        var found = find(pathArr[k], currentFiles);
                         if (found != -1) {
-                            current = current[found].children;
+                            currentFiles = currentFiles[found].children;
                         } else {
                             var children = [];
-                            var idx = current.push({text: pathArr[k], children: children}) - 1;
+                            var idx = currentFiles.push({text: pathArr[k], children: children}) - 1;
                             if (typeof pathArr[k + 1] == 'undefined') {//isLast
                                 for (key in data) {
                                     if (key != "children") {
-                                        current[idx][key] = data[key];
+                                        currentFiles[idx][key] = data[key];
                                     }
                                 }
                             }
-                            current = children;
+
+                            currentFiles = children;
                         }
+
+                        //ignore files, only folders
+                        var found = find(pathArr[k], currentFolders);
+                        if (found != -1) {
+                            currentFolders = currentFolders[found].children;
+                        } else {
+                            var children = [];
+                            if (data.fileType == "dir") {
+                                var idx = currentFolders.push({text: pathArr[k], children: children}) - 1;
+                                if (typeof pathArr[k + 1] == 'undefined') {//isLast
+                                    for (key in data) {
+                                        if (key != "children") {
+                                            currentFolders[idx][key] = data[key];
+                                        }
+                                    }
+                                }
+                            }
+
+                            currentFolders = children;
+                        }
+
                     }
                 }
-                folders = JSON.stringify(folders);
-                this.allStore.getRootNode().appendChild({text: this.accountData.buckets[i].name, bucketId: this.accountData.buckets[i].name, oid: "", icon: Utils.images.bucket, expanded: true, isBucket: true, children: JSON.parse(folders)});
-                this.folderStore.getRootNode().appendChild({text: this.accountData.buckets[i].name, bucketId: this.accountData.buckets[i].name, oid: "", icon: Utils.images.bucket, expanded: true, isBucket: true, children: JSON.parse(folders)});
+
+                this.allStore.getRootNode().appendChild({
+                    text: this.accountData.buckets[i].name,
+                    bucketId: this.accountData.buckets[i].name,
+                    oid: "", icon: Utils.images.bucket,
+                    expanded: true,
+                    isBucket: true,
+                    children: files
+                });
+                this.folderStore.getRootNode().appendChild({
+                    text: this.accountData.buckets[i].name,
+                    bucketId: this.accountData.buckets[i].name,
+                    oid: "", icon: Utils.images.bucket,
+                    expanded: true,
+                    isBucket: true,
+                    children: folders
+                });
             }
         }
 
-        //collapse and expand to update the view after append, possible ExtJS 4.2.0 bug
-        this.folderStore.getRootNode().collapse();
-        this.folderStore.getRootNode().expand();
+//        //collapse and expand to update the view after append, possible ExtJS 4.2.0 bug
+//        this.folderStore.getRootNode().collapse();
+//        this.folderStore.getRootNode().expand();
 
 
         //reselect nodes after account update

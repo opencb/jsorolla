@@ -524,7 +524,7 @@ GenomeViewer.prototype = {
             return true;
         };
         if (checkAllTrackListStatus('ready')) {
-            console.log('-------------all tracklist ready')
+//            console.log('-------------all tracklist ready')
             _this.trigger('tracks:ready', {sender: _this});
         }
 //        var checkStatus = function () {
