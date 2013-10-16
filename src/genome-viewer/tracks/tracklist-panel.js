@@ -552,7 +552,7 @@ TrackListPanel.prototype = {
             return true;
         };
         if (checkAllTrackStatus('ready')) {
-            console.log('all ready')
+//            console.log('all ready')
             this.status = 'ready';
             _this.trigger('tracks:ready', {sender: _this});
         }

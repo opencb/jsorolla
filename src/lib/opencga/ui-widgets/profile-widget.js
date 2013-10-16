@@ -82,7 +82,7 @@ ProfileWidget.prototype = {
     },
     _createPanel: function (targetId) {
         var _this = this;
-        console.log(this.id + ' CREATING PANEL');
+//        console.log(this.id + ' CREATING PANEL');
 
         var labelPass = Ext.create('Ext.toolbar.TextItem', {
             id: this.id + 'labelPass',
