@@ -91,8 +91,7 @@ Track.prototype = {
         this.width = width;
         this.main.setAttribute("width", width);
     },
-    updateHeight: function () {
-
+    updateHeight: function (updateDiv) {
 //        $(this.rrr).remove();
 //        delete this.rrr;
 //        this.rrr = SVG.addChild(this.svgCanvasFeatures, "rect", {
@@ -126,7 +125,7 @@ Track.prototype = {
 
 //                var divHeight = (countTrees + 1) * 18;
                 var divHeight = parseInt(lastContains) + 20;
-                if (this.autoHeight) {
+                if(updateDiv == true){
                     $(this.svgdiv).css({'height': divHeight + 10});
                 }
 
@@ -147,9 +146,8 @@ Track.prototype = {
     },
     enableAutoHeight: function () {
         this.autoHeight = true;
-        this.updateHeight();
+        this.updateHeight(true);
     },
-
     setTitle: function (title) {
         $(this.titlediv).html(title);
     },
@@ -252,7 +250,9 @@ Track.prototype = {
                 $('html').off('mousemove.genomeViewer');
             });
             $(svgdiv).closest(".trackListPanels").mouseup(function (event) {
-                _this.updateHeight();
+                if(_this.autoHeight){
+                    _this.updateHeight();
+                }
             });
 
 

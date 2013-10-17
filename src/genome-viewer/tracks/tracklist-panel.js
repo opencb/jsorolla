@@ -722,6 +722,12 @@ TrackListPanel.prototype = {
             track.enableAutoHeight();
         }
     },
+    updateHeight: function () {
+        for (var i = 0; i < this.trackSvgList.length; i++) {
+            var track = this.trackSvgList[i];
+            track.updateHeight(true);
+        }
+    },
 
     _redraw: function () {
         $(this.tlTracksDiv)

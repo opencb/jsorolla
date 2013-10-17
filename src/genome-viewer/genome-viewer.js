@@ -638,6 +638,10 @@ GenomeViewer.prototype = {
         this.trackListPanel.enableAutoHeight();
         this.regionOverviewPanel.enableAutoHeight();
     },
+    updateHeight: function () {
+        this.trackListPanel.updateHeight();
+        this.regionOverviewPanel.updateHeight();
+    },
 
 
     setSpeciesVisible: function (bool) {
