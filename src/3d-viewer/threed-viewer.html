@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>3D Viewer Demo</title>
+
+
+<!-- CSS from vendors -->
+<!-- build:style vendor -->
+<link type="text/css" rel="stylesheet" href="../../vendor/jquery-ui-1.10.3.custom/css/smoothgray/jquery-ui-1.10.3.custom.min.css">
+<!-- /build -->
+
+<!-- CSS -->
+<!-- build:style css -->
+<link href="../../styles/css/style.css" rel="stylesheet">
+<!-- /build -->
+
+
+<!-- JS from vendors -->
+<!-- build:script vendor -->
+<script type="text/javascript" src="../../vendor/underscore-min.js"></script>
+<script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+<script type="text/javascript" src="../../vendor/jquery.min.js"></script>
+
+<!-- These dependencies must go AFTER jquery -->
+<script type="text/javascript" src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+<!-- /build -->
+
+
+
+
+
+<!-- JS -->
+<!-- Genome-viewer -->
+<script type="text/javascript" src="threedv-config.js"></script>
+
+<!-- build:script js -->
+
+<!-- js-common-libs utils -->
+<script type="text/javascript" src="../lib/utils/svg.js"></script>
+<script type="text/javascript" src="../lib/utils/utils.js"></script>
+
+<!-- js-common-libs cellbase ws-manager -->
+<script type="text/javascript" src="../lib/cellbase/cellbase-manager.js"></script>
+
+
+<script type="text/javascript" src="threed-viewer.js"></script>
+
+<!-- /build -->
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-16414504-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+
+
+<script type="text/javascript">
+    var threeDViewer = null;
+    var run = function () {
+
+        threeDViewer = new ThreeDViewer({
+            targetId: 'application',
+            autoRender:true,
+            handlers:{
+                'okButton:click':function(e){
+
+                }
+            }
+        });
+        threeDViewer.draw();
+    };
+
+    $(document).ready(run);
+</script>
+
+<style type="text/css">
+    html, body {
+        /*height: 100%;*/
+        /*position:relative;*/
+    }
+
+    body {
+        /*overflow: hidden;*/
+        /*padding:50px;*/
+    }
+
+    #application {
+        width: 1200px;
+        height: 800px;
+        /*overflow-y: auto;*/
+        /*overflow-x: hidden;*/
+        padding: 10px;
+    }
+</style>
+
+</head>
+
+<body>
+<div style=""></div>
+<div id="application"></div>
+<div style=""></div>
+
+</body>
+</html>
