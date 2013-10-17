@@ -150,7 +150,7 @@ var OpencgaManager = {
     },
     getAccountInfo: function (args) {
 //        accountId, sessionId, lastActivity
-        console.log(args.lastActivity)
+//        console.log(args.lastActivity)
         var queryParams = {
             'last_activity': args.lastActivity,
             'sessionid': args.sessionId

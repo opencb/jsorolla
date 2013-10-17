@@ -457,60 +457,78 @@ FEATURE_TYPES = {
         histogramColor: "gray"
     },
     gff3: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.label;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return f.featureType.toUpperCase() +
                 ' - <span class="ok">' + f.label + '</span>';
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return 'score:&nbsp;<span class="emph">' + f.score + '</span><br>' +
                 'frame:&nbsp;<span class="emph">' + f.frame + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
+        color: function (f) {
             return "black";
         },
         height: 8,
-        histogramColor: "gray"
+        histogramColor: "gray",
+        infoWidgetId: 'id',
+        handlers: {
+            'feature:mouseover': function (e) {
+                console.log(e)
+            },
+            'feature:click': function (e) {
+                console.log(e)
+            }
+        }
     },
     gtf: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.label;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return f.featureType.toUpperCase() +
                 ' - <span class="ok">' + f.label + '</span>';
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return 'score:&nbsp;<span class="emph">' + f.score + '</span><br>' +
                 'frame:&nbsp;<span class="emph">' + f.frame + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
+        color: function (f) {
             return "black";
         },
         height: 8,
-        histogramColor: "gray"
+        histogramColor: "gray",
+        infoWidgetId: 'id',
+        handlers: {
+            'feature:mouseover': function (e) {
+                console.log(e)
+            },
+            'feature:click': function (e) {
+                console.log(e)
+            }
+        }
     },
     bed: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.label;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return FEATURE_TYPES.formatTitle(f.featureType);
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
+        color: function (f) {
             //XXX convert RGB to Hex
             var rgbColor = new Array();
             rgbColor = f.itemRgb.split(",");
@@ -522,7 +540,16 @@ FEATURE_TYPES = {
             return "#" + hexColor;
         },
         height: 8,
-        histogramColor: "orange"
+        histogramColor: "orange",
+        infoWidgetId: 'id',
+        handlers: {
+            'feature:mouseover': function (e) {
+                console.log(e)
+            },
+            'feature:click': function (e) {
+                console.log(e)
+            }
+        }
     },
     bam: {
         explainFlags: function (flags) {
