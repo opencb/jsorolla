@@ -91,7 +91,7 @@ Track.prototype = {
         this.width = width;
         this.main.setAttribute("width", width);
     },
-    updateHeight: function (updateDiv) {
+    _updateDIVHeight: function () {
 //        $(this.rrr).remove();
 //        delete this.rrr;
 //        this.rrr = SVG.addChild(this.svgCanvasFeatures, "rect", {
@@ -105,48 +105,43 @@ Track.prototype = {
 //            'fill': 'black',
 //            'cursor': 'pointer'
 //        });
-
-        var height = this.height;
         if (this.resizable) {
-            if (!this.histogram) {
-                height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
-                /**/
+            if (this.histogram) {
+                $(this.svgdiv).css({'height': this.height + 10});
+            } else {
                 var x = this.pixelPosition;
                 var width = this.width;
-//                var countTrees = 0;
                 var lastContains = 0;
                 for (var i in this.renderedArea) {
                     if (this.renderedArea[i].contains({start: x, end: x + width })) {
                         lastContains = i;
-//                        console.log(lastContains)
                     }
-//                    countTrees++;
                 }
-
-//                var divHeight = (countTrees + 1) * 18;
                 var divHeight = parseInt(lastContains) + 20;
-                if(updateDiv == true){
-                    $(this.svgdiv).css({'height': divHeight + 10});
-                }
-
+                $(this.svgdiv).css({'height': divHeight + 25});
 //                this.rrr.setAttribute('x', x);
 //                this.rrr.setAttribute('y', divHeight);
 //                this.rrr.setAttribute('width', width);
-                /**/
-
-
-            } else {
-                $(this.svgdiv).css({'height': height + 10});
-
             }
-            this.main.setAttribute('height', height);
-            this.svgCanvasFeatures.setAttribute('height', height);
-            this.titlebar.setAttribute('height', height);
+        }
+    },
+    _updateSVGHeight: function () {
+        if (this.resizable && !this.histogram) {
+            var renderedHeight = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
+            this.main.setAttribute('height', renderedHeight);
+            this.svgCanvasFeatures.setAttribute('height', renderedHeight);
+            this.titlebar.setAttribute('height', renderedHeight);
+        }
+    },
+    updateHeight: function (ignoreAutoHeight) {
+        this._updateSVGHeight();
+        if (this.autoHeight || ignoreAutoHeight) {
+            this._updateDIVHeight();
         }
     },
     enableAutoHeight: function () {
         this.autoHeight = true;
-        this.updateHeight(true);
+        this.updateHeight();
     },
     setTitle: function (title) {
         $(this.titlediv).html(title);
@@ -230,14 +225,14 @@ Track.prototype = {
             'height': this.height
         });
 
+        var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
         if (this.resizable) {
-            var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
 
             $(resizediv).mousedown(function (event) {
                 $('html').addClass('unselectable');
                 event.stopPropagation();
                 var downY = event.clientY;
-                $('html').bind('mousemove.genomeViewer',function (event) {
+                $('html').bind('mousemove.genomeViewer', function (event) {
                     var despY = (event.clientY - downY);
                     var actualHeight = $(svgdiv).outerHeight();
                     $(svgdiv).css({height: actualHeight + despY});
@@ -245,14 +240,12 @@ Track.prototype = {
                     _this.autoHeight = false;
                 });
             });
-            $('html').bind('mouseup.genomeViewer',function (event) {
+            $('html').bind('mouseup.genomeViewer', function (event) {
                 $('html').removeClass('unselectable');
                 $('html').off('mousemove.genomeViewer');
             });
             $(svgdiv).closest(".trackListPanels").mouseup(function (event) {
-                if(_this.autoHeight){
-                    _this.updateHeight();
-                }
+                _this.updateHeight();
             });
 
 
@@ -265,8 +258,8 @@ Track.prototype = {
                 $(this).css({'opacity': 0.3});
             });
 
-            $(div).append(resizediv);
         }
+        $(div).append(resizediv);
 
         this.svgGroup = SVG.addChild(main, "g", {
             "class": "trackTitle"
