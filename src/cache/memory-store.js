@@ -24,8 +24,8 @@ function MemoryStore(args) {
 
 MemoryStore.prototype = {
     add: function (key, value) {
-        if (typeof this.dataStore === 'undefined') {
-            this.dataStore = {};
+        if (typeof this.store === 'undefined') {
+            this.store = {};
         }
         var item = {key: key, value: value};
 
@@ -107,7 +107,7 @@ MemoryStore.prototype = {
         this.tail = undefined;
     },
     clear: function () {
-        this.dataStore = null;
+        this.store = null;
         this.init();
     }
 

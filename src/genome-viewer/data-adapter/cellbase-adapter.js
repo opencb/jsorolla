@@ -20,16 +20,14 @@
  */
 
 function CellBaseAdapter(args) {
+
     _.extend(this, Backbone.Events);
 
     _.extend(this, args);
 
-    //chromosome hash
-    this.chrHash = {};
-
+    this.on(this.handlers);
 
     this.cache = {};
-
 }
 
 CellBaseAdapter.prototype = {
@@ -37,25 +35,30 @@ CellBaseAdapter.prototype = {
     getData : function (args) {
         var _this = this;
 
-        var params = {
-            //TODO
-        };
 
-        //Create one chunk cache by chromosome
+        /********/
+        var params = {};
+        _.extend(params, this.params);
+        _.extend(params, args.params);
+
         var dataType = args.dataType;
-        var chr = args.chromosome;
-        var start = args.start;
-        var end = args.end;
+        var region = args.region;
 
+        region.start = (region.start < 1) ? 1 : region.start;
+        region.end = (region.end > 300000000) ? 300000000 : region.end;
+
+        /********/
+
+
+        //Create one FeatureChunkCache by datatype
         if (_.isUndefined(this.cache[dataType])) {
-            this.cache[dataType] = new FeatureChunkCache({});
+            this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
         }
-
-        var chunksByRegion = this.cache[dataType].getCachedByRegion(args);
+        var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
 
         if(chunksByRegion.notCached.length > 0) {
             var queryRegionStrings = _.map(chunksByRegion.notCached, function(region) {
-                return region.chromosome + ":" + region.start + "-" + region.end;
+                return new Region(region).toString();
             });
 
             //limit queries
@@ -73,9 +76,9 @@ CellBaseAdapter.prototype = {
                     subCategory: this.subCategory,
                     query: queriesList[i],
                     resource: this.resource,
-                    params: this.params,
+                    params: params,
                     success: function(data){
-                        _this._cellbaseSuccess(data, args.dataType);
+                        _this._cellbaseSuccess(data, dataType);
                     }
                 });
             }
@@ -90,34 +93,24 @@ CellBaseAdapter.prototype = {
     _cellbaseSuccess : function (data, dataType) {
         var timeId = Utils.randomString(4);
         console.time(this.resource + " save " + timeId);
-        //////////
-        //////////
+        /** time log **/
+
 
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
             var queryResult = data.response[i];
-            var splitDots = queryResult.id.split(":");
-            var splitDash = splitDots[1].split("-");
-            var qRegion = {chromosome: splitDots[0], start: splitDash[0], end: splitDash[1]};
 
-            var queryId = queryResult.id;
+            var region = new Region(queryResult.id);
             var features = queryResult.result;
-
-//            var chrChunkCache = this.chrHash[qRegion.chromosome];
-
-            //start or end does not matter
-            var chunkId = this.cache[dataType].getChunkId(qRegion.start);
-//            var chunkId = this.chrChunkCache.getChunkId(qRegion.end);
-
-            chunks.push(this.cache[dataType].putChunk(chunkId,features));
-
+            var chunk = this.cache[dataType].putByRegion(region,features);
+            chunks.push(chunk);
         }
         if (chunks.length > 0) {
             this.trigger('data:ready', {items: chunks, dataType: dataType, sender: this});
         }
 
-        //////////
-        //////////
+
+        /** time log **/
         console.timeEnd(this.resource + " get and save " + timeId);
     }
 };

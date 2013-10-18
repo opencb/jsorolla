@@ -31,7 +31,7 @@ FeatureChunkCache.prototype = {
 
     getByRegions: function (regions) {
         var chunks = [];
-        for(var i in regions) {
+        for (var i in regions) {
             var chunkId = this.getChunkId(regions[i].start);
             var chunkKey = this.getChunkKey(regions[i].chromosome, chunkId);
             chunks.push(this.getChunk(chunkKey));
@@ -45,11 +45,11 @@ FeatureChunkCache.prototype = {
         var firstChunkId = this.getChunkId(region.start);
         var lastChunkId = this.getChunkId(region.end);
 
-        for(var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
+        for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
             var chunkKey = this.getChunkKey(region.chromosome, chunkId);
             var chunk = this.getChunk(chunkKey);
 
-            var chunkRegionStart = parseInt(chunkId * this.chunkSize);
+            var chunkRegionStart = parseInt(chunkId * this.chunkSize) || 1;
             var chunkRegionEnd = parseInt(chunkId * this.chunkSize + this.chunkSize - 1);
             var chunkRegion = new Region({chromosome: region.chromosome, start: chunkRegionStart, end: chunkRegionEnd});
 
@@ -59,23 +59,23 @@ FeatureChunkCache.prototype = {
                 chunkRegions.cached.push(chunkRegion);
             }
 
-            if(this.verbose) {
+            if (this.verbose) {
                 console.log(chunkRegions);
             }
         }
         return chunkRegions;
     },
 
-    putChunk: function (chunkId, items) {
-        var value = {items: items, chunkId: chunkId};
-        this.store.add(chunkId, value);
+    putChunk: function (chunkKey, items) {
+        var value = {items: items, chunkKey: chunkKey};
+        this.store.add(chunkKey, value);
         return value;
     },
 
     putByRegion: function (region, items) {
-        var value = {items: items, chunkId: chunkId};
-        this.store.add(chunkId, value);
-        return value;
+        var chunkId = this.getChunkId(region.start);
+        var chunkKey = this.getChunkKey(region.chromosome, chunkId);
+        return this.putChunk(chunkKey,items);
     },
 
     getChunkKey: function (chromosome, chunkId) {
