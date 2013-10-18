@@ -66,7 +66,6 @@ FeatureTrack.prototype.render = function(targetId){
             zoom : _this.zoom,
             labelZoom : _this.labelZoom,
             pixelPosition : _this.pixelPosition
-
         });
         _this.updateHeight();
         _this.setLoading(false);
