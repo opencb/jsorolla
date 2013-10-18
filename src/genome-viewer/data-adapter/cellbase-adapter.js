@@ -22,128 +22,54 @@
 function CellBaseAdapter(args) {
     _.extend(this, Backbone.Events);
 
-    this.gzip = true;
-
     _.extend(this, args);
 
-    this.params = {};
-    if (args != null) {
-        if (args.species != null) {
-            this.species = args.species;
-        }
-        if (args.category != null) {
-            this.category = args.category;
-        }
-        if (args.subCategory != null) {
-            this.subCategory = args.subCategory;
-        }
-        if (args.resource != null) {
-            this.resource = args.resource;
-        }
-        if (args.featureCache != null) {
-            var argsFeatureCache = args.featureCache;
-        }
-        if (args.params != null) {
-            this.params = args.params;
-        }
-        if (args.filters != null) {
-            this.filters = args.filters;
-        }
-        if (args.options != null) {
-            this.options = args.options;
-        }
-        if (args.featureConfig != null) {
-            if (args.featureConfig.filters != null) {
-                this.filtersConfig = args.featureConfig.filters;
-            }
-            if (args.featureConfig.options != null) {
-                this.optionsConfig = args.featureConfig.options;
-                for (var i = 0; i < this.optionsConfig.length; i++) {
-                    if (this.optionsConfig[i].checked == true) {
-                        this.options[this.optionsConfig[i].name] = true;
-                        this.params[this.optionsConfig[i].name] = true;
-                    }
-                }
-            }
-        }
-    }
-    this.featureCache = new FeatureCache(argsFeatureCache);
+    //chromosome hash
+    this.chrHash = {};
 }
 
-CellBaseAdapter.prototype.clearData = function () {
-    this.featureCache.clear();
-};
+CellBaseAdapter.prototype = {
+    getData : function (args) {
+        var _this = this;
 
-CellBaseAdapter.prototype.setFilters = function (filters) {
-    this.clearData();
-    this.filters = filters;
-    for (filter in filters) {
-        var value = filters[filter].toString();
-        delete this.params[filter];
-        if (value != "") {
-            this.params[filter] = value;
+        var params = {
+            //TODO
+        };
+
+        //Create one chunk cache by chromosome
+        var chr = args.chromosome;
+        var start = args.start;
+        var end = args.end;
+
+        var chrChunkCache = this.chrHash[chr];
+        if (_.isUndefined(chrChunkCache)) {
+            this.chrHash[chr] = chrChunkCache = new ChunkCache({});
         }
-    }
-};
-CellBaseAdapter.prototype.setOption = function (opt, value) {
-    if (opt.fetch) {
-        this.clearData();
-    }
-    this.options[opt.name] = value;
-    for (option in this.options) {
-        if (this.options[opt.name] != null) {
-            this.params[opt.name] = this.options[opt.name];
+
+        var firstChunkId = chrChunkCache.getChunkId(start);
+        var lastChunkId = chrChunkCache.getChunkId(end);
+
+        var chunkIdsNotCached = [];
+        var chunksCached = [];
+        for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
+            var chunk = chrChunkCache.getChunk(chunkId);
+            if (_.isUndefined(chunk)) {
+                chunkIdsNotCached.push(chunkId);
+            } else {
+                chunksCached.push(chunk);
+            }
+        }
+
+        if (chunkIdsNotCached.length > 0) {
+            this._callRegions(chunkIdsNotCached,chr);
         } else {
-            delete this.params[opt.name];
+            this.trigger('data:ready', {items: chunksCached, params: params, sender: this});
         }
-    }
-};
 
-
-CellBaseAdapter.prototype.getData = function (args) {
-    var rnd = Utils.randomString(2);
-    var _this = this;
-    //region check
-    this.params["histogram"] = args.histogram;
-    this.params["interval"] = args.interval;
-    this.params["transcript"] = args.transcript;
-    this.params["chromosome"] = args.chromosome;
-    this.params["resource"] = this.resource;
-
-    if (args.start < 1) {
-        args.start = 1;
-    }
-    if (args.end > 300000000) {
-        args.end = 300000000;
-    }
-
-    var dataType = "data";
-    if (args.transcript) {
-        dataType = "withTranscripts";
-    }
-    if (args.histogram) {
-        dataType = "histogram" + args.interval;
-    }
-
-    this.params["dataType"] = dataType;
-
-    var firstChunk = this.featureCache._getChunk(args.start);
-    var lastChunk = this.featureCache._getChunk(args.end);
-    var chunks = [];
-    var itemList = [];
-    for (var i = firstChunk; i <= lastChunk; i++) {
-        var key = args.chromosome + ":" + i;
-        if (this.featureCache.cache[key] == null || this.featureCache.cache[key][dataType] == null) {
-            chunks.push(i);
-        } else {
-            var item = this.featureCache.getFeatureChunk(key);
-            itemList.push(item);
-        }
-    }
-
+    },
     //CellBase data process
-    var cellbaseSuccess = function (data) {
-
+    cellbaseSuccess : function (data) {
+debugger
         var dataType = "data";
         if (data.params.transcript) {
             dataType = "withTranscripts";
@@ -183,7 +109,8 @@ CellBaseAdapter.prototype.getData = function (args) {
             }
 
             console.time(_this.resource + " save " + rnd);
-            _this.featureCache.putFeaturesByRegion(features, qRegion, featureType, dataType);
+            var chrChunkCache = this.chrHash[qRegion.chromosome];
+            chrChunkCache.putFeaturesByRegion(features, qRegion, featureType, dataType);
             var items = _this.featureCache.getFeatureChunksByRegion(qRegion);
             console.timeEnd(_this.resource + " save " + rnd);
             if (items != null) {
@@ -196,43 +123,57 @@ CellBaseAdapter.prototype.getData = function (args) {
         console.timeEnd(_this.resource + " get and save " + rnd);
 
 
-    };
+    },
+    _getCallRegion: function(chunkIds,chromosome){
+        //creates a list of regions from chunkids, chunk regions are merged to minimize the querys
+        var querys = [];
+        var updateStart = true;
+        var updateEnd = true;
 
-    var querys = [];
-    var updateStart = true;
-    var updateEnd = true;
-    if (chunks.length > 0) {
-//		console.log(chunks);
+        var chunkSize = this.chrHash[chromosome].getChunkSize();
 
-        for (var i = 0; i < chunks.length; i++) {
+        for (var i = 0; i < chunkIds.length; i++) {
 
             if (updateStart) {
-                var chunkStart = parseInt(chunks[i] * this.featureCache.chunkSize);
+                var chunkStart = parseInt(chunkIds[i] * chunkSize);
                 updateStart = false;
             }
             if (updateEnd) {
-                var chunkEnd = parseInt((chunks[i] * this.featureCache.chunkSize) + this.featureCache.chunkSize - 1);
+                var chunkEnd = parseInt((chunkIds[i] * chunkSize) + chunkSize - 1);
                 updateEnd = false;
             }
 
-            if (chunks[i + 1] != null) {
-                if (chunks[i] + 1 == chunks[i + 1]) {
+            if (chunkIds[i + 1] != null) {
+                if (chunkIds[i] + 1 == chunkIds[i + 1]) {
                     updateEnd = true;
                 } else {
-                    var query = args.chromosome + ":" + chunkStart + "-" + chunkEnd;
+                    var query = chromosome + ":" + chunkStart + "-" + chunkEnd;
                     querys.push(query);
                     updateStart = true;
                     updateEnd = true;
                 }
             } else {
-                var query = args.chromosome + ":" + chunkStart + "-" + chunkEnd;
+                var query = chromosome + ":" + chunkStart + "-" + chunkEnd;
                 querys.push(query);
                 updateStart = true;
                 updateEnd = true;
             }
         }
-//		console.log(querys);
-        console.time(_this.resource + " get and save " + rnd);
+        return querys;
+    },
+    _callRegions: function(chunkIds,chromosome){
+        //creates a list of regions from chunkids, chunk regions are merged to minimize the querys
+        var querys = [];
+
+        var chunkSize = this.chrHash[chromosome].getChunkSize();
+
+        for (var i = 0; i < chunkIds.length; i++) {
+            var chunkStart = parseInt(chunkIds[i] * chunkSize);
+            var chunkEnd = parseInt((chunkIds[i] * chunkSize) + chunkSize - 1);
+            var query = chromosome + ":" + chunkStart + "-" + chunkEnd;
+            querys.push(query);
+        }
+
         CellBaseManager.get({
             host: this.host,
             species: this.species,
@@ -241,11 +182,10 @@ CellBaseAdapter.prototype.getData = function (args) {
             query: querys,
             resource: this.resource,
             params: this.params,
-            success: cellbaseSuccess
+            success: this.cellbaseSuccess
         });
-    } else {
-        if (itemList.length > 0) {
-            _this.trigger('data:ready', {items: itemList, params: this.params, sender: this});
-        }
+
+
     }
 };
+

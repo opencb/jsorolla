@@ -11,6 +11,7 @@ function ChunkCache(args) {
 
     // Default values
     this.id = Utils.genId("ChunkCache");
+    this.chunkSize = 50000;
 
     _.extend(this, args);
 
@@ -24,5 +25,11 @@ ChunkCache.prototype = {
     },
     putChunk: function (chunkId, items){
         this.chunkStore.add(chunkId,items);
+    },
+    getChunkId: function(position){
+        return Math.floor(position/this.chunkSize);
+    },
+    getChunkSize: function(){
+        return this.chunkSize;
     }
 }

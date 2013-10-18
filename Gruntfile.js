@@ -75,6 +75,9 @@ module.exports = function (grunt) {
                     'src/genome-viewer/data-adapter/opencga-adapter.js',
                     'src/genome-viewer/data-adapter/feature-data-adapter.js','src/genome-viewer/data-adapter/*-data-adapter.js',
                         /** cache **/
+                    'src/cache/memory-store.js',
+                    'src/cache/chunk-cache.js',
+
                     'src/genome-viewer/cache/feature-cache.js',
                     'src/genome-viewer/cache/*-cache.js',
                         /** tracks **/
