@@ -48,7 +48,7 @@ FeatureTrack.prototype.render = function (targetId) {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
     this.dataAdapter.on('data:ready', function (event) {
-        if (event.params.histogram == true) {
+        if (event.dataType == 'histogram') {
             _this.renderer = _this.histogramRenderer;
         } else {
             _this.renderer = _this.defaultRenderer;
@@ -154,10 +154,9 @@ FeatureTrack.prototype._getFeaturesByChunks = function (response, filters) {
     //Returns an array avoiding already drawn features in this.chunksDisplayed
 
     var chunks = response.items;
-    var dataType = response.params.dataType;
-    var chromosome = response.params.chromosome;
+    var dataType = response.dataType;
+//    var chromosome = response.chromosome;
     var features = [];
-
 
     var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
     for (var i = 0, leni = chunks.length; i < leni; i++) {
@@ -165,7 +164,7 @@ FeatureTrack.prototype._getFeaturesByChunks = function (response, filters) {
 
             for (var j = 0, lenj = chunks[i].items.length; j < lenj; j++) {
                 feature = chunks[i].items[j];
-                var chrChunkCache = this.dataAdapter.chrHash[feature.chromosome];
+                var chrChunkCache = this.dataAdapter.cache[dataType];
 
                 //check if any feature has been already displayed by another chunk
                 displayed = false;

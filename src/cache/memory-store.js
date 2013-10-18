@@ -12,7 +12,7 @@ function MemoryStore(args) {
     _.extend(this, Backbone.Events);
 
     // configurable parameters
-    this.limit = 500;
+//    this.limit = 500;
 
     // Now we set the args parameters
     _.extend(this, args);
@@ -43,13 +43,14 @@ MemoryStore.prototype = {
         // add new item to the end of the linked list, it's now the freshest item.
         this.tail = item;
 
-        if (this.size === this.limit) {
-            // we hit the limit, remove the head
-            this.shift();
-        } else {
-            // increase the size counter
-            this.size++;
-        }
+//        if (this.size === this.limit) {
+//            // we hit the limit, remove the head
+//            this.shift();
+//        } else {
+//            // increase the size counter
+//            this.size++;
+//        }
+        this.size++;
 
     },
     shift: function () {
