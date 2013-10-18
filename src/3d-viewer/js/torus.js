@@ -1,57 +1,61 @@
 /*
-TODO:
-    no pasar un config inicial, aunque esta el problema de cuantos discos crear, y cuando
-    eventos
-    viewer:
-        ☑  click en chromosoma con la textura estirada
-        ☐  mover seleccion de chromosoma mientras estirar o giras el disco
+ TODO:
+ no pasar un config inicial, aunque esta el problema de cuantos discos crear, y cuando
+ eventos
+ viewer:
+ ☑  click en chromosoma con la textura estirada
+ ☑  mover seleccion de chromosoma mientras estirar o giras el disco
+ ☐
  */
 
 
-var Torus = function(components, canvas) {
+var Torus = function(args) {
     this.data = {commons: {}, samples: []};
-    this.config = Torus.Config(components);
+    this.config = Torus.Config(args.components);
     this.viewer = new Viewer(this.config);
     this.lastClick;
     this.clickPressed;
-    this.canvas = canvas;
 
 
-    this.setDiv(canvas);
-    this.setData(components);
+    window.torus = this;
 
-    this.canvas.addEventListener( 'mousedown', this.onMouseDown, false );
-    this.canvas.addEventListener( 'mouseup', this.onMouseUp, false );
-    this.canvas.addEventListener( 'mousewheel', this.onMouseWheel, false );
-    this.canvas.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+    this.setDiv(args.targetId);
+    this.setData(args.components);
+
+    this.torusDiv.addEventListener( 'mousedown', this.onMouseDown, false );
+    this.torusDiv.addEventListener( 'mouseup', this.onMouseUp, false );
+    this.torusDiv.addEventListener( 'mousewheel', this.onMouseWheel, false );
+    this.torusDiv.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
 };
 
 Torus.prototype = {
-    setDiv      : function(canvas) {
-        if (canvas !== undefined) {
-            this.viewer.setDomElement(canvas);
+    setDiv      : function(targetId) {
+
+        if (targetId !== undefined) {
+            this.torusDiv = document.getElementById(targetId);
+            this.viewer.setDomElement(this.torusDiv);
         }
     },
     setData     : function(components) {
         if (components !== undefined){
-        this.data.commons = components.commons;
+            this.data.commons = components.commons;
 
-        var baseSpecie = Object.keys(this.data.commons)[0];
-        if(baseSpecie === undefined){
-            baseSpecie = "hsapiens";
-            this.data.commons.hsapiens = {};
-        }
+            var baseSpecie = Object.keys(this.data.commons)[0];
+            if(baseSpecie === undefined){
+                baseSpecie = "hsapiens";
+                this.data.commons.hsapiens = {};
+            }
 
-        for(var i = 0; i < this.config.numDisk; i++){
-            this.data.samples[i] = components.samples[i] === undefined ? {} : components.samples[i];
-            this.data.samples[i].id = this.data.samples[i].id === undefined ? "" : this.data.samples[i].id;
-            this.data.samples[i].features = this.data.samples[i].features === undefined ? [] : this.data.samples[i].features;
-            this.data.samples[i].species = this.data.samples[i].species === undefined? baseSpecie : this.data.samples[i].species;
-        }
+            for(var i = 0; i < this.config.numDisk; i++){
+                this.data.samples[i] = components.samples[i] === undefined ? {} : components.samples[i];
+                this.data.samples[i].id = this.data.samples[i].id === undefined ? "" : this.data.samples[i].id;
+                this.data.samples[i].features = this.data.samples[i].features === undefined ? [] : this.data.samples[i].features;
+                this.data.samples[i].species = this.data.samples[i].species === undefined? baseSpecie : this.data.samples[i].species;
+            }
 
-        this.setChromosomes();
-        this.setCytobands();
-        this.setGenes();
+            this.setChromosomes();
+            this.setCytobands();
+            //this.setGenes();
 
 
 //        this.viewer.drawScene();
@@ -201,24 +205,14 @@ Torus.Config = function(components) {
         numLayers: 1,
         layerSeparation: [0],
         featureSeparation: 0.03,
-        numDisk: components.samples.length,    // number of samples
+        numDisk: components.samples === undefined? 20 : components.samples,    // number of samples
         width: 300,     //  ??
         height: 300,
         backgroundColor: 0x7070B0,
         doubleFigure : false
     };
 
-    for (var c in components.config) {
-        conf[c] = components.config[c];
-    }
+    _.extend(conf, components.config);
 
     return conf;
 };
-
-
-
-
-
-
-
-

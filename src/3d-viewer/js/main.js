@@ -3,6 +3,23 @@ var components;
 
 function main() {
 
+    var threeDViewer;
+
+    threeDViewer =  new ThreeDViewer({
+        targetId: 'application',
+        autoRender:true,
+        demoTorus:true,
+        demoCellbase:chrjson,
+        handlers:{
+            'okButton:click':function(e){
+
+            }
+        }
+    });
+    threeDViewer.draw();
+
+
+/*
 
     //Montar components
     var cellbase = chrjson;
@@ -11,7 +28,7 @@ function main() {
     var url = "http://ws-beta.bioinfo.cipf.es/cellbasebeta2/rest/v3/hsapiens/genomic/chromosome/all?of=json";
         url = "http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/genomic/region/1/gene?histogram=true&interval=2000000&of=json";
     $.getJSON(url, function(res){addHisto(res);});
-
+*/
 
 }
 

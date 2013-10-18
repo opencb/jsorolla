@@ -216,7 +216,7 @@ module.exports = function (grunt) {
                     {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' },
                     {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }, // includes files in path and its subdirs
                     {   expand: true, cwd:'./src/3d-viewer/', src: ['threedv-config.js'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' },
-                    {   expand: true, cwd:'./src/3d-viewer/js', src: ['glsl/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }
+                    {   expand: true, cwd:'./src/3d-viewer/', src: ['glsl/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }
                 ]
             }
         },

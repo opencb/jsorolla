@@ -79,12 +79,15 @@
 
 
 <script type="text/javascript">
-    var threeDViewer = null;
     var run = function () {
 
-        threeDViewer = new ThreeDViewer({
+        var threeDViewer;
+
+        threeDViewer =  new ThreeDViewer({
             targetId: 'application',
             autoRender:true,
+            demoTorus:true,
+            demoCellbase:chrjson,
             handlers:{
                 'okButton:click':function(e){
 
@@ -92,6 +95,7 @@
             }
         });
         threeDViewer.draw();
+
     };
 
     $(document).ready(run);
@@ -116,8 +120,7 @@
 
 </head>
 
-<body onload="main();">
+<body>
 <div style="z-index: 1; position: absolute; left:0px; top:0px" id="application"> </div>
-
 </body>
 </html>

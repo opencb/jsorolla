@@ -7,7 +7,7 @@ var t = 5000;
 
 var Viewer = function(config){
 
-    this.canvas = null;
+    this.torusDiv = null;
     this.renderer = null;
     this.scene = null;
     this.camera = null;
@@ -62,8 +62,8 @@ Viewer.prototype = {
     },
 
     setDomElement  : function(domElement){
-        this.canvas = domElement;
-        this.canvas.appendChild(this.renderer.domElement);
+        this.torusDiv = domElement;
+        this.torusDiv.appendChild(this.renderer.domElement);
 
         this.stats.domElement.style.position = 'absolute';
         this.stats.domElement.style.left = '0px';
@@ -627,7 +627,7 @@ Viewer.Features = function(args){
 };
 
 Viewer.Features.precision = 0.01;
-Viewer.Features.maxFaces = 3000;
+Viewer.Features.maxFaces = 300;
 Viewer.Features.vertexShader = null;
 Viewer.Features.fragmentShader = null;
 
@@ -637,6 +637,9 @@ Viewer.Features.uniforms.range = {value: 0.7, type: 'f'};
 Viewer.Features.uniforms.angularLong = {value: 5, type: 'f'};
 Viewer.Features.uniforms.radius = {value: 2.2, type: 'f'};
 
+Viewer.Features.NonHistogram     = 0;
+Viewer.Features.ColumnHistogram  = 1;
+Viewer.Features.LinearHistogram  = 2;
 
 
 
@@ -666,6 +669,7 @@ Viewer.Features.prototype = {
         this.geometry = new THREE.Geometry();
 
         this.geometry.vertices.push(new THREE.Vector3(0,0,0));
+//        this.geometry.colors.push(new THREE.Color(1,1,0));
         for(var i = 0; i < Viewer.Features.maxFaces; i++){
             this.geometry.faces.push(new THREE.Face3(0,0,0));
         }
@@ -680,6 +684,7 @@ Viewer.Features.prototype = {
                                     range:Viewer.Features.uniforms.range,
                                     angularLong:Viewer.Features.uniforms.angularLong,
                                 },
+                vertexColors: THREE.VertexColors,
                 vertexShader:   Viewer.Features.vertexShader,
                 fragmentShader: Viewer.Features.fragmentShader
             }   );
@@ -690,6 +695,7 @@ Viewer.Features.prototype = {
     newGeometry    : function(){
         this.geometry.verticesNeedUpdate = true;
         this.geometry.elementsNeedUpdate = true;
+        this.geometry.colorsNeedUpdate = true;
         this.addFeatureFinish();
         var v = this.geometry.vertices.length;
         var v1 = this.geometry.vertices[v-1];
@@ -708,93 +714,173 @@ Viewer.Features.prototype = {
         this.numFaces = 0;
     },
 
-    addFeature  : function(start, end, z1, z2){
-        if(start > end){
-            var aux = start;
-            start = end;
-            end = aux;
+
+    addFeature : function(args){
+        if(args.topColorHex === undefined){
+            args.topColorHex = args.baseColorHex;
         }
+
+
+        var def = {
+            start: 0,
+            end: 1,
+            z : 0,
+            y: 0,
+            mod : 1,
+            ang: 0, //Radians
+            baseColorHex:0x00000000,
+            topColorHex :0xFF000000,
+            histogramType: Viewer.Features.NonHistogram,
+            data : [],
+            colorData: []   //TODO
+        };
+        _.extend(def, args);
+
+        if(def.start > def.end){
+            var aux = def.start;
+            def.start = def.end;
+            def.end = aux;
+        }
+
+        switch(def.histogramType){
+            case Viewer.Features.NonHistogram :
+                this._addFeature(def);
+                break;
+            case Viewer.Features.ColumnHistogram:
+                this._addFeatureHistoCol(def);
+                break;
+            case Viewer.Features.LinearHistogram:
+                this._addFeatureHisto(def);
+                break;
+
+        }
+
+    },
+
+
+
+
+    _addFeature  : function(args){
+        var start = args.start;
+        var end = args.end;
+
+        var color = new THREE.Color(args.baseColorHex);
+        var color2 = new THREE.Color(args.topColorHex);
+
         var numPatches  = Math.ceil((end-start)/Viewer.Features.precision);
         var precision = (end-start)/numPatches;
-        console.log(numPatches);
 
-        this.geometry.vertices.push(new THREE.Vector3(start,this.radius, z1 ));
-        this.geometry.vertices.push(new THREE.Vector3(start,this.radius, z2 ));
+        var w = -this.width;
+        var z = (args.z-0.5) * w;
+        var y = args.y;
+
+        var dz = Math.cos(-args.ang)*w*args.mod;
+        var dy = Math.sin(-args.ang)*w*args.mod;
+
+        this.geometry.vertices.push(new THREE.Vector3(start, y, z ));
+        this.geometry.vertices.push(new THREE.Vector3(start, y+dy, dz + z  ));
 
         for(var i = 0; i < numPatches; i++){
             start+=precision;
-            this.geometry.vertices.push(new THREE.Vector3(start,this.radius, z1 ));
-            this.geometry.vertices.push(new THREE.Vector3(start,this.radius, z2 ));
-            this.setFace(1);
+            this.geometry.vertices.push(new THREE.Vector3(start, y, z ));
+            this.geometry.vertices.push(new THREE.Vector3(start, y+dy, dz + z  ));
+            this.setFace(1, color, color2, color, color2);
         }
         this.geometry.verticesNeedUpdate = true;
         this.geometry.elementsNeedUpdate = true;
         this.addFeatureFinish();
     },
-    addFeatureHisto  : function(start, end, z, data, angle){
-        if(start > end){
-            var aux = start;
-            start = end;
-            end = aux;
-        }
+    _addFeatureHisto  : function(args){
+        var start = args.start;
+        var end = args.end;
+        var data = args.data;
+        var color1Hex = args.baseColorHex;
+        var color2Hex = args.topColorHex;
+
+        var baseColor = new THREE.Color(color1Hex);
+        var actualColor;
+        var prevColor;
         var numPatches  = data.length;
         var precision = (end-start)/numPatches;
         var i = 0;
         var w = -this.width;
-        z = (z-0.5) * w;
+        var z = (args.z-0.5) * w;
+        var y = args.y;
+        var dz = Math.cos(-args.ang)*w*args.mod;
+        var dy = Math.sin(-args.ang)*w*args.mod;
 
-        angle = -angle || 0;
-        var dz = Math.cos(angle)*w;
-        var dy = Math.sin(angle)*w;
+        this.geometry.vertices.push(new THREE.Vector3(start,y, z ));
+        this.geometry.vertices.push(new THREE.Vector3(start,data[i]*dy + y, dz*data[i] + z ));
+        prevColor = new THREE.Color(color2Hex);
+        prevColor.multiplyScalar(data[i]);
+        prevColor.add(new THREE.Color(color1Hex).multiplyScalar(1-data[i]));
 
-        this.geometry.vertices.push(new THREE.Vector3(start,0, z ));
-        this.geometry.vertices.push(new THREE.Vector3(start,data[i]*dy, dz*data[i] + z ));
         start-=precision/2;
-
         for(i = 0; i < numPatches; i++){
             start+=precision;
-            this.geometry.vertices.push(new THREE.Vector3(start,0, z ));
-            this.geometry.vertices.push(new THREE.Vector3(start,data[i]*dy, dz*data[i] + z ));
-            this.setFace(1);
+            this.geometry.vertices.push(new THREE.Vector3(start,y, z ));
+            this.geometry.vertices.push(new THREE.Vector3(start,data[i]*dy + y, dz*data[i] + z ));
+
+            actualColor = new THREE.Color(color2Hex);
+            actualColor.multiplyScalar(data[i]);
+            actualColor.add(new THREE.Color(color1Hex).multiplyScalar(1-data[i]));
+
+            this.setFace(1, baseColor, prevColor, baseColor, actualColor);
+            prevColor = actualColor;
         }
         start+=precision/2;
-        this.geometry.vertices.push(new THREE.Vector3(start,0, z ));
-        this.geometry.vertices.push(new THREE.Vector3(start,data[i-1]*dy, dz*data[i-1] + z ));
-        this.setFace(1);
+        this.geometry.vertices.push(new THREE.Vector3(start,y, z ));
+        this.geometry.vertices.push(new THREE.Vector3(start,data[i-1]*dy + y, dz*data[i-1] + z ));
+
+        actualColor = new THREE.Color(color2Hex);
+        actualColor.multiplyScalar(data[i-1]);
+        actualColor.add(new THREE.Color(color1Hex).multiplyScalar(1-data[i-1]));
+
+        this.setFace(1, baseColor, prevColor, baseColor, actualColor);
 
         this.geometry.verticesNeedUpdate = true;
         this.geometry.elementsNeedUpdate = true;
+        this.geometry.colorsNeedUpdate = true;
         this.addFeatureFinish();
 
     },
-    addFeatureHistoCol  : function(start, end, z, data, angle){
-        if(start > end){
-            var aux = start;
-            start = end;
-            end = aux;
-        }
+    _addFeatureHistoCol  : function(args){
+        var start = args.start;
+        var end = args.end;
+        var data = args.data;
+        var color1Hex = args.baseColorHex;
+        var color2Hex = args.topColorHex;
+
+        var baseColor = new THREE.Color(color1Hex);
+        var actualColor;
+
         var numPatches  = data.length;
         var precision = (end-start)/numPatches;
         var i = 0;
         var w = -this.width;
-        z = (z-0.5) * w;
+        var z = (args.z-0.5) * w;
+        var y = args.y;
 
-        angle = -angle || 0;
-        var dz = Math.cos(angle)*w;
-        var dy = Math.sin(angle)*w;
+        var dz = Math.cos(-args.ang)*w*args.mod;
+        var dy = Math.sin(-args.ang)*w*args.mod;
 
-        this.geometry.vertices.push(new THREE.Vector3(start,0, z ));
-        for(var i = 0; i < numPatches; i++){
-            this.geometry.vertices.push(new THREE.Vector3(start, data[i]*dy, dz*data[i] + z));
+        this.geometry.vertices.push(new THREE.Vector3(start, y, z ));
+        for(i; i < numPatches; i++){
+            this.geometry.vertices.push(new THREE.Vector3(start, data[i]*dy + y, dz*data[i] + z));
             start+=precision;
-            this.geometry.vertices.push(new THREE.Vector3(start, data[i]*dy, dz*data[i] + z ));
-            this.geometry.vertices.push(new THREE.Vector3(start,0, z ));
+            this.geometry.vertices.push(new THREE.Vector3(start, data[i]*dy + y, dz*data[i] + z ));
+            this.geometry.vertices.push(new THREE.Vector3(start,y, z ));
 
-            this.setFace(2);
+            actualColor = new THREE.Color(color2Hex);
+            actualColor.multiplyScalar(data[i]);
+            actualColor.add(new THREE.Color(color1Hex).multiplyScalar(1-data[i]));
+
+            this.setFace(2, baseColor, actualColor,baseColor, actualColor );
         }
 
         this.geometry.verticesNeedUpdate = true;
         this.geometry.elementsNeedUpdate = true;
+        this.geometry.colorsNeedUpdate = true;
         this.addFeatureFinish();
     },
     addFeatureFinish    : function(){
@@ -802,30 +888,34 @@ Viewer.Features.prototype = {
         this.geometry.boundingSphere.radius = this.radius;
        // this.geometry.computeBoundingBox();
     },
-    setFace             : function(a){
+    setFace             : function(a, col1, col2, col3, col4){
         if(this.numFaces+2 >= Viewer.Features.maxFaces){
             this.newGeometry();
         }
         var v = this.geometry.vertices.length-4;
 
-//            this.geometry.faces[this.numFaces]   = new THREE.Face3(v, v+1, v+2);
-        this.geometry.faces[this.numFaces  ].a = v
-        this.geometry.faces[this.numFaces  ].b = v+1;
-        this.geometry.faces[this.numFaces  ].c = v+2;
-
         if(a == 1){
-//            this.geometry.faces[this.numFaces+1] = new THREE.Face3(v+1, v+3, v+2);
+            this.geometry.faces[this.numFaces  ].a = v
+            this.geometry.faces[this.numFaces  ].b = v+1;
+            this.geometry.faces[this.numFaces  ].c = v+2;
+            this.geometry.faces[this.numFaces  ].vertexColors.push(col1, col2, col3);
 
             this.geometry.faces[this.numFaces+1].a = v+1
             this.geometry.faces[this.numFaces+1].b = v+3;
             this.geometry.faces[this.numFaces+1].c = v+2;
+            this.geometry.faces[this.numFaces+1].vertexColors.push(col2, col4, col3);
+
         }
         else if(a == 2){
-//            this.geometry.faces[this.numFaces+1]   = new THREE.Face3(v+2, v+3, v);
+            this.geometry.faces[this.numFaces  ].a = v
+            this.geometry.faces[this.numFaces  ].b = v+1;
+            this.geometry.faces[this.numFaces  ].c = v+2;
+            this.geometry.faces[this.numFaces  ].vertexColors.push(col1, col2, col4);
 
             this.geometry.faces[this.numFaces+1].a = v+2
             this.geometry.faces[this.numFaces+1].b = v+3;
             this.geometry.faces[this.numFaces+1].c = v;
+            this.geometry.faces[this.numFaces+1].vertexColors.push(col4,col3,col1);
         }
         this.numFaces+=2;
     }
