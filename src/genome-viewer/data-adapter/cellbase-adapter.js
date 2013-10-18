@@ -61,15 +61,48 @@ CellBaseAdapter.prototype = {
         }
 
         if (chunkIdsNotCached.length > 0) {
-            this._callRegions(chunkIdsNotCached,chr);
-        } else {
+            this.callRegions(chunkIdsNotCached,chr);
+        }
+        if(chunksCached.length > 0){
             this.trigger('data:ready', {items: chunksCached, params: params, sender: this});
         }
 
     },
+    callRegions: function(chunkIds,chromosome){
+        //creates a list of regions from chunkids, chunk regions are merged to minimize the querys
+        var querys = [];
+
+        var chunkSize = this.chrHash[chromosome].getChunkSize();
+
+        for (var i = 0; i < chunkIds.length; i++) {
+            var chunkStart = parseInt(chunkIds[i] * chunkSize);
+            var chunkEnd = parseInt((chunkIds[i] * chunkSize) + chunkSize - 1);
+            var query = chromosome + ":" + chunkStart + "-" + chunkEnd;
+            querys.push(query);
+        }
+
+        var n = 100;
+        var lists = _.groupBy(querys, function(a, b){
+            return Math.floor(b/n);
+        });
+        var querysList = _.toArray(lists); //Added this to convert the returned object to an array.
+
+        for(var i = 0; i < querysList.length; i++) {
+            CellBaseManager.get({
+                host: this.host,
+                species: this.species,
+                category: this.category,
+                subCategory: this.subCategory,
+                query: querysList[i],
+                resource: this.resource,
+                params: this.params,
+                success: this.cellbaseSuccess
+            });
+        }
+    },
     //CellBase data process
     cellbaseSuccess : function (data) {
-debugger
+        debugger
         var dataType = "data";
         if (data.params.transcript) {
             dataType = "withTranscripts";
@@ -160,32 +193,7 @@ debugger
             }
         }
         return querys;
-    },
-    _callRegions: function(chunkIds,chromosome){
-        //creates a list of regions from chunkids, chunk regions are merged to minimize the querys
-        var querys = [];
-
-        var chunkSize = this.chrHash[chromosome].getChunkSize();
-
-        for (var i = 0; i < chunkIds.length; i++) {
-            var chunkStart = parseInt(chunkIds[i] * chunkSize);
-            var chunkEnd = parseInt((chunkIds[i] * chunkSize) + chunkSize - 1);
-            var query = chromosome + ":" + chunkStart + "-" + chunkEnd;
-            querys.push(query);
-        }
-
-        CellBaseManager.get({
-            host: this.host,
-            species: this.species,
-            category: this.category,
-            subCategory: this.subCategory,
-            query: querys,
-            resource: this.resource,
-            params: this.params,
-            success: this.cellbaseSuccess
-        });
-
-
     }
+
 };
 
