@@ -26,6 +26,6 @@ test("Adding and Getting", function() {
 
     var value = memoryStore.get("1_5");
 
-    ok( memoryStore.get("1_1") == feature, "Passed!" );
-    memoryStore.free();
+    ok( memoryStore.get("1_5") == feature, "Passed!" );
+//    memoryStore.free();
 });

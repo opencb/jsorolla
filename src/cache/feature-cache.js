@@ -27,7 +27,6 @@ function FeatureCache(args) {
 //    this.args = args;
 
     // Default values
-    //    this.id = Math.round(Math.random() * 10000000); // internal id for this class
     this.id = Utils.genId("FeatureCache");
     // Accepted values are 'memory' and 'indexeddb' [memory]
     this.storeType = 'memory';
@@ -42,11 +41,11 @@ function FeatureCache(args) {
     _.extend(this, args);
 
 
-    this.store;
 
-    this.cache = {};
+    this.chunkStore;
+
+//    this.cache = {};
     this.chunksDisplayed = {};
-    this.lru = [];
 
     this.maxFeaturesInterval = 0;
 
@@ -62,7 +61,7 @@ FeatureCache.prototype = {
         }else {
             this.store = new IndexedDBStore({});
         }
-        this.cache = {};
+//        this.cache = {};
     },
 
     _getChunk: function(position){
@@ -80,22 +79,13 @@ FeatureCache.prototype = {
     },
 
     getFirstFeature: function(){
-        var feature;
-        if(this.gzip) {
-            feature = JSON.parse(RawDeflate.inflate(this.cache[Object.keys(this.cache)[0]].data[0]));
-        }else{
-            feature = this.cache[Object.keys(this.cache)[0]].data[0];
-        }
-        return feature;
+       return this.store.get(Object.keys(this.store.store)[0].key)[0];
     },
 
 
 //new
     getFeatureChunk: function(key){
-        if(this.cache[key] != null) {
-            return this.cache[key];
-        }
-        return null;
+        return this.store.get(key);
     },
 //new
     getFeatureChunksByRegion: function(region){
@@ -106,20 +96,36 @@ FeatureCache.prototype = {
         lastRegionChunk = this._getChunk(region.end);
         for(var i=firstRegionChunk; i<=lastRegionChunk; i++){
             key = region.chromosome+":"+i;
-            // check if this key exists in cache (features from files)
-            if(this.cache[key] != null ){
-                chunks.push(this.cache[key]);
-            }
 
+            // check if this key exists in cache (features from files)
+            var feature = this.store.get(key);
+            if(!_.isUndefined(feature)){
+                chunks.push(feature);
+            }
         }
-        //if(chunks.length == 0){
-        //return null;
-        //}
+        // Returns empty list if nothing was found
         return chunks;
     },
 
 
-    putFeaturesByRegion: function(featureDataList, region, featureType, dataType){
+    putFeatureByRegion:function(feature, region){
+
+        var firstFeatureChunk = this._getChunk(feature.start);
+        var lastFeatureChunk = this._getChunk(feature.end);
+
+        var firstRegionChunk = this._getChunk(region.start);
+        var lastRegionChunk = this._getChunk(region.end);
+
+        for(var i=firstFeatureChunk; i<=lastFeatureChunk; i++) {
+            if(i >= firstRegionChunk && i<= lastRegionChunk){//only if is inside the called region
+                key = region.chromosome+":"+i;
+                this.store.put()
+                this.cache[key][dataType].push(gzipFeature);
+            }
+        }
+    },
+
+    putFeaturesByRegion: function(featureDataList, region){
         var key, firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, feature, gzipFeature;
 
         //initialize region
