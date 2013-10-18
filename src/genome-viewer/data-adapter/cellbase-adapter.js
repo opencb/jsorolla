@@ -69,131 +69,71 @@ CellBaseAdapter.prototype = {
 
     },
     callRegions: function(chunkIds,chromosome){
-        //creates a list of regions from chunkids, chunk regions are merged to minimize the querys
-        var querys = [];
+        var _this = this;
+        var queries = [];
 
         var chunkSize = this.chrHash[chromosome].getChunkSize();
 
         for (var i = 0; i < chunkIds.length; i++) {
             var chunkStart = parseInt(chunkIds[i] * chunkSize);
             var chunkEnd = parseInt((chunkIds[i] * chunkSize) + chunkSize - 1);
-            var query = chromosome + ":" + chunkStart + "-" + chunkEnd;
-            querys.push(query);
+            queries.push(chromosome + ":" + chunkStart + "-" + chunkEnd);
         }
 
+        //limit queries
         var n = 100;
-        var lists = _.groupBy(querys, function(a, b){
+        var lists = _.groupBy(queries, function(a, b){
             return Math.floor(b/n);
         });
-        var querysList = _.toArray(lists); //Added this to convert the returned object to an array.
+        var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
 
-        for(var i = 0; i < querysList.length; i++) {
+        for(var i = 0; i < queriesList.length; i++) {
             CellBaseManager.get({
                 host: this.host,
                 species: this.species,
                 category: this.category,
                 subCategory: this.subCategory,
-                query: querysList[i],
+                query: queriesList[i],
                 resource: this.resource,
                 params: this.params,
-                success: this.cellbaseSuccess
+                success: function(data){
+                    _this.cellbaseSuccess(data);
+                }
             });
         }
     },
-    //CellBase data process
     cellbaseSuccess : function (data) {
-        debugger
-        var dataType = "data";
-        if (data.params.transcript) {
-            dataType = "withTranscripts";
-        }
-        if (data.params.histogram) {
-            dataType = "histogram" + data.params.interval;
-        }
+        var timeId = Utils.randomString(4);
+        console.time(this.resource + " save " + timeId);
+        //////////
+        //////////
 
-        var featureType = data.resource;
-
+        var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
-            var queryResponse = data.response[i];
-            var splitDots = queryResponse.id.split(":");
+            var queryResult = data.response[i];
+            var splitDots = queryResult.id.split(":");
             var splitDash = splitDots[1].split("-");
             var qRegion = {chromosome: splitDots[0], start: splitDash[0], end: splitDash[1]};
 
-            var queryId = queryResponse.id;
-            var features = queryResponse.result;
+            var queryId = queryResult.id;
+            var features = queryResult.result;
 
-            if (data.params.histogram != true && featureType == "gene" && data.params.transcript == true) {
-                for (var j = 0, lenj = features.length; j < lenj; j++) {
-                    for (var t = 0, lent = features[j].transcripts.length; t < lent; t++) {
-                        features[j].transcripts[t].featureType = "transcript";
-                        //loop over exons
-                        for (var e = 0, lene = features[j].transcripts[t].exons.length; e < lene; e++) {
-                            features[j].transcripts[t].exons[e].featureType = "exon";
-                        }
-                    }
-                }
-            }
-
-            if (featureType == "regulatory") {
-                featureType = data.params.type;
-                if (featureType == 'TF_binding_site_motif') {
-                    featureType = 'tfbs';
-                }
-            }
-
-            console.time(_this.resource + " save " + rnd);
             var chrChunkCache = this.chrHash[qRegion.chromosome];
-            chrChunkCache.putFeaturesByRegion(features, qRegion, featureType, dataType);
-            var items = _this.featureCache.getFeatureChunksByRegion(qRegion);
-            console.timeEnd(_this.resource + " save " + rnd);
-            if (items != null) {
-                itemList = itemList.concat(items);
-            }
+
+            //start or end does not matter
+            var chunkId = chrChunkCache.getChunkId(qRegion.start);
+//            var chunkId = this.chrChunkCache.getChunkId(qRegion.end);
+
+            chunks.push(chrChunkCache.putChunk(chunkId,features));
+
         }
-        if (itemList.length > 0) {
-            _this.trigger('data:ready', {items: itemList, params: _this.params, cached: false, sender: _this});
+        if (chunks.length > 0) {
+            this.trigger('data:ready', {items: chunks, params: data.params});
         }
-        console.timeEnd(_this.resource + " get and save " + rnd);
 
-
-    },
-    _getCallRegion: function(chunkIds,chromosome){
-        //creates a list of regions from chunkids, chunk regions are merged to minimize the querys
-        var querys = [];
-        var updateStart = true;
-        var updateEnd = true;
-
-        var chunkSize = this.chrHash[chromosome].getChunkSize();
-
-        for (var i = 0; i < chunkIds.length; i++) {
-
-            if (updateStart) {
-                var chunkStart = parseInt(chunkIds[i] * chunkSize);
-                updateStart = false;
-            }
-            if (updateEnd) {
-                var chunkEnd = parseInt((chunkIds[i] * chunkSize) + chunkSize - 1);
-                updateEnd = false;
-            }
-
-            if (chunkIds[i + 1] != null) {
-                if (chunkIds[i] + 1 == chunkIds[i + 1]) {
-                    updateEnd = true;
-                } else {
-                    var query = chromosome + ":" + chunkStart + "-" + chunkEnd;
-                    querys.push(query);
-                    updateStart = true;
-                    updateEnd = true;
-                }
-            } else {
-                var query = chromosome + ":" + chunkStart + "-" + chunkEnd;
-                querys.push(query);
-                updateStart = true;
-                updateEnd = true;
-            }
-        }
-        return querys;
+        //////////
+        //////////
+        console.timeEnd(this.resource + " get and save " + timeId);
     }
-
 };
 

@@ -12,7 +12,7 @@ function MemoryStore(args) {
     _.extend(this, Backbone.Events);
 
     // configurable parameters
-    this.limit = 4;
+    this.limit = 500;
 
     // Now we set the args parameters
     _.extend(this, args);

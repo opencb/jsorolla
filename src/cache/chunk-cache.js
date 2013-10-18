@@ -23,13 +23,15 @@ ChunkCache.prototype = {
     getChunk: function (chunkId) {
         return this.chunkStore.get(chunkId);
     },
-    putChunk: function (chunkId, items){
-        this.chunkStore.add(chunkId,items);
+    putChunk: function (chunkId, items) {
+        var value = {items: items, chunkId: chunkId};
+        this.chunkStore.add(chunkId, value);
+        return value;
     },
-    getChunkId: function(position){
-        return Math.floor(position/this.chunkSize);
+    getChunkId: function (position) {
+        return Math.floor(position / this.chunkSize);
     },
-    getChunkSize: function(){
+    getChunkSize: function () {
         return this.chunkSize;
     }
 }
