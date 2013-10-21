@@ -29,6 +29,13 @@ FeatureChunkCache.prototype = {
         return this.store.get(chunkId);
     },
 
+    getAdjustedRegion: function (region) {
+        var start = this.getChunkId(region.start) * this.chunkSize;
+        var end = (this.getChunkId(region.end) * this.chunkSize) + this.chunkSize-1;
+
+        return new Region({chromosome: region.chromosome, start: start, end: end});
+    },
+
     getByRegions: function (regions) {
         var chunks = [];
         for (var i in regions) {

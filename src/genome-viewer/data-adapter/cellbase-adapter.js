@@ -35,13 +35,12 @@ CellBaseAdapter.prototype = {
     getData : function (args) {
         var _this = this;
 
-
         /********/
         var params = {};
         _.extend(params, this.params);
         _.extend(params, args.params);
 
-        var dataType = args.dataType;
+        var dataType = args.dataType || 'feature';
         var region = args.region;
 
         region.start = (region.start < 1) ? 1 : region.start;
@@ -49,38 +48,53 @@ CellBaseAdapter.prototype = {
 
         /********/
 
+        if(dataType == 'histogram') {
+            var histogramId = dataType+'_'+args.interval;
+            if (_.isUndefined(this.cache[histogramId])) {
+                this.cacheConfig.chunkSize = args.interval;
+                this.cache[histogramId] = new FeatureChunkCache(this.cacheConfig);
+            }
 
-        //Create one FeatureChunkCache by datatype
-        if (_.isUndefined(this.cache[dataType])) {
-            this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
-        }
-        var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
+            // Extend region to be adjusted with the chunks
+            var adjustedRegion = this.cache[histogramId].getAdjustedRegion(region);
 
-        if(chunksByRegion.notCached.length > 0) {
-            var queryRegionStrings = _.map(chunksByRegion.notCached, function(region) {
-                return new Region(region).toString();
-            });
+            // llamar cellbase
+            
+            // put en la cache
 
-            //limit queries
-            var n = 50;
-            var lists = _.groupBy(queryRegionStrings, function(a, b){
-                return Math.floor(b/n);
-            });
-            var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
+        }else {
+            //Create one FeatureChunkCache by datatype
+            if (_.isUndefined(this.cache[dataType])) {
+                this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
+            }
+            var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
 
-            for(var i = 0; i < queriesList.length; i++) {
-                CellBaseManager.get({
-                    host: this.host,
-                    species: this.species,
-                    category: this.category,
-                    subCategory: this.subCategory,
-                    query: queriesList[i],
-                    resource: this.resource,
-                    params: params,
-                    success: function(data){
-                        _this._cellbaseSuccess(data, dataType);
-                    }
+            if(chunksByRegion.notCached.length > 0) {
+                var queryRegionStrings = _.map(chunksByRegion.notCached, function(region) {
+                    return new Region(region).toString();
                 });
+
+                //limit queries
+                var n = 50;
+                var lists = _.groupBy(queryRegionStrings, function(a, b){
+                    return Math.floor(b/n);
+                });
+                var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
+
+                for(var i = 0; i < queriesList.length; i++) {
+                    CellBaseManager.get({
+                        host: this.host,
+                        species: this.species,
+                        category: this.category,
+                        subCategory: this.subCategory,
+                        query: queriesList[i],
+                        resource: this.resource,
+                        params: params,
+                        success: function(data){
+                            _this._cellbaseSuccess(data, dataType);
+                        }
+                    });
+                }
             }
         }
 
