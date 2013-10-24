@@ -72,9 +72,6 @@ ThreeDViewer.prototype = {
         }
 
 
-
-
-
     },
     _createTorus:function(targetId){
 
@@ -153,6 +150,8 @@ ThreeDViewer.prototype = {
 
     _fakeComponents:function(){
 
+
+
         var cellbase = this.demoCellbase || chrjson;
         var numDisks = 15;
         var components = {};
@@ -217,5 +216,13 @@ ThreeDViewer.prototype = {
 
     destroy:function(){
         this.rendered = false;
+    },
+
+    addSample:function(args){
+        this.torus.addSample(args);
     }
+
+
+
+
 }
