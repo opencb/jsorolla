@@ -22,6 +22,11 @@
 <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
 <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
 
+<!--<script type="text/javascript" src="../../vendor/core/embed.js"></script>-->
+<script type="text/javascript" src="../../vendor/three.js"></script>
+<script type="text/javascript" src="../../vendor/Stats.js"></script>
+<script type="text/javascript" src="../../vendor/RequestAnimationFrame.js"></script>
+
 <!-- These dependencies must go AFTER jquery -->
 <script type="text/javascript" src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
 <!-- /build -->
@@ -31,8 +36,10 @@
 
 
 <!-- JS -->
-<!-- Genome-viewer -->
+<!-- ThreeD-viewer -->
 <script type="text/javascript" src="threedv-config.js"></script>
+
+
 
 <!-- build:script js -->
 
@@ -43,6 +50,11 @@
 <!-- js-common-libs cellbase ws-manager -->
 <script type="text/javascript" src="../lib/cellbase/cellbase-manager.js"></script>
 
+
+<script type="text/javascript" src="js/chr.js" ></script>
+<script type="text/javascript" src="js/3D.js"></script>
+<script type="text/javascript" src="js/torus.js"></script>
+<script type="text/javascript" id="main" src="js/main.js"></script>
 
 <script type="text/javascript" src="threed-viewer.js"></script>
 
@@ -67,12 +79,16 @@
 
 
 <script type="text/javascript">
-    var threeDViewer = null;
+    var threeDViewer;
     var run = function () {
 
-        threeDViewer = new ThreeDViewer({
+
+
+        threeDViewer =  new ThreeDViewer({
             targetId: 'application',
             autoRender:true,
+            demoTorus:true,
+            demoCellbase:chrjson,
             handlers:{
                 'okButton:click':function(e){
 
@@ -80,6 +96,7 @@
             }
         });
         threeDViewer.draw();
+
     };
 
     $(document).ready(run);
@@ -89,6 +106,7 @@
     html, body {
         /*height: 100%;*/
         /*position:relative;*/
+        overflow: hidden;
     }
 
     body {
@@ -97,20 +115,13 @@
     }
 
     #application {
-        width: 1200px;
-        height: 800px;
-        /*overflow-y: auto;*/
-        /*overflow-x: hidden;*/
-        padding: 10px;
+        overflow: hidden;
     }
 </style>
 
 </head>
 
 <body>
-<div style=""></div>
-<div id="application"></div>
-<div style=""></div>
-
+<div style="z-index: 1; position: absolute; left:0px; top:0px" id="application"> </div>
 </body>
 </html>

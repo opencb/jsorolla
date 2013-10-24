@@ -111,6 +111,10 @@ module.exports = function (grunt) {
                 src: [
                     '<%= concat.utils.dest %>',
                     '<%= concat.cellbase.dest %>',
+                    'src/3d-viewer/js/3D.js',
+                    'src/3d-viewer/js/torus.js',
+                    'src/3d-viewer/js/chr.js',
+                    'src/3d-viewer/js/main.js',
                     'src/3d-viewer/threed-viewer.js'
                 ],
                 dest:'build/3d-viewer/<%= meta.version.threedv %>/threed-viewer-<%= meta.version.threedv %>.js'
@@ -212,7 +216,8 @@ module.exports = function (grunt) {
                 files: [
                     {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' },
                     {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }, // includes files in path and its subdirs
-                    {   expand: true, cwd:'./src/3d-viewer/', src: ['threedv-config.js'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }
+                    {   expand: true, cwd:'./src/3d-viewer/', src: ['threedv-config.js'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' },
+                    {   expand: true, cwd:'./src/3d-viewer/', src: ['glsl/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }
                 ]
             }
         },
@@ -271,6 +276,10 @@ module.exports = function (grunt) {
                             'build/3d-viewer/<%= meta.version.threedv %>/vendor/underscore*.js',
                             'build/3d-viewer/<%= meta.version.threedv %>/vendor/backbone*.js',
                             'build/3d-viewer/<%= meta.version.threedv %>/vendor/jquery.min.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/three.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/Stats.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/RequestAnimationFrame.js',
+                       //     'build/3d-viewer/<%= meta.version.threedv %>/vendor/core/embed.js',
                             'build/3d-viewer/<%= meta.version.threedv %>/vendor/jquery-ui-1.10.3*/js/jquery-ui*min.js'
                         ]
                     },
@@ -342,6 +351,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('gv', ['clean:gv','concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
     grunt.registerTask('nv', ['concat:utils','concat:cellbase','concat:nv','uglify:nv', 'clean:utils','clean:cellbase']);
-    grunt.registerTask('threedv', ['clean:threedv','concat:threedv','uglify:threedv','copy:threedv','htmlbuild:threedv']);
+    grunt.registerTask('threedv', ['clean:threedv','concat:utils','concat:cellbase','concat:threedv','uglify:threedv','copy:threedv','htmlbuild:threedv','clean:utils','clean:cellbase']);
 
 };
