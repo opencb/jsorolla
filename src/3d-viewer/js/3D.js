@@ -33,6 +33,8 @@ var Viewer = function(config){
     this.initScene(config);
     this.grid = new Viewer.Grid(this.scene);
     this.createFigure(config);
+
+    this.mainLoop = this.mainLoopAux(this);
 };
 
 
@@ -41,8 +43,7 @@ Viewer.prototype = {
     ////////////    INICIALIZATION     ///////////////
     initScene       : function(config) {
         this.scene = new THREE.Scene();
-
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({antialias:true});
         this.renderer.setClearColor(config.backgroundColor, 1);
         this.renderer.setSize(config.width, config.height);
         this.renderer.sortObjects = true;
@@ -54,7 +55,7 @@ Viewer.prototype = {
 
 //        Viewer.Layer.loadShaders();
         Viewer.Layer.loadShaders("glsl/diskShader/vertexShader.glsl", "glsl/diskShader/fragmentShader.glsl");
-        Viewer.Features.loadShaders("glsl/featureShader/vertexShader.glsl", "glsl/featureShader/fragmentShader.glsl");
+        Viewer.Track.loadShaders("glsl/featureShader/vertexShader.glsl", "glsl/featureShader/fragmentShader.glsl");
 
 
         this.stats.setMode(0);
@@ -140,18 +141,21 @@ Viewer.prototype = {
             this.mainLoop();
         }
     },
-    mainLoop        : function()       {
-        window.torus.viewer.stats.update();
-        if( window.torus.viewer.animation == true){
-            var timeNow = new Date().getTime();
-            var elapsed = timeNow - window.torus.viewer.lastTime;
-            window.torus.viewer.animate(elapsed);
-            window.torus.viewer.lastTime = timeNow;
 
-            requestAnimationFrame(window.torus.viewer.mainLoop);    //FIXME out of the loop?
+    mainLoopAux        : function(_this){
+        return function(){
+            _this.stats.update();
+            if( _this.animation == true){
+                var timeNow = new Date().getTime();
+                var elapsed = timeNow - _this.lastTime;
+                _this.animate(elapsed);
+                _this.lastTime = timeNow;
+
+                requestAnimationFrame(_this.mainLoop);    //FIXME out of the loop?
+            }
+
+            _this.drawScene();
         }
-
-        window.torus.viewer.drawScene();
     },
 
 
@@ -262,7 +266,7 @@ Viewer.prototype = {
 
         this.disk[diskId].layers[1].setTexture(tex);
     },
-    setFeatures  : function(diskId, data, config){
+    setTrack  : function(diskId, data, config){
 
     },
 
@@ -323,8 +327,8 @@ Viewer.prototype = {
             for (var j = 0; j < this.disk[i].layers.length; j++) {
                 this.disk[i].layers[j].setRegion(start, end);
             }
-            Viewer.Features.uniforms.rangeStart.value = start;
-            Viewer.Features.uniforms.range.value = (end-start);
+            Viewer.Track.uniforms.rangeStart.value = start;
+            Viewer.Track.uniforms.range.value = (end-start);
         }
     },
     getRegion       : function () {
@@ -441,8 +445,10 @@ Viewer.Disk = function(numDisk, config){
     this.chrSelected;
     this.layers = [];
     this.sprites = [];
-    this.features = [];
+    this.tracks = [];
     this.figure = new THREE.Object3D();
+    this.diskRadius = config.diskRadius;
+    this.angularLong = Math.PI*2*(1-config.diskAperture);
 
     for(var i = 0; i < config.numLayers; i++){
         this.layers[i] = new Viewer.Layer(numDisk, i, config);
@@ -456,8 +462,7 @@ Viewer.Disk = function(numDisk, config){
 
     this.figure.add( this.sprites[0] );
 
-    this.features[0] = new Viewer.Features({radius : config.diskRadius+config.featureSeparation, angularLong : Math.PI*2*(1-config.diskAperture), width:this.layers[0].width});
-    this.figure.add(this.features[0].figure);
+
 };
 
 Viewer.Disk.prototype = {
@@ -472,7 +477,21 @@ Viewer.Disk.prototype = {
         }
     },
 
-    setFeature  : function (start, end, color, config){
+    add2Track  : function (numTrack, args){ //fixme
+        this.tracks[numTrack].add(args);
+    },
+    addTrack  : function (args){
+        var track = new Viewer.Track({radius : this.diskRadius, angularLong : this.angularLong, width:this.layers[0].width});
+        var numTrack = this.tracks.length;
+        this.tracks.push(track);
+        this.figure.add(track.figure);
+
+        if(args !== undefined)
+            track.add(args);
+
+        return numTrack;
+    },
+//    setFeature  : function (start, end, color, config){
 //        var texture;
 //        var ok;
 //        start *= this.layers[this.genesId[0]].texture.width;
@@ -499,8 +518,7 @@ Viewer.Disk.prototype = {
 //        }
 //        texture.texture.needsUpdate = true;
 //        texture.setDataUint8(texture.data);
-
-    },
+//    },
 
     updateTextSprite    : function (i, text) {
         this.figure.remove(this.sprites[i]);
@@ -612,7 +630,7 @@ Viewer.Disk.prototype = {
 
 
 
-Viewer.Features = function(args){
+Viewer.Track = function(args){
     this.geometry = null;
     this.material = null;
     this.figure = null;
@@ -621,34 +639,36 @@ Viewer.Features = function(args){
     this.radius = args.radius || 2.2;
 
     this.initGeometry(this.maxFaces);
-    Viewer.Features.uniforms.radius.value = args.radius;
-    Viewer.Features.uniforms.angularLong.value = args.angularLong;
+    Viewer.Track.uniforms.radius.value = args.radius;
+    Viewer.Track.uniforms.angularLong.value = args.angularLong;
 
 };
 
-Viewer.Features.precision = 0.01;
-Viewer.Features.maxFaces = 300;
-Viewer.Features.vertexShader = null;
-Viewer.Features.fragmentShader = null;
+Viewer.Track.precision = 0.01;
+Viewer.Track.maxFaces = 300;
+Viewer.Track.vertexShader = null;
+Viewer.Track.fragmentShader = null;
 
-Viewer.Features.uniforms = {};
-Viewer.Features.uniforms.rangeStart = {value: 0, type: 'f'};
-Viewer.Features.uniforms.range = {value: 0.7, type: 'f'};
-Viewer.Features.uniforms.angularLong = {value: 5, type: 'f'};
-Viewer.Features.uniforms.radius = {value: 2.2, type: 'f'};
+Viewer.Track.uniforms = {};
+Viewer.Track.uniforms.rangeStart = {value: 0, type: 'f'};
+Viewer.Track.uniforms.range = {value: 0.7, type: 'f'};
+Viewer.Track.uniforms.angularLong = {value: 5, type: 'f'};
+Viewer.Track.uniforms.radius = {value: 2.2, type: 'f'};
 
-Viewer.Features.NonHistogram     = 0;
-Viewer.Features.ColumnHistogram  = 1;
-Viewer.Features.LinearHistogram  = 2;
+Viewer.Track.Feature          = 0;
+Viewer.Track.ColumnHistogram  = 1;
+Viewer.Track.LinearHistogram  = 2;
+//Viewer.Track.Insertion        = 3;    //TODO
+//Viewer.Track.Deletion         = 4;
 
 
 
-Viewer.Features.loadShaders = function(urlVertexShader, urlFragmentShader){
+Viewer.Track.loadShaders = function(urlVertexShader, urlFragmentShader){
     if(urlVertexShader !== undefined){
         $.ajax({
             async: false,
             url: urlVertexShader,
-            success: function (data) { Viewer.Features.vertexShader = $(data)[0].innerText; },
+            success: function (data) { Viewer.Track.vertexShader = $(data)[0].innerText; },
             dataType: 'html'
         });
     }
@@ -656,13 +676,13 @@ Viewer.Features.loadShaders = function(urlVertexShader, urlFragmentShader){
         $.ajax({
             async: false,
             url: urlFragmentShader,
-            success: function (data) { Viewer.Features.fragmentShader = $(data)[0].innerText; },
+            success: function (data) { Viewer.Track.fragmentShader = $(data)[0].innerText; },
             dataType: 'html'
         });
     }
 };
 
-Viewer.Features.prototype = {
+Viewer.Track.prototype = {
 
     initGeometry : function(){
 
@@ -670,7 +690,7 @@ Viewer.Features.prototype = {
 
         this.geometry.vertices.push(new THREE.Vector3(0,0,0));
 //        this.geometry.colors.push(new THREE.Color(1,1,0));
-        for(var i = 0; i < Viewer.Features.maxFaces; i++){
+        for(var i = 0; i < Viewer.Track.maxFaces; i++){
             this.geometry.faces.push(new THREE.Face3(0,0,0));
         }
 
@@ -679,14 +699,14 @@ Viewer.Features.prototype = {
                 side:           THREE.DoubleSide,
                 color:          0xFF0000,
                 uniforms:       {
-                                    radius:Viewer.Features.uniforms.radius,
-                                    rangeStart:Viewer.Features.uniforms.rangeStart,
-                                    range:Viewer.Features.uniforms.range,
-                                    angularLong:Viewer.Features.uniforms.angularLong,
+                                    radius:Viewer.Track.uniforms.radius,
+                                    rangeStart:Viewer.Track.uniforms.rangeStart,
+                                    range:Viewer.Track.uniforms.range,
+                                    angularLong:Viewer.Track.uniforms.angularLong,
                                 },
                 vertexColors: THREE.VertexColors,
-                vertexShader:   Viewer.Features.vertexShader,
-                fragmentShader: Viewer.Features.fragmentShader
+                vertexShader:   Viewer.Track.vertexShader,
+                fragmentShader: Viewer.Track.fragmentShader
             }   );
 
         this.figure = new THREE.Object3D();
@@ -696,7 +716,7 @@ Viewer.Features.prototype = {
         this.geometry.verticesNeedUpdate = true;
         this.geometry.elementsNeedUpdate = true;
         this.geometry.colorsNeedUpdate = true;
-        this.addFeatureFinish();
+        this.addTrackFinish();
         var v = this.geometry.vertices.length;
         var v1 = this.geometry.vertices[v-1];
         var v2 = this.geometry.vertices[v-2];
@@ -707,7 +727,7 @@ Viewer.Features.prototype = {
         this.geometry.vertices.push(v3);
         this.geometry.vertices.push(v2);
         this.geometry.vertices.push(v1);
-        for(var i = 0; i < Viewer.Features.maxFaces; i++){
+        for(var i = 0; i < Viewer.Track.maxFaces; i++){
             this.geometry.faces.push(new THREE.Face3(0,0,0));
         }
         this.figure.add(new THREE.Mesh(this.geometry, this.material));
@@ -715,7 +735,7 @@ Viewer.Features.prototype = {
     },
 
 
-    addFeature : function(args){
+    add : function(args){
         if(args.topColorHex === undefined){
             args.topColorHex = args.baseColorHex;
         }
@@ -730,7 +750,7 @@ Viewer.Features.prototype = {
             ang: 0, //Radians
             baseColorHex:0x00000000,
             topColorHex :0xFF000000,
-            histogramType: Viewer.Features.NonHistogram,
+            trackType: Viewer.Track.Feature,
             data : [],
             colorData: []   //TODO
         };
@@ -742,15 +762,16 @@ Viewer.Features.prototype = {
             def.end = aux;
         }
 
-        switch(def.histogramType){
-            case Viewer.Features.NonHistogram :
+
+        switch(def.trackType){
+            case Viewer.Track.Feature :
                 this._addFeature(def);
                 break;
-            case Viewer.Features.ColumnHistogram:
-                this._addFeatureHistoCol(def);
+            case Viewer.Track.ColumnHistogram:
+                this._addHistoCol(def);
                 break;
-            case Viewer.Features.LinearHistogram:
-                this._addFeatureHisto(def);
+            case Viewer.Track.LinearHistogram:
+                this._addHisto(def);
                 break;
 
         }
@@ -767,7 +788,7 @@ Viewer.Features.prototype = {
         var color = new THREE.Color(args.baseColorHex);
         var color2 = new THREE.Color(args.topColorHex);
 
-        var numPatches  = Math.ceil((end-start)/Viewer.Features.precision);
+        var numPatches  = Math.ceil((end-start)/Viewer.Track.precision);
         var precision = (end-start)/numPatches;
 
         var w = -this.width;
@@ -788,9 +809,9 @@ Viewer.Features.prototype = {
         }
         this.geometry.verticesNeedUpdate = true;
         this.geometry.elementsNeedUpdate = true;
-        this.addFeatureFinish();
+        this.addTrackFinish();
     },
-    _addFeatureHisto  : function(args){
+    _addHisto  : function(args){
         var start = args.start;
         var end = args.end;
         var data = args.data;
@@ -841,10 +862,10 @@ Viewer.Features.prototype = {
         this.geometry.verticesNeedUpdate = true;
         this.geometry.elementsNeedUpdate = true;
         this.geometry.colorsNeedUpdate = true;
-        this.addFeatureFinish();
+        this.addTrackFinish();
 
     },
-    _addFeatureHistoCol  : function(args){
+    _addHistoCol  : function(args){
         var start = args.start;
         var end = args.end;
         var data = args.data;
@@ -881,15 +902,15 @@ Viewer.Features.prototype = {
         this.geometry.verticesNeedUpdate = true;
         this.geometry.elementsNeedUpdate = true;
         this.geometry.colorsNeedUpdate = true;
-        this.addFeatureFinish();
+        this.addTrackFinish();
     },
-    addFeatureFinish    : function(){
+    addTrackFinish    : function(){
         this.geometry.computeBoundingSphere();
         this.geometry.boundingSphere.radius = this.radius;
        // this.geometry.computeBoundingBox();
     },
     setFace             : function(a, col1, col2, col3, col4){
-        if(this.numFaces+2 >= Viewer.Features.maxFaces){
+        if(this.numFaces+2 >= Viewer.Track.maxFaces){
             this.newGeometry();
         }
         var v = this.geometry.vertices.length-4;

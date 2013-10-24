@@ -22,7 +22,7 @@
 <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
 <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
 
-<script type="text/javascript" src="../../vendor/core/embed.js"></script>
+<!--<script type="text/javascript" src="../../vendor/core/embed.js"></script>-->
 <script type="text/javascript" src="../../vendor/three.js"></script>
 <script type="text/javascript" src="../../vendor/Stats.js"></script>
 <script type="text/javascript" src="../../vendor/RequestAnimationFrame.js"></script>
@@ -79,9 +79,10 @@
 
 
 <script type="text/javascript">
+    var threeDViewer;
     var run = function () {
 
-        var threeDViewer;
+
 
         threeDViewer =  new ThreeDViewer({
             targetId: 'application',

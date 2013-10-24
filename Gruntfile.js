@@ -279,7 +279,7 @@ module.exports = function (grunt) {
                             'build/3d-viewer/<%= meta.version.threedv %>/vendor/three.js',
                             'build/3d-viewer/<%= meta.version.threedv %>/vendor/Stats.js',
                             'build/3d-viewer/<%= meta.version.threedv %>/vendor/RequestAnimationFrame.js',
-                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/core/embed.js',
+                       //     'build/3d-viewer/<%= meta.version.threedv %>/vendor/core/embed.js',
                             'build/3d-viewer/<%= meta.version.threedv %>/vendor/jquery-ui-1.10.3*/js/jquery-ui*min.js'
                         ]
                     },

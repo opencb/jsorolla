@@ -15,7 +15,7 @@ attribute float pos;
 
 void main() {
 
-    vUv = uv;
+    //vUv = uv;
     vX = (position.x+1.0)/2.0;
 
     vPos.x = position.z>0.0?1.0:0.0;

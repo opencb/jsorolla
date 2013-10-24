@@ -17,14 +17,12 @@ var Torus = function(args) {
     this.clickPressed;
 
 
-    window.torus = this;
-
     this.setDiv(args.targetId);
     this.setData(args.components);
 
-    this.torusDiv.addEventListener( 'mousedown', this.onMouseDown, false );
-    this.torusDiv.addEventListener( 'mouseup', this.onMouseUp, false );
-    this.torusDiv.addEventListener( 'mousewheel', this.onMouseWheel, false );
+    this.torusDiv.addEventListener( 'mousedown', this.onMouseDown(this), false );
+    this.torusDiv.addEventListener( 'mouseup', this.onMouseUp(this), false );
+    this.torusDiv.addEventListener( 'mousewheel', this.onMouseWheel(this), false );
     this.torusDiv.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
 };
 
@@ -116,79 +114,87 @@ Torus.prototype = {
     },
 
 
-    onMouseDown     :function (event){
-        window.torus.lastClick = new THREE.Vector2(event.clientX, event.clientY);
-        window.torus.clickPressed = event.button;
+    onMouseDown     : function(_this){
+        return function (event){
+            _this.lastClick = new THREE.Vector2(event.clientX, event.clientY);
+            _this.clickPressed = event.button;
 //        event.preventDefault();
-        document.addEventListener( 'mousemove', window.torus.onMouseMove, false );
-//        console.log(window.torus.lastClick);
-        var where = window.torus.viewer.getClickPosition(window.torus.lastClick);
+            document.addEventListener( 'mousemove', _this.onMouseMove(_this), false );
+//        console.log(_this.lastClick);
+            var where = _this.viewer.getClickPosition(_this.lastClick);
 //        console.log ("clickado en disk ");
-        if (where !== undefined) {
+            if (where !== undefined) {
 //            console.log(where);
 //            console.log (where.coord.x);
 //            console.log (where.coord.y);
-            switch (event.button) {
-                case 0:
-                    window.torus.viewer.selectChromosomeCoord(where.disk, where.coord);
-//                    window.torus.viewer.selectDisk(where.disk);
-                    break;
-                case 1:
-                    var chromosomes = window.torus.data.samples[where.disk].chromosomes;
-                    if(chromosomes === undefined)
-                        chromosomes = window.torus.data.commons[window.torus.data.samples[where.disk].species].chromosomes;
-                    if(chromosomes === undefined){
-                        console.log("ALERT: Missing Chromosomes in sample " + where.disk);
-                    } else {
+                switch (event.button) {
+                    case 0:
+                        _this.viewer.selectChromosomeCoord(where.disk, where.coord);
+//                    _this.viewer.selectDisk(where.disk);
+                        break;
+                    case 1:
+                        var chromosomes = _this.data.samples[where.disk].chromosomes;
+                        if(chromosomes === undefined)
+                            chromosomes = _this.data.commons[_this.data.samples[where.disk].species].chromosomes;
+                        if(chromosomes === undefined){
+                            console.log("ALERT: Missing Chromosomes in sample " + where.disk);
+                        } else {
 
-                        numChr = window.torus.viewer.getChrFromCoord(where.coord);
-                        for(var i = 0; i < window.torus.config.numDisk; i++){
-                            window.torus.viewer.setChromosomes(i, [chromosomes[numChr]]);
-                            window.torus.viewer.setCytobands(i, [chromosomes[numChr]]);
+                            numChr = _this.viewer.getChrFromCoord(where.coord);
+                            for(var i = 0; i < _this.config.numDisk; i++){
+                                _this.viewer.setChromosomes(i, [chromosomes[numChr]]);
+                                _this.viewer.setCytobands(i, [chromosomes[numChr]]);
+                            }
                         }
-                    }
-                    break;
-                case 2:
-//                    window.torus.viewer.unselectDisk(where.disk);
-                    break;
+                        break;
+                    case 2:
+//                    _this.viewer.unselectDisk(where.disk);
+                        break;
+                }
             }
         }
     },
-    onMouseUp     :function (event){
-        window.torus.clickPressed = -1;
-        document.removeEventListener( 'mousemove', window.torus.onMouseMove, false );
+    onMouseUp     : function(_this){
+        return function (event){
+            _this.clickPressed = -1;
+            document.removeEventListener( 'mousemove', _this.onMouseMove, false );
+        }
     },
 
-    onMouseWheel     :function (event){
-        var delta = 0;
+    onMouseWheel     : function(_this){
+        return function (event){
+            var delta = 0;
 
-        if ( event.wheelDelta ) { // WebKit / Opera / Explorer 9
-            delta = event.wheelDelta;
-        } else if ( event.detail ) { // Firefox
-            delta = - event.detail;
+            if ( event.wheelDelta ) { // WebKit / Opera / Explorer 9
+                delta = event.wheelDelta;
+            } else if ( event.detail ) { // Firefox
+                delta = - event.detail;
+            }
+
+            delta = delta/1000 + 1;
+            _this.viewer.addZoom(delta);
         }
-
-        delta = delta/1000 + 1;
-        window.torus.viewer.addZoom(delta);
     },
-    onMouseMove     :function (event){
-        switch (window.torus.clickPressed) {
-            case 0:
-                window.torus.viewer.addTorusPhase((event.clientX - window.torus.lastClick.x)/500);
-                window.torus.viewer.addVerticalRotation((event.clientY - window.torus.lastClick.y)/500);
-                break;
-            case 1:
-                var pos = window.torus.viewer.getRegion();
+    onMouseMove     :function(_this){
+        return function (event){
+            switch (_this.clickPressed) {
+                case 0:
+                    _this.viewer.addTorusPhase((event.clientX - _this.lastClick.x)/500);
+                    _this.viewer.addVerticalRotation((event.clientY - _this.lastClick.y)/500);
+                    break;
+                case 1:
+                    var pos = _this.viewer.getRegion();
 
-                pos.x += (event.clientX - window.torus.lastClick.x)/5000;
-                pos.y += (event.clientY - window.torus.lastClick.y)/5000;
-                window.torus.viewer.setRegion(pos.x, pos.y);
-                break;
-            case 2:
-                window.torus.viewer.addDisksPhase(-(event.clientY - window.torus.lastClick.y)/500);
+                    pos.x += (event.clientX - _this.lastClick.x)/5000;
+                    pos.y += (event.clientY - _this.lastClick.y)/5000;
+                    _this.viewer.setRegion(pos.x, pos.y);
+                    break;
+                case 2:
+                    _this.viewer.addDisksPhase(-(event.clientY - _this.lastClick.y)/500);
+            }
+            _this.lastClick.x = event.clientX;
+            _this.lastClick.y = event.clientY;
         }
-        window.torus.lastClick.x = event.clientX;
-        window.torus.lastClick.y = event.clientY;
     }
 };
 
@@ -204,7 +210,6 @@ Torus.Config = function(components) {
         pad: 0.002,     // space between chromosomes
         numLayers: 1,
         layerSeparation: [0],
-        featureSeparation: 0.03,
         numDisk: components.samples === undefined? 20 : components.samples,    // number of samples
         width: 300,     //  ??
         height: 300,
