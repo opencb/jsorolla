@@ -48,17 +48,21 @@ FeatureTrack.prototype.render = function (targetId) {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
     this.dataAdapter.on('data:ready', function (event) {
+        var features;
         if (event.dataType == 'histogram') {
             _this.renderer = _this.histogramRenderer;
+            _this.histogramRenderer.color =
+            features = event.items;
         } else {
             _this.renderer = _this.defaultRenderer;
+            features = _this._getFeaturesToRender(event);
         }
 
 //        _this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
-        var features = _this._getFeaturesToRender(event);
         _this.renderer.render(features, {
             svgCanvasFeatures: _this.svgCanvasFeatures,
             featureTypes: _this.featureTypes,
+            renderedArea: _this.renderedArea,
             renderedArea: _this.renderedArea,
             pixelBase: _this.pixelBase,
             position: _this.region.center(),
@@ -178,8 +182,8 @@ FeatureTrack.prototype._getFeaturesToRender = function (response, filters) {
     for (var i = 0, leni = chunks.length; i < leni; i++) {
         if (this.chunksDisplayed[chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
 
-            for (var j = 0, lenj = chunks[i].items.length; j < lenj; j++) {
-                feature = chunks[i].items[j];
+            for (var j = 0, lenj = chunks[i].value.length; j < lenj; j++) {
+                feature = chunks[i].value[j];
                 var chrChunkCache = this.dataAdapter.cache[dataType];
 
                 //check if any feature has been already displayed by another chunk

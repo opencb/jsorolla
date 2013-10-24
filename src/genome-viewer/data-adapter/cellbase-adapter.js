@@ -32,7 +32,9 @@ function CellBaseAdapter(args) {
 
 CellBaseAdapter.prototype = {
 
-    getData : function (args) {
+    getData: function (args) {
+        console.log(args)
+        ARGS = args;
         var _this = this;
 
         /********/
@@ -40,48 +42,60 @@ CellBaseAdapter.prototype = {
         _.extend(params, this.params);
         _.extend(params, args.params);
 
-        var dataType = args.dataType || 'feature';
+        var dataType = args.dataType || 'features';
         var region = args.region;
 
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
         /********/
-
-        if(dataType == 'histogram') {
-            var histogramId = dataType+'_'+args.interval;
+        if (dataType == 'histogram') {
+            var histogramId = dataType + '_' + params.interval;
             if (_.isUndefined(this.cache[histogramId])) {
-                this.cacheConfig.chunkSize = args.interval;
-                this.cache[histogramId] = new FeatureChunkCache(this.cacheConfig);
+                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval});
+            }
+            // Extend region to be adjusted with the chunks
+            var adjustedRegions = this.cache[histogramId].getAdjustedRegions(region);
+                debugger
+            if(adjustedRegions.length > 0){
+                // get cache
+                CellBaseManager.get({
+                    host: this.host,
+                    species: this.species,
+                    category: this.category,
+                    subCategory: this.subCategory,
+                    query: adjustedRegions,
+                    resource: this.resource,
+                    params: params,
+                    success: function (data) {
+                        _this._cellbaseHistogramSuccess(data, dataType, histogramId);
+                    }
+                });
+            }else{
+                var chunksByRegion = this.cache[histogramId].getCachedByRegion(region);
             }
 
-            // Extend region to be adjusted with the chunks
-            var adjustedRegion = this.cache[histogramId].getAdjustedRegion(region);
 
-            // llamar cellbase
-            
-            // put en la cache
-
-        }else {
+        } else {
             //Create one FeatureChunkCache by datatype
             if (_.isUndefined(this.cache[dataType])) {
                 this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
             }
             var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
 
-            if(chunksByRegion.notCached.length > 0) {
-                var queryRegionStrings = _.map(chunksByRegion.notCached, function(region) {
+            if (chunksByRegion.notCached.length > 0) {
+                var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
                     return new Region(region).toString();
                 });
 
                 //limit queries
                 var n = 50;
-                var lists = _.groupBy(queryRegionStrings, function(a, b){
-                    return Math.floor(b/n);
+                var lists = _.groupBy(queryRegionStrings, function (a, b) {
+                    return Math.floor(b / n);
                 });
                 var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
 
-                for(var i = 0; i < queriesList.length; i++) {
+                for (var i = 0; i < queriesList.length; i++) {
                     CellBaseManager.get({
                         host: this.host,
                         species: this.species,
@@ -90,21 +104,21 @@ CellBaseAdapter.prototype = {
                         query: queriesList[i],
                         resource: this.resource,
                         params: params,
-                        success: function(data){
+                        success: function (data) {
                             _this._cellbaseSuccess(data, dataType);
                         }
                     });
                 }
             }
+            if (chunksByRegion.cached.length > 0) {
+                var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
+                this.trigger('data:ready', {items: chunksCached, dataType: dataType, sender: this});
+            }
         }
 
-        if(chunksByRegion.cached.length > 0) {
-            var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
-            this.trigger('data:ready', {items: chunksCached, dataType: dataType, sender: this});
-        }
     },
 
-    _cellbaseSuccess : function (data, dataType) {
+    _cellbaseSuccess: function (data, dataType) {
         var timeId = Utils.randomString(4);
         console.time(this.resource + " save " + timeId);
         /** time log **/
@@ -116,7 +130,7 @@ CellBaseAdapter.prototype = {
 
             var region = new Region(queryResult.id);
             var features = queryResult.result;
-            var chunk = this.cache[dataType].putByRegion(region,features);
+            var chunk = this.cache[dataType].putByRegion(region, features);
             chunks.push(chunk);
         }
         if (chunks.length > 0) {
@@ -124,6 +138,27 @@ CellBaseAdapter.prototype = {
         }
 
 
+        /** time log **/
+        console.timeEnd(this.resource + " get and save " + timeId);
+    },
+    _cellbaseHistogramSuccess: function (data, dataType, histogramId) {
+        var timeId = Utils.randomString(4);
+        console.time(this.resource + " save " + timeId);
+        /** time log **/
+
+        var chunks = [];
+        for (var i = 0; i < data.response.length; i++) {
+            var queryResult = data.response[i];
+            for (var j = 0; j < queryResult.result.length; j++) {
+                var interval = queryResult.result[j];
+                var region = new Region(queryResult.id);
+                region.load(interval);
+                chunks.push(this.cache[histogramId].putByRegion(region, interval));
+            }
+        }
+//        var chunksByRegion = this.cache[histogramId].getB(region);
+
+        this.trigger('data:ready', {items: chunks, dataType: dataType, sender: this});
         /** time log **/
         console.timeEnd(this.resource + " get and save " + timeId);
     }

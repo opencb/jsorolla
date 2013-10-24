@@ -31,9 +31,81 @@ FeatureChunkCache.prototype = {
 
     getAdjustedRegion: function (region) {
         var start = this.getChunkId(region.start) * this.chunkSize;
-        var end = (this.getChunkId(region.end) * this.chunkSize) + this.chunkSize-1;
+        var end = (this.getChunkId(region.end) * this.chunkSize) + this.chunkSize - 1;
 
         return new Region({chromosome: region.chromosome, start: start, end: end});
+    },
+
+    getAdjustedRegions: function (region) {
+        var firstChunkId = this.getChunkId(region.start);
+        var lastChunkId = this.getChunkId(region.end);
+        var regions = [];
+        var updateStart = true;
+        var updateEnd = true;
+        for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
+            var chunkKey = this.getChunkKey(region.chromosome, chunkId);
+            var nextChunkKey = this.getChunkKey(region.chromosome, chunkId + 1);
+            var chunk = this.getChunk(chunkKey);
+            var nextChunk = this.getChunk(nextChunkKey);
+            if (updateStart) {
+                var chunkStart = parseInt(chunkId * this.chunkSize);
+                updateStart = false;
+            }
+            if (updateEnd) {
+                var chunkEnd = parseInt((chunkId * this.chunkSize) + this.chunkSize - 1);
+                updateEnd = false;
+            }
+
+            if (!nextChunk && chunkId < lastChunkId) {
+                updateEnd = true;
+            }
+            else {
+                var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd})
+                regions.push(r);
+                updateStart = true;
+                updateEnd = true;
+            }
+        }
+
+        return regions;
+    },
+
+    getAdjustedRegions: function (region) {
+        var firstChunkId = this.getChunkId(region.start);
+        var lastChunkId = this.getChunkId(region.end);
+
+        var regions = [], updateStart = true, updateEnd = true, chunkStart, chunkEnd;
+        for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
+            var chunkKey = this.getChunkKey(region.chromosome, chunkId);
+            var nextChunkKey = this.getChunkKey(region.chromosome, chunkId + 1);
+            var chunk = this.getChunk(chunkKey);
+            var nextChunk = this.getChunk(nextChunkKey);
+            if (updateStart) {
+                chunkStart = parseInt(chunkId * this.chunkSize);
+                updateStart = false;
+            }
+            if (updateEnd) {
+                chunkEnd = parseInt((chunkId * this.chunkSize) + this.chunkSize - 1);
+                updateEnd = false;
+            }
+
+            if (!chunk) {
+                updateEnd = true;
+                if (nextChunk && chunkId < lastChunkId) {
+                    var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd})
+                    regions.push(r);
+                    updateStart = true;
+                }
+                if (chunkId == lastChunkId) {
+                    var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd})
+                    regions.push(r);
+                }
+            } else {
+                updateStart = true;
+                updateEnd = true;
+            }
+        }
+        return regions;
     },
 
     getByRegions: function (regions) {
@@ -45,6 +117,7 @@ FeatureChunkCache.prototype = {
         }
         return chunks;
     },
+
 
     getCachedByRegion: function (region) {
         var chunkRegions = {cached: [], notCached: []};
@@ -73,16 +146,16 @@ FeatureChunkCache.prototype = {
         return chunkRegions;
     },
 
-    putChunk: function (chunkKey, items) {
-        var value = {items: items, chunkKey: chunkKey};
+    putChunk: function (chunkKey, value) {
+        var value = {value: value, chunkKey: chunkKey};
         this.store.add(chunkKey, value);
         return value;
     },
 
-    putByRegion: function (region, items) {
+    putByRegion: function (region, value) {
         var chunkId = this.getChunkId(region.start);
         var chunkKey = this.getChunkKey(region.chromosome, chunkId);
-        return this.putChunk(chunkKey,items);
+        return this.putChunk(chunkKey, value);
     },
 
     getChunkKey: function (chromosome, chunkId) {
