@@ -180,8 +180,11 @@ FEATURE_TYPES = {
 
     //methods
     formatTitle: function (str) {
-        var s = str.replace(/_/gi, " ");
-        s = s.charAt(0).toUpperCase() + s.slice(1);
+        var s = '';
+        if(str){
+            str.replace(/_/gi, " ");
+            s = s.charAt(0).toUpperCase() + s.slice(1);
+        }
         return s;
     },
     getTipCommons: function (f) {
@@ -391,7 +394,6 @@ FEATURE_TYPES = {
                 //Uncaught TypeError: Cannot call method 'split' of undefined
                 console.log(e)
                 debugger
-
             }
 
             if (fields.length > 10 || fields.length == 9)
@@ -594,7 +596,7 @@ FEATURE_TYPES = {
             if (this.mateUnmappedFlag(f)) {
                 return "tomato"
             }
-            return "whitesmoke";
+            return (parseInt(f.flags) & (0x10)) == 0 ? "LightGray" : "DarkGray";
         },
         strand: function (f) {
             return (parseInt(f.flags) & (0x10)) == 0 ? "Forward" : "Reverse";

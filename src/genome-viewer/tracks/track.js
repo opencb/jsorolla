@@ -59,6 +59,7 @@ function Track(args) {
     this.invalidZoomText;
 
     this.renderedArea = {};//used for renders to store binary trees
+    this.chunksDisplayed = {};//used to avoid painting multiple times features contained in more than 1 chunk
 
     if ('handlers' in this) {
         for (eventName in this.handlers) {
@@ -81,7 +82,25 @@ Track.prototype = {
     set: function (attr, value) {
         this[attr] = value;
     },
-
+    hide: function () {
+        $(this.div).css({display: 'hidden'});
+    },
+    show: function () {
+        $(this.div).css({display: 'auto'});
+    },
+    hideContent: function () {
+        $(this.svgdiv).css({display: 'hidden'});
+        $(this.titlediv).css({display: 'hidden'});
+    },
+    showContent: function () {
+        $(this.svgdiv).css({display: 'auto'});
+        $(this.titlediv).css({display: 'auto'});
+    },
+    toggleContent: function () {
+        $(this.svgdiv).toggle('hidden');
+        $(this.resizeDiv).toggle('hidden');
+        $(this.configBtn).toggle('hidden');
+    },
     setSpecies: function (species) {
         this.species = species;
         this.dataAdapter.species = this.species
@@ -130,7 +149,7 @@ Track.prototype = {
             var renderedHeight = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
             this.main.setAttribute('height', renderedHeight);
             this.svgCanvasFeatures.setAttribute('height', renderedHeight);
-            this.titlebar.setAttribute('height', renderedHeight);
+            this.hoverRect.setAttribute('height', renderedHeight);
         }
     },
     updateHeight: function (ignoreAutoHeight) {
@@ -194,21 +213,43 @@ Track.prototype = {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
-        var titlediv = $('<div id="' + this.id + '-titlediv">' + this.title + '</div>')[0];
+        var titleBardiv = $('' +
+            '<div class="btn-toolbar">' +
+            '   <div class="btn-group btn-group-xs">' +
+            '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
+            '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button"><span id="titleDiv">' + this.title + '</span></button>' +
+            '   </div>' +
+            '</div>')[0];
+
+        if(_.isUndefined(this.title)){
+            $(titleBardiv).addClass("hidden");
+        }
+
+        var titlediv = $(titleBardiv).find('#titleDiv')[0];
+        var titleBtn = $(titleBardiv).find('#titleBtn')[0];
+        var configBtn = $(titleBardiv).find('#configBtn')[0];
+
+
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
+        var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
 
         $(targetId).addClass("unselectable");
         $(targetId).append(div);
-        $(div).append(titlediv);
+        $(div).append(titleBardiv);
         $(div).append(svgdiv);
+        $(div).append(resizediv);
 
-        $(titlediv).addClass(this.fontClass);
-        $(titlediv).css({
-            'height': '16px',
-            'line-height': '16px',
-            'padding-left': '4px'
+
+        /** title div **/
+        $(titleBardiv).css({'padding': '4px'})
+            .on('dblclick', function (e) {
+                e.stopPropagation();
+            });
+        $(titleBtn).click(function (e) {
+            _this.toggleContent();
         });
 
+        /** svg div **/
         $(svgdiv).css({
             'z-index': 3,
             'height': this.height,
@@ -225,9 +266,8 @@ Track.prototype = {
             'height': this.height
         });
 
-        var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
-        if (this.resizable) {
 
+        if (this.resizable) {
             $(resizediv).mousedown(function (event) {
                 $('html').addClass('unselectable');
                 event.stopPropagation();
@@ -259,16 +299,13 @@ Track.prototype = {
             });
 
         }
-        $(div).append(resizediv);
 
         this.svgGroup = SVG.addChild(main, "g", {
-            "class": "trackTitle"
             //visibility:this.titleVisibility
         });
 
         var text = this.title;
-        var textWidth = 15 + text.length * 6;
-        var titlebar = SVG.addChild(this.svgGroup, 'rect', {
+        var hoverRect = SVG.addChild(this.svgGroup, 'rect', {
             'x': 0,
             'y': 0,
             'width': this.width,
@@ -276,13 +313,6 @@ Track.prototype = {
             'opacity': '0.6',
             'fill': 'transparent'
         });
-//        var titleText = SVG.addChild(this.svgGroup, "text", {
-//            "x": 4,
-//            "y": 14,
-//            "opacity": "0.4",
-//            "fill": "black"
-//        });
-//        titleText.textContent = text;
 
         this.svgCanvasFeatures = SVG.addChild(this.svgGroup, 'svg', {
             'class': 'features',
@@ -293,14 +323,12 @@ Track.prototype = {
 
 
         this.fnTitleMouseEnter = function () {
-            titlebar.setAttribute('opacity', '0.1');
-            titlebar.setAttribute('fill', 'greenyellow');
-//            titleText.setAttribute('opacity', '1.0');
+            hoverRect.setAttribute('opacity', '0.1');
+            hoverRect.setAttribute('fill', 'lightblue');
         };
         this.fnTitleMouseLeave = function () {
-            titlebar.setAttribute('opacity', '0.6');
-            titlebar.setAttribute('fill', 'transparent');
-//            titleText.setAttribute('opacity', '0.4');
+            hoverRect.setAttribute('opacity', '0.6');
+            hoverRect.setAttribute('fill', 'transparent');
         };
 
         $(this.svgGroup).off('mouseenter');
@@ -351,9 +379,11 @@ Track.prototype = {
         this.div = div;
         this.svgdiv = svgdiv;
         this.titlediv = titlediv;
+        this.resizeDiv = resizediv;
+        this.configBtn = configBtn;
 
         this.main = main;
-        this.titlebar = titlebar;
+        this.hoverRect = hoverRect;
 //        this.titleText = titleText;
 
 
@@ -445,5 +475,52 @@ Track.prototype = {
 
     draw: function () {
 
+    },
+
+    getFeaturesToRenderByChunk: function (response, filters) {
+        //Returns an array avoiding already drawn features in this.chunksDisplayed
+
+        var chunks = response.items;
+        var dataType = response.dataType;
+        var features = [];
+
+        var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
+        for (var i = 0, leni = chunks.length; i < leni; i++) {
+            if (this.chunksDisplayed[chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
+
+                for (var j = 0, lenj = chunks[i].value.length; j < lenj; j++) {
+                    feature = chunks[i].value[j];
+                    var chrChunkCache = this.dataAdapter.cache[dataType];
+
+                    //check if any feature has been already displayed by another chunk
+                    displayed = false;
+                    featureFirstChunk = chrChunkCache.getChunkId(feature.start);
+                    featureLastChunk = chrChunkCache.getChunkId(feature.end);
+                    for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {
+                        var chunkKey = chrChunkCache.getChunkKey(feature.chromosome, chunkId);
+                        if (this.chunksDisplayed[chunkKey] == true) {
+                            displayed = true;
+                            break;
+                        }
+                    }
+                    if (!displayed) {
+                        //apply filter
+                        // if(filters != null) {
+                        //		var pass = true;
+                        // 		for(filter in filters) {
+                        // 			pass = pass && filters[filter](feature);
+                        //			if(pass == false) {
+                        //				break;
+                        //			}
+                        // 		}
+                        //		if(pass) features.push(feature);
+                        // } else {
+                        features.push(feature);
+                    }
+                }
+                this.chunksDisplayed[chunks[i].chunkKey] = true;
+            }
+        }
+        return features;
     }
 };

@@ -581,6 +581,7 @@ TrackListPanel.prototype = {
             return;
         }
         var _this = this;
+
         var i = this.trackSvgList.push(track);
         this.swapHash[track.id] = {index: i - 1, visible: true};
 
@@ -821,7 +822,7 @@ TrackListPanel.prototype = {
         var i = this.swapHash[trackId].index;
         var track = this.trackSvgList[i];
 
-        $(track.div).css({display: 'hidden'});
+        track.hide();
 
 //        this.setHeight(this.height - track.getHeight());
 
@@ -833,7 +834,7 @@ TrackListPanel.prototype = {
         var i = this.swapHash[trackId].index;
         var track = this.trackSvgList[i];
 
-        $(track.div).css({display: 'auto'});
+        track.show();
 
 //        this.svg.appendChild(track.main);
 
@@ -878,6 +879,16 @@ TrackListPanel.prototype = {
         }
         return null;
     },
+    getSequenceTrack: function () {
+        //if multiple, returns the first found
+        for (var i = 0; i < this.trackSvgList.length; i++) {
+            var track = this.trackSvgList[i];
+            if(track instanceof SequenceTrack){
+                return track;
+            }
+        }
+        return;
+    },
 
     getMousePosition: function (position) {
         var base = '';
@@ -892,9 +903,10 @@ TrackListPanel.prototype = {
     },
 
     getSequenceNucleotid: function (position) {
-        var seqTrack = this.getTrackSvgById(1);
+        var seqTrack = this.getSequenceTrack();
         if (seqTrack != null && this.zoom >= seqTrack.visibleRange.start - this.zoomOffset && this.zoom <= seqTrack.visibleRange.end) {
-            return seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
+            var nt = seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
+            return nt;
         }
         return '';
     },

@@ -25,12 +25,14 @@ function Region(args) {
     this.start = null;
     this.end = null;
 
-    if (typeof args != 'undefined') {
-        this.load(args);
-
-        if (args.str != null) {
-            this.parse(args.str);
+    if (_.isObject(args)) {
+        if(!_.isUndefined(args.str)){
+            this.parse(args);
+        }else{
+            this.load(args);
         }
+    }else if(_.isString(args)){
+        this.parse(args);
     }
 }
 
@@ -39,11 +41,8 @@ Region.prototype = {
         this.chromosome = obj.chromosome || this.chromosome;
         this.chromosome = this.chromosome.toUpperCase();
 
-        this.start = obj.start || this.start;
-        this.end = obj.end || this.end;
-
-        this.start = parseInt(this.start);
-        this.end = parseInt(this.end);
+        (_.isUndefined(obj.start)) ? this.start = parseInt(this.start) : this.start = parseInt(obj.start);
+        (_.isUndefined(obj.end)) ? this.end = parseInt(this.end) : this.end = parseInt(obj.end);
     },
 
     parse: function (str) {

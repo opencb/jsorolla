@@ -42,7 +42,7 @@ function FeatureCache(args) {
 
 
 
-    this.chunkStore;
+    this.store;
 
 //    this.cache = {};
     this.chunksDisplayed = {};

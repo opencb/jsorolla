@@ -102,7 +102,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -117,15 +117,15 @@ var OpencgaManager = {
         var url = OpencgaManager.getAccountUrl(args.accountId) + '/login' + OpencgaManager.getQuery(queryParams);
 
         function success(data) {
-            if(data.indexOf("ERROR") == -1){
+            if (data.indexOf("ERROR") == -1) {
                 args.success(JSON.parse(data))
-            }else{
-                args.success({errorMessage:data})
+            } else {
+                args.success({errorMessage: data})
             }
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -142,7 +142,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -159,19 +159,19 @@ var OpencgaManager = {
 
         function success(data) {
 
-            if(data.indexOf("ERROR") == -1){
+            if (data.indexOf("ERROR") == -1) {
                 args.success(JSON.parse(data));
-            }else{
+            } else {
                 $.cookie('bioinfo_sid', null);
                 $.cookie('bioinfo_sid', null, {path: '/'});
-                $.cookie('bioinfo_account',null);
+                $.cookie('bioinfo_account', null);
                 $.cookie('bioinfo_account', null, {path: '/'});
                 console.log(data);
             }
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -193,7 +193,7 @@ var OpencgaManager = {
 
         function error(data) {
             console.log("ERROR: " + data);
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -212,7 +212,7 @@ var OpencgaManager = {
 
         function error(data) {
             console.log("ERROR: " + data);
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -231,7 +231,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -256,7 +256,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -275,7 +275,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -294,7 +294,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -312,13 +312,13 @@ var OpencgaManager = {
         var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/upload' + OpencgaManager.getQuery(queryParams);
 
 
-        function success(data){
+        function success(data) {
             console.log(data);
-            args.success({status:"done",data:data});
+            args.success({status: "done", data: data});
         }
 
-        function error(data){
-            if(_.isFunction(args.error)) args.error({status:"fail",data:data});
+        function error(data) {
+            if (_.isFunction(args.error)) args.error({status: "fail", data: data});
         }
 
         OpencgaManager.doPost(url, args.formData, success, error);
@@ -338,7 +338,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -356,7 +356,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -380,12 +380,23 @@ var OpencgaManager = {
 
         function success(data) {
             if (!(data.substr(0, 5).indexOf('ERROR') != -1)) {
-                args.success({resource: args.queryParams["category"], result: JSON.parse(data), filename: args.objectId, query: args.region, params: args.queryParams});
+                var jsonData = JSON.parse(data);
+                var r = {response: []};
+                for (var i = 0; i < args.region.length; i++) {
+                    var result = jsonData[i];
+                    // TODO temporal fix
+                    r.response.push({
+                        id: args.region[i],
+                        result: jsonData[i]
+                    });
+                }
+                args.success(r);
+//                args.success({resource: args.queryParams["category"], response: JSON.parse(data), filename: args.objectId, query: args.region, params: args.queryParams});
             }
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -407,7 +418,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -432,7 +443,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -454,7 +465,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -491,7 +502,7 @@ var OpencgaManager = {
             }
 
             function error(data) {
-                if(_.isFunction(args.error)) args.error(data);
+                if (_.isFunction(args.error)) args.error(data);
             }
 
             OpencgaManager.doGet(url, success, error);
@@ -522,7 +533,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -550,12 +561,12 @@ var OpencgaManager = {
         console.log(args.paramsWS);
 
 
-        function success(data){
-            args.success({status:"done",data:data});
+        function success(data) {
+            args.success({status: "done", data: data});
         }
 
-        function error(data){
-            if(_.isFunction(args.error)) args.error({status:"fail",data:data});
+        function error(data) {
+            if (_.isFunction(args.error)) args.error({status: "fail", data: data});
         }
 
 
@@ -574,7 +585,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -593,7 +604,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -609,7 +620,7 @@ var OpencgaManager = {
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         OpencgaManager.doGet(url, success, error);
@@ -622,12 +633,13 @@ var OpencgaManager = {
             'filename': args.fileName
         };
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variants' + OpencgaManager.getQuery(queryParams);
+
         function success(data) {
             args.success(data);
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         $.ajax({
@@ -649,13 +661,15 @@ var OpencgaManager = {
             'filename': args.fileName
         };
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variant_info' + OpencgaManager.getQuery(queryParams);
+
         function success(data) {
             args.success(JSON.parse(data));
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
+
         OpencgaManager.doGet(url, success, error);
         //	console.log(url);
     }
