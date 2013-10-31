@@ -37,6 +37,8 @@ function BamTrack(args) {
 
     //set instantiation args, must be last
     _.extend(this, args);
+
+    this.dataType = 'features';
 };
 
 BamTrack.prototype.render = function(targetId){
@@ -48,13 +50,14 @@ BamTrack.prototype.render = function(targetId){
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
 
     this.dataAdapter.on('data:ready',function(event){
-        if(event.params.histogram == true){
+        var features;
+        if (event.dataType == 'histogram') {
             _this.renderer = _this.histogramRenderer;
-        }else{
+            features = event.items;
+        } else {
             _this.renderer = _this.defaultRenderer;
+            features = _this._removeDisplayedChunks(event);
         }
-//        _this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
-        var features = _this._removeDisplayedChunks(event);
         _this.renderer.render(features, {
             svgCanvasFeatures : _this.svgCanvasFeatures,
             featureTypes:_this.featureTypes,
@@ -83,31 +86,45 @@ BamTrack.prototype.draw = function(){
 
     this.updateHistogramParams();
     this.cleanSvg();
-//    setCallRegion();
+
+    this.dataType = 'features';
+    if (this.histogram) {
+        this.dataType = 'histogram';
+    }
 
     if( this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end ){
         this.setLoading(true);
-        var data = this.dataAdapter.getData({
-            chromosome:this.region.chromosome,
-            start:this.region.start-this.svgCanvasOffset*2,
-            end:this.region.end+this.svgCanvasOffset*2,
-            histogram:this.histogram,
-            histogramLogarithm:this.histogramLogarithm,
-            histogramMax:this.histogramMax,
-            interval:this.interval
+        this.dataAdapter.getData({
+            dataType: this.dataType,
+            region: new Region({
+                chromosome: this.region.chromosome,
+                start: this.region.start - this.svgCanvasOffset * 2,
+                end: this.region.end + this.svgCanvasOffset * 2
+            }),
+            params: {
+                histogram: this.histogram,
+                histogramLogarithm: this.histogramLogarithm,
+                histogramMax: this.histogramMax,
+                interval: this.interval
+            }
         });
 
         this.invalidZoomText.setAttribute("visibility", "hidden");
     }else{
         this.invalidZoomText.setAttribute("visibility", "visible");
     }
-
+    _this.updateHeight();
 };
 
 
 BamTrack.prototype.move = function(disp){
     var _this = this;
-//    trackSvg.position = _this.region.center();
+
+    this.dataType = 'features';
+    if (this.histogram) {
+        this.dataType = 'histogram';
+    }
+
     _this.region.center();
     var pixelDisplacement = disp*_this.pixelBase;
     this.pixelPosition-=pixelDisplacement;
@@ -123,26 +140,36 @@ BamTrack.prototype.move = function(disp){
 
         if(disp>0 && virtualStart < this.svgCanvasLeftLimit){
             this.dataAdapter.getData({
-                chromosome:_this.region.chromosome,
-                start:parseInt(this.svgCanvasLeftLimit-this.svgCanvasOffset),
-                end:this.svgCanvasLeftLimit,
-                histogram:this.histogram,
-                histogramLogarithm:this.histogramLogarithm,
-                histogramMax:this.histogramMax,
-                interval:this.interval
+                dataType: this.dataType,
+                region: new Region({
+                    chromosome: _this.region.chromosome,
+                    start: parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset),
+                    end: this.svgCanvasLeftLimit
+                }),
+                params: {
+                    histogram: this.histogram,
+                    histogramLogarithm: this.histogramLogarithm,
+                    histogramMax: this.histogramMax,
+                    interval: this.interval
+                }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
         }
 
         if(disp<0 && virtualEnd > this.svgCanvasRightLimit){
             this.dataAdapter.getData({
-                chromosome:_this.region.chromosome,
-                start:this.svgCanvasRightLimit,
-                end:parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset),
-                histogram:this.histogram,
-                histogramLogarithm:this.histogramLogarithm,
-                histogramMax:this.histogramMax,
-                interval:this.interval
+                dataType: this.dataType,
+                region: new Region({
+                    chromosome: _this.region.chromosome,
+                    start: this.svgCanvasRightLimit,
+                    end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset)
+                }),
+                params: {
+                    histogram: this.histogram,
+                    histogramLogarithm: this.histogramLogarithm,
+                    histogramMax: this.histogramMax,
+                    interval: this.interval
+                }
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset);
         }
@@ -154,25 +181,26 @@ BamTrack.prototype.move = function(disp){
 BamTrack.prototype._removeDisplayedChunks = function(response){
     //Returns an array avoiding already drawn features in this.chunksDisplayed
     var chunks = response.items;
+    var dataType = response.dataType;
     var newChunks = [];
-    var dataType = response.params.dataType;
-    var chromosome = response.params.chromosome;
+//    var chromosome = response.params.chromosome;
 
     var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
     for ( var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
-        if(this.chunksDisplayed[chunks[i].key+dataType] != true){//check if any chunk is already displayed and skip it
+        if(this.chunksDisplayed[chunks[i].chunkKey] != true){//check if any chunk is already displayed and skip it
 
             features = []; //initialize array, will contain features not drawn by other drawn chunks
-            for ( var j = 0, lenj = chunks[i][dataType].length; j < lenj; j++) {
-                feature = chunks[i][dataType][j];
+            for ( var j = 0, lenj =  chunks[i].value.reads.length; j < lenj; j++) {
+                feature = chunks[i].value.reads[j];
+                var chrChunkCache = this.dataAdapter.cache[dataType];
 
                 //check if any feature has been already displayed by another chunk
                 displayed = false;
-                featureFirstChunk = this.dataAdapter.featureCache._getChunk(feature.start);
-                featureLastChunk = this.dataAdapter.featureCache._getChunk(feature.end);
-                for(var f=featureFirstChunk; f<=featureLastChunk; f++){//loop over chunks touched by this feature
-                    var fkey = chromosome+":"+f;
-                    if(this.chunksDisplayed[fkey+dataType]==true){
+                featureFirstChunk = chrChunkCache.getChunkId(feature.start);
+                featureLastChunk = chrChunkCache.getChunkId(feature.end);
+                for(var chunkId=featureFirstChunk; chunkId<=featureLastChunk; chunkId++){//loop over chunks touched by this feature
+                    var chunkKey = chrChunkCache.getChunkKey(feature.chromosome, chunkId);
+                    if(this.chunksDisplayed[chunkKey]==true){
                         displayed = true;
                         break;
                     }
@@ -181,8 +209,8 @@ BamTrack.prototype._removeDisplayedChunks = function(response){
                     features.push(feature);
                 }
             }
-            this.chunksDisplayed[chunks[i].key+dataType]=true;
-            chunks[i][dataType] = features;//update features array
+            this.chunksDisplayed[chunks[i].chunkKey]=true;
+            chunks[i].value.reads = features;//update features array
             newChunks.push(chunks[i]);
         }
     }

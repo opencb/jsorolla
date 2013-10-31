@@ -33,10 +33,11 @@ function FeatureTrack(args) {
     this.histogramRenderer = new HistogramRenderer();
 
 
-    this.chunksDisplayed = {};
-
     //set instantiation args, must be last
     _.extend(this, args);
+
+
+    this.dataType = 'features';
 };
 
 FeatureTrack.prototype.render = function (targetId) {
@@ -51,14 +52,12 @@ FeatureTrack.prototype.render = function (targetId) {
         var features;
         if (event.dataType == 'histogram') {
             _this.renderer = _this.histogramRenderer;
-            _this.histogramRenderer.color =
             features = event.items;
         } else {
             _this.renderer = _this.defaultRenderer;
-            features = _this._getFeaturesToRender(event);
+            features = _this.getFeaturesToRenderByChunk(event);
         }
 
-//        _this.setHeight(_this.height - trackSvg.getHeight());//modify height before redraw
         _this.renderer.render(features, {
             svgCanvasFeatures: _this.svgCanvasFeatures,
             featureTypes: _this.featureTypes,
@@ -85,18 +84,17 @@ FeatureTrack.prototype.draw = function () {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
     this.updateHistogramParams();
-
-    var dataType = 'features';
-    if (this.histogram) {
-        dataType = 'histogram';
-    }
-
     this.cleanSvg();
+
+    this.dataType = 'features';
+    if (this.histogram) {
+        this.dataType = 'histogram';
+    }
 
     if (this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end) {
         this.setLoading(true);
         this.dataAdapter.getData({
-            dataType: dataType,
+            dataType: this.dataType,
             region: new Region({
                 chromosome: this.region.chromosome,
                 start: this.region.start - this.svgCanvasOffset * 2,
@@ -120,6 +118,12 @@ FeatureTrack.prototype.draw = function () {
 
 FeatureTrack.prototype.move = function (disp) {
     var _this = this;
+
+    this.dataType = 'features';
+    if (this.histogram) {
+        this.dataType = 'histogram';
+    }
+
     _this.region.center();
     var pixelDisplacement = disp * _this.pixelBase;
     this.pixelPosition -= pixelDisplacement;
@@ -135,6 +139,7 @@ FeatureTrack.prototype.move = function (disp) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             this.dataAdapter.getData({
+                dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,
                     start: parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset),
@@ -152,6 +157,7 @@ FeatureTrack.prototype.move = function (disp) {
 
         if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
             this.dataAdapter.getData({
+                dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,
                     start: this.svgCanvasRightLimit,
@@ -169,51 +175,4 @@ FeatureTrack.prototype.move = function (disp) {
 
     }
 
-};
-
-FeatureTrack.prototype._getFeaturesToRender = function (response, filters) {
-    //Returns an array avoiding already drawn features in this.chunksDisplayed
-
-    var chunks = response.items;
-    var dataType = response.dataType;
-    var features = [];
-
-    var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
-    for (var i = 0, leni = chunks.length; i < leni; i++) {
-        if (this.chunksDisplayed[chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
-
-            for (var j = 0, lenj = chunks[i].value.length; j < lenj; j++) {
-                feature = chunks[i].value[j];
-                var chrChunkCache = this.dataAdapter.cache[dataType];
-
-                //check if any feature has been already displayed by another chunk
-                displayed = false;
-                featureFirstChunk = chrChunkCache.getChunkId(feature.start);
-                featureLastChunk = chrChunkCache.getChunkId(feature.end);
-                for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {
-                    var chunkKey = chrChunkCache.getChunkKey(feature.chromosome, chunkId);
-                    if (this.chunksDisplayed[chunkKey] == true) {
-                        displayed = true;
-                        break;
-                    }
-                }
-                if (!displayed) {
-                    //apply filter
-                    // if(filters != null) {
-                    //		var pass = true;
-                    // 		for(filter in filters) {
-                    // 			pass = pass && filters[filter](feature);
-                    //			if(pass == false) {
-                    //				break;
-                    //			}
-                    // 		}
-                    //		if(pass) features.push(feature);
-                    // } else {
-                    features.push(feature);
-                }
-            }
-            this.chunksDisplayed[chunks[i].chunkKey] = true;
-        }
-    }
-    return features;
 };

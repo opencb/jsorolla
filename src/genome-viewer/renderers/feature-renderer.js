@@ -46,7 +46,7 @@ function FeatureRenderer(args) {
 
 FeatureRenderer.prototype.render = function (features, args) {
     var _this = this;
-    var draw = function (feature) {
+    var draw = function (feature, svgGroup) {
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
         var label = _.isFunction(_this.label) ? _this.label(feature, args.zoom) : _this.label;
@@ -67,7 +67,8 @@ FeatureRenderer.prototype.render = function (features, args) {
         //transform to pixel position
         var width = length * args.pixelBase;
 
-        var svgLabelWidth = _this.getLabelWidth(label, args);
+//        var svgLabelWidth = _this.getLabelWidth(label, args);
+        var svgLabelWidth = label.length * 6.4;
 
         //calculate x to draw svg rect
         var x = _this.getFeatureX(feature, args);
@@ -91,7 +92,7 @@ FeatureRenderer.prototype.render = function (features, args) {
             var foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
 
             if (foundArea) {
-                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
+                var featureGroup = SVG.addChild(svgGroup, "g", {'feature_id': feature.id});
                 var rect = SVG.addChild(featureGroup, "rect", {
                     'x': x,
                     'y': rowY,
@@ -112,7 +113,7 @@ FeatureRenderer.prototype.render = function (features, args) {
                         'opacity': null,
                         'fill': 'black',
                         'cursor': 'pointer',
-                        'class':_this.fontClass
+                        'class': _this.fontClass
                     });
                     text.textContent = label;
                 }
@@ -122,7 +123,7 @@ FeatureRenderer.prototype.render = function (features, args) {
                         content: {text: tooltipText, title: tooltipTitle},
 //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
                         position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'}
+                        style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
                     });
                 }
 
@@ -140,8 +141,23 @@ FeatureRenderer.prototype.render = function (features, args) {
         }
     };
 
-    //process features
+
+
+    /****/
+    var timeId = "write dom " + Utils.randomString(4);
+    console.time(timeId);
+    console.log(features.length);
+    /****/
+
+
+    var svgGroup = SVG.create('g');
     for (var i = 0, leni = features.length; i < leni; i++) {
-        draw(features[i]);
+        draw(features[i], svgGroup);
     }
+    args.svgCanvasFeatures.appendChild(svgGroup);
+
+
+    /****/
+    console.timeEnd(timeId);
+    /****/
 };

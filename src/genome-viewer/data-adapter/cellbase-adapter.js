@@ -33,22 +33,29 @@ function CellBaseAdapter(args) {
 CellBaseAdapter.prototype = {
 
     getData: function (args) {
-        console.log(args)
-        ARGS = args;
         var _this = this;
-
         /********/
+
+        var region = args.region;
+        if(region.start > 300000000 || region.end < 1){
+            return;
+        }
+        region.start = (region.start < 1) ? 1 : region.start;
+        region.end = (region.end > 300000000) ? 300000000 : region.end;
+
+
+
         var params = {};
         _.extend(params, this.params);
         _.extend(params, args.params);
 
-        var dataType = args.dataType || 'features';
-        var region = args.region;
-
-        region.start = (region.start < 1) ? 1 : region.start;
-        region.end = (region.end > 300000000) ? 300000000 : region.end;
-
+        var dataType = args.dataType;
+        if(_.isUndefined(dataType)){
+            console.log("dataType must be provided!!!");
+        }
         /********/
+
+
         if (dataType == 'histogram') {
             var histogramId = dataType + '_' + params.interval;
             if (_.isUndefined(this.cache[histogramId])) {
@@ -56,7 +63,6 @@ CellBaseAdapter.prototype = {
             }
             // Extend region to be adjusted with the chunks
             var adjustedRegions = this.cache[histogramId].getAdjustedRegions(region);
-                debugger
             if(adjustedRegions.length > 0){
                 // get cache
                 CellBaseManager.get({
@@ -73,6 +79,8 @@ CellBaseAdapter.prototype = {
                 });
             }else{
                 var chunksByRegion = this.cache[histogramId].getCachedByRegion(region);
+                var chunksCached = this.cache[histogramId].getByRegions(chunksByRegion.cached);
+                this.trigger('data:ready', {items: chunksCached, dataType: dataType, sender: this});
             }
 
 
@@ -119,8 +127,8 @@ CellBaseAdapter.prototype = {
     },
 
     _cellbaseSuccess: function (data, dataType) {
-        var timeId = Utils.randomString(4);
-        console.time(this.resource + " save " + timeId);
+        var timeId = this.resource + " save " + Utils.randomString(4);
+        console.time(timeId);
         /** time log **/
 
 
@@ -133,13 +141,17 @@ CellBaseAdapter.prototype = {
             var chunk = this.cache[dataType].putByRegion(region, features);
             chunks.push(chunk);
         }
+
+        /** time log **/
+        console.timeEnd(timeId);
+
+
+
         if (chunks.length > 0) {
             this.trigger('data:ready', {items: chunks, dataType: dataType, sender: this});
         }
 
 
-        /** time log **/
-        console.timeEnd(this.resource + " get and save " + timeId);
     },
     _cellbaseHistogramSuccess: function (data, dataType, histogramId) {
         var timeId = Utils.randomString(4);

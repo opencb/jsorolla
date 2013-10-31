@@ -192,8 +192,7 @@
                 subCategory: "region",
                 resource: "gene",
                 species: genomeViewer.species,
-                featureCache: {
-                    gzip: true,
+                cacheConfig: {
                     chunkSize: 50000
                 },
                 filters: {},
@@ -233,8 +232,7 @@
                     exclude: 'transcripts'
                 },
                 species: genomeViewer.species,
-                featureCache: {
-                    gzip: true,
+                cacheConfig: {
                     chunkSize: 50000
                 }
             })
@@ -294,8 +292,7 @@
                     exclude: 'transcriptVariations,xrefs,samples'
                 },
                 species: genomeViewer.species,
-                featureCache: {
-                    gzip: true,
+                cacheConfig: {
                     chunkSize: 10000
                 },
                 filters: {},

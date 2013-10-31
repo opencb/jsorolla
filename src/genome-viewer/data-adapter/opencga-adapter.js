@@ -19,154 +19,241 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function OpencgaAdapter(args){
+function OpencgaAdapter(args) {
 
     _.extend(this, Backbone.Events);
 
-	this.host = null;
-	this.gzip = true;
+    _.extend(this, args);
 
-	this.params={};
-	if (args != null){
-		if(args.host != null){
-			this.host = args.host;
-		}
-		if(args.category != null){
-			this.category = args.category;
-		}
-		if(args.resource != null){
-			this.resource = args.resource;
-		}
-		if(args.featureCache != null){
-			var argsFeatureCache = args.featureCache;
-		}
-		if(args.params != null){
-			this.params = args.params;
-		}
-	}
-	this.featureCache =  new FeatureCache(argsFeatureCache);
+    this.on(this.handlers);
+
+    this.cache = {};
 }
 
-OpencgaAdapter.prototype.getData = function(args){
-	var _this = this;
-	//region check
+OpencgaAdapter.prototype = {
+    getData: function (args) {
+        var _this = this;
+        /********/
 
-	this.params["histogram"] = args.histogram;
+        var region = args.region;
+        if (region.start > 300000000 || region.end < 1) {
+            return;
+        }
+        region.start = (region.start < 1) ? 1 : region.start;
+        region.end = (region.end > 300000000) ? 300000000 : region.end;
+
+        var params={species:Utils.getSpeciesCode(this.species.text)};
+        _.extend(params, this.params);
+        _.extend(params, args.params);
+
+        var dataType = args.dataType;
+        if (_.isUndefined(dataType)) {
+            console.log("dataType must be provided!!!");
+        }
+        /********/
+
+        if (dataType == 'histogram') {
+
+        } else {
+            //Create one FeatureChunkCache by datatype
+            if (_.isUndefined(this.cache[dataType])) {
+                this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
+            }
+            var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
+
+            if (chunksByRegion.notCached.length > 0) {
+                var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
+                    return new Region(region).toString();
+                });
+
+                //limit queries
+                var n = 50;
+                var lists = _.groupBy(queryRegionStrings, function (a, b) {
+                    return Math.floor(b / n);
+                });
+                var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
+
+                for (var i = 0; i < queriesList.length; i++) {
+                    var cookie = $.cookie("bioinfo_sid");
+                    cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
+                    OpencgaManager.region({
+                        accountId: this.resource.account,
+                        sessionId: cookie,
+                        bucketId: this.resource.bucketId,
+                        objectId: this.resource.oid,
+                        region: queriesList[i],
+                        queryParams: params,
+                        success: function(data){
+                            _this._opencgaSuccess(data,dataType);
+                        }
+                    });
+//                    CellBaseManager.get({
+//                        host: this.host,
+//                        species: this.species,
+//                        category: this.category,
+//                        subCategory: this.subCategory,
+//                        query: queriesList[i],
+//                        resource: this.resource,
+//                        params: params,
+//                        success: function (data) {
+//                            _this._cellbaseSuccess(data, dataType);
+//                        }
+//                    });
+                }
+            }
+            if (chunksByRegion.cached.length > 0) {
+                var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
+                this.trigger('data:ready', {items: chunksCached, dataType: dataType, sender: this});
+            }
+        }
+
+    },
+    _opencgaSuccess: function (data, dataType) {
+        var timeId = this.resource + " save " + Utils.randomString(4);
+        console.time(timeId);
+        /** time log **/
+
+        var chunks = [];
+        for (var i = 0; i < data.response.length; i++) {
+            var queryResult = data.response[i];
+
+            var region = new Region(queryResult.id);
+            var features = queryResult.result;
+            var chunk = this.cache[dataType].putByRegion(region, features);
+            chunks.push(chunk);
+        }
+
+        /** time log **/
+        console.timeEnd(timeId);
+
+        if (chunks.length > 0) {
+            this.trigger('data:ready', {items: chunks, dataType: dataType, sender: this});
+        }
+    }
+}
+
+
+OpencgaAdapter.prototype.getDataOld = function (args) {
+    debugger
+    var _this = this;
+    //region check
+
+    this.params["histogram"] = args.histogram;
     this.params["histogramLogarithm"] = args.histogramLogarithm;
     this.params["histogramMax"] = args.histogramMax;
-	this.params["interval"] = args.interval;
-	this.params["transcript"] = args.transcript;
+    this.params["interval"] = args.interval;
+    this.params["transcript"] = args.transcript;
 
 
-	if(args.start<1){
-		args.start=1;
-	}
-	if(args.end>300000000){
-		args.end=300000000;
-	}
+    if (args.start < 1) {
+        args.start = 1;
+    }
+    if (args.end > 300000000) {
+        args.end = 300000000;
+    }
 
-	var type = "data";
-	if(args.histogram){
-		type = "histogram"+args.interval;
-	}
+    var type = "data";
+    if (args.histogram) {
+        type = "histogram" + args.interval;
+    }
 
-	var firstChunk = this.featureCache._getChunk(args.start);
-	var lastChunk = this.featureCache._getChunk(args.end);
+    var firstChunk = this.featureCache._getChunk(args.start);
+    var lastChunk = this.featureCache._getChunk(args.end);
 
-	var chunks = [];
-	var itemList = [];
-	for(var i=firstChunk; i<=lastChunk; i++){
-		var key = args.chromosome+":"+i;
-		if(this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
-			chunks.push(i);
-		}else{
-			var items = this.featureCache.getFeatureChunk(key, type);
-			itemList = itemList.concat(items);
-		}
-	}
+    var chunks = [];
+    var itemList = [];
+    for (var i = firstChunk; i <= lastChunk; i++) {
+        var key = args.chromosome + ":" + i;
+        if (this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
+            chunks.push(i);
+        } else {
+            var items = this.featureCache.getFeatureChunk(key, type);
+            itemList = itemList.concat(items);
+        }
+    }
 ////	//notify all chunks
 //	if(itemList.length>0){
 //		this.onGetData.notify({data:itemList, params:this.params, cached:true});
 //	}
 
 
-	//CellBase data process
+    //CellBase data process
     //TODO check host
-	var calls = 0;
-	var querys = [];
-	regionSuccess = function (data){
-		console.timeEnd("dqs");
-		console.time("dqs-cache");
-		var type = "data";
-		if(data.params.histogram){
-			type = "histogram"+data.params.interval;
-		}
+    var calls = 0;
+    var querys = [];
+    regionSuccess = function (data) {
+        console.timeEnd("dqs");
+        console.time("dqs-cache");
+        var type = "data";
+        if (data.params.histogram) {
+            type = "histogram" + data.params.interval;
+        }
         _this.params["dataType"] = type;
 
-		var splitDots = data.query.split(":");
-		var splitDash = splitDots[1].split("-");
-		var query = {chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]};
+        var splitDots = data.query.split(":");
+        var splitDash = splitDots[1].split("-");
+        var query = {chromosome: splitDots[0], start: splitDash[0], end: splitDash[1]};
 
         //check if features contains positon or start-end
-        if(data.result[0] != null && data.result[0]['position'] != null){
-            for(var i = 0; i < data.result.length; i++) {
+        if (data.result[0] != null && data.result[0]['position'] != null) {
+            for (var i = 0; i < data.result.length; i++) {
                 data.result[i]['start'] = data.result[i].position;
-                data.result[i]['end'] =  data.result[i].position;
+                data.result[i]['end'] = data.result[i].position;
             }
         }
 
-		_this.featureCache.putFeaturesByRegion(data.result, query, _this.category, type);
-		var items = _this.featureCache.getFeatureChunksByRegion(query, type);
-		console.timeEnd("dqs-cache");
-		if(items != null){
-			itemList = itemList.concat(items);
-		}
-		if(calls == querys.length ){
+        _this.featureCache.putFeaturesByRegion(data.result, query, _this.category, type);
+        var items = _this.featureCache.getFeatureChunksByRegion(query, type);
+        console.timeEnd("dqs-cache");
+        if (items != null) {
+            itemList = itemList.concat(items);
+        }
+        if (calls == querys.length) {
 //			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
-            _this.trigger('data:ready',{items:itemList, params:_this.params, cached:false, sender:_this});
-		}
-	};
+            _this.trigger('data:ready', {items: itemList, params: _this.params, cached: false, sender: _this});
+        }
+    };
 
-	var updateStart = true;
-	var updateEnd = true;
-	if(chunks.length > 0){
+    var updateStart = true;
+    var updateEnd = true;
+    if (chunks.length > 0) {
 //		console.log(chunks);
 
-		for ( var i = 0; i < chunks.length; i++) {
+        for (var i = 0; i < chunks.length; i++) {
 
-			if(updateStart){
-				var chunkStart = parseInt(chunks[i] * this.featureCache.chunkSize);
-				updateStart = false;
-			}
-			if(updateEnd){
-				var chunkEnd = parseInt((chunks[i] * this.featureCache.chunkSize) + this.featureCache.chunkSize-1);
-				updateEnd = false;
-			}
+            if (updateStart) {
+                var chunkStart = parseInt(chunks[i] * this.featureCache.chunkSize);
+                updateStart = false;
+            }
+            if (updateEnd) {
+                var chunkEnd = parseInt((chunks[i] * this.featureCache.chunkSize) + this.featureCache.chunkSize - 1);
+                updateEnd = false;
+            }
 
-			if(chunks[i+1]!=null){
-				if(chunks[i]+1==chunks[i+1]){
-					updateEnd =true;
-				}else{
-					var query = args.chromosome+":"+chunkStart+"-"+chunkEnd;
-					querys.push(query);
-					updateStart = true;
-					updateEnd = true;
-				}
-			}else{
-				var query = args.chromosome+":"+chunkStart+"-"+chunkEnd;
+            if (chunks[i + 1] != null) {
+                if (chunks[i] + 1 == chunks[i + 1]) {
+                    updateEnd = true;
+                } else {
+                    var query = args.chromosome + ":" + chunkStart + "-" + chunkEnd;
+                    querys.push(query);
+                    updateStart = true;
+                    updateEnd = true;
+                }
+            } else {
+                var query = args.chromosome + ":" + chunkStart + "-" + chunkEnd;
 
-				querys.push(query);
-				updateStart = true;
-				updateEnd = true;
-			}
-		}
+                querys.push(query);
+                updateStart = true;
+                updateEnd = true;
+            }
+        }
 //		console.log(querys)
-		for ( var i = 0, li = querys.length; i < li; i++) {
-			console.time("dqs");
-			calls++;
+        for (var i = 0, li = querys.length; i < li; i++) {
+            console.time("dqs");
+            calls++;
 //			opencgaManager.region(this.category, this.resource, querys[i], this.params);
             var cookie = $.cookie("bioinfo_sid");
-            cookie = ( cookie != '' && cookie != null ) ?  cookie : 'dummycookie';
+            cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
             OpencgaManager.region({
                 accountId: this.resource.account,
                 sessionId: cookie,
@@ -174,13 +261,13 @@ OpencgaAdapter.prototype.getData = function(args){
                 objectId: this.resource.oid,
                 region: querys[i],
                 queryParams: this.params,
-                success:regionSuccess
+                success: regionSuccess
             });
-		}
-	}else{
-		if(itemList.length > 0){
-            this.trigger('data:ready',{items:itemList, params:this.params, cached:false, sender:this});
+        }
+    } else {
+        if (itemList.length > 0) {
+            this.trigger('data:ready', {items: itemList, params: this.params, cached: false, sender: this});
 //			this.onGetData.notify({items:itemList, params:this.params});
-		}
-	}
+        }
+    }
 };
