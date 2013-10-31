@@ -131,10 +131,8 @@ BamAdapter.prototype.getData = function(args){
 			itemList.push(item);
 		}
 	}
-	
-	//CellBase data process
-	var opencgaManager = new OpencgaManager(this.host);
-	opencgaManager.onRegion.addEventListener(function (evt, data){
+
+    var regionSuccess = function (data) {
 		var splitDots = data.query.split(":");
 		var splitDash = splitDots[1].split("-");
 		var query = {chromosome:splitDots[0],start:splitDash[0],end:splitDash[1]};
@@ -154,7 +152,7 @@ BamAdapter.prototype.getData = function(args){
             _this.trigger('data:ready',{items:itemList, params:_this.params, cached:false, sender:_this});
 //			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
 		}
-	});
+	};
 
 	var querys = [];
 	var updateStart = true;
@@ -195,7 +193,15 @@ BamAdapter.prototype.getData = function(args){
 			//accountId, sessionId, bucketname, objectname, region,
             var cookie = $.cookie("bioinfo_sid");
             cookie = ( cookie != '' && cookie != null ) ?  cookie : 'dummycookie';
-			opencgaManager.region(this.resource.account, cookie ,this.resource.bucketId, this.resource.id, querys[i], this.params);
+            OpencgaManager.region({
+                accountId: this.resource.account,
+                sessionId: cookie,
+                bucketId: this.resource.bucketId,
+                objectId: this.resource.oid,
+                region: querys[i],
+                queryParams: this.params,
+                success:regionSuccess
+            });
 		}
 	}else{//no server call
 		if(itemList.length > 0){

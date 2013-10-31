@@ -4,49 +4,90 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Network Viewer Demo</title>
 
+    <link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext/gpl/4.2.1/resources/css/ext-all-gray.css">
+
+    <!-- CSS from vendors -->
+    <!-- build:style vendor -->
+    <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
+    <link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
+    <link type="text/css" rel="stylesheet"
+          href="../../vendor/jquery-ui-1.10.3.custom/css/smoothgray/jquery-ui-1.10.3.custom.min.css">
+    <!-- /build -->
 
     <!--css vendor-->
-    <link href="../../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../../vendor/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
-    <link href="../../vendor/bootstrap-slider/css/slider.css" rel="stylesheet">
 
 
-    <!--css-->
+    <!-- CSS from Genome Viewer -->
+    <!-- build:style gv-css -->
     <link href="../../styles/css/style.css" rel="stylesheet">
+    <!-- /build -->
 
 
+    <!-- Sencha Ext -->
+    <script type="text/javascript" src="http://cdn.sencha.io/ext/gpl/4.2.1/ext-all.js"></script>
+    <script type="text/javascript" src="http://cdn.sencha.io/ext/gpl/4.2.1/examples/shared/examples.js"></script>
 
 
-    <!--js vendor-->
-    <script type="text/javascript" src="../../vendor/jquery/jquery-1.10.1.min.js"></script>
-    <script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../vendor/bootstrap-slider/js/bootstrap-slider.js"></script>
+    <!-- JS from vendors -->
+    <!-- build:script vendor -->
+    <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
+    <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
 
-    <script type="text/javascript" src="../../vendor/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="../../vendor/backbone/backbone-min.js"></script>
+    <!-- These dependencies must go AFTER jquery -->
+    <!--<script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>-->
+    <script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
+    <script type="text/javascript" src="../../vendor/purl.min.js"></script>
+    <script type="text/javascript"
+            src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <!-- /build -->
 
 
-    <!--js-->
+    <!-- JS from Genome Viewer -->
+    <!-- Genome-viewer -->
+    <script type="text/javascript" src="nv-config.js"></script>
+
+
+    <!-- build:script gv-js -->
+
+    <!-- js-common-libs utils -->
+    <script type="text/javascript" src="../lib/utils/svg.js"></script>
     <script type="text/javascript" src="../lib/utils/utils.js"></script>
 
-    <!--network viewer-->
-    <script type="text/javascript" src="./network-viewer.js"></script>
-    <script type="text/javascript" src="./tool-bar.js"></script>
 
-
+    <script type="text/javascript" src="tool-bar.js"></script>
+    <script type="text/javascript" src="edition-bar.js"></script>
+    <script type="text/javascript" src="attribute-manager.js"></script>
+    <script type="text/javascript" src="network-data.js"></script>
+    <script type="text/javascript" src="network-svg.js"></script>
+    <script type="text/javascript" src="network-background-settings.js"></script>
+    <script type="text/javascript" src="network-viewer.js"></script>
+    <!-- /build -->
 
 
     <script type="text/javascript">
-    $(document).ready(function() {
-        networkViewer = new NetworkViewer({
-            targetId:'application',
-            autoRender:true,
-            sidePanel: false,
-            overviewPanel: true
-        });
-        networkViewer.draw();
-    });
+        Ext.Loader.setConfig({enabled: true});
+        Ext.Loader.setPath('Ext.ux', 'http://cdn.sencha.io/ext/gpl/4.2.1/examples/ux');
+        Ext.QuickTips.init();
+        Ext.require([
+            'Ext.ux.grid.FiltersFeature',
+            'Ext.grid.plugin.BufferedRenderer'
+//	    'Ext.grid.PagingScroller',
+//	    'Ext.ux.data.PagingMemoryProxy'
+        ]);
 
+        var networkViewer;
+        Ext.onReady(function () {
+            networkViewer = new NetworkViewer({
+                targetId: 'application',
+                autoRender: true,
+                sidePanel: false,
+                overviewPanel: false
+            });
+            networkViewer.draw();
+        });
     </script>
 
 </head>

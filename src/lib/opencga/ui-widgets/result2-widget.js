@@ -28,8 +28,6 @@ function ResultWidget(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.adapter = new OpencgaManager();
-
     this.panelId = null;
     this.networkViewerId = null;
     this.genomeMapsId = null;
@@ -41,7 +39,7 @@ ResultWidget.prototype = {
         var _this = this;
         this.job = record.raw;
 
-        this.job['command'] = this.parseCommand(this.job);
+        this.job['command'] = Utils.parseJobCommand(this.job);
 
         this.jobId = this.job.id;
         this.id = this.jobId + this.id;
@@ -61,14 +59,20 @@ ResultWidget.prototype = {
             Ext.getCmp(this.targetId).setActiveTab(this.panel);
             this.panel.setLoading("Loading job info...");
 
-
-            var url = this.adapter.jobResultUrl($.cookie("bioinfo_account"), sid, this.jobId, "json");
+            var url = OpencgaManager.jobResultUrl({
+                accountId: $.cookie("bioinfo_account"),
+                sessionId: sid,
+                jobId: this.jobId,
+                format: "json"
+            });
             console.log(url);
             $.getScript(url, function () {
                 _this.panel.setLoading(false);
-                var layout = RESULT[_this.job.toolName].layout;
+                _this.result = RESULT;
+                var layout = _this.result[_this.layoutName].layout;
                 layout.outputItems = _this.job.outputData.sort(layout.sortOutputItems);
-                _this.render(RESULT);
+                layout.job = _this.job;
+                _this.render(_this.result);
             });
         } else {
             Ext.getCmp(this.targetId).setActiveTab(this.panel);
@@ -101,7 +105,7 @@ ResultWidget.prototype = {
                                 xtype: 'button',
                                 text: 'download',
                                 handler: function () {
-                                    _this.adapter.downloadJob($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId);
+                                    OpencgaManager.downloadJob($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId);
                                 }
                             },
                             {
@@ -110,17 +114,21 @@ ResultWidget.prototype = {
                                 handler: function () {
                                     Ext.Msg.confirm("Delete job", "Are you sure you want to delete this job?", function (btnClicked) {
                                         if (btnClicked == "yes") {
-                                            _this.adapter.onDeleteJob.addEventListener(function (sender, data) {
-                                                var msg = "";
-                                                if (data.indexOf("OK") != -1) {
-                                                    Ext.getCmp(_this.targetId).getActiveTab().close();
-                                                    msg = "The job has been succesfully deleted.";
-                                                } else {
-                                                    msg = "ERROR: could not delete job.";
+                                            OpencgaManager.deleteJob({
+                                                accountId: $.cookie('bioinfo_account'),
+                                                sessionId: $.cookie('bioinfo_sid'),
+                                                jobId: _this.jobId,
+                                                success: function (data) {
+                                                    var msg = "";
+                                                    if (data.indexOf("OK") != -1) {
+                                                        Ext.getCmp(_this.targetId).getActiveTab().close();
+                                                        msg = "The job has been succesfully deleted.";
+                                                    } else {
+                                                        msg = "ERROR: could not delete job.";
+                                                    }
+                                                    Ext.Msg.alert("Delete job", msg);
                                                 }
-                                                Ext.Msg.alert("Delete job", msg);
                                             });
-                                            _this.adapter.deleteJob($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId);
                                         }
                                     });
                                 }
@@ -183,6 +191,15 @@ ResultWidget.prototype = {
             for (var j = 0; j < item.renderers.length; j++) {
                 var renderer = item.renderers[j];
                 switch (renderer.type) {
+                    case 'text':
+                        itemBox = Ext.create('Ext.Component', {
+                            html: '<span class="key">' + item.title + '</span> <span class="emph">' + item.file + '</span>',
+                            item: item,
+                            padding: 3,
+//                            overCls: 'encima',
+                            cls: 'inlineblock whiteborder'
+                        });
+                        break;
                     case 'file':
                         itemBox = Ext.create('Ext.Component', {
                             html: '<span class="key">' + item.title + '</span><span class="file">' + item.file + '</span>',
@@ -195,15 +212,72 @@ ResultWidget.prototype = {
                                     var item = this.item;
                                     this.getEl().on("click", function () {
                                         console.log(item);
-                                        _this.adapter.poll($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId, item.file, true);
+                                        OpencgaManager.poll({
+                                            accountId: $.cookie('bioinfo_account'),
+                                            sessionId: $.cookie('bioinfo_sid'),
+                                            jobId: _this.jobId,
+                                            filename: item.file,
+                                            zip: true
+                                        });
                                     });
                                 }
                             }
                         });
                         break;
                     case 'image':
+                        var url = OpencgaManager.pollurl({
+                            accountId: $.cookie('bioinfo_account'),
+                            sessionId: $.cookie('bioinfo_sid'),
+                            jobId: _this.jobId,
+                            filename: item.file
+                        });
                         itemBox = Ext.create('Ext.Component', {
-                            html: '<div><img src="' + _this.adapter.pollurl($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId, item.file) + '"></div>'
+                            html: '<div><img src="' + url + '"></div>'
+                        });
+                        break;
+                    case 'piechart':
+
+                        var url = OpencgaManager.pollurl({
+                            accountId: $.cookie('bioinfo_account'),
+                            sessionId: $.cookie('bioinfo_sid'),
+                            jobId: _this.jobId,
+                            filename: item.file
+                        });
+
+                        var img;
+                        $.ajax({
+                            type: "GET",
+                            async: false,
+                            url: url,
+                            success: function (data) {
+                                if (data != "") {
+                                    var lines = data.split("\n");
+                                    var fields = [];
+                                    var names = [];
+                                    var values = [];
+                                    var normValues = [];
+                                    var total = 0;
+                                    for (var i = 0; i < lines.length; i++) {
+                                        fields.push(lines[i].split("\t"));
+                                        if (fields[i][0] != "") {
+                                            names.push(fields[i][0]);
+                                        }
+                                        if (fields[i][1] != null) {
+                                            total = total + parseFloat(fields[i][1]);
+                                            values.push(fields[i][1]);
+                                        }
+                                    }
+                                    for (var i = 0; i < values.length; i++) {
+                                        normValues.push(Math.round(parseFloat(values[i]) / total * 100));
+                                    }
+                                    names = names.toString().replace(/,/gi, "|");
+                                    img = '<img src="https://chart.googleapis.com/chart?cht=p&chs=600x300&chd=t:' + normValues + '&chl=' + names + '&chtt=Consequence+types&chts=000000,14.5">';
+                                }
+                            }
+                        });
+
+                        itemBox = Ext.create('Ext.Component', {
+                            html: '<div>' + img + '</div>'
                         });
                         break;
                     case 'grid':
@@ -221,7 +295,12 @@ ResultWidget.prototype = {
                         });
                         break;
                     case 'table':
-                        var url = _this.adapter.pollurl($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId, item.file);
+                        var url = OpencgaManager.pollurl({
+                            accountId: $.cookie('bioinfo_account'),
+                            sessionId: $.cookie('bioinfo_sid'),
+                            jobId: _this.jobId,
+                            filename: item.file
+                        });
                         $.ajax({
                             type: "GET",
                             async: false,
@@ -257,13 +336,33 @@ ResultWidget.prototype = {
                             }
                         });
                         break;
-
+                    case 'genome-viewer':
+                        var gm_id = Utils.genId('gm');
+                        var vfw_id = Utils.genId('vfw');
+                        var html =
+                            '<div style="width:1500px;height:800px;">' +
+                            '<div id="' + vfw_id + '" style="width:1500px;">' +
+                            '</div>' +
+                            '<div id="' + gm_id + '" style="width:1500px;height:800px;">' +
+                            '</div>' +
+                            '</div>';
+                        itemBox = Ext.create('Ext.Component', {
+                            flex: 1,
+                            html: html,
+                            listeners: {
+                                afterrender: function () {
+                                   var gv = _this._createGenomeViewer(gm_id);
+                                    _this._createVariantFilterWidget(vfw_id,gv,_this.result[_this.layoutName].layout.variantFilterFiles, renderer.tableLayout);
+                                }
+                            }
+                        });
+                        break;
                 }
                 boxes.push(itemBox);
             }
             return Ext.create('Ext.container.Container', {
                 title: item.title,
-                margin: '0 0 15 0',
+                margin: '0 0 5 0',
                 items: boxes
             });
         };
@@ -311,15 +410,15 @@ ResultWidget.prototype = {
                     });
                 } else {
 
-                    if(_.isUndefined(item.title)){
+                    if (_.isUndefined(item.title)) {
 
-                    debugger
+                        debugger
                     }
 
                     return Ext.create('Ext.container.Container', {
                         id: _this.jobId + item.title.replace(/ /g, ''),
                         title: item.title,
-                        margin: '0 0 0 10',
+                        margin: '0 0 20 20',
                         items: [
                             {
                                 xtype: 'box',
@@ -346,46 +445,241 @@ ResultWidget.prototype = {
             }
         };
 
-        var detailedResutls = getDetailsAsDocument(resultData[this.job.toolName].layout, true);
-        var indexResutl = getResultIndex(resultData[this.job.toolName].layout.children);
+        var detailedResutls = getDetailsAsDocument(resultData[this.layoutName].layout, true);
+        var indexResutl = getResultIndex(resultData[this.layoutName].layout.children);
         this.panel.add(getJobInfo({items: this.extItems}));
         this.panel.insert(indexResutl);
         this.panel.add(detailedResutls);
 
     },//end render
-    parseCommand: function (item) {
-        var commandObject = {};
-        var commandArray = item.commandLine.split(/ -{1,2}/g);
-        var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
-        tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
-        tableHtml += '<td style="min-width:50px;border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Parameter</td>';
-        tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Value</td>';
-        tableHtml += '</tr>';
-        for (var i = 1; i < commandArray.length; i++) {
-            //ignore first argument
-            var paramenter = commandArray[i];
-            var paramenterArray = paramenter.split(/ {1}/g);
-            var name = '';
-            var value = '';
-            if (paramenterArray.length < 2) {
-                name = paramenterArray[0];
-                value = '<span color:darkgray;font-weight:bold;>This paramenter is a flag</span>';
-            } else {
-                name = paramenterArray[0];
-                value = paramenterArray[1];
-            }
-            commandObject[name] = value;
-            /* clean values for viz*/
-            value = value.replace('/httpd/bioinfo/opencga/analysis/pathiways/examples/', '');
-            value = value.replace('/httpd/bioinfo/opencga/accounts/', '');
-            value = value.replace(/,/g, ", ");
 
-            tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
-            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + name + '</td>';
-            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + value + '</td>';
-            tableHtml += '</tr>';
+    _createGenomeViewer: function (targetId) {
+        console.log('creating result genome viewer in: ' + targetId);
+        var _this = this;
+        var genomeViewer = new GenomeViewer({
+            targetId: targetId,
+            autoRender: true,
+            sidePanel: false,
+            region: new Region(DEFAULT_SPECIES.region),
+            species: DEFAULT_SPECIES,
+            border: true,
+            version: '',
+            resizable: false,
+//            trackPanelScrollWidth: 36,
+//            zoom: urlZoom,
+//            confPanelHidden: confPanelHidden,
+//            regionPanelHidden: regionPanelHidden,
+            availableSpecies: AVAILABLE_SPECIES,
+            popularSpecies: POPULAR_SPECIES,
+            drawNavigationBar: true,
+            drawStatusBar: true,
+//            height: this.height - this.headerWidget.height,
+//            width: this.width-18,
+            handlers: {
+                'species:change': function (event) {
+//            _this._setTracks();
+//            _this.setTracksMenu();
+                    _this.species = event.species;
+                    var text = _this.species.text + ' <span style="color: #8396b2">' + _this.species.assembly + '</span>';
+                    _this.headerWidget.setDescription(text);
+//                    _this._refreshInitialTracksConfig();
+                }
+            }
+        });
+        genomeViewer.draw();
+
+        var renderer = new FeatureRenderer('gene');
+        renderer.on({
+            'feature:click': function (event) {
+                console.log(event)
+                new GeneInfoWidget(null, _this.species).draw(event);
+            }
+        });
+        var geneOverview = new FeatureTrack({
+            targetId: null,
+            id: 2,
+            title: 'Gene',
+            histogramZoom: 10,
+            labelZoom: 20,
+            height: 100,
+            visibleRange: {start: 0, end: 100},
+            titleVisibility: 'hidden',
+            featureTypes: FEATURE_TYPES,
+
+            renderer: renderer,
+
+            dataAdapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "gene",
+                params: {
+                    exclude: 'transcripts'
+                },
+                species: genomeViewer.species,
+                featureCache: {
+                    gzip: true,
+                    chunkSize: 50000
+                }
+            })
+        });
+        genomeViewer.addOverviewTrack(geneOverview);
+
+
+//        var sequence = new SequenceTrack({
+//            targetId: null,
+//            id: 1,
+//            title: 'Sequence',
+//            histogramZoom: 20,
+//            transcriptZoom: 50,
+//            height: 30,
+//            visibleRange: {start: 99, end: 100},
+//            featureTypes: FEATURE_TYPES,
+//
+//            renderer: new SequenceRenderer(),
+//
+//            dataAdapter: new SequenceAdapter({
+//                category: "genomic",
+//                subCategory: "region",
+//                resource: "sequence",
+//                species: genomeViewer.species,
+//                featureCache: {
+//                    gzip: true,
+//                    chunkSize: 1000
+//                }
+//            })
+//        });
+//
+//        genomeViewer.addTrack(sequence);
+
+        var gene = new GeneTrack({
+            targetId: null,
+            id: 2,
+            title: 'Gene',
+            histogramZoom: 20,
+            transcriptZoom: 50,
+            height: 140,
+            visibleRange: {start: 0, end: 100},
+            featureTypes: FEATURE_TYPES,
+
+            renderer: new GeneRenderer(),
+
+            dataAdapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "gene",
+                species: genomeViewer.species,
+                featureCache: {
+                    gzip: true,
+                    chunkSize: 50000
+                },
+                filters: {},
+                options: {},
+                featureConfig: FEATURE_CONFIG.gene
+            })
+        });
+
+        genomeViewer.addTrack(gene);
+
+
+//        var snp = new FeatureTrack({
+//            targetId: null,
+//            id: 4,
+//            title: 'SNP',
+//            histogramZoom: 70,
+//            labelZoom: 80,
+//            height: 100,
+//            visibleRange: {start: 0, end: 100},
+//            featureTypes: FEATURE_TYPES,
+//
+//            renderer: new FeatureRenderer('snp'),
+//
+//            dataAdapter: new CellBaseAdapter({
+//                category: "genomic",
+//                subCategory: "region",
+//                resource: "snp",
+//                params: {
+//                    exclude: 'transcriptVariations,xrefs,samples'
+//                },
+//                species: genomeViewer.species,
+//                featureCache: {
+//                    gzip: true,
+//                    chunkSize: 10000
+//                },
+//                filters: {},
+//                options: {},
+//                featureConfig: FEATURE_CONFIG.snp
+//            })
+//        });
+//
+//        genomeViewer.addTrack(snp);
+
+
+        genomeViewer.chromosomePanel.hide();
+        genomeViewer.karyotypePanel.hide();
+
+
+        var filteredFile = this.result[_this.layoutName].layout.filteredFile;
+        if(!_.isUndefined(filteredFile)){
+            OpencgaManager.poll({
+                accountId: $.cookie('bioinfo_account'),
+                sessionId: $.cookie('bioinfo_sid'),
+                jobId: _this.jobId,
+                filename: filteredFile,
+                zip: false,
+                success:function(data){
+                    if(data.indexOf("ERROR")!=-1){
+                        console.error(data);
+                    }
+                    var vcfDataAdapter = new VCFDataAdapter(new StringDataSource(data),{async:false,species:genomeViewer.species});
+//                    var vcfTrack = new Track("VCF file",{
+//                        adapter: vcfDataAdapter
+//                    });
+//                    genomeViewer.addTrack(vcfTrack,{
+//                        id:"VCF file",
+//                        histogramZoom:50,
+//                        height:150,
+//                        visibleRange:{start:0,end:100},
+//                        featureTypes:FEATURE_TYPES
+//                    });
+                    var fileTrack = new FeatureTrack({
+                        targetId: null,
+                        id: "VCF file",
+                        title: "VCF file",
+//                        histogramZoom:50,
+//                labelZoom: 80,
+                        height: 150,
+                        visibleRange: {start: 0, end: 100},
+                        featureTypes: FEATURE_TYPES,
+                        renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
+                        dataAdapter:vcfDataAdapter
+                    });
+
+                    genomeViewer.addTrack(fileTrack);
+
+                    //var feature = vcfDataAdapter.featureCache.getFirstFeature();
+                    //genomeViewer.region.load(feature);
+                    //genomeViewer.setRegion({sender:""});
+                    //genomeViewer.setZoom(75);
+                }
+            });
+        }else{
+            console.log("No filtered VCF file.");
         }
-        tableHtml += '</tbody></table>';
-        return {html:tableHtml, data:commandObject};
+
+        return genomeViewer;
+    },
+    _createVariantFilterWidget: function(targetId, gv, variantFilterFiles, tableLayout){
+        var variantFilterWidget = new VariantFilterWidget(this.jobId,{
+            width:1500,
+            height:300,
+            targetId:targetId,
+            viewer:gv,
+//            fileNames:_this.variantFiles
+            fileNames:variantFilterFiles,
+            tableLayout:tableLayout
+        });
+        variantFilterWidget.getPanel(targetId);
+
+        return variantFilterWidget;
     }
 };

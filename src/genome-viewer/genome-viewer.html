@@ -7,12 +7,10 @@
 
 <!-- CSS from vendors -->
 <!-- build:style vendor -->
-<!--<link href="../../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">-->
-<!--<link href="../../vendor/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">-->
 <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
 <link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
-<!--<link href="../../vendor/jquery-ui-slider/jquery-ui-1.10.3.slider.min.css" rel="stylesheet">-->
-<link type="text/css" rel="stylesheet" href="../../vendor/jquery-ui-1.10.3.custom/css/smoothgray/jquery-ui-1.10.3.custom.min.css">
+<link type="text/css" rel="stylesheet"
+      href="../../vendor/jquery-ui-1.10.3.custom/css/smoothgray/jquery-ui-1.10.3.custom.min.css">
 <!-- /build -->
 
 <!-- CSS from Genome Viewer -->
@@ -42,6 +40,9 @@
 
 
 <!-- JS from Genome Viewer -->
+<!-- Genome-viewer -->
+<script type="text/javascript" src="gv-config.js"></script>
+
 <!-- build:script gv-js -->
 
 <!-- js-common-libs utils -->
@@ -50,9 +51,6 @@
 
 <!-- js-common-libs ui-widgets -->
 <script type="text/javascript" src="../lib/ui-widgets/ux-window.js"></script>
-
-<!-- Genome-viewer -->
-<script type="text/javascript" src="gv-config.js"></script>
 
 
 <!-- js-common-libs cellbase ui-widgets -->
@@ -120,9 +118,10 @@
 
 <script type="text/javascript">
     var genomeViewer = null;
-    $(document).ready(function () {
+    var run = function () {
 //        var region = new Region({chromosome: "13", start: 32889611, end: 32973805});
         var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+
 
         genomeViewer = new GenomeViewer({
             region: region,
@@ -130,14 +129,14 @@
             targetId: 'application',
             autoRender: true,
             border: true,
-            resizable:true,
-            karyotypePanelConfig:{
-                collapsed:false,
-                collapsible:true
+            resizable: true,
+            karyotypePanelConfig: {
+                collapsed: false,
+                collapsible: true
             },
-            chromosomePanelConfig:{
-                collapsed:false,
-                collapsible:true
+            chromosomePanelConfig: {
+                collapsed: false,
+                collapsible: true
             }
 //            trackListTitle: ''
 //            drawNavigationBar = true;
@@ -149,6 +148,7 @@
         genomeViewer.draw();
 
 
+        tracks = [];
         this.sequence = new SequenceTrack({
             targetId: null,
             id: 1,
@@ -173,7 +173,7 @@
             })
         });
 
-        genomeViewer.addTrack(this.sequence);
+        tracks.push(this.sequence);
 
         this.gene = new GeneTrack({
             targetId: null,
@@ -192,8 +192,7 @@
                 subCategory: "region",
                 resource: "gene",
                 species: genomeViewer.species,
-                featureCache: {
-                    gzip: true,
+                cacheConfig: {
                     chunkSize: 50000
                 },
                 filters: {},
@@ -202,7 +201,7 @@
             })
         });
 
-        genomeViewer.addTrack(this.gene);
+        tracks.push(this.gene);
 
 
         var renderer = new FeatureRenderer('gene');
@@ -229,12 +228,11 @@
                 category: "genomic",
                 subCategory: "region",
                 resource: "gene",
-                params:{
-                    exclude:'transcripts'
+                params: {
+                    exclude: 'transcripts'
                 },
                 species: genomeViewer.species,
-                featureCache: {
-                    gzip: true,
+                cacheConfig: {
                     chunkSize: 50000
                 }
             })
@@ -294,8 +292,7 @@
                     exclude: 'transcriptVariations,xrefs,samples'
                 },
                 species: genomeViewer.species,
-                featureCache: {
-                    gzip: true,
+                cacheConfig: {
                     chunkSize: 10000
                 },
                 filters: {},
@@ -304,10 +301,12 @@
             })
         });
 
-        genomeViewer.addTrack(this.snp);
-    })
-    ;
+        tracks.push(this.snp);
 
+        genomeViewer.addTrack(tracks);
+    };
+
+    $(document).ready(run);
 </script>
 
 <style type="text/css">
@@ -315,16 +314,18 @@
         /*height: 100%;*/
         /*position:relative;*/
     }
+
     body {
         /*overflow: hidden;*/
         /*padding:50px;*/
     }
-    #application{
-        width:1200px;
-        height:800px;
+
+    #application {
+        width: 1200px;
+        height: 800px;
         /*overflow-y: auto;*/
         /*overflow-x: hidden;*/
-        padding:10px;
+        padding: 10px;
     }
 </style>
 

@@ -1,0 +1,126 @@
+JSON.commons.hsapiens = object.response[0].result[0];
+
+
+JSON = {
+    id: "",
+    config:
+    {
+        region:
+        {
+            start: 123,
+            end: 124
+        }
+    },
+    commons :
+    {
+        hsapiens :
+        {
+
+            chromosomes :
+            [
+                {
+                    id: "1",
+                    position: 0,
+                    size: 12432,
+                    numberGenes: 51253,
+                    isCircular: 0,
+                    cytobands:
+                    [
+                        {"stain":"acen","name":"p11","end":48400000,"start":46100001},
+                        {"stain":"gpos50","name":"p12","end":46100000,"start":42500001},
+                        {"stain":"gneg","name":"p13.1","end":42500000,"start":38400001},
+                        {"stain":"gpos25","name":"p13.2","end":38400000,"start":33800001},
+                        {"stain":"gneg","name":"p13.3","end":33800000,"start":28900001},
+                        {"stain":"gpos100","name":"p14.1","end":28900000,"start":24600001},
+                        {"stain":"gneg","name":"p14.2","end":24600000,"start":23300001},
+                        {"stain":"gpos100","name":"p14.3","end":23300000,"start":18400001},
+                        {"stain":"gneg","name":"p15.1","end":18400000,"start":15000001},
+                        {"stain":"gpos50","name":"p15.2","end":15000000,"start":9800001},
+                        {"stain":"gneg","name":"p15.31","end":9800000,"start":6300001},
+                        {"stain":"gpos25","name":"p15.32","end":6300000,"start":4500001},
+                        {"stain":"gneg","name":"p15.33","end":4500000,"start":1},
+                        {"stain":"acen","name":"q11.1","end":50700000,"start":48400001},
+                        {"stain":"gneg","name":"q11.2","end":58900000,"start":50700001},
+                        {"stain":"gpos75","name":"q12.1","end":62900000,"start":58900001},
+                        {"stain":"gneg","name":"q12.2","end":63200000,"start":62900001},
+                        {"stain":"gpos75","name":"q12.3","end":66700000,"start":63200001},
+                        {"stain":"gneg","name":"q13.1","end":68400000,"start":66700001},
+                        {"stain":"gpos50","name":"q13.2","end":73300000,"start":68400001},
+                        {"stain":"gneg","name":"q13.3","end":76900000,"start":73300001},
+                        {"stain":"gpos50","name":"q14.1","end":81400000,"start":76900001},
+                        {"stain":"gneg","name":"q14.2","end":82800000,"start":81400001},
+                        {"stain":"gpos100","name":"q14.3","end":92300000,"start":82800001},
+                        {"stain":"gneg","name":"q15","end":98200000,"start":92300001},
+                        {"stain":"gpos100","name":"q21.1","end":102800000,"start":98200001},
+                        {"stain":"gneg","name":"q21.2","end":104500000,"start":102800001},
+                        {"stain":"gpos100","name":"q21.3","end":109600000,"start":104500001},
+                        {"stain":"gneg","name":"q22.1","end":111500000,"start":109600001},
+                        {"stain":"gpos50","name":"q22.2","end":113100000,"start":111500001},
+                        {"stain":"gneg","name":"q22.3","end":115200000,"start":113100001},
+                        {"stain":"gpos100","name":"q23.1","end":121400000,"start":115200001},
+                        {"stain":"gneg","name":"q23.2","end":127300000,"start":121400001},
+                        {"stain":"gpos100","name":"q23.3","end":130600000,"start":127300001},
+                        {"stain":"gneg","name":"q31.1","end":136200000,"start":130600001},
+                        {"stain":"gpos25","name":"q31.2","end":139500000,"start":136200001},
+                        {"stain":"gneg","name":"q31.3","end":144500000,"start":139500001},
+                        {"stain":"gpos75","name":"q32","end":149800000,"start":144500001},
+                        {"stain":"gneg","name":"q33.1","end":152700000,"start":149800001},
+                        {"stain":"gpos50","name":"q33.2","end":155700000,"start":152700001},
+                        {"stain":"gneg","name":"q33.3","end":159900000,"start":155700001},
+                        {"stain":"gpos100","name":"q34","end":168500000,"start":159900001},
+                        {"stain":"gneg","name":"q35.1","end":172800000,"start":168500001},
+                        {"stain":"gpos25","name":"q35.2","end":176600000,"start":172800001}
+                    ],
+                    histograms : {
+                        structuralVar : [
+
+
+                        ],
+                        genes : [
+
+
+                        ],
+                        snp : [
+
+                        ]
+
+                    }
+                },
+                {
+                    id: "2",
+                    position: 1,
+                    size: 12432
+                },
+                {
+                    id: "3",
+                    position: 2,
+                    size: 12432
+                }
+            ]
+        }
+    },
+    samples :
+    [
+        {
+            id: "Marcelo",
+            species: "hsapiens",
+            features:
+            [
+                {
+                    id: "",
+                    type: "indel",
+                    start: 14
+                    end: 425
+                }
+            ]
+        }
+        {
+            id: "Mengano",
+            features: []
+        }
+        {
+            id: "Fulano",
+            features: []
+        }
+    ],
+}

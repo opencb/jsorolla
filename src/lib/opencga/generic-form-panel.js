@@ -25,11 +25,10 @@ function GenericFormPanel(analysis) {
     this.analysis = analysis;
     this.form = null;
     this.paramsWS = {};
-    this.opencgaManager = new OpencgaManager();
     this.panelId = this.analysis + "-FormPanel";
     this.testing = false;
 
-    this.opencgaManager.onRunAnalysis.addEventListener(function (sender, response) {
+    this.runAnalysisSuccess = function (response) {
         if (response.data.indexOf("ERROR") != -1) {
             Ext.Msg.show({
                 title: "Error",
@@ -39,7 +38,7 @@ function GenericFormPanel(analysis) {
             });
         }
         else console.log(response.data);
-    });
+    };
 
     //events attachments
     this.on(this.handlers);
@@ -188,7 +187,11 @@ GenericFormPanel.prototype.run = function () {
     (this.paramsWS['outdir'] === '') ? delete this.paramsWS['outdir'] : console.log(this.paramsWS['outdir']);
 
     if (!this.testing) {
-        this.opencgaManager.runAnalysis(this.analysis, this.paramsWS);
+        OpencgaManager.runAnalysis({
+            analysis:this.analysis,
+            paramsWS:this.paramsWS,
+            success:this.runAnalysisSuccess
+        });
     }
 
     Ext.example.msg('Job Launched', 'It will be listed soon');
@@ -271,16 +274,13 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
             if (args.beforeClick != null) {
                 args.beforeClick(args);
             }
-            var listenerIdx = _this.opencgaBrowserWidget.onSelect.addEventListener(function (sender, response) {
-
-                var label = response.bucketId + '/' + response.id;
-                var value = response.bucketId + ':' + response.id.replace(/\//g, ":");
+            _this.opencgaBrowserWidget.once('select',function (response) {
+                var label = 'buckets/'+response.bucketId + '/' + response.id;
+                var value = 'buckets:'+response.bucketId + ':' + response.id.replace(/\//g, ":");
                 fileSelectedLabel.setText('<span class="emph">' + label + '</span>', false);
                 hiddenField.setValue(value);//this is send to the ws
-
-                _this.opencgaBrowserWidget.onSelect.removeEventListener(listenerIdx);
             });
-            _this.opencgaBrowserWidget.draw({mode: args.mode, allowedTypes: args.allowedTypes});
+            _this.opencgaBrowserWidget.show({mode: args.mode, allowedTypes: args.allowedTypes});
         }
     });
 

@@ -43,14 +43,12 @@ function ResultTable(jobId, filename, tags, args){
         this.tableLayout  = args.tableLayout  || this.tableLayout;
     }
 
-	this.adapter = new OpencgaManager();
-	
     this.table = null;
     
-    this.onRendered = new Event();
-	this.onRendered.addEventListener(function (sender, targetId){
-		_this.draw();
-	});
+//    this.onRendered = new Event();
+//	this.onRendered.addEventListener(function (sender, targetId){
+//		_this.draw();
+//	});
 };
 
 
@@ -130,7 +128,15 @@ ResultTable.prototype.render = function (){
 		//accountId, sessionId, bucketname, jobId, filename, colNames, colVisibilty, sessionId
 		//var url = this.adapter.tableurl(this.jobId,this.fileName,this.colNames,this.colVisibilty,$.cookie('bioinfo_sid'));
 
-		var url = this.adapter.tableurl($.cookie("bioinfo_account"),$.cookie('bioinfo_sid'),this.jobId,this.fileName,this.colNames,this.colVisibilty);
+
+		var url = OpencgaManager.tableurl({
+            accountId:$.cookie("bioinfo_account"),
+            sessionId:$.cookie('bioinfo_sid'),
+            jobId:this.jobId,
+            filename:this.fileName,
+            colNames:this.colNames,
+            colVisibility:this.colVisibilty
+        });
 		console.log(url);
 		
 		/*

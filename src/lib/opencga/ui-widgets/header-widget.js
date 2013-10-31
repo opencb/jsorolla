@@ -327,7 +327,8 @@ HeaderWidget.prototype = {
                         OpencgaManager.logout({
                             accountId: $.cookie('bioinfo_account'),
                             sessionId: $.cookie('bioinfo_sid'),
-                            success: _this.logoutSuccess
+                            success: _this.logoutSuccess,
+                            error: _this.logoutSuccess
                         });
                     }
                 }
@@ -401,7 +402,8 @@ HeaderWidget.prototype = {
                 accountId: $.cookie('bioinfo_account'),
                 sessionId: $.cookie('bioinfo_sid'),
                 lastActivity: lastActivity,
-                success: this.getAccountInfoSuccess
+                success: this.getAccountInfoSuccess,
+                error: this.logoutSuccess
             });
         }
 
@@ -452,7 +454,7 @@ HeaderWidget.prototype = {
     },
     setWidth: function (width) {
         this.width = width;
-        this.getPanel().setWidth(width);
+        this.panel.setWidth(width);
     }
 
 };

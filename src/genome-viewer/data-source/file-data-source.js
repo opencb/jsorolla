@@ -24,22 +24,26 @@ FileDataSource.prototype.fetch = DataSource.prototype.fetch;
 function FileDataSource(file) {
 	DataSource.prototype.constructor.call(this);
 	
-	this.file = file;
-	this.success = new Event();
-	this.error = new Event();
+    _.extend(this, Backbone.Events);
+
+    this.file = file;
+    this.maxSize = 500*1024*1024;
+
+//	this.success = new Event();
+//	this.error = new Event();
 };
 
 FileDataSource.prototype.error = function(){
-	alert("File is too big. Max file size is 100 Mbytes.");
+	alert("File is too big. Max file size is "+this.maxSize+" bytes");
 };
 
 FileDataSource.prototype.fetch = function(async){
 	var _this = this;
-	if(this.file.size <= (52428800*1)){
+	if(this.file.size <= this.maxSize){
 		if(async){
 			var  reader = new FileReader();
 			reader.onload = function(evt) {
-				_this.success.notify(evt.target.result);
+                _this.trigger('success',evt.target.result);
 			};
 			reader.readAsText(this.file, "UTF-8");
 		}else{
@@ -49,6 +53,6 @@ FileDataSource.prototype.fetch = function(async){
 		}
 	}else{
 		_this.error();
-		_this.error.notify();
+		_this.trigger('error',{sender:this});
 	}
 };

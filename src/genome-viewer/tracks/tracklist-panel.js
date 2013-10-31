@@ -52,6 +52,8 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.width -= 18;
 
 
+    this.status;
+
     //this region is used to do not modify original region, and will be used by trackSvg
     this.visualRegion = new Region(this.region);
 
@@ -87,7 +89,7 @@ TrackListPanel.prototype = {
             $(this.div).append(titleDiv);
         }
 
-        var tlHeaderDiv = $('<div id="tl-header"></div>')[0];
+        var tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];
 
         var panelDiv = $('<div id="tl-panel"></div>')[0];
         $(panelDiv).css({position: 'relative', width: '100%'});
@@ -161,7 +163,7 @@ TrackListPanel.prototype = {
 //            'fill': 'white'
 //        });
         this.viewNtsText = SVG.addChild(this.svgTop, 'text', {
-            'x': mid - (this.windowSize.length*7/2),
+            'x': mid - (this.windowSize.length * 7 / 2),
             'y': 11,
             'fill': 'black',
             'class': this.fontClass
@@ -269,6 +271,11 @@ TrackListPanel.prototype = {
             _this.trigger('mousePosition:change', {mousePos: _this.mousePosition, baseHtml: _this.getMousePosition(_this.mousePosition)});
         });
 
+        $(this.div).dblclick(function (event) {
+            var halfLength = _this.region.length() / 2;
+            var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition - halfLength, end: _this.mousePosition + halfLength})
+            _this.trigger('region:change', {region: mouseRegion, sender: _this});
+        });
 
         var downX, moveX;
         $(this.tlTracksDiv).mousedown(function (event) {
@@ -361,7 +368,7 @@ TrackListPanel.prototype = {
             $(this).css({"cursor": "default"});
             $(_this.mouseLine).css({'visibility': 'hidden'});
             $(this).off('mousemove');
-            $("body").off('keydown');
+            $("body").off('keydown.genomeViewer');
 
             $(selBox).css({'visibility': 'hidden'});
             downX = null;
@@ -371,13 +378,13 @@ TrackListPanel.prototype = {
         $(this.tlTracksDiv).mouseenter(function (e) {
 //            $('.qtip').qtip('enable'); // To enable them again ;)
             $(_this.mouseLine).css({'visibility': 'visible'});
-            $("body").off('keydown');
+            $("body").off('keydown.genomeViewer');
             enableKeys();
         });
 
         var enableKeys = function () {
             //keys
-            $("body").keydown(function (e) {
+            $("body").bind('keydown.genomeViewer', function (e) {
                 var disp = 0;
                 switch (e.keyCode) {
                     case 37://left arrow
@@ -463,7 +470,7 @@ TrackListPanel.prototype = {
         this.lastPositionText.setAttribute("x", this.width - 70);
 //        this.viewNtsArrow.setAttribute("width", this.width - 4);
 //        this.viewNtsArrowRight.setAttribute("points", this.width + ",1 " + (this.width - 2) + ",1 " + (this.width - 2) + ",13 " + this.width + ",13");
-        this.viewNtsText.setAttribute("x", mid - (this.windowSize.length*7/2));
+        this.viewNtsText.setAttribute("x", mid - (this.windowSize.length * 7 / 2));
 //        this.viewNtsTextBack.setAttribute("x", mid - 40);
         this.trigger('trackWidth:change', {width: this.width, sender: this})
 
@@ -505,7 +512,7 @@ TrackListPanel.prototype = {
         this.viewNtsText.textContent = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
         this.windowSize = this.viewNtsText.textContent;
         this._setTextPosition();
-        this.trigger('window:size',{windowSize: this.viewNtsText.textContent});
+        this.trigger('window:size', {windowSize: this.viewNtsText.textContent});
 
 //        if (region.species != null) {
 //            //check species and modify CellBaseAdapter, clean cache
@@ -524,23 +531,8 @@ TrackListPanel.prototype = {
 
         this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
 
+        this.status = 'rendering';
 
-        /************ Loading ************/
-        var checkAllTrackStatus = function (status) {
-            for (i in _this.trackSvgList) {
-                if (_this.trackSvgList[i].status != status) return false;
-            }
-            return true;
-        };
-        var checkStatus = function () {
-            if (checkAllTrackStatus('ready')) {
-                _this.trigger('tracks:ready', {sender: _this});
-            } else {
-                setTimeout(checkStatus, 100);
-            }
-        };
-        setTimeout(checkStatus, 10);
-        /***************************/
 //        this.onRegionChange.notify();
 
         //this.minRegionRect.setAttribute("width",this.minRectWidth);
@@ -550,13 +542,46 @@ TrackListPanel.prototype = {
     draw: function () {
         this.trigger('track:draw', {sender: this});
     },
-
-    addTrack: function (track) {
+    checkTracksReady: function () {
+        var _this = this;
+        /************ Loading ************/
+        var checkAllTrackStatus = function (status) {
+            for (i in _this.trackSvgList) {
+                if (_this.trackSvgList[i].status != status) return false;
+            }
+            return true;
+        };
+        if (checkAllTrackStatus('ready')) {
+//            console.log('all ready')
+            this.status = 'ready';
+            _this.trigger('tracks:ready', {sender: _this});
+        }
+//        var checkStatus = function () {
+//            if (checkAllTrackStatus('ready')) {
+//                _this.trigger('tracks:ready', {sender: _this});
+//            } else {
+//                setTimeout(checkStatus, 100);
+//            }
+//        };
+//        setTimeout(checkStatus, 10);
+        /***************************/
+    },
+    addTrack :function(track){
+        if(_.isArray(track)){
+            for(var i in track){
+                this._addTrack(track[i]);
+            }
+        }else{
+            this._addTrack(track);
+        }
+    },
+    _addTrack: function (track) {
         if (!this.rendered) {
             console.info(this.id + ' is not rendered yet');
             return;
         }
         var _this = this;
+
         var i = this.trackSvgList.push(track);
         this.swapHash[track.id] = {index: i - 1, visible: true};
 
@@ -649,6 +674,10 @@ TrackListPanel.prototype = {
         this.on('trackRegion:move', track.get('trackRegion:move'));
         this.on('trackWidth:change', track.get('trackWidth:change'));
         this.on('trackFeature:highlight', track.get('trackFeature:highlight'));
+
+        track.on('track:ready', function () {
+            _this.checkTracksReady();
+        });
     },
 
     removeTrack: function (trackId) {
@@ -692,6 +721,12 @@ TrackListPanel.prototype = {
         for (var i = 0; i < this.trackSvgList.length; i++) {
             var track = this.trackSvgList[i];
             track.enableAutoHeight();
+        }
+    },
+    updateHeight: function () {
+        for (var i = 0; i < this.trackSvgList.length; i++) {
+            var track = this.trackSvgList[i];
+            track.updateHeight(true);
         }
     },
 
@@ -787,7 +822,7 @@ TrackListPanel.prototype = {
         var i = this.swapHash[trackId].index;
         var track = this.trackSvgList[i];
 
-        $(track.div).css({display: 'hidden'});
+        track.hide();
 
 //        this.setHeight(this.height - track.getHeight());
 
@@ -799,7 +834,7 @@ TrackListPanel.prototype = {
         var i = this.swapHash[trackId].index;
         var track = this.trackSvgList[i];
 
-        $(track.div).css({display: 'auto'});
+        track.show();
 
 //        this.svg.appendChild(track.main);
 
@@ -844,6 +879,16 @@ TrackListPanel.prototype = {
         }
         return null;
     },
+    getSequenceTrack: function () {
+        //if multiple, returns the first found
+        for (var i = 0; i < this.trackSvgList.length; i++) {
+            var track = this.trackSvgList[i];
+            if(track instanceof SequenceTrack){
+                return track;
+            }
+        }
+        return;
+    },
 
     getMousePosition: function (position) {
         var base = '';
@@ -858,9 +903,10 @@ TrackListPanel.prototype = {
     },
 
     getSequenceNucleotid: function (position) {
-        var seqTrack = this.getTrackSvgById(1);
+        var seqTrack = this.getSequenceTrack();
         if (seqTrack != null && this.zoom >= seqTrack.visibleRange.start - this.zoomOffset && this.zoom <= seqTrack.visibleRange.end) {
-            return seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
+            var nt = seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
+            return nt;
         }
         return '';
     },

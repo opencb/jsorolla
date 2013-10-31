@@ -9,6 +9,7 @@ module.exports = function (grunt) {
             version : {
                 gv:'1.0.2',
                 nv:'1.0.0',
+                threedv:'0.0.1',
                 cellbase:'1.0.0',
                 opencga:'1.0.0',
                 utils:'1.0.0'
@@ -60,7 +61,7 @@ module.exports = function (grunt) {
                 src: [
                     '<%= concat.utils.dest %>',
                     '<%= concat.cellbase.dest %>',
-                    'src/genome-viewer/gv-config.js',
+//                    'src/genome-viewer/gv-config.js',
                     'src/genome-viewer/feature-binary-search-tree.js',
                     'src/genome-viewer/navigation-bar.js',
                     'src/genome-viewer/chromosome-panel.js',
@@ -74,8 +75,11 @@ module.exports = function (grunt) {
                     'src/genome-viewer/data-adapter/opencga-adapter.js',
                     'src/genome-viewer/data-adapter/feature-data-adapter.js','src/genome-viewer/data-adapter/*-data-adapter.js',
                         /** cache **/
+                    'src/cache/memory-store.js',
+                    'src/cache/feature-chunk-cache.js',
+
                     'src/genome-viewer/cache/feature-cache.js',
-                    'src/genome-viewer/cache/bam-cache.js',
+                    'src/genome-viewer/cache/*-cache.js',
                         /** tracks **/
                     'src/genome-viewer/tracks/tracklist-panel.js',
                     'src/genome-viewer/tracks/track.js',
@@ -86,6 +90,7 @@ module.exports = function (grunt) {
                         /** widgets **/
                     'src/genome-viewer/widget/legend-panel.js',
                     'src/genome-viewer/widget/legend-widget.js',
+                    'src/genome-viewer/widget/url-widget.js',
                     'src/genome-viewer/widget/file-widget.js',
                     'src/genome-viewer/widget/*-file-widget.js',
 
@@ -97,13 +102,25 @@ module.exports = function (grunt) {
             nv:{
                 src: [
                     '<%= concat.utils.dest %>',
-                    '<%= concat.cellbase.dest %>',
+                    'src/lib/cellbase/cellbase-manager.js',
                     'src/network-viewer/network-viewer.js'
                     /** network viewer **/
 
                    /** src/network-viewer ..... **/
                 ],
                 dest:'build/network-viewer/<%= meta.version.nv %>/network-viewer-<%= meta.version.nv %>.js'
+            },
+            threedv:{
+                src: [
+                    '<%= concat.utils.dest %>',
+                    '<%= concat.cellbase.dest %>',
+                    'src/3d-viewer/js/3D.js',
+                    'src/3d-viewer/js/torus.js',
+                    'src/3d-viewer/js/chr.js',
+                    'src/3d-viewer/js/main.js',
+                    'src/3d-viewer/threed-viewer.js'
+                ],
+                dest:'build/3d-viewer/<%= meta.version.threedv %>/threed-viewer-<%= meta.version.threedv %>.js'
             }
         },
         uglify: {
@@ -129,6 +146,10 @@ module.exports = function (grunt) {
             nv: {
                 src: '<%= concat.nv.dest %>',
                 dest: 'build/network-viewer/<%= meta.version.nv %>/network-viewer-<%= meta.version.nv %>.min.js'
+            },
+            threedv:{
+                src: '<%= concat.threedv.dest %>',
+                dest:'build/3d-viewer/<%= meta.version.threedv %>/threed-viewer-<%= meta.version.threedv %>.min.js'
             }
         },
         jshint: {
@@ -190,7 +211,16 @@ module.exports = function (grunt) {
             gv: {
                 files: [
                     {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' },
-                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' } // includes files in path and its subdirs
+                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' }, // includes files in path and its subdirs
+                    {   expand: true, cwd:'./src/genome-viewer/', src: ['gv-config.js'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' }
+                ]
+            },
+            threedv: {
+                files: [
+                    {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' },
+                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }, // includes files in path and its subdirs
+                    {   expand: true, cwd:'./src/3d-viewer/', src: ['threedv-config.js'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' },
+                    {   expand: true, cwd:'./src/3d-viewer/', src: ['glsl/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }
                 ]
             }
         },
@@ -199,7 +229,8 @@ module.exports = function (grunt) {
             utils:['<%= concat.utils.dest %>','<%= uglify.utils.dest %>'],
             cellbase:['<%= concat.cellbase.dest %>','<%= uglify.cellbase.dest %>'],
             opencga:['<%= concat.opencga.dest %>','<%= uglify.opencga.dest %>'],
-            gv: ['build/genome-viewer/<%= meta.version.gv %>/']
+            gv: ['build/genome-viewer/<%= meta.version.gv %>/'],
+            threedv: ['build/3d-viewer/<%= meta.version.threedv %>/']
         },
 
         vendorPath: 'build/genome-viewer/<%= meta.version.gv %>/vendor',
@@ -236,6 +267,32 @@ module.exports = function (grunt) {
                             ]
                     }
                 }
+            },
+            threedv:{
+                src: 'src/3d-viewer/threed-viewer.html',
+                dest: 'build/3d-viewer/<%= meta.version.threedv %>/',
+                options: {
+                    beautify: true,
+                    scripts: {
+                        'js': '<%= uglify.threedv.dest %>',
+                        'vendor': [
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/underscore*.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/backbone*.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/jquery.min.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/three.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/Stats.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/RequestAnimationFrame.js',
+                       //     'build/3d-viewer/<%= meta.version.threedv %>/vendor/core/embed.js',
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/jquery-ui-1.10.3*/js/jquery-ui*min.js'
+                        ]
+                    },
+                    styles: {
+                        'css': ['<%= stylesPath %>/css/style.css'],
+                        'vendor': [
+                            'build/3d-viewer/<%= meta.version.threedv %>/vendor/jquery-ui-1.10.3*/css/**/jquery-ui*min.css'
+                        ]
+                    }
+                }
             }
         },
         'curl-dir': {
@@ -267,7 +324,7 @@ module.exports = function (grunt) {
                 files: ['src/genome-viewer/**', 'src/utils/**', 'src/cellbase/**', 'src/opencga/**', 'styles/**'],
                 tasks: ['gv','opencga'],
                 options: {spawn: false}
-            },
+            }
         }
     });
 
@@ -289,11 +346,14 @@ module.exports = function (grunt) {
 //    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
 
     grunt.registerTask('utils', ['concat:utils','uglify:utils','copy:utils','clean:utils']);
-    grunt.registerTask('cellbase', ['concat:utils','uglify:utils','concat:cellbase','uglify:cellbase','copy:cellbase','clean:cellbase','clean:utils']);
-    grunt.registerTask('opencga', ['concat:utils','uglify:utils','concat:opencga','uglify:opencga','copy:opencga','clean:opencga','clean:utils']);
+
+    grunt.registerTask('cellbase', ['concat:cellbase','uglify:cellbase','copy:cellbase','clean:cellbase']);
+
+    grunt.registerTask('opencga', ['concat:opencga','uglify:opencga','copy:opencga','clean:opencga']);
 
 
-    grunt.registerTask('gv', ['concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
+    grunt.registerTask('gv', ['clean:gv','concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
     grunt.registerTask('nv', ['concat:utils','concat:cellbase','concat:nv','uglify:nv', 'clean:utils','clean:cellbase']);
+    grunt.registerTask('threedv', ['clean:threedv','concat:utils','concat:cellbase','concat:threedv','uglify:threedv','copy:threedv','htmlbuild:threedv','clean:utils','clean:cellbase']);
 
 };

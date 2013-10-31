@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="../../../vendor/jquery.min.js"></script>
+    <script type="text/javascript" src="svg.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
+</head>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var svg = SVG.init($('#div')[0],{
+            width:'1000px',
+            height:'500px'
+        });
+        var d = Utils.genBamVariants('ACGT', 10, 30, 30);
+        var matePath = SVG.addChild(svg, "path", {
+            "d": d ,
+            "fill": 'black'
+        });
+    });
+</script>
+<body>
+<div id = "div">
+
+</div>
+</body>
+</html>

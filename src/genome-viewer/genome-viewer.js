@@ -34,12 +34,12 @@ function GenomeViewer(args) {
     this.drawChromosomePanel = true;
     this.drawRegionOverviewPanel = true;
     this.karyotypePanelConfig = {
-        collapsed:false,
-        collapsible:true
+        collapsed: false,
+        collapsible: true
     }
     this.chromosomePanelConfig = {
-        collapsed:false,
-        collapsible:true
+        collapsed: false,
+        collapsible: true
     }
     this.drawStatusBar = true;
     this.border = true;
@@ -106,16 +106,12 @@ GenomeViewer.prototype = {
             console.log('target div width is zero');
             return
         }
-        this._setWidth(width);
+        this.width = width;
 
         if (this.border) {
             var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
             $(this.div).css({border: border});
         }
-
-
-        Utils.setMinRegion(this.region, this.getSVGCanvasWidth());
-        this._recalculateZoom();
 
 
         this.navigationbarDiv = $('<div id="navigation-' + this.id + '" class="ocb-gv-navigation"></div>')[0];
@@ -140,11 +136,14 @@ GenomeViewer.prototype = {
         this.chromosomeDiv = $('<div id="chromosome-' + this.id + '"></div>');
         $(this.centerPanelDiv).append(this.chromosomeDiv);
 
+        this.trackListPanelsDiv = $('<div id="trackListPanels-' + this.id + '" class="trackListPanels" ></div>');
+        $(this.centerPanelDiv).append(this.trackListPanelsDiv);
+
         this.regionDiv = $('<div id="region-' + this.id + '" ></div>');
-        $(this.centerPanelDiv).append(this.regionDiv);
+        $(this.trackListPanelsDiv).append(this.regionDiv);
 
         this.tracksDiv = $('<div id="tracks-' + this.id + '" ></div>');
-        $(this.centerPanelDiv).append(this.tracksDiv);
+        $(this.trackListPanelsDiv).append(this.tracksDiv);
 
         this.rendered = true;
     },
@@ -154,6 +153,10 @@ GenomeViewer.prototype = {
             return;
         }
         var _this = this;
+
+        this._setWidth(this.width);
+        Utils.setMinRegion(this.region, this.getSVGCanvasWidth());
+        this._recalculateZoom();
 
         // Resize
         if (this.resizable) {
@@ -210,8 +213,18 @@ GenomeViewer.prototype = {
                 _this._setRegion(event.region);
             }
         });
+
+
     },
 
+    destroy: function () {
+        $(this.div).remove();
+        this.off();
+        this.rendered = false;
+        $( "html" ).unbind( ".genomeViewer" );
+        $( "body" ).unbind( ".genomeViewer" );
+        delete this;
+    },
     /**/
     /*Components*/
     /**/
@@ -275,6 +288,9 @@ GenomeViewer.prototype = {
                     Utils.setMinRegion(_this.defaultRegion, _this.getSVGCanvasWidth());
                     event.region = _this.defaultRegion;
                     _this.trigger('region:change', event);
+                },
+                'autoHeight-button:click': function (event) {
+                    _this.enableAutoHeight();
                 }
             }
         });
@@ -396,6 +412,9 @@ GenomeViewer.prototype = {
                 },
                 'region:move': function (event) {
                     _this.trigger('region:move', event);
+                },
+                'tracks:ready': function () {
+                    _this.checkTrackListReady();
                 }
             }
         });
@@ -440,6 +459,9 @@ GenomeViewer.prototype = {
                 },
                 'region:move': function (event) {
                     _this.trigger('region:move', event);
+                },
+                'tracks:ready': function () {
+                    _this.checkTrackListReady();
                 }
             }
         });
@@ -488,6 +510,31 @@ GenomeViewer.prototype = {
         });
 
         return  statusBar;
+    },
+
+    checkTrackListReady: function () {
+        var _this = this;
+        var checkAllTrackListStatus = function (status) {
+            if(_this.regionOverviewPanel && _this.regionOverviewPanel.status != status){
+                return false;
+            }
+            if(_this.trackListPanel.status != status ){
+               return false;
+            }
+            return true;
+        };
+        if (checkAllTrackListStatus('ready')) {
+//            console.log('-------------all tracklist ready')
+            _this.trigger('tracks:ready', {sender: _this});
+        }
+//        var checkStatus = function () {
+//            if (checkAllTrackStatus('ready')) {
+//                _this.trigger('tracks:ready', {sender: _this});
+//            } else {
+//                setTimeout(checkStatus, 100);
+//            }
+//        };
+//        setTimeout(checkStatus, 10);
     },
 
     getRightSidePanelId: function () {
@@ -590,6 +637,10 @@ GenomeViewer.prototype = {
     enableAutoHeight: function () {
         this.trackListPanel.enableAutoHeight();
         this.regionOverviewPanel.enableAutoHeight();
+    },
+    updateHeight: function () {
+        this.trackListPanel.updateHeight();
+        this.regionOverviewPanel.updateHeight();
     },
 
 
