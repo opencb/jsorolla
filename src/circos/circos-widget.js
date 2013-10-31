@@ -36,7 +36,7 @@ function CircosWidget(args) {
     _.extend(this, args);
 
     this.x = this.width / 2;
-    this.y = this.arcWidth - this.radius+250;
+    this.y = this.arcWidth - this.radius + 350;
 
     //events attachments
     this.on(this.handlers);
@@ -68,14 +68,14 @@ CircosWidget.prototype = {
 
         this.minus = SVG.addChild(this.svg, 'circle', {
             "cx": this.x - 20,
-            "cy": this.arcWidth * 6,
+            "cy": this.arcWidth * 7,
             "r": 10,
             fill: 'red'
         });
 
         this.plus = SVG.addChild(this.svg, 'circle', {
             "cx": this.x + 20,
-            "cy": this.arcWidth * 6,
+            "cy": this.arcWidth * 7,
             "r": 10,
             fill: 'blue'
         });
@@ -86,8 +86,8 @@ CircosWidget.prototype = {
             downX = event.clientX;
             $(this).mousemove(function (event) {
                 var newX = (downX - event.clientX)
-                degree = (newX*0.2)+lastDegree;
-                _this.g.setAttribute('transform','rotate('+degree+' '+_this.x+' '+ _this.y+')')
+                degree = (newX * 0.2) + lastDegree;
+                _this.g.setAttribute('transform', 'rotate(' + degree + ' ' + _this.x + ' ' + _this.y + ')')
             });
         });
         $(this.svg).mouseup(function (event) {
@@ -98,17 +98,17 @@ CircosWidget.prototype = {
         });
 
         $(this.minus).click(function () {
-            if (_this.radius-100 > 0) {
+            if (_this.radius - 100 > 0) {
                 _this.radius -= 100;
                 console.log(_this.radius)
-                _this.y = _this.arcWidth - _this.radius+200;
+                _this.y = _this.arcWidth - _this.radius + 200;
                 _this.draw();
             }
         });
         $(this.plus).click(function () {
             _this.radius += 100;
             console.log(_this.radius)
-            _this.y = _this.arcWidth - _this.radius+200;
+            _this.y = _this.arcWidth - _this.radius + 200;
             _this.draw();
         });
 
@@ -123,12 +123,14 @@ CircosWidget.prototype = {
 
         this.fetchData();
 
+        //Species
         this.components = [
             {
                 id: 'hsapiens',
                 position: 0,
                 size: 3,
                 separation: 1,
+                //Chromosomes
                 segments: [
                     {
                         id: '5',
@@ -160,8 +162,13 @@ CircosWidget.prototype = {
         this.componentData = {};
 
 
+        //Paint species
         this.drawComponents(this.components);
 
+        //Paint only chromosomes found in species
+        this.drawCytobandTrack(this.chromosomes);
+
+        //Paint features in a chromosome
         var features = [
             {
                 id: 'uno',
@@ -173,14 +180,14 @@ CircosWidget.prototype = {
             {
                 id: 'dos',
                 component: 'hsapiens',
-                segment: '6',
-                start: 32072704,
-                end: 42073090
+                segment: '19',
+                start: 0,
+                end: 12072704
             }
 
         ];
 
-        this.drawCytobandTrack(this.chromosomes);
+
         this.drawFeatureTrack(features);
     },
     clean: function () {
@@ -215,11 +222,11 @@ CircosWidget.prototype = {
         for (var i = 0; i < json.length; i++) {
             component = json[i];
             component.separation = component.separation || 0;
-            component.angleSize = (component.size * c) - component.separation*2;
+            component.angleSize = (component.size * c) - component.separation * 2;
             component.angleStart = angleOffset + component.separation;
             angleOffset += component.angleSize;
             component.angleEnd = angleOffset - component.separation;
-            angleOffset += component.separation*2;
+            angleOffset += component.separation * 2;
 
             component_d.push(SVG.describeArc(this.x, this.y, this.radius, component.angleStart, component.angleEnd) + ' ');
 
@@ -236,7 +243,7 @@ CircosWidget.prototype = {
                 for (var j = 0; j < component.segments.length; j++) {
                     segment = component.segments[j];
                     segment.separation = segment.separation || 0;
-                    segment.angleSize = segment.size * c_s - segment.separation*2;
+                    segment.angleSize = segment.size * c_s - segment.separation * 2;
 
                     segment.angleStart = component.angleStart + segmentAngleOffset + segment.separation;
                     segmentAngleOffset += segment.angleSize;
@@ -256,7 +263,8 @@ CircosWidget.prototype = {
             var curve = SVG.addChild(this.g, "path", {
                 "d": component_d[i],
 //                "stroke": 'lightblue',
-                "stroke": Utils.randomColor(),
+//                "stroke": Utils.randomColor(),
+                "stroke": 'lightblue',
                 "stroke-width": this.arcWidth,
                 "fill": "none"
             });
@@ -265,7 +273,8 @@ CircosWidget.prototype = {
             var curve = SVG.addChild(this.g, "path", {
                 "d": segment_d[i],
 //                "stroke": 'lightblue',
-                "stroke": Utils.randomColor(),
+//                "stroke": Utils.randomColor(),
+                "stroke": 'slategray',
                 "stroke-width": this.arcWidth - 20,
                 "fill": "none"
             });
@@ -287,15 +296,19 @@ CircosWidget.prototype = {
             segment = this.componentData[componentId]['segmentData'][segmentId];
             if (segment) {
                 var c = segment.angleSize / segment.size;
-                feature.angleStart = feature.start * c;
-                feature.angleEnd = feature.end * c;
+                feature.angleStart = feature.start * c + segment.angleStart;
+                feature.angleEnd = feature.end * c + segment.angleStart;
 
                 var curve = SVG.addChild(this.g, "path", {
                     "d": SVG.describeArc(this.x, this.y, this.radius + this.arcWidth, feature.angleStart, feature.angleEnd),
 //                "stroke": 'lightblue',
+                    "paco": feature.start,
                     "stroke": Utils.randomColor(),
                     "stroke-width": 10,
                     "fill": "none"
+                });
+                $(curve).click(function () {
+                    console.log($(this).attr("paco"))
                 });
             }
         }
@@ -449,10 +462,10 @@ CircosWidget.prototype.fetchData = function () {
     var _this = this;
     //para decargarse los datos de la base de datos, de esta forma, copiamos todos los datos en data
     $.ajax({
-        url: "http://ws-beta.bioinfo.cipf.es/cellbasebeta2/rest/v3/hsapiens/genomic/chromosome/all?of=json",
+        url: "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/genomic/chromosome/all?of=json",
         async: false
     }).done(function (data, b, c) {
-            _this.chromosomes = data.result.result[0].chromosomes;
+            _this.chromosomes = data.response.result.chromosomes;
             _this.trigger('chromosomes:loaded', {chromosomes: _this.chromosomes, sender: _this});
         });
 };
