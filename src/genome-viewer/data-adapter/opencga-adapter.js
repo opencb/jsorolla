@@ -42,7 +42,7 @@ OpencgaAdapter.prototype = {
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
-        var params={species:Utils.getSpeciesCode(this.species.text)};
+        var params = {species: Utils.getSpeciesCode(this.species.text)};
         _.extend(params, this.params);
         _.extend(params, args.params);
 
@@ -50,6 +50,7 @@ OpencgaAdapter.prototype = {
         if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
+        var chunkSize;
         /********/
 
         if (dataType == 'histogram') {
@@ -59,6 +60,8 @@ OpencgaAdapter.prototype = {
             if (_.isUndefined(this.cache[dataType])) {
                 this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
             }
+            chunkSize = this.cache[dataType].chunkSize;
+
             var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
 
             if (chunksByRegion.notCached.length > 0) {
@@ -83,8 +86,8 @@ OpencgaAdapter.prototype = {
                         objectId: this.resource.oid,
                         region: queriesList[i],
                         queryParams: params,
-                        success: function(data){
-                            _this._opencgaSuccess(data,dataType);
+                        success: function (data) {
+                            _this._opencgaSuccess(data, dataType);
                         }
                     });
 //                    CellBaseManager.get({
@@ -103,7 +106,7 @@ OpencgaAdapter.prototype = {
             }
             if (chunksByRegion.cached.length > 0) {
                 var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, sender: this});
+                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
             }
         }
 
@@ -112,6 +115,8 @@ OpencgaAdapter.prototype = {
         var timeId = this.resource + " save " + Utils.randomString(4);
         console.time(timeId);
         /** time log **/
+
+        var chunkSize = this.cache[dataType].chunkSize;
 
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
@@ -127,7 +132,7 @@ OpencgaAdapter.prototype = {
         console.timeEnd(timeId);
 
         if (chunks.length > 0) {
-            this.trigger('data:ready', {items: chunks, dataType: dataType, sender: this});
+            this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
         }
     }
 }
