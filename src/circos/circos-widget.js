@@ -30,18 +30,19 @@ function CircosWidget(args) {
     //set default args
     this.radius = 200;
     this.arcWidth = 70;
+//
 
-
+    this.degreeRotation = 0;
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.radiusYOffset = 550;
+
     this.x = this.width / 2;
-    this.y = this.arcWidth - this.radius + 350;
+    this.y = this.arcWidth - this.radius + this.radiusYOffset;
 
     //events attachments
     this.on(this.handlers);
-
-    this.parent = this.targetId;
 
     this.colors = {gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue"};
 
@@ -61,103 +62,181 @@ CircosWidget.prototype = {
         this.chromosomeCirclesPosition = {};
 
         this.rendered = false;
-        this.svg = SVG.init(this.parent, {
+
+        this.targetDiv = $('#' + this.targetId)[0];
+        this.div = $('<div id="circos" class=""></div>')[0];
+        $(this.targetDiv).append(this.div);
+
+
+//        [ <span id="test"></span> - <span id="test2"></span> ]
+        this.title = $('<div id="title" class="container"><h1>Circos SVG </h1></div>')[0];
+        this.bar = $('<div id="bar"  class="container"></div>')[0];
+        this.content = $('<div class="" id="content"></div>')[0];
+
+
+        $(this.div).append(this.title);
+        $(this.div).append(this.bar);
+        $(this.div).append(this.content);
+
+        this.svg = SVG.init(this.content, {
             "width": this.width,
             "height": this.height
         });
 
-        this.minus = SVG.addChild(this.svg, 'circle', {
-            "cx": this.x - 20,
-            "cy": this.arcWidth * 7,
-            "r": 10,
-            fill: 'red'
-        });
-
-        this.plus = SVG.addChild(this.svg, 'circle', {
-            "cx": this.x + 20,
-            "cy": this.arcWidth * 7,
-            "r": 10,
-            fill: 'blue'
-        });
         this.g = SVG.addChild(this.svg, 'g');
+        this.selectionGroup = SVG.addChild(this.svg, 'g');
 
-        var downX, moveX, lastDegree = 0, degree;
-        $(this.g).mousedown(function (event) {
-            downX = event.clientX;
+        /** Rotate **/
+        var downX, downY, moveX, angle = 0, lastDegree = 0, degree = 0;
+        $(this.svg).mousedown(function (event) {
+            downX = event.offsetX;
             $(this).mousemove(function (event) {
-                var newX = (downX - event.clientX)
+                var newX = (downX - event.offsetX)
                 degree = (newX * 0.2) + lastDegree;
+                _this.degreeRotation = degree;
                 _this.g.setAttribute('transform', 'rotate(' + degree + ' ' + _this.x + ' ' + _this.y + ')')
             });
         });
         $(this.svg).mouseup(function (event) {
-            $(_this.g).off('mousemove');
+            $(_this.svg).off('mousemove');
+//            _this.selectionCurve.setAttribute('visibility', 'hidden');
             downX = null;
+            downY = null;
             moveX = null;
             lastDegree = degree;
         });
 
-        $(this.minus).click(function () {
-            if (_this.radius - 100 > 0) {
-                _this.radius -= 100;
-                console.log(_this.radius)
-                _this.y = _this.arcWidth - _this.radius + 200;
-                _this.draw();
+        /** Selection Curve **/
+        $(this.g).mousedown(function (event) {
+            event.stopPropagation();
+            _this.selectionCurve.setAttribute('visibility', 'visible');
+            downX = event.offsetX;
+            downY = event.offsetY;
+            var cartesianX = downX - _this.x;
+            var cartesianY = downY - _this.y;
+            angle = (Math.atan(cartesianY / cartesianX) + (Math.PI / 2) ) / (Math.PI / 180.0)
+            if (cartesianX < 0) {
+                angle += 180.0;
             }
+            $(_this.svg).mousemove(function (event) {
+                var newCartesianX = (event.offsetX - _this.x);
+                var newCartesianY = (event.offsetY - _this.y);
+                var newAngle = (Math.atan(newCartesianY / newCartesianX) + (Math.PI / 2) ) / (Math.PI / 180.0)
+                if (newCartesianX < 0) {
+                    newAngle += 180.0;
+                }
+                var startAngle = angle;
+                var endAngle = newAngle;
+                if ((newAngle - angle) < 0) {
+                    startAngle = newAngle;
+                    endAngle = angle;
+                }
+//                $('#test').html(startAngle.toFixed(2) + ',' + endAngle.toFixed(2));
+                _this.selectionCurve.setAttribute('d', SVG.describeArc(_this.x, _this.y, _this.radius, startAngle, endAngle) + ' ')
+            });
         });
-        $(this.plus).click(function () {
-            _this.radius += 100;
-            console.log(_this.radius)
-            _this.y = _this.arcWidth - _this.radius + 200;
-            _this.draw();
+        $(this.g).mouseup(function (event) {
+            $(_this.g).off('mousemove');
+            downX = null;
+            downY = null;
+            moveX = null;
         });
-
-        this.cytobandDashArray = {};
-        this.chromosomeList = null;
-        this.data2 = null;
 
     },
     draw: function () {
         var _this = this;
         this.clean();
 
+        this.selectionCurve = SVG.addChild(this.selectionGroup, 'path', {
+            'd': SVG.describeArc(this.x, this.y, this.radius, 160, 200) + ' ',
+            'stroke': 'white',
+            'stroke-width': this.arcWidth + 20,
+            'opacity': 0.7,
+            'fill': 'none',
+            'visibility': 'hidden',
+            'z-index': 10
+        });
+
+//        d="M  80,180
+//        Q  50,120  80,60
+//        Q  90, 40  80,20
+//        Q 100, 20 120,20
+//        Q 110, 40 120,60
+//        Q 150,120 120,180
+//        Z" />
+        var curve = SVG.addChild(this.selectionGroup, 'path', {
+            'd': 'M ' + this.x + ',' + (this.y - this.radius) + ' ' +
+                'Q ' + this.x + ',' + this.y + ' ' + (this.x + this.radius) + ',' + this.y + ' ' +
+                '',
+            'stroke': 'red',
+            'stroke-width': 2,
+            'opacity': 1,
+            'fill': 'none',
+            'visibility': 'visible',
+            'z-index': 10
+        });
+
+        /* Navigation Bar*/
+        this.navigationBar = this._createNavigationBar($(this.bar).attr('id'));
+
         this.fetchData();
+
+        var segments = [];
+        for (var i = 0; i < this.chromosomes.length; i++) {
+            var chr = this.chromosomes[i];
+            segments.push({
+                id: chr.name,
+                size: chr.size,
+                separation: 1
+            })
+        }
+
 
         //Species
         this.components = [
             {
                 id: 'hsapiens',
                 position: 0,
-                size: 3,
-                separation: 1,
-                //Chromosomes
-                segments: [
-                    {
-                        id: '5',
-                        size: 180915260,
-                        separation: 1
-                    },
-                    {
-                        id: '19',
-                        size: 59128983,
-                        separation: 1
-                    }
-                ]
-            },
-            {
-                id: 'mmusculus',
-                position: 1,
                 size: 1,
                 separation: 1,
-                segments: []
+                //Chromosomes
+                segments: segments
+//                segments: [
+//                    {
+//                        id: '13',
+//                        size: 180915260,
+//                        separation: 1,
+//                        features: [
+//                            {
+//                                id: 'brca2',
+//                                component: 'hsapiens',
+//                                segment: '13',
+//                                start: 62072704,
+//                                end: 72073090
+//                            }
+//                        ]
+//                    },
+//                    {
+//                        id: '19',
+//                        size: 59128983,
+//                        separation: 1
+//                    }
+//                ]
             },
-            {
-                id: 'cfamiliaris',
-                position: 2,
-                size: 2,
-                separation: 1,
-                segments: []
-            }
+//            {
+//                id: 'mmusculus',
+//                position: 1,
+//                size: 1,
+//                separation: 1,
+//                segments: []
+//            },
+//            {
+//                id: 'cfamiliaris',
+//                position: 2,
+//                size: 2,
+//                separation: 1,
+//                segments: []
+//            }
         ];
         this.componentData = {};
 
@@ -173,14 +252,14 @@ CircosWidget.prototype = {
             {
                 id: 'uno',
                 component: 'hsapiens',
-                segment: '5',
+                segment: '1',
                 start: 62072704,
                 end: 72073090
             },
             {
                 id: 'dos',
                 component: 'hsapiens',
-                segment: '19',
+                segment: '2',
                 start: 0,
                 end: 12072704
             }
@@ -191,7 +270,11 @@ CircosWidget.prototype = {
         this.drawFeatureTrack(features);
     },
     clean: function () {
+        $(this.bar).empty();
         $(this.g).empty();
+        $(this.selectionGroup).empty();
+        this.g.setAttribute('transform', 'rotate(' + this.degreeRotation + ' ' + this.x + ' ' + this.y + ')')
+
     },
     _calculateTotalSize: function (items) {
         var totalSize = 0;
@@ -220,6 +303,7 @@ CircosWidget.prototype = {
         var segment_d = [];
         var component;
         for (var i = 0; i < json.length; i++) {
+            console.log()
             component = json[i];
             component.separation = component.separation || 0;
             component.angleSize = (component.size * c) - component.separation * 2;
@@ -235,7 +319,7 @@ CircosWidget.prototype = {
 
             //check segments
             if (typeof component.segments != 'undefined') {
-                component.segments.sort(this._sortFunction);
+//                component.segments.sort(this._sortFunction);
                 var totalSegmentsSize = this._calculateTotalSize(component.segments);
                 var segmentAngleOffset = 0;
                 var c_s = component.angleSize / totalSegmentsSize;
@@ -249,7 +333,7 @@ CircosWidget.prototype = {
                     segmentAngleOffset += segment.angleSize;
 //                    segment.angleEnd = component.angleStart + segmentAngleOffset - segment.separation;
                     segment.angleEnd = segment.angleStart + segment.angleSize;// + segment.separation;
-                    segmentAngleOffset += segment.separation;
+                    segmentAngleOffset += segment.separation * 2;
 
                     segment_d.push(SVG.describeArc(this.x, this.y, this.radius, segment.angleStart, segment.angleEnd) + ' ');
 
@@ -454,21 +538,59 @@ CircosWidget.prototype = {
 //            }, 0);
 //        }
 //
+    },
+    fetchData: function () {
+        var _this = this;
+
+        var sortfunction = function (a, b) {
+            var IsNumber = true;
+            for (var i = 0; i < a.name.length && IsNumber == true; i++) {
+                if (isNaN(a.name[i])) {
+                    IsNumber = false;
+                }
+            }
+            if (!IsNumber) return 1;
+            return (a.name - b.name);
+        };
+        //para decargarse los datos de la base de datos, de esta forma, copiamos todos los datos en data
+        $.ajax({
+            url: "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/genomic/chromosome/all?of=json",
+            async: false
+        }).done(function (data, b, c) {
+                _this.chromosomes = data.response.result.chromosomes;
+                _this.chromosomes.sort(sortfunction);
+                _this.chromosomes = [_this.chromosomes[0], _this.chromosomes[1]];
+                _this.trigger('chromosomes:loaded', {chromosomes: _this.chromosomes, sender: _this});
+            });
+    },
+    _createNavigationBar: function (targetId) {
+        var _this = this;
+        var navigationBar = new CircosNavigationBar({
+            targetId: targetId,
+            autoRender: true,
+            handlers: {
+                'zoom-out-button:click': function () {
+                    if (_this.radius - 100 > 0) {
+                        _this.radius -= 100;
+                        console.log(_this.radius)
+                        _this.y = _this.arcWidth - _this.radius + _this.radiusYOffset;
+                        _this.draw();
+                    }
+                },
+                'zoom-in-button:click': function () {
+                    _this.radius += 100;
+                    console.log(_this.radius)
+                    _this.y = _this.arcWidth - _this.radius + _this.radiusYOffset;
+//                    _this.x =
+                    _this.draw();
+                }
+            }
+        });
+        return navigationBar;
     }
 
 }
 
-CircosWidget.prototype.fetchData = function () {
-    var _this = this;
-    //para decargarse los datos de la base de datos, de esta forma, copiamos todos los datos en data
-    $.ajax({
-        url: "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/genomic/chromosome/all?of=json",
-        async: false
-    }).done(function (data, b, c) {
-            _this.chromosomes = data.response.result.chromosomes;
-            _this.trigger('chromosomes:loaded', {chromosomes: _this.chromosomes, sender: _this});
-        });
-};
 
 CircosWidget.prototype.drawChromosomes = function (chromosomeCirclesPosition) {
 

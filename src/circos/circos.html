@@ -2,18 +2,21 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Genome Maps</title>
+    <title>Circos Maps</title>
 
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
 
     <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
     <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 
 
-
-	<script type="text/javascript" src="circos-widget.js"  ></script>
     <script type="text/javascript" src="../lib/utils/svg.js"></script>
     <script type="text/javascript" src="../lib/utils/utils.js"></script>
+    <script type="text/javascript" src="../lib/region.js"></script>
+	<script type="text/javascript" src="circos-widget.js"  ></script>
+	<script type="text/javascript" src="circos-navigation-bar.js"  ></script>
 
 
 	<script>
@@ -21,15 +24,14 @@
 
         _this = this;
         $(document).ready(function() {
-            var div = $('#mydiv')[0];
 
             _this.circosWidget = new CircosWidget({
-                targetId: div,
+                targetId: 'mydiv',
                 autoRender:true,
-                width:1600,
+                width:$('body').width(),
                 height:900,
                 species:'hsa',
-                radius: 150,
+                radius: 250,
                 handlers : {
                     'chromosomes:loaded' : function(event){
                         console.log(event)
@@ -45,6 +47,6 @@
 
 </head>
 <body style="overflow:hidden;margin:0px">
-	<div style="background:lightyellow;" id="mydiv"></div>
+	<div style="background:whitesmoke;" id="mydiv"></div>
 </body>
 </html>
