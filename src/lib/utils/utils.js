@@ -127,16 +127,10 @@ var Utils = {
             }
             return "#" + color;
         },
-        randomColor: function () {
-            var color = "";
-            for (var i = 0; i < 6; i++) {
-                color += ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'][Math.floor(Math.random() * 16)]);
-            }
-            return "#" + color;
-        },
         colorLuminance: function (hex, lum) {
             // validate hex string
             hex = String(hex).replace(/[^0-9a-f]/gi, '');
+            hex = String(hex).replace(/#/gi, '');
             if (hex.length < 6) {
                 hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
             }
