@@ -41,7 +41,7 @@ function GFF2DataAdapter(dataSource, args){
 
 GFF2DataAdapter.prototype.parse = function(data, region){
 	var _this = this;
-	var dataType = "data";
+	var dataType = "value";
 	var lines = data.split("\n");
 //	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){

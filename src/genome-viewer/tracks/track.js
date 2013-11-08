@@ -221,7 +221,7 @@ Track.prototype = {
             '   </div>' +
             '</div>')[0];
 
-        if(_.isUndefined(this.title)){
+        if (_.isUndefined(this.title)) {
             $(titleBardiv).addClass("hidden");
         }
 
@@ -480,9 +480,16 @@ Track.prototype = {
     getFeaturesToRenderByChunk: function (response, filters) {
         //Returns an array avoiding already drawn features in this.chunksDisplayed
 
+        var getChunkId = function (position) {
+            return Math.floor(position / response.chunkSize);
+        };
+        var getChunkKey = function (chromosome, chunkId) {
+            return chromosome + ":" + chunkId;
+        };
+
         var chunks = response.items;
-        var dataType = response.dataType;
         var features = [];
+
 
         var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
         for (var i = 0, leni = chunks.length; i < leni; i++) {
@@ -490,14 +497,13 @@ Track.prototype = {
 
                 for (var j = 0, lenj = chunks[i].value.length; j < lenj; j++) {
                     feature = chunks[i].value[j];
-                    var chrChunkCache = this.dataAdapter.cache[dataType];
 
                     //check if any feature has been already displayed by another chunk
                     displayed = false;
-                    featureFirstChunk = chrChunkCache.getChunkId(feature.start);
-                    featureLastChunk = chrChunkCache.getChunkId(feature.end);
+                    featureFirstChunk = getChunkId(feature.start);
+                    featureLastChunk = getChunkId(feature.end);
                     for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {
-                        var chunkKey = chrChunkCache.getChunkKey(feature.chromosome, chunkId);
+                        var chunkKey = getChunkKey(feature.chromosome, chunkId);
                         if (this.chunksDisplayed[chunkKey] == true) {
                             displayed = true;
                             break;

@@ -36,7 +36,8 @@ module.exports = function (grunt) {
                 src: [
                     'src/lib/utils/utils.js',
                     'src/lib/utils/svg.js',
-                    'src/lib/region.js'
+                    'src/lib/region.js',
+                    'src/lib/feature-binary-search-tree.js'
                 ],
                 dest: 'build/utils-<%= meta.version.utils %>.js'
             },
@@ -62,7 +63,6 @@ module.exports = function (grunt) {
                     '<%= concat.utils.dest %>',
                     '<%= concat.cellbase.dest %>',
 //                    'src/genome-viewer/gv-config.js',
-                    'src/genome-viewer/feature-binary-search-tree.js',
                     'src/genome-viewer/navigation-bar.js',
                     'src/genome-viewer/chromosome-panel.js',
                     'src/genome-viewer/karyotype-panel.js',

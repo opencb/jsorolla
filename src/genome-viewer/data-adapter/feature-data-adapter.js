@@ -48,21 +48,21 @@ function FeatureDataAdapter(dataSource, args) {
     this.chromosomesLoaded = {};
 }
 
-FeatureDataAdapter.prototype.getData = function (region) {
+FeatureDataAdapter.prototype.getData = function (args) {
     console.log("TODO comprobar histograma");
-    console.log(region);
+    console.log(args.region);
     this.params["dataType"] = "data";
-    this.params["chromosome"] = region.chromosome;
+    this.params["chromosome"] = args.region.chromosome;
 
     //check if the chromosome has been already loaded
-    if (this.chromosomesLoaded[region.chromosome] != true) {
-        this._fetchData(region);
-        this.chromosomesLoaded[region.chromosome] = true;
+    if (this.chromosomesLoaded[args.region.chromosome] != true) {
+        this._fetchData(args.region);
+        this.chromosomesLoaded[args.region.chromosome] = true;
     }
 
-    var itemList = this.featureCache.getFeatureChunksByRegion(region);
+    var itemList = this.featureCache.getFeatureChunksByRegion(args.region);
     if (itemList != null) {
-        this.trigger('data:ready', {items: itemList, params: this.params, cached: true, sender: this});
+        this.trigger('data:ready', {items: itemList, params: this.params, chunkSize:this.featureCache.chunkSize, cached: true, sender: this});
     }
 };
 
@@ -78,7 +78,7 @@ FeatureDataAdapter.prototype._fetchData = function (region) {
 
                 var itemList = _this.featureCache.getFeatureChunksByRegion(region);
                 if (itemList != null) {
-                    _this.trigger('data:ready', {items: itemList, params: _this.params, cached: true, sender: _this});
+                    _this.trigger('data:ready', {items: itemList, params: _this.params, chunkSize:_this.featureCache.chunkSize, cached: true, sender: _this});
                 }
 
             });

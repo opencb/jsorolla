@@ -37,12 +37,11 @@ CellBaseAdapter.prototype = {
         /********/
 
         var region = args.region;
-        if(region.start > 300000000 || region.end < 1){
+        if (region.start > 300000000 || region.end < 1) {
             return;
         }
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
-
 
 
         var params = {};
@@ -50,9 +49,10 @@ CellBaseAdapter.prototype = {
         _.extend(params, args.params);
 
         var dataType = args.dataType;
-        if(_.isUndefined(dataType)){
+        if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
+        var chunkSize;
         /********/
 
 
@@ -61,9 +61,10 @@ CellBaseAdapter.prototype = {
             if (_.isUndefined(this.cache[histogramId])) {
                 this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval});
             }
+            chunkSize = this.cache[histogramId].chunkSize;
             // Extend region to be adjusted with the chunks
             var adjustedRegions = this.cache[histogramId].getAdjustedRegions(region);
-            if(adjustedRegions.length > 0){
+            if (adjustedRegions.length > 0) {
                 // get cache
                 CellBaseManager.get({
                     host: this.host,
@@ -77,10 +78,10 @@ CellBaseAdapter.prototype = {
                         _this._cellbaseHistogramSuccess(data, dataType, histogramId);
                     }
                 });
-            }else{
+            } else {
                 var chunksByRegion = this.cache[histogramId].getCachedByRegion(region);
                 var chunksCached = this.cache[histogramId].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, sender: this});
+                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
             }
 
 
@@ -89,6 +90,7 @@ CellBaseAdapter.prototype = {
             if (_.isUndefined(this.cache[dataType])) {
                 this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
             }
+            chunkSize = this.cache[dataType].chunkSize;
             var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
 
             if (chunksByRegion.notCached.length > 0) {
@@ -120,7 +122,7 @@ CellBaseAdapter.prototype = {
             }
             if (chunksByRegion.cached.length > 0) {
                 var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, sender: this});
+                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
             }
         }
 
@@ -131,6 +133,7 @@ CellBaseAdapter.prototype = {
         console.time(timeId);
         /** time log **/
 
+        var chunkSize = this.cache[dataType].chunkSize;
 
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
@@ -146,9 +149,8 @@ CellBaseAdapter.prototype = {
         console.timeEnd(timeId);
 
 
-
         if (chunks.length > 0) {
-            this.trigger('data:ready', {items: chunks, dataType: dataType, sender: this});
+            this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
         }
 
 
@@ -157,6 +159,8 @@ CellBaseAdapter.prototype = {
         var timeId = Utils.randomString(4);
         console.time(this.resource + " save " + timeId);
         /** time log **/
+
+        var chunkSize = this.cache[histogramId].chunkSize;
 
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
@@ -170,7 +174,7 @@ CellBaseAdapter.prototype = {
         }
 //        var chunksByRegion = this.cache[histogramId].getB(region);
 
-        this.trigger('data:ready', {items: chunks, dataType: dataType, sender: this});
+        this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
         /** time log **/
         console.timeEnd(this.resource + " get and save " + timeId);
     }
