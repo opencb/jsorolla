@@ -6,6 +6,7 @@
 
 
 <!-- CSS from vendors -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
 <!-- build:style vendor -->
 <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
 <link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
@@ -37,6 +38,7 @@
 <script type="text/javascript" src="../../vendor/ChemDoodleWeb.js"></script>
 <script type="text/javascript" src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
 <!-- /build -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 
 
 <!-- JS from Genome Viewer -->
@@ -70,6 +72,8 @@
 <script type="text/javascript" src="../lib/region.js"></script>
 <script type="text/javascript" src="feature-binary-search-tree.js"></script>
 <script type="text/javascript" src="cache/feature-cache.js"></script>
+<script type="text/javascript" src="../cache/feature-chunk-cache.js"></script>
+<script type="text/javascript" src="../cache/memory-store.js"></script>
 
 
 <script type="text/javascript" src="navigation-bar.js"></script>
@@ -89,6 +93,7 @@
 
 <script type="text/javascript" src="renderers/renderer.js"></script>
 <script type="text/javascript" src="renderers/feature-renderer.js"></script>
+<script type="text/javascript" src="renderers/feature-cluster-renderer.js"></script>
 <script type="text/javascript" src="renderers/sequence-renderer.js"></script>
 <script type="text/javascript" src="renderers/histogram-renderer.js"></script>
 <script type="text/javascript" src="renderers/gene-renderer.js"></script>
@@ -321,7 +326,7 @@
     }
 
     #application {
-        width: 1200px;
+        width: 1800px;
         height: 800px;
         /*overflow-y: auto;*/
         /*overflow-x: hidden;*/
