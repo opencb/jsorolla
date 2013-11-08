@@ -31,7 +31,7 @@ function CircularKaryotype(args) {
 
     _.extend(this, args);
 
-    this.colors = {gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue"};
+    this.colors = {gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "#4683ea"};
 
     //events attachments
     this.on(this.handlers);
@@ -94,11 +94,18 @@ CircularKaryotype.prototype = {
             });
 
             chr = chromosomes[i];
-            var coords = SVG._polarToCartesian(this.x, this.y, this.radius + 60, chr.angleStart + (chr.angleSize / 2));
+            var angle = chr.angleStart + (chr.angleSize / 2);
+            var coords = SVG._polarToCartesian(this.x, this.y, this.radius + 60, angle);
+            var textAngle = angle-90;
+            if(angle>180){
+                textAngle += 180;
+            }
             var text = SVG.addChild(this.targetId, "text", {
                 'x': coords.x,
                 'y': coords.y,
-                "fill": "black"
+                transform:'rotate('+textAngle+' '+coords.x+','+coords.y+')',
+                style:'font-weight:bold',
+                "fill": "slategray"
             });
             text.textContent = chr.name;
         }
@@ -117,8 +124,6 @@ CircularKaryotype.prototype = {
                 anglestart: chr.angleStart
             });
             $(curve).click(function (event) {
-
-
                 var downX = event.offsetX;
                 var downY = event.offsetY;
                 var cartesianX = downX - _this.x;
@@ -134,9 +139,9 @@ CircularKaryotype.prototype = {
                 var size = parseFloat($(this).attr('size'));
                 var angleSize = parseFloat($(this).attr('anglesize'));
                 var anglePos = angle - angleStart;
-                var pos = anglePos*(size/angleSize);
+                var pos = anglePos * (size / angleSize);
                 var chromosome = $(this).attr('id');
-                _this.trigger('chromosome:click',{region:new Region({chromosome:chromosome,start:pos-3000,end:pos+3000})})
+                _this.trigger('chromosome:click', {region: new Region({chromosome: chromosome, start: pos - 3000, end: pos + 3000})})
             });
         }
     },

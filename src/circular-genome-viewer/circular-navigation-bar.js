@@ -98,7 +98,7 @@ CircosNavigationBar.prototype = {
             '';
 
         this.targetDiv = this.targetId;
-        this.div = $('<div id="navigation-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
+        this.div = $('<div id="navigation-bar" class="unselectable">' + navgationHtml + '</div>')[0];
         $(this.targetDiv).append(this.div);
 
 

@@ -180,8 +180,8 @@ CircularGenomeViewer.prototype = {
         }
         args.chromosomes = this.genomesChromosomes[args.species];
         args.handlers = {
-            'region:change':function(e){
-                _this.trigger('region:change',e);
+            'region:change': function (e) {
+                _this.trigger('region:change', e);
             }
         };
         var genome = new Genome(args);
@@ -233,51 +233,75 @@ CircularGenomeViewer.prototype = {
     },
     drawLink: function () {
 
-        for (var i = 0; i < 10; i++) {
-            var coords = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(20,50));
-            var coords2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(270,350));
+        for (var i = 0; i < 1; i++) {
+            var d = '';
+            var angleStart1 = 10;
+            var angleEnd1 = 20;
+            var angleStart2 = 270;
+            var angleEnd2 = 290;
+
+            var coordsStart1 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, angleStart1);
+            var coordsEnd1 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, angleEnd1);
+
+            var coordsStart2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, angleStart2);
+            var coordsEnd2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, angleEnd2);
+
+
+            d += SVG.describeArc(this.x, this.y, this.radius - 20, angleStart1, angleEnd1) + ' ';
+            d += ['Q', this.x, this.y, coordsEnd2.x, coordsEnd2.y, ' '].join(' ');
+            d += SVG.describeArc(this.x, this.y, this.radius - 20, angleStart2, angleEnd2) + ' ';
+            d += [ 'Q', this.x, this.y, coordsEnd1.x, coordsEnd1.y, ' '].join(' ');
+
+
+//
+////            var coords3 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(20,50));
+//            var coords4 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(270, 350));
+////            var d = SVG.describeArc(coords1.x, this.y, this.radius+offset, chromosome.angleStart, chromosome.angleEnd)+' ';
             var curve = SVG.addChild(this.group, 'path', {
-                'd': 'M ' + coords.x + ',' + coords.y + ' ' +
-                    'Q ' + this.x + ',' + this.y + ' ' + coords2.x + ',' + coords2.y + ' ' +
-                    '',
-                'stroke': 'crimson',
+                d: d,
+//                'd': 'M ' + coords1.x + ',' + coords1.y + ' ' +
+//                    'Q ' + this.x + ',' + this.y + ' ' + coords4.x + ',' + coords4.y + ' ' +
+//                    '',
+                'stroke': 'red',
                 'stroke-width': 2,
                 'opacity': 1,
-                'fill': 'none',
+                'fill': 'crimson',
+//                'fill': 'none',
                 'visibility': 'visible',
+                'opacity': 0.7,
                 'z-index': 10
             });
         }
-        for (var i = 0; i < 10; i++) {
-            var coords = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(100,120));
-            var coords2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(180,200));
-            var curve = SVG.addChild(this.group, 'path', {
-                'd': 'M ' + coords.x + ',' + coords.y + ' ' +
-                    'Q ' + this.x + ',' + this.y + ' ' + coords2.x + ',' + coords2.y + ' ' +
-                    '',
-                'stroke': 'cornflowerblue',
-                'stroke-width': 2,
-                'opacity': 1,
-                'fill': 'none',
-                'visibility': 'visible',
-                'z-index': 10
-            });
-        }
-        for (var i = 0; i < 10; i++) {
-            var coords = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(210,250));
-            var coords2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(45,90));
-            var curve = SVG.addChild(this.group, 'path', {
-                'd': 'M ' + coords.x + ',' + coords.y + ' ' +
-                    'Q ' + this.x + ',' + this.y + ' ' + coords2.x + ',' + coords2.y + ' ' +
-                    '',
-                'stroke': 'yellowgreen',
-                'stroke-width': 2,
-                'opacity': 1,
-                'fill': 'none',
-                'visibility': 'visible',
-                'z-index': 10
-            });
-        }
+//        for (var i = 0; i < 10; i++) {
+//            var coords = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(100,120));
+//            var coords2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(180,200));
+//            var curve = SVG.addChild(this.group, 'path', {
+//                'd': 'M ' + coords.x + ',' + coords.y + ' ' +
+//                    'Q ' + this.x + ',' + this.y + ' ' + coords2.x + ',' + coords2.y + ' ' +
+//                    '',
+//                'stroke': 'cornflowerblue',
+//                'stroke-width': 2,
+//                'opacity': 1,
+//                'fill': 'none',
+//                'visibility': 'visible',
+//                'z-index': 10
+//            });
+//        }
+//        for (var i = 0; i < 10; i++) {
+//            var coords = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(210,250));
+//            var coords2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(45,90));
+//            var curve = SVG.addChild(this.group, 'path', {
+//                'd': 'M ' + coords.x + ',' + coords.y + ' ' +
+//                    'Q ' + this.x + ',' + this.y + ' ' + coords2.x + ',' + coords2.y + ' ' +
+//                    '',
+//                'stroke': 'yellowgreen',
+//                'stroke-width': 2,
+//                'opacity': 1,
+//                'fill': 'none',
+//                'visibility': 'visible',
+//                'z-index': 10
+//            });
+//        }
 
 //        (centerX, centerY, radius, angleInDegrees)
 
