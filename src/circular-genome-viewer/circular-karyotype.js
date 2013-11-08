@@ -96,15 +96,15 @@ CircularKaryotype.prototype = {
             chr = chromosomes[i];
             var angle = chr.angleStart + (chr.angleSize / 2);
             var coords = SVG._polarToCartesian(this.x, this.y, this.radius + 60, angle);
-            var textAngle = angle-90;
-            if(angle>180){
+            var textAngle = angle - 90;
+            if (angle > 180) {
                 textAngle += 180;
             }
             var text = SVG.addChild(this.targetId, "text", {
                 'x': coords.x,
                 'y': coords.y,
-                transform:'rotate('+textAngle+' '+coords.x+','+coords.y+')',
-                style:'font-weight:bold',
+                transform: 'rotate(' + textAngle + ' ' + coords.x + ',' + coords.y + ')',
+                style: 'font-weight:bold',
                 "fill": "slategray"
             });
             text.textContent = chr.name;
@@ -123,7 +123,8 @@ CircularKaryotype.prototype = {
                 anglesize: chr.angleSize,
                 anglestart: chr.angleStart
             });
-            $(curve).click(function (event) {
+            var selectCurve;
+            $(curve).mousedown(function (event) {
                 var downX = event.offsetX;
                 var downY = event.offsetY;
                 var cartesianX = downX - _this.x;
@@ -132,16 +133,57 @@ CircularKaryotype.prototype = {
                 if (cartesianX < 0) {
                     angle += 180.0;
                 }
-//                console.log($(this).attr('anglestart'));
-//                console.log($(this).attr('size'));
-//                console.log($(this).attr('anglesize'));
+
+                $(selectCurve).remove();
+                selectCurve = SVG.addChild(_this.targetId, "path", {
+                    "d": SVG.describeArc(_this.x, _this.y, _this.radius, 10, 370) + ' ',
+                    "stroke": 'CornflowerBlue',
+                    "stroke-width": _this.arcWidth - 20,
+                    "fill": "none",
+                    id: chr.name,
+                    size: chr.size,
+                    opacity: 0.7,
+                    anglesize: chr.angleSize,
+                    anglestart: chr.angleStart
+                });
+
+
                 var angleStart = parseFloat($(this).attr('anglestart'));
                 var size = parseFloat($(this).attr('size'));
                 var angleSize = parseFloat($(this).attr('anglesize'));
+
                 var anglePos = angle - angleStart;
                 var pos = anglePos * (size / angleSize);
                 var chromosome = $(this).attr('id');
-                _this.trigger('chromosome:click', {region: new Region({chromosome: chromosome, start: pos - 3000, end: pos + 3000})})
+
+                var newAngle = angle;
+                var newAnglePos;
+                var newPos;
+                var newAngle = angle;
+                $(_this.targetId).parent().mousemove(function (event) {
+                    var newCartesianX = (event.offsetX - _this.x);
+                    var newCartesianY = (event.offsetY - _this.y);
+                    newAngle = (Math.atan(newCartesianY / newCartesianX) + (Math.PI / 2) ) / (Math.PI / 180.0);
+                    if (newCartesianX < 0) {
+                        newAngle += 180.0;
+                    }
+                    var startAngle = angle;
+                    var endAngle = newAngle;
+                    if ((newAngle - angle) < 0) {
+                        startAngle = newAngle;
+                        endAngle = angle;
+                    }
+                    newAnglePos = newAngle - angleStart;
+                    newPos = newAnglePos * (size / angleSize);
+//                $('#test').html(startAngle.toFixed(2) + ',' + endAngle.toFixed(2));
+                    selectCurve.setAttribute('d', SVG.describeArc(_this.x, _this.y, _this.radius, startAngle, endAngle) + ' ')
+                });
+
+
+                $(_this.targetId).mouseup(function (event) {
+                    _this.trigger('chromosome:click', {region: new Region({chromosome: chromosome, start: pos, end: newPos})})
+                });
+
             });
         }
     },
@@ -174,8 +216,6 @@ CircularKaryotype.prototype = {
                 cytobandsByStain[cytoband.stain].push(cytoband);
 
             }
-
-
             angleOffset += chr.angleSize;
         }
         for (var cytobandStain in cytobandsByStain) {

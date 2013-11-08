@@ -76,7 +76,6 @@ FeatureClusterRenderer.prototype.render = function (features, args) {
 
         var height = feature.features_count * this.multiplier;
 
-
         points += (x) + "," + (this.histogramHeight) + " ";
         points += (x) + "," + (this.histogramHeight - height) + " ";
         points += (x + width) + "," + (this.histogramHeight - height) + " ";
