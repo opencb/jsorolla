@@ -346,7 +346,7 @@ FEATURE_TYPES = {
         },
         tooltipTitle: function (f) {
             var name = (f.name != null) ? f.name : f.id;
-            return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
+            return /*f.featureType.toUpperCase() +*/ ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
             return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +

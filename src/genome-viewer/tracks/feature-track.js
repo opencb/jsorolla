@@ -30,7 +30,8 @@ function FeatureTrack(args) {
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
-    this.histogramRenderer = new HistogramRenderer();
+    this.histogramRenderer = new FeatureClusterRenderer();
+//    this.histogramRenderer = new HistogramRenderer();
 
 
     //set instantiation args, must be last
