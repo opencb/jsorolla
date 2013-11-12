@@ -93,11 +93,8 @@ NavigationBar.prototype = {
             '       <label id="regionButton" class="btn btn-default"><input type="checkbox"><span class="ocb-icon ocb-icon-region"></span></label>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-//            '       <div class="input-group pull-left">' +
-//            '           <input style="width:50px;height:22px" type="text" class="form-control">'+
-//            '       </div>' +
             '       <button id="zoomOutButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
-            '       <div id="progressBarCont" class="progress pull-left" style="width:200px;height:10px;margin:5px 2px 0px 2px">' +
+            '       <div id="progressBarCont" class="progress pull-left" style="width:200px;height:10px;margin:5px 2px 0px 2px;background-color: #d5d5d5">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
             '           </div>' +
             '       </div>' +
@@ -128,10 +125,6 @@ NavigationBar.prototype = {
             '       <button id="goButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-search"></span></button>' +
             '   </div>' +
             '</div>' +
-//            '</div>' +
-//            '' +
-            '' +
-            '' +
             '';
 
 

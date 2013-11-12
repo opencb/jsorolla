@@ -102,43 +102,6 @@ CircularGenomeViewer.prototype = {
             moveX = null;
             lastDegree = degree;
         });
-//
-        /** Selection Curve **/
-        $(this.group).mousedown(function (event) {
-            event.stopPropagation();
-//            _this.selectionCurve.setAttribute('visibility', 'visible');
-            downX = event.offsetX;
-            downY = event.offsetY;
-            var cartesianX = downX - _this.x;
-            var cartesianY = downY - _this.y;
-            angle = (Math.atan(cartesianY / cartesianX) + (Math.PI / 2) ) / (Math.PI / 180.0)
-            if (cartesianX < 0) {
-                angle += 180.0;
-            }
-//            $(_this.svg).mousemove(function (event) {
-//                var newCartesianX = (event.offsetX - _this.x);
-//                var newCartesianY = (event.offsetY - _this.y);
-//                var newAngle = (Math.atan(newCartesianY / newCartesianX) + (Math.PI / 2) ) / (Math.PI / 180.0)
-//                if (newCartesianX < 0) {
-//                    newAngle += 180.0;
-//                }
-//                var startAngle = angle;
-//                var endAngle = newAngle;
-//                if ((newAngle - angle) < 0) {
-//                    startAngle = newAngle;
-//                    endAngle = angle;
-//                }
-////                $('#test').html(startAngle.toFixed(2) + ',' + endAngle.toFixed(2));
-//                _this.selectionCurve.setAttribute('d', SVG.describeArc(_this.x, _this.y, _this.radius, startAngle, endAngle) + ' ')
-//            });
-        });
-        $(this.group).mouseup(function (event) {
-//            console.log(angle)
-            $(_this.group).off('mousemove');
-            downX = null;
-            downY = null;
-            moveX = null;
-        });
 
         this.genomesChromosomes['hsapiens'] = this._fetchData('hsapiens');
 
@@ -210,25 +173,6 @@ CircularGenomeViewer.prototype = {
         this._clean();
         /** draw components **/
         this._drawGenomes(this.genomes);
-//
-//        this.selectionCurve = SVG.addChild(this.selectionGroup, 'path', {
-//            'd': SVG.describeArc(this.x, this.y, this.radius, 160, 200) + ' ',
-//            'stroke': 'white',
-//            'stroke-width': this.arcWidth + 20,
-//            'opacity': 0.7,
-//            'fill': 'none',
-//            'visibility': 'hidden',
-//            'z-index': 10
-//        });
-//
-//        d="M  80,180
-//        Q  50,120  80,60
-//        Q  90, 40  80,20
-//        Q 100, 20 120,20
-//        Q 110, 40 120,60
-//        Q 150,120 120,180
-//        Z" />
-
         this.drawLink()
     },
     drawLink: function () {
@@ -252,58 +196,19 @@ CircularGenomeViewer.prototype = {
             d += SVG.describeArc(this.x, this.y, this.radius - 20, angleStart2, angleEnd2) + ' ';
             d += [ 'Q', this.x, this.y, coordsEnd1.x, coordsEnd1.y, ' '].join(' ');
 
-
-//
-////            var coords3 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(20,50));
-//            var coords4 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(270, 350));
-////            var d = SVG.describeArc(coords1.x, this.y, this.radius+offset, chromosome.angleStart, chromosome.angleEnd)+' ';
             var curve = SVG.addChild(this.group, 'path', {
                 d: d,
-//                'd': 'M ' + coords1.x + ',' + coords1.y + ' ' +
-//                    'Q ' + this.x + ',' + this.y + ' ' + coords4.x + ',' + coords4.y + ' ' +
-//                    '',
                 'stroke': 'red',
                 'stroke-width': 2,
                 'opacity': 1,
                 'fill': 'crimson',
-//                'fill': 'none',
                 'visibility': 'visible',
                 'opacity': 0.7,
                 'z-index': 10
             });
         }
 //        for (var i = 0; i < 10; i++) {
-//            var coords = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(100,120));
-//            var coords2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(180,200));
-//            var curve = SVG.addChild(this.group, 'path', {
-//                'd': 'M ' + coords.x + ',' + coords.y + ' ' +
-//                    'Q ' + this.x + ',' + this.y + ' ' + coords2.x + ',' + coords2.y + ' ' +
-//                    '',
-//                'stroke': 'cornflowerblue',
-//                'stroke-width': 2,
-//                'opacity': 1,
-//                'fill': 'none',
-//                'visibility': 'visible',
-//                'z-index': 10
-//            });
 //        }
-//        for (var i = 0; i < 10; i++) {
-//            var coords = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(210,250));
-//            var coords2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, Utils.getRandomInt(45,90));
-//            var curve = SVG.addChild(this.group, 'path', {
-//                'd': 'M ' + coords.x + ',' + coords.y + ' ' +
-//                    'Q ' + this.x + ',' + this.y + ' ' + coords2.x + ',' + coords2.y + ' ' +
-//                    '',
-//                'stroke': 'yellowgreen',
-//                'stroke-width': 2,
-//                'opacity': 1,
-//                'fill': 'none',
-//                'visibility': 'visible',
-//                'z-index': 10
-//            });
-//        }
-
-//        (centerX, centerY, radius, angleInDegrees)
 
     },
     _calculateTotalSize: function (items) {

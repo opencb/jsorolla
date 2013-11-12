@@ -10,6 +10,7 @@ module.exports = function (grunt) {
                 gv:'1.0.2',
                 nv:'1.0.0',
                 threedv:'0.0.1',
+                cgv:'0.0.1',
                 cellbase:'1.0.0',
                 opencga:'1.0.0',
                 utils:'1.0.0'
@@ -120,6 +121,14 @@ module.exports = function (grunt) {
                     'src/3d-viewer/threed-viewer.js'
                 ],
                 dest:'build/3d-viewer/<%= meta.version.threedv %>/threed-viewer-<%= meta.version.threedv %>.js'
+            },
+            cgv:{
+                src: [
+                    '<%= concat.utils.dest %>',
+                    '<%= concat.cellbase.dest %>',
+                    'src/circular-genome-viewer/*.js'
+                ],
+                dest:'build/circular-genome-viewer/<%= meta.version.cgv %>/circular-genome-viewer-<%= meta.version.cgv %>.js'
             }
         },
         uglify: {
@@ -149,6 +158,10 @@ module.exports = function (grunt) {
             threedv:{
                 src: '<%= concat.threedv.dest %>',
                 dest:'build/3d-viewer/<%= meta.version.threedv %>/threed-viewer-<%= meta.version.threedv %>.min.js'
+            },
+            cgv:{
+                src: '<%= concat.cgv.dest %>',
+                dest:'build/circular-genome-viewer/<%= meta.version.cgv %>/circular-genome-viewer-<%= meta.version.cgv %>.min.js'
             }
         },
         jshint: {
@@ -221,6 +234,14 @@ module.exports = function (grunt) {
                     {   expand: true, cwd:'./src/3d-viewer/', src: ['threedv-config.js'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' },
                     {   expand: true, cwd:'./src/3d-viewer/', src: ['glsl/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' }
                 ]
+            },
+            cgv: {
+                files: [
+                    {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/' },
+                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/' }, // includes files in path and its subdirs
+                    {   expand: true, cwd:'./build/genome-viewer/<%= meta.version.gv %>/', src: ['genome-viewer-*.min.js'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/' },
+                    {   expand: true, cwd:'./build/genome-viewer/<%= meta.version.gv %>/', src: ['gv-config.js'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/' },
+                ]
             }
         },
 
@@ -229,11 +250,10 @@ module.exports = function (grunt) {
             cellbase:['<%= concat.cellbase.dest %>','<%= uglify.cellbase.dest %>'],
             opencga:['<%= concat.opencga.dest %>','<%= uglify.opencga.dest %>'],
             gv: ['build/genome-viewer/<%= meta.version.gv %>/'],
+            cgv: ['build/circular-genome-viewer/<%= meta.version.cgv %>/'],
             threedv: ['build/3d-viewer/<%= meta.version.threedv %>/']
         },
 
-        vendorPath: 'build/genome-viewer/<%= meta.version.gv %>/vendor',
-        stylesPath: 'build/genome-viewer/<%= meta.version.gv %>/styles',
         htmlbuild: {
             gv: {
                 src: 'src/genome-viewer/genome-viewer.html',
@@ -246,9 +266,9 @@ module.exports = function (grunt) {
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/underscore*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/backbone*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/rawdeflate*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.min.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap-*-dist/js/bootstrap.min.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/typeahead.min.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.min.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.qtip*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.cookie*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.sha1*.js',
@@ -259,13 +279,49 @@ module.exports = function (grunt) {
                             ]
                     },
                     styles: {
-                        'gv-css': ['<%= stylesPath %>/css/style.css'],
+                        'gv-css': ['build/genome-viewer/<%= meta.version.gv %>/styles/css/style.css'],
                         'vendor': [
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.qtip*.css',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb*.css',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap-*-dist/css/bootstrap.min.css',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/typeahead.js-bootstrap.css'
                             ]
+                    }
+                }
+            },
+            cgv: {
+                src: 'src/circular-genome-viewer/circular-genome-viewer.html',
+                dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/',
+                options: {
+                    beautify: true,
+                    scripts: {
+                        'gv-js': '<%= uglify.cgv.dest %>',
+                        'vendor': [
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/underscore*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/backbone*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/rawdeflate*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.min.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/bootstrap-*-dist/js/bootstrap.min.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/typeahead.min.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.qtip*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.cookie*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.sha1*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/purl*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.mousewheel*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/gl-matrix-min*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/ChemDoodleWeb*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/genome-viewer*.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/gv-config*.js'
+                        ]
+                    },
+                    styles: {
+                        'gv-css': ['build/circular-genome-viewer/<%= meta.version.cgv %>/styles/css/style.css'],
+                        'vendor': [
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.qtip*.css',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/ChemDoodleWeb*.css',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/bootstrap-*-dist/css/bootstrap.min.css',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/typeahead.js-bootstrap.css'
+                        ]
                     }
                 }
             },
@@ -295,6 +351,7 @@ module.exports = function (grunt) {
                     }
                 }
             }
+
         },
         'curl-dir': {
             long: {
@@ -326,6 +383,13 @@ module.exports = function (grunt) {
                 tasks: ['gv','opencga'],
                 options: {spawn: false}
             }
+        },
+        rename: {
+            cgv: {
+                files: [
+                    {src: ['build/circular-genome-viewer/<%= meta.version.cgv %>/circular-genome-viewer.html'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/index.html'}
+                ]
+            }
         }
     });
 
@@ -337,6 +401,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-rename');
     grunt.loadNpmTasks('grunt-html-build');
     grunt.loadNpmTasks('grunt-curl');
 
@@ -354,6 +419,7 @@ module.exports = function (grunt) {
 
 
     grunt.registerTask('gv', ['clean:gv','concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
+    grunt.registerTask('cgv', ['clean:cgv','concat:utils','concat:cellbase','concat:cgv','uglify:cgv','copy:cgv','htmlbuild:cgv','clean:utils','clean:cellbase','rename:cgv']);
     grunt.registerTask('nv', ['concat:utils','concat:cellbase','concat:nv','uglify:nv', 'clean:utils','clean:cellbase']);
     grunt.registerTask('threedv', ['clean:threedv','concat:utils','concat:cellbase','concat:threedv','uglify:threedv','copy:threedv','htmlbuild:threedv','clean:utils','clean:cellbase']);
 

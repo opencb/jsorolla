@@ -175,7 +175,6 @@ CircularKaryotype.prototype = {
                     }
                     newAnglePos = newAngle - angleStart;
                     newPos = newAnglePos * (size / angleSize);
-//                $('#test').html(startAngle.toFixed(2) + ',' + endAngle.toFixed(2));
                     selectCurve.setAttribute('d', SVG.describeArc(_this.x, _this.y, _this.radius, startAngle, endAngle) + ' ')
                 });
 

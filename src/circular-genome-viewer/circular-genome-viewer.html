@@ -2,21 +2,45 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Circos Maps</title>
+    <title>Circular Genome Viewer</title>
 
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <!-- CSS from vendors -->
+    <!-- build:style vendor -->
     <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
-    <link type="text/css" rel="stylesheet" href="../../vendor/jquery-ui-1.10.3.custom/css/smoothgray/jquery-ui-1.10.3.custom.min.css" />
-    <link type="text/css" rel="stylesheet" href="../../styles/css/style.css" />
+    <link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
+    <link type="text/css" rel="stylesheet" href="../../vendor/bootstrap-3.0.2-dist/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="../../vendor/typeahead.js-bootstrap.css">
+    <!-- /build -->
 
+    <!-- CSS from Genome Viewer -->
+    <!-- build:style gv-css -->
+    <link href="../../styles/css/style.css" rel="stylesheet">
+    <!-- /build -->
 
+    <!-- JS from vendors -->
+    <!-- build:script vendor -->
     <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
     <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+    <script type="text/javascript" src="../../vendor/rawdeflate.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
-    <script type="text/javascript" src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
 
+    <!-- These dependencies must go AFTER jquery -->
+    <script type="text/javascript" src="../../vendor/bootstrap-3.0.2-dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../vendor/typeahead.min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
+    <script type="text/javascript" src="../../vendor/purl.min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.mousewheel.min.js"></script>
+    <script type="text/javascript" src="../../vendor/gl-matrix-min.js"></script>
+    <script type="text/javascript" src="../../vendor/ChemDoodleWeb.js"></script>
+
+    <script type="text/javascript" src="../../build/genome-viewer/1.0.2/gv-config.js"></script>
+    <script type="text/javascript" src="../../build/genome-viewer/1.0.2/genome-viewer-1.0.2.min.js"></script>
+    <!-- /build -->
+
+
+    <!-- build:script gv-js -->
     <script type="text/javascript" src="../lib/utils/svg.js"></script>
     <script type="text/javascript" src="../lib/utils/utils.js"></script>
     <script type="text/javascript" src="../lib/region.js"></script>
@@ -25,10 +49,8 @@
     <script type="text/javascript" src="circular-karyotype.js"></script>
     <script type="text/javascript" src="circular-genome-viewer.js"></script>
     <script type="text/javascript" src="circular-navigation-bar.js"></script>
+    <!-- /build -->
 
-
-    <script type="text/javascript" src="../../build/genome-viewer/1.0.2/gv-config.js"></script>
-    <script type="text/javascript" src="../../build/genome-viewer/1.0.2/genome-viewer-1.0.2.min.js"></script>
 
 
     <script>
@@ -39,8 +61,8 @@
         $(document).ready(function () {
 
             var genomeViewer;
-
-            _this.circularGenomeViewer = new CircularGenomeViewer({
+            var circularGenomeViewer;
+            circularGenomeViewer = new CircularGenomeViewer({
                 targetId: 'mydiv',
                 autoRender: true,
                 width: $('body').width(),
@@ -56,11 +78,10 @@
                         genomeViewer.setRegion(event.region)
                     }
                 }
-                //region:_this.region
             });
-            _this.circularGenomeViewer.draw();
+            circularGenomeViewer.draw();
 
-            _this.circularGenomeViewer.addGenome({
+            circularGenomeViewer.addGenome({
                 id:1,
                 species: 'hsapiens',
                 position: 0,
