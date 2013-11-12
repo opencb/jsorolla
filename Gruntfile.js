@@ -62,7 +62,6 @@ module.exports = function (grunt) {
                 src: [
                     '<%= concat.utils.dest %>',
                     '<%= concat.cellbase.dest %>',
-//                    'src/genome-viewer/gv-config.js',
                     'src/genome-viewer/navigation-bar.js',
                     'src/genome-viewer/chromosome-panel.js',
                     'src/genome-viewer/karyotype-panel.js',
@@ -247,6 +246,8 @@ module.exports = function (grunt) {
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/underscore*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/backbone*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/rawdeflate*.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap-*-dist/js/bootstrap.min.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/typeahead.min.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.min.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.qtip*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.cookie*.js',
@@ -254,8 +255,7 @@ module.exports = function (grunt) {
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/purl*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.mousewheel*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/gl-matrix-min*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb*.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-1.10.3*/js/jquery-ui*min.js'
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb*.js'
                             ]
                     },
                     styles: {
@@ -263,7 +263,8 @@ module.exports = function (grunt) {
                         'vendor': [
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.qtip*.css',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/ChemDoodleWeb*.css',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery-ui-1.10.3*/css/**/jquery-ui*min.css'
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap-*-dist/css/bootstrap.min.css',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/typeahead.js-bootstrap.css'
                             ]
                     }
                 }

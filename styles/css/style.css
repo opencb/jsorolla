@@ -479,6 +479,8 @@ a:hover {
     display: inline-block;
     width: 16px;
     height: 16px;
+    vertical-align: middle;
+    margin-bottom: 1px;
 }
 
 .ocb-icon-resize {
