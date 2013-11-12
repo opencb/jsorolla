@@ -31,6 +31,11 @@ function Genome(args) {
 
     this.renderedArea = {};
 
+    this.trackList = [];
+    this.swapHash = {};
+
+    this.chromosomeGenes = {};
+
     //events attachments
     this.on(this.handlers);
 
@@ -52,6 +57,12 @@ Genome.prototype = {
         /** Navigation Bar **/
         this.karyotype = this._createKaryotype(args);
 
+        for (var i = 0; i < this.chromosomes.length; i++) {
+            var chr = this.chromosomes[i];
+            if (chr.visible != false) {
+                this._getChromosomeGenes(chr);
+            }
+        }
     },
     _createKaryotype: function (args) {
         var _this = this;
@@ -129,7 +140,7 @@ Genome.prototype = {
         var d = '';
         var lastRadius = this.radius + offset;
 
-        console.log(chromosome.size)
+//        console.log(chromosome.size)
         for (var i = 0; i < features.length; i++) {
             var feature = features[i];
             var coeff = chromosome.angleSize / chromosome.size;
@@ -164,25 +175,63 @@ Genome.prototype = {
             }
         }
     },
-    _getChromosomeGenes: function () {
-        var features = [];
-        var features2 = [];
-        CellBaseManager.get({
-            species: this.species,
-            category: 'genomic',
-            subCategory: 'region',
-            resource: 'gene',
-            query: '6:1-260000000',
-            params: {
-                exclude: 'transcripts',
-                biotype: 'protein_coding'
-            },
-            async: false,
-            success: function (data) {
-                features = data.response[0].result;
+    addTrack: function (track) {
+        if (_.isArray(track)) {
+            for (var i in track) {
+                this._addTrack(track[i]);
             }
-        });
-        this.drawFeatureTrack(features, 100, 'darkred');
+        } else {
+            this._addTrack(track);
+        }
+    },
+    _addTrack: function (track) {
+        var i = this.trackList.push(track);
+        this.swapHash[track.id] = {index: i - 1, visible: true};
+        track.draw();
+    },
+    _getChromosomeGenes: function (chromosome) {
+        var _this = this;
+        var region = new Region(chromosome.name + ':1-' + chromosome.size);
+        if (_.isUndefined(this.chromosomeGenes[chromosome.name])) {
+            CellBaseManager.get({
+                species: this.species,
+                category: 'genomic',
+                subCategory: 'region',
+                resource: 'gene',
+                query: region.toString(),
+                params: {
+                    histogram: true,
+                    interval: 1000000
+                },
+                async: false,
+                success: function (data) {
+                    var features = data.response[0].result;
+                    _this.chromosomeGenes[chromosome.name] = features;
+                    _this.drawHistogramTrack(features, 30, region, '#9493b1');
+                }
+            });
+        } else {
+            _this.drawHistogramTrack(this.chromosomeGenes[chromosome.name], 30, region, '#9493b1');
+        }
+
+//        var features = [];
+//        var features2 = [];
+//        CellBaseManager.get({
+//            species: this.species,
+//            category: 'genomic',
+//            subCategory: 'region',
+//            resource: 'gene',
+//            query: '6:1-260000000',
+//            params: {
+//                exclude: 'transcripts',
+//                biotype: 'protein_coding'
+//            },
+//            async: false,
+//            success: function (data) {
+//                features = data.response[0].result;
+//            }
+//        });
+//        this.drawFeatureTrack(features, 100, 'darkred');
 
 //        CellBaseManager.get({
 //            species: this.species,
@@ -201,22 +250,5 @@ Genome.prototype = {
 //        });
 //        this.drawFeatureTrack(features2, 50, 'darkblue');
 
-        CellBaseManager.get({
-            species: this.species,
-            category: 'genomic',
-            subCategory: 'region',
-            resource: 'gene',
-            query: '6:1-171115067',
-            params: {
-                histogram: true,
-                interval: 1000000
-            },
-            async: false,
-            success: function (data) {
-                var features = data.response[0].result;
-                var region = new Region(data.response[0].id);
-                _this.drawHistogramTrack(features, 30, region, '#9493b1');
-            }
-        });
     }
 }

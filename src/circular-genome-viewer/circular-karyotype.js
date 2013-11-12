@@ -125,6 +125,7 @@ CircularKaryotype.prototype = {
             });
             var selectCurve;
             $(curve).mousedown(function (event) {
+                event.stopPropagation();
                 var downX = event.offsetX;
                 var downY = event.offsetY;
                 var cartesianX = downX - _this.x;
@@ -179,7 +180,7 @@ CircularKaryotype.prototype = {
                 });
 
 
-                $(_this.targetId).mouseup(function (event) {
+                $(_this.targetId).parent().mouseup(function (event) {
                     _this.trigger('chromosome:click', {region: new Region({chromosome: chromosome, start: pos, end: newPos})})
                 });
 
