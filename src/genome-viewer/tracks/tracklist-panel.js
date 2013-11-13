@@ -97,12 +97,16 @@ TrackListPanel.prototype = {
         $(this.panelDiv).css({display: 'inline'});
         this.collapsed = false;
         $(this.collapseDiv).removeClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
     },
     hideContent: function () {
         $(this.tlHeaderDiv).css({display: 'none'});
         $(this.panelDiv).css({display: 'none'});
         this.collapsed = true;
         $(this.collapseDiv).addClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
     },
     render: function (targetId) {
         this.targetId = (targetId) ? targetId : this.targetId;
@@ -280,7 +284,6 @@ TrackListPanel.prototype = {
             $(panelDiv).append(regionOverviewBoxRight);
             var regionOverviewBoxWidth = this.region.length() * this.pixelBase;
             var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2
-//            debugger
             $(regionOverviewBoxLeft).css({
                 'z-index': 0,
                 'position': 'absolute',

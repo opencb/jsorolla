@@ -62,11 +62,15 @@ ChromosomePanel.prototype = {
         $(this.svg).css({display: 'inline'});
         this.collapsed = false;
         $(this.collapseDiv).removeClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
     },
     hideContent: function () {
         $(this.svg).css({display: 'none'});
         this.collapsed = true;
         $(this.collapseDiv).addClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
     },
     setVisible: function (bool) {
         if (bool) {
