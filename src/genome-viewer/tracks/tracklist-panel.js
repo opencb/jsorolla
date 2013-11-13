@@ -27,6 +27,8 @@ function TrackListPanel(args) {//parent is a DOM div element
 
     //set default args
     this.id = Utils.genId("TrackListPanel");
+    this.collapsed = false;
+    this.collapsible = false;
 
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
@@ -71,7 +73,37 @@ function TrackListPanel(args) {//parent is a DOM div element
 };
 
 TrackListPanel.prototype = {
+    show: function () {
+        $(this.div).css({display: 'block'});
+    },
 
+    hide: function () {
+        $(this.div).css({display: 'none'});
+    },
+    setVisible: function (bool) {
+        if (bool) {
+            $(this.div).css({display: 'block'});
+        } else {
+            $(this.div).css({display: 'none'});
+        }
+    },
+    setTitle: function (title) {
+        if ('titleDiv' in this) {
+            $(this.titleDiv).html(title);
+        }
+    },
+    showContent: function () {
+        $(this.tlHeaderDiv).css({display: 'inline'});
+        $(this.panelDiv).css({display: 'inline'});
+        this.collapsed = false;
+        $(this.collapseDiv).removeClass('active');
+    },
+    hideContent: function () {
+        $(this.tlHeaderDiv).css({display: 'none'});
+        $(this.panelDiv).css({display: 'none'});
+        this.collapsed = true;
+        $(this.collapseDiv).addClass('active');
+    },
     render: function (targetId) {
         this.targetId = (targetId) ? targetId : this.targetId;
         if ($('#' + this.targetId).length < 1) {
@@ -85,8 +117,28 @@ TrackListPanel.prototype = {
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
-            var titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
+            var titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
             $(this.div).append(titleDiv);
+
+            if (this.collapsible == true) {
+                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs" style="margin-left:10px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
+                $(titleDiv).dblclick(function () {
+                    if (_this.collapsed) {
+                        _this.showContent();
+                    } else {
+                        _this.hideContent();
+                    }
+                });
+                $(this.collapseDiv).click(function () {
+                    if (_this.collapsed) {
+                        _this.showContent();
+                    } else {
+                        _this.hideContent();
+                    }
+                });
+                $(titleDiv).append(this.collapseDiv);
+            }
+
         }
 
         var tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];
@@ -271,7 +323,7 @@ TrackListPanel.prototype = {
             _this.trigger('mousePosition:change', {mousePos: _this.mousePosition, baseHtml: _this.getMousePosition(_this.mousePosition)});
         });
 
-        $(this.div).dblclick(function (event) {
+        $(this.tlTracksDiv).dblclick(function (event) {
             var halfLength = _this.region.length() / 2;
             var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition - halfLength, end: _this.mousePosition + halfLength})
             _this.trigger('region:change', {region: mouseRegion, sender: _this});
@@ -282,7 +334,12 @@ TrackListPanel.prototype = {
             $('html').addClass('unselectable');
 //                            $('.qtip').qtip('hide').qtip('disable'); // Hide AND disable all tooltips
             $(_this.mouseLine).css({'visibility': 'hidden'});
-            switch (event.which) {
+
+            var mouseState = event.which;
+            if (event.ctrlKey) {
+                mouseState = 'ctrlKey'+event.which;
+            }
+            switch (mouseState) {
                 case 1: //Left mouse button pressed
                     $(this).css({"cursor": "move"});
                     downX = event.clientX;
@@ -308,6 +365,7 @@ TrackListPanel.prototype = {
 
                     break;
                 case 2: //Middle mouse button pressed
+                case 'ctrlKey1': //ctrlKey and left mouse button
                     $(selBox).css({'visibility': 'visible'});
                     $(selBox).css({'width': 0});
                     downX = (event.pageX - $(_this.tlTracksDiv).offset().left);
@@ -335,11 +393,17 @@ TrackListPanel.prototype = {
             $(this).css({"cursor": "default"});
             $(_this.mouseLine).css({'visibility': 'visible'});
             $(this).off('mousemove');
-            switch (event.which) {
+
+            var mouseState = event.which;
+            if (event.ctrlKey) {
+                mouseState = 'ctrlKey'+event.which;
+            }
+            switch (mouseState) {
                 case 1: //Left mouse button pressed
 
                     break;
                 case 2: //Middle mouse button pressed
+                case 'ctrlKey1': //ctrlKey and left mouse button
                     $(selBox).css({'visibility': 'hidden'});
                     $(this).off('mousemove');
                     if (downX != null && moveX != null) {
@@ -350,7 +414,6 @@ TrackListPanel.prototype = {
                         _this.region.start = parseInt(Math.min(ss, ee));
                         _this.region.end = parseInt(Math.max(ss, ee));
                         _this.trigger('region:change', {region: _this.region, sender: _this});
-                        _this.onRegionSelect.notify();
                         moveX = null;
                     } else if (downX != null && moveX == null) {
                         var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition, end: _this.mousePosition})
@@ -423,27 +486,10 @@ TrackListPanel.prototype = {
             });
         };
 
+        this.tlHeaderDiv = tlHeaderDiv;
+        this.panelDiv = panelDiv;
+
         this.rendered = true;
-    },
-
-    show: function () {
-        $(this.div).css({display: 'block'});
-    },
-
-    hide: function () {
-        $(this.div).css({display: 'none'});
-    },
-    setVisible: function (bool) {
-        if (bool) {
-            $(this.div).css({display: 'block'});
-        } else {
-            $(this.div).css({display: 'none'});
-        }
-    },
-    setTitle: function (title) {
-        if ('titleDiv' in this) {
-            $(this.titleDiv).html(title);
-        }
     },
 
     setHeight: function (height) {
@@ -566,12 +612,12 @@ TrackListPanel.prototype = {
 //        setTimeout(checkStatus, 10);
         /***************************/
     },
-    addTrack :function(track){
-        if(_.isArray(track)){
-            for(var i in track){
+    addTrack: function (track) {
+        if (_.isArray(track)) {
+            for (var i in track) {
                 this._addTrack(track[i]);
             }
-        }else{
+        } else {
             this._addTrack(track);
         }
     },
@@ -883,7 +929,7 @@ TrackListPanel.prototype = {
         //if multiple, returns the first found
         for (var i = 0; i < this.trackSvgList.length; i++) {
             var track = this.trackSvgList[i];
-            if(track instanceof SequenceTrack){
+            if (track instanceof SequenceTrack) {
                 return track;
             }
         }

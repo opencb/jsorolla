@@ -20,8 +20,8 @@
  */
 
 function KaryotypePanel(args) {
-
     // Using Underscore 'extend' function to extend and add Backbone Events
+
     _.extend(this, Backbone.Events);
 
     this.id = Utils.genId('KaryotypePanel');
@@ -63,14 +63,12 @@ KaryotypePanel.prototype = {
     showContent: function () {
         $(this.svg).css({display: 'inline'});
         this.collapsed = false;
-        $(this.collapseDiv).addClass('ocb-icon-collapse');
-        $(this.collapseDiv).removeClass('ocb-icon-expand');
+        $(this.collapseDiv).removeClass('active');
     },
     hideContent: function () {
         $(this.svg).css({display: 'none'});
         this.collapsed = true;
-        $(this.collapseDiv).addClass('ocb-icon-expand');
-        $(this.collapseDiv).removeClass('ocb-icon-collapse');
+        $(this.collapseDiv).addClass('active');
     },
     setVisible: function (bool) {
         if (bool) {
@@ -81,7 +79,7 @@ KaryotypePanel.prototype = {
     },
     setTitle: function (title) {
         if ('titleDiv' in this) {
-            $(this.titleDiv).html(title);
+            $(this.titleDiv).first().html(title);
         }
     },
     setWidth: function (width) {
@@ -105,11 +103,11 @@ KaryotypePanel.prototype = {
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
-            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
+            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
             $(this.div).append(this.titleDiv);
 
             if(this.collapsible == true){
-                this.collapseDiv = $('<div class="ocb-icon ocb-icon-collapse" style="margin:0px 0px -2px 10px;display:inline-block; vertical-align:bottom"></div>');
+                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs" style="margin-left:10px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
                 $(this.titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();

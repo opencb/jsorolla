@@ -234,7 +234,7 @@
     font-weight: bold;
     color: #333;
     font-size: 11px;
-    padding: 5px 0 6px 5px;
+    /*padding: 5px 0 6px 5px;*/
     background-image: linear-gradient(to bottom, #ffffff, #d0d0d0);
     background-image: -webkit-linear-gradient(top, white, #d0d0d0);
     background-repeat: repeat-x;

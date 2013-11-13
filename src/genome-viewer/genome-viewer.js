@@ -41,6 +41,10 @@ function GenomeViewer(args) {
         collapsed: false,
         collapsible: true
     }
+    this.RegionPanelConfig = {
+        collapsed: false,
+        collapsible: true
+    }
     this.drawStatusBar = true;
     this.border = true;
     this.resizable = true;
@@ -403,6 +407,7 @@ GenomeViewer.prototype = {
             zoomMultiplier: 8,
             title: 'Region overview',
             showRegionOverviewBox: true,
+            collapsible: this.RegionPanelConfig.collapsible,
             region: this.region,
             handlers: {
                 'region:change': function (event) {
