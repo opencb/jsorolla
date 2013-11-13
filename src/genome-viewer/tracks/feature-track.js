@@ -38,6 +38,9 @@ function FeatureTrack(args) {
     _.extend(this, args);
 
 
+    this.resource = this.dataAdapter.resource;
+    this.species = this.dataAdapter.species;
+
     this.dataType = 'features';
 };
 
@@ -69,12 +72,13 @@ FeatureTrack.prototype.render = function (targetId) {
             width: _this.width,
             zoom: _this.zoom,
             labelZoom: _this.labelZoom,
-            pixelPosition: _this.pixelPosition
+            pixelPosition: _this.pixelPosition,
+            resource:_this.resource,
+            species:_this.species
         });
         _this.updateHeight();
         _this.setLoading(false);
     });
-
 };
 
 FeatureTrack.prototype.draw = function () {

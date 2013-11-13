@@ -30,6 +30,9 @@ function FeatureClusterRenderer(args) {
     this.histogramHeight = 75;
     this.multiplier = 7;
 
+    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
+    this.toolTipfontClass = 'ocb-font-default';
+
     //set instantiation args
     _.extend(this, args);
 
@@ -37,33 +40,19 @@ function FeatureClusterRenderer(args) {
 
 
 FeatureClusterRenderer.prototype.render = function (features, args) {
+    var _this = this;
     var middle = args.width / 2;
-    var points = '';
-    if (features.length > 0) {//Force first point at this.histogramHeight
-        var firstFeature = features[0].value;
-        var width = (firstFeature.end - firstFeature.start) * args.pixelBase;
-        var x = this.getFeatureX(firstFeature, args);
-        points = (x + (width / 2)) + ',' + this.histogramHeight + ' ';
-    }
-
     var maxValue = 0;
 
-    for (var i = 0, len = features.length; i < len; i++) {
+    var drawFeature = function (feature) {
+        var d = '';
 
-        var feature = features[i].value;
         feature.start = parseInt(feature.start);
         feature.end = parseInt(feature.end);
         var width = (feature.end - feature.start);
-        //get type settings object
 
         width = width * args.pixelBase;
-//        points += [
-//
-//        ].join(' ');
-        var x = this.getFeatureX(feature, args);
-//        var x = _this.getFeatureX(feature, args);
-//        var x = _this.getFeatureX(feature, args);
-//        var x = _this.getFeatureX(feature, args);
+        var x = _this.getFeatureX(feature, args);
 
         if (feature.features_count == null) {
 //            var height = Math.log(features[i].absolute);
@@ -74,27 +63,80 @@ FeatureClusterRenderer.prototype.render = function (features, args) {
             }
         }
 
-        var height = feature.features_count * this.multiplier;
+        var height = feature.features_count * _this.multiplier;
 
-        points += (x) + "," + (this.histogramHeight) + " ";
-        points += (x) + "," + (this.histogramHeight - height) + " ";
-        points += (x + width) + "," + (this.histogramHeight - height) + " ";
-        points += (x + width) + "," + (this.histogramHeight) + " ";
+        var rect = SVG.addChild(args.svgCanvasFeatures, "rect", {
+            'x': x + 1,
+            'y': 0,
+            'width': width - 1,
+            'height': height,
+            'stroke': 'smokewhite',
+            'stroke-width': 1,
+            'fill': '#9493b1',
+            'cursor': 'pointer'
+        });
 
+        var getInfo = function (feature) {
+            var resp = '';
+            return resp += Math.round(Math.exp(feature.features_count));
+        };
+
+
+        var url = CellBaseManager.url({
+            species: args.species,
+            category: 'genomic',
+            subCategory: 'region',
+            query: new Region(feature).toString(),
+            resource: args.resource,
+            params: {
+                include: 'chromosome,start,end,id'
+            },
+            async: false
+//            success:function(data){
+//                str+=data.response[0].result.length+' cb';
+//            }
+        });
+
+        $(rect).qtip({
+            content: {
+                text: 'Loading...', // The text to use whilst the AJAX request is loading
+                ajax: {
+                    url: url, // URL to the local file
+                    type: 'GET', // POST or GET
+                    success: function (data, status) {
+                        var items = data.response[0].result;
+                        var ids = '';
+                        for (var i = 0; i < items.length; i++) {
+                            var f = items[i];
+                            var r = new Region(f);
+                            ids += '<span class="emph">'+f.id + '</span> <span class="info">' + r.toString()+'</span><br>';
+                        }
+                        this.set('content.title', 'Count: '+items.length);
+                        this.set('content.text', ids);
+                    }
+                }
+            },
+            position: {target: 'mouse', adjust: {x: 25, y: 15}},
+            style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
+        });
+
+//        $(rect).qtip({
+//            content: {text: getInfo(feature), title: 'Count'},
+//
+//        });
+
+//        $(rect).mouseenter(function(){
+//            var str = '';
+////            $(rect).qtip({
+////                content: {text: str, title: 'Info'},
+//////                position: {target: "mouse", adjust: {x: 25, y: 15}},
+////                style: { width: true, classes: 'ui-tooltip ui-tooltip-shadow'}
+////            });
+//        });
+
+    };
+
+    for (var i = 0, len = features.length; i < len; i++) {
+        drawFeature(features[i].value);
     }
-    if (features.length > 0) {//force last point at this.histogramHeight
-        var lastFeature = features[features.length - 1].value;
-        var width = (lastFeature.end - lastFeature.start) * args.pixelBase;
-        var x = this.getFeatureX(lastFeature, args);
-        points += (x + (width / 2)) + ',' + this.histogramHeight + ' ';
-
-    }
-
-    var pol = SVG.addChild(args.svgCanvasFeatures, "polyline", {
-        "points": points,
-        "stroke": "#000000",
-        "stroke-width": 0.2,
-        "fill": '#9493b1',
-        "cursor": "pointer"
-    });
 };
