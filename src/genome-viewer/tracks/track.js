@@ -190,13 +190,13 @@ Track.prototype = {
             this.interval = undefined;
         }
 
-        if (this.histogramRenderer) {
-            if (this.zoom <= this.histogramZoom) {
-                this.histogramGroup.setAttribute('visibility', 'visible');
-            } else {
-                this.histogramGroup.setAttribute('visibility', 'hidden');
-            }
-        }
+//        if (this.histogramRenderer) {
+//            if (this.zoom <= this.histogramZoom) {
+//                this.histogramGroup.setAttribute('visibility', 'visible');
+//            } else {
+//                this.histogramGroup.setAttribute('visibility', 'hidden');
+//            }
+//        }
     },
 
     cleanSvg: function (filters) {//clean
@@ -387,9 +387,9 @@ Track.prototype = {
 //        this.titleText = titleText;
 
 
-        if (this.histogramRenderer) {
-            this._drawHistogramLegend();
-        }
+//        if (this.histogramRenderer) {
+//            this._drawHistogramLegend();
+//        }
 
         this.rendered = true;
         this.status = "ready";
