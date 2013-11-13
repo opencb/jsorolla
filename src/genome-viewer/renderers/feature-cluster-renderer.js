@@ -89,7 +89,8 @@ FeatureClusterRenderer.prototype.render = function (features, args) {
             query: new Region(feature).toString(),
             resource: args.resource,
             params: {
-                include: 'chromosome,start,end,id'
+                include: 'chromosome,start,end,id',
+                limit: 20
             },
             async: false
 //            success:function(data){
@@ -109,10 +110,16 @@ FeatureClusterRenderer.prototype.render = function (features, args) {
                         for (var i = 0; i < items.length; i++) {
                             var f = items[i];
                             var r = new Region(f);
-                            ids += '<span class="emph">'+f.id + '</span> <span class="info">' + r.toString()+'</span><br>';
+                            ids += '<span class="emph">' + f.id + '</span> <span class="info">' + r.toString() + '</span><br>';
                         }
-                        this.set('content.title', 'Count: '+items.length);
-                        this.set('content.text', ids);
+                        var fc = Math.round(Math.exp(feature.features_count));
+                        if (fc <= 20) {
+                            this.set('content.title', 'Count: ' + items.length);
+                            this.set('content.text', ids);
+                        } else {
+                            this.set('content.title', 'Count: ' + fc);
+                            this.set('content.text', ids + '...');
+                        }
                     }
                 }
             },
