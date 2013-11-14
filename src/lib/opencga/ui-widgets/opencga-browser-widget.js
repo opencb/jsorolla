@@ -378,7 +378,8 @@ OpencgaBrowserWidget.prototype = {
                         sessionId: $.cookie("bioinfo_sid"),
                         bucketId: record.raw.bucketId,
                         objectId: record.data.oid,
-                        success: function (sender, response) {
+                        success: function (response) {
+                            debugger
                             console.log(response);
                             Ext.example.msg("indexer", response);
                             record.raw.indexerId = response;
