@@ -802,7 +802,7 @@ a:hover {
 }
 
 .chromosome-item {
-    border: 1px solid #fff;
+    border: 1px solid transparent;
     padding: 4px;
     cursor: pointer;
     min-width: 25px;
@@ -812,14 +812,13 @@ a:hover {
 
 .list .x-item-selected {
     font-weight: bold;
-    color: #15428B;
-    border: 1px solid deepSkyBlue;
-    background-color: #DFE8F6;
+    border: 1px solid #6599FF;
+    background-color: #f5f5f5;
 }
 
 .list-item-hover {
-    border: 1px solid deepSkyBlue;
-    background-color: honeydew;
+    border: 1px solid #9d9d9d;
+    background-color: #e6e6e6;
 }
 
 /*TEXT FORMAT*/
@@ -1088,8 +1087,8 @@ a:hover {
 }
 
 #msg-div .msg {
-    border-radius: 8px;
-    -moz-border-radius: 8px;
+    /*border-radius: 8px;*/
+    /*-moz-border-radius: 8px;*/
     background: #F6BC5D;
     border: 2px solid #F6BC5D;
     margin-top: 2px;
