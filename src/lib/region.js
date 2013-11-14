@@ -38,6 +38,9 @@ function Region(args) {
 
 Region.prototype = {
     load : function (obj) {
+        if(_.isString(obj)){
+            return this.parse(obj);
+        }
         this.chromosome = obj.chromosome || this.chromosome;
         this.chromosome = this.chromosome.toUpperCase();
 
@@ -46,6 +49,9 @@ Region.prototype = {
     },
 
     parse: function (str) {
+        if(_.isObject(str)){
+            return this.load(obj);
+        }
         var pattern = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
         var pattern2 = /^([a-zA-Z0-9])+\:([0-9])+$/;
         if(pattern.test(str) || pattern2.test(str) ){
