@@ -102,7 +102,7 @@ GenomeViewer.prototype = {
         }
 
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="' + this.id + '" class="ocb-gv ocb-box-vertical"></div>')[0];
+        this.div = $('<div class="bootstrap" id="' + this.id + '" class="ocb-gv ocb-box-vertical"></div>')[0];
         $(this.targetDiv).append(this.div);
 
         var width = Math.max($(this.div).width(), $(this.targetDiv).width())
