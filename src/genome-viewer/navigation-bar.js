@@ -102,7 +102,7 @@ NavigationBar.prototype = {
             '       <button id="zoomInButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
-            '       <div class="pull-left" style="height:22px;line-height: 22px;">Position:&nbsp;</div>' +
+            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Position:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
             '           <input id="regionField" style="width:200px;height:22px" type="text" class="form-control">' +
             '       </div>' +
@@ -118,7 +118,7 @@ NavigationBar.prototype = {
             '       <button id="autoheightButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-resize-vertical"></span></button>' +
             '   </div>' +
             '   <div class="btn-group pull-right">' +
-            '       <div class="pull-left" style="height:22px;line-height: 22px;">Search:&nbsp;</div>' +
+            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
             '           <input id="searchField"  type="text" class="form-control" placeholder="gene, snp..." style="height:22px;width:100px">' +
             '       </div>' +
