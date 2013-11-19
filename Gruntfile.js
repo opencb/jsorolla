@@ -240,7 +240,7 @@ module.exports = function (grunt) {
                     {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/' },
                     {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/' }, // includes files in path and its subdirs
                     {   expand: true, cwd:'./build/genome-viewer/<%= meta.version.gv %>/', src: ['genome-viewer-*.min.js'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/' },
-                    {   expand: true, cwd:'./build/genome-viewer/<%= meta.version.gv %>/', src: ['gv-config.js'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/' },
+                    {   expand: true, cwd:'./build/genome-viewer/<%= meta.version.gv %>/', src: ['gv-config.js'], dest: 'build/circular-genome-viewer/<%= meta.version.cgv %>/' }
                 ]
             }
         },

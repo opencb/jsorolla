@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Network Viewer WebGL</title>
+    <style>
+        #container {
+            background: #333;
+            /*width: 400px;*/
+            /*height: 300px;*/
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+
+
+</div>
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<!--&lt;!&ndash; Latest compiled and minified CSS &ndash;&gt;-->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+
+<!--&lt;!&ndash; Optional theme &ndash;&gt;-->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+
+<!--&lt;!&ndash; Latest compiled and minified JavaScript &ndash;&gt;-->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../vendor/underscore-min.js"></script>
+<script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+<script src="three.min.js"></script>
+<script src="js/debugaxis.js"></script>
+
+<script src="../lib/utils/utils.js"></script>
+<script src="../graph/graph.js"></script>
+<script src="../graph/vertex.js"></script>
+<script src="../graph/edge.js"></script>
+<script src="network-viewer-webgl.js"></script>
+
+<script type="text/javascript">
+    var networkViewerWebgl;
+    $(document).ready(function(){
+        networkViewerWebgl = new NetworkViewerWebgl({
+            targetId:'container',
+            autoRender:true
+        });
+    });
+
+</script>
+</html>
