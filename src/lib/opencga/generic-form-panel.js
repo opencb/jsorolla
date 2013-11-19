@@ -27,6 +27,7 @@ function GenericFormPanel(analysis) {
     this.paramsWS = {};
     this.panelId = this.analysis + "-FormPanel";
     this.testing = false;
+    this.closable = true;
 
     this.runAnalysisSuccess = function (response) {
         if (response.data.indexOf("ERROR") != -1) {
@@ -64,8 +65,8 @@ GenericFormPanel.prototype.draw = function (args) {
             this.panel = Ext.create('Ext.panel.Panel', {
                 id: this.panelId,
                 title: args.title,
-                closable: true,
-                defaults: {margin: 30},
+                closable: this.closable,
+//                defaults: {margin: 30},
                 autoScroll: true,
                 items: this.getForm(),
                 border:0,

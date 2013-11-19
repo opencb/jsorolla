@@ -1063,15 +1063,18 @@ a:hover {
     border: 1px solid #E5E5E5;
 }
 
-.msg {
-    border-radius: 8px;
-    -moz-border-radius: 8px;
-    background: #F6BC5D;
-    border: 1px solid #F6BC5D;
-    /*     margin-top: 2px; */
-    padding: 3px;
-    color: #222;
-}
+
+
+/*.msg {*/
+    /*border-radius: 8px;*/
+    /*-moz-border-radius: 8px;*/
+    /*background-color: #fff;*/
+    /*border: 1px solid #E2E2E2;*/
+    /*color: #454545;*/
+
+         /*margin-top: 2px;*/
+    /*padding: 3px;*/
+/*}*/
 
 /********************/
 /***sencha ux styles***/
@@ -1079,10 +1082,11 @@ a:hover {
 
 /*mensaje flotante*/
 #msg-div {
+    border: 2px solid transparent;
     position: absolute;
     left: 40%;
     top: 10px;
-    /*     width:300px; */
+    width:150px;
     z-index: 20000;
 }
 
@@ -1092,14 +1096,19 @@ a:hover {
     background: #F6BC5D;
     border: 2px solid #F6BC5D;
     margin-top: 2px;
-    padding: 10px 25px;
-    color: #222;
+    padding: 5px 10px 5px 10px;
+    text-align: center;
 }
 
 #msg-div .msg h3 {
-    margin: 0 0 4px;
-    font-weight: bold;
-    font-size: 15px;
+    margin: 0px;
+    border:1px solid #d3d3d3;
+    border-width: 0 0 1px;
+    position: relative;
+    overflow: hidden;
+    font-weight: 700;
+    color:#596F8F;
+    font-size: 16px;
 }
 
 /**/
