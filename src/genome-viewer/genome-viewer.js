@@ -69,6 +69,7 @@ function GenomeViewer(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
+
     this.defaultRegion = new Region(this.region);
 
     this.width;

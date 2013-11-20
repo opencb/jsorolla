@@ -122,12 +122,28 @@
 <script type="text/javascript">
     var genomeViewer = null;
     var run = function () {
-//        var region = new Region({chromosome: "13", start: 32889611, end: 32973805});
+        /* region and species configuration */
         var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+        var availableSpecies = {
+            "text": "Species",
+            "items": [
+                {
+                    "text": "Vertebrates",
+                    "items": [
+                        {"text": "Homo sapiens", "assembly": "GRCh37.p10", "region": {"chromosome": "13", "start": 32889611, "end": 32889611}, "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"], "url": "ftp://ftp.ensembl.org/pub/release-71/"},
+                        {"text": "Mus musculus", "assembly": "GRCm38.p1", "region": {"chromosome": "1", "start": 18422009, "end": 18422009}, "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"], "url": "ftp://ftp.ensembl.org/pub/release-71/"}
+                    ]
+                }
+            ]
+        };
+        var species = availableSpecies.items[0].items[0];
+
         genomeViewer = new GenomeViewer({
-            region: region,
-            sidePanel: false,
             targetId: 'application',
+            region: region,
+            availableSpecies: availableSpecies,
+            species: species,
+            sidePanel: false,
             autoRender: true,
             border: true,
             resizable: true,
@@ -238,7 +254,7 @@
                 }
             })
         });
-//        genomeViewer.addOverviewTrack(gene);
+        genomeViewer.addOverviewTrack(gene);
 
 
         //        this.icgcMutationsTrack = new IcgcTrack({
