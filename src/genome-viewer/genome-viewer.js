@@ -27,7 +27,7 @@ function GenomeViewer(args) {
     this.id = Utils.genId("GenomeViewer");
 
     //set default args
-    this.version = 'Genome Viewer v1';
+    this.version = 'Genome Viewer';
     this.targetId;
     this.drawNavigationBar = true;
     this.drawKaryotypePanel = true;
@@ -69,15 +69,12 @@ function GenomeViewer(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-
     this.defaultRegion = new Region(this.region);
 
     this.width;
     this.height;
     this.sidePanelWidth = (this.sidePanel) ? 25 : 0;
 
-//    console.log(this.targetId);
-//    console.log(this.id);
 
     //events attachments
     this.on(this.handlers);

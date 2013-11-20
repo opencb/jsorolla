@@ -259,16 +259,6 @@ ChromosomePanel.prototype = {
             'fill': this.colors['acen']
         });
 
-//        if (cytoband.stain == 'acen') {
-//            if (!firstAcenStainCalculated) {
-//                cytobands_d += 'M' + (cytoband.pixelStart + offset + 1) + ',15' + ' L' + (cytoband.pixelEnd + offset - 5) + ',15 ';
-//                cytobands_d += ' L' + (cytoband.pixelEnd + offset - 5) + ',7.5 ';
-//                firstAcenStainCalculated = true;
-//            } else {
-//                cytobands_d += 'M' + (cytoband.pixelStart + offset + 1 + 5) + ',15' + ' L' + (cytoband.pixelEnd + offset) + ',15 ';
-//            }
-//        } else {
-//        }
 
         /**/
         /* Resize elements and events*/
@@ -337,14 +327,6 @@ ChromosomePanel.prototype = {
 
         $(this.positionBox).off('mouseenter');
         $(this.positionBox).off('mouseleave');
-//        $(this.positionBox).mouseenter(function (event) {
-//            if (selectingRegion == false) {
-//                overPositionBox = true;
-//            }
-//        });
-//        $(this.positionBox).mouseleave(function (event) {
-//            overPositionBox = false;
-//        });
 
         var recalculateResizeControls = function () {
             var postionBoxX = parseInt(_this.positionBox.getAttribute('x'));
@@ -385,9 +367,6 @@ ChromosomePanel.prototype = {
         $(this.svg).contextmenu(function (e) {
             e.preventDefault();
         });
-//        var overPositionBox = false;
-//        var movingPositionBox = false;
-//        var selectingRegion = false;
         var downY, downX, moveX, moveY, lastX, increment;
 
         $(this.svg).mousedown(function (event) {
@@ -421,8 +400,6 @@ ChromosomePanel.prototype = {
                         break;
                     case 'movePositionBox' :
                         var inc = moveX - downX;
-//                        var w = _this.positionBox.getAttribute("width");
-//                        _this.positionBox.setAttribute("x", moveX - (w / 2));
                         _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
                         downX = moveX;
                         break;

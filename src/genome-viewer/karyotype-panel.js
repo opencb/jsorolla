@@ -310,16 +310,7 @@ KaryotypePanel.prototype = {
     setRegion: function (region) {//item.chromosome, item.position, item.species
         this.region.load(region);
         var needDraw = false;
-//        if(item.species!=null){
-//            this.species = item.species;
-//            needDraw = true;
-//        }
-//        if(item.species==null){
-//            this.positionBox.setAttribute("x1",this.chrOffsetX[this.region.chromosome]-10);
-//            this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
-//        }
-//
-//        console.log(this.lastSpecies != this.species)
+
         if (this.lastSpecies != this.species) {
             needDraw = true;
             this.lastSpecies = this.species;
@@ -333,13 +324,6 @@ KaryotypePanel.prototype = {
         this.positionBox.setAttribute("y1", pointerPosition);
         this.positionBox.setAttribute("y2", pointerPosition);
 
-//        if(!isNaN(centerPosition)){
-//            if(item.species==null){
-//                var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
-//                this.positionBox.setAttribute("y1", pointerPosition);
-//                this.positionBox.setAttribute("y2", pointerPosition);
-//            }
-//        }
         if (needDraw) {
             this.draw();
         }

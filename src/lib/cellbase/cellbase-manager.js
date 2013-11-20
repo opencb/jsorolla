@@ -27,6 +27,9 @@ var CellBaseManager = {
         var urlConfig = _.omit(args, ['success', 'error', 'async']);
 
         var url = CellBaseManager.url(urlConfig);
+        if(typeof url === 'undefined'){
+            return;
+        }
         console.log(url);
 
         var d;
@@ -36,12 +39,18 @@ var CellBaseManager = {
             dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
             async: async,
             success: function (data, textStatus, jqXHR) {
-                data.params = args.params;
-                data.resource = args.resource;
-                data.category = args.category;
-                data.subCategory = args.subCategory;
-                if (_.isFunction(success)) success(data);
-                d = data;
+                if($.isPlainObject(data)){
+                    data.params = args.params;
+                    data.resource = args.resource;
+                    data.category = args.category;
+                    data.subCategory = args.subCategory;
+                    if (_.isFunction(success)) success(data);
+                    d = data;
+                }else{
+                    console.log('Cellbase returned a non json object, please check the url.');
+                    console.log(url);
+                    console.log(data)
+                }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log("CellBaseManager: Ajax call returned : " + errorThrown + '\t' + textStatus + '\t' + jqXHR.statusText + " END");
@@ -51,20 +60,37 @@ var CellBaseManager = {
         return d;
     },
     url: function (args) {
-        if (!_.isObject(args)) args = {};
-        if (!_.isObject(args.params)) args.params = {};
+        if (!$.isPlainObject(args)) args = {};
+        if (!$.isPlainObject(args.params)) args.params = {};
 
-        if (_.isUndefined(args.host) || _.isNull(args.host)) {
-            delete args.host;
+        var version = 'latest';
+        if(typeof CELLBASE_VERSION !== 'undefined'){
+            version = CELLBASE_VERSION
         }
-        if (_.isUndefined(args.version) || _.isNull(args.version)) {
-            delete args.version;
+        if(typeof args.version !== 'undefined' && args.version != null){
+            version = args.version
         }
+
+        var host;
+        if(typeof CELLBASE_HOST !== 'undefined'){
+            host = CELLBASE_HOST
+        }
+        if (typeof args.host !== 'undefined' && args.version != null) {
+            host =  args.host;
+        }
+        if(typeof host === 'undefined'){
+            console.log("CELLBASE_HOST is not configured");
+            return;
+        }
+
+        delete args.host;
+        delete args.version;
 
         var config = {
-            host: CELLBASE_HOST,
-            version: CELLBASE_VERSION
+            host: host,
+            version: version
         };
+
         var params = {
             of: 'json'
         };
@@ -73,15 +99,15 @@ var CellBaseManager = {
         _.extend(config.params, params);
 
         var query = '';
-        if (!_.isUndefined(config.query) && !_.isNull(config.query)) {
-            if (_.isArray(config.query)) {
+        if(typeof config.query !== 'undefined' && config.query != null){
+            if ($.isArray(config.query)) {
                 config.query = config.query.toString();
             }
             query = '/' + config.query;
         }
 
         //species can be the species code(String) or an object with text attribute
-        if (!_.isString(config.species)) {
+        if ($.isPlainObject(config.species)) {
             config.species = Utils.getSpeciesCode(config.species.text);
         }
 

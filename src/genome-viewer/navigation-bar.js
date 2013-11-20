@@ -60,8 +60,6 @@ NavigationBar.prototype = {
             return;
         }
 
-
-//        <label class="btn btn-primary"><input type="checkbox"> Option 1</label>
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
             '   <div class="btn-group btn-group-xs">' +
@@ -231,7 +229,6 @@ NavigationBar.prototype = {
             _this.trigger('autoHeight-button:click', {clickEvent: e, sender: _this});
         });
 
-
         var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
         var url = CellBaseManager.url({
             host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
@@ -269,11 +266,12 @@ NavigationBar.prototype = {
 
     _addRegionHistoryMenuItem: function (region) {
         var _this = this;
-//        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Action</a></li>
         var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + region.toString() + '</a></li>')[0];
         $(this.regionHistoryMenu).append(menuEntry);
         $(menuEntry).click(function () {
             _this.region.parse($(this).text());
+            $(_this.chromosomesText).text(_this.region.chromosome);
+            $(_this.regionField).val(_this.region.toString());
             _this._recalculateZoom();
             _this.trigger('region:change', {region: _this.region, sender: _this});
             console.log($(this).text());
@@ -303,8 +301,9 @@ NavigationBar.prototype = {
             var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + list[i] + '</a></li>')[0];
             $(this.chromosomesMenu).append(menuEntry);
             $(menuEntry).click(function () {
-                $(_this.chromosomesText).text($(this).text());
                 _this.region.chromosome = $(this).text();
+                $(_this.chromosomesText).text($(this).text());
+                $(_this.regionField).val(_this.region.toString());
                 _this._recalculateZoom();
                 _this._addRegionHistoryMenuItem(_this.region);
                 _this.trigger('region:change', {region: _this.region, sender: _this});
@@ -350,39 +349,14 @@ NavigationBar.prototype = {
         }
     },
 
-//    _quickSearch: function (query) {
-//        var results = [];
-//        var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
-////        var host = new CellBaseManager().host;
-//        var host = 'http://ws.bioinfo.cipf.es/cellbase/rest';
-//        $.ajax({
-//            url: host + '/latest/' + speciesCode + '/feature/id/' + query.term + '/starts_with?of=json',
-//            async: false,
-//            dataType: 'json',
-//            success: function (data, textStatus, jqXHR) {
-//                for (var i in data[0]) {
-//                    results.push(data[0][i].displayId);
-//                }
-//            },
-//            error: function (jqXHR, textStatus, errorThrown) {
-//                console.log(textStatus);
-//            }
-//        });
-//        return results;
-//    },
-
     _goFeature: function (featureName) {
+        var _this = this;
         if (featureName != null) {
             if (featureName.slice(0, "rs".length) == "rs" || featureName.slice(0, "AFFY_".length) == "AFFY_" || featureName.slice(0, "SNP_".length) == "SNP_" || featureName.slice(0, "VAR_".length) == "VAR_" || featureName.slice(0, "CRTAP_".length) == "CRTAP_" || featureName.slice(0, "FKBP10_".length) == "FKBP10_" || featureName.slice(0, "LEPRE1_".length) == "LEPRE1_" || featureName.slice(0, "PPIB_".length) == "PPIB_") {
                 this.openSNPListWidget(featureName);
             } else {
                 console.log(featureName);
-                // TO-DO: gene list widget to be implemented
-                // this.openGeneListWidget(featureName);
-
-                // meanwhile the location of feature is set
                 console.log(this.species);
-                var _this = this;
 
                 CellBaseManager.get({
                     species: this.species,
@@ -408,7 +382,6 @@ NavigationBar.prototype = {
 
     _handleZoomOutButton: function () {
         this._handleZoomSlider(Math.max(0, this.zoom - 1));
-//        $(this.zoomSlider).slider("value", this.zoom);
         $(this.progressBar).css("width", this.zoom + '%');
     },
     _handleZoomSlider: function (value) {
@@ -420,7 +393,6 @@ NavigationBar.prototype = {
     },
     _handleZoomInButton: function () {
         this._handleZoomSlider(Math.min(100, this.zoom + 1));
-//        $(this.zoomSlider).slider("value", this.zoom);
         $(this.progressBar).css("width", this.zoom + '%');
     },
 
@@ -465,7 +437,6 @@ NavigationBar.prototype = {
 
     _recalculateZoom: function () {
         this.zoom = this._calculateZoomByRegion();
-//        $(this.zoomSlider).slider("value", this.zoom);
         $(this.progressBar).css("width", this.zoom + '%');
     },
 
@@ -485,111 +456,5 @@ NavigationBar.prototype = {
     },
     _calculateZoomByRegion: function () {
         return Utils.getZoomByPixelBase((this.width - this.svgCanvasWidthOffset) / this.region.length());
-    },
-
-    _handleNavigationBar: function (action, args) {
-////	var _this = this;
-//        if (action == 'OptionMenuClick') {
-//            this.genomeWidget.showTranscripts = Ext.getCmp("showTranscriptCB").checked;
-//            this.genomeWidgetProperties.setShowTranscripts(Ext.getCmp("showTranscriptCB").checked);
-//            this.refreshMasterGenomeViewer();
-//        }
-////        if (action == 'ZOOM'){
-////            this.setZoom(args);
-////            this.onRegionChange.notify({sender:"zoom"});
-////        }
-        if (action == 'GoToGene') {
-            var geneName = Ext.getCmp(this.id + 'quickSearch').getValue();
-            if (geneName != null) {
-                if (geneName.slice(0, "rs".length) == "rs" || geneName.slice(0, "AFFY_".length) == "AFFY_" || geneName.slice(0, "SNP_".length) == "SNP_" || geneName.slice(0, "VAR_".length) == "VAR_" || geneName.slice(0, "CRTAP_".length) == "CRTAP_" || geneName.slice(0, "FKBP10_".length) == "FKBP10_" || geneName.slice(0, "LEPRE1_".length) == "LEPRE1_" || geneName.slice(0, "PPIB_".length) == "PPIB_") {
-                    this.openSNPListWidget(geneName);
-                } else {
-                    this.openGeneListWidget(geneName);
-                }
-            }
-        }
-//        if (action == '+'){
-////  	var zoom = this.genomeWidgetProperties.getZoom();
-//            var zoom = this.zoom;
-//            if (zoom < 100){
-//                this.setZoom(zoom + this.increment);
-//            }
-//        }
-//        if (action == '-'){
-////    	 var zoom = this.genomeWidgetProperties.getZoom();
-//            var zoom = this.zoom;
-//            if (zoom >= 5){
-//                this.setZoom(zoom - this.increment);
-//            }
-//        }
-
-//        if (action == 'Go') {
-//            var value = Ext.getCmp(this.id + 'tbCoordinate').getValue();
-//
-//            var reg = new Region({str: value});
-//
-//            // Validate chromosome and position
-//            if (isNaN(reg.start) || reg.start < 0) {
-//                Ext.getCmp(this.id + 'tbCoordinate').markInvalid("Position must be a positive number");
-//            }
-//            else if (Ext.getCmp(this.id + "chromosomeMenu").almacen.find("name", reg.chromosome) == -1) {
-//                Ext.getCmp(this.id + 'tbCoordinate').markInvalid("Invalid chromosome");
-//            }
-//            else {
-//                this.region.load(reg);
-////            this.onRegionChange.notify({sender:"GoButton"});
-//                this._recalculateZoom();
-//
-//                this.trigger('region:change', {region: this.region, sender: this});
-//            }
-//
-//        }
-    },
-    setSpeciesVisible: function (bool) {
-        if (bool) {
-            Ext.getCmp(this.id + "speciesMenuButton").show();
-        } else {
-            Ext.getCmp(this.id + "speciesMenuButton").hide();
-        }
-    },
-    setChromosomeMenuVisible: function (bool) {
-        if (bool) {
-            Ext.getCmp(this.id + "chromosomeMenuButton").show();
-        } else {
-            Ext.getCmp(this.id + "chromosomeMenuButton").hide();
-        }
-    },
-    setKaryotypePanelButtonVisible: function (bool) {
-        this.karyotypeButton.setVisible(bool);
-    },
-    setChromosomePanelButtonVisible: function (bool) {
-        this.chromosomeButton.setVisible(bool);
-    },
-    setRegionOverviewPanelButtonVisible: function (bool) {
-        this.regionButton.setVisible(bool);
-    },
-    setRegionTextBoxVisible: function (bool) {
-        if (bool) {
-            Ext.getCmp(this.id + "positionLabel").show();
-            Ext.getCmp(this + "tbCoordinate").show();
-            Ext.getCmp(this.id + "GoButton").show();
-        } else {
-            Ext.getCmp(this.id + "positionLabel").hide();
-            Ext.getCmp(this.id + "tbCoordinate").hide();
-            Ext.getCmp(this.id + "GoButton").hide();
-        }
-    },
-    setSearchVisible: function (bool) {
-        if (bool) {
-            this.searchComboBox.show();
-            Ext.getCmp(this.id + "GoToGeneButton").show();
-        } else {
-            this.searchComboBox.hide();
-            Ext.getCmp(this.id + "GoToGeneButton").hide();
-        }
-    },
-    setFullScreenButtonVisible: function (bool) {
-        this.fullscreenButton.setVisible(bool);
     }
-
 }

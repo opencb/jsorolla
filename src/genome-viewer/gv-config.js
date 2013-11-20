@@ -1,8 +1,3 @@
-GV_CELLBASE_HOST = "http://ws.bioinfo.cipf.es/cellbase/rest";
-
-CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
-CELLBASE_VERSION = "v3";
-
 FEATURE_CONFIG = {
     gene: {
         filters: [

@@ -1038,7 +1038,7 @@ NavigationBar.prototype = {
 //        if (action == 'Go') {
 //            var value = Ext.getCmp(this.id + 'tbCoordinate').getValue();
 //
-//            var reg = new Region({str: value});
+//            var reg = new Region(value);
 //
 //            // Validate chromosome and position
 //            if (isNaN(reg.start) || reg.start < 0) {
