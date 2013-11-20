@@ -267,7 +267,7 @@ module.exports = function (grunt) {
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/backbone*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/rawdeflate*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.min.js',
-                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap-*-dist/js/bootstrap.min.js',
+                                    'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap-scoped-dist/js/bootstrap.min.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/typeahead.min.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.qtip*.js',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/jquery.cookie*.js',
@@ -301,7 +301,7 @@ module.exports = function (grunt) {
                             'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/backbone*.js',
                             'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/rawdeflate*.js',
                             'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.min.js',
-                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/bootstrap-*-dist/js/bootstrap.min.js',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/bootstrap-scoped-dist/js/bootstrap.min.js',
                             'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/typeahead.min.js',
                             'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.qtip*.js',
                             'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.cookie*.js',
@@ -319,7 +319,7 @@ module.exports = function (grunt) {
                         'vendor': [
                             'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/jquery.qtip*.css',
                             'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/ChemDoodleWeb*.css',
-                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/bootstrap-*-dist/css/bootstrap.min.css',
+                            'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/bootstrap-scoped-dist/css/bootstrap.min.css',
                             'build/circular-genome-viewer/<%= meta.version.cgv %>/vendor/typeahead.js-bootstrap.css'
                         ]
                     }
