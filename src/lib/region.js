@@ -42,7 +42,7 @@ Region.prototype = {
             return this.parse(obj);
         }
         this.chromosome = obj.chromosome || this.chromosome;
-        this.chromosome = this.chromosome.toUpperCase();
+        this.chromosome = this.chromosome;
 
         (_.isUndefined(obj.start)) ? this.start = parseInt(this.start) : this.start = parseInt(obj.start);
         (_.isUndefined(obj.end)) ? this.end = parseInt(this.end) : this.end = parseInt(obj.end);
@@ -58,7 +58,7 @@ Region.prototype = {
             var splitDots = str.split(":");
             if (splitDots.length == 2) {
                 var splitDash = splitDots[1].split("-");
-                this.chromosome = splitDots[0].toUpperCase();
+                this.chromosome = splitDots[0];
                 this.start = parseInt(splitDash[0]);
                 if (splitDash.length == 2) {
                     this.end = parseInt(splitDash[1]);
