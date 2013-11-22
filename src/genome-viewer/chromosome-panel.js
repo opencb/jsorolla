@@ -237,27 +237,30 @@ ChromosomePanel.prototype = {
                 });
             }
         }
-        var firstStain = cytobandsByStain['acen'][0];
-        var lastStain = cytobandsByStain['acen'][1];
-        var backrect = SVG.addChild(group, 'rect', {
-            'x': (firstStain.pixelStart + offset + 1),
-            'y': 4,
-            'width': (lastStain.pixelEnd + offset) - (firstStain.pixelStart + offset + 1),
-            'height': 22,
-            'fill': 'white'
-        });
-        var firstStainXStart = (firstStain.pixelStart + offset + 1);
-        var firstStainXEnd = (firstStain.pixelEnd + offset);
-        var lastStainXStart = (lastStain.pixelStart + offset + 1);
-        var lastStainXEnd = (lastStain.pixelEnd + offset);
-        var path = SVG.addChild(group, 'path', {
-            'd': 'M' + firstStainXStart + ',4' + ' L' + (firstStainXEnd - 5) + ',4 ' + ' L' + firstStainXEnd + ',15 ' + ' L ' + (firstStainXEnd - 5) + ',26 ' + ' L ' + firstStainXStart + ',26 z',
-            'fill': this.colors['acen']
-        });
-        var path = SVG.addChild(group, 'path', {
-            'd': 'M' + lastStainXStart + ',15' + ' L' + (lastStainXStart + 5) + ',4 ' + ' L' + lastStainXEnd + ',4 ' + ' L ' + lastStainXEnd + ',26 ' + ' L ' + (lastStainXStart + 5) + ',26 z',
-            'fill': this.colors['acen']
-        });
+
+        if(typeof cytobandsByStain['acen'] !== 'undefined'){
+            var firstStain = cytobandsByStain['acen'][0];
+            var lastStain = cytobandsByStain['acen'][1];
+            var backrect = SVG.addChild(group, 'rect', {
+                'x': (firstStain.pixelStart + offset + 1),
+                'y': 4,
+                'width': (lastStain.pixelEnd + offset) - (firstStain.pixelStart + offset + 1),
+                'height': 22,
+                'fill': 'white'
+            });
+            var firstStainXStart = (firstStain.pixelStart + offset + 1);
+            var firstStainXEnd = (firstStain.pixelEnd + offset);
+            var lastStainXStart = (lastStain.pixelStart + offset + 1);
+            var lastStainXEnd = (lastStain.pixelEnd + offset);
+            var path = SVG.addChild(group, 'path', {
+                'd': 'M' + firstStainXStart + ',4' + ' L' + (firstStainXEnd - 5) + ',4 ' + ' L' + firstStainXEnd + ',15 ' + ' L ' + (firstStainXEnd - 5) + ',26 ' + ' L ' + firstStainXStart + ',26 z',
+                'fill': this.colors['acen']
+            });
+            var path = SVG.addChild(group, 'path', {
+                'd': 'M' + lastStainXStart + ',15' + ' L' + (lastStainXStart + 5) + ',4 ' + ' L' + lastStainXEnd + ',4 ' + ' L ' + lastStainXEnd + ',26 ' + ' L ' + (lastStainXStart + 5) + ',26 z',
+                'fill': this.colors['acen']
+            });
+        }
 
 
         /**/

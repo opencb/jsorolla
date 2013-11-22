@@ -48,8 +48,8 @@ Region.prototype = {
         if (_.isObject(str)) {
             this.load(obj);
         }
-        var pattern = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
-        var pattern2 = /^([a-zA-Z0-9])+\:([0-9])+$/;
+        var pattern = /^([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+$/;
+        var pattern2 = /^([a-zA-Z0-9_])+\:([0-9])+$/;
         if (pattern.test(str) || pattern2.test(str)) {
             var splitDots = str.split(":");
             if (splitDots.length == 2) {
