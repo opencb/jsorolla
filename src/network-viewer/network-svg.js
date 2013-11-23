@@ -22,7 +22,7 @@
 function NetworkSvg(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
-    this.id = Utils.genId('network-svg');
+    this.id = Utils.genId('networkSvg');
 
     this.countSelectedNodes = 0;
     this.countSelectedEdges = 0;
