@@ -1202,5 +1202,5 @@ a:hover {
 }
 
 .bootstrap{
-    font-family: 'Source Sans Pro';
+    font-family: 'Source Sans Pro' !important;
 }

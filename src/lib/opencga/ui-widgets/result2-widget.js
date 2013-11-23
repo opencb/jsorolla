@@ -90,7 +90,12 @@ ResultWidget.prototype = {
                 '<p class="tip emph">{description}</p>',
                 '<p class="">{command.html}</p>'
             );
-            var container = Ext.create('Ext.container.Container', {
+            var container = Ext.create('Ext.panel.Panel', {
+                title:'Job information',
+                width:'95%',
+                collapsible:true,
+                titleCollapse:true,
+                bodyPadding:10,
                 margin: '15 0 15 15',
                 items: [
                     {
@@ -341,21 +346,46 @@ ResultWidget.prototype = {
                         var vfw_id = Utils.genId('vfw');
                         var html =
                             '<div style="width:1500px;height:800px;">' +
-                            '<div id="' + vfw_id + '" style="width:1500px;">' +
-                            '</div>' +
-                            '<div id="' + gm_id + '" style="width:1500px;height:800px;">' +
-                            '</div>' +
-                            '</div>';
+                                '<div id="' + vfw_id + '" style="width:1500px;">' +
+                                '</div>' +
+                                '<div id="' + gm_id + '" style="width:1500px;height:800px;">' +
+                                '</div>' +
+                                '</div>';
                         itemBox = Ext.create('Ext.Component', {
                             flex: 1,
                             html: html,
                             listeners: {
                                 afterrender: function () {
-                                   var gv = _this._createGenomeViewer(gm_id);
-                                    _this._createVariantFilterWidget(vfw_id,gv,_this.result[_this.layoutName].layout.variantFilterFiles, renderer.tableLayout);
+                                    var gv = _this._createGenomeViewer(gm_id);
+                                    _this._createVariantFilterWidget(vfw_id, gv, _this.result[_this.layoutName].layout.variantFilterFiles, renderer.tableLayout);
                                 }
                             }
                         });
+                        break;
+                    case 'variant-stats-widget':
+                        var height = 800;
+                        itemBox = Ext.create('Ext.container.Container', {
+                            height:height,
+                            width:'95%',
+                            style: {
+                                position: 'relative'
+                            },
+                            listeners: {
+                                afterrender: function () {
+                                    var variantStatsWidget = new VariantStatsWidget({
+                                        targetId: itemBox,
+                                        height:height,
+                                        closable:false,
+                                        border:true,
+//                                        title:  _this.job.name,
+                                        job: _this.job,
+                                        autoRender: true
+                                    });
+                                    variantStatsWidget.draw();
+                                }
+                            }
+                        });
+
                         break;
                 }
                 boxes.push(itemBox);
@@ -423,7 +453,7 @@ ResultWidget.prototype = {
                             {
                                 xtype: 'box',
                                 overCls: 'dedo',
-                                cls: 'panel-border-bottom', margin: '0 0 10 0',
+                                cls: 'panel-border-bottom', margin: '0 20 10 0',
                                 data: item, tpl: itemTpl,
                                 listeners: {
                                     afterrender: function () {
@@ -619,18 +649,18 @@ ResultWidget.prototype = {
 
 
         var filteredFile = this.result[_this.layoutName].layout.filteredFile;
-        if(!_.isUndefined(filteredFile)){
+        if (!_.isUndefined(filteredFile)) {
             OpencgaManager.poll({
                 accountId: $.cookie('bioinfo_account'),
                 sessionId: $.cookie('bioinfo_sid'),
                 jobId: _this.jobId,
                 filename: filteredFile,
                 zip: false,
-                success:function(data){
-                    if(data.indexOf("ERROR")!=-1){
+                success: function (data) {
+                    if (data.indexOf("ERROR") != -1) {
                         console.error(data);
                     }
-                    var vcfDataAdapter = new VCFDataAdapter(new StringDataSource(data),{async:false,species:genomeViewer.species});
+                    var vcfDataAdapter = new VCFDataAdapter(new StringDataSource(data), {async: false, species: genomeViewer.species});
 //                    var vcfTrack = new Track("VCF file",{
 //                        adapter: vcfDataAdapter
 //                    });
@@ -651,7 +681,7 @@ ResultWidget.prototype = {
                         visibleRange: {start: 0, end: 100},
                         featureTypes: FEATURE_TYPES,
                         renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
-                        dataAdapter:vcfDataAdapter
+                        dataAdapter: vcfDataAdapter
                     });
 
                     genomeViewer.addTrack(fileTrack);
@@ -662,21 +692,21 @@ ResultWidget.prototype = {
                     //genomeViewer.setZoom(75);
                 }
             });
-        }else{
+        } else {
             console.log("No filtered VCF file.");
         }
 
         return genomeViewer;
     },
-    _createVariantFilterWidget: function(targetId, gv, variantFilterFiles, tableLayout){
-        var variantFilterWidget = new VariantFilterWidget(this.jobId,{
-            width:1500,
-            height:300,
-            targetId:targetId,
-            viewer:gv,
+    _createVariantFilterWidget: function (targetId, gv, variantFilterFiles, tableLayout) {
+        var variantFilterWidget = new VariantFilterWidget(this.jobId, {
+            width: 1500,
+            height: 300,
+            targetId: targetId,
+            viewer: gv,
 //            fileNames:_this.variantFiles
-            fileNames:variantFilterFiles,
-            tableLayout:tableLayout
+            fileNames: variantFilterFiles,
+            tableLayout: tableLayout
         });
         variantFilterWidget.getPanel(targetId);
 

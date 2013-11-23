@@ -92,7 +92,7 @@ GenericFormPanel.prototype.getForm = function () {
         this.form = Ext.create('Ext.form.Panel', {
             border: 0,
             bodyPadding: '5',
-            width: '95%',
+            width: this.width,
             layout: 'vbox',
             items: items
         });
