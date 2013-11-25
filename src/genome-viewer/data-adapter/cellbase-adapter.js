@@ -34,8 +34,8 @@ CellBaseAdapter.prototype = {
 
     getData: function (args) {
         var _this = this;
-        /********/
 
+        /** Check region and parameters **/
         var region = args.region;
         if (region.start > 300000000 || region.end < 1) {
             return;
@@ -53,19 +53,26 @@ CellBaseAdapter.prototype = {
             console.log("dataType must be provided!!!");
         }
         var chunkSize;
-        /********/
 
 
+        /** Check dataType histogram  **/
         if (dataType == 'histogram') {
+            // Histogram chunks will be saved in different caches by interval size
+            // The chunkSize will be the histogram interval
             var histogramId = dataType + '_' + params.interval;
             if (_.isUndefined(this.cache[histogramId])) {
                 this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval});
             }
             chunkSize = this.cache[histogramId].chunkSize;
+
             // Extend region to be adjusted with the chunks
+            //        --------------------             -> Region needed
+            // |----|----|----|----|----|----|----|    -> Logical chunk division
+            //      |----|----|----|----|----|         -> Chunks covered by needed region
+            //      |------------------------|         -> Adjusted region
             var adjustedRegions = this.cache[histogramId].getAdjustedRegions(region);
             if (adjustedRegions.length > 0) {
-                // get cache
+                // Get CellBase data
                 CellBaseManager.get({
                     host: this.host,
                     species: this.species,
@@ -79,18 +86,25 @@ CellBaseAdapter.prototype = {
                     }
                 });
             } else {
+                // Get chunks from cache
                 var chunksByRegion = this.cache[histogramId].getCachedByRegion(region);
                 var chunksCached = this.cache[histogramId].getByRegions(chunksByRegion.cached);
                 this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
             }
 
-
+        /** Features: genes, snps ... **/
         } else {
-            //Create one FeatureChunkCache by datatype
+            // Features will be saved using the dataType features
             if (_.isUndefined(this.cache[dataType])) {
                 this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
             }
             chunkSize = this.cache[dataType].chunkSize;
+
+            // Get cached chunks and not cached chunk regions
+            //        --------------------             -> Region needed
+            // |----|----|----|----|----|----|----|    -> Logical chunk division
+            //      |----|----|----|----|----|         -> Chunks covered by needed region
+            //      |----|++++|++++|----|----|         -> + means the chunk is cached so its region will not be retrieved
             var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
 
             if (chunksByRegion.notCached.length > 0) {
@@ -98,11 +112,13 @@ CellBaseAdapter.prototype = {
                     return new Region(region).toString();
                 });
 
-                //limit queries
+                // Multiple CellBase calls will be performed, each one will
+                // query 50 or less chunk regions
                 var n = 50;
                 var lists = _.groupBy(queryRegionStrings, function (a, b) {
                     return Math.floor(b / n);
                 });
+                // Each element on queriesList contains and array of 50 or less regions
                 var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
 
                 for (var i = 0; i < queriesList.length; i++) {
@@ -120,6 +136,7 @@ CellBaseAdapter.prototype = {
                     });
                 }
             }
+            // Get chunks from cache
             if (chunksByRegion.cached.length > 0) {
                 var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
                 this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
@@ -172,7 +189,6 @@ CellBaseAdapter.prototype = {
                 chunks.push(this.cache[histogramId].putByRegion(region, interval));
             }
         }
-//        var chunksByRegion = this.cache[histogramId].getB(region);
 
         this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
         /** time log **/

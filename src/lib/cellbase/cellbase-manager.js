@@ -40,10 +40,10 @@ var CellBaseManager = {
             async: async,
             success: function (data, textStatus, jqXHR) {
                 if($.isPlainObject(data)){
-                    data.params = args.params;
-                    data.resource = args.resource;
-                    data.category = args.category;
-                    data.subCategory = args.subCategory;
+//                    data.params = args.params;
+//                    data.resource = args.resource;
+//                    data.category = args.category;
+//                    data.subCategory = args.subCategory;
                     if (_.isFunction(success)) success(data);
                     d = data;
                 }else{
