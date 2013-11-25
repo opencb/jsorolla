@@ -36,39 +36,6 @@ FeatureChunkCache.prototype = {
         return new Region({chromosome: region.chromosome, start: start, end: end});
     },
 
-    getAdjustedRegions: function (region) {
-        var firstChunkId = this.getChunkId(region.start);
-        var lastChunkId = this.getChunkId(region.end);
-        var regions = [];
-        var updateStart = true;
-        var updateEnd = true;
-        for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
-            var chunkKey = this.getChunkKey(region.chromosome, chunkId);
-            var nextChunkKey = this.getChunkKey(region.chromosome, chunkId + 1);
-            var chunk = this.getChunk(chunkKey);
-            var nextChunk = this.getChunk(nextChunkKey);
-            if (updateStart) {
-                var chunkStart = parseInt(chunkId * this.chunkSize);
-                updateStart = false;
-            }
-            if (updateEnd) {
-                var chunkEnd = parseInt((chunkId * this.chunkSize) + this.chunkSize - 1);
-                updateEnd = false;
-            }
-
-            if (!nextChunk && chunkId < lastChunkId) {
-                updateEnd = true;
-            }
-            else {
-                var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd})
-                regions.push(r);
-                updateStart = true;
-                updateEnd = true;
-            }
-        }
-
-        return regions;
-    },
 
     getAdjustedRegions: function (region) {
         var firstChunkId = this.getChunkId(region.start);
