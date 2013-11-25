@@ -27,7 +27,7 @@ function Edge(args) {
     this.source;
     this.target;
     this.weight;
-    this.directed = true;
+    this.directed;
 
     //set instantiation args, must be last
     _.extend(this, args);

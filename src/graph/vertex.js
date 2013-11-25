@@ -32,7 +32,7 @@ function Vertex(args) {
 
 Vertex.prototype = {
     removeEdge: function (edge) {
-        for (var i = 0; i < this.edges; i++) {
+        for (var i = 0; i < this.edges.length; i++) {
             if (this.edges[i].id === edge.id) {
                 this.edges.splice(i, 1);
                 break;

@@ -85,7 +85,7 @@ function Graph(args) {
     this.numberOfVertices = 0;
     this.numberOfEdges = 0;
 
-    this.graphType = 'directed';
+    this.graphType = '';
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -105,6 +105,7 @@ Graph.prototype = {
         this.edges[edge.id] = edge;
 
         edge.source.addEdge(edge);
+        edge.target.addEdge(edge);
         this.trigger('edge:add', {edge: edge, graph: this});
 
         this.numberOfEdges++;
@@ -139,8 +140,8 @@ Graph.prototype = {
         //remove edge from vertex
         edge.source.removeEdge(edge);
 
-        this.trigger('edge:remove', {edge: edge, graph: this});
         delete this.edges[edge.id];
+        this.trigger('edge:remove', {edge: edge, graph: this});
         this.numberOfEdges--;
         return true;
     },
@@ -153,9 +154,12 @@ Graph.prototype = {
             return false;
         }
 
-        for (var i = 0; i < vertex.edges; i++) {
-            this.removeEdge(vertex.edges[i]);
+        for (var i = 0; i < vertex.edges.length; i++) {
+            var edge = vertex.edges[i];
+            delete this.edges[edge.id];
+            this.trigger('edge:remove', {edge: edge, graph: this});
         }
+        vertex.removeEdges();
 
         this.trigger('vertex:remove', {vertex: vertex, graph: this});
         delete this.vertices[vertex.id];
