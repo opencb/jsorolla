@@ -27,10 +27,12 @@ function GeneTrack(args) {
     _.extend(this, Backbone.Events);
 
     //set default args
+    this.minTranscriptRegionSize;
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
-    this.histogramRenderer = new HistogramRenderer();
+    this.histogramRenderer = new FeatureClusterRenderer();
+//    this.histogramRenderer = new HistogramRenderer();
 
 
     //set instantiation args, must be last
@@ -52,7 +54,7 @@ GeneTrack.prototype.render = function (targetId) {
         var features;
         if (event.dataType == 'histogram') {
             _this.renderer = _this.histogramRenderer;
-                features = event.items;
+            features = event.items;
         } else {
             _this.renderer = _this.defaultRenderer;
             features = _this.getFeaturesToRenderByChunk(event);
@@ -63,9 +65,9 @@ GeneTrack.prototype.render = function (targetId) {
             renderedArea: _this.renderedArea,
             pixelBase: _this.pixelBase,
             position: _this.region.center(),
+            regionSize: _this.region.length(),
+            maxLabelRegionSize: _this.maxLabelRegionSize,
             width: _this.width,
-            zoom: _this.zoom,
-            labelZoom: _this.labelZoom,
             pixelPosition: _this.pixelPosition
 
         });
@@ -79,7 +81,7 @@ GeneTrack.prototype.render = function (targetId) {
 };
 
 GeneTrack.prototype.updateTranscriptParams = function () {
-    if (this.transcriptZoom <= this.zoom) {
+    if (this.region.length() < this.minTranscriptRegionSize) {
         this.exclude = undefined;
     } else {
         this.exclude = 'transcripts';
@@ -91,7 +93,7 @@ GeneTrack.prototype.draw = function () {
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
-    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
 
     this.updateTranscriptParams();
     this.updateHistogramParams();
@@ -100,7 +102,7 @@ GeneTrack.prototype.draw = function () {
     var dataType = 'features';
 
     if (!_.isUndefined(this.exclude)) {
-        dataType = 'features'+this.exclude;
+        dataType = 'features' + this.exclude;
     }
 
     if (this.histogram) {
@@ -108,7 +110,7 @@ GeneTrack.prototype.draw = function () {
     }
 
 
-    if (this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end) {
+    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
         this.setLoading(true);
         var data = this.dataAdapter.getData({
             dataType: dataType,
@@ -122,7 +124,7 @@ GeneTrack.prototype.draw = function () {
                 histogramLogarithm: this.histogramLogarithm,
                 histogramMax: this.histogramMax,
                 interval: this.interval,
-                exclude:this.exclude
+                exclude: this.exclude
             }
         });
 
@@ -140,7 +142,7 @@ GeneTrack.prototype.move = function (disp) {
     this.dataType = 'features';
 
     if (!_.isUndefined(this.exclude)) {
-        dataType = 'features'+this.exclude;
+        dataType = 'features' + this.exclude;
     }
 
     if (this.histogram) {
@@ -164,7 +166,7 @@ GeneTrack.prototype.move = function (disp) {
 //    console.log(this.svgCanvasLeftLimit+'  ----  '+this.svgCanvasRightLimit)
 //    console.log(this.svgCanvasOffset)
 
-    if (this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end) {
+    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             console.log('left')
@@ -180,7 +182,7 @@ GeneTrack.prototype.move = function (disp) {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval,
-                    exclude:this.exclude
+                    exclude: this.exclude
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -200,7 +202,7 @@ GeneTrack.prototype.move = function (disp) {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval,
-                    exclude:this.exclude
+                    exclude: this.exclude
                 }
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);

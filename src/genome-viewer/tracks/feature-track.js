@@ -61,17 +61,15 @@ FeatureTrack.prototype.render = function (targetId) {
             _this.renderer = _this.defaultRenderer;
             features = _this.getFeaturesToRenderByChunk(event);
         }
-
         _this.renderer.render(features, {
             svgCanvasFeatures: _this.svgCanvasFeatures,
             featureTypes: _this.featureTypes,
             renderedArea: _this.renderedArea,
-            renderedArea: _this.renderedArea,
             pixelBase: _this.pixelBase,
             position: _this.region.center(),
+            regionSize: _this.region.length(),
+            maxLabelRegionSize: _this.maxLabelRegionSize,
             width: _this.width,
-            zoom: _this.zoom,
-            labelZoom: _this.labelZoom,
             pixelPosition: _this.pixelPosition,
             resource:_this.resource,
             species:_this.species
@@ -86,7 +84,7 @@ FeatureTrack.prototype.draw = function () {
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
-    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
 
     this.updateHistogramParams();
     this.cleanSvg();
@@ -96,7 +94,7 @@ FeatureTrack.prototype.draw = function () {
         this.dataType = 'histogram';
     }
 
-    if (this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end) {
+    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
         this.setLoading(true);
         this.dataAdapter.getData({
             dataType: this.dataType,
@@ -139,8 +137,8 @@ FeatureTrack.prototype.move = function (disp) {
 
     var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
-    // check if track is visible in this zoom
-    if (this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end) {
+
+    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             this.dataAdapter.getData({

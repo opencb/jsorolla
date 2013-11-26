@@ -176,7 +176,7 @@
             histogramZoom: 20,
             transcriptZoom: 50,
             height: 30,
-            visibleRange: {start: 99, end: 100},
+            visibleRange: 200,
             featureTypes: FEATURE_TYPES,
 
             renderer: new SequenceRenderer(),
@@ -199,10 +199,10 @@
             targetId: null,
             id: 2,
             title: 'Gene',
-            histogramZoom: 20,
-            transcriptZoom: 50,
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            minTranscriptRegionSize: 200000,
             height: 140,
-            visibleRange: {start: 0, end: 100},
             featureTypes: FEATURE_TYPES,
 
             renderer: new GeneRenderer(),
@@ -235,10 +235,9 @@
             targetId: null,
             id: 2,
             title: 'Gene',
-            histogramZoom: 10,
-            labelZoom: 20,
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
             height: 100,
-            visibleRange: {start: 0, end: 100},
             titleVisibility: 'hidden',
             featureTypes: FEATURE_TYPES,
 
@@ -259,47 +258,13 @@
         });
         genomeViewer.addOverviewTrack(gene);
 
-
-        //        this.icgcMutationsTrack = new IcgcTrack({
-        //            targetId:null,
-        //            id:3,
-        //            title:'ICGC Mutations',
-        //            histogramZoom:70,
-        //            labelZoom:80,
-        //            height:100,
-        //            visibleRange:{start:0,end:100},
-        //            featureTypes:FEATURE_TYPES,
-        //
-        //            renderer:new FeatureRenderer(),
-        //
-        //            dataAdapter:new IcgcAdapter({
-        //                category: "genomic",
-        //                subCategory: "region",
-        //                resource: "snp",
-        //                params:{
-        //                    exclude:'transcriptVariations,xrefs,samples'
-        //                },
-        //                species: genomeViewer.species,
-        //                featureCache:{
-        //                    gzip: true,
-        //                    chunkSize:10000
-        //                },
-        //                filters:{},
-        //                options:{},
-        //                featureConfig:FEATURE_CONFIG.snp
-        //            })
-        //        });
-        //        genomeViewer.addTrack(this.icgcMutationsTrack);
-
-
         this.snp = new FeatureTrack({
             targetId: null,
             id: 4,
             title: 'SNP',
-            histogramZoom: 70,
-            labelZoom: 80,
+            minHistogramRegionSize: 12000,
+            maxLabelRegionSize: 3000,
             height: 100,
-            visibleRange: {start: 0, end: 100},
             featureTypes: FEATURE_TYPES,
 
             renderer: new FeatureRenderer('snp'),

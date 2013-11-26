@@ -54,11 +54,12 @@ GeneRenderer.prototype.render = function (features, args) {
         //get feature render configuration
         _this.setFeatureConfig('gene');
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
-        var label = _.isFunction(_this.label) ? _this.label(feature, args.zoom) : _this.label;
+        var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
         var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
         var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
         var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
         var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
+
 
 
         //get feature genomic information
@@ -69,14 +70,16 @@ GeneRenderer.prototype.render = function (features, args) {
         //transform to pixel position
         var width = length * args.pixelBase;
 
-        var svgLabelWidth = _this.getLabelWidth(label, args);
+
+//        var svgLabelWidth = _this.getLabelWidth(label, args);
+        var svgLabelWidth = label.length * 6.4;
 
         //calculate x to draw svg rect
         var x = _this.getFeatureX(feature, args);
 
         var maxWidth = Math.max(width, 2);
         var textHeight = 0;
-        if (args.zoom > args.labelZoom) {
+        if (args.maxLabelRegionSize > args.regionSize) {
             textHeight = 9;
             maxWidth = Math.max(width, svgLabelWidth);
         }
@@ -115,7 +118,8 @@ GeneRenderer.prototype.render = function (features, args) {
 
             //paint genes
             if (foundArea) {
-                var rect = SVG.addChild(args.svgCanvasFeatures, 'rect', {
+                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
+                var rect = SVG.addChild(featureGroup, 'rect', {
                     'x': x,
                     'y': rowY,
                     'width': width,
@@ -123,28 +127,29 @@ GeneRenderer.prototype.render = function (features, args) {
                     'stroke': '#3B0B0B',
                     'stroke-width': 0.5,
                     'fill': color,
-                    'cursor': 'pointer',
-                    'feature_id': feature.id
+                    'cursor': 'pointer'
                 });
 
-                var text = SVG.addChild(args.svgCanvasFeatures, 'text', {
-                    'i': i,
-                    'x': x,
-                    'y': textY,
-                    'fill': 'black',
-                    'cursor': 'pointer',
-                    'class': _this.fontClass
-                });
-                text.textContent = label;
+                if (args.maxLabelRegionSize > args.regionSize) {
+                    var text = SVG.addChild(featureGroup, 'text', {
+                        'i': i,
+                        'x': x,
+                        'y': textY,
+                        'fill': 'black',
+                        'cursor': 'pointer',
+                        'class': _this.fontClass
+                    });
+                    text.textContent = label;
+                }
 
-                $([rect, text]).qtip({
+                $(featureGroup).qtip({
                     content: {text: tooltipText, title: tooltipTitle},
 //                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
                     style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
                 });
 
-                $([rect, text]).click(function (event) {
+                $(featureGroup).click(function (event) {
                     _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent: event});
                 });
 
@@ -179,7 +184,7 @@ GeneRenderer.prototype.render = function (features, args) {
                         args.renderedArea[checkRowY].add({start: x, end: x + maxWidth - 1});
 
 
-                        var transcriptGroup = SVG.addChild(args.svgCanvasFeatures, 'g', {
+                        var transcriptGroup = SVG.addChild(featureGroup, 'g', {
                             "widgetId": transcript[infoWidgetId]
                         });
 
@@ -234,7 +239,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(exon, transcript) : _this.tooltipText;
                             var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(exon) : _this.infoWidgetId;
 
-                            var exonGroup = SVG.addChild(args.svgCanvasFeatures, "g");
+                            var exonGroup = SVG.addChild(featureGroup, "g");
 
                             $(exonGroup).qtip({
                                 content: {text: tooltipText, title: tooltipTitle},

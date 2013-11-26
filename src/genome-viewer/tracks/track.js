@@ -26,16 +26,15 @@ function Track(args) {
 
     this.dataAdapter;
     this.renderer;
-    this.labelZoom = -1;
     this.resizable = true;
     this.autoHeight = false;
     this.targetId;
     this.id;
     this.title;
-    this.histogramZoom;
-    this.transcriptZoom;
+    this.minHistogramRegionSize;
     this.height = 100;
-    this.visibleRange = {start: 0, end: 100},
+//    this.visibleRange = {start: 0, end: 100},
+    this.visibleRange;
         this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
@@ -50,7 +49,6 @@ function Track(args) {
     this.histogramLogarithm;
     this.histogramMax;
     this.interval;
-    this.zoom;
 
     this.svgCanvasLeftLimit;
     this.svgCanvasRightLimit;
@@ -178,7 +176,7 @@ Track.prototype = {
     },
 
     updateHistogramParams: function () {
-        if (this.zoom <= this.histogramZoom) {
+        if (this.region.length() > this.minHistogramRegionSize) {
             this.histogram = true;
             this.histogramLogarithm = true;
             this.histogramMax = 500;

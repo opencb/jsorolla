@@ -181,7 +181,6 @@ KaryotypePanel.prototype = {
             }
         });
 
-
         if (this.collapsed) {
             _this.hideContent();
         }

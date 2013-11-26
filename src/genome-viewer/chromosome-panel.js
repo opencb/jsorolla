@@ -87,7 +87,7 @@ ChromosomePanel.prototype = {
     setWidth: function (width) {
         this.width = width;
         this.svg.setAttribute("width", width);
-        this.tracksViewedRegion = this.width / Utils.getPixelBaseByZoom(this.zoom);
+//        this.tracksViewedRegion = this.width / Utils.getPixelBaseByZoom(this.zoom);
 
         this.clean();
         this._drawSvg(this.data);
@@ -394,7 +394,7 @@ ChromosomePanel.prototype = {
                         downX = moveX;
                         break;
                     case 'resizePositionBoxRight' :
-                        var inc = moveX - downX;
+                        var inc = moveX - downX;SVG
                         var newWidth = parseInt(_this.positionBox.getAttribute("width")) + inc;
                         if (newWidth > 0) {
                             _this.positionBox.setAttribute("width", newWidth);

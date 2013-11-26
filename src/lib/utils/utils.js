@@ -32,48 +32,54 @@ var Utils = {
             text = text.charAt(0).toUpperCase() + text.slice(1);
             return text;
         },
-        getPixelBaseByZoom: function (zoom) {
-            //zoom [0-100] intervals of 5
-            zoom = Math.max(0, zoom);
-            zoom = Math.min(100, zoom);
-            return 10 / (Math.pow(2, (20 - (zoom / 5))));
-        },
-        getZoomByPixelBase: function (pixelBase) {
-            //pixelBase [10 - 0];
-            pixelBase = Math.max(0, pixelBase);
-            pixelBase = Math.min(10, pixelBase);
-            return 100 - ((Math.log(10 / pixelBase) / (Math.log(2))) * 5);
-        },
-        getPixelBaseByRegion: function (width, region) {
-            return width / region.length();
-        },
-        calculatePixelBaseAndZoomByRegion: function (args) {
-            var regionLength = this.regionLength(args.region);
-            var pixelBase = args.width / regionLength;
-            var baseWidth = parseInt(args.width / 10);//10 is the max pixelbase at max zoom 100
-
-            if (regionLength < baseWidth) {//region is too small, start and end must be recalculated for the max allowed zoom
-                pixelBase = this.getPixelBaseByZoom(args.zoom);
-                var centerPosition = this.centerPosition(args.region);
-                var aux = Math.ceil((baseWidth / 2) - 1);
-                args.region.start = Math.floor(centerPosition - aux);
-                args.region.end = Math.floor(centerPosition + aux);
-
-                //modify the start and end
-            }
-            return {pixelBase: pixelBase, zoom: this.getZoomByPixelBase(pixelBase)}
-        },
-        setMinRegion: function (region, width) {
-            var regionLength = region.length();
-            var minimumWindowBaseLength = parseInt(width / this.getPixelBaseByZoom(100));//for zoom 100
-            if (regionLength < minimumWindowBaseLength) {
-                //the zoom will be 100, region must be recalculated
-                var centerPosition = region.center();
-                var aux = Math.ceil((minimumWindowBaseLength / 2) - 1);
-                region.start = Math.floor(centerPosition - aux);
-                region.end = Math.floor(centerPosition + aux);
-            }
-        },
+//        getPixelBaseByZoom: function (zoom, chromosome) {
+//            //zoom [0-100] intervals of 5
+//            zoom = Math.max(0, zoom);
+//            zoom = Math.min(100, zoom);
+//            return 10 / (Math.pow(2, (20 - (zoom / 5))));
+//        },
+//        getZoomByPixelBase: function (pixelBase, chromosome) {
+//            //pixelBase [10 - 0];
+//            pixelBase = Math.max(0, pixelBase);
+//            pixelBase = Math.min(10, pixelBase);
+//            return 100 - ((Math.log(10 / pixelBase) / (Math.log(2))) * 5);
+//        },
+//        getPixelBaseByRegion: function (width, region) {
+//            return width / region.length();
+//        },
+//        calculatePixelBaseAndZoomByRegion: function (args) {
+//            var regionLength = this.regionLength(args.region);
+//            var pixelBase = args.width / regionLength;
+//            var baseWidth = parseInt(args.width / 10);//10 is the max pixelbase at max zoom 100
+//
+//            if (regionLength < baseWidth) {//region is too small, start and end must be recalculated for the max allowed zoom
+//                pixelBase = this.getPixelBaseByZoom(args.zoom);
+//                var centerPosition = this.centerPosition(args.region);
+//                var aux = Math.ceil((baseWidth / 2) - 1);
+//                args.region.start = Math.floor(centerPosition - aux);
+//                args.region.end = Math.floor(centerPosition + aux);
+//
+//                //modify the start and end
+//            }
+//            return {pixelBase: pixelBase, zoom: this.getZoomByPixelBase(pixelBase)}
+//        },
+//        setMinRegion: function (region, width) {
+//            var regionLength = region.length();
+//            var minimumWindowBaseLength = parseInt(width / this.getPixelBaseByZoom(100));//for zoom 100
+//            if (regionLength < minimumWindowBaseLength) {
+//                //the zoom will be 100, region must be recalculated
+//                var centerPosition = region.center();
+//                var aux = Math.ceil((minimumWindowBaseLength / 2) - 1);
+//                region.start = Math.floor(centerPosition - aux);
+//                region.end = Math.floor(centerPosition + aux);
+//            }
+//        },
+//        getZoomByRegion: function (pixelBase, chromosome) {
+//            //pixelBase [10 - 0];
+//            pixelBase = Math.max(0, pixelBase);
+//            pixelBase = Math.min(10, pixelBase);
+//            return 100 - ((Math.log(10 / pixelBase) / (Math.log(2))) * 5);
+//        },
         isFunction: function (s) {
             return typeof(s) === 'function' || s instanceof Function;
         },
@@ -300,7 +306,7 @@ Utils.genBamVariants = function (seq, size, x, y) {
                     "l0,-" + (2 * s) +
                     "l" + (0.25 * s) + ",-" + (0.75 * s) +
                     "l" + (0.75 * s) + ",-" + (0.25 * s) +
-                    "l" + (2 * s) + ",0"+
+                    "l" + (2 * s) + ",0" +
                     " ";
                 break;
             case "G" :
@@ -312,16 +318,16 @@ Utils.genBamVariants = function (seq, size, x, y) {
                     "l" + (0.5 * s) + "," + (1.5 * s) +
                     "l" + (1.5 * s) + "," + (0.5 * s) +
                     "l" + (2 * s) + ",0" +
-                    "l0,-" + (3*s) +
+                    "l0,-" + (3 * s) +
                     "l-" + (s) + ",0" +
-                    "l0," + (2*s) +
+                    "l0," + (2 * s) +
                     "l-" + (s) + ",0" +
                     "l-" + (0.75 * s) + ",-" + (0.25 * s) +
                     "l-" + (0.25 * s) + ",-" + (0.75 * s) +
                     "l0,-" + (2 * s) +
                     "l" + (0.25 * s) + ",-" + (0.75 * s) +
                     "l" + (0.75 * s) + ",-" + (0.25 * s) +
-                    "l" + (2 * s) + ",0"+
+                    "l" + (2 * s) + ",0" +
                     " ";
 //                d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
 //                    "l-" + (2 * s) + ",0" +
