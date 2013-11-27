@@ -27,8 +27,10 @@
         <script type="text/javascript" src="vendor/ChemDoodleWeb.js"></script>
         <!-- JS from Genome Viewer -->
         <!-- Genome-viewer -->
+        <script type="text/javascript" src="build/app.js"></script>
         <script type="text/javascript" src="gv-config.js"></script>
-        <script type="text/javascript" src="genome-viewer-1.0.3.min.js"></script>
+        <script type="text/javascript" src="genome-viewer-1.0.3.js"></script>
+
         <!-- Google Analytics -->
         <script type="text/javascript">
             var _gaq = _gaq || [];
@@ -233,6 +235,36 @@
                     });
 
                 tracks.push(this.snp);
+
+                this.example = new FeatureTrack({
+                    targetId: null,
+                    id: 4,
+                    title: 'Example',
+                    minHistogramRegionSize: 1000000,
+                    maxLabelRegionSize: 50000,
+                    height: 100,
+                    featureTypes: FEATURE_TYPES,
+
+                    renderer: new FeatureRenderer('snp'),
+
+                    dataAdapter: new ExampleAdapter({
+                        category: "genomic",
+                        subCategory: "region",
+                        resource: "tfbs",
+                        params: {
+                            exclude: 'transcriptVariations,xrefs,samples'
+                        },
+                        species: genomeViewer.species,
+                        cacheConfig: {
+                            chunkSize: 10000
+                        },
+                        filters: {},
+                        options: {},
+                        featureConfig: FEATURE_CONFIG.snp
+                    })
+                });
+
+                tracks.push(this.example);
 
                 genomeViewer.addTrack(tracks);
             };
