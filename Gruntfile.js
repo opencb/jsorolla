@@ -7,7 +7,7 @@ module.exports = function (grunt) {
         // Metadata.
         meta: {
             version : {
-                gv:'1.0.2',
+                gv:'1.0.3',
                 nv:'1.0.0',
                 threedv:'0.0.1',
                 cgv:'0.0.1',

@@ -34,7 +34,6 @@ function TrackListPanel(args) {//parent is a DOM div element
 
     this.trackSvgList = [];
     this.swapHash = {};
-    this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
 
     this.parentLayout;
     this.mousePosition;
@@ -60,7 +59,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.visualRegion = new Region(this.region);
 
     /********/
-    this._setPixelBaseAndZoom();
+    this._setPixelBase();
     /********/
 
     this.on(this.handlers);
@@ -340,7 +339,7 @@ TrackListPanel.prototype = {
 
             var mouseState = event.which;
             if (event.ctrlKey) {
-                mouseState = 'ctrlKey'+event.which;
+                mouseState = 'ctrlKey' + event.which;
             }
             switch (mouseState) {
                 case 1: //Left mouse button pressed
@@ -399,7 +398,7 @@ TrackListPanel.prototype = {
 
             var mouseState = event.which;
             if (event.ctrlKey) {
-                mouseState = 'ctrlKey'+event.which;
+                mouseState = 'ctrlKey' + event.which;
             }
             switch (mouseState) {
                 case 1: //Left mouse button pressed
@@ -508,7 +507,7 @@ TrackListPanel.prototype = {
         console.log(width);
         this.width = width - 18;
         var mid = this.width / 2;
-        this._setPixelBaseAndZoom();
+        this._setPixelBase();
 
         $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase});
         $(this.mouseLine).css({'width': this.pixelBase});
@@ -524,10 +523,6 @@ TrackListPanel.prototype = {
         this.trigger('trackWidth:change', {width: this.width, sender: this})
 
         this._setTextPosition();
-    },
-
-    setZoom: function (zoom) {
-//        this.zoom = zoom;
     },
 
     highlight: function (event) {
@@ -551,7 +546,7 @@ TrackListPanel.prototype = {
         var _this = this;
         this.region.load(region);
         this.visualRegion.load(region);
-        this._setPixelBaseAndZoom();
+        this._setPixelBase();
         //get pixelbase by Region
 
 
@@ -576,7 +571,7 @@ TrackListPanel.prototype = {
 //                }
 //            }
 //        }
-        this.trigger('trackRegion:change', {region: this.region, sender: this})
+        this.trigger('trackRegion:change', {region: this.visualRegion, sender: this})
 
         this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
 
@@ -635,8 +630,7 @@ TrackListPanel.prototype = {
         this.swapHash[track.id] = {index: i - 1, visible: true};
 
         track.set('pixelBase', this.pixelBase);
-        track.set('zoom', this.zoom);
-        track.set('region', this.region);
+        track.set('region', this.visualRegion);
         track.set('width', this.width);
 
         // Track must be initialized after we have created
@@ -662,7 +656,6 @@ TrackListPanel.prototype = {
 
         track.set('trackRegion:change', function (event) {
             track.set('pixelBase', _this.pixelBase);
-            track.set('zoom', _this.zoom);
             track.set('region', event.region);
             track.draw();
         });
@@ -671,7 +664,6 @@ TrackListPanel.prototype = {
         track.set('trackRegion:move', function (event) {
             track.set('region', event.region);
             track.set('pixelBase', _this.pixelBase);
-            track.set('zoom', _this.zoom);
             track.move(event.disp);
         });
 
@@ -679,7 +671,6 @@ TrackListPanel.prototype = {
         track.set('trackWidth:change', function (event) {
             track.setWidth(event.width);
             track.set('pixelBase', _this.pixelBase);
-            track.set('zoom', _this.zoom);
             track.draw();
         });
 
@@ -891,17 +882,10 @@ TrackListPanel.prototype = {
 
         this._redraw();
     },
-
-    _setPixelBaseAndZoom: function () {
+    _setPixelBase: function () {
         this.pixelBase = this.width / this.region.length();
         this.pixelBase = this.pixelBase / this.zoomMultiplier;
-        // At maximum zoom a bp is 10px, for each zoom level (5% of zoom)
-        // pixels are divided by two.
-//        return Math.max(this.pixelBase, (10/Math.pow(2,20)));
-        this.pixelBase = Math.max(this.pixelBase, (10 / Math.pow(2, 20)));
-
         this.halfVirtualBase = (this.width * 3 / 2) / this.pixelBase;
-        this.zoom = Utils.getZoomByPixelBase(this.pixelBase);
     },
 
     _setTextPosition: function () {

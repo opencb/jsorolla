@@ -30,7 +30,6 @@ function NavigationBar(args) {
 
     this.species = 'Homo sapiens';
     this.increment = 3;
-    this.zoom;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -200,7 +199,7 @@ NavigationBar.prototype = {
                 setTimeout(function () {
                     _this._handleZoomSlider(zoom);
                     _this.zoomChanging = false;
-                }, 1000);
+                }, 500);
             }
         });
         $(this.regionField).val(this.region.toString());
@@ -260,7 +259,6 @@ NavigationBar.prototype = {
             height: '22px'
         });
 
-
         this.rendered = true;
     },
 
@@ -272,7 +270,6 @@ NavigationBar.prototype = {
             _this.region.parse($(this).text());
             $(_this.chromosomesText).text(_this.region.chromosome);
             $(_this.regionField).val(_this.region.toString());
-            _this._recalculateZoom();
             _this.trigger('region:change', {region: _this.region, sender: _this});
             console.log($(this).text());
         });
@@ -304,7 +301,6 @@ NavigationBar.prototype = {
                 _this.region.chromosome = $(this).text();
                 $(_this.chromosomesText).text($(this).text());
                 $(_this.regionField).val(_this.region.toString());
-                _this._recalculateZoom();
                 _this._addRegionHistoryMenuItem(_this.region);
                 _this.trigger('region:change', {region: _this.region, sender: _this});
                 console.log($(this).text());
@@ -343,7 +339,6 @@ NavigationBar.prototype = {
         } else {
             this.region.load(reg);
             $(this.chromosomesText).text(this.region.chromosome);
-            this._recalculateZoom();
             this._addRegionHistoryMenuItem(this.region);
             this.trigger('region:change', {region: this.region, sender: this});
         }
@@ -382,18 +377,13 @@ NavigationBar.prototype = {
 
     _handleZoomOutButton: function () {
         this._handleZoomSlider(Math.max(0, this.zoom - 1));
-        $(this.progressBar).css("width", this.zoom + '%');
     },
     _handleZoomSlider: function (value) {
         this.zoom = value;
-        this.region.load(this._calculateRegionByZoom());
-        $(this.regionField).val(this.region.toString());
-        this._addRegionHistoryMenuItem(this.region);
-        this.trigger('region:change', {region: this.region, sender: this});
+        this.trigger('zoom:change', {zoom: this.zoom, sender: this});
     },
     _handleZoomInButton: function () {
         this._handleZoomSlider(Math.min(100, this.zoom + 1));
-        $(this.progressBar).css("width", this.zoom + '%');
     },
 
     _handleMoveRegion: function (positions) {
@@ -420,41 +410,25 @@ NavigationBar.prototype = {
         this.region.load(region);
         $(this.chromosomesText).text(this.region.chromosome);
         $(this.regionField).val(this.region.toString());
-        this._recalculateZoom();
         this._addRegionHistoryMenuItem(region);
     },
     moveRegion: function (region) {
         this.region.load(region);
         $(this.chromosomesText).text(this.region.chromosome);
         $(this.regionField).val(this.region.toString());
-        this._recalculateZoom();
     },
 
     setWidth: function (width) {
         this.width = width;
-        this._recalculateZoom();
     },
-
-    _recalculateZoom: function () {
-        this.zoom = this._calculateZoomByRegion();
+    setZoom:function(zoom){
+        this.zoom = zoom;
         $(this.progressBar).css("width", this.zoom + '%');
     },
-
     draw: function () {
         if (!this.rendered) {
             console.info(this.id + ' is not rendered yet');
             return;
         }
-    },
-    _calculateRegionByZoom: function () {
-        var zoomBaseLength = (this.width - this.svgCanvasWidthOffset) / Utils.getPixelBaseByZoom(this.zoom);
-        var centerPosition = this.region.center();
-        var aux = Math.ceil((zoomBaseLength / 2) - 1);
-        var start = Math.floor(centerPosition - aux);
-        var end = Math.floor(centerPosition + aux);
-        return {start: start, end: end};
-    },
-    _calculateZoomByRegion: function () {
-        return Utils.getZoomByPixelBase((this.width - this.svgCanvasWidthOffset) / this.region.length());
     }
 }

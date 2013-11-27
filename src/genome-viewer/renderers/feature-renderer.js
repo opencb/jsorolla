@@ -49,7 +49,7 @@ FeatureRenderer.prototype.render = function (features, args) {
     var draw = function (feature, svgGroup) {
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
-        var label = _.isFunction(_this.label) ? _this.label(feature, args.zoom) : _this.label;
+        var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
         var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
         var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
         var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
@@ -75,7 +75,7 @@ FeatureRenderer.prototype.render = function (features, args) {
 
         var maxWidth = Math.max(width, 2);
         var textHeight = 0;
-        if (args.zoom > args.labelZoom) {
+        if (args.maxLabelRegionSize > args.regionSize) {
             textHeight = 9;
             maxWidth = Math.max(width, svgLabelWidth);
         }
@@ -104,7 +104,7 @@ FeatureRenderer.prototype.render = function (features, args) {
                     'fill': color,
                     'cursor': 'pointer'
                 });
-                if (args.zoom > args.labelZoom) {
+                if (args.maxLabelRegionSize > args.regionSize) {
                     var text = SVG.addChild(featureGroup, "text", {
                         'i': i,
                         'x': x,

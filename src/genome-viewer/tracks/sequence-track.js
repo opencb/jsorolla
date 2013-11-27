@@ -46,8 +46,6 @@ SequenceTrack.prototype.render = function (targetId) {
             pixelBase: _this.pixelBase,
             position: _this.region.center(),
             width: _this.width,
-            zoom: _this.zoom,
-            labelZoom: _this.labelZoom,
             pixelPosition: _this.pixelPosition
         });
         _this.setLoading(false);
@@ -62,7 +60,7 @@ SequenceTrack.prototype.draw = function () {
 
     this.cleanSvg();
 
-    if (this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end) {
+    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
         this.setLoading(true);
         var data = this.dataAdapter.getData({
             region: new Region({
@@ -92,9 +90,8 @@ SequenceTrack.prototype.move = function (disp) {
     var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
 
-    // check if track is visible in this zoom
-    if (this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end) {
-
+    // check if track is visible in this region size
+    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             this.dataAdapter.getData({
                 region: new Region({
