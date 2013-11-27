@@ -119,6 +119,8 @@ NavigationBar.prototype = {
             '       <div class="input-group pull-left">' +
             '           <input id="searchField"  type="text" class="form-control" placeholder="gene, snp..." style="height:22px;width:100px">' +
             '       </div>' +
+            '       <ul id="quickSearchMenu" class="dropdown-menu" role="menu">' +
+            '       </ul>' +
             '       <button id="goButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-search"></span></button>' +
             '   </div>' +
             '</div>' +
@@ -161,6 +163,9 @@ NavigationBar.prototype = {
         this.moveRightButton = $(this.div).find('#moveRightButton');
 
         this.autoheightButton = $(this.div).find('#autoheightButton');
+
+        this.searchField = $(this.div).find('#searchField')[0];
+        this.quickSearchMenu = $(this.div).find('#quickSearchMenu')[0];
 
         /*** ***/
         $(this.restoreDefaultRegionButton).click(function (e) {
@@ -258,6 +263,21 @@ NavigationBar.prototype = {
         $(this.div).find('#searchField').parent().find('.tt-hint').addClass('form-control tt-query').css({
             height: '22px'
         });
+        $(this.div).find('.tt-dropdown-menu').css({
+            'font-size': '14px'
+        });
+
+//        $(this.searchField).bind("change keyup input",function() {
+//            var query = $(this).val();
+//            if(query.length > 3){
+//                _this._setQuickSearchMenu(query);
+//                $(_this.quickSearchMenu).parent().addClass('open');
+//                $(_this.quickSearchMenu).addClass('dropdown-backdrop');
+//            }else{
+//                $(_this.quickSearchMenu).parent().removeClass('open');
+//                $(_this.quickSearchMenu).removeClass('dropdown-backdrop');
+//            }
+//        });
 
         this.rendered = true;
     },
@@ -273,6 +293,47 @@ NavigationBar.prototype = {
             _this.trigger('region:change', {region: _this.region, sender: _this});
             console.log($(this).text());
         });
+    },
+
+    _setQuickSearchMenu: function (query) {
+        var _this = this;
+        $(this.quickSearchMenu).empty();
+
+        var items = this._quickSearch(query);
+        for (var i = 0; i< items.length; i++) {
+            var item = items[i];
+            var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + item + '</a></li>')[0];
+            $(this.quickSearchMenu).append(menuEntry);
+            $(menuEntry).click(function () {
+                _this._goFeature($(this).text());
+            });
+        }
+
+    },
+
+    _quickSearch: function (query) {
+        var results = [];
+        var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
+
+        var url = CellBaseManager.get({
+            host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
+            species: speciesCode,
+            version: 'latest',
+            category: 'feature',
+            subCategory: 'id',
+            query: query,
+            resource: 'starts_with',
+            params: {
+                of: 'json'
+            },
+            async: false,
+            success: function (data, textStatus, jqXHR) {
+                for (var i in data[0]) {
+                    results.push(data[0][i].displayId);
+                }
+            }
+        });
+        return results;
     },
 
     _setChromosomeMenu: function () {
@@ -421,7 +482,7 @@ NavigationBar.prototype = {
     setWidth: function (width) {
         this.width = width;
     },
-    setZoom:function(zoom){
+    setZoom: function (zoom) {
         this.zoom = zoom;
         $(this.progressBar).css("width", this.zoom + '%');
     },
