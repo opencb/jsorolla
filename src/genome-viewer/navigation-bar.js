@@ -117,10 +117,12 @@ NavigationBar.prototype = {
             '   <div class="btn-group pull-right">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
-            '           <input id="searchField"  type="text" class="form-control" placeholder="gene, snp..." style="height:22px;width:100px">' +
+            '           <input id="searchField" list="searchDataList" type="text" class="form-control" placeholder="gene, snp..." style="height:22px;width:100px">' +
+            '           <datalist id="searchDataList">' +
+            '           </datalist>' +
             '       </div>' +
-            '       <ul id="quickSearchMenu" class="dropdown-menu" role="menu">' +
-            '       </ul>' +
+//            '       <ul id="quickSearchMenu" class="dropdown-menu" role="menu">' +
+//            '       </ul>' +
             '       <button id="goButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-search"></span></button>' +
             '   </div>' +
             '</div>' +
@@ -165,7 +167,8 @@ NavigationBar.prototype = {
         this.autoheightButton = $(this.div).find('#autoheightButton');
 
         this.searchField = $(this.div).find('#searchField')[0];
-        this.quickSearchMenu = $(this.div).find('#quickSearchMenu')[0];
+//        this.quickSearchMenu = $(this.div).find('#quickSearchMenu')[0];
+        this.searchDataList = $(this.div).find('#searchDataList')[0];
 
         /*** ***/
         $(this.restoreDefaultRegionButton).click(function (e) {
@@ -233,51 +236,52 @@ NavigationBar.prototype = {
             _this.trigger('autoHeight-button:click', {clickEvent: e, sender: _this});
         });
 
-        var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
-        var url = CellBaseManager.url({
-            host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
-            species: speciesCode,
-            version: 'latest',
-            category: 'feature',
-            subCategory: 'id',
-            query: '%QUERY',
-            resource: 'starts_with',
-            params: {
-                of: 'json'
-            }
-        });
-
-        $(this.div).find('#searchField').typeahead({
-            remote: {
-                url: url,
-                filter: function (parsedResponse) {
-                    return parsedResponse[0];
-                }
-            },
-            valueKey: 'displayId',
-            limit: 20
-        }).bind('typeahead:selected', function (obj, datum) {
-                _this._goFeature(datum.displayId);
-            });
-
-        $(this.div).find('#searchField').parent().find('.tt-hint').addClass('form-control tt-query').css({
-            height: '22px'
-        });
-        $(this.div).find('.tt-dropdown-menu').css({
-            'font-size': '14px'
-        });
-
-//        $(this.searchField).bind("change keyup input",function() {
-//            var query = $(this).val();
-//            if(query.length > 3){
-//                _this._setQuickSearchMenu(query);
-//                $(_this.quickSearchMenu).parent().addClass('open');
-//                $(_this.quickSearchMenu).addClass('dropdown-backdrop');
-//            }else{
-//                $(_this.quickSearchMenu).parent().removeClass('open');
-//                $(_this.quickSearchMenu).removeClass('dropdown-backdrop');
+//        var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
+//        var url = CellBaseManager.url({
+//            host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
+//            species: speciesCode,
+//            version: 'latest',
+//            category: 'feature',
+//            subCategory: 'id',
+//            query: '%QUERY',
+//            resource: 'starts_with',
+//            params: {
+//                of: 'json'
 //            }
 //        });
+
+//        $(this.div).find('#searchField').typeahead({
+//            remote: {
+//                url: url,
+//                filter: function (parsedResponse) {
+//                    return parsedResponse[0];
+//                }
+//            },
+//            valueKey: 'displayId',
+//            limit: 20
+//        }).bind('typeahead:selected', function (obj, datum) {
+//                _this._goFeature(datum.displayId);
+//            });
+//
+//        $(this.div).find('#searchField').parent().find('.tt-hint').addClass('form-control tt-query').css({
+//            height: '22px'
+//        });
+//        $(this.div).find('.tt-dropdown-menu').css({
+//            'font-size': '14px'
+//        });
+
+        var lastQuery = '';
+        $(this.searchField).bind("keyup", function (event) {
+            var query = $(this).val();
+            if (query.length > 3 && lastQuery !== query && event.which !== 13) {
+                _this._setQuickSearchMenu(query);
+                lastQuery = query;
+            }
+            if (event.which === 13) {
+                var item = _this.quickSearchDataset[query];
+                _this.trigger('quickSearch-field:change', {item: item, sender: _this});
+            }
+        });
 
         this.rendered = true;
     },
@@ -296,44 +300,23 @@ NavigationBar.prototype = {
     },
 
     _setQuickSearchMenu: function (query) {
-        var _this = this;
-        $(this.quickSearchMenu).empty();
-
-        var items = this._quickSearch(query);
-        for (var i = 0; i< items.length; i++) {
-            var item = items[i];
-            var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + item + '</a></li>')[0];
-            $(this.quickSearchMenu).append(menuEntry);
-            $(menuEntry).click(function () {
-                _this._goFeature($(this).text());
-            });
-        }
-
-    },
-
-    _quickSearch: function (query) {
-        var results = [];
-        var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
-
-        var url = CellBaseManager.get({
-            host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
-            species: speciesCode,
-            version: 'latest',
-            category: 'feature',
-            subCategory: 'id',
-            query: query,
-            resource: 'starts_with',
-            params: {
-                of: 'json'
-            },
-            async: false,
-            success: function (data, textStatus, jqXHR) {
-                for (var i in data[0]) {
-                    results.push(data[0][i].displayId);
+        if (typeof this.getQuickSearchResult === 'function') {
+            $(this.searchDataList).empty();
+            this.quickSearchDataset = {};
+            var items = this.getQuickSearchResult(query);
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var itemKey = item;
+                if ($.type(this.quickSearchDisplayKey) === "string") {
+                    itemKey = item[this.quickSearchDisplayKey];
                 }
+                this.quickSearchDataset[itemKey] = item;
+                var menuEntry = $('<option value="' + itemKey + '">')[0];
+                $(this.searchDataList).append(menuEntry);
             }
-        });
-        return results;
+        } else {
+            console.log('the getQuickSearchResult function is not valid');
+        }
     },
 
     _setChromosomeMenu: function () {
@@ -402,37 +385,6 @@ NavigationBar.prototype = {
             $(this.chromosomesText).text(this.region.chromosome);
             this._addRegionHistoryMenuItem(this.region);
             this.trigger('region:change', {region: this.region, sender: this});
-        }
-    },
-
-    _goFeature: function (featureName) {
-        var _this = this;
-        if (featureName != null) {
-            if (featureName.slice(0, "rs".length) == "rs" || featureName.slice(0, "AFFY_".length) == "AFFY_" || featureName.slice(0, "SNP_".length) == "SNP_" || featureName.slice(0, "VAR_".length) == "VAR_" || featureName.slice(0, "CRTAP_".length) == "CRTAP_" || featureName.slice(0, "FKBP10_".length) == "FKBP10_" || featureName.slice(0, "LEPRE1_".length) == "LEPRE1_" || featureName.slice(0, "PPIB_".length) == "PPIB_") {
-                this.openSNPListWidget(featureName);
-            } else {
-                console.log(featureName);
-                console.log(this.species);
-
-                CellBaseManager.get({
-                    species: this.species,
-                    category: 'feature',
-                    subCategory: 'gene',
-                    query: featureName,
-                    resource: 'info',
-                    params: {
-                        include: 'chromosome,start,end'
-                    },
-                    success: function (data) {
-                        var feat = data.response[0].result[0];
-                        var regionStr = feat.chromosome + ":" + feat.start + "-" + feat.end;
-                        var region = new Region();
-                        region.parse(regionStr);
-                        _this.region = region;
-                        _this.trigger('region:change', {region: _this.region, sender: _this});
-                    }
-                });
-            }
         }
     },
 

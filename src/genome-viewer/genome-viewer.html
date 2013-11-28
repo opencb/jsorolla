@@ -293,33 +293,33 @@ var run = function () {
     tracks.push(this.snp);
 
 
-    /***************************************/
-    var geneEnsembl = new FeatureTrack({
-        targetId: null,
-        id: 5,
-        title: 'Gene Ensembl',
-        minHistogramRegionSize: 20000000,
-        maxLabelRegionSize: 10000000,
-        height: 100,
-        titleVisibility: 'hidden',
-        featureTypes: FEATURE_TYPES,
-
-        renderer: new FeatureRenderer('gene'),
-
-        dataAdapter: new EnsemblAdapter({
-            category: "feature",
-            subCategory: "region",
-            params: {
-                feature: 'gene'
-            },
-            species: 'human',
-            cacheConfig: {
-                chunkSize: 50000
-            }
-        })
-    });
-    tracks.push(geneEnsembl);
-    /***************************************/
+//    /***************************************/
+//    var geneEnsembl = new FeatureTrack({
+//        targetId: null,
+//        id: 5,
+//        title: 'Gene Ensembl',
+//        minHistogramRegionSize: 20000000,
+//        maxLabelRegionSize: 10000000,
+//        height: 100,
+//        titleVisibility: 'hidden',
+//        featureTypes: FEATURE_TYPES,
+//
+//        renderer: new FeatureRenderer('gene'),
+//
+//        dataAdapter: new EnsemblAdapter({
+//            category: "feature",
+//            subCategory: "region",
+//            params: {
+//                feature: 'gene'
+//            },
+//            species: 'human',
+//            cacheConfig: {
+//                chunkSize: 50000
+//            }
+//        })
+//    });
+//    tracks.push(geneEnsembl);
+//    /***************************************/
 
     genomeViewer.addTrack(tracks);
 };

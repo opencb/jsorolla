@@ -259,6 +259,60 @@ GenomeViewer.prototype = {
 
     _createNavigationBar: function (targetId) {
         var _this = this;
+
+        var getQuickSearchResult = function (query) {
+            var results = [];
+            var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
+
+            CellBaseManager.get({
+                host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
+                species: speciesCode,
+                version: 'latest',
+                category: 'feature',
+                subCategory: 'id',
+                query: query,
+                resource: 'starts_with',
+                params: {
+                    of: 'json'
+                },
+                async: false,
+                success: function (data, textStatus, jqXHR) {
+                    for (var i in data[0]) {
+                        results.push(data[0][i].displayId);
+                    }
+                }
+            });
+            return results;
+        };
+
+        var goFeature = function (featureName) {
+            if (featureName != null) {
+                if (featureName.slice(0, "rs".length) == "rs" || featureName.slice(0, "AFFY_".length) == "AFFY_" || featureName.slice(0, "SNP_".length) == "SNP_" || featureName.slice(0, "VAR_".length) == "VAR_" || featureName.slice(0, "CRTAP_".length) == "CRTAP_" || featureName.slice(0, "FKBP10_".length) == "FKBP10_" || featureName.slice(0, "LEPRE1_".length) == "LEPRE1_" || featureName.slice(0, "PPIB_".length) == "PPIB_") {
+                    this.openSNPListWidget(featureName);
+                } else {
+                    console.log(featureName);
+                    CellBaseManager.get({
+                        species: _this.species,
+                        category: 'feature',
+                        subCategory: 'gene',
+                        query: featureName,
+                        resource: 'info',
+                        params: {
+                            include: 'chromosome,start,end'
+                        },
+                        success: function (data) {
+                            var feat = data.response[0].result[0];
+                            var regionStr = feat.chromosome + ":" + feat.start + "-" + feat.end;
+                            var region = new Region();
+                            region.parse(regionStr);
+                            _this.region = region;
+                            _this.trigger('region:change', {region: _this.region, sender: _this});
+                        }
+                    });
+                }
+            }
+        };
+
         var navigationBar = new NavigationBar({
             targetId: targetId,
             availableSpecies: this.availableSpecies,
@@ -268,6 +322,8 @@ GenomeViewer.prototype = {
             width: this.width,
             svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
             autoRender: true,
+            getQuickSearchResult: getQuickSearchResult,
+//            quickSearchDisplayKey: 'displayId',
             handlers: {
                 'region:change': function (event) {
                     _this.setMinRegion(event.region, _this.getSVGCanvasWidth())
@@ -322,6 +378,10 @@ GenomeViewer.prototype = {
                 },
                 'autoHeight-button:click': function (event) {
                     _this.enableAutoHeight();
+                },
+                'quickSearch-field:change': function (event) {
+                    console.log(event.item)
+                    goFeature(event.item);
                 }
             }
         });
