@@ -325,10 +325,10 @@ NavigationBar.prototype = {
     },
 
     _setQuickSearchMenu: function (query) {
-        if (typeof this.getQuickSearchResult === 'function') {
+        if (typeof this.quickSearchResultFn === 'function') {
             $(this.searchDataList).empty();
             this.quickSearchDataset = {};
-            var items = this.getQuickSearchResult(query);
+            var items = this.quickSearchResultFn(query);
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
                 var itemKey = item;
@@ -340,7 +340,7 @@ NavigationBar.prototype = {
                 $(this.searchDataList).append(menuEntry);
             }
         } else {
-            console.log('the getQuickSearchResult function is not valid');
+            console.log('the quickSearchResultFn function is not valid');
         }
     },
 

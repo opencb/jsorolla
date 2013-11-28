@@ -29,6 +29,10 @@ function GenomeViewer(args) {
     //set default args
     this.version = 'Genome Viewer';
     this.targetId;
+
+    this.quickSearchResultFn;
+    this.quickSearchDisplayKey;
+
     this.drawNavigationBar = true;
     this.drawKaryotypePanel = true;
     this.drawChromosomePanel = true;
@@ -260,30 +264,32 @@ GenomeViewer.prototype = {
     _createNavigationBar: function (targetId) {
         var _this = this;
 
-        var getQuickSearchResult = function (query) {
-            var results = [];
-            var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
+        if(!$.isFunction(this.quickSearchResultFn)){
+            this.quickSearchResultFn = function (query) {
+                var results = [];
+                var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
 
-            CellBaseManager.get({
-                host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
-                species: speciesCode,
-                version: 'latest',
-                category: 'feature',
-                subCategory: 'id',
-                query: query,
-                resource: 'starts_with',
-                params: {
-                    of: 'json'
-                },
-                async: false,
-                success: function (data, textStatus, jqXHR) {
-                    for (var i in data[0]) {
-                        results.push(data[0][i].displayId);
+                CellBaseManager.get({
+                    host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
+                    species: speciesCode,
+                    version: 'latest',
+                    category: 'feature',
+                    subCategory: 'id',
+                    query: query,
+                    resource: 'starts_with',
+                    params: {
+                        of: 'json'
+                    },
+                    async: false,
+                    success: function (data, textStatus, jqXHR) {
+                        for (var i in data[0]) {
+                            results.push(data[0][i].displayId);
+                        }
                     }
-                }
-            });
-            return results;
-        };
+                });
+                return results;
+            };
+        }
 
         var goFeature = function (featureName) {
             if (featureName != null) {
@@ -322,8 +328,8 @@ GenomeViewer.prototype = {
             width: this.width,
             svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
             autoRender: true,
-            getQuickSearchResult: getQuickSearchResult,
-//            quickSearchDisplayKey: 'displayId',
+            quickSearchResultFn: this.quickSearchResultFn,
+            quickSearchDisplayKey: this.quickSearchDisplayKey,
             handlers: {
                 'region:change': function (event) {
                     _this.setMinRegion(event.region, _this.getSVGCanvasWidth())
@@ -381,6 +387,7 @@ GenomeViewer.prototype = {
                 },
                 'quickSearch:select': function (event) {
                     goFeature(event.item);
+                    _this.trigger('quickSearch:select', event);
                 },
                 'quickSearch:go': function (event) {
                     goFeature(event.item);
