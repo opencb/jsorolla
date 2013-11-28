@@ -31,7 +31,8 @@ function Track(args) {
     this.targetId;
     this.id;
     this.title;
-    this.minHistogramRegionSize;
+    this.minHistogramRegionSize = 300000000;
+    this.maxLabelRegionSize = 300000000;
     this.height = 100;
 //    this.visibleRange = {start: 0, end: 100},
     this.visibleRange;
@@ -299,7 +300,6 @@ Track.prototype = {
         }
 
         this.svgGroup = SVG.addChild(main, "g", {
-            //visibility:this.titleVisibility
         });
 
         var text = this.title;

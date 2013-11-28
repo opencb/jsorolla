@@ -91,7 +91,7 @@ NavigationBar.prototype = {
             '   </div>' +
             '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
             '       <button id="zoomOutButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
-            '       <div id="progressBarCont" class="progress pull-left" style="width:200px;height:10px;margin:5px 2px 0px 2px;background-color: #d5d5d5">' +
+            '       <div id="progressBarCont" class="progress pull-left" style="width:150px;height:10px;margin:5px 2px 0px 2px;background-color: #d5d5d5">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
             '           </div>' +
             '       </div>' +

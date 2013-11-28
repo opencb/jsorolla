@@ -177,11 +177,8 @@ var run = function () {
         targetId: null,
         id: 1,
         title: 'Sequence',
-        histogramZoom: 20,
-        transcriptZoom: 50,
         height: 30,
         visibleRange: 200,
-        featureTypes: FEATURE_TYPES,
 
         renderer: new SequenceRenderer(),
 
@@ -189,11 +186,7 @@ var run = function () {
             category: "genomic",
             subCategory: "region",
             resource: "sequence",
-            species: genomeViewer.species,
-            featureCache: {
-                gzip: true,
-                chunkSize: 1000
-            }
+            species: genomeViewer.species
         })
     });
 
@@ -207,7 +200,6 @@ var run = function () {
         maxLabelRegionSize: 10000000,
         minTranscriptRegionSize: 200000,
         height: 140,
-        featureTypes: FEATURE_TYPES,
 
         renderer: new GeneRenderer(),
 
@@ -216,12 +208,14 @@ var run = function () {
             subCategory: "region",
             resource: "gene",
             species: genomeViewer.species,
+            params: {
+                exclude: 'transcripts.xrefs,transcripts.exons.sequence'
+            },
             cacheConfig: {
                 chunkSize: 50000
             },
             filters: {},
-            options: {},
-            featureConfig: FEATURE_CONFIG.gene
+            options: {}
         })
     });
 
@@ -231,8 +225,8 @@ var run = function () {
     var renderer = new FeatureRenderer('gene');
     renderer.on({
         'feature:click': function (event) {
+            // feature click event example
             console.log(event)
-            new GeneInfoWidget(null, genomeViewer.species).draw(event);
         }
     });
     var gene = new FeatureTrack({
@@ -242,8 +236,6 @@ var run = function () {
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
         height: 100,
-        titleVisibility: 'hidden',
-        featureTypes: FEATURE_TYPES,
 
         renderer: renderer,
 
@@ -269,7 +261,6 @@ var run = function () {
         minHistogramRegionSize: 12000,
         maxLabelRegionSize: 3000,
         height: 100,
-        featureTypes: FEATURE_TYPES,
 
         renderer: new FeatureRenderer('snp'),
 
@@ -286,7 +277,6 @@ var run = function () {
             },
             filters: {},
             options: {},
-            featureConfig: FEATURE_CONFIG.snp
         })
     });
 
