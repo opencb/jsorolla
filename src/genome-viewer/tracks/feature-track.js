@@ -94,7 +94,7 @@ FeatureTrack.prototype.draw = function () {
         this.dataType = 'histogram';
     }
 
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
         this.dataAdapter.getData({
             dataType: this.dataType,
@@ -138,7 +138,7 @@ FeatureTrack.prototype.move = function (disp) {
     var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
 
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             this.dataAdapter.getData({

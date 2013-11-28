@@ -34,8 +34,7 @@ function Track(args) {
     this.minHistogramRegionSize = 300000000;
     this.maxLabelRegionSize = 300000000;
     this.height = 100;
-//    this.visibleRange = {start: 0, end: 100},
-    this.visibleRange;
+    this.visibleRegionSize;
         this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);

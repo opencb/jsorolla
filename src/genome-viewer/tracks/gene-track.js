@@ -110,7 +110,7 @@ GeneTrack.prototype.draw = function () {
     }
 
 
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
         var data = this.dataAdapter.getData({
             dataType: dataType,
@@ -166,7 +166,7 @@ GeneTrack.prototype.move = function (disp) {
 //    console.log(this.svgCanvasLeftLimit+'  ----  '+this.svgCanvasRightLimit)
 //    console.log(this.svgCanvasOffset)
 
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             console.log('left')

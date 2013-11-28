@@ -937,7 +937,7 @@ TrackListPanel.prototype = {
 
     getSequenceNucleotid: function (position) {
         var seqTrack = this.getSequenceTrack();
-        if (seqTrack != null && this.zoom >= seqTrack.visibleRange.start - this.zoomOffset && this.zoom <= seqTrack.visibleRange.end) {
+        if (seqTrack != null && this.zoom >= seqTrack.visibleRegionSize.start - this.zoomOffset && this.zoom <= seqTrack.visibleRegionSize.end) {
             var nt = seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
             return nt;
         }
