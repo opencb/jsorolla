@@ -379,8 +379,10 @@ GenomeViewer.prototype = {
                 'autoHeight-button:click': function (event) {
                     _this.enableAutoHeight();
                 },
-                'quickSearch-field:change': function (event) {
-                    console.log(event.item)
+                'quickSearch:select': function (event) {
+                    goFeature(event.item);
+                },
+                'quickSearch:go': function (event) {
                     goFeature(event.item);
                 }
             }
