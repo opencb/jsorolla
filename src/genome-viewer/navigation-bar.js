@@ -97,14 +97,14 @@ NavigationBar.prototype = {
             '       </div>' +
             '       <button id="zoomInButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
+            '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 10px;">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Window size:&nbsp;</div>' +
-            '       <input id="windowSizeField" type="text" class="form-control pull-left" placeholder="Window size" style="height:22px;width:100px">' +
+            '       <input id="windowSizeField" type="text" class="form-control pull-left" placeholder="Window size" style="height:22px;width:75px">' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
+            '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 10px;">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Position:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
-            '           <input id="regionField" style="width:200px;height:22px" type="text" class="form-control">' +
+            '           <input id="regionField" style="width:180px;height:22px" type="text" class="form-control">' +
             '       </div>' +
             '       <button id="goButton" class="btn btn-default btn-xs" type="button">Go!</button>' +
             '   </div>' +
@@ -116,6 +116,9 @@ NavigationBar.prototype = {
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
             '       <button id="autoheightButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-track-autoheight"></span></button>' +
+            '   </div>' +
+            '    <div class="btn-group btn-group-xs">' +
+            '       <button id="compactButton" class="btn btn-default" type="button"><span class="ocb-icon glyphicon glyphicon-compressed"></span></button>' +
             '   </div>' +
             '   <div class="btn-group pull-right">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
@@ -168,6 +171,7 @@ NavigationBar.prototype = {
         this.moveRightButton = $(this.div).find('#moveRightButton');
 
         this.autoheightButton = $(this.div).find('#autoheightButton');
+        this.compactButton = $(this.div).find('#compactButton');
 
         this.searchField = $(this.div).find('#searchField')[0];
 //        this.quickSearchMenu = $(this.div).find('#quickSearchMenu')[0];
@@ -240,6 +244,11 @@ NavigationBar.prototype = {
         $(this.autoheightButton).click(function (e) {
             _this.trigger('autoHeight-button:click', {clickEvent: e, sender: _this});
         });
+
+        $(this.compactButton).click(function (e) {
+            $(".ocb-compactable").toggle();
+        });
+
 
 //        var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
 //        var url = CellBaseManager.url({
