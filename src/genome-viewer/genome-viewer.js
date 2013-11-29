@@ -413,9 +413,9 @@ GenomeViewer.prototype = {
         });
 
         this.on('region:change', function (event) {
-            if (event.sender != navigationBar) {
+//            if (event.sender != navigationBar) {
                 _this.navigationBar.setRegion(event.region);
-            }
+//            }
             _this.zoom = _this._calculateZoomByRegion(event.region);
             _this.navigationBar.setZoom(_this.zoom);
         });
