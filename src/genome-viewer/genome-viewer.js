@@ -70,6 +70,9 @@ function GenomeViewer(args) {
     this.species = this.availableSpecies.items[0].items[0];
     this.zoom;
 
+    this.chromosomes;
+    this.chromosomeList;
+
     //set instantiation args, must be last
     _.extend(this, args);
 
@@ -240,21 +243,30 @@ GenomeViewer.prototype = {
         delete this;
     },
     getChromosomes: function () {
-        var chromosomes = {};
-        CellBaseManager.get({
-            species: this.species,
-            category: 'genomic',
-            subCategory: 'chromosome',
-            resource: 'all',
-            async: false,
-            success: function (data) {
-                var chromosomeList = data.response.result.chromosomes;
-                for (var i = 0; i < chromosomeList.length; i++) {
-                    var chromosome = chromosomeList[i];
-                    chromosomes[chromosome.name] = chromosome;
-                }
+        var saveChromosomes = function(chromsomeList){
+            var chromosomes = {};
+            for (var i = 0; i < chromsomeList.length; i++) {
+                var chromosome = chromsomeList[i];
+                chromosomes[chromosome.name] = chromosome;
             }
-        });
+            return chromosomes;
+        }
+
+        var chromosomes;
+        if(typeof this.chromosomeList !== 'undefined'){
+            chromosomes = saveChromosomes(this.chromosomeList);
+        }else{
+            CellBaseManager.get({
+                species: this.species,
+                category: 'genomic',
+                subCategory: 'chromosome',
+                resource: 'all',
+                async: false,
+                success: function (data) {
+                    chromosomes = saveChromosomes(data.response.result.chromosomes);
+                }
+            });
+        }
         return chromosomes;
     },
     /**/
@@ -324,7 +336,6 @@ GenomeViewer.prototype = {
             availableSpecies: this.availableSpecies,
             species: this.species,
             region: this.region,
-            chromosomes: this.chromosomes,
             width: this.width,
             svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
             autoRender: true,
@@ -514,7 +525,6 @@ GenomeViewer.prototype = {
             showRegionOverviewBox: true,
             collapsible: this.RegionPanelConfig.collapsible,
             region: this.region,
-            chromosomes: this.chromosomes,
             handlers: {
                 'region:change': function (event) {
                     event.sender = {};
@@ -561,7 +571,6 @@ GenomeViewer.prototype = {
             width: this.width - this.sidePanelWidth,
             title: this.trackListTitle,
             region: this.region,
-            chromosomes: this.chromosomes,
             handlers: {
                 'region:change': function (event) {
                     event.sender = {};
