@@ -180,7 +180,7 @@ Track.prototype = {
             this.histogram = true;
             this.histogramLogarithm = true;
             this.histogramMax = 500;
-            this.interval = parseInt(10 / this.pixelBase);//server interval limit 512
+            this.interval = Math.ceil(10 / this.pixelBase);//server interval limit 512
         } else {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
