@@ -28,7 +28,19 @@ function HistogramRenderer(args) {
 
     //set default args
     this.histogramHeight = 75;
-    this.multiplier = 7;
+//    this.multiplier = 7;
+
+    this.maxValue = 10;
+    if (args != null) {
+        if (args.height != null) {
+            this.histogramHeight = args.height * 0.95;
+        }
+        if (args.histogramMaxFreqValue != null) {
+            this.maxValue = args.histogramMaxFreqValue;
+        }
+    }
+    //this.multiplier = 7;
+    this.multiplier = this.histogramHeight / this.maxValue;
 
     //set instantiation args
     _.extend(this, args);

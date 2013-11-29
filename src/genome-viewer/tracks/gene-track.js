@@ -32,7 +32,7 @@ function GeneTrack(args) {
     //save default render reference;
     this.defaultRenderer = this.renderer;
 //    this.histogramRenderer = new FeatureClusterRenderer();
-    this.histogramRenderer = new HistogramRenderer();
+    this.histogramRenderer = new HistogramRenderer(args);
 
 
     //set instantiation args, must be last
