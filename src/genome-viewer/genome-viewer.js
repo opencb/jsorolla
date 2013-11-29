@@ -264,6 +264,9 @@ GenomeViewer.prototype = {
                 async: false,
                 success: function (data) {
                     chromosomes = saveChromosomes(data.response.result.chromosomes);
+                },
+                error:function(data){
+                    console.log('Could not get chromosome list');
                 }
             });
         }
