@@ -19,40 +19,31 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function NetworkDataAdapter(dataSource, args){
-	var _this = this;
-	
-	this.dataSource = dataSource;
-	this.async = true;
-	this.graph = {};
-	this.addedNodes = {};
+function GraphDataAdapter(args) {
+    var _this = this;
+    _.extend(this, Backbone.Events);
 
-	this.onLoad = new Event();
-	
-	if (args != null) {
-		if(args.async != null){
-			this.async = args.async;
-		}
-		if(args.networkData != null){
-			this.networkData = args.networkData;
-		}
-		else {
-			this.networkData = new NetworkData({});
-		}
-	}
-	
-	if(this.async){
-		this.dataSource.success.addEventListener(function(sender,data){
-			_this.parse(data);
-			_this.onLoad.notify(data);
-		});
-		this.dataSource.fetch(this.async);
-	}else{
-		var data = this.dataSource.fetch(this.async);
-		this.parse(data);
-	}
+    this.dataSource;
+    this.async = true;
+    this.graph = new Graph();
+
+    //set instantiation args, must be last
+    _.extend(this, args);
+
+    this.on(this.handlers);
+
+    if (this.async) {
+        this.dataSource.on('success', function (data) {
+            _this.parse(data);
+            _this.trigger('data:load', {data: data});
+        });
+        this.dataSource.fetch(this.async);
+    } else {
+        var data = this.dataSource.fetch(this.async);
+        this.parse(data);
+    }
 };
 
-NetworkDataAdapter.prototype.getNetworkData = function(){
-	return this.networkData;
+GraphDataAdapter.prototype.getGraph = function () {
+    return this.graph;
 };

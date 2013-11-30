@@ -2,6 +2,9 @@ function NetworkViewerWebgl(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('NetworkViewerWebgl');
 
+    this.width=800;
+    this.height=600;
+
     this.scene;
     this.camera;
     this.renderer;
@@ -207,8 +210,8 @@ NetworkViewerWebgl.prototype = {
         this.cameraPhi = 5;
 
         // set the scene size
-        var WIDTH = $(window).width() - 30;
-        var HEIGHT = $(window).height() - 30;
+        var WIDTH = this.width;
+        var HEIGHT = this.height;
 
         // set some camera attributes
         var VIEW_ANGLE = 45,
@@ -254,7 +257,7 @@ NetworkViewerWebgl.prototype = {
         this.groupElements = new THREE.Object3D();
 
         // debug plane
-        var plane = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({color: 0x000000}));
+        var plane = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({color: 0x333333}));
 //        var plane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshNormalMaterial({ shading: THREE.SmoothShading }));
 //        plane.overdraw = true;
         this.scene.add(plane);

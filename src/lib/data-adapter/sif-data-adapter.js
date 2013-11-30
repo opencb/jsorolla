@@ -19,40 +19,16 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-SIFDataAdapter.prototype.getNetworkData = NetworkDataAdapter.prototype.getNetworkData;
+SIFDataAdapter.prototype.getGraph = GraphDataAdapter.prototype.getGraph;
 
-function SIFDataAdapter(dataSource, args){
-	NetworkDataAdapter.prototype.constructor.call(this, dataSource, args);
-	
-//	this.dataSource = dataSource;
-//	this.async = true;
-//	this.graph = {};
-//	this.addedNodes = {};
-//
-//	this.onLoad = new Event();
-//	
-//	if (args != null) {
-//		if(args.async != null){
-//			this.async = args.async;
-//		}
-//	}
-//	
-//	if(this.async){
-//		this.dataSource.success.addEventListener(function(sender,data){
-//			_this.parse(data);
-//			_this.onLoad.notify(data);
-//		});
-//		this.dataSource.fetch(this.async);
-//	}else{
-//		var data = this.dataSource.fetch(this.async);
-//		this.parse(data);
-//	}
-	
+function SIFDataAdapter(args){
+    GraphDataAdapter.prototype.constructor.call(this, args);
 };
 
 SIFDataAdapter.prototype.parse = function(data){
 	var _this = this;
-	
+
+    debugger
 	var lines = data.split("\n");
 	for (var i = 0; i < lines.length; i++){
 		var line = lines[i].replace(/^\s+|\s+$/g,"");

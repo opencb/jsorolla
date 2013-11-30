@@ -5,18 +5,36 @@
     <title>Network Viewer WebGL</title>
     <style>
         #container {
-            background: #333;
+            background: #000;
             /*width: 400px;*/
             /*height: 300px;*/
+        }
+
+        #header {
+            background: #111;
+            height: 70px;
+        }
+
+        body {
+            height: 100%;
+        }
+
+        html {
+            height: 100%;
         }
     </style>
 </head>
 <body>
 
-<div id="container">
-
-
+<div id="header" class="container">
+    <form role="form">
+        <div class="form-group">
+            <label for="sifInputFile">SIF file</label>
+            <input type="file" id="sifInputFile">
+        </div>
+    </form>
 </div>
+<div id="container"></div>
 
 </body>
 
@@ -25,7 +43,9 @@
 <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
 
 <!--&lt;!&ndash; Optional theme &ndash;&gt;-->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+
+<!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">-->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.2/cyborg/bootstrap.min.css">
 
 <!--&lt;!&ndash; Latest compiled and minified JavaScript &ndash;&gt;-->
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
@@ -38,15 +58,43 @@
 <script src="../graph/graph.js"></script>
 <script src="../graph/vertex.js"></script>
 <script src="../graph/edge.js"></script>
+<script src="../lib/data-source/data-source.js"></script>
+<script src="../lib/data-source/file-data-source.js"></script>
+<script src="../lib/data-adapter/graph-data-adapter.js"></script>
+<script src="../lib/data-adapter/sif-data-adapter.js"></script>
+
 <script src="network-viewer-webgl.js"></script>
 
 <script type="text/javascript">
     var networkViewerWebgl;
-    $(document).ready(function(){
+    $(document).ready(function () {
+
+        var w = $('body').width() - 50;
+        var h = $('body').height() - $('#header').height() - 5;
         networkViewerWebgl = new NetworkViewerWebgl({
-            targetId:'container',
-            autoRender:true
+            targetId: 'container',
+            height: h,
+            width: w,
+            autoRender: true
+
         });
+
+
+        /**/
+        var sifInputFile = $('#sifInputFile')[0];
+        $(sifInputFile).bind('change',function (event) {
+            var file = this.files[0];
+            var sifDataAdapter = new SIFDataAdapter({
+                dataSource: new FileDataSource(file),
+                handlers:{
+                    'data:load':function(event){
+                        debugger
+                    }
+                }
+            })
+        });
+        /**/
+
     });
 
 </script>
