@@ -63,7 +63,7 @@ module.exports = function (grunt) {
                     'src/genome-viewer/karyotype-panel.js',
                     'src/genome-viewer/status-bar.js',
                         /** data-adapter **/
-                    'src/genome-viewer/data-source/data-source.js','src/genome-viewer/data-source/*-data-source.js',
+                    'src/lib/data-source/data-source.js','src/lib/data-source/*-data-source.js',
                     'src/genome-viewer/data-adapter/cellbase-adapter.js',
                     'src/genome-viewer/data-adapter/sequence-adapter.js',
                     'src/genome-viewer/data-adapter/bam-adapter.js',

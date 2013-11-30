@@ -209,9 +209,12 @@ NavigationBar.prototype = {
             _this._handleZoomInButton();
         });
         $(this.progressBarCont).click(function (e) {
-            var zoom = 100 / $(this).width() * e.offsetX;
+            var offsetX = e.clientX - $(this).offset().left;
+            console.log('offsetX '+offsetX);
+            console.log('e.offsetX '+ e.offsetX);
+            var zoom = 100 / $(this).width() * offsetX;
             if (!_this.zoomChanging) {
-                $(_this.progressBar).width(e.offsetX);
+                $(_this.progressBar).width(offsetX);
                 _this.zoomChanging = true;
                 setTimeout(function () {
                     _this._handleZoomSlider(zoom);
