@@ -1065,16 +1065,15 @@ a:hover {
 
 
 
-/*.msg {*/
-    /*border-radius: 8px;*/
-    /*-moz-border-radius: 8px;*/
-    /*background-color: #fff;*/
-    /*border: 1px solid #E2E2E2;*/
-    /*color: #454545;*/
-
-         /*margin-top: 2px;*/
-    /*padding: 3px;*/
-/*}*/
+.msg {
+    background-color: #fff;
+    color: #454545;
+    border: 2px solid transparent;
+    position: absolute;
+    left: 40%;
+    top: 10px;
+    width:150px;
+}
 
 /********************/
 /***sencha ux styles***/
@@ -1086,24 +1085,22 @@ a:hover {
     position: absolute;
     left: 40%;
     top: 10px;
-    width:150px;
+    width:155px;
     z-index: 20000;
 }
 
 #msg-div .msg {
-    /*border-radius: 8px;*/
-    /*-moz-border-radius: 8px;*/
-    background: #F6BC5D;
-    border: 2px solid #F6BC5D;
+    border: 2px solid #d3d3d3;
+    background-color: white;
     margin-top: 2px;
     padding: 5px 10px 5px 10px;
     text-align: center;
 }
 
 #msg-div .msg h3 {
-    margin: 0px;
     border:1px solid #d3d3d3;
     border-width: 0 0 1px;
+    margin: 0px;
     position: relative;
     overflow: hidden;
     font-weight: 700;

@@ -66,8 +66,8 @@ BamTrack.prototype.render = function(targetId){
             position : _this.region.center(),
             region : _this.region,
             width : _this.width,
-            zoom : _this.zoom,
-            labelZoom : _this.labelZoom,
+            regionSize: _this.region.length(),
+            maxLabelRegionSize: _this.maxLabelRegionSize,
             pixelPosition : _this.pixelPosition
         });
 
@@ -92,7 +92,7 @@ BamTrack.prototype.draw = function(){
         this.dataType = 'histogram';
     }
 
-    if( this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end ){
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
         this.dataAdapter.getData({
             dataType: this.dataType,
@@ -135,8 +135,8 @@ BamTrack.prototype.move = function(disp){
 
     var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
-    // check if track is visible in this zoom
-    if(this.zoom >= this.visibleRange.start && this.zoom <= this.visibleRange.end){
+
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if(disp>0 && virtualStart < this.svgCanvasLeftLimit){
             this.dataAdapter.getData({
