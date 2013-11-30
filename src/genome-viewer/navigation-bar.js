@@ -246,6 +246,7 @@ NavigationBar.prototype = {
         });
 
         $(this.compactButton).click(function (e) {
+            _this.trigger('autoHeight-button:click', {clickEvent: e, sender: _this});
             $(".ocb-compactable").toggle();
         });
 
