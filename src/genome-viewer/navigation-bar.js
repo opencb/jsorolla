@@ -99,12 +99,12 @@ NavigationBar.prototype = {
             '   </div>' +
             '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 10px;">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Window size:&nbsp;</div>' +
-            '       <input id="windowSizeField" type="text" class="form-control pull-left" placeholder="Window size" style="height:22px;width:75px">' +
+            '       <input id="windowSizeField" type="text" class="form-control pull-left" placeholder="Window size" style="padding:0px 4px;height:22px;width:75px">' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 10px;">' +
+            '   <div class="btn-group" style="margin:0px 0px 0px 10px;">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Position:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
-            '           <input id="regionField" style="width:180px;height:22px" type="text" class="form-control">' +
+            '           <input id="regionField" type="text" class="form-control" placeholder="region..." style="padding:0px 4px;width:180px;height:22px">' +
             '       </div>' +
             '       <button id="goButton" class="btn btn-default btn-xs" type="button">Go!</button>' +
             '   </div>' +
@@ -123,7 +123,7 @@ NavigationBar.prototype = {
             '   <div class="btn-group pull-right">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
-            '           <input id="searchField" list="searchDataList" type="text" class="form-control" placeholder="gene, snp..." style="height:22px;width:100px">' +
+            '           <input id="searchField" list="searchDataList" type="text" class="form-control" placeholder="gene, snp..." style="padding:0px 4px;height:22px;width:100px">' +
             '           <datalist id="searchDataList">' +
             '           </datalist>' +
             '       </div>' +
