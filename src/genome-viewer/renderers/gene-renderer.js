@@ -61,7 +61,6 @@ GeneRenderer.prototype.render = function (features, args) {
         var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
 
 
-
         //get feature genomic information
         var start = feature.start;
         var end = feature.end;
@@ -109,7 +108,7 @@ GeneRenderer.prototype.render = function (features, args) {
                     }
                     checkRowY += rowHeight;
                 }
-                if(foundTranscriptsArea == true){
+                if (foundTranscriptsArea == true) {
                     foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
                 }
             } else {
@@ -176,7 +175,8 @@ GeneRenderer.prototype.render = function (features, args) {
                         var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(transcript) : _this.infoWidgetId;
 
                         //se resta el trozo del final del gen hasta el principio del transcrito y se le suma el texto del transcrito
-                        var svgLabelWidth = _this.getLabelWidth(label, args);
+//                        var svgLabelWidth = _this.getLabelWidth(label, args);
+                        var svgLabelWidth = label.length * 6.4;
                         var maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + svgLabelWidth);
 
 
@@ -184,7 +184,7 @@ GeneRenderer.prototype.render = function (features, args) {
                         args.renderedArea[checkRowY].add({start: x, end: x + maxWidth - 1});
 
 
-                        var transcriptGroup = SVG.addChild(featureGroup, 'g', {
+                        var transcriptGroup = SVG.addChild(args.svgCanvasFeatures, 'g', {
                             "widgetId": transcript[infoWidgetId]
                         });
 
@@ -239,7 +239,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(exon, transcript) : _this.tooltipText;
                             var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(exon) : _this.infoWidgetId;
 
-                            var exonGroup = SVG.addChild(featureGroup, "g");
+                            var exonGroup = SVG.addChild(args.svgCanvasFeatures, "g");
 
                             $(exonGroup).qtip({
                                 content: {text: tooltipText, title: tooltipTitle},
