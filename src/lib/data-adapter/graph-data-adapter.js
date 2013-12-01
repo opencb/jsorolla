@@ -35,7 +35,7 @@ function GraphDataAdapter(args) {
     if (this.async) {
         this.dataSource.on('success', function (data) {
             _this.parse(data);
-            _this.trigger('data:load', {data: data});
+            _this.trigger('data:load', {graph:_this.graph});
         });
         this.dataSource.fetch(this.async);
     } else {

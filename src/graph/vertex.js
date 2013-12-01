@@ -20,7 +20,7 @@
  */
 
 function Vertex(args) {
-    this.id = Utils.genId('Vertex');
+    this.id = Utils.genId('v');
 
     this.name;
     this.edges = [];
