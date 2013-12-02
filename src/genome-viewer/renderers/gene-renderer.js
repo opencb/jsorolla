@@ -30,20 +30,15 @@ function GeneRenderer(args) {
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
     this.toolTipfontClass = 'ocb-font-default';
 
-    //set default args
-    if (_.isString(args)) {
-        _.extend(this, this.getDefaultConfig(args));
-    }
-    //set instantiation args
-    else if (_.isObject(args)) {
+    if (_.isObject(args)) {
         _.extend(this, args);
     }
 
     this.on(this.handlers);
 };
 
-GeneRenderer.prototype.setFeatureConfig = function (type) {
-    _.extend(this, this.getDefaultConfig(type));
+GeneRenderer.prototype.setFeatureConfig = function (configObject) {
+    _.extend(this, configObject);
 };
 
 GeneRenderer.prototype.render = function (features, args) {
@@ -52,7 +47,7 @@ GeneRenderer.prototype.render = function (features, args) {
         //get feature render configuration
 
         //get feature render configuration
-        _this.setFeatureConfig('gene');
+        _this.setFeatureConfig(FEATURE_TYPES.gene);
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
         var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
         var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
@@ -166,7 +161,7 @@ GeneRenderer.prototype.render = function (features, args) {
                         var transcriptWidth = (transcript.end - transcript.start + 1) * ( args.pixelBase);
 
                         //get type settings object
-                        _this.setFeatureConfig('transcript');
+                        _this.setFeatureConfig(FEATURE_TYPES.transcript);
                         var transcriptColor = _.isFunction(_this.color) ? _this.color(transcript) : _this.color;
                         var label = _.isFunction(_this.label) ? _this.label(transcript) : _this.label;
                         var height = _.isFunction(_this.height) ? _this.height(transcript) : _this.height;
@@ -231,7 +226,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             var exonWidth = (exonEnd - exonStart + 1) * ( args.pixelBase);
 
 
-                            _this.setFeatureConfig('exon');
+                            _this.setFeatureConfig(FEATURE_TYPES.exon);
                             var color = _.isFunction(_this.color) ? _this.color(exon) : _this.color;
                             var label = _.isFunction(_this.label) ? _this.label(exon) : _this.label;
                             var height = _.isFunction(_this.height) ? _this.height(exon) : _this.height;

@@ -30,13 +30,7 @@ function FeatureRenderer(args) {
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
     this.toolTipfontClass = 'ocb-font-default';
 
-    //set default args
-    if (_.isString(args)) {
-        var config = this.getDefaultConfig(args);
-        _.extend(this, config);
-    }
-    //set instantiation args
-    else if (_.isObject(args)) {
+     if (_.isObject(args)) {
         _.extend(this, args);
     }
 
@@ -47,6 +41,10 @@ function FeatureRenderer(args) {
 FeatureRenderer.prototype.render = function (features, args) {
     var _this = this;
     var draw = function (feature, svgGroup) {
+
+        if (typeof feature.featureType === 'undefined') {
+            feature.featureType = args.featureType;
+        }
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
         var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
@@ -140,7 +138,6 @@ FeatureRenderer.prototype.render = function (features, args) {
             textY += rowHeight;
         }
     };
-
 
 
     /****/

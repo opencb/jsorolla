@@ -175,7 +175,7 @@ FEATURE_TYPES = {
 
     //methods
     formatTitle: function (str) {
-        var s = '';
+        var s = str;
         if(str){
             str.replace(/_/gi, " ");
             s = s.charAt(0).toUpperCase() + s.slice(1);
@@ -226,8 +226,7 @@ FEATURE_TYPES = {
         },
         tooltipTitle: function (f) {
             var name = (f.name != null) ? f.name : f.id;
-            return FEATURE_TYPES.formatTitle('Gene') +
-                ' - <span class="ok">' + name + '</span>';
+            return FEATURE_TYPES.formatTitle('Gene') +' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
             var color = GENE_BIOTYPE_COLORS[f.biotype];
@@ -341,7 +340,7 @@ FEATURE_TYPES = {
         },
         tooltipTitle: function (f) {
             var name = (f.name != null) ? f.name : f.id;
-            return /*f.featureType.toUpperCase() +*/ ' - <span class="ok">' + name + '</span>';
+            return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
             return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
@@ -356,10 +355,10 @@ FEATURE_TYPES = {
         handlers: {
             'feature:mouseover': function (e) {
                 console.log(e)
-            },
-            'feature:click': function (event) {
-                new SnpInfoWidget(null, genomeViewer.species).draw(event);
             }
+//            'feature:click': function (event) {
+//                new SnpInfoWidget(null, genomeViewer.species).draw(event);
+//            }
         }
     },
     file: {

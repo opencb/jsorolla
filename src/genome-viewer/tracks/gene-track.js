@@ -82,7 +82,7 @@ GeneTrack.prototype.render = function (targetId) {
 
 GeneTrack.prototype.updateTranscriptParams = function () {
     if (this.region.length() < this.minTranscriptRegionSize) {
-        this.exclude = undefined;
+        this.exclude = this.dataAdapter.params.exclude;
     } else {
         this.exclude = 'transcripts';
     }

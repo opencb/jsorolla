@@ -33,7 +33,7 @@ function FeatureTrack(args) {
 //    this.histogramRenderer = new FeatureClusterRenderer();
     this.histogramRenderer = new HistogramRenderer(args);
 
-
+    this.featureType = 'Feature';
     //set instantiation args, must be last
     _.extend(this, args);
 
@@ -72,7 +72,8 @@ FeatureTrack.prototype.render = function (targetId) {
             width: _this.width,
             pixelPosition: _this.pixelPosition,
             resource:_this.resource,
-            species:_this.species
+            species:_this.species,
+            featureType:_this.featureType
         });
         _this.updateHeight();
         _this.setLoading(false);
