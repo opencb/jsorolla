@@ -150,7 +150,7 @@ NetworkViewerWebgl.prototype = {
         // set its position
         pointLight.position.x = 10;
         pointLight.position.y = 50;
-        pointLight.position.z = 130;
+        pointLight.position.z = 200;
 
 
         // add to the scene

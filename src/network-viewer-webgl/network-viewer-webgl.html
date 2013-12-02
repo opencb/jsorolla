@@ -13,7 +13,7 @@
         #header {
             /*background: #111;*/
             height: 80px;
-            padding-top:10px;
+            padding-top: 10px;
         }
 
         body {
@@ -84,22 +84,26 @@
 
         /**/
         var sifInputFile = $('#sifInputFile')[0];
-        $(sifInputFile).bind('change',function (event) {
+        $(sifInputFile).bind('change', function (event) {
             var file = this.files[0];
             var sifDataAdapter = new SIFDataAdapter({
                 dataSource: new FileDataSource(file),
-                handlers:{
-                    'data:load':function(event){
+                handlers: {
+                    'data:load': function (event) {
                         var verticesList = [];
                         for (var key in event.graph.vertices) {
                             var vertex = event.graph.vertices[key];
-                            verticesList.push({id:vertex.id});
+                            verticesList.push({id: vertex.id});
                         }
                         var layout = new GraphLayout({
                             verticesList: verticesList
                         });
-                        layout.applyRandom3d();
-                        networkViewerWebgl.renderGraph(event.graph,layout);
+//                        layout.applyRandom3d();
+                        layout.applySphereSurface(300);
+//                        layout.apply(function () {
+//
+//                        });
+                        networkViewerWebgl.renderGraph(event.graph, layout);
                     }
                 }
             })

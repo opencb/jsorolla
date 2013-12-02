@@ -51,15 +51,35 @@ GraphLayout.prototype = {
             this.vertices[vertex.id] = vertex;
         }
     },
+    getRandomArbitrary: function (min, max) {
+        return Math.random() * (max - min) + min;
+    },
     applyRandom3d: function () {
-        var getRandomArbitrary = function (min, max) {
-            return Math.random() * (max - min) + min;
-        }
         for (var i in this.vertices) {
             var vertex = this.vertices[i];
-            vertex.x = getRandomArbitrary(-300, 300);
-            vertex.y = getRandomArbitrary(-300, 300);
-            vertex.z = getRandomArbitrary(10, 600);
+            vertex.x = this.getRandomArbitrary(-300, 300);
+            vertex.y = this.getRandomArbitrary(-300, 300);
+            vertex.z = this.getRandomArbitrary(10, 600);
+        }
+    },
+    applySphereSurface: function (offsetZ) {
+        //        θ = theta
+        //        φ = phi
+        var radius = 200;
+        var n = Object.keys(this.vertices).length;
+        var i = 0;
+        for (var key in this.vertices) {
+            var vertex = this.vertices[key];
+
+            var phi = Math.acos(-1 + ( 2 * i ) / n);
+            var theta = Math.sqrt(n * Math.PI) * phi;
+
+            vertex.x = radius * Math.cos(theta) * Math.sin(phi);
+            vertex.y = radius * Math.sin(theta) * Math.sin(phi);
+            vertex.z = radius * Math.cos(phi) + offsetZ;
+
+            /* update */
+            i++;
         }
     },
     getRandom2d: function () {
