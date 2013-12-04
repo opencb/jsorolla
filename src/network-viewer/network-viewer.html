@@ -10,8 +10,8 @@
     <!-- build:style vendor -->
     <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
     <link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
-    <link type="text/css" rel="stylesheet"
-          href="../../vendor/jquery-ui-1.10.3.custom/css/smoothgray/jquery-ui-1.10.3.custom.min.css">
+    <link type="text/css" rel="stylesheet" href="../../vendor/bootstrap-scoped-dist/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="../../vendor/pick-a-color/1.2.0/css/pick-a-color-1.2.0.min.css">
     <!-- /build -->
 
     <!--css vendor-->
@@ -35,13 +35,13 @@
     <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
 
     <!-- These dependencies must go AFTER jquery -->
-    <!--<script type="text/javascript" src="../../vendor/bootstrap/js/bootstrap.min.js"></script>-->
     <script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
     <script type="text/javascript" src="../../vendor/purl.min.js"></script>
-    <script type="text/javascript"
-            src="../../vendor/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript" src="../../vendor/bootstrap-scoped-dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../vendor/pick-a-color/tinycolor-0.9.15.min.js"></script>
+    <script type="text/javascript" src="../../vendor/pick-a-color/1.2.0/js/pick-a-color-1.2.0.min.js"></script>
     <!-- /build -->
 
 
@@ -90,8 +90,29 @@
         });
     </script>
 
+    <style type="text/css">
+        html, body {
+            /*height: 100%;*/
+            /*position:relative;*/
+        }
+
+        body {
+            /*overflow: hidden;*/
+            /*padding:50px;*/
+        }
+
+        #application {
+            width: 1440px;
+            height: 800px;
+            /*overflow-y: auto;*/
+            /*overflow-x: hidden;*/
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
-<div id="application" style="position:relative; left:30px; top:30px;"></div>
+<div style=""></div>
+<div id="application"></div>
+<div style=""></div>
 </body>
 </html>

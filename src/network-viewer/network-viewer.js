@@ -54,7 +54,7 @@ NetworkViewer.prototype = {
         }
 
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="' + this.id + '" style="width:90%;border:1px solid lightgrey"></div>')[0];
+        this.div = $('<div id="' + this.id + '" class="bootstrap" style="width:90%;border:1px solid lightgrey"></div>')[0];
         $(this.targetDiv).append(this.div);
 
         this.toolbarDiv = $('<div id="toolbar"></div>')[0];
@@ -116,20 +116,27 @@ NetworkViewer.prototype = {
             targetId: targetId,
             autoRender: true,
             handlers: {
+                'collapseButton:click': function (event) {
+                    console.log(event);
+                    //todo
+                },
                 'layout:change': function (event) {
+                    console.log(event);
                     _this.setLayout(event.option);
                 },
                 'labelSize:change': function (event) {
+                    console.log(event);
                     _this.setLabelSize(event.option);
                 },
                 'select:change': function (event) {
+                    console.log(event);
                     _this.select(event.option);
                 },
                 'backgroundButton:click': function (event) {
                     console.log(event);
                     //todo
                 },
-                'overviewButton:change': function (event) {
+                'showOverviewButton:change': function (event) {
                     console.log(event);
                     //todo
                 },
@@ -137,8 +144,8 @@ NetworkViewer.prototype = {
                     console.log(event.zoom);
                     //todo
                 },
-                'search:change': function (event) {
-                    console.log(event.value);
+                'search': function (event) {
+                    console.log(event);
                     //todo
                 }
             }
@@ -151,51 +158,113 @@ NetworkViewer.prototype = {
             targetId: targetId,
             autoRender: true,
             handlers: {
-                'mode:select': function (event) {
-                    _this.networkSvg.setMode("select");
+                'selectButton:click': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'mode:add': function (event) {
-                    _this.networkSvg.setMode("add");
+                'addButton:click': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'mode:join': function (event) {
-                    _this.networkSvg.setMode("join");
+                'linkButton:click': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'mode:delete': function (event) {
-                    _this.networkSvg.setMode("delete");
+                'deleteButton:click': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'nodeName:change': function (value) {
-                    _this.networkSvg.setNodeName(value);
+                'nodeShape:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'nodeLabel:change': function (value) {
-                    _this.networkSvg.setNodeLabel(value);
+                'nodeSize:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'nodeShape:change': function (value) {
-                    _this.networkSvg.setNodeShape(value);
+                'nodeStrokeSize:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'nodeColor:change': function (value) {
-                    _this.networkSvg.setNodeColor(value);
+                'opacity:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'nodeStrokeColor:change': function (value) {
-                    _this.networkSvg.setNodeStrokeColor(value);
+                'edgeShape:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'nodeSize:change': function (value) {
-                    _this.networkSvg.setNodeSize(value);
+                'nodeColorField:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'nodeStrokeSize:change': function (value) {
-                    _this.networkSvg.setNodeStrokeSize(value);
+                'nodeStrokeColorField:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'nodeOpacity:change': function (value) {
-                    _this.networkSvg.setNodeOpacity(value);
+                'edgeLabelField:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'edgeLabel:change': function (value) {
-                    _this.networkSvg.setEdgeLabel(value);
+                'nodeNameField:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'edgeColor:change': function (value) {
-                    _this.networkSvg.setEdgeColor(value);
+                'nodeLabelField:change': function (event) {
+                    console.log(event);
+                    //todo
                 },
-                'edgeType:change': function (value) {
-                    _this.networkSvg.setEdgeType(value);
+                'edgeLabelField:change': function (event) {
+                    console.log(event);
+                    //todo
                 }
+
+                /*old events*/
+//                'mode:select': function (event) {
+//                    _this.networkSvg.setMode("select");
+//                },
+//                'mode:add': function (event) {
+//                    _this.networkSvg.setMode("add");
+//                },
+//                'mode:join': function (event) {
+//                    _this.networkSvg.setMode("join");
+//                },
+//                'mode:delete': function (event) {
+//                    _this.networkSvg.setMode("delete");
+//                },
+//                'nodeName:change': function (value) {
+//                    _this.networkSvg.setNodeName(value);
+//                },
+//                'nodeLabel:change': function (value) {
+//                    _this.networkSvg.setNodeLabel(value);
+//                },
+//                'nodeShape:change': function (value) {
+//                    _this.networkSvg.setNodeShape(value);
+//                },
+//                'nodeColor:change': function (value) {
+//                    _this.networkSvg.setNodeColor(value);
+//                },
+//                'nodeStrokeColor:change': function (value) {
+//                    _this.networkSvg.setNodeStrokeColor(value);
+//                },
+//                'nodeSize:change': function (value) {
+//                    _this.networkSvg.setNodeSize(value);
+//                },
+//                'nodeStrokeSize:change': function (value) {
+//                    _this.networkSvg.setNodeStrokeSize(value);
+//                },
+//                'nodeOpacity:change': function (value) {
+//                    _this.networkSvg.setNodeOpacity(value);
+//                },
+//                'edgeLabel:change': function (value) {
+//                    _this.networkSvg.setEdgeLabel(value);
+//                },
+//                'edgeColor:change': function (value) {
+//                    _this.networkSvg.setEdgeColor(value);
+//                },
+//                'edgeType:change': function (value) {
+//                    _this.networkSvg.setEdgeType(value);
+//                }
             }
         });
         return editionBar;
@@ -245,7 +314,7 @@ NetworkViewer.prototype = {
                 },
                 'selection:change': function (e) {
                     console.log(e);
-                    _this.trigger('selection:change',e);
+                    _this.trigger('selection:change', e);
                 },
                 'node:add': function (e) {
                     _this.editionBar.textBoxName.setValue(e);
