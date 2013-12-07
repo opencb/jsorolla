@@ -128,9 +128,14 @@ NetworkSvgLayout.prototype = {
         });
 
 
-        var mouseDown = false;
+        this.mouseDownFlag = false;
         $(this.svg).bind('mousedown.networkViewer', function (event) {
+            event.preventDefault();
+            _this.mouseDownFlag = true;
             _this.mouseDown(event);
+        });
+        $(this.svg).bind('mouseup.networkViewer', function (event) {
+            $(_this.svg).off('mousemove');
         });
 //        $(this.svg).bind('mouseup.networkViewer', function (event) {
 ////            console.log(event.target);
@@ -223,43 +228,73 @@ NetworkSvgLayout.prototype = {
         }
     },
     mouseDown: function (event) {
-//        console.log(event.target);
-
+        var _this = this;
+        var targetEl = event.target;
         switch (this.mode) {
             case "add":
-                this.createNode(event);
+                if ($(targetEl).attr('network-type') !== 'vertex') {
+                    this.createNode(event);
+                }
                 break;
             case "select":
-                debugger
+                var downX = (event.clientX - $(_this.svg).offset().left);
+                var downY = (event.clientY - $(_this.svg).offset().top);
+                var vertexId = $(targetEl).parent().attr('id');
+                var vertexSvg = $(targetEl).parent()[0];
+                var vertexDisplay = _this.network.networkConfig.displayVertices[vertexId];
+                var vertexLayout = _this.network.networkConfig.layout[vertexId];
                 /* vertex clicked */
-                if($(event.target).hasClass('vertex')){
-                    console.log(event.target.id)
+                if ($(targetEl).attr('network-type') === 'vertex') {
+                    $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
+                        moveEvent.preventDefault();
+                        var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
+                        var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
+                        var dispX = moveX - downX;
+                        var dispY = moveY - downY;
+                        var currentX = parseFloat(vertexSvg.getAttribute('x'));
+                        var currentY = parseFloat(vertexSvg.getAttribute('y'));
+                        vertexSvg.setAttribute('x', currentX + dispX);
+                        vertexSvg.setAttribute('y', currentY + dispY);
+
+                        // Calculate center x and y and update vertexLayout
+                        var midOffset = (vertexDisplay.size + vertexDisplay.strokeSize) / 2;
+                        vertexLayout.x = currentX + dispX + midOffset;
+                        vertexLayout.y = currentY + dispY + midOffset;
+
+                        downX = moveX;
+                        downY = moveY;
+                    });
                 }
                 break;
         }
     },
     createNode: function (event) {
-
         var nodeName = this.createdNodesCount;
 
+        /* event coordinates */
+        var offsetX = (event.clientX - $(this.svg).offset().left);
+        var offsetY = (event.clientY - $(this.svg).offset().top);
+
+        /* vertex graph */
         var vertex = new Vertex({
             name: this.createdNodesCount
         });
 
-        /* config: layout */
-        var offsetX = (event.clientX - $(this.svg).offset().left) - this.canvasOffsetX;
-        var offsetY = (event.clientY - $(this.svg).offset().top) - this.canvasOffsetY;
-        var coords = {x: offsetX, y: offsetY};
-        var vertexLayout = {
-            id: vertex.id,
-            x: offsetX,
-            y: offsetY
-        };
-
+        /* vertex display */
         var vertexDisplay = {
             id: vertex.id
         }
         _.extend(vertexDisplay, this.defaultVertexDisplay);
+
+        /* vertex layout */
+//        var midOffset = (vertexDisplay.size + vertexDisplay.strokeSize) / 2;
+//        var coords = {x: offsetX - midOffset, y: offsetY - midOffset};
+        var coords = {x: offsetX, y: offsetY};
+        var vertexLayout = {
+            id: vertex.id
+        };
+        _.extend(vertexLayout, coords);
+
 
         //update variables
         this.createdNodesCount++;
@@ -276,27 +311,31 @@ NetworkSvgLayout.prototype = {
         this.trigger('node:add', {vertex: vertex, sender: this});
     },
     drawNode: function (args) {
-        var nodeGroup = SVG.addChild(this.scaleGroupSVG, "g", {"cursor": "pointer"});
-        var nodeSvg = SVG.addChild(nodeGroup, 'circle', {
-            cx: args.vertexLayout.x,
-            cy: args.vertexLayout.y,
+
+        var midOffset = (args.vertexDisplay.size + args.vertexDisplay.strokeSize) / 2;
+
+        var nodeSvg = SVG.addChild(this.scaleGroupSVG, "svg", {
+            "id": args.vertex.id,
+            "cursor": "pointer",
+            x: args.vertexLayout.x - midOffset,
+            y: args.vertexLayout.y - midOffset
+        });
+        var node = SVG.addChild(nodeSvg, 'circle', {
+            cx: midOffset,
+            cy: midOffset,
             r: args.vertexDisplay.size / 2,
             stroke: args.vertexDisplay.strokeColor,
             'stroke-width': args.vertexDisplay.strokeSize,
             fill: args.vertexDisplay.color,
-            "class": "vertex"
+            'network-type': 'vertex'
         });
-        var textOffset = (parseInt(nodeSvg.getAttribute("height")) + 10) || (parseInt(nodeSvg.getAttribute("r") || nodeSvg.getAttribute("ry") || 0) * 2 + 10);
 
-        var textX = args.vertexLayout.x - (args.vertexDisplay.size / 2);
-        var textY = args.vertexLayout.y - (args.vertexDisplay.size / 2) + args.vertexDisplay.labelPositionY;
-        var nodeText = SVG.addChild(nodeGroup, "text", {
-            "id": args.vertex.id,
-            "x": textX,
-            "y": textY,
-            "font-size": args.vertexLayout.labelSize,
-            "fill": args.vertexLayout.labelColor,
-            "class": "nodeLabel"
+        var nodeText = SVG.addChild(nodeSvg, "text", {
+            "x": args.vertexDisplay.labelPositionX,
+            "y": args.vertexDisplay.labelPositionY,
+            "font-size": args.vertexDisplay.labelSize,
+            "fill": args.vertexDisplay.labelColor,
+            'network-type': 'vertexLabel'
         });
         nodeText.textContent = args.vertex.name;
     },
