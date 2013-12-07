@@ -54,8 +54,11 @@ NetworkViewer.prototype = {
         }
 
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="' + this.id + '" class="bootstrap" style="width:90%;border:1px solid lightgrey"></div>')[0];
+        this.div = $('<div id="' + this.id + '" class="bootstrap" style="height:100%;width:90%;border:1px solid lightgrey"></div>')[0];
         $(this.targetDiv).append(this.div);
+
+        this.height = $(this.div).height();
+        this.width = $(this.div).width();
 
         this.toolbarDiv = $('<div id="toolbar"></div>')[0];
         this.editionbarDiv = $('<div id="editionbar"></div>')[0];
@@ -88,14 +91,11 @@ NetworkViewer.prototype = {
             return;
         }
 
-        this.networkData = new NetworkData();
-
         /* Toolbar Bar */
         this.toolBar = this._createToolBar($(this.toolbarDiv).attr('id'));
 
         /* edition Bar */
         this.editionBar = this._createEditionBar($(this.editionbarDiv).attr('id'));
-
 
         this.networkSvg = this._createNetworkSvg($(this.mainPanelDiv).attr('id'));
 
@@ -159,112 +159,50 @@ NetworkViewer.prototype = {
             autoRender: true,
             handlers: {
                 'selectButton:click': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setMode("select");
                 },
                 'addButton:click': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setMode("add");
                 },
                 'linkButton:click': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setMode("join");
                 },
                 'deleteButton:click': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setMode("delete");
                 },
                 'nodeShape:change': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setNodeShape(event.value);
                 },
                 'nodeSize:change': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setNodeSize(event.value);
                 },
                 'nodeStrokeSize:change': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setNodeStrokeSize(event.value);
                 },
                 'opacity:change': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setNodeOpacity(event.value);
                 },
                 'edgeShape:change': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setEdgeType(event.value);
                 },
                 'nodeColorField:change': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setNodeColor(event.value);
                 },
                 'nodeStrokeColorField:change': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setNodeStrokeColor(event.value);
                 },
-                'edgeLabelField:change': function (event) {
-                    console.log(event);
-                    //todo
+                'edgeColorField:change': function (event) {
+                    _this.networkSvg.setEdgeColor(event.value);
                 },
                 'nodeNameField:change': function (event) {
-                    console.log(event);
-                    //todo
-                },
-                'nodeLabelField:change': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setNodeName(event.value);
                 },
                 'edgeLabelField:change': function (event) {
-                    console.log(event);
-                    //todo
+                    _this.networkSvg.setEdgeLabel(event.value);
+                },
+                'nodeLabelField:change': function (event) {
+                    _this.networkSvg.setNodeLabel(event.value);
                 }
-
-                /*old events*/
-//                'mode:select': function (event) {
-//                    _this.networkSvg.setMode("select");
-//                },
-//                'mode:add': function (event) {
-//                    _this.networkSvg.setMode("add");
-//                },
-//                'mode:join': function (event) {
-//                    _this.networkSvg.setMode("join");
-//                },
-//                'mode:delete': function (event) {
-//                    _this.networkSvg.setMode("delete");
-//                },
-//                'nodeName:change': function (value) {
-//                    _this.networkSvg.setNodeName(value);
-//                },
-//                'nodeLabel:change': function (value) {
-//                    _this.networkSvg.setNodeLabel(value);
-//                },
-//                'nodeShape:change': function (value) {
-//                    _this.networkSvg.setNodeShape(value);
-//                },
-//                'nodeColor:change': function (value) {
-//                    _this.networkSvg.setNodeColor(value);
-//                },
-//                'nodeStrokeColor:change': function (value) {
-//                    _this.networkSvg.setNodeStrokeColor(value);
-//                },
-//                'nodeSize:change': function (value) {
-//                    _this.networkSvg.setNodeSize(value);
-//                },
-//                'nodeStrokeSize:change': function (value) {
-//                    _this.networkSvg.setNodeStrokeSize(value);
-//                },
-//                'nodeOpacity:change': function (value) {
-//                    _this.networkSvg.setNodeOpacity(value);
-//                },
-//                'edgeLabel:change': function (value) {
-//                    _this.networkSvg.setEdgeLabel(value);
-//                },
-//                'edgeColor:change': function (value) {
-//                    _this.networkSvg.setEdgeColor(value);
-//                },
-//                'edgeType:change': function (value) {
-//                    _this.networkSvg.setEdgeType(value);
-//                }
             }
         });
         return editionBar;
@@ -272,44 +210,49 @@ NetworkViewer.prototype = {
 
     _createNetworkSvg: function (targetId) {
         var _this = this;
-        var networkSvg = new NetworkSvg({
+
+        var toolbarHeight = $(this.toolbarDiv).height();
+        var editionbarHeight = $(this.editionbarDiv).height();
+        var height = this.height - toolbarHeight - editionbarHeight;
+
+        var networkSvg = new NetworkSvgLayout({
             targetId: targetId,
-            width: 1000,
-            height: 800,
+            width: this.width,
+            height: height,
             networkData: this.networkData,
             autoRender: true,
             handlers: {
                 'node:click': function (e) {
                     if (_this.networkSvg.countSelectedNodes == 1) {
-                        _this.editionBar.showNodeButtons();
-                        _this.editionBar.hideEdgeButtons();
-                        _this.editionBar.setNodeButtons(e);
+//                        _this.editionBar.showNodeButtons();
+//                        _this.editionBar.hideEdgeButtons();
+//                        _this.editionBar.setNodeButtons(e);
                     } else {
-                        _this.editionBar.showNodeButtons();
-                        _this.editionBar.unsetNodeButtons();
+//                        _this.editionBar.showNodeButtons();
+//                        _this.editionBar.unsetNodeButtons();
                     }
                 },
                 'edge:click': function (e) {
                     if (_this.networkSvg.countSelectedEdges == 1) {
-                        _this.editionBar.showEdgeButtons();
-                        _this.editionBar.hideNodeButtons();
-                        _this.editionBar.setEdgeButtons(e);
+//                        _this.editionBar.showEdgeButtons();
+//                        _this.editionBar.hideNodeButtons();
+//                        _this.editionBar.setEdgeButtons(e);
                     } else {
-                        _this.editionBar.showEdgeButtons();
-                        _this.editionBar.unsetEdgeButtons();
+//                        _this.editionBar.showEdgeButtons();
+//                        _this.editionBar.unsetEdgeButtons();
                     }
                 },
                 'svg:click': function (e) {
                     if (_this.networkSvg.countSelectedNodes == 1) {
-                        _this.editionBar.showNodeButtons();
-                        _this.editionBar.hideEdgeButtons();
-                        _this.editionBar.setNodeButtons(e);
+//                        _this.editionBar.showNodeButtons();
+//                        _this.editionBar.hideEdgeButtons();
+//                        _this.editionBar.setNodeButtons(e);
                     } else if (_this.networkSvg.countSelectedNodes > 1) {
-                        _this.editionBar.showNodeButtons();
-                        _this.editionBar.unsetNodeButtons();
+//                        _this.editionBar.showNodeButtons();
+//                        _this.editionBar.unsetNodeButtons();
                     } else {
-                        _this.editionBar.hideNodeButtons();
-                        _this.editionBar.hideEdgeButtons();
+//                        _this.editionBar.hideNodeButtons();
+//                        _this.editionBar.hideEdgeButtons();
                     }
                 },
                 'selection:change': function (e) {
@@ -317,7 +260,7 @@ NetworkViewer.prototype = {
                     _this.trigger('selection:change', e);
                 },
                 'node:add': function (e) {
-                    _this.editionBar.textBoxName.setValue(e);
+                    $(_this.editionBar.nodeNameField).val(e);
                 },
                 'node:move': function (e) {
                     console.log(e);

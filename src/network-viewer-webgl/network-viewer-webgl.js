@@ -96,11 +96,13 @@ NetworkViewerWebgl.prototype = {
             this.scene.remove(this.elements[element]);
         }
         this.renderScene();
-        for (var id in graph.edges) {
-            this.renderEdge(graph.edges[id], layout, false);
+        for (var i = 0; i < graph.edges.length; i++) {
+            var edge = graph.edges[i];
+            this.renderEdge(edge, layout, false);
         }
-        for (var id in graph.vertices) {
-            this.renderVertex(graph.vertices[id], layout.vertices[id], false);
+        for (var i = 0; i < graph.vertices.length; i++) {
+            var vertex = graph.vertices[i];
+            this.renderVertex(vertex, layout.vertices[vertex.id], false);
         }
         this.renderScene();
     },

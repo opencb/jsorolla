@@ -146,13 +146,14 @@ EditionBar.prototype = {
         var pickAColorConfig = {
             showSpectrum: true,
             showSavedColors: true,
-            saveColorsPerElement: true,
+            saveColorsPerElement: false,
             fadeMenuToggle: true,
             showAdvanced: true,
-            showHexInput: false,
             showBasicColors: true,
-            allowBlank: false
+            showHexInput: false,
+            allowBlank: true
         }
+
 
         $(this.nodeColorField).pickAColor(pickAColorConfig);
         $(this.nodeStrokeColorField).pickAColor(pickAColorConfig);
@@ -168,13 +169,13 @@ EditionBar.prototype = {
         $(this.edgeColorField).next().find('button').prepend('<span class="ocb-icon icon-fill-color"></span>');
 
         $(this.nodeColorField).on("change", function () {
-            _this.trigger('nodeColorField:change', {color: $(this).val(), sender: {}})
+            _this.trigger('nodeColorField:change', {value: '#' + $(this).val(), sender: {}})
         });
         $(this.nodeStrokeColorField).on("change", function () {
-            _this.trigger('nodeStrokeColorField:change', {color: $(this).val(), sender: {}})
+            _this.trigger('nodeStrokeColorField:change', {value: '#' + $(this).val(), sender: {}})
         });
         $(this.edgeColorField).on("change", function () {
-            _this.trigger('edgeLabelField:change', {color: $(this).val(), sender: {}})
+            _this.trigger('edgeColorField:change', {value: '#' + $(this).val(), sender: {}})
         });
         /* */
 
@@ -194,12 +195,13 @@ EditionBar.prototype = {
 
 
         /* menus */
+        var opacities = {"none": '1', "low": '0.8', "medium": '0.5', "high": '0.2', "invisible": '0'};
         var sizeOptions = ['1', '2', '3', '4', '5', '6', '7', '8', '10', '12', '14', '16', '22', '28', '36', '72'];
 
         this._setMenu('nodeShape', this.nodeShapeMenu, ['circle', 'square', 'ellipse', 'rectangle']);
         this._setMenu('nodeSize', this.nodeSizeMenu, sizeOptions);
         this._setMenu('nodeStrokeSize', this.nodeStrokeSizeMenu, sizeOptions);
-        this._setMenu('opacity', this.nodeOpacityMenu, ["none", "low", "medium", "high", "invisible"]);
+        this._setMenu('opacity', this.nodeOpacityMenu, ["none", "low", "medium", "high", "invisible"], opacities);
         this._setMenu('edgeShape', this.edgeShapeMenu, ["directed", "odirected", "undirected", "inhibited", "dot", "odot"]);
 
 
@@ -223,13 +225,17 @@ EditionBar.prototype = {
         this.rendered = true;
     },
 
-    _setMenu: function (eventName, menu, options) {
+    _setMenu: function (eventName, menu, options, hashTable) {
         var _this = this;
         for (var i in options) {
             var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
             $(menu).append(menuEntry);
             $(menuEntry).click(function () {
-                _this.trigger(eventName + ':change', {option: $(this).text(), sender: _this});
+                var value = $(this).text();
+                if (typeof hashTable !== 'undefined') {
+                    value = hashTable[value];
+                }
+                _this.trigger(eventName + ':change', {value: value, sender: _this});
             });
         }
     }

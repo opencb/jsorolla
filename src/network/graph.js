@@ -70,8 +70,8 @@ function Graph(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('Graph');
 
-    this.vertices = {};
-    this.edges = {};
+    this.vertices = [];
+    this.edges = [];
 
     this.display = {
         style: {
@@ -90,8 +90,10 @@ function Graph(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.on(this.handlers);
+    this.verticesIndex = {};
+    this.edgesIndex = {};
 
+    this.on(this.handlers);
 }
 
 Graph.prototype = {
@@ -102,7 +104,9 @@ Graph.prototype = {
 
         this.addVertex(edge.source);
         this.addVertex(edge.target);
-        this.edges[edge.id] = edge;
+        var length = this.edges.push(edge);
+        var insertPosition = length - 1;
+        this.edgesIndex[edge.id] = insertPosition;
 
         edge.source.addEdge(edge);
         edge.target.addEdge(edge);
@@ -120,7 +124,9 @@ Graph.prototype = {
             return false;
         }
         // Add the vertex
-        this.vertices[vertex.id] = vertex;
+        var length = this.vertices.push(vertex);
+        var insertPosition = length - 1;
+        this.verticesIndex[vertex.id] = insertPosition;
 
         // the real number of vertices
         this.numberOfVertices++;
@@ -140,7 +146,10 @@ Graph.prototype = {
         //remove edge from vertex
         edge.source.removeEdge(edge);
 
-        delete this.edges[edge.id];
+        var position = this.edgesIndex[edge.id];
+        delete this.edgesIndex[edge.id];
+        delete this.edges[position];
+
         this.trigger('edge:remove', {edge: edge, graph: this});
         this.numberOfEdges--;
         return true;
@@ -161,20 +170,23 @@ Graph.prototype = {
         }
         vertex.removeEdges();
 
+        var position = this.verticesIndex[edge.id];
+        delete this.verticesIndex[vertex.id];
+        delete this.vertices[position];
+
         this.trigger('vertex:remove', {vertex: vertex, graph: this});
-        delete this.vertices[vertex.id];
         this.numberOfVertices--;
         return true;
     },
     containsEdge: function (edge) {
-        if (this.edges[edge.id] != null) {
+        if (this.edgesIndex[edge.id] != null) {
             return true;
         } else {
             return false;
         }
     },
     containsVertex: function (vertex) {
-        if (this.vertices[vertex.id] != null) {
+        if (this.verticesIndex[vertex.id] != null) {
             return true;
         } else {
             return false;

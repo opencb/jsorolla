@@ -56,10 +56,10 @@
 <script src="js/debugaxis.js"></script>
 
 <script src="../lib/utils/utils.js"></script>
-<script src="../graph/graph.js"></script>
-<script src="../graph/graph-layout.js"></script>
-<script src="../graph/vertex.js"></script>
-<script src="../graph/edge.js"></script>
+<script src="../network/graph.js"></script>
+<script src="../network/graph-layout.js"></script>
+<script src="../network/vertex.js"></script>
+<script src="../network/edge.js"></script>
 <script src="../lib/data-source/data-source.js"></script>
 <script src="../lib/data-source/file-data-source.js"></script>
 <script src="../lib/data-adapter/graph-data-adapter.js"></script>
@@ -91,8 +91,8 @@
                 handlers: {
                     'data:load': function (event) {
                         var verticesList = [];
-                        for (var key in event.graph.vertices) {
-                            var vertex = event.graph.vertices[key];
+                        for (var i = 0; i < event.graph.vertices.length; i++) {
+                            var vertex = event.graph.vertices[i];
                             verticesList.push({id: vertex.id});
                         }
                         var layout = new GraphLayout({
