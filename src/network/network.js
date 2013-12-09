@@ -56,5 +56,8 @@ Network.prototype = {
     },
     getVertexDisplay:function(vertex){
        return this.networkConfig.getVertexDisplay(vertex);
+    },
+    getVertexById:function(vertexId){
+        return this.graph.getVertexById(vertexId);
     }
 }

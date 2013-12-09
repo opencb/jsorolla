@@ -65,6 +65,9 @@ function NetworkSvgLayout(args) {
         labelPositionY: 50
     };
 
+    /* join vertex click flag */
+    this.joinSourceVertex = null;
+
     this.on(this.handlers);
 
     this.rendered = false;
@@ -239,12 +242,12 @@ NetworkSvgLayout.prototype = {
             case "select":
                 var downX = (event.clientX - $(_this.svg).offset().left);
                 var downY = (event.clientY - $(_this.svg).offset().top);
-                var vertexId = $(targetEl).parent().attr('id');
-                var vertexSvg = $(targetEl).parent()[0];
-                var vertexDisplay = _this.network.networkConfig.displayVertices[vertexId];
-                var vertexLayout = _this.network.networkConfig.layout[vertexId];
                 /* vertex clicked */
                 if ($(targetEl).attr('network-type') === 'vertex') {
+                    var vertexId = $(targetEl).parent().attr('id');
+                    var vertexSvg = $(targetEl).parent()[0];
+                    var vertexDisplay = _this.network.networkConfig.displayVertices[vertexId];
+                    var vertexLayout = _this.network.networkConfig.layout[vertexId];
                     $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
                         moveEvent.preventDefault();
                         var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
@@ -264,6 +267,23 @@ NetworkSvgLayout.prototype = {
                         downX = moveX;
                         downY = moveY;
                     });
+                }
+                break;
+            case "join":
+                var downX = (event.clientX - $(_this.svg).offset().left);
+                var downY = (event.clientY - $(_this.svg).offset().top);
+                /* vertex clicked */
+                if ($(targetEl).attr('network-type') === 'vertex') {
+                    var vertexId = $(targetEl).parent().attr('id');
+                    var vertexSvg = $(targetEl).parent()[0];
+                    var vertex = _this.network.getVertexById(vertexId);
+                    // first time node click
+                    if(_this.joinSourceVertex == null){
+                        _this.joinSourceVertex = vertex;
+                    }else{
+                       _this.createEdge(_this.joinSourceVertex,vertex);
+                        _this.joinSourceVertex = null;
+                    }
                 }
                 break;
         }
@@ -338,6 +358,9 @@ NetworkSvgLayout.prototype = {
             'network-type': 'vertexLabel'
         });
         nodeText.textContent = args.vertex.name;
+    },
+    createEdge: function (vertexSource, vertexTarget) {
+        //todo
     },
     drawGraph: function () {
         $(this.scaleGroupSVG).empty();

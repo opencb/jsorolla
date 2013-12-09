@@ -193,6 +193,10 @@ Graph.prototype = {
         }
     },
     /**/
+    getVertexById:function(vertexId){
+        return this.vertices[this.verticesIndex[vertexId]];
+    },
+    /**/
     addLayout: function (layout) {
         this.display.layouts[layout.id] = layout;
     }
