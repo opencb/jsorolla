@@ -19,31 +19,30 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function GraphDataAdapter(args) {
-    var _this = this;
-    _.extend(this, Backbone.Events);
+function Vertex(args) {
+    this.id = Utils.genId('v');
 
-    this.dataSource;
-    this.async = true;
-    this.graph = new Graph();
+    this.name;
+    this.edges = [];
 
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.on(this.handlers);
+}
 
-    if (this.async) {
-        this.dataSource.on('success', function (data) {
-            _this.parse(data);
-            _this.trigger('data:load', {graph:_this.graph});
-        });
-        this.dataSource.fetch(this.async);
-    } else {
-        var data = this.dataSource.fetch(this.async);
-        this.parse(data);
+Vertex.prototype = {
+    removeEdge: function (edge) {
+        for (var i = 0; i < this.edges.length; i++) {
+            if (this.edges[i].id === edge.id) {
+                this.edges.splice(i, 1);
+                break;
+            }
+        }
+    },
+    removeEdges: function(){
+        this.edges = [];
+    },
+    addEdge: function (edge) {
+        this.edges.push(edge);
     }
-};
-
-GraphDataAdapter.prototype.getGraph = function () {
-    return this.graph;
-};
+}

@@ -232,6 +232,24 @@ GenomeViewer.prototype = {
             _this.species = event.species;
             _this.chromosomes = _this.getChromosomes();
         });
+
+        $("html").bind('keydown.genomeViewer', function (e) {
+            switch (e.keyCode) {
+                case 40://down arrow
+                case 109://minus key
+                    if (e.shiftKey) {
+                        _this.increaseZoom(-10);
+                    }
+                    break;
+                case 38://up arrow
+                case 107://plus key
+                    if (e.shiftKey) {
+                        _this.increaseZoom(10);
+                    }
+                    break;
+            }
+        });
+
     },
 
     destroy: function () {
@@ -414,7 +432,7 @@ GenomeViewer.prototype = {
 
         this.on('region:change', function (event) {
 //            if (event.sender != navigationBar) {
-                _this.navigationBar.setRegion(event.region);
+            _this.navigationBar.setRegion(event.region);
 //            }
             _this.zoom = _this._calculateZoomByRegion(event.region);
             _this.navigationBar.setZoom(_this.zoom);
@@ -423,7 +441,7 @@ GenomeViewer.prototype = {
             _this.navigationBar.setZoom(event.zoom);
             _this.region.load(_this._calculateRegionByZoom(event.zoom));
             if (event.sender != navigationBar) {
-                _this.navigationBar.setRegion(event.region);
+                _this.navigationBar.setRegion(_this.region);
             }
             _this.setRegion(_this.region);
         });
@@ -707,16 +725,15 @@ GenomeViewer.prototype = {
         this.region.load(region);
     },
     setRegion: function (region) {
-        var region = this._checkRegion(region);
         this.region.load(region);
         this.setMinRegion(this.region, this.getSVGCanvasWidth());
         this.trigger('region:change', {region: this.region, sender: this});
     },
     _checkRegion: function (newRegion) {
         var newChr = this.chromosomes[newRegion.chromosome];
-        if(newRegion.chromosome !== this.region.chromosome){
-            newRegion.start = Math.round(newChr.size/2);
-            newRegion.end =  Math.round(newChr.size/2);
+        if (newRegion.chromosome !== this.region.chromosome) {
+            newRegion.start = Math.round(newChr.size / 2);
+            newRegion.end = Math.round(newChr.size / 2);
         }
         return newRegion;
     },
@@ -728,6 +745,16 @@ GenomeViewer.prototype = {
             region.start = Math.floor(centerPosition - aux);
             region.end = Math.floor(centerPosition + aux);
         }
+    },
+    setZoom: function (zoom) {
+        this.zoom = zoom;
+        this.zoom = Math.min(100, this.zoom);
+        this.zoom = Math.max(0, this.zoom);
+        this.trigger('zoom:change', {zoom: this.zoom, sender: this});
+    },
+    increaseZoom: function (zoomToIncrease) {
+        this.zoom += zoomToIncrease;
+        this.setZoom(this.zoom);
     },
     _calculateRegionByZoom: function (zoom) {
         // mrl = minimum region length

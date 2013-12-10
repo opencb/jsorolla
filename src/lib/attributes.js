@@ -19,31 +19,19 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function GraphDataAdapter(args) {
+function Attributes(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
-
-    this.dataSource;
-    this.async = true;
-    this.graph = new Graph();
+    this.id = Utils.genId('Attributes');
 
     //set instantiation args, must be last
     _.extend(this, args);
 
+
+
     this.on(this.handlers);
+}
 
-    if (this.async) {
-        this.dataSource.on('success', function (data) {
-            _this.parse(data);
-            _this.trigger('data:load', {graph:_this.graph});
-        });
-        this.dataSource.fetch(this.async);
-    } else {
-        var data = this.dataSource.fetch(this.async);
-        this.parse(data);
-    }
-};
+Attributes.prototype = {
 
-GraphDataAdapter.prototype.getGraph = function () {
-    return this.graph;
-};
+}

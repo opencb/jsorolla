@@ -2,6 +2,9 @@ function NetworkViewerWebgl(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('NetworkViewerWebgl');
 
+    this.width = 800;
+    this.height = 600;
+
     this.scene;
     this.camera;
     this.renderer;
@@ -11,7 +14,6 @@ function NetworkViewerWebgl(args) {
     this.cameraTheta;
     this.cameraPhi;
 
-    this.graph;
 
     this.elements = {};
 
@@ -30,99 +32,6 @@ NetworkViewerWebgl.prototype = {
         var _this = this;
         this.initScene();
 
-        this.graph = new Graph({
-            handlers: {
-                'edge:add': function (e) {
-                    console.log('edge:add');
-                    console.log(e.edge);
-                    console.log(' ');
-                    _this.renderEdge(e.edge);
-                },
-                'edge:remove': function (e) {
-                    console.log('edge:remove');
-                    console.log(e.edge);
-                    console.log(' ');
-                },
-                'vertex:add': function (e) {
-                    console.log('vertex:add');
-                    console.log(e.vertex);
-                    console.log(' ');
-                    _this.renderVertex(e.vertex, _this.graph.display.layouts[layout.id].vertices[e.vertex.id]);
-                },
-                'vertex:remove': function (e) {
-                    console.log('vertex:remove');
-                    console.log(e.vertex);
-                    console.log(' ');
-                }
-            }
-        });
-
-        v1 = new Vertex({
-            name: 'n1'
-        });
-//        this.graph.addVertex(v1);
-        v2 = new Vertex({
-            name: 'n2'
-        });
-        v3 = new Vertex({
-            name: 'n3'
-        });
-        e1 = new Edge({
-            name: 'e1',
-            source: v1,
-            target: v2,
-            weight: 7,
-            directed: true
-        });
-        e2 = new Edge({
-            name: 'e2',
-            source: v2,
-            target: v1,
-            weight: 7,
-            directed: true
-        });
-        e3 = new Edge({
-            name: 'e2',
-            source: v3,
-            target: v1,
-            weight: 7,
-            directed: true
-        });
-        function Layout(vertices) {
-            this.id = Utils.genId('Layout');
-            this.vertices = {};
-            for (var i in vertices) {
-                this.vertices[vertices[i].id] = vertices[i];
-            }
-        }
-
-        layout = new Layout([
-            {
-                id: v1.id,
-                x: 50,
-                y: 50,
-                z: 100
-            },
-            {
-                id: v2.id,
-                x: -50,
-                y: -50,
-                z: 100
-            } ,
-            {
-                id: v3.id,
-                x: -50,
-                y: 50,
-                z: 200
-            }
-        ]
-        );
-
-        this.graph.addLayout(layout);
-
-        this.graph.addEdge(e1);
-        this.graph.addVertex(v3);
-        this.graph.addEdge(e3);
 
         setTimeout(function () {
             _this.renderScene();
@@ -155,15 +64,15 @@ NetworkViewerWebgl.prototype = {
         }
 
     },
-    renderEdge: function (edge, updateScene) {
+    renderEdge: function (edge, layout, updateScene) {
 
         var element = this.elements[edge.id];
         if (element != null) {
             this.scene.remove(element);
         }
         /** vertex representation **/
-        var sourceCoords = this.graph.display.layouts[layout.id].vertices[edge.source.id];
-        var targetCoods = this.graph.display.layouts[layout.id].vertices[edge.target.id];
+        var sourceCoords = layout.vertices[edge.source.id];
+        var targetCoods = layout.vertices[edge.target.id];
         var hslRand = Math.random();
 
         var material = new THREE.LineBasicMaterial({color: 0xffffff});
@@ -182,21 +91,20 @@ NetworkViewerWebgl.prototype = {
         }
 
     },
-    renderGraph: function (layout) {
-
+    renderGraph: function (graph, layout) {
         for (var element in this.elements) {
             this.scene.remove(this.elements[element]);
         }
         this.renderScene();
-        for (var id in this.graph.edges) {
-            this.renderEdge(this.graph.edges[id], false);
+        for (var i = 0; i < graph.edges.length; i++) {
+            var edge = graph.edges[i];
+            this.renderEdge(edge, layout, false);
         }
-        for (var id in this.graph.vertices) {
-            this.renderVertex(this.graph.vertices[id], this.graph.display.layouts[layout.id].vertices[id], false);
+        for (var i = 0; i < graph.vertices.length; i++) {
+            var vertex = graph.vertices[i];
+            this.renderVertex(vertex, layout.vertices[vertex.id], false);
         }
-
         this.renderScene();
-
     },
     initScene: function () {
         this.particleTexture = THREE.ImageUtils.loadTexture('images/spark.png');
@@ -207,8 +115,8 @@ NetworkViewerWebgl.prototype = {
         this.cameraPhi = 5;
 
         // set the scene size
-        var WIDTH = $(window).width() - 30;
-        var HEIGHT = $(window).height() - 30;
+        var WIDTH = this.width;
+        var HEIGHT = this.height;
 
         // set some camera attributes
         var VIEW_ANGLE = 45,
@@ -244,7 +152,7 @@ NetworkViewerWebgl.prototype = {
         // set its position
         pointLight.position.x = 10;
         pointLight.position.y = 50;
-        pointLight.position.z = 130;
+        pointLight.position.z = 200;
 
 
         // add to the scene
@@ -254,7 +162,7 @@ NetworkViewerWebgl.prototype = {
         this.groupElements = new THREE.Object3D();
 
         // debug plane
-        var plane = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({color: 0x000000}));
+        var plane = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({color: 0x333333}));
 //        var plane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshNormalMaterial({ shading: THREE.SmoothShading }));
 //        plane.overdraw = true;
         this.scene.add(plane);

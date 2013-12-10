@@ -29,8 +29,6 @@ function FileDataSource(file) {
     this.file = file;
     this.maxSize = 500*1024*1024;
 
-//	this.success = new Event();
-//	this.error = new Event();
 };
 
 FileDataSource.prototype.error = function(){
