@@ -171,25 +171,25 @@ NetworkViewer.prototype = {
                     _this.networkSvg.setMode("delete");
                 },
                 'nodeShape:change': function (event) {
-                    _this.networkSvg.setNodeShape(event.value);
+                    //TODO
                 },
                 'nodeSize:change': function (event) {
-                    _this.networkSvg.setNodeSize(event.value);
+                    _this.networkSvg.setSelectedVerticesDisplayAttr('size', parseInt(event.value));
                 },
                 'nodeStrokeSize:change': function (event) {
-                    _this.networkSvg.setNodeStrokeSize(event.value);
+                    _this.networkSvg.setSelectedVerticesDisplayAttr('strokeSize', parseInt(event.value));
                 },
                 'opacity:change': function (event) {
-                    _this.networkSvg.setNodeOpacity(event.value);
+                    _this.networkSvg.setSelectedVerticesDisplayAttr('opacity', parseInt(event.value));
                 },
                 'edgeShape:change': function (event) {
-                    _this.networkSvg.setEdgeType(event.value);
+                    //TODO
                 },
                 'nodeColorField:change': function (event) {
-                    _this.networkSvg.setNodeColor(event.value);
+                    _this.networkSvg.setSelectedVerticesDisplayAttr('color', event.value);
                 },
                 'nodeStrokeColorField:change': function (event) {
-                    _this.networkSvg.setNodeStrokeColor(event.value);
+                    _this.networkSvg.setSelectedVerticesDisplayAttr('strokeColor', event.value);
                 },
                 'edgeColorField:change': function (event) {
                     _this.networkSvg.setEdgeColor(event.value);

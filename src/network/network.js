@@ -45,6 +45,13 @@ Network.prototype = {
         this.setVertexLayout(vertexLayout);
         this.setVertexDisplay(vertexDisplay);
     },
+    addEdge:function(args){
+        var edgeDisplay = args.edgeDisplay;
+        var edge = args.edge;
+
+        this.graph.addEdge(edge);
+        this.setEdgeDisplay(edgeDisplay);
+    },
     setVertexLayout:function(vertexLayout){
         this.networkConfig.setVertexLayout(vertexLayout);
     },
@@ -57,7 +64,16 @@ Network.prototype = {
     getVertexDisplay:function(vertex){
        return this.networkConfig.getVertexDisplay(vertex);
     },
+    setEdgeDisplay:function(edgeDisplay){
+        this.networkConfig.setEdgeDisplay(edgeDisplay);
+    },
+    getEdgeDisplay:function(edge){
+        return this.networkConfig.getEdgeDisplay(edge);
+    },
     getVertexById:function(vertexId){
         return this.graph.getVertexById(vertexId);
+    },
+    removeVertex:function(vertex){
+        this.graph.removeVertex(vertex);
     }
 }

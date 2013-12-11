@@ -48,5 +48,11 @@ NetworkConfig.prototype = {
     },
     getVertexDisplay:function(vertex){
         return this.displayVertices[vertex.id];
+    },
+    setEdgeDisplay:function(edgeDisplay){
+        this.displayEdges[edgeDisplay.id] = edgeDisplay;
+    },
+    getEdgeDisplay:function(edge){
+        return this.displayEdges[edge.id];
     }
 }
