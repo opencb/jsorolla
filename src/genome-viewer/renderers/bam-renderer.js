@@ -30,13 +30,7 @@ function BamRenderer(args) {
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
     this.toolTipfontClass = 'ocb-font-default';
 
-    //set default args
-    if (_.isString(args)) {
-        var config = this.getDefaultConfig(args);
-        _.extend(this, config);
-    }
-    //set instantiation args
-    else if (_.isObject(args)) {
+    if (_.isObject(args)) {
         _.extend(this, args);
     }
 
@@ -203,7 +197,7 @@ BamRenderer.prototype.render = function (response, args) {
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature, args.region.chromosome) : _this.color;
         var strokeColor = _.isFunction(_this.strokeColor) ? _this.strokeColor(feature, args.region.chromosome) : _this.strokeColor;
-        var label = _.isFunction(_this.label) ? _this.label(feature, args.zoom) : _this.label;
+        var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
         var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
         var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
         var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
@@ -266,7 +260,7 @@ BamRenderer.prototype.render = function (response, args) {
                 //});
                 //readEls.push(rect);
 
-                if (diff != null && args.zoom > 95) {
+                if (diff != null && args.regionSize < 400) {
                     //var	t = SVG.addChild(featureGroup,"text",{
                     //"x":x+1,
                     //"y":rowY+settings.height-1,
@@ -396,7 +390,7 @@ BamRenderer.prototype.render = function (response, args) {
                     "cursor": "pointer"
                 });
 
-                if (_this.zoom > 95) {
+                if (args.regionSize < 400) {
                     if (readDiff != null) {
                         var readPath = SVG.addChild(bamReadGroup, "path", {
                             "d": Utils.genBamVariants(readDiff, _this.pixelBase, readX, rowY),

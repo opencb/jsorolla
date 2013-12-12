@@ -19,40 +19,31 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-FileDataSource.prototype.fetch = DataSource.prototype.fetch;
-
-function FileDataSource(file) {
-	DataSource.prototype.constructor.call(this);
-	
+function GraphDataAdapter(args) {
+    var _this = this;
     _.extend(this, Backbone.Events);
 
-    this.file = file;
-    this.maxSize = 500*1024*1024;
+    this.dataSource;
+    this.async = true;
+    this.graph = new Graph();
 
-//	this.success = new Event();
-//	this.error = new Event();
+    //set instantiation args, must be last
+    _.extend(this, args);
+
+    this.on(this.handlers);
+
+    if (this.async) {
+        this.dataSource.on('success', function (data) {
+            _this.parse(data);
+            _this.trigger('data:load', {graph:_this.graph});
+        });
+        this.dataSource.fetch(this.async);
+    } else {
+        var data = this.dataSource.fetch(this.async);
+        this.parse(data);
+    }
 };
 
-FileDataSource.prototype.error = function(){
-	alert("File is too big. Max file size is "+this.maxSize+" bytes");
-};
-
-FileDataSource.prototype.fetch = function(async){
-	var _this = this;
-	if(this.file.size <= this.maxSize){
-		if(async){
-			var  reader = new FileReader();
-			reader.onload = function(evt) {
-                _this.trigger('success',evt.target.result);
-			};
-			reader.readAsText(this.file, "UTF-8");
-		}else{
-			// FileReaderSync web workers only
-			var reader = new FileReaderSync();
-			return reader.readAsText(this.file, "UTF-8");
-		}
-	}else{
-		_this.error();
-		_this.trigger('error',{sender:this});
-	}
+GraphDataAdapter.prototype.getGraph = function () {
+    return this.graph;
 };

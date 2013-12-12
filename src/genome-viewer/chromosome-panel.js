@@ -109,7 +109,7 @@ ChromosomePanel.prototype = {
             $(this.div).append(this.titleDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs" style="margin-left:10px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
+                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs pull-right" style="display:inline;margin:2px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
                 $(this.titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -386,7 +386,8 @@ ChromosomePanel.prototype = {
         var downY, downX, moveX, moveY, lastX, increment;
 
         $(this.svg).mousedown(function (event) {
-            downX = (event.pageX - $(_this.svg).offset().left);
+//            downX = (event.pageX - $(_this.svg).offset().left);
+            downX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
             selBox.setAttribute("x", downX);
             lastX = _this.positionBox.getAttribute("x");
             if (status == '') {
@@ -394,7 +395,8 @@ ChromosomePanel.prototype = {
             }
             hideResizeControls();
             $(this).mousemove(function (event) {
-                moveX = (event.pageX - $(_this.svg).offset().left);
+//                moveX = (event.pageX - $(_this.svg).offset().left);
+                moveX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
                 hideResizeControls();
                 switch (status) {
                     case 'resizePositionBoxLeft' :

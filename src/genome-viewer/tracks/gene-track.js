@@ -31,8 +31,8 @@ function GeneTrack(args) {
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
-    this.histogramRenderer = new FeatureClusterRenderer();
-//    this.histogramRenderer = new HistogramRenderer();
+//    this.histogramRenderer = new FeatureClusterRenderer();
+    this.histogramRenderer = new HistogramRenderer(args);
 
 
     //set instantiation args, must be last
@@ -82,7 +82,7 @@ GeneTrack.prototype.render = function (targetId) {
 
 GeneTrack.prototype.updateTranscriptParams = function () {
     if (this.region.length() < this.minTranscriptRegionSize) {
-        this.exclude = undefined;
+        this.exclude = this.dataAdapter.params.exclude;
     } else {
         this.exclude = 'transcripts';
     }

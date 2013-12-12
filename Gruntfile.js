@@ -16,14 +16,9 @@ module.exports = function (grunt) {
                 utils:'1.0.0'
             }
         },
-        banner: '/*! PROJECT_NAME - v<%= meta.version %> - ' +
-            '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-            '* http://PROJECT_WEBSITE/\n' +
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
-            'OpenCB; Licensed GPLv2 */\n',
         bannergv: '/*! Genome Viewer - v<%= meta.version.gv %> - ' +
-            '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-            '* http://https://github.com/opencb-bigdata-viz/js-common-libs/\n' +
+            '<%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %>\n' +
+            '* http://https://github.com/opencb/jsorolla/\n' +
             '* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
             ' ' +
             'Licensed GPLv2 */\n',
@@ -68,7 +63,7 @@ module.exports = function (grunt) {
                     'src/genome-viewer/karyotype-panel.js',
                     'src/genome-viewer/status-bar.js',
                         /** data-adapter **/
-                    'src/genome-viewer/data-source/data-source.js','src/genome-viewer/data-source/*-data-source.js',
+                    'src/lib/data-source/data-source.js','src/lib/data-source/*-data-source.js',
                     'src/genome-viewer/data-adapter/cellbase-adapter.js',
                     'src/genome-viewer/data-adapter/sequence-adapter.js',
                     'src/genome-viewer/data-adapter/bam-adapter.js',
@@ -132,9 +127,6 @@ module.exports = function (grunt) {
             }
         },
         uglify: {
-            options: {
-                banner: '<%= bannergv %>'
-            },
             cellbase: {
                 src: '<%= concat.cellbase.dest %>',
                 dest: 'build/cellbase-<%= meta.version.cellbase %>.min.js'

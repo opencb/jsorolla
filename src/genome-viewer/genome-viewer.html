@@ -164,6 +164,7 @@ var run = function () {
             collapsed: false,
             collapsible: true
         }
+//        chromosomeList:[]
 //            trackListTitle: ''
 //            drawNavigationBar = true;
 //            drawKaryotypePanel: false,
@@ -178,7 +179,7 @@ var run = function () {
     this.sequence = new SequenceTrack({
         targetId: null,
         id: 1,
-        title: 'Sequence',
+//        title: 'Sequence',
         height: 30,
         visibleRegionSize: 200,
 
@@ -211,20 +212,18 @@ var run = function () {
             resource: "gene",
             species: genomeViewer.species,
             params: {
-                exclude: 'transcripts.xrefs,transcripts.exons.sequence'
+                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
             },
             cacheConfig: {
-                chunkSize: 50000
-            },
-            filters: {},
-            options: {}
+                chunkSize: 100000
+            }
         })
     });
 
     tracks.push(this.gene);
 
 
-    var renderer = new FeatureRenderer('gene');
+    var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
     renderer.on({
         'feature:click': function (event) {
             // feature click event example
@@ -234,7 +233,7 @@ var run = function () {
     var gene = new FeatureTrack({
         targetId: null,
         id: 2,
-        title: 'Gene',
+//        title: 'Gene',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
         height: 100,
@@ -250,7 +249,7 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                chunkSize: 50000
+                chunkSize: 100000
             }
         })
     });
@@ -260,11 +259,12 @@ var run = function () {
         targetId: null,
         id: 4,
         title: 'SNP',
+        featureType:'SNP',
         minHistogramRegionSize: 12000,
         maxLabelRegionSize: 3000,
         height: 100,
 
-        renderer: new FeatureRenderer('snp'),
+        renderer: new FeatureRenderer(FEATURE_TYPES.snp),
 
         dataAdapter: new CellBaseAdapter({
             category: "genomic",
@@ -276,9 +276,7 @@ var run = function () {
             species: genomeViewer.species,
             cacheConfig: {
                 chunkSize: 10000
-            },
-            filters: {},
-            options: {},
+            }
         })
     });
 

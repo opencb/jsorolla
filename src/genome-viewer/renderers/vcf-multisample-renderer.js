@@ -30,13 +30,7 @@ function VcfMultisampleRenderer(args) {
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
     this.toolTipfontClass = 'ocb-font-default';
 
-    //set default args
-    if (_.isString(args)) {
-        var config = this.getDefaultConfig(args);
-        _.extend(this, config);
-    }
-    //set instantiation args
-    else if (_.isObject(args)) {
+    if (_.isObject(args)) {
         _.extend(this, args);
     }
 
@@ -49,7 +43,7 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
     var draw = function (feature) {
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
-        var label = _.isFunction(_this.label) ? _this.label(feature, args.zoom) : _this.label;
+        var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
         var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
         var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
         var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
@@ -74,7 +68,7 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
 
         var maxWidth = Math.max(width, 2);
         var textHeight = 0;
-        if (args.zoom > args.labelZoom) {
+        if (args.regionSize < args.maxLabelRegionSize) {
             textHeight = 9;
             maxWidth = Math.max(width, svgLabelWidth);
         }

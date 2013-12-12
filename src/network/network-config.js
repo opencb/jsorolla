@@ -19,30 +19,34 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function Vertex(args) {
-    this.id = Utils.genId('Vertex');
-
-    this.name;
-    this.edges = [];
+function NetworkConfig(args) {
+    var _this = this;
+    _.extend(this, Backbone.Events);
+    this.id = Utils.genId('NetworkConfig');
 
     //set instantiation args, must be last
     _.extend(this, args);
 
+
+    this.layout = {}; // [{id:"one",x:1,y:2,z:3},...]
+    this.displayVertices = {}; // [{id:"one",color:red,...},...]
+    this.displayEdges = {};  // [{id:"one",color:red,...},...]
+    this.general = {};
+
+    this.on(this.handlers);
 }
 
-Vertex.prototype = {
-    removeEdge: function (edge) {
-        for (var i = 0; i < this.edges.length; i++) {
-            if (this.edges[i].id === edge.id) {
-                this.edges.splice(i, 1);
-                break;
-            }
-        }
+NetworkConfig.prototype = {
+    setVertexLayout:function(vertexLayout){
+        this.layout[vertexLayout.id] = vertexLayout;
     },
-    removeEdges: function(){
-        this.edges = [];
+    setVertexDisplay:function(vertexDisplay){
+        this.displayVertices[vertexDisplay.id] = vertexDisplay;
     },
-    addEdge: function (edge) {
-        this.edges.push(edge);
+    getVertexLayout:function(vertex){
+        return this.layout[vertex.id];
+    },
+    getVertexDisplay:function(vertex){
+        return this.displayVertices[vertex.id];
     }
 }
