@@ -555,6 +555,10 @@ a:hover {
     background: url(../img/ocb-icon-track-autoheight.png) !important;
 }
 
+.ocb-icon-compressed {
+    background: url(../img/ocb-icon-compressed.png) !important;
+}
+
 .icon-save {
     background: url('../img/save.png');
 }
