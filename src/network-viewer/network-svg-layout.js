@@ -55,7 +55,7 @@ function NetworkSvgLayout(args) {
         size: 35,
         color: '#cccccc',
         strokeSize: 1,
-        strokeColor: '#888888', 
+        strokeColor: '#888888',
         opacity: 1,
         labelSize: 12,
         labelColor: '#111111',
@@ -186,55 +186,6 @@ NetworkSvgLayout.prototype = {
         $(this.svg).bind('mouseup.networkViewer', function (event) {
             _this.mouseUp(event);
         });
-
-
-        if (this.parentNetwork) {
-            this.parentNetwork.on('selection:change', function (e) {
-                _this.selectNodes(e);
-            });
-            this.parentNetwork.on('node:move', function (e) {
-                _this.moveNode(e.nodeId, e.x, e.y);
-            });
-            this.parentNetwork.on('change', function (e) {
-                _this.refresh();
-                _this.placeLabelsAndEdges();
-                _this.setOverviewRectSize(_this.zoom);
-            });
-
-            this.overviewDivWidth = $(this.targetId).width();
-            this.overviewDivHeight = $(this.targetId).height();
-
-
-            SVG.addChild(this.svg, "rect", {
-                "width": "100%",
-                "height": "100%",
-                "opacity": "0"
-            });
-
-            this.overviewRect = SVG.addChild(this.svg, "rect", {
-                "width": "100%",
-                "height": "100%",
-                "fill": "blue",
-                "fill-opacity": "0.1",
-                "cursor": "pointer",
-                "stroke": "red",
-                "stroke-width": "4",
-                "stroke-opacity": "0.6",
-                "transform": "scale(1)",
-                "x": -this.parentNetwork.canvasOffsetX * this.scale,
-                "y": -this.parentNetwork.canvasOffsetY * this.scale
-            });
-
-            $(this.overviewRect).mousedown(function (event) {
-                $(_this.svg).off('mousedown');
-                _this.moveOverviewRect(event);
-            });
-
-            $(this.overviewRect).mouseup(function (event) {
-                $(_this.svg).off('mouseup');
-                $(_this.svg).off('mousemove');
-            });
-        }
 
 
     },
