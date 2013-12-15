@@ -86,5 +86,8 @@ Network.prototype = {
     },
     removeAttribute: function (name) {
         this.attributeManager.removeAttribute(name);
+    },
+    getVertexAttributes: function (vertex,success) {
+        this.attributeManager.getVertexAttributes(vertex,success);
     }
 }

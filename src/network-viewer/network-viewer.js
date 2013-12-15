@@ -270,6 +270,11 @@ NetworkViewer.prototype = {
                 }
             }
         });
+        networkSvg.createVertex(100,100);
+        networkSvg.createVertex(200,200);
+        networkSvg.createVertex(300,300);
+        networkSvg.createVertex(400,400);
+
         return networkSvg;
     },
     _createNetworkSvgOverview: function (targetId) {

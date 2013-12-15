@@ -94,7 +94,6 @@ AttributeManager.prototype = {
                 }
             };
         };
-        return true;
     },
     removeAttribute: function (name) {
         var openRequest = indexedDB.open(this.dbName);
@@ -117,10 +116,9 @@ AttributeManager.prototype = {
                 attributeNameIdObjectStore.delete(attributeKey);
 
 
-
                 var attrIdIndex = attributesObjectStore.index("attrId");
                 var singleKeyRange = IDBKeyRange.only(attributeKey);
-                attrIdIndex.openKeyCursor(singleKeyRange).onsuccess = function(event) {
+                attrIdIndex.openKeyCursor(singleKeyRange).onsuccess = function (event) {
                     var cursor = event.target.result;
                     console.log(cursor)
                     if (cursor) {
@@ -131,7 +129,42 @@ AttributeManager.prototype = {
             };
 
         };
-        return true;
+    },
+    getVertexAttributes: function (vertex,success) {
+        var attributes = {};
+
+        var openRequest = indexedDB.open(this.dbName);
+        openRequest.onerror = function (event) {
+            console.log(event);
+        };
+        openRequest.onsuccess = function (event) {
+
+            var db = openRequest.result;
+            var transaction = db.transaction(["attribute", "attributeNameId"]);//read
+
+            var attributesObjectStore = transaction.objectStore("attribute");
+            var attributeNameIdObjectStore = transaction.objectStore("attributeNameId");
+
+
+            var index = attributesObjectStore.index("name");
+            var singleKeyRange = IDBKeyRange.only(vertex.name);
+            index.openCursor(singleKeyRange).onsuccess = function (event) {
+                var cursor = event.target.result;
+                if (cursor) {
+                    var attrId = event.target.result.value.attrId;
+                    var value = event.target.result.value.value;
+                    attributeNameIdObjectStore.get(attrId).onsuccess = function (event) {
+                        var attr = event.target.result.name;
+                        attributes[attr] = value;
+                    };
+                    cursor.continue();
+                } else {
+                    success(attributes);
+                }
+
+            }
+        };
+
     }
 
 }

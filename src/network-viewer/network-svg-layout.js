@@ -186,6 +186,10 @@ NetworkSvgLayout.prototype = {
         $(this.svg).bind('mouseup.networkViewer', function (event) {
             _this.mouseUp(event);
         });
+        $(this.svg).bind('contextmenu.networkViewer', function (event) {
+            event.preventDefault();
+            _this.contextMenu(event);
+        });
 
 
     },
@@ -220,8 +224,11 @@ NetworkSvgLayout.prototype = {
         var targetEl = event.target;
         switch (this.mode) {
             case "add":
+                /* event coordinates */
+                var downX = (event.clientX - $(this.svg).offset().left);
+                var downY = (event.clientY - $(this.svg).offset().top);
                 if ($(targetEl).attr('network-type') !== 'vertex') {
-                    this.createVertex(event);
+                    this.createVertex(downX, downY);
                 }
                 break;
             case "select":
@@ -348,6 +355,29 @@ NetworkSvgLayout.prototype = {
                 break;
         }
     },
+    contextMenu: function (event) {
+        var _this = this;
+        var targetEl = event.target;
+        switch (this.mode) {
+            case "add":
+                break;
+            case "select":
+                break;
+            case "join":
+                break;
+            case "delete":
+                break;
+        }
+
+        if ($(targetEl).attr('network-type') === 'vertex') {
+            var vertexId = $(targetEl).parent().parent().attr('id');
+            var vertex = _this.network.getVertexById(vertexId);
+            _this.network.getVertexAttributes(vertex,function(attributes){
+                console.log(attributes);
+            });
+
+        }
+    },
     selectVertexByClick: function (vertexSvg) {
         this._deselectAllVertices();
         var vertexId = $(vertexSvg).attr('id');
@@ -439,11 +469,7 @@ NetworkSvgLayout.prototype = {
         }
     },
 
-    createVertex: function (event) {
-
-        /* event coordinates */
-        var offsetX = (event.clientX - $(this.svg).offset().left);
-        var offsetY = (event.clientY - $(this.svg).offset().top);
+    createVertex: function (x, y) {
 
         /* vertex graph */
         var vertex = new Vertex({
@@ -457,7 +483,7 @@ NetworkSvgLayout.prototype = {
         _.extend(vertexDisplay, this.defaultVertexDisplay);
 
         /* vertex layout */
-        var coords = {x: offsetX, y: offsetY};
+        var coords = {x: x, y: y};
         var vertexLayout = {
             id: vertex.id
         };
