@@ -260,6 +260,11 @@
     padding: 5px;
 }
 
+#nvContextMenu {
+    position: absolute;
+    display:none;
+}
+
 .app-header {
     background-color: darkred;
 }

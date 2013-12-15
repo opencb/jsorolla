@@ -177,18 +177,25 @@ NetworkSvgLayout.prototype = {
         });
 
 
-        this.mouseDownFlag = false;
         $(this.svg).bind('mousedown.networkViewer', function (event) {
             event.preventDefault();
-            _this.mouseDownFlag = true;
-            _this.mouseDown(event);
+            switch (event.which) {
+                case 1: //left click
+                    _this.leftMouseDown(event);
+                    break;
+            }
         });
         $(this.svg).bind('mouseup.networkViewer', function (event) {
             _this.mouseUp(event);
         });
         $(this.svg).bind('contextmenu.networkViewer', function (event) {
             event.preventDefault();
-            _this.contextMenu(event);
+            switch (event.which) {
+                case 3: //right click
+                    _this.contextMenu(event);
+                    break;
+            }
+
         });
 
 
@@ -219,7 +226,7 @@ NetworkSvgLayout.prototype = {
         }
         console.log(this.mode)
     },
-    mouseDown: function (event) {
+    leftMouseDown: function (event) {
         var _this = this;
         var targetEl = event.target;
         switch (this.mode) {
@@ -369,11 +376,19 @@ NetworkSvgLayout.prototype = {
                 break;
         }
 
+
+        var downX = (event.clientX - $(this.svg).offset().left);
+        var downY = (event.clientY - $(this.svg).offset().top);
         if ($(targetEl).attr('network-type') === 'vertex') {
             var vertexId = $(targetEl).parent().parent().attr('id');
             var vertex = _this.network.getVertexById(vertexId);
-            _this.network.getVertexAttributes(vertex,function(attributes){
-                console.log(attributes);
+            _this.network.getVertexAttributes(vertex, function (attributes) {
+                _this.trigger('vertex:rightClick', {
+                    vertex: vertex,
+                    attributes: attributes,
+                    x: downX,
+                    y: downY
+                });
             });
 
         }

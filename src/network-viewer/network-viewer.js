@@ -54,7 +54,7 @@ NetworkViewer.prototype = {
         }
 
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="' + this.id + '" class="bootstrap" style="height:100%;width:90%;border:1px solid lightgrey"></div>')[0];
+        this.div = $('<div id="' + this.id + '" class="bootstrap" style="height:100%;width:90%;border:1px solid lightgrey;position:relative;"></div>')[0];
         $(this.targetDiv).append(this.div);
 
         this.height = $(this.div).height();
@@ -98,6 +98,11 @@ NetworkViewer.prototype = {
         this.editionBar = this._createEditionBar($(this.editionbarDiv).attr('id'));
 
         this.networkSvg = this._createNetworkSvg($(this.mainPanelDiv).attr('id'));
+
+
+        /* context menu*/
+        this.contextMenu = this._createContextMenu();
+
 
 //        this.networkSvgOverview = this._createNetworkSvgOverview($(this.overviewPanelDiv).attr('id'));
 
@@ -267,15 +272,78 @@ NetworkViewer.prototype = {
                 },
                 'change': function (e) {
                     console.log(e);
+                },
+
+
+                /*NEW Events*/
+                'vertex:rightClick': function (event) {
+                    console.log(event);
+                    _this._fillContextMenu(event.attributes);
+                    $(_this.contextMenuDiv).css({
+                        display: "block",
+                        left: event.x,
+                        top: event.y
+                    });
+
                 }
             }
         });
-        networkSvg.createVertex(100,100);
-        networkSvg.createVertex(200,200);
-        networkSvg.createVertex(300,300);
-        networkSvg.createVertex(400,400);
+        networkSvg.createVertex(100, 100);
+        networkSvg.createVertex(200, 200);
+        networkSvg.createVertex(300, 300);
+        networkSvg.createVertex(400, 400);
 
         return networkSvg;
+    },
+    _createContextMenu: function () {
+        var _this = this;
+        var html = '' +
+            '<div id="nvContextMenu" class="dropdown clearfix">' +
+            '    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">' +
+            '        <li><a tabindex="-1" href="#">Action</a></li>' +
+            '        <li class="divider"></li>' +
+            '        <li><a tabindex="-1" href="#">Separated link</a></li>' +
+            '    </ul>' +
+            '</div>';
+
+        this.contextMenuDiv = $(html)[0];
+        $(this.div).append(this.contextMenuDiv);
+
+
+        $(_this.contextMenuDiv).bind('click.networkViewer', function (event) {
+            var targetEl = event.target;
+            console.log(targetEl);
+        });
+
+
+        $(document).bind('click.networkViewer', function () {
+            $(_this.contextMenuDiv).hide();
+        });
+
+        /**************/
+    },
+    _fillContextMenu: function (items) {
+        var ul = $(this.contextMenuDiv).children().first()[0];
+        $(ul).empty();
+        for (var i in items) {
+            var menuEntry = $('<li role="presentation"><a>' + items[i] + '</a></li>')[0];
+            $(ul).append(menuEntry);
+        }
+//        var menuEntry = $('<li role="presentation"><input id="nodeColorField" type="text"></li>')[0];
+//        $(ul).append(menuEntry);
+
+//        var nodeColorField = $(ul).find('#nodeColorField');
+//        var pickAColorConfig = {
+//            showSpectrum: true,
+//            showSavedColors: true,
+//            saveColorsPerElement: false,
+//            fadeMenuToggle: true,
+//            showAdvanced: true,
+//            showBasicColors: true,
+//            showHexInput: true,
+//            allowBlank: true
+//        }
+//        $(nodeColorField).pickAColor(pickAColorConfig);
     },
     _createNetworkSvgOverview: function (targetId) {
         var _this = this;
