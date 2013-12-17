@@ -29,14 +29,16 @@ function Network(args) {
 
 
     this.networkConfig = new NetworkConfig();
-    this.attributes = new Attributes();
+    this.attributeManager = new AttributeManager();
     this.graph = new Graph();
 
     this.on(this.handlers);
+
+
 }
 
 Network.prototype = {
-    addVertex:function(args){
+    addVertex: function (args) {
         var vertexLayout = args.vertexLayout;
         var vertexDisplay = args.vertexDisplay;
         var vertex = args.vertex;
@@ -45,19 +47,47 @@ Network.prototype = {
         this.setVertexLayout(vertexLayout);
         this.setVertexDisplay(vertexDisplay);
     },
-    setVertexLayout:function(vertexLayout){
+    addEdge: function (args) {
+        var edgeDisplay = args.edgeDisplay;
+        var edge = args.edge;
+
+        this.graph.addEdge(edge);
+        this.setEdgeDisplay(edgeDisplay);
+    },
+    setVertexLayout: function (vertexLayout) {
         this.networkConfig.setVertexLayout(vertexLayout);
     },
-    setVertexDisplay:function(vertexDisplay){
+    setVertexDisplay: function (vertexDisplay) {
         this.networkConfig.setVertexDisplay(vertexDisplay);
     },
-    getVertexLayout:function(vertex){
+    getVertexLayout: function (vertex) {
         return this.networkConfig.getVertexLayout(vertex);
     },
-    getVertexDisplay:function(vertex){
-       return this.networkConfig.getVertexDisplay(vertex);
+    getVertexDisplay: function (vertex) {
+        return this.networkConfig.getVertexDisplay(vertex);
     },
-    getVertexById:function(vertexId){
+    setEdgeDisplay: function (edgeDisplay) {
+        this.networkConfig.setEdgeDisplay(edgeDisplay);
+    },
+    getEdgeDisplay: function (edge) {
+        return this.networkConfig.getEdgeDisplay(edge);
+    },
+    getVertexById: function (vertexId) {
         return this.graph.getVertexById(vertexId);
+    },
+    removeVertex: function (vertex) {
+        this.graph.removeVertex(vertex);
+    },
+
+
+    /* Attribute Manager */
+    addAttribute: function (name, type, defaultValue) {
+        this.attributeManager.addAttribute(this.graph.vertices, name, type, defaultValue);
+    },
+    removeAttribute: function (name) {
+        this.attributeManager.removeAttribute(name);
+    },
+    getVertexAttributes: function (vertex,success) {
+        this.attributeManager.getVertexAttributes(vertex,success);
     }
 }

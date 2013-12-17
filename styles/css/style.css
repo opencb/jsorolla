@@ -260,6 +260,11 @@
     padding: 5px;
 }
 
+#nvContextMenu {
+    position: absolute;
+    display:none;
+}
+
 .app-header {
     background-color: darkred;
 }
@@ -1067,8 +1072,6 @@ a:hover {
     border: 1px solid #E5E5E5;
 }
 
-
-
 .msg {
     background-color: #fff;
     color: #454545;
@@ -1076,7 +1079,7 @@ a:hover {
     position: absolute;
     left: 40%;
     top: 10px;
-    width:150px;
+    width: 150px;
 }
 
 /********************/
@@ -1089,7 +1092,7 @@ a:hover {
     position: absolute;
     left: 40%;
     top: 10px;
-    width:155px;
+    width: 155px;
     z-index: 20000;
 }
 
@@ -1102,13 +1105,13 @@ a:hover {
 }
 
 #msg-div .msg h3 {
-    border:1px solid #d3d3d3;
+    border: 1px solid #d3d3d3;
     border-width: 0 0 1px;
     margin: 0px;
     position: relative;
     overflow: hidden;
     font-weight: 700;
-    color:#596F8F;
+    color: #596F8F;
     font-size: 16px;
 }
 
@@ -1202,10 +1205,10 @@ a:hover {
     src: local('Lato Regular'), local('Lato-Regular'), url(../fonts/lato.woff) format('woff');
 }
 
-.bootstrap{
+.bootstrap {
     font-family: 'Source Sans Pro' !important;
 }
 
-.cursor-test{
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" width="76" height="76" viewBox="0 0 76.00 76.00" enable-background="new 0 0 76.00 76.00" xml:space="preserve"><path fill="#000000" fill-opacity="1" stroke-width="0.2" stroke-linejoin="round" d="M 28.5,17.4167L 53.8333,44.3333L 43.5417,44.3333L 49.875,55.4167L 43.5417,58.5833L 37.2083,47.5L 28.5,55.4167L 28.5,17.4167 Z "/></svg>'), auto
+.jso-vertex-selected * {
+    stroke: #00FF00;
 }

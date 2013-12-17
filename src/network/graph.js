@@ -145,6 +145,7 @@ Graph.prototype = {
 
         //remove edge from vertex
         edge.source.removeEdge(edge);
+        edge.target.removeEdge(edge);
 
         var position = this.edgesIndex[edge.id];
         delete this.edgesIndex[edge.id];
@@ -165,12 +166,21 @@ Graph.prototype = {
 
         for (var i = 0; i < vertex.edges.length; i++) {
             var edge = vertex.edges[i];
-            delete this.edges[edge.id];
+            // remove edges from source or target
+            if (edge.source !== vertex) {
+                edge.source.removeEdge(edge);
+            }
+            if (edge.target !== vertex) {
+                edge.target.removeEdge(edge);
+            }
+            var position = this.edgesIndex[edge.id];
+            delete this.edgesIndex[edge.id];
+            delete this.edges[position];
             this.trigger('edge:remove', {edge: edge, graph: this});
         }
         vertex.removeEdges();
 
-        var position = this.verticesIndex[edge.id];
+        var position = this.verticesIndex[vertex.id];
         delete this.verticesIndex[vertex.id];
         delete this.vertices[position];
 
@@ -179,21 +189,21 @@ Graph.prototype = {
         return true;
     },
     containsEdge: function (edge) {
-        if (this.edgesIndex[edge.id] != null) {
+        if (typeof this.edgesIndex[edge.id] !== 'undefined') {
             return true;
         } else {
             return false;
         }
     },
     containsVertex: function (vertex) {
-        if (this.verticesIndex[vertex.id] != null) {
+        if (typeof this.verticesIndex[vertex.id] !== 'undefined') {
             return true;
         } else {
             return false;
         }
     },
     /**/
-    getVertexById:function(vertexId){
+    getVertexById: function (vertexId) {
         return this.vertices[this.verticesIndex[vertexId]];
     },
     /**/
