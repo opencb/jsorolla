@@ -101,11 +101,10 @@ module.exports = function (grunt) {
 
                     'src/network-viewer/tool-bar.js',
                     'src/network-viewer/edition-bar.js',
-                    'src/network-viewer/attribute-manager.js',
                     'src/network-viewer/network-svg-layout.js',
                     'src/network/*.js',
 
-                    'src/network-viewer/network-viewer.js',
+                    'src/network-viewer/network-viewer.js'
 
                     /** network viewer **/
 
@@ -314,7 +313,7 @@ module.exports = function (grunt) {
                             'build/network-viewer/<%= meta.version.nv %>/vendor/purl.min.js',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/bootstrap-scoped-dist/js/bootstrap.min.js',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/pick-a-color/tinycolor-0.9.15.min.js',
-                            'build/network-viewer/<%= meta.version.nv %>/vendor/pick-a-color/1.2.0/js/pick-a-color-1.2.0.min.js'
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.simplecolorpicker.js'
                         ]
                     },
                     styles: {
@@ -323,7 +322,7 @@ module.exports = function (grunt) {
                             'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.qtip.min.css',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/ChemDoodleWeb.css',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/bootstrap-scoped-dist/css/bootstrap.min.css',
-                            'build/network-viewer/<%= meta.version.nv %>/vendor/pick-a-color/1.2.0/css/pick-a-color-1.2.0.min.css'
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.simplecolorpicker.css'
                         ]
                     }
                 }
