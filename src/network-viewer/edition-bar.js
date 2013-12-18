@@ -71,10 +71,22 @@ EditionBar.prototype = {
             '       <ul id="nodeStrokeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '       <input id="nodeColorField" type="text">' +
+            '   <div class="input-group">' +
+            '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-fill-color"></span>&nbsp;&nbsp;#</span>' +
+            '       <input id="nodeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
+            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
+            '           <select id="nodeColorSelect"></select>' +
+            '       </span>' +
+            '   </div>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '       <input id="nodeStrokeColorField" type="text">' +
+            '   <div class="input-group">' +
+            '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-stroke-color"></span>&nbsp;&nbsp;#</span>' +
+            '       <input id="nodeStrokeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
+            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
+            '           <select id="nodeStrokeColorSelect"></select>' +
+            '       </span>' +
+            '   </div>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
             '       <button id="nodeOpacityButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-opacity"></span><span class="caret"></button>' +
@@ -126,7 +138,9 @@ EditionBar.prototype = {
         this.nodeOpacityMenu = $(this.div).find('#nodeOpacityMenu');
 
         this.nodeColorField = $(this.div).find('#nodeColorField');
+        this.nodeColorSelect = $(this.div).find('#nodeColorSelect');
         this.nodeStrokeColorField = $(this.div).find('#nodeStrokeColorField');
+        this.nodeStrokeColorSelect = $(this.div).find('#nodeStrokeColorSelect');
 
         this.nodeNameField = $(this.div).find('#nodeNameField');
         this.nodeLabelField = $(this.div).find('#nodeLabelField');
@@ -141,41 +155,67 @@ EditionBar.prototype = {
         this.edgeLabelField = $(this.div).find('#edgeLabelField');
 
         /*************/
-
-        /* Color picker */
-        var pickAColorConfig = {
-            showSpectrum: true,
-            showSavedColors: true,
-            saveColorsPerElement: false,
-            fadeMenuToggle: true,
-            showAdvanced: true,
-            showBasicColors: true,
-            showHexInput: false,
-            allowBlank: true
-        }
-
-
-        $(this.nodeColorField).pickAColor(pickAColorConfig);
-        $(this.nodeStrokeColorField).pickAColor(pickAColorConfig);
-        $(this.edgeColorField).pickAColor(pickAColorConfig);
-
-        $(this.div).find('.pick-a-color-markup').addClass('pull-left');
-        $(this.div).find('.color-dropdown').css({
-            padding: '1px 4px'
+        this._setColorSelect(this.nodeColorSelect);
+        $(this.nodeColorSelect).simplecolorpicker({picker: true}).on('change', function () {
+            $(_this.nodeColorField).val($(_this.nodeColorSelect).val().replace('#', '')).change();
         });
 
-        $(this.nodeColorField).next().find('button').prepend('<span class="ocb-icon icon-fill-color"></span>');
-        $(this.nodeStrokeColorField).next().find('button').prepend('<span class="ocb-icon icon-stroke-color"></span>');
-        $(this.edgeColorField).next().find('button').prepend('<span class="ocb-icon icon-fill-color"></span>');
+        this._setColorSelect(this.nodeStrokeColorSelect);
+        $(this.nodeStrokeColorSelect).simplecolorpicker({picker: true}).on('change', function () {
+            $(_this.nodeStrokeColorField).val($(_this.nodeStrokeColorSelect).val().replace('#', '')).change();
+        });
+//        /* Color picker */
+//        var pickAColorConfig = {
+//            showSpectrum: true,
+//            showSavedColors: true,
+//            saveColorsPerElement: false,
+//            fadeMenuToggle: true,
+//            showAdvanced: true,
+//            showBasicColors: true,
+//            showHexInput: false,
+//            allowBlank: true
+//        }
+//
+//
+//        $(this.nodeColorField).pickAColor(pickAColorConfig);
+//        $(this.nodeStrokeColorField).pickAColor(pickAColorConfig);
+//        $(this.edgeColorField).pickAColor(pickAColorConfig);
+//
+//        $(this.div).find('.pick-a-color-markup').addClass('pull-left');
+//        $(this.div).find('.color-dropdown').css({
+//            padding: '1px 4px'
+//        });
 
-        $(this.nodeColorField).on("change", function () {
-            _this.trigger('nodeColorField:change', {value: '#' + $(this).val(), sender: {}})
+//        $(this.nodeColorField).next().find('button').prepend('<span class="ocb-icon icon-fill-color"></span>');
+//        $(this.nodeStrokeColorField).next().find('button').prepend('<span class="ocb-icon icon-stroke-color"></span>');
+//        $(this.edgeColorField).next().find('button').prepend('<span class="ocb-icon icon-fill-color"></span>');
+
+//        var colorPattern = /^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        var colorPattern = /^([A-Fa-f0-9]{6})$/;
+        $(this.nodeColorField).on("change input", function () {
+            var val = $(this).val();
+            if (colorPattern.test(val)) {
+                var color = '#' + $(this).val();
+                _this._checkSelectColor(color, _this.nodeColorSelect);
+                $(_this.nodeColorSelect).simplecolorpicker('selectColor', color);
+                _this.trigger('nodeColorField:change', {value: color, sender: {}})
+            }
         });
-        $(this.nodeStrokeColorField).on("change", function () {
-            _this.trigger('nodeStrokeColorField:change', {value: '#' + $(this).val(), sender: {}})
+        $(this.nodeStrokeColorField).on("change input", function () {
+            var val = $(this).val();
+            if (colorPattern.test(val)) {
+                var color = '#' + $(this).val();
+                _this._checkSelectColor(color, _this.nodeColorSelect);
+                _this.trigger('nodeStrokeColorField:change', {value: color, sender: {}})
+            }
         });
-        $(this.edgeColorField).on("change", function () {
-            _this.trigger('edgeColorField:change', {value: '#' + $(this).val(), sender: {}})
+        $(this.edgeColorField).on("change input", function () {
+            var val = $(this).val();
+            if (colorPattern.test(val)) {
+                var color = '#' + $(this).val();
+                _this._checkSelectColor(color, _this.nodeColorSelect);
+                _this.trigger('edgeColorField:change', {value: color, sender: {}})
+            }
         });
         /* */
 
@@ -238,5 +278,37 @@ EditionBar.prototype = {
                 _this.trigger(eventName + ':change', {value: value, sender: _this});
             });
         }
+    },
+    _setColorSelect: function (select) {
+        var colors = ["cccccc", "888888",
+            "ac725e", "d06b64", "f83a22", "fa573c", "ff7537", "ffad46", "42d692", "16a765", "7bd148", "b3dc6c", "fbe983", "fad165",
+            "92e1c0","9fe1e7", "9fc6e7", "4986e7", "9a9cff", "b99aff", "c2c2c2", "cabdbf","cca6ac", "f691b2", "cd74e6", "a47ae2",
+            ];
+
+        for (var i in colors) {
+            var menuEntry = $('<option value="#' + colors[i] + '">#' + colors[i] + '</option>')[0];
+            $(select).append(menuEntry);
+        }
+    },
+    _checkSelectColor: function (color, select) {
+        var found = ($(select).find('option[value="' + color + '"]').length > 0 ) ? true : false;
+        if (!found) {
+            var menuEntry = $('<option value="' + color + '">' + color + '</option>')[0];
+            $(select).append(menuEntry);
+            $(this.nodeColorSelect).simplecolorpicker('destroy');
+            $(this.nodeColorSelect).simplecolorpicker({picker: true});
+        }
+    },
+
+    setNodeColor: function (color) {
+        this._checkSelectColor(color, this.nodeColorSelect);
+        $(this.nodeColorSelect).simplecolorpicker('selectColor', color);
+        $(this.nodeColorField).val($(this.nodeColorSelect).val().replace('#', ''));
+    },
+    setNodeStrokeColor: function (color) {
+        this._checkSelectColor(color, this.nodeStrokeColorSelect);
+        $(this.nodeStrokeColorSelect).simplecolorpicker('selectColor', color);
+        $(this.nodeStrokeColorField).val($(this.nodeStrokeColorSelect).val().replace('#', ''));
     }
+
 }

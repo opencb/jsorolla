@@ -19,33 +19,20 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function NetworkConfig(args) {
-    var _this = this;
-    _.extend(this, Backbone.Events);
-    this.id = Utils.genId('NetworkConfig');
+function EdgeConfig(args) {
+
+    this.id;
+    this.renderer;
+    this.type;
+    this.visible;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
-
-    this.vertices = {}; // [{id:"one",color:red,...},...]
-    this.edges = {};  // [{id:"one",color:red,...},...]
-    this.general = {};
-
-    this.on(this.handlers);
 }
 
-NetworkConfig.prototype = {
-    setVertexConfig:function(vertexConfig){
-        this.vertices[vertexConfig.id] = vertexConfig;
-    },
-    getVertexConfig:function(vertex){
-        return this.vertices[vertex.id];
-    },
-    setEdgeConfig:function(edgeConfig){
-        this.edges[edgeConfig.id] = edgeConfig;
-    },
-    getEdgeConfig:function(edge){
-        return this.edges[edge.id];
+EdgeConfig.prototype = {
+    render:function(args){
+        this.renderer.render(args);
     }
 }

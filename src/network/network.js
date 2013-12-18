@@ -28,9 +28,9 @@ function Network(args) {
     _.extend(this, args);
 
 
-    this.networkConfig = new NetworkConfig();
-    this.attributeManager = new AttributeManager();
     this.graph = new Graph();
+    this.config = new NetworkConfig();
+    this.attributeManager = new AttributeManager();
 
     this.on(this.handlers);
 
@@ -39,38 +39,34 @@ function Network(args) {
 
 Network.prototype = {
     addVertex: function (args) {
-        var vertexLayout = args.vertexLayout;
-        var vertexDisplay = args.vertexDisplay;
         var vertex = args.vertex;
+        var vertexConfig = args.vertexConfig;
+        var target = args.target;
 
         this.graph.addVertex(vertex);
-        this.setVertexLayout(vertexLayout);
-        this.setVertexDisplay(vertexDisplay);
+        this.setVertexConfig(vertexConfig);
+        this.renderVertex(vertex, target);
     },
     addEdge: function (args) {
-        var edgeDisplay = args.edgeDisplay;
         var edge = args.edge;
+        var edgeConfig = args.edgeConfig;
+        var target = args.target;
 
         this.graph.addEdge(edge);
-        this.setEdgeDisplay(edgeDisplay);
+        this.setEdgeConfig(edgeConfig);
+        this.renderEdge(edge, target);
     },
-    setVertexLayout: function (vertexLayout) {
-        this.networkConfig.setVertexLayout(vertexLayout);
+    setVertexConfig: function (vertexConfig) {
+        this.config.setVertexConfig(vertexConfig);
     },
-    setVertexDisplay: function (vertexDisplay) {
-        this.networkConfig.setVertexDisplay(vertexDisplay);
+    setEdgeConfig: function (edgeConfig) {
+        this.config.setEdgeConfig(edgeConfig);
     },
-    getVertexLayout: function (vertex) {
-        return this.networkConfig.getVertexLayout(vertex);
+    getVertexConfig: function (vertex) {
+        return this.config.getVertexConfig(vertex);
     },
-    getVertexDisplay: function (vertex) {
-        return this.networkConfig.getVertexDisplay(vertex);
-    },
-    setEdgeDisplay: function (edgeDisplay) {
-        this.networkConfig.setEdgeDisplay(edgeDisplay);
-    },
-    getEdgeDisplay: function (edge) {
-        return this.networkConfig.getEdgeDisplay(edge);
+    getEdgeConfig: function (edge) {
+        return this.config.getEdgeConfig(edge);
     },
     getVertexById: function (vertexId) {
         return this.graph.getVertexById(vertexId);
@@ -78,7 +74,26 @@ Network.prototype = {
     removeVertex: function (vertex) {
         this.graph.removeVertex(vertex);
     },
-
+    renderVertex: function (vertex, target) {
+        var vertexConfig = this.config.getVertexConfig(vertex);
+        vertexConfig.render({
+            coords: vertexConfig.coords,
+            vertex: vertex,
+            target: target
+        });
+    },
+    renderEdge: function (edge, target) {
+        var edgeConfig = this.config.getEdgeConfig(edge);
+        var sourceConfig = this.config.getVertexConfig(edge.source);
+        var targetConfig = this.config.getVertexConfig(edge.target);
+        edgeConfig.render({
+            sourceCoords: sourceConfig.coords,
+            targetCoords: targetConfig.coords,
+            targetRenderer: targetConfig.renderer,
+            edge: edge,
+            target: target
+        });
+    },
 
     /* Attribute Manager */
     addAttribute: function (name, type, defaultValue) {
@@ -87,7 +102,7 @@ Network.prototype = {
     removeAttribute: function (name) {
         this.attributeManager.removeAttribute(name);
     },
-    getVertexAttributes: function (vertex,success) {
-        this.attributeManager.getVertexAttributes(vertex,success);
+    getVertexAttributes: function (vertex, success) {
+        this.attributeManager.getVertexAttributes(vertex, success);
     }
 }
