@@ -63,8 +63,8 @@ NetworkViewer.prototype = {
         this.div = $('<div id="' + this.id + '" class="bootstrap" style="height:100%;border:1px solid lightgrey;position:relative;"></div>')[0];
         $(this.targetDiv).append(this.div);
 
-        this.height = $(this.div).height();
-        this.width = $(this.div).width();
+        this.height = $(this.targetDiv).height();
+        this.width = $(this.targetDiv).width();
 
         this.toolbarDiv = $('<div id="nv-toolbar"></div>')[0];
         this.editionbarDiv = $('<div id="nv-editionbar"></div>')[0];
@@ -226,6 +226,7 @@ NetworkViewer.prototype = {
         var editionbarHeight = $(this.editionbarDiv).height();
         var height = this.height - toolbarHeight - editionbarHeight;
 
+        console.log(height)
         var networkSvgLayout = new NetworkSvgLayout({
             targetId: targetId,
             width: this.width,
