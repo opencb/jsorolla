@@ -31,10 +31,10 @@ function Track(args) {
     this.targetId;
     this.id;
     this.title;
-    this.minHistogramRegionSize;
+    this.minHistogramRegionSize = 300000000;
+    this.maxLabelRegionSize = 300000000;
     this.height = 100;
-//    this.visibleRange = {start: 0, end: 100},
-    this.visibleRange;
+    this.visibleRegionSize;
         this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
@@ -180,7 +180,7 @@ Track.prototype = {
             this.histogram = true;
             this.histogramLogarithm = true;
             this.histogramMax = 500;
-            this.interval = parseInt(10 / this.pixelBase);//server interval limit 512
+            this.interval = Math.ceil(10 / this.pixelBase);//server interval limit 512
         } else {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
@@ -212,7 +212,7 @@ Track.prototype = {
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
         var titleBardiv = $('' +
-            '<div class="btn-toolbar">' +
+            '<div class="btn-toolbar ocb-compactable">' +
             '   <div class="btn-group btn-group-xs">' +
             '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
             '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button"><span id="titleDiv">' + this.title + '</span></button>' +
@@ -299,7 +299,6 @@ Track.prototype = {
         }
 
         this.svgGroup = SVG.addChild(main, "g", {
-            //visibility:this.titleVisibility
         });
 
         var text = this.title;

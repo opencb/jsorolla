@@ -30,6 +30,19 @@ function FeatureClusterRenderer(args) {
     this.histogramHeight = 75;
     this.multiplier = 7;
 
+
+
+//    this.maxValue = 100;
+//    if (args != null) {
+//        if (args.height != null) {
+//            this.histogramHeight = args.height * 0.95;
+//        }
+//        if (args.histogramMaxFreqValue != null) {
+//            this.maxValue = args.histogramMaxFreqValue;
+//        }
+//    }
+//    this.multiplier = this.histogramHeight / this.maxValue;
+
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
     this.toolTipfontClass = 'ocb-font-default';
 
@@ -124,7 +137,7 @@ FeatureClusterRenderer.prototype.render = function (features, args) {
                 }
             },
             position: {target: 'mouse', adjust: {x: 25, y: 15}},
-            style: { width: true, classes: _this.toolTipfontClass +' ui-tooltip ui-tooltip-shadow'}
+            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
         });
 
 //        $(rect).qtip({

@@ -19,14 +19,16 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var CellBaseManager = {
+var EnsemblManager = {
+    host : 'http://beta.rest.ensembl.org',
+//    http://beta.rest.ensembl.org/feature/region/human/7:140424943-140624564?feature=gene;feature=transcript;feature=exon;content-type=application/json
     get: function (args) {
         var success = args.success;
         var error = args.error;
         var async = (_.isUndefined(args.async) || _.isNull(args.async) ) ? true : args.async;
         var urlConfig = _.omit(args, ['success', 'error', 'async']);
 
-        var url = CellBaseManager.url(urlConfig);
+        var url = EnsemblManager.url(urlConfig);
         if(typeof url === 'undefined'){
             return;
         }
@@ -63,19 +65,8 @@ var CellBaseManager = {
         if (!$.isPlainObject(args)) args = {};
         if (!$.isPlainObject(args.params)) args.params = {};
 
-        var version = 'latest';
-        if(typeof CELLBASE_VERSION !== 'undefined'){
-            version = CELLBASE_VERSION
-        }
-        if(typeof args.version !== 'undefined' && args.version != null){
-            version = args.version
-        }
-
-        var host;
-        if(typeof CELLBASE_HOST !== 'undefined'){
-            host = CELLBASE_HOST
-        }
-        if (typeof args.host !== 'undefined' && args.version != null) {
+        var host = EnsemblManager.host;
+        if (typeof args.host !== 'undefined') {
             host =  args.host;
         }
         if(typeof host === 'undefined'){
@@ -84,34 +75,24 @@ var CellBaseManager = {
         }
 
         delete args.host;
-        delete args.version;
 
         var config = {
-            host: host,
-            version: version
+            host: host
         };
 
         var params = {
-            of: 'json'
+            'content-type':'application/json'
         };
 
         _.extend(config, args);
         _.extend(config.params, params);
-
-        var query = '';
-        if(typeof config.query !== 'undefined' && config.query != null){
-            if ($.isArray(config.query)) {
-                config.query = config.query.toString();
-            }
-            query = '/' + config.query;
-        }
 
         //species can be the species code(String) or an object with text attribute
         if ($.isPlainObject(config.species)) {
             config.species = Utils.getSpeciesCode(config.species.text);
         }
 
-        var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
+        var url = config.host + '/' + config.category + '/' + config.subCategory + '/' + config.species + '/' +  config.query;
         url = Utils.addQueryParamtersToUrl(config.params, url);
         return url;
     }

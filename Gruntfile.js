@@ -16,14 +16,10 @@ module.exports = function (grunt) {
                 utils:'1.0.0'
             }
         },
-        banner: '/*! PROJECT_NAME - v<%= meta.version %> - ' +
-            '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-            '* http://PROJECT_WEBSITE/\n' +
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
-            'OpenCB; Licensed GPLv2 */\n',
+
         bannergv: '/*! Genome Viewer - v<%= meta.version.gv %> - ' +
-            '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-            '* http://https://github.com/opencb-bigdata-viz/js-common-libs/\n' +
+            '<%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %>\n' +
+            '* http://https://github.com/opencb/jsorolla/\n' +
             '* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
             ' ' +
             'Licensed GPLv2 */\n',
@@ -68,7 +64,7 @@ module.exports = function (grunt) {
                     'src/genome-viewer/karyotype-panel.js',
                     'src/genome-viewer/status-bar.js',
                         /** data-adapter **/
-                    'src/genome-viewer/data-source/data-source.js','src/genome-viewer/data-source/*-data-source.js',
+                    'src/lib/data-source/data-source.js','src/lib/data-source/*-data-source.js',
                     'src/genome-viewer/data-adapter/cellbase-adapter.js',
                     'src/genome-viewer/data-adapter/sequence-adapter.js',
                     'src/genome-viewer/data-adapter/bam-adapter.js',
@@ -102,8 +98,14 @@ module.exports = function (grunt) {
             nv:{
                 src: [
                     '<%= concat.utils.dest %>',
-                    'src/lib/cellbase/cellbase-manager.js',
+
+                    'src/network-viewer/tool-bar.js',
+                    'src/network-viewer/edition-bar.js',
+                    'src/network-viewer/network-svg-layout.js',
+                    'src/network/*.js',
+
                     'src/network-viewer/network-viewer.js'
+
                     /** network viewer **/
 
                    /** src/network-viewer ..... **/
@@ -132,9 +134,6 @@ module.exports = function (grunt) {
             }
         },
         uglify: {
-            options: {
-                banner: '<%= bannergv %>'
-            },
             cellbase: {
                 src: '<%= concat.cellbase.dest %>',
                 dest: 'build/cellbase-<%= meta.version.cellbase %>.min.js'
@@ -227,6 +226,13 @@ module.exports = function (grunt) {
                     {   expand: true, cwd:'./src/genome-viewer/', src: ['gv-config.js'], dest: 'build/genome-viewer/<%= meta.version.gv %>/' }
                 ]
             },
+            nv: {
+                files: [
+                    {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/network-viewer/<%= meta.version.nv %>/' },
+                    {   expand: true, cwd:'./', src: ['styles/**'], dest: 'build/network-viewer/<%= meta.version.nv %>/' }, // includes files in path and its subdirs
+                    {   expand: true, cwd:'./src/network-viewer/', src: ['nv-config.js'], dest: 'build/network-viewer/<%= meta.version.nv %>/' }
+                ]
+            },
             threedv: {
                 files: [
                     {   expand: true, cwd:'./', src: ['vendor/**'], dest: 'build/3d-viewer/<%= meta.version.threedv %>/' },
@@ -250,6 +256,7 @@ module.exports = function (grunt) {
             cellbase:['<%= concat.cellbase.dest %>','<%= uglify.cellbase.dest %>'],
             opencga:['<%= concat.opencga.dest %>','<%= uglify.opencga.dest %>'],
             gv: ['build/genome-viewer/<%= meta.version.gv %>/'],
+            nv: ['build/network-viewer/<%= meta.version.nv %>/'],
             cgv: ['build/circular-genome-viewer/<%= meta.version.cgv %>/'],
             threedv: ['build/3d-viewer/<%= meta.version.threedv %>/']
         },
@@ -286,6 +293,37 @@ module.exports = function (grunt) {
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/bootstrap-*-dist/css/bootstrap.min.css',
                                     'build/genome-viewer/<%= meta.version.gv %>/vendor/typeahead.js-bootstrap.css'
                             ]
+                    }
+                }
+            },
+            nv: {
+                src: 'src/network-viewer/network-viewer.html',
+                dest: 'build/network-viewer/<%= meta.version.nv %>/',
+                options: {
+                    beautify: true,
+                    scripts: {
+                        'js': '<%= uglify.nv.dest %>',
+                        'vendor': [
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/underscore*.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/backbone*.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.min.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.qtip*.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.cookie.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.sha1.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/purl.min.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/bootstrap-scoped-dist/js/bootstrap.min.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/pick-a-color/tinycolor-0.9.15.min.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.simplecolorpicker.js'
+                        ]
+                    },
+                    styles: {
+                        'css': ['build/network-viewer/<%= meta.version.nv %>/styles/css/style.css'],
+                        'vendor': [
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.qtip.min.css',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/ChemDoodleWeb.css',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/bootstrap-scoped-dist/css/bootstrap.min.css',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.simplecolorpicker.css'
+                        ]
                     }
                 }
             },
@@ -420,7 +458,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('gv', ['clean:gv','concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
     grunt.registerTask('cgv', ['clean:cgv','concat:utils','concat:cellbase','concat:cgv','uglify:cgv','copy:cgv','htmlbuild:cgv','clean:utils','clean:cellbase','rename:cgv']);
-    grunt.registerTask('nv', ['concat:utils','concat:cellbase','concat:nv','uglify:nv', 'clean:utils','clean:cellbase']);
+    grunt.registerTask('nv', ['clean:nv','concat:utils','concat:nv','uglify:nv','copy:nv', 'htmlbuild:nv','clean:utils']);
     grunt.registerTask('threedv', ['clean:threedv','concat:utils','concat:cellbase','concat:threedv','uglify:threedv','copy:threedv','htmlbuild:threedv','clean:utils','clean:cellbase']);
 
 };

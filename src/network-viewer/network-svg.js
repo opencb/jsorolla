@@ -103,7 +103,7 @@ NetworkSvg.prototype = {
         });
 
         var mouseDown = false;
-        $(this.svg).mousedown(function (event) {
+        $(this.svg).bindmousedown(function (event) {
             if (!event.target.getAttribute("shape") && !event.target.getAttribute("type") && event.originalEvent.button !== 2 && !mouseDown) {
                 _this.canvasMouseDown(event);
                 if (_this.mode == "select") mouseDown = true;
@@ -148,69 +148,6 @@ NetworkSvg.prototype = {
 };
 
 
-NetworkSvg.prototype.initSVG = function () {
-    var _this = this;
-
-    this.background = SVG.addChild(this.svg, "rect", {
-        "id": "background",
-        "width": "100%",
-        "height": "100%",
-        "fill": this.bgColor
-    });
-
-    this.backgroundImage = SVG.addChildImage(this.svg, {
-        "id": "backgroundImage",
-        "x": "0",
-        "y": "0",
-        "width": this.width,
-        "height": this.height
-    });
-
-    this.svgC = SVG.init(this.svg, {
-        "width": 100000,
-        "height": 100000,
-        "x": 0,
-        "y": 0
-    });
-
-
-    this.svgG = SVG.addChild(this.svgC, "g", {"transform": "scale(" + this.scale + ")"});
-    this.shadowContainer = SVG.init(this.svgG, {});
-
-    this.defs = SVG.addChild(this.svg, "defs", {});
-
-    if (this.parentNetwork) {
-        SVG.addChild(this.svg, "rect", {
-            "width": "100%",
-            "height": "100%",
-            "opacity": "0"
-        });
-
-        this.overviewRect = SVG.addChild(this.svg, "rect", {
-            "width": "100%",
-            "height": "100%",
-            "fill": "blue",
-            "fill-opacity": "0.1",
-            "cursor": "pointer",
-            "stroke": "red",
-            "stroke-width": "4",
-            "stroke-opacity": "0.6",
-            "transform": "scale(1)",
-            "x": -this.parentNetwork.canvasOffsetX * this.scale,
-            "y": -this.parentNetwork.canvasOffsetY * this.scale
-        });
-
-        $(this.overviewRect).mousedown(function (event) {
-            $(_this.svg).off('mousedown');
-            _this.moveOverviewRect(event);
-        });
-
-        $(this.overviewRect).mouseup(function (event) {
-            $(_this.svg).off('mouseup');
-            $(_this.svg).off('mousemove');
-        });
-    }
-};
 
 NetworkSvg.prototype.refresh = function (networkData) {
     var _this = this;

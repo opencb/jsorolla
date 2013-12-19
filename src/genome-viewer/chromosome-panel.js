@@ -109,7 +109,7 @@ ChromosomePanel.prototype = {
             $(this.div).append(this.titleDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs" style="margin-left:10px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
+                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs pull-right" style="display:inline;margin:2px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
                 $(this.titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -350,6 +350,19 @@ ChromosomePanel.prototype = {
             resizeRight.setAttribute('visibility', 'visible');
         };
 
+        var recalculatePositionBox = function () {
+            var genomicLength = _this.region.length();
+            var pixelWidth = genomicLength * _this.pixelBase;
+            var x = (_this.region.start * _this.pixelBase) + 20;//20 is the margin
+            _this.positionBox.setAttribute("x", x);
+            _this.positionBox.setAttribute("width", pixelWidth);
+        };
+        var limitRegionToChromosome = function (args) {
+            args.start = (args.start < 1) ? 1 : args.start;
+            args.end = (args.end > _this.chromosomeLength) ? _this.chromosomeLength : args.end;
+            return args;
+        };
+
         $(positionGroup).mouseenter(function (event) {
             recalculateResizeControls();
             showResizeControls();
@@ -373,7 +386,8 @@ ChromosomePanel.prototype = {
         var downY, downX, moveX, moveY, lastX, increment;
 
         $(this.svg).mousedown(function (event) {
-            downX = (event.pageX - $(_this.svg).offset().left);
+//            downX = (event.pageX - $(_this.svg).offset().left);
+            downX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
             selBox.setAttribute("x", downX);
             lastX = _this.positionBox.getAttribute("x");
             if (status == '') {
@@ -381,7 +395,8 @@ ChromosomePanel.prototype = {
             }
             hideResizeControls();
             $(this).mousemove(function (event) {
-                moveX = (event.pageX - $(_this.svg).offset().left);
+//                moveX = (event.pageX - $(_this.svg).offset().left);
+                moveX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
                 hideResizeControls();
                 switch (status) {
                     case 'resizePositionBoxLeft' :
@@ -432,12 +447,15 @@ ChromosomePanel.prototype = {
                         if (moveX != null) {
                             var w = parseInt(_this.positionBox.getAttribute("width"));
                             var x = parseInt(_this.positionBox.getAttribute("x"));
+
                             var pixS = x;
                             var pixE = x + w;
                             var bioS = (pixS - offset) / _this.pixelBase;
                             var bioE = (pixE - offset) / _this.pixelBase;
-                            _this.region.start = Math.round(bioS);
-                            _this.region.end = Math.round(bioE);
+                            var se = limitRegionToChromosome({start:bioS,end:bioE});// returns object with start and end
+                            _this.region.start = Math.round(se.start);
+                            _this.region.end = Math.round(se.end);
+                            recalculatePositionBox();
                             recalculateResizeControls();
                             showResizeControls();
                             _this.trigger('region:change', {region: _this.region, sender: _this});
@@ -446,26 +464,34 @@ ChromosomePanel.prototype = {
                         }
                         break;
                     case 'setRegion' :
-                        var w = _this.positionBox.getAttribute("width");
-                        var pixS = downX - (w / 2);
-                        var pixE = downX + (w / 2);
-                        var bioS = (pixS - offset) / _this.pixelBase;
-                        var bioE = (pixE - offset) / _this.pixelBase;
-                        _this.region.start = Math.round(bioS);
-                        _this.region.end = Math.round(bioE);
+                        if(downX > offset && downX < (_this.width - offset)){
+                            var w = _this.positionBox.getAttribute("width");
 
-                        _this.positionBox.setAttribute("x", downX - (w / 2));
-                        _this.trigger('region:change', {region: _this.region, sender: _this});
+                            _this.positionBox.setAttribute("x", downX - (w / 2));
+
+                            var pixS = downX - (w / 2);
+                            var pixE = downX + (w / 2);
+                            var bioS = (pixS - offset) / _this.pixelBase;
+                            var bioE = (pixE - offset) / _this.pixelBase;
+                            var se = limitRegionToChromosome({start: bioS, end: bioE});// returns object with start and end
+                            _this.region.start = Math.round(se.start);
+                            _this.region.end = Math.round(se.end);
+                            recalculatePositionBox();
+                            _this.trigger('region:change', {region: _this.region, sender: _this});
+                        }
                         break;
                     case 'selectingRegion' :
                         var bioS = (downX - offset) / _this.pixelBase;
                         var bioE = (moveX - offset) / _this.pixelBase;
-                        _this.region.start = parseInt(Math.min(bioS, bioE));
-                        _this.region.end = parseInt(Math.max(bioS, bioE));
-
-                        var w = Math.abs(downX - moveX);
-                        _this.positionBox.setAttribute("width", w);
-                        _this.positionBox.setAttribute("x", Math.abs((downX + moveX) / 2) - (w / 2));
+                        var start = Math.min(bioS,bioE);
+                        var end = Math.max(bioS,bioE);
+                        var se = limitRegionToChromosome({start:start,end:end});// returns object with start and end
+                        _this.region.start = parseInt(se.start);
+                        _this.region.end = parseInt(se.end);
+                        recalculatePositionBox();
+//                        var w = Math.abs(downX - moveX);
+//                        _this.positionBox.setAttribute("width", w);
+//                        _this.positionBox.setAttribute("x", Math.abs((downX + moveX) / 2) - (w / 2));
                         _this.trigger('region:change', {region: _this.region, sender: _this});
                         break;
                 }

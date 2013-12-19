@@ -92,8 +92,8 @@ TrackListPanel.prototype = {
         }
     },
     showContent: function () {
-        $(this.tlHeaderDiv).css({display: 'inline'});
-        $(this.panelDiv).css({display: 'inline'});
+        $(this.tlHeaderDiv).css({display: 'block'});
+        $(this.panelDiv).css({display: 'block'});
         this.collapsed = false;
         $(this.collapseDiv).removeClass('active');
         $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
@@ -120,11 +120,13 @@ TrackListPanel.prototype = {
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
-            var titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
+            var titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><div style="display:inline-block;line-height: 24px;margin-left: 5px;width:120px">' + this.title + '</div></div>')[0];
             $(this.div).append(titleDiv);
+            var windowSizeDiv = $('<div style="display:inline;margin-left:35%" id="windowSizeSpan"></div>');
+            $(titleDiv).append(windowSizeDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs" style="margin-left:10px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
+                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs pull-right" style="display:inline;margin:2px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
                 $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -163,31 +165,31 @@ TrackListPanel.prototype = {
         //Main SVG and his events
         this.svgTop = SVG.init(tlHeaderDiv, {
             "width": this.width,
-            "height": 25
+            "height": 12
         });
 
         var mid = this.width / 2;
-
+        var yOffset = 11;
         this.positionText = SVG.addChild(this.svgTop, 'text', {
             'x': mid - 30,
-            'y': 24,
+            'y': yOffset,
             'fill': 'steelblue',
             'class': this.fontClass
         });
         this.nucleotidText = SVG.addChild(this.svgTop, 'text', {
             'x': mid + 35,
-            'y': 24,
+            'y': yOffset,
             'class': this.fontClass
         });
         this.firstPositionText = SVG.addChild(this.svgTop, 'text', {
             'x': 0,
-            'y': 24,
+            'y': yOffset,
             'fill': 'steelblue',
             'class': this.fontClass
         });
         this.lastPositionText = SVG.addChild(this.svgTop, 'text', {
             'x': this.width - 70,
-            'y': 24,
+            'y': yOffset,
             'fill': 'steelblue',
             'class': this.fontClass
         });
@@ -223,8 +225,10 @@ TrackListPanel.prototype = {
             'fill': 'black',
             'class': this.fontClass
         });
+        this.viewNtsText.setAttribute('hidden');
 //        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
         this.viewNtsText.textContent = this.windowSize;
+        $(this.div).find('#windowSizeSpan').html(this.windowSize);
         this._setTextPosition();
 
 
@@ -466,16 +470,6 @@ TrackListPanel.prototype = {
                             disp = Math.round(-10 / _this.pixelBase);
                         }
                         break;
-                    case 109://minus key
-                        if (e.shiftKey) {
-                            console.log("zoom out");
-                        }
-                        break;
-                    case 107://plus key
-                        if (e.shiftKey) {
-                            console.log("zoom in");
-                        }
-                        break;
                 }
                 if (disp != 0) {
                     _this.region.start -= disp;
@@ -553,10 +547,11 @@ TrackListPanel.prototype = {
         $(this.centerLine).css({'width': this.pixelBase});
         $(this.mouseLine).css({'width': this.pixelBase});
 
-        this.viewNtsText.textContent = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
-        this.windowSize = this.viewNtsText.textContent;
+        this.windowSize = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
+        this.viewNtsText.textContent = this.viewNtsText.textContent;
+        $(this.div).find('#windowSizeSpan').html(this.windowSize);
         this._setTextPosition();
-        this.trigger('window:size', {windowSize: this.viewNtsText.textContent});
+        this.trigger('window:size', {windowSize: this.windowSize});
 
 //        if (region.species != null) {
 //            //check species and modify CellBaseAdapter, clean cache
@@ -899,10 +894,13 @@ TrackListPanel.prototype = {
         this.firstPositionText.textContent = Utils.formatNumber(this.visualRegion.start);
         this.lastPositionText.textContent = Utils.formatNumber(this.visualRegion.end);
 
-        this.viewNtsText.textContent = "Window size: " + Utils.formatNumber(this.visualRegion.length()) + " nts";
+
+        this.windowSize = "Window size: " + Utils.formatNumber(this.visualRegion.length()) + " nts";
+        this.viewNtsText.textContent = this.windowSize;
+        $(this.div).find('#windowSizeSpan').html(this.windowSize);
+
 //        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length * 7);
 //        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
-        this.windowSize = this.viewNtsText.textContent;
     },
 
     getTrackSvgById: function (trackId) {
@@ -937,7 +935,7 @@ TrackListPanel.prototype = {
 
     getSequenceNucleotid: function (position) {
         var seqTrack = this.getSequenceTrack();
-        if (seqTrack != null && this.zoom >= seqTrack.visibleRange.start - this.zoomOffset && this.zoom <= seqTrack.visibleRange.end) {
+        if (seqTrack != null && this.visualRegion.length() <= seqTrack.visibleRegionSize) {
             var nt = seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
             return nt;
         }

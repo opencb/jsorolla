@@ -60,7 +60,7 @@ SequenceTrack.prototype.draw = function () {
 
     this.cleanSvg();
 
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
         var data = this.dataAdapter.getData({
             region: new Region({
@@ -91,7 +91,7 @@ SequenceTrack.prototype.move = function (disp) {
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
 
     // check if track is visible in this region size
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             this.dataAdapter.getData({
                 region: new Region({

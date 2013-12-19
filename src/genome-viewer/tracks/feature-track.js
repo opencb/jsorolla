@@ -30,10 +30,10 @@ function FeatureTrack(args) {
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
-    this.histogramRenderer = new FeatureClusterRenderer();
-//    this.histogramRenderer = new HistogramRenderer();
+//    this.histogramRenderer = new FeatureClusterRenderer();
+    this.histogramRenderer = new HistogramRenderer(args);
 
-
+    this.featureType = 'Feature';
     //set instantiation args, must be last
     _.extend(this, args);
 
@@ -72,7 +72,8 @@ FeatureTrack.prototype.render = function (targetId) {
             width: _this.width,
             pixelPosition: _this.pixelPosition,
             resource:_this.resource,
-            species:_this.species
+            species:_this.species,
+            featureType:_this.featureType
         });
         _this.updateHeight();
         _this.setLoading(false);
@@ -94,7 +95,7 @@ FeatureTrack.prototype.draw = function () {
         this.dataType = 'histogram';
     }
 
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
         this.dataAdapter.getData({
             dataType: this.dataType,
@@ -138,7 +139,7 @@ FeatureTrack.prototype.move = function (disp) {
     var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
 
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             this.dataAdapter.getData({

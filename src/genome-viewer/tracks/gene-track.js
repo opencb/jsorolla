@@ -31,8 +31,8 @@ function GeneTrack(args) {
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
-    this.histogramRenderer = new FeatureClusterRenderer();
-//    this.histogramRenderer = new HistogramRenderer();
+//    this.histogramRenderer = new FeatureClusterRenderer();
+    this.histogramRenderer = new HistogramRenderer(args);
 
 
     //set instantiation args, must be last
@@ -82,7 +82,7 @@ GeneTrack.prototype.render = function (targetId) {
 
 GeneTrack.prototype.updateTranscriptParams = function () {
     if (this.region.length() < this.minTranscriptRegionSize) {
-        this.exclude = undefined;
+        this.exclude = this.dataAdapter.params.exclude;
     } else {
         this.exclude = 'transcripts';
     }
@@ -110,7 +110,7 @@ GeneTrack.prototype.draw = function () {
     }
 
 
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
         var data = this.dataAdapter.getData({
             dataType: dataType,
@@ -166,7 +166,7 @@ GeneTrack.prototype.move = function (disp) {
 //    console.log(this.svgCanvasLeftLimit+'  ----  '+this.svgCanvasRightLimit)
 //    console.log(this.svgCanvasOffset)
 
-    if (typeof this.visibleRange === 'undefined' || this.region.length() < this.visibleRange) {
+    if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             console.log('left')
