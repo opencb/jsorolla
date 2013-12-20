@@ -24,10 +24,10 @@ function DefaultVertexRenderer(args) {
     _.extend(this, Backbone.Events);
 
     //defaults
-    this.shape = 'circle';
-    this.size = 35;
+    this.shape = 'square';
+    this.size = 40;
     this.color = '#cccccc';
-    this.strokeSize = 1;
+    this.strokeSize = 3;
     this.strokeColor = '#888888';
     this.opacity = 1;
     this.labelSize = 12;
@@ -57,6 +57,44 @@ DefaultVertexRenderer.prototype = {
         var targetSvg = args.target;
 
 
+        var size = this.size + this.strokeSize;
+        var size = size + (size * 0.3);
+        var midOffset = size / 2;
+
+        var vertexSvg = SVG.create("svg", {
+            "id": vertex.id,
+            "cursor": "pointer",
+            x: coords.x - midOffset,
+            y: coords.y - midOffset,
+            'network-type': 'vertex-svg'
+        });
+        var groupSvg = SVG.addChild(vertexSvg, 'g', {
+            opacity: this.opacity
+        });
+        var circle = SVG.addChild(groupSvg, 'circle', {
+            cx: midOffset,
+            cy: midOffset,
+            r: this.size / 2,
+            stroke: this.strokeColor,
+            'stroke-width': this.strokeSize,
+            fill: this.color,
+            'network-type': 'vertex'
+        });
+        var vertexText = SVG.addChild(vertexSvg, "text", {
+            "x": 5,
+            "y": this.labelSize + size,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'vertex-label'
+        });
+        vertexText.textContent = vertex.name;
+        targetSvg.appendChild(vertexSvg);
+    },
+    drawSquareShape: function (args) {
+        var vertex = args.vertex;
+        var coords = args.coords;
+        var targetSvg = args.target;
+
 
         var size = this.size + this.strokeSize;
         var size = size + (size * 0.3);
@@ -69,11 +107,14 @@ DefaultVertexRenderer.prototype = {
             y: coords.y - midOffset,
             'network-type': 'vertex-svg'
         });
-        var groupSvg = SVG.addChild(vertexSvg, 'g');
-        var circle = SVG.addChild(groupSvg, 'circle', {
-            cx: midOffset,
-            cy: midOffset,
-            r: this.size / 2,
+        var groupSvg = SVG.addChild(vertexSvg, 'g', {
+            opacity: this.opacity
+        });
+        var rect = SVG.addChild(groupSvg, 'rect', {
+            x: midOffset-this.size/2,
+            y: midOffset-this.size/2,
+            width: this.size,
+            height: this.size,
             stroke: this.strokeColor,
             'stroke-width': this.strokeSize,
             fill: this.color,
@@ -81,15 +122,15 @@ DefaultVertexRenderer.prototype = {
         });
         var vertexText = SVG.addChild(vertexSvg, "text", {
             "x": 5,
-            "y": this.labelSize+size,
+            "y": this.labelSize + size,
             "font-size": this.labelSize,
             "fill": this.labelColor,
-            'network-type': 'vertexLabel'
+            'network-type': 'vertex-label'
         });
         vertexText.textContent = vertex.name;
         targetSvg.appendChild(vertexSvg);
     },
-    drawSquareShape: function (args) {
-
+    getSize: function () {
+        return this.size + this.strokeSize;
     }
 }

@@ -21,9 +21,9 @@
 
 function Edge(args) {
 
-    this.id = Utils.genId('Edge');
+    this.id = 'e'+Utils.genId();
 
-    this.name;
+    this.name = '->';
     this.source;
     this.target;
     this.weight;

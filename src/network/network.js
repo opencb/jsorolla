@@ -38,6 +38,9 @@ function Network(args) {
 }
 
 Network.prototype = {
+    getGraph:function(){
+        return this.graph;
+    },
     addVertex: function (args) {
         var vertex = args.vertex;
         var vertexConfig = args.vertexConfig;
@@ -89,12 +92,16 @@ Network.prototype = {
         edgeConfig.render({
             sourceCoords: sourceConfig.coords,
             targetCoords: targetConfig.coords,
+            sourceRenderer: sourceConfig.renderer,
             targetRenderer: targetConfig.renderer,
             edge: edge,
             target: target
         });
     },
+    setVertexName:function(vertex,name){
+        vertex.name = name;
 
+    },
     /* Attribute Manager */
     addAttribute: function (name, type, defaultValue) {
         this.attributeManager.addAttribute(this.graph.vertices, name, type, defaultValue);

@@ -209,6 +209,28 @@ Graph.prototype = {
     /**/
     addLayout: function (layout) {
         this.display.layouts[layout.id] = layout;
-    }
+    },
 
+    /**/
+    getAsSIF: function () {
+        var sifText = "";
+        for (var i = 0; i < this.vertices.length; i++) {
+            var vertex = this.vertices[i];
+            var line = "";
+            if (vertex.edges.length == 0) {
+                line = vertex.id + "\n";
+            } else {
+                for (var j = 0; j < vertex.edges.length; j++) {
+                    var edge = vertex.edges[j];
+                    line = edge.source.id + " " + "--" + " " + edge.target.id + "\n";
+                }
+            }
+            sifText += line;
+        }
+        return sifText;
+    },
+    getAsDOT : function() {
+        var dotText = "graph network {\n" + this.getAsSIF() + "}";
+        return dotText;
+    }
 }

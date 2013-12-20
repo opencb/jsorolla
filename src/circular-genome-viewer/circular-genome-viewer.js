@@ -250,7 +250,6 @@ CircularGenomeViewer.prototype = {
 
             this.genomesData[genome.id] = genome;
             this.genomesData[genome.id]['segmentData'] = {};
-
         }
 
         var color = '#778899';

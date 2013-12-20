@@ -46,6 +46,7 @@ DefaultEdgeRenderer.prototype = {
         var edge = args.edge;
         var sourceCoords = args.sourceCoords;
         var targetCoords = args.targetCoords;
+        var sourceRenderer = args.sourceRenderer;
         var targetRenderer = args.targetRenderer;
         var targetSvg = args.target;
 
@@ -54,12 +55,15 @@ DefaultEdgeRenderer.prototype = {
 //        var targetLayout = this.network.getVertexLayout(args.edge.target);
 //        var targetDisplay = this.network.getVertexDisplay(args.edge.target);
 
-        var offset = (targetRenderer.size / 2 + targetRenderer.strokeSize / 2);
+        var offset = targetRenderer.getSize() / 2;
         // if not exists this marker, add new one to defs
         var markerArrowId = "#arrow-" + this.shape + "-" + offset + '-' + this.color;
         if ($(markerArrowId).length == 0) {
             this.addArrowShape(this.shape, offset, this.color, this.size,targetSvg);
         }
+
+
+
         var linkSvg = SVG.addChild(targetSvg, "line", {
             "id": edge.id,
             "x1": sourceCoords.x,

@@ -183,7 +183,7 @@ ToolBar.prototype = {
     },
     _setLayoutMenu: function () {
         var _this = this;
-        var options = ['Dot', 'Neato', 'Twopi', 'Circo', 'Fdp', 'Sfdp', 'Random', 'Circle', 'Square'];
+        var options = ['Force directed','Dot', 'Neato', 'Twopi', 'Circo', 'Fdp', 'Sfdp', 'Random', 'Circle', 'Square'];
         for (var i in options) {
             var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
             $(this.layoutMenu).append(menuEntry);
