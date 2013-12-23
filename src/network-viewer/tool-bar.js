@@ -52,6 +52,14 @@ ToolBar.prototype = {
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
             '   <div class="btn-group btn-group-xs">' +
+            '       <button id="selectButton" class="btn btn-default" type="button"><span class="ocb-icon icon-mouse-select"></span></button>' +
+            '   </div>' +
+            '   <div class="btn-group btn-group-xs">' +
+            '       <button id="addButton" class="btn btn-default" type="button"><span class="ocb-icon icon-add"></span></button>' +
+            '       <button id="linkButton" class="btn btn-default" type="button"><span class="ocb-icon icon-link"></span></button>' +
+            '       <button id="deleteButton" class="btn btn-default" type="button"><span class="ocb-icon icon-delete"></span></button>' +
+            '   </div>' +
+            '   <div class="btn-group btn-group-xs">' +
             '       <button id="collapseButton" class="btn btn-default" type="button"><span class="ocb-icon icon-collapse"></span></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
@@ -103,6 +111,12 @@ ToolBar.prototype = {
         $(this.targetDiv).append(this.div);
         /**************/
 
+        this.selectButton = $(this.div).find('#selectButton');
+
+        this.addButton = $(this.div).find('#addButton');
+        this.linkButton = $(this.div).find('#linkButton');
+        this.deleteButton = $(this.div).find('#deleteButton');
+
         this.collapseButton = $(this.div).find('#collapseButton');
 
         this.layoutButton = $(this.div).find('#layoutButton');
@@ -126,6 +140,23 @@ ToolBar.prototype = {
         this.searchField = $(this.div).find('#searchField')[0];
         this.searchDataList = $(this.div).find('#searchDataList')[0];
         this.quickSearchButton = $(this.div).find('#quickSearchButton');
+
+
+
+        /* buttons */
+        $(this.selectButton).click(function (e) {
+            _this.trigger('selectButton:click', {clickEvent: e, sender: {}})
+        });
+        $(this.addButton).click(function (e) {
+            _this.trigger('addButton:click', {clickEvent: e, sender: {}})
+        });
+        $(this.linkButton).click(function (e) {
+            _this.trigger('linkButton:click', {clickEvent: e, sender: {}})
+        });
+        $(this.deleteButton).click(function (e) {
+            _this.trigger('deleteButton:click', {clickEvent: e, sender: {}})
+        });
+
 
         $(this.collapseButton).click(function (e) {
             _this.trigger('collapseButton:click', {clickEvent: e, sender: {}})

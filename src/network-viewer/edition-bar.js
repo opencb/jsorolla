@@ -50,20 +50,16 @@ EditionBar.prototype = {
 
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="selectButton" class="btn btn-default" type="button"><span class="ocb-icon icon-mouse-select"></span></button>' +
+            '   <div class="btn-group" style="width:140px;" title="Node name">' +
+            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Node:&nbsp;</span>' +
+            '       <input id="nodeNameField" type="text" class="form-control" placeholder="name" style="padding:0px 4px;height:23px;width:100px">' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="addButton" class="btn btn-default" type="button"><span class="ocb-icon icon-add"></span></button>' +
-            '       <button id="linkButton" class="btn btn-default" type="button"><span class="ocb-icon icon-link"></span></button>' +
-            '       <button id="deleteButton" class="btn btn-default" type="button"><span class="ocb-icon icon-delete"></span></button>' +
-            '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
+            '   <div class="btn-group btn-group-xs" title="Node shape">' +
             '       <button id="nodeShapeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-shape"></span><span class="caret"></button>' +
             '        <ul id="nodeShapeMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group">' +
+            '   <div class="input-group" title="Node size">' +
             '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:3px;"><span class="ocb-icon icon-node-size"></span></span>' +
             '       <input id="nodeSizeField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:35px;display:inline-block;">' +
             '       <div class="input-group-btn" style="display:inline-block;">' +
@@ -73,7 +69,7 @@ EditionBar.prototype = {
             '   </div>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group">' +
+            '   <div class="input-group" title="Node stroke size">' +
             '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:3px;"><span class="ocb-icon icon-stroke-size"></span></span>' +
             '       <input id="nodeStrokeSizeField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:35px;display:inline-block;">' +
             '       <div class="input-group-btn" style="display:inline-block;">' +
@@ -83,7 +79,7 @@ EditionBar.prototype = {
             '   </div>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group">' +
+            '   <div class="input-group" title="Node color">' +
             '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-fill-color"></span>&nbsp;&nbsp;#</span>' +
             '       <input id="nodeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
             '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
@@ -92,7 +88,7 @@ EditionBar.prototype = {
             '   </div>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group">' +
+            '   <div class="input-group" title="Node stroke color">' +
             '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-stroke-color"></span>&nbsp;&nbsp;#</span>' +
             '       <input id="nodeStrokeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
             '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
@@ -100,34 +96,26 @@ EditionBar.prototype = {
             '       </span>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
+            '   <div class="btn-group" style="width:140px;margin-left: 25px"  title="Edge name">' +
+            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Edge:&nbsp;</span>' +
+            '       <input id="edgeLabelField" type="text" class="form-control" placeholder="label" style="padding:0px 4px;height:23px;width:100px">' +
+            '   </div>' +
+            '   <div class="btn-group btn-group-xs"  title="Node opacity">' +
             '       <button id="nodeOpacityButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-opacity"></span><span class="caret"></button>' +
             '       <ul id="nodeOpacityMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
-            '   <div class="btn-group" style="width:120px;margin-left: 5px">' +
-//            '   <div class="input-group">' +
-            '       <input id="nodeNameField" type="text" class="form-control" placeholder="node name" style="padding:0px 4px;height:23px;width:100px">' +
-//            '       <input id="nodeLabelField" type="text" class="form-control" placeholder="node label" style="padding:0px 4px;height:23px;width:100px">' +
-//            '   </div>' +
-            '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
+            '   <div class="btn-group btn-group-xs"  title="Edge shape">' +
             '       <button id="edgeShapeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-edge-type"></span><span class="caret"></button>' +
             '       <ul id="edgeShapeMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group">' +
+            '   <div class="input-group"  title="Edge color">' +
             '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-fill-color"></span>&nbsp;&nbsp;#</span>' +
             '       <input id="edgeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
             '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
             '           <select id="edgeColorSelect"></select>' +
             '       </span>' +
             '   </div>' +
-            '   </div>' +
-            '   <div class="btn-group" style="width:110px;margin-left: 5px">' +
-            '   <div class="input-group">' +
-            '       <input id="edgeLabelField" type="text" class="form-control" placeholder="edge label" style="padding:0px 4px;height:23px;width:100px">' +
-            '   </div>' +
-
             '   </div>' +
             '</div>' +
             '';
@@ -139,11 +127,6 @@ EditionBar.prototype = {
         $(this.targetDiv).append(this.div);
         /**************/
 
-        this.selectButton = $(this.div).find('#selectButton');
-
-        this.addButton = $(this.div).find('#addButton');
-        this.linkButton = $(this.div).find('#linkButton');
-        this.deleteButton = $(this.div).find('#deleteButton');
 
         /* node */
         this.nodeShapeButton = $(this.div).find('#nodeShapeButton');
@@ -260,20 +243,6 @@ EditionBar.prototype = {
         });
         /* */
 
-        /* buttons */
-        $(this.selectButton).click(function (e) {
-            _this.trigger('selectButton:click', {clickEvent: e, sender: {}})
-        });
-        $(this.addButton).click(function (e) {
-            _this.trigger('addButton:click', {clickEvent: e, sender: {}})
-        });
-        $(this.linkButton).click(function (e) {
-            _this.trigger('linkButton:click', {clickEvent: e, sender: {}})
-        });
-        $(this.deleteButton).click(function (e) {
-            _this.trigger('deleteButton:click', {clickEvent: e, sender: {}})
-        });
-
 
         /* menus */
         var opacities = {"none": '1', "low": '0.8', "medium": '0.5', "high": '0.2', "invisible": '0'};
@@ -370,6 +339,11 @@ EditionBar.prototype = {
     },
     setNodeStrokeSizeField: function (size) {
         $(this.nodeStrokeSizeField).val(size);
-    }
+    },
 
+    setEdgeColor:function(color){
+        this._checkSelectColor(color, this.edgeColorSelect);
+        $(this.edgeColorSelect).simplecolorpicker('selectColor', color);
+        $(this.edgeColorField).val($(this.edgeColorSelect).val().replace('#', ''));
+    }
 }

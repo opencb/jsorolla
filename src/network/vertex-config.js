@@ -33,15 +33,29 @@ function VertexConfig(args) {
 }
 
 VertexConfig.prototype = {
-    setCoords:function(x,y,z){
+    setCoords: function (x, y, z) {
+        var dx = x - this.coords.x;
+        var dy = y - this.coords.y;
+        var dz = z - this.coords.z;
+
         this.coords.x = x;
         this.coords.y = y;
         this.coords.z = z;
+
+        this.renderer.move(dx, dy, dz);
     },
-    getCoords:function(){
+    move: function (dx, dy, dz) {
+        this.coords.x += dx;
+        this.coords.y += dy;
+        if (typeof dz !== 'undefined') {
+            this.coords.z += dz;
+        }
+        this.renderer.move(dx, dy, dz);
+    },
+    getCoords: function () {
         return this.coords;
     },
-    render:function(args){
+    render: function (args) {
         this.renderer.render(args);
     }
 }

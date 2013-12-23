@@ -206,6 +206,9 @@ Graph.prototype = {
     getVertexById: function (vertexId) {
         return this.vertices[this.verticesIndex[vertexId]];
     },
+    getEdgeById: function (edgeId) {
+        return this.edges[this.edgesIndex[edgeId]];
+    },
     /**/
     addLayout: function (layout) {
         this.display.layouts[layout.id] = layout;

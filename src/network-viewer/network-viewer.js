@@ -127,6 +127,18 @@ NetworkViewer.prototype = {
             targetId: targetId,
             autoRender: true,
             handlers: {
+                'selectButton:click': function (event) {
+                    _this.networkSvgLayout.setMode("select");
+                },
+                'addButton:click': function (event) {
+                    _this.networkSvgLayout.setMode("add");
+                },
+                'linkButton:click': function (event) {
+                    _this.networkSvgLayout.setMode("join");
+                },
+                'deleteButton:click': function (event) {
+                    _this.networkSvgLayout.setMode("delete");
+                },
                 'collapseButton:click': function (event) {
                     console.log(event);
                     //todo
@@ -169,18 +181,6 @@ NetworkViewer.prototype = {
             targetId: targetId,
             autoRender: true,
             handlers: {
-                'selectButton:click': function (event) {
-                    _this.networkSvgLayout.setMode("select");
-                },
-                'addButton:click': function (event) {
-                    _this.networkSvgLayout.setMode("add");
-                },
-                'linkButton:click': function (event) {
-                    _this.networkSvgLayout.setMode("join");
-                },
-                'deleteButton:click': function (event) {
-                    _this.networkSvgLayout.setMode("delete");
-                },
                 'nodeShape:change': function (event) {
                     _this.networkSvgLayout.setSelectedVerticesDisplayAttr('shape', event.value);
                 },
@@ -203,7 +203,7 @@ NetworkViewer.prototype = {
                     _this.networkSvgLayout.setSelectedVerticesDisplayAttr('strokeColor', event.value);
                 },
                 'edgeColorField:change': function (event) {
-                    //TODO
+                    _this.networkSvgLayout.setSelectedEdgesDisplayAttr('color', event.value);
                 },
                 'nodeNameField:change': function (event) {
                     _this.networkSvgLayout.setVertexName(event.value);
@@ -241,6 +241,9 @@ NetworkViewer.prototype = {
                     _this.editionBar.setNodeNameField(event.vertex.name);
                     _this.editionBar.setNodeSizeField(event.vertexConfig.renderer.size);
                     _this.editionBar.setNodeStrokeSizeField(event.vertexConfig.renderer.strokeSize);
+                },
+                'edge:leftClick': function (event) {
+                    _this.editionBar.setEdgeColor(event.edgeConfig.renderer.color);
                 },
                 'vertex:rightClick': function (event) {
                     console.log(event);
@@ -381,7 +384,7 @@ NetworkViewer.prototype = {
                         for (var vertexId in data) {
                             var x = _this.networkSvgLayout.getWidth() * (0.05 + 0.85 * data[vertexId].x);
                             var y = _this.networkSvgLayout.getHeight() * (0.05 + 0.85 * data[vertexId].y);
-                            _this.networkSvgLayout.moveVertex(vertexId, x, y);
+                            _this.networkSvgLayout.setVertexCoords(vertexId, x, y);
                         }
                     }
                 });
