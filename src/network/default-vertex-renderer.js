@@ -25,9 +25,9 @@ function DefaultVertexRenderer(args) {
 
     //defaults
     this.shape = 'circle';
-    this.size = 35;
+    this.size = 40;
     this.color = '#cccccc';
-    this.strokeSize = 1;
+    this.strokeSize = 3;
     this.strokeColor = '#888888';
     this.opacity = 1;
     this.labelSize = 12;
@@ -35,41 +35,117 @@ function DefaultVertexRenderer(args) {
 //    this.labelPositionX = 5;
 //    this.labelPositionY = 45;
 
+    this.el;
+    this.targetEl;
+    this.vertex;
+    this.selected = false;
     //set instantiation args, must be last
     _.extend(this, args);
 
 }
 
 DefaultVertexRenderer.prototype = {
+    get: function (attr) {
+        return this[attr];
+    },
+    set: function (attr, value) {
+        this[attr] = value;
+        this.update();
+    },
     render: function (args) {
-        switch (this.shape) {
-            case "circle":
-                this.drawCircleShape(args);
-                break;
-            case "square":
-                this.drawSquareShape(args);
-                break;
+        this.targetEl = args.target;
+        this.vertex = args.vertex;
+        this.coords = args.coords;
+        this._render();
+    },
+    remove: function () {
+        $(this.el).remove();
+    },
+    update:function(){
+        this.remove();
+        this._render();
+    },
+    select: function () {
+        if (!this.selected) {
+            this._renderSelect();
         }
     },
-    drawCircleShape: function (args) {
-        var vertex = args.vertex;
-        var coords = args.coords;
-        var targetSvg = args.target;
+    deselect: function () {
+        if (this.selected) {
+            this._removeSelect();
+        }
+    },
+    move: function (dispX, dispY) {
+        var currentX = parseFloat(this.el.getAttribute('x'));
+        var currentY = parseFloat(this.el.getAttribute('y'));
+        this.el.setAttribute('x', currentX + dispX);
+        this.el.setAttribute('y', currentY + dispY);
+    },
+    setLabelContent: function (text) {
+        var vertexLabel = $(this.el).find('text[network-type="vertex-label"]')[0];
+        vertexLabel.textContent = text;
+    },
+    getSize: function () {
+        return this.size + this.strokeSize;
+    },
+    /* Private */
+    _render: function () {
+        switch (this.shape) {
+            case "circle":
+                this._drawCircleShape();
+                break;
+            case "ellipse":
+                this._drawEllipseShape();
+                break;
+            case "square":
+                this._drawSquareShape();
+                break;
+            case "rectangle":
+                this._drawRectangleShape();
+                break;
+        }
+        if (this.selected) {
+            this._renderSelect();
+        }
+    },
+    _renderSelect: function () {
+        switch (this.shape) {
+            case "circle":
+                this._drawSelectCircleShape();
+                break;
+            case "ellipse":
+                this._drawSelectEllipseShape();
+                break;
+            case "square":
+                this._drawSelectSquareShape();
+                break;
+            case "rectangle":
+                this._drawSelectRectangleShape();
+                break;
+        }
+        this.selected = true;
+    },
+    _removeSelect: function () {
+        $(this.el).find('[network-type="select-vertex"]').remove();
+        this.selected = false;
+    },
 
-
+    _drawCircleShape: function () {
 
         var size = this.size + this.strokeSize;
         var size = size + (size * 0.3);
         var midOffset = size / 2;
 
         var vertexSvg = SVG.create("svg", {
-            "id": vertex.id,
+            "id": this.vertex.id,
             "cursor": "pointer",
-            x: coords.x - midOffset,
-            y: coords.y - midOffset,
+            x: this.coords.x - midOffset,
+            y: this.coords.y - midOffset,
             'network-type': 'vertex-svg'
         });
-        var groupSvg = SVG.addChild(vertexSvg, 'g');
+        var groupSvg = SVG.addChild(vertexSvg, 'g', {
+            opacity: this.opacity
+        });
         var circle = SVG.addChild(groupSvg, 'circle', {
             cx: midOffset,
             cy: midOffset,
@@ -81,15 +157,155 @@ DefaultVertexRenderer.prototype = {
         });
         var vertexText = SVG.addChild(vertexSvg, "text", {
             "x": 5,
-            "y": this.labelSize+size,
+            "y": this.labelSize + size,
             "font-size": this.labelSize,
             "fill": this.labelColor,
-            'network-type': 'vertexLabel'
+            'network-type': 'vertex-label'
         });
-        vertexText.textContent = vertex.name;
-        targetSvg.appendChild(vertexSvg);
+        vertexText.textContent = this.vertex.name;
+        this.el = vertexSvg;
+        this.targetEl.appendChild(vertexSvg);
     },
-    drawSquareShape: function (args) {
+    _drawEllipseShape: function () {
 
+        var size = this.size + this.strokeSize;
+        var size = size + (size * 0.3);
+        var midOffset = size / 2;
+
+        var s1 = (this.size * 0.3);
+
+        var vertexSvg = SVG.create("svg", {
+            "id": this.vertex.id,
+            "cursor": "pointer",
+            x: this.coords.x - midOffset,
+            y: this.coords.y - midOffset,
+            'network-type': 'vertex-svg'
+        });
+        var groupSvg = SVG.addChild(vertexSvg, 'g', {
+            opacity: this.opacity
+        });
+        var ellipse = SVG.addChild(groupSvg, 'ellipse', {
+            cx: midOffset,
+            cy: midOffset,
+            rx: this.size / 1.7,
+            ry: this.size / 2.5,
+            stroke: this.strokeColor,
+            'stroke-width': this.strokeSize,
+            fill: this.color,
+            'network-type': 'vertex'
+        });
+        var vertexText = SVG.addChild(vertexSvg, "text", {
+            "x": 5,
+            "y": this.labelSize + size,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'vertex-label'
+        });
+        vertexText.textContent = this.vertex.name;
+        this.el = vertexSvg;
+        this.targetEl.appendChild(vertexSvg);
+    },
+    _drawSquareShape: function () {
+
+        var size = this.size + this.strokeSize;
+        var size = size + (size * 0.3);
+        var midOffset = size / 2;
+
+        var vertexSvg = SVG.create("svg", {
+            "id": this.vertex.id,
+            "cursor": "pointer",
+            x: this.coords.x - midOffset,
+            y: this.coords.y - midOffset,
+            'network-type': 'vertex-svg'
+        });
+        var groupSvg = SVG.addChild(vertexSvg, 'g', {
+            opacity: this.opacity
+        });
+        var rect = SVG.addChild(groupSvg, 'rect', {
+            x: midOffset - this.size / 2,
+            y: midOffset - this.size / 2,
+            width: this.size,
+            height: this.size,
+            stroke: this.strokeColor,
+            'stroke-width': this.strokeSize,
+            fill: this.color,
+            'network-type': 'vertex'
+        });
+        var vertexText = SVG.addChild(vertexSvg, "text", {
+            "x": 5,
+            "y": this.labelSize + size,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'vertex-label'
+        });
+        vertexText.textContent = this.vertex.name;
+        this.el = vertexSvg;
+        this.targetEl.appendChild(vertexSvg);
+    },
+    _drawRectangleShape: function () {
+
+        var size = this.size + this.strokeSize;
+        var size = size + (size * 0.3);
+        var midOffset = size / 2;
+
+        var s1 = (this.size * 0.3);
+        var s2 = s1 / 2;
+
+        var vertexSvg = SVG.create("svg", {
+            "id": this.vertex.id,
+            "cursor": "pointer",
+            x: this.coords.x - midOffset,
+            y: this.coords.y - midOffset,
+            'network-type': 'vertex-svg'
+        });
+        var groupSvg = SVG.addChild(vertexSvg, 'g', {
+            opacity: this.opacity
+        });
+        var rect = SVG.addChild(groupSvg, 'rect', {
+            x: midOffset - this.size / 2 - s2,
+            y: midOffset - this.size / 2 + s2,
+            width: this.size + s1,
+            height: this.size - s1,
+            stroke: this.strokeColor,
+            'stroke-width': this.strokeSize,
+            fill: this.color,
+            'network-type': 'vertex'
+        });
+        var vertexText = SVG.addChild(vertexSvg, "text", {
+            "x": 5,
+            "y": this.labelSize + size,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'vertex-label'
+        });
+        vertexText.textContent = this.vertex.name;
+        this.el = vertexSvg;
+        this.targetEl.appendChild(vertexSvg);
+    },
+    _drawSelectCircleShape: function () {
+        var size = this.getSize();
+        var size = size + (size * 0.3);
+        var midOffset = size / 2;
+
+        var r = SVG.addChild(this.el, "circle", {
+            r: midOffset,
+            cx: midOffset,
+            cy: midOffset,
+            opacity: '0.5',
+            fill: '#cccccc',
+            'network-type': 'select-vertex'
+        }, 0);
+    },
+    _drawSelectEllipseShape: function () {
+        //TODO
+        this._drawSelectCircleShape();
+    },
+    _drawSelectSquareShape: function () {
+        //TODO
+        this._drawSelectCircleShape();
+    },
+    _drawSelectRectangleShape: function () {
+        //TODO
+        this._drawSelectCircleShape();
     }
 }
