@@ -36,6 +36,7 @@ function NetworkSvgLayout(args) {
     this.species;
     this.parentNetwork;
     this.scale;
+    this.network;
 
 
     //set instantiation args, must be last
@@ -47,7 +48,6 @@ function NetworkSvgLayout(args) {
 
     /** *** *** **/
     this.createdVertexCount = 0;
-    this.network = new Network();
 
     /* join vertex click flag */
     this.joinSourceVertex = null;
@@ -93,8 +93,14 @@ NetworkSvgLayout.prototype = {
         });
         this.defs = SVG.addChild(this.svg, "defs", {});
 
+        this.canvas = SVG.addChild(this.svg, "svg", {
+            id: 'canvas',
+            "width": this.width,
+            "height": this.height
+        });
+
         /* background */
-        this.backgroundSvg = SVG.init(this.svg, {
+        this.backgroundSvg = SVG.init(this.canvas, {
             "id": "backgroundSVG",
             "width": this.width,
             "height": this.height,
@@ -111,7 +117,7 @@ NetworkSvgLayout.prototype = {
         });
 
         /* canvas svg */
-        this.canvasSVG = SVG.init(this.svg, {
+        this.canvasSVG = SVG.init(this.canvas, {
             "id": "svgCanvas",
             "width": 100000,
             "height": 100000,
@@ -124,7 +130,7 @@ NetworkSvgLayout.prototype = {
             "transform": "scale(" + this.scale + ")"
         });
 
-        this.temporalLinkSvg = SVG.addChild(this.canvasSVG, 'line', {
+        this.temporalLinkSvg = SVG.addChild(this.svg, 'line', {
             'x1': 0,
             'y1': 0,
             'x2': 0,
@@ -144,7 +150,7 @@ NetworkSvgLayout.prototype = {
             repeatCount: 'indefinite'
         });
 
-        this.selectRect = SVG.addChild(this.canvasSVG, "rect", {
+        this.selectRect = SVG.addChild(this.svg, "rect", {
             "x": 0,
             "y": 0,
             "width": 0,
@@ -255,13 +261,7 @@ NetworkSvgLayout.prototype = {
                         });
                         break;
                     case 'edge':
-                        var edgeId = $(targetEl).parent().attr('id');
-                        var edge = this.network.getEdgeById(edgeId);
 
-                        var isSelected = this.network.isEdgeSelected(edge);
-                        if (!isSelected) {
-                            this.selectEdge(edge);
-                        }
 
                         break;
                     default:
@@ -332,18 +332,25 @@ NetworkSvgLayout.prototype = {
                     case 'vertex':
                         var vertexId = $(targetEl).parent().parent().attr('id');
                         var vertex = this.network.getVertexById(vertexId);
-                        this.network.getVertexAttributes(vertex, function (attributes) {
-                            _this.trigger('vertex:leftClick', {
-                                vertex: vertex,
-                                vertexConfig: _this.network.getVertexConfig(vertex),
-                                attributes: attributes
-                            });
+//                        this.network.getVertexAttributes(vertex, function (attributes) {
+                        _this.trigger('vertex:leftClick', {
+                            vertex: vertex,
+                            vertexConfig: _this.network.getVertexConfig(vertex)
+//                                attributes: attributes
                         });
+//                        });
                         break;
                     case 'edge':
+                    case 'edge-label':
                         var edgeId = $(targetEl).parent().attr('id');
                         var edge = this.network.getEdgeById(edgeId);
                         var edgeConfig = this.network.getEdgeConfig(edge);
+
+                        var isSelected = this.network.isEdgeSelected(edge);
+                        if (!isSelected) {
+                            this.selectEdge(edge);
+                        }
+
                         this.trigger('edge:leftClick', {
                             edge: edge,
                             edgeConfig: edgeConfig
@@ -432,6 +439,18 @@ NetworkSvgLayout.prototype = {
         this._deselectAllVertices();
         this.selectedVertices = this.network.selectVerticesByArea(x, y, width, height);
     },
+    selectAllVertices: function () {
+        this._deselectAllEdges();
+        this.selectedVertices = this.network.selectAllVertices();
+    },
+    selectAllEdges: function () {
+        this._deselectAllVertices();
+        this.selectedEdges = this.network.selectAllEdges();
+    },
+    selectAll: function () {
+        this.selectedVertices = this.network.selectAllVertices();
+        this.selectedEdges = this.network.selectAllEdges();
+    },
     _deselectAllVertices: function () {
         this.selectedVertices = [];
         this.network.deselectAllVertices();
@@ -477,6 +496,8 @@ NetworkSvgLayout.prototype = {
             vertexConfig: vertexConfig,
             target: this.scaleGroupSVG
         });
+
+        return vertex;
     },
     createEdge: function (vertexSource, vertexTarget) {
         /* edge graph */
@@ -522,31 +543,20 @@ NetworkSvgLayout.prototype = {
         if (this.selectedVertices.length == 1) {
             var vertex = this.selectedVertices[0];
             this.network.setVertexName(vertex, name);
-            var vertexConfig = this.network.getVertexConfig(vertex);
-            vertexConfig.renderer.setLabelContent(name);
         }
     },
-
-    drawGraph: function () {
+    setEdgeName: function (name) {
+        if (this.selectedEdges.length == 1) {
+            var edge = this.selectedEdges[0];
+            this.network.setEdgeName(edge, name);
+        }
+    },
+    draw: function (content) {
         $(this.scaleGroupSVG).empty();
-        /* vertices */
-        for (var i = 0; i < this.network.graph.vertices.length; i++) {
-            var vertex = this.network.graph.vertices[i];
-            if (typeof vertex !== 'undefined') {
-                this.network.renderVertex(vertex, this.scaleGroupSVG);
-            }
-        }
-        /* edges */
-        for (var i = 0; i < this.network.graph.edges.length; i++) {
-            var edge = this.network.graph.edges[i];
-            if (typeof edge !== 'undefined') {
-                this.drawEdge({
-                    edgeDisplay: this.network.getEdgeDisplay(edge),
-                    edge: edge
-                });
-            }
-        }
+        this.network.draw(this.scaleGroupSVG);
+    },
+    getSvgEl: function () {
+        return  this.canvas;
     }
-
 };
 

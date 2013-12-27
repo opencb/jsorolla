@@ -30,7 +30,7 @@ function DefaultVertexRenderer(args) {
     this.strokeSize = 3;
     this.strokeColor = '#888888';
     this.opacity = 1;
-    this.labelSize = 12;
+    this.labelSize = 14;
     this.labelColor = '#111111';
 //    this.labelPositionX = 5;
 //    this.labelPositionY = 45;
@@ -61,7 +61,7 @@ DefaultVertexRenderer.prototype = {
     remove: function () {
         $(this.el).remove();
     },
-    update:function(){
+    update: function () {
         this.remove();
         this._render();
     },
@@ -307,5 +307,17 @@ DefaultVertexRenderer.prototype = {
     _drawSelectRectangleShape: function () {
         //TODO
         this._drawSelectCircleShape();
+    },
+    toJSON: function () {
+        return {
+            shape: this.shape,
+            size: this.size,
+            color: this.color,
+            strokeSize: this.strokeSize,
+            strokeColor: this.strokeColor,
+            opacity: this.opacity,
+            labelSize: this.labelSize,
+            labelColor: this.labelColor
+        };
     }
 }

@@ -97,6 +97,14 @@ function Graph(args) {
 }
 
 Graph.prototype = {
+    clean: function () {
+        this.numberOfVertices = 0;
+        this.numberOfEdges = 0;
+        this.vertices = [];
+        this.edges = [];
+        this.verticesIndex = {};
+        this.edgesIndex = {};
+    },
     addEdge: function (edge) {
         if (edge.source == null || edge.target == null) {
             return false
@@ -232,8 +240,24 @@ Graph.prototype = {
         }
         return sifText;
     },
-    getAsDOT : function() {
+    getAsDOT: function () {
         var dotText = "graph network {\n" + this.getAsSIF() + "}";
         return dotText;
+    },
+
+    toJSON: function () {
+        var vertices = [];
+        for (var i = 0; i < this.vertices.length; i++) {
+            if (typeof this.vertices[i] !== 'undefined') {
+                vertices.push(this.vertices[i]);
+            }
+        }
+        var edges = [];
+        for (var i = 0; i < this.edges.length; i++) {
+            if (typeof this.edges[i] !== 'undefined') {
+                edges.push(this.edges[i]);
+            }
+        }
+        return {vertices: vertices, edges: edges};
     }
 }

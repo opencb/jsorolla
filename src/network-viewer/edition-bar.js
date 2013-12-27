@@ -49,7 +49,7 @@ EditionBar.prototype = {
         }
 
         var navgationHtml = '' +
-            '<div class="btn-toolbar" role="toolbar">' +
+            '<div id="nodeToolbar" class="btn-toolbar pull-left" role="toolbar">' +
             '   <div class="btn-group" style="width:140px;" title="Node name">' +
             '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Node:&nbsp;</span>' +
             '       <input id="nodeNameField" type="text" class="form-control" placeholder="name" style="padding:0px 4px;height:23px;width:100px">' +
@@ -96,13 +96,16 @@ EditionBar.prototype = {
             '       </span>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group" style="width:140px;margin-left: 25px"  title="Edge name">' +
-            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Edge:&nbsp;</span>' +
-            '       <input id="edgeLabelField" type="text" class="form-control" placeholder="label" style="padding:0px 4px;height:23px;width:100px">' +
-            '   </div>' +
             '   <div class="btn-group btn-group-xs"  title="Node opacity">' +
             '       <button id="nodeOpacityButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-opacity"></span><span class="caret"></button>' +
             '       <ul id="nodeOpacityMenu" class="dropdown-menu" role="menu"></ul>' +
+            '   </div>' +
+            '</div>' +
+
+            '<div id="edgeToolbar" class="btn-toolbar pull-left">' +
+            '   <div class="btn-group" style="width:140px;margin-left: 25px"  title="Edge name">' +
+            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Edge:&nbsp;</span>' +
+            '       <input id="edgeLabelField" type="text" class="form-control" placeholder="label" style="padding:0px 4px;height:23px;width:100px">' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs"  title="Edge shape">' +
             '       <button id="edgeShapeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-edge-type"></span><span class="caret"></button>' +
@@ -124,6 +127,9 @@ EditionBar.prototype = {
         /**************/
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="edition-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
+        $(this.div).css({
+            height:'32px'
+        });
         $(this.targetDiv).append(this.div);
         /**************/
 
@@ -303,7 +309,7 @@ EditionBar.prototype = {
     _setColorSelect: function (select) {
         var colors = ["cccccc", "888888",
             "ac725e", "d06b64", "f83a22", "fa573c", "ff7537", "ffad46", "42d692", "16a765", "7bd148", "b3dc6c", "fbe983", "fad165",
-            "92e1c0", "9fe1e7", "9fc6e7", "4986e7", "9a9cff", "b99aff", "c2c2c2", "cabdbf", "cca6ac", "f691b2", "cd74e6", "a47ae2",
+            "92e1c0", "9fe1e7", "9fc6e7", "4986e7", "9a9cff", "b99aff", "c2c2c2", "cabdbf", "cca6ac", "f691b2", "cd74e6", "a47ae2"
         ];
 
         for (var i in colors) {
@@ -340,10 +346,26 @@ EditionBar.prototype = {
     setNodeStrokeSizeField: function (size) {
         $(this.nodeStrokeSizeField).val(size);
     },
-
     setEdgeColor:function(color){
         this._checkSelectColor(color, this.edgeColorSelect);
         $(this.edgeColorSelect).simplecolorpicker('selectColor', color);
         $(this.edgeColorField).val($(this.edgeColorSelect).val().replace('#', ''));
+    },
+    setEdgeNameField: function (name) {
+        $(this.edgeLabelField).val(name);
     }
+
+    //TODO TEST
+//    hideNodeToolbar:function(){
+//        $('#nodeToolbar').addClass("hidden");
+//    },
+//    hideEdgeToolbar:function(){
+//        $('#edgeToolbar').addClass("hidden");
+//    },
+//    showNodeToolbar:function(){
+//        $('#nodeToolbar').removeClass("hidden");
+//    },
+//    showEdgeToolbar:function(){
+//        $('#edgeToolbar').removeClass("hidden");
+//    }
 }

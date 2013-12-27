@@ -44,5 +44,11 @@ Vertex.prototype = {
     },
     addEdge: function (edge) {
         this.edges.push(edge);
+    },
+    toJSON:function(){
+        return {
+            id:this.id,
+            name:this.name
+        }
     }
 }
