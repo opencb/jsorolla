@@ -406,22 +406,25 @@ NetworkSvgLayout.prototype = {
                 break;
         }
 
-
         var downX = (event.clientX - $(this.svg).offset().left);
         var downY = (event.clientY - $(this.svg).offset().top);
         if (targetElNetworkType === 'vertex') {
             var vertexId = $(targetEl).parent().parent().attr('id');
             var vertex = _this.network.getVertexById(vertexId);
-            _this.network.getVertexAttributes(vertex, function (attributes) {
+//            _this.network.getVertexAttributes(vertex, function (attributes) {
                 _this.trigger('vertex:rightClick', {
                     vertex: vertex,
-                    attributes: attributes,
+//                    attributes: attributes,
                     x: downX,
                     y: downY
                 });
-            });
+//            });
 
         }
+    },
+    selectVerticesByIds:function(vertexIds){
+        this._deselectAllVertices();
+        this.selectedVertices = this.network.selectVerticesByIds(vertexIds);
     },
     selectVertex: function (vertex) {
         this._deselectAllVertices();
@@ -551,7 +554,7 @@ NetworkSvgLayout.prototype = {
             this.network.setEdgeName(edge, name);
         }
     },
-    draw: function (content) {
+    draw: function () {
         $(this.scaleGroupSVG).empty();
         this.network.draw(this.scaleGroupSVG);
     },

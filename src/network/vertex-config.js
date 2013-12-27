@@ -21,8 +21,13 @@
 
 function VertexConfig(args) {
 
+
+    var x = Math.floor((Math.random() * 200) + 1);
+    var y = Math.floor((Math.random() * 200) + 1);
+    var z = Math.floor((Math.random() * 200) + 1);
+
     this.id;
-    this.coords;
+    this.coords = {x: x, y: y, z: z};
     this.renderer;
     this.type;
     this.visible;
@@ -62,7 +67,7 @@ VertexConfig.prototype = {
         return {
             id: this.id,
             coords: this.coords,
-            renderer:this.renderer,
+            renderer: this.renderer,
             type: this.type,
             visible: this.visible
         };

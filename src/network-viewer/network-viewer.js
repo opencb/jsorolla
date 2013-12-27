@@ -438,9 +438,19 @@ NetworkViewer.prototype = {
                 console.log(option + " not yet defined");
         }
     },
+    getVerticesLength: function () {
+        return this.network.graph.numberOfVertices;
+    },
+    getSelectedVertices: function () {
+        return this.networkSvgLayout.selectedVertices;
+    },
+    importVertexWithAttributes: function (data) {
+        this.network.importVertexWithAttributes(data);
+        this.networkSvgLayout.draw();
+    },
     loadJSON: function (content) {
         this.network.loadJSON(content);
-        this.networkSvgLayout.draw(content);
+        this.networkSvgLayout.draw();
     },
     toJSON: function () {
         return this.network.toJSON();

@@ -30,7 +30,13 @@ function Network(args) {
 
     this.graph = new Graph();
     this.config = new NetworkConfig();
-    this.attributeManager = new AttributeManager();
+
+    var defaults = [
+        ["Id", "string", "null"],
+        ["Name", "string", "none"]
+    ];
+    this.nodeAttributeManager = new AttributeManagerStore(defaults);
+    this.edgeAttributeManager = new AttributeManagerStore(defaults);
 
     this.on(this.handlers);
 
@@ -65,6 +71,11 @@ Network.prototype = {
         this.graph.addVertex(vertex);
         this.setVertexConfig(vertexConfig);
         this.renderVertex(vertex, target);
+
+        //attributes
+        this.nodeAttributeManager.addRows([
+            [vertex.id, vertex.name]
+        ], true);
     },
     addEdge: function (args) {
         var edge = args.edge;
@@ -145,7 +156,16 @@ Network.prototype = {
         var edgeConfig = this.config.getEdgeConfig(edge);
         edgeConfig.renderer.select();
     },
-
+    selectVerticesByIds: function (vertexIds) {
+        var selectedVertices = []
+        for (var i = 0, l = vertexIds.length; i < l; i++) {
+            var vertexId = vertexIds[i];
+            var vertex = this.getVertexById(vertexId);
+            this.selectVertex(vertex);
+            selectedVertices.push(vertex);
+        }
+        return selectedVertices;
+    },
     selectVerticesByArea: function (x, y, width, height) {
         var selectedVertices = [];
         var vertices = this.graph.vertices;
@@ -290,13 +310,15 @@ Network.prototype = {
 
     /* Attribute Manager */
     addAttribute: function (name, type, defaultValue) {
-        this.attributeManager.addAttribute(this.graph.vertices, name, type, defaultValue);
+        //TODO test
     },
     removeAttribute: function (name) {
-        this.attributeManager.removeAttribute(name);
+        //TODO test
+//        this.attributeManager.removeAttribute(name);
     },
     getVertexAttributes: function (vertex, success) {
-        this.attributeManager.getVertexAttributes(vertex, success);
+        //TODO test
+//        this.attributeManager.getVertexAttributes(vertex, success);
     },
 
     /** JSON import/export **/
@@ -328,6 +350,10 @@ Network.prototype = {
                 renderer: new DefaultVertexRenderer(content.config.vertices[v.id].renderer)
             });
             this.setVertexConfig(vertexConfig);
+
+            this.nodeAttributeManager.addRows([
+                [vertex.id, vertex.name]
+            ], true);
         }
 
         for (var i = 0; i < content.graph.edges.length; i++) {
@@ -352,5 +378,56 @@ Network.prototype = {
             this.setEdgeConfig(edgeConfig);
         }
 
+    },
+    importVertexWithAttributes: function (data) {
+//                this.nodeAttributeManager.addAttribute(name, type, defaultValue);
+        if (data.createNodes) {
+            for (var i = 0; i < data.content.data.length; i++) {
+                var name = data.content.data[i][0];
+
+                if (this.graph.findByName(name).length == 0) {
+                    var vertex = new Vertex({
+                        name: name
+                    });
+                    this.graph.addVertex(vertex);
+
+                    /* vertex config */
+                    var vertexConfig = new VertexConfig({
+                        id: vertex.id,
+                        renderer: new DefaultVertexRenderer()
+                    });
+                    this.setVertexConfig(vertexConfig);
+
+                    this.nodeAttributeManager.addRows([
+                        [vertex.id, vertex.name]
+                    ], true);
+                }
+            }
+        }
+
+        // add attributes
+        if (data.content.attributes.length > 1) {
+            var attrNames = [];
+            for (var i = 0; i < data.content.attributes.length; i++) {
+                var name = data.content.attributes[i].name;
+                var type = data.content.attributes[i].type;
+                var defaultValue = data.content.attributes[i].defaultValue;
+                this.nodeAttributeManager.addAttribute(name, type, defaultValue);
+//                this.networkData.getNodeAttributes().addAttribute(name, type, defaultValue);
+                attrNames.push(name);
+            }
+
+            // add values for attributes
+            for (var i = 0; i < data.content.data.length; i++) {
+                for (var j = 1; j < data.content.data[i].length; j++) {
+                    var name = data.content.data[i][0];
+                    var attr = attrNames[j];
+                    var value = data.content.data[i][j];
+                    this.nodeAttributeManager.setAttributeByName(name, attr, value)
+//                    this.networkData.getNodeAttributes().setAttributeByName(name, attr, value);
+                }
+            }
+        }
     }
+
 }

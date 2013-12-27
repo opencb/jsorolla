@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function AttributeManager(args) {
+function AttributeManagerIDB(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('AttributeManager');
@@ -29,7 +29,7 @@ function AttributeManager(args) {
     this._createDatabase();
 };
 
-AttributeManager.prototype = {
+AttributeManagerIDB.prototype = {
     _createDatabase: function () {
         var openRequest = indexedDB.open(this.dbName);
         openRequest.onerror = function (event) {
