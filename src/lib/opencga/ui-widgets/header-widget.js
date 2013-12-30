@@ -208,6 +208,16 @@ HeaderWidget.prototype = {
                     ' Institute</b> at CIPF in Valencia, Spain.<br><br>' +
                     'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span>';
                 break;
+            case 85: //BierApp
+                this.homeLink = "http://bioinfo.cipf.es/apps/bierapp/";
+                this.helpLink = "https://github.com/babelomics/bierapp/wiki";
+                this.tutorialLink = "https://github.com/babelomics/bierapp/wiki/Tutorial";
+                this.aboutText = 'BierApp is built with open and free technologies like HTML5 and Javascript, ' +
+                    'so no plug-in is needed in modern internet browsers<br><br>' +
+                    'BierApp project has been developed in the <b>Computational Biology Unit</b>, at <b>Computational Medicine' +
+                    ' Institute</b> at CIPF in Valencia, Spain.<br><br>' +
+                    'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span>';
+                break;
             default:
                 this.homeLink = "http://docs.bioinfo.cipf.es";
                 this.helpLink = "http://docs.bioinfo.cipf.es";
