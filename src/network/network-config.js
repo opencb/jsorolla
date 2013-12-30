@@ -36,6 +36,11 @@ function NetworkConfig(args) {
 }
 
 NetworkConfig.prototype = {
+    clean: function () {
+        this.vertices = {};
+        this.edges = {};
+        this.general = {};
+    },
     setVertexConfig:function(vertexConfig){
         this.vertices[vertexConfig.id] = vertexConfig;
     },
@@ -47,5 +52,18 @@ NetworkConfig.prototype = {
     },
     getEdgeConfig:function(edge){
         return this.edges[edge.id];
+    },
+    removeVertex:function(vertex){
+        delete this.vertices[vertex.id];
+    },
+    removeEdge:function(edge){
+        delete this.edges[edge.id];
+    },
+    toJSON:function(){
+        return {
+            vertices:this.vertices,
+            edges:this.edges,
+            general:this.general
+        }
     }
 }

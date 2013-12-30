@@ -34,5 +34,13 @@ function EdgeConfig(args) {
 EdgeConfig.prototype = {
     render:function(args){
         this.renderer.render(args);
+    },
+    toJSON: function () {
+        return {
+            id: this.id,
+            renderer:this.renderer,
+            type: this.type,
+            visible: this.visible
+        };
     }
 }

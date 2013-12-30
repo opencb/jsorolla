@@ -93,10 +93,22 @@ function Graph(args) {
     this.verticesIndex = {};
     this.edgesIndex = {};
 
+    this.verticesNameIndex = {};
+
     this.on(this.handlers);
 }
 
 Graph.prototype = {
+    clean: function () {
+        this.numberOfVertices = 0;
+        this.numberOfEdges = 0;
+        this.vertices = [];
+        this.edges = [];
+        this.verticesIndex = {};
+        this.edgesIndex = {};
+
+        this.verticesNameIndex = {};
+    },
     addEdge: function (edge) {
         if (edge.source == null || edge.target == null) {
             return false
@@ -127,6 +139,10 @@ Graph.prototype = {
         var length = this.vertices.push(vertex);
         var insertPosition = length - 1;
         this.verticesIndex[vertex.id] = insertPosition;
+
+        //name index update
+        this.addVertexNameIndex(vertex, insertPosition);
+
 
         // the real number of vertices
         this.numberOfVertices++;
@@ -183,6 +199,7 @@ Graph.prototype = {
         var position = this.verticesIndex[vertex.id];
         delete this.verticesIndex[vertex.id];
         delete this.vertices[position];
+        this.removeVertexNameIndex(vertex, position);
 
         this.trigger('vertex:remove', {vertex: vertex, graph: this});
         this.numberOfVertices--;
@@ -232,8 +249,50 @@ Graph.prototype = {
         }
         return sifText;
     },
-    getAsDOT : function() {
+    getAsDOT: function () {
         var dotText = "graph network {\n" + this.getAsSIF() + "}";
         return dotText;
+    },
+
+    toJSON: function () {
+        var vertices = [];
+        for (var i = 0; i < this.vertices.length; i++) {
+            if (typeof this.vertices[i] !== 'undefined') {
+                vertices.push(this.vertices[i]);
+            }
+        }
+        var edges = [];
+        for (var i = 0; i < this.edges.length; i++) {
+            if (typeof this.edges[i] !== 'undefined') {
+                edges.push(this.edges[i]);
+            }
+        }
+        return {vertices: vertices, edges: edges};
+    },
+
+    addVertexNameIndex: function (vertex, insertPosition) {
+        if(typeof this.verticesNameIndex[vertex.name] === 'undefined'){
+            this.verticesNameIndex[vertex.name] = [];
+        }
+        this.verticesNameIndex[vertex.name].push(insertPosition);
+    },
+    removeVertexNameIndex: function (vertex, position) {
+        var indices = this.verticesNameIndex[vertex.name];
+        for (var i = 0; i < indices.length; i++) {
+            if(indices[i] === position){
+                indices.splice(i, 1);
+                break;
+            }
+        }
+    },
+    findByName: function (name) {
+        var result = [];
+        if(typeof this.verticesNameIndex[name] !== 'undefined'){
+            var indices = this.verticesNameIndex[name];
+            for (var i = 0; i < indices.length; i++) {
+                result.push(this.vertices[indices[i]]);
+            }
+        }
+        return result;
     }
 }

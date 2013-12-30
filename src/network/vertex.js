@@ -20,14 +20,13 @@
  */
 
 function Vertex(args) {
-    this.id = 'v'+Utils.genId();
+    this.id = 'v' + Utils.genId();
 
     this.name;
     this.edges = [];
 
     //set instantiation args, must be last
     _.extend(this, args);
-
 }
 
 Vertex.prototype = {
@@ -39,10 +38,16 @@ Vertex.prototype = {
             }
         }
     },
-    removeEdges: function(){
+    removeEdges: function () {
         this.edges = [];
     },
     addEdge: function (edge) {
         this.edges.push(edge);
+    },
+    toJSON: function () {
+        return {
+            id: this.id,
+            name: this.name
+        }
     }
 }

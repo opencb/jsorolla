@@ -26,11 +26,11 @@ function DefaultEdgeRenderer(args) {
     //defaults
     this.shape = 'directed';
     this.size = 2;
-    this.color = '#cccccc';
+    this.color = '#888888';
     this.strokeSize = 2;
-    this.strokeColor = '#888888';
+    this.strokeColor = '#aaaaaa';
     this.opacity = 1;
-    this.labelSize = 12;
+    this.labelSize = 14;
     this.labelColor = '#111111';
 //    this.labelPositionX = 5;
 //    this.labelPositionY = 45;
@@ -70,7 +70,7 @@ DefaultEdgeRenderer.prototype = {
     remove: function () {
         $(this.el).remove();
     },
-    update:function(){
+    update: function () {
         this.remove();
         this._render();
     },
@@ -88,11 +88,40 @@ DefaultEdgeRenderer.prototype = {
         var linkLine = $(this.el).find('line[network-type="edge"]')[0];
         linkLine.setAttribute('x1', coords.x);
         linkLine.setAttribute('y1', coords.y);
+
+        var x1 = parseFloat(linkLine.getAttribute('x1'));
+        var y1 = parseFloat(linkLine.getAttribute('y1'));
+        var x2 = parseFloat(linkLine.getAttribute('x2'));
+        var y2 = parseFloat(linkLine.getAttribute('y2'));
+
+        var x = (x1 + x2) / 2;
+        var y = (y1 + y2) / 2;
+
+        var text = $(this.el).find('text[network-type="edge-label"]')[0];
+        text.setAttribute('x', x);
+        text.setAttribute('y', y);
     },
     moveTarget: function (coords) {
         var linkLine = $(this.el).find('line[network-type="edge"]')[0];
         linkLine.setAttribute('x2', coords.x);
         linkLine.setAttribute('y2', coords.y);
+
+        var x1 = parseFloat(linkLine.getAttribute('x1'));
+        var y1 = parseFloat(linkLine.getAttribute('y1'));
+        var x2 = parseFloat(linkLine.getAttribute('x2'));
+        var y2 = parseFloat(linkLine.getAttribute('y2'));
+
+        var x = (x1 + x2) / 2;
+        var y = (y1 + y2) / 2;
+
+        var text = $(this.el).find('text[network-type="edge-label"]')[0];
+        text.setAttribute('x', x);
+        text.setAttribute('y', y);
+
+    },
+    setLabelContent: function (text) {
+        var textSvg = $(this.el).find('text[network-type="edge-label"]')[0];
+        textSvg.textContent = text;
     },
     /* Private */
     _render: function () {
@@ -122,6 +151,19 @@ DefaultEdgeRenderer.prototype = {
             'network-type': 'edge'
         }, 0);
 
+        var x = (this.sourceCoords.x + this.targetCoords.x) / 2;
+        var y = (this.sourceCoords.y + this.targetCoords.y) / 2;
+
+        var textOffset = this.sourceRenderer.getSize();
+        var text = SVG.addChild(groupSvg, "text", {
+            "x": x,
+            "y": y,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'edge-label'
+        });
+        text.textContent = this.edge.name;
+
         this.el = groupSvg;
         SVG._insert(this.targetEl, groupSvg, 0);
 
@@ -131,29 +173,13 @@ DefaultEdgeRenderer.prototype = {
     },
     _renderSelect: function () {
         var linkLine = $(this.el).find('line[network-type="edge"]')[0];
-//        linkLine.setAttribute('stroke','#f82408');
-        linkLine.setAttribute('stroke-dasharray','5, 2');
-
-//        var linkSvg = SVG.addChild(this.el, "line", {
-//            "x1": this.sourceCoords.x,
-//            "y1": this.sourceCoords.y,
-//            "x2": this.targetCoords.x,
-//            "y2": this.targetCoords.y,
-//            "stroke": '#ff0000',
-//            "opacity": '0.5',
-//            "stroke-width": this.size+4,
-//            "cursor": "pointer",
-//            'network-type': 'select-edge'
-//        }, 0);
+        linkLine.setAttribute('stroke-dasharray', '5, 2');
 
         this.selected = true;
     },
     _removeSelect: function () {
         var linkLine = $(this.el).find('line[network-type="edge"]')[0];
-//        linkLine.setAttribute('stroke',this.color);
         linkLine.removeAttribute('stroke-dasharray');
-
-//        $(this.el).find('[network-type="select-edge"]').remove();
 
         this.selected = false;
     },
@@ -176,25 +202,27 @@ DefaultEdgeRenderer.prototype = {
                 var arrow = SVG.addChild(marker, "polyline", {
                     "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-//                    "stroke": color,
-//                    "stroke-width": edgeSize,
-                    "points": "-" + offset + ",0 " + (-offset - 14) + ",-6 " + (-offset - 14) + ",6 -" + offset + ",0"
+                    "points": "-" + offset + ",0 " + (-offset - 18) + ",-8 " + (-offset - 18) + ",8 -" + offset + ",0"
                 });
                 break;
             case "odirected":
                 var arrow = SVG.addChild(marker, "polyline", {
                     "transform": "scale(0.5) rotate(0) translate(0,0)",
                     "fill": color,
-                    "stroke": "black",
-//			"points":"-14,0 -28,-6 -28,6 -14,0"
-                    "points": "-" + offset + ",0 " + (-offset - 14) + ",-6 " + (-offset - 14) + ",6 -" + offset + ",0"
+                    "points": "-" + offset + ",0 " + (-offset - 18) + ",-8 " + (-offset - 18) + ",8 -" + offset + ",0"
+                });
+                offset += 6;
+                var arrow = SVG.addChild(marker, "polyline", {
+                    "transform": "scale(0.5) rotate(0) translate(0,0)",
+                    "fill": 'white',
+                    "opacity": "1",
+                    "points": "-" + offset + ",0 " + (-offset - 9) + ",-4 " + (-offset - 9) + ",4 -" + offset + ",0"
                 });
                 break;
             case "inhibited":
                 var arrow = SVG.addChild(marker, "rect", {
                     "transform": "scale(0.5) rotate(0) translate(0,0)",
                     "fill": color,
-                    "stroke": "black",
                     "x": -offset - 6,
                     "y": -6,
                     "width": 6,
@@ -205,23 +233,40 @@ DefaultEdgeRenderer.prototype = {
                 var arrow = SVG.addChild(marker, "circle", {
                     "transform": "scale(0.5) rotate(0) translate(0,0)",
                     "fill": color,
-                    "stroke": "black",
-                    "cx": -offset - 6,
+                    "cx": -offset - 8,
                     "cy": 0,
-                    "r": 6
+                    "r": 8
                 });
                 break;
             case "odot":
                 var arrow = SVG.addChild(marker, "circle", {
                     "transform": "scale(0.5) rotate(0) translate(0,0)",
                     "fill": color,
-                    "stroke": "black",
-                    "cx": -offset - 6,
+                    "cx": -offset - 8,
                     "cy": 0,
-                    "r": 6
+                    "r": 8
+                });
+                var arrow = SVG.addChild(marker, "circle", {
+                    "transform": "scale(0.5) rotate(0) translate(0,0)",
+                    "fill": 'white',
+                    "cx": -offset - 8,
+                    "cy": 0,
+                    "r": 5
                 });
                 break;
         }
+    },
+    toJSON: function () {
+        return {
+            shape: this.shape,
+            size: this.size,
+            color: this.color,
+            strokeSize: this.strokeSize,
+            strokeColor: this.strokeColor,
+            opacity: this.opacity,
+            labelSize: this.labelSize,
+            labelColor: this.labelColor
+        };
     }
 
 }

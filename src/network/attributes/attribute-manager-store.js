@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function AttributeManager(defaultAttrs) {
+function AttributeManagerStore(defaultAttrs) {
 
 	this.model = Ext.define('User', {
 		extend: 'Ext.data.Model'
@@ -43,7 +43,7 @@ function AttributeManager(defaultAttrs) {
 	}
 };
 
-AttributeManager.prototype.addAttribute = function(name, type, defaultValue) {
+AttributeManagerStore.prototype.addAttribute = function(name, type, defaultValue) {
 	for ( var i = 0; i < this.attributes.length; i++) {
 		if(this.attributes[i].name == name) return false; //if exists one with the same name
 	}
@@ -66,7 +66,7 @@ AttributeManager.prototype.addAttribute = function(name, type, defaultValue) {
 	return true;
 };
 
-AttributeManager.prototype.updateAttribute = function(oldName, newName, type, defaultValue) {
+AttributeManagerStore.prototype.updateAttribute = function(oldName, newName, type, defaultValue) {
 	for(var i = 0; i < this.attributes.length; i++) {
 		if(oldName != newName && this.attributes[i].name == newName) return false;
 	}
@@ -89,7 +89,7 @@ AttributeManager.prototype.updateAttribute = function(oldName, newName, type, de
 	return false;
 };
 
-AttributeManager.prototype.removeAttribute = function(attribute) {
+AttributeManagerStore.prototype.removeAttribute = function(attribute) {
 	for(var i = 0; i < this.attributes.length; i++) {
 		if(this.attributes[i].name == attribute) {
 			this.columnsGrid.splice(i,1);
@@ -103,7 +103,7 @@ AttributeManager.prototype.removeAttribute = function(attribute) {
 	return false;
 };
 
-AttributeManager.prototype.addRows = function(data, append) {
+AttributeManagerStore.prototype.addRows = function(data, append) {
 //	console.log(data);
 //	var row = {};
 //	for (var i = 0; i < this.attributes.length; i++) {
@@ -124,7 +124,7 @@ AttributeManager.prototype.addRows = function(data, append) {
 //attributeModify: (string) atributo que se desea modificar
 //value: (string) valor nuevo de ese atributo
 //-------------------------------------------------------------------------------//
-AttributeManager.prototype.modifyAttributeOfRows = function(selectRows, attribute, value) {
+AttributeManagerStore.prototype.modifyAttributeOfRows = function(selectRows, attribute, value) {
 	for ( var i = 0; i < selectRows.length; i++) {
 		selectRows[i].data[attribute] = value;
 	}
@@ -141,7 +141,7 @@ AttributeManager.prototype.modifyAttributeOfRows = function(selectRows, attribut
 //attribute: (string) campo en el que buscar
 //value: (string) nombre del campo que buscar
 //------------------------------------------------------------------------------//
-AttributeManager.prototype.removeRow = function(attribute, value) {	
+AttributeManagerStore.prototype.removeRow = function(attribute, value) {	
 	//obtenemos la posicion del dato y lo borramos
 	this.store.removeAt(this.store.find(attribute,  value));
 };
@@ -154,7 +154,7 @@ AttributeManager.prototype.removeRow = function(attribute, value) {
 //attribute: (string) campo en el que buscar
 //value: (string) nombre del campo que buscar
 //------------------------------------------------------------------------------//
-AttributeManager.prototype.removeRows = function(attribute, value) {	
+AttributeManagerStore.prototype.removeRows = function(attribute, value) {	
 	//obtenemos la posicion del dato y lo borramos
 	this.store.removeAt(this.store.find(attribute,  value));	
 
@@ -172,7 +172,7 @@ AttributeManager.prototype.removeRows = function(attribute, value) {
 /**
  * Remove all stored attributes.
  */
-AttributeManager.prototype.removeAll = function() {
+AttributeManagerStore.prototype.removeAll = function() {
     this.store.removeAll(true);
 };
 
@@ -182,7 +182,7 @@ AttributeManager.prototype.removeAll = function() {
 //Cuenta cuantos datos tenemos
 //Parametros: (ninguno)
 //------------------------------------------------------------------------------//
-AttributeManager.prototype.getNumberOfRows = function() {
+AttributeManagerStore.prototype.getNumberOfRows = function() {
 	return this.store.count();
 };
 
@@ -193,7 +193,7 @@ AttributeManager.prototype.getNumberOfRows = function() {
 //Parametros:
 //attribute: (string) nombre del atributo 
 //------------------------------------------------------------------------------//
-AttributeManager.prototype.getDiferentRowOfAAttribute = function(attribute) {
+AttributeManagerStore.prototype.getDiferentRowOfAAttribute = function(attribute) {
 	var x = this.store.collect(attribute);
 	console.log(x);
 };
@@ -206,7 +206,7 @@ AttributeManager.prototype.getDiferentRowOfAAttribute = function(attribute) {
 //attribute: (string) atributo por la que queremos buscar
 //value: (string) valor del atributo por la que queremos buscar
 //------------------------------------------------------------------------------//
-AttributeManager.prototype.getPositionOfRow = function(attribute, value) {
+AttributeManagerStore.prototype.getPositionOfRow = function(attribute, value) {
 	var aux = this.store.find(attribute, value);
 	return(aux);
 };
@@ -218,7 +218,7 @@ AttributeManager.prototype.getPositionOfRow = function(attribute, value) {
 //Parametros:
 //index:(number) index del dato del que queremos obtener informacion
 //------------------------------------------------------------------------------//
-AttributeManager.prototype.getRowByIndex = function(index) {
+AttributeManagerStore.prototype.getRowByIndex = function(index) {
 	var aux =  this.store.getAt(index);
 	console.log(aux.data);
 };
@@ -231,7 +231,7 @@ AttributeManager.prototype.getRowByIndex = function(index) {
 //startIndex: (number) index por el cual empezamos
 //endIndex: (number) index por el cual acabamos
 //------------------------------------------------------------------------------//
-AttributeManager.prototype.getRowRangeIndex = function(startIndex, endIndex) {
+AttributeManagerStore.prototype.getRowRangeIndex = function(startIndex, endIndex) {
 	var aux = this.store.getRange(startIndex, endIndex);
 
 	for(var i = 0; i < aux.length; i++){
@@ -240,7 +240,7 @@ AttributeManager.prototype.getRowRangeIndex = function(startIndex, endIndex) {
 };
 
 
-AttributeManager.prototype.addFilter = function(filterName, attribute, value) {
+AttributeManagerStore.prototype.addFilter = function(filterName, attribute, value) {
 	if(!this.filters[filterName] && attribute!=null && value != null){
 		this.filters[filterName] = {"active": false, "attribute": attribute, "value": value};
 		this.enableFilter(filterName);
@@ -249,7 +249,7 @@ AttributeManager.prototype.addFilter = function(filterName, attribute, value) {
 	return false;
 };
 
-AttributeManager.prototype.removeFilter = function(filterName) {
+AttributeManagerStore.prototype.removeFilter = function(filterName) {
 	if(this.filters[filterName]) {
 		this.disableFilter(filterName);
 		delete this.filters[filterName];
@@ -258,7 +258,7 @@ AttributeManager.prototype.removeFilter = function(filterName) {
 	return false;
 };
 
-AttributeManager.prototype.enableFilter = function(filterName) {
+AttributeManagerStore.prototype.enableFilter = function(filterName) {
 	this.filters[filterName].active = true;
 	
 	//this.store.filter(this.filters[filterName].attribute, this.filters[filterName].value); //filter for exactly match
@@ -266,7 +266,7 @@ AttributeManager.prototype.enableFilter = function(filterName) {
 	this.store.filter(Ext.create('Ext.util.Filter', {property: this.filters[filterName].attribute, value: reg, root: 'data'}));
 };
 
-AttributeManager.prototype.disableFilter = function(filterName) {
+AttributeManagerStore.prototype.disableFilter = function(filterName) {
 	this.filters[filterName].active = false;
 	
 	this.store.clearFilter(false);
@@ -284,7 +284,7 @@ AttributeManager.prototype.disableFilter = function(filterName) {
 //Comprueba si hay aplicado algun filtro
 //Parametros: (ninguno)
 //------------------------------------------------------------------------------//
-AttributeManager.prototype.checkFilters = function() {
+AttributeManagerStore.prototype.checkFilters = function() {
 	console.log(this.store.isFiltered());
 	return this.store.isFiltered();
 };
@@ -295,12 +295,12 @@ AttributeManager.prototype.checkFilters = function() {
 //Quita los filtros aplicados a los datos
 //Parametros: (ninguno)
 //------------------------------------------------------------------------------//
-AttributeManager.prototype.clearFilters = function() {
+AttributeManagerStore.prototype.clearFilters = function() {
 	this.store.clearFilter(false);
 };
 
 
-AttributeManager.prototype.loadJSON = function(json) {
+AttributeManagerStore.prototype.loadJSON = function(json) {
 	this.attributes = [];
 	this.columnsGrid = [];
 	console.log(json);
@@ -315,7 +315,7 @@ AttributeManager.prototype.loadJSON = function(json) {
 	this.addRows(json.data, false);
 };
 
-AttributeManager.prototype.toJSON = function() {
+AttributeManagerStore.prototype.toJSON = function() {
 	var json = {};
 	json.attributes = this.attributes;
 	json.filters = this.filters;
@@ -333,13 +333,13 @@ AttributeManager.prototype.toJSON = function() {
 	return json;
 };
 
-AttributeManager.prototype.setName = function(nodeId, newName) {
+AttributeManagerStore.prototype.setName = function(nodeId, newName) {
 	var register = this.store.getAt(this.store.find("Id",  nodeId)); 
 	register.set("Name", newName);
 	register.commit();
 };
 
-AttributeManager.prototype.setAttributeByName = function(name, attribute, value) {
+AttributeManagerStore.prototype.setAttributeByName = function(name, attribute, value) {
 	var register = this.store.getAt(this.store.find("Name",  name));
 	if(register) { // if exists a row with this name
 		register.set(attribute, value);
@@ -347,7 +347,7 @@ AttributeManager.prototype.setAttributeByName = function(name, attribute, value)
 	}
 };
 
-AttributeManager.prototype.setAttributeById= function(id, attribute, value) {
+AttributeManagerStore.prototype.setAttributeById= function(id, attribute, value) {
 	var register = this.store.getAt(this.store.find("Id",  id));
 	if(register) { // if exists a row with this name
 		register.set(attribute, value);
@@ -355,7 +355,7 @@ AttributeManager.prototype.setAttributeById= function(id, attribute, value) {
 	}
 };
 
-AttributeManager.prototype.getAttrNameList = function() {
+AttributeManagerStore.prototype.getAttrNameList = function() {
 	var nameList = [];
 	for(var i = 0; i < this.attributes.length; i++) {
 		nameList.push(this.attributes[i].name);
@@ -363,7 +363,7 @@ AttributeManager.prototype.getAttrNameList = function() {
 	return nameList;
 };
 
-AttributeManager.prototype.exportToTab = function(columns, clearFilter) {
+AttributeManagerStore.prototype.exportToTab = function(columns, clearFilter) {
 	if(clearFilter) {
 		this.store.clearFilter(false);
 	}
