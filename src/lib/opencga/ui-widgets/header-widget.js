@@ -212,11 +212,10 @@ HeaderWidget.prototype = {
                 this.homeLink = "http://bioinfo.cipf.es/apps/bierapp/";
                 this.helpLink = "https://github.com/babelomics/bierapp/wiki";
                 this.tutorialLink = "https://github.com/babelomics/bierapp/wiki/Tutorial";
-                this.aboutText = 'BierApp is built with open and free technologies like HTML5 and Javascript, ' +
-                    'so no plug-in is needed in modern internet browsers<br><br>' +
-                    'BierApp project has been developed in the <b>Computational Biology Unit</b>, at <b>Computational Medicine' +
-                    ' Institute</b> at CIPF in Valencia, Spain.<br><br>' +
-                    'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span>';
+                this.aboutText = 'BiERApp is an interactive tool that allows finding genes affected by deleterious variants that segregate along family pedigrees, case-controls or sporadic samples. BiERApp has built with open and free technologies like HTML5 and Javascript.<br><br>' +
+'BierApp project is a joint development of the <b>BiER</b> and the <b>Computational Biology Unit</b>, in the <b>Computational Genomics Department</b> at CIPF in Valencia, Spain.<br><br>' +'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span> <br><br>' +
+                    '<img width="25%" src="http://bioinfo.cipf.es/bierwiki/lib/tpl/arctic/images/logobier.jpg">'
+                ;
                 break;
             default:
                 this.homeLink = "http://docs.bioinfo.cipf.es";
