@@ -34,6 +34,7 @@ module.exports = function (grunt) {
                     'src/lib/utils/utils.js',
                     'src/lib/utils/svg.js',
                     'src/lib/region.js',
+                    'src/lib/grid.js',
                     'src/lib/feature-binary-search-tree.js'
                 ],
                 dest: 'build/utils-<%= meta.version.utils %>.js'
