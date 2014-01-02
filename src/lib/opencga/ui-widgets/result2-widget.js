@@ -91,11 +91,11 @@ ResultWidget.prototype = {
                 '<p class="">{command.html}</p>'
             );
             var container = Ext.create('Ext.panel.Panel', {
-                title:'Job information',
-                width:'95%',
-                collapsible:true,
-                titleCollapse:true,
-                bodyPadding:10,
+                title: 'Job information',
+                width: '95%',
+                collapsible: true,
+                titleCollapse: true,
+                bodyPadding: 10,
                 margin: '15 0 15 15',
                 items: [
                     {
@@ -365,8 +365,8 @@ ResultWidget.prototype = {
                     case 'variant-stats-widget':
                         var height = 800;
                         itemBox = Ext.create('Ext.container.Container', {
-                            height:height,
-                            width:'95%',
+                            height: height,
+                            width: '95%',
                             style: {
                                 position: 'relative'
                             },
@@ -374,14 +374,40 @@ ResultWidget.prototype = {
                                 afterrender: function () {
                                     var variantStatsWidget = new VariantStatsWidget({
                                         targetId: itemBox,
-                                        height:height,
-                                        closable:false,
-                                        border:true,
+                                        height: height,
+                                        closable: false,
+                                        border: true,
 //                                        title:  _this.job.name,
                                         job: _this.job,
                                         autoRender: true
                                     });
                                     variantStatsWidget.draw();
+                                }
+                            }
+                        });
+
+                        break;
+
+                    case 'variant-widget':
+                        var height = 800;
+                        itemBox = Ext.create('Ext.container.Container', {
+                            height: height,
+                            width: '95%',
+                            style: {
+                                position: 'relative'
+                            },
+                            listeners: {
+                                afterrender: function () {
+                                    var variantWidget = new VariantWidget({
+                                        targetId: itemBox,
+                                        height: height,
+                                        closable: false,
+                                        border: true,
+//                                        title:  _this.job.name,
+                                        job: _this.job,
+                                        autoRender: true
+                                    });
+                                    variantWidget.draw();
                                 }
                             }
                         });
