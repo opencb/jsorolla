@@ -116,6 +116,7 @@ module.exports = function (grunt) {
 
                     'src/lib/data-source/data-source.js',
                     'src/lib/data-source/file-data-source.js',
+                    'src/lib/data-source/string-data-source.js',
 
                     'src/lib/ui-widgets/network-file-widget.js',
                     'src/lib/ui-widgets/*-network-file-widget.js',

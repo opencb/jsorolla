@@ -276,7 +276,7 @@ NetworkViewer.prototype = {
         var v1 = networkSvgLayout.createVertex(200, 100);
         var v2 = networkSvgLayout.createVertex(300, 320);
         var v3 = networkSvgLayout.createVertex(500, 400);
-        var v4 = networkSvgLayout.createVertex(200, 440)
+        var v4 = networkSvgLayout.createVertex(200, 440);
         networkSvgLayout.createEdge(v1, v2);
         networkSvgLayout.createEdge(v2, v3);
         networkSvgLayout.createEdge(v2, v4);
