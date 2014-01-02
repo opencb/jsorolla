@@ -224,6 +224,19 @@ HeaderWidget.prototype = {
                 this.aboutText = '';
         }
 
+        if(typeof HEADER_HOME_LINK !== 'undefined'){
+            this.homeLink = HEADER_HOME_LINK;
+        }
+        if(typeof HEADER_HELP_LINK !== 'undefined'){
+            this.helpLink = HEADER_HELP_LINK;
+        }
+        if(typeof HEADER_TUTORIAL_LINK !== 'undefined'){
+            this.tutorialLink = HEADER_TUTORIAL_LINK;
+        }
+        if(typeof HEADER_ABOUT_HTML !== 'undefined'){
+            this.aboutText = HEADER_ABOUT_HTML;
+        }
+
         var linkbar = new Ext.create('Ext.toolbar.Toolbar', {
             id: this.id + 'linkbar',
             dock: 'top',
