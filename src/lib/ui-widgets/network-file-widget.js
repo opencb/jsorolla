@@ -33,7 +33,7 @@ function NetworkFileWidget(args) {
     _.extend(this, args);
 
     this.dataAdapter;
-    this.networkJSON;
+    this.content;
 
     this.previewId = this.id + '-preview';
 
@@ -62,10 +62,11 @@ NetworkFileWidget.prototype.getFileUpload = function () {
                     handlers: {
                         'data:load': function (event) {
                             try {
-                                _this.networkJSON = event.jsonObject;
+                                var networkJSON = event.jsonObject;
+                                _this.content = networkJSON;
 
-                                for (var i = 0; i < _this.networkJSON.graph.edges.length; i++) {
-                                    var edge = _this.networkJSON.graph.edges[i];
+                                for (var i = 0; i < networkJSON.graph.edges.length; i++) {
+                                    var edge = networkJSON.graph.edges[i];
                                     var link = "--";
                                     if (edge.directed) link = "->";
                                     _this.gridStore.loadData([
@@ -73,8 +74,8 @@ NetworkFileWidget.prototype.getFileUpload = function () {
                                     ], true);
                                 }
 
-                                var verticesLength = _this.networkJSON.graph.vertices.length;
-                                var edgesLength = _this.networkJSON.graph.edges.length;
+                                var verticesLength = networkJSON.graph.vertices.length;
+                                var edgesLength = networkJSON.graph.edges.length;
 
 
                                 _this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>', false);
@@ -158,9 +159,9 @@ NetworkFileWidget.prototype.draw = function () {
                     ["circo"],
                     ["fdp"],
                     ["sfdp"],
-                    ["Random"],
-                    ["Circle"],
-                    ["Square"]
+//                    ["Random"],
+//                    ["Circle"],
+//                    ["Square"]
                 ]
             })
         });
@@ -181,7 +182,7 @@ NetworkFileWidget.prototype.draw = function () {
                 comboLayout,
                 '->',
                 {text: 'Ok', handler: function () {
-                    _this.trigger('okButton:click', {content: _this.networkJSON, layout: comboLayout.getValue(), sender: _this});
+                    _this.trigger('okButton:click', {content: _this.content, layout: comboLayout.getValue(), sender: _this});
                     _this.panel.close();
                 }
                 },

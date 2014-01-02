@@ -99,6 +99,9 @@ function Graph(args) {
 }
 
 Graph.prototype = {
+    setType:function(type){
+        this.graphType = type;
+    },
     clean: function () {
         this.numberOfVertices = 0;
         this.numberOfEdges = 0;
