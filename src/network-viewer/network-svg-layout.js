@@ -477,7 +477,7 @@ NetworkSvgLayout.prototype = {
 
         /* vertex graph */
         var vertex = new Vertex({
-            name: this.createdVertexCount
+            name: 'node'+this.createdVertexCount
         });
 
         /* vertex config */
