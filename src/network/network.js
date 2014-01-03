@@ -436,6 +436,9 @@ Network.prototype = {
                 }
             }
         }
+    },
+    findVerticesByName: function (name) {
+        return this.graph.findByName(name);
     }
 
 }
