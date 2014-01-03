@@ -120,8 +120,7 @@ module.exports = function (grunt) {
 
                     'src/lib/ui-widgets/network-file-widget.js',
                     'src/lib/ui-widgets/*-network-file-widget.js',
-
-
+                    'src/lib/ui-widgets/ux-window.js',
 
                     'src/network-viewer/network-viewer.js'
 
