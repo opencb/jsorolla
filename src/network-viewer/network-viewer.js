@@ -53,7 +53,11 @@ function NetworkViewer(args) {
 }
 
 NetworkViewer.prototype = {
-
+    setNetwork: function (network) {
+        this.network = network;
+        this.networkSvgLayout.setNetwork(network);
+        this.networkSvgLayout.draw();
+    },
     render: function (targetId) {
         if (targetId)this.targetId = targetId;
         if ($('#' + this.targetId).length < 1) {
@@ -127,7 +131,6 @@ NetworkViewer.prototype = {
 //        }
 
     },
-
     _createToolBar: function (targetId) {
         var _this = this;
         var toolBar = new ToolBar({
@@ -273,7 +276,7 @@ NetworkViewer.prototype = {
         var v1 = networkSvgLayout.createVertex(200, 100);
         var v2 = networkSvgLayout.createVertex(300, 320);
         var v3 = networkSvgLayout.createVertex(500, 400);
-        var v4 = networkSvgLayout.createVertex(200, 440)
+        var v4 = networkSvgLayout.createVertex(200, 440);
         networkSvgLayout.createEdge(v1, v2);
         networkSvgLayout.createEdge(v2, v3);
         networkSvgLayout.createEdge(v2, v4);
@@ -386,6 +389,8 @@ NetworkViewer.prototype = {
                     var y = this.networkSvg.getHeight() * (0.05 + 0.85 * Math.random());
                     this.networkSvg.moveNode(nodeList[i], x, y);
                 }
+                break;
+            case "none":
                 break;
             default:
                 console.log(dot);

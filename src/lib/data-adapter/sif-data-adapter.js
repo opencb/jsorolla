@@ -19,10 +19,10 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-SIFDataAdapter.prototype.getGraph = GraphDataAdapter.prototype.getGraph;
+SIFDataAdapter.prototype.getNetwork = NetworkDataAdapter.prototype.getNetwork;
 
 function SIFDataAdapter(args) {
-    GraphDataAdapter.prototype.constructor.call(this, args);
+    NetworkDataAdapter.prototype.constructor.call(this, args);
 
     this.addedVertex = {};
 };
@@ -46,6 +46,12 @@ SIFDataAdapter.prototype.parse = function (data) {
                     var sourceVertex = new Vertex({
                         name: sourceName
                     });
+                    this.network.addVertex({
+                        vertex: sourceVertex,
+                        vertexConfig: new VertexConfig({
+                            renderer: new DefaultVertexRenderer({})
+                        })
+                    });
                     this.addedVertex[sourceName] = sourceVertex;
                 }
 
@@ -58,6 +64,12 @@ SIFDataAdapter.prototype.parse = function (data) {
                         var targetVertex = new Vertex({
                             name: targetName
                         });
+                        this.network.addVertex({
+                            vertex: targetVertex,
+                            vertexConfig: new VertexConfig({
+                                renderer: new DefaultVertexRenderer({})
+                            })
+                        });
                         this.addedVertex[targetName] = targetVertex;
                     }
 
@@ -69,8 +81,12 @@ SIFDataAdapter.prototype.parse = function (data) {
                         weight: 1,
                         directed: true
                     });
-
-                    this.graph.addEdge(edge);
+                    this.network.addEdge({
+                        edge: edge,
+                        edgeConfig: new EdgeConfig({
+                            renderer: new DefaultEdgeRenderer()
+                        })
+                    });
                 }
             }
         }

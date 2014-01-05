@@ -99,6 +99,9 @@ function Graph(args) {
 }
 
 Graph.prototype = {
+    setType: function (type) {
+        this.graphType = type;
+    },
     clean: function () {
         this.numberOfVertices = 0;
         this.numberOfEdges = 0;
@@ -236,16 +239,19 @@ Graph.prototype = {
         var sifText = "";
         for (var i = 0; i < this.vertices.length; i++) {
             var vertex = this.vertices[i];
-            var line = "";
-            if (vertex.edges.length == 0) {
-                line = vertex.id + "\n";
-            } else {
-                for (var j = 0; j < vertex.edges.length; j++) {
-                    var edge = vertex.edges[j];
-                    line = edge.source.id + " " + "--" + " " + edge.target.id + "\n";
+            if (typeof vertex !== 'undefined') {
+                var line = "";
+                if (vertex.edges.length == 0) {
+                    line = vertex.id + "\n";
+                } else {
+                    for (var j = 0; j < vertex.edges.length; j++) {
+                        var edge = vertex.edges[j];
+                        line = edge.source.id + " " + "--" + " " + edge.target.id + "\n";
+                    }
                 }
+                sifText += line;
             }
-            sifText += line;
+
         }
         return sifText;
     },
@@ -271,7 +277,7 @@ Graph.prototype = {
     },
 
     addVertexNameIndex: function (vertex, insertPosition) {
-        if(typeof this.verticesNameIndex[vertex.name] === 'undefined'){
+        if (typeof this.verticesNameIndex[vertex.name] === 'undefined') {
             this.verticesNameIndex[vertex.name] = [];
         }
         this.verticesNameIndex[vertex.name].push(insertPosition);
@@ -279,7 +285,7 @@ Graph.prototype = {
     removeVertexNameIndex: function (vertex, position) {
         var indices = this.verticesNameIndex[vertex.name];
         for (var i = 0; i < indices.length; i++) {
-            if(indices[i] === position){
+            if (indices[i] === position) {
                 indices.splice(i, 1);
                 break;
             }
@@ -287,7 +293,7 @@ Graph.prototype = {
     },
     findByName: function (name) {
         var result = [];
-        if(typeof this.verticesNameIndex[name] !== 'undefined'){
+        if (typeof this.verticesNameIndex[name] !== 'undefined') {
             var indices = this.verticesNameIndex[name];
             for (var i = 0; i < indices.length; i++) {
                 result.push(this.vertices[indices[i]]);

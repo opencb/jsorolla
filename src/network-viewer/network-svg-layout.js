@@ -66,6 +66,9 @@ function NetworkSvgLayout(args) {
 
 
 NetworkSvgLayout.prototype = {
+    setNetwork: function (network) {
+        this.network = network;
+    },
     getWidth: function () {
         return this.width;
     },
@@ -193,7 +196,8 @@ NetworkSvgLayout.prototype = {
 
     },
     draw: function () {
-
+        $(this.scaleGroupSVG).empty();
+        this.network.draw(this.scaleGroupSVG);
     },
     /*  */
     setMode: function (mode) {
@@ -477,19 +481,14 @@ NetworkSvgLayout.prototype = {
 
         /* vertex graph */
         var vertex = new Vertex({
-            name: this.createdVertexCount
+            name: 'node'+this.createdVertexCount
         });
 
         /* vertex config */
         var vertexConfig = new VertexConfig({
-            id: vertex.id,
             coords: {x: x, y: y},
-            renderer: new DefaultVertexRenderer({
-
-            })
-//            renderer: new CircosVertexRenderer({
-//
-//            })
+            renderer: new DefaultVertexRenderer({})
+//            renderer: new CircosVertexRenderer({})
         });
 
         //update variables
@@ -510,7 +509,6 @@ NetworkSvgLayout.prototype = {
         });
 
         var edgeConfig = new EdgeConfig({
-            id: edge.id,
             renderer: new DefaultEdgeRenderer({
 
             })
@@ -553,10 +551,6 @@ NetworkSvgLayout.prototype = {
             var edge = this.selectedEdges[0];
             this.network.setEdgeName(edge, name);
         }
-    },
-    draw: function () {
-        $(this.scaleGroupSVG).empty();
-        this.network.draw(this.scaleGroupSVG);
     },
     getSvgEl: function () {
         return  this.canvas;
