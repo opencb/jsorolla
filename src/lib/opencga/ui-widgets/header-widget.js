@@ -217,6 +217,15 @@ HeaderWidget.prototype = {
                     '<img width="25%" src="http://bioinfo.cipf.es/bierwiki/lib/tpl/arctic/images/logobier.jpg">'
                 ;
                 break;
+
+            case 86: // TEAM
+                this.homeLink = "http://bioinfo.cipf.es/apps/team/";
+                this.helpLink = "https://github.com/babelomics/team/wiki";
+                this.tutorialLink = "https://github.com/babelomics/team/wiki/Tutorial";
+                this.aboutText = 'TEAM'
+                ;
+                break;
+
             default:
                 this.homeLink = "http://docs.bioinfo.cipf.es";
                 this.helpLink = "http://docs.bioinfo.cipf.es";
