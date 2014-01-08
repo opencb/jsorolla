@@ -27,7 +27,7 @@ function ToolBar(args) {
     //set default args
     this.targetId;
     this.autoRender = false;
-    this.zoom = 0;
+    this.zoom = 25;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -67,7 +67,7 @@ ToolBar.prototype = {
             '       <ul id="layoutMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Label size">' +
+            '   <div class="btn-group btn-group-xs hidden" title="Label size">' +
             '       <button id="labelSizeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
             '       <ul id="labelSizeMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
@@ -101,8 +101,8 @@ ToolBar.prototype = {
             '       </div>' +
             '       <button id="zoomInButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-plus"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs hidden" title="Show/hide overview">' +
-            '       <button id="showOverviewButton" class="btn btn-default" type="button"><span class="ocb-icon icon-select"></span></button>' +
+            '   <div class="btn-group btn-group-xs" title="Show/hide overview">' +
+            '       <button id="showOverviewButton" class="btn btn-default active" type="button"><span class="ocb-icon icon-select"></span></button>' +
             '   </div>' +
             '   <div class="btn-group pull-right">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +

@@ -58,15 +58,18 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
                                 var edgesLength = network.graph.edges.length;
 
                                 var edges = network.graph.edges;
+                                var storeData = [];
                                 for (var i = 0; i < edges.length; i++) {
                                     var edge = edges[i];
 //                                    var edgeConfig = network.getEdgeConfig(edge);
                                     var link = edge.name;
 
-                                    _this.gridStore.loadData([
-                                        [edge.source.name, link, edge.target.name]
-                                    ], true);
+                                    storeData.push([edge.source.name, link, edge.target.name]);
+//                                    _this.gridStore.loadData([
+//                                        [edge.source.name, link, edge.target.name]
+//                                    ], true);
                                 }
+                                _this.gridStore.loadData(storeData);
 
                                 _this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>', false);
                                 _this.countLabel.setText('Vertices:<span class="info">' + verticesLength + '</span> edges:<span class="info">' + edgesLength + '</span>', false);

@@ -220,8 +220,7 @@ NetworkSvgLayout.prototype = {
         });
     },
     setZoom: function (zoom) {
-        this.scale = parseFloat(1 + (zoom / 50));
-        console.log(this.scale)
+        this.scale = (zoom == 0) ? 0.03 : (zoom / 25);
         this.scaleGroupSVG.setAttribute("transform", "scale(" + this.scale + ")");
         this.scaleBackgroundGroupSVG.setAttribute("transform", "scale(" + this.scale + ")");
     },
@@ -304,10 +303,15 @@ NetworkSvgLayout.prototype = {
                             var dispX = moveX - lastX;
                             var dispY = moveY - lastY;
 
+                            dispX /= _this.scale;
+                            dispY /= _this.scale;
+
                             var x = parseInt(targetEl.getAttribute('x'));
                             var y = parseInt(targetEl.getAttribute('y'));
+
                             x += dispX;
                             y += dispY;
+
                             targetEl.setAttribute('x', x);
                             targetEl.setAttribute('y', y);
 
@@ -401,14 +405,10 @@ NetworkSvgLayout.prototype = {
                         if (!isSelected) {
                             this.selectEdge(edge);
                         }
-
                         this.trigger('edge:leftClick', {
                             edge: edge,
                             edgeConfig: edgeConfig
                         });
-                        break;
-                    case 'background-image':
-                        this.trigger('change:background-image', {image: targetEl, sender: _this});
                         break;
                     default:
                         var x = parseFloat(_this.selectRect.getAttribute('x'));
@@ -423,6 +423,7 @@ NetworkSvgLayout.prototype = {
                         _this.selectRect.setAttribute('y', 0);
                         _this.selectRect.setAttribute('width', 0);
                         _this.selectRect.setAttribute('height', 0);
+
                 }
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
@@ -444,6 +445,7 @@ NetworkSvgLayout.prototype = {
                 }
                 break;
         }
+        this.trigger('click:leftMouseUp', {sender: _this});
     },
     contextMenu: function (event) {
         var _this = this;
@@ -493,6 +495,10 @@ NetworkSvgLayout.prototype = {
         this.selectedEdges = [edge];
     },
     selectVerticesByArea: function (x, y, width, height) {
+        x /= this.scale;
+        y /= this.scale;
+        width /= this.scale;
+        height /= this.scale;
         this._deselectAllVertices();
         this.selectedVertices = this.network.selectVerticesByArea(x, y, width, height);
     },
@@ -517,6 +523,8 @@ NetworkSvgLayout.prototype = {
         this.network.deselectAllEdges();
     },
     _moveSelectedVertices: function (dispX, dispY) {
+        dispX /= this.scale;
+        dispY /= this.scale;
         for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
             var vertex = this.selectedVertices[i];
             this.network.moveVertex(vertex, dispX, dispY);

@@ -29,7 +29,7 @@ function SIFDataAdapter(args) {
 
 SIFDataAdapter.prototype.parse = function (data) {
     var _this = this;
-
+    console.time("SIFParse");
     var lines = data.split("\n");
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].replace(/^\s+|\s+$/g, "");
@@ -91,4 +91,5 @@ SIFDataAdapter.prototype.parse = function (data) {
             }
         }
     }
+    console.timeEnd("SIFParse");
 };

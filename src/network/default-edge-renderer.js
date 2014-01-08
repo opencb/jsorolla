@@ -24,7 +24,7 @@ function DefaultEdgeRenderer(args) {
     _.extend(this, Backbone.Events);
 
     //defaults
-    this.shape = 'directed';
+    this.shape = 'undirected';
     this.size = 2;
     this.color = '#888888';
     this.strokeSize = 2;
@@ -187,11 +187,23 @@ DefaultEdgeRenderer.prototype = {
     _addArrowShape: function (type, offset, color, edgeSize, targetSvg) {
         var scale = 1 / edgeSize;
 
+        var headWidth = edgeSize * 3;
+        var headHeight = edgeSize * 6;
+        var headRadius = edgeSize + Math.sqrt(edgeSize*6);
+
+        var halfSize = edgeSize/2;
+
+        var defs = $(targetSvg).find('defs');
+        var defsEl = defs[0]
+        if (defs.length == 0) {
+            defsEl = SVG.addChild(targetSvg, "defs", {}, 0);
+        }
+
         if (typeof color === 'undefined') {
             color = '#000000';
         }
         var id = "arrow-" + type + '-' + offset + '-' + color;
-        var marker = SVG.addChild(targetSvg, "marker", {
+        var marker = SVG.addChild(defsEl, "marker", {
             "id": id,
             "orient": "auto",
             "style": "overflow:visible;"
@@ -202,56 +214,56 @@ DefaultEdgeRenderer.prototype = {
                 var arrow = SVG.addChild(marker, "polyline", {
                     "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "points": "-" + offset + ",0 " + (-offset - 18) + ",-8 " + (-offset - 18) + ",8 -" + offset + ",0"
+                    "points": "-" + offset + ",-"+halfSize+" " + (-offset - headHeight) + ",-"+headWidth+" " + (-offset - headHeight) + ","+headWidth+" -" + offset + ","+halfSize
                 });
                 break;
-            case "odirected":
-                var arrow = SVG.addChild(marker, "polyline", {
-                    "transform": "scale(0.5) rotate(0) translate(0,0)",
-                    "fill": color,
-                    "points": "-" + offset + ",0 " + (-offset - 18) + ",-8 " + (-offset - 18) + ",8 -" + offset + ",0"
-                });
-                offset += 6;
-                var arrow = SVG.addChild(marker, "polyline", {
-                    "transform": "scale(0.5) rotate(0) translate(0,0)",
-                    "fill": 'white',
-                    "opacity": "1",
-                    "points": "-" + offset + ",0 " + (-offset - 9) + ",-4 " + (-offset - 9) + ",4 -" + offset + ",0"
-                });
-                break;
+//            case "odirected":
+//                var arrow = SVG.addChild(marker, "polyline", {
+//                    "transform": "scale(0.5) rotate(0) translate(0,0)",
+//                    "fill": color,
+//                    "points": "-" + offset + ",0 " + (-offset - 18) + ",-8 " + (-offset - 18) + ",8 -" + offset + ",0"
+//                });
+//                offset += 6;
+//                var arrow = SVG.addChild(marker, "polyline", {
+//                    "transform": "scale(0.5) rotate(0) translate(0,0)",
+//                    "fill": 'white',
+//                    "opacity": "1",
+//                    "points": "-" + offset + ",0 " + (-offset - 9) + ",-4 " + (-offset - 9) + ",4 -" + offset + ",0"
+//                });
+//                break;
             case "inhibited":
                 var arrow = SVG.addChild(marker, "rect", {
-                    "transform": "scale(0.5) rotate(0) translate(0,0)",
+                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "x": -offset - 6,
-                    "y": -6,
-                    "width": 6,
-                    "height": 12
+                    "x": -offset - headRadius,
+                    "y": -headRadius,
+                    "width": headRadius,
+                    "height": headRadius*2
                 });
                 break;
             case "dot":
                 var arrow = SVG.addChild(marker, "circle", {
-                    "transform": "scale(0.5) rotate(0) translate(0,0)",
+                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "cx": -offset - 8,
+                    "cx": -offset - headRadius + 1,
                     "cy": 0,
-                    "r": 8
+                    "r": headRadius
                 });
                 break;
             case "odot":
                 var arrow = SVG.addChild(marker, "circle", {
-                    "transform": "scale(0.5) rotate(0) translate(0,0)",
+                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "cx": -offset - 8,
+                    "cx": -offset - headRadius + 1,
                     "cy": 0,
-                    "r": 8
+                    "r": headRadius
                 });
                 var arrow = SVG.addChild(marker, "circle", {
-                    "transform": "scale(0.5) rotate(0) translate(0,0)",
+                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": 'white',
-                    "cx": -offset - 8,
+                    "cx": -offset - headRadius + 1,
                     "cy": 0,
-                    "r": 5
+                    "r": headRadius - Math.sqrt(edgeSize*4)
                 });
                 break;
         }
