@@ -25,12 +25,12 @@ function DefaultEdgeRenderer(args) {
 
     //defaults
     this.shape = 'undirected';
-    this.size = 2;
+    this.size = 1;
     this.color = '#888888';
     this.strokeSize = 2;
     this.strokeColor = '#aaaaaa';
     this.opacity = 1;
-    this.labelSize = 14;
+    this.labelSize = 0;
     this.labelColor = '#111111';
 //    this.labelPositionX = 5;
 //    this.labelPositionY = 45;

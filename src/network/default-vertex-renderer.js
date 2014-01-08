@@ -25,12 +25,12 @@ function DefaultVertexRenderer(args) {
 
     //defaults
     this.shape = 'circle';
-    this.size = 40;
+    this.size = 20;
     this.color = '#cccccc';
-    this.strokeSize = 3;
+    this.strokeSize = 1;
     this.strokeColor = '#888888';
     this.opacity = 1;
-    this.labelSize = 14;
+    this.labelSize = 12;
     this.labelColor = '#111111';
 //    this.labelPositionX = 5;
 //    this.labelPositionY = 45;
