@@ -222,7 +222,9 @@ HeaderWidget.prototype = {
                 this.homeLink = "http://bioinfo.cipf.es/apps/team/";
                 this.helpLink = "https://github.com/babelomics/team/wiki";
                 this.tutorialLink = "https://github.com/babelomics/team/wiki/Tutorial";
-                this.aboutText = 'TEAM'
+                this.aboutText = 'TEAM (Targeted Enrichment Analysis and Management) is an open web-based tool for the design and management of panels of genes for targeted enrichment and massive sequencing for diagnostic applications. <br> TEAM has been built with open and free technologies like HTML5 and Javascript.<br><br>'+
+                    'TEAM project is a joint development of the <b>BiER</b> and the <b>Computational Biology Unit</b>, in the <b>Computational Genomics Department</b> at CIPF in Valencia, Spain.<br><br>' +'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span> <br><br>' +
+                    '<img width="25%" src="http://bioinfo.cipf.es/bierwiki/lib/tpl/arctic/images/logobier.jpg">'
                 ;
                 break;
 
