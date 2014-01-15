@@ -39,8 +39,6 @@ function Network(args) {
     this.edgeAttributeManager = new AttributeManagerStore(defaults);
 
     this.on(this.handlers);
-
-
 }
 
 Network.prototype = {
@@ -68,9 +66,14 @@ Network.prototype = {
         var vertexConfig = args.vertexConfig;
         var target = args.target;
 
+        vertexConfig.id = vertex.id;
+
         this.graph.addVertex(vertex);
         this.setVertexConfig(vertexConfig);
-        this.renderVertex(vertex, target);
+
+        if (typeof target !== 'undefined') {
+            this.renderVertex(vertex, target);
+        }
 
         //attributes
         this.nodeAttributeManager.addRows([
@@ -82,9 +85,14 @@ Network.prototype = {
         var edgeConfig = args.edgeConfig;
         var target = args.target;
 
+        edgeConfig.id = edge.id;
+
         this.graph.addEdge(edge);
         this.setEdgeConfig(edgeConfig);
-        this.renderEdge(edge, target);
+
+        if (typeof target !== 'undefined') {
+            this.renderEdge(edge, target);
+        }
     },
     setVertexConfig: function (vertexConfig) {
         this.config.setVertexConfig(vertexConfig);
@@ -428,6 +436,9 @@ Network.prototype = {
                 }
             }
         }
+    },
+    findVerticesByName: function (name) {
+        return this.graph.findByName(name);
     }
 
 }

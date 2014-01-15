@@ -62,12 +62,12 @@ Grid.prototype = {
     insert: function (pos, value) {
         this.store.insert(pos, value);
     },
-    addColumn: function(attrName, attrType, columnName){
-       //debugger 
+    addColumn: function (attrName, attrType, columnName) {
+        //debugger
         var fields = this.model.getFields();
 
-        for(var i = 0; i< fields.length; i++){
-            if(fields.name == attrName && fields[i].type.type == attrType){
+        for (var i = 0; i < fields.length; i++) {
+            if (fields.name == attrName && fields[i].type.type == attrType) {
                 return false;
             }
         }
@@ -77,7 +77,7 @@ Grid.prototype = {
             type: "auto"
         });
 
-        var col = new Ext.create('Ext.grid.column.Column',{
+        var col = new Ext.create('Ext.grid.column.Column', {
             text: "Prueba",
             dataIndex: "prueba",
             //flex:1,
@@ -89,6 +89,22 @@ Grid.prototype = {
         console.log(this.model.getFields());
         this.grid.columns.push(col);
 
+    },
+    createModel: function (name, attributes) {
+        this.model = Ext.define(name, {
+            extend: 'Ext.data.Model',
+            fields: attributes
+        });
+    },
+    createStore: function () {
+        this.store = Ext.create('Ext.data.Store', {
+            model: this.model,
+            data: [],
+            autoLoad: false
+        });
+    },
+    setLoading: function (loading) {
+        this.grid.setLoading(loading);
     }
 
 
