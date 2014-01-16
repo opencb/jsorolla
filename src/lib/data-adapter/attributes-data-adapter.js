@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function AttributesDataAdapter(args){
+function AttributesDataAdapter(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
 
@@ -30,16 +30,16 @@ function AttributesDataAdapter(args){
     //set instantiation args, must be last
     _.extend(this, args);
 
-	this.json = {};
-	this.attributes = [];
-	this.data = [];
+    this.json = {};
+    this.attributes = [];
+    this.data = [];
 
     this.on(this.handlers);
 
     if (this.async) {
         this.dataSource.on('success', function (data) {
             _this.parse(data);
-            _this.trigger('data:load', {});
+            _this.trigger('data:load', {sender:_this});
         });
         this.dataSource.fetch(this.async);
     } else {
@@ -47,41 +47,69 @@ function AttributesDataAdapter(args){
         _this.parse(data);
     }
 
-	
+
 };
 
-AttributesDataAdapter.prototype.parse = function(data){
-	var _this = this;
-	
-	var lines = data.split("\n");
-	if(lines.length > 2) {
-		var types = lines[0].substring(1).replace(/^\s+|\s+$/g,"").split("\t");
-		var defVal = lines[1].substring(1).replace(/^\s+|\s+$/g,"").split("\t");
-		var headers = lines[2].substring(1).replace(/^\s+|\s+$/g,"").split("\t");
-		
-		for(var i=0; i < headers.length; i++){
-			this.attributes.push({
-					"name": headers[i],
-					"type": types[i],
-					"defaultValue": defVal[i]
-			});
-		}
-	}
-	
-	for (var i = 3; i < lines.length; i++) {
-		var line = lines[i].replace(/^\s+|\s+$/g,"");
-		if ((line != null)&&(line.length > 0)){
-			var fields = line.split("\t");
-			if (fields[0].substr(0,1) != "#") {
-				this.data.push(fields);
-			}
-		}
-	}
+AttributesDataAdapter.prototype.parse = function (data) {
+    var _this = this;
+
+//    var lines = data.split("\n");
+//    if (lines.length > 2) {
+//        var types = lines[0].substring(1).replace(/^\s+|\s+$/g, "").split("\t");
+//        var defVal = lines[1].substring(1).replace(/^\s+|\s+$/g, "").split("\t");
+//        var headers = lines[2].substring(1).replace(/^\s+|\s+$/g, "").split("\t");
+//
+//        for (var i = 0; i < headers.length; i++) {
+//            this.attributes.push({
+//                "name": headers[i],
+//                "type": types[i],
+//                "defaultValue": defVal[i]
+//            });
+//        }
+//    }
+//
+//    for (var i = 3; i < lines.length; i++) {
+//        var line = lines[i].replace(/^\s+|\s+$/g, "");
+//        if ((line != null) && (line.length > 0)) {
+//            var fields = line.split("\t");
+//            if (fields[0].substr(0, 1) != "#") {
+//                this.data.push(fields);
+//            }
+//        }
+//    }
+
+
+    if (data !== "") {
+        var lines = data.split("\n");
+        var firstLine = lines[0].replace(/^\s+|\s+$/g, "");
+        var numColumns = firstLine.split("\t").length;
+        for (var i = 0; i < numColumns; i++) {
+            var name = "Column" + i;
+            if (i == 0) {
+                name = "Name";
+            }
+
+            this.attributes.push({
+                "name": name,
+                "type": "string",
+                "defaultValue": ""
+            });
+        }
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].replace(/^\s+|\s+$/g, "");
+        if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
+            var fields = line.split("\t");
+            this.data.push(fields);
+        }
+    }
+
 };
 
-AttributesDataAdapter.prototype.getAttributesJSON = function(){
-	var json = {};
-	json.attributes = this.attributes;
-	json.data = this.data;
-	return json;
+AttributesDataAdapter.prototype.getAttributesJSON = function () {
+    var json = {};
+    json.attributes = this.attributes;
+    json.data = this.data;
+    return json;
 };

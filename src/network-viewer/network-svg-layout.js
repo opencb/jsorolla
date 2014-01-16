@@ -194,6 +194,7 @@ NetworkSvgLayout.prototype = {
     },
     draw: function () {
         $(this.scaleGroupSVG).empty();
+        $(this.scaleBackgroundGroupSVG).empty();
         this.network.draw(this.scaleGroupSVG);
     },
     setNetwork: function (network) {
@@ -219,11 +220,28 @@ NetworkSvgLayout.prototype = {
             "network-type": "background-image"
         });
     },
+    addBackgroundImages: function (images) {
+        for (var i = 0, li = images.length; i < li; i++) {
+            this.addBackgroundImage(images[i]);
+        }
+    },
     setZoom: function (zoom) {
         this.scale = (zoom == 0) ? 0.03 : (zoom / 25);
-        this.scaleGroupSVG.setAttribute("transform", "scale(" + this.scale + ")");
-        this.scaleBackgroundGroupSVG.setAttribute("transform", "scale(" + this.scale + ")");
+
+        var centerX = this.width / 2;
+        var centerY = this.height / 2;
+        var transX = -centerX * (this.scale - 1);
+        var transY = -centerY * (this.scale - 1);
+
+        this.scaleGroupSVG.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
+        this.scaleBackgroundGroupSVG.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
+
     },
+//    setScale: function (scale) {
+//        this.scale = scale;
+//        this.scaleGroupSVG.setAttribute("transform", "scale(" + this.scale + ")");
+//        this.scaleBackgroundGroupSVG.setAttribute("transform", "scale(" + this.scale + ")");
+//    },
     /*  */
     setMode: function (mode) {
         this.mode = mode;
@@ -266,7 +284,9 @@ NetworkSvgLayout.prototype = {
 
                 switch (targetElNetworkType) {
                     case 'vertex':
-                        var vertexId = $(targetEl).parent().parent().attr('id');
+                    case 'vertex-label':
+//                        var vertexId = $(targetEl).parent().parent().attr('id');
+                        var vertexId = $(targetEl).closest('[network-type="vertex-svg"]').attr('id');
                         var vertex = _this.network.getVertexById(vertexId);
 
                         var isSelected = this.network.isVertexSelected(vertex);
@@ -385,7 +405,9 @@ NetworkSvgLayout.prototype = {
 
                 switch (targetElNetworkType) {
                     case 'vertex':
-                        var vertexId = $(targetEl).parent().parent().attr('id');
+                    case 'vertex-label':
+//                        var vertexId = $(targetEl).parent().parent().attr('id');
+                        var vertexId = $(targetEl).closest('[network-type="vertex-svg"]').attr('id');
                         var vertex = this.network.getVertexById(vertexId);
 //                        this.network.getVertexAttributes(vertex, function (attributes) {
                         _this.trigger('vertex:leftClick', {
@@ -495,10 +517,19 @@ NetworkSvgLayout.prototype = {
         this.selectedEdges = [edge];
     },
     selectVerticesByArea: function (x, y, width, height) {
+        var centerX = this.width / 2;
+        var centerY = this.height / 2;
+        var transX = -centerX * (this.scale - 1);
+        var transY = -centerY * (this.scale - 1);
+        x -= transX;
+        y -= transY;
+
         x /= this.scale;
         y /= this.scale;
         width /= this.scale;
         height /= this.scale;
+
+
         this._deselectAllVertices();
         this.selectedVertices = this.network.selectVerticesByArea(x, y, width, height);
     },
@@ -582,11 +613,11 @@ NetworkSvgLayout.prototype = {
     removeVertex: function (vertex) {
         this.network.removeVertex(vertex);
     },
-    setSelectedVerticesDisplayAttr: function (displayAttr, value) {
+    setSelectedVerticesDisplayAttr: function (displayAttr, value, updateEdges) {
         for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
             var vertex = this.selectedVertices[i];
             if (typeof vertex !== 'undefined') {
-                this.network.setVertexRendererAttribute(vertex, displayAttr, value);
+                this.network.setVertexRendererAttribute(vertex, displayAttr, value, updateEdges);
             }
         }
     },
@@ -598,20 +629,32 @@ NetworkSvgLayout.prototype = {
             }
         }
     },
-    setVertexName: function (name) {
+    setVertexLabel: function (label) {
         if (this.selectedVertices.length == 1) {
             var vertex = this.selectedVertices[0];
-            this.network.setVertexName(vertex, name);
+            this.network.setVertexLabel(vertex, label);
         }
     },
-    setEdgeName: function (name) {
+    setEdgeLabel: function (label) {
         if (this.selectedEdges.length == 1) {
             var edge = this.selectedEdges[0];
-            this.network.setEdgeName(edge, name);
+            this.network.setEdgeLabel(edge, label);
         }
     },
     getSvgEl: function () {
         return  this.canvas;
+    },
+    getBackGroundImages: function () {
+        var images = [];
+        var imagesEl = $(this.scaleBackgroundGroupSVG).find('image[network-type="background-image"]');
+        for (var i = 0; i < imagesEl.length; i++) {
+            images.push({
+                src: imagesEl[i].getAttribute('href'),
+                width: imagesEl[i].getAttribute('width'),
+                height: imagesEl[i].getAttribute('height')
+            });
+        }
+        return images;
     }
 };
 

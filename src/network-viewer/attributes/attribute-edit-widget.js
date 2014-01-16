@@ -59,20 +59,8 @@ AttributeEditWidget.prototype.draw = function (selectedNodes) {
         items: [
             {
                 xtype: 'text',
-                margin: "4 0 0 0",
-                text: 'New value'
-            },
-            {
-                xtype: 'textfield',
-                id: this.id + "newValue",
-                width: 120,
-                margin: "0 0 0 10",
-                allowBlank: false
-            },
-            {
-                xtype: 'text',
-                margin: "4 0 0 10",
-                text: 'for attribute'
+                margin: "4 0 0 4",
+                text: 'For attribute'
             },
             {
                 xtype: 'combo',
@@ -85,6 +73,18 @@ AttributeEditWidget.prototype.draw = function (selectedNodes) {
                 valueField: 'name',
                 queryMode: 'local',
                 store: this.attrNameStore2
+            },
+            {
+                xtype: 'text',
+                margin: "4 0 0 10",
+                text: 'new value'
+            },
+            {
+                xtype: 'textfield',
+                id: this.id + "newValue",
+                width: 120,
+                margin: "0 0 0 10",
+                allowBlank: false
             },
             {
                 xtype: 'text',

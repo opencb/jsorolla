@@ -34,6 +34,7 @@ function DefaultVertexRenderer(args) {
     this.labelColor = '#111111';
 //    this.labelPositionX = 5;
 //    this.labelPositionY = 45;
+    this.labelText = '';
 
     this.el;
     this.targetEl;
@@ -50,7 +51,16 @@ DefaultVertexRenderer.prototype = {
     },
     set: function (attr, value) {
         this[attr] = value;
-        this.update();
+        switch (attr) {
+            case "color":
+                this._updateColor();
+                break;
+            case "strokeColor":
+                this._updateStrokeColor();
+                break;
+            default:
+                this.update();
+        }
     },
     render: function (args) {
         this.targetEl = args.target;
@@ -64,6 +74,14 @@ DefaultVertexRenderer.prototype = {
     update: function () {
         this.remove();
         this._render();
+    },
+    _updateColor: function () {
+        var vEl = $(this.el).find('[network-type="vertex"]')[0];
+        vEl.setAttribute('fill', this.color);
+    },
+    _updateStrokeColor: function () {
+        var vEl = $(this.el).find('[network-type="vertex"]')[0];
+        vEl.setAttribute('stroke', this.strokeColor);
     },
     select: function () {
         if (!this.selected) {
@@ -82,8 +100,15 @@ DefaultVertexRenderer.prototype = {
         this.el.setAttribute('y', currentY + dispY);
     },
     setLabelContent: function (text) {
+        this.labelText = text;
         var vertexLabel = $(this.el).find('text[network-type="vertex-label"]')[0];
-        vertexLabel.textContent = text;
+        if (typeof vertexLabel != 'undefined') {
+            var label = '';
+            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+                label = this.labelText;
+            }
+            vertexLabel.textContent = label;
+        }
     },
     getSize: function () {
         return this.size + this.strokeSize;
@@ -155,14 +180,20 @@ DefaultVertexRenderer.prototype = {
             fill: this.color,
             'network-type': 'vertex'
         });
-        var vertexText = SVG.addChild(vertexSvg, "text", {
-            "x": 5,
-            "y": this.labelSize + size,
-            "font-size": this.labelSize,
-            "fill": this.labelColor,
-            'network-type': 'vertex-label'
-        });
-        vertexText.textContent = this.vertex.name;
+        if (this.labelSize > 0) {
+            var vertexText = SVG.addChild(vertexSvg, "text", {
+                "x": 5,
+                "y": this.labelSize + size,
+                "font-size": this.labelSize,
+                "fill": this.labelColor,
+                'network-type': 'vertex-label'
+            });
+            var label = this.vertex.name;
+            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+                label = this.labelText;
+            }
+            vertexText.textContent = label;
+        }
         this.el = vertexSvg;
         this.targetEl.appendChild(vertexSvg);
     },
@@ -194,14 +225,20 @@ DefaultVertexRenderer.prototype = {
             fill: this.color,
             'network-type': 'vertex'
         });
-        var vertexText = SVG.addChild(vertexSvg, "text", {
-            "x": 5,
-            "y": this.labelSize + size,
-            "font-size": this.labelSize,
-            "fill": this.labelColor,
-            'network-type': 'vertex-label'
-        });
-        vertexText.textContent = this.vertex.name;
+        if (this.labelSize > 0) {
+            var vertexText = SVG.addChild(vertexSvg, "text", {
+                "x": 5,
+                "y": this.labelSize + size,
+                "font-size": this.labelSize,
+                "fill": this.labelColor,
+                'network-type': 'vertex-label'
+            });
+            var label = this.vertex.name;
+            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+                label = this.labelText;
+            }
+            vertexText.textContent = label;
+        }
         this.el = vertexSvg;
         this.targetEl.appendChild(vertexSvg);
     },
@@ -231,14 +268,20 @@ DefaultVertexRenderer.prototype = {
             fill: this.color,
             'network-type': 'vertex'
         });
-        var vertexText = SVG.addChild(vertexSvg, "text", {
-            "x": 5,
-            "y": this.labelSize + size,
-            "font-size": this.labelSize,
-            "fill": this.labelColor,
-            'network-type': 'vertex-label'
-        });
-        vertexText.textContent = this.vertex.name;
+        if (this.labelSize > 0) {
+            var vertexText = SVG.addChild(vertexSvg, "text", {
+                "x": 5,
+                "y": this.labelSize + size,
+                "font-size": this.labelSize,
+                "fill": this.labelColor,
+                'network-type': 'vertex-label'
+            });
+            var label = this.vertex.name;
+            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+                label = this.labelText;
+            }
+            vertexText.textContent = label;
+        }
         this.el = vertexSvg;
         this.targetEl.appendChild(vertexSvg);
     },
@@ -271,14 +314,20 @@ DefaultVertexRenderer.prototype = {
             fill: this.color,
             'network-type': 'vertex'
         });
-        var vertexText = SVG.addChild(vertexSvg, "text", {
-            "x": 5,
-            "y": this.labelSize + size,
-            "font-size": this.labelSize,
-            "fill": this.labelColor,
-            'network-type': 'vertex-label'
-        });
-        vertexText.textContent = this.vertex.name;
+        if (this.labelSize > 0) {
+            var vertexText = SVG.addChild(vertexSvg, "text", {
+                "x": 5,
+                "y": this.labelSize + size,
+                "font-size": this.labelSize,
+                "fill": this.labelColor,
+                'network-type': 'vertex-label'
+            });
+            var label = this.vertex.name;
+            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+                label = this.labelText;
+            }
+            vertexText.textContent = label;
+        }
         this.el = vertexSvg;
         this.targetEl.appendChild(vertexSvg);
     },

@@ -43,9 +43,11 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
         flex: 1,
         buttonText: 'Browse local',
         listeners: {
-            change: function () {
+            change: function (f,v) {
                 _this.panel.setLoading(true);
                 var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];
+                var node = Ext.DomQuery.selectNode('input[id='+f.getInputId()+']');
+                node.value = v.replace("C:\\fakepath\\","");
 
                 _this.dataAdapter = new SIFDataAdapter({
                     dataSource: new FileDataSource(file),

@@ -49,7 +49,7 @@ EditionBar.prototype = {
         }
 
         var navgationHtml = '' +
-            '<div id="nodeToolbar" class="btn-toolbar pull-left" role="toolbar">' +
+            '<div id="nodeToolbar" class="btn-toolbar" role="toolbar" style="display:inline-block">' +
             '   <div class="btn-group" style="width:140px;" title="Node name">' +
             '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Node:&nbsp;</span>' +
             '       <input id="nodeNameField" type="text" class="form-control" placeholder="name" style="padding:0px 4px;height:23px;width:100px">' +
@@ -107,7 +107,7 @@ EditionBar.prototype = {
             '   </div>' +
             '</div>' +
 
-            '<div id="edgeToolbar" class="btn-toolbar pull-left">' +
+            '<div id="edgeToolbar" class="btn-toolbar" style="display:inline-block">' +
             '   <div class="btn-group" style="width:140px;margin-left: 25px"  title="Edge name">' +
             '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Edge:&nbsp;</span>' +
             '       <input id="edgeLabelField" type="text" class="form-control" placeholder="label" style="padding:0px 4px;height:23px;width:100px">' +
@@ -147,9 +147,9 @@ EditionBar.prototype = {
         /**************/
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="edition-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
-        $(this.div).css({
-            height: '32px'
-        });
+//        $(this.div).css({
+////            height: '32px'
+//        });
         $(this.targetDiv).append(this.div);
         /**************/
 

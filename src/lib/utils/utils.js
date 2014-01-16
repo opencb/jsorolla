@@ -20,172 +20,176 @@
  */
 
 var Utils = {
-        //properties
-        characters: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    //properties
+    characters: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
 
-        //Methods
-        formatNumber: function (position) {
-            return position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-        },
-        formatText: function (text, spaceChar) {
-            text = text.replace(new RegExp(spaceChar, "gi"), " ");
-            text = text.charAt(0).toUpperCase() + text.slice(1);
-            return text;
-        },
-        isFunction: function (s) {
-            return typeof(s) === 'function' || s instanceof Function;
-        },
-        parseDate: function (strDate) {
-            return strDate.substring(0, 4) + " " + strDate.substring(4, 6) + " " + strDate.substring(6, 8) + ", " + strDate.substring(8, 10) + ":" + strDate.substring(10, 12) + ":" + strDate.substring(12, 14);
-        },
-        genId: function (prefix) {
-            prefix = prefix || '';
-            prefix = prefix.length == 0 ? prefix : prefix + '-';
-            return prefix + this.randomString();
-        },
-        randomString: function (length) {
-            length = length || 10;
-            var str = "";
-            for (var i = 0; i < length; i++) {
-                str += this.characters.charAt(this.getRandomInt(0, this.characters.length - 1));
-            }
-            return str;
-        },
-        getRandomInt: function (min, max) {
-            // https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Math/random
-            // Using Math.round() will give you a non-uniform distribution!
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        },
-        endsWithIgnoreCase: function (str, test) {
-            var regex = new RegExp('^.*\\.(' + test + ')$', 'i');
-            return regex.test(str);
-        },
-        endsWith: function (str, test) {
-            var regex = new RegExp('^.*\\.(' + test + ')$');
-            return regex.test(str);
-        },
-        addQueryParamtersToUrl: function (paramsWS, url) {
-            var chr = "?";
-            if (url.indexOf("?") != -1) {
-                chr = "&";
-            }
-            var query = "";
-            for (var key in paramsWS) {
-                if (paramsWS[key] != null)
-                    query += key + "=" + paramsWS[key].toString() + "&";
-            }
-            if (query != "")
-                query = chr + query.substring(0, query.length - 1);
-            return url + query;
-        },
-        randomColor: function () {
-            var color = "";
-            for (var i = 0; i < 6; i++) {
-                color += ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'][Math.floor(Math.random() * 16)]);
-            }
-            return "#" + color;
-        },
-        colorLuminance: function (hex, lum) {
-            // validate hex string
-            hex = String(hex).replace(/[^0-9a-f]/gi, '');
-            hex = String(hex).replace(/#/gi, '');
-            if (hex.length < 6) {
-                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-            }
-            lum = lum || 0;
+    //Methods
+    formatNumber: function (position) {
+        return position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+    },
+    formatText: function (text, spaceChar) {
+        text = text.replace(new RegExp(spaceChar, "gi"), " ");
+        text = text.charAt(0).toUpperCase() + text.slice(1);
+        return text;
+    },
+    isFunction: function (s) {
+        return typeof(s) === 'function' || s instanceof Function;
+    },
+    parseDate: function (strDate) {
+        return strDate.substring(0, 4) + " " + strDate.substring(4, 6) + " " + strDate.substring(6, 8) + ", " + strDate.substring(8, 10) + ":" + strDate.substring(10, 12) + ":" + strDate.substring(12, 14);
+    },
+    genId: function (prefix) {
+        prefix = prefix || '';
+        prefix = prefix.length == 0 ? prefix : prefix + '-';
+        return prefix + this.randomString();
+    },
+    randomString: function (length) {
+        length = length || 10;
+        var str = "";
+        for (var i = 0; i < length; i++) {
+            str += this.characters.charAt(this.getRandomInt(0, this.characters.length - 1));
+        }
+        return str;
+    },
+    getRandomInt: function (min, max) {
+        // https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Math/random
+        // Using Math.round() will give you a non-uniform distribution!
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+    endsWithIgnoreCase: function (str, test) {
+        var regex = new RegExp('^.*\\.(' + test + ')$', 'i');
+        return regex.test(str);
+    },
+    endsWith: function (str, test) {
+        var regex = new RegExp('^.*\\.(' + test + ')$');
+        return regex.test(str);
+    },
+    addQueryParamtersToUrl: function (paramsWS, url) {
+        var chr = "?";
+        if (url.indexOf("?") != -1) {
+            chr = "&";
+        }
+        var query = "";
+        for (var key in paramsWS) {
+            if (paramsWS[key] != null)
+                query += key + "=" + paramsWS[key].toString() + "&";
+        }
+        if (query != "")
+            query = chr + query.substring(0, query.length - 1);
+        return url + query;
+    },
+    randomColor: function () {
+        var color = "";
+        for (var i = 0; i < 6; i++) {
+            color += ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'][Math.floor(Math.random() * 16)]);
+        }
+        return "#" + color;
+    },
+    colorLuminance: function (hex, lum) {
+        // validate hex string
+        hex = String(hex).replace(/[^0-9a-f]/gi, '');
+        hex = String(hex).replace(/#/gi, '');
+        if (hex.length < 6) {
+            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+        }
+        lum = lum || 0;
 
-            // convert to decimal and change luminosity
-            var rgb = "#", c, i;
-            for (i = 0; i < 3; i++) {
-                c = parseInt(hex.substr(i * 2, 2), 16);
-                c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-                rgb += ("00" + c).substr(c.length);
-            }
-
-            return rgb;
-        },
-        getSpeciesFromAvailable: function (availableSpecies, speciesCode) {
-            for (var i = 0; i < availableSpecies.items.length; i++) {
-                var phylos = availableSpecies.items[i].items;
-                for (var j = 0; j < phylos.length; j++) {
-                    var species = phylos[j];
-                    if (this.getSpeciesCode(species.text) == speciesCode) {
-                        return species;
-                    }
-                }
-            }
-        },
-        getSpeciesCode: function (speciesName) {
-            var pair = speciesName.split(" ");
-            var code;
-            if (pair.length < 3) {
-                code = (pair[0].charAt(0) + pair[1]).toLowerCase();
-            } else {
-                code = (pair[0].charAt(0) + pair[1] + pair[pair.length - 1].replace(/[/_().\-]/g, '')).toLowerCase();
-
-            }
-            return code;
-
-        },
-        test: function () {
-            return this;
-        },
-        cancelFullscreen: function () {
-            if (document.cancelFullScreen) {
-                document.cancelFullScreen();
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            } else if (document.webkitCancelFullScreen) {
-                document.webkitCancelFullScreen();
-            }
-        },
-        launchFullScreen: function (element) {
-            if (element.requestFullScreen) {
-                element.requestFullScreen();
-            } else if (element.mozRequestFullScreen) {
-                element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullScreen) {
-                element.webkitRequestFullScreen();
-            }
-        },
-        parseJobCommand: function (item) {
-            var commandObject = {};
-            var commandArray = item.commandLine.split(/ -{1,2}/g);
-            var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
-            tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
-            tableHtml += '<td style="min-width:50px;border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Parameter</td>';
-            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Value</td>';
-            tableHtml += '</tr>';
-            for (var i = 1; i < commandArray.length; i++) {
-                //ignore first argument
-                var paramenter = commandArray[i];
-                var paramenterArray = paramenter.split(/ {1}/g);
-                var name = '';
-                var value = '';
-                if (paramenterArray.length < 2) {
-                    name = paramenterArray[0];
-                    value = '<span color:darkgray;font-weight:bold;>This paramenter is a flag</span>';
-                } else {
-                    name = paramenterArray[0];
-                    value = paramenterArray[1];
-                }
-                commandObject[name] = value;
-                /* clean values for viz*/
-                value = value.replace(/\/httpd\/bioinfo\/opencga\/analysis\/.+\/examples\//, '');
-                value = value.replace('/httpd/bioinfo/opencga/accounts/', '');
-                value = value.replace(/,/g, ", ");
-
-                tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
-                tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + name + '</td>';
-                tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + value + '</td>';
-                tableHtml += '</tr>';
-            }
-            tableHtml += '</tbody></table>';
-            return {html: tableHtml, data: commandObject};
+        // convert to decimal and change luminosity
+        var rgb = "#", c, i;
+        for (i = 0; i < 3; i++) {
+            c = parseInt(hex.substr(i * 2, 2), 16);
+            c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+            rgb += ("00" + c).substr(c.length);
         }
 
+        return rgb;
+    },
+    getSpeciesFromAvailable: function (availableSpecies, speciesCode) {
+        for (var i = 0; i < availableSpecies.items.length; i++) {
+            var phylos = availableSpecies.items[i].items;
+            for (var j = 0; j < phylos.length; j++) {
+                var species = phylos[j];
+                if (this.getSpeciesCode(species.text) == speciesCode) {
+                    return species;
+                }
+            }
+        }
+    },
+    getSpeciesCode: function (speciesName) {
+        var pair = speciesName.split(" ");
+        var code;
+        if (pair.length < 3) {
+            code = (pair[0].charAt(0) + pair[1]).toLowerCase();
+        } else {
+            code = (pair[0].charAt(0) + pair[1] + pair[pair.length - 1].replace(/[/_().\-]/g, '')).toLowerCase();
+
+        }
+        return code;
+
+    },
+    test: function () {
+        return this;
+    },
+    cancelFullscreen: function () {
+        if (document.cancelFullScreen) {
+            document.cancelFullScreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitCancelFullScreen) {
+            document.webkitCancelFullScreen();
+        }
+    },
+    launchFullScreen: function (element) {
+        if (element.requestFullScreen) {
+            element.requestFullScreen();
+        } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullScreen) {
+            element.webkitRequestFullScreen();
+        }
+    },
+    parseJobCommand: function (item) {
+        var commandObject = {};
+        var commandArray = item.commandLine.split(/ -{1,2}/g);
+        var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
+        tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;font-weight:bold;">';
+        tableHtml += '<td style="min-width:50px;border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Parameter</td>';
+        tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">Value</td>';
+        tableHtml += '</tr>';
+        for (var i = 1; i < commandArray.length; i++) {
+            //ignore first argument
+            var paramenter = commandArray[i];
+            var paramenterArray = paramenter.split(/ {1}/g);
+            var name = '';
+            var value = '';
+            if (paramenterArray.length < 2) {
+                name = paramenterArray[0];
+                value = '<span color:darkgray;font-weight:bold;>This paramenter is a flag</span>';
+            } else {
+                name = paramenterArray[0];
+                value = paramenterArray[1];
+            }
+            commandObject[name] = value;
+            /* clean values for viz*/
+            value = value.replace(/\/httpd\/bioinfo\/opencga\/analysis\/.+\/examples\//, '');
+            value = value.replace('/httpd/bioinfo/opencga/accounts/', '');
+            value = value.replace(/,/g, ", ");
+
+            tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
+            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + name + '</td>';
+            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + value + '</td>';
+            tableHtml += '</tr>';
+        }
+        tableHtml += '</tbody></table>';
+        return {html: tableHtml, data: commandObject};
+    },
+    camelCase: function (input) {
+        return input.toLowerCase().replace(/[.-_\s](.)/g, function (match, group1) {
+            return group1.toUpperCase();
+        })
     }
-    ;
+
+};
 
 
 Utils.images = {

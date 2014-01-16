@@ -94,6 +94,7 @@ function Graph(args) {
     this.edgesIndex = {};
 
     this.verticesNameIndex = {};
+    this.edgesNameIndex = {};
 
     this.on(this.handlers);
 }
@@ -122,6 +123,9 @@ Graph.prototype = {
         var length = this.edges.push(edge);
         var insertPosition = length - 1;
         this.edgesIndex[edge.id] = insertPosition;
+
+        //name index update
+        this.addEdgeNameIndex(edge, insertPosition);
 
         edge.source.addEdge(edge);
         edge.target.addEdge(edge);
@@ -169,6 +173,7 @@ Graph.prototype = {
         var position = this.edgesIndex[edge.id];
         delete this.edgesIndex[edge.id];
         delete this.edges[position];
+        this.removeEdgeNameIndex(edge, position);
 
         this.trigger('edge:remove', {edge: edge, graph: this});
         this.numberOfEdges--;
@@ -291,12 +296,37 @@ Graph.prototype = {
             }
         }
     },
-    findByName: function (name) {
+    findVertexByName: function (name) {
         var result = [];
         if (typeof this.verticesNameIndex[name] !== 'undefined') {
             var indices = this.verticesNameIndex[name];
             for (var i = 0; i < indices.length; i++) {
                 result.push(this.vertices[indices[i]]);
+            }
+        }
+        return result;
+    },
+    addEdgeNameIndex: function (edge, insertPosition) {
+        if (typeof this.edgesNameIndex[edge.name] === 'undefined') {
+            this.edgesNameIndex[edge.name] = [];
+        }
+        this.edgesNameIndex[edge.name].push(insertPosition);
+    },
+    removeEdgeNameIndex: function (edge, position) {
+        var indices = this.edgesNameIndex[edge.name];
+        for (var i = 0; i < indices.length; i++) {
+            if (indices[i] === position) {
+                indices.splice(i, 1);
+                break;
+            }
+        }
+    },
+    findEdgeByName: function (name) {
+        var result = [];
+        if (typeof this.edgesNameIndex[name] !== 'undefined') {
+            var indices = this.edgesNameIndex[name];
+            for (var i = 0; i < indices.length; i++) {
+                result.push(this.edges[indices[i]]);
             }
         }
         return result;

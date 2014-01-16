@@ -96,7 +96,7 @@ ToolBar.prototype = {
             '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
             '       <button id="zoomOutButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-minus"></span></button>' +
             '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:10px;margin:5px 2px 0px 2px;background-color: #d5d5d5">' +
-            '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: '+this.zoom+'%">' +
+            '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: ' + this.zoom + '%">' +
             '           </div>' +
             '       </div>' +
             '       <button id="zoomInButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-plus"></span></button>' +
@@ -104,7 +104,7 @@ ToolBar.prototype = {
             '   <div class="btn-group btn-group-xs" title="Show/hide overview">' +
             '       <button id="showOverviewButton" class="btn btn-default active" type="button"><span class="ocb-icon icon-select"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group pull-right">' +
+            '   <div class="btn-group pull-right hidden">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
             '           <input id="searchField" list="searchDataList" type="text" class="form-control" placeholder="..." style="padding:0px 4px;height:22px;width:100px">' +
@@ -215,7 +215,7 @@ ToolBar.prototype = {
             reader.onload = function (evt) {
                 var image = new Image;
                 image.onload = function () {
-                    _this.trigger('importBackgroundImageField:change', {clickEvent: e, image:image, sender: {}})
+                    _this.trigger('importBackgroundImageField:change', {clickEvent: e, image: image, sender: {}})
                 };
                 var content = evt.target.result;
                 image.src = content;
@@ -347,5 +347,9 @@ ToolBar.prototype = {
     _handleZoomInButton: function () {
         this._handleZoomSlider(Math.min(100, this.zoom + 1));
         $(this.progressBar).css("width", this.zoom + '%');
+    },
+    setZoom: function (zoom) {
+        this.zoom = zoom;
+        $(this.progressBar).css("width", zoom + '%');
     }
 }

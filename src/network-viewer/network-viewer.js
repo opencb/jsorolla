@@ -45,6 +45,9 @@ function NetworkViewer(args) {
 
     this.contextMenu;
 
+    this.overviewRefreshing = false;
+
+    this.zoom = 25;
 
     this.rendered = false;
     if (this.autoRender) {
@@ -93,7 +96,7 @@ NetworkViewer.prototype = {
 
 
         if (this.overviewPanel) {
-            this.overviewPanelDiv = $('<div id="nv-overviewpanel" style="position:absolute;bottom:10px;right:10px;width:200px;height:200px;border:1px solid lightgrey;"></div>')[0];
+            this.overviewPanelDiv = $('<div id="nv-overviewpanel" style="position:absolute;bottom:10px;right:10px;width:200px;height:200px;border:1px solid lightgrey;background-color:#ffffff"></div>')[0];
             $(this.centerPanelDiv).append(this.overviewPanelDiv);
 
             this.cameraDiv = $('<div id="camera"></div>')[0];
@@ -116,9 +119,11 @@ NetworkViewer.prototype = {
             $(this.div).css({border: border});
         }
 
+
         this.rendered = true;
     },
     draw: function () {
+        var _this = this;
         if (!this.rendered) {
             console.info('Genome Viewer is not rendered yet');
             return;
@@ -143,13 +148,32 @@ NetworkViewer.prototype = {
                 "width": width + 2,
                 "height": height + 2
             });
-            this._refreshOverview();
         }
 
 
         /* context menu*/
         this.contextMenu = this._createContextMenu();
 
+        $(this.div).bind('wheel.networkViewer', function (e) {
+            var zoom;
+            if (e.originalEvent.deltaY < 0) {
+                var newZoom = _this.zoom + 2;
+                zoom = Math.min(100, newZoom);
+            } else {
+                var newZoom = _this.zoom - 2;
+                zoom = Math.max(0, newZoom);
+            }
+            _this._setZoom(zoom);
+            _this.toolBar.setZoom(zoom);
+
+            _this.overviewRefreshing = true;
+            setTimeout(function () {
+                if (_this.overviewRefreshing == true) {
+                    _this._refreshOverview();
+                    _this.overviewRefreshing = false;
+                }
+            }, 500);
+        });
 
 //        this.networkSvgOverview = this._createNetworkSvgOverview($(this.overviewPanelDiv).attr('id'));
 
@@ -182,8 +206,20 @@ NetworkViewer.prototype = {
 //            $(dup).find('#backgroundSVG').css({'height': height, width: width});
             var scaleGroupSVG = $(dup).find("#scaleGroupSVG");
             var scaleBackgroundGroupSVG = $(dup).find("#scaleBackgroundGroupSVG");
-            $(scaleGroupSVG).attr("transform", "scale(" + (this.overviewScale * this.networkSvgLayout.scale) + ")");
-            $(scaleBackgroundGroupSVG).attr("transform", "scale(" + (this.overviewScale * this.networkSvgLayout.scale) + ")");
+
+
+            var scale = this.overviewScale * this.networkSvgLayout.scale;
+            var centerX = width / 2;
+            var centerY = height / 2;
+            var transX = -centerX * (this.networkSvgLayout.scale - 1);
+            var transY = -centerY * (this.networkSvgLayout.scale - 1);
+            if (this.networkSvgLayout.scale < 1) {
+                $(scaleGroupSVG).attr("transform", "translate(" + transX + "," + transY + ") scale(" + (scale) + ")");
+                $(scaleBackgroundGroupSVG).attr("transform", "translate(" + transX + "," + transY + ") scale(" + (scale) + ")");
+            } else {
+                $(scaleGroupSVG).attr("transform", "scale(" + (this.overviewScale) + ")");
+                $(scaleBackgroundGroupSVG).attr("transform", "scale(" + (this.overviewScale) + ")");
+            }
 
             $(dup).find('defs').remove();
 
@@ -246,16 +282,7 @@ NetworkViewer.prototype = {
                 },
                 'zoom:change': function (event) {
                     console.log(event.zoom);
-                    _this.networkSvgLayout.setZoom(event.zoom);
-                    if (_this.overviewPanel) {
-                        var width = $(_this.overviewPanelDiv).width();
-                        var height = $(_this.overviewPanelDiv).height();
-                        var scale = (_this.networkSvgLayout.scale < 1) ? 1 : _this.networkSvgLayout.scale;
-                        $(_this.cameraDiv).css({
-                            "width": width / (scale) + 2,
-                            "height": height / (scale) + 2
-                        });
-                    }
+                    _this._setZoom(event.zoom);
                 },
                 'search': function (event) {
                     console.log(event);
@@ -266,7 +293,7 @@ NetworkViewer.prototype = {
                 }
             }
         });
-        return toolbar;
+        return toolBar;
     },
     _createEditionBar: function (targetId) {
         var _this = this;
@@ -293,22 +320,23 @@ NetworkViewer.prototype = {
                     _this.networkSvgLayout.setSelectedEdgesDisplayAttr('size', parseInt(event.value));
                 },
                 'nodeColorField:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('color', event.value);
+                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('color', event.value, false);
                 },
                 'nodeStrokeColorField:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('strokeColor', event.value);
+                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('strokeColor', event.value, false);
                 },
                 'edgeColorField:change': function (event) {
                     _this.networkSvgLayout.setSelectedEdgesDisplayAttr('color', event.value);
                 },
                 'nodeNameField:change': function (event) {
-                    _this.networkSvgLayout.setVertexName(event.value);
+                    _this.networkSvgLayout.setVertexLabel(event.value);
                 },
                 'edgeLabelField:change': function (event) {
-                    _this.networkSvgLayout.setEdgeName(event.value);
+                    _this.networkSvgLayout.setEdgeLabel(event.value);
                 },
                 'nodeLabelField:change': function (event) {
-                    _this.networkSvgLayout.setNodeLabel(event.value);
+                    debugger
+//                    _this.networkSvgLayout.setNodeLabel(event.value);
                 },
                 'change:nodeLabelSize': function (event) {
                     _this.network.setVerticesRendererAttribute('labelSize', event.option);
@@ -372,13 +400,15 @@ NetworkViewer.prototype = {
                 }
             }
         });
-        var v1 = networkSvgLayout.createVertex(200, 100);
-        var v2 = networkSvgLayout.createVertex(300, 320);
-        var v3 = networkSvgLayout.createVertex(500, 400);
-        var v4 = networkSvgLayout.createVertex(200, 440);
-        networkSvgLayout.createEdge(v1, v2);
-        networkSvgLayout.createEdge(v2, v3);
-        networkSvgLayout.createEdge(v2, v4);
+
+
+//        var v1 = networkSvgLayout.createVertex(200, 100);
+//        var v2 = networkSvgLayout.createVertex(300, 320);
+//        var v3 = networkSvgLayout.createVertex(500, 400);
+//        var v4 = networkSvgLayout.createVertex(200, 440);
+//        networkSvgLayout.createEdge(v1, v2);
+//        networkSvgLayout.createEdge(v2, v3);
+//        networkSvgLayout.createEdge(v2, v4);
 
         return networkSvgLayout;
     },
@@ -440,6 +470,25 @@ NetworkViewer.prototype = {
 //            allowBlank: true
 //        }
 //        $(nodeColorField).pickAColor(pickAColorConfig);
+    },
+    _setZoom: function (zoom) {
+        this.zoom = zoom;
+        this.networkSvgLayout.setZoom(zoom);
+        if (this.overviewPanel) {
+            var width = $(this.overviewPanelDiv).width();
+            var height = $(this.overviewPanelDiv).height();
+            var scale = (this.networkSvgLayout.scale < 1) ? 1 : this.networkSvgLayout.scale;
+            var w = width / (scale) + 2;
+            var h = height / (scale) + 2;
+            var t = (width / 2) - (w / 2);
+            var l = (height / 2) - (h / 2);
+            $(this.cameraDiv).css({
+                "left": t,
+                "top": l,
+                "width": w,
+                "height": h
+            });
+        }
     },
     _createNetworkSvgOverview: function (targetId) {
         var _this = this;
@@ -554,10 +603,17 @@ NetworkViewer.prototype = {
     },
     loadJSON: function (content) {
         this.network.loadJSON(content);
+//        this.network.(content);
+        this.networkSvgLayout.setZoom(content["zoom"]);
         this.networkSvgLayout.draw();
+        this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
+        this._refreshOverview();
     },
     toJSON: function () {
-        return this.network.toJSON();
+        var json = this.network.toJSON();
+        json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
+        json["zoom"] = this.zoom;
+        return json;
     }
 
 }

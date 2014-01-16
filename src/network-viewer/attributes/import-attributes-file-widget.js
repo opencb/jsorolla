@@ -54,74 +54,16 @@ ImportAttributesFileWidget.prototype.getFileUpload = function () {
         flex: 1,
         buttonText: 'Browse local',
         listeners: {
-            change: function () {
-                var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];
+            change: function (f, v) {
+                var file = document.getElementById(f.fileInputEl.id).files[0];
+                var node = Ext.DomQuery.selectNode('input[id=' + f.getInputId() + ']');
+                node.value = v.replace("C:\\fakepath\\", "");
 
                 var attributesDataAdapter = new AttributesDataAdapter({
                     dataSource: new FileDataSource(file),
                     handlers: {
                         'data:load': function (event) {
-                            _this.content = attributesDataAdapter.getAttributesJSON(); //para el onOK.notify event
-
-                            var existNameColumn = false;
-                            var cbgItems = [];
-                            _this.columnsGrid = [];
-                            for (var i = 0; i < _this.content.attributes.length; i++) {
-                                var name = _this.content.attributes[i].name;
-
-                                _this.columnsGrid.push({
-                                    "text": name,
-                                    "dataIndex": name,
-                                    "editor": {xtype: 'textfield', allowBlank: true}
-                                });
-
-                                var disabled = false;
-                                if (name == "Name") {
-                                    disabled = true;
-                                    existNameColumn = true;
-                                }
-                                cbgItems.push({
-                                    boxLabel: name,
-                                    name: 'attr',
-                                    inputValue: name,
-                                    margin: '0 0 0 5',
-                                    checked: true,
-                                    disabled: disabled
-                                });
-                            }
-
-                            var uniqueNameValues = true;
-                            var nameValues = {};
-                            for (var i = 0; i < _this.content.data.length; i++) {
-                                var name = _this.content.data[i][0];
-                                if (nameValues[name]) {
-                                    uniqueNameValues = false;
-                                    break;
-                                }
-                                else {
-                                    nameValues[name] = true;
-                                }
-                            }
-
-                            if (!existNameColumn) {
-                                _this.infoLabel.setText("<span class='err'>Invalid file. The column 'Name' is required.</span>", false);
-                            }
-                            else if (!uniqueNameValues) {
-                                _this.infoLabel.setText("<span class='err'>Invalid file. The values for 'Name' column must be uniques.</span>", false);
-                            }
-                            else {
-                                _this.cbgAttributes.add(cbgItems);
-                                _this.checkboxBar.show();
-                                _this.createNodesBar.show();
-
-                                Ext.getCmp(_this.id + 'okBtn').setDisabled(false);
-                            }
-                            _this.grid.reconfigure(null, _this.columnsGrid);
-
-                            _this.model.setFields(_this.content.attributes);
-
-                            _this.gridStore.loadData(_this.content.data);
-
+                            _this.processData(attributesDataAdapter);
                         }
                     }
                 });
@@ -132,7 +74,99 @@ ImportAttributesFileWidget.prototype.getFileUpload = function () {
     return this.fileUpload;
 };
 
+ImportAttributesFileWidget.prototype.processData = function (attributesDataAdapter) {
+    var _this = this;
+    this.content = attributesDataAdapter.getAttributesJSON(); //para el onOK.notify event
+
+    this.gridTbar.removeAll();
+    this.infoLabel.setText("", false);
+
+    var existNameColumn = false;
+    var cbgItems = [];
+    this.columnsGrid = [];
+    this.gridColumnNameFields = [];
+
+    for (var i = 0; i < _this.content.attributes.length; i++) {
+        var name = this.content.attributes[i].name;
+
+        this.columnsGrid.push({
+            "text": name,
+            "dataIndex": name,
+            "flex": 1,
+            "editor": {xtype: 'textfield', allowBlank: true}
+        });
+
+        this.gridColumnNameFields.push({
+            xtype: 'textfield',
+            value: name,
+            index: i,
+            vtype: 'alphanum',
+            "flex": 1,
+            listeners: {
+                change: function (me, newValue) {
+                    var cols = _this.grid.down('headercontainer').getGridColumns();
+                    cols[me.index].setText(newValue);
+                    _this.columnsGrid[me.index].text = newValue;
+                    _this.content.attributes[me.index].name = newValue;
+                    console.log(cols[me.index]);
+                }
+            }
+        });
+
+        var disabled = false;
+        if (name == "Name") {
+            disabled = true;
+            existNameColumn = true;
+        }
+        cbgItems.push({
+            boxLabel: name,
+            name: 'attr',
+            inputValue: name,
+            margin: '0 0 0 5',
+            checked: true,
+            disabled: disabled
+        });
+    }
+
+    var uniqueNameValues = true;
+    var nameValues = {};
+    for (var i = 0; i < this.content.data.length; i++) {
+        var name = this.content.data[i][0];
+        if (nameValues[name]) {
+            uniqueNameValues = false;
+            break;
+        }
+        else {
+            nameValues[name] = true;
+        }
+    }
+
+    if (!existNameColumn) {
+        this.infoLabel.setText("<span class='err'>Invalid file. The column 'Name' is required.</span>", false);
+    }
+    else if (!uniqueNameValues) {
+        this.infoLabel.setText("<span class='err'>Invalid file. The values for 'Name' column must be uniques.</span>", false);
+    }
+    else {
+        this.cbgAttributes.add(cbgItems);
+        this.checkboxBar.show();
+        this.createNodesBar.show();
+
+        Ext.getCmp(this.id + 'okBtn').setDisabled(false);
+    }
+
+    this.gridTbar.add(this.gridColumnNameFields);
+
+    this.model.setFields(this.content.attributes);
+
+    this.grid.reconfigure(this.gridStore, this.columnsGrid);
+
+    this.gridStore.loadData(this.content.data);
+};
+
+
 ImportAttributesFileWidget.prototype.filterColumnsToImport = function () {
+
     var checkeds = this.cbgAttributes.getChecked();
 
     var data = {};
@@ -229,11 +263,17 @@ ImportAttributesFileWidget.prototype.draw = function () {
             model: this.model
         });
 
+        this.gridTbar = Ext.create('Ext.toolbar.Toolbar', {
+            items: []
+        });
+
         this.grid = Ext.create('Ext.grid.Panel', {
             border: false,
             flex: 1,
+            tbar: this.gridTbar,
             store: this.gridStore,
             columns: this.columnsGrid,
+            hideHeaders: true,
             dockedItems: [browseBar, infobar, this.createNodesBar, this.checkboxBar]
         });
 
