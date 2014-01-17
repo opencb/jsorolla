@@ -50,7 +50,7 @@ EditionBar.prototype = {
 
         var navgationHtml = '' +
             '<div id="nodeToolbar" class="btn-toolbar" role="toolbar" style="display:inline-block">' +
-            '   <div class="btn-group" style="width:140px;" title="Node name">' +
+            '   <div class="btn-group" style="width:140px;margin-left: 10px;" title="Node name">' +
             '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Node:&nbsp;</span>' +
             '       <input id="nodeNameField" type="text" class="form-control" placeholder="name" style="padding:0px 4px;height:23px;width:100px">' +
             '   </div>' +
@@ -108,7 +108,7 @@ EditionBar.prototype = {
             '</div>' +
 
             '<div id="edgeToolbar" class="btn-toolbar" style="display:inline-block">' +
-            '   <div class="btn-group" style="width:140px;margin-left: 25px"  title="Edge name">' +
+            '   <div class="btn-group" style="width:140px;margin-left: 10px"  title="Edge name">' +
             '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Edge:&nbsp;</span>' +
             '       <input id="edgeLabelField" type="text" class="form-control" placeholder="label" style="padding:0px 4px;height:23px;width:100px">' +
             '   </div>' +
@@ -423,19 +423,19 @@ EditionBar.prototype = {
     },
     setEdgeSizeField: function (size) {
         $(this.edgeSizeField).val(size);
-    }
+    },
 
     //TODO TEST
-//    hideNodeToolbar:function(){
-//        $('#nodeToolbar').addClass("hidden");
-//    },
-//    hideEdgeToolbar:function(){
-//        $('#edgeToolbar').addClass("hidden");
-//    },
-//    showNodeToolbar:function(){
-//        $('#nodeToolbar').removeClass("hidden");
-//    },
-//    showEdgeToolbar:function(){
-//        $('#edgeToolbar').removeClass("hidden");
-//    }
+    hideNodeToolbar:function(){
+        $('#nodeToolbar').addClass("hidden");
+    },
+    hideEdgeToolbar:function(){
+        $('#edgeToolbar').addClass("hidden");
+    },
+    showNodeToolbar:function(){
+        $('#nodeToolbar').removeClass("hidden");
+    },
+    showEdgeToolbar:function(){
+        $('#edgeToolbar').removeClass("hidden");
+    }
 }

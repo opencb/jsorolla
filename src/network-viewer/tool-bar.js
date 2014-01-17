@@ -101,7 +101,7 @@ ToolBar.prototype = {
             '       </div>' +
             '       <button id="zoomInButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-plus"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Show/hide overview">' +
+            '   <div class="btn-group btn-group-xs hidden" title="Show/hide overview">' +
             '       <button id="showOverviewButton" class="btn btn-default active" type="button"><span class="ocb-icon icon-select"></span></button>' +
             '   </div>' +
             '   <div class="btn-group pull-right hidden">' +

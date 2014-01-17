@@ -612,6 +612,15 @@ NetworkSvgLayout.prototype = {
 
     removeVertex: function (vertex) {
         this.network.removeVertex(vertex);
+        this._deselectAllVertices();
+    },
+    removeSelectedVertices: function () {
+        for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
+            var vertex = this.selectedVertices[i];
+            if (typeof vertex !== 'undefined') {
+                this.network.removeVertex(vertex);
+            }
+        }
     },
     setSelectedVerticesDisplayAttr: function (displayAttr, value, updateEdges) {
         for (var i = 0, li = this.selectedVertices.length; i < li; i++) {

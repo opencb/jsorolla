@@ -26,7 +26,7 @@ function DefaultEdgeRenderer(args) {
     //defaults
     this.shape = 'undirected';
     this.size = 1;
-    this.color = '#888888';
+    this.color = '#cccccc';
     this.strokeSize = 2;
     this.strokeColor = '#aaaaaa';
     this.opacity = 1;
@@ -36,6 +36,8 @@ function DefaultEdgeRenderer(args) {
 //    this.labelPositionY = 45;
 
     this.el;
+    this.edgeEl;
+    this.labelEl;
     this.targetEl;
     this.edge;
     this.selected = false;
@@ -56,7 +58,24 @@ DefaultEdgeRenderer.prototype = {
     },
     set: function (attr, value) {
         this[attr] = value;
-        this.update();
+        switch (attr) {
+            case "color":
+                this.edgeEl.setAttribute('stroke', this.color);
+                this.updateShape();
+                break;
+            case "size":
+                this.edgeEl.setAttribute('stroke-width', this.size);
+                this.updateShape();
+                break;
+            case "shape":
+                this.updateShape();
+                break;
+            case "labelSize":
+                this.labelEl.setAttribute('font-size', this.labelSize);
+                break;
+            default:
+                this.update();
+        }
     },
     render: function (args) {
         this.edge = args.edge;
@@ -71,8 +90,15 @@ DefaultEdgeRenderer.prototype = {
         $(this.el).remove();
     },
     update: function () {
-        this.remove();
-        this._render();
+        this.edgeEl.setAttribute('stroke', this.color);
+        this.edgeEl.setAttribute('stroke-width', this.size);
+        this.labelEl.setAttribute('font-size', this.labelSize);
+        this.updateShape();
+    },
+    updateShape: function () {
+        if (this.shape !== 'undirected') {
+            this.edgeEl.setAttribute('marker-end', "url(" + this._getMarkerArrowId() + ")");
+        }
     },
     select: function () {
         if (!this.selected) {
@@ -132,13 +158,6 @@ DefaultEdgeRenderer.prototype = {
             'network-type': 'edge-g'
         });
 
-        var offset = this.targetRenderer.getSize() / 2;
-        // if not exists this marker, add new one to defs
-        var markerArrowId = "#arrow-" + this.shape + "-" + offset + '-' + this.color;
-        if ($(markerArrowId).length == 0) {
-            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl);
-        }
-
         var linkSvg = SVG.addChild(groupSvg, "line", {
             "x1": this.sourceCoords.x,
             "y1": this.sourceCoords.y,
@@ -147,7 +166,7 @@ DefaultEdgeRenderer.prototype = {
             "stroke": this.color,
             "stroke-width": this.size,
             "cursor": "pointer",
-            "marker-end": "url(" + markerArrowId + ")",
+            "marker-end": "url(" + this._getMarkerArrowId() + ")",
             'network-type': 'edge'
         }, 0);
 
@@ -165,6 +184,8 @@ DefaultEdgeRenderer.prototype = {
         text.textContent = this.edge.name;
 
         this.el = groupSvg;
+        this.edgeEl = linkSvg;
+        this.labelEl = text;
         SVG._insert(this.targetEl, groupSvg, 0);
 
         if (this.selected) {
@@ -184,14 +205,24 @@ DefaultEdgeRenderer.prototype = {
         this.selected = false;
     },
     /**/
-    _addArrowShape: function (type, offset, color, edgeSize, targetSvg) {
+    _getMarkerArrowId: function () {
+        var offset = this.targetRenderer.getSize() / 2;
+        // if not exists this marker, add new one to defs
+        var markerArrowId = "arrow-" + this.shape + "-" + offset.toString().replace(".", "_") + '-' + this.size.toString().replace(".", "_") + '-' + this.color.replace('#', '');
+        var markerArrowIdSel = '#' + markerArrowId;
+        if ($(markerArrowIdSel).length == 0) {
+            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId);
+        }
+        return markerArrowIdSel;
+    },
+    _addArrowShape: function (type, offset, color, edgeSize, targetSvg, markerArrowId) {
         var scale = 1 / edgeSize;
 
         var headWidth = edgeSize * 3;
         var headHeight = edgeSize * 6;
-        var headRadius = edgeSize + Math.sqrt(edgeSize*6);
+        var headRadius = edgeSize + Math.sqrt(edgeSize * 6);
 
-        var halfSize = edgeSize/2;
+        var halfSize = edgeSize / 2;
 
         var defs = $(targetSvg).find('defs');
         var defsEl = defs[0]
@@ -202,9 +233,8 @@ DefaultEdgeRenderer.prototype = {
         if (typeof color === 'undefined') {
             color = '#000000';
         }
-        var id = "arrow-" + type + '-' + offset + '-' + color;
         var marker = SVG.addChild(defsEl, "marker", {
-            "id": id,
+            "id": markerArrowId,
             "orient": "auto",
             "style": "overflow:visible;"
         });
@@ -214,7 +244,7 @@ DefaultEdgeRenderer.prototype = {
                 var arrow = SVG.addChild(marker, "polyline", {
                     "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "points": "-" + offset + ",-"+halfSize+" " + (-offset - headHeight) + ",-"+headWidth+" " + (-offset - headHeight) + ","+headWidth+" -" + offset + ","+halfSize
+                    "points": "-" + offset + ",-" + halfSize + " " + (-offset - headHeight) + ",-" + headWidth + " " + (-offset - headHeight) + "," + headWidth + " -" + offset + "," + halfSize
                 });
                 break;
 //            case "odirected":
@@ -238,7 +268,7 @@ DefaultEdgeRenderer.prototype = {
                     "x": -offset - headRadius,
                     "y": -headRadius,
                     "width": headRadius,
-                    "height": headRadius*2
+                    "height": headRadius * 2
                 });
                 break;
             case "dot":
@@ -263,7 +293,7 @@ DefaultEdgeRenderer.prototype = {
                     "fill": 'white',
                     "cx": -offset - headRadius + 1,
                     "cy": 0,
-                    "r": headRadius - Math.sqrt(edgeSize*4)
+                    "r": headRadius - Math.sqrt(edgeSize * 4)
                 });
                 break;
         }

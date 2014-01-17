@@ -26,10 +26,10 @@ function DefaultVertexRenderer(args) {
     //defaults
     this.shape = 'circle';
     this.size = 20;
-    this.color = '#cccccc';
+    this.color = '#9fc6e7';
     this.strokeSize = 1;
-    this.strokeColor = '#888888';
-    this.opacity = 1;
+    this.strokeColor = '#9fc6e7';
+    this.opacity = 0.8;
     this.labelSize = 12;
     this.labelColor = '#111111';
 //    this.labelPositionX = 5;
@@ -37,7 +37,10 @@ function DefaultVertexRenderer(args) {
     this.labelText = '';
 
     this.el;
+    this.vertexEl;
     this.targetEl;
+    this.selectEl;
+    this.groupEl;
     this.vertex;
     this.selected = false;
     //set instantiation args, must be last
@@ -53,12 +56,37 @@ DefaultVertexRenderer.prototype = {
         this[attr] = value;
         switch (attr) {
             case "color":
-                this._updateColor();
+                this.vertexEl.setAttribute('fill', this.color);
                 break;
             case "strokeColor":
-                this._updateStrokeColor();
+                this.vertexEl.setAttribute('stroke', this.strokeColor);
+                break;
+            case "opacity":
+                this.groupEl.setAttribute('opacity', this.opacity);
+                break;
+            case "labelSize":
+                this.labelEl.setAttribute('font-size', this.labelSize);
+                break;
+            case "size":
+            case "strokeSize":
+                debugger
+                switch (this.shape) {
+                    case "circle":
+                        this._updateCircleSize();
+                        break;
+                    case "ellipse":
+                        this._updateEllipseSize();
+                        break;
+                    case "square":
+                        this._updateSquareSize();
+                        break;
+                    case "rectangle":
+                        this._updateRectangleSize();
+                        break;
+                }
                 break;
             default:
+                console.log('update')
                 this.update();
         }
     },
@@ -74,14 +102,6 @@ DefaultVertexRenderer.prototype = {
     update: function () {
         this.remove();
         this._render();
-    },
-    _updateColor: function () {
-        var vEl = $(this.el).find('[network-type="vertex"]')[0];
-        vEl.setAttribute('fill', this.color);
-    },
-    _updateStrokeColor: function () {
-        var vEl = $(this.el).find('[network-type="vertex"]')[0];
-        vEl.setAttribute('stroke', this.strokeColor);
     },
     select: function () {
         if (!this.selected) {
@@ -155,25 +175,31 @@ DefaultVertexRenderer.prototype = {
         this.selected = false;
     },
 
-    _drawCircleShape: function () {
 
+    _calculateOffset: function () {
         var size = this.size + this.strokeSize;
         var size = size + (size * 0.3);
         var midOffset = size / 2;
+        return {size: size, midOffset: midOffset};
+    },
+
+    /** CIRCLE METHODS **/
+    _drawCircleShape: function () {
+        var o = this._calculateOffset();
 
         var vertexSvg = SVG.create("svg", {
             "id": this.vertex.id,
             "cursor": "pointer",
-            x: this.coords.x - midOffset,
-            y: this.coords.y - midOffset,
+            x: this.coords.x - o.midOffset,
+            y: this.coords.y - o.midOffset,
             'network-type': 'vertex-svg'
         });
         var groupSvg = SVG.addChild(vertexSvg, 'g', {
             opacity: this.opacity
         });
         var circle = SVG.addChild(groupSvg, 'circle', {
-            cx: midOffset,
-            cy: midOffset,
+            cx: o.midOffset,
+            cy: o.midOffset,
             r: this.size / 2,
             stroke: this.strokeColor,
             'stroke-width': this.strokeSize,
@@ -183,7 +209,7 @@ DefaultVertexRenderer.prototype = {
         if (this.labelSize > 0) {
             var vertexText = SVG.addChild(vertexSvg, "text", {
                 "x": 5,
-                "y": this.labelSize + size,
+                "y": this.labelSize + o.size,
                 "font-size": this.labelSize,
                 "fill": this.labelColor,
                 'network-type': 'vertex-label'
@@ -195,29 +221,49 @@ DefaultVertexRenderer.prototype = {
             vertexText.textContent = label;
         }
         this.el = vertexSvg;
+        this.groupEl = groupSvg;
+        this.vertexEl = circle;
+        this.labelEl = vertexText;
         this.targetEl.appendChild(vertexSvg);
     },
+    _updateCircleSize: function () {
+
+        var o = this._calculateOffset();
+        this.el.setAttribute('x', this.coords.x - o.midOffset);
+        this.el.setAttribute('y', this.coords.y - o.midOffset);
+
+        this.vertexEl.setAttribute('stroke-width', this.strokeSize);
+        this.vertexEl.setAttribute('r', this.size / 2);
+        this.vertexEl.setAttribute('cx', o.midOffset);
+        this.vertexEl.setAttribute('cy', o.midOffset);
+
+        if (this.labelSize > 0) {
+            this.labelEl.setAttribute('y', this.labelSize + o.size);
+        }
+        if (this.selected) {
+            this._updateSelectShapeSize(o);
+        }
+    },
+    /* END CIRCLE METHODS */
+
+    /** ELLIPSE METHODS **/
     _drawEllipseShape: function () {
 
-        var size = this.size + this.strokeSize;
-        var size = size + (size * 0.3);
-        var midOffset = size / 2;
-
-        var s1 = (this.size * 0.3);
+        var o = this._calculateOffset();
 
         var vertexSvg = SVG.create("svg", {
             "id": this.vertex.id,
             "cursor": "pointer",
-            x: this.coords.x - midOffset,
-            y: this.coords.y - midOffset,
+            x: this.coords.x - o.midOffset,
+            y: this.coords.y - o.midOffset,
             'network-type': 'vertex-svg'
         });
         var groupSvg = SVG.addChild(vertexSvg, 'g', {
             opacity: this.opacity
         });
         var ellipse = SVG.addChild(groupSvg, 'ellipse', {
-            cx: midOffset,
-            cy: midOffset,
+            cx: o.midOffset,
+            cy: o.midOffset,
             rx: this.size / 1.7,
             ry: this.size / 2.5,
             stroke: this.strokeColor,
@@ -228,7 +274,7 @@ DefaultVertexRenderer.prototype = {
         if (this.labelSize > 0) {
             var vertexText = SVG.addChild(vertexSvg, "text", {
                 "x": 5,
-                "y": this.labelSize + size,
+                "y": this.labelSize + o.size,
                 "font-size": this.labelSize,
                 "fill": this.labelColor,
                 'network-type': 'vertex-label'
@@ -240,27 +286,50 @@ DefaultVertexRenderer.prototype = {
             vertexText.textContent = label;
         }
         this.el = vertexSvg;
+        this.groupEl = groupSvg;
+        this.vertexEl = ellipse;
+        this.labelEl = vertexText;
         this.targetEl.appendChild(vertexSvg);
     },
+    _updateEllipseSize: function () {
+
+        var o = this._calculateOffset();
+        this.el.setAttribute('x', this.coords.x - o.midOffset);
+        this.el.setAttribute('y', this.coords.y - o.midOffset);
+
+        this.vertexEl.setAttribute('stroke-width', this.strokeSize);
+        this.vertexEl.setAttribute('cx', o.midOffset);
+        this.vertexEl.setAttribute('cy', o.midOffset);
+        this.vertexEl.setAttribute('rx', this.size / 1.7);
+        this.vertexEl.setAttribute('ry', this.size / 2.5);
+
+        if (this.labelSize > 0) {
+            this.labelEl.setAttribute('y', this.labelSize + o.size);
+        }
+        if (this.selected) {
+            this._updateSelectShapeSize(o);
+        }
+    },
+    /* END ELLIPSE METHODS */
+
+    /** SQUARE METHODS **/
     _drawSquareShape: function () {
 
-        var size = this.size + this.strokeSize;
-        var size = size + (size * 0.3);
-        var midOffset = size / 2;
+        var o = this._calculateOffset();
 
         var vertexSvg = SVG.create("svg", {
             "id": this.vertex.id,
             "cursor": "pointer",
-            x: this.coords.x - midOffset,
-            y: this.coords.y - midOffset,
+            x: this.coords.x - o.midOffset,
+            y: this.coords.y - o.midOffset,
             'network-type': 'vertex-svg'
         });
         var groupSvg = SVG.addChild(vertexSvg, 'g', {
             opacity: this.opacity
         });
         var rect = SVG.addChild(groupSvg, 'rect', {
-            x: midOffset - this.size / 2,
-            y: midOffset - this.size / 2,
+            x: o.midOffset - this.size / 2,
+            y: o.midOffset - this.size / 2,
             width: this.size,
             height: this.size,
             stroke: this.strokeColor,
@@ -271,7 +340,7 @@ DefaultVertexRenderer.prototype = {
         if (this.labelSize > 0) {
             var vertexText = SVG.addChild(vertexSvg, "text", {
                 "x": 5,
-                "y": this.labelSize + size,
+                "y": this.labelSize + o.size,
                 "font-size": this.labelSize,
                 "fill": this.labelColor,
                 'network-type': 'vertex-label'
@@ -283,13 +352,40 @@ DefaultVertexRenderer.prototype = {
             vertexText.textContent = label;
         }
         this.el = vertexSvg;
+        this.groupEl = groupSvg;
+        this.vertexEl = rect;
+        this.labelEl = vertexText;
         this.targetEl.appendChild(vertexSvg);
     },
+    _updateSquareSize: function () {
+
+        var o = this._calculateOffset();
+        this.el.setAttribute('x', this.coords.x - o.midOffset);
+        this.el.setAttribute('y', this.coords.y - o.midOffset);
+
+        this.vertexEl.setAttribute('stroke-width', this.strokeSize);
+        this.vertexEl.setAttribute('x', o.midOffset - this.size / 2);
+        this.vertexEl.setAttribute('y', o.midOffset - this.size / 2);
+        this.vertexEl.setAttribute('rx', this.size);
+        this.vertexEl.setAttribute('ry', this.size);
+
+        if (this.labelSize > 0) {
+            this.labelEl.setAttribute('y', this.labelSize + o.size);
+        }
+        if (this.selected) {
+            this._updateSelectShapeSize(o);
+        }
+    },
+    /* END SQUARE METHODS */
+
+    /** RECTANGLE METHODS **/
     _drawRectangleShape: function () {
 
         var size = this.size + this.strokeSize;
         var size = size + (size * 0.3);
         var midOffset = size / 2;
+
+        var o = this._calculateOffset();
 
         var s1 = (this.size * 0.3);
         var s2 = s1 / 2;
@@ -297,16 +393,16 @@ DefaultVertexRenderer.prototype = {
         var vertexSvg = SVG.create("svg", {
             "id": this.vertex.id,
             "cursor": "pointer",
-            x: this.coords.x - midOffset,
-            y: this.coords.y - midOffset,
+            x: this.coords.x - o.midOffset,
+            y: this.coords.y - o.midOffset,
             'network-type': 'vertex-svg'
         });
         var groupSvg = SVG.addChild(vertexSvg, 'g', {
             opacity: this.opacity
         });
         var rect = SVG.addChild(groupSvg, 'rect', {
-            x: midOffset - this.size / 2 - s2,
-            y: midOffset - this.size / 2 + s2,
+            x: o.midOffset - this.size / 2 - s2,
+            y: o.midOffset - this.size / 2 + s2,
             width: this.size + s1,
             height: this.size - s1,
             stroke: this.strokeColor,
@@ -317,7 +413,7 @@ DefaultVertexRenderer.prototype = {
         if (this.labelSize > 0) {
             var vertexText = SVG.addChild(vertexSvg, "text", {
                 "x": 5,
-                "y": this.labelSize + size,
+                "y": this.labelSize + o.size,
                 "font-size": this.labelSize,
                 "fill": this.labelColor,
                 'network-type': 'vertex-label'
@@ -329,21 +425,50 @@ DefaultVertexRenderer.prototype = {
             vertexText.textContent = label;
         }
         this.el = vertexSvg;
+        this.groupEl = groupSvg;
+        this.vertexEl = rect;
+        this.labelEl = vertexText;
         this.targetEl.appendChild(vertexSvg);
     },
-    _drawSelectCircleShape: function () {
-        var size = this.getSize();
-        var size = size + (size * 0.3);
-        var midOffset = size / 2;
+    _updateRectangleSize: function () {
 
-        var r = SVG.addChild(this.el, "circle", {
-            r: midOffset,
-            cx: midOffset,
-            cy: midOffset,
+        var o = this._calculateOffset();
+        var s1 = (this.size * 0.3);
+        var s2 = s1 / 2;
+
+        this.el.setAttribute('x', this.coords.x - o.midOffset);
+        this.el.setAttribute('y', this.coords.y - o.midOffset);
+
+        this.vertexEl.setAttribute('stroke-width', this.strokeSize);
+        this.vertexEl.setAttribute('x', o.midOffset - this.size / 2 - s2);
+        this.vertexEl.setAttribute('y', o.midOffset - this.size / 2 + s2);
+        this.vertexEl.setAttribute('width', this.size + s1);
+        this.vertexEl.setAttribute('height', this.size - s1);
+
+        if (this.labelSize > 0) {
+            this.labelEl.setAttribute('y', this.labelSize + o.size);
+        }
+        if (this.selected) {
+            this._updateSelectShapeSize(o);
+        }
+    },
+    /* END RECTANGLE METHODS */
+
+    _drawSelectCircleShape: function () {
+        var attr = this._calculateOffset();
+        this.selectEl = SVG.addChild(this.el, "circle", {
+            r: attr.midOffset,
+            cx: attr.midOffset,
+            cy: attr.midOffset,
             opacity: '0.5',
             fill: '#cccccc',
             'network-type': 'select-vertex'
         }, 0);
+    },
+    _updateSelectShapeSize: function (o) {
+        this.selectEl.setAttribute('r', o.midOffset);
+        this.selectEl.setAttribute('cx', o.midOffset);
+        this.selectEl.setAttribute('cy', o.midOffset);
     },
     _drawSelectEllipseShape: function () {
         //TODO

@@ -29,7 +29,7 @@ function NetworkViewer(args) {
     this.targetId;
     this.autoRender = false;
     this.sidePanel = false;
-    this.overviewPanel = true;
+    this.overviewPanel = false;
     this.height;
     this.width;
     this.border = true;
@@ -305,10 +305,10 @@ NetworkViewer.prototype = {
                     _this.networkSvgLayout.setSelectedVerticesDisplayAttr('shape', event.value);
                 },
                 'nodeSize:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('size', parseInt(event.value));
+                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('size', parseInt(event.value), true);
                 },
                 'nodeStrokeSize:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('strokeSize', parseInt(event.value));
+                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('strokeSize', parseInt(event.value), true);
                 },
                 'opacity:change': function (event) {
                     _this.networkSvgLayout.setSelectedVerticesDisplayAttr('opacity', event.value);
@@ -320,10 +320,10 @@ NetworkViewer.prototype = {
                     _this.networkSvgLayout.setSelectedEdgesDisplayAttr('size', parseInt(event.value));
                 },
                 'nodeColorField:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('color', event.value, false);
+                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('color', event.value);
                 },
                 'nodeStrokeColorField:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('strokeColor', event.value, false);
+                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('strokeColor', event.value);
                 },
                 'edgeColorField:change': function (event) {
                     _this.networkSvgLayout.setSelectedEdgesDisplayAttr('color', event.value);
@@ -451,11 +451,17 @@ NetworkViewer.prototype = {
         }
         var menuEntry = $('<li role="presentation"><input id="nodeColorField" type="text"></li>')[0];
         var deleteEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete</a></li>')[0];
+        var deleteSelectedEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete selected nodes</a></li>')[0];
 //        $(ul).append(menuEntry);
         $(ul).append(deleteEntry);
+        $(ul).append(deleteSelectedEntry);
 
         $(deleteEntry).bind('click.networkViewer', function (event) {
             _this.networkSvgLayout.removeVertex(vertex);
+        });
+
+        $(deleteSelectedEntry).bind('click.networkViewer', function (event) {
+            _this.networkSvgLayout.removeSelectedVertices();
         });
 
 //        var nodeColorField = $(ul).find('#nodeColorField');

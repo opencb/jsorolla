@@ -177,7 +177,7 @@ Network.prototype = {
         for (var i = 0, l = edges.length; i < l; i++) {
             var edge = edges[i];
             if (typeof edge !== 'undefined') {
-                var edgeConfig = this.getVertexConfig(edge);
+                var edgeConfig = this.getEdgeConfig(edge);
                 var name = edge.name;
 
                 //TODO warning with duplicate names, only first will be used.
@@ -315,12 +315,13 @@ Network.prototype = {
         var vertexConfig = this.config.getVertexConfig(vertex);
         vertexConfig.renderer.set(rendererAttr, value);
 
-        if(updateEdges !== false){
+        //By default not update edges
+        if (updateEdges === true) {
             for (var j = 0; j < vertex.edges.length; j++) {
                 var edge = vertex.edges[j];
                 if (typeof edge !== 'undefined') {
                     var edgeConfig = this.getEdgeConfig(edge);
-                    edgeConfig.renderer.update();
+                    edgeConfig.renderer.updateShape();
                 }
             }
         }
