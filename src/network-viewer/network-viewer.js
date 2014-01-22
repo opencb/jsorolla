@@ -49,6 +49,8 @@ function NetworkViewer(args) {
 
     this.zoom = 25;
 
+    this.on(this.handlers);
+
     this.rendered = false;
     if (this.autoRender) {
         this.render();
@@ -400,6 +402,9 @@ NetworkViewer.prototype = {
                 },
                 'click:leftMouseUp': function (event) {
                     _this._refreshOverview();
+                },
+                'select:vertices': function (e) {
+                    _this.trigger('select:vertices', e);
                 }
             }
         });

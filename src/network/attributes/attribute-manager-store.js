@@ -28,6 +28,10 @@ function AttributeManagerStore(args) {
         extend: 'Ext.data.Model'
     });
     this.store = Ext.create('Ext.data.Store', {
+        pageSize: 50,
+        proxy: {
+            type: 'memory'
+        },
         model: this.model
     });
 
@@ -52,6 +56,14 @@ AttributeManagerStore.prototype = {
         }
         return false;
     },
+    isAttributeLocked: function (attributeName) {
+        for (var i = 0; i < this.attributes.length; i++) {
+            if (this.attributes[i].name == attributeName && this.attributes[i].locked === true) {
+                return true;
+            }
+        }
+        return false;
+    },
     addAttribute: function (attribute, fireChangeEvent) {
         if (this.containsAttribute(attribute)) {
             return false;
@@ -62,6 +74,7 @@ AttributeManagerStore.prototype = {
             console.log('change:attributes - add one attr')
             this.trigger('change:attributes', {sender: this});
         }
+        return true;
     },
     _processAttribute: function (attribute) {
         /** Id column is not editable **/
@@ -76,6 +89,15 @@ AttributeManagerStore.prototype = {
         });
         // set model fields
         this.model.setFields(this.attributes);
+
+        //Set default value for existing records
+        this.store.suspendEvents();
+        this.store.each(function(record){
+            record.set(attribute.name, attribute.defaultValue);
+        });
+        this.store.commitChanges();
+        this.store.resumeEvents();
+        this.store.fireEvent('refresh');
     },
     addAttributes: function (attributes) {
         for (var i = 0; i < attributes.length; i++) {
@@ -84,35 +106,77 @@ AttributeManagerStore.prototype = {
         console.log('change:attributes - add multiple attr')
         this.trigger('change:attributes', {sender: this});
     },
+    removeAttribute: function (attributeName) {
+        for (var i = 0; i < this.attributes.length; i++) {
+            if (this.attributes[i].name === attributeName && this.attributes[i].locked !== true) {
+                this.columnsGrid.splice(i, 1);
+                this.attributes.splice(i, 1);
+
+                this.model.setFields(this.attributes);
+                this.trigger('change:attributes', {sender: this});
+                return true;
+            }
+        }
+        return false;
+    },
+    updateAttribute: function () {
+        console.log('TODO');
+    },
+
+
     setValueByAttributeAndId: function (id, attributeName, value) {
+        if (this.isAttributeLocked(attributeName)) {
+            return false;
+        }
         var record = this.store.findRecord("Id", id);
         if (record) { // if exists a row with this name
             record.set(attributeName, value);
-            record.commit();//silent
+            record.commit();
         }
     },
-    setValuesByAttributeAndId: function (values) {
+    setValueByAttributeAndIds: function (values) {
         this.store.suspendEvents();
         for (var i = 0; i < values.length; i++) {
             var value = values[i];
-            this.setValueByAttributeAndId(value.id, value.attributeName, value.value);
+            if (!this.isAttributeLocked(value.attributeName)) {
+                var record = this.store.findRecord("Id", value.id);
+                if (record) { // if exists a row with this name
+                    record.set(value.attributeName, value.value);
+                    record.commit();
+                }
+            }
         }
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
     },
-    modifyAttributeOfRows: function (selectRows, attribute, value) {
-        //TODO
+    setValueByAttributeAndRecords: function (records, attributeName, value) {
+        if (this.isAttributeLocked(attributeName)) {
+            return false;
+        }
+        this.store.suspendEvents();
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            record.set(attributeName, value);
+            record.commit();
+        }
+        this.store.resumeEvents();
+        this.store.fireEvent('refresh');
     },
-    addRows: function (data, append) {
+    addRecord: function (data, append) {
         this.store.loadData(data, append);
     },
-    getAttributeValueById: function (id, attribute) {
+    removeRecordById: function (id) {
+        var record = this.store.findRecord("Id", id);
+        this.store.remove(record);
+    },
+    getValueByAttributeAndId: function (id, attribute) {
         var record = this.store.findRecord('Id', id);
         if (record) {
             return record.get(attribute);
         }
     },
     getIdsByAttributeValue: function (attribute, value) {
+//        var logDupCount = 0; //for logging only
         var dupHash = {};
         var ids = [];
         var mixedCollection = this.store.query(attribute, value);
@@ -121,15 +185,27 @@ AttributeManagerStore.prototype = {
             var id = item.data["Id"];
             if (dupHash[id] !== true) {
                 ids.push(item.data["Id"]);
+            } else {
+                logDupCount++;
             }
             dupHash[id] = true;
         }
+//        console.log('AttributeManagerStore.getIdsByAttributeValue: ' + logDupCount);
         return ids;
+    },
+    getRecordsByVertices:function(vertices){
+        var records = [];
+        for (var i = 0; i < vertices.length; i++) {
+            var vertex = vertices[i];
+            var record = this.store.findRecord('Id', vertex.id);
+            records.push(record);
+        }
+        return records;
     }
 
 }
 
-
+// TODO CHECK
 AttributeManagerStore.prototype.updateAttribute = function (oldName, newName, type, defaultValue) {
     for (var i = 0; i < this.attributes.length; i++) {
         if (oldName != newName && this.attributes[i].name == newName) return false;
@@ -144,20 +220,6 @@ AttributeManagerStore.prototype.updateAttribute = function (oldName, newName, ty
             }
             this.attributes[i].type = type;
             this.attributes[i].defaultValue = defaultValue;
-
-            this.model.setFields(this.attributes);
-
-            return true;
-        }
-    }
-    return false;
-};
-
-AttributeManagerStore.prototype.removeAttribute = function (attribute) {
-    for (var i = 0; i < this.attributes.length; i++) {
-        if (this.attributes[i].name == attribute) {
-            this.columnsGrid.splice(i, 1);
-            this.attributes.splice(i, 1);
 
             this.model.setFields(this.attributes);
 

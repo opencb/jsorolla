@@ -53,27 +53,7 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
                     dataSource: new FileDataSource(file),
                     handlers: {
                         'data:load': function (event) {
-                            try {
-                                var network = event.network;
-                                _this.content = network; //para el onOK.notify event
-                                var verticesLength = network.graph.vertices.length;
-                                var edgesLength = network.graph.edges.length;
-
-                                var edges = network.graph.edges;
-                                var storeData = [];
-                                for (var i = 0; i < edges.length; i++) {
-                                    var edge = edges[i];
-                                    storeData.push([edge.source.id, edge.relation, edge.target.id]);
-                                }
-                                _this.gridStore.loadData(storeData);
-
-                                _this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>', false);
-                                _this.countLabel.setText('Vertices:<span class="info">' + verticesLength + '</span> edges:<span class="info">' + edgesLength + '</span>', false);
-
-                            } catch (e) {
-                                _this.infoLabel.setText('<span class="err">File not valid </span>' + e, false);
-                            }
-                            _this.panel.setLoading(false);
+                                _this.processData(event.network);
                         }
                     }
                 });
@@ -82,4 +62,28 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
     });
 
     return this.fileUpload;
+};
+
+SIFNetworkFileWidget.prototype.processData = function (network) {
+    var _this = this;
+    try {
+        this.content = network; //para el onOK.notify event
+        var verticesLength = network.graph.vertices.length;
+        var edgesLength = network.graph.edges.length;
+
+        var edges = network.graph.edges;
+        var storeData = [];
+        for (var i = 0; i < edges.length; i++) {
+            var edge = edges[i];
+            storeData.push([edge.source.id, edge.relation, edge.target.id]);
+        }
+        this.gridStore.loadData(storeData);
+
+        this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>', false);
+        this.countLabel.setText('Vertices:<span class="info">' + verticesLength + '</span> edges:<span class="info">' + edgesLength + '</span>', false);
+
+    } catch (e) {
+        this.infoLabel.setText('<span class="err">File not valid </span>' + e, false);
+    }
+    this.panel.setLoading(false);
 };

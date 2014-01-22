@@ -260,6 +260,10 @@ ImportAttributesFileWidget.prototype.draw = function () {
         });
 
         this.gridStore = Ext.create('Ext.data.Store', {
+            pageSize: 50,
+            proxy: {
+                type: 'memory'
+            },
             model: this.model
         });
 
@@ -273,6 +277,8 @@ ImportAttributesFileWidget.prototype.draw = function () {
             tbar: this.gridTbar,
             store: this.gridStore,
             columns: this.columnsGrid,
+            loadMask: true,
+            plugins: ['bufferedrenderer'],
             hideHeaders: true,
             dockedItems: [browseBar, infobar, this.createNodesBar, this.checkboxBar]
         });

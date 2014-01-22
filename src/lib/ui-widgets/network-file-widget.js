@@ -124,12 +124,18 @@ NetworkFileWidget.prototype.draw = function () {
 
         /** Grid for Preview **/
         this.gridStore = Ext.create('Ext.data.Store', {
+            pageSize: 50,
+            proxy: {
+                type: 'memory'
+            },
             fields: ["0", "1", "2"]
         });
         this.grid = Ext.create('Ext.grid.Panel', {
             border: false,
             flex: 1,
             store: this.gridStore,
+            loadMask: true,
+            plugins: ['bufferedrenderer'],
             columns: [
                 {"header": "Source", "dataIndex": "0", flex: 1},
                 {"header": "Relation", "dataIndex": "1", flex: 1, menuDisabled: true},

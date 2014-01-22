@@ -143,11 +143,8 @@ Graph.prototype = {
         var insertPosition = length - 1;
         this.verticesIndex[vertex.id] = insertPosition;
 
-
-        // the real number of vertices
-        this.numberOfVertices++;
-
         this.trigger('vertex:add', {vertex: vertex, graph: this});
+        this.numberOfVertices++;
         return true;
     },
     removeEdge: function (edge) {
@@ -166,7 +163,6 @@ Graph.prototype = {
         var position = this.edgesIndex[edge.id];
         delete this.edgesIndex[edge.id];
         delete this.edges[position];
-        this.removeEdgeNameIndex(edge, position);
 
         this.trigger('edge:remove', {edge: edge, graph: this});
         this.numberOfEdges--;
@@ -200,7 +196,6 @@ Graph.prototype = {
         var position = this.verticesIndex[vertex.id];
         delete this.verticesIndex[vertex.id];
         delete this.vertices[position];
-        this.removeVertexNameIndex(vertex, position);
 
         this.trigger('vertex:remove', {vertex: vertex, graph: this});
         this.numberOfVertices--;

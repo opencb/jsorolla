@@ -24,12 +24,14 @@ SIFDataAdapter.prototype.getNetwork = NetworkDataAdapter.prototype.getNetwork;
 function SIFDataAdapter(args) {
     NetworkDataAdapter.prototype.constructor.call(this, args);
 
-    this.addedVertex = {};
-    this.addedEdges = {};
+    this.addedVertex;
+    this.addedEdges;
 };
 
 SIFDataAdapter.prototype.parse = function (data) {
     var _this = this;
+    this.addedVertex = {};
+    this.addedEdges = {};
     console.time("SIFParse");
     var lines = data.split("\n");
     for (var i = 0; i < lines.length; i++) {
@@ -75,13 +77,13 @@ SIFDataAdapter.prototype.parse = function (data) {
                     }
 
 
-                    var edgeId = sourceName+'_'+edgeName+'_'+targetName;
+                    var edgeId = sourceName + '_' + edgeName + '_' + targetName;
 
                     /** create edge **/
                     if (typeof this.addedEdges[edgeId] === 'undefined') {
                         var edge = new Edge({
                             id: edgeId,
-                            relation:edgeName,
+                            relation: edgeName,
                             source: this.addedVertex[sourceName],
                             target: this.addedVertex[targetName],
                             weight: 1,
@@ -99,5 +101,6 @@ SIFDataAdapter.prototype.parse = function (data) {
             }
         }
     }
+
     console.timeEnd("SIFParse");
 };

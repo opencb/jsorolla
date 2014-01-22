@@ -515,6 +515,7 @@ NetworkSvgLayout.prototype = {
         this.network.selectVertex(vertex);
 
         this.selectedVertices = [vertex];
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
     },
     selectEdge: function (edge) {
         this._deselectAllEdges();
@@ -538,10 +539,12 @@ NetworkSvgLayout.prototype = {
 
         this._deselectAllVertices();
         this.selectedVertices = this.network.selectVerticesByArea(x, y, width, height);
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
     },
     selectAllVertices: function () {
         this._deselectAllEdges();
         this.selectedVertices = this.network.selectAllVertices();
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
     },
     selectAllEdges: function () {
         this._deselectAllVertices();
@@ -550,6 +553,7 @@ NetworkSvgLayout.prototype = {
     selectAll: function () {
         this.selectedVertices = this.network.selectAllVertices();
         this.selectedEdges = this.network.selectAllEdges();
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
     },
     _deselectAllVertices: function () {
         this.selectedVertices = [];
