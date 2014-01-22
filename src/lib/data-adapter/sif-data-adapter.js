@@ -25,6 +25,7 @@ function SIFDataAdapter(args) {
     NetworkDataAdapter.prototype.constructor.call(this, args);
 
     this.addedVertex = {};
+    this.addedEdges = {};
 };
 
 SIFDataAdapter.prototype.parse = function (data) {
@@ -44,7 +45,7 @@ SIFDataAdapter.prototype.parse = function (data) {
                 /** create source vertex **/
                 if (typeof this.addedVertex[sourceName] === 'undefined') {
                     var sourceVertex = new Vertex({
-                        name: sourceName
+                        id: sourceName
                     });
                     this.network.addVertex({
                         vertex: sourceVertex,
@@ -62,7 +63,7 @@ SIFDataAdapter.prototype.parse = function (data) {
                     /** create target vertex **/
                     if (typeof this.addedVertex[targetName] === 'undefined') {
                         var targetVertex = new Vertex({
-                            name: targetName
+                            id: targetName
                         });
                         this.network.addVertex({
                             vertex: targetVertex,
@@ -73,20 +74,27 @@ SIFDataAdapter.prototype.parse = function (data) {
                         this.addedVertex[targetName] = targetVertex;
                     }
 
+
+                    var edgeId = sourceName+'_'+edgeName+'_'+targetName;
+
                     /** create edge **/
-                    var edge = new Edge({
-                        name: edgeName,
-                        source: this.addedVertex[sourceName],
-                        target: this.addedVertex[targetName],
-                        weight: 1,
-                        directed: true
-                    });
-                    this.network.addEdge({
-                        edge: edge,
-                        edgeConfig: new EdgeConfig({
-                            renderer: new DefaultEdgeRenderer()
-                        })
-                    });
+                    if (typeof this.addedEdges[edgeId] === 'undefined') {
+                        var edge = new Edge({
+                            id: edgeId,
+                            relation:edgeName,
+                            source: this.addedVertex[sourceName],
+                            target: this.addedVertex[targetName],
+                            weight: 1,
+                            directed: true
+                        });
+                        this.network.addEdge({
+                            edge: edge,
+                            edgeConfig: new EdgeConfig({
+                                renderer: new DefaultEdgeRenderer()
+                            })
+                        });
+                        this.addedEdges[edgeId] = edge;
+                    }
                 }
             }
         }

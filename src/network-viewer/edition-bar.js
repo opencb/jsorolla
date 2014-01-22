@@ -147,9 +147,9 @@ EditionBar.prototype = {
         /**************/
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="edition-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
-//        $(this.div).css({
-////            height: '32px'
-//        });
+        $(this.div).css({
+            height: '32px'
+        });
         $(this.targetDiv).append(this.div);
         /**************/
 

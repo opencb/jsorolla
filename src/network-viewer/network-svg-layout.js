@@ -312,33 +312,6 @@ NetworkSvgLayout.prototype = {
                     case 'edge':
 
                         break;
-                    case 'background-image':
-                        $(targetEl).parent().append(targetEl);
-                        var lastX = downX;
-                        var lastY = downY;
-                        $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
-                            moveEvent.preventDefault();
-                            var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
-                            var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
-                            var dispX = moveX - lastX;
-                            var dispY = moveY - lastY;
-
-                            dispX /= _this.scale;
-                            dispY /= _this.scale;
-
-                            var x = parseInt(targetEl.getAttribute('x'));
-                            var y = parseInt(targetEl.getAttribute('y'));
-
-                            x += dispX;
-                            y += dispY;
-
-                            targetEl.setAttribute('x', x);
-                            targetEl.setAttribute('y', y);
-
-                            lastX = moveX;
-                            lastY = moveY;
-                        });
-                        break;
                     default:
                         /* background clicked */
                         var lastX = 0, lastY = 0;
@@ -391,6 +364,37 @@ NetworkSvgLayout.prototype = {
                     this.removeVertex(vertex);
                 }
                 break;
+            case "background":
+                if ($(targetEl).attr('network-type') === 'background-image') {
+                    var downX = (event.clientX - $(_this.svg).offset().left);
+                    var downY = (event.clientY - $(_this.svg).offset().top);
+                    $(targetEl).parent().append(targetEl);
+                    var lastX = downX;
+                    var lastY = downY;
+                    $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
+                        moveEvent.preventDefault();
+                        var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
+                        var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
+                        var dispX = moveX - lastX;
+                        var dispY = moveY - lastY;
+
+                        dispX /= _this.scale;
+                        dispY /= _this.scale;
+
+                        var x = parseInt(targetEl.getAttribute('x'));
+                        var y = parseInt(targetEl.getAttribute('y'));
+
+                        x += dispX;
+                        y += dispY;
+
+                        targetEl.setAttribute('x', x);
+                        targetEl.setAttribute('y', y);
+
+                        lastX = moveX;
+                        lastY = moveY;
+                    });
+                }
+                break;
         }
     },
     leftMouseUp: function (event) {
@@ -402,7 +406,6 @@ NetworkSvgLayout.prototype = {
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
             case "select":
-
                 switch (targetElNetworkType) {
                     case 'vertex':
                     case 'vertex-label':
@@ -447,6 +450,9 @@ NetworkSvgLayout.prototype = {
                         _this.selectRect.setAttribute('height', 0);
 
                 }
+                $(_this.svg).off('mousemove.networkViewer');
+                break;
+            case "background":
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
             case "join":
@@ -570,7 +576,7 @@ NetworkSvgLayout.prototype = {
 
         /* vertex graph */
         var vertex = new Vertex({
-            name: 'node' + this.createdVertexCount
+            id: 'node' + this.createdVertexCount
         });
 
         /* vertex config */
@@ -593,6 +599,8 @@ NetworkSvgLayout.prototype = {
     createEdge: function (vertexSource, vertexTarget) {
         /* edge graph */
         var edge = new Edge({
+            id: vertexSource.id + '_' + '-' + '_' + vertexTarget.id,
+            relation: '-',
             source: vertexSource,
             target: vertexTarget
         });

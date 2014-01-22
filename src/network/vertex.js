@@ -22,7 +22,6 @@
 function Vertex(args) {
     this.id = 'v' + Utils.genId();
 
-    this.name;
     this.edges = [];
 
     //set instantiation args, must be last
@@ -46,8 +45,7 @@ Vertex.prototype = {
     },
     toJSON: function () {
         return {
-            id: this.id,
-            name: this.name
+            id: this.id
         }
     }
 }

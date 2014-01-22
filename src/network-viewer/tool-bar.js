@@ -58,6 +58,7 @@ ToolBar.prototype = {
             '       <button id="addButton" class="btn btn-default" type="button" title="Add mode"><span class="ocb-icon icon-add"></span></button>' +
             '       <button id="linkButton" class="btn btn-default" type="button" title="Link mode"><span class="ocb-icon icon-link"></span></button>' +
             '       <button id="deleteButton" class="btn btn-default" type="button" title="Delete mode"><span class="ocb-icon icon-delete"></span></button>' +
+            '       <button id="backgroundButton" class="btn btn-default" type="button" title="Background mode"><span class="ocb-icon icon-background-option"></span></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs hidden">' +
             '       <button id="collapseButton" class="btn btn-default" type="button"><span class="ocb-icon icon-collapse"></span></button>' +
@@ -131,6 +132,7 @@ ToolBar.prototype = {
         this.addButton = $(this.div).find('#addButton');
         this.linkButton = $(this.div).find('#linkButton');
         this.deleteButton = $(this.div).find('#deleteButton');
+        this.backgroundButton = $(this.div).find('#backgroundButton');
 
         this.collapseButton = $(this.div).find('#collapseButton');
 
@@ -190,6 +192,9 @@ ToolBar.prototype = {
         });
         $(this.deleteButton).click(function (e) {
             _this.trigger('deleteButton:click', {clickEvent: e, sender: {}})
+        });
+        $(this.backgroundButton).click(function (e) {
+            _this.trigger('click:backgroundButton', {clickEvent: e, sender: {}})
         });
 
 

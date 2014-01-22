@@ -32,6 +32,7 @@ function DefaultEdgeRenderer(args) {
     this.opacity = 1;
     this.labelSize = 0;
     this.labelColor = '#111111';
+    this.labelText = '';
 //    this.labelPositionX = 5;
 //    this.labelPositionY = 45;
 
@@ -96,7 +97,9 @@ DefaultEdgeRenderer.prototype = {
         this.updateShape();
     },
     updateShape: function () {
-        if (this.shape !== 'undirected') {
+        if (this.shape === 'undirected') {
+            this.edgeEl.removeAttribute('marker-end');
+        } else {
             this.edgeEl.setAttribute('marker-end', "url(" + this._getMarkerArrowId() + ")");
         }
     },
@@ -146,8 +149,13 @@ DefaultEdgeRenderer.prototype = {
 
     },
     setLabelContent: function (text) {
+        this.labelText = text;
         var textSvg = $(this.el).find('text[network-type="edge-label"]')[0];
-        textSvg.textContent = text;
+        var label = '';
+        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+            label = this.labelText;
+        }
+        textSvg.textContent = label;
     },
     /* Private */
     _render: function () {
@@ -181,7 +189,7 @@ DefaultEdgeRenderer.prototype = {
             "fill": this.labelColor,
             'network-type': 'edge-label'
         });
-        text.textContent = this.edge.name;
+        text.textContent = this.edge.id;
 
         this.el = groupSvg;
         this.edgeEl = linkSvg;
@@ -307,7 +315,8 @@ DefaultEdgeRenderer.prototype = {
             strokeColor: this.strokeColor,
             opacity: this.opacity,
             labelSize: this.labelSize,
-            labelColor: this.labelColor
+            labelColor: this.labelColor,
+            labelText: this.labelText
         };
     }
 

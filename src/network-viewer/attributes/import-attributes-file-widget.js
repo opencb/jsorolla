@@ -24,7 +24,6 @@ function ImportAttributesFileWidget(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('ImportAttributesFileWidget');
 
-
     this.targetId;
     this.title = 'Open an attributes file';
     this.width = 600;
@@ -102,30 +101,32 @@ ImportAttributesFileWidget.prototype.processData = function (attributesDataAdapt
             index: i,
             vtype: 'alphanum',
             "flex": 1,
+            readOnly: (name === "Id") ? true : false,
             listeners: {
                 change: function (me, newValue) {
                     var cols = _this.grid.down('headercontainer').getGridColumns();
                     cols[me.index].setText(newValue);
                     _this.columnsGrid[me.index].text = newValue;
                     _this.content.attributes[me.index].name = newValue;
-                    console.log(cols[me.index]);
+//                    console.log(cols[me.index]);
+                    cbgItems[me.index].setBoxLabel(newValue);
+                    cbgItems[me.index].updateLayout();
                 }
             }
         });
 
         var disabled = false;
-        if (name == "Name") {
+        if (name == "Id") {
             disabled = true;
             existNameColumn = true;
         }
-        cbgItems.push({
+        cbgItems.push(Ext.create('Ext.form.field.Checkbox', {
             boxLabel: name,
             name: 'attr',
-            inputValue: name,
             margin: '0 0 0 5',
             checked: true,
             disabled: disabled
-        });
+        }));
     }
 
     var uniqueNameValues = true;
@@ -142,10 +143,10 @@ ImportAttributesFileWidget.prototype.processData = function (attributesDataAdapt
     }
 
     if (!existNameColumn) {
-        this.infoLabel.setText("<span class='err'>Invalid file. The column 'Name' is required.</span>", false);
+        this.infoLabel.setText("<span class='err'>Invalid file. The column 'Id' is required.</span>", false);
     }
     else if (!uniqueNameValues) {
-        this.infoLabel.setText("<span class='err'>Invalid file. The values for 'Name' column must be uniques.</span>", false);
+        this.infoLabel.setText("<span class='err'>Invalid file. The values for 'Id' column must be uniques.</span>", false);
     }
     else {
         this.cbgAttributes.add(cbgItems);
@@ -166,7 +167,6 @@ ImportAttributesFileWidget.prototype.processData = function (attributesDataAdapt
 
 
 ImportAttributesFileWidget.prototype.filterColumnsToImport = function () {
-
     var checkeds = this.cbgAttributes.getChecked();
 
     var data = {};
@@ -178,7 +178,7 @@ ImportAttributesFileWidget.prototype.filterColumnsToImport = function () {
     if (checkeds.length < this.content.attributes.length) {
         var columnsToImport = {};
         for (var i = 0; i < checkeds.length; i++) {
-            columnsToImport[checkeds[i].inputValue] = true;
+            columnsToImport[checkeds[i].boxLabel] = true;
         }
 
         for (var i = 0; i < this.content.attributes.length; i++) {

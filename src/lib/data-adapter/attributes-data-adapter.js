@@ -86,7 +86,7 @@ AttributesDataAdapter.prototype.parse = function (data) {
         for (var i = 0; i < numColumns; i++) {
             var name = "Column" + i;
             if (i == 0) {
-                name = "Name";
+                name = "Id";
             }
 
             this.attributes.push({

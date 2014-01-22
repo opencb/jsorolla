@@ -43,11 +43,11 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
         flex: 1,
         buttonText: 'Browse local',
         listeners: {
-            change: function (f,v) {
+            change: function (f, v) {
                 _this.panel.setLoading(true);
                 var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];
-                var node = Ext.DomQuery.selectNode('input[id='+f.getInputId()+']');
-                node.value = v.replace("C:\\fakepath\\","");
+                var node = Ext.DomQuery.selectNode('input[id=' + f.getInputId() + ']');
+                node.value = v.replace("C:\\fakepath\\", "");
 
                 _this.dataAdapter = new SIFDataAdapter({
                     dataSource: new FileDataSource(file),
@@ -63,13 +63,7 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
                                 var storeData = [];
                                 for (var i = 0; i < edges.length; i++) {
                                     var edge = edges[i];
-//                                    var edgeConfig = network.getEdgeConfig(edge);
-                                    var link = edge.name;
-
-                                    storeData.push([edge.source.name, link, edge.target.name]);
-//                                    _this.gridStore.loadData([
-//                                        [edge.source.name, link, edge.target.name]
-//                                    ], true);
+                                    storeData.push([edge.source.id, edge.relation, edge.target.id]);
                                 }
                                 _this.gridStore.loadData(storeData);
 

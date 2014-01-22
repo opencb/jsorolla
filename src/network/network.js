@@ -31,12 +31,18 @@ function Network(args) {
     this.graph = new Graph();
     this.config = new NetworkConfig();
 
-    var defaults = [
-//        ["Id", "string", "null"],
-        ["Name", "string", "none"]
+
+    this.nodeAttributes = [
+        {name: "Id", type: "string", defaultValue: "none"},
+        {name: "Name", type: "string", defaultValue: "none"}
     ];
-    this.nodeAttributeManager = new AttributeManagerStore(defaults);
-    this.edgeAttributeManager = new AttributeManagerStore(defaults);
+    this.edgeAttributes = [
+        {name: "Id", type: "string", defaultValue: "none"},
+        {name: "Name", type: "string", defaultValue: "none"},
+        {name: "Relation", type: "string", defaultValue: "none"}
+    ];
+    this.nodeAttributeManager = new AttributeManagerStore({attributes: this.nodeAttributes});
+    this.edgeAttributeManager = new AttributeManagerStore({attributes: this.edgeAttributes});
 
     this.on(this.handlers);
 }
@@ -66,38 +72,40 @@ Network.prototype = {
         var vertexConfig = args.vertexConfig;
         var target = args.target;
 
-        vertexConfig.id = vertex.id;
+        var added = this.graph.addVertex(vertex);
+        if (added) {
+            vertexConfig.id = vertex.id;
+            this.setVertexConfig(vertexConfig);
 
-        this.graph.addVertex(vertex);
-        this.setVertexConfig(vertexConfig);
+            if (typeof target !== 'undefined') {
+                this.renderVertex(vertex, target);
+            }
 
-        if (typeof target !== 'undefined') {
-            this.renderVertex(vertex, target);
+            //attributes
+            this.nodeAttributeManager.addRows([
+                [vertex.id, vertex.id]
+            ], true);
         }
-
-        //attributes
-        this.nodeAttributeManager.addRows([
-//            [vertex.id, vertex.name]
-            [vertex.name]
-        ], true);
     },
     addEdge: function (args) {
         var edge = args.edge;
         var edgeConfig = args.edgeConfig;
         var target = args.target;
 
-        edgeConfig.id = edge.id;
 
-        this.graph.addEdge(edge);
-        this.setEdgeConfig(edgeConfig);
+        var added = this.graph.addEdge(edge);
+        if (added) {
+            edgeConfig.id = edge.id;
+            this.setEdgeConfig(edgeConfig);
 
-        if (typeof target !== 'undefined') {
-            this.renderEdge(edge, target);
+            if (typeof target !== 'undefined') {
+                this.renderEdge(edge, target);
+            }
+            //attributes
+            this.edgeAttributeManager.addRows([
+                [edge.id, edge.id, edge.relation]
+            ], true);
         }
-        //attributes
-        this.edgeAttributeManager.addRows([
-            [edge.name]
-        ], true);
     },
     setVertexConfig: function (vertexConfig) {
         this.config.setVertexConfig(vertexConfig);
@@ -160,10 +168,10 @@ Network.prototype = {
             var vertex = vertices[i];
             if (typeof vertex !== 'undefined') {
                 var vertexConfig = this.getVertexConfig(vertex);
-                var name = vertex.name;
+                var id = vertex.id;
 
-                //TODO warning with duplicate names, only first will be used.
-                var label = this.nodeAttributeManager.getAttributeByName(name, attributeName)[0];
+//              /* Name attribute is unique */
+                var label = this.nodeAttributeManager.getAttributeValueById(id, attributeName);
                 vertexConfig.renderer.setLabelContent(label);
             }
         }
@@ -178,10 +186,10 @@ Network.prototype = {
             var edge = edges[i];
             if (typeof edge !== 'undefined') {
                 var edgeConfig = this.getEdgeConfig(edge);
-                var name = edge.name;
+                var id = edge.id;
 
-                //TODO warning with duplicate names, only first will be used.
-                var label = this.edgeAttributeManager.getAttributeByName(name, attributeName)[0];
+                /* Name attribute is unique */
+                var label = this.edgeAttributeManager.getAttributeValueById(id, attributeName);
                 edgeConfig.renderer.setLabelContent(label);
             }
         }
@@ -338,16 +346,11 @@ Network.prototype = {
     setVerticesRendererAttributeMap: function (rendererAttr, vertexAttribute, uniqueMap) {
         for (var uniqueAttrValue in uniqueMap) {
             var rendererValue = uniqueMap[uniqueAttrValue];
-            var names = this.nodeAttributeManager.getNamesByAttributeValue(vertexAttribute, uniqueAttrValue);
-            for (var i = 0, l = names.length; i < l; i++) {
-                var name = names[i];
-                var vertices = this.graph.findVertexByName(name);
-                for (var j = 0, lj = vertices.length; j < lj; j++) {
-                    var vertex = vertices[j];
-                    if (typeof vertex !== 'undefined') {
-                        this.setVertexRendererAttribute(vertex, rendererAttr, rendererValue);
-                    }
-                }
+            var ids = this.nodeAttributeManager.getIdsByAttributeValue(vertexAttribute, uniqueAttrValue);
+            for (var i = 0, l = ids.length; i < l; i++) {
+                var id = ids[i];
+                var vertex = this.graph.getVertexById(id);
+                this.setVertexRendererAttribute(vertex, rendererAttr, rendererValue);
             }
         }
     },
@@ -367,33 +370,28 @@ Network.prototype = {
     setEdgesRendererAttributeMap: function (rendererAttr, vertexAttribute, uniqueMap) {
         for (var uniqueAttrValue in uniqueMap) {
             var rendererValue = uniqueMap[uniqueAttrValue];
-            var names = this.edgeAttributeManager.getNamesByAttributeValue(vertexAttribute, uniqueAttrValue);
-            for (var i = 0, l = names.length; i < l; i++) {
-                var name = names[i];
-                var edges = this.graph.findEdgeByName(name);
-                for (var j = 0, lj = edges.length; j < lj; j++) {
-                    var edge = edges[j];
-                    if (typeof edge !== 'undefined') {
-                        this.setEdgeRendererAttribute(edge, rendererAttr, rendererValue);
-                    }
-                }
+            var ids = this.edgeAttributeManager.getIdsByAttributeValue(vertexAttribute, uniqueAttrValue);
+            for (var i = 0, l = ids.length; i < l; i++) {
+                var id = ids[i];
+                var edge = this.graph.getEdgeById(id);
+                this.setEdgeRendererAttribute(edge, rendererAttr, rendererValue);
             }
         }
     },
 
 
-    /* Attribute Manager */
-    addAttribute: function (name, type, defaultValue) {
-        //TODO test
-    },
-    removeAttribute: function (name) {
-        //TODO test
-//        this.attributeManager.removeAttribute(name);
-    },
-    getVertexAttributes: function (vertex, success) {
-        //TODO test
-//        this.attributeManager.getVertexAttributes(vertex, success);
-    },
+//    /* Attribute Manager */
+//    addAttribute: function (name, type, defaultValue) {
+//        //TODO test
+//    },
+//    removeAttribute: function (name) {
+//        //TODO test
+////        this.attributeManager.removeAttribute(name);
+//    },
+//    getVertexAttributes: function (vertex, success) {
+//        //TODO test
+////        this.attributeManager.getVertexAttributes(vertex, success);
+//    },
 
     /** JSON import/export **/
     /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify */
@@ -412,8 +410,7 @@ Network.prototype = {
         for (var i = 0; i < content.graph.vertices.length; i++) {
             var v = content.graph.vertices[i];
             var vertex = new Vertex({
-                id: v.id,
-                name: v.name
+                id: v.id
             });
             /* vertex config */
             var vertexConfig = new VertexConfig({
@@ -435,7 +432,7 @@ Network.prototype = {
 
             var edge = new Edge({
                 id: e.id,
-                name: e.name,
+                relation: e.relation,
                 source: source,
                 target: target
             });
@@ -455,56 +452,48 @@ Network.prototype = {
 
     },
     importVertexWithAttributes: function (data) {
-//                this.nodeAttributeManager.addAttribute(name, type, defaultValue);
         if (data.createNodes) {
             for (var i = 0; i < data.content.data.length; i++) {
                 var name = data.content.data[i][0];
 
-                if (this.graph.findVertexByName(name).length == 0) {
-                    var vertex = new Vertex({
-                        name: name
-                    });
+                var vertex = new Vertex({
+                    id: name
+                });
 
-                    /* vertex config */
-                    var vertexConfig = new VertexConfig({
-                        id: vertex.id,
-                        renderer: new DefaultVertexRenderer()
-                    });
+                /* vertex config */
+                var vertexConfig = new VertexConfig({
+                    id: vertex.id,
+                    renderer: new DefaultVertexRenderer()
+                });
 
-                    this.addVertex({
-                        vertex: vertex,
-                        vertexConfig: vertexConfig
-                    });
-                }
+                this.addVertex({
+                    vertex: vertex,
+                    vertexConfig: vertexConfig
+                });
             }
         }
-
         // add attributes
+        this._importAttributes(data, this.nodeAttributeManager);
+    },
+    _importAttributes: function (data, attributeManager) {
         if (data.content.attributes.length > 1) {
-            var attrNames = [];
-            for (var i = 0; i < data.content.attributes.length; i++) {
-                var name = data.content.attributes[i].name;
-                var type = data.content.attributes[i].type;
-                var defaultValue = data.content.attributes[i].defaultValue;
-                this.nodeAttributeManager.addAttribute(name, type, defaultValue);
-//                this.networkData.getNodeAttributes().addAttribute(name, type, defaultValue);
-                attrNames.push(name);
-            }
-
+            var attributes = data.content.attributes;
+            attributeManager.addAttributes(attributes);
             // add values for attributes
+            var values = [];
             for (var i = 0; i < data.content.data.length; i++) {
                 for (var j = 1; j < data.content.data[i].length; j++) {
-                    var name = data.content.data[i][0];
-                    var attr = attrNames[j];
+                    var id = data.content.data[i][0];
+                    var attr = attributes[j].name;
                     var value = data.content.data[i][j];
-                    this.nodeAttributeManager.setAttributeByName(name, attr, value)
-//                    this.networkData.getNodeAttributes().setAttributeByName(name, attr, value);
+                    values.push({id: id, attributeName: attr, value: value});
                 }
             }
+            attributeManager.setValuesByAttributeAndId(values);
         }
     },
-    findVerticesByName: function (name) {
-        return this.graph.findVertexByName(name);
+    importEdgesWithAttributes: function (data) {
+        // add attributes
+        this._importAttributes(data, this.edgeAttributeManager);
     }
-
 }

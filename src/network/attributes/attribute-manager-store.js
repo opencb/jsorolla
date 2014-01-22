@@ -19,52 +19,116 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function AttributeManagerStore(defaultAttrs) {
+function AttributeManagerStore(args) {
+    var _this = this;
+    _.extend(this, Backbone.Events);
+    this.id = Utils.genId('AttributeManagerStore');
 
-    this.model = Ext.define('User', {
+    this.model = Ext.define('AttributesModel', {
         extend: 'Ext.data.Model'
     });
-
     this.store = Ext.create('Ext.data.Store', {
-        id: 'attrMngrStore',
-        // autoLoad: false,
         model: this.model
     });
 
     this.columnsGrid = [];
-
     this.attributes = [];
-
     this.filters = {};
 
-    // Add default attributes received
-    for (var i = 0; i < defaultAttrs.length; i++) {
-        this.addAttribute(defaultAttrs[i][0], defaultAttrs[i][1], defaultAttrs[i][2]);
-    }
-};
+    //set instantiation args, must be last
+    _.extend(this, args);
 
-AttributeManagerStore.prototype.addAttribute = function (name, type, defaultValue) {
+    this.on(this.handlers);
+
     for (var i = 0; i < this.attributes.length; i++) {
-        if (this.attributes[i].name == name) return false; //if exists one with the same name
+        this._processAttribute(this.attributes[i]);
+    }
+};
+
+AttributeManagerStore.prototype = {
+    containsAttribute: function (attribute) {
+        for (var i = 0; i < this.attributes.length; i++) {
+            if (this.attributes[i].name == attribute.name) return true; //if exists one with the same name
+        }
+        return false;
+    },
+    addAttribute: function (attribute, fireChangeEvent) {
+        if (this.containsAttribute(attribute)) {
+            return false;
+        }
+        this.attributes.push(attribute);
+        this._processAttribute(attribute);
+        if (fireChangeEvent !== false) {
+            console.log('change:attributes - add one attr')
+            this.trigger('change:attributes', {sender: this});
+        }
+    },
+    _processAttribute: function (attribute) {
+        /** Id column is not editable **/
+        var editor;
+        if (attribute.name !== 'Id') {
+            editor = {xtype: 'textfield', allowBlank: true};
+        }
+        this.columnsGrid.push({
+            "text": attribute.name,
+            "dataIndex": attribute.name,
+            "editor": editor
+        });
+        // set model fields
+        this.model.setFields(this.attributes);
+    },
+    addAttributes: function (attributes) {
+        for (var i = 0; i < attributes.length; i++) {
+            this.addAttribute(attributes[i], false);
+        }
+        console.log('change:attributes - add multiple attr')
+        this.trigger('change:attributes', {sender: this});
+    },
+    setValueByAttributeAndId: function (id, attributeName, value) {
+        var record = this.store.findRecord("Id", id);
+        if (record) { // if exists a row with this name
+            record.set(attributeName, value);
+            record.commit();//silent
+        }
+    },
+    setValuesByAttributeAndId: function (values) {
+        this.store.suspendEvents();
+        for (var i = 0; i < values.length; i++) {
+            var value = values[i];
+            this.setValueByAttributeAndId(value.id, value.attributeName, value.value);
+        }
+        this.store.resumeEvents();
+        this.store.fireEvent('refresh');
+    },
+    modifyAttributeOfRows: function (selectRows, attribute, value) {
+        //TODO
+    },
+    addRows: function (data, append) {
+        this.store.loadData(data, append);
+    },
+    getAttributeValueById: function (id, attribute) {
+        var record = this.store.findRecord('Id', id);
+        if (record) {
+            return record.get(attribute);
+        }
+    },
+    getIdsByAttributeValue: function (attribute, value) {
+        var dupHash = {};
+        var ids = [];
+        var mixedCollection = this.store.query(attribute, value);
+        for (var i = 0; i < mixedCollection.items.length; i++) {
+            var item = mixedCollection.items[i];
+            var id = item.data["Id"];
+            if (dupHash[id] !== true) {
+                ids.push(item.data["Id"]);
+            }
+            dupHash[id] = true;
+        }
+        return ids;
     }
 
-    this.attributes.push({
-        "name": name,
-        "type": type,
-        "defaultValue": defaultValue
-    });
+}
 
-    this.columnsGrid.push({
-        "text": name,
-        "dataIndex": name,
-        "editor": {xtype: 'textfield', allowBlank: true}
-    });
-
-    // set model fields
-    this.model.setFields(this.attributes);
-
-    return true;
-};
 
 AttributeManagerStore.prototype.updateAttribute = function (oldName, newName, type, defaultValue) {
     for (var i = 0; i < this.attributes.length; i++) {
@@ -103,17 +167,6 @@ AttributeManagerStore.prototype.removeAttribute = function (attribute) {
     return false;
 };
 
-AttributeManagerStore.prototype.addRows = function (data, append) {
-//	console.log(data);
-//	var row = {};
-//	for (var i = 0; i < this.attributes.length; i++) {
-//		row[this.attributes[i].name] = data[i];
-//	}
-//	this.store.loadData([row], true);
-
-    this.store.loadData(data, append);
-};
-
 
 //-------------------------------modifyAttributeOfRows---------------------------//
 //Descripcion:
@@ -124,13 +177,6 @@ AttributeManagerStore.prototype.addRows = function (data, append) {
 //attributeModify: (string) atributo que se desea modificar
 //value: (string) valor nuevo de ese atributo
 //-------------------------------------------------------------------------------//
-AttributeManagerStore.prototype.modifyAttributeOfRows = function (selectRows, attribute, value) {
-    for (var i = 0; i < selectRows.length; i++) {
-        selectRows[i].data[attribute] = value;
-    }
-
-    this.store.loadData(selectRows, true);
-};
 
 
 //-----------------------removeRow----------------------------------------------//
@@ -209,31 +255,6 @@ AttributeManagerStore.prototype.getPositionOfRow = function (attribute, value) {
     return(aux);
 };
 
-
-AttributeManagerStore.prototype.getNamesByAttributeValue = function (attribute, value) {
-    var dupHash = {};
-    var names = [];
-    var mixedCollection = this.store.query(attribute, value);
-    for (var i = 0; i < mixedCollection.items.length; i++) {
-        var item = mixedCollection.items[i];
-        var name = item.data["Name"];
-        if(dupHash[name] !== true){
-            names.push(item.data["Name"]);
-        }
-        dupHash[name] = true;
-    }
-    return names;
-};
-
-AttributeManagerStore.prototype.getAttributeByName = function (name, attribute) {
-    var attributeValues = [];
-    var mixedCollection = this.store.query("Name", name);
-    for (var i = 0; i < mixedCollection.items.length; i++) {
-        var item = mixedCollection.items[i];
-        attributeValues.push(item.data[attribute]);
-    }
-    return attributeValues;
-};
 
 //-----------------------getRowByIndex------------------------------------------//
 //Descripcion:
@@ -370,13 +391,6 @@ AttributeManagerStore.prototype.setAttributeByName = function (name, attribute, 
     }
 };
 
-AttributeManagerStore.prototype.setAttributeById = function (id, attribute, value) {
-    var register = this.store.getAt(this.store.find("Id", id));
-    if (register) { // if exists a row with this name
-        register.set(attribute, value);
-        register.commit();
-    }
-};
 
 AttributeManagerStore.prototype.getAttrNameList = function () {
     var nameList = [];

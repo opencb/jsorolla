@@ -245,6 +245,9 @@ NetworkViewer.prototype = {
                 'deleteButton:click': function (event) {
                     _this.networkSvgLayout.setMode("delete");
                 },
+                'click:backgroundButton': function (event) {
+                    _this.networkSvgLayout.setMode("background");
+                },
                 'collapseButton:click': function (event) {
                     console.log(event);
                     //todo
@@ -597,14 +600,27 @@ NetworkViewer.prototype = {
                 console.log(option + " not yet defined");
         }
     },
+    selectVerticesByIds: function (vertexIds) {
+        this.networkSvgLayout.selectVerticesByIds(vertexIds);
+    },
     getVerticesLength: function () {
         return this.network.graph.numberOfVertices;
+    },
+    getEdgesLength: function () {
+        return this.network.graph.numberOfEdges;
     },
     getSelectedVertices: function () {
         return this.networkSvgLayout.selectedVertices;
     },
+    getSelectedEdges: function () {
+        return this.networkSvgLayout.selectedEdges;
+    },
     importVertexWithAttributes: function (data) {
         this.network.importVertexWithAttributes(data);
+        this.networkSvgLayout.draw();
+    },
+    importEdgesWithAttributes: function (data) {
+        this.network.importEdgesWithAttributes(data);
         this.networkSvgLayout.draw();
     },
     loadJSON: function (content) {

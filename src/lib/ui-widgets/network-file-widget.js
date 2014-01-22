@@ -131,9 +131,9 @@ NetworkFileWidget.prototype.draw = function () {
             flex: 1,
             store: this.gridStore,
             columns: [
-                {"header": "Node", "dataIndex": "0", flex: 1},
+                {"header": "Source", "dataIndex": "0", flex: 1},
                 {"header": "Relation", "dataIndex": "1", flex: 1, menuDisabled: true},
-                {"header": "Node", "dataIndex": "2", flex: 1}
+                {"header": "Target", "dataIndex": "2", flex: 1}
             ],
             features: [
                 {ftype: 'grouping'}

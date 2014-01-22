@@ -22,9 +22,9 @@
 function VertexConfig(args) {
 
 
-    var x = Math.floor((Math.random() * 200) + 1);
-    var y = Math.floor((Math.random() * 200) + 1);
-    var z = Math.floor((Math.random() * 200) + 1);
+    var x = Math.floor((Math.random() * 1000) + 1);
+    var y = Math.floor((Math.random() * 1000) + 1);
+    var z = Math.floor((Math.random() * 1000) + 1);
 
     this.id;
     this.coords = {x: x, y: y, z: z};

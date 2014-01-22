@@ -69,7 +69,6 @@ DefaultVertexRenderer.prototype = {
                 break;
             case "size":
             case "strokeSize":
-                debugger
                 switch (this.shape) {
                     case "circle":
                         this._updateCircleSize();
@@ -214,7 +213,7 @@ DefaultVertexRenderer.prototype = {
                 "fill": this.labelColor,
                 'network-type': 'vertex-label'
             });
-            var label = this.vertex.name;
+            var label = this.vertex.id;
             if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
                 label = this.labelText;
             }
@@ -279,7 +278,7 @@ DefaultVertexRenderer.prototype = {
                 "fill": this.labelColor,
                 'network-type': 'vertex-label'
             });
-            var label = this.vertex.name;
+            var label = this.vertex.id;
             if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
                 label = this.labelText;
             }
@@ -345,7 +344,7 @@ DefaultVertexRenderer.prototype = {
                 "fill": this.labelColor,
                 'network-type': 'vertex-label'
             });
-            var label = this.vertex.name;
+            var label = this.vertex.id;
             if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
                 label = this.labelText;
             }
@@ -418,7 +417,7 @@ DefaultVertexRenderer.prototype = {
                 "fill": this.labelColor,
                 'network-type': 'vertex-label'
             });
-            var label = this.vertex.name;
+            var label = this.vertex.id;
             if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
                 label = this.labelText;
             }
@@ -461,7 +460,7 @@ DefaultVertexRenderer.prototype = {
             cx: attr.midOffset,
             cy: attr.midOffset,
             opacity: '0.5',
-            fill: '#cccccc',
+            fill: '#555555',
             'network-type': 'select-vertex'
         }, 0);
     },
@@ -491,7 +490,8 @@ DefaultVertexRenderer.prototype = {
             strokeColor: this.strokeColor,
             opacity: this.opacity,
             labelSize: this.labelSize,
-            labelColor: this.labelColor
+            labelColor: this.labelColor,
+            labelText :this.labelText
         };
     }
 }

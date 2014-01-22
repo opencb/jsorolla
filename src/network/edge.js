@@ -23,7 +23,7 @@ function Edge(args) {
 
     this.id = 'e'+Utils.genId();
 
-    this.name = 'relation';
+    this.relation='';
     this.source;
     this.target;
     this.weight;
@@ -50,11 +50,11 @@ Edge.prototype = {
     toJSON:function(){
         return {
             id:this.id,
-            name:this.name,
             source:this.source,
             target:this.target,
             weight:this.weight,
-            directed:this.directed
+            directed:this.directed,
+            relation:this.relation
         }
     }
 }

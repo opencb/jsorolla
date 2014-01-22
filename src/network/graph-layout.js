@@ -84,6 +84,130 @@ GraphLayout.prototype = {
     },
     getRandom2d: function () {
 
+    },
+    springLayout: function (graph) {
+        var iterations = 500;
+        var maxRepulsiveForceDistance = 6;
+        var k = 2;
+        var c = 0.01;
+        var maxVertexMovement = 0.5;
+
+        var layout = function () {
+            layoutPrepare();
+            for (var i = 0; i < iterations; i++) {
+                layoutIteration();
+            }
+            layoutCalcBounds();
+        };
+
+        var layoutPrepare = function () {
+            for (var i = 0; i < graph.nodes.length; i++) {
+                var node = graph.nodes[i];
+                node.layoutPosX = 0;
+                node.layoutPosY = 0;
+                node.layoutForceX = 0;
+                node.layoutForceY = 0;
+            }
+        };
+
+        var layoutCalcBounds = function () {
+            var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
+
+            for (var i = 0; i < this.graph.nodes.length; i++) {
+                var x = this.graph.nodes[i].layoutPosX;
+                var y = this.graph.nodes[i].layoutPosY;
+
+                if (x > maxx) maxx = x;
+                if (x < minx) minx = x;
+                if (y > maxy) maxy = y;
+                if (y < miny) miny = y;
+            }
+
+            this.graph.layoutMinX = minx;
+            this.graph.layoutMaxX = maxx;
+            this.graph.layoutMinY = miny;
+            this.graph.layoutMaxY = maxy;
+        };
+
+        var layoutIteration = function () {
+            // Forces on nodes due to node-node repulsions
+            for (var i = 0; i < this.graph.nodes.length; i++) {
+                var node1 = this.graph.nodes[i];
+                for (var j = i + 1; j < this.graph.nodes.length; j++) {
+                    var node2 = this.graph.nodes[j];
+                    this.layoutRepulsive(node1, node2);
+                }
+            }
+            // Forces on nodes due to edge attractions
+            for (var i = 0; i < this.graph.edges.length; i++) {
+                var edge = this.graph.edges[i];
+                this.layoutAttractive(edge);
+            }
+
+            // Move by the given force
+            for (var i = 0; i < this.graph.nodes.length; i++) {
+                var node = this.graph.nodes[i];
+                var xmove = this.c * node.layoutForceX;
+                var ymove = this.c * node.layoutForceY;
+
+                var max = this.maxVertexMovement;
+                if (xmove > max) xmove = max;
+                if (xmove < -max) xmove = -max;
+                if (ymove > max) ymove = max;
+                if (ymove < -max) ymove = -max;
+
+                node.layoutPosX += xmove;
+                node.layoutPosY += ymove;
+                node.layoutForceX = 0;
+                node.layoutForceY = 0;
+            }
+        };
+
+        var layoutRepulsive = function (node1, node2) {
+            var dx = node2.layoutPosX - node1.layoutPosX;
+            var dy = node2.layoutPosY - node1.layoutPosY;
+            var d2 = dx * dx + dy * dy;
+            if (d2 < 0.01) {
+                dx = 0.1 * Math.random() + 0.1;
+                dy = 0.1 * Math.random() + 0.1;
+                var d2 = dx * dx + dy * dy;
+            }
+            var d = Math.sqrt(d2);
+            if (d < this.maxRepulsiveForceDistance) {
+                var repulsiveForce = this.k * this.k / d;
+                node2.layoutForceX += repulsiveForce * dx / d;
+                node2.layoutForceY += repulsiveForce * dy / d;
+                node1.layoutForceX -= repulsiveForce * dx / d;
+                node1.layoutForceY -= repulsiveForce * dy / d;
+            }
+        };
+
+        var layoutAttractive = function (edge) {
+            var node1 = edge.source;
+            var node2 = edge.target;
+
+            var dx = node2.layoutPosX - node1.layoutPosX;
+            var dy = node2.layoutPosY - node1.layoutPosY;
+            var d2 = dx * dx + dy * dy;
+            if (d2 < 0.01) {
+                dx = 0.1 * Math.random() + 0.1;
+                dy = 0.1 * Math.random() + 0.1;
+                var d2 = dx * dx + dy * dy;
+            }
+            var d = Math.sqrt(d2);
+            if (d > this.maxRepulsiveForceDistance) {
+                d = this.maxRepulsiveForceDistance;
+                d2 = d * d;
+            }
+            var attractiveForce = (d2 - this.k * this.k) / this.k;
+            if (edge.weight == undefined || edge.weight < 1) edge.weight = 1;
+            attractiveForce *= Math.log(edge.weight) * 0.5 + 1;
+
+            node2.layoutForceX -= attractiveForce * dx / d;
+            node2.layoutForceY -= attractiveForce * dy / d;
+            node1.layoutForceX += attractiveForce * dx / d;
+            node1.layoutForceY += attractiveForce * dy / d;
+        };
     }
 
 }
