@@ -49,16 +49,26 @@ ToolBar.prototype = {
             return;
         }
 
+//            <label class="btn btn-primary">
+//            <input type="radio" name="options" id="option1"> Option 1
+//            </label>
+//            <label class="btn btn-primary">
+//                <input type="radio" name="options" id="option2"> Option 2
+//                </label>
+//                <label class="btn btn-primary">
+//                    <input type="radio" name="options" id="option3"> Option 3
+//                    </label>
+
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="selectButton" class="btn btn-default" type="button" title="Select mode"><span class="ocb-icon icon-mouse-select"></span></button>' +
+            '   <div class="btn-group btn-group-xs" data-toggle="buttons">' +
+            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="selectButton" title="Select nodes mode"><span class="ocb-icon icon-mouse-select"></span></label>' +
+            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="backgroundButton" title="Select background items mode"><span class="ocb-icon ocb-icon-backitem-select"></span></label>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
             '       <button id="addButton" class="btn btn-default" type="button" title="Add mode"><span class="ocb-icon icon-add"></span></button>' +
             '       <button id="linkButton" class="btn btn-default" type="button" title="Link mode"><span class="ocb-icon icon-link"></span></button>' +
             '       <button id="deleteButton" class="btn btn-default" type="button" title="Delete mode"><span class="ocb-icon icon-delete"></span></button>' +
-            '       <button id="backgroundButton" class="btn btn-default" type="button" title="Background mode"><span class="ocb-icon icon-background-option"></span></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs hidden">' +
             '       <button id="collapseButton" class="btn btn-default" type="button"><span class="ocb-icon icon-collapse"></span></button>' +
@@ -128,11 +138,11 @@ ToolBar.prototype = {
         /**************/
 
         this.selectButton = $(this.div).find('#selectButton');
+        this.backgroundButton = $(this.div).find('#backgroundButton');
 
         this.addButton = $(this.div).find('#addButton');
         this.linkButton = $(this.div).find('#linkButton');
         this.deleteButton = $(this.div).find('#deleteButton');
-        this.backgroundButton = $(this.div).find('#backgroundButton');
 
         this.collapseButton = $(this.div).find('#collapseButton');
 
@@ -145,7 +155,6 @@ ToolBar.prototype = {
         this.autoSelectButton = $(this.div).find('#autoSelectButton');
         this.autoSelectMenu = $(this.div).find('#autoSelectMenu');
 
-        this.backgroundButton = $(this.div).find('#backgroundButton');
         this.backgroundColorField = $(this.div).find('#backgroundColorField');
         this.backgroundColorSelect = $(this.div).find('#backgroundColorSelect');
         this.importBackgroundImageButton = $(this.div).find('#importBackgroundImageButton');
@@ -181,9 +190,18 @@ ToolBar.prototype = {
 
 
         /* buttons */
-        $(this.selectButton).click(function (e) {
-            _this.trigger('selectButton:click', {clickEvent: e, sender: {}})
+
+        $(this.selectButton).change(function (e) {
+//            $(this).toggleClass('active btn-primary');
+//            var pressed = $(this).hasClass('active');
+            _this.trigger('click:selectButton', {clickEvent: e, sender: {}})
         });
+        $(this.backgroundButton).change(function (e) {
+//            $(this).toggleClass('active btn-primary');
+//            var pressed = $(this).hasClass('active');
+            _this.trigger('click:backgroundButton', {clickEvent: e, sender: {}})
+        });
+
         $(this.addButton).click(function (e) {
             _this.trigger('addButton:click', {clickEvent: e, sender: {}})
         });
@@ -192,9 +210,6 @@ ToolBar.prototype = {
         });
         $(this.deleteButton).click(function (e) {
             _this.trigger('deleteButton:click', {clickEvent: e, sender: {}})
-        });
-        $(this.backgroundButton).click(function (e) {
-            _this.trigger('click:backgroundButton', {clickEvent: e, sender: {}})
         });
 
 
@@ -206,11 +221,6 @@ ToolBar.prototype = {
         this._setLabelSizeMenu();
         this._setAutoSelectMenu();
 
-        $(this.backgroundButton).click(function (e) {
-            $(this).toggleClass('active');
-            var pressed = $(this).hasClass('active');
-            _this.trigger('backgroundButton:click', {clickEvent: e, pressed: pressed, sender: {}})
-        });
         $(this.importBackgroundImageButton).click(function (e) {
             $(_this.importBackgroundImageField).click();
         });

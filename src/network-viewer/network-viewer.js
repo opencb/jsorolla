@@ -59,11 +59,13 @@ function NetworkViewer(args) {
 
 NetworkViewer.prototype = {
     setNetwork: function (network) {
+        this.clean();
         this.network = network;
         this.networkSvgLayout.setNetwork(network);
         this.networkSvgLayout.draw();
     },
     render: function (targetId) {
+        var _this = this;
         if (targetId)this.targetId = targetId;
         if ($('#' + this.targetId).length < 1) {
             console.log('targetId not found in DOM');
@@ -97,6 +99,21 @@ NetworkViewer.prototype = {
         }
 
 
+//        this.alertDiv = $('<div id="nv-alert" style="position:absolute;"></div>')[0];
+//        $(this.alertDiv).css({
+//            left:this.width/2,
+//            top:this.height/3
+//        });
+//        var a = '<div class="alert alert-warning hidden">' +
+//            '<h4>A CellMaps session was found in your browser, want to reload it?</h4>' +
+//            '<p>' +
+//            '<button type="button" class="btn btn-info">Load session</button> ' +
+//            '<button type="button" class="btn btn-danger">Start over</button>' +
+//            '</p>' +
+//            '</div>';
+//        $(this.alertDiv).append(a);
+//        $(this.centerPanelDiv).append(this.alertDiv);
+
         if (this.overviewPanel) {
             this.overviewPanelDiv = $('<div id="nv-overviewpanel" style="position:absolute;bottom:10px;right:10px;width:200px;height:200px;border:1px solid lightgrey;background-color:#ffffff"></div>')[0];
             $(this.centerPanelDiv).append(this.overviewPanelDiv);
@@ -120,7 +137,6 @@ NetworkViewer.prototype = {
             var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
             $(this.div).css({border: border});
         }
-
 
         this.rendered = true;
     },
@@ -186,6 +202,35 @@ NetworkViewer.prototype = {
 //            this.networkSvgOverview = new NetworkSvg(div, this.networkData, {"width": "100%", "height": "100%", "parentNetwork": this.networkSvg, "scale": this.overviewScale});
 //        }
 
+        if (typeof localStorage.networkViewer !== 'undefined') {
+            this.loadJSON(JSON.parse(localStorage.networkViewer));
+//            //PREGUNTO
+//            var alert = $(this.alertDiv).find('.alert');
+//            $(alert).removeClass('hidden');
+//            $(alert).find('.btn-info').click(function () {
+//                $(_this.alertDiv).addClass('hidden');
+//                _this.loadJSON(JSON.parse(localStorage.networkViewer));
+//                /* auto save session timeout */
+//                var intervalId = setInterval(function () {
+//                    localStorage.networkViewer = JSON.stringify(_this.toJSON());
+//                    console.log('Session saved');
+//                }, 2000);
+//
+//            });
+//            $(alert).find('.btn-danger').click(function () {
+//                $(alert).addClass('hidden');
+//                /* auto save session timeout */
+//                var intervalId = setInterval(function () {
+//                    localStorage.networkViewer = JSON.stringify(_this.toJSON());
+//                    console.log('Session saved');
+//                }, 2000);
+//            });
+        }
+        /* auto save session timeout */
+        var intervalId = setInterval(function () {
+            localStorage.networkViewer = JSON.stringify(_this.toJSON());
+            console.log('Session saved');
+        }, 2000);
     },
     hideOverviewPanel: function () {
         $(this.overviewPanelDiv).css({display: 'none'});
@@ -235,8 +280,11 @@ NetworkViewer.prototype = {
             targetId: targetId,
             autoRender: true,
             handlers: {
-                'selectButton:click': function (event) {
+                'click:selectButton': function (event) {
                     _this.networkSvgLayout.setMode("select");
+                },
+                'click:backgroundButton': function (event) {
+                    _this.networkSvgLayout.setMode("selectbackground");
                 },
                 'addButton:click': function (event) {
                     _this.networkSvgLayout.setMode("add");
@@ -247,9 +295,7 @@ NetworkViewer.prototype = {
                 'deleteButton:click': function (event) {
                     _this.networkSvgLayout.setMode("delete");
                 },
-                'click:backgroundButton': function (event) {
-                    _this.networkSvgLayout.setMode("background");
-                },
+
                 'collapseButton:click': function (event) {
                     console.log(event);
                     //todo
@@ -265,10 +311,6 @@ NetworkViewer.prototype = {
                 'select:change': function (event) {
                     console.log(event);
                     _this.select(event.option);
-                },
-                'backgroundButton:click': function (event) {
-                    console.log(event);
-                    _this.networkSvgLayout.setMode("background");
                 },
                 'backgroundColorField:change': function (event) {
                     console.log(event);
@@ -609,10 +651,10 @@ NetworkViewer.prototype = {
         this.networkSvgLayout.selectVerticesByIds(vertexIds);
     },
     getVerticesLength: function () {
-        return this.network.graph.numberOfVertices;
+        return this.network.getVerticesLength();
     },
     getEdgesLength: function () {
-        return this.network.graph.numberOfEdges;
+        return this.network.getEdgesLength();
     },
     getSelectedVertices: function () {
         return this.networkSvgLayout.selectedVertices;
@@ -627,6 +669,10 @@ NetworkViewer.prototype = {
     importEdgesWithAttributes: function (data) {
         this.network.importEdgesWithAttributes(data);
         this.networkSvgLayout.draw();
+    },
+    clean:function(){
+        this.network.clean();
+        this.networkSvgLayout.clean();
     },
     loadJSON: function (content) {
         this.network.loadJSON(content);

@@ -569,6 +569,16 @@ a:hover {
     background: url(../img/ocb-icon-compressed.png) !important;
 }
 
+.ocb-icon-node-select {
+    background: url(../img/icon-node-select.png) !important;
+}
+.ocb-icon-edge-select {
+    background: url(../img/icon-edge-select.png) !important;
+}
+.ocb-icon-backitem-select {
+    background: url(../img/icon-backitem-select.png) !important;
+}
+
 .icon-save {
     background: url('../img/save.png');
 }

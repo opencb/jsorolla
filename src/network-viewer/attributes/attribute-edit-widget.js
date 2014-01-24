@@ -31,6 +31,7 @@ function AttributeEditWidget(args) {
     this.attrMan;
     this.type;
 
+
     //set instantiation args, must be last
     _.extend(this, args);
 
@@ -44,6 +45,7 @@ function AttributeEditWidget(args) {
 AttributeEditWidget.prototype = {
     render: function () {
         var _this = this;
+
 
         this.attrMan.on('change:attributes', function () {
             _this.reconfigureComponents();
@@ -161,7 +163,7 @@ AttributeEditWidget.prototype = {
             items: [
                 {
                     xtype: 'button',
-                    text: '<span style="font-size: 12px">Column visibility <span class="caret"></span></span>',
+                    text: '<span style="font-size: 12px">Columns <span class="caret"></span></span>',
                     cls: 'bootstrap',
                     handler: function (bt, e) {
                         var menu = _this.grid.headerCt.getMenu().down('menuitem[text=Columns]').menu;
@@ -169,29 +171,37 @@ AttributeEditWidget.prototype = {
                     }
                 },
                 '-',
-                {
-                    xtype: 'fieldcontainer',
-                    defaultType: 'radiofield',
-                    fieldLabel: 'View',
-                    labelWidth: 20,
-                    margin: '0 0 0 10',
-                    defaults: {
-                        margin: '0 0 0 10'
-                    },
-                    layout: 'hbox',
-                    items: [
-                        {
-                            boxLabel: 'All nodes',
-                            name: 'nodeselection',
-                            inputValue: 'all'
-                        },
-                        {
-                            boxLabel: 'Network selection',
-                            name: 'nodeselection',
-                            inputValue: 'selected'
-                        }
-                    ]
-                },
+//                {
+////                    toolbar.down('radiogroup').getValue() --> {selection: "all"}
+//                    xtype: 'radiogroup',
+//                    fieldLabel: 'View',
+//                    labelWidth: 20,
+//                    margin: '0 0 0 10',
+//                    defaults: {
+//                        margin: '0 0 0 10'
+//                    },
+//                    layout: 'hbox',
+//                    items: [
+//                        {
+//                            boxLabel: 'All',
+//                            checked: true,
+//                            name: 'selection',
+//                            inputValue: 'all'
+//                        },
+//                        {
+//                            boxLabel: 'Network selection',
+//                            name: 'selection',
+//                            inputValue: 'selected'
+//                        }
+//                    ],
+//                    listeners: {
+//                        change: function (radiogroup, newValue, oldValue, eOpts) {
+//                            if (newValue === 'selected') {
+//                            } else {
+//                            }
+//                        }
+//                    }
+//                },
                 '->',
                 {
                     xtype: 'tbtext',
@@ -199,7 +209,6 @@ AttributeEditWidget.prototype = {
                 }
             ]
         });
-
 
         this.grid = Ext.create('Ext.grid.Panel', {
             store: this.attrMan.store,
@@ -219,6 +228,7 @@ AttributeEditWidget.prototype = {
             ],
             listeners: {
                 selectionchange: function (model, selected) {
+                    console.log('selection change')
                     var nodeList = [];
                     for (var i = 0; i < selected.length; i++) {
                         nodeList.push(selected[i].getData().Id);
@@ -228,6 +238,7 @@ AttributeEditWidget.prototype = {
                 }
             },
             dockedItems: [toolbar]
+
         });
 
         this.accordionPanel = Ext.create('Ext.container.Container', {
@@ -291,8 +302,7 @@ AttributeEditWidget.prototype = {
     },
     select: function (vertices) {
         var selModel = this.grid.getSelectionModel();
-        selModel.deselectAll();
-        selModel.select(this.attrMan.getRecordsByVertices(vertices));
+        selModel.select(this.attrMan.getRecordsByVertices(vertices), false, true);
     },
 
 

@@ -39,12 +39,11 @@ function NetworkSvgLayout(args) {
     this.scale;
     this.network;
 
+    /** Action mode **/
+    this.mode = "select";
 
     //set instantiation args, must be last
     _.extend(this, args);
-
-    /** Action mode **/
-    this.mode = "select"; // Valid values: select, add, delete, join
 
 
     /** *** *** **/
@@ -193,9 +192,12 @@ NetworkSvgLayout.prototype = {
 
     },
     draw: function () {
+        this.clean();
+        this.network.draw(this.scaleGroupSVG);
+    },
+    clean: function () {
         $(this.scaleGroupSVG).empty();
         $(this.scaleBackgroundGroupSVG).empty();
-        this.network.draw(this.scaleGroupSVG);
     },
     setNetwork: function (network) {
         this.network = network;
@@ -212,8 +214,8 @@ NetworkSvgLayout.prototype = {
     addBackgroundImage: function (image) {
         this.backgroundImage = SVG.addChildImage(this.scaleBackgroundGroupSVG, {
             "id": Utils.genId('bi'),
-            "x": "30",
-            "y": "30",
+            "x": image.x,
+            "y": image.y,
             "xlink:href": image.src,
             "width": image.width,
             "height": image.height,
@@ -258,7 +260,12 @@ NetworkSvgLayout.prototype = {
             case "delete":
                 this.svg.setAttribute("cursor", "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA85JREFUWMPVlV1IpFUYx//ved/R+Z7WprUmddZGiZgN1rwoiCiXLIhi79o+2LK6aIyl9SOdIBCEMFrLFgKjC8WuZAO1K/Gi3KgsWVkEeQ1CSFv3dWYKJ9cdnXfnec55u1g2+sR1m1F6Ls+B5//j//zPc4D9rrm5uZ791BdSyt6ZmZnefQNgZoTD4Z7p6em398sB1NTUoLKy8q3Jycl39sUBAIhEIohEIm9OTEyc3nMAKSWklKiurkZVVVXX6Ojo6T0FUEqBmVEoFBCNRhGNRruGh4ff33MAIoJt26itrUUsFusYHBw8s2cA18eglAIAxGIx1NfXnxoYGPiw5ACGYcAwDOi6Dl3XMT4+vjU2NnZhYWGhQEQn+/r6SgYhiAiWZWFqaupqNpuFz+cDM3uZ+cnOzs7yZDKpEVF3T0+PpxQA2sjIiMPMaWY+xsxnm5ubD6XTaczOzn6STCZb9iID55n5/kQicZ6Z203TRENDA4joRG9vb6jkAET0SCKRuAgAbW1tny0tLaUzmQwaGxsFM7eXHKC1tTX/xwMi6p6fn0ddXR2YuaOrq6uspAB/PWDmswsLC6mhoaELzPxBf39/YbdN7ZZXvDccwt02d95IRgH4tffeXfxH8RdfjjtMjyried+no1/t2oEdxXV9xRHClKc64n8Tf+GlOIQwRSBwRhG9tvnUsXuKBnBdHOXlgNsNCGFS68nfIfInWuLQNFP3+1AWDsMVDB5XBXose7RZFGUETme321FqCx6P0AIBqM1NqI0NKDt/WBFDE8IUwQBcwRBs6xKuptJSEXkqzn1ORcuAfL3d7UiZ0zweXQRDkJc3wL9m4RBDDwTgCgVhX7Jgp9PSYfJXnPvCLnoI6dVWt2KZE16vbhy4BZAKUApQErZlwU5nrol/OW3f1DPcqVwff2Q7RH5aX1cgCaysAMvLgJSwU2mlqHDD4jcFAACKKKZpEJAMEAHMADM0XQhVoNh/WkQ71fYzz8ehwdQ9XoAJiESAyB0AM8pDIeiGbqaP3BcvySLaOv5cXBOaaXh9cAWDyKfWYGcyUhFp7gMVwhe5HdupNLbX1lC4kjt85w/fLxbNga2nn41rmmYaHi9cAR/y1rW0qwL5HSLflmXJKz8uwxu+FZ5wGEaZy1w9dNeOThi7mPtB4TIARyFvpZD/OSMdYn/4269tAEjde8Sfs6ycUyjoLp8PmhBwpDwIYLFoI9h4/Ikm4XJN0+ZlpYh9t333zZ/SbtXf7XakzJUFArqdzR6tWf3pXNG/z/WHHm765YEH3f92vxqtdV+sqmnC/6V+A4wb/YzHvgVzAAAAAElFTkSuQmCC), auto");
                 break;
-
+            case "selectbackground":
+                $(this.backgroundSVG).parent().append(this.backgroundSVG);
+                break;
+            case "select":
+                $(this.canvasSVG).parent().append(this.canvasSVG);
+                break;
             default:
                 this.svg.setAttribute("cursor", "default");
                 break;
@@ -364,7 +371,7 @@ NetworkSvgLayout.prototype = {
                     this.removeVertex(vertex);
                 }
                 break;
-            case "background":
+            case "selectbackground":
                 if ($(targetEl).attr('network-type') === 'background-image') {
                     var downX = (event.clientX - $(_this.svg).offset().left);
                     var downY = (event.clientY - $(_this.svg).offset().top);
@@ -441,8 +448,8 @@ NetworkSvgLayout.prototype = {
                         var width = parseFloat(_this.selectRect.getAttribute('width'));
                         var height = parseFloat(_this.selectRect.getAttribute('height'));
 
-                        _this._deselectAllEdges();
-                        _this.selectVerticesByArea(x, y, width, height);
+//                        _this._deselectAllEdges();
+                        _this.selectByArea(x, y, width, height);
 
                         _this.selectRect.setAttribute('x', 0);
                         _this.selectRect.setAttribute('y', 0);
@@ -452,7 +459,7 @@ NetworkSvgLayout.prototype = {
                 }
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
-            case "background":
+            case "selectbackground":
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
             case "join":
@@ -509,6 +516,7 @@ NetworkSvgLayout.prototype = {
     selectVerticesByIds: function (vertexIds) {
         this._deselectAllVertices();
         this.selectedVertices = this.network.selectVerticesByIds(vertexIds);
+        console.log('selectVerticesByIds');
     },
     selectVertex: function (vertex) {
         this._deselectAllVertices();
@@ -516,6 +524,7 @@ NetworkSvgLayout.prototype = {
 
         this.selectedVertices = [vertex];
         this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectVertex');
     },
     selectEdge: function (edge) {
         this._deselectAllEdges();
@@ -523,7 +532,7 @@ NetworkSvgLayout.prototype = {
 
         this.selectedEdges = [edge];
     },
-    selectVerticesByArea: function (x, y, width, height) {
+    selectByArea: function (x, y, width, height) {
         var centerX = this.width / 2;
         var centerY = this.height / 2;
         var transX = -centerX * (this.scale - 1);
@@ -538,13 +547,19 @@ NetworkSvgLayout.prototype = {
 
 
         this._deselectAllVertices();
-        this.selectedVertices = this.network.selectVerticesByArea(x, y, width, height);
+        this._deselectAllEdges();
+        var selection = this.network.selectByArea(x, y, width, height);
+        this.selectedVertices = selection.vertices;
+        this.selectedEdges = selection.edges;
         this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        this.trigger('select:edges', {vertices: this.selectedVertices, sender: this});
+        console.log('selectVerticesByArea');
     },
     selectAllVertices: function () {
         this._deselectAllEdges();
         this.selectedVertices = this.network.selectAllVertices();
         this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectAllVertices');
     },
     selectAllEdges: function () {
         this._deselectAllVertices();
@@ -554,6 +569,7 @@ NetworkSvgLayout.prototype = {
         this.selectedVertices = this.network.selectAllVertices();
         this.selectedEdges = this.network.selectAllEdges();
         this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectAll');
     },
     _deselectAllVertices: function () {
         this.selectedVertices = [];
@@ -627,12 +643,9 @@ NetworkSvgLayout.prototype = {
         this._deselectAllVertices();
     },
     removeSelectedVertices: function () {
-        for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
-            var vertex = this.selectedVertices[i];
-            if (typeof vertex !== 'undefined') {
-                this.network.removeVertex(vertex);
-            }
-        }
+        var vertices = this.selectedVertices;
+        this._deselectAllVertices();
+        this.network.removeVertices(vertices);
     },
     setSelectedVerticesDisplayAttr: function (displayAttr, value, updateEdges) {
         for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
@@ -672,7 +685,9 @@ NetworkSvgLayout.prototype = {
             images.push({
                 src: imagesEl[i].getAttribute('href'),
                 width: imagesEl[i].getAttribute('width'),
-                height: imagesEl[i].getAttribute('height')
+                height: imagesEl[i].getAttribute('height'),
+                x: imagesEl[i].getAttribute('x'),
+                y: imagesEl[i].getAttribute('y')
             });
         }
         return images;

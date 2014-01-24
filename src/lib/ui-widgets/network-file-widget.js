@@ -65,14 +65,13 @@ NetworkFileWidget.prototype.getFileUpload = function () {
                                 var networkJSON = event.jsonObject;
                                 _this.content = networkJSON;
 
+                                var data = [];
                                 for (var i = 0; i < networkJSON.graph.edges.length; i++) {
                                     var edge = networkJSON.graph.edges[i];
-                                    var link = "--";
-                                    if (edge.directed) link = "->";
-                                    _this.gridStore.loadData([
-                                        [edge.source.name, link, edge.target.name]
-                                    ], true);
+                                    data.push([edge.source.id, edge.relation, edge.target.id]);
                                 }
+                                _this.gridStore.loadData(data);
+
 
                                 var verticesLength = networkJSON.graph.vertices.length;
                                 var edgesLength = networkJSON.graph.edges.length;
@@ -137,9 +136,9 @@ NetworkFileWidget.prototype.draw = function () {
             loadMask: true,
             plugins: ['bufferedrenderer'],
             columns: [
-                {"header": "Source", "dataIndex": "0", flex: 1},
+                {"header": "Source node", "dataIndex": "0", flex: 1},
                 {"header": "Relation", "dataIndex": "1", flex: 1, menuDisabled: true},
-                {"header": "Target", "dataIndex": "2", flex: 1}
+                {"header": "Target node", "dataIndex": "2", flex: 1}
             ],
             features: [
                 {ftype: 'grouping'}

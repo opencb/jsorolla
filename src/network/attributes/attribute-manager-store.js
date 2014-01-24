@@ -82,17 +82,19 @@ AttributeManagerStore.prototype = {
         if (attribute.name !== 'Id') {
             editor = {xtype: 'textfield', allowBlank: true};
         }
+
         this.columnsGrid.push({
             "text": attribute.name,
             "dataIndex": attribute.name,
             "editor": editor
         });
+
         // set model fields
         this.model.setFields(this.attributes);
 
         //Set default value for existing records
         this.store.suspendEvents();
-        this.store.each(function(record){
+        this.store.each(function (record) {
             record.set(attribute.name, attribute.defaultValue);
         });
         this.store.commitChanges();
@@ -193,7 +195,7 @@ AttributeManagerStore.prototype = {
 //        console.log('AttributeManagerStore.getIdsByAttributeValue: ' + logDupCount);
         return ids;
     },
-    getRecordsByVertices:function(vertices){
+    getRecordsByVertices: function (vertices) {
         var records = [];
         for (var i = 0; i < vertices.length; i++) {
             var vertex = vertices[i];
@@ -201,8 +203,39 @@ AttributeManagerStore.prototype = {
             records.push(record);
         }
         return records;
-    }
+    },
 
+    clean: function () {
+        this.attributes = [];
+        this.columnsGrid = [];
+        this.attributes = [];
+        this.filters = {};
+
+        this.store.removeAll();
+        this.model.setFields(this.attributes);
+
+        this.trigger('change:attributes', {sender: this});
+    },
+    //save
+    toJSON: function () {
+        var json = {};
+        json.attributes = this.attributes;
+        json.filters = this.filters;
+        json.data = [];
+
+        // add row values to data matrix
+        var records = this.store.getRange();
+        for (var j = 0; j < records.length; j++) {
+            json.data.push([]);
+            for (var i = 0; i < this.attributes.length; i++) {
+                json.data[j].push(records[j].getData()[this.attributes[i].name]);
+            }
+        }
+        return json;
+    },
+    loadJSON: function () {
+
+    }
 }
 
 // TODO CHECK
@@ -419,24 +452,6 @@ AttributeManagerStore.prototype.loadJSON = function (json) {
 
     // add rows
     this.addRows(json.data, false);
-};
-
-AttributeManagerStore.prototype.toJSON = function () {
-    var json = {};
-    json.attributes = this.attributes;
-    json.filters = this.filters;
-    json.data = [];
-
-    // add row values to data matrix
-    var rows = this.store.getRange();
-    for (var j = 0; j < rows.length; j++) {
-        json.data.push([]);
-        for (var i = 0; i < this.attributes.length; i++) {
-            json.data[j].push(rows[j].getData()[this.attributes[i].name]);
-        }
-    }
-
-    return json;
 };
 
 AttributeManagerStore.prototype.setName = function (nodeId, newName) {
