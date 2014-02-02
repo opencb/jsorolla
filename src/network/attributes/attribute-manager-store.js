@@ -34,8 +34,16 @@ function AttributeManagerStore(args) {
         proxy: {
             type: 'memory'
         },
-        model: this.model
+        model: this.model,
+        listeners: {
+            update: function (st, record, operation, modifiedFieldNames) {
+                if(modifiedFieldNames && modifiedFieldNames[0]!='Selected'){
+                    _this.trigger('change:recordsAttribute', {records: [record], attributeName: modifiedFieldNames[0], sender: this});
+                }
+            }
+        }
     });
+
 
     this.columnsGrid = [];
     this.attributes = [];
@@ -143,7 +151,7 @@ AttributeManagerStore.prototype = {
         return nameList;
     },
     // END attribute methods
-    
+
 
     setRecordAttributeById: function (id, attributeName, value) {
         if (this.isAttributeLocked(attributeName)) {
@@ -186,6 +194,7 @@ AttributeManagerStore.prototype = {
         }
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
+        this.trigger('change:recordsAttribute', {records: records, attributeName: attributeName, sender: this});
     },
 //    addRecord: function (data, append) {
 //        this.store.loadData(data, append);
