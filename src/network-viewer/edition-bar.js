@@ -49,9 +49,15 @@ EditionBar.prototype = {
         }
 
         var navgationHtml = '' +
+            '<div class="btn-toolbar" role="toolbar" style="display:inline-block">' +
+            '   <div class="btn-group btn-group-xs" data-toggle="buttons">' +
+            '       <label class="btn btn-default"><input type="radio" name="selectionelement" id="nodeEditButton" title="Node edit mode">Nodes</label>' +
+            '       <label class="btn btn-default"><input type="radio" name="selectionelement" id="edgeEditButton" title="Edge edit mode">Edges</label>' +
+            '   </div>' +
+            '</div>' +
             '<div id="nodeToolbar" class="btn-toolbar" role="toolbar" style="display:inline-block">' +
-            '   <div class="btn-group" style="width:140px;margin-left: 10px;" title="Node name">' +
-            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Node:&nbsp;</span>' +
+            '   <div class="btn-group" style="width:100px;margin-left: 10px;" title="Node name">' +
+//            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Node:&nbsp;</span>' +
             '       <input id="nodeNameField" type="text" class="form-control" placeholder="name" style="padding:0px 4px;height:23px;width:100px">' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs" title="Node shape">' +
@@ -107,9 +113,9 @@ EditionBar.prototype = {
             '   </div>' +
             '</div>' +
 
-            '<div id="edgeToolbar" class="btn-toolbar" style="display:inline-block">' +
-            '   <div class="btn-group" style="width:140px;margin-left: 10px"  title="Edge name">' +
-            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Edge:&nbsp;</span>' +
+            '<div id="edgeToolbar" class="btn-toolbar hidden" style="display:inline-block">' +
+            '   <div class="btn-group" style="width:100px;margin-left: 10px"  title="Edge name">' +
+//            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;"></span>' +
             '       <input id="edgeLabelField" type="text" class="form-control" placeholder="label" style="padding:0px 4px;height:23px;width:100px">' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs"  title="Edge shape">' +
@@ -154,6 +160,10 @@ EditionBar.prototype = {
         /**************/
 
 
+        this.nodeEditButton = $(this.div).find('#nodeEditButton');
+        this.edgeEditButton = $(this.div).find('#edgeEditButton');
+
+
         /* node */
         this.nodeShapeButton = $(this.div).find('#nodeShapeButton');
         this.nodeSizeButton = $(this.div).find('#nodeSizeButton');
@@ -196,6 +206,15 @@ EditionBar.prototype = {
 
 
         /*************/
+
+        $(this.nodeEditButton).change(function (e) {
+            _this.hideEdgeToolbar();
+            _this.showNodeToolbar();
+        });
+        $(this.edgeEditButton).change(function (e) {
+            _this.showEdgeToolbar();
+            _this.hideNodeToolbar();
+        });
 
 
         this._setColorSelect(this.nodeColorSelect);

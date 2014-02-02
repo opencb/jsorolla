@@ -26,8 +26,6 @@ function NetworkSvgLayout(args) {
 
     this.bgColor = "white";
     this.overviewScale = 1;
-    this.scale = 1;
-    this.zoom = 0;
     this.canvasOffsetX = 0;
     this.canvasOffsetY = 0;
 
@@ -36,7 +34,7 @@ function NetworkSvgLayout(args) {
     this.bgColor;
     this.species;
     this.parentNetwork;
-    this.scale;
+    this.scale = 1;
     this.network;
 
     /** Action mode **/
@@ -46,15 +44,8 @@ function NetworkSvgLayout(args) {
     _.extend(this, args);
 
 
-    /** *** *** **/
-    this.createdVertexCount = 0;
-
     /* join vertex click flag */
     this.joinSourceVertex = null;
-
-    this.selectedVertices = [];
-
-    this.selectedEdges = [];
 
     this.on(this.handlers);
 
@@ -66,6 +57,9 @@ function NetworkSvgLayout(args) {
 
 
 NetworkSvgLayout.prototype = {
+    getSvgEl: function () {
+        return  this.svg;
+    },
     render: function (targetId) {
         var _this = this;
         if (targetId)this.targetId = targetId;
@@ -110,6 +104,7 @@ NetworkSvgLayout.prototype = {
             "width": '100%',
             "height": '100%',
             "fill": 'white',
+            "opacity":'0.7',
             "x": 0,
             "y": 0
         });
@@ -191,16 +186,13 @@ NetworkSvgLayout.prototype = {
 
 
     },
-    draw: function () {
-        this.clean();
-        this.network.draw(this.scaleGroupSVG);
+    getElementsSVG: function () {
+        return this.scaleGroupSVG;
     },
     clean: function () {
         $(this.scaleGroupSVG).empty();
         $(this.scaleBackgroundGroupSVG).empty();
-    },
-    setNetwork: function (network) {
-        this.network = network;
+        $(this.scaleBackgroundGroupSVG).append(this.backgroundRect);
     },
     getWidth: function () {
         return this.width;
@@ -227,6 +219,20 @@ NetworkSvgLayout.prototype = {
             this.addBackgroundImage(images[i]);
         }
     },
+    getBackGroundImages: function () {
+        var images = [];
+        var imagesEl = $(this.scaleBackgroundGroupSVG).find('image[network-type="background-image"]');
+        for (var i = 0; i < imagesEl.length; i++) {
+            images.push({
+                src: imagesEl[i].getAttribute('href'),
+                width: imagesEl[i].getAttribute('width'),
+                height: imagesEl[i].getAttribute('height'),
+                x: imagesEl[i].getAttribute('x'),
+                y: imagesEl[i].getAttribute('y')
+            });
+        }
+        return images;
+    },
     setZoom: function (zoom) {
         this.scale = (zoom == 0) ? 0.03 : (zoom / 25);
 
@@ -239,12 +245,6 @@ NetworkSvgLayout.prototype = {
         this.scaleBackgroundGroupSVG.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
 
     },
-//    setScale: function (scale) {
-//        this.scale = scale;
-//        this.scaleGroupSVG.setAttribute("transform", "scale(" + this.scale + ")");
-//        this.scaleBackgroundGroupSVG.setAttribute("transform", "scale(" + this.scale + ")");
-//    },
-    /*  */
     setMode: function (mode) {
         this.mode = mode;
         switch (mode) {
@@ -262,9 +262,11 @@ NetworkSvgLayout.prototype = {
                 break;
             case "selectbackground":
                 $(this.backgroundSVG).parent().append(this.backgroundSVG);
+                this.svg.setAttribute("cursor", "default");
                 break;
             case "select":
                 $(this.canvasSVG).parent().append(this.canvasSVG);
+                this.svg.setAttribute("cursor", "default");
                 break;
             default:
                 this.svg.setAttribute("cursor", "default");
@@ -276,30 +278,22 @@ NetworkSvgLayout.prototype = {
         var _this = this;
         var targetEl = event.target;
         var targetElNetworkType = $(targetEl).attr('network-type');
+        var downX = (event.clientX - $(this.svg).offset().left);
+        var downY = (event.clientY - $(this.svg).offset().top);
+
         switch (this.mode) {
             case "add":
                 /* event coordinates */
-                var downX = (event.clientX - $(this.svg).offset().left);
-                var downY = (event.clientY - $(this.svg).offset().top);
-                if ($(targetEl).attr('network-type') !== 'vertex') {
-                    this.createVertex(downX, downY);
+                if (targetElNetworkType !== 'vertex') {
+                    this.trigger('create:vertex', {x: downX, y: downY});
                 }
                 break;
             case "select":
-                var downX = (event.clientX - $(_this.svg).offset().left);
-                var downY = (event.clientY - $(_this.svg).offset().top);
-
                 switch (targetElNetworkType) {
                     case 'vertex':
                     case 'vertex-label':
-//                        var vertexId = $(targetEl).parent().parent().attr('id');
-                        var vertexId = $(targetEl).closest('[network-type="vertex-svg"]').attr('id');
-                        var vertex = _this.network.getVertexById(vertexId);
-
-                        var isSelected = this.network.isVertexSelected(vertex);
-                        if (!isSelected) {
-                            this.selectVertex(vertex);
-                        }
+                        var vertexId = this.getVertexId(targetEl);
+                        this.trigger('select:vertex', {vertexId: vertexId, sender: _this});
 
                         var lastX = downX;
                         var lastY = downY;
@@ -310,7 +304,7 @@ NetworkSvgLayout.prototype = {
                             var dispX = moveX - lastX;
                             var dispY = moveY - lastY;
 
-                            _this._moveSelectedVertices(dispX, dispY);
+                            _this.trigger('move:selectedVertices', {dispX: dispX, dispY: dispY, sender: _this});
 
                             lastX = moveX;
                             lastY = moveY;
@@ -341,40 +335,35 @@ NetworkSvgLayout.prototype = {
                 break;
             case "join":
                 /* vertex clicked */
-                if ($(targetEl).attr('network-type') === 'vertex') {
-                    var vertexId = $(targetEl).parent().parent().attr('id');
-                    var vertex = _this.network.getVertexById(vertexId);
-                    var vertexConfig = _this.network.getVertexConfig(vertex);
+                if (targetElNetworkType === 'vertex') {
+                    var vertexId = this.getVertexId(targetEl);
                     // first time vertex click
                     if (_this.joinSourceVertex == null) {
-                        _this.joinSourceVertex = vertex;
+                        _this.joinSourceVertex = vertexId;
+                        _this.temporalLinkSvg.setAttribute('x1', downX);
+                        _this.temporalLinkSvg.setAttribute('y1', downY);
                         $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
                             moveEvent.preventDefault();
                             var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
                             var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
-                            _this.temporalLinkSvg.setAttribute('x1', vertexConfig.coords.x);
-                            _this.temporalLinkSvg.setAttribute('y1', vertexConfig.coords.y);
                             _this.temporalLinkSvg.setAttribute('x2', moveX);
                             _this.temporalLinkSvg.setAttribute('y2', moveY);
                         });
                         // second vertex click
                     } else if (_this.joinSourceVertex !== vertex) {
-                        _this.createEdge(_this.joinSourceVertex, vertex);
+                        _this.trigger('create:edge', {sourceId: _this.joinSourceVertex, targetId: vertexId, sender: _this});
                         _this.joinSourceVertex = null;
                     }
                 }
                 break;
             case "delete":
-                if ($(targetEl).attr('network-type') === 'vertex') {
-                    var vertexId = $(targetEl).parent().parent().attr('id');
-                    var vertex = _this.network.getVertexById(vertexId);
-                    this.removeVertex(vertex);
+                if (targetElNetworkType === 'vertex') {
+                    var vertexId = this.getVertexId(targetEl);
+                    _this.trigger('remove:vertex', {vertexId: vertexId, sender: _this});
                 }
                 break;
             case "selectbackground":
-                if ($(targetEl).attr('network-type') === 'background-image') {
-                    var downX = (event.clientX - $(_this.svg).offset().left);
-                    var downY = (event.clientY - $(_this.svg).offset().top);
+                if (targetElNetworkType === 'background-image') {
                     $(targetEl).parent().append(targetEl);
                     var lastX = downX;
                     var lastY = downY;
@@ -408,6 +397,7 @@ NetworkSvgLayout.prototype = {
         var _this = this;
         var targetEl = event.target;
         var targetElNetworkType = $(targetEl).attr('network-type');
+
         switch (this.mode) {
             case "add":
                 $(_this.svg).off('mousemove.networkViewer');
@@ -416,31 +406,13 @@ NetworkSvgLayout.prototype = {
                 switch (targetElNetworkType) {
                     case 'vertex':
                     case 'vertex-label':
-//                        var vertexId = $(targetEl).parent().parent().attr('id');
-                        var vertexId = $(targetEl).closest('[network-type="vertex-svg"]').attr('id');
-                        var vertex = this.network.getVertexById(vertexId);
-//                        this.network.getVertexAttributes(vertex, function (attributes) {
-                        _this.trigger('vertex:leftClick', {
-                            vertex: vertex,
-                            vertexConfig: _this.network.getVertexConfig(vertex)
-//                                attributes: attributes
-                        });
-//                        });
+                        var vertexId = this.getVertexId(targetEl);
+                        this.trigger('vertex:leftClick', {vertexId: vertexId});
                         break;
                     case 'edge':
                     case 'edge-label':
-                        var edgeId = $(targetEl).parent().attr('id');
-                        var edge = this.network.getEdgeById(edgeId);
-                        var edgeConfig = this.network.getEdgeConfig(edge);
-
-                        var isSelected = this.network.isEdgeSelected(edge);
-                        if (!isSelected) {
-                            this.selectEdge(edge);
-                        }
-                        this.trigger('edge:leftClick', {
-                            edge: edge,
-                            edgeConfig: edgeConfig
-                        });
+                        var edgeId = this.getEdgeId(targetEl);
+                        this.trigger('edge:leftClick', {edgeId: edgeId, sender: this});
                         break;
                     default:
                         var x = parseFloat(_this.selectRect.getAttribute('x'));
@@ -448,8 +420,7 @@ NetworkSvgLayout.prototype = {
                         var width = parseFloat(_this.selectRect.getAttribute('width'));
                         var height = parseFloat(_this.selectRect.getAttribute('height'));
 
-//                        _this._deselectAllEdges();
-                        _this.selectByArea(x, y, width, height);
+                        _this.trigger('select:area', {x: x, y: y, width: width, height: height, sender: _this});
 
                         _this.selectRect.setAttribute('x', 0);
                         _this.selectRect.setAttribute('y', 0);
@@ -463,7 +434,7 @@ NetworkSvgLayout.prototype = {
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
             case "join":
-                if ($(targetEl).attr('network-type') !== 'vertex') {
+                if (targetElNetworkType !== 'vertex') {
                     _this.joinSourceVertex = null;
                 }
                 if (_this.joinSourceVertex == null) {
@@ -475,12 +446,17 @@ NetworkSvgLayout.prototype = {
                 }
                 break;
             case "delete":
-                if ($(targetEl).attr('network-type') !== 'vertex') {
+                if (targetElNetworkType !== 'vertex') {
 
                 }
                 break;
         }
-        this.trigger('click:leftMouseUp', {sender: _this});
+    },
+    getVertexId: function (targetEl) {
+        return $(targetEl).closest('[network-type="vertex-svg"]').attr('id');
+    },
+    getEdgeId: function (targetEl) {
+        return $(targetEl).closest('[network-type="edge-g"]').attr('id');
     },
     contextMenu: function (event) {
         var _this = this;
@@ -496,201 +472,12 @@ NetworkSvgLayout.prototype = {
             case "delete":
                 break;
         }
-
         var downX = (event.clientX - $(this.svg).offset().left);
         var downY = (event.clientY - $(this.svg).offset().top);
         if (targetElNetworkType === 'vertex') {
-            var vertexId = $(targetEl).parent().parent().attr('id');
-            var vertex = _this.network.getVertexById(vertexId);
-//            _this.network.getVertexAttributes(vertex, function (attributes) {
-            _this.trigger('vertex:rightClick', {
-                vertex: vertex,
-//                    attributes: attributes,
-                x: downX,
-                y: downY
-            });
-//            });
-
+            var vertexId = this.getVertexId(targetEl);
+            this.trigger('vertex:rightClick', { vertexId: vertexId, x: downX, y: downY, sender: this});
         }
-    },
-    selectVerticesByIds: function (vertexIds) {
-        this._deselectAllVertices();
-        this.selectedVertices = this.network.selectVerticesByIds(vertexIds);
-        console.log('selectVerticesByIds');
-    },
-    selectVertex: function (vertex) {
-        this._deselectAllVertices();
-        this.network.selectVertex(vertex);
-
-        this.selectedVertices = [vertex];
-        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-        console.log('selectVertex');
-    },
-    selectEdge: function (edge) {
-        this._deselectAllEdges();
-        this.network.selectEdge(edge);
-
-        this.selectedEdges = [edge];
-    },
-    selectByArea: function (x, y, width, height) {
-        var centerX = this.width / 2;
-        var centerY = this.height / 2;
-        var transX = -centerX * (this.scale - 1);
-        var transY = -centerY * (this.scale - 1);
-        x -= transX;
-        y -= transY;
-
-        x /= this.scale;
-        y /= this.scale;
-        width /= this.scale;
-        height /= this.scale;
-
-
-        this._deselectAllVertices();
-        this._deselectAllEdges();
-        var selection = this.network.selectByArea(x, y, width, height);
-        this.selectedVertices = selection.vertices;
-        this.selectedEdges = selection.edges;
-        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-        this.trigger('select:edges', {vertices: this.selectedVertices, sender: this});
-        console.log('selectVerticesByArea');
-    },
-    selectAllVertices: function () {
-        this._deselectAllEdges();
-        this.selectedVertices = this.network.selectAllVertices();
-        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-        console.log('selectAllVertices');
-    },
-    selectAllEdges: function () {
-        this._deselectAllVertices();
-        this.selectedEdges = this.network.selectAllEdges();
-    },
-    selectAll: function () {
-        this.selectedVertices = this.network.selectAllVertices();
-        this.selectedEdges = this.network.selectAllEdges();
-        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-        console.log('selectAll');
-    },
-    _deselectAllVertices: function () {
-        this.selectedVertices = [];
-        this.network.deselectAllVertices();
-    },
-    _deselectAllEdges: function () {
-        this.selectedEdges = [];
-        this.network.deselectAllEdges();
-    },
-    _moveSelectedVertices: function (dispX, dispY) {
-        dispX /= this.scale;
-        dispY /= this.scale;
-        for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
-            var vertex = this.selectedVertices[i];
-            this.network.moveVertex(vertex, dispX, dispY);
-        }
-    },
-    setVertexCoords: function (vertexId, x, y) {
-        var vertex = this.network.getVertexById(vertexId);
-        this.network.setVertexCoords(vertex, x, y);
-    },
-
-    createVertex: function (x, y) {
-
-        /* vertex graph */
-        var vertex = new Vertex({
-            id: 'node' + this.createdVertexCount
-        });
-
-        /* vertex config */
-        var vertexConfig = new VertexConfig({
-            coords: {x: x, y: y},
-            renderer: new DefaultVertexRenderer({})
-//            renderer: new CircosVertexRenderer({})
-        });
-
-        //update variables
-        this.createdVertexCount++;
-        this.network.addVertex({
-            vertex: vertex,
-            vertexConfig: vertexConfig,
-            target: this.scaleGroupSVG
-        });
-
-        return vertex;
-    },
-    createEdge: function (vertexSource, vertexTarget) {
-        /* edge graph */
-        var edge = new Edge({
-            id: vertexSource.id + '_' + '-' + '_' + vertexTarget.id,
-            relation: '-',
-            source: vertexSource,
-            target: vertexTarget
-        });
-
-        var edgeConfig = new EdgeConfig({
-            renderer: new DefaultEdgeRenderer({
-
-            })
-        });
-
-        this.network.addEdge({
-            edge: edge,
-            edgeConfig: edgeConfig,
-            target: this.scaleGroupSVG
-        });
-    },
-
-    removeVertex: function (vertex) {
-        this.network.removeVertex(vertex);
-        this._deselectAllVertices();
-    },
-    removeSelectedVertices: function () {
-        var vertices = this.selectedVertices;
-        this._deselectAllVertices();
-        this.network.removeVertices(vertices);
-    },
-    setSelectedVerticesDisplayAttr: function (displayAttr, value, updateEdges) {
-        for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
-            var vertex = this.selectedVertices[i];
-            if (typeof vertex !== 'undefined') {
-                this.network.setVertexRendererAttribute(vertex, displayAttr, value, updateEdges);
-            }
-        }
-    },
-    setSelectedEdgesDisplayAttr: function (displayAttr, value) {
-        for (var i = 0, li = this.selectedEdges.length; i < li; i++) {
-            var edge = this.selectedEdges[i];
-            if (typeof edge !== 'undefined') {
-                this.network.setEdgeRendererAttribute(edge, displayAttr, value);
-            }
-        }
-    },
-    setVertexLabel: function (label) {
-        if (this.selectedVertices.length == 1) {
-            var vertex = this.selectedVertices[0];
-            this.network.setVertexLabel(vertex, label);
-        }
-    },
-    setEdgeLabel: function (label) {
-        if (this.selectedEdges.length == 1) {
-            var edge = this.selectedEdges[0];
-            this.network.setEdgeLabel(edge, label);
-        }
-    },
-    getSvgEl: function () {
-        return  this.canvas;
-    },
-    getBackGroundImages: function () {
-        var images = [];
-        var imagesEl = $(this.scaleBackgroundGroupSVG).find('image[network-type="background-image"]');
-        for (var i = 0; i < imagesEl.length; i++) {
-            images.push({
-                src: imagesEl[i].getAttribute('href'),
-                width: imagesEl[i].getAttribute('width'),
-                height: imagesEl[i].getAttribute('height'),
-                x: imagesEl[i].getAttribute('x'),
-                y: imagesEl[i].getAttribute('y')
-            });
-        }
-        return images;
     }
 };
 

@@ -23,6 +23,7 @@ function AttributeEditWidget(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('AttributeEditWidget');
+    console.log(this.id)
 
     this.window;
     this.grid;
@@ -31,6 +32,11 @@ function AttributeEditWidget(args) {
     this.attrMan;
     this.type;
 
+    this.selectedFilter = new Ext.util.Filter({
+        filterFn: function (item) {
+            return item.data['Selected'] === true;
+        }
+    });
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -45,7 +51,6 @@ function AttributeEditWidget(args) {
 AttributeEditWidget.prototype = {
     render: function () {
         var _this = this;
-
 
         this.attrMan.on('change:attributes', function () {
             _this.reconfigureComponents();
@@ -62,6 +67,26 @@ AttributeEditWidget.prototype = {
             title: 'Edit multiple values',
             bodyPadding: "10 0 10 10",
             layout: 'vbox',
+            dockedItems: [
+                {
+                    xtype: 'toolbar',
+                    dock: 'top',
+                    items: [
+                        {
+                            text: 'Select all rows',
+                            handler: function () {
+                                _this.grid.getSelectionModel().selectAll();
+                            }
+                        },
+                        {
+                            text: 'Deselect all rows',
+                            handler: function () {
+                                _this.grid.getSelectionModel().deselectAll();
+                            }
+                        }
+                    ]
+                }
+            ],
             items: [
                 this.createAttributesCombo(),
                 this.createValueField(),
@@ -75,7 +100,7 @@ AttributeEditWidget.prototype = {
                         var newValue = bt.prev().getValue();
                         var selectedAttr = bt.prev().prev().getValue();
                         var selectedRecords = _this.grid.getSelectionModel().getSelection();
-                        _this.attrMan.setValueByAttributeAndRecords(selectedRecords, selectedAttr, newValue);
+                        _this.attrMan.setRecordsAttribute(selectedRecords, selectedAttr, newValue);
                     }
                 }
             ]
@@ -171,37 +196,36 @@ AttributeEditWidget.prototype = {
                     }
                 },
                 '-',
-//                {
-////                    toolbar.down('radiogroup').getValue() --> {selection: "all"}
-//                    xtype: 'radiogroup',
-//                    fieldLabel: 'View',
-//                    labelWidth: 20,
-//                    margin: '0 0 0 10',
-//                    defaults: {
-//                        margin: '0 0 0 10'
-//                    },
-//                    layout: 'hbox',
-//                    items: [
-//                        {
-//                            boxLabel: 'All',
-//                            checked: true,
-//                            name: 'selection',
-//                            inputValue: 'all'
-//                        },
-//                        {
-//                            boxLabel: 'Network selection',
-//                            name: 'selection',
-//                            inputValue: 'selected'
-//                        }
-//                    ],
-//                    listeners: {
-//                        change: function (radiogroup, newValue, oldValue, eOpts) {
-//                            if (newValue === 'selected') {
-//                            } else {
-//                            }
-//                        }
-//                    }
-//                },
+                {
+//                    toolbar.down('radiogroup').getValue() --> {selection: "all"}
+                    xtype: 'radiogroup',
+                    id: this.id + 'selectMode',
+                    fieldLabel: 'View',
+                    labelWidth: 20,
+                    margin: '0 0 0 10',
+                    defaults: {
+                        margin: '0 0 0 10'
+                    },
+                    layout: 'hbox',
+                    items: [
+                        {
+                            boxLabel: 'All',
+                            name: this.id + 'selection',
+                            inputValue: 'all'
+                        },
+                        {
+                            boxLabel: 'Network selection',
+                            checked: true,
+                            name: this.id + 'selection',
+                            inputValue: 'selected'
+                        }
+                    ],
+                    listeners: {
+                        change: function (radiogroup, newValue, oldValue, eOpts) {
+                            _this.checkSelectedFilter();
+                        }
+                    }
+                },
                 '->',
                 {
                     xtype: 'tbtext',
@@ -227,15 +251,13 @@ AttributeEditWidget.prototype = {
                 })
             ],
             listeners: {
-                selectionchange: function (model, selected) {
-                    console.log('selection change')
-                    var nodeList = [];
-                    for (var i = 0; i < selected.length; i++) {
-                        nodeList.push(selected[i].getData().Id);
-                    }
-
-                    _this.trigger('vertices:select', {vertices: nodeList, sender: _this});
-                }
+//                selectionchange: function (model, selected) {
+//                    console.log('selection change')
+//                    var nodeList = [];
+//                    for (var i = 0; i < selected.length; i++) {
+//                        nodeList.push(selected[i].getData().Id);
+//                    }
+//                }
             },
             dockedItems: [toolbar]
 
@@ -280,8 +302,8 @@ AttributeEditWidget.prototype = {
         });
     },
     draw: function () {
-
         this.window.show();
+        this.checkSelectedFilter();
     },
     setAttributeManager: function (attrMan) {
         var _this = this;
@@ -300,9 +322,12 @@ AttributeEditWidget.prototype = {
     reloadComboStore: function () {
         this.comboStore.loadData(this.attrMan.attributes);
     },
-    select: function (vertices) {
-        var selModel = this.grid.getSelectionModel();
-        selModel.select(this.attrMan.getRecordsByVertices(vertices), false, true);
+    checkSelectedFilter: function () {
+        this.attrMan.store.removeFilter(this.selectedFilter);
+        var value = Ext.getCmp(this.id + 'selectMode').getValue();
+        if (value[this.id + 'selection'] === 'selected') {
+            this.attrMan.store.addFilter(this.selectedFilter);
+        }
     },
 
 

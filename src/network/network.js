@@ -31,7 +31,8 @@ function Network(args) {
     this.graph = new Graph();
     this.config = new NetworkConfig();
 
-
+    // Default attributes for nodes and edges.
+    // They cannot be deleted.
     var nodeAttributes = [
         {name: "Id", type: "string", defaultValue: "none", locked: true},
         {name: "Name", type: "string", defaultValue: "none"}
@@ -83,11 +84,12 @@ Network.prototype = {
             }
 
 
-            //attributes
             var n = vertex.id;
+            //attributes
             if (typeof name !== 'undefined') {
                 n = name;
             }
+
             this.nodeAttributeManager.addRecord([
                 [vertex.id, n]
             ], true);
@@ -107,6 +109,7 @@ Network.prototype = {
             if (typeof target !== 'undefined') {
                 this.renderEdge(edge, target);
             }
+
             //attributes
             this.edgeAttributeManager.addRecord([
                 [edge.id, edge.id, edge.relation]
@@ -217,19 +220,23 @@ Network.prototype = {
     selectVertex: function (vertex) {
         var vertexConfig = this.config.getVertexConfig(vertex);
         vertexConfig.renderer.select();
+        this.nodeAttributeManager.setRecordAttributeById(vertex.id, 'Selected', true);
     },
     selectEdge: function (edge) {
         var edgeConfig = this.config.getEdgeConfig(edge);
         edgeConfig.renderer.select();
+        this.edgeAttributeManager.setRecordAttributeById(edge.id, 'Selected', true);
     },
     selectVerticesByIds: function (vertexIds) {
         var selectedVertices = []
         for (var i = 0, l = vertexIds.length; i < l; i++) {
             var vertexId = vertexIds[i];
             var vertex = this.getVertexById(vertexId);
-            this.selectVertex(vertex);
+            var vertexConfig = this.config.getVertexConfig(vertex);
+            vertexConfig.renderer.select();
             selectedVertices.push(vertex);
         }
+        this.nodeAttributeManager.selectByItems(selectedVertices);
         return selectedVertices;
     },
     selectByArea: function (x, y, width, height) {
@@ -256,33 +263,41 @@ Network.prototype = {
                 }
             }
         }
+        this.nodeAttributeManager.selectByItems(selectedVertices);
+        this.edgeAttributeManager.selectByItems(selectedEdges);
         return {vertices: selectedVertices, edges: selectedEdges};
     },
     deselectVertex: function (vertex) {
         var vertexConfig = this.config.getVertexConfig(vertex);
         vertexConfig.renderer.deselect();
+        this.nodeAttributeManager.setRecordAttributeById(vertex.id, 'Selected', false);
     },
     deselectEdge: function (edge) {
         var edgeConfig = this.config.getEdgeConfig(edge);
         edgeConfig.renderer.deselect();
+        this.edgeAttributeManager.setRecordAttributeById(edge.id, 'Selected', false);
     },
     deselectAllVertices: function () {
         var vertices = this.graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
             var vertex = vertices[i];
             if (typeof vertex !== 'undefined') {
-                this.deselectVertex(vertex);
+                var vertexConfig = this.config.getVertexConfig(vertex);
+                vertexConfig.renderer.deselect();
             }
         }
+        this.nodeAttributeManager.deselectAll();
     },
     deselectAllEdges: function () {
         var edges = this.graph.edges;
         for (var i = 0, l = edges.length; i < l; i++) {
             var edge = edges[i];
             if (typeof edge !== 'undefined') {
-                this.deselectEdge(edge);
+                var edgeConfig = this.config.getEdgeConfig(edge);
+                edgeConfig.renderer.deselect();
             }
         }
+        this.edgeAttributeManager.deselectAll();
     },
     selectAllVertices: function () {
         var selectedVertices = [];
@@ -290,10 +305,12 @@ Network.prototype = {
         for (var i = 0, l = vertices.length; i < l; i++) {
             var vertex = vertices[i];
             if (typeof vertex !== 'undefined') {
-                this.selectVertex(vertex);
+                var vertexConfig = this.config.getVertexConfig(vertex);
+                vertexConfig.renderer.select();
                 selectedVertices.push(vertex);
             }
         }
+        this.nodeAttributeManager.selectAll();
         return selectedVertices;
     },
     selectAllEdges: function () {
@@ -302,10 +319,12 @@ Network.prototype = {
         for (var i = 0, l = edges.length; i < l; i++) {
             var edge = edges[i];
             if (typeof edge !== 'undefined') {
-                this.selectEdge(edge);
+                var edgeConfig = this.config.getEdgeConfig(edge);
+                edgeConfig.renderer.select();
                 selectedEdges.push(edge);
             }
         }
+        this.edgeAttributeManager.selectAll();
         return selectedEdges;
     },
 
@@ -507,7 +526,6 @@ Network.prototype = {
                 edge: edge,
                 edgeConfig: edgeConfig
             });
-
         }
 
         this._importAttributes(content.nodeAttributes, this.nodeAttributeManager);
@@ -545,14 +563,18 @@ Network.prototype = {
             // add values for attributes
             var values = [];
             for (var i = 0; i < data.data.length; i++) {
+                var id = data.data[i][0];
+                var recordObject = {
+                    id: id
+                };
                 for (var j = 1; j < data.data[i].length; j++) {
-                    var id = data.data[i][0];
                     var attr = attributes[j].name;
                     var value = data.data[i][j];
-                    values.push({id: id, attributeName: attr, value: value});
+                    recordObject[attr] = value;
                 }
+                values.push(recordObject);
             }
-            attributeManager.setValueByAttributeAndIds(values);
+            attributeManager.setRecordAttributeByIds(values);
         }
     },
     importEdgesWithAttributes: function (data) {

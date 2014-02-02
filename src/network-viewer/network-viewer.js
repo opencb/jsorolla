@@ -45,6 +45,10 @@ function NetworkViewer(args) {
 
     this.contextMenu;
 
+    this.selectedVertices = [];
+    this.selectedEdges = [];
+    this.createdVertexCount = 0;
+
     this.overviewRefreshing = false;
 
     this.zoom = 25;
@@ -61,8 +65,7 @@ NetworkViewer.prototype = {
     setNetwork: function (network) {
         this.clean();
         this.network = network;
-        this.networkSvgLayout.setNetwork(network);
-        this.networkSvgLayout.draw();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     render: function (targetId) {
         var _this = this;
@@ -204,33 +207,12 @@ NetworkViewer.prototype = {
 
         if (typeof localStorage.networkViewer !== 'undefined') {
             this.loadJSON(JSON.parse(localStorage.networkViewer));
-//            //PREGUNTO
-//            var alert = $(this.alertDiv).find('.alert');
-//            $(alert).removeClass('hidden');
-//            $(alert).find('.btn-info').click(function () {
-//                $(_this.alertDiv).addClass('hidden');
-//                _this.loadJSON(JSON.parse(localStorage.networkViewer));
-//                /* auto save session timeout */
-//                var intervalId = setInterval(function () {
-//                    localStorage.networkViewer = JSON.stringify(_this.toJSON());
-//                    console.log('Session saved');
-//                }, 2000);
-//
-//            });
-//            $(alert).find('.btn-danger').click(function () {
-//                $(alert).addClass('hidden');
-//                /* auto save session timeout */
-//                var intervalId = setInterval(function () {
-//                    localStorage.networkViewer = JSON.stringify(_this.toJSON());
-//                    console.log('Session saved');
-//                }, 2000);
-//            });
         }
         /* auto save session timeout */
         var intervalId = setInterval(function () {
             localStorage.networkViewer = JSON.stringify(_this.toJSON());
             console.log('Session saved');
-        }, 2000);
+        }, 3000);
     },
     hideOverviewPanel: function () {
         $(this.overviewPanelDiv).css({display: 'none'});
@@ -349,37 +331,37 @@ NetworkViewer.prototype = {
             autoRender: true,
             handlers: {
                 'nodeShape:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('shape', event.value);
+                    _this.setSelectedVerticesDisplayAttr('shape', event.value);
                 },
                 'nodeSize:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('size', parseInt(event.value), true);
+                    _this.setSelectedVerticesDisplayAttr('size', parseInt(event.value), true);
                 },
                 'nodeStrokeSize:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('strokeSize', parseInt(event.value), true);
+                    _this.setSelectedVerticesDisplayAttr('strokeSize', parseInt(event.value), true);
                 },
                 'opacity:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('opacity', event.value);
+                    _this.setSelectedVerticesDisplayAttr('opacity', event.value);
                 },
                 'edgeShape:change': function (event) {
-                    _this.networkSvgLayout.setSelectedEdgesDisplayAttr('shape', event.value);
+                    _this.setSelectedEdgesDisplayAttr('shape', event.value);
                 },
                 'edgeSize:change': function (event) {
-                    _this.networkSvgLayout.setSelectedEdgesDisplayAttr('size', parseInt(event.value));
+                    _this.setSelectedEdgesDisplayAttr('size', parseInt(event.value));
                 },
                 'nodeColorField:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('color', event.value);
+                    _this.setSelectedVerticesDisplayAttr('color', event.value);
                 },
                 'nodeStrokeColorField:change': function (event) {
-                    _this.networkSvgLayout.setSelectedVerticesDisplayAttr('strokeColor', event.value);
+                    _this.setSelectedVerticesDisplayAttr('strokeColor', event.value);
                 },
                 'edgeColorField:change': function (event) {
-                    _this.networkSvgLayout.setSelectedEdgesDisplayAttr('color', event.value);
+                    _this.setSelectedEdgesDisplayAttr('color', event.value);
                 },
                 'nodeNameField:change': function (event) {
-                    _this.networkSvgLayout.setVertexLabel(event.value);
+                    _this.setVertexLabel(event.value);
                 },
                 'edgeLabelField:change': function (event) {
-                    _this.networkSvgLayout.setEdgeLabel(event.value);
+                    _this.setEdgeLabel(event.value);
                 },
                 'nodeLabelField:change': function (event) {
                     debugger
@@ -411,57 +393,244 @@ NetworkViewer.prototype = {
             targetId: targetId,
             width: this.width,
             height: height,
-            network: this.network,
             autoRender: true,
             handlers: {
-                'vertex:leftClick': function (event) {
-                    console.log(event);
-                    _this.editionBar.setNodeColor(event.vertexConfig.renderer.color);
-                    _this.editionBar.setNodeStrokeColor(event.vertexConfig.renderer.strokeColor);
-                    _this.editionBar.setNodeNameField(event.vertex.name);
-                    _this.editionBar.setNodeSizeField(event.vertexConfig.renderer.size);
-                    _this.editionBar.setNodeStrokeSizeField(event.vertexConfig.renderer.strokeSize);
+                'select:vertex': function (e) {
+                    var vertex = _this.network.getVertexById(e.vertexId);
+                    var isSelected = _this.network.isVertexSelected(vertex);
+                    if (!isSelected) {
+                        _this.selectVertex(vertex);
+                    }
+                },
+                'create:vertex': function (e) {
+                    _this.createVertex(e.x, e.y);
+                },
+                'remove:vertex': function (e) {
+                    var vertex = _this.network.getVertexById(e.vertexId);
+                    _this.removeVertex(vertex);
+                },
+                'move:selectedVertices': function (e) {
+                    _this._moveSelectedVertices(e.dispX, e.dispY);
+                },
+                'select:area': function (e) {
+                    _this.selectByArea(e.x, e.y, e.width, e.height);
+                },
+                'create:edge': function (e) {
+                    var source = _this.network.getVertexById(e.sourceId);
+                    var target = _this.network.getVertexById(e.targetId);
+                    _this.createEdge(source, target);
+                },
+
+                'vertex:leftClick': function (e) {
+                    var vertex = _this.network.getVertexById(e.vertexId);
+                    var vertexConfig = _this.network.getVertexConfig(vertex);
+                    console.log(e);
+                    _this.editionBar.setNodeColor(vertexConfig.renderer.color);
+                    _this.editionBar.setNodeStrokeColor(vertexConfig.renderer.strokeColor);
+                    _this.editionBar.setNodeNameField(vertex.name);//TODO fix get name from attributes
+                    _this.editionBar.setNodeSizeField(vertexConfig.renderer.size);
+                    _this.editionBar.setNodeStrokeSizeField(vertexConfig.renderer.strokeSize);
 
 //                    _this.editionBar.showNodeToolbar();
 //                    _this.editionBar.hideEdgeToolbar();
                 },
-                'edge:leftClick': function (event) {
-                    _this.editionBar.setEdgeColor(event.edgeConfig.renderer.color);
-                    _this.editionBar.setEdgeSizeField(event.edgeConfig.renderer.size);
-                    _this.editionBar.setEdgeNameField(event.edge.name);
+                'edge:leftClick': function (e) {
+                    var edge = _this.network.getEdgeById(e.edgeId);
+                    var edgeConfig = _this.network.getEdgeConfig(edge);
+
+                    var isSelected = _this.network.isEdgeSelected(edge);
+                    if (!isSelected) {
+                        _this.selectEdge(edge);
+                    }
+
+                    _this.editionBar.setEdgeColor(edgeConfig.renderer.color);
+                    _this.editionBar.setEdgeSizeField(edgeConfig.renderer.size);
+                    _this.editionBar.setEdgeNameField(edge.name);
 
 //                    _this.editionBar.showEdgeToolbar();
 //                    _this.editionBar.hideNodeToolbar();
                 },
-                'vertex:rightClick': function (event) {
-                    console.log(event);
-                    _this._fillContextMenu(event);
+                'vertex:rightClick': function (e) {
+                    console.log(e);
+                    _this._fillContextMenu(e);
                     $(_this.contextMenuDiv).css({
                         display: "block",
-                        left: event.x,
-                        top: event.y
+                        left: e.x,
+                        top: e.y
                     });
-                },
-                'click:leftMouseUp': function (event) {
-                    _this._refreshOverview();
-                },
-                'select:vertices': function (e) {
-                    _this.trigger('select:vertices', e);
                 }
             }
         });
-
-
-//        var v1 = networkSvgLayout.createVertex(200, 100);
-//        var v2 = networkSvgLayout.createVertex(300, 320);
-//        var v3 = networkSvgLayout.createVertex(500, 400);
-//        var v4 = networkSvgLayout.createVertex(200, 440);
-//        networkSvgLayout.createEdge(v1, v2);
-//        networkSvgLayout.createEdge(v2, v3);
-//        networkSvgLayout.createEdge(v2, v4);
-
         return networkSvgLayout;
     },
+    selectAll: function () {
+        this.selectedVertices = this.network.selectAllVertices();
+        this.selectedEdges = this.network.selectAllEdges();
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+        console.log('selectAll');
+    },
+    _deselectAllVertices: function () {
+        this.selectedVertices = [];
+        this.network.deselectAllVertices();
+
+    },
+    _deselectAllEdges: function () {
+        this.selectedEdges = [];
+        this.network.deselectAllEdges();
+    },
+    selectAllVertices: function () {
+        this._deselectAllEdges();
+        this.selectedVertices = this.network.selectAllVertices();
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectAllVertices');
+    },
+    selectAllEdges: function () {
+        this._deselectAllVertices();
+        this.selectedEdges = this.network.selectAllEdges();
+        this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+    },
+    selectVertex: function (vertex) {
+        this._deselectAllVertices();
+        this.network.selectVertex(vertex);
+
+        this.selectedVertices = [vertex];
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectVertex');
+    },
+    selectEdge: function (edge) {
+        this._deselectAllEdges();
+        this.network.selectEdge(edge);
+
+        this.selectedEdges = [edge];
+        this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+    },
+    _moveSelectedVertices: function (dispX, dispY) {
+        this.scale = this.networkSvgLayout.scale; //TODO
+        dispX /= this.scale;
+        dispY /= this.scale;
+        for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
+            var vertex = this.selectedVertices[i];
+            this.network.moveVertex(vertex, dispX, dispY);
+        }
+    },
+    selectByArea: function (x, y, width, height) {
+        this.scale = this.networkSvgLayout.scale;//TODO
+        var centerX = this.width / 2;
+        var centerY = this.height / 2;
+        var transX = -centerX * (this.scale - 1);
+        var transY = -centerY * (this.scale - 1);
+        x -= transX;
+        y -= transY;
+
+        x /= this.scale;
+        y /= this.scale;
+        width /= this.scale;
+        height /= this.scale;
+
+        this._deselectAllVertices();
+        this._deselectAllEdges();
+        var selection = this.network.selectByArea(x, y, width, height);
+        this.selectedVertices = selection.vertices;
+        this.selectedEdges = selection.edges;
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+        console.log('selectVerticesByArea');
+    },
+    selectVerticesByIds: function (vertexIds) {
+        this._deselectAllVertices();
+        this.selectedVertices = this.network.selectVerticesByIds(vertexIds);
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectVerticesByIds');
+    },
+    setVertexCoords: function (vertexId, x, y) {
+        var vertex = this.network.getVertexById(vertexId);
+        this.network.setVertexCoords(vertex, x, y);
+    },
+    removeVertex: function (vertex) {
+        this.network.removeVertex(vertex);
+        this._deselectAllVertices();
+    },
+    removeSelectedVertices: function () {
+        var vertices = this.selectedVertices;
+        this._deselectAllVertices();
+        this.network.removeVertices(vertices);
+    },
+    setSelectedVerticesDisplayAttr: function (displayAttr, value, updateEdges) {
+        for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
+            var vertex = this.selectedVertices[i];
+            if (typeof vertex !== 'undefined') {
+                this.network.setVertexRendererAttribute(vertex, displayAttr, value, updateEdges);
+            }
+        }
+    },
+    setSelectedEdgesDisplayAttr: function (displayAttr, value) {
+        for (var i = 0, li = this.selectedEdges.length; i < li; i++) {
+            var edge = this.selectedEdges[i];
+            if (typeof edge !== 'undefined') {
+                this.network.setEdgeRendererAttribute(edge, displayAttr, value);
+            }
+        }
+    },
+    setVertexLabel: function (label) {
+        if (this.selectedVertices.length == 1) {
+            var vertex = this.selectedVertices[0];
+            this.network.setVertexLabel(vertex, label);
+        }
+    },
+    setEdgeLabel: function (label) {
+        if (this.selectedEdges.length == 1) {
+            var edge = this.selectedEdges[0];
+            this.network.setEdgeLabel(edge, label);
+        }
+    },
+    createVertex: function (x, y) {
+
+        /* vertex graph */
+        var vertex = new Vertex({
+            id: 'node' + this.createdVertexCount
+        });
+
+        /* vertex config */
+        var vertexConfig = new VertexConfig({
+            coords: {x: x, y: y},
+            renderer: new DefaultVertexRenderer({})
+//            renderer: new CircosVertexRenderer({})
+        });
+
+        //update variables
+        this.createdVertexCount++;
+        this.network.addVertex({
+            vertex: vertex,
+            vertexConfig: vertexConfig,
+            target: this.networkSvgLayout.getElementsSVG()
+        });
+
+        return vertex;
+    },
+    createEdge: function (vertexSource, vertexTarget) {
+        /* edge graph */
+        var edge = new Edge({
+            id: vertexSource.id + '_' + '-' + '_' + vertexTarget.id,
+            relation: '-',
+            source: vertexSource,
+            target: vertexTarget
+        });
+
+        var edgeConfig = new EdgeConfig({
+            renderer: new DefaultEdgeRenderer({
+
+            })
+        });
+
+        this.network.addEdge({
+            edge: edge,
+            edgeConfig: edgeConfig,
+            target: this.networkSvgLayout.getElementsSVG()
+        });
+    },
+
+
     _createContextMenu: function () {
         var _this = this;
         var html = '' +
@@ -492,7 +661,7 @@ NetworkViewer.prototype = {
     _fillContextMenu: function (event) {
         var _this = this;
         var attributes = event.attributes;
-        var vertex = event.vertex;
+        var vertex = this.network.getVertexById(event.vertexId);
         var ul = $(this.contextMenuDiv).children().first()[0];
         $(ul).empty();
         for (var i in attributes) {
@@ -507,11 +676,11 @@ NetworkViewer.prototype = {
         $(ul).append(deleteSelectedEntry);
 
         $(deleteEntry).bind('click.networkViewer', function (event) {
-            _this.networkSvgLayout.removeVertex(vertex);
+            _this.removeVertex(vertex);
         });
 
         $(deleteSelectedEntry).bind('click.networkViewer', function (event) {
-            _this.networkSvgLayout.removeSelectedVertices();
+            _this.removeSelectedVertices();
         });
 
 //        var nodeColorField = $(ul).find('#nodeColorField');
@@ -561,7 +730,7 @@ NetworkViewer.prototype = {
     },
     setLayout: function (type) {
         var _this = this;
-        var graph = this.networkSvgLayout.network.getGraph();
+        var graph = this.network.getGraph();
         var dot = graph.getAsDOT();
         switch (type) {
             case "Circle":
@@ -597,7 +766,7 @@ NetworkViewer.prototype = {
             case "none":
                 break;
             default:
-                console.log(dot);
+//                console.log(dot);
                 var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
 //        		var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
                 $.ajax({
@@ -613,7 +782,7 @@ NetworkViewer.prototype = {
                         for (var vertexId in data) {
                             var x = _this.networkSvgLayout.getWidth() * (0.05 + 0.85 * data[vertexId].x);
                             var y = _this.networkSvgLayout.getHeight() * (0.05 + 0.85 * data[vertexId].y);
-                            _this.networkSvgLayout.setVertexCoords(vertexId, x, y);
+                            _this.setVertexCoords(vertexId, x, y);
                         }
                     }
                 });
@@ -623,13 +792,13 @@ NetworkViewer.prototype = {
     select: function (option) {
         switch (option) {
             case 'All Nodes' :
-                this.networkSvgLayout.selectAllVertices();
+                this.selectAllVertices();
                 break;
             case 'All Edges' :
-                this.networkSvgLayout.selectAllEdges();
+                this.selectAllEdges();
                 break;
             case 'Everything' :
-                this.networkSvgLayout.selectAll();
+                this.selectAll();
                 break;
             case 'Adjacent' :
                 //TODO
@@ -647,9 +816,6 @@ NetworkViewer.prototype = {
                 console.log(option + " not yet defined");
         }
     },
-    selectVerticesByIds: function (vertexIds) {
-        this.networkSvgLayout.selectVerticesByIds(vertexIds);
-    },
     getVerticesLength: function () {
         return this.network.getVerticesLength();
     },
@@ -664,21 +830,27 @@ NetworkViewer.prototype = {
     },
     importVertexWithAttributes: function (data) {
         this.network.importVertexWithAttributes(data);
-        this.networkSvgLayout.draw();
+        this.networkSvgLayout.clean();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     importEdgesWithAttributes: function (data) {
         this.network.importEdgesWithAttributes(data);
-        this.networkSvgLayout.draw();
+        this.networkSvgLayout.clean();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
-    clean:function(){
+    clean: function () {
         this.network.clean();
         this.networkSvgLayout.clean();
+    },
+    drawNetwork:function(){
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     loadJSON: function (content) {
         this.network.loadJSON(content);
 //        this.network.(content);
         this.networkSvgLayout.setZoom(content["zoom"]);
-        this.networkSvgLayout.draw();
+        this.networkSvgLayout.clean();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
         this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
         this._refreshOverview();
     },

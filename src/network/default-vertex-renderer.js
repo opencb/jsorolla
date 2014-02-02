@@ -365,8 +365,8 @@ DefaultVertexRenderer.prototype = {
         this.vertexEl.setAttribute('stroke-width', this.strokeSize);
         this.vertexEl.setAttribute('x', o.midOffset - this.size / 2);
         this.vertexEl.setAttribute('y', o.midOffset - this.size / 2);
-        this.vertexEl.setAttribute('rx', this.size);
-        this.vertexEl.setAttribute('ry', this.size);
+        this.vertexEl.setAttribute('width', this.size);
+        this.vertexEl.setAttribute('height', this.size);
 
         if (this.labelSize > 0) {
             this.labelEl.setAttribute('y', this.labelSize + o.size);

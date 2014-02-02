@@ -24,10 +24,12 @@ function AttributeManagerStore(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('AttributeManagerStore');
 
-    this.model = Ext.define('AttributesModel', {
-        extend: 'Ext.data.Model'
+    this.model = Ext.define('Attribute', {
+        extend: 'Ext.data.Model',
+        idProperty: 'Id'
     });
     this.store = Ext.create('Ext.data.Store', {
+//        groupField: 'selected',
         pageSize: 50,
         proxy: {
             type: 'memory'
@@ -44,6 +46,7 @@ function AttributeManagerStore(args) {
 
     this.on(this.handlers);
 
+    this._processAttribute({name: "Selected", type: "boolean", defaultValue: false});
     for (var i = 0; i < this.attributes.length; i++) {
         this._processAttribute(this.attributes[i]);
     }
@@ -83,20 +86,26 @@ AttributeManagerStore.prototype = {
             editor = {xtype: 'textfield', allowBlank: true};
         }
 
-        this.columnsGrid.push({
-            "text": attribute.name,
-            "dataIndex": attribute.name,
-            "editor": editor
-        });
+        if (attribute.name !== 'Selected') {
+            this.columnsGrid.push({
+                "text": attribute.name,
+                "dataIndex": attribute.name,
+                "editor": editor
+            });
+        }
+
 
         // set model fields
         this.model.setFields(this.attributes);
 
         //Set default value for existing records
         this.store.suspendEvents();
-        this.store.each(function (record) {
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
             record.set(attribute.name, attribute.defaultValue);
-        });
+        }
         this.store.commitChanges();
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
@@ -110,7 +119,9 @@ AttributeManagerStore.prototype = {
     },
     removeAttribute: function (attributeName) {
         for (var i = 0; i < this.attributes.length; i++) {
-            if (this.attributes[i].name === attributeName && this.attributes[i].locked !== true) {
+            if (this.attributes[i].name === attributeName &&
+                this.attributes[i].locked !== true &&
+                this.attributes[i].name !== 'Selected') {
                 this.columnsGrid.splice(i, 1);
                 this.attributes.splice(i, 1);
 
@@ -124,26 +135,38 @@ AttributeManagerStore.prototype = {
     updateAttribute: function () {
         console.log('TODO');
     },
+    getAttributeNames: function () {
+        var nameList = [];
+        for (var i = 0; i < this.attributes.length; i++) {
+            nameList.push(this.attributes[i].name);
+        }
+        return nameList;
+    },
+    // END attribute methods
+    
 
-
-    setValueByAttributeAndId: function (id, attributeName, value) {
+    setRecordAttributeById: function (id, attributeName, value) {
         if (this.isAttributeLocked(attributeName)) {
             return false;
         }
-        var record = this.store.findRecord("Id", id);
-        if (record) { // if exists a row with this name
+        var record = this.store.getById(id);
+        if (record) {
             record.set(attributeName, value);
             record.commit();
         }
     },
-    setValueByAttributeAndIds: function (values) {
+    setRecordAttributeByIds: function (recordObjects) {
         this.store.suspendEvents();
-        for (var i = 0; i < values.length; i++) {
-            var value = values[i];
-            if (!this.isAttributeLocked(value.attributeName)) {
-                var record = this.store.findRecord("Id", value.id);
+        for (var i = 0; i < recordObjects.length; i++) {
+            var recordObject = recordObjects[i];
+            if (!this.isAttributeLocked(recordObject.attributeName)) {
+                var record = this.store.getById(recordObject.id);
                 if (record) { // if exists a row with this name
-                    record.set(value.attributeName, value.value);
+                    for (var attributeName in recordObject) {
+                        if (attributeName !== 'id') {
+                            record.set(attributeName, recordObject[attributeName]);
+                        }
+                    }
                     record.commit();
                 }
             }
@@ -151,7 +174,7 @@ AttributeManagerStore.prototype = {
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
     },
-    setValueByAttributeAndRecords: function (records, attributeName, value) {
+    setRecordsAttribute: function (records, attributeName, value) {
         if (this.isAttributeLocked(attributeName)) {
             return false;
         }
@@ -164,21 +187,25 @@ AttributeManagerStore.prototype = {
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
     },
+//    addRecord: function (data, append) {
+//        this.store.loadData(data, append);
+//    },
     addRecord: function (data, append) {
         this.store.loadData(data, append);
     },
     removeRecordById: function (id) {
-        var record = this.store.findRecord("Id", id);
-        this.store.remove(record);
+        var record = this.store.getById(id);
+        if (record) {
+            this.store.remove(record);
+        }
     },
     getValueByAttributeAndId: function (id, attribute) {
-        var record = this.store.findRecord('Id', id);
+        var record = this.store.getById(id);
         if (record) {
             return record.get(attribute);
         }
     },
     getIdsByAttributeValue: function (attribute, value) {
-//        var logDupCount = 0; //for logging only
         var dupHash = {};
         var ids = [];
         var mixedCollection = this.store.query(attribute, value);
@@ -187,24 +214,68 @@ AttributeManagerStore.prototype = {
             var id = item.data["Id"];
             if (dupHash[id] !== true) {
                 ids.push(item.data["Id"]);
-            } else {
-                logDupCount++;
             }
             dupHash[id] = true;
         }
-//        console.log('AttributeManagerStore.getIdsByAttributeValue: ' + logDupCount);
         return ids;
     },
-    getRecordsByVertices: function (vertices) {
-        var records = [];
-        for (var i = 0; i < vertices.length; i++) {
-            var vertex = vertices[i];
-            var record = this.store.findRecord('Id', vertex.id);
-            records.push(record);
+//    getRecordsByItem: function (items) {
+//        var records = [];
+//        for (var i = 0; i < items.length; i++) {
+//            var item = items[i];
+//            var record = this.store.findRecord('Id', item.id);
+//            records.push(record);
+//        }
+//        return records;
+//    },
+    selectByItems: function (items) {
+        this.store.suspendEvents();
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var record = this.store.getById(item.id);
+            if (record) {
+                record.set('Selected', true);
+                record.commit();
+            }
         }
-        return records;
+        this.store.resumeEvents();
+        this.store.fireEvent('refresh');
     },
-
+    deselectByItems: function (items) {
+        this.store.suspendEvents();
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var record = this.store.getById(item.id);
+            if (record) {
+                record.set('Selected', false);
+                record.commit();
+            }
+        }
+        this.store.resumeEvents();
+        this.store.fireEvent('refresh');
+    },
+    selectAll: function () {
+        this.store.suspendEvents();
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            record.set('Selected', true);
+        }
+        this.store.resumeEvents();
+        this.store.fireEvent('refresh');
+    },
+    deselectAll: function () {
+        this.store.suspendEvents();
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            record.set('Selected', false);
+        }
+        this.store.resumeEvents();
+        this.store.fireEvent('refresh');
+    },
     clean: function () {
         this.attributes = [];
         this.columnsGrid = [];
@@ -212,6 +283,7 @@ AttributeManagerStore.prototype = {
         this.filters = {};
 
         this.store.removeAll();
+        this._processAttribute({name: "Selected", type: "boolean", defaultValue: false});
         this.model.setFields(this.attributes);
 
         this.trigger('change:attributes', {sender: this});
@@ -224,7 +296,8 @@ AttributeManagerStore.prototype = {
         json.data = [];
 
         // add row values to data matrix
-        var records = this.store.getRange();
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
         for (var j = 0; j < records.length; j++) {
             json.data.push([]);
             for (var i = 0; i < this.attributes.length; i++) {
@@ -468,14 +541,6 @@ AttributeManagerStore.prototype.setAttributeByName = function (name, attribute, 
     }
 };
 
-
-AttributeManagerStore.prototype.getAttrNameList = function () {
-    var nameList = [];
-    for (var i = 0; i < this.attributes.length; i++) {
-        nameList.push(this.attributes[i].name);
-    }
-    return nameList;
-};
 
 AttributeManagerStore.prototype.exportToTab = function (columns, clearFilter) {
     if (clearFilter) {
