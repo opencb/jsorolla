@@ -49,18 +49,19 @@ LoginWidget.prototype = {
         var _this = this;
 
         /***************************/
-        this.loginSuccess = function (data) {
+        this.loginSuccess = function (response) {
             if (_this.panel != null) {
                 _this.panel.setLoading(false);
             }
-            console.log(data);
-            if (_.isUndefined(data.errorMessage)) {
+            console.log(response);
+            if (response.errorMsg === '') {
+                var data = response.result[0];
                 $.cookie('bioinfo_sid', data.sessionId /*,{path: '/'}*/);//TODO ATENCION si se indica el path el 'bioinfo_sid' es comun entre dominios
                 $.cookie('bioinfo_account', data.accountId);
                 $.cookie('bioinfo_bucket', data.bucketId);
                 _this.trigger('session:initiated', {sender: _this});
             } else {
-                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + data.errorMessage + '</span>', false);
+                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + response.errorMsg + '</span>', false);
                 //Delete all cookies
                 $.cookie('bioinfo_sid', null);
                 $.cookie('bioinfo_sid', null, {path: '/'});

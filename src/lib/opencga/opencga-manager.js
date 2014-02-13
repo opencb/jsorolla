@@ -116,19 +116,17 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getAccountUrl(args.accountId) + '/login' + OpencgaManager.getQuery(queryParams);
 
-        function success(data) {
-            if (data.indexOf("ERROR") == -1) {
-                args.success(JSON.parse(data))
-            } else {
-                args.success({errorMessage: data})
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
             }
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
+        });
     },
     logout: function (args) {
 //        accountId, sessionId
@@ -709,12 +707,13 @@ var OpencgaManager = {
             'filename': args.fileName
         };
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variant_stats' + OpencgaManager.getQuery(queryParams);
+
         function success(data) {
             args.success(data);
         }
 
         function error(data) {
-            if(_.isFunction(args.error)) args.error(data);
+            if (_.isFunction(args.error)) args.error(data);
         }
 
         $.ajax({
