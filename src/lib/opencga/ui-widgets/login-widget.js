@@ -72,16 +72,13 @@ LoginWidget.prototype = {
 
         this.createAccountSuccess = function (data) {
             _this.panel.setLoading(false);
-            data = data.replace(/^\s+|\s+$/g, '');
-            if (data.indexOf("OK") != -1) {
-                Ext.getCmp(_this.labelEmailId).setText('<span class="ok">Account created</span>', false);
-//			console.log(_this.id+' LOGIN RESPONSE -> '+data);
-                //$.cookie('bioinfo_sid', data /*,{path: '/'}*/);//TODO ATENCION si se indica el path el 'bioinfo_sid' es comun entre dominios
-//            _this.trigger('session:initiated',{sender:_this});
+            if (data.errorMsg === '') {
+                var accountId = data.result[0].accountId;
+                Ext.getCmp(_this.labelEmailId).setText('<span class="ok">'+accountId+' account created</span>', false);
             } else {
-                data = data.replace(/ERROR: /gi, " ");
-                Ext.getCmp(_this.labelEmailId).setText('<span class="err">Account already exists</span>', false);
-                //Se borran las cookies por si acaso
+//                Ext.getCmp(_this.labelEmailId).setText('<span class="err">Account already exists</span>', false);
+                Ext.getCmp(_this.labelEmailId).setText('<span class="err">'+data.errorMsg+'</span>', false);
+                //Delete cookies
                 $.cookie('bioinfo_sid', null);
                 $.cookie('bioinfo_sid', null, {path: '/'});
                 $.cookie('bioinfo_account', null);
@@ -90,7 +87,11 @@ LoginWidget.prototype = {
         };
         this.resetPasswordSuccess = function (data) {
             _this.panel.setLoading(false);
-            Ext.getCmp(_this.labelEmailId).setText('<span class="emph">' + data + '</span>', false);
+            if (data.errorMsg === '') {
+                Ext.getCmp(_this.labelEmailId).setText('<span class="emph">' + data.result[0].msg + '</span>', false);
+            } else {
+                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + data.errorMsg + '</span>', false);
+            }
         };
 
         /***************************/
