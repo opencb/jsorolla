@@ -120,13 +120,13 @@ DefaultVertexRenderer.prototype = {
     },
     setLabelContent: function (text) {
         this.labelText = text;
-        var vertexLabel = $(this.el).find('text[network-type="vertex-label"]')[0];
-        if (typeof vertexLabel != 'undefined') {
+        if (typeof this.labelEl !== 'undefined') {
             var label = '';
             if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
                 label = this.labelText;
             }
-            vertexLabel.textContent = label;
+            this.labelEl.textContent = label;
+            this.calculateLabelX();
         }
     },
     getSize: function () {
@@ -174,12 +174,23 @@ DefaultVertexRenderer.prototype = {
         this.selected = false;
     },
 
-
     _calculateOffset: function () {
         var size = this.size + this.strokeSize;
         var size = size + (size * 0.3);
         var midOffset = size / 2;
         return {size: size, midOffset: midOffset};
+    },
+    calculateLabelX: function (o) {
+        if (typeof o === 'undefined') {
+            o = this._calculateOffset();
+        }
+        var x = o.midOffset - (this.labelEl.textContent.length * this.labelSize / 4);
+        x = (x < 0) ? 0 : x;
+
+        var y = o.midOffset + this.labelSize / 3;
+
+        this.labelEl.setAttribute('x', x);
+        this.labelEl.setAttribute('y', y);
     },
 
     /** CIRCLE METHODS **/
@@ -206,9 +217,11 @@ DefaultVertexRenderer.prototype = {
             'network-type': 'vertex'
         });
         if (this.labelSize > 0) {
-            var vertexText = SVG.addChild(vertexSvg, "text", {
-                "x": 5,
-                "y": this.labelSize + o.size,
+            this.labelEl = SVG.addChild(vertexSvg, "text", {
+//                "x": 5,
+//                "y": this.labelSize + o.size,
+                "x": o.midOffset,
+                "y": o.midOffset,
                 "font-size": this.labelSize,
                 "fill": this.labelColor,
                 'network-type': 'vertex-label'
@@ -217,12 +230,12 @@ DefaultVertexRenderer.prototype = {
             if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
                 label = this.labelText;
             }
-            vertexText.textContent = label;
+            this.labelEl.textContent = label;
+            this.calculateLabelX(o);
         }
         this.el = vertexSvg;
         this.groupEl = groupSvg;
         this.vertexEl = circle;
-        this.labelEl = vertexText;
         this.targetEl.appendChild(vertexSvg);
     },
     _updateCircleSize: function () {
@@ -237,7 +250,7 @@ DefaultVertexRenderer.prototype = {
         this.vertexEl.setAttribute('cy', o.midOffset);
 
         if (this.labelSize > 0) {
-            this.labelEl.setAttribute('y', this.labelSize + o.size);
+            this.calculateLabelX(o);
         }
         if (this.selected) {
             this._updateSelectShapeSize(o);
@@ -271,7 +284,7 @@ DefaultVertexRenderer.prototype = {
             'network-type': 'vertex'
         });
         if (this.labelSize > 0) {
-            var vertexText = SVG.addChild(vertexSvg, "text", {
+            this.labelEl = SVG.addChild(vertexSvg, "text", {
                 "x": 5,
                 "y": this.labelSize + o.size,
                 "font-size": this.labelSize,
@@ -282,12 +295,12 @@ DefaultVertexRenderer.prototype = {
             if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
                 label = this.labelText;
             }
-            vertexText.textContent = label;
+            this.labelEl.textContent = label;
+            this.calculateLabelX(o);
         }
         this.el = vertexSvg;
         this.groupEl = groupSvg;
         this.vertexEl = ellipse;
-        this.labelEl = vertexText;
         this.targetEl.appendChild(vertexSvg);
     },
     _updateEllipseSize: function () {
@@ -303,7 +316,7 @@ DefaultVertexRenderer.prototype = {
         this.vertexEl.setAttribute('ry', this.size / 2.5);
 
         if (this.labelSize > 0) {
-            this.labelEl.setAttribute('y', this.labelSize + o.size);
+            this.calculateLabelX(o);
         }
         if (this.selected) {
             this._updateSelectShapeSize(o);
@@ -337,7 +350,7 @@ DefaultVertexRenderer.prototype = {
             'network-type': 'vertex'
         });
         if (this.labelSize > 0) {
-            var vertexText = SVG.addChild(vertexSvg, "text", {
+            this.labelEl = SVG.addChild(vertexSvg, "text", {
                 "x": 5,
                 "y": this.labelSize + o.size,
                 "font-size": this.labelSize,
@@ -348,12 +361,12 @@ DefaultVertexRenderer.prototype = {
             if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
                 label = this.labelText;
             }
-            vertexText.textContent = label;
+            this.labelEl.textContent = label;
+            this.calculateLabelX(o);
         }
         this.el = vertexSvg;
         this.groupEl = groupSvg;
         this.vertexEl = rect;
-        this.labelEl = vertexText;
         this.targetEl.appendChild(vertexSvg);
     },
     _updateSquareSize: function () {
@@ -369,7 +382,7 @@ DefaultVertexRenderer.prototype = {
         this.vertexEl.setAttribute('height', this.size);
 
         if (this.labelSize > 0) {
-            this.labelEl.setAttribute('y', this.labelSize + o.size);
+            this.calculateLabelX(o);
         }
         if (this.selected) {
             this._updateSelectShapeSize(o);
@@ -379,10 +392,6 @@ DefaultVertexRenderer.prototype = {
 
     /** RECTANGLE METHODS **/
     _drawRectangleShape: function () {
-
-        var size = this.size + this.strokeSize;
-        var size = size + (size * 0.3);
-        var midOffset = size / 2;
 
         var o = this._calculateOffset();
 
@@ -410,7 +419,7 @@ DefaultVertexRenderer.prototype = {
             'network-type': 'vertex'
         });
         if (this.labelSize > 0) {
-            var vertexText = SVG.addChild(vertexSvg, "text", {
+            this.labelEl = SVG.addChild(vertexSvg, "text", {
                 "x": 5,
                 "y": this.labelSize + o.size,
                 "font-size": this.labelSize,
@@ -421,12 +430,12 @@ DefaultVertexRenderer.prototype = {
             if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
                 label = this.labelText;
             }
-            vertexText.textContent = label;
+            this.labelEl.textContent = label;
+            this.calculateLabelX(o);
         }
         this.el = vertexSvg;
         this.groupEl = groupSvg;
         this.vertexEl = rect;
-        this.labelEl = vertexText;
         this.targetEl.appendChild(vertexSvg);
     },
     _updateRectangleSize: function () {
@@ -445,7 +454,7 @@ DefaultVertexRenderer.prototype = {
         this.vertexEl.setAttribute('height', this.size - s1);
 
         if (this.labelSize > 0) {
-            this.labelEl.setAttribute('y', this.labelSize + o.size);
+            this.calculateLabelX(o);
         }
         if (this.selected) {
             this._updateSelectShapeSize(o);
@@ -491,7 +500,7 @@ DefaultVertexRenderer.prototype = {
             opacity: this.opacity,
             labelSize: this.labelSize,
             labelColor: this.labelColor,
-            labelText :this.labelText
+            labelText: this.labelText
         };
     }
 }

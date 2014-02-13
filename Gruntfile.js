@@ -99,7 +99,7 @@ module.exports = function (grunt) {
             nv:{
                 src: [
                     '<%= concat.utils.dest %>',
-
+                    '<%= concat.cellbase.dest %>',
                     'src/network-viewer/tool-bar.js',
                     'src/network-viewer/edition-bar.js',
                     'src/network-viewer/network-svg-layout.js',
@@ -477,7 +477,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('gv', ['clean:gv','concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
     grunt.registerTask('cgv', ['clean:cgv','concat:utils','concat:cellbase','concat:cgv','uglify:cgv','copy:cgv','htmlbuild:cgv','clean:utils','clean:cellbase','rename:cgv']);
-    grunt.registerTask('nv', ['clean:nv','concat:utils','concat:nv','uglify:nv','copy:nv', 'htmlbuild:nv','clean:utils']);
+    grunt.registerTask('nv', ['clean:nv','concat:utils','concat:cellbase','concat:nv','uglify:nv','copy:nv', 'htmlbuild:nv','clean:utils','clean:cellbase']);
     grunt.registerTask('threedv', ['clean:threedv','concat:utils','concat:cellbase','concat:threedv','uglify:threedv','copy:threedv','htmlbuild:threedv','clean:utils','clean:cellbase']);
 
 };

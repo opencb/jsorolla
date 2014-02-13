@@ -455,6 +455,10 @@ a:hover {
     border: 1px solid #ffffff;
 }
 
+.smokeback {
+    background: whiteSmoke;
+}
+
 .greyborder {
     border: 1px solid #BBBBBB;
 }
@@ -808,6 +812,11 @@ a:hover {
     cursor: pointer;
 }
 
+
+.jso-li-over {
+    background-color: #aa0000;
+}
+
 .list-item {
     margin-top: 1px;
     padding-left: 20px;
@@ -841,8 +850,8 @@ a:hover {
 }
 
 .list-item-hover {
-    border: 1px solid #9d9d9d;
-    background-color: #e6e6e6;
+    border: 1px solid #b2becf;
+    background-color: #f1f3f6;
 }
 
 /*TEXT FORMAT*/

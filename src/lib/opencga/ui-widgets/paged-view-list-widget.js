@@ -28,8 +28,8 @@ function PagedViewListWidget(args) {
     this.targetId = null;
 
     this.pageSize = 6;
-    this.storeFields = new Object();
-    this.template = new Object();
+    this.storeFields = {};
+    this.template = {};
     this.width = 280;
     this.height = 550;
     this.title = "";
@@ -37,6 +37,7 @@ function PagedViewListWidget(args) {
     this.border = 0;
     this.mode = "view";
     this.sort = 'DESC';
+    this.headerConfig;
 
     _.extend(this, args);
 
@@ -230,6 +231,7 @@ PagedViewListWidget.prototype.render = function () {
         this.pagBar = Ext.create('Ext.toolbar.Toolbar', {
             id: this.pagbarId,
             style: 'border: ' + this.border,
+            cls:'smokeback',
             items: [
 //							{
 //							    id : this.id+'btnPrev',
@@ -297,7 +299,7 @@ PagedViewListWidget.prototype.render = function () {
                 {
                     id: this.id + 'btnClear',
 //							    iconCls: 'icon-delete',
-                    text: 'X',
+                    text: 'Clear',
                     margin: "0 2 0 0",
                     tooltip: 'Clear search box',
                     handler: function () {
@@ -312,6 +314,7 @@ PagedViewListWidget.prototype.render = function () {
         this.panel = Ext.create('Ext.panel.Panel', {
             id: this.panelId,
             title: this.title,
+            header:this.headerConfig,
             border: this.border,
             width: this.width,
             tbar: this.pagBar,

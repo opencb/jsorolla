@@ -228,6 +228,19 @@ AttributeManagerStore.prototype = {
         }
         return ids;
     },
+    getValuesByAttribute:function(attributeName){
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
+        var values  = [];
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            var value = record.get(attributeName);
+            if(value != null && value!==''){
+                values.push(value)
+            }
+        }
+        return values;
+    },
 //    getRecordsByItem: function (items) {
 //        var records = [];
 //        for (var i = 0; i < items.length; i++) {

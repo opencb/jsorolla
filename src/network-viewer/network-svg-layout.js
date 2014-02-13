@@ -74,57 +74,52 @@ NetworkSvgLayout.prototype = {
 
         /** SVG init **/
         this.svg = SVG.init(this.div, {
-            "id": "mainSVG",
+            "id": "svg",
             "width": this.width,
             "height": this.height
         });
         this.defs = SVG.addChild(this.svg, "defs", {});
 
-        this.canvas = SVG.addChild(this.svg, "svg", {
-            id: 'canvas',
-            "width": this.width,
-            "height": this.height
-        });
-
-        /* background */
-        this.backgroundSVG = SVG.init(this.canvas, {
-            "id": "backgroundSVG",
-            "width": this.width,
-            "height": this.height,
-            "x": 0,
-            "y": 0
-        });
-
-        this.scaleBackgroundGroupSVG = SVG.addChild(this.backgroundSVG, "g", {
-            id: 'scaleBackgroundGroupSVG',
-            "transform": "scale(" + this.scale + ")"
-        });
-        this.backgroundRect = SVG.addChild(this.scaleBackgroundGroupSVG, "rect", {
+        this.backRect = SVG.addChild(this.svg, "rect", {
             "id": "backgroundColor",
             "width": '100%',
             "height": '100%',
             "fill": 'white',
-            "opacity":'0.7',
             "x": 0,
             "y": 0
         });
+        this.drawArea = SVG.addChild(this.svg, "svg", {
+            "id": "drawArea",
+            "width": this.width,
+            "height": this.height
+        });
 
 
-        /* canvas svg */
-        this.canvasSVG = SVG.init(this.canvas, {
-            "id": "canvasSVG",
-            "width": 100000,
-            "height": 100000,
+        /* Back svg */
+        this.backSvg = SVG.init(this.drawArea, {
+            "id": "backSvg",
             "x": 0,
             "y": 0
         });
-
-        this.scaleGroupSVG = SVG.addChild(this.canvasSVG, "g", {
-            id: 'scaleGroupSVG',
+        this.scaleBackGroup = SVG.addChild(this.backSvg, "g", {
+            id: 'scaleBackGroup',
             "transform": "scale(" + this.scale + ")"
         });
 
-        this.temporalLinkSvg = SVG.addChild(this.canvasSVG, 'line', {
+
+        /* Front svg */
+        this.frontSvg = SVG.init(this.drawArea, {
+            "id": "frontSvg",
+            "x": 0,
+            "y": 0
+        });
+        this.scaleFrontGroup = SVG.addChild(this.frontSvg, "g", {
+            id: 'scaleFrontGroup',
+            "transform": "scale(" + this.scale + ")"
+        });
+
+
+        this.temporalLinkSvg = SVG.addChild(this.frontSvg, 'line', {
             'x1': 0,
             'y1': 0,
             'x2': 0,
@@ -144,7 +139,7 @@ NetworkSvgLayout.prototype = {
             repeatCount: 'indefinite'
         });
 
-        this.selectRect = SVG.addChild(this.canvasSVG, "rect", {
+        this.selectRect = SVG.addChild(this.frontSvg, "rect", {
             "x": 0,
             "y": 0,
             "width": 0,
@@ -187,12 +182,12 @@ NetworkSvgLayout.prototype = {
 
     },
     getElementsSVG: function () {
-        return this.scaleGroupSVG;
+        return this.scaleFrontGroup;
     },
     clean: function () {
-        $(this.scaleGroupSVG).empty();
-        $(this.scaleBackgroundGroupSVG).empty();
-        $(this.scaleBackgroundGroupSVG).append(this.backgroundRect);
+        $(this.scaleFrontGroup).empty();
+        $(this.scaleBackGroup).empty();
+        $(this.svg).prepend(this.backRect);
     },
     getWidth: function () {
         return this.width;
@@ -201,10 +196,10 @@ NetworkSvgLayout.prototype = {
         return this.height;
     },
     setBackgroundColor: function (color) {
-        this.backgroundRect.setAttribute('fill', color);
+        this.backRect.setAttribute('fill', color);
     },
     addBackgroundImage: function (image) {
-        this.backgroundImage = SVG.addChildImage(this.scaleBackgroundGroupSVG, {
+        this.backgroundImage = SVG.addChildImage(this.scaleBackGroup, {
             "id": Utils.genId('bi'),
             "x": image.x,
             "y": image.y,
@@ -221,7 +216,7 @@ NetworkSvgLayout.prototype = {
     },
     getBackGroundImages: function () {
         var images = [];
-        var imagesEl = $(this.scaleBackgroundGroupSVG).find('image[network-type="background-image"]');
+        var imagesEl = $(this.scaleBackGroup).find('image[network-type="background-image"]');
         for (var i = 0; i < imagesEl.length; i++) {
             images.push({
                 src: imagesEl[i].getAttribute('href'),
@@ -233,6 +228,9 @@ NetworkSvgLayout.prototype = {
         }
         return images;
     },
+    removeBackGroundImage: function (imageEl) {
+        $(imageEl).remove();
+    },
     setZoom: function (zoom) {
         this.scale = (zoom == 0) ? 0.03 : (zoom / 25);
 
@@ -241,8 +239,8 @@ NetworkSvgLayout.prototype = {
         var transX = -centerX * (this.scale - 1);
         var transY = -centerY * (this.scale - 1);
 
-        this.scaleGroupSVG.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
-        this.scaleBackgroundGroupSVG.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
+        this.scaleFrontGroup.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
+        this.scaleBackGroup.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
 
     },
     setMode: function (mode) {
@@ -261,11 +259,11 @@ NetworkSvgLayout.prototype = {
                 this.svg.setAttribute("cursor", "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA85JREFUWMPVlV1IpFUYx//ved/R+Z7WprUmddZGiZgN1rwoiCiXLIhi79o+2LK6aIyl9SOdIBCEMFrLFgKjC8WuZAO1K/Gi3KgsWVkEeQ1CSFv3dWYKJ9cdnXfnec55u1g2+sR1m1F6Ls+B5//j//zPc4D9rrm5uZ791BdSyt6ZmZnefQNgZoTD4Z7p6em398sB1NTUoLKy8q3Jycl39sUBAIhEIohEIm9OTEyc3nMAKSWklKiurkZVVVXX6Ojo6T0FUEqBmVEoFBCNRhGNRruGh4ff33MAIoJt26itrUUsFusYHBw8s2cA18eglAIAxGIx1NfXnxoYGPiw5ACGYcAwDOi6Dl3XMT4+vjU2NnZhYWGhQEQn+/r6SgYhiAiWZWFqaupqNpuFz+cDM3uZ+cnOzs7yZDKpEVF3T0+PpxQA2sjIiMPMaWY+xsxnm5ubD6XTaczOzn6STCZb9iID55n5/kQicZ6Z203TRENDA4joRG9vb6jkAET0SCKRuAgAbW1tny0tLaUzmQwaGxsFM7eXHKC1tTX/xwMi6p6fn0ddXR2YuaOrq6uspAB/PWDmswsLC6mhoaELzPxBf39/YbdN7ZZXvDccwt02d95IRgH4tffeXfxH8RdfjjtMjyried+no1/t2oEdxXV9xRHClKc64n8Tf+GlOIQwRSBwRhG9tvnUsXuKBnBdHOXlgNsNCGFS68nfIfInWuLQNFP3+1AWDsMVDB5XBXose7RZFGUETme321FqCx6P0AIBqM1NqI0NKDt/WBFDE8IUwQBcwRBs6xKuptJSEXkqzn1ORcuAfL3d7UiZ0zweXQRDkJc3wL9m4RBDDwTgCgVhX7Jgp9PSYfJXnPvCLnoI6dVWt2KZE16vbhy4BZAKUApQErZlwU5nrol/OW3f1DPcqVwff2Q7RH5aX1cgCaysAMvLgJSwU2mlqHDD4jcFAACKKKZpEJAMEAHMADM0XQhVoNh/WkQ71fYzz8ehwdQ9XoAJiESAyB0AM8pDIeiGbqaP3BcvySLaOv5cXBOaaXh9cAWDyKfWYGcyUhFp7gMVwhe5HdupNLbX1lC4kjt85w/fLxbNga2nn41rmmYaHi9cAR/y1rW0qwL5HSLflmXJKz8uwxu+FZ5wGEaZy1w9dNeOThi7mPtB4TIARyFvpZD/OSMdYn/4269tAEjde8Sfs6ycUyjoLp8PmhBwpDwIYLFoI9h4/Ikm4XJN0+ZlpYh9t333zZ/SbtXf7XakzJUFArqdzR6tWf3pXNG/z/WHHm765YEH3f92vxqtdV+sqmnC/6V+A4wb/YzHvgVzAAAAAElFTkSuQmCC), auto");
                 break;
             case "selectbackground":
-                $(this.backgroundSVG).parent().append(this.backgroundSVG);
+                $(this.backSvg).parent().append(this.backSvg);
                 this.svg.setAttribute("cursor", "default");
                 break;
             case "select":
-                $(this.canvasSVG).parent().append(this.canvasSVG);
+                $(this.frontSvg).parent().append(this.frontSvg);
                 this.svg.setAttribute("cursor", "default");
                 break;
             default:
@@ -335,13 +333,15 @@ NetworkSvgLayout.prototype = {
                 break;
             case "join":
                 /* vertex clicked */
-                if (targetElNetworkType === 'vertex') {
+                if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
                     var vertexId = this.getVertexId(targetEl);
                     // first time vertex click
                     if (_this.joinSourceVertex == null) {
                         _this.joinSourceVertex = vertexId;
                         _this.temporalLinkSvg.setAttribute('x1', downX);
                         _this.temporalLinkSvg.setAttribute('y1', downY);
+                        _this.temporalLinkSvg.setAttribute('x2', downX);
+                        _this.temporalLinkSvg.setAttribute('y2', downY);
                         $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
                             moveEvent.preventDefault();
                             var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
@@ -350,7 +350,7 @@ NetworkSvgLayout.prototype = {
                             _this.temporalLinkSvg.setAttribute('y2', moveY);
                         });
                         // second vertex click
-                    } else if (_this.joinSourceVertex !== vertex) {
+                    } else if (_this.joinSourceVertex !== vertexId) {
                         _this.trigger('create:edge', {sourceId: _this.joinSourceVertex, targetId: vertexId, sender: _this});
                         _this.joinSourceVertex = null;
                     }
@@ -434,7 +434,7 @@ NetworkSvgLayout.prototype = {
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
             case "join":
-                if (targetElNetworkType !== 'vertex') {
+                if (!(targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label')) {
                     _this.joinSourceVertex = null;
                 }
                 if (_this.joinSourceVertex == null) {
@@ -452,13 +452,14 @@ NetworkSvgLayout.prototype = {
                 break;
         }
     },
-    getVertexId: function (targetEl) {
-        return $(targetEl).closest('[network-type="vertex-svg"]').attr('id');
-    },
-    getEdgeId: function (targetEl) {
-        return $(targetEl).closest('[network-type="edge-g"]').attr('id');
-    },
     contextMenu: function (event) {
+
+//        console.log('metaKey ' + event.metaKey);
+//        console.log('ctrlKey ' + event.ctrlKey);
+//        console.log('shiftKey ' + event.shiftKey);
+//        console.log('altKey ' + event.altKey);
+//        console.log(event);
+
         var _this = this;
         var targetEl = event.target;
         var targetElNetworkType = $(targetEl).attr('network-type');
@@ -466,18 +467,30 @@ NetworkSvgLayout.prototype = {
             case "add":
                 break;
             case "select":
+                var downX = (event.clientX - $(this.svg).offset().left);
+                var downY = (event.clientY - $(this.svg).offset().top);
+                if (targetElNetworkType === 'vertex') {
+                    var vertexId = this.getVertexId(targetEl);
+                    this.trigger('rightClick:vertex', { vertexId: vertexId, x: downX, y: downY, sender: this});
+                }
+                break;
+            case "selectbackground":
+                if (event.ctrlKey && event.shiftKey) {
+                    this.removeBackGroundImage(targetEl);
+                }
                 break;
             case "join":
                 break;
             case "delete":
                 break;
+            default:
         }
-        var downX = (event.clientX - $(this.svg).offset().left);
-        var downY = (event.clientY - $(this.svg).offset().top);
-        if (targetElNetworkType === 'vertex') {
-            var vertexId = this.getVertexId(targetEl);
-            this.trigger('vertex:rightClick', { vertexId: vertexId, x: downX, y: downY, sender: this});
-        }
-    }
+    },
+    getVertexId: function (targetEl) {
+        return $(targetEl).closest('[network-type="vertex-svg"]').attr('id');
+    },
+    getEdgeId: function (targetEl) {
+        return $(targetEl).closest('[network-type="edge-g"]').attr('id');
+    },
 };
 

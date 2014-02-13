@@ -74,6 +74,9 @@ DefaultEdgeRenderer.prototype = {
             case "labelSize":
                 this.labelEl.setAttribute('font-size', this.labelSize);
                 break;
+            case "opacity":
+                this.edgeEl.setAttribute('opacity', this.opacity);
+                break;
             default:
                 this.update();
         }
@@ -171,6 +174,7 @@ DefaultEdgeRenderer.prototype = {
             "y1": this.sourceCoords.y,
             "x2": this.targetCoords.x,
             "y2": this.targetCoords.y,
+            opacity: this.opacity,
             "stroke": this.color,
             "stroke-width": this.size,
             "cursor": "pointer",

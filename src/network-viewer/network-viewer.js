@@ -427,7 +427,7 @@ NetworkViewer.prototype = {
                     console.log(e);
                     _this.editionBar.setNodeColor(vertexConfig.renderer.color);
                     _this.editionBar.setNodeStrokeColor(vertexConfig.renderer.strokeColor);
-                    _this.editionBar.setNodeNameField(vertex.name);//TODO fix get name from attributes
+                    _this.editionBar.setNodeNameField(vertexConfig.renderer.labelText);
                     _this.editionBar.setNodeSizeField(vertexConfig.renderer.size);
                     _this.editionBar.setNodeStrokeSizeField(vertexConfig.renderer.strokeSize);
 
@@ -445,14 +445,14 @@ NetworkViewer.prototype = {
 
                     _this.editionBar.setEdgeColor(edgeConfig.renderer.color);
                     _this.editionBar.setEdgeSizeField(edgeConfig.renderer.size);
-                    _this.editionBar.setEdgeNameField(edge.name);
+                    _this.editionBar.setEdgeNameField(edgeConfig.renderer.labelText);
 
 //                    _this.editionBar.showEdgeToolbar();
 //                    _this.editionBar.hideNodeToolbar();
                 },
-                'vertex:rightClick': function (e) {
+                'rightClick:vertex': function (e) {
                     console.log(e);
-                    _this._fillContextMenu(e);
+                    _this._fillVertexContextMenu(e);
                     $(_this.contextMenuDiv).css({
                         display: "block",
                         left: e.x,
@@ -658,7 +658,7 @@ NetworkViewer.prototype = {
 
         /**************/
     },
-    _fillContextMenu: function (event) {
+    _fillVertexContextMenu: function (event) {
         var _this = this;
         var attributes = event.attributes;
         var vertex = this.network.getVertexById(event.vertexId);
@@ -766,7 +766,7 @@ NetworkViewer.prototype = {
             case "none":
                 break;
             default:
-//                console.log(dot);
+                console.log(dot);
                 var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
 //        		var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
                 $.ajax({
@@ -779,12 +779,18 @@ NetworkViewer.prototype = {
                     },
                     cache: false,
                     success: function (data) {
+                        debugger
+                        console.log('Layout back')
                         for (var vertexId in data) {
                             var x = _this.networkSvgLayout.getWidth() * (0.05 + 0.85 * data[vertexId].x);
                             var y = _this.networkSvgLayout.getHeight() * (0.05 + 0.85 * data[vertexId].y);
                             _this.setVertexCoords(vertexId, x, y);
                         }
-                    }
+                    },
+                    error: function (data) {
+                        debugger
+                    },
+
                 });
                 break;
         }

@@ -200,7 +200,7 @@ AttributeEditWidget.prototype = {
 //                    toolbar.down('radiogroup').getValue() --> {selection: "all"}
                     xtype: 'radiogroup',
                     id: this.id + 'selectMode',
-                    fieldLabel: 'View',
+                    fieldLabel: 'Show',
                     labelWidth: 20,
                     margin: '0 0 0 10',
                     defaults: {
@@ -210,12 +210,12 @@ AttributeEditWidget.prototype = {
                     items: [
                         {
                             boxLabel: 'All',
+                            checked: true,
                             name: this.id + 'selection',
                             inputValue: 'all'
                         },
                         {
                             boxLabel: 'Network selection',
-                            checked: true,
                             name: this.id + 'selection',
                             inputValue: 'selected'
                         }
