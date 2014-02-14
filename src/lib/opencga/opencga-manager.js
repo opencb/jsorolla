@@ -567,7 +567,7 @@ var OpencgaManager = {
             data: args.paramsWS,
             dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
             success: function (data, textStatus, jqXHR) {
-                debugger
+                //debugger
                 args.success(data.response);
             },
             error: function (jqXHR, textStatus, errorThrown) {
