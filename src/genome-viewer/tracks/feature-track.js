@@ -94,7 +94,7 @@ FeatureTrack.prototype.draw = function () {
     if (this.histogram) {
         this.dataType = 'histogram';
     }
-
+    
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
         this.dataAdapter.getData({

@@ -34,20 +34,15 @@ function UploadWidget(args) {
         this.opencgaBrowserWidget = args.opencgaBrowserWidget || this.opencgaBrowserWidget;
         this.chunkedUpload = args.chunkedUpload || this.chunkedUpload;
     }
-    this.uploadObjectToBucketSuccess = function (res) {
-        if (res.status == 'done') {
-
-//            _this.adapter.onIndexer.addEventListener(function(sender,data){
-//                console.log(data);
-//                _this.uploadComplete(data);
-//            });
-//            _this.adapter.indexer($.cookie("bioinfo_account"),_this.objectID);
-            console.log(_this.objectID);
-            _this.uploadComplete(res.data);
-        } else if (res.status == 'fail') {
-            _this.uploadFailed(res.data);
+    this.uploadObjectToBucketSuccess = function (response) {
+        if (response.errorMsg === '') {
+            Ext.example.msg('Object upload', '</span class="emph">' + response.result[0].msg + '</span>');
+            _this.uploadComplete(response.result[0].msg);
+        } else {
+            Ext.Msg.alert('Object upload', response.errorMsg);
+            _this.uploadFailed(response.errorMsg);
         }
-        _this.trigger('object:upload', {sender: _this, data: res});
+        _this.trigger('object:upload', {sender: _this, data: response.result[0].msg });
     };
 
     this.uploadButtonId = this.id + '_uploadButton';
@@ -464,6 +459,14 @@ UploadWidget.prototype.validate = function () {
         Ext.getCmp(this.uploadButtonId).disable();
         this.dataTypeLabel.setText('<span class="info">Type:</span><span class="err"> Not valid </span>', false);
     }
+
+    if(this.originCheck.getValue()){
+        if(this.nameField.getValue() == ''){
+            Ext.getCmp(this.uploadButtonId).disable();
+        }else{
+            Ext.getCmp(this.uploadButtonId).enable();
+        }
+    }
 };
 
 
@@ -567,42 +570,21 @@ UploadWidget.prototype.uploadFile2 = function () {
 //    }
 //};
 
-UploadWidget.prototype.uploadComplete = function (response) {
-    /* This event is raised when the server send back a response */
-//	this.dataFieldLabel.setText('<span class="info">Upload </span><span class="ok">finished successfully</span> '+response,false);
-    var msg = "Uploaded sucessfully";
-    if (response.indexOf("ERROR") != -1) {//el createErrorResponse devuelte la palabra error siempre o deberia
-        msg = response;
-    }
+UploadWidget.prototype.uploadComplete = function (msg) {
     Ext.Msg.show({
         title: 'Upload status',
         msg: msg
     });
     this.panel.enable();
     Ext.getBody().unmask();
-    if (msg == "Uploaded sucessfully") {
-        this.panel.close();
-    }
+    this.panel.close();
 };
 
 UploadWidget.prototype.uploadFailed = function (response) {
-    console.log(response);
     Ext.Msg.show({
         title: 'Upload status',
         msg: 'There was an error attempting to upload the file.'
     });
-//	alert("There was an error attempting to upload the file.");
-    this.panel.enable();
-    Ext.getBody().unmask();
-};
-
-UploadWidget.prototype.uploadCanceled = function (response) {
-    console.log(response);
-    Ext.Msg.show({
-        title: 'Upload status',
-        msg: 'The upload has been canceled by the user or the browser dropped the connection.'
-    });
-//	alert("The upload has been canceled by the user or the browser dropped the connection.");
     this.panel.enable();
     Ext.getBody().unmask();
 };

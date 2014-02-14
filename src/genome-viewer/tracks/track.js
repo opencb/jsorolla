@@ -35,7 +35,7 @@ function Track(args) {
     this.maxLabelRegionSize = 300000000;
     this.height = 100;
     this.visibleRegionSize;
-        this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
+    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
 

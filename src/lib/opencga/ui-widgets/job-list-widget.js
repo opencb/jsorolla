@@ -87,15 +87,12 @@ function JobListWidget(args) {
                                         accountId: $.cookie('bioinfo_account'),
                                         sessionId: $.cookie('bioinfo_sid'),
                                         jobId: record.raw.id,
-                                        success: function (data) {
-                                            var msg = "";
-                                            if (data.indexOf("OK") != -1) {
-//                                                Ext.getCmp(_this.targetId).getActiveTab().close();
-                                                msg = "The job has been succesfully deleted.";
+                                        success: function (response) {
+                                            if (response.errorMsg === '') {
+                                                Ext.example.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
                                             } else {
-                                                msg = "ERROR: could not delete job.";
+                                                Ext.Msg.alert('Delete job, try again later.', response.errorMsg);
                                             }
-                                            Ext.example.msg("Delete job", msg);
                                         }
                                     });
                                 }

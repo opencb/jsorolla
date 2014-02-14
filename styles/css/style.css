@@ -1097,7 +1097,7 @@ a:hover {
 }
 
 .msg .x-box-mc {
-    font-size:14px;
+    font-size:16px;
 }
 #msg-div {
     position:absolute;
@@ -1108,32 +1108,33 @@ a:hover {
     z-index:20000;
 }
 #msg-div .msg {
-    border-radius: 8px;
-    -moz-border-radius: 8px;
-    background: #F6F6F6;
-    border: 2px solid #ccc;
+    /*border-radius: 8px;*/
+    /*-moz-border-radius: 8px;*/
+    background: #596F8F;
+    border: 2px solid #D1D9E3;
     margin-top: 2px;
     padding: 10px 15px;
-    color: #555;
+    color: #FFF;
 }
 #msg-div .msg h3 {
     margin: 0 0 8px;
     font-weight: bold;
-    font-size: 15px;
 }
 #msg-div .msg p {
     margin: 0;
 }
 
-/*GridFilters Styles*/
-.ux-filtered-column {
-    font-style: italic;
-    font-weight: bold;
-}
 
-.ux-gridfilter-text-icon {
-    background-image: url(../img/find.png) !important;
-}
+
+/*GridFilters Styles*/
+/*.ux-filtered-column {*/
+    /*font-style: italic;*/
+    /*font-weight: bold;*/
+/*}*/
+
+/*.ux-gridfilter-text-icon {*/
+    /*background-image: url(../img/find.png) !important;*/
+/*}*/
 
 /*RangeMenu Styles*/
 .ux-rangemenu-icon {
@@ -1155,22 +1156,22 @@ a:hover {
 /********************/
 /***Sencha rewrite***/
 /********************/
-.x-toolbar .x-toolbar-separator-horizontal {
-    border-left-color: #bbb;
-}
+/*.x-toolbar .x-toolbar-separator-horizontal {*/
+    /*border-left-color: #bbb;*/
+/*}*/
 
 /*EXTJS 4.2 BUG FIX FOR TOOLTIPS*/
-.x-tip {
-    width: auto !important;
-}
+/*.x-tip {*/
+    /*width: auto !important;*/
+/*}*/
 
-.x-tip-body {
-    width: auto !important;
-}
+/*.x-tip-body {*/
+    /*width: auto !important;*/
+/*}*/
 
-.x-tip-body span {
-    width: auto !important;
-}
+/*.x-tip-body span {*/
+    /*width: auto !important;*/
+/*}*/
 
 /*@import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono);*/
 /*@import url(http://fonts.googleapis.com/css?family=Ubuntu);*/
