@@ -366,7 +366,7 @@ GenomeViewer.prototype = {
             handlers: {
                 'region:change': function (event) {
                     event.region = _this._checkRegion(event.region);
-                    _this.setMinRegion(event.region, _this.getSVGCanvasWidth())
+                    _this.setMinRegion(event.region, _this.getSVGCanvasWidth());
                     _this.trigger('region:change', event);
                 },
                 'zoom:change': function (event) {
