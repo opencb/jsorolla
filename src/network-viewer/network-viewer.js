@@ -32,11 +32,28 @@ function NetworkViewer(args) {
     this.overviewPanel = false;
     this.height;
     this.width;
+    this.border = true;
     this.overviewScale = 0.2;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.toolBar;
+    this.editionBar;
+    this.networkSvgLayout;
+    this.network = new Network();
+
+    this.contextMenu;
+
+    this.selectedVertices = [];
+    this.selectedEdges = [];
+    this.createdVertexCount = 0;
+
+    this.overviewRefreshing = false;
+
+    this.zoom = 25;
+
+    this.on(this.handlers);
 
     this.rendered = false;
     if (this.autoRender) {
@@ -45,8 +62,13 @@ function NetworkViewer(args) {
 }
 
 NetworkViewer.prototype = {
-
+    setNetwork: function (network) {
+        this.clean();
+        this.network = network;
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
+    },
     render: function (targetId) {
+        var _this = this;
         if (targetId)this.targetId = targetId;
         if ($('#' + this.targetId).length < 1) {
             console.log('targetId not found in DOM');
@@ -54,38 +76,75 @@ NetworkViewer.prototype = {
         }
 
         this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="' + this.id + '" class="bootstrap" style="height:100%;width:90%;border:1px solid lightgrey;position:relative;"></div>')[0];
+        this.div = $('<div id="' + this.id + '" class="bootstrap" style="height:100%;position:relative;"></div>')[0];
         $(this.targetDiv).append(this.div);
 
-        this.height = $(this.div).height();
-        this.width = $(this.div).width();
+        this.height = $(this.targetDiv).height();
+        this.width = $(this.targetDiv).width();
 
-        this.toolbarDiv = $('<div id="toolbar"></div>')[0];
-        this.editionbarDiv = $('<div id="editionbar"></div>')[0];
-        this.centerPanelDiv = $('<div id="centerpanel" style="postion:relative;"></div>')[0];
-        this.statusbarDiv = $('<div id="statusbar"></div>')[0];
+        this.toolbarDiv = $('<div id="nv-toolbar"></div>')[0];
+        this.editionbarDiv = $('<div id="nv-editionbar"></div>')[0];
+        this.centerPanelDiv = $('<div id="nv-centerpanel" style="position:relative;"></div>')[0];
+        this.statusbarDiv = $('<div id="nv-statusbar"></div>')[0];
 
         $(this.div).append(this.toolbarDiv);
         $(this.div).append(this.editionbarDiv);
         $(this.div).append(this.centerPanelDiv);
         $(this.div).append(this.statusbarDiv);
 
-        this.mainPanelDiv = $('<div id="mainpanel" style="postion:absolute;right:0px;height:100%;"></div>')[0];
+
+        this.mainPanelDiv = $('<div id="nv-mainpanel" style="position:relative;right:0px;height:100%;"></div>')[0];
         $(this.centerPanelDiv).append(this.mainPanelDiv);
 
         if (this.sidePanel) {
-            this.sidePanelDiv = $('<div id="sidepanel" style="postion:absolute;right:0px;height:100%;"></div>')[0];
+            this.sidePanelDiv = $('<div id="nv-sidepanel" style="position:absolute;right:0px;height:100%;"></div>')[0];
             $(this.centerPanelDiv).append(this.sidePanelDiv);
         }
 
+
+//        this.alertDiv = $('<div id="nv-alert" style="position:absolute;"></div>')[0];
+//        $(this.alertDiv).css({
+//            left:this.width/2,
+//            top:this.height/3
+//        });
+//        var a = '<div class="alert alert-warning hidden">' +
+//            '<h4>A CellMaps session was found in your browser, want to reload it?</h4>' +
+//            '<p>' +
+//            '<button type="button" class="btn btn-info">Load session</button> ' +
+//            '<button type="button" class="btn btn-danger">Start over</button>' +
+//            '</p>' +
+//            '</div>';
+//        $(this.alertDiv).append(a);
+//        $(this.centerPanelDiv).append(this.alertDiv);
+
         if (this.overviewPanel) {
-            this.overviewPanelDiv = $('<div id="overviewpanel" style="postion:absolute;bottom:10px;right:10px;width:200px;height:200px;border:1px solid lightgrey;"></div>')[0];
+            this.overviewPanelDiv = $('<div id="nv-overviewpanel" style="position:absolute;bottom:10px;right:10px;width:200px;height:200px;border:1px solid lightgrey;background-color:#ffffff"></div>')[0];
             $(this.centerPanelDiv).append(this.overviewPanelDiv);
+
+            this.cameraDiv = $('<div id="camera"></div>')[0];
+            $(this.overviewPanelDiv).append(this.cameraDiv);
+
+            this.overviewDiv = $('<div id="overview"></div>')[0];
+            $(this.overviewPanelDiv).append(this.overviewDiv);
+
+            $(this.cameraDiv).css({
+                "border": "1px solid #6599FF",
+                "position": "absolute",
+                "top": -1,
+                "left": -1,
+                "z-index": 50
+            });
+        }
+
+        if (this.border) {
+            var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
+            $(this.div).css({border: border});
         }
 
         this.rendered = true;
     },
     draw: function () {
+        var _this = this;
         if (!this.rendered) {
             console.info('Genome Viewer is not rendered yet');
             return;
@@ -97,12 +156,45 @@ NetworkViewer.prototype = {
         /* edition Bar */
         this.editionBar = this._createEditionBar($(this.editionbarDiv).attr('id'));
 
-        this.networkSvg = this._createNetworkSvg($(this.mainPanelDiv).attr('id'));
+        this.networkSvgLayout = this._createNetworkSvgLayout($(this.mainPanelDiv).attr('id'));
+
+        if (this.overviewPanel) {
+            var width = this.networkSvgLayout.width * this.overviewScale * this.networkSvgLayout.scale;
+            var height = this.networkSvgLayout.height * this.overviewScale * this.networkSvgLayout.scale;
+            $(this.overviewPanelDiv).css({
+                width: width + 2,
+                height: height + 2
+            });
+            $(this.cameraDiv).css({
+                "width": width + 2,
+                "height": height + 2
+            });
+        }
 
 
         /* context menu*/
         this.contextMenu = this._createContextMenu();
 
+        $(this.div).bind('wheel.networkViewer', function (e) {
+            var zoom;
+            if (e.originalEvent.deltaY < 0) {
+                var newZoom = _this.zoom + 2;
+                zoom = Math.min(100, newZoom);
+            } else {
+                var newZoom = _this.zoom - 2;
+                zoom = Math.max(0, newZoom);
+            }
+            _this._setZoom(zoom);
+            _this.toolBar.setZoom(zoom);
+
+            _this.overviewRefreshing = true;
+            setTimeout(function () {
+                if (_this.overviewRefreshing == true) {
+                    _this._refreshOverview();
+                    _this.overviewRefreshing = false;
+                }
+            }, 500);
+        });
 
 //        this.networkSvgOverview = this._createNetworkSvgOverview($(this.overviewPanelDiv).attr('id'));
 
@@ -113,14 +205,79 @@ NetworkViewer.prototype = {
 //            this.networkSvgOverview = new NetworkSvg(div, this.networkData, {"width": "100%", "height": "100%", "parentNetwork": this.networkSvg, "scale": this.overviewScale});
 //        }
 
+        if (typeof localStorage.networkViewer !== 'undefined') {
+            this.loadJSON(JSON.parse(localStorage.networkViewer));
+        }
+        /* auto save session timeout */
+        var intervalId = setInterval(function () {
+            localStorage.networkViewer = JSON.stringify(_this.toJSON());
+            console.log('Session saved');
+        }, 3000);
     },
+    hideOverviewPanel: function () {
+        $(this.overviewPanelDiv).css({display: 'none'});
+        this.overviewPanel = false;
+    },
+    showOverviewPanel: function () {
+        $(this.overviewPanelDiv).css({display: 'block'});
+        this.overviewPanel = true;
+    },
+    _refreshOverview: function () {
+        if (this.overviewPanel) {
+            console.log("refresh overview");
+            var dup = $("#" + this.networkSvgLayout.id).clone();
+            var height = this.networkSvgLayout.height * this.overviewScale;
+            var width = this.networkSvgLayout.width * this.overviewScale;
+            $(dup).css('height', height);
+            $(dup).find('#mainSVG').attr('height', height);
+            $(dup).find('#mainSVG').attr('width', width);
+//            $(dup).find('#canvas').css({'height': height, width: width});
+//            $(dup).find('#backgroundSVG').css({'height': height, width: width});
+            var scaleGroupSVG = $(dup).find("#scaleGroupSVG");
+            var scaleBackgroundGroupSVG = $(dup).find("#scaleBackgroundGroupSVG");
 
+
+            var scale = this.overviewScale * this.networkSvgLayout.scale;
+            var centerX = width / 2;
+            var centerY = height / 2;
+            var transX = -centerX * (this.networkSvgLayout.scale - 1);
+            var transY = -centerY * (this.networkSvgLayout.scale - 1);
+            if (this.networkSvgLayout.scale < 1) {
+                $(scaleGroupSVG).attr("transform", "translate(" + transX + "," + transY + ") scale(" + (scale) + ")");
+                $(scaleBackgroundGroupSVG).attr("transform", "translate(" + transX + "," + transY + ") scale(" + (scale) + ")");
+            } else {
+                $(scaleGroupSVG).attr("transform", "scale(" + (this.overviewScale) + ")");
+                $(scaleBackgroundGroupSVG).attr("transform", "scale(" + (this.overviewScale) + ")");
+            }
+
+            $(dup).find('defs').remove();
+
+            $(this.overviewDiv).empty();
+            $(this.overviewDiv).append(dup);
+        }
+    },
     _createToolBar: function (targetId) {
         var _this = this;
         var toolBar = new ToolBar({
             targetId: targetId,
             autoRender: true,
             handlers: {
+                'click:selectButton': function (event) {
+                    _this.networkSvgLayout.setMode("select");
+                },
+                'click:backgroundButton': function (event) {
+                    _this.networkSvgLayout.setMode("selectbackground");
+                },
+                'addButton:click': function (event) {
+                    _this.networkSvgLayout.setMode("add");
+                },
+                'linkButton:click': function (event) {
+                    _this.networkSvgLayout.setMode("join");
+                },
+                'deleteButton:click': function (event) {
+                    _this.networkSvgLayout.setMode("delete");
+                },
+
                 'collapseButton:click': function (event) {
                     console.log(event);
                     //todo
@@ -130,32 +287,42 @@ NetworkViewer.prototype = {
                     _this.setLayout(event.option);
                 },
                 'labelSize:change': function (event) {
-                    console.log(event);
-                    _this.setLabelSize(event.option);
+                    _this.network.setEdgesRendererAttribute('labelSize', event.option);
+                    _this.network.setVerticesRendererAttribute('labelSize', event.option);
                 },
                 'select:change': function (event) {
                     console.log(event);
                     _this.select(event.option);
                 },
-                'backgroundButton:click': function (event) {
+                'backgroundColorField:change': function (event) {
                     console.log(event);
-                    //todo
+                    _this.networkSvgLayout.setBackgroundColor(event.value);
+                },
+                'importBackgroundImageField:change': function (event) {
+                    _this.networkSvgLayout.addBackgroundImage(event.image);
                 },
                 'showOverviewButton:change': function (event) {
-                    console.log(event);
-                    //todo
+                    console.log(event)
+                    if (event.pressed) {
+                        _this.showOverviewPanel();
+                    } else {
+                        _this.hideOverviewPanel();
+                    }
                 },
                 'zoom:change': function (event) {
                     console.log(event.zoom);
-                    //todo
+                    _this._setZoom(event.zoom);
                 },
                 'search': function (event) {
                     console.log(event);
                     //todo
+                },
+                'all': function (event) {
+                    _this._refreshOverview();
                 }
             }
         });
-        return toolbar;
+        return toolBar;
     },
     _createEditionBar: function (targetId) {
         var _this = this;
@@ -163,138 +330,307 @@ NetworkViewer.prototype = {
             targetId: targetId,
             autoRender: true,
             handlers: {
-                'selectButton:click': function (event) {
-                    _this.networkSvg.setMode("select");
-                },
-                'addButton:click': function (event) {
-                    _this.networkSvg.setMode("add");
-                },
-                'linkButton:click': function (event) {
-                    _this.networkSvg.setMode("join");
-                },
-                'deleteButton:click': function (event) {
-                    _this.networkSvg.setMode("delete");
-                },
                 'nodeShape:change': function (event) {
-                    //TODO
+                    _this.setSelectedVerticesDisplayAttr('shape', event.value);
                 },
                 'nodeSize:change': function (event) {
-                    _this.networkSvg.setSelectedVerticesDisplayAttr('size', parseInt(event.value));
+                    _this.setSelectedVerticesDisplayAttr('size', parseInt(event.value), true);
                 },
                 'nodeStrokeSize:change': function (event) {
-                    _this.networkSvg.setSelectedVerticesDisplayAttr('strokeSize', parseInt(event.value));
+                    _this.setSelectedVerticesDisplayAttr('strokeSize', parseInt(event.value), true);
                 },
                 'opacity:change': function (event) {
-                    _this.networkSvg.setSelectedVerticesDisplayAttr('opacity', parseInt(event.value));
+                    _this.setSelectedVerticesDisplayAttr('opacity', event.value);
                 },
                 'edgeShape:change': function (event) {
-                    //TODO
+                    _this.setSelectedEdgesDisplayAttr('shape', event.value);
+                },
+                'edgeSize:change': function (event) {
+                    _this.setSelectedEdgesDisplayAttr('size', parseInt(event.value));
                 },
                 'nodeColorField:change': function (event) {
-                    _this.networkSvg.setSelectedVerticesDisplayAttr('color', event.value);
+                    _this.setSelectedVerticesDisplayAttr('color', event.value);
                 },
                 'nodeStrokeColorField:change': function (event) {
-                    _this.networkSvg.setSelectedVerticesDisplayAttr('strokeColor', event.value);
+                    _this.setSelectedVerticesDisplayAttr('strokeColor', event.value);
                 },
                 'edgeColorField:change': function (event) {
-                    _this.networkSvg.setEdgeColor(event.value);
+                    _this.setSelectedEdgesDisplayAttr('color', event.value);
                 },
                 'nodeNameField:change': function (event) {
-                    _this.networkSvg.setNodeName(event.value);
+                    _this.setVertexLabel(event.value);
                 },
                 'edgeLabelField:change': function (event) {
-                    _this.networkSvg.setEdgeLabel(event.value);
+                    _this.setEdgeLabel(event.value);
                 },
                 'nodeLabelField:change': function (event) {
-                    _this.networkSvg.setNodeLabel(event.value);
+                    debugger
+//                    _this.networkSvgLayout.setNodeLabel(event.value);
+                },
+                'change:nodeLabelSize': function (event) {
+                    _this.network.setVerticesRendererAttribute('labelSize', event.option);
+                },
+                'change:edgeLabelSize': function (event) {
+                    _this.network.setEdgesRendererAttribute('labelSize', event.option);
+                },
+                'all': function (event) {
+                    _this._refreshOverview();
                 }
             }
         });
         return editionBar;
     },
 
-    _createNetworkSvg: function (targetId) {
+    _createNetworkSvgLayout: function (targetId) {
         var _this = this;
-
         var toolbarHeight = $(this.toolbarDiv).height();
         var editionbarHeight = $(this.editionbarDiv).height();
         var height = this.height - toolbarHeight - editionbarHeight;
 
-        var networkSvg = new NetworkSvgLayout({
+        console.log(this.height);
+        console.log(height)
+        var networkSvgLayout = new NetworkSvgLayout({
             targetId: targetId,
             width: this.width,
             height: height,
-            networkData: this.networkData,
             autoRender: true,
             handlers: {
-                'node:click': function (e) {
-                    if (_this.networkSvg.countSelectedNodes == 1) {
-//                        _this.editionBar.showNodeButtons();
-//                        _this.editionBar.hideEdgeButtons();
-//                        _this.editionBar.setNodeButtons(e);
-                    } else {
-//                        _this.editionBar.showNodeButtons();
-//                        _this.editionBar.unsetNodeButtons();
+                'select:vertex': function (e) {
+                    var vertex = _this.network.getVertexById(e.vertexId);
+                    var isSelected = _this.network.isVertexSelected(vertex);
+                    if (!isSelected) {
+                        _this.selectVertex(vertex);
                     }
                 },
-                'edge:click': function (e) {
-                    if (_this.networkSvg.countSelectedEdges == 1) {
-//                        _this.editionBar.showEdgeButtons();
-//                        _this.editionBar.hideNodeButtons();
-//                        _this.editionBar.setEdgeButtons(e);
-                    } else {
-//                        _this.editionBar.showEdgeButtons();
-//                        _this.editionBar.unsetEdgeButtons();
-                    }
+                'create:vertex': function (e) {
+                    _this.createVertex(e.x, e.y);
                 },
-                'svg:click': function (e) {
-                    if (_this.networkSvg.countSelectedNodes == 1) {
-//                        _this.editionBar.showNodeButtons();
-//                        _this.editionBar.hideEdgeButtons();
-//                        _this.editionBar.setNodeButtons(e);
-                    } else if (_this.networkSvg.countSelectedNodes > 1) {
-//                        _this.editionBar.showNodeButtons();
-//                        _this.editionBar.unsetNodeButtons();
-                    } else {
-//                        _this.editionBar.hideNodeButtons();
-//                        _this.editionBar.hideEdgeButtons();
-                    }
+                'remove:vertex': function (e) {
+                    var vertex = _this.network.getVertexById(e.vertexId);
+                    _this.removeVertex(vertex);
                 },
-                'selection:change': function (e) {
-                    console.log(e);
-                    _this.trigger('selection:change', e);
+                'move:selectedVertices': function (e) {
+                    _this._moveSelectedVertices(e.dispX, e.dispY);
                 },
-                'node:add': function (e) {
-                    $(_this.editionBar.nodeNameField).val(e);
+                'select:area': function (e) {
+                    _this.selectByArea(e.x, e.y, e.width, e.height);
                 },
-                'node:move': function (e) {
-                    console.log(e);
-                },
-                'change': function (e) {
-                    console.log(e);
+                'create:edge': function (e) {
+                    var source = _this.network.getVertexById(e.sourceId);
+                    var target = _this.network.getVertexById(e.targetId);
+                    _this.createEdge(source, target);
                 },
 
+                'vertex:leftClick': function (e) {
+                    var vertex = _this.network.getVertexById(e.vertexId);
+                    var vertexConfig = _this.network.getVertexConfig(vertex);
+                    console.log(e);
+                    _this.editionBar.setNodeColor(vertexConfig.renderer.color);
+                    _this.editionBar.setNodeStrokeColor(vertexConfig.renderer.strokeColor);
+                    _this.editionBar.setNodeNameField(vertexConfig.renderer.labelText);
+                    _this.editionBar.setNodeSizeField(vertexConfig.renderer.size);
+                    _this.editionBar.setNodeStrokeSizeField(vertexConfig.renderer.strokeSize);
 
-                /*NEW Events*/
-                'vertex:rightClick': function (event) {
-                    console.log(event);
-                    _this._fillContextMenu(event.attributes);
+//                    _this.editionBar.showNodeToolbar();
+//                    _this.editionBar.hideEdgeToolbar();
+                },
+                'edge:leftClick': function (e) {
+                    var edge = _this.network.getEdgeById(e.edgeId);
+                    var edgeConfig = _this.network.getEdgeConfig(edge);
+
+                    var isSelected = _this.network.isEdgeSelected(edge);
+                    if (!isSelected) {
+                        _this.selectEdge(edge);
+                    }
+
+                    _this.editionBar.setEdgeColor(edgeConfig.renderer.color);
+                    _this.editionBar.setEdgeSizeField(edgeConfig.renderer.size);
+                    _this.editionBar.setEdgeNameField(edgeConfig.renderer.labelText);
+
+//                    _this.editionBar.showEdgeToolbar();
+//                    _this.editionBar.hideNodeToolbar();
+                },
+                'rightClick:vertex': function (e) {
+                    console.log(e);
+                    _this._fillVertexContextMenu(e);
                     $(_this.contextMenuDiv).css({
                         display: "block",
-                        left: event.x,
-                        top: event.y
+                        left: e.x,
+                        top: e.y
                     });
-
                 }
             }
         });
-        networkSvg.createVertex(100, 100);
-        networkSvg.createVertex(200, 200);
-        networkSvg.createVertex(300, 300);
-        networkSvg.createVertex(400, 400);
-
-        return networkSvg;
+        return networkSvgLayout;
     },
+    selectAll: function () {
+        this.selectedVertices = this.network.selectAllVertices();
+        this.selectedEdges = this.network.selectAllEdges();
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+        console.log('selectAll');
+    },
+    _deselectAllVertices: function () {
+        this.selectedVertices = [];
+        this.network.deselectAllVertices();
+
+    },
+    _deselectAllEdges: function () {
+        this.selectedEdges = [];
+        this.network.deselectAllEdges();
+    },
+    selectAllVertices: function () {
+        this._deselectAllEdges();
+        this.selectedVertices = this.network.selectAllVertices();
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectAllVertices');
+    },
+    selectAllEdges: function () {
+        this._deselectAllVertices();
+        this.selectedEdges = this.network.selectAllEdges();
+        this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+    },
+    selectVertex: function (vertex) {
+        this._deselectAllVertices();
+        this.network.selectVertex(vertex);
+
+        this.selectedVertices = [vertex];
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectVertex');
+    },
+    selectEdge: function (edge) {
+        this._deselectAllEdges();
+        this.network.selectEdge(edge);
+
+        this.selectedEdges = [edge];
+        this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+    },
+    _moveSelectedVertices: function (dispX, dispY) {
+        this.scale = this.networkSvgLayout.scale; //TODO
+        dispX /= this.scale;
+        dispY /= this.scale;
+        for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
+            var vertex = this.selectedVertices[i];
+            this.network.moveVertex(vertex, dispX, dispY);
+        }
+    },
+    selectByArea: function (x, y, width, height) {
+        this.scale = this.networkSvgLayout.scale;//TODO
+        var centerX = this.width / 2;
+        var centerY = this.height / 2;
+        var transX = -centerX * (this.scale - 1);
+        var transY = -centerY * (this.scale - 1);
+        x -= transX;
+        y -= transY;
+
+        x /= this.scale;
+        y /= this.scale;
+        width /= this.scale;
+        height /= this.scale;
+
+        this._deselectAllVertices();
+        this._deselectAllEdges();
+        var selection = this.network.selectByArea(x, y, width, height);
+        this.selectedVertices = selection.vertices;
+        this.selectedEdges = selection.edges;
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+        console.log('selectVerticesByArea');
+    },
+    selectVerticesByIds: function (vertexIds) {
+        this._deselectAllVertices();
+        this.selectedVertices = this.network.selectVerticesByIds(vertexIds);
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectVerticesByIds');
+    },
+    setVertexCoords: function (vertexId, x, y) {
+        var vertex = this.network.getVertexById(vertexId);
+        this.network.setVertexCoords(vertex, x, y);
+    },
+    removeVertex: function (vertex) {
+        this.network.removeVertex(vertex);
+        this._deselectAllVertices();
+    },
+    removeSelectedVertices: function () {
+        var vertices = this.selectedVertices;
+        this._deselectAllVertices();
+        this.network.removeVertices(vertices);
+    },
+    setSelectedVerticesDisplayAttr: function (displayAttr, value, updateEdges) {
+        for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
+            var vertex = this.selectedVertices[i];
+            if (typeof vertex !== 'undefined') {
+                this.network.setVertexRendererAttribute(vertex, displayAttr, value, updateEdges);
+            }
+        }
+    },
+    setSelectedEdgesDisplayAttr: function (displayAttr, value) {
+        for (var i = 0, li = this.selectedEdges.length; i < li; i++) {
+            var edge = this.selectedEdges[i];
+            if (typeof edge !== 'undefined') {
+                this.network.setEdgeRendererAttribute(edge, displayAttr, value);
+            }
+        }
+    },
+    setVertexLabel: function (label) {
+        if (this.selectedVertices.length == 1) {
+            var vertex = this.selectedVertices[0];
+            this.network.setVertexLabel(vertex, label);
+        }
+    },
+    setEdgeLabel: function (label) {
+        if (this.selectedEdges.length == 1) {
+            var edge = this.selectedEdges[0];
+            this.network.setEdgeLabel(edge, label);
+        }
+    },
+    createVertex: function (x, y) {
+
+        /* vertex graph */
+        var vertex = new Vertex({
+            id: 'node' + this.createdVertexCount
+        });
+
+        /* vertex config */
+        var vertexConfig = new VertexConfig({
+            coords: {x: x, y: y},
+            renderer: new DefaultVertexRenderer({})
+//            renderer: new CircosVertexRenderer({})
+        });
+
+        //update variables
+        this.createdVertexCount++;
+        this.network.addVertex({
+            vertex: vertex,
+            vertexConfig: vertexConfig,
+            target: this.networkSvgLayout.getElementsSVG()
+        });
+
+        return vertex;
+    },
+    createEdge: function (vertexSource, vertexTarget) {
+        /* edge graph */
+        var edge = new Edge({
+            id: vertexSource.id + '_' + '-' + '_' + vertexTarget.id,
+            relation: '-',
+            source: vertexSource,
+            target: vertexTarget
+        });
+
+        var edgeConfig = new EdgeConfig({
+            renderer: new DefaultEdgeRenderer({
+
+            })
+        });
+
+        this.network.addEdge({
+            edge: edge,
+            edgeConfig: edgeConfig,
+            target: this.networkSvgLayout.getElementsSVG()
+        });
+    },
+
+
     _createContextMenu: function () {
         var _this = this;
         var html = '' +
@@ -312,7 +648,7 @@ NetworkViewer.prototype = {
 
         $(_this.contextMenuDiv).bind('click.networkViewer', function (event) {
             var targetEl = event.target;
-            console.log(targetEl);
+            var text = $(targetEl).text();
         });
 
 
@@ -322,15 +658,30 @@ NetworkViewer.prototype = {
 
         /**************/
     },
-    _fillContextMenu: function (items) {
+    _fillVertexContextMenu: function (event) {
+        var _this = this;
+        var attributes = event.attributes;
+        var vertex = this.network.getVertexById(event.vertexId);
         var ul = $(this.contextMenuDiv).children().first()[0];
         $(ul).empty();
-        for (var i in items) {
-            var menuEntry = $('<li role="presentation"><a>' + items[i] + '</a></li>')[0];
+        for (var i in attributes) {
+            var menuEntry = $('<li role="presentation"><a>' + attributes[i] + '</a></li>')[0];
             $(ul).append(menuEntry);
         }
-//        var menuEntry = $('<li role="presentation"><input id="nodeColorField" type="text"></li>')[0];
+        var menuEntry = $('<li role="presentation"><input id="nodeColorField" type="text"></li>')[0];
+        var deleteEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete</a></li>')[0];
+        var deleteSelectedEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete selected nodes</a></li>')[0];
 //        $(ul).append(menuEntry);
+        $(ul).append(deleteEntry);
+        $(ul).append(deleteSelectedEntry);
+
+        $(deleteEntry).bind('click.networkViewer', function (event) {
+            _this.removeVertex(vertex);
+        });
+
+        $(deleteSelectedEntry).bind('click.networkViewer', function (event) {
+            _this.removeSelectedVertices();
+        });
 
 //        var nodeColorField = $(ul).find('#nodeColorField');
 //        var pickAColorConfig = {
@@ -345,6 +696,25 @@ NetworkViewer.prototype = {
 //        }
 //        $(nodeColorField).pickAColor(pickAColorConfig);
     },
+    _setZoom: function (zoom) {
+        this.zoom = zoom;
+        this.networkSvgLayout.setZoom(zoom);
+        if (this.overviewPanel) {
+            var width = $(this.overviewPanelDiv).width();
+            var height = $(this.overviewPanelDiv).height();
+            var scale = (this.networkSvgLayout.scale < 1) ? 1 : this.networkSvgLayout.scale;
+            var w = width / (scale) + 2;
+            var h = height / (scale) + 2;
+            var t = (width / 2) - (w / 2);
+            var l = (height / 2) - (h / 2);
+            $(this.cameraDiv).css({
+                "left": t,
+                "top": l,
+                "width": w,
+                "height": h
+            });
+        }
+    },
     _createNetworkSvgOverview: function (targetId) {
         var _this = this;
         var networkSvg = new NetworkSvg({
@@ -358,10 +728,13 @@ NetworkViewer.prototype = {
         });
         return networkSvg;
     },
-    setLayout: function (type, nodeLst) {
-        var nodeList = nodeLst || this.networkData.getNodesList();
+    setLayout: function (type) {
+        var _this = this;
+        var graph = this.network.getGraph();
+        var dot = graph.getAsDOT();
         switch (type) {
             case "Circle":
+                //TODO
                 var vertexCoordinates = this.calculateLayoutVertex(type, nodeList.length);
                 var aux = 0;
                 for (var i = 0; i < nodeList.length; i++) {
@@ -372,6 +745,7 @@ NetworkViewer.prototype = {
                 }
                 break;
             case "Square":
+                //TODO
                 var vertexCoordinates = this.calculateLayoutVertex(type, nodeList.length);
                 var aux = 0;
                 for (var i = 0; i < nodeList.length; i++) {
@@ -382,65 +756,115 @@ NetworkViewer.prototype = {
                 }
                 break;
             case "Random":
+                //TODO
                 for (var i = 0; i < nodeList.length; i++) {
                     var x = this.networkSvg.getWidth() * (0.05 + 0.85 * Math.random());
                     var y = this.networkSvg.getHeight() * (0.05 + 0.85 * Math.random());
                     this.networkSvg.moveNode(nodeList[i], x, y);
                 }
                 break;
+            case "none":
+                break;
             default:
-                var dotText = this.networkData.toDot();
-                var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type + ".coords";
-//		var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
-                var _this = this;
-
+                console.log(dot);
+                var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
+//        		var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
                 $.ajax({
                     async: false,
                     type: "POST",
                     url: url,
-                    dataType: "text",
+                    dataType: "json",
                     data: {
-                        dot: dotText
+                        dot: dot
                     },
                     cache: false,
                     success: function (data) {
-                        var response = JSON.parse(data);
-                        for (var nodeId in response) {
-                            var x = _this.networkSvg.getWidth() * (0.05 + 0.85 * response[nodeId].x);
-                            var y = _this.networkSvg.getHeight() * (0.05 + 0.85 * response[nodeId].y);
-                            _this.networkSvg.moveNode(nodeId, x, y);
+                        debugger
+                        console.log('Layout back')
+                        for (var vertexId in data) {
+                            var x = _this.networkSvgLayout.getWidth() * (0.05 + 0.85 * data[vertexId].x);
+                            var y = _this.networkSvgLayout.getHeight() * (0.05 + 0.85 * data[vertexId].y);
+                            _this.setVertexCoords(vertexId, x, y);
                         }
-                    }
+                    },
+                    error: function (data) {
+                        debugger
+                    },
+
                 });
                 break;
         }
-        this.networkData.updateFromSvg(this.networkSvg.getNodeMetainfo());
     },
     select: function (option) {
         switch (option) {
             case 'All Nodes' :
-                this.networkSvg.selectAllNodes();
+                this.selectAllVertices();
                 break;
             case 'All Edges' :
-                this.networkSvg.selectAllEdges();
+                this.selectAllEdges();
                 break;
             case 'Everything' :
-                this.networkSvg.selectAll();
+                this.selectAll();
                 break;
             case 'Adjacent' :
+                //TODO
                 this.networkSvg.selectAdjacentNodes();
                 break;
             case 'Neighbourhood' :
+                //TODO
                 this.networkSvg.selectNeighbourhood();
                 break;
             case 'Connected' :
+                //TODO
                 this.networkSvg.selectConnectedNodes();
                 break;
             default :
                 console.log(option + " not yet defined");
         }
     },
-    setLabelSize: function (option) {
-        this.networkSvg.setLabelSize(option);
+    getVerticesLength: function () {
+        return this.network.getVerticesLength();
+    },
+    getEdgesLength: function () {
+        return this.network.getEdgesLength();
+    },
+    getSelectedVertices: function () {
+        return this.networkSvgLayout.selectedVertices;
+    },
+    getSelectedEdges: function () {
+        return this.networkSvgLayout.selectedEdges;
+    },
+    importVertexWithAttributes: function (data) {
+        this.network.importVertexWithAttributes(data);
+        this.networkSvgLayout.clean();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
+    },
+    importEdgesWithAttributes: function (data) {
+        this.network.importEdgesWithAttributes(data);
+        this.networkSvgLayout.clean();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
+    },
+    clean: function () {
+        this.network.clean();
+        this.networkSvgLayout.clean();
+    },
+    drawNetwork:function(){
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
+    },
+    loadJSON: function (content) {
+        this.network.loadJSON(content);
+//        this.network.(content);
+        this.networkSvgLayout.setZoom(content["zoom"]);
+        this.networkSvgLayout.clean();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
+        this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
+        this._refreshOverview();
+    },
+    toJSON: function () {
+        var json = this.network.toJSON();
+        json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
+        json["zoom"] = this.zoom;
+        return json;
     }
+
 }

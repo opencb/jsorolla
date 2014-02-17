@@ -71,8 +71,9 @@ var SVG = {
 		for ( var key in attributes){
 			if(key == "xlink:href"){
 				el.setAttributeNS('http://www.w3.org/1999/xlink','href',attributes[key]);
-			}
-			el.setAttribute(key, attributes[key]);
+			}else{
+			    el.setAttribute(key, attributes[key]);
+            }
 		}
 		return this._insert(parent, el, index);
 	},

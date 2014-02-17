@@ -19,42 +19,28 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function Edge(args) {
+function EdgeConfig(args) {
 
-    this.id = 'e'+Utils.genId();
-
-    this.relation='';
-    this.source;
-    this.target;
-    this.weight;
-    this.directed;
+    this.id;
+    this.renderer;
+    this.type;
+    this.visible;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
 }
 
-Edge.prototype = {
-    getSource: function () {
-        return this.source;
+EdgeConfig.prototype = {
+    render:function(args){
+        this.renderer.render(args);
     },
-    setSource: function (vertex) {
-        this.source = vertex;
-    },
-    getTarget: function () {
-        return this.target;
-    },
-    setTarget: function (vertex) {
-        this.target = vertex;
-    },
-    toJSON:function(){
+    toJSON: function () {
         return {
-            id:this.id,
-            source:this.source,
-            target:this.target,
-            weight:this.weight,
-            directed:this.directed,
-            relation:this.relation
-        }
+            id: this.id,
+            renderer:this.renderer,
+            type: this.type,
+            visible: this.visible
+        };
     }
 }

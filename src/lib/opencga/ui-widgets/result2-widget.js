@@ -91,11 +91,11 @@ ResultWidget.prototype = {
                 '<p class="">{command.html}</p>'
             );
             var container = Ext.create('Ext.panel.Panel', {
-                title:'Job information',
-                width:'95%',
-                collapsible:true,
-                titleCollapse:true,
-                bodyPadding:10,
+                title: 'Job information',
+                width: '95%',
+                collapsible: true,
+                titleCollapse: true,
+                bodyPadding: 10,
                 margin: '15 0 15 15',
                 items: [
                     {
@@ -123,15 +123,12 @@ ResultWidget.prototype = {
                                                 accountId: $.cookie('bioinfo_account'),
                                                 sessionId: $.cookie('bioinfo_sid'),
                                                 jobId: _this.jobId,
-                                                success: function (data) {
-                                                    var msg = "";
-                                                    if (data.indexOf("OK") != -1) {
-                                                        Ext.getCmp(_this.targetId).getActiveTab().close();
-                                                        msg = "The job has been succesfully deleted.";
+                                                success: function (response) {
+                                                    if (response.errorMsg === '') {
+                                                        Ext.example.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
                                                     } else {
-                                                        msg = "ERROR: could not delete job.";
+                                                        Ext.Msg.alert('Delete job, try again later.', response.errorMsg);
                                                     }
-                                                    Ext.Msg.alert("Delete job", msg);
                                                 }
                                             });
                                         }
@@ -365,8 +362,8 @@ ResultWidget.prototype = {
                     case 'variant-stats-widget':
                         var height = 800;
                         itemBox = Ext.create('Ext.container.Container', {
-                            height:height,
-                            width:'95%',
+                            height: height,
+                            width: '95%',
                             style: {
                                 position: 'relative'
                             },
@@ -374,14 +371,40 @@ ResultWidget.prototype = {
                                 afterrender: function () {
                                     var variantStatsWidget = new VariantStatsWidget({
                                         targetId: itemBox,
-                                        height:height,
-                                        closable:false,
-                                        border:true,
+                                        height: height,
+                                        closable: false,
+                                        border: true,
 //                                        title:  _this.job.name,
                                         job: _this.job,
                                         autoRender: true
                                     });
                                     variantStatsWidget.draw();
+                                }
+                            }
+                        });
+
+                        break;
+
+                    case 'variant-widget':
+                        var height = 800;
+                        itemBox = Ext.create('Ext.container.Container', {
+                            height: height,
+                            width: '95%',
+                            style: {
+                                position: 'relative'
+                            },
+                            listeners: {
+                                afterrender: function () {
+                                    var variantWidget = new VariantWidget({
+                                        targetId: itemBox,
+                                        height: height,
+                                        closable: false,
+                                        border: true,
+//                                        title:  _this.job.name,
+                                        job: _this.job,
+                                        autoRender: true
+                                    });
+                                    variantWidget.draw();
                                 }
                             }
                         });
@@ -518,7 +541,7 @@ ResultWidget.prototype = {
         });
         genomeViewer.draw();
 
-        var renderer = new FeatureRenderer('gene');
+        var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
         renderer.on({
             'feature:click': function (event) {
                 console.log(event)
@@ -529,12 +552,9 @@ ResultWidget.prototype = {
             targetId: null,
             id: 2,
             title: 'Gene',
-            histogramZoom: 10,
-            labelZoom: 20,
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
             height: 100,
-            visibleRange: {start: 0, end: 100},
-            titleVisibility: 'hidden',
-            featureTypes: FEATURE_TYPES,
 
             renderer: renderer,
 
@@ -546,14 +566,12 @@ ResultWidget.prototype = {
                     exclude: 'transcripts'
                 },
                 species: genomeViewer.species,
-                featureCache: {
-                    gzip: true,
+                cacheConfig: {
                     chunkSize: 50000
                 }
             })
         });
         genomeViewer.addOverviewTrack(geneOverview);
-
 
 //        var sequence = new SequenceTrack({
 //            targetId: null,
@@ -607,7 +625,6 @@ ResultWidget.prototype = {
                 featureConfig: FEATURE_CONFIG.gene
             })
         });
-
         genomeViewer.addTrack(gene);
 
 
@@ -661,35 +678,19 @@ ResultWidget.prototype = {
                         console.error(data);
                     }
                     var vcfDataAdapter = new VCFDataAdapter(new StringDataSource(data), {async: false, species: genomeViewer.species});
-//                    var vcfTrack = new Track("VCF file",{
-//                        adapter: vcfDataAdapter
-//                    });
-//                    genomeViewer.addTrack(vcfTrack,{
-//                        id:"VCF file",
-//                        histogramZoom:50,
-//                        height:150,
-//                        visibleRange:{start:0,end:100},
-//                        featureTypes:FEATURE_TYPES
-//                    });
+
                     var fileTrack = new FeatureTrack({
                         targetId: null,
                         id: "VCF file",
-                        title: "VCF file",
-//                        histogramZoom:50,
-//                labelZoom: 80,
+                        title: filteredFile,
                         height: 150,
-                        visibleRange: {start: 0, end: 100},
-                        featureTypes: FEATURE_TYPES,
+                        minHistogramRegionSize: 12000,
+                        maxLabelRegionSize: 3000,
                         renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
                         dataAdapter: vcfDataAdapter
                     });
 
                     genomeViewer.addTrack(fileTrack);
-
-                    //var feature = vcfDataAdapter.featureCache.getFirstFeature();
-                    //genomeViewer.region.load(feature);
-                    //genomeViewer.setRegion({sender:""});
-                    //genomeViewer.setZoom(75);
                 }
             });
         } else {

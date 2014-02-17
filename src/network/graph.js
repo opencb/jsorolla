@@ -93,10 +93,24 @@ function Graph(args) {
     this.verticesIndex = {};
     this.edgesIndex = {};
 
+
     this.on(this.handlers);
 }
 
 Graph.prototype = {
+    setType: function (type) {
+        this.graphType = type;
+    },
+    clean: function () {
+        this.numberOfVertices = 0;
+        this.numberOfEdges = 0;
+        this.vertices = [];
+        this.edges = [];
+        this.verticesIndex = {};
+        this.edgesIndex = {};
+
+        this.verticesNameIndex = {};
+    },
     addEdge: function (edge) {
         if (edge.source == null || edge.target == null) {
             return false
@@ -107,6 +121,7 @@ Graph.prototype = {
         var length = this.edges.push(edge);
         var insertPosition = length - 1;
         this.edgesIndex[edge.id] = insertPosition;
+
 
         edge.source.addEdge(edge);
         edge.target.addEdge(edge);
@@ -128,10 +143,8 @@ Graph.prototype = {
         var insertPosition = length - 1;
         this.verticesIndex[vertex.id] = insertPosition;
 
-        // the real number of vertices
-        this.numberOfVertices++;
-
         this.trigger('vertex:add', {vertex: vertex, graph: this});
+        this.numberOfVertices++;
         return true;
     },
     removeEdge: function (edge) {
@@ -206,9 +219,53 @@ Graph.prototype = {
     getVertexById: function (vertexId) {
         return this.vertices[this.verticesIndex[vertexId]];
     },
+    getEdgeById: function (edgeId) {
+        return this.edges[this.edgesIndex[edgeId]];
+    },
     /**/
     addLayout: function (layout) {
         this.display.layouts[layout.id] = layout;
-    }
+    },
 
+    /**/
+    getAsSIF: function () {
+        var sifText = "";
+        for (var i = 0; i < this.vertices.length; i++) {
+            var vertex = this.vertices[i];
+            if (typeof vertex !== 'undefined') {
+                var line = "";
+                if (vertex.edges.length == 0) {
+                    line = vertex.id + "\n";
+                } else {
+                    for (var j = 0; j < vertex.edges.length; j++) {
+                        var edge = vertex.edges[j];
+                        line = edge.source.id + " " + "--" + " " + edge.target.id + "\n";
+                    }
+                }
+                sifText += line;
+            }
+
+        }
+        return sifText;
+    },
+    getAsDOT: function () {
+        var dotText = "graph network {\n" + this.getAsSIF() + "}";
+        return dotText;
+    },
+
+    toJSON: function () {
+        var vertices = [];
+        for (var i = 0; i < this.vertices.length; i++) {
+            if (typeof this.vertices[i] !== 'undefined') {
+                vertices.push(this.vertices[i]);
+            }
+        }
+        var edges = [];
+        for (var i = 0; i < this.edges.length; i++) {
+            if (typeof this.edges[i] !== 'undefined') {
+                edges.push(this.edges[i]);
+            }
+        }
+        return {vertices: vertices, edges: edges};
+    }
 }

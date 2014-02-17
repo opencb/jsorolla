@@ -28,31 +28,42 @@ function NetworkConfig(args) {
     _.extend(this, args);
 
 
-    this.layout = {}; // [{id:"one",x:1,y:2,z:3},...]
-    this.displayVertices = {}; // [{id:"one",color:red,...},...]
-    this.displayEdges = {};  // [{id:"one",color:red,...},...]
+    this.vertices = {}; // [{id:"one",color:red,...},...]
+    this.edges = {};  // [{id:"one",color:red,...},...]
     this.general = {};
 
     this.on(this.handlers);
 }
 
 NetworkConfig.prototype = {
-    setVertexLayout:function(vertexLayout){
-        this.layout[vertexLayout.id] = vertexLayout;
+    clean: function () {
+        this.vertices = {};
+        this.edges = {};
+        this.general = {};
     },
-    setVertexDisplay:function(vertexDisplay){
-        this.displayVertices[vertexDisplay.id] = vertexDisplay;
+    setVertexConfig:function(vertexConfig){
+        this.vertices[vertexConfig.id] = vertexConfig;
     },
-    getVertexLayout:function(vertex){
-        return this.layout[vertex.id];
+    getVertexConfig:function(vertex){
+        return this.vertices[vertex.id];
     },
-    getVertexDisplay:function(vertex){
-        return this.displayVertices[vertex.id];
+    setEdgeConfig:function(edgeConfig){
+        this.edges[edgeConfig.id] = edgeConfig;
     },
-    setEdgeDisplay:function(edgeDisplay){
-        this.displayEdges[edgeDisplay.id] = edgeDisplay;
+    getEdgeConfig:function(edge){
+        return this.edges[edge.id];
     },
-    getEdgeDisplay:function(edge){
-        return this.displayEdges[edge.id];
+    removeVertex:function(vertex){
+        delete this.vertices[vertex.id];
+    },
+    removeEdge:function(edge){
+        delete this.edges[edge.id];
+    },
+    toJSON:function(){
+        return {
+            vertices:this.vertices,
+            edges:this.edges,
+            general:this.general
+        }
     }
 }

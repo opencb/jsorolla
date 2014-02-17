@@ -19,21 +19,34 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function GenericFormPanel(analysis) {
+function GenericFormPanel(args) {
     _.extend(this, Backbone.Events);
 
-    this.analysis = analysis;
+    this.analysis;
     this.form = null;
     this.paramsWS = {};
-    this.panelId = this.analysis + "-FormPanel";
     this.testing = false;
     this.closable = true;
 
+    this.type;
+    this.title;
+    this.resizable;
+    this.width;
+    this.height;
+    this.taskbar;
+    this.bodyPadding;
+    this.headerConfig;
+
+    _.extend(this, args);
+
+
+    this.panelId = this.analysis + "-FormPanel";
+
     this.runAnalysisSuccess = function (response) {
-        if (response.data.indexOf("ERROR") != -1) {
+        if (response.errorMsg !== '') {
             Ext.Msg.show({
                 title: "Error",
-                msg: response.data,
+                msg: response.errorMsg,
                 buttons: Ext.Msg.OK,
                 icon: Ext.Msg.ERROR
             });
@@ -46,34 +59,37 @@ function GenericFormPanel(analysis) {
 
 }
 
-GenericFormPanel.prototype.draw = function (args) {
+GenericFormPanel.prototype.draw = function () {
     var _this = this;
     if (this.panel == null) {
-        if (args != null && args.type == "window") {
+        if (this.type == "window") {
             this.panel = Ext.create('Ext.ux.Window', {
-                title: args.title || "",
-                resizable: args.resizable || false,
-                width: args.width || 500,
-                height: args.height,
+                title: this.title || "",
+                resizable: this.resizable || false,
+                width: this.width || 500,
+                height: this.height,
                 overflowY: 'auto',
-                taskbar: args.taskbar,
-                closable:false,
+                taskbar: this.taskbar,
+                closable: false,
                 items: this.getForm()
             }).show();
         }
         else {
             this.panel = Ext.create('Ext.panel.Panel', {
                 id: this.panelId,
-                title: args.title,
+                title: this.title,
                 closable: this.closable,
 //                defaults: {margin: 30},
+                style: this.style,
                 autoScroll: true,
                 items: this.getForm(),
-                border:0,
-                listeners:{
-                    beforeclose:function(){
+                border: 0,
+                bodyPadding:this.bodyPadding,
+                header:this.headerConfig,
+                listeners: {
+                    beforeclose: function () {
+                        _this.panel.up().remove(_this.panel, false);
                         console.log('closing');
-                        args.tabpanel.remove(_this.panel,false);
                         return false;
                     }
                 }
@@ -143,6 +159,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
 
     var jobPanel = Ext.create('Ext.panel.Panel', {
         title: 'Job',
+        header:this.headerFormConfig,
         border: true,
         bodyPadding: "5",
         margin: "0 0 5 0",
@@ -161,6 +178,9 @@ GenericFormPanel.prototype.getRunButton = function () {
         width: 300,
         height: 35,
         disabled: true,
+        margin:'10 0 0 0',
+        cls:'btn btn-default',
+
         formBind: true, // only enabled if the form is valid
         handler: function () {
             var formParams = _this.getForm().getForm().getValues();
@@ -189,9 +209,9 @@ GenericFormPanel.prototype.run = function () {
 
     if (!this.testing) {
         OpencgaManager.runAnalysis({
-            analysis:this.analysis,
-            paramsWS:this.paramsWS,
-            success:this.runAnalysisSuccess
+            analysis: this.analysis,
+            paramsWS: this.paramsWS,
+            success: this.runAnalysisSuccess
         });
     }
 
@@ -275,9 +295,9 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
             if (args.beforeClick != null) {
                 args.beforeClick(args);
             }
-            _this.opencgaBrowserWidget.once('select',function (response) {
-                var label = 'buckets/'+response.bucketId + '/' + response.id;
-                var value = 'buckets:'+response.bucketId + ':' + response.id.replace(/\//g, ":");
+            _this.opencgaBrowserWidget.once('select', function (response) {
+                var label = 'buckets/' + response.bucketId + '/' + response.id;
+                var value = 'buckets:' + response.bucketId + ':' + response.id.replace(/\//g, ":");
                 fileSelectedLabel.setText('<span class="emph">' + label + '</span>', false);
                 hiddenField.setValue(value);//this is send to the ws
             });

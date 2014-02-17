@@ -1,3 +1,8 @@
+.jso-white-background{
+    background-color: white;
+    background: white;
+}
+
 .ocb-font-default {
     font-family: tahoma, arial, verdana, sans-serif;
 }
@@ -450,6 +455,10 @@ a:hover {
     border: 1px solid #ffffff;
 }
 
+.smokeback {
+    background: whiteSmoke;
+}
+
 .greyborder {
     border: 1px solid #BBBBBB;
 }
@@ -562,6 +571,16 @@ a:hover {
 
 .ocb-icon-compressed {
     background: url(../img/ocb-icon-compressed.png) !important;
+}
+
+.ocb-icon-node-select {
+    background: url(../img/icon-node-select.png) !important;
+}
+.ocb-icon-edge-select {
+    background: url(../img/icon-edge-select.png) !important;
+}
+.ocb-icon-backitem-select {
+    background: url(../img/icon-backitem-select.png) !important;
 }
 
 .icon-save {
@@ -793,6 +812,11 @@ a:hover {
     cursor: pointer;
 }
 
+
+.jso-li-over {
+    background-color: #aa0000;
+}
+
 .list-item {
     margin-top: 1px;
     padding-left: 20px;
@@ -826,8 +850,8 @@ a:hover {
 }
 
 .list-item-hover {
-    border: 1px solid #9d9d9d;
-    background-color: #e6e6e6;
+    border: 1px solid #b2becf;
+    background-color: #f1f3f6;
 }
 
 /*TEXT FORMAT*/
@@ -1072,60 +1096,45 @@ a:hover {
     border: 1px solid #E5E5E5;
 }
 
-.msg {
-    background-color: #fff;
-    color: #454545;
-    border: 2px solid transparent;
-    position: absolute;
-    left: 40%;
-    top: 10px;
-    width: 150px;
+.msg .x-box-mc {
+    font-size:16px;
 }
-
-/********************/
-/***sencha ux styles***/
-/********************/
-
-/*mensaje flotante*/
 #msg-div {
-    border: 2px solid transparent;
-    position: absolute;
-    left: 40%;
-    top: 10px;
-    width: 155px;
-    z-index: 20000;
+    position:absolute;
+    left:50%;
+    top:10px;
+    width:400px;
+    margin-left:-200px;
+    z-index:20000;
 }
-
 #msg-div .msg {
-    border: 2px solid #d3d3d3;
-    background-color: white;
+    /*border-radius: 8px;*/
+    /*-moz-border-radius: 8px;*/
+    background: #596F8F;
+    border: 2px solid #D1D9E3;
     margin-top: 2px;
-    padding: 5px 10px 5px 10px;
-    text-align: center;
+    padding: 10px 15px;
+    color: #FFF;
 }
-
 #msg-div .msg h3 {
-    border: 1px solid #d3d3d3;
-    border-width: 0 0 1px;
-    margin: 0px;
-    position: relative;
-    overflow: hidden;
-    font-weight: 700;
-    color: #596F8F;
-    font-size: 16px;
-}
-
-/**/
-
-/*GridFilters Styles*/
-.ux-filtered-column {
-    font-style: italic;
+    margin: 0 0 8px;
     font-weight: bold;
 }
-
-.ux-gridfilter-text-icon {
-    background-image: url(../img/find.png) !important;
+#msg-div .msg p {
+    margin: 0;
 }
+
+
+
+/*GridFilters Styles*/
+/*.ux-filtered-column {*/
+    /*font-style: italic;*/
+    /*font-weight: bold;*/
+/*}*/
+
+/*.ux-gridfilter-text-icon {*/
+    /*background-image: url(../img/find.png) !important;*/
+/*}*/
 
 /*RangeMenu Styles*/
 .ux-rangemenu-icon {
@@ -1147,22 +1156,22 @@ a:hover {
 /********************/
 /***Sencha rewrite***/
 /********************/
-.x-toolbar .x-toolbar-separator-horizontal {
-    border-left-color: #bbb;
-}
+/*.x-toolbar .x-toolbar-separator-horizontal {*/
+    /*border-left-color: #bbb;*/
+/*}*/
 
 /*EXTJS 4.2 BUG FIX FOR TOOLTIPS*/
-.x-tip {
-    width: auto !important;
-}
+/*.x-tip {*/
+    /*width: auto !important;*/
+/*}*/
 
-.x-tip-body {
-    width: auto !important;
-}
+/*.x-tip-body {*/
+    /*width: auto !important;*/
+/*}*/
 
-.x-tip-body span {
-    width: auto !important;
-}
+/*.x-tip-body span {*/
+    /*width: auto !important;*/
+/*}*/
 
 /*@import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono);*/
 /*@import url(http://fonts.googleapis.com/css?family=Ubuntu);*/
@@ -1208,6 +1217,12 @@ a:hover {
 .bootstrap {
     font-family: 'Source Sans Pro' !important;
 }
+
+/*.bootstrap * {*/
+    /*-webkit-border-radius: 0px !important;*/
+    /*-moz-border-radius: 0px !important;*/
+    /*border-radius: 0px !important;*/
+/*}*/
 
 .jso-vertex-selected * {
     stroke: #00FF00;

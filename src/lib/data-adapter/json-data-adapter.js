@@ -19,42 +19,31 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function Edge(args) {
+function JSONDataAdapter(args) {
+    var _this = this;
+    _.extend(this, Backbone.Events);
 
-    this.id = 'e'+Utils.genId();
-
-    this.relation='';
-    this.source;
-    this.target;
-    this.weight;
-    this.directed;
+    this.dataSource;
+    this.async = true;
+    this.jsonObject;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
-}
+    this.on(this.handlers);
 
-Edge.prototype = {
-    getSource: function () {
-        return this.source;
-    },
-    setSource: function (vertex) {
-        this.source = vertex;
-    },
-    getTarget: function () {
-        return this.target;
-    },
-    setTarget: function (vertex) {
-        this.target = vertex;
-    },
-    toJSON:function(){
-        return {
-            id:this.id,
-            source:this.source,
-            target:this.target,
-            weight:this.weight,
-            directed:this.directed,
-            relation:this.relation
-        }
+    if (this.async) {
+        this.dataSource.on('success', function (data) {
+            _this.jsonObject = JSON.parse(data);
+            _this.trigger('data:load', {jsonObject:_this.jsonObject});
+        });
+        this.dataSource.fetch(this.async);
+    } else {
+        var data = this.dataSource.fetch(this.async);
+        this.jsonObject = JSON.parse(data);
     }
-}
+};
+
+JSONDataAdapter.prototype.getJSON = function () {
+    return this.jsonObject;
+};

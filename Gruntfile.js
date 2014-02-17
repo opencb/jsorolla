@@ -34,6 +34,7 @@ module.exports = function (grunt) {
                     'src/lib/utils/utils.js',
                     'src/lib/utils/svg.js',
                     'src/lib/region.js',
+                    'src/lib/grid.js',
                     'src/lib/feature-binary-search-tree.js'
                 ],
                 dest: 'build/utils-<%= meta.version.utils %>.js'
@@ -98,14 +99,31 @@ module.exports = function (grunt) {
             nv:{
                 src: [
                     '<%= concat.utils.dest %>',
-
+                    '<%= concat.cellbase.dest %>',
                     'src/network-viewer/tool-bar.js',
                     'src/network-viewer/edition-bar.js',
-                    'src/network-viewer/attribute-manager.js',
                     'src/network-viewer/network-svg-layout.js',
+                    'src/network-viewer/attributes/*.js',
+                    'src/network/attributes/*.js',
                     'src/network/*.js',
 
-                    'src/network-viewer/network-viewer.js',
+
+                    'src/lib/data-adapter/json-data-adapter.js',
+                    'src/lib/data-adapter/attributes-data-adapter.js',
+                    'src/lib/data-adapter/network-data-adapter.js',
+                    'src/lib/data-adapter/dot-data-adapter.js',
+                    'src/lib/data-adapter/sif-data-adapter.js',
+
+                    'src/lib/data-source/data-source.js',
+                    'src/lib/data-source/file-data-source.js',
+                    'src/lib/data-source/string-data-source.js',
+
+                    'src/lib/ui-widgets/network-file-widget.js',
+                    'src/lib/ui-widgets/*-network-file-widget.js',
+                    'src/lib/ui-widgets/ux-window.js',
+
+                    'src/network-viewer/network-viewer.js'
+
 
                     /** network viewer **/
 
@@ -314,7 +332,7 @@ module.exports = function (grunt) {
                             'build/network-viewer/<%= meta.version.nv %>/vendor/purl.min.js',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/bootstrap-scoped-dist/js/bootstrap.min.js',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/pick-a-color/tinycolor-0.9.15.min.js',
-                            'build/network-viewer/<%= meta.version.nv %>/vendor/pick-a-color/1.2.0/js/pick-a-color-1.2.0.min.js'
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.simplecolorpicker.js'
                         ]
                     },
                     styles: {
@@ -323,7 +341,7 @@ module.exports = function (grunt) {
                             'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.qtip.min.css',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/ChemDoodleWeb.css',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/bootstrap-scoped-dist/css/bootstrap.min.css',
-                            'build/network-viewer/<%= meta.version.nv %>/vendor/pick-a-color/1.2.0/css/pick-a-color-1.2.0.min.css'
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.simplecolorpicker.css'
                         ]
                     }
                 }
@@ -459,7 +477,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('gv', ['clean:gv','concat:utils','concat:cellbase','concat:gv','uglify:gv', 'copy:gv', 'htmlbuild:gv','clean:utils','clean:cellbase']);
     grunt.registerTask('cgv', ['clean:cgv','concat:utils','concat:cellbase','concat:cgv','uglify:cgv','copy:cgv','htmlbuild:cgv','clean:utils','clean:cellbase','rename:cgv']);
-    grunt.registerTask('nv', ['clean:nv','concat:utils','concat:nv','uglify:nv','copy:nv', 'htmlbuild:nv','clean:utils']);
+    grunt.registerTask('nv', ['clean:nv','concat:utils','concat:cellbase','concat:nv','uglify:nv','copy:nv', 'htmlbuild:nv','clean:utils','clean:cellbase']);
     grunt.registerTask('threedv', ['clean:threedv','concat:utils','concat:cellbase','concat:threedv','uglify:threedv','copy:threedv','htmlbuild:threedv','clean:utils','clean:cellbase']);
 
 };

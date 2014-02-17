@@ -29,30 +29,30 @@ function JobListWidget(args) {
     this.counter = null;
     var jobstpl = [
         '<tpl for=".">',
-        '<div class="joblist-item">',
-        '<div style="color:' +
-            '<tpl if="visites == 0">green</tpl>' +
-            '<tpl if="visites &gt; 0">blue</tpl>' +
-            '<tpl if="visites == -1">red</tpl>' +
+        '<div class="joblist-item s120">',
+
+        '<div style="color:#596F8F">{name}</div>',
+        '<div class="{[ this.getClass(values) ]}">{toolName}{execution}</div>',
+        '<div style="color: dimgray">{date}</div>',
+
+        '<div style="color:grey">',
+        '<span style="color:' +
+            '<tpl if="visites == 0">#298c63</tpl>' +
+            '<tpl if="visites &gt; 0">#0068cc</tpl>' +
+            '<tpl if="visites == -1">#b30000</tpl>' +
             '<tpl if="visites == -2">Darkorange</tpl>' +
-            '">{name}</div>',
-        '<div style="color: #15428B"><i>{date}</i></div>',
-        '<div style="color:steelblue"><i>{toolName}</i><i>{execution}</i></div>',
-        '<div style="color:grey"><i>',
-//						'<tpl if="visites == 0">finished and unvisited</tpl>',
-//						'<tpl if="visites &gt; 0">{visites} visites</tpl>',
-//						'<tpl if="visites == -1">',
-        //'<div style="height:10px;width:{percentage/100*180}px;background:url(\'http://jsapi.bioinfo.cipf.es/ext/sencha/4.0.2/resources/themes/images/default/progress/progress-default-bg.gif\') repeat-x;">&#160;</div>',
-        //'{percentage}%',
-//						'running, please wait...',
-//						'</tpl>',
-        '{status}',
+            '">{status}</span>',
         '<tpl if="visites &gt; -1"> - {visites} views</tpl>',
-        '</i>' +
 //                        '  - {id}' +
-            '</div>',
         '</div>',
-        '</tpl>'
+
+        '</div>',
+        '</tpl>',
+        {
+            getClass: function (item) {
+                return item.toolName.replace('.', ' ');
+            }
+        }
     ];
 
     var jobsfields = ['commandLine', 'date', 'description', 'diskUsage', 'status', 'finishTime', 'inputData', 'jobId', 'message', 'name', 'outputData', 'ownerId', 'percentage', 'projectId', 'toolName', 'visites'];
@@ -87,15 +87,12 @@ function JobListWidget(args) {
                                         accountId: $.cookie('bioinfo_account'),
                                         sessionId: $.cookie('bioinfo_sid'),
                                         jobId: record.raw.id,
-                                        success: function (data) {
-                                            var msg = "";
-                                            if (data.indexOf("OK") != -1) {
-//                                                Ext.getCmp(_this.targetId).getActiveTab().close();
-                                                msg = "The job has been succesfully deleted.";
+                                        success: function (response) {
+                                            if (response.errorMsg === '') {
+                                                Ext.example.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
                                             } else {
-                                                msg = "ERROR: could not delete job.";
+                                                Ext.Msg.alert('Delete job, try again later.', response.errorMsg);
                                             }
-                                            Ext.example.msg("Delete job", msg);
                                         }
                                     });
                                 }
@@ -135,6 +132,7 @@ function JobListWidget(args) {
 //		vertical : true,
         id: this.id + "jobsFilterBar",
         dock: 'top',
+        cls: 'smokeback',
         items: [
             //this.projectFilterButton,
             {
@@ -274,9 +272,9 @@ JobListWidget.prototype.render = function () {
         Ext.getCmp(this.btnQueuedId).show();
     }
     Ext.getCmp(this.btnAllId).setText('<b style="color:black;font-size: 1.3em;">' + jobcount.all + '</b>');
-    Ext.getCmp(this.btnFinishedId).setText('<b style="color:green;font-size: 1.3em;">' + jobcount.finished + '</b>');
-    Ext.getCmp(this.btnVisitedId).setText('<b style="color:blue;font-size: 1.3em;">' + jobcount.visited + '</b>');
-    Ext.getCmp(this.btnRunningId).setText('<b style="color:red;font-size: 1.3em;">' + jobcount.running + '</b>');
+    Ext.getCmp(this.btnFinishedId).setText('<b style="color:#298c63;font-size: 1.3em;">' + jobcount.finished + '</b>');
+    Ext.getCmp(this.btnVisitedId).setText('<b style="color:#0068cc;font-size: 1.3em;">' + jobcount.visited + '</b>');
+    Ext.getCmp(this.btnRunningId).setText('<b style="color:#b30000;font-size: 1.3em;">' + jobcount.running + '</b>');
     Ext.getCmp(this.btnQueuedId).setText('<b style="color:Darkorange;font-size: 1.3em;">' + jobcount.queued + '</b>');
 };
 

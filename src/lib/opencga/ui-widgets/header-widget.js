@@ -208,11 +208,44 @@ HeaderWidget.prototype = {
                     ' Institute</b> at CIPF in Valencia, Spain.<br><br>' +
                     'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span>';
                 break;
+            case 85: //BierApp
+                this.homeLink = "http://bioinfo.cipf.es/apps/bierapp/";
+                this.helpLink = "https://github.com/babelomics/bierapp/wiki";
+                this.tutorialLink = "https://github.com/babelomics/bierapp/wiki/Tutorial";
+                this.aboutText = 'BiERApp is an interactive tool that allows finding genes affected by deleterious variants that segregate along family pedigrees, case-controls or sporadic samples. BiERApp has built with open and free technologies like HTML5 and Javascript.<br><br>' +
+'BierApp project is a joint development of the <b>BiER</b> and the <b>Computational Biology Unit</b>, in the <b>Computational Genomics Department</b> at CIPF in Valencia, Spain.<br><br>' +'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span> <br><br>' +
+                    '<img width="25%" src="http://bioinfo.cipf.es/bierwiki/lib/tpl/arctic/images/logobier.jpg">'
+                ;
+                break;
+
+            case 86: // TEAM
+                this.homeLink = "http://bioinfo.cipf.es/apps/team/";
+                this.helpLink = "https://github.com/babelomics/team/wiki";
+                this.tutorialLink = "https://github.com/babelomics/team/wiki/Tutorial";
+                this.aboutText = 'TEAM (Targeted Enrichment Analysis and Management) is an open web-based tool for the design and management of panels of genes for targeted enrichment and massive sequencing for diagnostic applications. <br> TEAM has been built with open and free technologies like HTML5 and Javascript.<br><br>'+
+                    'TEAM project is a joint development of the <b>BiER</b> and the <b>Computational Biology Unit</b>, in the <b>Computational Genomics Department</b> at CIPF in Valencia, Spain.<br><br>' +'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span> <br><br>' +
+                    '<img width="25%" src="http://bioinfo.cipf.es/bierwiki/lib/tpl/arctic/images/logobier.jpg">'
+                ;
+                break;
+
             default:
                 this.homeLink = "http://docs.bioinfo.cipf.es";
                 this.helpLink = "http://docs.bioinfo.cipf.es";
                 this.tutorialLink = "http://docs.bioinfo.cipf.es";
                 this.aboutText = '';
+        }
+
+        if(typeof HEADER_HOME_LINK !== 'undefined'){
+            this.homeLink = HEADER_HOME_LINK;
+        }
+        if(typeof HEADER_HELP_LINK !== 'undefined'){
+            this.helpLink = HEADER_HELP_LINK;
+        }
+        if(typeof HEADER_TUTORIAL_LINK !== 'undefined'){
+            this.tutorialLink = HEADER_TUTORIAL_LINK;
+        }
+        if(typeof HEADER_ABOUT_HTML !== 'undefined'){
+            this.aboutText = HEADER_ABOUT_HTML;
         }
 
         var linkbar = new Ext.create('Ext.toolbar.Toolbar', {

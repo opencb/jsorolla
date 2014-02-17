@@ -50,20 +50,24 @@ ProfileWidget.prototype = {
         /**************/
         this.changePasswordSuccess = function (data) {
             _this.panel.setLoading(false);
-            if (data.indexOf("ERROR") == -1) {
+            if (data.errorMsg === '') {
                 Ext.getCmp(_this.id + 'fldOld').setValue(null);
                 Ext.getCmp(_this.id + 'fldNew1').setValue(null);
                 Ext.getCmp(_this.id + 'fldNew2').setValue(null);
+                Ext.getCmp(_this.id + 'labelPass').setText('<span class="info">' + data.result[0].msg + '</span>', false);
+            }else{
+                Ext.getCmp(_this.id + 'labelPass').setText('<span class="err">' + data.errorMsg + '</span>', false);
             }
-            Ext.getCmp(_this.id + 'labelPass').setText('<span class="info">' + data + '</span>', false);
         };
         this.changeEmailSuccess = function (data) {
             _this.panel.setLoading(false);
-            if (data.indexOf("ERROR") == -1) {
+            if (data.errorMsg === '') {
                 Ext.getCmp(_this.id + 'fldEmail').setValue(null);
                 Ext.getCmp(_this.id + 'fldEmail').setFieldLabel('e-mail', false);
+                Ext.getCmp(_this.id + 'labelPass').setText('<span class="info">' + data.result[0].msg + '</span>', false);
+            }else{
+                Ext.getCmp(_this.id + 'labelPass').setText('<span class="err">' + data.errorMsg + '</span>', false);
             }
-            Ext.getCmp(_this.id + 'labelPass').setText('<span class="info">' + data + '</span>', false);
         };
         /**************/
 
@@ -189,7 +193,7 @@ ProfileWidget.prototype = {
             buttons: [
                 {
                     text: 'Close', handler: function () {
-                    _this.panel.close();
+                    _this.panel.hide();
                 }
                 }
             ],
