@@ -252,16 +252,17 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getAdminBucketUrl(args.accountId, args.bucketId) + '/create' + OpencgaManager.getQuery(queryParams);
 
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
-        //	console.log(url);
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
 
     refreshBucket: function (args) {
@@ -271,16 +272,17 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getAdminBucketUrl(args.accountId, args.bucketId) + '/refresh' + OpencgaManager.getQuery(queryParams);
 
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
-        console.log(url);
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
 
     renameBucket: function (args) {
@@ -290,16 +292,17 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getAdminBucketUrl(args.accountId, args.bucketId) + '/rename/' + args.newBucketId + OpencgaManager.getQuery(queryParams);
 
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
-        console.log(url);
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
     deleteBucket: 'TODO',
     shareBucket: 'TODO',
@@ -311,19 +314,20 @@ var OpencgaManager = {
             'sessionid': args.sessionId
         };
         var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/upload' + OpencgaManager.getQuery(queryParams);
-
-
-        function success(data) {
-            console.log(data);
-            args.success({status: "done", data: data});
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error({status: "fail", data: data});
-        }
-
-        OpencgaManager.doPost(url, args.formData, success, error);
-        //	console.log(url);
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: args.formData,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false,  // tell jQuery not to set contentType
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
     createDirectory: function (args) {
 //        accountId, sessionId, bucketId, objectId, parents
@@ -334,15 +338,17 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/create_directory' + OpencgaManager.getQuery(queryParams);
 
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
     deleteObjectFromBucket: function (args) {
 //        accountId, sessionId, bucketId, objectId
@@ -352,17 +358,19 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/delete' + OpencgaManager.getQuery(queryParams);
 
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
-        //	console.log(url);
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
+
     region: function (args) {
 //        accountId, sessionId, bucketId, objectId, region, queryParams
         args.objectId = args.objectId.replace(new RegExp("/", "gi"), ":");
@@ -378,30 +386,38 @@ var OpencgaManager = {
             var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/fetch' + OpencgaManager.getQuery(args.queryParams);
         }
 
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+//                args.success(data.response);
+
+//               TODO fix
+                if (!(data.substr(0, 5).indexOf('ERROR') != -1)) {
+                    var jsonData = JSON.parse(data);
+                    var r = {response: []};
+                    for (var i = 0; i < args.region.length; i++) {
+                        var result = jsonData[i];
+                        // TODO temporal fix
+                        r.response.push({
+                            id: args.region[i],
+                            result: jsonData[i]
+                        });
+                    }
+                    args.success(r);
+//                args.success({resource: args.queryParams["category"], response: JSON.parse(data), filename: args.objectId, query: args.region, params: args.queryParams});
+                }
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
 
         function success(data) {
-            if (!(data.substr(0, 5).indexOf('ERROR') != -1)) {
-                var jsonData = JSON.parse(data);
-                var r = {response: []};
-                for (var i = 0; i < args.region.length; i++) {
-                    var result = jsonData[i];
-                    // TODO temporal fix
-                    r.response.push({
-                        id: args.region[i],
-                        result: jsonData[i]
-                    });
-                }
-                args.success(r);
-//                args.success({resource: args.queryParams["category"], response: JSON.parse(data), filename: args.objectId, query: args.region, params: args.queryParams});
-            }
-        }
 
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
         }
-
-        OpencgaManager.doGet(url, success, error);
-        console.log(url);
     },
 
     /* JOB METHODS */
@@ -414,16 +430,29 @@ var OpencgaManager = {
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/result.js' + OpencgaManager.getQuery(queryParams);
         //var url = OpencgaManager.getHost() + '/job/'+jobId+'/result.'+format+'?incvisites=true&sessionid='+sessionId;
 
-        function success(data) {
-            args.success(data);
-        }
 
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
 
-        OpencgaManager.doGet(url, success, error);
-        console.log(url);
+//        function success(data) {
+//            args.success(data);
+//        }
+//
+//        function error(data) {
+//            if (_.isFunction(args.error)) args.error(data);
+//        }
+//
+//        OpencgaManager.doGet(url, success, error);
+//        console.log(url);
     },
     jobResultUrl: function (args) {
 //        accountId, sessionId, jobId, format
@@ -439,16 +468,17 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/status' + OpencgaManager.getQuery(queryParams);
 
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
-        console.log(url);
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
 
     table: function (args) {
@@ -461,16 +491,17 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/table' + OpencgaManager.getQuery(queryParams);
 
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
-        //	console.log(url);
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
 
     tableurl: function (args) {
@@ -498,17 +529,17 @@ var OpencgaManager = {
             queryParams['zip'] = false;
             url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/poll' + OpencgaManager.getQuery(queryParams);
 
-            function success(data) {
-                args.success(data);
-            }
-
-            function error(data) {
-                if (_.isFunction(args.error)) args.error(data);
-            }
-
-            OpencgaManager.doGet(url, success, error);
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data, textStatus, jqXHR) {
+                    args.success(data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (_.isFunction(args.error)) args.error(jqXHR);
+                }
+            });
         }
-        //	console.log(url);
     },
 
     pollurl: function (args) {
@@ -529,16 +560,17 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/delete' + OpencgaManager.getQuery(queryParams);
 
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
-        //	console.log(url);
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
 
     downloadJob: function (args) {
@@ -567,23 +599,12 @@ var OpencgaManager = {
             data: args.paramsWS,
             dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
             success: function (data, textStatus, jqXHR) {
-                //debugger
                 args.success(data.response);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (_.isFunction(args.error)) args.error(jqXHR);
             }
         });
-//        function success(data) {
-//            args.success({status: "done", data: data});
-//        }
-//
-//        function error(data) {
-//            if (_.isFunction(args.error)) args.error({status: "fail", data: data});
-//        }
-//
-//
-//        $.ajax({type: "POST", url: url, data: args.paramsWS, success: success, error: error});
     },
     indexer: function (args) {
 //        accountId, sessionId, bucketId, objectId
@@ -591,17 +612,17 @@ var OpencgaManager = {
             'sessionid': args.sessionId
         };
         var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/index' + OpencgaManager.getQuery(queryParams);
-        console.log(url);
-
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            success: function (data, textStatus, jqXHR) {
+                args.success(data.response);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
     },
     indexerStatus: function (args) {
 //        accountId, sessionId, bucketId, objectId, indexerId

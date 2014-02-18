@@ -43,10 +43,10 @@ function GenericFormPanel(args) {
     this.panelId = this.analysis + "-FormPanel";
 
     this.runAnalysisSuccess = function (response) {
-        if (response.data.indexOf("ERROR") != -1) {
+        if (response.errorMsg !== '') {
             Ext.Msg.show({
                 title: "Error",
-                msg: response.data,
+                msg: response.errorMsg,
                 buttons: Ext.Msg.OK,
                 icon: Ext.Msg.ERROR
             });

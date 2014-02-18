@@ -27,6 +27,7 @@ function UploadWidget(args) {
     this.targetId = null;
     this.suiteId = null;
     this.chunkedUpload = false;
+    this.enableTextMode = true;
 
     if (typeof args !== 'undefined') {
         this.targetId = args.targetId || this.targetId;
@@ -34,20 +35,15 @@ function UploadWidget(args) {
         this.opencgaBrowserWidget = args.opencgaBrowserWidget || this.opencgaBrowserWidget;
         this.chunkedUpload = args.chunkedUpload || this.chunkedUpload;
     }
-    this.uploadObjectToBucketSuccess = function (res) {
-        if (res.status == 'done') {
-
-//            _this.adapter.onIndexer.addEventListener(function(sender,data){
-//                console.log(data);
-//                _this.uploadComplete(data);
-//            });
-//            _this.adapter.indexer($.cookie("bioinfo_account"),_this.objectID);
-            console.log(_this.objectID);
-            _this.uploadComplete(res.data);
-        } else if (res.status == 'fail') {
-            _this.uploadFailed(res.data);
+    this.uploadObjectToBucketSuccess = function (response) {
+        if (response.errorMsg === '') {
+            Ext.example.msg('Object upload', '</span class="emph">' + response.result[0].msg + '</span>');
+            _this.uploadComplete(response.result[0].msg);
+        } else {
+            Ext.Msg.alert('Object upload', response.errorMsg);
+            _this.uploadFailed(response.errorMsg);
         }
-        _this.trigger('object:upload', {sender: _this, data: res});
+        _this.trigger('object:upload', {sender: _this, data: response.result[0].msg });
     };
 
     this.uploadButtonId = this.id + '_uploadButton';
@@ -213,7 +209,7 @@ UploadWidget.prototype.render = function (dataTypes) {
             bodyPadding: 10,
             height: height,
             border: false,
-            cls: 'panel-border-right',
+            cls: 'ocb-border-right-lightgrey',
             width: pan1Width,
             store: store,
             useArrows: true,
@@ -284,6 +280,7 @@ UploadWidget.prototype.render = function (dataTypes) {
             title: 'Some aditional data',
             width: pan2Width,
             border: false,
+//            cls: 'panel-border-top',
             height: height,
             bodyPadding: 15,
             items: [this.nameField, this.textArea, this.organizationField, this.responsableField, this.acquisitiondate]
@@ -302,6 +299,7 @@ UploadWidget.prototype.render = function (dataTypes) {
         this.originCheck = Ext.create('Ext.form.field.Checkbox', {
             xtype: 'checkbox',
             margin: '0 0 5 5',
+            hidden: !this.enableTextMode,
             boxLabel: 'Text mode',
             listeners: {
                 scope: this,
@@ -368,27 +366,29 @@ UploadWidget.prototype.render = function (dataTypes) {
         this.createUploadField();
 
         this.modebar = Ext.create('Ext.toolbar.Toolbar', {
-            dock: 'top',
+            dock: 'bottom',
             height: 28,
+            colspan: 2,
+            cls: 'ocb-border-top-lightgrey',
             border: false,
-            items: [this.originCheck, '->', this.dataTypeLabel, '-', /*this.dataNameLabel,'-',*/this.dataFieldLabel]
+            items: [this.dataTypeLabel, '-', /*this.dataNameLabel,'-',*/this.dataFieldLabel, '->', this.originCheck]
         });
 
         var pan3 = Ext.create('Ext.panel.Panel', {
-            title: 'File origin',
+//            title: 'File origin',
             colspan: 2,
             border: false,
             width: pan1Width + pan2Width,
-            cls: 'panel-border-top',
-            height: 82,
+//            cls: 'panel-border-',
+            height: 30,
 //		    bodyStyle:{"background-color":"#d3e1f1"},
             items: [this.editor],
-            dockedItems: [this.modebar, this.uploadBar]
+            dockedItems: [this.uploadBar]
         });
         this.pan3 = pan3;
 
         this.panel = Ext.create('Ext.window.Window', {
-            title: 'Upload a data file' + ' -  <span class="err">ZIP files will be allowed shortly</span>',
+            title: 'Upload a data file',// + ' -  <span class="err">ZIP files will be allowed shortly</span>',
             iconCls: 'icon-upload',
             resizable: false,
 //		    minimizable :true,
@@ -398,9 +398,10 @@ UploadWidget.prototype.render = function (dataTypes) {
             layout: {
                 type: 'table',
                 columns: 2,
-                rows: 2
+                rows: 3
             },
-            items: [pan1, pan2, pan3],
+            items: [pan3, pan1, pan2, this.modebar], // pan3],
+            dockedItems: [],
             buttonAlign: 'right',
             buttons: [
                 {text: "Close", handler: function () {
@@ -435,7 +436,9 @@ UploadWidget.prototype.createUploadField = function () {
         emptyText: 'Choose a file',
         allowBlank: false,
         anchor: '100%',
-        buttonText: 'Open file...',
+        buttonText: 'Upload local file...',
+        buttonAlign: 'left',
+        rtl: false,
         listeners: {
             scope: this,
             change: function () {
@@ -463,6 +466,14 @@ UploadWidget.prototype.validate = function () {
     } else {
         Ext.getCmp(this.uploadButtonId).disable();
         this.dataTypeLabel.setText('<span class="info">Type:</span><span class="err"> Not valid </span>', false);
+    }
+
+    if (this.originCheck.getValue()) {
+        if (this.nameField.getValue() == '') {
+            Ext.getCmp(this.uploadButtonId).disable();
+        } else {
+            Ext.getCmp(this.uploadButtonId).enable();
+        }
     }
 };
 
@@ -567,42 +578,21 @@ UploadWidget.prototype.uploadFile2 = function () {
 //    }
 //};
 
-UploadWidget.prototype.uploadComplete = function (response) {
-    /* This event is raised when the server send back a response */
-//	this.dataFieldLabel.setText('<span class="info">Upload </span><span class="ok">finished successfully</span> '+response,false);
-    var msg = "Uploaded sucessfully";
-    if (response.indexOf("ERROR") != -1) {//el createErrorResponse devuelte la palabra error siempre o deberia
-        msg = response;
-    }
+UploadWidget.prototype.uploadComplete = function (msg) {
     Ext.Msg.show({
         title: 'Upload status',
         msg: msg
     });
     this.panel.enable();
     Ext.getBody().unmask();
-    if (msg == "Uploaded sucessfully") {
-        this.panel.close();
-    }
+    this.panel.close();
 };
 
 UploadWidget.prototype.uploadFailed = function (response) {
-    console.log(response);
     Ext.Msg.show({
         title: 'Upload status',
         msg: 'There was an error attempting to upload the file.'
     });
-//	alert("There was an error attempting to upload the file.");
-    this.panel.enable();
-    Ext.getBody().unmask();
-};
-
-UploadWidget.prototype.uploadCanceled = function (response) {
-    console.log(response);
-    Ext.Msg.show({
-        title: 'Upload status',
-        msg: 'The upload has been canceled by the user or the browser dropped the connection.'
-    });
-//	alert("The upload has been canceled by the user or the browser dropped the connection.");
     this.panel.enable();
     Ext.getBody().unmask();
 };
