@@ -77,6 +77,10 @@ CircularKaryotype.prototype = {
             segment_d.push(SVG.describeArc(this.x, this.y, this.radius, (chr.angleStart - (separation / 5)), (chr.angleEnd + (separation / 5))) + ' ');
 //            this.genomesData[genome.id]['segmentData'][segment.id] = segment;
         }
+
+        /*
+         *  Next code plots the choromosomes border
+         */
         var color = '#428BCA';
         for (var i = 0; i < segment_d.length; i++) {
             var curve = SVG.addChild(this.targetId, "path", {
@@ -109,6 +113,7 @@ CircularKaryotype.prototype = {
             });
             text.textContent = chr.name;
         }
+
         this.drawCytobands(chromosomes);
 
         for (var i = 0; i < segment_d.length; i++) {

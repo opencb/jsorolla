@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="JSorollaNgLib">
+<html ng-app="jsorollaApp">
 <head>
     <title></title>
 
@@ -92,13 +92,24 @@
 
 
     <script src="ng-lib.js"></script>
+    <script src="services/cellbase-client.js"></script>
+    <script src="directives/genome-viewer.js"></script>
 
 </head>
 <body>
 <h2>Genome Viewer Directive</h2>
 
-<div id="gv">
-    <div opencb-genome-viewer class="ocb-gv"></div>
+<!--<div id="gv"></div>-->
+<div ng-controller="jsorollaGenomeViewerController">
+
+    <label>{{region}}</label>
+    <input type="button" ng-click="setRegion()" value="change region">
+
+    <jsorolla-genome-viewer id="gv"  class="ocb-gv"></jsorolla-genome-viewer>
 </div>
+<!--<div opencb-genome-viewer id="gv" class="ocb-gv" aa={{test}}></div>-->
+<!--<div id="gv">-->
+    <!--<div opencb-genome-viewer class="ocb-gv"></div>-->
+<!--</div>-->
 </body>
 </html>

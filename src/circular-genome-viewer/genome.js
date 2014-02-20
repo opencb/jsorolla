@@ -57,12 +57,12 @@ Genome.prototype = {
         /** Navigation Bar **/
         this.karyotype = this._createKaryotype(args);
 
-        for (var i = 0; i < this.chromosomes.length; i++) {
-            var chr = this.chromosomes[i];
-            if (chr.visible != false) {
-                this._getChromosomeGenes(chr);
-            }
-        }
+//        for (var i = 0; i < this.chromosomes.length; i++) {
+//            var chr = this.chromosomes[i];
+//            if (chr.visible != false) {
+//                this._getChromosomeGenes(chr);
+//            }
+//        }
     },
     _createKaryotype: function (args) {
         var _this = this;
