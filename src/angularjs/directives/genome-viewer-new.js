@@ -6,9 +6,8 @@
 //angular.module('jsorolla.directives', ['jsorolla.services']);
 
 angular.module('jsorolla.directives').controller('jsorollaGenomeViewerController', ['$scope', '$rootScope', function ($scope, $rootScope) {
-	$scope.id = "application;
 
-    $scope.$on($scope.id+':test2', function(event, region) {
+    $scope.$on('gv:test2', function(event, region) {
         console.log("Parent - on");
         $scope.$apply(function(){
             $scope.region = region;
@@ -23,7 +22,7 @@ angular.module('jsorolla.directives').controller('jsorollaGenomeViewerController
             start: 3288911,
             end: 3288961
         };
-        $rootScope.$broadcast($scope.id+':test3', reg);
+        $rootScope.$broadcast('gv:test3', reg);
     };
 
 }]);
@@ -37,7 +36,6 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
 //        templateUrl: './views/genes-gv.html',
         scope: {
             targetId: '@id',
-       		id: '=eventId',
             species: '=species',
             r: '=region'
 
@@ -72,7 +70,7 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
 
             });
 
-            $scope.$on($scope.id + ':test3', function(reg, mesg) {
+            $scope.$on($scope.targetId + ':test3', function(reg, mesg) {
                 $scope.genomeViewer.setRegion(mesg);
             });
 
@@ -137,7 +135,7 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
                     'region:change':function(event){
 //                        if(event.region.chromosome != region.chromosome && event.region.start != region.start && event.region.end != region.end) {
                         if(!(event.sender instanceof GenomeViewer)) {
-                            $rootScope.$broadcast($scope.id + ':test2', event.region);
+                            $rootScope.$broadcast($scope.targetId + ':test2', event.region);
                         }
 //                        $scope.$emit('test', region);
                         console.log("aaaaaaaaaaaaa")
