@@ -31,6 +31,8 @@ function OpencgaBrowserWidget(args) {
     this.width = 800;
     this.height = 575;
     this.title = 'Cloud data';
+    this.enableTextModeUW = true; // Enable Text Mode in the Upload Widget
+
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -94,6 +96,7 @@ OpencgaBrowserWidget.prototype = {
             suiteId: this.suiteId,
             opencgaBrowserWidget: this,
             chunkedUpload: this.chunkedUpload,
+            enableTextMode: this.enableTextModeUW,
             handlers: {
                 'object:upload': function (e) {
                     if (e.data.status == 'done') {
@@ -584,7 +587,7 @@ OpencgaBrowserWidget.prototype = {
                 break;
             case "manager" :
                 var item;
-                item = {text: 'Upload', handler: function () {
+                item = {text: 'Upload local file', handler: function () {
                     _this.drawUploadWidget();
                 }};
                 tbarObj.items.splice(0, 0, item);
@@ -599,21 +602,23 @@ OpencgaBrowserWidget.prototype = {
                 tbarObj.items.splice(0, 0, item);
                 this.selectButton.hide();
                 break;
+
             default :
                 var item;
-                item = {text: 'Upload', handler: function () {
+                item = {text: '<span class="info">Upload local file</span>',handler: function () {
                     _this.drawUploadWidget();
                 }};
-                tbarObj.items.splice(0, 0, item);
+                tbarObj.items.push(item);
+                tbarObj.items.push('-');
                 item = {text: 'New folder', handler: function () {
                     _this.folderTree.expand();
                     _this.createFolder();
                 }};
-                tbarObj.items.splice(0, 0, item);
+                tbarObj.items.push(item);
                 item = {text: 'New bucket', handler: function () {
                     manageProjects.expand();
                 }};
-                tbarObj.items.splice(0, 0, item);
+                tbarObj.items.push(item);
                 break;
         }
 

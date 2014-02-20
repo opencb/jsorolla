@@ -67,13 +67,13 @@ CircularKaryotype.prototype = {
         var chr;
         var segment_d = []
         for (var i = 0; i < chromosomes.length; i++) {
+
             chr = chromosomes[i];
             chr.angleSize = (chr.size * angleCoeff) - separation;
 
             chr.angleStart = this.angleStart + segmentAngleOffset + (separation / 2);
             chr.angleEnd = chr.angleStart + chr.angleSize;
             segmentAngleOffset += chr.angleSize + separation;
-
             segment_d.push(SVG.describeArc(this.x, this.y, this.radius, (chr.angleStart - (separation / 5)), (chr.angleEnd + (separation / 5))) + ' ');
 //            this.genomesData[genome.id]['segmentData'][segment.id] = segment;
         }
@@ -99,7 +99,7 @@ CircularKaryotype.prototype = {
 
             chr = chromosomes[i];
             var angle = chr.angleStart + (chr.angleSize / 2);
-            var coords = SVG._polarToCartesian(this.x, this.y, this.radius + 60, angle);
+            var coords = SVG._polarToCartesian(this.x, this.y, this.radius + 95, angle);
             var textAngle = angle - 90;
             if (angle > 180) {
                 textAngle += 180;

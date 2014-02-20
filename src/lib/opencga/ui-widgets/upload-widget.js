@@ -27,6 +27,7 @@ function UploadWidget(args) {
     this.targetId = null;
     this.suiteId = null;
     this.chunkedUpload = false;
+    this.enableTextMode = true;
 
     if (typeof args !== 'undefined') {
         this.targetId = args.targetId || this.targetId;
@@ -208,7 +209,7 @@ UploadWidget.prototype.render = function (dataTypes) {
             bodyPadding: 10,
             height: height,
             border: false,
-            cls: 'panel-border-right',
+            cls: 'ocb-border-right-lightgrey',
             width: pan1Width,
             store: store,
             useArrows: true,
@@ -279,6 +280,7 @@ UploadWidget.prototype.render = function (dataTypes) {
             title: 'Some aditional data',
             width: pan2Width,
             border: false,
+//            cls: 'panel-border-top',
             height: height,
             bodyPadding: 15,
             items: [this.nameField, this.textArea, this.organizationField, this.responsableField, this.acquisitiondate]
@@ -297,6 +299,7 @@ UploadWidget.prototype.render = function (dataTypes) {
         this.originCheck = Ext.create('Ext.form.field.Checkbox', {
             xtype: 'checkbox',
             margin: '0 0 5 5',
+            hidden: !this.enableTextMode,
             boxLabel: 'Text mode',
             listeners: {
                 scope: this,
@@ -363,27 +366,29 @@ UploadWidget.prototype.render = function (dataTypes) {
         this.createUploadField();
 
         this.modebar = Ext.create('Ext.toolbar.Toolbar', {
-            dock: 'top',
+            dock: 'bottom',
             height: 28,
+            colspan: 2,
+            cls: 'ocb-border-top-lightgrey',
             border: false,
-            items: [this.originCheck, '->', this.dataTypeLabel, '-', /*this.dataNameLabel,'-',*/this.dataFieldLabel]
+            items: [this.dataTypeLabel, '-', /*this.dataNameLabel,'-',*/this.dataFieldLabel, '->', this.originCheck]
         });
 
         var pan3 = Ext.create('Ext.panel.Panel', {
-            title: 'File origin',
+//            title: 'File origin',
             colspan: 2,
             border: false,
             width: pan1Width + pan2Width,
-            cls: 'panel-border-top',
-            height: 82,
+//            cls: 'panel-border-',
+            height: 30,
 //		    bodyStyle:{"background-color":"#d3e1f1"},
             items: [this.editor],
-            dockedItems: [this.modebar, this.uploadBar]
+            dockedItems: [this.uploadBar]
         });
         this.pan3 = pan3;
 
         this.panel = Ext.create('Ext.window.Window', {
-            title: 'Upload a data file' + ' -  <span class="err">ZIP files will be allowed shortly</span>',
+            title: 'Upload a data file',// + ' -  <span class="err">ZIP files will be allowed shortly</span>',
             iconCls: 'icon-upload',
             resizable: false,
 //		    minimizable :true,
@@ -393,9 +398,10 @@ UploadWidget.prototype.render = function (dataTypes) {
             layout: {
                 type: 'table',
                 columns: 2,
-                rows: 2
+                rows: 3
             },
-            items: [pan1, pan2, pan3],
+            items: [pan3, pan1, pan2, this.modebar], // pan3],
+            dockedItems: [],
             buttonAlign: 'right',
             buttons: [
                 {text: "Close", handler: function () {
@@ -430,7 +436,9 @@ UploadWidget.prototype.createUploadField = function () {
         emptyText: 'Choose a file',
         allowBlank: false,
         anchor: '100%',
-        buttonText: 'Open file...',
+        buttonText: 'Upload local file...',
+        buttonAlign: 'left',
+        rtl: false,
         listeners: {
             scope: this,
             change: function () {
@@ -460,10 +468,10 @@ UploadWidget.prototype.validate = function () {
         this.dataTypeLabel.setText('<span class="info">Type:</span><span class="err"> Not valid </span>', false);
     }
 
-    if(this.originCheck.getValue()){
-        if(this.nameField.getValue() == ''){
+    if (this.originCheck.getValue()) {
+        if (this.nameField.getValue() == '') {
             Ext.getCmp(this.uploadButtonId).disable();
-        }else{
+        } else {
             Ext.getCmp(this.uploadButtonId).enable();
         }
     }
