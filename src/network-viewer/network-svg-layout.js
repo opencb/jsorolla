@@ -37,6 +37,13 @@ function NetworkSvgLayout(args) {
     this.scale = 1;
     this.network;
 
+
+    this.transformX = 0;
+    this.transformY = 0;
+
+    this.centerX = 0;
+    this.centerY = 0;
+
     /** Action mode **/
     this.mode = "select";
 
@@ -91,9 +98,7 @@ NetworkSvgLayout.prototype = {
         this.drawArea = SVG.addChild(this.svg, "svg", {
             "id": "drawArea",
             "width": this.width,
-            "height": this.height,
-            x:0,
-            y:0
+            "height": this.height
         });
 
 
@@ -244,12 +249,14 @@ NetworkSvgLayout.prototype = {
 
         var centerX = this.width / 2;
         var centerY = this.height / 2;
-        var transX = -centerX * (this.scale - 1);
-        var transY = -centerY * (this.scale - 1);
+        this.transformX = this.centerX + (-centerX * (this.scale - 1));
+        this.transformY = this.centerY + (-centerY * (this.scale - 1));
+        this._applyTransformAttribute();
 
-        this.scaleFrontGroup.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
-        this.scaleBackGroup.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
-
+    },
+    _applyTransformAttribute: function () {
+        this.scaleFrontGroup.setAttribute("transform", "translate(" + this.transformX + "," + this.transformY + ") scale(" + this.scale + ")");
+        this.scaleBackGroup.setAttribute("transform", "translate(" + this.transformX + "," + this.transformY + ") scale(" + this.scale + ")");
     },
     setMode: function (mode) {
         this.mode = mode;
@@ -486,14 +493,13 @@ NetworkSvgLayout.prototype = {
                     dispX /= _this.scale;
                     dispY /= _this.scale;
 
-                    var x = parseInt(_this.drawArea.getAttribute('x'));
-                    var y = parseInt(_this.drawArea.getAttribute('y'));
+                    _this.transformX += dispX;
+                    _this.transformY += dispY;
+                    _this.centerX += dispX;
+                    _this.centerY += dispY;
 
-                    x += dispX;
-                    y += dispY;
 
-                    _this.drawArea.setAttribute('x', x);
-                    _this.drawArea.setAttribute('y', y);
+                    _this._applyTransformAttribute();
 
                     lastX = moveX;
                     lastY = moveY;
