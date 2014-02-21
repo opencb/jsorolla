@@ -225,7 +225,7 @@ TrackListPanel.prototype = {
             'fill': 'black',
             'class': this.fontClass
         });
-        this.viewNtsText.setAttribute('hidden');
+        this.viewNtsText.setAttribute('visibility', 'hidden');
 //        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
         this.viewNtsText.textContent = this.windowSize;
         $(this.div).find('#windowSizeSpan').html(this.windowSize);
