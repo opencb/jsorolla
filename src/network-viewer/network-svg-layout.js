@@ -198,6 +198,11 @@ NetworkSvgLayout.prototype = {
         return this.scaleFrontGroup;
     },
     clean: function () {
+        this.transformX = 0;
+        this.transformY = 0;
+        this.centerX = 0;
+        this.centerY = 0;
+
         $(this.scaleFrontGroup).empty();
         $(this.scaleBackGroup).empty();
         $(this.svg).prepend(this.backRect);
@@ -252,6 +257,18 @@ NetworkSvgLayout.prototype = {
         this.transformX = this.centerX + (-centerX * (this.scale - 1));
         this.transformY = this.centerY + (-centerY * (this.scale - 1));
         this._applyTransformAttribute();
+
+    },
+    setCenter: function (c) {
+        if(typeof c !== 'undefined'){
+            this.centerX = c.x | 0;
+            this.centerY = c.y | 0;
+            var centerX = this.width / 2;
+            var centerY = this.height / 2;
+            this.transformX = this.centerX + (-centerX * (this.scale - 1));
+            this.transformY = this.centerY + (-centerY * (this.scale - 1));
+            this._applyTransformAttribute();
+        }
 
     },
     _applyTransformAttribute: function () {

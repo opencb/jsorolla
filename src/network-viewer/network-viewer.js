@@ -941,14 +941,18 @@ NetworkViewer.prototype = {
             this.networkSvgLayout.clean();
             this.network.draw(this.networkSvgLayout.getElementsSVG());
             this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
+            this.networkSvgLayout.setCenter(content["center"]);
 //            this._refreshOverview();
         } catch (e) {
             console.log('Error loading JSON');
         }
     },
     toJSON: function () {
+        console.log(this.networkSvgLayout.centerX)
+        console.log(this.networkSvgLayout.centerY)
         var json = this.network.toJSON();
         json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
+        json["center"] = {x:this.networkSvgLayout.centerX,y:this.networkSvgLayout.centerY};
         json["zoom"] = this.zoom;
         return json;
     },
