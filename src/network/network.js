@@ -68,7 +68,7 @@ Network.prototype = {
             }
         }
     },
-    addVertex: function (args) {
+    addVertex: function (args, silent) {
         var vertex = args.vertex;
         var vertexConfig = args.vertexConfig;
         var target = args.target;
@@ -93,9 +93,14 @@ Network.prototype = {
             this.nodeAttributeManager.addRecord([
                 [vertex.id, n]
             ], true);
+
+            if (silent !== true) {
+                this.trigger('add:vertex');
+            }
         }
+        return added;
     },
-    addEdge: function (args) {
+    addEdge: function (args, silent) {
         var edge = args.edge;
         var edgeConfig = args.edgeConfig;
         var target = args.target;
@@ -114,7 +119,12 @@ Network.prototype = {
             this.edgeAttributeManager.addRecord([
                 [edge.id, edge.id, edge.relation]
             ], true);
+
+            if(silent !== true){
+                this.trigger('add:edge');
+            }
         }
+        return added;
     },
     setVertexConfig: function (vertexConfig) {
         this.config.setVertexConfig(vertexConfig);
@@ -134,7 +144,7 @@ Network.prototype = {
     getEdgeById: function (edgeId) {
         return this.graph.getEdgeById(edgeId);
     },
-    removeVertex: function (vertex) {
+    removeVertex: function (vertex, silent) {
         var vertexConfig = this.config.getVertexConfig(vertex);
         vertexConfig.renderer.remove();
         for (var i = 0; i < vertex.edges.length; i++) {
@@ -147,17 +157,23 @@ Network.prototype = {
         this.graph.removeVertex(vertex);
         this.config.removeVertex(vertex);
         this.nodeAttributeManager.removeRecordById(vertex.id);
+
+        if (silent !== true) {
+            this.trigger('remove:vertex');
+        }
+
     },
     removeVertices: function (vertices) {
         this.nodeAttributeManager.store.suspendEvents();
         for (var i = 0, li = vertices.length; i < li; i++) {
             var vertex = vertices[i];
             if (typeof vertex !== 'undefined') {
-                this.removeVertex(vertex);
+                this.removeVertex(vertex, true);
             }
         }
         this.nodeAttributeManager.store.resumeEvents();
         this.nodeAttributeManager.store.fireEvent('refresh');
+        this.trigger('remove:vertices');
     },
     renderVertex: function (vertex, target) {
         var vertexConfig = this.config.getVertexConfig(vertex);
@@ -435,6 +451,28 @@ Network.prototype = {
     getEdgesLength: function () {
         return this.graph.numberOfEdges;
     },
+    getVertices: function () {
+        var items = [];
+        var vertices = this.graph.vertices;
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                items.push(vertex);
+            }
+        }
+        return items;
+    },
+    getEdges: function () {
+        var items = [];
+        var edges = this.graph.edges;
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            if (typeof edge !== 'undefined') {
+                items.push(edge);
+            }
+        }
+        return items;
+    },
 
 
 //    /* Attribute Manager */
@@ -470,6 +508,8 @@ Network.prototype = {
         ];
         this.nodeAttributeManager.addAttributes(nodeAttributes);
         this.edgeAttributeManager.addAttributes(edgeAttributes);
+
+        this.trigger('clean');
     },
 
     /** JSON import/export **/
@@ -491,16 +531,25 @@ Network.prototype = {
             var vertex = new Vertex({
                 id: v.id
             });
+
+            var config = content.config.vertices[v.id];
+            var renderer;
+            if (typeof config === 'undefined') {
+                renderer = new DefaultVertexRenderer()
+            } else {
+                renderer = new DefaultVertexRenderer(config.renderer)
+
+            }
             /* vertex config */
             var vertexConfig = new VertexConfig({
                 id: v.id,
                 coords: content.config.vertices[v.id].coords,
-                renderer: new DefaultVertexRenderer(content.config.vertices[v.id].renderer)
+                renderer: renderer
             });
             this.addVertex({
                 vertex: vertex,
                 vertexConfig: vertexConfig
-            });
+            },true);
         }
 
         for (var i = 0; i < content.graph.edges.length; i++) {
@@ -516,20 +565,30 @@ Network.prototype = {
                 target: target
             });
 
+            var config = content.config.edges[e.id];
+            var renderer;
+            if (typeof config === 'undefined') {
+                renderer = new DefaultEdgeRenderer()
+            } else {
+                renderer = new DefaultEdgeRenderer(config.renderer)
+
+            }
             /* edge config */
             var edgeConfig = new EdgeConfig({
                 id: e.id,
-                renderer: new DefaultEdgeRenderer(content.config.edges[e.id].renderer)
+                renderer: renderer
             });
 
             this.addEdge({
                 edge: edge,
                 edgeConfig: edgeConfig
-            });
+            },true);
         }
 
         this._importAttributes(content.nodeAttributes, this.nodeAttributeManager);
         this._importAttributes(content.edgeAttributes, this.edgeAttributeManager);
+
+        this.trigger('load:json');
 
     },
     importVertexWithAttributes: function (data) {
@@ -550,11 +609,12 @@ Network.prototype = {
                 this.addVertex({
                     vertex: vertex,
                     vertexConfig: vertexConfig
-                });
+                },true);
             }
         }
         // add attributes
         this._importAttributes(data.content, this.nodeAttributeManager);
+        this.trigger('import:attributes');
     },
     _importAttributes: function (data, attributeManager) {
         if (data.attributes.length > 1) {

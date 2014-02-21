@@ -26,6 +26,7 @@ function SIFDataAdapter(args) {
 
     this.addedVertex;
     this.addedEdges;
+
 };
 
 SIFDataAdapter.prototype.parse = function (data) {
@@ -72,7 +73,7 @@ SIFDataAdapter.prototype.parse = function (data) {
                             vertexConfig: new VertexConfig({
                                 renderer: new DefaultVertexRenderer({})
                             })
-                        });
+                        },true);
                         this.addedVertex[targetName] = targetVertex;
                     }
 
@@ -94,7 +95,7 @@ SIFDataAdapter.prototype.parse = function (data) {
                             edgeConfig: new EdgeConfig({
                                 renderer: new DefaultEdgeRenderer()
                             })
-                        });
+                        },true);
                         this.addedEdges[edgeId] = edge;
                     }
                 }

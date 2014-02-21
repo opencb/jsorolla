@@ -37,7 +37,7 @@ function AttributeManagerStore(args) {
         model: this.model,
         listeners: {
             update: function (st, record, operation, modifiedFieldNames) {
-                if(modifiedFieldNames && modifiedFieldNames[0]!='Selected'){
+                if (modifiedFieldNames && modifiedFieldNames[0] != 'Selected') {
                     _this.trigger('change:recordsAttribute', {records: [record], attributeName: modifiedFieldNames[0], sender: this});
                 }
             }
@@ -228,15 +228,31 @@ AttributeManagerStore.prototype = {
         }
         return ids;
     },
-    getValuesByAttribute:function(attributeName){
+    getValuesByAttribute: function (attributeName) {
         var data = this.store.snapshot || this.store.data;
         var records = data.items;
-        var values  = [];
+        var values = [];
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             var value = record.get(attributeName);
-            if(value != null && value!==''){
-                values.push(value)
+            var id = record.get('Id');
+            if (value != null && value !== '') {
+                values.push({value: value, id: id});
+            }
+        }
+        return values;
+    },
+    getSelectedValuesByAttribute: function (attributeName) {
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
+        var values = [];
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            var value = record.get(attributeName);
+            var id = record.get('Id');
+            var selected = record.get('Selected');
+            if (selected === true && value != null && value !== '') {
+                values.push({value: value, id: id})
             }
         }
         return values;

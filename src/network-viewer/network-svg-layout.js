@@ -91,7 +91,9 @@ NetworkSvgLayout.prototype = {
         this.drawArea = SVG.addChild(this.svg, "svg", {
             "id": "drawArea",
             "width": this.width,
-            "height": this.height
+            "height": this.height,
+            x:0,
+            y:0
         });
 
 
@@ -157,12 +159,18 @@ NetworkSvgLayout.prototype = {
                 case 1: //left click
                     _this.leftMouseDown(event);
                     break;
+                case 2: //middle click
+                    _this.middleMouseDown(event);
+                    break;
             }
         });
         $(this.svg).bind('mouseup.networkViewer', function (event) {
             switch (event.which) {
                 case 1: //left click
                     _this.leftMouseUp(event);
+                    break;
+                case 2: //middle click
+                    _this.middleMouseUp(event);
                     break;
             }
         });
@@ -279,10 +287,12 @@ NetworkSvgLayout.prototype = {
         var downX = (event.clientX - $(this.svg).offset().left);
         var downY = (event.clientY - $(this.svg).offset().top);
 
+        console.log(downX)
+        console.log(downY)
         switch (this.mode) {
             case "add":
                 /* event coordinates */
-                if (targetElNetworkType !== 'vertex') {
+                if (targetElNetworkType !== 'vertex' && targetElNetworkType !== 'vertex-label') {
                     this.trigger('create:vertex', {x: downX, y: downY});
                 }
                 break;
@@ -357,7 +367,7 @@ NetworkSvgLayout.prototype = {
                 }
                 break;
             case "delete":
-                if (targetElNetworkType === 'vertex') {
+                if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
                     var vertexId = this.getVertexId(targetEl);
                     _this.trigger('remove:vertex', {vertexId: vertexId, sender: _this});
                 }
@@ -452,6 +462,51 @@ NetworkSvgLayout.prototype = {
                 break;
         }
     },
+    middleMouseDown: function (event) {
+        var _this = this;
+        var targetEl = event.target;
+        var targetElNetworkType = $(targetEl).attr('network-type');
+        var downX = (event.clientX - $(this.svg).offset().left);
+        var downY = (event.clientY - $(this.svg).offset().top);
+        switch (this.mode) {
+            case "add":
+            case "join":
+            case "delete":
+            case "select":
+            case "selectbackground":
+                var lastX = downX;
+                var lastY = downY;
+                $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
+                    moveEvent.preventDefault();
+                    var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
+                    var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
+                    var dispX = moveX - lastX;
+                    var dispY = moveY - lastY;
+
+                    dispX /= _this.scale;
+                    dispY /= _this.scale;
+
+                    var x = parseInt(_this.drawArea.getAttribute('x'));
+                    var y = parseInt(_this.drawArea.getAttribute('y'));
+
+                    x += dispX;
+                    y += dispY;
+
+                    _this.drawArea.setAttribute('x', x);
+                    _this.drawArea.setAttribute('y', y);
+
+                    lastX = moveX;
+                    lastY = moveY;
+
+                });
+                break;
+            default:
+        }
+    },
+    middleMouseUp: function (event) {
+        var _this = this;
+        $(_this.svg).off('mousemove.networkViewer');
+    },
     contextMenu: function (event) {
 
 //        console.log('metaKey ' + event.metaKey);
@@ -465,11 +520,12 @@ NetworkSvgLayout.prototype = {
         var targetElNetworkType = $(targetEl).attr('network-type');
         switch (this.mode) {
             case "add":
-                break;
+            case "join":
+            case "delete":
             case "select":
                 var downX = (event.clientX - $(this.svg).offset().left);
                 var downY = (event.clientY - $(this.svg).offset().top);
-                if (targetElNetworkType === 'vertex') {
+                if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
                     var vertexId = this.getVertexId(targetEl);
                     this.trigger('rightClick:vertex', { vertexId: vertexId, x: downX, y: downY, sender: this});
                 }
@@ -479,10 +535,6 @@ NetworkSvgLayout.prototype = {
                     this.removeBackGroundImage(targetEl);
                 }
                 break;
-            case "join":
-                break;
-            case "delete":
-                break;
             default:
         }
     },
@@ -491,6 +543,6 @@ NetworkSvgLayout.prototype = {
     },
     getEdgeId: function (targetEl) {
         return $(targetEl).closest('[network-type="edge-g"]').attr('id');
-    },
+    }
 };
 

@@ -61,9 +61,13 @@ ToolBar.prototype = {
 
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
-            '   <div class="btn-group btn-group-xs" data-toggle="buttons">' +
-            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="selectButton" title="Select nodes mode"><span class="ocb-icon icon-mouse-select"></span></label>' +
-            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="backgroundButton" title="Select background items mode"><span class="ocb-icon ocb-icon-backitem-select"></span></label>' +
+//            '   <div class="btn-group btn-group-xs" data-toggle="buttons">' +
+//            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="selectButton" title="Select nodes mode"><span class="ocb-icon icon-mouse-select"></span></label>' +
+//            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="backgroundButton" title="Select background items mode"><span class="ocb-icon ocb-icon-backitem-select"></span></label>' +
+//            '   </div>' +
+            '   <div class="btn-group btn-group-xs">' +
+            '       <button id="selectButton" class="btn btn-default" type="button" title="Network select mode"><span class="ocb-icon icon-mouse-select"></span></button>' +
+            '       <button id="backgroundButton" class="btn btn-default" type="button" title="Background select mode"><span class="ocb-icon ocb-icon-backitem-select"></span></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs">' +
             '       <button id="addButton" class="btn btn-default" type="button" title="Add mode"><span class="ocb-icon icon-add"></span></button>' +
@@ -191,12 +195,12 @@ ToolBar.prototype = {
 
         /* buttons */
 
-        $(this.selectButton).change(function (e) {
+        $(this.selectButton).click(function (e) {
 //            $(this).toggleClass('active btn-primary');
 //            var pressed = $(this).hasClass('active');
             _this.trigger('click:selectButton', {clickEvent: e, sender: {}})
         });
-        $(this.backgroundButton).change(function (e) {
+        $(this.backgroundButton).click(function (e) {
 //            $(this).toggleClass('active btn-primary');
 //            var pressed = $(this).hasClass('active');
             _this.trigger('click:backgroundButton', {clickEvent: e, sender: {}})
@@ -284,7 +288,7 @@ ToolBar.prototype = {
     },
     _setLayoutMenu: function () {
         var _this = this;
-        var options = [/*'Force directed',*/'Dot', 'Neato', 'Twopi', 'Circo', 'Fdp', 'Sfdp'/*, 'Random', 'Circle', 'Square'*/];
+        var options = ['Force directed','Dot', 'Neato', 'Twopi', 'Circo', 'Fdp', 'Sfdp'/*, 'Random', 'Circle', 'Square'*/];
         for (var i in options) {
             var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
             $(this.layoutMenu).append(menuEntry);

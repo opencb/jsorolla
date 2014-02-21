@@ -332,7 +332,8 @@ module.exports = function (grunt) {
                             'build/network-viewer/<%= meta.version.nv %>/vendor/purl.min.js',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/bootstrap-scoped-dist/js/bootstrap.min.js',
                             'build/network-viewer/<%= meta.version.nv %>/vendor/pick-a-color/tinycolor-0.9.15.min.js',
-                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.simplecolorpicker.js'
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/jquery.simplecolorpicker.js',
+                            'build/network-viewer/<%= meta.version.nv %>/vendor/d3.min.js'
                         ]
                     },
                     styles: {

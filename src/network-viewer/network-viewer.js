@@ -41,7 +41,6 @@ function NetworkViewer(args) {
     this.toolBar;
     this.editionBar;
     this.networkSvgLayout;
-    this.network = new Network();
 
     this.contextMenu;
 
@@ -62,11 +61,6 @@ function NetworkViewer(args) {
 }
 
 NetworkViewer.prototype = {
-    setNetwork: function (network) {
-        this.clean();
-        this.network = network;
-        this.network.draw(this.networkSvgLayout.getElementsSVG());
-    },
     render: function (targetId) {
         var _this = this;
         if (targetId)this.targetId = targetId;
@@ -150,6 +144,14 @@ NetworkViewer.prototype = {
             return;
         }
 
+        this.network = new Network({
+            handlers: {
+                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean': function () {
+                    _this._updateStatusInfo();
+                }
+            }
+        });
+
         /* Toolbar Bar */
         this.toolBar = this._createToolBar($(this.toolbarDiv).attr('id'));
 
@@ -157,6 +159,8 @@ NetworkViewer.prototype = {
         this.editionBar = this._createEditionBar($(this.editionbarDiv).attr('id'));
 
         this.networkSvgLayout = this._createNetworkSvgLayout($(this.mainPanelDiv).attr('id'));
+
+        this._createStatusBar($(this.statusbarDiv).attr('id'));
 
         if (this.overviewPanel) {
             var width = this.networkSvgLayout.width * this.overviewScale * this.networkSvgLayout.scale;
@@ -380,6 +384,43 @@ NetworkViewer.prototype = {
         });
         return editionBar;
     },
+    _createStatusBar: function (targetId) {
+        var div = $('<div></div>')[0];
+        $(div).css({
+            padding: '5px',
+            fontSize: '14px'
+        });
+        $('#' + targetId).append(div);
+
+        this.numVertices = $('<span></span>')[0];
+        this.numEdges = $('<span></span>')[0];
+
+        $(this.numVertices).css({
+            fontWeight: 'bold'
+        });
+        $(this.numEdges).css({
+            fontWeight: 'bold'
+        });
+
+        var infoVertices = $('<span>Number nodes: </span>')[0];
+        var infoEdges = $('<span>Number edges: </span>')[0];
+        $(infoVertices).css({
+            color: 'dimgray'
+        });
+        $(infoEdges).css({
+            color: 'dimgray',
+            marginLeft: '10px'
+        });
+        $(div).append(infoVertices);
+        $(div).append(this.numVertices);
+        $(div).append(infoEdges);
+        $(div).append(this.numEdges);
+    },
+    _updateStatusInfo: function () {
+        console.log("_updateStatusInfo")
+        $(this.numVertices).html(this.getVerticesLength());
+        $(this.numEdges).html(this.getEdgesLength());
+    },
 
     _createNetworkSvgLayout: function (targetId) {
         var _this = this;
@@ -516,8 +557,8 @@ NetworkViewer.prototype = {
     },
     selectByArea: function (x, y, width, height) {
         this.scale = this.networkSvgLayout.scale;//TODO
-        var centerX = this.width / 2;
-        var centerY = this.height / 2;
+        var centerX = this.networkSvgLayout.width / 2;
+        var centerY = this.networkSvgLayout.height / 2;
         var transX = -centerX * (this.scale - 1);
         var transY = -centerY * (this.scale - 1);
         x -= transX;
@@ -585,10 +626,20 @@ NetworkViewer.prototype = {
         }
     },
     createVertex: function (x, y) {
+        this.scale = this.networkSvgLayout.scale;//TODO
+        var centerX = this.networkSvgLayout.width / 2;
+        var centerY = this.networkSvgLayout.height / 2;
+        var transX = -centerX * (this.scale - 1);
+        var transY = -centerY * (this.scale - 1);
+        x -= transX;
+        y -= transY;
+        x /= this.scale;
+        y /= this.scale;
 
+        console.log(this.scale);
         /* vertex graph */
         var vertex = new Vertex({
-            id: 'node' + this.createdVertexCount
+            id: 'n' + '_' + Utils.randomString()
         });
 
         /* vertex config */
@@ -765,10 +816,32 @@ NetworkViewer.prototype = {
                 break;
             case "none":
                 break;
+            case "Force directed":
+                GraphLayout.force(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight(), function (verticesArray) {
+                    for (var i = 0, l = verticesArray.length; i < l; i++) {
+                        var v = verticesArray[i];
+                        _this.setVertexCoords(v.id, v.x, v.y);
+                    }
+                });
+
+                break;
+            case "Spring":
+                var result = GraphLayout.spring(this.network.graph);
+                var vertexCoordinates = result.vertexCoordinates;
+                var graphConf = result.graphConf;
+                var diffX = graphConf.layoutMaxX - graphConf.layoutMinX;
+                var diffY = graphConf.layoutMaxY - graphConf.layoutMinY;
+                for (var vertexId in vertexCoordinates) {
+                    var x = _this.networkSvgLayout.getWidth() * (0.05 + 0.85 * ((diffX + vertexCoordinates[vertexId].layoutPosX)) / diffX);
+                    var y = _this.networkSvgLayout.getHeight() * (0.05 + 0.85 * ((diffY + vertexCoordinates[vertexId].layoutPosY)) / diffY);
+                    _this.setVertexCoords(vertexId, x, y);
+                }
+                break;
             default:
                 console.log(dot);
                 var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
 //        		var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
+//                var url = "http://ws-beta.bioinfo.cipf.es/opencga-staging/rest/utils/network/layout/" + type.toLowerCase() + ".coords";
                 $.ajax({
                     async: false,
                     type: "POST",
@@ -779,7 +852,6 @@ NetworkViewer.prototype = {
                     },
                     cache: false,
                     success: function (data) {
-                        debugger
                         console.log('Layout back')
                         for (var vertexId in data) {
                             var x = _this.networkSvgLayout.getWidth() * (0.05 + 0.85 * data[vertexId].x);
@@ -828,11 +900,17 @@ NetworkViewer.prototype = {
     getEdgesLength: function () {
         return this.network.getEdgesLength();
     },
+    getVertices: function () {
+        return this.network.getVertices();
+    },
+    getEdges: function () {
+        return this.network.getEdges();
+    },
     getSelectedVertices: function () {
-        return this.networkSvgLayout.selectedVertices;
+        return this.selectedVertices;
     },
     getSelectedEdges: function () {
-        return this.networkSvgLayout.selectedEdges;
+        return this.selectedEdges;
     },
     importVertexWithAttributes: function (data) {
         this.network.importVertexWithAttributes(data);
@@ -845,26 +923,40 @@ NetworkViewer.prototype = {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     clean: function () {
+        delete localStorage.networkViewer;
         this.network.clean();
         this.networkSvgLayout.clean();
     },
-    drawNetwork:function(){
+    drawNetwork: function () {
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
+    },
+    refreshNetwork: function () {
+        this.networkSvgLayout.clean();
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     loadJSON: function (content) {
-        this.network.loadJSON(content);
-//        this.network.(content);
-        this.networkSvgLayout.setZoom(content["zoom"]);
-        this.networkSvgLayout.clean();
-        this.network.draw(this.networkSvgLayout.getElementsSVG());
-        this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
-        this._refreshOverview();
+        try {
+            this.network.loadJSON(content);
+            this.networkSvgLayout.setZoom(content["zoom"]);
+            this.networkSvgLayout.clean();
+            this.network.draw(this.networkSvgLayout.getElementsSVG());
+            this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
+            this._refreshOverview();
+        } catch (e) {
+            console.log('Error loading JSON');
+        }
     },
     toJSON: function () {
         var json = this.network.toJSON();
         json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
         json["zoom"] = this.zoom;
         return json;
-    }
+    },
+    //TODO Deprecated
+    setNetwork: function (network) {
+        this.clean();
+        this.network = network;
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
+    },
 
 }

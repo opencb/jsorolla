@@ -33,6 +33,7 @@ function NetworkDataAdapter(args) {
 
     this.on(this.handlers);
 
+
     if (this.async) {
         this.dataSource.on('success', function (data) {
             _this.parse(data);

@@ -19,18 +19,22 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-SIFNetworkFileWidget.prototype.draw = NetworkFileWidget.prototype.draw;
+//
+//function NumberAttributeWidget(args) {
+//    VisualAttributeWidget.prototype.constructor.call(this, args);
+//
+//    this.id = Utils.genId('NumberAttributeWidget');
+//};
+
+
+
+SIFNetworkFileWidget.prototype = new NetworkFileWidget();
 
 function SIFNetworkFileWidget(args) {
-    if (args == null) {
-        var args = {};
-    }
-    else {
-        this.networkData = args.networkData;
-    }
-
-    args.title = 'Import a Network SIF file';
     NetworkFileWidget.prototype.constructor.call(this, args);
+
+    this.title = 'Import a Network SIF file';
+    this.id = Utils.genId('SIFNetworkFileWidget');
 };
 
 
@@ -50,10 +54,12 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
                 node.value = v.replace("C:\\fakepath\\", "");
 
                 _this.dataAdapter = new SIFDataAdapter({
+                    network:_this.network,
                     dataSource: new FileDataSource(file),
                     handlers: {
                         'data:load': function (event) {
-                                _this.processData(event.network);
+                            debugger
+                                _this.processData();
                         }
                     }
                 });
@@ -64,14 +70,14 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
     return this.fileUpload;
 };
 
-SIFNetworkFileWidget.prototype.processData = function (network) {
+SIFNetworkFileWidget.prototype.processData = function () {
     var _this = this;
     try {
-        this.content = network; //para el onOK.notify event
-        var verticesLength = network.graph.vertices.length;
-        var edgesLength = network.graph.edges.length;
+        this.content = this.network; //para el onOK.notify event
+        var verticesLength = this.network.graph.vertices.length;
+        var edgesLength = this.network.graph.edges.length;
 
-        var edges = network.graph.edges;
+        var edges = this.network.graph.edges;
         var storeData = [];
         for (var i = 0; i < edges.length; i++) {
             var edge = edges[i];

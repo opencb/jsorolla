@@ -108,12 +108,14 @@ Graph.prototype = {
         this.edges = [];
         this.verticesIndex = {};
         this.edgesIndex = {};
-
-        this.verticesNameIndex = {};
     },
     addEdge: function (edge) {
         if (edge.source == null || edge.target == null) {
             return false
+        }
+        // Check if already exists
+        if (this.containsEdge(edge)) {
+            return false;
         }
 
         this.addVertex(edge.source);
@@ -122,9 +124,12 @@ Graph.prototype = {
         var insertPosition = length - 1;
         this.edgesIndex[edge.id] = insertPosition;
 
-
+        //update source edges
         edge.source.addEdge(edge);
-        edge.target.addEdge(edge);
+        //update target edges
+        if (edge.source !== edge.target) {
+            edge.target.addEdge(edge);
+        }
         this.trigger('edge:add', {edge: edge, graph: this});
 
         this.numberOfEdges++;
@@ -186,10 +191,13 @@ Graph.prototype = {
             if (edge.target !== vertex) {
                 edge.target.removeEdge(edge);
             }
+
             var position = this.edgesIndex[edge.id];
             delete this.edgesIndex[edge.id];
             delete this.edges[position];
+
             this.trigger('edge:remove', {edge: edge, graph: this});
+            this.numberOfEdges--;
         }
         vertex.removeEdges();
 

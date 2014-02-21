@@ -305,14 +305,14 @@ AttributeEditWidget.prototype = {
         this.window.show();
         this.checkSelectedFilter();
     },
-    setAttributeManager: function (attrMan) {
-        var _this = this;
-        this.attrMan = attrMan;
-        this.attrMan.on('change:attributes', function () {
-            _this.reconfigureComponents();
-        });
-        this.reconfigureComponents();
-    },
+//    setAttributeManager: function (attrMan) {
+//        var _this = this;
+//        this.attrMan = attrMan;
+//        this.attrMan.on('change:attributes', function () {
+//            _this.reconfigureComponents();
+//        });
+//        this.reconfigureComponents();
+//    },
     reconfigureComponents: function () {
         console.log('refresh ' + this.id);
         this.grid.reconfigure(this.attrMan.store, this.attrMan.columnsGrid);
