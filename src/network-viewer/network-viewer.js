@@ -559,8 +559,8 @@ NetworkViewer.prototype = {
         this.scale = this.networkSvgLayout.scale;//TODO
         var centerX = this.networkSvgLayout.width / 2;
         var centerY = this.networkSvgLayout.height / 2;
-        var transX = -centerX * (this.scale - 1);
-        var transY = -centerY * (this.scale - 1);
+        var transX = this.networkSvgLayout.centerX + (-centerX * (this.scale - 1));
+        var transY = this.networkSvgLayout.centerY + (-centerY * (this.scale - 1));
         x -= transX;
         y -= transY;
 
@@ -629,8 +629,8 @@ NetworkViewer.prototype = {
         this.scale = this.networkSvgLayout.scale;//TODO
         var centerX = this.networkSvgLayout.width / 2;
         var centerY = this.networkSvgLayout.height / 2;
-        var transX = -centerX * (this.scale - 1);
-        var transY = -centerY * (this.scale - 1);
+        var transX = this.networkSvgLayout.centerX + (-centerX * (this.scale - 1));
+        var transY = this.networkSvgLayout.centerY + (-centerY * (this.scale - 1));
         x -= transX;
         y -= transY;
         x /= this.scale;
@@ -941,7 +941,7 @@ NetworkViewer.prototype = {
             this.networkSvgLayout.clean();
             this.network.draw(this.networkSvgLayout.getElementsSVG());
             this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
-            this._refreshOverview();
+//            this._refreshOverview();
         } catch (e) {
             console.log('Error loading JSON');
         }
