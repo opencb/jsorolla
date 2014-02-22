@@ -825,6 +825,15 @@ NetworkViewer.prototype = {
                 });
 
                 break;
+            case "Force directed (simulation)":
+                GraphLayout.force(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight(), function (verticesArray) {
+                    for (var i = 0, l = verticesArray.length; i < l; i++) {
+                        var v = verticesArray[i];
+                        _this.setVertexCoords(v.id, v.x, v.y);
+                    }
+                },true);
+
+                break;
             case "Spring":
                 var result = GraphLayout.spring(this.network.graph);
                 var vertexCoordinates = result.vertexCoordinates;

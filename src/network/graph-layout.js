@@ -85,7 +85,7 @@ GraphLayout = {
     getRandom2d: function () {
 
     },
-    force: function (network, width, height, endFunction) {
+    force: function (network, width, height, endFunction, simulation) {
         if (typeof network === 'undefined') {
             console.log('graph not defined');
             return;
@@ -136,26 +136,30 @@ GraphLayout = {
             }
         };
         run();
-//
-//        force.on('tick', function (o) {
-////                console.log(o.alpha)
-////                endFunction(verticesArray);
-//        });
+
         force.on('end', function (o) {
             console.log(o)
             endFunction(verticesArray);
         });
 
-        force.start();
-        var safety = 0;
-        while(force.alpha() > 0) { // You'll want to try out different, "small" values for this
-            force.tick();
-            if(safety++ > 1000) {
-                break;// Avoids infinite looping in case this solution was a bad idea
+        if (simulation === true) {
+            force.on('tick', function (o) {
+                endFunction(verticesArray);
+            });
+            force.start();
+        }else{
+            force.start();
+            var safety = 0;
+            while (force.alpha() > 0) { // You'll want to try out different, "small" values for this
+                force.tick();
+                if (safety++ > 1000) {
+                    break;// Avoids infinite looping in case this solution was a bad idea
+                }
             }
+            console.log(safety);
+            force.stop();
+
         }
-        console.log(safety);
-        force.stop();
 
     }
 
