@@ -62,24 +62,22 @@ GraphLayout = {
             vertex.z = this.getRandomArbitrary(10, 600);
         }
     },
-    applySphereSurface: function (offsetZ) {
+    sphereSurface: function (vertices, network, radius, offsetZ) {
+
         //        θ = theta
         //        φ = phi
-        var radius = 200;
-        var n = Object.keys(this.vertices).length;
-        var i = 0;
-        for (var key in this.vertices) {
-            var vertex = this.vertices[key];
+        var n = vertices.length;
+
+        for (var i = 0; i < vertices.length; i++) {
+            var vertex = vertices[i];
+            var vertexConfig = network.config.getVertexConfig(vertex);
+            var coords = vertexConfig.coords;
 
             var phi = Math.acos(-1 + ( 2 * i ) / n);
             var theta = Math.sqrt(n * Math.PI) * phi;
-
-            vertex.x = radius * Math.cos(theta) * Math.sin(phi);
-            vertex.y = radius * Math.sin(theta) * Math.sin(phi);
-            vertex.z = radius * Math.cos(phi) + offsetZ;
-
-            /* update */
-            i++;
+            coords.x = radius * Math.cos(theta) * Math.sin(phi);
+            coords.y = radius * Math.sin(theta) * Math.sin(phi);
+            coords.z = radius * Math.cos(phi) + offsetZ;
         }
     },
     getRandom2d: function () {
@@ -147,7 +145,7 @@ GraphLayout = {
                 endFunction(verticesArray);
             });
             force.start();
-        }else{
+        } else {
             force.start();
             var safety = 0;
             while (force.alpha() > 0) { // You'll want to try out different, "small" values for this

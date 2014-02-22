@@ -20,6 +20,8 @@ function NetworkViewerWebgl(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.potyvirusPorteinNames = ['P1', 'HC-Pro', 'P3', '6K1', 'CI', '6K2', 'VPg', 'Nia-Pro', 'Nib', 'CP', 'P3N-PIPO'];
+
     this.on(this.handlers);
     if (this.autoRender) {
         this.render();
@@ -31,30 +33,41 @@ NetworkViewerWebgl.prototype = {
     render: function () {
         var _this = this;
         this.initScene();
-
-
-        setTimeout(function () {
-            _this.renderScene();
-        }, 100);
+//
+//
+//        setTimeout(function () {
+//            _this.renderScene();
+//        }, 100);
 
     },
-    renderVertex: function (vertex, coords, updateScene) {
+    renderVertex: function (vertex, target, network, updateScene) {
+
+
+        var vertexConfig = network.config.getVertexConfig(vertex);
+        var coords = vertexConfig.coords;
 
         var element = this.elements[vertex.id];
         if (element != null) {
-            this.scene.remove(element);
+            target.remove(element);
         }
         /** vertex representation **/
-        var hslRand = Math.random();
+        var H = Math.random();
+        var S = 0.9;
+        var L = 0.7;
+        if (this.potyvirusPorteinNames.indexOf(vertex.id) !== -1) {
+            H = 1;
+            S = 1;
+            L = 1;
+        }
 
         var spriteMaterial = new THREE.SpriteMaterial({ map: this.particleTexture, useScreenCoordinates: false, color: 0xffffff });
         var sprite = new THREE.Sprite(spriteMaterial);
         sprite.scale.set(32, 32, 1.0); // imageWidth, imageHeight
         sprite.position.set(coords.x, coords.y, coords.z);
-        sprite.material.color.setHSL(hslRand, 0.9, 0.7);
+        sprite.material.color.setHSL(H,S,L);
         sprite.material.blending = THREE.AdditiveBlending;
 //        this.groupElements.add(sprite);
-        this.scene.add(sprite);
+        target.add(sprite);
         /** ************************/
 
         this.elements[vertex.id] = sprite;
@@ -64,24 +77,36 @@ NetworkViewerWebgl.prototype = {
         }
 
     },
-    renderEdge: function (edge, layout, updateScene) {
+    renderEdge: function (edge, target, network, updateScene) {
+
+        var edgeConfig = network.config.getEdgeConfig(edge);
+        var sourceConfig = network.config.getVertexConfig(edge.source);
+        var targetConfig = network.config.getVertexConfig(edge.target);
+
+        var sourceCoords = sourceConfig.coords;
+        var targetCoods = targetConfig.coords;
 
         var element = this.elements[edge.id];
         if (element != null) {
-            this.scene.remove(element);
+            target.remove(element);
         }
         /** vertex representation **/
-        var sourceCoords = layout.vertices[edge.source.id];
-        var targetCoods = layout.vertices[edge.target.id];
-        var hslRand = Math.random();
+        var H = Math.random();
+        var S = 0.9;
+        var L = 0.7;
+        if (this.potyvirusPorteinNames.indexOf(edge.source.id) !== -1) {
+            H = 1;
+            S = 1;
+            L = 1;
+        }
 
         var material = new THREE.LineBasicMaterial({color: 0xffffff});
-        material.color.setHSL(hslRand, 0.9, 0.7);
+        material.color.setHSL(H,S,L);
         var geometry = new THREE.Geometry();
         geometry.vertices.push(new THREE.Vector3(sourceCoords.x, sourceCoords.y, sourceCoords.z));
         geometry.vertices.push(new THREE.Vector3(targetCoods.x, targetCoods.y, targetCoods.z));
         var line = new THREE.Line(geometry, material);
-        this.scene.add(line);
+        target.add(line);
         /** ************************/
 
         this.elements[edge.id] = line;
@@ -91,19 +116,27 @@ NetworkViewerWebgl.prototype = {
         }
 
     },
-    renderGraph: function (graph, layout) {
+    renderNetwork: function (network) {
         for (var element in this.elements) {
             this.scene.remove(this.elements[element]);
         }
         this.renderScene();
-        for (var i = 0; i < graph.edges.length; i++) {
-            var edge = graph.edges[i];
-            this.renderEdge(edge, layout, false);
+
+        var edges = network.graph.edges;
+        var vertices = network.graph.vertices;
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                this.renderVertex(vertex, this.scene, network, false);
+            }
         }
-        for (var i = 0; i < graph.vertices.length; i++) {
-            var vertex = graph.vertices[i];
-            this.renderVertex(vertex, layout.vertices[vertex.id], false);
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            if (typeof edge !== 'undefined') {
+                this.renderEdge(edge, this.scene, network, false);
+            }
         }
+
         this.renderScene();
     },
     initScene: function () {
