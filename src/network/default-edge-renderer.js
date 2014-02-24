@@ -116,7 +116,7 @@ DefaultEdgeRenderer.prototype = {
             this._removeSelect();
         }
     },
-    moveSource: function (coords) {
+    moveSourceOff: function (coords) {
         var linkLine = $(this.el).find('line[network-type="edge"]')[0];
         linkLine.setAttribute('x1', coords.x);
         linkLine.setAttribute('y1', coords.y);
@@ -132,6 +132,33 @@ DefaultEdgeRenderer.prototype = {
         var text = $(this.el).find('text[network-type="edge-label"]')[0];
         text.setAttribute('x', x);
         text.setAttribute('y', y);
+    },
+    moveTargetOff: function (coords) {
+        var linkLine = $(this.el).find('line[network-type="edge"]')[0];
+        linkLine.setAttribute('x2', coords.x);
+        linkLine.setAttribute('y2', coords.y);
+
+        var x1 = parseFloat(linkLine.getAttribute('x1'));
+        var y1 = parseFloat(linkLine.getAttribute('y1'));
+        var x2 = parseFloat(linkLine.getAttribute('x2'));
+        var y2 = parseFloat(linkLine.getAttribute('y2'));
+
+        var x = (x1 + x2) / 2;
+        var y = (y1 + y2) / 2;
+
+        var text = $(this.el).find('text[network-type="edge-label"]')[0];
+        text.setAttribute('x', x);
+        text.setAttribute('y', y);
+
+    },
+    moveSource: function (coords) {
+        var linkLine = $(this.el).find('line[network-type="edge"]')[0];
+        var x = (this.sourceCoords.x + this.targetCoords.x) / 2;
+        var y = (this.sourceCoords.y + this.targetCoords.y) / 2;
+
+        var d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'Q', x, y - 50, this.targetCoords.x, this.targetCoords.y].join(' ');
+
+
     },
     moveTarget: function (coords) {
         var linkLine = $(this.el).find('line[network-type="edge"]')[0];
@@ -161,7 +188,7 @@ DefaultEdgeRenderer.prototype = {
         textSvg.textContent = label;
     },
     /* Private */
-    _render: function () {
+    _renderOff: function () {
         var groupSvg = SVG.create('g', {
             "cursor": "pointer",
             "id": this.edge.id,
@@ -204,6 +231,49 @@ DefaultEdgeRenderer.prototype = {
             this._renderSelect();
         }
     },
+    _render: function () {
+        var groupSvg = SVG.create('g', {
+            "cursor": "pointer",
+            "id": this.edge.id,
+            opacity: this.opacity,
+            'network-type': 'edge-g'
+        });
+
+        var x = (this.sourceCoords.x + this.targetCoords.x) / 2;
+        var y = (this.sourceCoords.y + this.targetCoords.y) / 2;
+
+        var d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'Q', x, y - 50, this.targetCoords.x, this.targetCoords.y].join(' ');
+        var linkSvg = SVG.addChild(groupSvg, "path", {
+            "d": d,
+            opacity: this.opacity,
+            "stroke": this.color,
+            "stroke-width": this.size,
+            "cursor": "pointer",
+            fill:'none',
+            "marker-end": "url(" + this._getMarkerArrowId() + ")",
+            'network-type': 'edge'
+        }, 0);
+
+        var textOffset = this.sourceRenderer.getSize();
+        var text = SVG.addChild(groupSvg, "text", {
+            "x": x,
+            "y": y,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'edge-label'
+        });
+        text.textContent = this.edge.id;
+
+        this.el = groupSvg;
+        this.edgeEl = linkSvg;
+        this.labelEl = text;
+        SVG._insert(this.targetEl, groupSvg, 0);
+
+        if (this.selected) {
+            this._renderSelect();
+        }
+    },
+
     _renderSelect: function () {
         var linkLine = $(this.el).find('line[network-type="edge"]')[0];
         linkLine.setAttribute('stroke-dasharray', '5, 2');
