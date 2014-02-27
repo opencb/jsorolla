@@ -291,7 +291,7 @@ NavigationBar.prototype = {
         var lastQuery = '';
         $(this.searchField).bind("keyup", function (event) {
             var query = $(this).val();
-            if (query.length > 3 && lastQuery !== query && event.which !== 13) {
+            if (query.length > 2 && lastQuery !== query && event.which !== 13) {
                 _this._setQuickSearchMenu(query);
                 lastQuery = query;
             }
