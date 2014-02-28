@@ -296,13 +296,14 @@ NavigationBar.prototype = {
                 lastQuery = query;
             }
             if (event.which === 13) {
+                debugger
                 var item = _this.quickSearchDataset[query];
                 _this.trigger('quickSearch:select', {item: item, sender: _this});
             }
         });
 
         $(this.quickSearchButton).click(function () {
-            var query = $(this.searchField).val();
+            var query = $(_this.searchField).val();
             var item = _this.quickSearchDataset[query];
             _this.trigger('quickSearch:go', {item: item, sender: _this});
         });
