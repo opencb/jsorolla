@@ -163,10 +163,10 @@ AttributeManagerStore.prototype = {
             record.commit();
         }
     },
-    setRecordAttributeByIds: function (recordObjects) {
+    setRecordAttributeByIds: function (records) {
         this.store.suspendEvents();
-        for (var i = 0; i < recordObjects.length; i++) {
-            var recordObject = recordObjects[i];
+        for (var i = 0; i < records.length; i++) {
+            var recordObject = records[i];
             if (!this.isAttributeLocked(recordObject.attributeName)) {
                 var record = this.store.getById(recordObject.id);
                 if (record) { // if exists a row with this name
@@ -181,6 +181,9 @@ AttributeManagerStore.prototype = {
         }
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
+        for (var attributeName in recordObject) {
+            this.trigger('change:recordsAttribute', {records: records, attributeName: attributeName, sender: this});
+        }
     },
     setRecordsAttribute: function (records, attributeName, value) {
         if (this.isAttributeLocked(attributeName)) {

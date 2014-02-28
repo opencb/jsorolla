@@ -86,6 +86,9 @@ var OpencgaManager = {
     getJobAnalysisUrl: function (accountId, jobId) {
         return OpencgaManager.getAccountUrl(accountId) + '/analysis/job/' + jobId;
     },
+    getUtilsUrl: function () {
+        return OpencgaManager.getHost() + '/utils';
+    },
     /*ACCOUNT METHODS*/
     createAccount: function (args) {
 //      accountId, email, name, password, suiteId

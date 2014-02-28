@@ -120,7 +120,7 @@ Network.prototype = {
                 [edge.id, edge.id, edge.relation]
             ], true);
 
-            if(silent !== true){
+            if (silent !== true) {
                 this.trigger('add:edge');
             }
         }
@@ -351,18 +351,19 @@ Network.prototype = {
         this._updateEdgeCoords(vertex);
     },
     _updateEdgeCoords: function (vertex) {
-        for (var j = 0; j < vertex.edges.length; j++) {
-            var edge = vertex.edges[j];
+        for (var i = 0; i < vertex.edges.length; i++) {
+            var edge = vertex.edges[i];
             var edgeConfig = this.getEdgeConfig(edge);
             var sourceConfig = this.getVertexConfig(edge.source);
             var targetConfig = this.getVertexConfig(edge.target);
 
             if (vertex === edge.source) {
-                edgeConfig.renderer.moveSource(sourceConfig.coords);
+//                edgeConfig.renderer.moveSource(sourceConfig.coords);
+                edgeConfig.renderer.move(sourceConfig.coords);
             }
             if (vertex === edge.target) {
-                edgeConfig.renderer.moveTarget(targetConfig.coords);
-
+//                edgeConfig.renderer.moveTarget(targetConfig.coords);
+                edgeConfig.renderer.move(targetConfig.coords);
             }
         }
     },
@@ -549,7 +550,7 @@ Network.prototype = {
             this.addVertex({
                 vertex: vertex,
                 vertexConfig: vertexConfig
-            },true);
+            }, true);
         }
 
         for (var i = 0; i < content.graph.edges.length; i++) {
@@ -582,7 +583,7 @@ Network.prototype = {
             this.addEdge({
                 edge: edge,
                 edgeConfig: edgeConfig
-            },true);
+            }, true);
         }
 
         this._importAttributes(content.nodeAttributes, this.nodeAttributeManager);
@@ -609,7 +610,7 @@ Network.prototype = {
                 this.addVertex({
                     vertex: vertex,
                     vertexConfig: vertexConfig
-                },true);
+                }, true);
             }
         }
         // add attributes

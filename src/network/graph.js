@@ -93,6 +93,8 @@ function Graph(args) {
     this.verticesIndex = {};
     this.edgesIndex = {};
 
+    this.edgeDraw = {};
+
 
     this.on(this.handlers);
 }
@@ -108,6 +110,8 @@ Graph.prototype = {
         this.edges = [];
         this.verticesIndex = {};
         this.edgesIndex = {};
+
+        this.edgeDraw = {};
     },
     addEdge: function (edge) {
         if (edge.source == null || edge.target == null) {
@@ -131,6 +135,19 @@ Graph.prototype = {
             edge.target.addEdge(edge);
         }
         this.trigger('edge:add', {edge: edge, graph: this});
+
+        var stId = edge.source.id + edge.target.id;
+        var tsId = edge.target.id + edge.source.id;
+        if (typeof this.edgeDraw[stId] === 'undefined') {
+            this.edgeDraw[stId] = -1;
+        }
+        if (typeof this.edgeDraw[tsId] === 'undefined') {
+            this.edgeDraw[tsId] = -1;
+        }
+        this.edgeDraw[stId]++;
+        this.edgeDraw[tsId]++;
+        edge.overlapCount = this.edgeDraw[stId];
+
 
         this.numberOfEdges++;
         return true;
@@ -236,28 +253,33 @@ Graph.prototype = {
     },
 
     /**/
-    getAsSIF: function () {
+    getAsSIF: function (separator) {
+        if (typeof separator === 'undefined') {
+            separator = '\t';
+        }
         var sifText = "";
+        for (var i = 0; i < this.edges.length; i++) {
+            var edge = this.edges[i];
+            if (typeof edge !== 'undefined') {
+                var line = "";
+                line = edge.source.id + separator + edge.relation + separator + edge.target.id + "\n";
+                sifText += line;
+            }
+        }
         for (var i = 0; i < this.vertices.length; i++) {
             var vertex = this.vertices[i];
             if (typeof vertex !== 'undefined') {
                 var line = "";
                 if (vertex.edges.length == 0) {
-                    line = vertex.id + "\n";
-                } else {
-                    for (var j = 0; j < vertex.edges.length; j++) {
-                        var edge = vertex.edges[j];
-                        line = edge.source.id + " " + "--" + " " + edge.target.id + "\n";
-                    }
+                    line = vertex.id + separator + separator + "\n";
                 }
                 sifText += line;
             }
-
         }
         return sifText;
     },
     getAsDOT: function () {
-        var dotText = "graph network {\n" + this.getAsSIF() + "}";
+        var dotText = "graph network {\n" + this.getAsSIF(' ') + "}";
         return dotText;
     },
 

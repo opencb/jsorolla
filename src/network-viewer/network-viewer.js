@@ -957,19 +957,20 @@ NetworkViewer.prototype = {
         }
     },
     toJSON: function () {
-        console.log(this.networkSvgLayout.centerX)
-        console.log(this.networkSvgLayout.centerY)
         var json = this.network.toJSON();
         json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
         json["center"] = {x:this.networkSvgLayout.centerX,y:this.networkSvgLayout.centerY};
         json["zoom"] = this.zoom;
         return json;
     },
+    getAsSIF:function(){
+        return this.network.graph.getAsSIF();
+    },
     //TODO Deprecated
     setNetwork: function (network) {
         this.clean();
         this.network = network;
         this.network.draw(this.networkSvgLayout.getElementsSVG());
-    },
+    }
 
 }

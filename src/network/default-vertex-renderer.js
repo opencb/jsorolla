@@ -120,14 +120,12 @@ DefaultVertexRenderer.prototype = {
     },
     setLabelContent: function (text) {
         this.labelText = text;
-        if (typeof this.labelEl !== 'undefined') {
-            var label = '';
-            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
-                label = this.labelText;
-            }
-            this.labelEl.textContent = label;
-            this.calculateLabelX();
+        var label = '';
+        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+            label = this.labelText;
         }
+        this.labelEl.textContent = label;
+        this.calculateLabelX();
     },
     getSize: function () {
         return this.size + this.strokeSize;
@@ -216,23 +214,22 @@ DefaultVertexRenderer.prototype = {
             fill: this.color,
             'network-type': 'vertex'
         });
-        if (this.labelSize > 0) {
-            this.labelEl = SVG.addChild(vertexSvg, "text", {
+        this.labelEl = SVG.addChild(vertexSvg, "text", {
 //                "x": 5,
 //                "y": this.labelSize + o.size,
-                "x": o.midOffset,
-                "y": o.midOffset,
-                "font-size": this.labelSize,
-                "fill": this.labelColor,
-                'network-type': 'vertex-label'
-            });
-            var label = this.vertex.id;
-            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
-                label = this.labelText;
-            }
-            this.labelEl.textContent = label;
-            this.calculateLabelX(o);
+            "x": o.midOffset,
+            "y": o.midOffset,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'vertex-label'
+        });
+        var label = this.vertex.id;
+        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+            label = this.labelText;
         }
+        this.labelEl.textContent = label;
+        this.calculateLabelX(o);
+
         this.el = vertexSvg;
         this.groupEl = groupSvg;
         this.vertexEl = circle;
@@ -283,21 +280,20 @@ DefaultVertexRenderer.prototype = {
             fill: this.color,
             'network-type': 'vertex'
         });
-        if (this.labelSize > 0) {
-            this.labelEl = SVG.addChild(vertexSvg, "text", {
-                "x": 5,
-                "y": this.labelSize + o.size,
-                "font-size": this.labelSize,
-                "fill": this.labelColor,
-                'network-type': 'vertex-label'
-            });
-            var label = this.vertex.id;
-            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
-                label = this.labelText;
-            }
-            this.labelEl.textContent = label;
-            this.calculateLabelX(o);
+        this.labelEl = SVG.addChild(vertexSvg, "text", {
+            "x": 5,
+            "y": this.labelSize + o.size,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'vertex-label'
+        });
+        var label = this.vertex.id;
+        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+            label = this.labelText;
         }
+        this.labelEl.textContent = label;
+        this.calculateLabelX(o);
+
         this.el = vertexSvg;
         this.groupEl = groupSvg;
         this.vertexEl = ellipse;
@@ -349,21 +345,20 @@ DefaultVertexRenderer.prototype = {
             fill: this.color,
             'network-type': 'vertex'
         });
-        if (this.labelSize > 0) {
-            this.labelEl = SVG.addChild(vertexSvg, "text", {
-                "x": 5,
-                "y": this.labelSize + o.size,
-                "font-size": this.labelSize,
-                "fill": this.labelColor,
-                'network-type': 'vertex-label'
-            });
-            var label = this.vertex.id;
-            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
-                label = this.labelText;
-            }
-            this.labelEl.textContent = label;
-            this.calculateLabelX(o);
+        this.labelEl = SVG.addChild(vertexSvg, "text", {
+            "x": 5,
+            "y": this.labelSize + o.size,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'vertex-label'
+        });
+        var label = this.vertex.id;
+        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+            label = this.labelText;
         }
+        this.labelEl.textContent = label;
+        this.calculateLabelX(o);
+
         this.el = vertexSvg;
         this.groupEl = groupSvg;
         this.vertexEl = rect;
@@ -418,21 +413,20 @@ DefaultVertexRenderer.prototype = {
             fill: this.color,
             'network-type': 'vertex'
         });
-        if (this.labelSize > 0) {
-            this.labelEl = SVG.addChild(vertexSvg, "text", {
-                "x": 5,
-                "y": this.labelSize + o.size,
-                "font-size": this.labelSize,
-                "fill": this.labelColor,
-                'network-type': 'vertex-label'
-            });
-            var label = this.vertex.id;
-            if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
-                label = this.labelText;
-            }
-            this.labelEl.textContent = label;
-            this.calculateLabelX(o);
+        this.labelEl = SVG.addChild(vertexSvg, "text", {
+            "x": 5,
+            "y": this.labelSize + o.size,
+            "font-size": this.labelSize,
+            "fill": this.labelColor,
+            'network-type': 'vertex-label'
+        });
+        var label = this.vertex.id;
+        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
+            label = this.labelText;
         }
+        this.labelEl.textContent = label;
+        this.calculateLabelX(o);
+
         this.el = vertexSvg;
         this.groupEl = groupSvg;
         this.vertexEl = rect;

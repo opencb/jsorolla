@@ -345,6 +345,7 @@ GenomeViewer.prototype = {
                             var region = new Region();
                             region.parse(regionStr);
                             region = _this._checkRegion(region);
+                            _this.setMinRegion(region, _this.getSVGCanvasWidth());
                             _this.region = region;
                             _this.trigger('region:change', {region: _this.region, sender: _this});
                         }

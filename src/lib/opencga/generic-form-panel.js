@@ -31,7 +31,7 @@ function GenericFormPanel(args) {
     this.type;
     this.title;
     this.resizable;
-    this.width;
+    this.width = 500;
     this.height;
     this.taskbar;
     this.bodyPadding;
@@ -63,16 +63,16 @@ GenericFormPanel.prototype.draw = function () {
     var _this = this;
     if (this.panel == null) {
         if (this.type == "window") {
-            this.panel = Ext.create('Ext.ux.Window', {
-                title: this.title || "",
-                resizable: this.resizable || false,
-                width: this.width || 500,
-                height: this.height,
+            this.panel = Ext.create('Ext.window.Window', {
+                id: this.panelId,
+                title: this.title,
+                closable: this.closable,
+                resizable: this.resizable,
+                flex:1,
                 overflowY: 'auto',
-                taskbar: this.taskbar,
-                closable: false,
+//                taskbar: this.taskbar,
                 items: this.getForm()
-            }).show();
+            });
         }
         else {
             this.panel = Ext.create('Ext.panel.Panel', {
@@ -84,8 +84,8 @@ GenericFormPanel.prototype.draw = function () {
                 autoScroll: true,
                 items: this.getForm(),
                 border: 0,
-                bodyPadding:this.bodyPadding,
-                header:this.headerConfig,
+                bodyPadding: this.bodyPadding,
+                header: this.headerConfig,
                 listeners: {
                     beforeclose: function () {
                         _this.panel.up().remove(_this.panel, false);
@@ -97,6 +97,19 @@ GenericFormPanel.prototype.draw = function () {
         }
     }
     return this.panel;
+};
+
+
+GenericFormPanel.prototype.show = function () {
+    if (typeof this.panel !== 'undefined') {
+        this.panel.show();
+    }
+};
+
+GenericFormPanel.prototype.hide = function () {
+    if (typeof this.panel !== 'undefined') {
+        this.panel.hide();
+    }
 };
 
 GenericFormPanel.prototype.getForm = function () {
@@ -159,7 +172,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
 
     var jobPanel = Ext.create('Ext.panel.Panel', {
         title: 'Job',
-        header:this.headerFormConfig,
+        header: this.headerFormConfig,
         border: true,
         bodyPadding: "5",
         margin: "0 0 5 0",
@@ -178,8 +191,8 @@ GenericFormPanel.prototype.getRunButton = function () {
         width: 300,
         height: 35,
         disabled: true,
-        margin:'10 0 0 0',
-        cls:'btn btn-default',
+        margin: '10 0 0 0',
+        cls: 'btn btn-default',
 
         formBind: true, // only enabled if the form is valid
         handler: function () {

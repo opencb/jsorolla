@@ -58,7 +58,6 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
                     dataSource: new FileDataSource(file),
                     handlers: {
                         'data:load': function (event) {
-                            debugger
                                 _this.processData();
                         }
                     }

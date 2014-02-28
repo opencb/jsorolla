@@ -305,6 +305,12 @@ AttributeEditWidget.prototype = {
         this.window.show();
         this.checkSelectedFilter();
     },
+    show: function () {
+        this.window.show();
+    },
+    hide: function () {
+        this.window.hide();
+    },
 //    setAttributeManager: function (attrMan) {
 //        var _this = this;
 //        this.attrMan = attrMan;

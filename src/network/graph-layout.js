@@ -99,9 +99,9 @@ GraphLayout = {
             layoutPrepare();
             force.nodes(verticesArray)
                 .links(edgesArray)
-                .linkDistance(80)
-                .charge(-150)
-                .chargeDistance(-350)
+                .linkDistance(50)
+                .charge(-200)
+//                .chargeDistance(-350)
         };
 
         var layoutPrepare = function () {

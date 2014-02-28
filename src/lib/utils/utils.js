@@ -183,6 +183,18 @@ var Utils = {
         tableHtml += '</tbody></table>';
         return {html: tableHtml, data: commandObject};
     },
+    htmlTable: function (title, object) {
+        var tableHtml = '<div style="font-weight: bold">' + title + '</div>';
+        tableHtml += '<table cellspacing="0" style="border-collapse: collapse;border:1px solid #ccc;"><tbody>';
+        for (var key in object) {
+            tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';
+            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">' + key + '</td>';
+            tableHtml += '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">' + object[key] + '</td>';
+            tableHtml += '</tr>';
+        }
+        tableHtml += '</tbody></table>';
+        return tableHtml;
+    },
     camelCase: function (input) {
         return input.toLowerCase().replace(/[.-_\s](.)/g, function (match, group1) {
             return group1.toUpperCase();
