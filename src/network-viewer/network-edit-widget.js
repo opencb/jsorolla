@@ -116,9 +116,9 @@ NetworkEditWidget.prototype = {
             listeners: {
 //                selectionchange: function (model, selected) {
 //                    console.log('selection change')
-//                    var nodeList = [];
+//                    var vertexList = [];
 //                    for (var i = 0; i < selected.length; i++) {
-//                        nodeList.push(selected[i].getData().Id);
+//                        vertexList.push(selected[i].getData().Id);
 //                    }
 //                }
             },

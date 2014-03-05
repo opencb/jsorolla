@@ -568,8 +568,8 @@ AttributeManagerStore.prototype.loadJSON = function (json) {
     this.addRows(json.data, false);
 };
 
-AttributeManagerStore.prototype.setName = function (nodeId, newName) {
-    var register = this.store.getAt(this.store.find("Id", nodeId));
+AttributeManagerStore.prototype.setName = function (vertexId, newName) {
+    var register = this.store.getAt(this.store.find("Id", vertexId));
     register.set("Name", newName);
     register.commit();
 };

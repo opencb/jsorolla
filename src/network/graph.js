@@ -18,54 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
-/*
 
- public E addEdge(V sourceVertex, V targetVertex);
- public boolean addEdge(V sourceVertex, V targetVertex, E e);
- public boolean containsEdge(E e);
- public boolean containsEdge(V sourceVertex, V targetVertex);
- public List<E> getAllEdges();
- public E getEdge(String edgeName);
- public List<E> getAllEdges(String edgeName);
- public List<E> getAllEdges(V vertex);
- public E getEdge(V sourceVertex, V targetVertex);
- public List<E> getAllEdges(V sourceVertex, V targetVertex);
- void setEdges(List<E> edges);
- public boolean removeEdge(E e);
- public List<E> removeAllEdges(V vertex);
- public E removeEdge(V sourceVertex, V targetVertex);
- public List<E> removeAllEdges(V sourceVertex, V targetVertex);
- public boolean removeAllEdges(Collection<? extends E> edges);
- public V getEdgeSource(E e);
- public V getEdgeTarget(E e);
-
-
-
-
- public boolean addVertex(V v);
- boolean addAllVertices(Collection<? extends V> vertices);
- public boolean containsVertex(V vertex);
- public V getVertex(String vertexId);
-
- public List<V> getAllVertices();
-
- public int getDegreeOf(V v);
- public boolean copySubgraphAddVertex(V v);
- public List<V> getNotNullVertices();
- public List<V> getAdjacentVertices(V v);
- public boolean removeVertex(V v);
- public boolean removeVertices(Collection<? extends V> vertices);
- public int getNumberOfVertices();
-
-
- public void clear();
- public void setVertices(List<V> verticesList);
- public int getVerticesMapId(V v);
- public V getVertex(int mapPosition);
- public List<List<V>> getAllInformationComponents(boolean isolatedNode);
- public int getNumberOfBicomponents();
-
- */
 function Graph(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('Graph');

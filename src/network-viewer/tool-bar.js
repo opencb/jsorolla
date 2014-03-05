@@ -326,7 +326,7 @@ ToolBar.prototype = {
     },
     _setAutoSelectMenu: function () {
         var _this = this;
-        var nodeOptions = ['All nodes', 'First neighbour nodes', 'Invert node selection'];
+        var verticesOptions = ['All nodes', 'First neighbour nodes', 'Invert node selection'];
         var edgeOptions = ['All edges', 'Adjacent edges'];
         var networkOptions = ['Everything'];
 
@@ -339,7 +339,7 @@ ToolBar.prototype = {
                 });
             }
         }
-        addEntries(nodeOptions);
+        addEntries(verticesOptions);
         $(this.autoSelectMenu).append('<li role="presentation" class="divider"></li>');
         addEntries(edgeOptions);
         $(this.autoSelectMenu).append('<li role="presentation" class="divider"></li>');
@@ -369,8 +369,8 @@ ToolBar.prototype = {
         if (!found) {
             var menuEntry = $('<option value="' + color + '">' + color + '</option>')[0];
             $(select).append(menuEntry);
-            $(this.nodeColorSelect).simplecolorpicker('destroy');
-            $(this.nodeColorSelect).simplecolorpicker({picker: true});
+            $(this.vertexColorSelect).simplecolorpicker('destroy');
+            $(this.vertexColorSelect).simplecolorpicker({picker: true});
         }
     },
     _handleZoomOutButton: function () {
