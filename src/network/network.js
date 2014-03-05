@@ -42,8 +42,22 @@ function Network(args) {
         {name: "Name", type: "string", defaultValue: "none"},
         {name: "Relation", type: "string", defaultValue: "none"}
     ];
-    this.nodeAttributeManager = new AttributeManagerStore({attributes: nodeAttributes});
-    this.edgeAttributeManager = new AttributeManagerStore({attributes: edgeAttributes});
+    this.nodeAttributeManager = new AttributeManagerStore({
+        attributes: nodeAttributes,
+        handlers: {
+            'change:attributes': function (e) {
+                _this.trigger('change:vertexAttributes', e);
+            }
+        }
+    });
+    this.edgeAttributeManager = new AttributeManagerStore({
+        attributes: edgeAttributes,
+        handlers: {
+            'change:attributes': function (e) {
+                _this.trigger('change:edgeAttributes', e);
+            }
+        }
+    });
 
     this.on(this.handlers);
 }
@@ -162,6 +176,16 @@ Network.prototype = {
             this.trigger('remove:vertex');
         }
 
+    },
+    removeEdge: function (edge, silent) {
+        var edgeConfig = this.config.getEdgeConfig(edge);
+        edgeConfig.renderer.remove();
+        this.graph.removeEdge(edge);
+        this.config.removeEdge(edge);
+        this.edgeAttributeManager.removeRecordById(edge.id);
+        if (silent !== true) {
+            this.trigger('remove:edge');
+        }
     },
     removeVertices: function (vertices) {
         this.nodeAttributeManager.store.suspendEvents();
@@ -329,6 +353,75 @@ Network.prototype = {
         this.nodeAttributeManager.selectAll();
         return selectedVertices;
     },
+    selectVerticesNeighbour: function (vertices) {
+        var selectedVertices = [];
+        var selectedVerticesMap = {};
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                selectedVerticesMap[vertex.id] = vertex;
+                selectedVertices.push(vertex);
+                var vertexConfig = this.config.getVertexConfig(vertex);
+                vertexConfig.renderer.select();
+
+                for (var j = 0; j < vertex.edges.length; j++) {
+                    var edge = vertex.edges[j];
+                    if (typeof selectedVerticesMap[edge.source.id] === 'undefined') {
+                        selectedVerticesMap[edge.source.id] = edge.source;
+                        selectedVertices.push(edge.source);
+                        var vertexConfig = this.config.getVertexConfig(edge.source);
+                        vertexConfig.renderer.select();
+                    }
+                    if (typeof selectedVerticesMap[edge.target.id] === 'undefined') {
+                        selectedVerticesMap[edge.target.id] = edge.target;
+                        selectedVertices.push(edge.target);
+                        var vertexConfig = this.config.getVertexConfig(edge.target);
+                        vertexConfig.renderer.select();
+                    }
+                }
+            }
+        }
+        this.nodeAttributeManager.selectByItems(selectedVertices);
+        return selectedVertices;
+    },
+    selectEdgesNeighbour: function (vertices) {
+        var selectedEdges = [];
+        var selectedEdgesMap = {};
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                for (var j = 0; j < vertex.edges.length; j++) {
+                    var edge = vertex.edges[j];
+                    if (typeof selectedEdgesMap[edge.id] === 'undefined') {
+                        selectedEdgesMap[edge.id] = edge;
+                        selectedEdges.push(edge);
+                        var edgeConfig = this.config.getEdgeConfig(edge);
+                        edgeConfig.renderer.select();
+                    }
+                }
+            }
+        }
+        this.edgeAttributeManager.selectByItems(selectedEdges);
+        return selectedEdges;
+    },
+    selectVerticesInvert: function () {
+        var selectedVertices = [];
+        var vertices = this.graph.vertices;
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                var vertexConfig = this.config.getVertexConfig(vertex);
+                if (vertexConfig.renderer.selected) {
+                    vertexConfig.renderer.deselect();
+                } else {
+                    selectedVertices.push(vertex);
+                    vertexConfig.renderer.select();
+                }
+            }
+        }
+        this.nodeAttributeManager.selectByItems(selectedVertices);
+        return selectedVertices;
+    },
     selectAllEdges: function () {
         var selectedEdges = [];
         var edges = this.graph.edges;
@@ -343,6 +436,33 @@ Network.prototype = {
         this.edgeAttributeManager.selectAll();
         return selectedEdges;
     },
+    selectVerticesByAttribute: function (attributeName, attributeValue) {
+        var selectedVertices = [];
+        var ids = this.nodeAttributeManager.getIdsByAttributeValue(attributeName, attributeValue);
+        for (var i = 0, l = ids.length; i < l; i++) {
+            var id = ids[i];
+            var vertex = this.graph.getVertexById(id);
+            var vertexConfig = this.config.getVertexConfig(vertex);
+            vertexConfig.renderer.select();
+            selectedVertices.push(vertex);
+        }
+        this.nodeAttributeManager.selectByItems(selectedVertices);
+        return selectedVertices;
+    },
+    selectEdgesByAttribute: function (attributeName, attributeValue) {
+        var selectedEdges = [];
+        var ids = this.edgeAttributeManager.getIdsByAttributeValue(attributeName, attributeValue);
+        for (var i = 0, l = ids.length; i < l; i++) {
+            var id = ids[i];
+            var edge = this.graph.getEdgeById(id);
+            var edgeConfig = this.config.getEdgeConfig(edge);
+            edgeConfig.renderer.select();
+            selectedEdges.push(edge);
+        }
+        this.nodeAttributeManager.selectByItems(selectedEdges);
+        return selectedEdges;
+    },
+
 
     moveVertex: function (vertex, dispX, dispY, dispZ) {
         var vertexConfig = this.config.getVertexConfig(vertex);

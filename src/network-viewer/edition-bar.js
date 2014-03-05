@@ -33,6 +33,9 @@ function EditionBar(args) {
 
     this.on(this.handlers);
 
+    this.vertexAttributeNameSelected;
+    this.edgeAttributeNameSelected;
+
     this.rendered = false;
     if (this.autoRender) {
         this.render();
@@ -49,103 +52,139 @@ EditionBar.prototype = {
         }
 
         var navgationHtml = '' +
-            '<div class="btn-toolbar" role="toolbar" style="display:inline-block">' +
-            '   <div class="btn-group btn-group-xs" data-toggle="buttons">' +
-            '       <label class="btn btn-default"><input type="radio" name="selectionelement" id="nodeEditButton" title="Node edit mode">Nodes</label>' +
-            '       <label class="btn btn-default"><input type="radio" name="selectionelement" id="edgeEditButton" title="Edge edit mode">Edges</label>' +
+            '<div class="btn-toolbar" role="toolbar">' +
+            '   <div class="btn-group" data-toggle="buttons">' +
+            '       <label class="btn btn-default btn-sm"><input type="radio" name="selectionelement" id="nodeEditButton" title="Node edit mode">Nodes</label>' +
+            '       <label class="btn btn-default btn-sm"><input type="radio" name="selectionelement" id="edgeEditButton" title="Edge edit mode">Edges</label>' +
             '   </div>' +
             '</div>' +
-            '<div id="nodeToolbar" class="btn-toolbar" role="toolbar" style="display:inline-block">' +
-            '   <div class="btn-group" style="width:100px;margin-left: 10px;" title="Node name">' +
-//            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Node:&nbsp;</span>' +
-            '       <input id="nodeNameField" type="text" class="form-control" placeholder="name" style="padding:0px 4px;height:23px;width:100px">' +
+
+
+            '<div id="nodeToolbar" class="btn-toolbar" role="toolbar">' +
+
+            '   <div class="btn-group input-group-sm" title="Node name" style="margin-left: 10px;width:80px;">' +
+            '       <input id="nodeNameField" type="text" class="form-control" placeholder="name">' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Node shape">' +
-            '       <button id="nodeShapeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-shape"></span><span class="caret"></button>' +
+
+            '   <div class="btn-group" title="Node shape">' +
+            '       <button id="nodeShapeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-shape"></span><span class="caret"></button>' +
             '        <ul id="nodeShapeMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Node size">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:3px;"><span class="ocb-icon icon-node-size"></span></span>' +
-            '       <input id="nodeSizeField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:35px;display:inline-block;">' +
-            '       <div class="input-group-btn" style="display:inline-block;">' +
-            '           <button id="nodeSizeButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" type="button" style="height:23px;"><span class="caret"></button>' +
+
+            '   <div class="btn-group" title="Node size" style="width:110px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-node-size"></span></span>' +
+            '       <input id="nodeSizeField" type="text" class="form-control">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="nodeSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></button>' +
             '           <ul id="nodeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Node stroke size">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:3px;"><span class="ocb-icon icon-stroke-size"></span></span>' +
-            '       <input id="nodeStrokeSizeField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:35px;display:inline-block;">' +
-            '       <div class="input-group-btn" style="display:inline-block;">' +
-            '           <button id="nodeStrokeSizeButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" type="button" style="height:23px;"><span class="caret"></button>' +
+
+            '   <div class="btn-group" title="Node stroke size" style="width:110px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-stroke-size"></span></span>' +
+            '       <input id="nodeStrokeSizeField" type="text" class="form-control">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="nodeStrokeSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></button>' +
             '           <ul id="nodeStrokeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Node color">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-fill-color"></span>&nbsp;&nbsp;#</span>' +
-            '       <input id="nodeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
+
+            '   <div class="btn-group" title="Node color" style="width:140px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-fill-color"></span></span>' +
+            '       <input id="nodeColorField" type="text" class="form-control">' +
+            '       <span class="input-group-addon">' +
             '           <select id="nodeColorSelect"></select>' +
-            '       </span>' +
+            '      </span>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Node stroke color">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-stroke-color"></span>&nbsp;&nbsp;#</span>' +
-            '       <input id="nodeStrokeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
+
+            '   <div class="btn-group" title="Node color" style="width:140px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-stroke-color"></span></span>' +
+            '       <input id="nodeStrokeColorField" type="text" class="form-control">' +
+            '       <span class="input-group-addon">' +
             '           <select id="nodeStrokeColorSelect"></select>' +
-            '       </span>' +
+            '      </span>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs"  title="Node opacity">' +
-            '       <button id="nodeOpacityButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-opacity"></span><span class="caret"></button>' +
+
+            '   <div class="btn-group" title="Node opacity">' +
+            '       <button id="nodeOpacityButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-opacity"></span><span class="caret"></button>' +
             '       <ul id="nodeOpacityMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Node label size">' +
-            '       <button id="nodeLabelSizeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
+            '   <div class="btn-group" title="Node label size">' +
+            '       <button id="nodeLabelSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
             '       <ul id="nodeLabelSizeMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
+
+
+            '   <div class="btn-group" title="Node search" style="width:120px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <input id="nodeSearchField" type="text" class="form-control" placeholder="Search by...">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="nodeSearchButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></span></button>' +
+            '           <ul id="nodeSearchMenu" class="dropdown-menu" role="menu"></ul>' +
+            '       </div>' +
+            '   </div>' +
+            '   </div>' +
             '</div>' +
 
-            '<div id="edgeToolbar" class="btn-toolbar hidden" style="display:inline-block">' +
-            '   <div class="btn-group" style="width:100px;margin-left: 10px"  title="Edge name">' +
-//            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;"></span>' +
-            '       <input id="edgeLabelField" type="text" class="form-control" placeholder="label" style="padding:0px 4px;height:23px;width:100px">' +
+
+            /* Edges */
+            '<div id="edgeToolbar" class="btn-toolbar hidden">' +
+
+            '   <div class="btn-group input-group-sm" title="Edge name" style="margin-left: 10px;width:80px;">' +
+            '       <input id="edgeLabelField" type="text" class="form-control" placeholder="name">' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs"  title="Edge shape">' +
-            '       <button id="edgeShapeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-edge-type"></span><span class="caret"></button>' +
-            '       <ul id="edgeShapeMenu" class="dropdown-menu" role="menu"></ul>' +
+
+            '   <div class="btn-group" title="Edge shape">' +
+            '       <button id="edgeShapeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-edge-type"></span><span class="caret"></button>' +
+            '        <ul id="edgeShapeMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Edge size">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:3px;"><span class="ocb-icon icon-node-size"></span></span>' +
-            '       <input id="edgeSizeField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:35px;display:inline-block;">' +
-            '       <div class="input-group-btn" style="display:inline-block;">' +
-            '           <button id="edgeSizeButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" type="button" style="height:23px;"><span class="caret"></button>' +
+
+            '   <div class="btn-group" title="Edge size" style="width:110px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-node-size"></span></span>' +
+            '       <input id="edgeSizeField" type="text" class="form-control">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="edgeSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></button>' +
             '           <ul id="edgeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group"  title="Edge color">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-fill-color"></span>&nbsp;&nbsp;#</span>' +
-            '       <input id="edgeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
+
+            '   <div class="btn-group" title="Edge color" style="width:140px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-fill-color"></span></span>' +
+            '       <input id="edgeColorField" type="text" class="form-control">' +
+            '       <span class="input-group-addon">' +
             '           <select id="edgeColorSelect"></select>' +
-            '       </span>' +
+            '      </span>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Edge label size">' +
-            '       <button id="edgeLabelSizeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
+
+            '   <div class="btn-group" title="Edge label size">' +
+            '       <button id="edgeLabelSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
             '       <ul id="edgeLabelSizeMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
+
+            '   <div class="btn-group" title="Edge search" style="width:120px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <input id="edgeSearchField" type="text" class="form-control" placeholder="Search by...">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="edgeSearchButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></span></button>' +
+            '           <ul id="edgeSearchMenu" class="dropdown-menu" role="menu"></ul>' +
+            '       </div>' +
+            '   </div>' +
+            '   </div>' +
+
             '</div>' +
             '';
 
@@ -154,7 +193,7 @@ EditionBar.prototype = {
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="edition-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
-            height: '32px'
+            height: '40px'
         });
         $(this.targetDiv).append(this.div);
         /**************/
@@ -188,6 +227,9 @@ EditionBar.prototype = {
 
         this.nodeLabelSizeMenu = $(this.div).find('#nodeLabelSizeMenu');
 
+        this.nodeSearchField = $(this.div).find('#nodeSearchField');
+        this.nodeSearchMenu = $(this.div).find('#nodeSearchMenu');
+
         /* edge */
         this.edgeShapeButton = $(this.div).find('#edgeShapeButton');
         this.edgeLabelSizeButton = $(this.div).find('#edgeLabelSizeButton');
@@ -204,6 +246,8 @@ EditionBar.prototype = {
 
         this.edgeLabelSizeMenu = $(this.div).find('#edgeLabelSizeMenu');
 
+        this.edgeSearchField = $(this.div).find('#edgeSearchField');
+        this.edgeSearchMenu = $(this.div).find('#edgeSearchMenu');
 
         /*************/
 
@@ -221,16 +265,20 @@ EditionBar.prototype = {
         $(this.nodeColorSelect).simplecolorpicker({picker: true}).on('change', function () {
             $(_this.nodeColorField).val($(_this.nodeColorSelect).val().replace('#', '')).change();
         });
+        $(this.nodeColorSelect).next('.simplecolorpicker').addClass('ocb-icon');
+
 
         this._setColorSelect(this.nodeStrokeColorSelect);
         $(this.nodeStrokeColorSelect).simplecolorpicker({picker: true}).on('change', function () {
             $(_this.nodeStrokeColorField).val($(_this.nodeStrokeColorSelect).val().replace('#', '')).change();
         });
+        $(this.nodeStrokeColorSelect).next('.simplecolorpicker').addClass('ocb-icon');
 
         this._setColorSelect(this.edgeColorSelect);
         $(this.edgeColorSelect).simplecolorpicker({picker: true}).on('change', function () {
             $(_this.edgeColorField).val($(_this.edgeColorSelect).val().replace('#', '')).change();
         });
+        $(this.edgeColorSelect).next('.simplecolorpicker').addClass('ocb-icon');
 //        /* Color picker */
 //        var pickAColorConfig = {
 //            showSpectrum: true,
@@ -306,6 +354,27 @@ EditionBar.prototype = {
                 _this.trigger('edgeSize:change', {value: value, sender: _this});
             }
         });
+
+        /* Search */
+        $(this.nodeSearchField).on("keyup", function () {
+            var value = $(this).val();
+            var name = $(_this.nodeSearchMenu).children('.active').text();
+            if (event.which === 13) {
+                console.log(value);
+                console.log(name);
+                _this.trigger('search:node', {attributeName: name, attributeValue: value, sender: _this});
+            }
+        });
+        $(this.edgeSearchField).on("keyup", function () {
+            var value = $(this).val();
+            var name = $(_this.edgeSearchMenu).children('.active').text();
+            if (event.which === 13) {
+                console.log(value);
+                console.log(name);
+                _this.trigger('search:edge', {attributeName: name, attributeValue: value, sender: _this});
+            }
+        });
+
         /* */
 
 
@@ -392,7 +461,7 @@ EditionBar.prototype = {
     },
 
     _setColorSelect: function (select) {
-        var colors = ["cccccc", "888888",
+        var colors = ["cccccc", "888888",'ffffff',
             "ac725e", "d06b64", "f83a22", "fa573c", "ff7537", "ffad46", "42d692", "16a765", "7bd148", "b3dc6c", "fbe983", "fad165",
             "92e1c0", "9fe1e7", "9fc6e7", "4986e7", "9a9cff", "b99aff", "c2c2c2", "cabdbf", "cca6ac", "f691b2", "cd74e6", "a47ae2",
             "000000"
@@ -411,6 +480,27 @@ EditionBar.prototype = {
             $(this.nodeColorSelect).simplecolorpicker('destroy');
             $(this.nodeColorSelect).simplecolorpicker({picker: true});
         }
+    },
+    setVertexAttributesMenu: function (attributeManager) {
+        this._setAttributeMenu(this.nodeSearchMenu, this.nodeSearchField, attributeManager);
+    },
+    _setAttributeMenu: function (select, field, attributeManager) {
+        $(select).empty();
+        var attributes = attributeManager.attributes;
+        for (var a in attributes) {
+            var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + attributes[a].name + '</a></li>')[0];
+            $(select).append(menuEntry);
+
+            $(menuEntry).click(function () {
+                $(select).children().removeClass('active');
+                $(field).attr('placeholder', $(this).text())
+                $(this).addClass('active');
+            });
+        }
+        $(select).children().first().addClass('active');
+    },
+    setEdgeAttributesMenu: function (attributeManager) {
+        this._setAttributeMenu(this.edgeSearchMenu, this.edgeSearchField, attributeManager);
     },
 
     setNodeColor: function (color) {
@@ -445,16 +535,16 @@ EditionBar.prototype = {
     },
 
     //TODO TEST
-    hideNodeToolbar:function(){
+    hideNodeToolbar: function () {
         $('#nodeToolbar').addClass("hidden");
     },
-    hideEdgeToolbar:function(){
+    hideEdgeToolbar: function () {
         $('#edgeToolbar').addClass("hidden");
     },
-    showNodeToolbar:function(){
+    showNodeToolbar: function () {
         $('#nodeToolbar').removeClass("hidden");
     },
-    showEdgeToolbar:function(){
+    showEdgeToolbar: function () {
         $('#edgeToolbar').removeClass("hidden");
     }
 }

@@ -220,7 +220,7 @@ AttributeManagerStore.prototype = {
     getIdsByAttributeValue: function (attribute, value) {
         var dupHash = {};
         var ids = [];
-        var mixedCollection = this.store.query(attribute, value);
+        var mixedCollection = this.store.query(attribute, value, false, false, true);
         for (var i = 0; i < mixedCollection.items.length; i++) {
             var item = mixedCollection.items[i];
             var id = item.data["Id"];

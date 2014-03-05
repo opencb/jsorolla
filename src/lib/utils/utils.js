@@ -183,8 +183,8 @@ var Utils = {
         tableHtml += '</tbody></table>';
         return {html: tableHtml, data: commandObject};
     },
-    htmlTable: function (title, object) {
-        var tableHtml = '<div style="font-weight: bold">' + title + '</div>';
+    htmlTable: function (object) {
+        var tableHtml = '';
         tableHtml += '<table cellspacing="0" style="border-collapse: collapse;border:1px solid #ccc;"><tbody>';
         for (var key in object) {
             tableHtml += '<tr style="border-collapse: collapse;border:1px solid #ccc;">';

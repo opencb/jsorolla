@@ -66,6 +66,7 @@ DefaultVertexRenderer.prototype = {
                 break;
             case "labelSize":
                 this.labelEl.setAttribute('font-size', this.labelSize);
+                this.calculateLabelX();
                 break;
             case "size":
             case "strokeSize":
@@ -119,13 +120,13 @@ DefaultVertexRenderer.prototype = {
         this.el.setAttribute('y', currentY + dispY);
     },
     setLabelContent: function (text) {
-        this.labelText = text;
-        var label = '';
-        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
-            label = this.labelText;
+        if (typeof this.labelEl !== 'undefined') {
+            if ($.type(text) === 'string' && text.length > 0) {
+                this.labelText = text;
+                this.labelEl.textContent = text;
+            }
+            this.calculateLabelX();
         }
-        this.labelEl.textContent = label;
-        this.calculateLabelX();
     },
     getSize: function () {
         return this.size + this.strokeSize;
@@ -463,7 +464,7 @@ DefaultVertexRenderer.prototype = {
             cx: attr.midOffset,
             cy: attr.midOffset,
             opacity: '0.5',
-            fill: '#555555',
+            fill: '#777777',
             'network-type': 'select-vertex'
         }, 0);
     },

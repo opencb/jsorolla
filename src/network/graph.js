@@ -114,6 +114,7 @@ Graph.prototype = {
         this.edgeDraw = {};
     },
     addEdge: function (edge) {
+        var _this = this;
         if (edge.source == null || edge.target == null) {
             return false
         }
@@ -136,6 +137,7 @@ Graph.prototype = {
         }
         this.trigger('edge:add', {edge: edge, graph: this});
 
+        /* count edges between same vertices */
         var stId = edge.source.id + edge.target.id;
         var tsId = edge.target.id + edge.source.id;
         if (typeof this.edgeDraw[stId] === 'undefined') {
@@ -147,7 +149,9 @@ Graph.prototype = {
         this.edgeDraw[stId]++;
         this.edgeDraw[tsId]++;
         edge.overlapCount = this.edgeDraw[stId];
-
+//        edge.overlapCount = function () {
+//            return _this.edgeDraw[stId];
+//        };
 
         this.numberOfEdges++;
         return true;
@@ -182,12 +186,21 @@ Graph.prototype = {
         edge.source.removeEdge(edge);
         edge.target.removeEdge(edge);
 
+//        /* count edges between same vertices */
+//        var stId = edge.source.id + edge.target.id;
+//        var tsId = edge.target.id + edge.source.id;
+//        this.edgeDraw[stId]--;
+//        this.edgeDraw[tsId]--;
+
+
         var position = this.edgesIndex[edge.id];
         delete this.edgesIndex[edge.id];
         delete this.edges[position];
 
         this.trigger('edge:remove', {edge: edge, graph: this});
         this.numberOfEdges--;
+
+
         return true;
     },
     removeVertex: function (vertex) {

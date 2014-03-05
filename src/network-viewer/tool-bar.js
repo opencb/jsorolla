@@ -65,69 +65,75 @@ ToolBar.prototype = {
 //            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="selectButton" title="Select nodes mode"><span class="ocb-icon icon-mouse-select"></span></label>' +
 //            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="backgroundButton" title="Select background items mode"><span class="ocb-icon ocb-icon-backitem-select"></span></label>' +
 //            '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="selectButton" class="btn btn-default" type="button" title="Network select mode"><span class="ocb-icon icon-mouse-select"></span></button>' +
-            '       <button id="backgroundButton" class="btn btn-default" type="button" title="Background select mode"><span class="ocb-icon ocb-icon-backitem-select"></span></button>' +
+            '   <div class="btn-group">' +
+            '       <button id="selectButton" class="btn btn-default btn-sm" type="button" title="Network select mode"><span class="ocb-icon icon-mouse-select"></span></button>' +
+            '       <button id="backgroundButton" class="btn btn-default btn-sm" type="button" title="Background select mode"><span class="ocb-icon ocb-icon-backitem-select"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="addButton" class="btn btn-default" type="button" title="Add mode"><span class="ocb-icon icon-add"></span></button>' +
-            '       <button id="linkButton" class="btn btn-default" type="button" title="Link mode"><span class="ocb-icon icon-link"></span></button>' +
-            '       <button id="deleteButton" class="btn btn-default" type="button" title="Delete mode"><span class="ocb-icon icon-delete"></span></button>' +
+            '   <div class="btn-group">' +
+            '       <button id="addButton" class="btn btn-default btn-sm" type="button" title="Add mode"><span class="ocb-icon icon-add"></span></button>' +
+            '       <button id="linkButton" class="btn btn-default btn-sm" type="button" title="Link mode"><span class="ocb-icon icon-link"></span></button>' +
+            '       <button id="deleteButton" class="btn btn-default btn-sm" type="button" title="Delete mode"><span class="ocb-icon icon-delete"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs hidden">' +
-            '       <button id="collapseButton" class="btn btn-default" type="button"><span class="ocb-icon icon-collapse"></span></button>' +
+            '   <div class="btn-group hidden">' +
+            '       <button id="collapseButton" class="btn btn-default btn-sm" type="button"><span class="ocb-icon icon-collapse"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Layouts">' +
-            '       <button id="layoutButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-layout"></span><span class="caret"></button>' +
+            '   <div class="btn-group" title="Layouts">' +
+            '       <button id="layoutButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-layout"></span><span class="caret"></button>' +
             '       <ul id="layoutMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs hidden" title="Label size">' +
-            '       <button id="labelSizeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
+            '   <div class="btn-group hidden" title="Label size">' +
+            '       <button id="labelSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
             '       <ul id="labelSizeMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Select">' +
-            '       <button id="autoSelectButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-auto-select"></span><span class="caret"></button>' +
+            '   <div class="btn-group" title="Select">' +
+            '       <button id="autoSelectButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-auto-select"></span><span class="caret"></button>' +
             '       <ul id="autoSelectMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs hidden">' +
+            '   <div class="btn-group hidden">' +
             '       <button id="backgroundButton" class="btn btn-default" type="button"><span class="ocb-icon icon-background-option"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Background color">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-background-option"></span>&nbsp;&nbsp;#</span>' +
-            '       <input id="backgroundColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
+
+            '   <div class="btn-group" title="Add image to the background">' +
+            '       <button id="importBackgroundImageButton" class="btn btn-default btn-sm" type="button">' +
+            '           <span class="ocb-icon icon-background-option"></span><span style="line-height: 10px;color:#428bca;"> &nbsp; Add image...</span> ' +
+            '       </button>' +
+            '   </div>' +
+            '   <input id="importBackgroundImageField" type="file" style="display:none" />' +
+
+            '   <div class="btn-group" title="Background color" style="width:140px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-fill-color"></span></span>' +
+            '       <input id="backgroundColorField" type="text" class="form-control">' +
+            '       <span class="input-group-addon">' +
             '           <select id="backgroundColorSelect"></select>' +
-            '       </span>' +
-            '       <span class="input-group-addon" style="display:inline-block;width:85px;height:23px;padding:3px;" title="Add image to the background">' +
-            '           <a id="importBackgroundImageButton">Add image... </a>' +
-            '           <input id="importBackgroundImageField" type="file" style="visibility:hidden" />' +
-            '       </span>' +
+            '      </span>' +
             '   </div>' +
             '   </div>' +
+
+
             '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
-            '       <button id="zoomOutButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-minus"></span></button>' +
-            '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:10px;margin:5px 2px 0px 2px;background-color: #d5d5d5">' +
+            '       <button id="zoomOutButton" class="btn btn-default btn-sm" type="button"><span class="ocb-icon ocb-icon-minus"></span></button>' +
+            '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:29px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: ' + this.zoom + '%">' +
             '           </div>' +
             '       </div>' +
-            '       <button id="zoomInButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-plus"></span></button>' +
+            '       <button id="zoomInButton" class="btn btn-default btn-sm" type="button"><span class="ocb-icon ocb-icon-plus"></span></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs hidden" title="Show/hide overview">' +
             '       <button id="showOverviewButton" class="btn btn-default active" type="button"><span class="ocb-icon icon-select"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group pull-right hidden">' +
-            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
-            '       <div class="input-group pull-left">' +
-            '           <input id="searchField" list="searchDataList" type="text" class="form-control" placeholder="..." style="padding:0px 4px;height:22px;width:100px">' +
-            '           <datalist id="searchDataList">' +
-            '           </datalist>' +
-            '       </div>' +
-            '       <button id="quickSearchButton" class="btn btn-default btn-xs" type="button"  style="height:22px;"><span class="glyphicon glyphicon-search"></span></button>' +
-            '   </div>' +
+//            '   <div class="btn-group pull-right hidden">' +
+//            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
+//            '       <div class="input-group pull-left">' +
+//            '           <input id="searchField" list="searchDataList" type="text" class="form-control" placeholder="..." style="padding:0px 4px;height:22px;width:100px">' +
+//            '           <datalist id="searchDataList">' +
+//            '           </datalist>' +
+//            '       </div>' +
+//            '       <button id="quickSearchButton" class="btn btn-default btn-sm" type="button"  style="height:22px;"><span class="glyphicon glyphicon-search"></span></button>' +
+//            '   </div>' +
             '</div>' +
             '';
 
@@ -136,7 +142,7 @@ ToolBar.prototype = {
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="tool-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
-            height: '32px'
+            height: '40px'
         });
         $(this.targetDiv).append(this.div);
         /**************/
@@ -181,6 +187,8 @@ ToolBar.prototype = {
         $(this.backgroundColorSelect).simplecolorpicker({picker: true}).on('change', function () {
             $(_this.backgroundColorField).val($(_this.backgroundColorSelect).val().replace('#', '')).change();
         });
+        $(this.backgroundColorSelect).next('.simplecolorpicker').addClass('ocb-icon');
+
         var colorPattern = /^([A-Fa-f0-9]{6})$/;
         $(this.backgroundColorField).on("change input", function () {
             var val = $(this).val();
@@ -288,7 +296,7 @@ ToolBar.prototype = {
     },
     _setLayoutMenu: function () {
         var _this = this;
-        var options = ['Force directed','Dot', 'Neato', 'Twopi', 'Circo', 'Fdp', 'Sfdp'/*, 'Random', 'Circle', 'Square'*/];
+        var options = ['Force directed', 'Dot', 'Neato', 'Twopi', 'Circo', 'Fdp', 'Sfdp'/*, 'Random', 'Circle', 'Square'*/];
         for (var i in options) {
             var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
             $(this.layoutMenu).append(menuEntry);
@@ -318,14 +326,24 @@ ToolBar.prototype = {
     },
     _setAutoSelectMenu: function () {
         var _this = this;
-        var options = ['All Nodes', 'All Edges', 'Everything'/*, 'Adjacent', 'Neighbourhood', 'Connected'*/];
-        for (var i in options) {
-            var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
-            $(this.autoSelectMenu).append(menuEntry);
-            $(menuEntry).click(function () {
-                _this.trigger('select:change', {option: $(this).text(), sender: _this});
-            });
+        var nodeOptions = ['All nodes', 'First neighbour nodes', 'Invert node selection'];
+        var edgeOptions = ['All edges', 'Adjacent edges'];
+        var networkOptions = ['Everything'];
+
+        var addEntries = function (options) {
+            for (var i in options) {
+                var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
+                $(_this.autoSelectMenu).append(menuEntry);
+                $(menuEntry).click(function () {
+                    _this.trigger('select:change', {option: $(this).text(), sender: _this});
+                });
+            }
         }
+        addEntries(nodeOptions);
+        $(this.autoSelectMenu).append('<li role="presentation" class="divider"></li>');
+        addEntries(edgeOptions);
+        $(this.autoSelectMenu).append('<li role="presentation" class="divider"></li>');
+        addEntries(networkOptions);
     },
 
     _setColorSelect: function (select) {

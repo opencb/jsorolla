@@ -148,6 +148,12 @@ NetworkViewer.prototype = {
             handlers: {
                 'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean': function () {
                     _this._updateStatusInfo();
+                },
+                'change:vertexAttributes': function (e) {
+                    _this.editionBar.setVertexAttributesMenu(e.sender);
+                },
+                'change:edgeAttributes': function (e) {
+                    _this.editionBar.setEdgeAttributesMenu(e.sender);
                 }
             }
         });
@@ -377,6 +383,12 @@ NetworkViewer.prototype = {
                 'change:edgeLabelSize': function (event) {
                     _this.network.setEdgesRendererAttribute('labelSize', event.option);
                 },
+                'search:node': function (event) {
+                    _this.selectVerticesByAttribute(event.attributeName, event.attributeValue);
+                },
+                'search:edge': function (event) {
+                    _this.selectEdgesByAttribute(event.attributeName, event.attributeValue);
+                },
                 'all': function (event) {
                     _this._refreshOverview();
                 }
@@ -514,7 +526,6 @@ NetworkViewer.prototype = {
     _deselectAllVertices: function () {
         this.selectedVertices = [];
         this.network.deselectAllVertices();
-
     },
     _deselectAllEdges: function () {
         this.selectedEdges = [];
@@ -538,6 +549,24 @@ NetworkViewer.prototype = {
         this.selectedVertices = [vertex];
         this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
         console.log('selectVertex');
+    },
+    selectVerticesNeighbour: function () {
+        this.selectedVertices = this.network.selectVerticesNeighbour(this.selectedVertices);
+
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectVertexNeighbour');
+    },
+    selectEdgesNeighbour: function () {
+        this.selectedEdges = this.network.selectEdgesNeighbour(this.selectedVertices);
+
+        this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+        console.log('selectEdgesNeighbour');
+    },
+    selectVerticesInvert: function () {
+        this.selectedVertices = this.network.selectVerticesInvert();
+
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectVertexNeighbour');
     },
     selectEdge: function (edge) {
         this._deselectAllEdges();
@@ -583,6 +612,18 @@ NetworkViewer.prototype = {
         this.selectedVertices = this.network.selectVerticesByIds(vertexIds);
         this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
         console.log('selectVerticesByIds');
+    },
+    selectVerticesByAttribute: function (attributeName, attributeValue) {
+        this._deselectAllVertices();
+        this.selectedVertices = this.network.selectVerticesByAttribute(attributeName, attributeValue);
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectVerticesByAttribute');
+    },
+    selectEdgesByAttribute: function (attributeName, attributeValue) {
+        this._deselectAllEdges();
+        this.selectedVertices = this.network.selectEdgesByAttribute(attributeName, attributeValue);
+        this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
+        console.log('selectEdgesByAttribute');
     },
     setVertexCoords: function (vertexId, x, y) {
         var vertex = this.network.getVertexById(vertexId);
@@ -639,7 +680,7 @@ NetworkViewer.prototype = {
         console.log(this.scale);
         /* vertex graph */
         var vertex = new Vertex({
-            id: 'n' + '_' + Utils.randomString()
+            id: 'n' + '_' + Utils.randomString(5)
         });
 
         /* vertex config */
@@ -660,10 +701,11 @@ NetworkViewer.prototype = {
         return vertex;
     },
     createEdge: function (vertexSource, vertexTarget) {
+        var relation = 'i';
         /* edge graph */
         var edge = new Edge({
-            id: vertexSource.id + '_' + '-' + '_' + vertexTarget.id,
-            relation: '-',
+            id: vertexSource.id + '_' + relation + '_' + vertexTarget.id,
+            relation: relation,
             source: vertexSource,
             target: vertexTarget
         });
@@ -722,16 +764,28 @@ NetworkViewer.prototype = {
         var menuEntry = $('<li role="presentation"><input id="nodeColorField" type="text"></li>')[0];
         var deleteEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete</a></li>')[0];
         var deleteSelectedEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete selected nodes</a></li>')[0];
+        var selectDirectNeighbours = $('<li role="presentation"><a tabindex="-1" role="menuitem">First neighbour nodes</a></li>')[0];
+        var selectAdjacentEdges = $('<li role="presentation"><a tabindex="-1" role="menuitem">Adjacent edges</a></li>')[0];
 //        $(ul).append(menuEntry);
         $(ul).append(deleteEntry);
         $(ul).append(deleteSelectedEntry);
+        $(ul).append('<li role="presentation" class="divider"></li>');
+        $(ul).append(selectDirectNeighbours);
+        $(ul).append(selectAdjacentEdges);
 
         $(deleteEntry).bind('click.networkViewer', function (event) {
             _this.removeVertex(vertex);
         });
-
         $(deleteSelectedEntry).bind('click.networkViewer', function (event) {
             _this.removeSelectedVertices();
+        });
+        $(selectDirectNeighbours).bind('click.networkViewer', function (event) {
+            _this.selectVertex(vertex);
+            _this.selectVerticesNeighbour();
+        });
+        $(selectAdjacentEdges).bind('click.networkViewer', function (event) {
+            _this.selectVertex(vertex);
+            _this.selectEdgesNeighbour();
         });
 
 //        var nodeColorField = $(ul).find('#nodeColorField');
@@ -831,7 +885,7 @@ NetworkViewer.prototype = {
                         var v = verticesArray[i];
                         _this.setVertexCoords(v.id, v.x, v.y);
                     }
-                },true);
+                }, true);
 
                 break;
             case "Spring":
@@ -878,26 +932,23 @@ NetworkViewer.prototype = {
     },
     select: function (option) {
         switch (option) {
-            case 'All Nodes' :
+            case 'All nodes' :
                 this.selectAllVertices();
                 break;
-            case 'All Edges' :
+            case 'All edges' :
                 this.selectAllEdges();
                 break;
             case 'Everything' :
                 this.selectAll();
                 break;
-            case 'Adjacent' :
-                //TODO
-                this.networkSvg.selectAdjacentNodes();
+            case 'First neighbour nodes' :
+                this.selectVerticesNeighbour();
                 break;
-            case 'Neighbourhood' :
-                //TODO
-                this.networkSvg.selectNeighbourhood();
+            case 'Invert node selection' :
+                this.selectVerticesInvert();
                 break;
-            case 'Connected' :
-                //TODO
-                this.networkSvg.selectConnectedNodes();
+            case 'Adjacent edges' :
+                this.selectEdgesNeighbour();
                 break;
             default :
                 console.log(option + " not yet defined");
@@ -959,11 +1010,11 @@ NetworkViewer.prototype = {
     toJSON: function () {
         var json = this.network.toJSON();
         json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
-        json["center"] = {x:this.networkSvgLayout.centerX,y:this.networkSvgLayout.centerY};
+        json["center"] = {x: this.networkSvgLayout.centerX, y: this.networkSvgLayout.centerY};
         json["zoom"] = this.zoom;
         return json;
     },
-    getAsSIF:function(){
+    getAsSIF: function () {
         return this.network.graph.getAsSIF();
     },
     //TODO Deprecated
