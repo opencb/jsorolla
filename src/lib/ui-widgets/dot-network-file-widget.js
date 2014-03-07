@@ -43,7 +43,7 @@ DOTNetworkFileWidget.prototype.getFileUpload = function () {
                 node.value = v.replace("C:\\fakepath\\","");
 
                 _this.dataAdapter = new DOTDataAdapter({
-                    dataSource: new FileDataSource(file),
+                    dataSource: new FileDataSource({file:file}),
                     handlers: {
                         'data:load': function (event) {
                             try {

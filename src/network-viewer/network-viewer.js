@@ -151,9 +151,12 @@ NetworkViewer.prototype = {
                 },
                 'change:vertexAttributes': function (e) {
                     _this.editionBar.setVertexAttributesMenu(e.sender);
+                    _this.toolBar.setVertexAttributes(e.sender);
+                    _this.trigger('change:vertexAttributes', e);
                 },
                 'change:edgeAttributes': function (e) {
                     _this.editionBar.setEdgeAttributesMenu(e.sender);
+                    _this.trigger('change:edgeAttributes', e);
                 }
             }
         });
@@ -294,7 +297,7 @@ NetworkViewer.prototype = {
                 },
                 'layout:change': function (event) {
                     console.log(event);
-                    _this.setLayout(event.option);
+                    _this.setLayout(event.option, event);
                 },
                 'labelSize:change': function (event) {
                     _this.network.setEdgesRendererAttribute('labelSize', event.option);
@@ -820,40 +823,20 @@ NetworkViewer.prototype = {
         });
         return networkSvg;
     },
-    setLayout: function (type) {
+    setLayout: function (type, e) {
         var _this = this;
         var graph = this.network.getGraph();
         var dot = graph.getAsDOT();
         switch (type) {
             case "Circle":
-                //TODO
-                var vertexCoordinates = this.calculateLayoutVertex(type, nodeList.length);
-                var aux = 0;
-                for (var i = 0; i < nodeList.length; i++) {
-                    var x = this.networkSvg.getWidth() * (0.05 + 0.85 * vertexCoordinates[aux].x);
-                    var y = this.networkSvg.getHeight() * (0.05 + 0.85 * vertexCoordinates[aux].y);
-                    this.networkSvg.moveVertex(nodeList[i], x, y);
-                    aux++;
-                }
-                break;
-            case "Square":
-                //TODO
-                var vertexCoordinates = this.calculateLayoutVertex(type, nodeList.length);
-                var aux = 0;
-                for (var i = 0; i < nodeList.length; i++) {
-                    var x = this.networkSvg.getWidth() * (0.05 + 0.85 * vertexCoordinates[aux].x);
-                    var y = this.networkSvg.getHeight() * (0.05 + 0.85 * vertexCoordinates[aux].y);
-                    this.networkSvg.moveVertex(nodeList[i], x, y);
-                    aux++;
+                if(typeof e.attributeName !== 'undefined'){
+                    GraphLayout.circle(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight(), this.network.getVerticesOrdered(e.attributeName));
+                }else{
+                    GraphLayout.circle(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight());
                 }
                 break;
             case "Random":
-                //TODO
-                for (var i = 0; i < nodeList.length; i++) {
-                    var x = this.networkSvg.getWidth() * (0.05 + 0.85 * Math.random());
-                    var y = this.networkSvg.getHeight() * (0.05 + 0.85 * Math.random());
-                    this.networkSvg.moveVertex(nodeList[i], x, y);
-                }
+                GraphLayout.random2d(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight());
                 break;
             case "none":
                 break;
@@ -864,7 +847,6 @@ NetworkViewer.prototype = {
                         _this.setVertexCoords(v.id, v.x, v.y);
                     }
                 });
-
                 break;
             case "Force directed (simulation)":
                 GraphLayout.force(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight(), function (verticesArray) {
@@ -874,18 +856,6 @@ NetworkViewer.prototype = {
                     }
                 }, true);
 
-                break;
-            case "Spring":
-                var result = GraphLayout.spring(this.network.graph);
-                var vertexCoordinates = result.vertexCoordinates;
-                var graphConf = result.graphConf;
-                var diffX = graphConf.layoutMaxX - graphConf.layoutMinX;
-                var diffY = graphConf.layoutMaxY - graphConf.layoutMinY;
-                for (var vertexId in vertexCoordinates) {
-                    var x = _this.networkSvgLayout.getWidth() * (0.05 + 0.85 * ((diffX + vertexCoordinates[vertexId].layoutPosX)) / diffX);
-                    var y = _this.networkSvgLayout.getHeight() * (0.05 + 0.85 * ((diffY + vertexCoordinates[vertexId].layoutPosY)) / diffY);
-                    _this.setVertexCoords(vertexId, x, y);
-                }
                 break;
             default:
                 console.log(dot);
@@ -982,17 +952,17 @@ NetworkViewer.prototype = {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     loadJSON: function (content) {
-        try {
-            this.network.loadJSON(content);
-            this.networkSvgLayout.setZoom(content["zoom"]);
-            this.networkSvgLayout.clean();
-            this.network.draw(this.networkSvgLayout.getElementsSVG());
-            this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
-            this.networkSvgLayout.setCenter(content["center"]);
-//            this._refreshOverview();
-        } catch (e) {
-            console.log('Error loading JSON');
-        }
+//        try {
+        this.network.loadJSON(content);
+        this.networkSvgLayout.setZoom(content["zoom"]);
+        this.networkSvgLayout.clean();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
+        this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
+        this.networkSvgLayout.setCenter(content["center"]);
+        this._refreshOverview();
+//        } catch (e) {
+//            console.log('Error loading JSON');
+//        }
     },
     toJSON: function () {
         var json = this.network.toJSON();
@@ -1004,10 +974,12 @@ NetworkViewer.prototype = {
     getAsSIF: function () {
         return this.network.graph.getAsSIF();
     },
-    //TODO Deprecated
-    setNetwork: function (network) {
+    setGraph: function (graph) {
         this.clean();
-        this.network = network;
+
+        console.time("graph")
+        this.network.setGraph(graph);
+        console.timeEnd("graph")
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     }
 

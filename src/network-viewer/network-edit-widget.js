@@ -23,7 +23,6 @@ function NetworkEditWidget(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('NetworkEditWidget');
-    console.log(this.id);
 
     this.window;
     this.grid;
@@ -58,7 +57,7 @@ NetworkEditWidget.prototype = {
         });
 //
 
-        this.network.on('add:vertex add:edge remove:vertex remove:edge remove:vertices load:json clean', function () {
+        this.network.on('add:vertex add:edge remove:vertex remove:edge remove:vertices load:json clean draw', function () {
             _this.store.loadRawData(_this.getElements());
         });
     },

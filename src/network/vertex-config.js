@@ -28,7 +28,7 @@ function VertexConfig(args) {
 
     this.id;
     this.coords = {x: x, y: y, z: z};
-    this.renderer;
+    this.renderer = new DefaultVertexRenderer({});
     this.type;
     this.visible;
 

@@ -80,8 +80,35 @@ GraphLayout = {
             coords.z = radius * Math.cos(phi) + offsetZ;
         }
     },
-    getRandom2d: function () {
-
+    random2d: function (network, width, height) {
+        var vertices = network.graph.vertices;
+        var x, y;
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                x = this.getRandomArbitrary(0, width);
+                y = this.getRandomArbitrary(0, height);
+                network.setVertexCoords(vertex, x, y);
+            }
+        }
+    },
+    circle: function (network, width, height, orderedVertices) {
+        var vertices = network.graph.vertices;
+        if (typeof orderedVertices !== 'undefined') {
+            vertices = orderedVertices;
+        }
+        var radius = height / 2;
+        var centerX = width / 2;
+        var centerY = height / 2;
+        var x, y;
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                x = centerX + radius * Math.sin(i * 2 * Math.PI / vertices.length);
+                y = centerY + radius * Math.cos(i * 2 * Math.PI / vertices.length);
+                network.setVertexCoords(vertex, x, y);
+            }
+        }
     },
     force: function (network, width, height, endFunction, simulation) {
         if (typeof network === 'undefined') {
@@ -95,17 +122,22 @@ GraphLayout = {
         var force = d3.layout.force();
         force.size([width, height]);
 
+        var vertices = network.graph.vertices;
+
         var run = function () {
             layoutPrepare();
             force.nodes(verticesArray)
                 .links(edgesArray)
-                .linkDistance(50)
-                .charge(-200)
-//                .chargeDistance(-350)
+//                .linkStrength(0.8)
+                .linkDistance(function (edge) {
+                    return edge.size * 1.5;
+                })
+                .charge(function (node) {
+                    return node.size * -10;
+                })
         };
 
         var layoutPrepare = function () {
-            var vertices = network.graph.vertices;
             for (var i = 0, l = vertices.length; i < l; i++) {
                 var vertex = vertices[i];
                 if (typeof vertex !== 'undefined') {
@@ -114,7 +146,8 @@ GraphLayout = {
                         id: vertex.id,
                         index: i,
                         x: vertexConfig.coords.x,
-                        y: vertexConfig.coords.y
+                        y: vertexConfig.coords.y,
+                        size: vertexConfig.renderer.size
                     };
                     verticesArray.push(v);
                     verticesMap[vertex.id] = v;
@@ -126,9 +159,12 @@ GraphLayout = {
             for (var i = 0, l = edges.length; i < l; i++) {
                 var edge = edges[i];
                 if (typeof edge !== 'undefined') {
+                    var sourceConfig = network.config.getVertexConfig(edge.source);
+                    var targetConfig = network.config.getVertexConfig(edge.target);
                     edgesArray.push({
                         source: verticesMap[edge.source.id],
-                        target: verticesMap[edge.target.id]
+                        target: verticesMap[edge.target.id],
+                        size: sourceConfig.renderer.size + targetConfig.renderer.size
                     });
                 }
             }

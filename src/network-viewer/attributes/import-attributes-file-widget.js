@@ -59,7 +59,7 @@ ImportAttributesFileWidget.prototype.getFileUpload = function () {
                 node.value = v.replace("C:\\fakepath\\", "");
 
                 var attributesDataAdapter = new AttributesDataAdapter({
-                    dataSource: new FileDataSource(file),
+                    dataSource: new FileDataSource({file:file}),
                     handlers: {
                         'data:load': function (event) {
                             _this.processData(attributesDataAdapter);

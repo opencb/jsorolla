@@ -143,6 +143,13 @@ AttributeManagerStore.prototype = {
     updateAttribute: function () {
         console.log('TODO');
     },
+    getAttribute: function (attributeName) {
+        for (var i = 0; i < this.attributes.length; i++) {
+            if (this.attributes[i].name == attributeName) {
+                return this.attributes[i];
+            }
+        }
+    },
     getAttributeNames: function () {
         var nameList = [];
         for (var i = 0; i < this.attributes.length; i++) {
@@ -216,6 +223,46 @@ AttributeManagerStore.prototype = {
         if (record) {
             return record.get(attribute);
         }
+    },
+    getOrderedIdsByAttribute: function (attributeName) {
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
+        var values = [];
+
+        var type = 'float';
+        var checkType = true;
+
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            var id = record.get('Id');
+            var value = record.get(attributeName);
+
+            /* detect number or string */
+            if (checkType) {
+                var parseResult = parseFloat(value);
+                if (isNaN(parseResult)) {
+                    var type = 'string';
+                    checkType = false;
+                }
+            }
+            /* - - - - - - - - - - - - */
+
+            values.push({id: id, value: value});
+        }
+        switch (type) {
+            case 'float':
+                values.sort(function (a, b) {
+                    return a.value - b.value;
+                });
+                break;
+            /* string */
+            default:
+                values.sort(function (a, b) {
+                    return a.value.localeCompare(b.value);
+                });
+        }
+
+        return values;
     },
     getIdsByAttributeValue: function (attribute, value) {
         var dupHash = {};
@@ -328,6 +375,44 @@ AttributeManagerStore.prototype = {
         this.model.setFields(this.attributes);
 
         this.trigger('change:attributes', {sender: this});
+    },
+    getAsFile: function (separator) {
+        if (typeof separator === 'undefined') {
+            separator = '\t';
+        }
+        // Attribute names
+        var text = '';
+
+        text += '#';
+        for (var i = 0; i < this.attributes.length; i++) {
+            var attrName = this.attributes[i].name;
+            if (attrName !== 'Selected') {
+                text += attrName;
+            }
+            if ((i + 1) >= this.attributes.length) {
+                break;
+            }
+            text += separator;
+        }
+        text += '\n';
+
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            for (var j = 0; j < this.attributes.length; j++) {
+                var attrName = this.attributes[j].name;
+                if (attrName !== 'Selected') {
+                    text += record.get(attrName);
+                }
+                if ((j + 1) >= this.attributes.length) {
+                    break;
+                }
+                text += separator;
+            }
+            text += '\n';
+        }
+        return text;
     },
     //save
     toJSON: function () {

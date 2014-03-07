@@ -33,9 +33,6 @@ function EditionBar(args) {
 
     this.on(this.handlers);
 
-    this.vertexAttributeNameSelected;
-    this.edgeAttributeNameSelected;
-
     this.rendered = false;
     if (this.autoRender) {
         this.render();
@@ -477,8 +474,9 @@ EditionBar.prototype = {
         if (!found) {
             var menuEntry = $('<option value="' + color + '">' + color + '</option>')[0];
             $(select).append(menuEntry);
-            $(this.vertexColorSelect).simplecolorpicker('destroy');
-            $(this.vertexColorSelect).simplecolorpicker({picker: true});
+            $(select).simplecolorpicker('destroy');
+            $(select).simplecolorpicker({picker: true});
+            $(select).next('.simplecolorpicker').addClass('ocb-icon');
         }
     },
     setVertexAttributesMenu: function (attributeManager) {

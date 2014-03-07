@@ -98,7 +98,7 @@
         $(sifInputFile).bind('change', function (event) {
             var file = this.files[0];
             var sifDataAdapter = new SIFDataAdapter({
-                dataSource: new FileDataSource(file),
+                dataSource: new FileDataSource({file:file}),
                 handlers: {
                     'data:load': function (event) {
                         var vertices = event.network.graph.vertices

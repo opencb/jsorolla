@@ -39,7 +39,7 @@ function VCFFileWidget(args){
 VCFFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
-	this.adapter = new VCFDataAdapter(new FileDataSource(file),{species:this.viewer.species});
+	this.adapter = new VCFDataAdapter(new FileDataSource({file:file}),{species:this.viewer.species});
 	this.adapter.on('file:load',function(sender){
 		console.log(_this.adapter.featuresByChromosome);
 //		_this._loadChartInfo();

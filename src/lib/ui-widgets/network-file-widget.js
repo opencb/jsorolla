@@ -58,7 +58,7 @@ NetworkFileWidget.prototype.getFileUpload = function () {
                 var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];
 
                 _this.dataAdapter = new JSONDataAdapter({
-                    dataSource: new FileDataSource(file),
+                    dataSource: new FileDataSource({file:file}),
                     handlers: {
                         'data:load': function (event) {
                             try {
@@ -104,13 +104,13 @@ NetworkFileWidget.prototype.draw = function () {
 
     if (this.panel == null) {
         /** Bar for the file upload browser **/
-        var browseBar = Ext.create('Ext.toolbar.Toolbar', {cls: 'bio-border-false'});
+        var browseBar = Ext.create('Ext.toolbar.Toolbar', {dock:'top'});
         browseBar.add(this.getFileUpload());
 
         this.infoLabel = Ext.create('Ext.toolbar.TextItem', {text: 'Please select a network saved File'});
         this.countLabel = Ext.create('Ext.toolbar.TextItem');
-        var infobar = Ext.create('Ext.toolbar.Toolbar', {cls: 'bio-border-false'});
-        infobar.add([this.infoLabel, '->', this.countLabel]);
+        this.infobar = Ext.create('Ext.toolbar.Toolbar', {dock:'bottom'});
+        this.infobar.add(['->',this.infoLabel, this.countLabel]);
 
 //		/** Container for Preview **/
 //		var previewContainer = Ext.create('Ext.container.Container', {
@@ -135,16 +135,15 @@ NetworkFileWidget.prototype.draw = function () {
             store: this.gridStore,
             loadMask: true,
             plugins: ['bufferedrenderer'],
+            dockedItems:[
+                browseBar,
+                this.infobar
+            ],
             columns: [
                 {"header": "Source node", "dataIndex": "0", flex: 1},
                 {"header": "Relation", "dataIndex": "1", flex: 1, menuDisabled: true},
                 {"header": "Target node", "dataIndex": "2", flex: 1}
-            ],
-            features: [
-                {ftype: 'grouping'}
-            ],
-            tbar: browseBar,
-            bbar: infobar
+            ]
         });
 
         var comboLayout = Ext.create('Ext.form.field.ComboBox', {
@@ -158,15 +157,9 @@ NetworkFileWidget.prototype.draw = function () {
                 fields: ['name'],
                 data: [
                     ["none"],
-                    ["dot"],
-                    ["neato"],
-                    ["twopi"],
-                    ["circo"],
-                    ["fdp"],
-                    ["sfdp"],
-//                    ["Random"],
-//                    ["Circle"],
-//                    ["Square"]
+                    ["Force directed"],
+                    ["Random"],
+                    ["Circle"]
                 ]
             })
         });

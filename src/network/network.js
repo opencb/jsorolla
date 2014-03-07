@@ -63,6 +63,31 @@ function Network(args) {
 }
 
 Network.prototype = {
+    setGraph: function (graph) {
+        this.clean();
+
+        var edges = graph.edges;
+        var vertices = graph.vertices;
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                this.addVertex({
+                    vertex: vertex,
+                    vertexConfig: new VertexConfig({})
+                }, true);
+            }
+        }
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            if (typeof edge !== 'undefined') {
+                this.addEdge({
+                    edge: edge,
+                    edgeConfig: new EdgeConfig({})
+                }, true);
+            }
+        }
+
+    },
     getGraph: function () {
         return this.graph;
     },
@@ -81,6 +106,7 @@ Network.prototype = {
                 this.renderEdge(edge, target);
             }
         }
+        this.trigger('draw');
     },
     addVertex: function (args, silent) {
         var vertex = args.vertex;
@@ -593,6 +619,18 @@ Network.prototype = {
             }
         }
         return items;
+    },
+    getVerticesOrdered: function (attributeName) {
+        var vertices = [];
+        var item = this.vertexAttributeManager.getOrderedIdsByAttribute(attributeName);
+        for (var i = 0, l = item.length; i < l; i++) {
+            var id = item[i].id;
+            var vertex = this.graph.getVertexById(id);
+            if (typeof vertex !== 'undefined') {
+                vertices.push(vertex);
+            }
+        }
+        return vertices;
     },
 
 

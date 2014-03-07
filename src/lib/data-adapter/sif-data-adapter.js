@@ -18,15 +18,41 @@
  * You should have received a copy of the GNU General Public License
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
-
-SIFDataAdapter.prototype.getNetwork = NetworkDataAdapter.prototype.getNetwork;
-
 function SIFDataAdapter(args) {
-    NetworkDataAdapter.prototype.constructor.call(this, args);
+    var _this = this;
+    _.extend(this, Backbone.Events);
+
+    this.dataSource;
+    this.async = true;
+
+    this.separator = "\t";
+    this.graph = new Graph();
+
+
+    //set instantiation args, must be last
+    _.extend(this, args);
+
+    this.on(this.handlers);
+
+
+    if (this.async) {
+        this.dataSource.on('success', function (data) {
+            _this.parse(data);
+            _this.trigger('data:load', {graph: _this.graph, sender: _this});
+        });
+        this.dataSource.fetch(this.async);
+    } else {
+        var data = this.dataSource.fetch(this.async);
+        this.parse(data);
+    }
 
     this.addedVertex;
     this.addedEdges;
 
+};
+
+SIFDataAdapter.prototype.getGraph = function () {
+    return this.graph;
 };
 
 SIFDataAdapter.prototype.parse = function (data) {
@@ -38,7 +64,7 @@ SIFDataAdapter.prototype.parse = function (data) {
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].replace(/^\s+|\s+$/g, "");
         if ((line != null) && (line.length > 0)) {
-            var fields = line.split("\t");
+            var fields = line.split(this.separator);
             if (fields[0].substr(0, 1) != "#") {
 
                 var sourceName = fields[0];
@@ -50,12 +76,7 @@ SIFDataAdapter.prototype.parse = function (data) {
                     var sourceVertex = new Vertex({
                         id: sourceName
                     });
-                    this.network.addVertex({
-                        vertex: sourceVertex,
-                        vertexConfig: new VertexConfig({
-                            renderer: new DefaultVertexRenderer({})
-                        })
-                    });
+                    this.graph.addVertex(sourceVertex);
                     this.addedVertex[sourceName] = sourceVertex;
                 }
 
@@ -68,15 +89,9 @@ SIFDataAdapter.prototype.parse = function (data) {
                         var targetVertex = new Vertex({
                             id: targetName
                         });
-                        this.network.addVertex({
-                            vertex: targetVertex,
-                            vertexConfig: new VertexConfig({
-                                renderer: new DefaultVertexRenderer({})
-                            })
-                        },true);
+                        this.graph.addVertex(targetVertex);
                         this.addedVertex[targetName] = targetVertex;
                     }
-
 
                     var edgeId = sourceName + '_' + edgeName + '_' + targetName;
 
@@ -90,12 +105,7 @@ SIFDataAdapter.prototype.parse = function (data) {
                             weight: 1,
                             directed: true
                         });
-                        this.network.addEdge({
-                            edge: edge,
-                            edgeConfig: new EdgeConfig({
-                                renderer: new DefaultEdgeRenderer()
-                            })
-                        },true);
+                        this.graph.addEdge(edge);
                         this.addedEdges[edgeId] = edge;
                     }
                 }

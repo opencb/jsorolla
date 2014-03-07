@@ -48,14 +48,14 @@ GFFFileWidget.prototype.loadFileFromLocal = function(file){
 	switch(this.version){
 	case "2":
 	case 2:
-		this.adapter = new GFF2DataAdapter(new FileDataSource(file),{species:this.viewer.species});
+		this.adapter = new GFF2DataAdapter(new FileDataSource({file:file}),{species:this.viewer.species});
 		break;
 	case "3":
 	case 3:
-		this.adapter = new GFF3DataAdapter(new FileDataSource(file),{species:this.viewer.species});
+		this.adapter = new GFF3DataAdapter(new FileDataSource({file:file}),{species:this.viewer.species});
 		break;
 	default :
-		this.adapter = new GFF2DataAdapter(new FileDataSource(file),{species:this.viewer.species});
+		this.adapter = new GFF2DataAdapter(new FileDataSource({file:file}),{species:this.viewer.species});
 		break;
 	}
 	

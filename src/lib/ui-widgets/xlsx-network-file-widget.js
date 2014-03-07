@@ -19,17 +19,18 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-SIFNetworkFileWidget.prototype = new NetworkFileWidget();
 
-function SIFNetworkFileWidget(args) {
+XLSXNetworkFileWidget.prototype = new NetworkFileWidget();
+
+function XLSXNetworkFileWidget(args) {
     NetworkFileWidget.prototype.constructor.call(this, args);
 
-    this.title = 'Import a Network SIF file';
-    this.id = Utils.genId('SIFNetworkFileWidget');
+    this.title = 'Import a Network XLSX file';
+    this.id = Utils.genId('XLSXNetworkFileWidget');
 };
 
 
-SIFNetworkFileWidget.prototype.getFileUpload = function () {
+XLSXNetworkFileWidget.prototype.getFileUpload = function () {
     var _this = this;
     this.fileUpload = Ext.create('Ext.form.field.File', {
         msgTarget: 'side',
@@ -44,11 +45,11 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
                 var node = Ext.DomQuery.selectNode('input[id=' + f.getInputId() + ']');
                 node.value = v.replace("C:\\fakepath\\", "");
 
-                _this.dataAdapter = new SIFDataAdapter({
-                    dataSource: new FileDataSource({file:file}),
+                _this.dataAdapter = new XLSXDataAdapter({
+                    dataSource: new FileDataSource({file: file, type: 'binary'}),
                     handlers: {
                         'data:load': function (event) {
-                                _this.processData(event.graph);
+                            _this.processWorkbook(event.sender);
                         }
                     }
                 });
@@ -59,7 +60,61 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
     return this.fileUpload;
 };
 
-SIFNetworkFileWidget.prototype.processData = function (graph) {
+XLSXNetworkFileWidget.prototype.processWorkbook = function (adapter) {
+    var _this = this;
+
+    if (typeof this.sheetCombo !== 'undefined') {
+        this.sheetCombo.destroy();
+    }
+    this.sheetCombo = Ext.create('Ext.form.field.ComboBox', {
+        xtype: 'combo',
+        labelWidth: 40,
+        margin: '0 0 0 10',
+        fieldLabel: 'Sheets',
+        store: adapter.xlsx.SheetNames,
+        allowBlank: false,
+        editable: false,
+        displayField: 'name',
+        valueField: 'name',
+        queryMode: 'local',
+        forceSelection: true,
+        listeners: {
+            afterrender: function () {
+                this.select(this.getStore().getAt(0));
+            },
+            change: function (field, e) {
+                var value = field.getValue();
+                if (value != null) {
+                    _this.processSheet(adapter, value)
+                }
+            }
+        }
+    });
+    this.infobar.insert(0, this.sheetCombo);
+
+
+    this.panel.setLoading(false);
+
+
+};
+
+XLSXNetworkFileWidget.prototype.processSheet = function (adapter, sheetName) {
+    var _this = this;
+    var csv = adapter.parseSheet(sheetName);
+
+    var sifDataAdapter = new SIFDataAdapter({
+        dataSource: new StringDataSource(csv),
+        separator: ',',
+        handlers: {
+            'data:load': function (event) {
+                _this.processData(event.graph);
+            }
+        }
+    });
+
+};
+
+XLSXNetworkFileWidget.prototype.processData = function (graph) {
     var _this = this;
     try {
         this.content = graph; //para el onOK.notify event

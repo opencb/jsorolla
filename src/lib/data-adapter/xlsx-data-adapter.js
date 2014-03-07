@@ -18,29 +18,40 @@
  * You should have received a copy of the GNU General Public License
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
+function XLSXDataAdapter(args) {
+    var _this = this;
+    _.extend(this, Backbone.Events);
 
-function EdgeConfig(args) {
+    this.dataSource;
+    this.async = true;
 
-    this.id;
-    this.renderer = new DefaultEdgeRenderer({});
-    this.type;
-    this.visible;
+    this.graph = new Graph();
+    this.xlsx;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
-}
+    this.on(this.handlers);
 
-EdgeConfig.prototype = {
-    render:function(args){
-        this.renderer.render(args);
-    },
-    toJSON: function () {
-        return {
-            id: this.id,
-            renderer:this.renderer,
-            type: this.type,
-            visible: this.visible
-        };
+
+    if (this.async) {
+        this.dataSource.on('success', function (data) {
+            _this.parse(data);
+            _this.trigger('data:load', {workbook: _this.xlsx, sender: _this});
+        });
+        this.dataSource.fetch(this.async);
+    } else {
+        var data = this.dataSource.fetch(this.async);
+        this.parse(data);
     }
-}
+
+
+};
+
+XLSXDataAdapter.prototype.parse = function (data) {
+    this.xlsx = XLSX.read(data, {type: 'binary'});
+};
+XLSXDataAdapter.prototype.parseSheet = function (sheetName) {
+    var csv = XLSX.utils.sheet_to_csv(this.xlsx.Sheets[sheetName]);
+    return csv;
+};

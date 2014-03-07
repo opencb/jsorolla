@@ -186,6 +186,9 @@ DefaultEdgeRenderer.prototype = {
             var deltaX = this.targetCoords.x - this.sourceCoords.x;
             var deltaY = this.targetCoords.y - this.sourceCoords.y;
             var angle = Math.atan(deltaY / deltaX);
+            if (isNaN(angle)) {
+                angle = 0;
+            }
 
             var remainder = this.edge.overlapCount % 2;
             var sum = ( remainder == 0) ? 0 : 1;

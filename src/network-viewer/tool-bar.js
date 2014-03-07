@@ -259,8 +259,8 @@ ToolBar.prototype = {
         });
         $(this.progressBarCont).click(function (e) {
             var offsetX = e.clientX - $(this).offset().left;
-            console.log('offsetX ' + offsetX);
-            console.log('e.offsetX ' + e.offsetX);
+//            console.log('offsetX ' + offsetX);
+//            console.log('e.offsetX ' + e.offsetX);
             var zoom = 100 / $(this).width() * offsetX;
             if (!_this.zoomChanging) {
                 $(_this.progressBar).width(offsetX);
@@ -294,16 +294,36 @@ ToolBar.prototype = {
     draw: function () {
 
     },
-    _setLayoutMenu: function () {
+    _setLayoutMenu: function (attributeNames) {
         var _this = this;
-        var options = ['Force directed',/* 'Dot', 'Neato', 'Twopi', 'Circo', 'Fdp', 'Sfdp', 'Random', 'Circle', 'Square'*/];
-        for (var i in options) {
-            var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
-            $(this.layoutMenu).append(menuEntry);
+        $(this.layoutMenu).empty();
+        var options = ['Force directed', 'Circle', 'Random'  /* 'Dot', 'Neato', 'Twopi', 'Circo', 'Fdp', 'Sfdp'*/];
+
+        var processOption = function (option, select) {
+            var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + option + '</a></li>')[0];
+            $(select).append(menuEntry);
             $(menuEntry).click(function () {
                 _this.trigger('layout:change', {option: $(this).text(), sender: _this});
             });
+        };
+
+        for (var i = 0; i < options.length; i++) {
+            processOption(options[i], this.layoutMenu);
         }
+
+        if (typeof attributeNames !== 'undefined') {
+            $(this.layoutMenu).append('<li role="presentation" class="divider"></li>');
+            $(this.layoutMenu).append('<li role="presentation" class="dropdown-header">Circle sorted by:</li>');
+            for (var i = 0; i < attributeNames.length; i++) {
+                var name = attributeNames[i];
+                var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + name + '</a></li>')[0];
+                $(this.layoutMenu).append(menuEntry);
+                $(menuEntry).click(function () {
+                    _this.trigger('layout:change', {option: 'Circle', attributeName: $(this).text(), sender: _this});
+                });
+            }
+        }
+
     },
     _setLabelSizeMenu: function () {
         var _this = this;
@@ -388,5 +408,8 @@ ToolBar.prototype = {
     setZoom: function (zoom) {
         this.zoom = zoom;
         $(this.progressBar).css("width", zoom + '%');
+    },
+    setVertexAttributes: function (attributeManager) {
+        this._setLayoutMenu(attributeManager.getAttributeNames());
     }
 }

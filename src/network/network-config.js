@@ -45,12 +45,20 @@ NetworkConfig.prototype = {
         this.vertices[vertexConfig.id] = vertexConfig;
     },
     getVertexConfig: function (vertex) {
+        var vertexConfig = this.vertices[vertex.id];
+        if (typeof vertexConfig === 'undefined') {
+            this.setVertexConfig(new VertexConfig({id: vertex.id}));
+        }
         return this.vertices[vertex.id];
     },
     setEdgeConfig: function (edgeConfig) {
         this.edges[edgeConfig.id] = edgeConfig;
     },
     getEdgeConfig: function (edge) {
+        var edgeConfig = this.edges[edge.id];
+        if (typeof edgeConfig === 'undefined') {
+            this.setEdgeConfig(new EdgeConfig({id: edge.id}));
+        }
         return this.edges[edge.id];
     },
     removeVertex: function (vertex) {
