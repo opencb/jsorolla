@@ -829,9 +829,9 @@ NetworkViewer.prototype = {
         var dot = graph.getAsDOT();
         switch (type) {
             case "Circle":
-                if(typeof e.attributeName !== 'undefined'){
+                if (typeof e.attributeName !== 'undefined') {
                     GraphLayout.circle(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight(), this.network.getVerticesOrdered(e.attributeName));
-                }else{
+                } else {
                     GraphLayout.circle(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight());
                 }
                 break;
@@ -952,17 +952,18 @@ NetworkViewer.prototype = {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     loadJSON: function (content) {
-//        try {
-        this.network.loadJSON(content);
-        this.networkSvgLayout.setZoom(content["zoom"]);
-        this.networkSvgLayout.clean();
-        this.network.draw(this.networkSvgLayout.getElementsSVG());
-        this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
-        this.networkSvgLayout.setCenter(content["center"]);
-        this._refreshOverview();
-//        } catch (e) {
-//            console.log('Error loading JSON');
-//        }
+        try {
+            this.network.loadJSON(content);
+            this.networkSvgLayout.setZoom(content["zoom"]);
+            this.networkSvgLayout.clean();
+            this.network.draw(this.networkSvgLayout.getElementsSVG());
+            this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
+            this.networkSvgLayout.setCenter(content["center"]);
+            this._refreshOverview();
+        } catch (e) {
+            this.clean();
+            console.log('Error loading JSON');
+        }
     },
     toJSON: function () {
         var json = this.network.toJSON();
