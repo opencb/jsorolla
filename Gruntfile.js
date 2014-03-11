@@ -108,20 +108,14 @@ module.exports = function (grunt) {
                     'src/network/attributes/*.js',
                     'src/network/*.js',
 
-
-                    'src/lib/data-adapter/json-data-adapter.js',
-                    'src/lib/data-adapter/attributes-data-adapter.js',
-                    'src/lib/data-adapter/network-data-adapter.js',
-                    'src/lib/data-adapter/dot-data-adapter.js',
-                    'src/lib/data-adapter/sif-data-adapter.js',
-                    'src/lib/data-adapter/xlsx-data-adapter.js',
+                    'src/lib/data-adapter/network/*-network-data-adapter.js',
 
                     'src/lib/data-source/data-source.js',
                     'src/lib/data-source/file-data-source.js',
                     'src/lib/data-source/string-data-source.js',
 
-                    'src/lib/ui-widgets/network-file-widget.js',
-                    'src/lib/ui-widgets/*-network-file-widget.js',
+                    'src/lib/ui-widgets/network/network-file-widget.js',
+                    'src/lib/ui-widgets/network/*-network-file-widget.js',
                     'src/lib/ui-widgets/ux-window.js',
 
                     'src/network-viewer/network-viewer.js'

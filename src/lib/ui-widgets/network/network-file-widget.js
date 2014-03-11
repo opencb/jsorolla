@@ -25,7 +25,7 @@ function NetworkFileWidget(args) {
     this.id = Utils.genId('NetworkFileWidget');
 
     this.targetId;
-    this.title = 'Open a Network JSON file';
+    this.title = 'Network widget abstract class';
     this.width = 600;
     this.height = 300;
 
@@ -35,8 +35,6 @@ function NetworkFileWidget(args) {
     this.dataAdapter;
     this.content;
 
-    this.previewId = this.id + '-preview';
-
     this.on(this.handlers);
 };
 
@@ -45,72 +43,25 @@ NetworkFileWidget.prototype.getTitleName = function () {
 };
 
 NetworkFileWidget.prototype.getFileUpload = function () {
-    var _this = this;
-    this.fileUpload = Ext.create('Ext.form.field.File', {
-        msgTarget: 'side',
-        allowBlank: false,
-        emptyText: 'JSON network file',
-        flex: 1,
-        buttonText: 'Browse local',
-        listeners: {
-            change: function () {
-                _this.panel.setLoading(true);
-                var file = document.getElementById(_this.fileUpload.fileInputEl.id).files[0];
-
-                _this.dataAdapter = new JSONDataAdapter({
-                    dataSource: new FileDataSource({file:file}),
-                    handlers: {
-                        'data:load': function (event) {
-                            try {
-                                var networkJSON = event.jsonObject;
-                                _this.content = networkJSON;
-
-                                var data = [];
-                                for (var i = 0; i < networkJSON.graph.edges.length; i++) {
-                                    var edge = networkJSON.graph.edges[i];
-                                    data.push([edge.source.id, edge.relation, edge.target.id]);
-                                }
-                                _this.gridStore.loadData(data);
-
-
-                                var verticesLength = networkJSON.graph.vertices.length;
-                                var edgesLength = networkJSON.graph.edges.length;
-
-
-                                _this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>', false);
-                                _this.countLabel.setText('Vertices:<span class="info">' + verticesLength + '</span>&nbsp;&nbsp; Edges:<span class="info">' + edgesLength + '</span>', false);
-
-                            } catch (e) {
-                                _this.infoLabel.setText('<span class="err">File not valid </span>' + e, false);
-                            }
-                            ;
-                            _this.panel.setLoading(false);
-                        }
-                    }
-                });
-            }
-        }
-    });
-
-    return this.fileUpload;
+    /* to implemtent on child class */
 };
 
-//NetworkFileWidget.prototype.loadJSON = function(content){
-//	this.metaNetworkViewer.loadJSON(content);
-//	this.draw(this.metaNetworkViewer.getDataset(), this.metaNetworkViewer.getFormatter(), this.metaNetworkViewer.getLayout());
-//};
+NetworkFileWidget.prototype.addCustomComponents = function () {
+    /* to implemtent on child class */
+};
+
 NetworkFileWidget.prototype.draw = function () {
     var _this = this;
 
     if (this.panel == null) {
         /** Bar for the file upload browser **/
-        var browseBar = Ext.create('Ext.toolbar.Toolbar', {dock:'top'});
+        var browseBar = Ext.create('Ext.toolbar.Toolbar', {dock: 'top'});
         browseBar.add(this.getFileUpload());
 
-        this.infoLabel = Ext.create('Ext.toolbar.TextItem', {text: 'Please select a network saved File'});
+        this.infoLabel = Ext.create('Ext.toolbar.TextItem', {text: 'Please select a network saved file'});
         this.countLabel = Ext.create('Ext.toolbar.TextItem');
-        this.infobar = Ext.create('Ext.toolbar.Toolbar', {dock:'bottom'});
-        this.infobar.add(['->',this.infoLabel, this.countLabel]);
+        this.infobar = Ext.create('Ext.toolbar.Toolbar', {dock: 'bottom'});
+        this.infobar.add(['->', this.infoLabel, this.countLabel]);
 
 //		/** Container for Preview **/
 //		var previewContainer = Ext.create('Ext.container.Container', {
@@ -135,8 +86,7 @@ NetworkFileWidget.prototype.draw = function () {
             store: this.gridStore,
             loadMask: true,
             plugins: ['bufferedrenderer'],
-            dockedItems:[
-                browseBar,
+            dockedItems: [
                 this.infobar
             ],
             columns: [
@@ -171,6 +121,9 @@ NetworkFileWidget.prototype.draw = function () {
             resizable: false,
             layout: { type: 'vbox', align: 'stretch'},
             items: [this.grid],
+            dockedItems:[
+                browseBar
+            ],
             buttons: [
                 {
                     xtype: 'text',
@@ -198,6 +151,8 @@ NetworkFileWidget.prototype.draw = function () {
                 }
             }
         });
+        this.addCustomComponents();
+
     }
     this.panel.show();
 };

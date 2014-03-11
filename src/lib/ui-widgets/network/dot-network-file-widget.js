@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-DOTNetworkFileWidget.prototype.draw = NetworkFileWidget.prototype.draw;
+//DOTNetworkFileWidget.prototype.draw = NetworkFileWidget.prototype.draw;
 
 function DOTNetworkFileWidget(args) {
     args.title = 'Import a Network DOT file';

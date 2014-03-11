@@ -44,11 +44,15 @@ SIFNetworkFileWidget.prototype.getFileUpload = function () {
                 var node = Ext.DomQuery.selectNode('input[id=' + f.getInputId() + ']');
                 node.value = v.replace("C:\\fakepath\\", "");
 
-                _this.dataAdapter = new SIFDataAdapter({
-                    dataSource: new FileDataSource({file:file}),
+                _this.dataAdapter = new SIFNetworkDataAdapter({
+                    dataSource: new FileDataSource({file: file}),
                     handlers: {
                         'data:load': function (event) {
-                                _this.processData(event.graph);
+                            _this.processData(event.graph);
+                        },
+                        'error:parse': function (event) {
+                            _this.infoLabel.setText('<span class="err">' + event.errorMsg + '</span>', false);
+                            _this.panel.setLoading(false);
                         }
                     }
                 });
