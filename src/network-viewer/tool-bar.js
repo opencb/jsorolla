@@ -300,7 +300,7 @@ ToolBar.prototype = {
             }
         });
 
-        var intPattern = /^\d+$/;
+        var intPattern = /^-?\d+$/;
         $(this.rotateField).bind("keyup", function (event) {
             var query = $(this).val();
             if (intPattern.test(query)) {

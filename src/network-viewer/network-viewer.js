@@ -823,7 +823,7 @@ NetworkViewer.prototype = {
         return networkSvg;
     },
     rotateNetwork: function (angle) {
-        var intPattern = /^\d+$/;
+        var intPattern = /^-?\d+$/;
         if (typeof angle !== 'undefined' && intPattern.test(angle)) {
             var centerX = this.networkSvgLayout.width / 2;
             var centerY = this.networkSvgLayout.height / 2;
