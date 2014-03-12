@@ -247,8 +247,7 @@ Network.prototype = {
         });
     },
     setVertexLabel: function (vertex, label) {
-        var vertexConfig = this.getVertexConfig(vertex);
-        vertexConfig.renderer.setLabelContent(label);
+        this.vertexAttributeManager.setRecordAttributeById(vertex.id, 'Name', label);
     },
     setVertexLabelByAttribute: function (attributeName) {
         var vertices = this.graph.vertices;
@@ -265,8 +264,7 @@ Network.prototype = {
         }
     },
     setEdgeLabel: function (edge, label) {
-        var edgeConfig = this.config.getEdgeConfig(edge);
-        edgeConfig.renderer.setLabelContent(label);
+        this.edgeAttributeManager.setRecordAttributeById(edge.id, 'Name', label);
     },
     setEdgeLabelByAttribute: function (attributeName) {
         var edges = this.graph.edges;
@@ -519,6 +517,10 @@ Network.prototype = {
 
         this._updateEdgeCoords(vertex);
     },
+    getVertexCoords: function (vertex) {
+        var vertexConfig = this.config.getVertexConfig(vertex);
+        return vertexConfig.getCoords();
+    },
 
     isVertexSelected: function (vertex) {
         var vertexConfig = this.config.getVertexConfig(vertex);
@@ -669,6 +671,42 @@ Network.prototype = {
         this.edgeAttributeManager.addAttributes(edgeAttributes);
 
         this.trigger('clean');
+    },
+
+    getAsSIF: function (separator) {
+        return this.graph.getAsSIF(separator);
+    },
+    getAsSIFCustomRelation: function (separator, relationColumn) {
+        if (typeof separator === 'undefined') {
+            separator = '\t';
+        }
+
+        var vertices = this.graph.vertices;
+        var edges = this.graph.edges;
+
+        var sifText = "";
+        for (var i = 0; i < edges.length; i++) {
+            var edge = edges[i];
+            if (typeof edge !== 'undefined') {
+                var line = "";
+
+                var attrValue = this.edgeAttributeManager.getValueByAttributeAndId(edge.id, relationColumn);
+
+                line = edge.source.id + separator + attrValue + separator + edge.target.id + "\n";
+                sifText += line;
+            }
+        }
+        for (var i = 0; i < vertices.length; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                var line = "";
+                if (vertex.edges.length == 0) {
+                    line = vertex.id + separator + separator + "\n";
+                }
+                sifText += line;
+            }
+        }
+        return sifText;
     },
 
     /** JSON import/export **/

@@ -326,6 +326,9 @@ NetworkViewer.prototype = {
                     console.log(event.zoom);
                     _this._setZoom(event.zoom);
                 },
+                'change:rotate': function (event) {
+                    _this.rotateNetwork(event.angle);
+                },
                 'search': function (event) {
                     console.log(event);
                     //todo
@@ -373,12 +376,8 @@ NetworkViewer.prototype = {
                 'vertexNameField:change': function (event) {
                     _this.setVertexLabel(event.value);
                 },
-                'edgeLabelField:change': function (event) {
+                'edgeNameField:change': function (event) {
                     _this.setEdgeLabel(event.value);
-                },
-                'vertexLabelField:change': function (event) {
-                    debugger
-//                    _this.networkSvgLayout.setVertexLabel(event.value);
                 },
                 'change:vertexLabelSize': function (event) {
                     _this.network.setVerticesRendererAttribute('labelSize', event.option);
@@ -823,6 +822,37 @@ NetworkViewer.prototype = {
         });
         return networkSvg;
     },
+    rotateNetwork: function (angle) {
+        var intPattern = /^\d+$/;
+        if (typeof angle !== 'undefined' && intPattern.test(angle)) {
+            var centerX = this.networkSvgLayout.width / 2;
+            var centerY = this.networkSvgLayout.height / 2;
+            var vertices = this.network.graph.vertices;
+
+            var rotationInRadians = angle * Math.PI / 180.0;
+
+            for (var i = 0, l = vertices.length; i < l; i++) {
+                var vertex = vertices[i];
+                if (typeof vertex !== 'undefined') {
+                    var vCoords = this.network.getVertexCoords(vertex);
+
+                    //Detect angle and radius using width/2 and height/2 as center
+                    var deltaX = vCoords.x - centerX;
+                    var deltaY = vCoords.y - centerY;
+                    var radius = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+                    var delta = deltaY / deltaX;
+                    var angleRad = (isNaN(delta)) ? 0 : Math.atan(delta) + rotationInRadians;
+                    //Fix Quadrant
+                    angleRad = (vCoords.x < centerX) ? angleRad += Math.PI : angleRad;
+
+                    var x = centerX + (radius * Math.cos(angleRad));
+                    var y = centerY + (radius * Math.sin(angleRad));
+                    //
+                    this.setVertexCoords(vertex.id, x, y);
+                }
+            }
+        }
+    },
     setLayout: function (type, e) {
         var _this = this;
         var graph = this.network.getGraph();
@@ -972,8 +1002,11 @@ NetworkViewer.prototype = {
         json["zoom"] = this.zoom;
         return json;
     },
-    getAsSIF: function () {
-        return this.network.graph.getAsSIF();
+    getAsSIF: function (separator) {
+        return this.network.getAsSIF(separator);
+    },
+    getAsSIFCustomRelation: function (separator, relationColumn) {
+        return this.network.getAsSIFCustomRelation(separator, relationColumn);
     },
     setGraph: function (graph) {
         this.clean();

@@ -125,6 +125,17 @@ ToolBar.prototype = {
             '   <div class="btn-group btn-group-xs hidden" title="Show/hide overview">' +
             '       <button id="showOverviewButton" class="btn btn-default active" type="button"><span class="ocb-icon icon-select"></span></button>' +
             '   </div>' +
+
+            '   <div class="btn-group" title="Rotate" style="width:100px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <input id="rotateField" type="text" class="form-control" placeholder="90">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="rotateButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="ocb-icon glyphicon glyphicon-repeat"></span><span class="caret"></span></button>' +
+            '           <ul id="rotateMenu" class="dropdown-menu" role="menu"></ul>' +
+            '       </div>' +
+            '   </div>' +
+            '   </div>' +
+
 //            '   <div class="btn-group pull-right hidden">' +
 //            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
 //            '       <div class="input-group pull-left">' +
@@ -182,6 +193,9 @@ ToolBar.prototype = {
         this.searchDataList = $(this.div).find('#searchDataList')[0];
         this.quickSearchButton = $(this.div).find('#quickSearchButton');
 
+        this.rotateButton = $(this.div).find('#rotateButton');
+        this.rotateMenu = $(this.div).find('#rotateMenu');
+        this.rotateField = $(this.div).find('#rotateField');
 
         this._setColorSelect(this.backgroundColorSelect);
         $(this.backgroundColorSelect).simplecolorpicker({picker: true}).on('change', function () {
@@ -232,6 +246,7 @@ ToolBar.prototype = {
         this._setLayoutMenu();
         this._setLabelSizeMenu();
         this._setAutoSelectMenu();
+        this._setRotateMenu();
 
         $(this.importBackgroundImageButton).click(function (e) {
             $(_this.importBackgroundImageField).click();
@@ -282,6 +297,16 @@ ToolBar.prototype = {
             var query = $(this).val();
             if (event.which === 13) {
                 _this.trigger('search', {query: query, sender: _this});
+            }
+        });
+
+        var intPattern = /^\d+$/;
+        $(this.rotateField).bind("keyup", function (event) {
+            var query = $(this).val();
+            if (intPattern.test(query)) {
+                if (event.which === 13) {
+                    _this.trigger('change:rotate', {angle: parseFloat(query), sender: _this});
+                }
             }
         });
 
@@ -364,6 +389,26 @@ ToolBar.prototype = {
         addEntries(edgeOptions);
         $(this.autoSelectMenu).append('<li role="presentation" class="divider"></li>');
         addEntries(networkOptions);
+    },
+
+    _setRotateMenu: function () {
+        var _this = this;
+        var clockWise = ['45', '90', '180'];
+        var counterClockWise = ['-45', '-90', '-180'];
+
+        var addEntries = function (options) {
+            for (var i in options) {
+                var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + options[i] + '</a></li>')[0];
+                $(_this.rotateMenu).append(menuEntry);
+                $(menuEntry).click(function () {
+                    _this.trigger('change:rotate', {angle: parseInt($(this).text()), sender: _this});
+                });
+            }
+        }
+        $(this.rotateMenu).append('<li role="presentation" class="dropdown-header">Clock wise:</li>');
+        addEntries(clockWise);
+        $(this.rotateMenu).append('<li role="presentation" class="dropdown-header">Counter clock wise:</li>');
+        addEntries(counterClockWise);
     },
 
     _setColorSelect: function (select) {

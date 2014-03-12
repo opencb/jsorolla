@@ -137,7 +137,7 @@ EditionBar.prototype = {
             '<div id="edgeToolbar" class="btn-toolbar hidden">' +
 
             '   <div class="btn-group input-group-sm" title="Edge name" style="margin-left: 10px;width:80px;">' +
-            '       <input id="edgeLabelField" type="text" class="form-control" placeholder="name">' +
+            '       <input id="edgeNameField" type="text" class="form-control" placeholder="name">' +
             '   </div>' +
 
             '   <div class="btn-group" title="Edge shape">' +
@@ -220,7 +220,6 @@ EditionBar.prototype = {
         this.vertexStrokeColorSelect = $(this.div).find('#vertexStrokeColorSelect');
 
         this.vertexNameField = $(this.div).find('#vertexNameField');
-        this.vertexLabelField = $(this.div).find('#vertexLabelField');
 
         this.vertexLabelSizeMenu = $(this.div).find('#vertexLabelSizeMenu');
 
@@ -239,7 +238,7 @@ EditionBar.prototype = {
         this.edgeColorField = $(this.div).find('#edgeColorField');
         this.edgeColorSelect = $(this.div).find('#edgeColorSelect');
 
-        this.edgeLabelField = $(this.div).find('#edgeLabelField');
+        this.edgeNameField = $(this.div).find('#edgeNameField');
 
         this.edgeLabelSizeMenu = $(this.div).find('#edgeLabelSizeMenu');
 
@@ -395,14 +394,14 @@ EditionBar.prototype = {
                 _this.trigger('vertexNameField:change', {value: $(this).val(), sender: _this});
             }
         });
-        $(this.vertexLabelField).bind("keyup", function (event) {
+        $(this.vertexNameField).bind("keyup", function (event) {
             if (event.which === 13) {
-                _this.trigger('vertexLabelField:change', {value: $(this).val(), sender: _this});
+                _this.trigger('vertexNameField:change', {value: $(this).val(), sender: _this});
             }
         });
-        $(this.edgeLabelField).bind("keyup", function (event) {
+        $(this.edgeNameField).bind("keyup", function (event) {
             if (event.which === 13) {
-                _this.trigger('edgeLabelField:change', {value: $(this).val(), sender: _this});
+                _this.trigger('edgeNameField:change', {value: $(this).val(), sender: _this});
             }
         });
 
