@@ -197,7 +197,6 @@ UploadWidget.prototype.checkDataTypes = function (dataTypes) {
             dataTypes[i]["leaf"] = true;
         }
     }
-
 };
 
 UploadWidget.prototype.render = function (dataTypes) {

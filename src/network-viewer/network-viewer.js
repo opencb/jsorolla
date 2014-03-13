@@ -137,6 +137,15 @@ NetworkViewer.prototype = {
 
         this.rendered = true;
     },
+    resize:function(){
+        this.height = $(this.targetDiv).height();
+        this.width = $(this.targetDiv).width();
+
+        var toolbarHeight = $(this.toolbarDiv).height();
+        var editionbarHeight = $(this.editionbarDiv).height();
+        var height = this.height - toolbarHeight - editionbarHeight;
+        this.networkSvgLayout.setSize(this.width, height);
+    },
     draw: function () {
         var _this = this;
         if (!this.rendered) {
@@ -984,8 +993,9 @@ NetworkViewer.prototype = {
     loadJSON: function (content) {
         try {
             this.network.loadJSON(content);
-            this.networkSvgLayout.setZoom(content["zoom"]);
             this.networkSvgLayout.clean();
+            this.networkSvgLayout.setZoom(content["zoom"]);
+            this.toolBar.setZoom(content["zoom"]);
             this.network.draw(this.networkSvgLayout.getElementsSVG());
             this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
             this.networkSvgLayout.setCenter(content["center"]);

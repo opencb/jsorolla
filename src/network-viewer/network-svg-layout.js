@@ -194,6 +194,14 @@ NetworkSvgLayout.prototype = {
 
 
     },
+    setSize: function (width, height) {
+        this.width = width;
+        this.height = height;
+        this.svg.setAttribute('width', width);
+        this.svg.setAttribute('height', height);
+        this.drawArea.setAttribute('width', width);
+        this.drawArea.setAttribute('height', height);
+    },
     getElementsSVG: function () {
         return this.scaleFrontGroup;
     },
@@ -260,7 +268,7 @@ NetworkSvgLayout.prototype = {
 
     },
     setCenter: function (c) {
-        if(typeof c !== 'undefined'){
+        if (typeof c !== 'undefined') {
             this.centerX = c.x | 0;
             this.centerY = c.y | 0;
             var centerX = this.width / 2;
