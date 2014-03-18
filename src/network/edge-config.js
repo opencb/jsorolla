@@ -22,13 +22,15 @@
 function EdgeConfig(args) {
 
     this.id;
-    this.renderer = new DefaultEdgeRenderer({});
+    this.rendererConfig = {};
+    this.renderer = new DefaultEdgeRenderer(this.rendererConfig);
     this.type;
     this.visible;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.renderer.setConfig(this.rendererConfig);
 }
 
 EdgeConfig.prototype = {

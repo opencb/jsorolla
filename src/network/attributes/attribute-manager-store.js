@@ -278,6 +278,14 @@ AttributeManagerStore.prototype = {
         }
         return ids;
     },
+    eachRecord: function (eachFunction) {
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            eachFunction(record);
+        }
+    },
     getValuesByAttribute: function (attributeName) {
         var data = this.store.snapshot || this.store.data;
         var records = data.items;

@@ -66,7 +66,7 @@ DefaultVertexRenderer.prototype = {
                 break;
             case "labelSize":
                 this.labelEl.setAttribute('font-size', this.labelSize);
-                this.calculateLabelX();
+                this._calculateLabelX();
                 break;
             case "size":
             case "strokeSize":
@@ -89,6 +89,9 @@ DefaultVertexRenderer.prototype = {
                 console.log('update')
                 this.update();
         }
+    },
+    setConfig: function (args) {
+        _.extend(this, args);
     },
     render: function (args) {
         this.targetEl = args.target;
@@ -125,7 +128,7 @@ DefaultVertexRenderer.prototype = {
                 this.labelText = text;
                 this.labelEl.textContent = text;
             }
-            this.calculateLabelX();
+            this._calculateLabelX();
         }
     },
     getSize: function () {
@@ -179,7 +182,7 @@ DefaultVertexRenderer.prototype = {
         var midOffset = size / 2;
         return {size: size, midOffset: midOffset};
     },
-    calculateLabelX: function (o) {
+    _calculateLabelX: function (o) {
         if (typeof o === 'undefined') {
             o = this._calculateOffset();
         }
@@ -229,7 +232,7 @@ DefaultVertexRenderer.prototype = {
             label = this.labelText;
         }
         this.labelEl.textContent = label;
-        this.calculateLabelX(o);
+        this._calculateLabelX(o);
 
         this.el = vertexSvg;
         this.groupEl = groupSvg;
@@ -248,7 +251,7 @@ DefaultVertexRenderer.prototype = {
         this.vertexEl.setAttribute('cy', o.midOffset);
 
         if (this.labelSize > 0) {
-            this.calculateLabelX(o);
+            this._calculateLabelX(o);
         }
         if (this.selected) {
             this._updateSelectShapeSize(o);
@@ -293,7 +296,7 @@ DefaultVertexRenderer.prototype = {
             label = this.labelText;
         }
         this.labelEl.textContent = label;
-        this.calculateLabelX(o);
+        this._calculateLabelX(o);
 
         this.el = vertexSvg;
         this.groupEl = groupSvg;
@@ -313,7 +316,7 @@ DefaultVertexRenderer.prototype = {
         this.vertexEl.setAttribute('ry', this.size / 2.5);
 
         if (this.labelSize > 0) {
-            this.calculateLabelX(o);
+            this._calculateLabelX(o);
         }
         if (this.selected) {
             this._updateSelectShapeSize(o);
@@ -358,7 +361,7 @@ DefaultVertexRenderer.prototype = {
             label = this.labelText;
         }
         this.labelEl.textContent = label;
-        this.calculateLabelX(o);
+        this._calculateLabelX(o);
 
         this.el = vertexSvg;
         this.groupEl = groupSvg;
@@ -378,7 +381,7 @@ DefaultVertexRenderer.prototype = {
         this.vertexEl.setAttribute('height', this.size);
 
         if (this.labelSize > 0) {
-            this.calculateLabelX(o);
+            this._calculateLabelX(o);
         }
         if (this.selected) {
             this._updateSelectShapeSize(o);
@@ -426,7 +429,7 @@ DefaultVertexRenderer.prototype = {
             label = this.labelText;
         }
         this.labelEl.textContent = label;
-        this.calculateLabelX(o);
+        this._calculateLabelX(o);
 
         this.el = vertexSvg;
         this.groupEl = groupSvg;
@@ -449,7 +452,7 @@ DefaultVertexRenderer.prototype = {
         this.vertexEl.setAttribute('height', this.size - s1);
 
         if (this.labelSize > 0) {
-            this.calculateLabelX(o);
+            this._calculateLabelX(o);
         }
         if (this.selected) {
             this._updateSelectShapeSize(o);

@@ -28,13 +28,15 @@ function VertexConfig(args) {
 
     this.id;
     this.coords = {x: x, y: y, z: z};
-    this.renderer = new DefaultVertexRenderer({});
+    this.rendererConfig = {};
+    this.renderer = new CircosVertexRenderer(this.rendererConfig);
     this.type;
     this.visible;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.renderer.setConfig(this.rendererConfig);
 }
 
 VertexConfig.prototype = {

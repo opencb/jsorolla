@@ -116,13 +116,17 @@ Network.prototype = {
 
         var added = this.graph.addVertex(vertex);
         if (added) {
+
+            /* vertex config */
+            if (typeof vertexConfig === 'undefined') {
+                vertexConfig = new VertexConfig({});
+            }
             vertexConfig.id = vertex.id;
             this.setVertexConfig(vertexConfig);
 
             if (typeof target !== 'undefined') {
                 this.renderVertex(vertex, target);
             }
-
 
             var n = vertex.id;
             //attributes
@@ -148,8 +152,14 @@ Network.prototype = {
 
         var added = this.graph.addEdge(edge);
         if (added) {
+
+            /* edge config */
+            if (typeof edgeConfig === 'undefined') {
+                edgeConfig = new EdgeConfig({});
+            }
             edgeConfig.id = edge.id;
             this.setEdgeConfig(edgeConfig);
+
 
             if (typeof target !== 'undefined') {
                 this.renderEdge(edge, target);
@@ -568,6 +578,25 @@ Network.prototype = {
             }
         }
     },
+    setVerticesRendererAttributePieMap: function (rendererAttr, vertexAttribute, uniqueMap) {
+        debugger
+        var _this = this;
+        this.vertexAttributeManager.eachRecord(function (record) {
+            var value = record.get(vertexAttribute);
+            var valueSplit = value.split(',');
+            var configs = [];
+            for (var i = 0; i < valueSplit.length; i++) {
+                var val = valueSplit[i];
+                var renderValue = uniqueMap[val];
+                if(typeof renderValue !== 'undefined'){
+                    configs.push({size: 60, length: 1, color: renderValue, label: 'A'});
+                }
+            }
+            var vertex = _this.graph.getVertexById(record.get('Id'));
+            var vertexConfig = _this.config.getVertexConfig(vertex);
+            vertexConfig.renderer.set('areas', configs);
+        });
+    },
     setEdgeRendererAttribute: function (edge, attr, value) {
         var edgeConfig = this.config.getEdgeConfig(edge);
         edgeConfig.renderer.set(attr, value);
@@ -729,20 +758,18 @@ Network.prototype = {
                 id: v.id
             });
 
-            var config = content.config.vertices[v.id];
-            var renderer;
-            if (typeof config === 'undefined') {
-                renderer = new DefaultVertexRenderer()
-            } else {
-                renderer = new DefaultVertexRenderer(config.renderer)
-
-            }
             /* vertex config */
-            var vertexConfig = new VertexConfig({
-                id: v.id,
-                coords: content.config.vertices[v.id].coords,
-                renderer: renderer
-            });
+            var config = content.config.vertices[v.id];
+            if (typeof config === 'undefined') {
+                var vertexConfig = new VertexConfig({});
+            } else {
+                var vertexConfig = new VertexConfig({
+                    id: v.id,
+                    coords: content.config.vertices[v.id].coords,
+                    rendererConfig: config.renderer
+                });
+            }
+
             this.addVertex({
                 vertex: vertex,
                 vertexConfig: vertexConfig
@@ -762,19 +789,17 @@ Network.prototype = {
                 target: target
             });
 
-            var config = content.config.edges[e.id];
-            var renderer;
-            if (typeof config === 'undefined') {
-                renderer = new DefaultEdgeRenderer()
-            } else {
-                renderer = new DefaultEdgeRenderer(config.renderer)
-
-            }
             /* edge config */
-            var edgeConfig = new EdgeConfig({
-                id: e.id,
-                renderer: renderer
-            });
+            var config = content.config.edges[v.id];
+            if (typeof config === 'undefined') {
+                var edgeConfig = new EdgeConfig({});
+            } else {
+                var edgeConfig = new EdgeConfig({
+                    id: v.id,
+                    coords: content.config.edges[v.id].coords,
+                    rendererConfig: config.renderer
+                });
+            }
 
             this.addEdge({
                 edge: edge,
@@ -797,15 +822,8 @@ Network.prototype = {
                     id: id
                 });
 
-                /* vertex config */
-                var vertexConfig = new VertexConfig({
-                    id: vertex.id,
-                    renderer: new DefaultVertexRenderer()
-                });
-
                 this.addVertex({
-                    vertex: vertex,
-                    vertexConfig: vertexConfig
+                    vertex: vertex
                 }, true);
             }
         }
