@@ -147,7 +147,7 @@ GraphLayout = {
                         index: i,
                         x: vertexConfig.coords.x,
                         y: vertexConfig.coords.y,
-                        size: vertexConfig.renderer.size
+                        size: vertexConfig.renderer.getSize()
                     };
                     verticesArray.push(v);
                     verticesMap[vertex.id] = v;

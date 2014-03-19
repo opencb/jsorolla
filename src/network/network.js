@@ -579,7 +579,6 @@ Network.prototype = {
         }
     },
     setVerticesRendererAttributePieMap: function (rendererAttr, vertexAttribute, uniqueMap) {
-        debugger
         var _this = this;
         this.vertexAttributeManager.eachRecord(function (record) {
             var value = record.get(vertexAttribute);
@@ -589,12 +588,12 @@ Network.prototype = {
                 var val = valueSplit[i];
                 var renderValue = uniqueMap[val];
                 if(typeof renderValue !== 'undefined'){
-                    configs.push({size: 60, length: 1, color: renderValue, label: 'A'});
+                    configs.push({radius: 60, area: 1, color: renderValue, label: 'A'});
                 }
             }
             var vertex = _this.graph.getVertexById(record.get('Id'));
             var vertexConfig = _this.config.getVertexConfig(vertex);
-            vertexConfig.renderer.set('areas', configs);
+            vertexConfig.renderer.set('pieSlices', configs);
         });
     },
     setEdgeRendererAttribute: function (edge, attr, value) {
