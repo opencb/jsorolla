@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-DOTNetworkFileWidget.prototype.draw = NetworkFileWidget.prototype.draw;
+//DOTNetworkFileWidget.prototype.draw = NetworkFileWidget.prototype.draw;
 
 function DOTNetworkFileWidget(args) {
     args.title = 'Import a Network DOT file';
@@ -43,7 +43,7 @@ DOTNetworkFileWidget.prototype.getFileUpload = function () {
                 node.value = v.replace("C:\\fakepath\\","");
 
                 _this.dataAdapter = new DOTDataAdapter({
-                    dataSource: new FileDataSource(file),
+                    dataSource: new FileDataSource({file:file}),
                     handlers: {
                         'data:load': function (event) {
                             try {

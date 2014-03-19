@@ -18,54 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
-/*
 
- public E addEdge(V sourceVertex, V targetVertex);
- public boolean addEdge(V sourceVertex, V targetVertex, E e);
- public boolean containsEdge(E e);
- public boolean containsEdge(V sourceVertex, V targetVertex);
- public List<E> getAllEdges();
- public E getEdge(String edgeName);
- public List<E> getAllEdges(String edgeName);
- public List<E> getAllEdges(V vertex);
- public E getEdge(V sourceVertex, V targetVertex);
- public List<E> getAllEdges(V sourceVertex, V targetVertex);
- void setEdges(List<E> edges);
- public boolean removeEdge(E e);
- public List<E> removeAllEdges(V vertex);
- public E removeEdge(V sourceVertex, V targetVertex);
- public List<E> removeAllEdges(V sourceVertex, V targetVertex);
- public boolean removeAllEdges(Collection<? extends E> edges);
- public V getEdgeSource(E e);
- public V getEdgeTarget(E e);
-
-
-
-
- public boolean addVertex(V v);
- boolean addAllVertices(Collection<? extends V> vertices);
- public boolean containsVertex(V vertex);
- public V getVertex(String vertexId);
-
- public List<V> getAllVertices();
-
- public int getDegreeOf(V v);
- public boolean copySubgraphAddVertex(V v);
- public List<V> getNotNullVertices();
- public List<V> getAdjacentVertices(V v);
- public boolean removeVertex(V v);
- public boolean removeVertices(Collection<? extends V> vertices);
- public int getNumberOfVertices();
-
-
- public void clear();
- public void setVertices(List<V> verticesList);
- public int getVerticesMapId(V v);
- public V getVertex(int mapPosition);
- public List<List<V>> getAllInformationComponents(boolean isolatedNode);
- public int getNumberOfBicomponents();
-
- */
 function Graph(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('Graph');
@@ -93,6 +46,8 @@ function Graph(args) {
     this.verticesIndex = {};
     this.edgesIndex = {};
 
+    this.edgeDraw = {};
+
 
     this.on(this.handlers);
 }
@@ -109,11 +64,16 @@ Graph.prototype = {
         this.verticesIndex = {};
         this.edgesIndex = {};
 
-        this.verticesNameIndex = {};
+        this.edgeDraw = {};
     },
     addEdge: function (edge) {
+        var _this = this;
         if (edge.source == null || edge.target == null) {
             return false
+        }
+        // Check if already exists
+        if (this.containsEdge(edge)) {
+            return false;
         }
 
         this.addVertex(edge.source);
@@ -122,10 +82,29 @@ Graph.prototype = {
         var insertPosition = length - 1;
         this.edgesIndex[edge.id] = insertPosition;
 
-
+        //update source edges
         edge.source.addEdge(edge);
-        edge.target.addEdge(edge);
+        //update target edges
+        if (edge.source !== edge.target) {
+            edge.target.addEdge(edge);
+        }
         this.trigger('edge:add', {edge: edge, graph: this});
+
+        /* count edges between same vertices */
+        var stId = edge.source.id + edge.target.id;
+        var tsId = edge.target.id + edge.source.id;
+        if (typeof this.edgeDraw[stId] === 'undefined') {
+            this.edgeDraw[stId] = -1;
+        }
+        if (typeof this.edgeDraw[tsId] === 'undefined') {
+            this.edgeDraw[tsId] = -1;
+        }
+        this.edgeDraw[stId]++;
+        this.edgeDraw[tsId]++;
+        edge.overlapCount = this.edgeDraw[stId];
+//        edge.overlapCount = function () {
+//            return _this.edgeDraw[stId];
+//        };
 
         this.numberOfEdges++;
         return true;
@@ -160,12 +139,21 @@ Graph.prototype = {
         edge.source.removeEdge(edge);
         edge.target.removeEdge(edge);
 
+//        /* count edges between same vertices */
+//        var stId = edge.source.id + edge.target.id;
+//        var tsId = edge.target.id + edge.source.id;
+//        this.edgeDraw[stId]--;
+//        this.edgeDraw[tsId]--;
+
+
         var position = this.edgesIndex[edge.id];
         delete this.edgesIndex[edge.id];
         delete this.edges[position];
 
         this.trigger('edge:remove', {edge: edge, graph: this});
         this.numberOfEdges--;
+
+
         return true;
     },
     removeVertex: function (vertex) {
@@ -186,10 +174,13 @@ Graph.prototype = {
             if (edge.target !== vertex) {
                 edge.target.removeEdge(edge);
             }
+
             var position = this.edgesIndex[edge.id];
             delete this.edgesIndex[edge.id];
             delete this.edges[position];
+
             this.trigger('edge:remove', {edge: edge, graph: this});
+            this.numberOfEdges--;
         }
         vertex.removeEdges();
 
@@ -228,28 +219,33 @@ Graph.prototype = {
     },
 
     /**/
-    getAsSIF: function () {
+    getAsSIF: function (separator) {
+        if (typeof separator === 'undefined') {
+            separator = '\t';
+        }
         var sifText = "";
+        for (var i = 0; i < this.edges.length; i++) {
+            var edge = this.edges[i];
+            if (typeof edge !== 'undefined') {
+                var line = "";
+                line = edge.source.id + separator + edge.relation + separator + edge.target.id + "\n";
+                sifText += line;
+            }
+        }
         for (var i = 0; i < this.vertices.length; i++) {
             var vertex = this.vertices[i];
             if (typeof vertex !== 'undefined') {
                 var line = "";
                 if (vertex.edges.length == 0) {
-                    line = vertex.id + "\n";
-                } else {
-                    for (var j = 0; j < vertex.edges.length; j++) {
-                        var edge = vertex.edges[j];
-                        line = edge.source.id + " " + "--" + " " + edge.target.id + "\n";
-                    }
+                    line = vertex.id + separator + separator + "\n";
                 }
                 sifText += line;
             }
-
         }
         return sifText;
     },
     getAsDOT: function () {
-        var dotText = "graph network {\n" + this.getAsSIF() + "}";
+        var dotText = "graph network {\n" + this.getAsSIF(' ') + "}";
         return dotText;
     },
 

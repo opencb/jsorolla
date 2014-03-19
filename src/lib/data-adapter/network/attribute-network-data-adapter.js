@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function AttributesDataAdapter(args) {
+function AttributeNetworkDataAdapter(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
 
@@ -30,7 +30,6 @@ function AttributesDataAdapter(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.json = {};
     this.attributes = [];
     this.data = [];
 
@@ -39,7 +38,6 @@ function AttributesDataAdapter(args) {
     if (this.async) {
         this.dataSource.on('success', function (data) {
             _this.parse(data);
-            _this.trigger('data:load', {sender:_this});
         });
         this.dataSource.fetch(this.async);
     } else {
@@ -50,7 +48,7 @@ function AttributesDataAdapter(args) {
 
 };
 
-AttributesDataAdapter.prototype.parse = function (data) {
+AttributeNetworkDataAdapter.prototype.parse = function (data) {
     var _this = this;
 
 //    var lines = data.split("\n");
@@ -79,7 +77,8 @@ AttributesDataAdapter.prototype.parse = function (data) {
 //    }
 
 
-    if (data !== "") {
+    try {
+
         var lines = data.split("\n");
         var firstLine = lines[0].replace(/^\s+|\s+$/g, "");
         var numColumns = firstLine.split("\t").length;
@@ -95,19 +94,25 @@ AttributesDataAdapter.prototype.parse = function (data) {
                 "defaultValue": ""
             });
         }
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].replace(/^\s+|\s+$/g, "");
+            if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
+                var fields = line.split("\t");
+                this.data.push(fields);
+            }
+        }
+
+        this.trigger('data:load', {sender: this});
+    } catch (e) {
+        console.log(e);
+        this.trigger('error:parse', {errorMsg: 'Parse error', sender: this});
     }
 
-    for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].replace(/^\s+|\s+$/g, "");
-        if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
-            var fields = line.split("\t");
-            this.data.push(fields);
-        }
-    }
 
 };
 
-AttributesDataAdapter.prototype.getAttributesJSON = function () {
+AttributeNetworkDataAdapter.prototype.getAttributesJSON = function () {
     var json = {};
     json.attributes = this.attributes;
     json.data = this.data;

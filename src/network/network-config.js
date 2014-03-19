@@ -41,29 +41,37 @@ NetworkConfig.prototype = {
         this.edges = {};
         this.general = {};
     },
-    setVertexConfig:function(vertexConfig){
+    setVertexConfig: function (vertexConfig) {
         this.vertices[vertexConfig.id] = vertexConfig;
     },
-    getVertexConfig:function(vertex){
+    getVertexConfig: function (vertex) {
+        var vertexConfig = this.vertices[vertex.id];
+        if (typeof vertexConfig === 'undefined') {
+            this.setVertexConfig(new VertexConfig({id: vertex.id}));
+        }
         return this.vertices[vertex.id];
     },
-    setEdgeConfig:function(edgeConfig){
+    setEdgeConfig: function (edgeConfig) {
         this.edges[edgeConfig.id] = edgeConfig;
     },
-    getEdgeConfig:function(edge){
+    getEdgeConfig: function (edge) {
+        var edgeConfig = this.edges[edge.id];
+        if (typeof edgeConfig === 'undefined') {
+            this.setEdgeConfig(new EdgeConfig({id: edge.id}));
+        }
         return this.edges[edge.id];
     },
-    removeVertex:function(vertex){
+    removeVertex: function (vertex) {
         delete this.vertices[vertex.id];
     },
-    removeEdge:function(edge){
+    removeEdge: function (edge) {
         delete this.edges[edge.id];
     },
-    toJSON:function(){
+    toJSON: function () {
         return {
-            vertices:this.vertices,
-            edges:this.edges,
-            general:this.general
+            vertices: this.vertices,
+            edges: this.edges,
+            general: this.general
         }
     }
 }

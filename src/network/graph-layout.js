@@ -19,23 +19,23 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function GraphLayout(args) {
-    _.extend(this, Backbone.Events);
-    this.id = Utils.genId('GraphLayout');
+//function GraphLayout(args) {
+//    _.extend(this, Backbone.Events);
+//    this.id = Utils.genId('GraphLayout');
+//
+//    this.verticesList = [];
+//
+//    //set instantiation args, must be last
+//    _.extend(this, args);
+//
+//    this.vertices = {};
+//
+//    this._init();
+//
+//    this.on(this.handlers);
+//}
 
-    this.verticesList = [];
-
-    //set instantiation args, must be last
-    _.extend(this, args);
-
-    this.vertices = {};
-
-    this._init();
-
-    this.on(this.handlers);
-}
-
-GraphLayout.prototype = {
+GraphLayout = {
     _init: function () {
         for (var i in this.verticesList) {
             var vertex = this.verticesList[i];
@@ -62,152 +62,139 @@ GraphLayout.prototype = {
             vertex.z = this.getRandomArbitrary(10, 600);
         }
     },
-    applySphereSurface: function (offsetZ) {
+    sphereSurface: function (vertices, network, radius, offsetZ) {
+
         //        θ = theta
         //        φ = phi
-        var radius = 200;
-        var n = Object.keys(this.vertices).length;
-        var i = 0;
-        for (var key in this.vertices) {
-            var vertex = this.vertices[key];
+        var n = vertices.length;
+
+        for (var i = 0; i < vertices.length; i++) {
+            var vertex = vertices[i];
+            var vertexConfig = network.config.getVertexConfig(vertex);
+            var coords = vertexConfig.coords;
 
             var phi = Math.acos(-1 + ( 2 * i ) / n);
             var theta = Math.sqrt(n * Math.PI) * phi;
-
-            vertex.x = radius * Math.cos(theta) * Math.sin(phi);
-            vertex.y = radius * Math.sin(theta) * Math.sin(phi);
-            vertex.z = radius * Math.cos(phi) + offsetZ;
-
-            /* update */
-            i++;
+            coords.x = radius * Math.cos(theta) * Math.sin(phi);
+            coords.y = radius * Math.sin(theta) * Math.sin(phi);
+            coords.z = radius * Math.cos(phi) + offsetZ;
         }
     },
-    getRandom2d: function () {
-
-    },
-    springLayout: function (graph) {
-        var iterations = 500;
-        var maxRepulsiveForceDistance = 6;
-        var k = 2;
-        var c = 0.01;
-        var maxVertexMovement = 0.5;
-
-        var layout = function () {
-            layoutPrepare();
-            for (var i = 0; i < iterations; i++) {
-                layoutIteration();
+    random2d: function (network, width, height) {
+        var vertices = network.graph.vertices;
+        var x, y;
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                x = this.getRandomArbitrary(0, width);
+                y = this.getRandomArbitrary(0, height);
+                network.setVertexCoords(vertex, x, y);
             }
-            layoutCalcBounds();
+        }
+    },
+    circle: function (network, width, height, orderedVertices) {
+        var vertices = network.graph.vertices;
+        if (typeof orderedVertices !== 'undefined') {
+            vertices = orderedVertices;
+        }
+        var radius = height / 2;
+        var centerX = width / 2;
+        var centerY = height / 2;
+        var x, y;
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                x = centerX + radius * Math.sin(i * 2 * Math.PI / vertices.length);
+                y = centerY + radius * Math.cos(i * 2 * Math.PI / vertices.length);
+                network.setVertexCoords(vertex, x, y);
+            }
+        }
+    },
+    force: function (network, width, height, endFunction, simulation) {
+        if (typeof network === 'undefined') {
+            console.log('graph not defined');
+            return;
+        }
+        var verticesArray = [];
+        var verticesMap = [];
+        var edgesArray = [];
+
+        var force = d3.layout.force();
+        force.size([width, height]);
+
+        var vertices = network.graph.vertices;
+
+        var run = function () {
+            layoutPrepare();
+            force.nodes(verticesArray)
+                .links(edgesArray)
+//                .linkStrength(0.8)
+                .linkDistance(function (edge) {
+                    return edge.size * 1.5;
+                })
+                .charge(function (node) {
+                    return node.size * -10;
+                })
         };
 
         var layoutPrepare = function () {
-            for (var i = 0; i < graph.nodes.length; i++) {
-                var node = graph.nodes[i];
-                node.layoutPosX = 0;
-                node.layoutPosY = 0;
-                node.layoutForceX = 0;
-                node.layoutForceY = 0;
-            }
-        };
-
-        var layoutCalcBounds = function () {
-            var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
-
-            for (var i = 0; i < this.graph.nodes.length; i++) {
-                var x = this.graph.nodes[i].layoutPosX;
-                var y = this.graph.nodes[i].layoutPosY;
-
-                if (x > maxx) maxx = x;
-                if (x < minx) minx = x;
-                if (y > maxy) maxy = y;
-                if (y < miny) miny = y;
-            }
-
-            this.graph.layoutMinX = minx;
-            this.graph.layoutMaxX = maxx;
-            this.graph.layoutMinY = miny;
-            this.graph.layoutMaxY = maxy;
-        };
-
-        var layoutIteration = function () {
-            // Forces on nodes due to node-node repulsions
-            for (var i = 0; i < this.graph.nodes.length; i++) {
-                var node1 = this.graph.nodes[i];
-                for (var j = i + 1; j < this.graph.nodes.length; j++) {
-                    var node2 = this.graph.nodes[j];
-                    this.layoutRepulsive(node1, node2);
+            for (var i = 0, l = vertices.length; i < l; i++) {
+                var vertex = vertices[i];
+                if (typeof vertex !== 'undefined') {
+                    var vertexConfig = network.config.getVertexConfig(vertex);
+                    var v = {
+                        id: vertex.id,
+                        index: i,
+                        x: vertexConfig.coords.x,
+                        y: vertexConfig.coords.y,
+                        size: vertexConfig.renderer.size
+                    };
+                    verticesArray.push(v);
+                    verticesMap[vertex.id] = v;
                 }
             }
-            // Forces on nodes due to edge attractions
-            for (var i = 0; i < this.graph.edges.length; i++) {
-                var edge = this.graph.edges[i];
-                this.layoutAttractive(edge);
-            }
 
-            // Move by the given force
-            for (var i = 0; i < this.graph.nodes.length; i++) {
-                var node = this.graph.nodes[i];
-                var xmove = this.c * node.layoutForceX;
-                var ymove = this.c * node.layoutForceY;
 
-                var max = this.maxVertexMovement;
-                if (xmove > max) xmove = max;
-                if (xmove < -max) xmove = -max;
-                if (ymove > max) ymove = max;
-                if (ymove < -max) ymove = -max;
-
-                node.layoutPosX += xmove;
-                node.layoutPosY += ymove;
-                node.layoutForceX = 0;
-                node.layoutForceY = 0;
+            var edges = network.graph.edges;
+            for (var i = 0, l = edges.length; i < l; i++) {
+                var edge = edges[i];
+                if (typeof edge !== 'undefined') {
+                    var sourceConfig = network.config.getVertexConfig(edge.source);
+                    var targetConfig = network.config.getVertexConfig(edge.target);
+                    edgesArray.push({
+                        source: verticesMap[edge.source.id],
+                        target: verticesMap[edge.target.id],
+                        size: sourceConfig.renderer.size + targetConfig.renderer.size
+                    });
+                }
             }
         };
+        run();
 
-        var layoutRepulsive = function (node1, node2) {
-            var dx = node2.layoutPosX - node1.layoutPosX;
-            var dy = node2.layoutPosY - node1.layoutPosY;
-            var d2 = dx * dx + dy * dy;
-            if (d2 < 0.01) {
-                dx = 0.1 * Math.random() + 0.1;
-                dy = 0.1 * Math.random() + 0.1;
-                var d2 = dx * dx + dy * dy;
-            }
-            var d = Math.sqrt(d2);
-            if (d < this.maxRepulsiveForceDistance) {
-                var repulsiveForce = this.k * this.k / d;
-                node2.layoutForceX += repulsiveForce * dx / d;
-                node2.layoutForceY += repulsiveForce * dy / d;
-                node1.layoutForceX -= repulsiveForce * dx / d;
-                node1.layoutForceY -= repulsiveForce * dy / d;
-            }
-        };
+        force.on('end', function (o) {
+            console.log(o)
+            endFunction(verticesArray);
+        });
 
-        var layoutAttractive = function (edge) {
-            var node1 = edge.source;
-            var node2 = edge.target;
-
-            var dx = node2.layoutPosX - node1.layoutPosX;
-            var dy = node2.layoutPosY - node1.layoutPosY;
-            var d2 = dx * dx + dy * dy;
-            if (d2 < 0.01) {
-                dx = 0.1 * Math.random() + 0.1;
-                dy = 0.1 * Math.random() + 0.1;
-                var d2 = dx * dx + dy * dy;
+        if (simulation === true) {
+            force.on('tick', function (o) {
+                endFunction(verticesArray);
+            });
+            force.start();
+        } else {
+            force.start();
+            var safety = 0;
+            while (force.alpha() > 0) { // You'll want to try out different, "small" values for this
+                force.tick();
+                if (safety++ > 1000) {
+                    break;// Avoids infinite looping in case this solution was a bad idea
+                }
             }
-            var d = Math.sqrt(d2);
-            if (d > this.maxRepulsiveForceDistance) {
-                d = this.maxRepulsiveForceDistance;
-                d2 = d * d;
-            }
-            var attractiveForce = (d2 - this.k * this.k) / this.k;
-            if (edge.weight == undefined || edge.weight < 1) edge.weight = 1;
-            attractiveForce *= Math.log(edge.weight) * 0.5 + 1;
+            console.log(safety);
+            force.stop();
 
-            node2.layoutForceX -= attractiveForce * dx / d;
-            node2.layoutForceY -= attractiveForce * dy / d;
-            node1.layoutForceX += attractiveForce * dx / d;
-            node1.layoutForceY += attractiveForce * dy / d;
-        };
+        }
+
     }
 
 }

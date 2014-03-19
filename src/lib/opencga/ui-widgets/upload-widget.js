@@ -74,95 +74,108 @@ UploadWidget.prototype = {
 
 UploadWidget.prototype.draw = function (opencgaLocation) {
     this.opencgaLocation = opencgaLocation;
-    var dataTypes = {};
-    dataTypes["9"] = [
-        { text: "ID List", children: [
-            { text: "SNP", tag: "idlist:snp"},//el tag es para introducirlo en la base de datos al subir los datos
-            { text: "Gene/Transcript", tag: "idlist:gene:transcript"}//si son varios van separados por ->  :
-        ] },
-        { text: "Feature", children: [
-            { text: "VCF 4.0", tag: "vcf", validate: this.getTypeValidation('vcf')},
+    var dataTypes = {
+        "9": [
+            { text: "ID List", children: [
+                { text: "SNP", tag: "idlist:snp"},//el tag es para introducirlo en la base de datos al subir los datos
+                { text: "Gene/Transcript", tag: "idlist:gene:transcript"}//si son varios van separados por ->  :
+            ] },
+            { text: "Feature", children: [
+                { text: "VCF 4.0", tag: "vcf", validate: this.getTypeValidation('vcf')},
 //		                { text: "Tabix index", tag:"tbi"},
-            { text: "GFF2", tag: "gff2"},
-            { text: "GFF3", tag: "gff3"},
-            { text: "GTF", tag: "gtf"},
-            { text: "BED", tag: "bed"},
-            { text: "BAM", tag: "bam", validate: this.getTypeValidation('bam')},
-            { text: "BAI", tag: "bai", validate: this.getTypeValidation('bai')},
-            { text: "Expression", tag: "expression"}
-        ] }
-    ];
-    dataTypes["6"] = [
-        { text: "Feature", children: [
-            { text: "VCF 4.0", tag: "vcf"},
-            { text: "GFF2", tag: "gff2"},
-            { text: "GFF3", tag: "gff3"},
-            { text: "GTF", tag: "gtf"},
-            { text: "BED", tag: "bed"},
-            { text: "PED", tag: "ped"}
-        ] }
-    ];
-    dataTypes["11"] = [
-        {text: "Annotation", tag: "annotation"},
-        {text: "ID List", children: [
-            { text: "Gene", tag: "idlist:gene"    },
-            { text: "Ranked", tag: "ranked"    }
+                { text: "GFF2", tag: "gff2"},
+                { text: "GFF3", tag: "gff3"},
+                { text: "GTF", tag: "gtf"},
+                { text: "BED", tag: "bed"},
+                { text: "BAM", tag: "bam", validate: this.getTypeValidation('bam')},
+                { text: "BAI", tag: "bai", validate: this.getTypeValidation('bai')},
+                { text: "Expression", tag: "expression"}
+            ] }
+        ],
+        "6":[
+            { text: "Feature", children: [
+                { text: "VCF 4.0", tag: "vcf"},
+                { text: "GFF2", tag: "gff2"},
+                { text: "GFF3", tag: "gff3"},
+                { text: "GTF", tag: "gtf"},
+                { text: "BED", tag: "bed"},
+                { text: "PED", tag: "ped"}
+            ] }
+        ],
+        "11":[
+            {text: "Annotation", tag: "annotation"},
+            {text: "ID List", children: [
+                { text: "Gene", tag: "idlist:gene"    },
+                { text: "Ranked", tag: "ranked"    }
+            ]
+            }
+        ],
+        "12":[
+            {text: "Abundances", tag: "abundances"}
+        ],
+        "100":[
+            {text: "Sequence", tag: "sequence"}
+        ],
+        "22":[
+            {text: "Tabbed text file", tag: "txt", validate: this.getTypeValidation('txt|text')},
+            {text: "CEL compressed file", tag: "cel", validate: this.getTypeValidation('zip|tar|tar.gz|tgz')}
+        ],
+        "85":[
+            { text: "Feature", children: [
+                { text: "VCF 4.0", tag: "vcf", validate: this.getTypeValidation('vcf')},
+                { text: "PED", tag: "ped", validate: this.getTypeValidation('ped')}
+            ] }
+        ],
+        "cellmaps":[
+            { text: "Network", children: [
+                { text: "SIF", tag: "sif", validate: this.getTypeValidation('sif')}
+            ] }
         ]
-        }
-    ];
-    dataTypes["12"] = [
-        {text: "Abundances", tag: "abundances"}
-    ];
-    dataTypes["100"] = [
-        {text: "Sequence", tag: "sequence"}
-    ];
-    dataTypes["22"] = [
-        {text: "Tabbed text file", tag: "txt", validate: this.getTypeValidation('txt|text')},
-        {text: "CEL compressed file", tag: "cel", validate: this.getTypeValidation('zip|tar|tar.gz|tgz')}
-    ];
-    dataTypes["85"] = [
-        { text: "Feature", children: [
-            { text: "VCF 4.0", tag: "vcf", validate: this.getTypeValidation('vcf')},
-            { text: "PED", tag: "ped", validate: this.getTypeValidation('ped')}
-        ] }
-    ];
+    };
 
-    switch (this.suiteId) {
-        case 9:
-            this.checkDataTypes(dataTypes["9"]);
-            this.render(dataTypes["9"]);
-            break;
-        case 6:
-            this.checkDataTypes(dataTypes["6"]);
-            this.render(dataTypes["6"]);
-            break;
-        case 11:
-            this.checkDataTypes(dataTypes["11"]);
-            this.render(dataTypes["11"]);
-            break;
-        case 12:
-            this.checkDataTypes(dataTypes["12"]);
-            this.render(dataTypes["12"]);
-            break;
-        case 22:
-            this.checkDataTypes(dataTypes["22"]);
-            this.render(dataTypes["22"]);
-            break;
-        case 85:
-            this.checkDataTypes(dataTypes["85"]);
-            this.render(dataTypes["85"]);
-            break;
-        case 100:
-            this.checkDataTypes(dataTypes["100"]);
-            this.render(dataTypes["100"]);
-            break;
-        case -1:
-            break;
-        default:
-            this.render([
-                {text: "No data types defined"}
-            ]);
+    if(typeof dataTypes[this.suiteId] === 'undefined'){
+        this.render([
+            {text: "No data types defined"}
+        ]);
+    }else{
+        this.checkDataTypes(dataTypes[this.suiteId]);
+        this.render(dataTypes[this.suiteId]);
     }
+
+//    switch (this.suiteId) {
+//        case 9:
+//            this.checkDataTypes(dataTypes["9"]);
+//            this.render(dataTypes["9"]);
+//            break;
+//        case 6:
+//            this.checkDataTypes(dataTypes["6"]);
+//            this.render(dataTypes["6"]);
+//            break;
+//        case 11:
+//            this.checkDataTypes(dataTypes["11"]);
+//            this.render(dataTypes["11"]);
+//            break;
+//        case 12:
+//            this.checkDataTypes(dataTypes["12"]);
+//            this.render(dataTypes["12"]);
+//            break;
+//        case 22:
+//            this.checkDataTypes(dataTypes["22"]);
+//            this.render(dataTypes["22"]);
+//            break;
+//        case 85:
+//            this.checkDataTypes(dataTypes["85"]);
+//            this.render(dataTypes["85"]);
+//            break;
+//        case 100:
+//            this.checkDataTypes(dataTypes["100"]);
+//            this.render(dataTypes["100"]);
+//            break;
+//        case "cellmaps":
+//            this.checkDataTypes(dataTypes["cellmaps"]);
+//            this.render(dataTypes["cellmaps"]);
+//            break;
+//    }
 };
 
 UploadWidget.prototype.clean = function () {
@@ -184,7 +197,6 @@ UploadWidget.prototype.checkDataTypes = function (dataTypes) {
             dataTypes[i]["leaf"] = true;
         }
     }
-
 };
 
 UploadWidget.prototype.render = function (dataTypes) {
@@ -310,14 +322,14 @@ UploadWidget.prototype.render = function (dataTypes) {
                         this.editor.show();
                         this.uploadField.destroy();
                         this.uploadField.setRawValue(null);
-                        this.pan3.setHeight(153);
+                        this.pan3.setHeight(100);
                     } else {
                         this.dataFieldLabel.setText('<span class="info">Select a data file</span>', false);
                         this.editor.hide();
                         this.uploadBar.show();
                         this.editor.setRawValue(null);
                         this.createUploadField();
-                        this.pan3.setHeight(82);
+                        this.pan3.setHeight(30);
                     }
                     this.validate();
                 }

@@ -2,8 +2,8 @@
  * Created by imedina on 17/02/14.
  */
 
-
-jsorollaNgLib.service('CellBaseService', function () {
+//angular.module('jsorolla.services', []);
+angular.module('jsorolla.services').service('CellBaseService', function () {
 
     var host = 'http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/';
 

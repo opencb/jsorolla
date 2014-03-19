@@ -80,7 +80,7 @@ CircularGenomeViewer.prototype = {
             "height": this.height
         });
 
-        this.group = SVG.addChild(this.svg, 'g');
+            this.group = SVG.addChild(this.svg, 'g');
 //        this.selectionGroup = SVG.addChild(this.svg, 'g');
 //
         /** Rotate **/
@@ -172,8 +172,9 @@ CircularGenomeViewer.prototype = {
 //        var _this = this;
         this._clean();
         /** draw components **/
+
         this._drawGenomes(this.genomes);
-        this.drawLink()
+        //this.drawLink()
     },
     drawLink: function () {
 
@@ -232,6 +233,7 @@ CircularGenomeViewer.prototype = {
         this.genomes.sort(this._sortFunction);
 
         var separationPixels = 4;
+        console.log(this.genomes);
         var separation = (separationPixels * 360) / (2 * Math.PI * this.radius);
 
         var totalSize = this._calculateTotalSize(this.genomes);
@@ -301,6 +303,7 @@ CircularGenomeViewer.prototype = {
                     _this._draw();
                 },
                 'chromosome-buttons:click': function (event) {
+
                     var chromosomes = this.genomesChromosomes['hsapiens'];
                     for (var i = 0; i < chromosomes.length; i++) {
                         var chr = chromosomes[i];

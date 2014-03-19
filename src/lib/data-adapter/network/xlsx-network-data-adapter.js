@@ -18,32 +18,45 @@
  * You should have received a copy of the GNU General Public License
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
-
-function GraphDataAdapter(args) {
+function XLSXNetworkDataAdapter(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
 
     this.dataSource;
     this.async = true;
+
     this.graph = new Graph();
+    this.xlsx;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
     this.on(this.handlers);
 
+
     if (this.async) {
         this.dataSource.on('success', function (data) {
             _this.parse(data);
-            _this.trigger('data:load', {graph:_this.graph});
         });
         this.dataSource.fetch(this.async);
     } else {
         var data = this.dataSource.fetch(this.async);
         this.parse(data);
     }
+
+
 };
 
-GraphDataAdapter.prototype.getGraph = function () {
-    return this.graph;
+XLSXNetworkDataAdapter.prototype.parse = function (data) {
+    try {
+        this.xlsx = XLSX.read(data, {type: 'binary'});
+        this.trigger('data:load', {workbook: this.xlsx, sender: this});
+    } catch (e) {
+        console.log(e);
+        this.trigger('error:parse', {errorMsg: 'Parse error', sender: this});
+    }
+};
+XLSXNetworkDataAdapter.prototype.parseSheet = function (sheetName) {
+    var csv = XLSX.utils.sheet_to_csv(this.xlsx.Sheets[sheetName]);
+    return csv;
 };

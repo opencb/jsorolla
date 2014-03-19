@@ -291,18 +291,19 @@ NavigationBar.prototype = {
         var lastQuery = '';
         $(this.searchField).bind("keyup", function (event) {
             var query = $(this).val();
-            if (query.length > 3 && lastQuery !== query && event.which !== 13) {
+            if (query.length > 2 && lastQuery !== query && event.which !== 13) {
                 _this._setQuickSearchMenu(query);
                 lastQuery = query;
             }
             if (event.which === 13) {
+                debugger
                 var item = _this.quickSearchDataset[query];
                 _this.trigger('quickSearch:select', {item: item, sender: _this});
             }
         });
 
         $(this.quickSearchButton).click(function () {
-            var query = $(this.searchField).val();
+            var query = $(_this.searchField).val();
             var item = _this.quickSearchDataset[query];
             _this.trigger('quickSearch:go', {item: item, sender: _this});
         });

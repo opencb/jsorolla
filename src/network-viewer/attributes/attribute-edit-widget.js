@@ -23,7 +23,6 @@ function AttributeEditWidget(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('AttributeEditWidget');
-    console.log(this.id)
 
     this.window;
     this.grid;
@@ -119,7 +118,8 @@ AttributeEditWidget.prototype = {
                 },
                 {
                     xtype: 'combo',
-                    store: ['string'],
+                    hidden:true,
+                    store: ['string','int','float'],
                     value: 'string',
                     width: 170,
                     fieldLabel: 'Type',
@@ -230,6 +230,19 @@ AttributeEditWidget.prototype = {
                 {
                     xtype: 'tbtext',
                     text: '<span style="color:gray">Use double-click to edit</span>'
+                },
+                {
+                    xtype: 'button',
+                    text: 'Download as file',
+                    href: 'none',
+                    handler: function (bt, e) {
+                        var a = bt.getEl();
+                        var string = _this.attrMan.getAsFile();
+                        a.set({
+                            href: 'data:text/tsv,' + encodeURIComponent(string),
+                            download: _this.type+".attr"
+                        });
+                    }
                 }
             ]
         });
@@ -305,14 +318,20 @@ AttributeEditWidget.prototype = {
         this.window.show();
         this.checkSelectedFilter();
     },
-    setAttributeManager: function (attrMan) {
-        var _this = this;
-        this.attrMan = attrMan;
-        this.attrMan.on('change:attributes', function () {
-            _this.reconfigureComponents();
-        });
-        this.reconfigureComponents();
+    show: function () {
+        this.window.show();
     },
+    hide: function () {
+        this.window.hide();
+    },
+//    setAttributeManager: function (attrMan) {
+//        var _this = this;
+//        this.attrMan = attrMan;
+//        this.attrMan.on('change:attributes', function () {
+//            _this.reconfigureComponents();
+//        });
+//        this.reconfigureComponents();
+//    },
     reconfigureComponents: function () {
         console.log('refresh ' + this.id);
         this.grid.reconfigure(this.attrMan.store, this.attrMan.columnsGrid);

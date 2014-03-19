@@ -57,12 +57,12 @@ Genome.prototype = {
         /** Navigation Bar **/
         this.karyotype = this._createKaryotype(args);
 
-        for (var i = 0; i < this.chromosomes.length; i++) {
-            var chr = this.chromosomes[i];
-            if (chr.visible != false) {
-                this._getChromosomeGenes(chr);
-            }
-        }
+//        for (var i = 0; i < this.chromosomes.length; i++) {
+//            var chr = this.chromosomes[i];
+//            if (chr.visible != false) {
+//                this._getChromosomeGenes(chr);
+//            }
+//        }
     },
     _createKaryotype: function (args) {
         var _this = this;
@@ -140,7 +140,7 @@ Genome.prototype = {
         var d = '';
         var lastRadius = this.radius + offset;
 
-//        console.log(chromosome.size)
+
         for (var i = 0; i < features.length; i++) {
             var feature = features[i];
             var coeff = chromosome.angleSize / chromosome.size;
@@ -164,10 +164,46 @@ Genome.prototype = {
             "d": d,
             "stroke": 'lightgray',
             "stroke-width": 2,
-            "fill": color
+            "fill": color,
+            "height":10
         });
 
     },
+    drawSampleTrack: function (features, offset, region, color) {
+        var chromosome = this._getChromosome(region.chromosome);
+//        var d = SVG.describeArc(this.x, this.y, this.radius+offset, chromosome.angleStart, chromosome.angleEnd)+' ';
+        var d = '';
+        var lastRadius = this.radius + offset;
+
+
+        for (var i = 0; i < features.length; i++) {
+            var feature = features[i];
+            var coeff = chromosome.angleSize / chromosome.size;
+            feature.angleStart = (feature.start * coeff) + chromosome.angleStart;
+            feature.angleEnd = (feature.end * coeff) + chromosome.angleStart;
+
+//            centerX, centerY, radius, angleInDegrees
+            var count = (feature.features_count * 10);
+            var coords1 = SVG._polarToCartesian(this.x, this.y, this.radius + offset, feature.angleStart);
+            var coords2 = SVG._polarToCartesian(this.x, this.y, this.radius + offset + count, feature.angleStart);
+            var coords3 = SVG._polarToCartesian(this.x, this.y, this.radius + offset + count, feature.angleEnd);
+            var coords4 = SVG._polarToCartesian(this.x, this.y, this.radius + offset, feature.angleEnd);
+            d += 'M' + coords1.x + ',' + coords1.y + ' ';
+            d += 'L' + coords2.x + ',' + coords2.y + ' ';
+            d += 'L' + coords3.x + ',' + coords3.y + ' ';
+            d += 'L' + coords4.x + ',' + coords4.y + ' Z';
+
+        }
+
+        var curve = SVG.addChild(this.targetId, "path", {
+            "d": d,
+            "stroke": 'red',
+            "stroke-width": 2,
+            "fill": color,
+        });
+
+    },
+
     _getChromosome: function (name) {
         for (var i = 0; i < this.chromosomes.length; i++) {
             if (this.chromosomes[i].name === name) {
@@ -207,11 +243,13 @@ Genome.prototype = {
                 success: function (data) {
                     var features = data.response[0].result;
                     _this.chromosomeGenes[chromosome.name] = features;
-                    _this.drawHistogramTrack(features, 30, region, '#9493b1');
+                   // _this.drawHistogramTrack(features, 30, region, '#9493b1');
+                    _this.drawSampleTrack(features, -60, region, '#9493b1');
+
                 }
             });
         } else {
-            _this.drawHistogramTrack(this.chromosomeGenes[chromosome.name], 30, region, '#9493b1');
+            _this.drawSampleTrack(this.chromosomeGenes[chromosome.name], 30, region, '#9493b1');
         }
 
 //        var features = [];

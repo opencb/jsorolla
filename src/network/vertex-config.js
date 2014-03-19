@@ -22,19 +22,21 @@
 function VertexConfig(args) {
 
 
-    var x = Math.floor((Math.random() * 1000) + 1);
-    var y = Math.floor((Math.random() * 1000) + 1);
-    var z = Math.floor((Math.random() * 1000) + 1);
+    var x = Math.floor((Math.random() * 500) + 30);
+    var y = Math.floor((Math.random() * 500) + 30);
+    var z = Math.floor((Math.random() * 500) + 30);
 
     this.id;
     this.coords = {x: x, y: y, z: z};
-    this.renderer;
+    this.rendererConfig = {};
+    this.renderer = new CircosVertexRenderer(this.rendererConfig);
     this.type;
     this.visible;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.renderer.setConfig(this.rendererConfig);
 }
 
 VertexConfig.prototype = {

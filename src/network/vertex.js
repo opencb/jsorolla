@@ -23,6 +23,7 @@ function Vertex(args) {
     this.id = 'v' + Utils.genId();
 
     this.edges = [];
+    this.edgesIndex = {};
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -33,15 +34,27 @@ Vertex.prototype = {
         for (var i = 0; i < this.edges.length; i++) {
             if (this.edges[i].id === edge.id) {
                 this.edges.splice(i, 1);
+                delete this.edgesIndex[edge.id];
                 break;
             }
         }
     },
     removeEdges: function () {
         this.edges = [];
+        this.edgesIndex = {};
     },
     addEdge: function (edge) {
-        this.edges.push(edge);
+        if(this.containsEdge(edge) === false){
+            this.edges.push(edge);
+            this.edgesIndex[edge.id] = edge;
+        }
+    },
+    containsEdge: function (edge) {
+        if (typeof this.edgesIndex[edge.id] !== 'undefined') {
+            return true;
+        } else {
+            return false;
+        }
     },
     toJSON: function () {
         return {

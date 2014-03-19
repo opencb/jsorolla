@@ -2,27 +2,62 @@
  * Created by imedina on 17/02/14.
  */
 
-jsorollaNgLib.directive('opencbGenomeViewer', function () {
+//'use strict';
+//angular.module('jsorolla.directives', ['jsorolla.services']);
+
+angular.module('jsorolla.directives').controller('jsorollaGenomeViewerController', ['$scope', '$rootScope', function ($scope, $rootScope) {
+    $scope.$on('test2', function(event, region) {
+        console.log("Parent - on");
+        $scope.$apply(function(){
+            $scope.region = region;
+        });
+    });
+
+    $scope.setRegion = function () {
+        console.log("Button pressed");
+        var reg = {
+            chromosome: "1",
+            start: 3288911,
+            end: 3288961
+        };
+        $rootScope.$broadcast('test3', reg);
+    };
+
+}]);
+
+angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function () {
     return {
-        restrict: 'A',
-        replace: true,
+        restrict: 'E',
+//        template: '<div id={{targetId}}></div>',
+        replace: false,
         transclude: true,
 //        templateUrl: './views/genes-gv.html',
-//        scope: {
-//            targetId: '=targetId',
-//            species: '=species',
-//            region: '=region'
-//
-//        },
-        controller: function($scope, CellBaseService) {
+        scope: {
+            targetId: '@id',
+            species: '=species',
+            r: '=region'
+
+        },
+
+        link: function(scope, el, attr) {
+            console.log(scope)
+            scope.genomeViewer.render();
+            scope.genomeViewer.draw();
+            scope.genomeViewer.addOverviewTrack(scope.gene);
+            scope.genomeViewer.addTrack(scope.tracks);
+
+        },
+
+        controller: function($scope, $rootScope, CellBaseService) {
             console.log('aaaa')
             CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
             CELLBASE_VERSION = "v3";
 
+
             $scope.broadcastRegion = true;
 
             $scope.$on('genesRegionToGV', function () {
-                $scope.genomeViewer.setRegion(new Region(mySharedService.genesRegionToGV));
+//                $scope.genomeViewer.setRegion(new Region(mySharedService.genesRegionToGV));
 
 //                if(mySharedService.genesSpecie.shortName == "hsapiens" || mySharedService.genesSpecie.shortName == "mmusculus"){
 //
@@ -33,6 +68,9 @@ jsorollaNgLib.directive('opencbGenomeViewer', function () {
 
             });
 
+            $scope.$on('test3', function(reg, mesg) {
+                $scope.genomeViewer.setRegion(mesg);
+            });
 
             /* region and species configuration */
             var region = new Region({
@@ -73,13 +111,12 @@ jsorollaNgLib.directive('opencbGenomeViewer', function () {
             var species = availableSpecies.items[0].items[0];
 
             $scope.genomeViewer = new GenomeViewer({
-//                targetId: 'genome-viewer-div',
-                targetId: 'gv',
+                targetId: $scope.targetId,
                 region: region,
                 availableSpecies: availableSpecies,
                 species: species,
                 sidePanel: false,
-                autoRender: true,
+                autoRender: false,
                 border: true,
                 resizable: true,
                 //        quickSearchResultFn:quickSearchResultFn,
@@ -94,24 +131,30 @@ jsorollaNgLib.directive('opencbGenomeViewer', function () {
                 },
                 handlers:{
                     'region:change':function(event){
-
-                        if(mySharedService.genesSpecie.shortName == "hsapiens" || mySharedService.genesSpecie.shortName == "mmusculus"){
-
-                            if($scope.broadcastRegion){
-                                mySharedService.broadcastGenesRegionGV(event.region.chromosome + ":" + event.region.start + "-" + event.region.end);
-                            }
-                            $scope.broadcastRegion = true;
+//                        if(event.region.chromosome != region.chromosome && event.region.start != region.start && event.region.end != region.end) {
+                        if(!(event.sender instanceof GenomeViewer)) {
+                            $rootScope.$broadcast('test2', event.region);
                         }
+//                        $scope.$emit('test', region);
+                        console.log("aaaaaaaaaaaaa")
+//                        if(mySharedService.genesSpecie.shortName == "hsapiens" || mySharedService.genesSpecie.shortName == "mmusculus"){
+//
+//                            if($scope.broadcastRegion){
+//                                mySharedService.broadcastGenesRegionGV(event.region.chromosome + ":" + event.region.start + "-" + event.region.end);
+//                            }
+//                            $scope.broadcastRegion = true;
+//                        }
                     },
                     'region:move':function(event){
-                        if(mySharedService.genesSpecie.shortName == "hsapiens" || mySharedService.genesSpecie.shortName == "mmusculus"){
-                            mySharedService.broadcastGenesRegionGV(event.region.chromosome + ":" + event.region.start + "-" + event.region.end);
-                        }
+
+//                        if(mySharedService.genesSpecie.shortName == "hsapiens" || mySharedService.genesSpecie.shortName == "mmusculus"){
+//                            mySharedService.broadcastGenesRegionGV(event.region.chromosome + ":" + event.region.start + "-" + event.region.end);
+//                        }
                     },
 //                    'chromosome-button:change':function(event){
 //                    },
                     'species:change':function(event){
-                        mySharedService.broadcastGenesSpecieGV(event.species.text);
+//                        mySharedService.broadcastGenesSpecieGV(event.species.text);
                     }
                 }
                 //        chromosomeList:[]
@@ -124,7 +167,7 @@ jsorollaNgLib.directive('opencbGenomeViewer', function () {
 
             $scope.genomeViewer.draw();
 
-            tracks = [];
+            $scope.tracks = [];
             $scope.sequence = new SequenceTrack({
                 targetId: null,
                 id: 1,
@@ -142,7 +185,7 @@ jsorollaNgLib.directive('opencbGenomeViewer', function () {
                 })
             });
 
-            tracks.push($scope.sequence);
+            $scope.tracks.push($scope.sequence);
 
             $scope.gene = new GeneTrack({
                 targetId: null,
@@ -169,7 +212,7 @@ jsorollaNgLib.directive('opencbGenomeViewer', function () {
                 })
             });
 
-            tracks.push($scope.gene);
+            $scope.tracks.push($scope.gene);
 
             var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
             renderer.on({
@@ -179,7 +222,7 @@ jsorollaNgLib.directive('opencbGenomeViewer', function () {
 
                 }
             });
-            var gene = new FeatureTrack({
+            $scope.gene = new FeatureTrack({
                 targetId: null,
                 id: 2,
                 //        title: 'Gene',
@@ -202,7 +245,7 @@ jsorollaNgLib.directive('opencbGenomeViewer', function () {
                     }
                 })
             });
-            $scope.genomeViewer.addOverviewTrack(gene);
+//            $scope.genomeViewer.addOverviewTrack(gene);
 
             $scope.snp = new FeatureTrack({
                 targetId: null,
@@ -228,36 +271,15 @@ jsorollaNgLib.directive('opencbGenomeViewer', function () {
                     }
                 })
             });
-            tracks.push($scope.snp);
+            $scope.tracks.push($scope.snp);
 
-            //    /***************************************/
-            //    var geneEnsembl = new FeatureTrack({
-            //        targetId: null,
-            //        id: 5,
-            //        title: 'Gene Ensembl',
-            //        minHistogramRegionSize: 20000000,
-            //        maxLabelRegionSize: 10000000,
-            //        height: 100,
-            //        titleVisibility: 'hidden',
-            //        featureTypes: FEATURE_TYPES,
-            //
-            //        renderer: new FeatureRenderer('gene'),
-            //
-            //        dataAdapter: new EnsemblAdapter({
-            //            category: "feature",
-            //            subCategory: "region",
-            //            params: {
-            //                feature: 'gene'
-            //            },
-            //            species: 'human',
-            //            cacheConfig: {
-            //                chunkSize: 50000
-            //            }
-            //        })
-            //    });
-            //    tracks.push(geneEnsembl);
-            //    /***************************************/
-            $scope.genomeViewer.addTrack(tracks);
+
+//            $scope.genomeViewer.addTrack(tracks);
         }
+
+
+
+
+
     }
 });

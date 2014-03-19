@@ -49,103 +49,139 @@ EditionBar.prototype = {
         }
 
         var navgationHtml = '' +
-            '<div class="btn-toolbar" role="toolbar" style="display:inline-block">' +
-            '   <div class="btn-group btn-group-xs" data-toggle="buttons">' +
-            '       <label class="btn btn-default"><input type="radio" name="selectionelement" id="nodeEditButton" title="Node edit mode">Nodes</label>' +
-            '       <label class="btn btn-default"><input type="radio" name="selectionelement" id="edgeEditButton" title="Edge edit mode">Edges</label>' +
-            '   </div>' +
-            '</div>' +
-            '<div id="nodeToolbar" class="btn-toolbar" role="toolbar" style="display:inline-block">' +
-            '   <div class="btn-group" style="width:100px;margin-left: 10px;" title="Node name">' +
-//            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Node:&nbsp;</span>' +
-            '       <input id="nodeNameField" type="text" class="form-control" placeholder="name" style="padding:0px 4px;height:23px;width:100px">' +
-            '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Node shape">' +
-            '       <button id="nodeShapeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-shape"></span><span class="caret"></button>' +
-            '        <ul id="nodeShapeMenu" class="dropdown-menu" role="menu"></ul>' +
-            '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Node size">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:3px;"><span class="ocb-icon icon-node-size"></span></span>' +
-            '       <input id="nodeSizeField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:35px;display:inline-block;">' +
-            '       <div class="input-group-btn" style="display:inline-block;">' +
-            '           <button id="nodeSizeButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" type="button" style="height:23px;"><span class="caret"></button>' +
-            '           <ul id="nodeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
-            '       </div>' +
-            '   </div>' +
-            '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Node stroke size">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:3px;"><span class="ocb-icon icon-stroke-size"></span></span>' +
-            '       <input id="nodeStrokeSizeField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:35px;display:inline-block;">' +
-            '       <div class="input-group-btn" style="display:inline-block;">' +
-            '           <button id="nodeStrokeSizeButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" type="button" style="height:23px;"><span class="caret"></button>' +
-            '           <ul id="nodeStrokeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
-            '       </div>' +
-            '   </div>' +
-            '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Node color">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-fill-color"></span>&nbsp;&nbsp;#</span>' +
-            '       <input id="nodeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
-            '           <select id="nodeColorSelect"></select>' +
-            '       </span>' +
-            '   </div>' +
-            '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Node stroke color">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-stroke-color"></span>&nbsp;&nbsp;#</span>' +
-            '       <input id="nodeStrokeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
-            '           <select id="nodeStrokeColorSelect"></select>' +
-            '       </span>' +
-            '   </div>' +
-            '   </div>' +
-            '   <div class="btn-group btn-group-xs"  title="Node opacity">' +
-            '       <button id="nodeOpacityButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-opacity"></span><span class="caret"></button>' +
-            '       <ul id="nodeOpacityMenu" class="dropdown-menu" role="menu"></ul>' +
-            '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Node label size">' +
-            '       <button id="nodeLabelSizeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
-            '       <ul id="nodeLabelSizeMenu" class="dropdown-menu" role="menu">' +
-            '       </ul>' +
+            '<div class="btn-toolbar" role="toolbar">' +
+            '   <div class="btn-group" data-toggle="buttons">' +
+            '       <label class="btn btn-default btn-sm"><input type="radio" name="selectionelement" id="vertexEditButton" title="Node edit mode">Nodes</label>' +
+            '       <label class="btn btn-default btn-sm"><input type="radio" name="selectionelement" id="edgeEditButton" title="Edge edit mode">Edges</label>' +
             '   </div>' +
             '</div>' +
 
-            '<div id="edgeToolbar" class="btn-toolbar hidden" style="display:inline-block">' +
-            '   <div class="btn-group" style="width:100px;margin-left: 10px"  title="Edge name">' +
-//            '       <span class="pull-left" style="height:22px;line-height: 22px;font-size:14px;"></span>' +
-            '       <input id="edgeLabelField" type="text" class="form-control" placeholder="label" style="padding:0px 4px;height:23px;width:100px">' +
+
+            '<div id="vertexToolbar" class="btn-toolbar" role="toolbar">' +
+
+            '   <div class="btn-group input-group-sm" title="Node name" style="margin-left: 10px;width:80px;">' +
+            '       <input id="vertexNameField" type="text" class="form-control" placeholder="name">' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs"  title="Edge shape">' +
-            '       <button id="edgeShapeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-edge-type"></span><span class="caret"></button>' +
-            '       <ul id="edgeShapeMenu" class="dropdown-menu" role="menu"></ul>' +
+
+            '   <div class="btn-group" title="Node shape">' +
+            '       <button id="vertexShapeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-shape"></span><span class="caret"></button>' +
+            '        <ul id="vertexShapeMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group" title="Edge size">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:3px;"><span class="ocb-icon icon-node-size"></span></span>' +
-            '       <input id="edgeSizeField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:35px;display:inline-block;">' +
-            '       <div class="input-group-btn" style="display:inline-block;">' +
-            '           <button id="edgeSizeButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" type="button" style="height:23px;"><span class="caret"></button>' +
+
+            '   <div class="btn-group" title="Node size" style="width:110px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-node-size"></span></span>' +
+            '       <input id="vertexSizeField" type="text" class="form-control">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="vertexSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></button>' +
+            '           <ul id="vertexSizeMenu" class="dropdown-menu" role="menu"></ul>' +
+            '       </div>' +
+            '   </div>' +
+            '   </div>' +
+
+            '   <div class="btn-group" title="Node stroke size" style="width:110px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-stroke-size"></span></span>' +
+            '       <input id="vertexStrokeSizeField" type="text" class="form-control">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="vertexStrokeSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></button>' +
+            '           <ul id="vertexStrokeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
+            '       </div>' +
+            '   </div>' +
+            '   </div>' +
+
+            '   <div class="btn-group" title="Node color" style="width:140px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-fill-color"></span></span>' +
+            '       <input id="vertexColorField" type="text" class="form-control">' +
+            '       <span class="input-group-addon">' +
+            '           <select id="vertexColorSelect"></select>' +
+            '      </span>' +
+            '   </div>' +
+            '   </div>' +
+
+            '   <div class="btn-group" title="Node color" style="width:140px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-stroke-color"></span></span>' +
+            '       <input id="vertexStrokeColorField" type="text" class="form-control">' +
+            '       <span class="input-group-addon">' +
+            '           <select id="vertexStrokeColorSelect"></select>' +
+            '      </span>' +
+            '   </div>' +
+            '   </div>' +
+
+            '   <div class="btn-group" title="Node opacity">' +
+            '       <button id="vertexOpacityButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-opacity"></span><span class="caret"></button>' +
+            '       <ul id="vertexOpacityMenu" class="dropdown-menu" role="menu"></ul>' +
+            '   </div>' +
+            '   <div class="btn-group" title="Node label size">' +
+            '       <button id="vertexLabelSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
+            '       <ul id="vertexLabelSizeMenu" class="dropdown-menu" role="menu">' +
+            '       </ul>' +
+            '   </div>' +
+
+
+            '   <div class="btn-group" title="Node search" style="width:120px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <input id="vertexSearchField" type="text" class="form-control" placeholder="Search by...">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="vertexSearchButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></span></button>' +
+            '           <ul id="vertexSearchMenu" class="dropdown-menu" role="menu"></ul>' +
+            '       </div>' +
+            '   </div>' +
+            '   </div>' +
+            '</div>' +
+
+
+            /* Edges */
+            '<div id="edgeToolbar" class="btn-toolbar hidden">' +
+
+            '   <div class="btn-group input-group-sm" title="Edge name" style="margin-left: 10px;width:80px;">' +
+            '       <input id="edgeNameField" type="text" class="form-control" placeholder="name">' +
+            '   </div>' +
+
+            '   <div class="btn-group" title="Edge shape">' +
+            '       <button id="edgeShapeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-edge-type"></span><span class="caret"></button>' +
+            '        <ul id="edgeShapeMenu" class="dropdown-menu" role="menu"></ul>' +
+            '   </div>' +
+
+            '   <div class="btn-group" title="Edge size" style="width:110px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-node-size"></span></span>' +
+            '       <input id="edgeSizeField" type="text" class="form-control">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="edgeSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></button>' +
             '           <ul id="edgeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <div class="input-group"  title="Edge color">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:40px;height:23px;padding:3px;"><span class="ocb-icon icon-fill-color"></span>&nbsp;&nbsp;#</span>' +
-            '       <input id="edgeColorField" class="form-control" type="text" style="padding:0px 4px;height:23px;width:60px;display:inline-block;">' +
-            '       <span class="input-group-addon" style="display:inline-block;width:25px;height:23px;padding:2px;">' +
+
+            '   <div class="btn-group" title="Edge color" style="width:140px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon"><span class="ocb-icon icon-fill-color"></span></span>' +
+            '       <input id="edgeColorField" type="text" class="form-control">' +
+            '       <span class="input-group-addon">' +
             '           <select id="edgeColorSelect"></select>' +
-            '       </span>' +
+            '      </span>' +
             '   </div>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" title="Edge label size">' +
-            '       <button id="edgeLabelSizeButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
+
+            '   <div class="btn-group" title="Edge label size">' +
+            '       <button id="edgeLabelSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
             '       <ul id="edgeLabelSizeMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
+
+            '   <div class="btn-group" title="Edge search" style="width:120px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <input id="edgeSearchField" type="text" class="form-control" placeholder="Search by...">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="edgeSearchButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></span></button>' +
+            '           <ul id="edgeSearchMenu" class="dropdown-menu" role="menu"></ul>' +
+            '       </div>' +
+            '   </div>' +
+            '   </div>' +
+
             '</div>' +
             '';
 
@@ -154,39 +190,41 @@ EditionBar.prototype = {
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="edition-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
-            height: '32px'
+            height: '40px'
         });
         $(this.targetDiv).append(this.div);
         /**************/
 
 
-        this.nodeEditButton = $(this.div).find('#nodeEditButton');
+        this.vertexEditButton = $(this.div).find('#vertexEditButton');
         this.edgeEditButton = $(this.div).find('#edgeEditButton');
 
 
-        /* node */
-        this.nodeShapeButton = $(this.div).find('#nodeShapeButton');
-        this.nodeSizeButton = $(this.div).find('#nodeSizeButton');
-        this.nodeStrokeSizeButton = $(this.div).find('#nodeStrokeSizeButton');
-        this.nodeOpacityButton = $(this.div).find('#nodeOpacityButton');
-        this.nodeLabelSizeButton = $(this.div).find('#nodeLabelSizeButton');
+        /* vertex */
+        this.vertexShapeButton = $(this.div).find('#vertexShapeButton');
+        this.vertexSizeButton = $(this.div).find('#vertexSizeButton');
+        this.vertexStrokeSizeButton = $(this.div).find('#vertexStrokeSizeButton');
+        this.vertexOpacityButton = $(this.div).find('#vertexOpacityButton');
+        this.vertexLabelSizeButton = $(this.div).find('#vertexLabelSizeButton');
 
-        this.nodeShapeMenu = $(this.div).find('#nodeShapeMenu');
-        this.nodeSizeMenu = $(this.div).find('#nodeSizeMenu');
-        this.nodeSizeField = $(this.div).find('#nodeSizeField');
-        this.nodeStrokeSizeMenu = $(this.div).find('#nodeStrokeSizeMenu');
-        this.nodeStrokeSizeField = $(this.div).find('#nodeStrokeSizeField');
-        this.nodeOpacityMenu = $(this.div).find('#nodeOpacityMenu');
+        this.vertexShapeMenu = $(this.div).find('#vertexShapeMenu');
+        this.vertexSizeMenu = $(this.div).find('#vertexSizeMenu');
+        this.vertexSizeField = $(this.div).find('#vertexSizeField');
+        this.vertexStrokeSizeMenu = $(this.div).find('#vertexStrokeSizeMenu');
+        this.vertexStrokeSizeField = $(this.div).find('#vertexStrokeSizeField');
+        this.vertexOpacityMenu = $(this.div).find('#vertexOpacityMenu');
 
-        this.nodeColorField = $(this.div).find('#nodeColorField');
-        this.nodeColorSelect = $(this.div).find('#nodeColorSelect');
-        this.nodeStrokeColorField = $(this.div).find('#nodeStrokeColorField');
-        this.nodeStrokeColorSelect = $(this.div).find('#nodeStrokeColorSelect');
+        this.vertexColorField = $(this.div).find('#vertexColorField');
+        this.vertexColorSelect = $(this.div).find('#vertexColorSelect');
+        this.vertexStrokeColorField = $(this.div).find('#vertexStrokeColorField');
+        this.vertexStrokeColorSelect = $(this.div).find('#vertexStrokeColorSelect');
 
-        this.nodeNameField = $(this.div).find('#nodeNameField');
-        this.nodeLabelField = $(this.div).find('#nodeLabelField');
+        this.vertexNameField = $(this.div).find('#vertexNameField');
 
-        this.nodeLabelSizeMenu = $(this.div).find('#nodeLabelSizeMenu');
+        this.vertexLabelSizeMenu = $(this.div).find('#vertexLabelSizeMenu');
+
+        this.vertexSearchField = $(this.div).find('#vertexSearchField');
+        this.vertexSearchMenu = $(this.div).find('#vertexSearchMenu');
 
         /* edge */
         this.edgeShapeButton = $(this.div).find('#edgeShapeButton');
@@ -200,37 +238,43 @@ EditionBar.prototype = {
         this.edgeColorField = $(this.div).find('#edgeColorField');
         this.edgeColorSelect = $(this.div).find('#edgeColorSelect');
 
-        this.edgeLabelField = $(this.div).find('#edgeLabelField');
+        this.edgeNameField = $(this.div).find('#edgeNameField');
 
         this.edgeLabelSizeMenu = $(this.div).find('#edgeLabelSizeMenu');
 
+        this.edgeSearchField = $(this.div).find('#edgeSearchField');
+        this.edgeSearchMenu = $(this.div).find('#edgeSearchMenu');
 
         /*************/
 
-        $(this.nodeEditButton).change(function (e) {
+        $(this.vertexEditButton).change(function (e) {
             _this.hideEdgeToolbar();
-            _this.showNodeToolbar();
+            _this.showVertexToolbar();
         });
         $(this.edgeEditButton).change(function (e) {
             _this.showEdgeToolbar();
-            _this.hideNodeToolbar();
+            _this.hideVertexToolbar();
         });
 
 
-        this._setColorSelect(this.nodeColorSelect);
-        $(this.nodeColorSelect).simplecolorpicker({picker: true}).on('change', function () {
-            $(_this.nodeColorField).val($(_this.nodeColorSelect).val().replace('#', '')).change();
+        this._setColorSelect(this.vertexColorSelect);
+        $(this.vertexColorSelect).simplecolorpicker({picker: true}).on('change', function () {
+            $(_this.vertexColorField).val($(_this.vertexColorSelect).val().replace('#', '')).change();
         });
+        $(this.vertexColorSelect).next('.simplecolorpicker').addClass('ocb-icon');
 
-        this._setColorSelect(this.nodeStrokeColorSelect);
-        $(this.nodeStrokeColorSelect).simplecolorpicker({picker: true}).on('change', function () {
-            $(_this.nodeStrokeColorField).val($(_this.nodeStrokeColorSelect).val().replace('#', '')).change();
+
+        this._setColorSelect(this.vertexStrokeColorSelect);
+        $(this.vertexStrokeColorSelect).simplecolorpicker({picker: true}).on('change', function () {
+            $(_this.vertexStrokeColorField).val($(_this.vertexStrokeColorSelect).val().replace('#', '')).change();
         });
+        $(this.vertexStrokeColorSelect).next('.simplecolorpicker').addClass('ocb-icon');
 
         this._setColorSelect(this.edgeColorSelect);
         $(this.edgeColorSelect).simplecolorpicker({picker: true}).on('change', function () {
             $(_this.edgeColorField).val($(_this.edgeColorSelect).val().replace('#', '')).change();
         });
+        $(this.edgeColorSelect).next('.simplecolorpicker').addClass('ocb-icon');
 //        /* Color picker */
 //        var pickAColorConfig = {
 //            showSpectrum: true,
@@ -244,8 +288,8 @@ EditionBar.prototype = {
 //        }
 //
 //
-//        $(this.nodeColorField).pickAColor(pickAColorConfig);
-//        $(this.nodeStrokeColorField).pickAColor(pickAColorConfig);
+//        $(this.vertexColorField).pickAColor(pickAColorConfig);
+//        $(this.vertexStrokeColorField).pickAColor(pickAColorConfig);
 //        $(this.edgeColorField).pickAColor(pickAColorConfig);
 //
 //        $(this.div).find('.pick-a-color-markup').addClass('pull-left');
@@ -253,28 +297,28 @@ EditionBar.prototype = {
 //            padding: '1px 4px'
 //        });
 
-//        $(this.nodeColorField).next().find('button').prepend('<span class="ocb-icon icon-fill-color"></span>');
-//        $(this.nodeStrokeColorField).next().find('button').prepend('<span class="ocb-icon icon-stroke-color"></span>');
+//        $(this.vertexColorField).next().find('button').prepend('<span class="ocb-icon icon-fill-color"></span>');
+//        $(this.vertexStrokeColorField).next().find('button').prepend('<span class="ocb-icon icon-stroke-color"></span>');
 //        $(this.edgeColorField).next().find('button').prepend('<span class="ocb-icon icon-fill-color"></span>');
 
 //        var colorPattern = /^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
         var colorPattern = /^([A-Fa-f0-9]{6})$/;
         var intPattern = /^\d+$/;
-        $(this.nodeColorField).on("change input", function () {
+        $(this.vertexColorField).on("change input", function () {
             var val = $(this).val();
             if (colorPattern.test(val)) {
                 var color = '#' + $(this).val();
-                _this._checkSelectColor(color, _this.nodeColorSelect);
-                $(_this.nodeColorSelect).simplecolorpicker('selectColor', color);
-                _this.trigger('nodeColorField:change', {value: color, sender: {}})
+                _this._checkSelectColor(color, _this.vertexColorSelect);
+                $(_this.vertexColorSelect).simplecolorpicker('selectColor', color);
+                _this.trigger('vertexColorField:change', {value: color, sender: {}})
             }
         });
-        $(this.nodeStrokeColorField).on("change input", function () {
+        $(this.vertexStrokeColorField).on("change input", function () {
             var val = $(this).val();
             if (colorPattern.test(val)) {
                 var color = '#' + $(this).val();
-                _this._checkSelectColor(color, _this.nodeStrokeColorSelect);
-                _this.trigger('nodeStrokeColorField:change', {value: color, sender: {}})
+                _this._checkSelectColor(color, _this.vertexStrokeColorSelect);
+                _this.trigger('vertexStrokeColorField:change', {value: color, sender: {}})
             }
         });
         $(this.edgeColorField).on("change input", function () {
@@ -285,17 +329,17 @@ EditionBar.prototype = {
                 _this.trigger('edgeColorField:change', {value: color, sender: {}})
             }
         });
-        $(this.nodeSizeField).on("keyup", function () {
+        $(this.vertexSizeField).on("keyup", function () {
             var value = $(this).val();
             if (event.which === 13 && intPattern.test(value)) {
                 console.log(value);
-                _this.trigger('nodeSize:change', {value: value, sender: _this});
+                _this.trigger('vertexSize:change', {value: value, sender: _this});
             }
         });
-        $(this.nodeStrokeSizeField).on("keyup", function () {
+        $(this.vertexStrokeSizeField).on("keyup", function () {
             var value = $(this).val();
             if (event.which === 13 && intPattern.test(value)) {
-                _this.trigger('nodeStrokeSize:change', {value: value, sender: _this});
+                _this.trigger('vertexStrokeSize:change', {value: value, sender: _this});
             }
         });
 
@@ -306,42 +350,63 @@ EditionBar.prototype = {
                 _this.trigger('edgeSize:change', {value: value, sender: _this});
             }
         });
+
+        /* Search */
+        $(this.vertexSearchField).on("keyup", function () {
+            var value = $(this).val();
+            var name = $(_this.vertexSearchMenu).children('.active').text();
+            if (event.which === 13) {
+                console.log(value);
+                console.log(name);
+                _this.trigger('search:vertex', {attributeName: name, attributeValue: value, sender: _this});
+            }
+        });
+        $(this.edgeSearchField).on("keyup", function () {
+            var value = $(this).val();
+            var name = $(_this.edgeSearchMenu).children('.active').text();
+            if (event.which === 13) {
+                console.log(value);
+                console.log(name);
+                _this.trigger('search:edge', {attributeName: name, attributeValue: value, sender: _this});
+            }
+        });
+
         /* */
 
 
         /* menus */
         var opacities = {"none": '1', "low": '0.8', "medium": '0.5', "high": '0.2', "invisible": '0'};
         var strokeSizeOptions = ['1', '2', '3', '4', '5', '6', '7', '8', '10'];
-        var nodeSizeOptions = ['10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '70', '80', '90', '100', '120', '140', '160'];
+        var vertexSizeOptions = ['10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '70', '80', '90', '100', '120', '140', '160'];
         var edgeSizeOptions = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
-        this._setMenu({eventName: 'nodeShape', menu: this.nodeShapeMenu, options: ['circle', 'square', 'ellipse', 'rectangle']});
-        this._setMenu({eventName: 'nodeSize', menu: this.nodeSizeMenu, options: nodeSizeOptions, field: this.nodeSizeField});
-        this._setMenu({eventName: 'nodeStrokeSize', menu: this.nodeStrokeSizeMenu, options: strokeSizeOptions, field: this.nodeStrokeSizeField});
-        this._setMenu({eventName: 'opacity', menu: this.nodeOpacityMenu, options: ["none", "low", "medium", "high", "invisible"], hashTable: opacities});
+        this._setMenu({eventName: 'vertexShape', menu: this.vertexShapeMenu, options: ['circle', 'square', 'ellipse', 'rectangle']});
+        this._setMenu({eventName: 'vertexSize', menu: this.vertexSizeMenu, options: vertexSizeOptions, field: this.vertexSizeField});
+        this._setMenu({eventName: 'vertexStrokeSize', menu: this.vertexStrokeSizeMenu, options: strokeSizeOptions, field: this.vertexStrokeSizeField});
+        this._setMenu({eventName: 'opacity', menu: this.vertexOpacityMenu, options: ["none", "low", "medium", "high", "invisible"], hashTable: opacities});
         this._setMenu({eventName: 'edgeShape', menu: this.edgeShapeMenu, options: ["directed", /*"odirected",*/ "undirected", "inhibited", "dot", "odot"]});
         this._setMenu({eventName: 'edgeSize', menu: this.edgeSizeMenu, options: edgeSizeOptions, field: this.edgeSizeField});
 
 
         /* fields */
-        $(this.nodeNameField).bind("keyup", function (event) {
+        $(this.vertexNameField).bind("keyup", function (event) {
             if (event.which === 13) {
-                _this.trigger('nodeNameField:change', {value: $(this).val(), sender: _this});
+                _this.trigger('vertexNameField:change', {value: $(this).val(), sender: _this});
             }
         });
-        $(this.nodeLabelField).bind("keyup", function (event) {
+        $(this.vertexNameField).bind("keyup", function (event) {
             if (event.which === 13) {
-                _this.trigger('nodeLabelField:change', {value: $(this).val(), sender: _this});
+                _this.trigger('vertexNameField:change', {value: $(this).val(), sender: _this});
             }
         });
-        $(this.edgeLabelField).bind("keyup", function (event) {
+        $(this.edgeNameField).bind("keyup", function (event) {
             if (event.which === 13) {
-                _this.trigger('edgeLabelField:change', {value: $(this).val(), sender: _this});
+                _this.trigger('edgeNameField:change', {value: $(this).val(), sender: _this});
             }
         });
 
 
-        this._setLabelSizeMenu(this.nodeLabelSizeMenu, 'nodeLabelSize');
+        this._setLabelSizeMenu(this.vertexLabelSizeMenu, 'vertexLabelSize');
         this._setLabelSizeMenu(this.edgeLabelSizeMenu, 'edgeLabelSize');
 
         this.rendered = true;
@@ -392,7 +457,7 @@ EditionBar.prototype = {
     },
 
     _setColorSelect: function (select) {
-        var colors = ["cccccc", "888888",
+        var colors = ["cccccc", "888888", 'ffffff',
             "ac725e", "d06b64", "f83a22", "fa573c", "ff7537", "ffad46", "42d692", "16a765", "7bd148", "b3dc6c", "fbe983", "fad165",
             "92e1c0", "9fe1e7", "9fc6e7", "4986e7", "9a9cff", "b99aff", "c2c2c2", "cabdbf", "cca6ac", "f691b2", "cd74e6", "a47ae2",
             "000000"
@@ -408,29 +473,55 @@ EditionBar.prototype = {
         if (!found) {
             var menuEntry = $('<option value="' + color + '">' + color + '</option>')[0];
             $(select).append(menuEntry);
-            $(this.nodeColorSelect).simplecolorpicker('destroy');
-            $(this.nodeColorSelect).simplecolorpicker({picker: true});
+            $(select).simplecolorpicker('destroy');
+            $(select).simplecolorpicker({picker: true});
+            $(select).next('.simplecolorpicker').addClass('ocb-icon');
         }
     },
+    setVertexAttributesMenu: function (attributeManager) {
+        this._setAttributeMenu(this.vertexSearchMenu, this.vertexSearchField, attributeManager);
+    },
+    _setAttributeMenu: function (select, field, attributeManager) {
+        $(select).empty();
+        var attributes = attributeManager.attributes;
+        for (var a in attributes) {
+            var menuEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">' + attributes[a].name + '</a></li>')[0];
+            $(select).append(menuEntry);
 
-    setNodeColor: function (color) {
-        this._checkSelectColor(color, this.nodeColorSelect);
-        $(this.nodeColorSelect).simplecolorpicker('selectColor', color);
-        $(this.nodeColorField).val($(this.nodeColorSelect).val().replace('#', ''));
+            $(menuEntry).click(function () {
+                $(select).children().removeClass('active');
+                $(field).attr('placeholder', $(this).text())
+                $(this).addClass('active');
+            });
+        }
+        $(select).children().first().addClass('active');
     },
-    setNodeStrokeColor: function (color) {
-        this._checkSelectColor(color, this.nodeStrokeColorSelect);
-        $(this.nodeStrokeColorSelect).simplecolorpicker('selectColor', color);
-        $(this.nodeStrokeColorField).val($(this.nodeStrokeColorSelect).val().replace('#', ''));
+    setEdgeAttributesMenu: function (attributeManager) {
+        this._setAttributeMenu(this.edgeSearchMenu, this.edgeSearchField, attributeManager);
     },
-    setNodeNameField: function (name) {
-        $(this.nodeNameField).val(name);
+
+    setVertexColor: function (color) {
+        if (typeof color !== 'undefined') {
+            this._checkSelectColor(color, this.vertexColorSelect);
+            $(this.vertexColorSelect).simplecolorpicker('selectColor', color);
+            $(this.vertexColorField).val($(this.vertexColorSelect).val().replace('#', ''));
+        }
     },
-    setNodeSizeField: function (size) {
-        $(this.nodeSizeField).val(size);
+    setVertexStrokeColor: function (color) {
+        if (typeof color !== 'undefined') {
+            this._checkSelectColor(color, this.vertexStrokeColorSelect);
+            $(this.vertexStrokeColorSelect).simplecolorpicker('selectColor', color);
+            $(this.vertexStrokeColorField).val($(this.vertexStrokeColorSelect).val().replace('#', ''));
+        }
     },
-    setNodeStrokeSizeField: function (size) {
-        $(this.nodeStrokeSizeField).val(size);
+    setVertexNameField: function (name) {
+        $(this.vertexNameField).val(name);
+    },
+    setVertexSizeField: function (size) {
+        $(this.vertexSizeField).val(size);
+    },
+    setVertexStrokeSizeField: function (size) {
+        $(this.vertexStrokeSizeField).val(size);
     },
     setEdgeColor: function (color) {
         this._checkSelectColor(color, this.edgeColorSelect);
@@ -445,16 +536,16 @@ EditionBar.prototype = {
     },
 
     //TODO TEST
-    hideNodeToolbar:function(){
-        $('#nodeToolbar').addClass("hidden");
+    hideVertexToolbar: function () {
+        $('#vertexToolbar').addClass("hidden");
     },
-    hideEdgeToolbar:function(){
+    hideEdgeToolbar: function () {
         $('#edgeToolbar').addClass("hidden");
     },
-    showNodeToolbar:function(){
-        $('#nodeToolbar').removeClass("hidden");
+    showVertexToolbar: function () {
+        $('#vertexToolbar').removeClass("hidden");
     },
-    showEdgeToolbar:function(){
+    showEdgeToolbar: function () {
         $('#edgeToolbar').removeClass("hidden");
     }
 }

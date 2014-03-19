@@ -19,14 +19,13 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function NetworkDataAdapter(args) {
+function JSONNetworkDataAdapter(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
 
     this.dataSource;
     this.async = true;
-
-    this.network = new Network();
+    this.jsonObject;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -36,19 +35,25 @@ function NetworkDataAdapter(args) {
     if (this.async) {
         this.dataSource.on('success', function (data) {
             _this.parse(data);
-            _this.trigger('data:load', {network: _this.network, sender: _this});
         });
         this.dataSource.fetch(this.async);
     } else {
         var data = this.dataSource.fetch(this.async);
-        this.parse(data);
+        this.jsonObject = JSON.parse(data);
     }
 };
 
-NetworkDataAdapter.prototype.getNetwork = function () {
-    return this.network;
+JSONNetworkDataAdapter.prototype.getJSON = function () {
+    return this.jsonObject;
 };
 
-NetworkDataAdapter.prototype.parse = function (data) {
-    /* Must be implemented on child class */
+
+JSONNetworkDataAdapter.prototype.parse = function (data) {
+    try {
+        this.jsonObject = JSON.parse(data);
+        this.trigger('data:load', {jsonObject:this.jsonObject});
+    } catch (e) {
+        console.log(e);
+        this.trigger('error:parse', {errorMsg: 'Parse error', sender: this});
+    }
 };
