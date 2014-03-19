@@ -63,7 +63,7 @@ var OpencgaManager = {
         return OpencgaManager.getHost() + '/account/' + accountId;
     },
     getStorageUrl: function (accountId) {
-        return OpencgaManager.getAccountUrl(accountId) + '/storage';
+   V     return OpencgaManager.getAccountUrl(accountId) + '/storage';
     },
     getAdminProfileUrl: function (accountId) {
         return OpencgaManager.getAccountUrl(accountId) + '/admin/profile';
@@ -752,6 +752,26 @@ var OpencgaManager = {
             'filename': args.filename
         };
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variant_info' + OpencgaManager.getQuery(queryParams);
+
+        function success(data) {
+            console.log(data);
+            args.success(data);
+        }
+
+        function error(data) {
+            if (_.isFunction(args.error)) args.error(data);
+        }
+
+        OpencgaManager.doGet(url, success, error);
+        //	console.log(url);
+    },
+    variantInfoMongo: function (args) {
+//        accountId, sessionId, jobId, filename
+        var queryParams = {
+            'sessionid': args.sessionId
+//            'filename': args.filename
+        };
+        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variantInfoMongo' + OpencgaManager.getQuery(queryParams);
 
         function success(data) {
             console.log(data);
