@@ -63,7 +63,7 @@ var OpencgaManager = {
         return OpencgaManager.getHost() + '/account/' + accountId;
     },
     getStorageUrl: function (accountId) {
-   V     return OpencgaManager.getAccountUrl(accountId) + '/storage';
+        return OpencgaManager.getAccountUrl(accountId) + '/storage';
     },
     getAdminProfileUrl: function (accountId) {
         return OpencgaManager.getAccountUrl(accountId) + '/admin/profile';
