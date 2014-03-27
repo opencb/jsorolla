@@ -122,6 +122,7 @@ NetworkSvgLayout.prototype = {
         });
         this.scaleFrontGroup = SVG.addChild(this.frontSvg, "g", {
             id: 'scaleFrontGroup',
+            'font-family': 'Ubuntu Mono',
             "transform": "scale(" + this.scale + ")"
         });
 

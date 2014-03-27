@@ -32,24 +32,34 @@ function CircosVertexRenderer(args) {
     this.opacity = 0.8;
     this.labelSize = 12;
     this.labelColor = '#111111';
-//    this.labelPositionX = 5;
-//    this.labelPositionY = 45;
+    this.labelPositionX = 0;
+    this.labelPositionY = 0;
     this.labelText = '';
 
+    this.sliceArea = 1;
+
     this.pieSlices = [
-        {radius: this.size, area: 1, color: this.color}
+        {size: this.size, area: this.sliceArea, color: this.color, labelSize: this.labelSize, labelOffset: 0}
     ];
     this.donutSlices = [
-        {radius: this.strokeSize, area: 1, color: this.strokeColor}
+        {size: this.strokeSize, area: this.sliceArea, color: this.strokeColor, labelSize: this.labelSize, labelOffset: 0}
     ];
 
-    this.el;
     this.vertexEl;
     this.targetEl;
     this.selectEl;
     this.groupEl;
     this.vertex;
     this.selected = false;
+
+
+    //draw parameters
+    this.mid;
+    this.figureSize;
+    this.maxPieSize;
+    this.maxDonutSize;
+    this.labelX = 0;
+    this.labelY = 0;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -61,27 +71,61 @@ CircosVertexRenderer.prototype = {
     get: function (attr) {
         return this[attr];
     },
-    set: function (attr, value) {
+    set: function (attr, value, update) {
         this[attr] = value;
-
         switch (attr) {
+            case 'opacity':
+                this.groupEl.setAttribute('opacity', this.opacity);
+                break;
+            case "labelSize":
+            case "labelPositionY":
+            case "labelPositionX":
+                this.labelEl.setAttribute('font-size', this.labelSize);
+                this._updateLabelElPosition();
+                this.labelEl.setAttribute('x', this.labelX);
+                this.labelEl.setAttribute('y', this.labelY);
+                break;
             case 'pieSlices':
             case 'donutSlices':
                 break;
+            case 'size':
+                for (var i = 0; i < this.pieSlices.length; i++) {
+                    this.pieSlices[i].size = this.size;
+                }
+                if (update !== false) {
+                    this.update();
+                }
+                break;
+            case 'color':
+                for (var i = 0; i < this.pieSlices.length; i++) {
+                    this.pieSlices[i].color = this.color;
+                }
+                if (update !== false) {
+                    this.update();
+                }
+                break;
+            case 'strokeSize':
+                for (var i = 0; i < this.donutSlices.length; i++) {
+                    this.donutSlices[i].size = this.strokeSize;
+                }
+                if (update !== false) {
+                    this.update();
+                }
+                break;
+            case 'strokeColor':
+                for (var i = 0; i < this.donutSlices.length; i++) {
+                    this.donutSlices[i].color = this.strokeColor;
+                }
+                if (update !== false) {
+                    this.update();
+                }
+                break;
             default:
-                this.pieSlices = [
-                    {radius: this.size, area: 1, color: this.color}
-                ];
-                this.donutSlices = [
-                    {radius: this.strokeSize, area: 1, color: this.strokeColor}
-                ];
-        }
-        this.update();
-        if (this.selected) {
-            this._drawSelectCircleShape();
+                if (update !== false) {
+                    this.update();
+                }
         }
 
-        console.log('update')
     },
     setConfig: function (args) {
         _.extend(this, args);
@@ -90,14 +134,18 @@ CircosVertexRenderer.prototype = {
         this.targetEl = args.target;
         this.vertex = args.vertex;
         this.coords = args.coords;
+        this.labelText = this.vertex.id;
         this._render();
     },
     remove: function () {
-        $(this.el).remove();
+        $(this.groupEl).remove();
     },
     update: function () {
         this.remove();
         this._render();
+        if (this.selected) {
+            this._drawSelectCircleShape();
+        }
     },
     select: function () {
         if (!this.selected) {
@@ -112,23 +160,15 @@ CircosVertexRenderer.prototype = {
         this.selected = false;
     },
     move: function (dispX, dispY) {
-        var currentX = parseFloat(this.el.getAttribute('x'));
-        var currentY = parseFloat(this.el.getAttribute('y'));
-        this.el.setAttribute('x', currentX + dispX);
-        this.el.setAttribute('y', currentY + dispY);
+        this.groupEl.setAttribute('transform', "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")");
     },
     setLabelContent: function (text) {
-        if (typeof this.labelEl !== 'undefined') {
-            if ($.type(text) === 'string' && text.length > 0) {
-                this.labelText = text;
-                this.labelEl.textContent = text;
-            }
-            this._calculateLabelX();
-        }
+        this.labelText = text;
+        this.update();
     },
     getSize: function () {
-        var o = this._calculateOffset();
-        return o.size;
+        this._updateDrawParameters();
+        return this.figureSize;
     },
     toJSON: function () {
         return {
@@ -140,72 +180,56 @@ CircosVertexRenderer.prototype = {
             opacity: this.opacity,
             labelSize: this.labelSize,
             labelColor: this.labelColor,
+            labelPositionX: this.labelPositionX,
+            labelPositionY: this.labelPositionY,
             labelText: this.labelText,
             pieSlices: this.pieSlices,
+            donutSlices: this.donutSlices,
             donutSlices: this.donutSlices
         };
     },
 
+    /* Private methods */
+    _updateDrawParameters: function () {
+        this.maxPieSize = this._slicesMax(this.pieSlices);
+        this.maxDonutSize = this._slicesMax(this.donutSlices);
+        this.figureSize = (this.maxPieSize + (this.maxDonutSize * 2));
+        this.mid = this.figureSize / 2;
 
-    _calculateOffset: function () {
-        var findMax = function (items) {
-            var max = 0;
-            for (var i = 0; i < items.length; i++) {
-                max = max < items[i].radius ? items[i].radius : max;
-            }
-            return max;
-        }
-
-        var maxPieRadius = findMax(this.pieSlices);
-        var maxDonutRadius = findMax(this.donutSlices);
-
-        var size = maxPieRadius + maxDonutRadius;
-        var size = size + (size * 0.3);
-        var midOffset = size / 2;
-        return {size: size, midOffset: midOffset, maxPieRadius: maxPieRadius, maxDonutRadius: maxDonutRadius};
+        this._updateLabelElPosition();
+    },
+    _updateLabelElPosition: function () {
+        var labelSize = this._textWidthBySize(this.labelText, this.labelSize);
+        this.labelX = this.labelPositionX + this.mid - (labelSize / 2);
+        this.labelY = this.labelPositionY + this.mid + this.labelSize / 3;
+    },
+    _textWidthBySize: function (text, pixelFontSize) {
+        return ((text.length * pixelFontSize / 2) + 0.5) | 0;//round up
     },
 
-    /* Private methods */
     _drawSelectCircleShape: function () {
-        var attr = this._calculateOffset();
-        this.selectEl = SVG.addChild(this.el, "circle", {
-            r: attr.midOffset,
-            cx: attr.midOffset,
-            cy: attr.midOffset,
+        this.selectEl = SVG.addChild(this.groupEl, "circle", {
+            r: this.figureSize / 2 * 1.35,
+            cx: this.mid,
+            cy: this.mid,
             opacity: '0.5',
-            fill: '#777777',
+            fill: '#999999',
             'network-type': 'select-vertex'
         }, 0);
     },
     _removeSelect: function () {
-        $(this.el).find('[network-type="select-vertex"]').remove();
-    },
-    _calculateLabelX: function (o) {
-        if (typeof o === 'undefined') {
-            o = this._calculateOffset();
-        }
-        var x = o.midOffset - (this.labelEl.textContent.length * this.labelSize / 4);
-        x = (x < 0) ? 0 : x;
-
-        var y = o.midOffset + this.labelSize / 3;
-
-        this.labelEl.setAttribute('x', x);
-        this.labelEl.setAttribute('y', y);
+        $(this.groupEl).find('[network-type="select-vertex"]').remove();
     },
     _render: function () {
-        var o = this._calculateOffset();
+        this._updateDrawParameters();
 
-        var vertexSvg = SVG.create("svg", {
+        var groupSvg = SVG.create('g', {
             "id": this.vertex.id,
+            "transform": "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")",
             "cursor": "pointer",
-            x: this.coords.x - o.midOffset,
-            y: this.coords.y - o.midOffset,
+            opacity: this.opacity,
             'network-type': 'vertex-svg'
         });
-        var groupSvg = SVG.addChild(vertexSvg, 'g', {
-            opacity: this.opacity
-        });
-
 
         var totalAreas = this._sumAreas(this.pieSlices);
         var c = 359.999 / totalAreas;
@@ -217,14 +241,57 @@ CircosVertexRenderer.prototype = {
             var angleStart = angleOffset;
             var angleEnd = angleStart + angleSize;
             angleOffset += angleSize;
-            var slice_d = SVG.describeArc(o.midOffset, o.midOffset, slice.radius / 4, angleStart, angleEnd);
+            var slice_d = SVG.describeArc(this.mid, this.mid, slice.size / 2, angleStart, angleEnd);
             var curve = SVG.addChild(groupSvg, "path", {
-                "d": slice_d,
-                "stroke": slice.color,
-                "stroke-width": slice.radius / 2,
-                "fill": "none",
+                "d": slice_d + ['L', this.mid, this.mid].join(' '),
+                "fill": slice.color,
                 'network-type': 'vertex'
             });
+            if (typeof slice.text !== 'undefined') {
+                var angle = angleStart + angleSize / 2;
+                var l1 = SVG._polarToCartesian(this.mid, this.mid, this.maxPieSize / 2 + slice.labelOffset, angle);
+                var l2 = SVG._polarToCartesian(this.mid, this.mid, this.mid + slice.labelSize / 2 + slice.labelOffset, angle);
+                var labelWidth = this._textWidthBySize(slice.text, slice.labelSize);
+                var textX, textY;
+                if (l2.x > l1.x) {
+                    if (l1.y > l2.y) {
+                        //Quadrant I
+                        textX = l2.x;
+                        textY = l2.y;
+                    } else {
+                        //Quadrant IV
+                        textX = l2.x;
+                        textY = l2.y + slice.labelSize * 0.7;
+                    }
+                } else {
+                    if (l1.y > l2.y) {
+                        //Quadrant II
+                        textX = l2.x - labelWidth - 1;
+                        textY = l2.y;
+                    } else {
+                        //Quadrant III
+                        textX = l2.x - labelWidth - 1;
+                        textY = l2.y + slice.labelSize * 0.7;
+                    }
+                }
+                var line = SVG.addChild(groupSvg, "line", {
+                    "x1": l1.x,
+                    "y1": l1.y,
+                    "x2": l2.x,
+                    "y2": l2.y,
+                    'stroke': '#999999',
+                    'stroke-width': '0.7',
+                    'network-type': 'vertex-label'
+                });
+                var label = SVG.addChild(groupSvg, "text", {
+                    "x": textX,
+                    "y": textY,
+                    "font-size": slice.labelSize,
+                    "fill": this.labelColor,
+                    'network-type': 'vertex-label'
+                });
+                label.textContent = slice.text;
+            }
         }
 
         var totalAreas = this._sumAreas(this.donutSlices);
@@ -237,35 +304,72 @@ CircosVertexRenderer.prototype = {
             var angleStart = angleOffset;
             var angleEnd = angleStart + angleSize;
             angleOffset += angleSize;
-            var slice_d = SVG.describeArc(o.midOffset, o.midOffset, (o.maxPieRadius / 2) + (slice.radius / 2) - 0.2, angleStart, angleEnd);
+            var slice_d = SVG.describeArc(this.mid, this.mid, (this.maxPieSize / 2) + (slice.size / 2) - 0.2, angleStart, angleEnd);
             var curve = SVG.addChild(groupSvg, "path", {
                 "d": slice_d,
                 "stroke": slice.color,
-                "stroke-width": slice.radius,
+                "stroke-width": slice.size,
                 "fill": "none",
                 'network-type': 'vertex'
-            });
+            }, 0);
+            if (typeof slice.text !== 'undefined') {
+                var angle = angleStart + angleSize / 2;
+                var l1 = SVG._polarToCartesian(this.mid, this.mid, this.figureSize / 2 + slice.labelOffset, angle);
+                var l2 = SVG._polarToCartesian(this.mid, this.mid, this.mid + slice.labelSize / 2 + slice.labelOffset, angle);
+                var labelWidth = this._textWidthBySize(slice.text, slice.labelSize);
+                var textX, textY;
+                if (l2.x > l1.x) {
+                    if (l1.y > l2.y) {
+                        //Quadrant I
+                        textX = l2.x;
+                        textY = l2.y;
+                    } else {
+                        //Quadrant IV
+                        textX = l2.x;
+                        textY = l2.y + slice.labelSize / 2;
+                    }
+                } else {
+                    if (l1.y > l2.y) {
+                        //Quadrant II
+                        textX = l2.x - labelWidth - 3;
+                        textY = l2.y;
+                    } else {
+                        //Quadrant III
+                        textX = l2.x - labelWidth - 3;
+                        textY = l2.y + slice.labelSize / 2;
+                    }
+                }
+                var line = SVG.addChild(groupSvg, "line", {
+                    "x1": l1.x,
+                    "y1": l1.y,
+                    "x2": l2.x,
+                    "y2": l2.y,
+                    'stroke': '#999999',
+                    'stroke-width': '0.7',
+                    'network-type': 'vertex-label'
+                });
+                var label = SVG.addChild(groupSvg, "text", {
+                    "x": textX,
+                    "y": textY,
+                    "font-size": slice.labelSize,
+                    "fill": this.labelColor,
+                    'network-type': 'vertex-label'
+                });
+                label.textContent = slice.text;
+            }
         }
 
-        /*Label*/
-        this.labelEl = SVG.addChild(vertexSvg, "text", {
-//                "x": 5,
-//                "y": this.labelSize + o.size,
-            "x": o.midOffset,
-            "y": o.midOffset,
+        this.labelEl = SVG.addChild(groupSvg, "text", {
+            "x": this.labelX,
+            "y": this.labelY,
             "font-size": this.labelSize,
             "fill": this.labelColor,
             'network-type': 'vertex-label'
         });
-        var label = this.vertex.id;
-        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
-            label = this.labelText;
-        }
-        this.labelEl.textContent = label;
-        this._calculateLabelX(o);
+        this.labelEl.textContent = this.labelText;
 
-        this.el = vertexSvg;
-        this.targetEl.appendChild(vertexSvg);
+        this.groupEl = groupSvg;
+        this.targetEl.appendChild(groupSvg);
     },
     _sumAreas: function (items) {
         var total = 0;
@@ -274,6 +378,13 @@ CircosVertexRenderer.prototype = {
             total += item.area;
         }
         return total;
+    },
+    _slicesMax: function (items) {
+        var max = 0;
+        for (var i = 0; i < items.length; i++) {
+            max = Math.max(max, items[i].size);
+        }
+        return max;
     },
     /*********/
     /*********/
