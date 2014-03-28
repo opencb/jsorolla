@@ -249,8 +249,8 @@ CircosVertexRenderer.prototype = {
             });
             if (typeof slice.text !== 'undefined') {
                 var angle = angleStart + angleSize / 2;
-                var l1 = SVG._polarToCartesian(this.mid, this.mid, this.maxPieSize / 2 + slice.labelOffset, angle);
-                var l2 = SVG._polarToCartesian(this.mid, this.mid, this.mid + slice.labelSize / 2 + slice.labelOffset, angle);
+                var l1 = SVG._polarToCartesian(this.mid, this.mid, this.maxPieSize / 2, angle);
+                var l2 = SVG._polarToCartesian(this.mid, this.mid, this.mid + slice.labelOffset, angle);
                 var labelWidth = this._textWidthBySize(slice.text, slice.labelSize);
                 var textX, textY;
                 if (l2.x > l1.x) {
@@ -274,15 +274,17 @@ CircosVertexRenderer.prototype = {
                         textY = l2.y + slice.labelSize * 0.7;
                     }
                 }
-                var line = SVG.addChild(groupSvg, "line", {
-                    "x1": l1.x,
-                    "y1": l1.y,
-                    "x2": l2.x,
-                    "y2": l2.y,
-                    'stroke': '#999999',
-                    'stroke-width': '0.7',
-                    'network-type': 'vertex-label'
-                });
+                if (slice.labelOffset >= 0) {
+                    var line = SVG.addChild(groupSvg, "line", {
+                        "x1": l1.x,
+                        "y1": l1.y,
+                        "x2": l2.x,
+                        "y2": l2.y,
+                        'stroke': '#999999',
+                        'stroke-width': '0.7',
+                        'network-type': 'vertex-label'
+                    });
+                }
                 var label = SVG.addChild(groupSvg, "text", {
                     "x": textX,
                     "y": textY,
@@ -315,7 +317,7 @@ CircosVertexRenderer.prototype = {
             if (typeof slice.text !== 'undefined') {
                 var angle = angleStart + angleSize / 2;
                 var l1 = SVG._polarToCartesian(this.mid, this.mid, this.figureSize / 2 + slice.labelOffset, angle);
-                var l2 = SVG._polarToCartesian(this.mid, this.mid, this.mid + slice.labelSize / 2 + slice.labelOffset, angle);
+                var l2 = SVG._polarToCartesian(this.mid, this.mid, this.mid + slice.labelOffset, angle);
                 var labelWidth = this._textWidthBySize(slice.text, slice.labelSize);
                 var textX, textY;
                 if (l2.x > l1.x) {
@@ -339,15 +341,17 @@ CircosVertexRenderer.prototype = {
                         textY = l2.y + slice.labelSize / 2;
                     }
                 }
-                var line = SVG.addChild(groupSvg, "line", {
-                    "x1": l1.x,
-                    "y1": l1.y,
-                    "x2": l2.x,
-                    "y2": l2.y,
-                    'stroke': '#999999',
-                    'stroke-width': '0.7',
-                    'network-type': 'vertex-label'
-                });
+                if (slice.labelOffset >= 0) {
+                    var line = SVG.addChild(groupSvg, "line", {
+                        "x1": l1.x,
+                        "y1": l1.y,
+                        "x2": l2.x,
+                        "y2": l2.y,
+                        'stroke': '#999999',
+                        'stroke-width': '0.7',
+                        'network-type': 'vertex-label'
+                    });
+                }
                 var label = SVG.addChild(groupSvg, "text", {
                     "x": textX,
                     "y": textY,
