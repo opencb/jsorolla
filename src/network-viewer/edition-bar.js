@@ -501,14 +501,18 @@ EditionBar.prototype = {
     },
 
     setVertexColor: function (color) {
-        this._checkSelectColor(color, this.vertexColorSelect);
-        $(this.vertexColorSelect).simplecolorpicker('selectColor', color);
-        $(this.vertexColorField).val($(this.vertexColorSelect).val().replace('#', ''));
+        if (typeof color !== 'undefined') {
+            this._checkSelectColor(color, this.vertexColorSelect);
+            $(this.vertexColorSelect).simplecolorpicker('selectColor', color);
+            $(this.vertexColorField).val($(this.vertexColorSelect).val().replace('#', ''));
+        }
     },
     setVertexStrokeColor: function (color) {
-        this._checkSelectColor(color, this.vertexStrokeColorSelect);
-        $(this.vertexStrokeColorSelect).simplecolorpicker('selectColor', color);
-        $(this.vertexStrokeColorField).val($(this.vertexStrokeColorSelect).val().replace('#', ''));
+        if (typeof color !== 'undefined') {
+            this._checkSelectColor(color, this.vertexStrokeColorSelect);
+            $(this.vertexStrokeColorSelect).simplecolorpicker('selectColor', color);
+            $(this.vertexStrokeColorField).val($(this.vertexStrokeColorSelect).val().replace('#', ''));
+        }
     },
     setVertexNameField: function (name) {
         $(this.vertexNameField).val(name);

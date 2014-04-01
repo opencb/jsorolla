@@ -89,9 +89,7 @@ DOTDataAdapter.prototype.parse = function (data) {
                                     });
                                     this.network.addVertex({
                                         vertex: vertexSource,
-                                        vertexConfig: new VertexConfig({
-                                            renderer: new DefaultVertexRenderer({})
-                                        })
+                                        vertexConfig: new VertexConfig({})
                                     });
                                     this.addedVertex[sourceName] = vertexSource;
                                 }
@@ -101,9 +99,7 @@ DOTDataAdapter.prototype.parse = function (data) {
                                     });
                                     this.network.addVertex({
                                         vertex: vertexTarget,
-                                        vertexConfig: new VertexConfig({
-                                            renderer: new DefaultVertexRenderer({})
-                                        })
+                                        vertexConfig: new VertexConfig({})
                                     });
                                     this.addedVertex[targetName] = vertexTarget;
                                 }
@@ -168,9 +164,7 @@ DOTDataAdapter.prototype.parse = function (data) {
                                     });
                                     this.network.addVertex({
                                         vertex: vertex,
-                                        vertexConfig: new VertexConfig({
-                                            renderer: new DefaultVertexRenderer({})
-                                        })
+                                        vertexConfig: new VertexConfig({})
                                     });
                                     this.addedVertex[node] = vertex;
                                 }

@@ -81,6 +81,9 @@ DefaultEdgeRenderer.prototype = {
                 this.update();
         }
     },
+    setConfig: function (args) {
+        _.extend(this, args);
+    },
     render: function (args) {
         this.edge = args.edge;
         this.targetEl = args.target;
@@ -88,7 +91,7 @@ DefaultEdgeRenderer.prototype = {
         this.targetCoords = args.targetCoords;
         this.sourceRenderer = args.sourceRenderer;
         this.targetRenderer = args.targetRenderer;
-        this._render(args.i);
+        this._render();
     },
     remove: function () {
         $(this.el).remove();

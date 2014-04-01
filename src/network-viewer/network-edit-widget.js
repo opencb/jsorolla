@@ -217,9 +217,7 @@ NetworkEditWidget.prototype = {
                                         });
                                         _this.network.addVertex({
                                             vertex: sourceVertex,
-                                            vertexConfig: new VertexConfig({
-                                                renderer: new DefaultVertexRenderer({})
-                                            })
+                                            vertexConfig: new VertexConfig({})
                                         }, true);
                                     }
                                     var targetVertex = _this.network.getVertexById(targetId);
@@ -229,9 +227,7 @@ NetworkEditWidget.prototype = {
                                         });
                                         _this.network.addVertex({
                                             vertex: targetVertex,
-                                            vertexConfig: new VertexConfig({
-                                                renderer: new DefaultVertexRenderer({})
-                                            })
+                                            vertexConfig: new VertexConfig({})
                                         }, true);
                                     }
                                     var edge = new Edge({
@@ -244,9 +240,7 @@ NetworkEditWidget.prototype = {
                                     });
                                     _this.network.addEdge({
                                         edge: edge,
-                                        edgeConfig: new EdgeConfig({
-                                            renderer: new DefaultEdgeRenderer()
-                                        })
+                                        edgeConfig: new EdgeConfig({})
                                     });
 
                                     _this.networkViewer.refreshNetwork();

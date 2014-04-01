@@ -61,35 +61,35 @@ NavigationBar.prototype = {
 
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="restoreDefaultRegionButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-repeat"></span></button>' +
+            '   <div class="btn-group">' +
+            '       <button id="restoreDefaultRegionButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-repeat"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="regionHistoryButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="glyphicon glyphicon-time"></span> <span class="caret"></button>' +
+            '   <div class="btn-group">' +
+            '       <button id="regionHistoryButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="glyphicon glyphicon-time"></span> <span class="caret"></button>' +
             '       <ul id="regionHistoryMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="speciesButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" >' +
+            '   <div class="btn-group">' +
+            '       <button id="speciesButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"  type="button" >' +
             '           <span id="speciesText"></span>&nbsp;<span class="caret"></span>' +
             '       </button>' +
             '       <ul id="speciesMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
+            '   <div class="btn-group">' +
 //            '       <div class="pull-left" style="height:22px;line-height: 22px;color:#708090">Chr&nbsp;</div>' +
-            '       <button id="chromosomesButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  type="button" >' +
+            '       <button id="chromosomesButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"  type="button" >' +
             '           <span id="chromosomesText"></span>&nbsp;<span class="caret"></span>' +
             '       </button>' +
             '       <ul id="chromosomesMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" data-toggle="buttons">' +
-            '       <label id="karyotypeButton" class="btn btn-default"><input type="checkbox"><span class="ocb-icon ocb-icon-karyotype"></span></label>' +
-            '       <label id="chromosomeButton" class="btn btn-default"><input type="checkbox"><span class="ocb-icon ocb-icon-chromosome"></span></label>' +
-            '       <label id="regionButton" class="btn btn-default"><input type="checkbox"><span class="ocb-icon ocb-icon-region"></span></label>' +
+            '   <div class="btn-group" data-toggle="buttons">' +
+            '       <label id="karyotypeButton" class="btn btn-default btn-xs"><input type="checkbox"><span class="ocb-icon ocb-icon-karyotype"></span></label>' +
+            '       <label id="chromosomeButton" class="btn btn-default btn-xs"><input type="checkbox"><span class="ocb-icon ocb-icon-chromosome"></span></label>' +
+            '       <label id="regionButton" class="btn btn-default btn-xs"><input type="checkbox"><span class="ocb-icon ocb-icon-region"></span></label>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
+            '   <div class="btn-group" style="margin:0px 0px 0px 15px;">' +
             '       <button id="zoomOutButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
             '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:10px;margin:5px 2px 0px 2px;background-color: #d5d5d5">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
@@ -97,7 +97,7 @@ NavigationBar.prototype = {
             '       </div>' +
             '       <button id="zoomInButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 10px;">' +
+            '   <div class="btn-group" style="margin:0px 0px 0px 10px;">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Window size:&nbsp;</div>' +
             '       <input id="windowSizeField" type="text" class="form-control pull-left" placeholder="Window size" style="padding:0px 4px;height:22px;width:60px">' +
             '   </div>' +
@@ -108,17 +108,17 @@ NavigationBar.prototype = {
             '       </div>' +
             '       <button id="goButton" class="btn btn-default btn-xs" type="button">Go!</button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="moveFurtherLeftButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-arrow-w-bold"></span></button>' +
-            '       <button id="moveLeftButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-arrow-w"></span></button>' +
-            '       <button id="moveRightButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-arrow-e"></span></button>' +
-            '       <button id="moveFurtherRightButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-arrow-e-bold"></span></button>' +
+            '   <div class="btn-group">' +
+            '       <button id="moveFurtherLeftButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w-bold"></span></button>' +
+            '       <button id="moveLeftButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w"></span></button>' +
+            '       <button id="moveRightButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-arrow-e"></span></button>' +
+            '       <button id="moveFurtherRightButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-arrow-e-bold"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group btn-group-xs">' +
-            '       <button id="autoheightButton" class="btn btn-default" type="button"><span class="ocb-icon ocb-icon-track-autoheight"></span></button>' +
+            '   <div class="btn-group">' +
+            '       <button id="autoheightButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-track-autoheight"></span></button>' +
             '   </div>' +
-            '    <div class="btn-group btn-group-xs">' +
-            '       <button id="compactButton" class="btn btn-default" type="button"><span class="ocb-icon glyphicon glyphicon-compressed"></span></button>' +
+            '    <div class="btn-group">' +
+            '       <button id="compactButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon glyphicon glyphicon-compressed"></span></button>' +
             '   </div>' +
             '   <div class="btn-group pull-right">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
@@ -137,6 +137,9 @@ NavigationBar.prototype = {
 
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="navigation-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
+        $(this.div).css({
+            height: '33px'
+        });
         $(this.targetDiv).append(this.div);
 
 

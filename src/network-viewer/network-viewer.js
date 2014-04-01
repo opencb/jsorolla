@@ -137,7 +137,7 @@ NetworkViewer.prototype = {
 
         this.rendered = true;
     },
-    resize:function(){
+    resize: function () {
         this.height = $(this.targetDiv).height();
         this.width = $(this.targetDiv).width();
 
@@ -691,14 +691,12 @@ NetworkViewer.prototype = {
         console.log(this.scale);
         /* vertex graph */
         var vertex = new Vertex({
-            id: 'n' + '_' + Utils.randomString(5)
+            id: 'n' + '_' + Utils.randomString(7)
         });
 
         /* vertex config */
         var vertexConfig = new VertexConfig({
-            coords: {x: x, y: y},
-            renderer: new DefaultVertexRenderer({})
-//            renderer: new CircosVertexRenderer({})
+            coords: {x: x, y: y}
         });
 
         //update variables
@@ -721,11 +719,7 @@ NetworkViewer.prototype = {
             target: vertexTarget
         });
 
-        var edgeConfig = new EdgeConfig({
-            renderer: new DefaultEdgeRenderer({
-
-            })
-        });
+        var edgeConfig = new EdgeConfig({});
 
         this.network.addEdge({
             edge: edge,

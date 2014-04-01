@@ -116,13 +116,17 @@ Network.prototype = {
 
         var added = this.graph.addVertex(vertex);
         if (added) {
+
+            /* vertex config */
+            if (typeof vertexConfig === 'undefined') {
+                vertexConfig = new VertexConfig({});
+            }
             vertexConfig.id = vertex.id;
             this.setVertexConfig(vertexConfig);
 
             if (typeof target !== 'undefined') {
                 this.renderVertex(vertex, target);
             }
-
 
             var n = vertex.id;
             //attributes
@@ -148,8 +152,14 @@ Network.prototype = {
 
         var added = this.graph.addEdge(edge);
         if (added) {
+
+            /* edge config */
+            if (typeof edgeConfig === 'undefined') {
+                edgeConfig = new EdgeConfig({});
+            }
             edgeConfig.id = edge.id;
             this.setEdgeConfig(edgeConfig);
+
 
             if (typeof target !== 'undefined') {
                 this.renderEdge(edge, target);
@@ -539,12 +549,15 @@ Network.prototype = {
 
         //By default not update edges
         if (updateEdges === true) {
-            for (var j = 0; j < vertex.edges.length; j++) {
-                var edge = vertex.edges[j];
-                if (typeof edge !== 'undefined') {
-                    var edgeConfig = this.getEdgeConfig(edge);
-                    edgeConfig.renderer.updateShape();
-                }
+            this._updateVertexEdgesRenderer(vertex);
+        }
+    },
+    _updateVertexEdgesRenderer: function (vertex) {
+        for (var j = 0; j < vertex.edges.length; j++) {
+            var edge = vertex.edges[j];
+            if (typeof edge !== 'undefined') {
+                var edgeConfig = this.getEdgeConfig(edge);
+                edgeConfig.renderer.updateShape();
             }
         }
     },
@@ -567,6 +580,145 @@ Network.prototype = {
                 this.setVertexRendererAttribute(vertex, rendererAttr, rendererValue);
             }
         }
+    },
+    setVerticesRendererAttributeListMap: function (settings) {
+        var _this = this;
+        if (settings.length > 0) {
+            var sortFunction = function (a, b) {
+                return b.values.length - a.values.length;
+            };
+
+            var checkEqualValuesLength = function (list) {
+                if (list.length == 1) {
+                    return true;
+                } else {
+                    var l = list[0].values.length;
+                    for (var i = 1; i < list.length; i++) {
+                        if (list[i].values.length !== l) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            };
+            var checkNotEqualValuesLength = function (list) {
+                if (list.length > 1) {
+//                var l0 = list[0].values.length;
+                    for (var i = 1; i < list.length; i++) {
+                        var li = list[i].values.length;
+                        if (li > 1) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            };
+
+            this.vertexAttributeManager.eachRecord(function (record) {
+
+                var id = record.get('Id');
+                var vertex = _this.graph.getVertexById(id);
+                var vertexConfig = _this.config.getVertexConfig(vertex);
+
+                for (var s = 0; s < settings.length; s++) {
+                    var configs = settings[s].configs;
+                    var defaults = settings[s].defaults;
+                    var label = settings[s].label;
+                    var slicesName = settings[s].slicesName;
+
+                    if (configs.length > 0) {
+
+                        var valuesAndConfigList = [];
+                        for (var i = 0; i < configs.length; i++) {
+                            var config = configs[i];
+                            if (typeof config !== 'undefined') {
+                                var value = record.get(config.attribute);
+                                if (typeof value !== 'undefined') {
+                                    var valueSplit = value.split(',');
+                                    valuesAndConfigList.push({values: valueSplit, config: config});
+                                }
+                            }
+                        }
+
+                        valuesAndConfigList.sort(sortFunction);
+
+                        var slices = [];
+                        if (valuesAndConfigList.length > 0) {
+                            if (checkEqualValuesLength(valuesAndConfigList)) {
+                                var valuesLength = valuesAndConfigList[0].values.length;
+                                for (var i = 0; i < valuesLength; i++) {
+                                    var slice = {};
+                                    for (var j = 0; j < defaults.length; j++) {
+                                        var def = defaults[j]
+                                        slice[def.displayAttribute] = def.value;
+                                    }
+                                    for (var j = 0; j < valuesAndConfigList.length; j++) {
+                                        var valuesAndConfig = valuesAndConfigList[j];
+                                        var val = valuesAndConfig.values[i];
+                                        var renderValue = valuesAndConfig.config.map[val];
+                                        if(label.enable && valuesAndConfig.config.attribute === label.attribute){
+                                            slice['text'] = val;
+                                            slice['labelSize'] = label.size;
+                                            slice['labelOffset'] = label.offset;
+                                        }
+                                        if (typeof renderValue !== 'undefined') {
+                                            slice[valuesAndConfig.config.displayAttribute] = renderValue;
+                                        }
+                                    }
+                                    slices.push(slice);
+                                }
+
+                            } else if (checkNotEqualValuesLength(valuesAndConfigList)) {
+                                var valuesLength = valuesAndConfigList[0].values.length;
+                                for (var i = 0; i < valuesLength; i++) {
+                                    var slice = {};
+                                    for (var j = 0; j < defaults.length; j++) {
+                                        var def = defaults[j]
+                                        slice[def.displayAttribute] = def.value;
+                                    }
+
+                                    var valuesAndConfig = valuesAndConfigList[0];
+                                    var val = valuesAndConfig.values[i];
+                                    var renderValue = valuesAndConfig.config.map[val];
+                                    if(label.enable && valuesAndConfig.config.attribute === label.attribute){
+                                        slice['text'] = val;
+                                        slice['labelSize'] = label.size;
+                                        slice['labelOffset'] = label.offset;
+                                    }
+                                    if (typeof renderValue !== 'undefined') {
+                                        slice[valuesAndConfig.config.displayAttribute] = renderValue;
+                                    }
+
+                                    for (var j = 1; j < valuesAndConfigList.length; j++) {
+                                        valuesAndConfig = valuesAndConfigList[j];
+                                        val = valuesAndConfig.values[0];
+                                        if(label.enable && valuesAndConfig.config.attribute === label.attribute){
+                                            slice['text'] = val;
+                                            slice['labelSize'] = label.size;
+                                            slice['labelOffset'] = label.offset;
+                                        }
+                                        renderValue = valuesAndConfig.config.map[val];
+                                        if (typeof renderValue !== 'undefined') {
+                                            slice[valuesAndConfig.config.displayAttribute] = renderValue;
+                                        }
+                                    }
+                                    slices.push(slice);
+                                }
+                            } else {
+                                console.log(record.get('Id'));
+                            }
+                        }
+                        if (slices.length > 0) {
+                            vertexConfig.renderer.set(slicesName, slices, false);
+                        }
+                    }
+                }
+                vertexConfig.renderer.update();
+            });
+        }
+
+
     },
     setEdgeRendererAttribute: function (edge, attr, value) {
         var edgeConfig = this.config.getEdgeConfig(edge);
@@ -729,20 +881,18 @@ Network.prototype = {
                 id: v.id
             });
 
-            var config = content.config.vertices[v.id];
-            var renderer;
-            if (typeof config === 'undefined') {
-                renderer = new DefaultVertexRenderer()
-            } else {
-                renderer = new DefaultVertexRenderer(config.renderer)
-
-            }
             /* vertex config */
-            var vertexConfig = new VertexConfig({
-                id: v.id,
-                coords: content.config.vertices[v.id].coords,
-                renderer: renderer
-            });
+            var config = content.config.vertices[v.id];
+            if (typeof config === 'undefined') {
+                var vertexConfig = new VertexConfig({});
+            } else {
+                var vertexConfig = new VertexConfig({
+                    id: v.id,
+                    coords: content.config.vertices[v.id].coords,
+                    rendererConfig: config.renderer
+                });
+            }
+
             this.addVertex({
                 vertex: vertex,
                 vertexConfig: vertexConfig
@@ -762,19 +912,17 @@ Network.prototype = {
                 target: target
             });
 
-            var config = content.config.edges[e.id];
-            var renderer;
-            if (typeof config === 'undefined') {
-                renderer = new DefaultEdgeRenderer()
-            } else {
-                renderer = new DefaultEdgeRenderer(config.renderer)
-
-            }
             /* edge config */
-            var edgeConfig = new EdgeConfig({
-                id: e.id,
-                renderer: renderer
-            });
+            var config = content.config.edges[v.id];
+            if (typeof config === 'undefined') {
+                var edgeConfig = new EdgeConfig({});
+            } else {
+                var edgeConfig = new EdgeConfig({
+                    id: v.id,
+                    coords: content.config.edges[v.id].coords,
+                    rendererConfig: config.renderer
+                });
+            }
 
             this.addEdge({
                 edge: edge,
@@ -797,15 +945,8 @@ Network.prototype = {
                     id: id
                 });
 
-                /* vertex config */
-                var vertexConfig = new VertexConfig({
-                    id: vertex.id,
-                    renderer: new DefaultVertexRenderer()
-                });
-
                 this.addVertex({
-                    vertex: vertex,
-                    vertexConfig: vertexConfig
+                    vertex: vertex
                 }, true);
             }
         }
