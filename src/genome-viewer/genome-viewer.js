@@ -110,12 +110,18 @@ GenomeViewer.prototype = {
         this.div = $('<div class="bootstrap" id="' + this.id + '" class="ocb-gv ocb-box-vertical"></div>')[0];
         $(this.targetDiv).append(this.div);
 
-        var width = Math.max($(this.div).width(), $(this.targetDiv).width())
-        if (width == 0) {
-            console.log('target div width is zero');
-            return
+
+        if (typeof this.width === 'undefined') {
+            var width = Math.max($(this.div).width(), $(this.targetDiv).width())
+            if (width == 0) {
+                console.log('target div width is zero');
+                return
+            }
+            this.width = width;
+        } else {
+            $(this.div).width(this.width);
+            $(this.targetDiv).width(this.width);
         }
-        this.width = width;
 
         if (this.border) {
             var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
