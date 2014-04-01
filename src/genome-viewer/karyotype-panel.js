@@ -176,6 +176,7 @@ KaryotypePanel.prototype = {
             category: 'genomic',
             subCategory: 'chromosome',
             resource: 'all',
+            async:false,
             success: function (data) {
                 _this.chromosomeList = data.response.result.chromosomes;
                 _this.chromosomeList.sort(sortfunction);
