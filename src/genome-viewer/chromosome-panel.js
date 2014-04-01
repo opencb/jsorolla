@@ -90,7 +90,9 @@ ChromosomePanel.prototype = {
 //        this.tracksViewedRegion = this.width / Utils.getPixelBaseByZoom(this.zoom);
 
         this.clean();
-        this._drawSvg(this.data);
+        if(typeof this.data !== 'undefined'){
+            this._drawSvg(this.data);
+        }
     },
 
     render: function (targetId) {

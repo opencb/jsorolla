@@ -92,7 +92,9 @@ KaryotypePanel.prototype = {
 
 
         this.clean();
-        this._drawSvg(this.chromosomeList, this.data2);
+        if(typeof this.chromosomeList !== 'undefined'){
+            this._drawSvg(this.chromosomeList, this.data2);
+        }
     },
 
     render: function (targetId) {
