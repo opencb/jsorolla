@@ -91,8 +91,8 @@ KaryotypePanel.prototype = {
         this.svg.setAttribute("width", width);
 
 
-        this.clean();
         if(typeof this.chromosomeList !== 'undefined'){
+            this.clean();
             this._drawSvg(this.chromosomeList, this.data2);
         }
     },

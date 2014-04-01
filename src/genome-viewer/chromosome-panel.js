@@ -89,8 +89,8 @@ ChromosomePanel.prototype = {
         this.svg.setAttribute("width", width);
 //        this.tracksViewedRegion = this.width / Utils.getPixelBaseByZoom(this.zoom);
 
-        this.clean();
         if(typeof this.data !== 'undefined'){
+            this.clean();
             this._drawSvg(this.data);
         }
     },
