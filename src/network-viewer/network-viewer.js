@@ -463,7 +463,7 @@ NetworkViewer.prototype = {
                     var vertex = _this.network.getVertexById(e.vertexId);
                     var isSelected = _this.network.isVertexSelected(vertex);
                     if (!isSelected) {
-                        _this.selectVertex(vertex);
+                        _this.selectVertex(vertex, e.addToSelection);
                     }
                 },
                 'create:vertex': function (e) {
@@ -520,7 +520,16 @@ NetworkViewer.prototype = {
                     $(_this.contextMenuDiv).css({
                         display: "block",
                         left: e.x,
-                        top: e.y
+                        top: e.y+90
+                    });
+                },
+                'rightClick:backgroundImage': function (e) {
+                    console.log(e);
+                    _this._fillBackImageContextMenu(e);
+                    $(_this.contextMenuDiv).css({
+                        display: "block",
+                        left: e.x,
+                        top: e.y+90
                     });
                 }
             }
@@ -553,11 +562,16 @@ NetworkViewer.prototype = {
         this.selectedEdges = this.network.selectAllEdges();
         this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
     },
-    selectVertex: function (vertex) {
-        this._deselectAllVertices();
+    selectVertex: function (vertex, addToSelection) {
+        if (addToSelection) {
+            this.selectedVertices.push(vertex);
+        } else {
+            this._deselectAllVertices();
+            this.selectedVertices = [vertex];
+
+        }
         this.network.selectVertex(vertex);
 
-        this.selectedVertices = [vertex];
         this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
         console.log('selectVertex');
     },
@@ -727,8 +741,9 @@ NetworkViewer.prototype = {
             target: this.networkSvgLayout.getElementsSVG()
         });
     },
-
-
+    removeBackGroundImage: function (imageEl) {
+        $(imageEl).remove();
+    },
     _createContextMenu: function () {
         var _this = this;
         var html = '' +
@@ -791,6 +806,18 @@ NetworkViewer.prototype = {
         $(selectAdjacentEdges).bind('click.networkViewer', function (event) {
             _this.selectVertex(vertex);
             _this.selectEdgesNeighbour();
+        });
+    },
+    _fillBackImageContextMenu: function (event) {
+        var _this = this;
+        var targetEl = event.targetEl;
+        var ul = $(this.contextMenuDiv).children().first()[0];
+        $(ul).empty();
+        var deleteEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete</a></li>')[0];
+        $(ul).append(deleteEntry);
+
+        $(deleteEntry).bind('click.networkViewer', function (event) {
+            _this.removeBackGroundImage(targetEl);
         });
     },
     _setZoom: function (zoom) {

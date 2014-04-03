@@ -57,7 +57,7 @@ NetworkEditWidget.prototype = {
         });
 //
 
-        this.network.on('add:vertex add:edge remove:vertex remove:edge remove:vertices load:json clean draw', function () {
+        this.network.on('add:vertex add:edge remove:vertex remove:edge remove:vertices load:json clean draw batch:end', function () {
             _this.store.loadRawData(_this.getElements());
         });
     },
@@ -102,10 +102,10 @@ NetworkEditWidget.prototype = {
                 mode: 'MULTI'
             },
             plugins: ['bufferedrenderer',
-                Ext.create('Ext.grid.plugin.RowEditing', {
-                    clicksToMoveEditor: 1,
-                    autoCancel: false
-                })
+//                Ext.create('Ext.grid.plugin.RowEditing', {
+//                    clicksToMoveEditor: 1,
+//                    autoCancel: false
+//                })
 //                Ext.create('Ext.grid.plugin.CellEditing', {
 //                    double click to edit cell
 //                    clicksToEdit: 2
@@ -132,6 +132,7 @@ NetworkEditWidget.prototype = {
                             handler: function (bt, e) {
                                 var grid = _this.grid;
                                 var selectedRecords = _this.grid.getSelectionModel().getSelection();
+                                _this.network.batchStart();
                                 for (var i = 0; i < selectedRecords.length; i++) {
                                     var record = selectedRecords[i];
                                     var edgeId = record.raw.id;
@@ -152,6 +153,7 @@ NetworkEditWidget.prototype = {
                                         }
                                     }
                                 }
+                                _this.network.batchEnd();
                             }
                         },
                         '->',

@@ -59,13 +59,15 @@ function Network(args) {
         }
     });
 
+    this.batchFlag = false;
+
     this.on(this.handlers);
 }
 
 Network.prototype = {
     setGraph: function (graph) {
         this.clean();
-
+        this.batchStart();
         var edges = graph.edges;
         var vertices = graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
@@ -74,7 +76,7 @@ Network.prototype = {
                 this.addVertex({
                     vertex: vertex,
                     vertexConfig: new VertexConfig({})
-                }, true);
+                });
             }
         }
         for (var i = 0, l = edges.length; i < l; i++) {
@@ -83,10 +85,10 @@ Network.prototype = {
                 this.addEdge({
                     edge: edge,
                     edgeConfig: new EdgeConfig({})
-                }, true);
+                });
             }
         }
-
+        this.batchEnd();
     },
     getGraph: function () {
         return this.graph;
@@ -108,7 +110,7 @@ Network.prototype = {
         }
         this.trigger('draw');
     },
-    addVertex: function (args, silent) {
+    addVertex: function (args) {
         var vertex = args.vertex;
         var vertexConfig = args.vertexConfig;
         var target = args.target;
@@ -138,13 +140,13 @@ Network.prototype = {
                 [vertex.id, n]
             ], true);
 
-            if (silent !== true) {
+            if (this.batchFlag == false) {
                 this.trigger('add:vertex');
             }
         }
         return added;
     },
-    addEdge: function (args, silent) {
+    addEdge: function (args) {
         var edge = args.edge;
         var edgeConfig = args.edgeConfig;
         var target = args.target;
@@ -170,7 +172,7 @@ Network.prototype = {
                 [edge.id, edge.id, edge.relation]
             ], true);
 
-            if (silent !== true) {
+            if (this.batchFlag == false) {
                 this.trigger('add:edge');
             }
         }
@@ -194,7 +196,7 @@ Network.prototype = {
     getEdgeById: function (edgeId) {
         return this.graph.getEdgeById(edgeId);
     },
-    removeVertex: function (vertex, silent) {
+    removeVertex: function (vertex) {
         var vertexConfig = this.config.getVertexConfig(vertex);
         vertexConfig.renderer.remove();
         for (var i = 0; i < vertex.edges.length; i++) {
@@ -208,18 +210,18 @@ Network.prototype = {
         this.config.removeVertex(vertex);
         this.vertexAttributeManager.removeRecordById(vertex.id);
 
-        if (silent !== true) {
+        if (this.batchFlag == false) {
             this.trigger('remove:vertex');
         }
 
     },
-    removeEdge: function (edge, silent) {
+    removeEdge: function (edge) {
         var edgeConfig = this.config.getEdgeConfig(edge);
         edgeConfig.renderer.remove();
         this.graph.removeEdge(edge);
         this.config.removeEdge(edge);
         this.edgeAttributeManager.removeRecordById(edge.id);
-        if (silent !== true) {
+        if (this.batchFlag == false) {
             this.trigger('remove:edge');
         }
     },
@@ -581,8 +583,12 @@ Network.prototype = {
             }
         }
     },
-    setVerticesRendererAttributeListMap: function (settings) {
+    setVerticesRendererAttributeListMap: function (args) {
         var _this = this;
+
+        var settings = args.settings;
+        var defaults = args.defaults;
+
         if (settings.length > 0) {
             var sortFunction = function (a, b) {
                 return b.values.length - a.values.length;
@@ -617,15 +623,23 @@ Network.prototype = {
 
             this.vertexAttributeManager.eachRecord(function (record) {
 
+
+                var slicesMap = {};
+
                 var id = record.get('Id');
+
+//                if(id === 'c'){
+//                    debugger
+//                }
+
                 var vertex = _this.graph.getVertexById(id);
                 var vertexConfig = _this.config.getVertexConfig(vertex);
 
                 for (var s = 0; s < settings.length; s++) {
                     var configs = settings[s].configs;
-                    var defaults = settings[s].defaults;
                     var label = settings[s].label;
                     var slicesName = settings[s].slicesName;
+                    var sliceDefault = defaults[slicesName];
 
                     if (configs.length > 0) {
 
@@ -649,15 +663,15 @@ Network.prototype = {
                                 var valuesLength = valuesAndConfigList[0].values.length;
                                 for (var i = 0; i < valuesLength; i++) {
                                     var slice = {};
-                                    for (var j = 0; j < defaults.length; j++) {
-                                        var def = defaults[j]
-                                        slice[def.displayAttribute] = def.value;
+                                    for (var displayAttribute in sliceDefault) {
+                                        slice[displayAttribute] = sliceDefault[displayAttribute];
                                     }
+
                                     for (var j = 0; j < valuesAndConfigList.length; j++) {
                                         var valuesAndConfig = valuesAndConfigList[j];
                                         var val = valuesAndConfig.values[i];
                                         var renderValue = valuesAndConfig.config.map[val];
-                                        if(label.enable && valuesAndConfig.config.attribute === label.attribute){
+                                        if (label.enable && valuesAndConfig.config.attribute === label.attribute) {
                                             slice['text'] = val;
                                             slice['labelSize'] = label.size;
                                             slice['labelOffset'] = label.offset;
@@ -668,20 +682,18 @@ Network.prototype = {
                                     }
                                     slices.push(slice);
                                 }
-
                             } else if (checkNotEqualValuesLength(valuesAndConfigList)) {
                                 var valuesLength = valuesAndConfigList[0].values.length;
                                 for (var i = 0; i < valuesLength; i++) {
                                     var slice = {};
-                                    for (var j = 0; j < defaults.length; j++) {
-                                        var def = defaults[j]
-                                        slice[def.displayAttribute] = def.value;
+                                    for (var displayAttribute in sliceDefault) {
+                                        slice[displayAttribute] = sliceDefault[displayAttribute];
                                     }
 
                                     var valuesAndConfig = valuesAndConfigList[0];
                                     var val = valuesAndConfig.values[i];
                                     var renderValue = valuesAndConfig.config.map[val];
-                                    if(label.enable && valuesAndConfig.config.attribute === label.attribute){
+                                    if (label.enable && valuesAndConfig.config.attribute === label.attribute) {
                                         slice['text'] = val;
                                         slice['labelSize'] = label.size;
                                         slice['labelOffset'] = label.offset;
@@ -693,7 +705,7 @@ Network.prototype = {
                                     for (var j = 1; j < valuesAndConfigList.length; j++) {
                                         valuesAndConfig = valuesAndConfigList[j];
                                         val = valuesAndConfig.values[0];
-                                        if(label.enable && valuesAndConfig.config.attribute === label.attribute){
+                                        if (label.enable && valuesAndConfig.config.attribute === label.attribute) {
                                             slice['text'] = val;
                                             slice['labelSize'] = label.size;
                                             slice['labelOffset'] = label.offset;
@@ -710,11 +722,14 @@ Network.prototype = {
                             }
                         }
                         if (slices.length > 0) {
-                            vertexConfig.renderer.set(slicesName, slices, false);
+                            slicesMap[slicesName] = slices;
                         }
                     }
                 }
-                vertexConfig.renderer.update();
+//                            slicesMap[slicesName] = [
+//                                {size: defaults.size, area: defaults.area, color: defaults.color, labelSize: label.size, labelOffset: label.offset}
+//                            ];
+                vertexConfig.renderer.updateComplex(slicesMap, defaults);
             });
         }
 
@@ -875,6 +890,8 @@ Network.prototype = {
 
         this.clean();
 
+
+        this.batchStart();
         for (var i = 0; i < content.graph.vertices.length; i++) {
             var v = content.graph.vertices[i];
             var vertex = new Vertex({
@@ -896,7 +913,7 @@ Network.prototype = {
             this.addVertex({
                 vertex: vertex,
                 vertexConfig: vertexConfig
-            }, true);
+            });
         }
 
         for (var i = 0; i < content.graph.edges.length; i++) {
@@ -927,16 +944,17 @@ Network.prototype = {
             this.addEdge({
                 edge: edge,
                 edgeConfig: edgeConfig
-            }, true);
+            });
         }
 
         this._importAttributes(content.vertexAttributes, this.vertexAttributeManager);
         this._importAttributes(content.edgeAttributes, this.edgeAttributeManager);
 
+        this.batchEnd();
         this.trigger('load:json');
-
     },
     importVertexWithAttributes: function (data) {
+        this.batchStart();
         if (data.createVertices) {
             for (var i = 0; i < data.content.data.length; i++) {
                 var id = data.content.data[i][0];
@@ -947,11 +965,12 @@ Network.prototype = {
 
                 this.addVertex({
                     vertex: vertex
-                }, true);
+                });
             }
         }
         // add attributes
         this._importAttributes(data.content, this.vertexAttributeManager);
+        this.batchEnd();
         this.trigger('import:attributes');
     },
     _importAttributes: function (data, attributeManager) {
@@ -978,5 +997,19 @@ Network.prototype = {
     importEdgesWithAttributes: function (data) {
         // add attributes
         this._importAttributes(data.content, this.edgeAttributeManager);
+    },
+    batchStart: function () {
+        this.batchFlag = true;
+        this.vertexAttributeManager.store.suspendEvents();
+        this.edgeAttributeManager.store.suspendEvents();
+    },
+    batchEnd: function () {
+        this.vertexAttributeManager.store.resumeEvents();
+        this.edgeAttributeManager.store.resumeEvents();
+        this.vertexAttributeManager.store.fireEvent('refresh');
+        this.edgeAttributeManager.store.fireEvent('refresh');
+        this.batchFlag = false;
+        this.trigger('batch:end');
     }
+
 }

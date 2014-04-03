@@ -255,9 +255,6 @@ NetworkSvgLayout.prototype = {
         }
         return images;
     },
-    removeBackGroundImage: function (imageEl) {
-        $(imageEl).remove();
-    },
     setZoom: function (zoom) {
         this.scale = (zoom == 0) ? 0.03 : (zoom / 25);
 
@@ -334,7 +331,7 @@ NetworkSvgLayout.prototype = {
                     case 'vertex':
                     case 'vertex-label':
                         var vertexId = this.getVertexId(targetEl);
-                        this.trigger('select:vertex', {vertexId: vertexId, sender: _this});
+                        this.trigger('select:vertex', {vertexId: vertexId, addToSelection: event.ctrlKey, sender: _this});
 
                         var lastX = downX;
                         var lastY = downY;
@@ -550,21 +547,21 @@ NetworkSvgLayout.prototype = {
         var _this = this;
         var targetEl = event.target;
         var targetElNetworkType = $(targetEl).attr('network-type');
+        var downX = (event.clientX - $(this.svg).offset().left);
+        var downY = (event.clientY - $(this.svg).offset().top);
         switch (this.mode) {
             case "add":
             case "join":
             case "delete":
             case "select":
-                var downX = (event.clientX - $(this.svg).offset().left);
-                var downY = (event.clientY - $(this.svg).offset().top);
                 if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
                     var vertexId = this.getVertexId(targetEl);
                     this.trigger('rightClick:vertex', { vertexId: vertexId, x: downX, y: downY, sender: this});
                 }
                 break;
             case "selectbackground":
-                if (event.ctrlKey && event.shiftKey) {
-                    this.removeBackGroundImage(targetEl);
+                if (targetElNetworkType === 'background-image') {
+                    this.trigger('rightClick:backgroundImage', {targetEl: targetEl, x: downX, y: downY, sender: this});
                 }
                 break;
             default:

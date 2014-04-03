@@ -102,7 +102,6 @@ AttributeManagerStore.prototype = {
             });
         }
 
-
         // set model fields
         this.model.setFields(this.attributes);
 

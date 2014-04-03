@@ -66,6 +66,8 @@ AttributeEditWidget.prototype = {
             title: 'Edit multiple values',
             bodyPadding: "10 0 10 10",
             layout: 'vbox',
+            border:0,
+            flex:1,
             dockedItems: [
                 {
                     xtype: 'toolbar',
@@ -108,6 +110,13 @@ AttributeEditWidget.prototype = {
             title: 'Add attribute',
             bodyPadding: "10 0 10 10",
             layout: 'vbox',
+            border: 0,
+            flex:1,
+            style: {
+                borderTopColor: 'lightgray',
+                borderTopStyle: 'solid',
+                borderTopWidth: '1px'
+            },
             items: [
                 {
                     xtype: 'textfield',
@@ -128,13 +137,13 @@ AttributeEditWidget.prototype = {
                     queryMode: 'local',
                     allowBlank: false
                 },
-                {
-                    xtype: 'textfield',
-                    width: 170,
-                    value: '',
-                    fieldLabel: 'Default value',
-                    labelWidth: 50
-                },
+//                {
+//                    xtype: 'textfield',
+//                    width: 170,
+//                    value: '',
+//                    fieldLabel: 'Default value',
+//                    labelWidth: 50
+//                },
                 {
                     xtype: 'button',
                     width: 170,
@@ -142,10 +151,10 @@ AttributeEditWidget.prototype = {
                     formBind: true, // only enabled if the form is valid
                     disabled: true,
                     handler: function (bt) {
-                        var name = bt.prev().prev().prev().getValue();
-                        var type = bt.prev().prev().getValue();
-                        var defaultValue = bt.prev().getValue();
-                        var created = _this.attrMan.addAttribute({name: name, type: type, defaultValue: defaultValue});
+                        var name = bt.previousSibling('textfield[fieldLabel=Name]').getValue();
+                        var type = bt.previousSibling('combo[fieldLabel=Type]').getValue();
+//                        var defaultValue = bt.prev().getValue();
+                        var created = _this.attrMan.addAttribute({name: name, type: type, defaultValue: ''});
                         var msg = (created === false) ? '<span class="err">Name already exists.</span>' : '';
                         bt.next().update(msg);
                     }
@@ -161,6 +170,13 @@ AttributeEditWidget.prototype = {
             title: 'Remove attribute',
             bodyPadding: "10 0 10 10",
             layout: 'vbox',
+            border: 0,
+            flex:1,
+            style: {
+                borderTopColor: 'lightgray',
+                borderTopStyle: 'solid',
+                borderTopWidth: '1px'
+            },
             items: [
                 this.createAttributesCombo(),
                 {
@@ -277,12 +293,16 @@ AttributeEditWidget.prototype = {
         });
 
         this.accordionPanel = Ext.create('Ext.container.Container', {
-            layout: 'accordion',
+            layout: {
+                type:'vbox',
+                align:'stretch'
+            },
             width: 200,
             border: '0 1 0 0',
             style: {
                 borderColor: 'lightgray',
-                borderStyle: 'solid'
+                borderStyle: 'solid',
+                backgroundColor:'#ffffff'
             },
             items: [
                 modifyRowsFormPanel,
