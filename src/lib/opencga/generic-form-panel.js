@@ -27,6 +27,7 @@ function GenericFormPanel(args) {
     this.paramsWS = {};
     this.testing = false;
     this.closable = true;
+    this.minimizable = true;
 
     this.type;
     this.title;
@@ -67,11 +68,18 @@ GenericFormPanel.prototype.draw = function () {
                 id: this.panelId,
                 title: this.title,
                 closable: this.closable,
+                minimizable: this.minimizable,
                 resizable: this.resizable,
-                flex:1,
+                flex: 1,
                 overflowY: 'auto',
 //                taskbar: this.taskbar,
-                items: this.getForm()
+                items: this.getForm(),
+                listeners: {
+                    minimize: function () {
+                        this.hide();
+                    }
+                }
+
             });
         }
         else {
