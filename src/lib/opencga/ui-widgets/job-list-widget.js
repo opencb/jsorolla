@@ -203,7 +203,8 @@ JobListWidget.prototype.hide = function () {
 
 //override
 JobListWidget.prototype.draw = function () {
-
+    this.render();
+//
 };
 
 JobListWidget.prototype.clean = function () {

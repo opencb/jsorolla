@@ -39,6 +39,13 @@ function CircosVertexRenderer(args) {
     this.labelPositionY = 0;
     this.labelText = '';
 
+    if (typeof localStorage.CELLMAPS_CONFIG !== 'undefined') {
+        var config = JSON.parse(localStorage.CELLMAPS_CONFIG);
+        if (typeof config.vertexDefaults !== 'undefined') {
+            _.extend(this, config.vertexDefaults);
+        }
+    }
+
     this.sliceArea = 1;
 
     this.pieSlices = [
@@ -67,6 +74,7 @@ function CircosVertexRenderer(args) {
 
     //set instantiation args, must be last
     _.extend(this, args);
+
 
 }
 
@@ -137,7 +145,7 @@ CircosVertexRenderer.prototype = {
                 {size: defaults['donutSlices'].size, area: defaults['donutSlices'].area, color: defaults['donutSlices'].color, labelSize: this.labelSize, labelOffset: 0}
             ];
         }
-        if (this.pieSlices.length === 1 && this.donutSlices.length === 1) {
+        if (typeof slicesMap['pieSlices'] === 'undefined' && typeof slicesMap['donutSlices'] === 'undefined') {
             this.update();
         } else {
             this.complex = true;
