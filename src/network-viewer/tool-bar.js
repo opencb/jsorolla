@@ -60,77 +60,77 @@ ToolBar.prototype = {
 //                    </label>
 
         var navgationHtml = '' +
-            '<div class="btn-toolbar" role="toolbar">' +
+            '<div class="btn-toolbar" role="toolbar" style="width: 790px">' +
 //            '   <div class="btn-group btn-group-xs" data-toggle="buttons">' +
 //            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="selectButton" title="Select nodes mode"><span class="ocb-icon icon-mouse-select"></span></label>' +
 //            '       <label class="btn btn-default"><input type="radio" name="selectmode" id="backgroundButton" title="Select background items mode"><span class="ocb-icon ocb-icon-backitem-select"></span></label>' +
 //            '   </div>' +
             '   <div class="btn-group">' +
-            '       <button id="selectButton" class="btn btn-default btn-sm" type="button" title="Network select mode"><span class="ocb-icon icon-mouse-select"></span></button>' +
-            '       <button id="backgroundButton" class="btn btn-default btn-sm" type="button" title="Background select mode"><span class="ocb-icon ocb-icon-backitem-select"></span></button>' +
+            '       <button id="selectButton" class="btn btn-default btn-xs custom-xs" type="button" title="Network select mode"><span class="ocb-icon icon-mouse-select"></span></button>' +
+            '       <button id="backgroundButton" class="btn btn-default btn-xs custom-xs" type="button" title="Background select mode"><span class="ocb-icon ocb-icon-backitem-select"></span></button>' +
             '   </div>' +
             '   <div class="btn-group">' +
-            '       <button id="addButton" class="btn btn-default btn-sm" type="button" title="Add mode"><span class="ocb-icon icon-add"></span></button>' +
-            '       <button id="linkButton" class="btn btn-default btn-sm" type="button" title="Link mode"><span class="ocb-icon icon-link"></span></button>' +
-            '       <button id="deleteButton" class="btn btn-default btn-sm" type="button" title="Delete mode"><span class="ocb-icon icon-delete"></span></button>' +
+            '       <button id="addButton" class="btn btn-default btn-xs custom-xs" type="button" title="Add mode"><span class="ocb-icon icon-add"></span></button>' +
+            '       <button id="linkButton" class="btn btn-default btn-xs custom-xs" type="button" title="Link mode"><span class="ocb-icon icon-link"></span></button>' +
+            '       <button id="deleteButton" class="btn btn-default btn-xs custom-xs" type="button" title="Delete mode"><span class="ocb-icon icon-delete"></span></button>' +
             '   </div>' +
             '   <div class="btn-group hidden">' +
-            '       <button id="collapseButton" class="btn btn-default btn-sm" type="button"><span class="ocb-icon icon-collapse"></span></button>' +
+            '       <button id="collapseButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon icon-collapse"></span></button>' +
             '   </div>' +
             '   <div class="btn-group" title="Layouts">' +
-            '       <button id="layoutButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-layout"></span><span class="caret"></button>' +
+            '       <button id="layoutButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-layout"></span><span class="caret"></button>' +
             '       <ul id="layoutMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
             '   <div class="btn-group hidden" title="Label size">' +
-            '       <button id="labelSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
+            '       <button id="labelSizeButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
             '       <ul id="labelSizeMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
             '   <div class="btn-group" title="Select">' +
-            '       <button id="autoSelectButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-auto-select"></span><span class="caret"></button>' +
+            '       <button id="autoSelectButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-auto-select"></span><span class="caret"></button>' +
             '       <ul id="autoSelectMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
             '   <div class="btn-group hidden">' +
-            '       <button id="backgroundButton" class="btn btn-default" type="button"><span class="ocb-icon icon-background-option"></span></button>' +
+            '       <button id="backgroundButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon icon-background-option"></span></button>' +
             '   </div>' +
 
             '   <div class="btn-group" title="Add image to the background">' +
-            '       <button id="importBackgroundImageButton" class="btn btn-default btn-sm" type="button">' +
-            '           <span class="ocb-icon icon-background-option"></span><span style="line-height: 10px;color:#428bca;"> &nbsp; Add image...</span> ' +
+            '       <button id="importBackgroundImageButton" class="btn btn-default custom-xs" type="button">' +
+            '           <span class="ocb-icon icon-background-option"></span><span style="line-height: 10px;color:#428bca;"></span> ' +
             '       </button>' +
             '   </div>' +
             '   <input id="importBackgroundImageField" type="file" style="display:none" />' +
 
-            '   <div class="btn-group" title="Background color" style="width:140px">' +
+            '   <div class="btn-group" title="Background color" style="width:100px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon"><span class="ocb-icon icon-fill-color"></span></span>' +
-            '       <input id="backgroundColorField" type="text" class="form-control">' +
-            '       <span class="input-group-addon">' +
+            '       <span class="input-group-addon custom-xs"><span class="ocb-icon icon-fill-color"></span></span>' +
+            '       <input id="backgroundColorField" type="text" class="form-control custom-xs">' +
+            '       <span class="input-group-addon custom-xs">' +
             '           <select id="backgroundColorSelect"></select>' +
             '      </span>' +
             '   </div>' +
             '   </div>' +
 
 
-            '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
-            '       <button id="zoomOutButton" class="btn btn-default btn-sm" type="button"><span class="ocb-icon ocb-icon-minus"></span></button>' +
-            '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:29px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
+            '   <div class="btn-group btn-group-xs" style="margin-left:5px;">' +
+            '       <button id="zoomOutButton" class="btn btn-default custom-xs" type="button"><span class="ocb-icon ocb-icon-minus"></span></button>' +
+            '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:22px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: ' + this.zoom + '%">' +
             '           </div>' +
             '       </div>' +
-            '       <button id="zoomInButton" class="btn btn-default btn-sm" type="button"><span class="ocb-icon ocb-icon-plus"></span></button>' +
+            '       <button id="zoomInButton" class="btn btn-default custom-xs" type="button"><span class="ocb-icon ocb-icon-plus"></span></button>' +
             '   </div>' +
             '   <div class="btn-group btn-group-xs hidden" title="Show/hide overview">' +
             '       <button id="showOverviewButton" class="btn btn-default active" type="button"><span class="ocb-icon icon-select"></span></button>' +
             '   </div>' +
 
-            '   <div class="btn-group" title="Rotate" style="width:100px">' +
+            '   <div class="btn-group" title="Rotate" style="width:80px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <input id="rotateField" type="text" class="form-control" placeholder="90">' +
+            '       <input id="rotateField" type="text" class="form-control custom-xs" placeholder="90">' +
             '       <div class="input-group-btn">' +
-            '           <button id="rotateButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="ocb-icon glyphicon glyphicon-repeat"></span><span class="caret"></span></button>' +
+            '           <button id="rotateButton" class="btn btn-default btn-sm custom-xs dropdown-toggle" data-toggle="dropdown" type="button"><span class="ocb-icon glyphicon glyphicon-repeat"></span><span class="caret"></span></button>' +
             '           <ul id="rotateMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
@@ -153,10 +153,17 @@ ToolBar.prototype = {
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="tool-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
-            height: '40px'
+            height: '32px'
         });
         $(this.targetDiv).append(this.div);
         /**************/
+
+        /*************/
+        $(this.div).find('.custom-xs').css({
+            padding:'2px 4px',
+            height:'22px'
+        });
+        /*************/
 
         this.selectButton = $(this.div).find('#selectButton');
         this.backgroundButton = $(this.div).find('#backgroundButton');

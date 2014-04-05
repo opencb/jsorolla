@@ -494,7 +494,7 @@ a:hover {
     width: 16px;
     height: 16px;
     vertical-align: middle;
-    margin-bottom: 1px;
+    margin-bottom: 0px;
 }
 
 .ocb-icon-resize {

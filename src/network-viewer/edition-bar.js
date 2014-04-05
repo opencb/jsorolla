@@ -51,81 +51,81 @@ EditionBar.prototype = {
         var navgationHtml = '' +
             '<div class="btn-toolbar" role="toolbar">' +
             '   <div class="btn-group" data-toggle="buttons">' +
-            '       <label class="btn btn-default btn-sm"><input type="radio" name="selectionelement" id="vertexEditButton" title="Node edit mode">Nodes</label>' +
-            '       <label class="btn btn-default btn-sm"><input type="radio" name="selectionelement" id="edgeEditButton" title="Edge edit mode">Edges</label>' +
+            '       <label class="btn btn-default btn-xs"><input type="radio" name="selectionelement" id="vertexEditButton" title="Node edit mode">Nodes</label>' +
+            '       <label class="btn btn-default btn-xs"><input type="radio" name="selectionelement" id="edgeEditButton" title="Edge edit mode">Edges</label>' +
             '   </div>' +
             '</div>' +
 
 
-            '<div id="vertexToolbar" class="btn-toolbar" role="toolbar">' +
+            '<div id="vertexToolbar" class="btn-toolbar" role="toolbar" style="width: 790px">' +
 
             '   <div class="btn-group input-group-sm" title="Node name" style="margin-left: 10px;width:80px;">' +
-            '       <input id="vertexNameField" type="text" class="form-control" placeholder="name">' +
+            '       <input id="vertexNameField" type="text" class="form-control custom-xs" placeholder="name">' +
             '   </div>' +
 
             '   <div class="btn-group" title="Node shape">' +
-            '       <button id="vertexShapeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-shape"></span><span class="caret"></button>' +
+            '       <button id="vertexShapeButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-shape"></span><span class="caret"></button>' +
             '        <ul id="vertexShapeMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
 
-            '   <div class="btn-group" title="Node size" style="width:110px">' +
+            '   <div class="btn-group" title="Node size" style="width:80px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon"><span class="ocb-icon icon-node-size"></span></span>' +
-            '       <input id="vertexSizeField" type="text" class="form-control">' +
+            '       <span class="input-group-addon custom-xs"><span class="ocb-icon icon-node-size"></span></span>' +
+            '       <input id="vertexSizeField" type="text" class="form-control custom-xs">' +
             '       <div class="input-group-btn">' +
-            '           <button id="vertexSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></button>' +
+            '           <button id="vertexSizeButton" class="btn btn-default btn-sm dropdown-toggle custom-xs" data-toggle="dropdown" type="button"><span class="caret"></button>' +
             '           <ul id="vertexSizeMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
             '   </div>' +
 
-            '   <div class="btn-group" title="Node stroke size" style="width:110px">' +
+            '   <div class="btn-group" title="Node stroke size" style="width:80px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon"><span class="ocb-icon icon-stroke-size"></span></span>' +
-            '       <input id="vertexStrokeSizeField" type="text" class="form-control">' +
+            '       <span class="input-group-addon custom-xs"><span class="ocb-icon icon-stroke-size"></span></span>' +
+            '       <input id="vertexStrokeSizeField" type="text" class="form-control custom-xs">' +
             '       <div class="input-group-btn">' +
-            '           <button id="vertexStrokeSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></button>' +
+            '           <button id="vertexStrokeSizeButton" class="btn btn-default btn-sm dropdown-toggle custom-xs" data-toggle="dropdown" type="button"><span class="caret"></button>' +
             '           <ul id="vertexStrokeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
             '   </div>' +
 
-            '   <div class="btn-group" title="Node color" style="width:140px">' +
+            '   <div class="btn-group" title="Node color" style="width:100px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon"><span class="ocb-icon icon-fill-color"></span></span>' +
-            '       <input id="vertexColorField" type="text" class="form-control">' +
-            '       <span class="input-group-addon">' +
+            '       <span class="input-group-addon custom-xs"><span class="ocb-icon icon-fill-color"></span></span>' +
+            '       <input id="vertexColorField" type="text" class="form-control custom-xs">' +
+            '       <span class="input-group-addon custom-xs">' +
             '           <select id="vertexColorSelect"></select>' +
             '      </span>' +
             '   </div>' +
             '   </div>' +
 
-            '   <div class="btn-group" title="Node color" style="width:140px">' +
+            '   <div class="btn-group" title="Node color" style="width:100px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon"><span class="ocb-icon icon-stroke-color"></span></span>' +
-            '       <input id="vertexStrokeColorField" type="text" class="form-control">' +
-            '       <span class="input-group-addon">' +
+            '       <span class="input-group-addon custom-xs"><span class="ocb-icon icon-stroke-color"></span></span>' +
+            '       <input id="vertexStrokeColorField" type="text" class="form-control custom-xs">' +
+            '       <span class="input-group-addon custom-xs">' +
             '           <select id="vertexStrokeColorSelect"></select>' +
             '      </span>' +
             '   </div>' +
             '   </div>' +
 
             '   <div class="btn-group" title="Node opacity">' +
-            '       <button id="vertexOpacityButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-opacity"></span><span class="caret"></button>' +
+            '       <button id="vertexOpacityButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-node-opacity"></span><span class="caret"></button>' +
             '       <ul id="vertexOpacityMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
             '   <div class="btn-group" title="Node label size">' +
-            '       <button id="vertexLabelSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
+            '       <button id="vertexLabelSizeButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
             '       <ul id="vertexLabelSizeMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
 
 
-            '   <div class="btn-group" title="Node search" style="width:120px">' +
+            '   <div class="btn-group" title="Node search" style="width:100px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <input id="vertexSearchField" type="text" class="form-control" placeholder="Search by...">' +
+            '       <input id="vertexSearchField" type="text" class="form-control custom-xs" placeholder="Search by...">' +
             '       <div class="input-group-btn">' +
-            '           <button id="vertexSearchButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></span></button>' +
+            '           <button id="vertexSearchButton" class="btn btn-default btn-sm custom-xs dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></span></button>' +
             '           <ul id="vertexSearchMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
@@ -134,49 +134,49 @@ EditionBar.prototype = {
 
 
             /* Edges */
-            '<div id="edgeToolbar" class="btn-toolbar hidden">' +
+            '<div id="edgeToolbar" class="btn-toolbar hidden" style="width: 790px">' +
 
             '   <div class="btn-group input-group-sm" title="Edge name" style="margin-left: 10px;width:80px;">' +
-            '       <input id="edgeNameField" type="text" class="form-control" placeholder="name">' +
+            '       <input id="edgeNameField" type="text" class="form-control custom-xs" placeholder="name">' +
             '   </div>' +
 
             '   <div class="btn-group" title="Edge shape">' +
-            '       <button id="edgeShapeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-edge-type"></span><span class="caret"></button>' +
+            '       <button id="edgeShapeButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-edge-type"></span><span class="caret"></button>' +
             '        <ul id="edgeShapeMenu" class="dropdown-menu" role="menu"></ul>' +
             '   </div>' +
 
-            '   <div class="btn-group" title="Edge size" style="width:110px">' +
+            '   <div class="btn-group" title="Edge size" style="width:80px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon"><span class="ocb-icon icon-node-size"></span></span>' +
-            '       <input id="edgeSizeField" type="text" class="form-control">' +
+            '       <span class="input-group-addon custom-xs"><span class="ocb-icon icon-node-size"></span></span>' +
+            '       <input id="edgeSizeField" type="text" class="form-control custom-xs">' +
             '       <div class="input-group-btn">' +
-            '           <button id="edgeSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></button>' +
+            '           <button id="edgeSizeButton" class="btn btn-default btn-sm dropdown-toggle custom-xs" data-toggle="dropdown" type="button"><span class="caret"></button>' +
             '           <ul id="edgeSizeMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
             '   </div>' +
 
-            '   <div class="btn-group" title="Edge color" style="width:140px">' +
+            '   <div class="btn-group" title="Edge color" style="width:100px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon"><span class="ocb-icon icon-fill-color"></span></span>' +
-            '       <input id="edgeColorField" type="text" class="form-control">' +
-            '       <span class="input-group-addon">' +
+            '       <span class="input-group-addon custom-xs"><span class="ocb-icon icon-fill-color"></span></span>' +
+            '       <input id="edgeColorField" type="text" class="form-control custom-xs">' +
+            '       <span class="input-group-addon custom-xs">' +
             '           <select id="edgeColorSelect"></select>' +
             '      </span>' +
             '   </div>' +
             '   </div>' +
 
             '   <div class="btn-group" title="Edge label size">' +
-            '       <button id="edgeLabelSizeButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
+            '       <button id="edgeLabelSizeButton" class="btn btn-default btn-sm custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="ocb-icon icon-label-size"></span><span class="caret"></button>' +
             '       <ul id="edgeLabelSizeMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
 
-            '   <div class="btn-group" title="Edge search" style="width:120px">' +
+            '   <div class="btn-group" title="Edge search" style="width:100px">' +
             '   <div class="input-group input-group-sm">' +
-            '       <input id="edgeSearchField" type="text" class="form-control" placeholder="Search by...">' +
+            '       <input id="edgeSearchField" type="text" class="form-control custom-xs" placeholder="Search by...">' +
             '       <div class="input-group-btn">' +
-            '           <button id="edgeSearchButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></span></button>' +
+            '           <button id="edgeSearchButton" class="btn btn-default btn-sm custom-xs dropdown-toggle" data-toggle="dropdown" type="button"><span class="caret"></span></button>' +
             '           <ul id="edgeSearchMenu" class="dropdown-menu" role="menu"></ul>' +
             '       </div>' +
             '   </div>' +
@@ -190,11 +190,18 @@ EditionBar.prototype = {
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="edition-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
-            height: '40px'
+            height: '32px'
         });
         $(this.targetDiv).append(this.div);
         /**************/
 
+
+        /*************/
+        $(this.div).find('.custom-xs').css({
+            padding:'2px 4px',
+            height:'22px'
+        });
+        /*************/
 
         this.vertexEditButton = $(this.div).find('#vertexEditButton');
         this.edgeEditButton = $(this.div).find('#edgeEditButton');
@@ -245,7 +252,6 @@ EditionBar.prototype = {
         this.edgeSearchField = $(this.div).find('#edgeSearchField');
         this.edgeSearchMenu = $(this.div).find('#edgeSearchMenu');
 
-        /*************/
 
         $(this.vertexEditButton).change(function (e) {
             _this.hideEdgeToolbar();
