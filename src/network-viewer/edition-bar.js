@@ -49,15 +49,17 @@ EditionBar.prototype = {
         }
 
         var navgationHtml = '' +
-            '<div class="btn-toolbar" role="toolbar">' +
+            '<div style="width: 790px">' +
+
+            '<div style="display:inline-block; width: 90px">' +
             '   <div class="btn-group" data-toggle="buttons">' +
-            '       <label class="btn btn-default btn-xs"><input type="radio" name="selectionelement" id="vertexEditButton" title="Node edit mode">Nodes</label>' +
+            '       <label class="btn btn-default btn-xs active"><input type="radio" name="selectionelement" id="vertexEditButton" title="Node edit mode">Nodes</label>' +
             '       <label class="btn btn-default btn-xs"><input type="radio" name="selectionelement" id="edgeEditButton" title="Edge edit mode">Edges</label>' +
             '   </div>' +
             '</div>' +
 
 
-            '<div id="vertexToolbar" class="btn-toolbar" role="toolbar" style="width: 790px">' +
+            '<div id="vertexToolbar" style="display:inline-block; width: 700px">' +
 
             '   <div class="btn-group input-group-sm" title="Node name" style="margin-left: 10px;width:80px;">' +
             '       <input id="vertexNameField" type="text" class="form-control custom-xs" placeholder="name">' +
@@ -134,7 +136,7 @@ EditionBar.prototype = {
 
 
             /* Edges */
-            '<div id="edgeToolbar" class="btn-toolbar hidden" style="width: 790px">' +
+            '<div id="edgeToolbar" style="display:none; width: 700px">' +
 
             '   <div class="btn-group input-group-sm" title="Edge name" style="margin-left: 10px;width:80px;">' +
             '       <input id="edgeNameField" type="text" class="form-control custom-xs" placeholder="name">' +
@@ -183,6 +185,7 @@ EditionBar.prototype = {
             '   </div>' +
 
             '</div>' +
+            '</div>' +
             '';
 
 
@@ -198,8 +201,8 @@ EditionBar.prototype = {
 
         /*************/
         $(this.div).find('.custom-xs').css({
-            padding:'2px 4px',
-            height:'22px'
+            padding: '2px 4px',
+            height: '22px'
         });
         /*************/
 
@@ -543,15 +546,15 @@ EditionBar.prototype = {
 
     //TODO TEST
     hideVertexToolbar: function () {
-        $('#vertexToolbar').addClass("hidden");
+        $('#vertexToolbar').css("display", "none");
     },
     hideEdgeToolbar: function () {
-        $('#edgeToolbar').addClass("hidden");
+        $('#edgeToolbar').css("display", "none");
     },
     showVertexToolbar: function () {
-        $('#vertexToolbar').removeClass("hidden");
+        $('#vertexToolbar').css("display", "inline-block");
     },
     showEdgeToolbar: function () {
-        $('#edgeToolbar').removeClass("hidden");
+        $('#edgeToolbar').css("display", "inline-block");
     }
 }

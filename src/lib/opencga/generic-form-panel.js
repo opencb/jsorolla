@@ -34,9 +34,14 @@ function GenericFormPanel(args) {
     this.resizable;
     this.width = 500;
     this.height;
+    this.border = true;
     this.taskbar;
     this.bodyPadding;
     this.headerConfig;
+    this.buttonConfig = {
+        width:200,
+        height:30
+    };
 
     _.extend(this, args);
 
@@ -70,16 +75,15 @@ GenericFormPanel.prototype.draw = function () {
                 closable: this.closable,
                 minimizable: this.minimizable,
                 resizable: this.resizable,
-                flex: 1,
+                bodyStyle: 'background:white;',
                 overflowY: 'auto',
 //                taskbar: this.taskbar,
-                items: this.getForm(),
+                items: [this.getForm()],
                 listeners: {
                     minimize: function () {
                         this.hide();
                     }
                 }
-
             });
         }
         else {
@@ -89,8 +93,8 @@ GenericFormPanel.prototype.draw = function () {
                 closable: this.closable,
 //                defaults: {margin: 30},
                 style: this.style,
-                autoScroll: true,
-                items: this.getForm(),
+                overflowY: 'auto',
+                items: [this.getForm()],
                 border: 0,
                 bodyPadding: this.bodyPadding,
                 header: this.headerConfig,
@@ -124,14 +128,17 @@ GenericFormPanel.prototype.getForm = function () {
     if (this.form == null) {
         var items = this.getPanels();
         items.push(this.getJobPanel());
-        items.push(this.getRunButton());
 
         this.form = Ext.create('Ext.form.Panel', {
             border: 0,
-            bodyPadding: '5',
             width: this.width,
-            layout: 'vbox',
-            items: items
+            padding:5,
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: items,
+            buttons:[this.getRunButton()]
         });
     }
 
@@ -181,10 +188,9 @@ GenericFormPanel.prototype.getJobPanel = function () {
     var jobPanel = Ext.create('Ext.panel.Panel', {
         title: 'Job',
         header: this.headerFormConfig,
-        border: true,
-        bodyPadding: "5",
-        margin: "0 0 5 0",
-        width: '99%',
+        border: this.border,
+        bodyPadding: 5,
+        width: '100%',
         buttonAlign: 'center',
         items: [jobNameField, jobDescriptionField, jobFolder]
     });
@@ -196,12 +202,10 @@ GenericFormPanel.prototype.getRunButton = function () {
     var _this = this;
     return Ext.create('Ext.button.Button', {
         text: 'Run',
-        width: 300,
-        height: 35,
+        width: this.buttonConfig.width,
+        height: this.buttonConfig.height,
         disabled: true,
-        margin: '10 0 0 0',
         cls: 'btn btn-default',
-
         formBind: true, // only enabled if the form is valid
         handler: function () {
             var formParams = _this.getForm().getForm().getValues();
