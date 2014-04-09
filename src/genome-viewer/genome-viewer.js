@@ -37,6 +37,7 @@ function GenomeViewer(args) {
     this.drawKaryotypePanel = true;
     this.drawChromosomePanel = true;
     this.drawRegionOverviewPanel = true;
+    this.overviewZoomMultiplier = 8;
     this.karyotypePanelConfig = {
         collapsed: false,
         collapsible: true
@@ -553,7 +554,7 @@ GenomeViewer.prototype = {
             targetId: targetId,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
-            zoomMultiplier: 8,
+            zoomMultiplier: this.overviewZoomMultiplier,
             title: 'Region overview',
             showRegionOverviewBox: true,
             collapsible: this.RegionPanelConfig.collapsible,
