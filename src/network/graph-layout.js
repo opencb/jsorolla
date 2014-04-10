@@ -110,7 +110,24 @@ GraphLayout = {
             }
         }
     },
-    force: function (network, width, height, endFunction, simulation) {
+    force: function (args) {
+
+        var network = args.network;
+        var width = args.width;
+        var height = args.height;
+        var friction = args.friction;
+        var gravity = args.gravity;
+        var chargeDistance = args.chargeDistance;
+
+        var linkStrength = args.linkStrength;
+        var linkDistance = args.linkDistance;
+        var charge = args.charge;
+
+        var endFunction = args.end;
+        var simulation = args.simulation;
+
+        var config = typeof args.config === 'undefined' ? {vertices: {}, edges: {}} : args.config;
+
         if (typeof network === 'undefined') {
             console.log('graph not defined');
             return;
@@ -120,56 +137,117 @@ GraphLayout = {
         var edgesArray = [];
 
         var force = d3.layout.force();
+
+        //Global parameters
         force.size([width, height]);
+        if (typeof  friction !== 'undefined') {
+            force.friction(friction);
+
+        }
+        if (typeof gravity !== 'undefined') {
+            force.gravity(gravity);
+
+        }
+        if (typeof  chargeDistance !== 'undefined') {
+            force.chargeDistance(chargeDistance);
+
+        }
+
 
         var vertices = network.graph.vertices;
+        var edges = network.graph.edges;
 
-        var run = function () {
-            layoutPrepare();
-            force.nodes(verticesArray)
-                .links(edgesArray)
-//                .linkStrength(0.8)
-                .linkDistance(function (edge) {
-                    return edge.size * 1.5;
-                })
-                .charge(function (node) {
-                    return node.size * -10;
-                })
-        };
 
-        var layoutPrepare = function () {
-            for (var i = 0, l = vertices.length; i < l; i++) {
-                var vertex = vertices[i];
-                if (typeof vertex !== 'undefined') {
-                    var vertexConfig = network.config.getVertexConfig(vertex);
-                    var v = {
-                        id: vertex.id,
-                        index: i,
-                        x: vertexConfig.coords.x,
-                        y: vertexConfig.coords.y,
-                        size: vertexConfig.renderer.getSize()
-                    };
-                    verticesArray.push(v);
-                    verticesMap[vertex.id] = v;
-                }
+        /*------------------------------------------*/
+        /*------------------------------------------*/
+        console.time('Force directed preload');
+
+        //set node and edge arrays for D3
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (typeof vertex !== 'undefined') {
+                var vertexConfig = network.config.getVertexConfig(vertex);
+                var v = {
+                    id: vertex.id,
+                    index: i,
+                    x: vertexConfig.coords.x,
+                    y: vertexConfig.coords.y
+                };
+                verticesArray.push(v);
+                verticesMap[vertex.id] = v;
             }
+        }
+        force.nodes(verticesArray);
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            if (typeof edge !== 'undefined') {
+                edgesArray.push({
+                    source: verticesMap[edge.source.id],
+                    target: verticesMap[edge.target.id]
+                });
+            }
+        }
+        force.links(edgesArray);
 
 
-            var edges = network.graph.edges;
-            for (var i = 0, l = edges.length; i < l; i++) {
-                var edge = edges[i];
-                if (typeof edge !== 'undefined') {
+        /* Node and Edge specific parameters */
+        //Link Distance
+        if (typeof linkDistance !== 'undefined') {
+            if (!isNaN(linkDistance)) {
+                force.linkDistance(linkDistance);
+            } else {
+                //is and attributName
+                force.linkDistance(function (edge) {
                     var sourceConfig = network.config.getVertexConfig(edge.source);
                     var targetConfig = network.config.getVertexConfig(edge.target);
-                    edgesArray.push({
-                        source: verticesMap[edge.source.id],
-                        target: verticesMap[edge.target.id],
-                        size: sourceConfig.renderer.size + targetConfig.renderer.size
-                    });
-                }
+                    var value = network.edgeAttributeManager.getValueByAttributeAndId(edge.id, linkDistance);
+                    var ld = isNaN(value) ? sourceConfig.renderer.size + targetConfig.renderer.size : value;
+                    return ld * 1.5;
+                });
             }
-        };
-        run();
+        } else {
+            force.linkDistance(function (edge) {
+                var sourceConfig = network.config.getVertexConfig(edge.source);
+                var targetConfig = network.config.getVertexConfig(edge.target);
+                return sourceConfig.renderer.size + targetConfig.renderer.size * 1.5;
+            })
+        }
+        //Link Strength
+        if (typeof linkStrength !== 'undefined') {
+            if (!isNaN(linkStrength)) {
+                force.linkStrength(linkStrength);
+            } else {
+                //is and attributName
+                force.linkStrength(function (edge) {
+                    var value = network.edgeAttributeManager.getValueByAttributeAndId(edge.id, linkStrength);
+                    var ls = isNaN(value) ? 1 : value;
+                    return ls;
+                });
+            }
+        }
+        //Node Charge
+        if (typeof charge !== 'undefined') {
+            if (!isNaN(charge)) {
+                force.charge(charge);
+            } else {
+                //is and attributName
+                force.charge(function (node) {
+                    var vertexConfig = network.config.getVertexConfig(node);
+                    var value = parseFloat(network.vertexAttributeManager.getValueByAttributeAndId(vertex.id, charge));
+                    var c = isNaN(value) ? vertexConfig.renderer.getSize() : value;
+                    return  c * -10;
+                });
+            }
+        } else {
+            force.charge(function (node) {
+                var vertexConfig = network.config.getVertexConfig(node);
+                return  vertexConfig.renderer.getSize() * -10;
+            });
+        }
+        console.timeEnd('Force directed preload');
+        /*------------------------------------------*/
+        /*------------------------------------------*/
+
 
         force.on('end', function (o) {
             console.log(o)
@@ -179,20 +257,25 @@ GraphLayout = {
         if (simulation === true) {
             force.on('tick', function (o) {
                 endFunction(verticesArray);
+                console.log(force.alpha())
+                if (force.alpha() < 0.025) {
+                    force.stop()
+                }
             });
             force.start();
         } else {
+            console.time('D3 Force directed layout');
             force.start();
             var safety = 0;
-            while (force.alpha() > 0) { // You'll want to try out different, "small" values for this
+            while (force.alpha() > 0.025) { // You'll want to try out different, "small" values for this
                 force.tick();
                 if (safety++ > 1000) {
                     break;// Avoids infinite looping in case this solution was a bad idea
                 }
             }
-            console.log(safety);
+//            console.log(safety);
             force.stop();
-
+            console.timeEnd('D3 Force directed layout');
         }
 
     }

@@ -66,8 +66,9 @@ function Network(args) {
 
 Network.prototype = {
     setGraph: function (graph) {
-        this.clean();
+        console.time('Network.setGraph');
         this.batchStart();
+        this.clean();
         var edges = graph.edges;
         var vertices = graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
@@ -89,11 +90,16 @@ Network.prototype = {
             }
         }
         this.batchEnd();
+        console.timeEnd('Network.setGraph');
     },
     getGraph: function () {
         return this.graph;
     },
     draw: function (target) {
+        console.time('Network.draw');
+        var parent = target.parentNode;
+        parent.removeChild(target);
+        this.batchStart();
         var edges = this.graph.edges;
         var vertices = this.graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
@@ -108,7 +114,10 @@ Network.prototype = {
                 this.renderEdge(edge, target);
             }
         }
+        this.batchEnd();
+        parent.appendChild(target);
         this.trigger('draw');
+        console.timeEnd('Network.draw');
     },
     addVertex: function (args) {
         var vertex = args.vertex;
@@ -726,14 +735,9 @@ Network.prototype = {
                         }
                     }
                 }
-//                            slicesMap[slicesName] = [
-//                                {size: defaults.size, area: defaults.area, color: defaults.color, labelSize: label.size, labelOffset: label.offset}
-//                            ];
                 vertexConfig.renderer.updateComplex(slicesMap, defaults);
             });
         }
-
-
     },
     setEdgeRendererAttribute: function (edge, attr, value) {
         var edgeConfig = this.config.getEdgeConfig(edge);
@@ -817,6 +821,7 @@ Network.prototype = {
 //    },
 
     clean: function () {
+        console.time('Network.clean')
         /*  graph */
         this.graph.clean();
         this.config.clean();
@@ -838,6 +843,7 @@ Network.prototype = {
         this.edgeAttributeManager.addAttributes(edgeAttributes);
 
         this.trigger('clean');
+        console.timeEnd('Network.clean')
     },
 
     getAsSIF: function (separator) {
@@ -887,9 +893,8 @@ Network.prototype = {
         };
     },
     loadJSON: function (content) {
-
+        console.time('Network.loadJSON');
         this.clean();
-
 
         this.batchStart();
         for (var i = 0; i < content.graph.vertices.length; i++) {
@@ -952,8 +957,10 @@ Network.prototype = {
 
         this.batchEnd();
         this.trigger('load:json');
+        console.timeEnd('Network.loadJSON');
     },
     importVertexWithAttributes: function (data) {
+        console.time('Network.importVertexWithAttributes');
         this.batchStart();
         if (data.createVertices) {
             for (var i = 0; i < data.content.data.length; i++) {
@@ -972,6 +979,7 @@ Network.prototype = {
         this._importAttributes(data.content, this.vertexAttributeManager);
         this.batchEnd();
         this.trigger('import:attributes');
+        console.timeEnd('Network.importVertexWithAttributes');
     },
     _importAttributes: function (data, attributeManager) {
         if (data.attributes.length > 1) {
@@ -995,8 +1003,13 @@ Network.prototype = {
         }
     },
     importEdgesWithAttributes: function (data) {
+        console.time('Network.importEdgesWithAttributes');
+        this.batchStart();
         // add attributes
         this._importAttributes(data.content, this.edgeAttributeManager);
+        this.batchEnd();
+        this.trigger('import:attributes');
+        console.timeEnd('Network.importEdgesWithAttributes');
     },
     batchStart: function () {
         this.batchFlag = true;

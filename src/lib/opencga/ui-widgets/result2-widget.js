@@ -29,6 +29,7 @@ function ResultWidget(args) {
     _.extend(this, args);
 
     this.panelId = null;
+    this.type;
     this.networkViewerId = null;
     this.genomeMapsId = null;
 }
@@ -47,16 +48,33 @@ ResultWidget.prototype = {
 
         this.panel = Ext.getCmp(this.panelId);
         if (this.panel == null) {
-            this.panel = Ext.create('Ext.panel.Panel', {
-                id: this.panelId,
-                border: 0,
-                title: this.job.name,
-                closable: true,
-                autoScroll: true
-            });
-
-            Ext.getCmp(this.targetId).add(this.panel);
-            Ext.getCmp(this.targetId).setActiveTab(this.panel);
+            if (this.type == "window") {
+                this.panel = Ext.create('Ext.window.Window', {
+                    id: this.panelId,
+                    bodyStyle: 'background:white;',
+                    title: this.job.name,
+                    closable: true,
+                    autoScroll: true,
+                    overflowY: 'auto',
+                    layout:{
+                        type:'vbox',
+                        align:'stretch'
+                    }
+                });
+            } else {
+                this.panel = Ext.create('Ext.panel.Panel', {
+                    id: this.panelId,
+                    border: 0,
+                    title: this.job.name,
+                    closable: true,
+                    autoScroll: true,
+                    layout:{
+                        type:'vbox',
+                        align:'stretch'
+                    }
+                });
+                Ext.getCmp(this.targetId).add(this.panel);
+            }
             this.panel.setLoading("Loading job info...");
 
             var url = OpencgaManager.jobResultUrl({
@@ -73,9 +91,19 @@ ResultWidget.prototype = {
                 layout.outputItems = _this.job.outputData.sort(layout.sortOutputItems);
                 layout.job = _this.job;
                 _this.render(_this.result);
+                if (_this.type == "window") {
+                    _this.panel.show();
+                } else {
+                    Ext.getCmp(_this.targetId).setActiveTab(_this.panel);
+                }
             });
         } else {
-            Ext.getCmp(this.targetId).setActiveTab(this.panel);
+            if (this.type == "window") {
+                this.panel.show();
+            } else {
+                Ext.getCmp(this.targetId).setActiveTab(this.panel);
+            }
+
         }
     },
     render: function (resultData) {
@@ -85,18 +113,25 @@ ResultWidget.prototype = {
         var getJobInfo = function (args) {
             var args = args || {};
             var itemTpl = new Ext.XTemplate(
-                '<p><span class="ssel border-bot s120">Information </span><span style="color:steelblue"> &nbsp; &nbsp; Job Id: <span><span style="color:slategrey">{id}</span></p><br>',
-                '<p><span class="emph">{name}</span> - <span class="info"> {toolName} </span> - <span style="color:orangered"> {date}</span></p>',
+                '<div class="s110">',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Id: </div>{id}<br>',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Name: </div>{name}<br>',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Tool: </div>{toolName}<br>',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Date: </div>{date}<br>',
+                '</div>',
                 '<p class="tip emph">{description}</p>',
                 '<p class="">{command.html}</p>'
             );
             var container = Ext.create('Ext.panel.Panel', {
-                title: 'Job information',
-                width: '95%',
+                title: 'Information',
+                header: {
+                    baseCls: 'ocb-panel-title'
+                },
+                border:false,
                 collapsible: true,
                 titleCollapse: true,
+                margin: 10,
                 bodyPadding: 10,
-                margin: '15 0 15 15',
                 items: [
                     {
                         xtype: 'box',
@@ -146,14 +181,11 @@ ResultWidget.prototype = {
         };
 
         var getResultIndex = function (children) {
-            var boxes = [
-                {xtype: 'box', cls: 'inlineblock ssel border-bot s120', html: 'Index', margin: 15}
-            ];
+            var boxes = [];
             for (var i = 0; i < children.length; i++) {
                 boxes.push(Ext.create('Ext.Component', {
-                    margin: "0 15 0 15",
-                    cls: 'dedo emph',
-                    overCls: 'err',
+                    cls: 'dedo',
+                    overCls: 'u err',
                     resultId: _this.jobId + children[i].title.replace(/ /g, ''),
                     html: children[i].title,
                     listeners: {
@@ -175,14 +207,22 @@ ResultWidget.prototype = {
                     }
                 }));
             }
-            return Ext.create('Ext.container.Container', {
-                margin: '0 0 20 0',
+            return Ext.create('Ext.panel.Panel', {
+                title: 'Result index',
+                header: {
+                    baseCls: 'ocb-panel-title'
+                },
+                border:false,
+                collapsible: true,
+                titleCollapse: true,
+                margin: 10,
+                bodyPadding: 10,
                 items: boxes
             });
         };
 
         var itemTpl = new Ext.XTemplate(
-            '<span class="s140 emph">{title}</span>',
+            '<span class="s120">{title}</span>',
             '<span class="ok"> {pathi} </span>',
             '<span class="info"> {date}</span><br>'
         );
@@ -342,12 +382,12 @@ ResultWidget.prototype = {
                         var gm_id = Utils.genId('gm');
                         var vfw_id = Utils.genId('vfw');
                         var html =
-                            '<div style="width:1500px;height:800px;">' +
-                                '<div id="' + vfw_id + '" style="width:1500px;">' +
-                                '</div>' +
-                                '<div id="' + gm_id + '" style="width:1500px;height:800px;">' +
-                                '</div>' +
-                                '</div>';
+                            '<div style="width:1500px;height:1200px;">' +
+                            '<div id="' + vfw_id + '" style="width:1500px;">' +
+                            '</div>' +
+                            '<div id="' + gm_id + '" style="width:1500px;height:800px;">' +
+                            '</div>' +
+                            '</div>';
                         itemBox = Ext.create('Ext.Component', {
                             flex: 1,
                             html: html,
@@ -439,25 +479,28 @@ ResultWidget.prototype = {
                     if (item.presentation == 'tabs') {
                         detailsItemsContainer = {
                             xtype: 'tabpanel',
-                            padding: '0 30 15 15',
                             plain: true,
                             border: 0,
                             defaults: {
                                 overflowX: 'scroll',
-                                height: 2000,
+//                                height: 2000,
                                 padding: 10
                             },
                             items: boxes
                         };
                     }
-                    return Ext.create('Ext.container.Container', {
-                        title: item.title,
+                    return Ext.create('Ext.panel.Panel', {
+                        title: 'Result details',
+//                        title: item.title,
+                        header: {
+                            baseCls: 'ocb-panel-title'
+                        },
+                        border:false,
+                        collapsible: true,
+                        titleCollapse: true,
+                        margin: 10,
+                        bodyPadding: 10,
                         items: [
-                            {
-                                xtype: 'box',
-                                cls: 'inlineblock ssel border-bot s120', margin: '15',
-                                html: 'Details'
-                            },
                             detailsItemsContainer
                         ]
                     });
@@ -471,7 +514,7 @@ ResultWidget.prototype = {
                     return Ext.create('Ext.container.Container', {
                         id: _this.jobId + item.title.replace(/ /g, ''),
                         title: item.title,
-                        margin: '0 0 20 20',
+                        margin: '0 0 20 0',
                         items: [
                             {
                                 xtype: 'box',

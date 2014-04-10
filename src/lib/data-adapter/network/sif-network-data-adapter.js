@@ -57,11 +57,13 @@ SIFNetworkDataAdapter.prototype.getGraph = function () {
 SIFNetworkDataAdapter.prototype.parse = function (data) {
     var _this = this;
 
-    console.time("SIFParse");
     try {
+        console.time("SIFParse");
         this.addedVertex = {};
         this.addedEdges = {};
         var lines = data.split("\n");
+//        console.log('SIFParse number lines: ' + lines.length);
+//        console.log(lines);
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i].replace(/^\s+|\s+$/g, "");
             if ((line != null) && (line.length > 0)) {
@@ -113,12 +115,10 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
                 }
             }
         }
+        console.timeEnd("SIFParse");
         this.trigger('data:load', {graph: this.graph, sender: this});
-
     } catch (e) {
         console.log(e);
         this.trigger('error:parse', {errorMsg: 'Parse error', sender: this});
     }
-
-    console.timeEnd("SIFParse");
 };

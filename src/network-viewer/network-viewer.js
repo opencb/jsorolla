@@ -228,13 +228,14 @@ NetworkViewer.prototype = {
 //        }
 
         if (typeof localStorage.networkViewer !== 'undefined') {
-            this.loadJSON(JSON.parse(localStorage.networkViewer));
+            var j = JSON.parse(localStorage.networkViewer);
+            this.loadJSON(j);
         }
         /* auto save session timeout */
         var intervalId = setInterval(function () {
             localStorage.networkViewer = JSON.stringify(_this.toJSON());
             console.log('Session saved');
-        }, 3000);
+        }, 5000);
     },
     hideOverviewPanel: function () {
         $(this.overviewPanelDiv).css({display: 'none'});
@@ -520,7 +521,7 @@ NetworkViewer.prototype = {
                     $(_this.contextMenuDiv).css({
                         display: "block",
                         left: e.x,
-                        top: e.y+90
+                        top: e.y + 90
                     });
                 },
                 'rightClick:backgroundImage': function (e) {
@@ -529,7 +530,7 @@ NetworkViewer.prototype = {
                     $(_this.contextMenuDiv).css({
                         display: "block",
                         left: e.x,
-                        top: e.y+90
+                        top: e.y + 90
                     });
                 }
             }
@@ -901,21 +902,31 @@ NetworkViewer.prototype = {
             case "none":
                 break;
             case "Force directed":
-                GraphLayout.force(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight(), function (verticesArray) {
-                    for (var i = 0, l = verticesArray.length; i < l; i++) {
-                        var v = verticesArray[i];
-                        _this.setVertexCoords(v.id, v.x, v.y);
+                GraphLayout.force({
+                    network: this.network,
+                    width: _this.networkSvgLayout.getWidth(),
+                    height: _this.networkSvgLayout.getHeight(),
+                    end: function (verticesArray) {
+                        for (var i = 0, l = verticesArray.length; i < l; i++) {
+                            var v = verticesArray[i];
+                            _this.setVertexCoords(v.id, v.x, v.y);
+                        }
                     }
                 });
                 break;
             case "Force directed (simulation)":
-                GraphLayout.force(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight(), function (verticesArray) {
-                    for (var i = 0, l = verticesArray.length; i < l; i++) {
-                        var v = verticesArray[i];
-                        _this.setVertexCoords(v.id, v.x, v.y);
+                GraphLayout.force({
+                    network: this.network,
+                    width: _this.networkSvgLayout.getWidth(),
+                    height: _this.networkSvgLayout.getHeight(),
+                    simulation: true,
+                    end: function (verticesArray) {
+                        for (var i = 0, l = verticesArray.length; i < l; i++) {
+                            var v = verticesArray[i];
+                            _this.setVertexCoords(v.id, v.x, v.y);
+                        }
                     }
-                }, true);
-
+                });
                 break;
             default:
                 console.log(dot);
@@ -1013,8 +1024,8 @@ NetworkViewer.prototype = {
     },
     loadJSON: function (content) {
         try {
-            this.network.loadJSON(content);
             this.networkSvgLayout.clean();
+            this.network.loadJSON(content);
             this.networkSvgLayout.setZoom(content["zoom"]);
             this.toolBar.setZoom(content["zoom"]);
             this.network.draw(this.networkSvgLayout.getElementsSVG());
@@ -1040,11 +1051,13 @@ NetworkViewer.prototype = {
         return this.network.getAsSIFCustomRelation(separator, relationColumn);
     },
     setGraph: function (graph) {
-        this.clean();
+        delete localStorage.networkViewer;
+        this.networkSvgLayout.clean();
 
         console.time("graph")
         this.network.setGraph(graph);
         console.timeEnd("graph")
+        debugger
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     }
 

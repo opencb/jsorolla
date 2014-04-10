@@ -100,10 +100,10 @@ module.exports = function (grunt) {
                 src: [
                     '<%= concat.utils.dest %>',
                     '<%= concat.cellbase.dest %>',
-                    'src/network-viewer/tool-bar.js',
                     'src/network-viewer/edition-bar.js',
+                    'src/network-viewer/tool-bar.js',
+                    'src/network-viewer/*-widget.js',
                     'src/network-viewer/network-svg-layout.js',
-                    'src/network-viewer/network-edit-widget.js',
                     'src/network-viewer/attributes/*.js',
                     'src/network/attributes/*.js',
                     'src/network/*.js',

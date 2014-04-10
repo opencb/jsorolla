@@ -222,7 +222,7 @@ JobListWidget.prototype.clean = function () {
 JobListWidget.prototype.setAccountData = function (data) {
 
     this.accountData = data;
-    console.log("joblistwidget");
+//    console.log("joblistwidget");
     var jobs = [];
     var job;
     for (var i = 0; i < this.accountData.projects.length; i++) {

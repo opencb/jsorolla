@@ -693,6 +693,12 @@ OpencgaBrowserWidget.prototype = {
         }
     },
 
+    removeAccountData: function () {
+        this.folderStore.getRootNode().removeAll();
+        this.allStore.getRootNode().removeAll();
+        this.filesStore.removeAll();
+    },
+
     _updateFolderTree: function () {
         var _this = this;
 //        console.log("updating folder tree");

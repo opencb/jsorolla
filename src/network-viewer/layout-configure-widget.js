@@ -19,13 +19,14 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function NetworkEditWidget(args) {
+function LayoutConfigureWidget(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
-    this.id = Utils.genId('NetworkEditWidget');
+    this.id = Utils.genId('LayoutConfigureWidget');
 
+    this.width = 400;
+    this.height = 300;
     this.window;
-    this.grid;
     this.network;
     this.networkViewer;
 
@@ -39,219 +40,262 @@ function NetworkEditWidget(args) {
     }
 };
 
-NetworkEditWidget.prototype = {
+LayoutConfigureWidget.prototype = {
     render: function () {
         var _this = this;
-        this.store = Ext.create('Ext.data.Store', {
-            id: this.id + 'store',
-            pageSize: 50,
-            proxy: {
-                type: 'memory'
+
+        this.edgeAttributeManager = this.network.edgeAttributeManager;
+        this.edgeAttributeStore = Ext.create('Ext.data.Store', {
+            fields: ['name'],
+            data: [
+                {name: 'Non weighted'}
+            ].concat(this.edgeAttributeManager.attributes)
+        });
+        this.edgeAttributeManager.on('change:attributes', function () {
+            _this.edgeAttributeStore.loadData([
+                {name: 'Non weighted'}
+            ].concat(_this.edgeAttributeManager.attributes));
+        });
+
+        this.vertexAttributeManager = this.network.vertexAttributeManager;
+        this.vertexAttributeStore = Ext.create('Ext.data.Store', {
+            fields: ['name'],
+            data: [
+                {name: 'Non weighted'}
+            ].concat(this.vertexAttributeManager.attributes)
+        });
+        this.vertexAttributeManager.on('change:attributes', function () {
+            _this.vertexAttributeStore.loadData([
+                {name: 'Non weighted'}
+            ].concat(_this.vertexAttributeManager.attributes));
+        });
+
+        var nodeChargeAttributeCombo = this.createComponent({
+            text: 'Charge',
+            store: this.vertexAttributeStore,
+            value: -30,
+//            maxValue: 100,
+//            minValue: -100,
+            step: 1,
+            changeNumberField: function () {
             },
-            fields: [
-                {name: 'relation', type: 'string'},
-                {name: 'source.id', type: 'string'},
-                {name: 'target.id', type: 'string'}
-            ],
-            data: this.getElements()
-        });
-//
+            changeCombo: function () {
+            }
 
-        this.network.on('add:vertex add:edge remove:vertex remove:edge remove:vertices load:json clean draw batch:end', function () {
-            _this.store.loadRawData(_this.getElements());
-        });
-    },
-    draw: function () {
-        var _this = this;
-
-
-        this.sourceTextfield = Ext.create('Ext.form.field.Text', {
-            xtype: 'textfield',
-            vtype: 'alphanum',
-            emptyText: 'Source id',
-            flex: 1
         });
 
-        this.relationTextfield = Ext.create('Ext.form.field.Text', {
-            xtype: 'textfield',
-            vtype: 'alphanum',
-            emptyText: 'Relation',
-            flex: 1
-        });
-
-        this.targetTextfield = Ext.create('Ext.form.field.Text', {
-            xtype: 'textfield',
-            vtype: 'alphanum',
-            emptyText: 'Target id',
-            flex: 1
-        });
-
-        this.grid = Ext.create('Ext.grid.Panel', {
-            id: this.id + 'grid',
-            store: this.store,
-            columns: [
-                {"header": "Source node", "dataIndex": "source.id", flex: 1, editor: {allowBlank: false}},
-                {"header": "Relation", "dataIndex": "relation", flex: 1, editor: {allowBlank: false}},
-                {"header": "Target node", "dataIndex": "target.id", flex: 1, editor: {allowBlank: false}}
-            ],
-            flex: 1,
-            border: 0,
-            loadMask: true,
-            selModel: {
-                selType: 'rowmodel',
-                mode: 'MULTI'
+        var edgeDistanceAttributeCombo = this.createComponent({
+            text: 'Link distance',
+            store: this.edgeAttributeStore,
+            value: 20,
+//            maxValue: 100,
+            minValue: 0,
+            step: 1,
+            changeNumberField: function () {
             },
-            plugins: ['bufferedrenderer',
-//                Ext.create('Ext.grid.plugin.RowEditing', {
-//                    clicksToMoveEditor: 1,
-//                    autoCancel: false
-//                })
-//                Ext.create('Ext.grid.plugin.CellEditing', {
-//                    double click to edit cell
-//                    clicksToEdit: 2
-//                })
-            ],
+            changeCombo: function () {
+            }
+        });
 
+        var edgeStrengthAttributeCombo = this.createComponent({
+            text: 'Link strength',
+            store: this.edgeAttributeStore,
+            value: 1,
+            maxValue: 1,
+            minValue: 0,
+            step: 0.1,
+            changeNumberField: function () {
+            },
+            changeCombo: function () {
+            }
+        });
+
+        var frictionField = Ext.create('Ext.form.field.Number', {
+            xtype: 'numberfield',
+            fieldLabel: '<span style="font-family: Oxygen">Friction</span>',
+            value: 0.9,
+            maxValue: 1,
+            minValue: 0,
+            step: 0.1,
             listeners: {
-//                selectionchange: function (model, selected) {
-//                    console.log('selection change')
-//                    var vertexList = [];
-//                    for (var i = 0; i < selected.length; i++) {
-//                        vertexList.push(selected[i].getData().Id);
-//                    }
-//                }
-            },
-            dockedItems: [
-                {
-                    xtype: 'toolbar',
-                    dock: 'top',
-                    items: [
-                        {
-                            xtype: 'button',
-                            text: 'Remove selected interactions',
-                            handler: function (bt, e) {
-                                var grid = _this.grid;
-                                var selectedRecords = _this.grid.getSelectionModel().getSelection();
-                                _this.network.batchStart();
-                                for (var i = 0; i < selectedRecords.length; i++) {
-                                    var record = selectedRecords[i];
-                                    var edgeId = record.raw.id;
-                                    if (typeof edgeId !== 'undefined') {
-                                        var edge = _this.network.getEdgeById(record.raw.id);
-                                        _this.network.removeEdge(edge);
-                                    } else {
-                                        var vertex = _this.network.getVertexById(record.raw.source.id);
-                                        _this.network.removeVertex(vertex);
-                                    }
-                                }
-                                var vertices = _this.network.graph.vertices;
-                                for (var i = 0; i < vertices.length; i++) {
-                                    var vertex = vertices[i];
-                                    if (typeof vertex !== 'undefined') {
-                                        if (vertex.edges.length == 0) {
-                                            _this.network.removeVertex(vertex);
-                                        }
-                                    }
-                                }
-                                _this.network.batchEnd();
-                            }
-                        },
-                        '->',
-                        {
-                            xtype: 'button',
-                            text: 'Download as SIF file',
-                            href: 'none',
-                            handler: function (bt, e) {
-                                var a = bt.getEl();
-                                var string = _this.network.graph.getAsSIF();
-                                a.set({
-                                    href: 'data:text/tsv,' + encodeURIComponent(string),
-                                    download: "network.sif"
-                                });
-                            }
+                change: {
+                    buffer: 100,
+                    fn: function (field, newValue) {
+                        if (newValue != null) {
+                            console.log(newValue);
                         }
-                    ]
+                    }
                 }
-            ]
+            }
         });
+        var gravityField = Ext.create('Ext.form.field.Number', {
+            xtype: 'numberfield',
+            fieldLabel: '<span style="font-family: Oxygen">Gravity</span>',
+            value: 0.1,
+//                            maxValue: ,
+            minValue: 0,
+            step: 0.1,
+            listeners: {
+                change: {
+                    buffer: 100,
+                    fn: function (field, newValue) {
+                        if (newValue != null) {
+                            console.log(newValue);
+                        }
+                    }
+                }
+            }
+        });
+        var chargeDistanceField = Ext.create('Ext.form.field.Number', {
+            xtype: 'numberfield',
+            fieldLabel: '<span style="font-family: Oxygen">Charge distance</span>',
+            value: 500,
+//            maxValue: 100,
+            minValue: 0,
+            step: 1,
+            listeners: {
+                change: {
+                    buffer: 100,
+                    fn: function (field, newValue) {
+                        if (newValue != null) {
+                            console.log(newValue);
+                        }
+                    }
+                }
+            }
+        });
+
 
         this.window = Ext.create('Ext.window.Window', {
             id: this.id + 'window',
-            title: "Network editor",
-            width: 800,
-            height: 600,
+            title: 'Force directed layout configuration',
+            bodyStyle: {
+                backgroundColor: 'white',
+                fontFamily: 'Oxygen'
+            },
+            bodyPadding: 10,
+            width: this.width,
             closable: false,
             minimizable: true,
             constrain: true,
             collapsible: true,
             layout: {
-                type: 'hbox',
+                type: 'vbox',
                 align: 'stretch'
             },
             items: [
                 {
-                    xtype: 'panel',
-                    title: 'Add interaction',
-                    width: 170,
-                    border: 0,
-                    bodyPadding: 10,
+                    xtype: 'box',
                     style: {
-                        borderRight: '1px solid lightgray'
+                        textAlign: 'right'
                     },
+                    html: '<a target="_blank" href="https://github.com/mbostock/d3/wiki/Force-Layout">About force directed layout </a>'
+                },
+                {
+                    xtype: 'box',
+                    style: {
+                        fontSize: '13px',
+                        fontWeight: 'bold',
+                        borderBottom: '1px solid lightgray',
+                        marginBottom: '10px'
+                    },
+                    html: 'Node related settings'
+                },
+                {
+                    xtype: 'container',
+                    style: {
+                        marginBottom: '20px'
+                    },
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    defaults: { margin: '1 0 1 0' },
                     items: [
-                        this.sourceTextfield,
-                        this.relationTextfield,
-                        this.targetTextfield,
-                        {
-                            xtype: 'button',
-                            text: 'Add interaction',
-                            handler: function (bt, e) {
-                                var sourceId = _this.sourceTextfield.getValue();
-                                var targetId = _this.targetTextfield.getValue();
-                                var relation = _this.relationTextfield.getValue();
-                                if (sourceId !== '' && targetId !== '' && relation !== '') {
-                                    var edgeId = sourceId + '_' + relation + '_' + targetId;
-
-                                    var sourceVertex = _this.network.getVertexById(sourceId);
-                                    if (typeof sourceVertex === 'undefined') {
-                                        sourceVertex = new Vertex({
-                                            id: sourceId
-                                        });
-                                        _this.network.addVertex({
-                                            vertex: sourceVertex,
-                                            vertexConfig: new VertexConfig({})
-                                        }, true);
-                                    }
-                                    var targetVertex = _this.network.getVertexById(targetId);
-                                    if (typeof targetVertex === 'undefined') {
-                                        targetVertex = new Vertex({
-                                            id: targetId
-                                        });
-                                        _this.network.addVertex({
-                                            vertex: targetVertex,
-                                            vertexConfig: new VertexConfig({})
-                                        }, true);
-                                    }
-                                    var edge = new Edge({
-                                        id: edgeId,
-                                        relation: relation,
-                                        source: sourceVertex,
-                                        target: targetVertex,
-                                        weight: 1,
-                                        directed: true
-                                    });
-                                    _this.network.addEdge({
-                                        edge: edge,
-                                        edgeConfig: new EdgeConfig({})
-                                    });
-
-                                    _this.networkViewer.refreshNetwork();
-                                }
-                            }
-                        }
+                        nodeChargeAttributeCombo
                     ]
                 },
-                this.grid
+                {
+                    xtype: 'box',
+                    style: {
+                        fontSize: '13px',
+                        fontWeight: 'bold',
+                        borderBottom: '1px solid lightgray',
+                        marginBottom: '10px'
+                    },
+                    html: 'Edge related settings'
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    defaults: { margin: '1 0 1 0' },
+                    items: [
+                        edgeDistanceAttributeCombo,
+                        edgeStrengthAttributeCombo
+                    ]
+                },
+                {
+                    xtype: 'box',
+                    style: {
+                        fontSize: '13px',
+                        fontWeight: 'bold',
+                        borderBottom: '1px solid lightgray',
+                        marginBottom: '10px',
+                        marginTop: '20px'
+                    },
+                    html: 'Global settings'
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    defaults: { margin: '1 0 1 0' },
+                    items: [
+                        frictionField,
+                        gravityField,
+                        chargeDistanceField
+
+                    ]
+                }
+            ],
+            buttons: [
+                {
+                    text: 'Apply',
+                    handler: function () {
+
+                        var linkDistanceValue = edgeDistanceAttributeCombo.down('combo').getValue();
+                        var linkStrengthValue = edgeStrengthAttributeCombo.down('combo').getValue();
+                        var chargeValue = nodeChargeAttributeCombo.down('combo').getValue();
+
+                        linkDistanceValue = linkDistanceValue === 'Non weighted' ? undefined : linkDistanceValue;
+                        linkStrengthValue = linkStrengthValue === 'Non weighted' ? undefined : linkStrengthValue;
+                        chargeValue = chargeValue === 'Non weighted' ? undefined : chargeValue;
+
+                        GraphLayout.force({
+                            network: _this.network,
+                            width: _this.networkViewer.networkSvgLayout.getWidth(),
+                            height: _this.networkViewer.networkSvgLayout.getHeight(),
+                            linkDistance: linkDistanceValue,
+                            linkStrength: linkStrengthValue,
+                            charge: chargeValue,
+                            friction: frictionField.getValue(),
+                            gravity: gravityField.getValue(),
+                            chargeDistance: chargeDistanceField.getValue(),
+
+                            end: function (verticesArray) {
+                                for (var i = 0, l = verticesArray.length; i < l; i++) {
+                                    var v = verticesArray[i];
+                                    _this.networkViewer.setVertexCoords(v.id, v.x, v.y);
+                                }
+                            }
+                        });
+                    }
+                }
             ],
             listeners: {
                 minimize: function () {
@@ -260,33 +304,65 @@ NetworkEditWidget.prototype = {
             }
         });
     },
-    getElements: function () {
-        var edges = this.network.graph.edges;
-        var vertices = this.network.graph.vertices;
-        var elements = [];
-        var verticesHash = {};
-        for (var i = 0, l = edges.length; i < l; i++) {
-            var edge = edges[i];
-            if (typeof edge !== 'undefined') {
-                elements.push(edge);
-                verticesHash[edge.source.id] = edge.source;
-                verticesHash[edge.target.id] = edge.target;
-            }
-        }
-        for (var i = 0; i < vertices.length; i++) {
-            var vertex = vertices[i];
-            if (typeof vertex !== 'undefined') {
-                if (vertex.edges.length == 0 && typeof verticesHash[vertex.id] === 'undefined') {
-                    elements.push({source: vertex});
-                }
-            }
-        }
-        return elements;
+    draw: function () {
+        var _this = this;
+
     },
     show: function () {
         this.window.show();
     },
     hide: function () {
         this.window.hide();
-    }
+    },
+    createComponent: function (args) {
+        var _this = this;
+        return Ext.create('Ext.container.Container', {
+            layout: 'hbox',
+            defaults: {
+                margin: '0 1 0 1'
+            },
+            items: [
+                {
+                    xtype: 'numberfield',
+                    fieldLabel: '<span style="font-family: Oxygen">' + args.text + '</span>',
+                    value: args.value,
+                    maxValue: args.maxValue,
+                    minValue: args.minValue,
+                    step: args.step,
+                    margin: '0 10 0 0',
+                    listeners: {
+                        change: {
+                            buffer: 100,
+                            fn: function (field, newValue) {
+                                if (newValue != null) {
+                                    args.changeNumberField(newValue);
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    xtype: 'combo',
+                    store: args.store,
+                    displayField: 'name',
+                    valueField: 'name',
+                    width: 100,
+                    queryMode: 'local',
+                    forceSelection: true,
+                    editable: false,
+                    listeners: {
+                        afterrender: function () {
+                            this.select(this.getStore().getAt(0));
+                        },
+                        change: function (field, e) {
+                            var value = field.getValue();
+                            if (value != null) {
+                                args.changeCombo(value);
+                            }
+                        }
+                    }
+                }
+            ]
+        })
+    },
 }

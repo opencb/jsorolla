@@ -152,7 +152,7 @@ NetworkSvgLayout.prototype = {
             "y": 0,
             "width": 0,
             "height": 0,
-            "stroke-width": "2",
+            "stroke-width": "1.5",
             "stroke": "deepskyblue",
             "opacity": "0.5",
             "fill": "honeydew"
@@ -461,12 +461,6 @@ NetworkSvgLayout.prototype = {
                         var height = parseFloat(_this.selectRect.getAttribute('height'));
 
                         _this.trigger('select:area', {x: x, y: y, width: width, height: height, sender: _this});
-
-                        _this.selectRect.setAttribute('x', 0);
-                        _this.selectRect.setAttribute('y', 0);
-                        _this.selectRect.setAttribute('width', 0);
-                        _this.selectRect.setAttribute('height', 0);
-
                 }
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
@@ -491,6 +485,10 @@ NetworkSvgLayout.prototype = {
                 }
                 break;
         }
+        this.selectRect.setAttribute('x', 0);
+        this.selectRect.setAttribute('y', 0);
+        this.selectRect.setAttribute('width', 0);
+        this.selectRect.setAttribute('height', 0);
     },
     middleMouseDown: function (event) {
         var _this = this;
