@@ -535,6 +535,7 @@ var OpencgaManager = {
             $.ajax({
                 type: "GET",
                 url: url,
+                async: args.async,
                 success: function (data, textStatus, jqXHR) {
                     args.success(data);
                 },

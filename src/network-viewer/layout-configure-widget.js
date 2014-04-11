@@ -272,9 +272,13 @@ LayoutConfigureWidget.prototype = {
                         var linkStrengthValue = edgeStrengthAttributeCombo.down('combo').getValue();
                         var chargeValue = nodeChargeAttributeCombo.down('combo').getValue();
 
-                        linkDistanceValue = linkDistanceValue === 'Non weighted' ? undefined : linkDistanceValue;
-                        linkStrengthValue = linkStrengthValue === 'Non weighted' ? undefined : linkStrengthValue;
-                        chargeValue = chargeValue === 'Non weighted' ? undefined : chargeValue;
+                        var linkDistanceDefaultValue = edgeDistanceAttributeCombo.down('numberfield').getValue();
+                        var linkStrengthDefaultValue = edgeStrengthAttributeCombo.down('numberfield').getValue();
+                        var chargeDefaultValue = nodeChargeAttributeCombo.down('numberfield').getValue();
+
+                        linkDistanceValue = linkDistanceValue === 'Non weighted' ? linkDistanceDefaultValue : linkDistanceValue;
+                        linkStrengthValue = linkStrengthValue === 'Non weighted' ? linkStrengthDefaultValue : linkStrengthValue;
+                        chargeValue = chargeValue === 'Non weighted' ? chargeDefaultValue : chargeValue;
 
                         GraphLayout.force({
                             network: _this.network,
@@ -283,10 +287,16 @@ LayoutConfigureWidget.prototype = {
                             linkDistance: linkDistanceValue,
                             linkStrength: linkStrengthValue,
                             charge: chargeValue,
+                            multipliers: {
+                                linkDistance: linkDistanceDefaultValue,
+                                linkStrength: linkStrengthDefaultValue,
+                                charge: chargeDefaultValue
+                            },
                             friction: frictionField.getValue(),
                             gravity: gravityField.getValue(),
                             chargeDistance: chargeDistanceField.getValue(),
 
+                            simulation: false,
                             end: function (verticesArray) {
                                 for (var i = 0, l = verticesArray.length; i < l; i++) {
                                     var v = verticesArray[i];

@@ -123,6 +123,8 @@ GraphLayout = {
         var linkDistance = args.linkDistance;
         var charge = args.charge;
 
+        var multipliers = args.multipliers;
+
         var endFunction = args.end;
         var simulation = args.simulation;
 
@@ -189,7 +191,6 @@ GraphLayout = {
         }
         force.links(edgesArray);
 
-
         /* Node and Edge specific parameters */
         //Link Distance
         if (typeof linkDistance !== 'undefined') {
@@ -201,8 +202,8 @@ GraphLayout = {
                     var sourceConfig = network.config.getVertexConfig(edge.source);
                     var targetConfig = network.config.getVertexConfig(edge.target);
                     var value = network.edgeAttributeManager.getValueByAttributeAndId(edge.id, linkDistance);
-                    var ld = isNaN(value) ? sourceConfig.renderer.size + targetConfig.renderer.size : value;
-                    return ld * 1.5;
+                    var ld = isNaN(value) ? (sourceConfig.renderer.size + targetConfig.renderer.size) * 1.5 : value * multipliers.linkDistance;
+                    return ld;
                 });
             }
         } else {
@@ -220,7 +221,7 @@ GraphLayout = {
                 //is and attributName
                 force.linkStrength(function (edge) {
                     var value = network.edgeAttributeManager.getValueByAttributeAndId(edge.id, linkStrength);
-                    var ls = isNaN(value) ? 1 : value;
+                    var ls = isNaN(value) ? 1 : value * multipliers.linkStrength;
                     return ls;
                 });
             }
@@ -234,8 +235,8 @@ GraphLayout = {
                 force.charge(function (node) {
                     var vertexConfig = network.config.getVertexConfig(node);
                     var value = parseFloat(network.vertexAttributeManager.getValueByAttributeAndId(vertex.id, charge));
-                    var c = isNaN(value) ? vertexConfig.renderer.getSize() : value;
-                    return  c * -10;
+                    var c = isNaN(value) ? vertexConfig.renderer.getSize() * -10 : value * multipliers.charge;
+                    return  c;
                 });
             }
         } else {

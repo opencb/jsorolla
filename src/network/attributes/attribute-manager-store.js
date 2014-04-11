@@ -101,27 +101,13 @@ AttributeManagerStore.prototype = {
                 "editor": editor
             });
         }
-
         // set model fields
         this.model.setFields(this.attributes);
-
-        //Set default value for existing records
-        this.store.suspendEvents();
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
-        for (var i = 0; i < records.length; i++) {
-            var record = records[i];
-            record.set(attribute.name, attribute.defaultValue);
-        }
-        this.store.commitChanges();
-        this.store.resumeEvents();
-        this.store.fireEvent('refresh');
     },
     addAttributes: function (attributes) {
         for (var i = 0; i < attributes.length; i++) {
             this.addAttribute(attributes[i], false);
         }
-        console.log('change:attributes - add multiple attr')
         this.trigger('change:attributes', {sender: this});
     },
     removeAttribute: function (attributeName) {
@@ -163,7 +149,8 @@ AttributeManagerStore.prototype = {
         if (this.isAttributeLocked(attributeName)) {
             return false;
         }
-        var record = this.store.getById(id);
+        var data = this.store.snapshot || this.store.data;
+        var record = data.map[id];
         if (record) {
             record.set(attributeName, value);
             record.commit();
@@ -171,20 +158,25 @@ AttributeManagerStore.prototype = {
     },
     setRecordAttributeByIds: function (records) {
         this.store.suspendEvents();
+//        console.time('AttributeManagerStore.setRecordAttributeByIds');
+        var data = this.store.snapshot || this.store.data;
         for (var i = 0; i < records.length; i++) {
             var recordObject = records[i];
             if (!this.isAttributeLocked(recordObject.attributeName)) {
-                var record = this.store.getById(recordObject.id);
+                var record = data.map[recordObject.id];
                 if (record) { // if exists a row with this name
+                    record.beginEdit();
                     for (var attributeName in recordObject) {
                         if (attributeName !== 'id') {
                             record.set(attributeName, recordObject[attributeName]);
                         }
                     }
                     record.commit();
+                    record.endEdit();
                 }
             }
         }
+//        console.timeEnd('AttributeManagerStore.setRecordAttributeByIds');
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
         for (var attributeName in recordObject) {
@@ -208,17 +200,19 @@ AttributeManagerStore.prototype = {
 //    addRecord: function (data, append) {
 //        this.store.loadData(data, append);
 //    },
-    addRecord: function (data, append) {
-        this.store.loadData(data, append);
+    addRecord: function (data) {
+        this.store.add(data);
     },
     removeRecordById: function (id) {
-        var record = this.store.getById(id);
+        var data = this.store.snapshot || this.store.data;
+        var record = data.map[id];
         if (record) {
             this.store.remove(record);
         }
     },
     getValueByAttributeAndId: function (id, attribute) {
-        var record = this.store.getById(id);
+        var data = this.store.snapshot || this.store.data;
+        var record = data.map[id];
         if (record) {
             return record.get(attribute);
         }
@@ -324,10 +318,11 @@ AttributeManagerStore.prototype = {
 //        return records;
 //    },
     selectByItems: function (items) {
+        var data = this.store.snapshot || this.store.data;
         this.store.suspendEvents();
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            var record = this.store.getById(item.id);
+            var record = data.map[item.id];
             if (record) {
                 record.set('Selected', true);
                 record.commit();
@@ -337,10 +332,11 @@ AttributeManagerStore.prototype = {
         this.store.fireEvent('refresh');
     },
     deselectByItems: function (items) {
+        var data = this.store.snapshot || this.store.data;
         this.store.suspendEvents();
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            var record = this.store.getById(item.id);
+            var record = data.map[item.id];
             if (record) {
                 record.set('Selected', false);
                 record.commit();

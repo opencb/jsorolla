@@ -217,7 +217,6 @@ NetworkViewer.prototype = {
                 }
             }, 500);
         });
-
 //        this.networkSvgOverview = this._createNetworkSvgOverview($(this.overviewPanelDiv).attr('id'));
 
 
@@ -226,16 +225,6 @@ NetworkViewer.prototype = {
 //            div = $('#'+this.getGraphCanvasId()+'_overview')[0];
 //            this.networkSvgOverview = new NetworkSvg(div, this.networkData, {"width": "100%", "height": "100%", "parentNetwork": this.networkSvg, "scale": this.overviewScale});
 //        }
-
-        if (typeof localStorage.networkViewer !== 'undefined') {
-            var j = JSON.parse(localStorage.networkViewer);
-            this.loadJSON(j);
-        }
-        /* auto save session timeout */
-        var intervalId = setInterval(function () {
-            localStorage.networkViewer = JSON.stringify(_this.toJSON());
-            console.log('Session saved');
-        }, 5000);
     },
     hideOverviewPanel: function () {
         $(this.overviewPanelDiv).css({display: 'none'});
@@ -418,12 +407,16 @@ NetworkViewer.prototype = {
 
         this.numVertices = $('<span></span>')[0];
         this.numEdges = $('<span></span>')[0];
+        this.loadingMessage = $('<span></span>')[0];
 
         $(this.numVertices).css({
             fontWeight: 'bold'
         });
         $(this.numEdges).css({
             fontWeight: 'bold'
+        });
+        $(this.loadingMessage).css({
+            marginLeft: '20px'
         });
 
         var infoVertices = $('<span>Number nodes: </span>')[0];
@@ -439,6 +432,10 @@ NetworkViewer.prototype = {
         $(div).append(this.numVertices);
         $(div).append(infoEdges);
         $(div).append(this.numEdges);
+        $(div).append(this.loadingMessage);
+    },
+    setLoading:function(msg){
+        $(this.loadingMessage).text(msg);
     },
     _updateStatusInfo: function () {
         console.log("_updateStatusInfo")
@@ -1054,10 +1051,7 @@ NetworkViewer.prototype = {
         delete localStorage.networkViewer;
         this.networkSvgLayout.clean();
 
-        console.time("graph")
         this.network.setGraph(graph);
-        console.timeEnd("graph")
-        debugger
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     }
 

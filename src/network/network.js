@@ -115,9 +115,9 @@ Network.prototype = {
             }
         }
         this.batchEnd();
+        console.timeEnd('Network.draw');
         parent.appendChild(target);
         this.trigger('draw');
-        console.timeEnd('Network.draw');
     },
     addVertex: function (args) {
         var vertex = args.vertex;
@@ -145,9 +145,10 @@ Network.prototype = {
                 n = name;
             }
 
-            this.vertexAttributeManager.addRecord([
-                [vertex.id, n]
-            ], true);
+            this.vertexAttributeManager.addRecord({
+                'Id': vertex.id,
+                'Name': n
+            });
 
             if (this.batchFlag == false) {
                 this.trigger('add:vertex');
@@ -177,9 +178,11 @@ Network.prototype = {
             }
 
             //attributes
-            this.edgeAttributeManager.addRecord([
-                [edge.id, edge.id, edge.relation]
-            ], true);
+            this.edgeAttributeManager.addRecord({
+                'Id': edge.id,
+                'Name': edge.id,
+                'Relation': edge.relation
+            });
 
             if (this.batchFlag == false) {
                 this.trigger('add:edge');
@@ -893,10 +896,10 @@ Network.prototype = {
         };
     },
     loadJSON: function (content) {
-        console.time('Network.loadJSON');
         this.clean();
 
         this.batchStart();
+        console.time('Network.loadJSON');
         for (var i = 0; i < content.graph.vertices.length; i++) {
             var v = content.graph.vertices[i];
             var vertex = new Vertex({
@@ -920,7 +923,6 @@ Network.prototype = {
                 vertexConfig: vertexConfig
             });
         }
-
         for (var i = 0; i < content.graph.edges.length; i++) {
             var e = content.graph.edges[i];
 
@@ -986,19 +988,20 @@ Network.prototype = {
             var attributes = data.attributes;
             attributeManager.addAttributes(attributes);
             // add values for attributes
-            var values = [];
+//            console.time('Network._importAttributes');
+            var values = [], recordObject, attr, value;
             for (var i = 0; i < data.data.length; i++) {
-                var id = data.data[i][0];
-                var recordObject = {
-                    id: id
+                recordObject = {
+                    id: data.data[i][0]
                 };
                 for (var j = 1; j < data.data[i].length; j++) {
-                    var attr = attributes[j].name;
-                    var value = data.data[i][j];
+                    attr = attributes[j].name;
+                    value = data.data[i][j];
                     recordObject[attr] = value;
                 }
                 values.push(recordObject);
             }
+//            console.timeEnd('Network._importAttributes');
             attributeManager.setRecordAttributeByIds(values);
         }
     },
