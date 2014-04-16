@@ -154,7 +154,11 @@ SequenceAdapter.prototype._processSequenceQuery = function (data, throwNotify) {
 
         var queryId = queryResponse.id;
         var seqResponse = queryResponse.result;
+
         var chromosome = seqResponse.chromosome;
+        if(typeof chromosome === 'undefined'){
+            chromosome = seqResponse.seqName;
+        }
 
         if (this.sequence[chromosome] == null) {
             this.sequence[chromosome] = seqResponse.sequence;
