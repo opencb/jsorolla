@@ -279,6 +279,11 @@ AttributeManagerStore.prototype = {
             eachFunction(record);
         }
     },
+    getRecords: function () {
+        var data = this.store.snapshot || this.store.data;
+        var records = data.items;
+        return records;
+    },
     getValuesByAttribute: function (attributeName) {
         var data = this.store.snapshot || this.store.data;
         var records = data.items;

@@ -511,14 +511,10 @@ NetworkSvgLayout.prototype = {
                     var dispX = moveX - lastX;
                     var dispY = moveY - lastY;
 
-                    dispX /= _this.scale;
-                    dispY /= _this.scale;
-
                     _this.transformX += dispX;
                     _this.transformY += dispY;
                     _this.centerX += dispX;
                     _this.centerY += dispY;
-
 
                     _this._applyTransformAttribute();
 

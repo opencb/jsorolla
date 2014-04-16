@@ -34,6 +34,7 @@ function JSONNetworkDataAdapter(args) {
 
     if (this.async) {
         this.dataSource.on('success', function (data) {
+            debugger
             _this.parse(data);
         });
         this.dataSource.fetch(this.async);

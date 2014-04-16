@@ -27,13 +27,14 @@ function LayoutConfigureWidget(args) {
     this.width = 400;
     this.height = 300;
     this.window;
-    this.network;
     this.networkViewer;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
     this.on(this.handlers);
+
+    this.network = this.networkViewer.network;
 
     if (this.autoRender) {
         this.render();
@@ -374,5 +375,5 @@ LayoutConfigureWidget.prototype = {
                 }
             ]
         })
-    },
+    }
 }

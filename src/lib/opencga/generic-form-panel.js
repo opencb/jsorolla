@@ -20,6 +20,7 @@
  */
 
 function GenericFormPanel(args) {
+    var _this = this;
     _.extend(this, Backbone.Events);
 
     this.analysis;
@@ -39,8 +40,8 @@ function GenericFormPanel(args) {
     this.bodyPadding;
     this.headerConfig;
     this.buttonConfig = {
-        width:200,
-        height:30
+        width: 200,
+        height: 30
     };
 
     _.extend(this, args);
@@ -56,10 +57,14 @@ function GenericFormPanel(args) {
                 buttons: Ext.Msg.OK,
                 icon: Ext.Msg.ERROR
             });
+        } else {
+            Ext.example.msg('Job Launched', 'It will be listed soon');
+            console.log(response);
+            if (_this.type == "window") {
+                _this.panel.hide();
+            }
         }
-        else console.log(response.data);
     };
-
     //events attachments
     this.on(this.handlers);
 
@@ -132,13 +137,13 @@ GenericFormPanel.prototype.getForm = function () {
         this.form = Ext.create('Ext.form.Panel', {
             border: 0,
             width: this.width,
-            padding:5,
+            padding: 5,
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
             items: items,
-            buttons:[this.getRunButton()]
+            buttons: [this.getRunButton()]
         });
     }
 
@@ -155,17 +160,17 @@ GenericFormPanel.prototype.getJobPanel = function () {
         id: this.id + "jobname",
         name: "jobname",
         fieldLabel: 'Name',
+        labelWidth: 150,
         emptyText: "Job name",
-        allowBlank: false,
-        margin: '5 0 0 5'
+        allowBlank: false
     });
 
     var jobDescriptionField = Ext.create('Ext.form.field.TextArea', {
         id: this.id + "jobdescription",
         name: "jobdescription",
+        labelWidth: 150,
         fieldLabel: 'Description',
-        emptyText: "Description",
-        margin: '5 0 0 5'
+        emptyText: "Description"
     });
 
 //	var bucketList= Ext.create('Ext.data.Store', {
@@ -180,13 +185,12 @@ GenericFormPanel.prototype.getJobPanel = function () {
         fieldLabel: 'Folder:',
         dataParamName: 'outdir',
         mode: 'folderSelection',
-        btnMargin: '0 0 0 66',
         defaultFileLabel: 'Default job folder',
         allowBlank: true
     });
 
     var jobPanel = Ext.create('Ext.panel.Panel', {
-        title: 'Job',
+        title: 'Job information',
         header: this.headerFormConfig,
         border: this.border,
         bodyPadding: 5,
@@ -239,8 +243,6 @@ GenericFormPanel.prototype.run = function () {
             success: this.runAnalysisSuccess
         });
     }
-
-    Ext.example.msg('Job Launched', 'It will be listed soon');
     //debug
     console.log(this.paramsWS);
     this.trigger('after:run', {sender: this});
@@ -315,25 +317,25 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
     var _this = this;
     var btnBrowse = Ext.create('Ext.button.Button', {
         text: 'Browse...',
-        margin: args.btnMargin || '0 0 0 10',
+        width: 150,
         handler: function () {
             if (args.beforeClick != null) {
                 args.beforeClick(args);
             }
             _this.opencgaBrowserWidget.once('select', function (response) {
-                var label = 'buckets/' + response.bucketId + '/' + response.id;
                 var value = 'buckets:' + response.bucketId + ':' + response.id.replace(/\//g, ":");
-                fileSelectedLabel.setText('<span class="emph">' + label + '</span>', false);
+                fileSelectedLabel.update('<span class="emph">' + response.id + '</span>', false);
                 hiddenField.setValue(value);//this is send to the ws
             });
             _this.opencgaBrowserWidget.show({mode: args.mode, allowedTypes: args.allowedTypes});
         }
     });
 
-    var fileSelectedLabel = Ext.create('Ext.form.Label', {
+    var fileSelectedLabel = Ext.create('Ext.Component', {
         id: args.id,
-        text: args.defaultFileLabel || "No file selected",
-        margin: '5 0 0 15'
+        width: 150,
+        margin: '5 10',
+        html: args.defaultFileLabel || "No file selected"
     });
 
     //not shown, just for validation
@@ -341,16 +343,21 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
         id: args.id + 'hidden',
         name: args.dataParamName,
         hidden: true,
-        allowBlank: (args.allowBlank || false),
-        margin: '5 0 0 15'
+        allowBlank: (args.allowBlank || false)
     });
 
     return Ext.create('Ext.container.Container', {
 //		bodyPadding:10,
 //		defaults:{margin:'5 0 0 5'},
-        margin: '5 0 5 0',
+        hidden: args.hidden,
+        layout: 'hbox',
         items: [
-            {xtype: 'label', text: args.fieldLabel, margin: '5 0 0 5'},
+            {
+                xtype: 'box',
+                html: args.fieldLabel + ':',
+                width: 154,
+                margin: '5 0'
+            },
             btnBrowse,
             fileSelectedLabel,
             hiddenField

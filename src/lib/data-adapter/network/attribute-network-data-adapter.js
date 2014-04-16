@@ -26,6 +26,7 @@ function AttributeNetworkDataAdapter(args) {
     this.dataSource;
     this.async = true;
     this.jsonObject;
+    this.ignoreColumns = {};
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -88,18 +89,39 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
                 name = "Id";
             }
 
-            this.attributes.push({
-                "name": name,
-                "type": "string",
-                "defaultValue": ""
-            });
+            if (this.ignoreColumns[i] !== true) {
+                this.attributes.push({
+                    "name": name,
+                    "type": "string",
+                    "defaultValue": ""
+                });
+            }
         }
 
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i].replace(/^\s+|\s+$/g, "");
-            if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
-                var fields = line.split("\t");
-                this.data.push(fields);
+        //ignore attributes
+        if (Object.keys(this.ignoreColumns).length > 0) {
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].replace(/^\s+|\s+$/g, "");
+                if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
+                    var fields = line.split("\t");
+
+                    var filteredFields = [];
+                    for (var j = 0; j < fields.length; j++) {
+                        if (this.ignoreColumns[j] !== true) {
+                            filteredFields.push(fields[j])
+                        }
+                    }
+
+                    this.data.push(filteredFields);
+                }
+            }
+        }else{
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].replace(/^\s+|\s+$/g, "");
+                if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
+                    var fields = line.split("\t");
+                    this.data.push(fields);
+                }
             }
         }
 

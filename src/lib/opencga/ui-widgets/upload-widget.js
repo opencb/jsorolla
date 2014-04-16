@@ -129,7 +129,8 @@ UploadWidget.prototype.draw = function (opencgaLocation) {
         "cellmaps":[
             { text: "Network", children: [
                 { text: "SIF", tag: "sif", validate: this.getTypeValidation('sif')},
-                { text: "Expresion matrix", tag: "txt", validate: this.getTypeValidation('txt')}
+                { text: "Expresion matrix", tag: "txt", validate: this.getTypeValidation('txt')},
+                { text: "Text", tag: "txt", validate: this.getTypeValidation('txt')}
             ] }
         ]
     };

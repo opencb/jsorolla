@@ -91,6 +91,8 @@ ResultWidget.prototype = {
                 layout.outputItems = _this.job.outputData.sort(layout.sortOutputItems);
                 layout.job = _this.job;
                 _this.render(_this.result);
+
+
                 if (_this.type == "window") {
                     _this.panel.show();
                 } else {

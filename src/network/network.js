@@ -541,6 +541,10 @@ Network.prototype = {
 
         this._updateEdgeCoords(vertex);
     },
+    setVertexCoordsById: function (vertexId, x, y, z) {
+        var vertex = this.getVertexById(vertexId);
+        this.setVertexCoords(vertex, x, y, z);
+    },
     getVertexCoords: function (vertex) {
         var vertexConfig = this.config.getVertexConfig(vertex);
         return vertexConfig.getCoords();

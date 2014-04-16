@@ -155,7 +155,7 @@ NetworkViewer.prototype = {
 
         this.network = new Network({
             handlers: {
-                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean': function () {
+                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean se??': function () {
                     _this._updateStatusInfo();
                 },
                 'change:vertexAttributes': function (e) {
@@ -398,6 +398,7 @@ NetworkViewer.prototype = {
         return editionBar;
     },
     _createStatusBar: function (targetId) {
+        var _this = this;
         var div = $('<div></div>')[0];
         $(div).css({
             padding: '5px',
@@ -407,8 +408,18 @@ NetworkViewer.prototype = {
 
         this.numVertices = $('<span></span>')[0];
         this.numEdges = $('<span></span>')[0];
+        this.numSelectedVertices = $('<span></span>')[0];
+        this.numSelectedEdges = $('<span></span>')[0];
         this.loadingMessage = $('<span></span>')[0];
 
+        $(this.numSelectedVertices).css({
+            fontWeight: 'bold',
+            color: '#428bca'
+        });
+        $(this.numSelectedEdges).css({
+            fontWeight: 'bold',
+            color: '#428bca'
+        });
         $(this.numVertices).css({
             fontWeight: 'bold'
         });
@@ -419,22 +430,36 @@ NetworkViewer.prototype = {
             marginLeft: '20px'
         });
 
-        var infoVertices = $('<span>Number nodes: </span>')[0];
-        var infoEdges = $('<span>Number edges: </span>')[0];
+        var infoVertices = $('<span>Total nodes: </span>')[0];
+        var infoEdges = $('<span>Total edges: </span>')[0];
+        var infoSelVertices = $('<span>Selected nodes: </span>')[0];
+        var infoSelEdges = $('<span>Selected edges: </span>')[0];
         $(infoVertices).css({
             color: 'dimgray'
         });
-        $(infoEdges).css({
+        $([infoEdges, infoSelVertices, infoSelEdges]).css({
             color: 'dimgray',
             marginLeft: '10px'
         });
+
+        this.on('select:vertices', function (e) {
+            $(_this.numSelectedVertices).html(e.vertices.length);
+        });
+        this.on('select:edges', function (e) {
+            $(_this.numSelectedEdges).html(e.edges.length);
+        });
+
         $(div).append(infoVertices);
         $(div).append(this.numVertices);
         $(div).append(infoEdges);
         $(div).append(this.numEdges);
+        $(div).append(infoSelVertices);
+        $(div).append(this.numSelectedVertices);
+        $(div).append(infoSelEdges);
+        $(div).append(this.numSelectedEdges);
         $(div).append(this.loadingMessage);
     },
-    setLoading:function(msg){
+    setLoading: function (msg) {
         $(this.loadingMessage).text(msg);
     },
     _updateStatusInfo: function () {
@@ -533,6 +558,12 @@ NetworkViewer.prototype = {
             }
         });
         return networkSvgLayout;
+    },
+    getLayoutWidth: function () {
+        return this.networkSvgLayout.getWidth();
+    },
+    getLayoutHeight: function () {
+        return this.networkSvgLayout.getHeight();
     },
     selectAll: function () {
         this.selectedVertices = this.network.selectAllVertices();
@@ -888,21 +919,21 @@ NetworkViewer.prototype = {
         switch (type) {
             case "Circle":
                 if (typeof e.attributeName !== 'undefined') {
-                    GraphLayout.circle(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight(), this.network.getVerticesOrdered(e.attributeName));
+                    GraphLayout.circle(this.network, this.getLayoutWidth(), this.getLayoutHeight(), this.network.getVerticesOrdered(e.attributeName));
                 } else {
-                    GraphLayout.circle(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight());
+                    GraphLayout.circle(this.network, this.getLayoutWidth(), this.getLayoutHeight());
                 }
                 break;
             case "Random":
-                GraphLayout.random2d(this.network, _this.networkSvgLayout.getWidth(), _this.networkSvgLayout.getHeight());
+                GraphLayout.random2d(this.network, this.getLayoutWidth(), this.getLayoutHeight());
                 break;
             case "none":
                 break;
             case "Force directed":
                 GraphLayout.force({
                     network: this.network,
-                    width: _this.networkSvgLayout.getWidth(),
-                    height: _this.networkSvgLayout.getHeight(),
+                    width: this.getLayoutWidth(),
+                    height: this.getLayoutHeight(),
                     end: function (verticesArray) {
                         for (var i = 0, l = verticesArray.length; i < l; i++) {
                             var v = verticesArray[i];
@@ -914,8 +945,8 @@ NetworkViewer.prototype = {
             case "Force directed (simulation)":
                 GraphLayout.force({
                     network: this.network,
-                    width: _this.networkSvgLayout.getWidth(),
-                    height: _this.networkSvgLayout.getHeight(),
+                    width: this.getLayoutWidth(),
+                    height: this.getLayoutHeight(),
                     simulation: true,
                     end: function (verticesArray) {
                         for (var i = 0, l = verticesArray.length; i < l; i++) {
@@ -942,8 +973,8 @@ NetworkViewer.prototype = {
                     success: function (data) {
                         console.log('Layout back')
                         for (var vertexId in data) {
-                            var x = _this.networkSvgLayout.getWidth() * (0.05 + 0.85 * data[vertexId].x);
-                            var y = _this.networkSvgLayout.getHeight() * (0.05 + 0.85 * data[vertexId].y);
+                            var x = _this.getLayoutWidth() * (0.05 + 0.85 * data[vertexId].x);
+                            var y = _this.getLayoutHeight() * (0.05 + 0.85 * data[vertexId].y);
                             _this.setVertexCoords(vertexId, x, y);
                         }
                     },
