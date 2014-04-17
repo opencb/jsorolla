@@ -25,6 +25,8 @@ function ResultWidget(args) {
     //set default args
     this.extItems = [];
 
+    this.collapseInformation = false;
+
     //set instantiation args, must be last
     _.extend(this, args);
 
@@ -56,9 +58,9 @@ ResultWidget.prototype = {
                     closable: true,
                     autoScroll: true,
                     overflowY: 'auto',
-                    layout:{
-                        type:'vbox',
-                        align:'stretch'
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
                     }
                 });
             } else {
@@ -68,9 +70,9 @@ ResultWidget.prototype = {
                     title: this.job.name,
                     closable: true,
                     autoScroll: true,
-                    layout:{
-                        type:'vbox',
-                        align:'stretch'
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
                     }
                 });
                 Ext.getCmp(this.targetId).add(this.panel);
@@ -90,6 +92,14 @@ ResultWidget.prototype = {
                 var layout = _this.result[_this.layoutName].layout;
                 layout.outputItems = _this.job.outputData.sort(layout.sortOutputItems);
                 layout.job = _this.job;
+
+
+                /**/
+                if (typeof layout.oldXML !== 'undefined') {
+                    _this._parseOldXML(layout);
+                }
+                /**/
+
                 _this.render(_this.result);
 
 
@@ -129,9 +139,10 @@ ResultWidget.prototype = {
                 header: {
                     baseCls: 'ocb-panel-title'
                 },
-                border:false,
+                border: false,
                 collapsible: true,
                 titleCollapse: true,
+                collapsed:_this.collapseInformation,
                 margin: 10,
                 bodyPadding: 10,
                 items: [
@@ -214,7 +225,7 @@ ResultWidget.prototype = {
                 header: {
                     baseCls: 'ocb-panel-title'
                 },
-                border:false,
+                border: false,
                 collapsible: true,
                 titleCollapse: true,
                 margin: 10,
@@ -467,6 +478,7 @@ ResultWidget.prototype = {
             var boxes;
             if (typeof item.children != 'undefined') {
                 if (typeof item.children == 'function') {
+                    debugger
                     item.children = item.children();
                 }
                 boxes = [];
@@ -497,7 +509,7 @@ ResultWidget.prototype = {
                         header: {
                             baseCls: 'ocb-panel-title'
                         },
-                        border:false,
+                        border: false,
                         collapsible: true,
                         titleCollapse: true,
                         margin: 10,
@@ -757,5 +769,26 @@ ResultWidget.prototype = {
         variantFilterWidget.getPanel(targetId);
 
         return variantFilterWidget;
+    },
+
+
+    /*************************************/
+    /*************************************/
+    /*************************************/
+    _parseOldXML: function (layout) {
+
+        OpencgaManager.poll({
+            accountId: $.cookie('bioinfo_account'),
+            sessionId: $.cookie('bioinfo_sid'),
+            jobId: layout.job.id,
+            filename: layout.oldXML,
+            zip: false,
+            async: false,
+            success: function (data) {
+                var xmlDoc = $.parseXML(data);
+                layout.xml = $(xmlDoc);
+            }
+        });
     }
+
 };
