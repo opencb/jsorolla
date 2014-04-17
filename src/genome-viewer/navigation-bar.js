@@ -60,17 +60,17 @@ NavigationBar.prototype = {
         }
 
         var navgationHtml = '' +
-            '<div class="btn-toolbar" role="toolbar">' +
+            '<div style="width: 1350px">' +
             '   <div class="btn-group">' +
-            '       <button id="restoreDefaultRegionButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-repeat"></span></button>' +
+            '       <button id="restoreDefaultRegionButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="glyphicon glyphicon-repeat"></span></button>' +
             '   </div>' +
             '   <div class="btn-group">' +
-            '       <button id="regionHistoryButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="glyphicon glyphicon-time"></span> <span class="caret"></button>' +
+            '       <button id="regionHistoryButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="glyphicon glyphicon-time"></span> <span class="caret"></button>' +
             '       <ul id="regionHistoryMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
             '   <div class="btn-group">' +
-            '       <button id="speciesButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"  type="button" >' +
+            '       <button id="speciesButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" >' +
             '           <span id="speciesText"></span>&nbsp;<span class="caret"></span>' +
             '       </button>' +
             '       <ul id="speciesMenu" class="dropdown-menu" role="menu">' +
@@ -78,59 +78,84 @@ NavigationBar.prototype = {
             '   </div>' +
             '   <div class="btn-group">' +
 //            '       <div class="pull-left" style="height:22px;line-height: 22px;color:#708090">Chr&nbsp;</div>' +
-            '       <button id="chromosomesButton" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"  type="button" >' +
+            '       <button id="chromosomesButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" >' +
             '           <span id="chromosomesText"></span>&nbsp;<span class="caret"></span>' +
             '       </button>' +
             '       <ul id="chromosomesMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
             '   </div>' +
             '   <div class="btn-group" data-toggle="buttons">' +
-            '       <label id="karyotypeButton" class="btn btn-default btn-xs"><input type="checkbox"><span class="ocb-icon ocb-icon-karyotype"></span></label>' +
-            '       <label id="chromosomeButton" class="btn btn-default btn-xs"><input type="checkbox"><span class="ocb-icon ocb-icon-chromosome"></span></label>' +
-            '       <label id="regionButton" class="btn btn-default btn-xs"><input type="checkbox"><span class="ocb-icon ocb-icon-region"></span></label>' +
+            '       <button id="karyotypeButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-karyotype"></span></button>' +
+            '       <button id="chromosomeButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-chromosome"></span></button>' +
+            '       <button id="regionButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-region"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group" style="margin:0px 0px 0px 15px;">' +
-            '       <button id="zoomOutButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
-            '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:10px;margin:5px 2px 0px 2px;background-color: #d5d5d5">' +
+
+
+            '   <div class="btn-group" style="margin-left:5px;">' +
+            '       <button id="zoomOutButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
+            '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:22px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
             '           </div>' +
             '       </div>' +
-            '       <button id="zoomInButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-plus"></span></button>' +
+            '       <button id="zoomInButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-plus"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group" style="margin:0px 0px 0px 10px;">' +
-            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Window size:&nbsp;</div>' +
-            '       <input id="windowSizeField" type="text" class="form-control pull-left" placeholder="Window size" style="padding:0px 4px;height:22px;width:60px">' +
+
+
+            '   <div class="btn-group" style="width:150px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon custom-xs"> Window size: </span>' +
+            '       <input id="windowSizeField" type="text" class="form-control custom-xs" placeholder="Window size">' +
             '   </div>' +
-            '   <div class="btn-group" style="margin:0px 0px 0px 10px;">' +
-            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Position:&nbsp;</div>' +
-            '       <div class="input-group pull-left">' +
-            '           <input id="regionField" type="text" class="form-control" placeholder="region..." style="padding:0px 4px;width:160px;height:22px">' +
+            '   </div>' +
+
+
+            '   <div class="btn-group" style="width:250px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon custom-xs"> Position: </span>' +
+            '       <input id="regionField" type="text" class="form-control custom-xs" placeholder="1:10000-20000">' +
+            '       <div class="input-group-btn">' +
+            '           <button id="goButton" class="btn btn-default btn-sm custom-xs" type="button">Go!</button>' +
             '       </div>' +
-            '       <button id="goButton" class="btn btn-default btn-xs" type="button">Go!</button>' +
+            '   </div>' +
+            '   </div>' +
+
+
+            '   <div class="btn-group">' +
+            '       <button id="moveFurtherLeftButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w-bold"></span></button>' +
+            '       <button id="moveLeftButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w"></span></button>' +
+            '       <button id="moveRightButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-e"></span></button>' +
+            '       <button id="moveFurtherRightButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-e-bold"></span></button>' +
             '   </div>' +
             '   <div class="btn-group">' +
-            '       <button id="moveFurtherLeftButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w-bold"></span></button>' +
-            '       <button id="moveLeftButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w"></span></button>' +
-            '       <button id="moveRightButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-arrow-e"></span></button>' +
-            '       <button id="moveFurtherRightButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-arrow-e-bold"></span></button>' +
-            '   </div>' +
-            '   <div class="btn-group">' +
-            '       <button id="autoheightButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon ocb-icon-track-autoheight"></span></button>' +
+            '       <button id="autoheightButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-track-autoheight"></span></button>' +
             '   </div>' +
             '    <div class="btn-group">' +
-            '       <button id="compactButton" class="btn btn-default btn-xs" type="button"><span class="ocb-icon glyphicon glyphicon-compressed"></span></button>' +
+            '       <button id="compactButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon glyphicon glyphicon-compressed"></span></button>' +
             '   </div>' +
-            '   <div class="btn-group pull-right">' +
-            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
-            '       <div class="input-group pull-left">' +
-            '           <input id="searchField" list="searchDataList" type="text" class="form-control" placeholder="gene, snp..." style="padding:0px 4px;height:22px;width:100px">' +
-            '           <datalist id="searchDataList">' +
-            '           </datalist>' +
+
+            '   <div class="btn-group" style="width:250px">' +
+            '   <div class="input-group input-group-sm">' +
+            '       <span class="input-group-addon custom-xs"> Search: </span>' +
+            '       <input id="searchField" list="searchDataList" type="text" class="form-control custom-xs" placeholder="gene, snp...">' +
+            '       <datalist id="searchDataList">' +
+            '       </datalist>' +
+            '       <div class="input-group-btn">' +
+            '           <button id="goButton" class="btn btn-default btn-sm custom-xs" type="button"><span class="glyphicon glyphicon-search"></span></button>' +
             '       </div>' +
-//            '       <ul id="quickSearchMenu" class="dropdown-menu" role="menu">' +
-//            '       </ul>' +
-            '       <button id="quickSearchButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-search"></span></button>' +
             '   </div>' +
+            '   </div>' +
+
+//            '   <div class="btn-group pull-right">' +
+//            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
+//            '       <div class="input-group pull-left">' +
+//            '           <input id="searchField" list="searchDataList" type="text" class="form-control" placeholder="gene, snp..." style="padding:0px 4px;height:22px;width:100px">' +
+//            '           <datalist id="searchDataList">' +
+//            '           </datalist>' +
+//            '       </div>' +
+////            '       <ul id="quickSearchMenu" class="dropdown-menu" role="menu">' +
+////            '       </ul>' +
+//            '       <button id="quickSearchButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-search"></span></button>' +
+//            '   </div>' +
             '</div>' +
             '';
 
@@ -138,10 +163,16 @@ NavigationBar.prototype = {
         this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="navigation-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
-            height: '33px'
+            height: '32px'
         });
         $(this.targetDiv).append(this.div);
 
+        $(this.div).find('.custom-xs').css({
+            padding:'2px 4px',
+            height:'22px',
+            lineHeight: '16px',
+            fontSize: '14px'
+        });
 
         this.restoreDefaultRegionButton = $(this.div).find('#restoreDefaultRegionButton')[0];
 
