@@ -29,6 +29,7 @@ function GenericFormPanel(args) {
     this.testing = false;
     this.closable = true;
     this.minimizable = true;
+    this.labelWidth = 150;
 
     this.type;
     this.title;
@@ -160,7 +161,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
         id: this.id + "jobname",
         name: "jobname",
         fieldLabel: 'Name',
-        labelWidth: 150,
+        labelWidth: this.labelWidth,
         emptyText: "Job name",
         allowBlank: false
     });
@@ -168,7 +169,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
     var jobDescriptionField = Ext.create('Ext.form.field.TextArea', {
         id: this.id + "jobdescription",
         name: "jobdescription",
-        labelWidth: 150,
+        labelWidth: this.labelWidth,
         fieldLabel: 'Description',
         emptyText: "Description"
     });
@@ -182,7 +183,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
 //	var jobDestinationBucket = this.createCombobox("jobdestinationbucket", "Destination bucket", bucketList, 0, 100);
     var jobFolder = this.createOpencgaBrowserCmp({
         id: Utils.genId('jobFolder'),
-        fieldLabel: 'Folder:',
+        fieldLabel: 'Folder',
         dataParamName: 'outdir',
         mode: 'folderSelection',
         defaultFileLabel: 'Default job folder',
@@ -333,7 +334,7 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
 
     var fileSelectedLabel = Ext.create('Ext.Component', {
         id: args.id,
-        width: 150,
+        width: _this.labelWidth,
         margin: '5 10',
         html: args.defaultFileLabel || "No file selected"
     });

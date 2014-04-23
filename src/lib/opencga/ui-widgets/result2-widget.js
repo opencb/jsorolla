@@ -26,6 +26,7 @@ function ResultWidget(args) {
     this.extItems = [];
 
     this.collapseInformation = false;
+    this.drawIndex = true;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -142,7 +143,7 @@ ResultWidget.prototype = {
                 border: false,
                 collapsible: true,
                 titleCollapse: true,
-                collapsed:_this.collapseInformation,
+                collapsed: _this.collapseInformation,
                 margin: 10,
                 bodyPadding: 10,
                 items: [
@@ -246,6 +247,15 @@ ResultWidget.prototype = {
             for (var j = 0; j < item.renderers.length; j++) {
                 var renderer = item.renderers[j];
                 switch (renderer.type) {
+                    case 'note':
+                        itemBox = Ext.create('Ext.Component', {
+                            html: renderer.html,
+                            item: item,
+                            padding: 3,
+//                            overCls: 'encima',
+                            cls: 'inlineblock whiteborder'
+                        });
+                        break;
                     case 'text':
                         itemBox = Ext.create('Ext.Component', {
                             html: '<span class="key">' + item.title + '</span> <span class="emph">' + item.file + '</span>',
@@ -478,7 +488,6 @@ ResultWidget.prototype = {
             var boxes;
             if (typeof item.children != 'undefined') {
                 if (typeof item.children == 'function') {
-                    debugger
                     item.children = item.children();
                 }
                 boxes = [];
@@ -556,9 +565,11 @@ ResultWidget.prototype = {
         };
 
         var detailedResutls = getDetailsAsDocument(resultData[this.layoutName].layout, true);
-        var indexResutl = getResultIndex(resultData[this.layoutName].layout.children);
         this.panel.add(getJobInfo({items: this.extItems}));
-        this.panel.insert(indexResutl);
+        if (this.drawIndex === true) {
+            var indexResutl = getResultIndex(resultData[this.layoutName].layout.children);
+            this.panel.insert(indexResutl);
+        }
         this.panel.add(detailedResutls);
 
     },//end render
