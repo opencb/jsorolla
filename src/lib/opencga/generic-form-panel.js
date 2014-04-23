@@ -56,7 +56,7 @@ GenericFormPanel.prototype.draw = function (args) {
                 height: args.height,
                 overflowY: 'auto',
                 taskbar: args.taskbar,
-                closable:false,
+                closable: false,
                 items: this.getForm()
             }).show();
         }
@@ -68,11 +68,11 @@ GenericFormPanel.prototype.draw = function (args) {
                 defaults: {margin: 30},
                 autoScroll: true,
                 items: this.getForm(),
-                border:0,
-                listeners:{
-                    beforeclose:function(){
+                border: 0,
+                listeners: {
+                    beforeclose: function () {
                         console.log('closing');
-                        args.tabpanel.remove(_this.panel,false);
+                        args.tabpanel.remove(_this.panel, false);
                         return false;
                     }
                 }
@@ -188,9 +188,9 @@ GenericFormPanel.prototype.run = function () {
 
     if (!this.testing) {
         OpencgaManager.runAnalysis({
-            analysis:this.analysis,
-            paramsWS:this.paramsWS,
-            success:this.runAnalysisSuccess
+            analysis: this.analysis,
+            paramsWS: this.paramsWS,
+            success: this.runAnalysisSuccess
         });
     }
 
@@ -274,11 +274,13 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
             if (args.beforeClick != null) {
                 args.beforeClick(args);
             }
-            _this.opencgaBrowserWidget.once('select',function (response) {
-                var label = 'buckets/'+response.bucketId + '/' + response.id;
-                var value = 'buckets:'+response.bucketId + ':' + response.id.replace(/\//g, ":");
-                fileSelectedLabel.setText('<span class="emph">' + label + '</span>', false);
-                hiddenField.setValue(value);//this is send to the ws
+            _this.opencgaBrowserWidget.once('select', function (response) {
+                if(typeof response !== 'undefined'){
+                    var label = 'buckets/' + response.bucketId + '/' + response.id;
+                    var value = 'buckets:' + response.bucketId + ':' + response.id.replace(/\//g, ":");
+                    fileSelectedLabel.setText('<span class="emph">' + label + '</span>', false);
+                    hiddenField.setValue(value);//this is send to the ws
+                }
             });
             _this.opencgaBrowserWidget.show({mode: args.mode, allowedTypes: args.allowedTypes});
         }
