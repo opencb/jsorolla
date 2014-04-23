@@ -1,8 +1,3 @@
-GV_CELLBASE_HOST = "http://ws.bioinfo.cipf.es/cellbase/rest";
-
-CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase-server-3.0.0/rest";
-CELLBASE_VERSION = "v3";
-
 FEATURE_CONFIG = {
     gene: {
         filters: [
@@ -180,8 +175,11 @@ FEATURE_TYPES = {
 
     //methods
     formatTitle: function (str) {
-        var s = str.replace(/_/gi, " ");
-        s = s.charAt(0).toUpperCase() + s.slice(1);
+        var s = str;
+        if(str){
+            str.replace(/_/gi, " ");
+            s = s.charAt(0).toUpperCase() + s.slice(1);
+        }
         return s;
     },
     getTipCommons: function (f) {
@@ -215,21 +213,20 @@ FEATURE_TYPES = {
 //		histogramColor:"lightblue"
     },
     gene: {
-        label: function (f, zoom) {
+        label: function (f) {
             var name = (f.name != null) ? f.name : f.id;
             var str = "";
             str += (f.strand < 0 || f.strand == '-') ? "<" : "";
             str += " " + name + " ";
             str += (f.strand > 0 || f.strand == '+') ? ">" : "";
-            if (f.biotype != null && f.biotype != '' && zoom > 25) {
+            if (f.biotype != null && f.biotype != '') {
                 str += " [" + f.biotype + "]";
             }
             return str;
         },
         tooltipTitle: function (f) {
             var name = (f.name != null) ? f.name : f.id;
-            return FEATURE_TYPES.formatTitle('Gene') +
-                ' - <span class="ok">' + name + '</span>';
+            return FEATURE_TYPES.formatTitle('Gene') +' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
             var color = GENE_BIOTYPE_COLORS[f.biotype];
@@ -358,10 +355,10 @@ FEATURE_TYPES = {
         handlers: {
             'feature:mouseover': function (e) {
                 console.log(e)
-            },
-            'feature:click': function (event) {
-                new SnpInfoWidget(null, genomeViewer.species).draw(event);
             }
+//            'feature:click': function (event) {
+//                new SnpInfoWidget(null, genomeViewer.species).draw(event);
+//            }
         }
     },
     file: {
@@ -391,7 +388,6 @@ FEATURE_TYPES = {
                 //Uncaught TypeError: Cannot call method 'split' of undefined
                 console.log(e)
                 debugger
-
             }
 
             if (fields.length > 10 || fields.length == 9)
@@ -457,60 +453,78 @@ FEATURE_TYPES = {
         histogramColor: "gray"
     },
     gff3: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.label;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return f.featureType.toUpperCase() +
                 ' - <span class="ok">' + f.label + '</span>';
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return 'score:&nbsp;<span class="emph">' + f.score + '</span><br>' +
                 'frame:&nbsp;<span class="emph">' + f.frame + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
+        color: function (f) {
             return "black";
         },
         height: 8,
-        histogramColor: "gray"
+        histogramColor: "gray",
+        infoWidgetId: 'id',
+        handlers: {
+            'feature:mouseover': function (e) {
+                console.log(e)
+            },
+            'feature:click': function (e) {
+                console.log(e)
+            }
+        }
     },
     gtf: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.label;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return f.featureType.toUpperCase() +
                 ' - <span class="ok">' + f.label + '</span>';
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return 'score:&nbsp;<span class="emph">' + f.score + '</span><br>' +
                 'frame:&nbsp;<span class="emph">' + f.frame + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
+        color: function (f) {
             return "black";
         },
         height: 8,
-        histogramColor: "gray"
+        histogramColor: "gray",
+        infoWidgetId: 'id',
+        handlers: {
+            'feature:mouseover': function (e) {
+                console.log(e)
+            },
+            'feature:click': function (e) {
+                console.log(e)
+            }
+        }
     },
     bed: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.label;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return FEATURE_TYPES.formatTitle(f.featureType);
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
+        color: function (f) {
             //XXX convert RGB to Hex
             var rgbColor = new Array();
             rgbColor = f.itemRgb.split(",");
@@ -522,7 +536,16 @@ FEATURE_TYPES = {
             return "#" + hexColor;
         },
         height: 8,
-        histogramColor: "orange"
+        histogramColor: "orange",
+        infoWidgetId: 'id',
+        handlers: {
+            'feature:mouseover': function (e) {
+                console.log(e)
+            },
+            'feature:click': function (e) {
+                console.log(e)
+            }
+        }
     },
     bam: {
         explainFlags: function (flags) {
@@ -567,7 +590,7 @@ FEATURE_TYPES = {
             if (this.mateUnmappedFlag(f)) {
                 return "tomato"
             }
-            return "whitesmoke";
+            return (parseInt(f.flags) & (0x10)) == 0 ? "LightGray" : "DarkGray";
         },
         strand: function (f) {
             return (parseInt(f.flags) & (0x10)) == 0 ? "Forward" : "Reverse";
@@ -586,22 +609,31 @@ FEATURE_TYPES = {
         histogramColor: "grey"
     },
     das: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.id;
             return str;
         },
-        getTipTitle: function (f) {
-            return FEATURE_TYPES.formatTitle(f.featureType);
+        tooltipTitle: function (f) {
+            return FEATURE_TYPES.formatTitle(f.featureType) + ('id' in f) ? f.id : '';
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
-            return "black";
+        color: function (f) {
+            return "lightblue";
         },
         height: 8,
-        histogramColor: "orange"
+        histogramColor: "orange",
+        infoWidgetId: 'id',
+        handlers: {
+            'feature:mouseover': function (e) {
+                console.log(e)
+            },
+            'feature:click': function (e) {
+                console.log(e)
+            }
+        }
     }
 };
 

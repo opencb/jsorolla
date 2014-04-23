@@ -71,8 +71,9 @@ var SVG = {
 		for ( var key in attributes){
 			if(key == "xlink:href"){
 				el.setAttributeNS('http://www.w3.org/1999/xlink','href',attributes[key]);
-			}
-			el.setAttribute(key, attributes[key]);
+			}else{
+			    el.setAttribute(key, attributes[key]);
+            }
 		}
 		return this._insert(parent, el, index);
 	},
@@ -123,7 +124,6 @@ var SVG = {
         var end = this._polarToCartesian(x, y, radius, startAngle);
 
         var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
-
         var d = [
             "M", start.x, start.y,
             "A", radius, radius, 0, arcSweep, 0, end.x, end.y

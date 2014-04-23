@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-NODE_TYPES = {
+VERTEX_TYPES = {
 	undefined:{
 		fillcolor:"#993300",
 		shape:"circle",

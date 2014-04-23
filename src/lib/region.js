@@ -25,29 +25,32 @@ function Region(args) {
     this.start = null;
     this.end = null;
 
-    if (typeof args != 'undefined') {
+    if (_.isObject(args)) {
         this.load(args);
-
-        if (args.str != null) {
-            this.parse(args.str);
-        }
+    } else if (_.isString(args)) {
+        this.parse(args);
     }
 }
 
 Region.prototype = {
-    load : function (obj) {
+    load: function (obj) {
+        if (_.isString(obj)) {
+            return this.parse(obj);
+        }
         this.chromosome = obj.chromosome || this.chromosome;
-        this.start = obj.start || this.start;
-        this.end = obj.end || this.end;
+        this.chromosome = this.chromosome;
 
-        this.start = parseInt(this.start);
-        this.end = parseInt(this.end);
+        (_.isUndefined(obj.start)) ? this.start = parseInt(this.start) : this.start = parseInt(obj.start);
+        (_.isUndefined(obj.end)) ? this.end = parseInt(this.end) : this.end = parseInt(obj.end);
     },
 
     parse: function (str) {
-        var pattern = /^([a-zA-Z0-9])+\:([0-9])+\-([0-9])+$/;
-        var pattern2 = /^([a-zA-Z0-9])+\:([0-9])+$/;
-        if(pattern.test(str) || pattern2.test(str) ){
+        if (_.isObject(str)) {
+            this.load(obj);
+        }
+        var pattern = /^([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+$/;
+        var pattern2 = /^([a-zA-Z0-9_])+\:([0-9])+$/;
+        if (pattern.test(str) || pattern2.test(str)) {
             var splitDots = str.split(":");
             if (splitDots.length == 2) {
                 var splitDash = splitDots[1].split("-");
@@ -60,20 +63,20 @@ Region.prototype = {
                 }
             }
             return true
-        }else{
+        } else {
             return false;
         }
     },
 
-    center : function () {
+    center: function () {
         return this.start + Math.floor((this.length()) / 2);
     },
 
-    length : function () {
+    length: function () {
         return this.end - this.start + 1;
     },
 
-    toString : function (formated) {
+    toString: function (formated) {
         var str;
         if (formated == true) {
             str = this.chromosome + ":" + Utils.formatNumber(this.start) + "-" + Utils.formatNumber(this.end);

@@ -29,8 +29,6 @@ function SequenceRenderer(args){
     this.fontClass = 'ocb-font-ubuntumono ocb-font-size-16';
     this.toolTipfontClass = 'ocb-font-default';
 
-    //set default args
-    //set instantiation args
     _.extend(this, args);
 
 };
@@ -44,13 +42,6 @@ SequenceRenderer.prototype.render = function(features, args) {
     var start = features.items.start;
     var seqStart = features.items.start;
     var seqString = features.items.sequence;
-
-//    var x = args.pixelPosition+middle-((args.position-start)*args.pixelBase);
-//    var d = Utils.genBamVariants(seqString, args.pixelBase, x, 12);
-//    var path = SVG.addChild(args.svgCanvasFeatures, "path", {
-//        "d": d ,
-//        "fill": 'black'
-//    });
 
     for ( var i = 0; i < seqString.length; i++) {
         var x = args.pixelPosition+middle-((args.position-start)*args.pixelBase);

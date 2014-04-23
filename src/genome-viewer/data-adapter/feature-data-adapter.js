@@ -19,72 +19,77 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function FeatureDataAdapter(dataSource, args){
-	var _this = this;
+function FeatureDataAdapter(dataSource, args) {
+    var _this = this;
     _.extend(this, Backbone.Events);
-	
-	this.dataSource = dataSource;
-	this.gzip = true;
-	
-	this.params = {};
-	if (args != null){
-		if(args.gzip != null){
-			this.gzip = args.gzip;
-		}
-		if(args.species != null){
-			this.species = args.species;
-		}
-		if(args.params != null){
-			this.params = args.params;
-		}
-	}
-	
-	this.featureCache =  new FeatureCache({chunkSize:10000, gzip:this.gzip});
-	
+
+    this.dataSource = dataSource;
+    this.gzip = true;
+
+    this.params = {};
+    if (args != null) {
+        if (args.gzip != null) {
+            this.gzip = args.gzip;
+        }
+        if (args.species != null) {
+            this.species = args.species;
+        }
+        if (args.params != null) {
+            this.params = args.params;
+        }
+    }
+
+    this.featureCache = new FeatureCache({chunkSize: 10000, gzip: this.gzip});
+
 //	this.onLoad = new Event();
 //	this.onGetData = new Event();
 
-	//chromosomes loaded
-	this.chromosomesLoaded = {};
+    //chromosomes loaded
+    this.chromosomesLoaded = {};
 }
 
-FeatureDataAdapter.prototype.getData = function(region){
-	
-	console.log("TODO comprobar histograma");
-	console.log(region);
-	this.params["dataType"] = "data";
-	this.params["chromosome"] = region.chromosome;
+FeatureDataAdapter.prototype.getData = function (args) {
+    console.log("TODO comprobar histograma");
+    console.log(args.region);
+    this.params["dataType"] = "data";
+    this.params["chromosome"] = args.region.chromosome;
 
-	//check if the chromosome has been already loaded
-	if(this.chromosomesLoaded[region.chromosome] != true){
-		this._fetchData(region);
-		this.chromosomesLoaded[region.chromosome]=true;
-	}
-	
-	var itemList = this.featureCache.getFeatureChunksByRegion(region);
-	if(itemList != null){
-//		this.onGetData.notify({items:itemList, params:this.params, cached:true});
-		this.trigger('data:ready',{items:itemList, params:this.params, cached:true, sender:this});
-	}
+    //check if the chromosome has been already loaded
+    if (this.chromosomesLoaded[args.region.chromosome] != true) {
+        this._fetchData(args.region);
+        this.chromosomesLoaded[args.region.chromosome] = true;
+    }
+
+    var itemList = this.featureCache.getFeatureChunksByRegion(args.region);
+    if (itemList != null) {
+        this.trigger('data:ready', {items: itemList, params: this.params, chunkSize:this.featureCache.chunkSize, cached: true, sender: this});
+    }
 };
 
-FeatureDataAdapter.prototype._fetchData = function(region){
-	var _this = this;
-	if(this.dataSource!=null){//could be null in expression genomic attributer widget 59
-		if(this.async){
-			this.dataSource.success.addEventListener(function(sender,data){
-				_this.parse(data, region);
+FeatureDataAdapter.prototype._fetchData = function (region) {
+    var _this = this;
+    if (this.dataSource != null) {//could be null in expression genomic attributer widget 59
+        if (this.async) {
+            this.dataSource.on('success', function (data) {
+                _this.parse(data, region);
 //				_this.onLoad.notify();
-                _this.trigger('file:load',{sender:_this});
-			});
-			this.dataSource.fetch(this.async);
-		}else{
-			var data = this.dataSource.fetch(this.async);
-			this.parse(data,region);
-		}
-	}
+                _this.trigger('file:load', {sender: _this});
+
+
+                var itemList = _this.featureCache.getFeatureChunksByRegion(region);
+                if (itemList != null) {
+                    _this.trigger('data:ready', {items: itemList, params: _this.params, chunkSize:_this.featureCache.chunkSize, cached: true, sender: _this});
+                }
+
+            });
+            this.dataSource.fetch(this.async);
+        } else {
+            var data = this.dataSource.fetch(this.async);
+            this.parse(data, region);
+        }
+    }
 }
 
-FeatureDataAdapter.prototype.addFeatures = function(features){
-		this.featureCache.putFeatures(features, "data");
+FeatureDataAdapter.prototype.addFeatures = function (features) {
+    this.featureCache.putFeatures(features, "data");
 };

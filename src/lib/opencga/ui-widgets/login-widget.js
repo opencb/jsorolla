@@ -49,18 +49,19 @@ LoginWidget.prototype = {
         var _this = this;
 
         /***************************/
-        this.loginSuccess = function (data) {
+        this.loginSuccess = function (response) {
             if (_this.panel != null) {
                 _this.panel.setLoading(false);
             }
-            console.log(data);
-            if (_.isUndefined(data.errorMessage)) {
+            console.log(response);
+            if (response.errorMsg === '') {
+                var data = response.result[0];
                 $.cookie('bioinfo_sid', data.sessionId /*,{path: '/'}*/);//TODO ATENCION si se indica el path el 'bioinfo_sid' es comun entre dominios
                 $.cookie('bioinfo_account', data.accountId);
                 $.cookie('bioinfo_bucket', data.bucketId);
                 _this.trigger('session:initiated', {sender: _this});
             } else {
-                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + data.errorMessage + '</span>', false);
+                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + response.errorMsg + '</span>', false);
                 //Delete all cookies
                 $.cookie('bioinfo_sid', null);
                 $.cookie('bioinfo_sid', null, {path: '/'});
@@ -71,16 +72,13 @@ LoginWidget.prototype = {
 
         this.createAccountSuccess = function (data) {
             _this.panel.setLoading(false);
-            data = data.replace(/^\s+|\s+$/g, '');
-            if (data.indexOf("OK") != -1) {
-                Ext.getCmp(_this.labelEmailId).setText('<span class="ok">Account created</span>', false);
-//			console.log(_this.id+' LOGIN RESPONSE -> '+data);
-                //$.cookie('bioinfo_sid', data /*,{path: '/'}*/);//TODO ATENCION si se indica el path el 'bioinfo_sid' es comun entre dominios
-//            _this.trigger('session:initiated',{sender:_this});
+            if (data.errorMsg === '') {
+                var accountId = data.result[0].accountId;
+                Ext.getCmp(_this.labelEmailId).setText('<span class="ok">'+accountId+' account created</span>', false);
             } else {
-                data = data.replace(/ERROR: /gi, " ");
-                Ext.getCmp(_this.labelEmailId).setText('<span class="err">Account already exists</span>', false);
-                //Se borran las cookies por si acaso
+//                Ext.getCmp(_this.labelEmailId).setText('<span class="err">Account already exists</span>', false);
+                Ext.getCmp(_this.labelEmailId).setText('<span class="err">'+data.errorMsg+'</span>', false);
+                //Delete cookies
                 $.cookie('bioinfo_sid', null);
                 $.cookie('bioinfo_sid', null, {path: '/'});
                 $.cookie('bioinfo_account', null);
@@ -89,7 +87,11 @@ LoginWidget.prototype = {
         };
         this.resetPasswordSuccess = function (data) {
             _this.panel.setLoading(false);
-            Ext.getCmp(_this.labelEmailId).setText('<span class="emph">' + data + '</span>', false);
+            if (data.errorMsg === '') {
+                Ext.getCmp(_this.labelEmailId).setText('<span class="emph">' + data.result[0].msg + '</span>', false);
+            } else {
+                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + data.errorMsg + '</span>', false);
+            }
         };
 
         /***************************/

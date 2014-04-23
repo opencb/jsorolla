@@ -31,6 +31,8 @@ function OpencgaBrowserWidget(args) {
     this.width = 800;
     this.height = 575;
     this.title = 'Cloud data';
+    this.enableTextModeUW = true; // Enable Text Mode in the Upload Widget
+
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -62,11 +64,11 @@ OpencgaBrowserWidget.prototype = {
         /**ID**/
         this.searchFieldId = this.id + "_searchField";
 
-        this.createBucketSuccess = function (data) {
-            if (data.indexOf("ERROR") != -1) {
-                Ext.Msg.alert("Create project", "ERROR: could not create this project.");
-            } else {
+        this.createBucketSuccess = function (response) {
+            if (response.errorMsg === '') {
                 _this.trigger('need:refresh', {sender: _this});
+            } else {
+                Ext.Msg.alert("Create project", response.errorMsg);
             }
             _this.panel.setLoading(false);
             Ext.getBody().unmask();
@@ -94,6 +96,7 @@ OpencgaBrowserWidget.prototype = {
             suiteId: this.suiteId,
             opencgaBrowserWidget: this,
             chunkedUpload: this.chunkedUpload,
+            enableTextMode: this.enableTextModeUW,
             handlers: {
                 'object:upload': function (e) {
                     if (e.data.status == 'done') {
@@ -117,7 +120,7 @@ OpencgaBrowserWidget.prototype = {
                 children: []
             },
             listeners: {
-                beforeappend: function (este, node) {
+                beforeinsert: function (este, node) {
                     if (node.isLeaf()) {
 //                        console.log(node.raw.oid + " is a file");
                         return false; //cancel append because is leaf
@@ -150,12 +153,12 @@ OpencgaBrowserWidget.prototype = {
                             accountId: $.cookie("bioinfo_account"),
                             bucketId: record.raw.text,
                             sessionId: $.cookie("bioinfo_sid"),
-                            success: function (data) {
-                                Ext.example.msg('Refresh Bucket', '</span class="emph">' + data + '</span>');
-                                if (data.indexOf("ERROR") != -1) {
-                                    console.log(data);
-                                } else {
+                            success: function (response) {
+                                if (response.errorMsg === '') {
+                                    Ext.example.msg('Refresh Bucket', '</span class="emph">' + response.result[0].msg + '</span>');
                                     _this.trigger('need:refresh', {sender: _this});
+                                } else {
+                                    Ext.Msg.alert("Refresh bucket", response.errorMsg);
                                 }
                             }
                         });
@@ -176,17 +179,17 @@ OpencgaBrowserWidget.prototype = {
                             if (btn == 'ok') {
                                 text = text.replace(/[^a-z0-9-_.\/\s]/gi, '').trim();
 
-                                opencgaManager.renameBucket({
+                                OpencgaManager.renameBucket({
                                     accountId: $.cookie("bioinfo_account"),
                                     bucketId: record.raw.bucketId,
                                     newBucketId: text,
                                     sessionId: $.cookie("bioinfo_sid"),
-                                    success: function (data) {
-                                        Ext.example.msg('Refresh Bucket', '</span class="emph">' + data + '</span>');
-                                        if (data.indexOf("ERROR") != -1) {
-                                            console.log(data);
-                                        } else {
+                                    success: function (response) {
+                                        if (response.errorMsg === '') {
                                             _this.trigger('need:refresh', {sender: _this});
+                                            Ext.example.msg('Rename bucket', '</span class="emph">' + response.result[0].msg + '</span>');
+                                        } else {
+                                            Ext.Msg.alert('Rename bucket', response.errorMsg);
                                         }
                                     }
                                 });
@@ -378,7 +381,8 @@ OpencgaBrowserWidget.prototype = {
                         sessionId: $.cookie("bioinfo_sid"),
                         bucketId: record.raw.bucketId,
                         objectId: record.data.oid,
-                        success: function (sender, response) {
+                        success: function (response) {
+                            debugger
                             console.log(response);
                             Ext.example.msg("indexer", response);
                             record.raw.indexerId = response;
@@ -451,13 +455,12 @@ OpencgaBrowserWidget.prototype = {
                                 sessionId: $.cookie("bioinfo_sid"),
                                 bucketId: record.raw.bucketId,
                                 objectId: record.data.oid,
-                                success: function (data) {
-                                    if (data.indexOf("ERROR:") != -1) {
-                                        Ext.example.msg("Deleting", data);
+                                success: function (response) {
+                                    if (response.errorMsg === '') {
+                                        Ext.example.msg('Deleting', '</span class="emph">' + response.result[0].msg + '</span>');
+                                        _this.filesGrid.store.remove(record);
                                     } else {
-                                        //delete complete
-                                        record.destroy();
-                                        _this.trigger('need:refresh', {sender: _this});
+                                        Ext.Msg.alert('Deleting', response.errorMsg);
                                     }
                                 }
                             });
@@ -589,7 +592,7 @@ OpencgaBrowserWidget.prototype = {
                 break;
             case "manager" :
                 var item;
-                item = {text: 'Upload', handler: function () {
+                item = {text: 'Upload local file', handler: function () {
                     _this.drawUploadWidget();
                 }};
                 tbarObj.items.splice(0, 0, item);
@@ -604,21 +607,23 @@ OpencgaBrowserWidget.prototype = {
                 tbarObj.items.splice(0, 0, item);
                 this.selectButton.hide();
                 break;
+
             default :
                 var item;
-                item = {text: 'Upload', handler: function () {
+                item = {text: '<span class="info">Upload local file</span>',handler: function () {
                     _this.drawUploadWidget();
                 }};
-                tbarObj.items.splice(0, 0, item);
+                tbarObj.items.push(item);
+                tbarObj.items.push('-');
                 item = {text: 'New folder', handler: function () {
                     _this.folderTree.expand();
                     _this.createFolder();
                 }};
-                tbarObj.items.splice(0, 0, item);
+                tbarObj.items.push(item);
                 item = {text: 'New bucket', handler: function () {
                     manageProjects.expand();
                 }};
-                tbarObj.items.splice(0, 0, item);
+                tbarObj.items.push(item);
                 break;
         }
 
@@ -697,9 +702,15 @@ OpencgaBrowserWidget.prototype = {
         }
     },
 
+    removeAccountData: function () {
+        this.folderStore.getRootNode().removeAll();
+        this.allStore.getRootNode().removeAll();
+        this.filesStore.removeAll();
+    },
+
     _updateFolderTree: function () {
         var _this = this;
-        console.log("updating folder tree");
+//        console.log("updating folder tree");
         var find = function (str, arr) {
             for (var i = 0; i < arr.length; i++) {
                 if (arr[i].text == str) {
@@ -710,11 +721,13 @@ OpencgaBrowserWidget.prototype = {
         };
 
         if (this.accountData != null && this.accountData.accountId != null) {
+//            console.log('generating tree..')
             this.folderStore.getRootNode().removeAll();
             this.allStore.getRootNode().removeAll();
             this.filesStore.removeAll();
 //            this.folderTree.getSelectionModel().deselectAll();
             for (var i = 0; i < this.accountData.buckets.length; i++) {
+                var files = [];
                 var folders = [];
                 for (var j = 0; j < this.accountData.buckets[i].objects.length; j++) {
                     var data = this.accountData.buckets[i].objects[j];
@@ -735,34 +748,72 @@ OpencgaBrowserWidget.prototype = {
                     }
                     //console.log(pathArr)
 
-                    var current = folders;
+                    var currentFiles = files;
+                    var currentFolders = folders;
+
                     for (var k = 0; k < pathArr.length; k++) {
-                        var found = find(pathArr[k], current);
+                        var found = find(pathArr[k], currentFiles);
                         if (found != -1) {
-                            current = current[found].children;
+                            currentFiles = currentFiles[found].children;
                         } else {
                             var children = [];
-                            var idx = current.push({text: pathArr[k], children: children}) - 1;
+                            var idx = currentFiles.push({text: pathArr[k], children: children}) - 1;
                             if (typeof pathArr[k + 1] == 'undefined') {//isLast
                                 for (key in data) {
                                     if (key != "children") {
-                                        current[idx][key] = data[key];
+                                        currentFiles[idx][key] = data[key];
                                     }
                                 }
                             }
-                            current = children;
+
+                            currentFiles = children;
                         }
+
+                        //ignore files, only folders
+                        var found = find(pathArr[k], currentFolders);
+                        if (found != -1) {
+                            currentFolders = currentFolders[found].children;
+                        } else {
+                            var children = [];
+                            if (data.fileType == "dir") {
+                                var idx = currentFolders.push({text: pathArr[k], children: children}) - 1;
+                                if (typeof pathArr[k + 1] == 'undefined') {//isLast
+                                    for (key in data) {
+                                        if (key != "children") {
+                                            currentFolders[idx][key] = data[key];
+                                        }
+                                    }
+                                }
+                            }
+
+                            currentFolders = children;
+                        }
+
                     }
                 }
-                folders = JSON.stringify(folders);
-                this.allStore.getRootNode().appendChild({text: this.accountData.buckets[i].name, bucketId: this.accountData.buckets[i].name, oid: "", icon: Utils.images.bucket, expanded: true, isBucket: true, children: JSON.parse(folders)});
-                this.folderStore.getRootNode().appendChild({text: this.accountData.buckets[i].name, bucketId: this.accountData.buckets[i].name, oid: "", icon: Utils.images.bucket, expanded: true, isBucket: true, children: JSON.parse(folders)});
+
+                this.allStore.getRootNode().appendChild({
+                    text: this.accountData.buckets[i].name,
+                    bucketId: this.accountData.buckets[i].name,
+                    oid: "", icon: Utils.images.bucket,
+                    expanded: true,
+                    isBucket: true,
+                    children: files
+                });
+                this.folderStore.getRootNode().appendChild({
+                    text: this.accountData.buckets[i].name,
+                    bucketId: this.accountData.buckets[i].name,
+                    oid: "", icon: Utils.images.bucket,
+                    expanded: true,
+                    isBucket: true,
+                    children: folders
+                });
             }
         }
 
-        //collapse and expand to update the view after append, possible ExtJS 4.2.0 bug
-        this.folderStore.getRootNode().collapse();
-        this.folderStore.getRootNode().expand();
+//        //collapse and expand to update the view after append, possible ExtJS 4.2.0 bug
+//        this.folderStore.getRootNode().collapse();
+//        this.folderStore.getRootNode().expand();
 
 
         //reselect nodes after account update
@@ -970,12 +1021,12 @@ OpencgaBrowserWidget.prototype.createFolder = function () {
                         sessionId: $.cookie("bioinfo_sid"),
                         bucketId: folderSelection.bucketId,
                         objectId: folderSelection.directory + text,
-                        success: function (data) {
-                            Ext.example.msg('Create folder', '</span class="emph">' + data + '</span>');
-                            if (data.indexOf("ERROR") != -1) {
-                                console.log(data);
-                            } else {
+                        success: function (response) {
+                            if (response.errorMsg === '') {
+                                Ext.example.msg('Create folder', '</span class="emph">' + response.result[0].msg + '</span>');
                                 _this.trigger('need:refresh', {sender: _this});
+                            } else {
+                                Ext.Msg.alert('Create folder', response.errorMsg);
                             }
                         }
                     });

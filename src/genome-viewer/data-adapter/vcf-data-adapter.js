@@ -42,9 +42,9 @@ function VCFDataAdapter(dataSource, args){
 }
 
 VCFDataAdapter.prototype.parse = function(data, region){
-	console.log(data);
+//	console.log(data);
 	var _this = this;
-	var dataType = "data";
+	var dataType = "value";
 	var lines = data.split("\n");
 //    debugger
 //	console.log("creating objects");

@@ -25,10 +25,13 @@ function ResultWidget(args) {
     //set default args
     this.extItems = [];
 
+    this.collapseInformation = false;
+
     //set instantiation args, must be last
     _.extend(this, args);
 
     this.panelId = null;
+    this.type;
     this.networkViewerId = null;
     this.genomeMapsId = null;
 }
@@ -47,16 +50,33 @@ ResultWidget.prototype = {
 
         this.panel = Ext.getCmp(this.panelId);
         if (this.panel == null) {
-            this.panel = Ext.create('Ext.panel.Panel', {
-                id: this.panelId,
-                border: 0,
-                title: this.job.name,
-                closable: true,
-                autoScroll: true
-            });
-
-            Ext.getCmp(this.targetId).add(this.panel);
-            Ext.getCmp(this.targetId).setActiveTab(this.panel);
+            if (this.type == "window") {
+                this.panel = Ext.create('Ext.window.Window', {
+                    id: this.panelId,
+                    bodyStyle: 'background:white;',
+                    title: this.job.name,
+                    closable: true,
+                    autoScroll: true,
+                    overflowY: 'auto',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    }
+                });
+            } else {
+                this.panel = Ext.create('Ext.panel.Panel', {
+                    id: this.panelId,
+                    border: 0,
+                    title: this.job.name,
+                    closable: true,
+                    autoScroll: true,
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    }
+                });
+                Ext.getCmp(this.targetId).add(this.panel);
+            }
             this.panel.setLoading("Loading job info...");
 
             var url = OpencgaManager.jobResultUrl({
@@ -72,10 +92,30 @@ ResultWidget.prototype = {
                 var layout = _this.result[_this.layoutName].layout;
                 layout.outputItems = _this.job.outputData.sort(layout.sortOutputItems);
                 layout.job = _this.job;
+
+
+                /**/
+                if (typeof layout.oldXML !== 'undefined') {
+                    _this._parseOldXML(layout);
+                }
+                /**/
+
                 _this.render(_this.result);
+
+
+                if (_this.type == "window") {
+                    _this.panel.show();
+                } else {
+                    Ext.getCmp(_this.targetId).setActiveTab(_this.panel);
+                }
             });
         } else {
-            Ext.getCmp(this.targetId).setActiveTab(this.panel);
+            if (this.type == "window") {
+                this.panel.show();
+            } else {
+                Ext.getCmp(this.targetId).setActiveTab(this.panel);
+            }
+
         }
     },
     render: function (resultData) {
@@ -85,13 +125,26 @@ ResultWidget.prototype = {
         var getJobInfo = function (args) {
             var args = args || {};
             var itemTpl = new Ext.XTemplate(
-                '<p><span class="ssel border-bot s120">Information </span><span style="color:steelblue"> &nbsp; &nbsp; Job Id: <span><span style="color:slategrey">{id}</span></p><br>',
-                '<p><span class="emph">{name}</span> - <span class="info"> {toolName} </span> - <span style="color:orangered"> {date}</span></p>',
+                '<div class="s110">',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Id: </div>{id}<br>',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Name: </div>{name}<br>',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Tool: </div>{toolName}<br>',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Date: </div>{date}<br>',
+                '</div>',
                 '<p class="tip emph">{description}</p>',
                 '<p class="">{command.html}</p>'
             );
-            var container = Ext.create('Ext.container.Container', {
-                margin: '15 0 15 15',
+            var container = Ext.create('Ext.panel.Panel', {
+                title: 'Information',
+                header: {
+                    baseCls: 'ocb-panel-title'
+                },
+                border: false,
+                collapsible: true,
+                titleCollapse: true,
+                collapsed:_this.collapseInformation,
+                margin: 10,
+                bodyPadding: 10,
                 items: [
                     {
                         xtype: 'box',
@@ -118,15 +171,12 @@ ResultWidget.prototype = {
                                                 accountId: $.cookie('bioinfo_account'),
                                                 sessionId: $.cookie('bioinfo_sid'),
                                                 jobId: _this.jobId,
-                                                success: function (data) {
-                                                    var msg = "";
-                                                    if (data.indexOf("OK") != -1) {
-                                                        Ext.getCmp(_this.targetId).getActiveTab().close();
-                                                        msg = "The job has been succesfully deleted.";
+                                                success: function (response) {
+                                                    if (response.errorMsg === '') {
+                                                        Ext.example.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
                                                     } else {
-                                                        msg = "ERROR: could not delete job.";
+                                                        Ext.Msg.alert('Delete job, try again later.', response.errorMsg);
                                                     }
-                                                    Ext.Msg.alert("Delete job", msg);
                                                 }
                                             });
                                         }
@@ -144,14 +194,11 @@ ResultWidget.prototype = {
         };
 
         var getResultIndex = function (children) {
-            var boxes = [
-                {xtype: 'box', cls: 'inlineblock ssel border-bot s120', html: 'Index', margin: 15}
-            ];
+            var boxes = [];
             for (var i = 0; i < children.length; i++) {
                 boxes.push(Ext.create('Ext.Component', {
-                    margin: "0 15 0 15",
-                    cls: 'dedo emph',
-                    overCls: 'err',
+                    cls: 'dedo',
+                    overCls: 'u err',
                     resultId: _this.jobId + children[i].title.replace(/ /g, ''),
                     html: children[i].title,
                     listeners: {
@@ -173,14 +220,22 @@ ResultWidget.prototype = {
                     }
                 }));
             }
-            return Ext.create('Ext.container.Container', {
-                margin: '0 0 20 0',
+            return Ext.create('Ext.panel.Panel', {
+                title: 'Result index',
+                header: {
+                    baseCls: 'ocb-panel-title'
+                },
+                border: false,
+                collapsible: true,
+                titleCollapse: true,
+                margin: 10,
+                bodyPadding: 10,
                 items: boxes
             });
         };
 
         var itemTpl = new Ext.XTemplate(
-            '<span class="s140 emph">{title}</span>',
+            '<span class="s120">{title}</span>',
             '<span class="ok"> {pathi} </span>',
             '<span class="info"> {date}</span><br>'
         );
@@ -347,7 +402,7 @@ ResultWidget.prototype = {
                         var gm_id = Utils.genId('gm');
                         var vfw_id = Utils.genId('vfw');
                         var html =
-                            '<div style="width:1500px;height:800px;">' +
+                            '<div style="width:1500px;height:1200px;">' +
                             '<div id="' + vfw_id + '" style="width:1500px;">' +
                             '</div>' +
                             '<div id="' + gm_id + '" style="width:1500px;height:800px;">' +
@@ -358,11 +413,62 @@ ResultWidget.prototype = {
                             html: html,
                             listeners: {
                                 afterrender: function () {
-                                   var gv = _this._createGenomeViewer(gm_id);
-                                    _this._createVariantFilterWidget(vfw_id,gv,_this.result[_this.layoutName].layout.variantFilterFiles, renderer.tableLayout);
+                                    var gv = _this._createGenomeViewer(gm_id);
+                                    _this._createVariantFilterWidget(vfw_id, gv, _this.result[_this.layoutName].layout.variantFilterFiles, renderer.tableLayout);
                                 }
                             }
                         });
+                        break;
+                    case 'variant-stats-widget':
+                        var height = 800;
+                        itemBox = Ext.create('Ext.container.Container', {
+                            height: height,
+                            width: '95%',
+                            style: {
+                                position: 'relative'
+                            },
+                            listeners: {
+                                afterrender: function () {
+                                    var variantStatsWidget = new VariantStatsWidget({
+                                        targetId: itemBox,
+                                        height: height,
+                                        closable: false,
+                                        border: true,
+//                                        title:  _this.job.name,
+                                        job: _this.job,
+                                        autoRender: true
+                                    });
+                                    variantStatsWidget.draw();
+                                }
+                            }
+                        });
+
+                        break;
+
+                    case 'variant-widget':
+                        var height = 800;
+                        itemBox = Ext.create('Ext.container.Container', {
+                            height: height,
+                            width: '95%',
+                            style: {
+                                position: 'relative'
+                            },
+                            listeners: {
+                                afterrender: function () {
+                                    var variantWidget = new VariantWidget({
+                                        targetId: itemBox,
+                                        height: height,
+                                        closable: false,
+                                        border: true,
+//                                        title:  _this.job.name,
+                                        job: _this.job,
+                                        autoRender: true
+                                    });
+                                    variantWidget.draw();
+                                }
+                            }
+                        });
+
                         break;
                 }
                 boxes.push(itemBox);
@@ -379,6 +485,7 @@ ResultWidget.prototype = {
             var boxes;
             if (typeof item.children != 'undefined') {
                 if (typeof item.children == 'function') {
+                    debugger
                     item.children = item.children();
                 }
                 boxes = [];
@@ -393,25 +500,28 @@ ResultWidget.prototype = {
                     if (item.presentation == 'tabs') {
                         detailsItemsContainer = {
                             xtype: 'tabpanel',
-                            padding: '0 30 15 15',
                             plain: true,
                             border: 0,
                             defaults: {
                                 overflowX: 'scroll',
-                                height: 2000,
+//                                height: 2000,
                                 padding: 10
                             },
                             items: boxes
                         };
                     }
-                    return Ext.create('Ext.container.Container', {
-                        title: item.title,
+                    return Ext.create('Ext.panel.Panel', {
+                        title: 'Result details',
+//                        title: item.title,
+                        header: {
+                            baseCls: 'ocb-panel-title'
+                        },
+                        border: false,
+                        collapsible: true,
+                        titleCollapse: true,
+                        margin: 10,
+                        bodyPadding: 10,
                         items: [
-                            {
-                                xtype: 'box',
-                                cls: 'inlineblock ssel border-bot s120', margin: '15',
-                                html: 'Details'
-                            },
                             detailsItemsContainer
                         ]
                     });
@@ -425,12 +535,12 @@ ResultWidget.prototype = {
                     return Ext.create('Ext.container.Container', {
                         id: _this.jobId + item.title.replace(/ /g, ''),
                         title: item.title,
-                        margin: '0 0 20 20',
+                        margin: '0 0 20 0',
                         items: [
                             {
                                 xtype: 'box',
                                 overCls: 'dedo',
-                                cls: 'panel-border-bottom', margin: '0 0 10 0',
+                                cls: 'panel-border-bottom', margin: '0 20 10 0',
                                 data: item, tpl: itemTpl,
                                 listeners: {
                                     afterrender: function () {
@@ -495,7 +605,7 @@ ResultWidget.prototype = {
         });
         genomeViewer.draw();
 
-        var renderer = new FeatureRenderer('gene');
+        var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
         renderer.on({
             'feature:click': function (event) {
                 console.log(event)
@@ -506,12 +616,9 @@ ResultWidget.prototype = {
             targetId: null,
             id: 2,
             title: 'Gene',
-            histogramZoom: 10,
-            labelZoom: 20,
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
             height: 100,
-            visibleRange: {start: 0, end: 100},
-            titleVisibility: 'hidden',
-            featureTypes: FEATURE_TYPES,
 
             renderer: renderer,
 
@@ -523,14 +630,12 @@ ResultWidget.prototype = {
                     exclude: 'transcripts'
                 },
                 species: genomeViewer.species,
-                featureCache: {
-                    gzip: true,
+                cacheConfig: {
                     chunkSize: 50000
                 }
             })
         });
         genomeViewer.addOverviewTrack(geneOverview);
-
 
 //        var sequence = new SequenceTrack({
 //            targetId: null,
@@ -584,7 +689,6 @@ ResultWidget.prototype = {
                 featureConfig: FEATURE_CONFIG.gene
             })
         });
-
         genomeViewer.addTrack(gene);
 
 
@@ -626,67 +730,72 @@ ResultWidget.prototype = {
 
 
         var filteredFile = this.result[_this.layoutName].layout.filteredFile;
-        if(!_.isUndefined(filteredFile)){
+        if (!_.isUndefined(filteredFile)) {
             OpencgaManager.poll({
                 accountId: $.cookie('bioinfo_account'),
                 sessionId: $.cookie('bioinfo_sid'),
                 jobId: _this.jobId,
                 filename: filteredFile,
                 zip: false,
-                success:function(data){
-                    if(data.indexOf("ERROR")!=-1){
+                success: function (data) {
+                    if (data.indexOf("ERROR") != -1) {
                         console.error(data);
                     }
-                    var vcfDataAdapter = new VCFDataAdapter(new StringDataSource(data),{async:false,species:genomeViewer.species});
-//                    var vcfTrack = new Track("VCF file",{
-//                        adapter: vcfDataAdapter
-//                    });
-//                    genomeViewer.addTrack(vcfTrack,{
-//                        id:"VCF file",
-//                        histogramZoom:50,
-//                        height:150,
-//                        visibleRange:{start:0,end:100},
-//                        featureTypes:FEATURE_TYPES
-//                    });
+                    var vcfDataAdapter = new VCFDataAdapter(new StringDataSource(data), {async: false, species: genomeViewer.species});
+
                     var fileTrack = new FeatureTrack({
                         targetId: null,
                         id: "VCF file",
-                        title: "VCF file",
-//                        histogramZoom:50,
-//                labelZoom: 80,
+                        title: filteredFile,
                         height: 150,
-                        visibleRange: {start: 0, end: 100},
-                        featureTypes: FEATURE_TYPES,
+                        minHistogramRegionSize: 12000,
+                        maxLabelRegionSize: 3000,
                         renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
-                        dataAdapter:vcfDataAdapter
+                        dataAdapter: vcfDataAdapter
                     });
 
                     genomeViewer.addTrack(fileTrack);
-
-                    //var feature = vcfDataAdapter.featureCache.getFirstFeature();
-                    //genomeViewer.region.load(feature);
-                    //genomeViewer.setRegion({sender:""});
-                    //genomeViewer.setZoom(75);
                 }
             });
-        }else{
+        } else {
             console.log("No filtered VCF file.");
         }
 
         return genomeViewer;
     },
-    _createVariantFilterWidget: function(targetId, gv, variantFilterFiles, tableLayout){
-        var variantFilterWidget = new VariantFilterWidget(this.jobId,{
-            width:1500,
-            height:300,
-            targetId:targetId,
-            viewer:gv,
+    _createVariantFilterWidget: function (targetId, gv, variantFilterFiles, tableLayout) {
+        var variantFilterWidget = new VariantFilterWidget(this.jobId, {
+            width: 1500,
+            height: 300,
+            targetId: targetId,
+            viewer: gv,
 //            fileNames:_this.variantFiles
-            fileNames:variantFilterFiles,
-            tableLayout:tableLayout
+            fileNames: variantFilterFiles,
+            tableLayout: tableLayout
         });
         variantFilterWidget.getPanel(targetId);
 
         return variantFilterWidget;
+    },
+
+
+    /*************************************/
+    /*************************************/
+    /*************************************/
+    _parseOldXML: function (layout) {
+
+        OpencgaManager.poll({
+            accountId: $.cookie('bioinfo_account'),
+            sessionId: $.cookie('bioinfo_sid'),
+            jobId: layout.job.id,
+            filename: layout.oldXML,
+            zip: false,
+            async: false,
+            success: function (data) {
+                var xmlDoc = $.parseXML(data);
+                layout.xml = $(xmlDoc);
+            }
+        });
     }
+
 };

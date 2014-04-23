@@ -20,7 +20,12 @@ test("Adding and Getting", function() {
     memoryStore.add("1_2", feature);
     memoryStore.add("1_3", feature);
     memoryStore.add("1_4", feature);
+    memoryStore.add("1_5", feature);
 
-    ok( memoryStore.get("1_1") == feature, "Passed!" );
-    memoryStore.free();
+    var value = memoryStore.get("1_3");
+
+    var value = memoryStore.get("1_5");
+
+    ok( memoryStore.get("1_5") == feature, "Passed!" );
+//    memoryStore.free();
 });

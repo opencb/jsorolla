@@ -53,7 +53,7 @@ GTFDataAdapter.prototype.parse = function(data, region){
 		return obj;
 	};
 	
-	var dataType = "data";
+	var dataType = "value";
 	var lines = data.split("\n");
 //	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){

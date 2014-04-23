@@ -61,14 +61,16 @@ ChromosomePanel.prototype = {
     showContent: function () {
         $(this.svg).css({display: 'inline'});
         this.collapsed = false;
-        $(this.collapseDiv).addClass('ocb-icon-collapse');
-        $(this.collapseDiv).removeClass('ocb-icon-expand');
+        $(this.collapseDiv).removeClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
     },
     hideContent: function () {
         $(this.svg).css({display: 'none'});
         this.collapsed = true;
-        $(this.collapseDiv).addClass('ocb-icon-expand');
-        $(this.collapseDiv).removeClass('ocb-icon-collapse');
+        $(this.collapseDiv).addClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
     },
     setVisible: function (bool) {
         if (bool) {
@@ -79,16 +81,18 @@ ChromosomePanel.prototype = {
     },
     setTitle: function (title) {
         if ('titleDiv' in this) {
-            $(this.titleDiv).html(title);
+            $(this.titleDiv).first().html(title);
         }
     },
     setWidth: function (width) {
         this.width = width;
         this.svg.setAttribute("width", width);
-        this.tracksViewedRegion = this.width / Utils.getPixelBaseByZoom(this.zoom);
+//        this.tracksViewedRegion = this.width / Utils.getPixelBaseByZoom(this.zoom);
 
-        this.clean();
-        this._drawSvg(this.data);
+        if(typeof this.data !== 'undefined'){
+            this.clean();
+            this._drawSvg(this.data);
+        }
     },
 
     render: function (targetId) {
@@ -103,11 +107,11 @@ ChromosomePanel.prototype = {
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
-            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
+            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
             $(this.div).append(this.titleDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div class="ocb-icon ocb-icon-collapse" style="margin:0px 0px -2px 10px;display:inline-block; vertical-align:bottom"></div>');
+                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs pull-right" style="display:inline;margin:2px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
                 $(this.titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -158,6 +162,7 @@ ChromosomePanel.prototype = {
             subCategory: 'chromosome',
             query: this.region.chromosome,
             resource: 'info',
+            async:false,
             success: function (data) {
                 _this.data = data.response[0].result.chromosomes;
                 _this.data.cytobands.sort(function (a, b) {
@@ -235,38 +240,31 @@ ChromosomePanel.prototype = {
                 });
             }
         }
-        var firstStain = cytobandsByStain['acen'][0];
-        var lastStain = cytobandsByStain['acen'][1];
-        var backrect = SVG.addChild(group, 'rect', {
-            'x': (firstStain.pixelStart + offset + 1),
-            'y': 4,
-            'width': (lastStain.pixelEnd + offset) - (firstStain.pixelStart + offset + 1),
-            'height': 22,
-            'fill': 'white'
-        });
-        var firstStainXStart = (firstStain.pixelStart + offset + 1);
-        var firstStainXEnd = (firstStain.pixelEnd + offset);
-        var lastStainXStart = (lastStain.pixelStart + offset + 1);
-        var lastStainXEnd = (lastStain.pixelEnd + offset);
-        var path = SVG.addChild(group, 'path', {
-            'd': 'M' + firstStainXStart + ',4' + ' L' + (firstStainXEnd - 5) + ',4 ' + ' L' + firstStainXEnd + ',15 ' + ' L ' + (firstStainXEnd - 5) + ',26 ' + ' L ' + firstStainXStart + ',26 z',
-            'fill': this.colors['acen']
-        });
-        var path = SVG.addChild(group, 'path', {
-            'd': 'M' + lastStainXStart + ',15' + ' L' + (lastStainXStart + 5) + ',4 ' + ' L' + lastStainXEnd + ',4 ' + ' L ' + lastStainXEnd + ',26 ' + ' L ' + (lastStainXStart + 5) + ',26 z',
-            'fill': this.colors['acen']
-        });
 
-//        if (cytoband.stain == 'acen') {
-//            if (!firstAcenStainCalculated) {
-//                cytobands_d += 'M' + (cytoband.pixelStart + offset + 1) + ',15' + ' L' + (cytoband.pixelEnd + offset - 5) + ',15 ';
-//                cytobands_d += ' L' + (cytoband.pixelEnd + offset - 5) + ',7.5 ';
-//                firstAcenStainCalculated = true;
-//            } else {
-//                cytobands_d += 'M' + (cytoband.pixelStart + offset + 1 + 5) + ',15' + ' L' + (cytoband.pixelEnd + offset) + ',15 ';
-//            }
-//        } else {
-//        }
+        if(typeof cytobandsByStain['acen'] !== 'undefined'){
+            var firstStain = cytobandsByStain['acen'][0];
+            var lastStain = cytobandsByStain['acen'][1];
+            var backrect = SVG.addChild(group, 'rect', {
+                'x': (firstStain.pixelStart + offset + 1),
+                'y': 4,
+                'width': (lastStain.pixelEnd + offset) - (firstStain.pixelStart + offset + 1),
+                'height': 22,
+                'fill': 'white'
+            });
+            var firstStainXStart = (firstStain.pixelStart + offset + 1);
+            var firstStainXEnd = (firstStain.pixelEnd + offset);
+            var lastStainXStart = (lastStain.pixelStart + offset + 1);
+            var lastStainXEnd = (lastStain.pixelEnd + offset);
+            var path = SVG.addChild(group, 'path', {
+                'd': 'M' + firstStainXStart + ',4' + ' L' + (firstStainXEnd - 5) + ',4 ' + ' L' + firstStainXEnd + ',15 ' + ' L ' + (firstStainXEnd - 5) + ',26 ' + ' L ' + firstStainXStart + ',26 z',
+                'fill': this.colors['acen']
+            });
+            var path = SVG.addChild(group, 'path', {
+                'd': 'M' + lastStainXStart + ',15' + ' L' + (lastStainXStart + 5) + ',4 ' + ' L' + lastStainXEnd + ',4 ' + ' L ' + lastStainXEnd + ',26 ' + ' L ' + (lastStainXStart + 5) + ',26 z',
+                'fill': this.colors['acen']
+            });
+        }
+
 
         /**/
         /* Resize elements and events*/
@@ -335,14 +333,6 @@ ChromosomePanel.prototype = {
 
         $(this.positionBox).off('mouseenter');
         $(this.positionBox).off('mouseleave');
-//        $(this.positionBox).mouseenter(function (event) {
-//            if (selectingRegion == false) {
-//                overPositionBox = true;
-//            }
-//        });
-//        $(this.positionBox).mouseleave(function (event) {
-//            overPositionBox = false;
-//        });
 
         var recalculateResizeControls = function () {
             var postionBoxX = parseInt(_this.positionBox.getAttribute('x'));
@@ -361,6 +351,19 @@ ChromosomePanel.prototype = {
         var showResizeControls = function () {
             resizeLeft.setAttribute('visibility', 'visible');
             resizeRight.setAttribute('visibility', 'visible');
+        };
+
+        var recalculatePositionBox = function () {
+            var genomicLength = _this.region.length();
+            var pixelWidth = genomicLength * _this.pixelBase;
+            var x = (_this.region.start * _this.pixelBase) + 20;//20 is the margin
+            _this.positionBox.setAttribute("x", x);
+            _this.positionBox.setAttribute("width", pixelWidth);
+        };
+        var limitRegionToChromosome = function (args) {
+            args.start = (args.start < 1) ? 1 : args.start;
+            args.end = (args.end > _this.chromosomeLength) ? _this.chromosomeLength : args.end;
+            return args;
         };
 
         $(positionGroup).mouseenter(function (event) {
@@ -383,13 +386,11 @@ ChromosomePanel.prototype = {
         $(this.svg).contextmenu(function (e) {
             e.preventDefault();
         });
-//        var overPositionBox = false;
-//        var movingPositionBox = false;
-//        var selectingRegion = false;
         var downY, downX, moveX, moveY, lastX, increment;
 
         $(this.svg).mousedown(function (event) {
-            downX = (event.pageX - $(_this.svg).offset().left);
+//            downX = (event.pageX - $(_this.svg).offset().left);
+            downX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
             selBox.setAttribute("x", downX);
             lastX = _this.positionBox.getAttribute("x");
             if (status == '') {
@@ -397,7 +398,8 @@ ChromosomePanel.prototype = {
             }
             hideResizeControls();
             $(this).mousemove(function (event) {
-                moveX = (event.pageX - $(_this.svg).offset().left);
+//                moveX = (event.pageX - $(_this.svg).offset().left);
+                moveX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
                 hideResizeControls();
                 switch (status) {
                     case 'resizePositionBoxLeft' :
@@ -410,7 +412,7 @@ ChromosomePanel.prototype = {
                         downX = moveX;
                         break;
                     case 'resizePositionBoxRight' :
-                        var inc = moveX - downX;
+                        var inc = moveX - downX;SVG
                         var newWidth = parseInt(_this.positionBox.getAttribute("width")) + inc;
                         if (newWidth > 0) {
                             _this.positionBox.setAttribute("width", newWidth);
@@ -419,8 +421,6 @@ ChromosomePanel.prototype = {
                         break;
                     case 'movePositionBox' :
                         var inc = moveX - downX;
-//                        var w = _this.positionBox.getAttribute("width");
-//                        _this.positionBox.setAttribute("x", moveX - (w / 2));
                         _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
                         downX = moveX;
                         break;
@@ -450,12 +450,15 @@ ChromosomePanel.prototype = {
                         if (moveX != null) {
                             var w = parseInt(_this.positionBox.getAttribute("width"));
                             var x = parseInt(_this.positionBox.getAttribute("x"));
+
                             var pixS = x;
                             var pixE = x + w;
                             var bioS = (pixS - offset) / _this.pixelBase;
                             var bioE = (pixE - offset) / _this.pixelBase;
-                            _this.region.start = Math.round(bioS);
-                            _this.region.end = Math.round(bioE);
+                            var se = limitRegionToChromosome({start:bioS,end:bioE});// returns object with start and end
+                            _this.region.start = Math.round(se.start);
+                            _this.region.end = Math.round(se.end);
+                            recalculatePositionBox();
                             recalculateResizeControls();
                             showResizeControls();
                             _this.trigger('region:change', {region: _this.region, sender: _this});
@@ -464,26 +467,34 @@ ChromosomePanel.prototype = {
                         }
                         break;
                     case 'setRegion' :
-                        var w = _this.positionBox.getAttribute("width");
-                        var pixS = downX - (w / 2);
-                        var pixE = downX + (w / 2);
-                        var bioS = (pixS - offset) / _this.pixelBase;
-                        var bioE = (pixE - offset) / _this.pixelBase;
-                        _this.region.start = Math.round(bioS);
-                        _this.region.end = Math.round(bioE);
+                        if(downX > offset && downX < (_this.width - offset)){
+                            var w = _this.positionBox.getAttribute("width");
 
-                        _this.positionBox.setAttribute("x", downX - (w / 2));
-                        _this.trigger('region:change', {region: _this.region, sender: _this});
+                            _this.positionBox.setAttribute("x", downX - (w / 2));
+
+                            var pixS = downX - (w / 2);
+                            var pixE = downX + (w / 2);
+                            var bioS = (pixS - offset) / _this.pixelBase;
+                            var bioE = (pixE - offset) / _this.pixelBase;
+                            var se = limitRegionToChromosome({start: bioS, end: bioE});// returns object with start and end
+                            _this.region.start = Math.round(se.start);
+                            _this.region.end = Math.round(se.end);
+                            recalculatePositionBox();
+                            _this.trigger('region:change', {region: _this.region, sender: _this});
+                        }
                         break;
                     case 'selectingRegion' :
                         var bioS = (downX - offset) / _this.pixelBase;
                         var bioE = (moveX - offset) / _this.pixelBase;
-                        _this.region.start = parseInt(Math.min(bioS, bioE));
-                        _this.region.end = parseInt(Math.max(bioS, bioE));
-
-                        var w = Math.abs(downX - moveX);
-                        _this.positionBox.setAttribute("width", w);
-                        _this.positionBox.setAttribute("x", Math.abs((downX + moveX) / 2) - (w / 2));
+                        var start = Math.min(bioS,bioE);
+                        var end = Math.max(bioS,bioE);
+                        var se = limitRegionToChromosome({start:start,end:end});// returns object with start and end
+                        _this.region.start = parseInt(se.start);
+                        _this.region.end = parseInt(se.end);
+                        recalculatePositionBox();
+//                        var w = Math.abs(downX - moveX);
+//                        _this.positionBox.setAttribute("width", w);
+//                        _this.positionBox.setAttribute("x", Math.abs((downX + moveX) / 2) - (w / 2));
                         _this.trigger('region:change', {region: _this.region, sender: _this});
                         break;
                 }
@@ -518,6 +529,9 @@ ChromosomePanel.prototype = {
         if (this.lastChromosome != this.region.chromosome) {
             needDraw = true;
         }
+        if (needDraw) {
+            this.draw();
+        }
 
         //recalculate positionBox
         var genomicLength = this.region.length();
@@ -526,8 +540,5 @@ ChromosomePanel.prototype = {
         this.positionBox.setAttribute("x", x);
         this.positionBox.setAttribute("width", pixelWidth);
 
-        if (needDraw) {
-            this.draw();
-        }
     }
 }

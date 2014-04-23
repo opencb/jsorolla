@@ -41,7 +41,7 @@ function BEDDataAdapter(dataSource, args){
 
 BEDDataAdapter.prototype.parse = function(data, region){
 	var _this = this;
-	var dataType = "data";
+	var dataType = "value";
 	var lines = data.split("\n");
 //	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){
@@ -65,7 +65,7 @@ BEDDataAdapter.prototype.parse = function(data, region){
 						"blockSizes":fields[10],
 						"blockStarts":fields[11],
 						"featureType":	"bed"
-				} ;
+				};
 
 				this.featureCache.putFeatures(feature, dataType);
 				

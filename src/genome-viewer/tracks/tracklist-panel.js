@@ -27,12 +27,13 @@ function TrackListPanel(args) {//parent is a DOM div element
 
     //set default args
     this.id = Utils.genId("TrackListPanel");
+    this.collapsed = false;
+    this.collapsible = false;
 
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     this.trackSvgList = [];
     this.swapHash = {};
-    this.zoomOffset = 0;//for region overview panel, that will keep zoom higher, 0 by default
 
     this.parentLayout;
     this.mousePosition;
@@ -58,7 +59,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.visualRegion = new Region(this.region);
 
     /********/
-    this._setPixelBaseAndZoom();
+    this._setPixelBase();
     /********/
 
     this.on(this.handlers);
@@ -71,7 +72,41 @@ function TrackListPanel(args) {//parent is a DOM div element
 };
 
 TrackListPanel.prototype = {
+    show: function () {
+        $(this.div).css({display: 'block'});
+    },
 
+    hide: function () {
+        $(this.div).css({display: 'none'});
+    },
+    setVisible: function (bool) {
+        if (bool) {
+            $(this.div).css({display: 'block'});
+        } else {
+            $(this.div).css({display: 'none'});
+        }
+    },
+    setTitle: function (title) {
+        if ('titleDiv' in this) {
+            $(this.titleDiv).html(title);
+        }
+    },
+    showContent: function () {
+        $(this.tlHeaderDiv).css({display: 'block'});
+        $(this.panelDiv).css({display: 'block'});
+        this.collapsed = false;
+        $(this.collapseDiv).removeClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
+    },
+    hideContent: function () {
+        $(this.tlHeaderDiv).css({display: 'none'});
+        $(this.panelDiv).css({display: 'none'});
+        this.collapsed = true;
+        $(this.collapseDiv).addClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
+    },
     render: function (targetId) {
         this.targetId = (targetId) ? targetId : this.targetId;
         if ($('#' + this.targetId).length < 1) {
@@ -85,8 +120,30 @@ TrackListPanel.prototype = {
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
-            var titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
+            var titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><div style="display:inline-block;line-height: 24px;margin-left: 5px;width:120px">' + this.title + '</div></div>')[0];
             $(this.div).append(titleDiv);
+            var windowSizeDiv = $('<div style="display:inline;margin-left:35%" id="windowSizeSpan"></div>');
+            $(titleDiv).append(windowSizeDiv);
+
+            if (this.collapsible == true) {
+                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs pull-right" style="display:inline;margin:2px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
+                $(titleDiv).dblclick(function () {
+                    if (_this.collapsed) {
+                        _this.showContent();
+                    } else {
+                        _this.hideContent();
+                    }
+                });
+                $(this.collapseDiv).click(function () {
+                    if (_this.collapsed) {
+                        _this.showContent();
+                    } else {
+                        _this.hideContent();
+                    }
+                });
+                $(titleDiv).append(this.collapseDiv);
+            }
+
         }
 
         var tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];
@@ -108,31 +165,31 @@ TrackListPanel.prototype = {
         //Main SVG and his events
         this.svgTop = SVG.init(tlHeaderDiv, {
             "width": this.width,
-            "height": 25
+            "height": 12
         });
 
         var mid = this.width / 2;
-
+        var yOffset = 11;
         this.positionText = SVG.addChild(this.svgTop, 'text', {
             'x': mid - 30,
-            'y': 24,
+            'y': yOffset,
             'fill': 'steelblue',
             'class': this.fontClass
         });
         this.nucleotidText = SVG.addChild(this.svgTop, 'text', {
             'x': mid + 35,
-            'y': 24,
+            'y': yOffset,
             'class': this.fontClass
         });
         this.firstPositionText = SVG.addChild(this.svgTop, 'text', {
             'x': 0,
-            'y': 24,
+            'y': yOffset,
             'fill': 'steelblue',
             'class': this.fontClass
         });
         this.lastPositionText = SVG.addChild(this.svgTop, 'text', {
             'x': this.width - 70,
-            'y': 24,
+            'y': yOffset,
             'fill': 'steelblue',
             'class': this.fontClass
         });
@@ -168,8 +225,10 @@ TrackListPanel.prototype = {
             'fill': 'black',
             'class': this.fontClass
         });
+        this.viewNtsText.setAttribute('visibility', 'hidden');
 //        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
         this.viewNtsText.textContent = this.windowSize;
+        $(this.div).find('#windowSizeSpan').html(this.windowSize);
         this._setTextPosition();
 
 
@@ -228,7 +287,6 @@ TrackListPanel.prototype = {
             $(panelDiv).append(regionOverviewBoxRight);
             var regionOverviewBoxWidth = this.region.length() * this.pixelBase;
             var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2
-//            debugger
             $(regionOverviewBoxLeft).css({
                 'z-index': 0,
                 'position': 'absolute',
@@ -271,7 +329,7 @@ TrackListPanel.prototype = {
             _this.trigger('mousePosition:change', {mousePos: _this.mousePosition, baseHtml: _this.getMousePosition(_this.mousePosition)});
         });
 
-        $(this.div).dblclick(function (event) {
+        $(this.tlTracksDiv).dblclick(function (event) {
             var halfLength = _this.region.length() / 2;
             var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition - halfLength, end: _this.mousePosition + halfLength})
             _this.trigger('region:change', {region: mouseRegion, sender: _this});
@@ -282,7 +340,12 @@ TrackListPanel.prototype = {
             $('html').addClass('unselectable');
 //                            $('.qtip').qtip('hide').qtip('disable'); // Hide AND disable all tooltips
             $(_this.mouseLine).css({'visibility': 'hidden'});
-            switch (event.which) {
+
+            var mouseState = event.which;
+            if (event.ctrlKey) {
+                mouseState = 'ctrlKey' + event.which;
+            }
+            switch (mouseState) {
                 case 1: //Left mouse button pressed
                     $(this).css({"cursor": "move"});
                     downX = event.clientX;
@@ -308,6 +371,7 @@ TrackListPanel.prototype = {
 
                     break;
                 case 2: //Middle mouse button pressed
+                case 'ctrlKey1': //ctrlKey and left mouse button
                     $(selBox).css({'visibility': 'visible'});
                     $(selBox).css({'width': 0});
                     downX = (event.pageX - $(_this.tlTracksDiv).offset().left);
@@ -335,11 +399,17 @@ TrackListPanel.prototype = {
             $(this).css({"cursor": "default"});
             $(_this.mouseLine).css({'visibility': 'visible'});
             $(this).off('mousemove');
-            switch (event.which) {
+
+            var mouseState = event.which;
+            if (event.ctrlKey) {
+                mouseState = 'ctrlKey' + event.which;
+            }
+            switch (mouseState) {
                 case 1: //Left mouse button pressed
 
                     break;
                 case 2: //Middle mouse button pressed
+                case 'ctrlKey1': //ctrlKey and left mouse button
                     $(selBox).css({'visibility': 'hidden'});
                     $(this).off('mousemove');
                     if (downX != null && moveX != null) {
@@ -350,7 +420,6 @@ TrackListPanel.prototype = {
                         _this.region.start = parseInt(Math.min(ss, ee));
                         _this.region.end = parseInt(Math.max(ss, ee));
                         _this.trigger('region:change', {region: _this.region, sender: _this});
-                        _this.onRegionSelect.notify();
                         moveX = null;
                     } else if (downX != null && moveX == null) {
                         var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition, end: _this.mousePosition})
@@ -401,16 +470,6 @@ TrackListPanel.prototype = {
                             disp = Math.round(-10 / _this.pixelBase);
                         }
                         break;
-                    case 109://minus key
-                        if (e.shiftKey) {
-                            console.log("zoom out");
-                        }
-                        break;
-                    case 107://plus key
-                        if (e.shiftKey) {
-                            console.log("zoom in");
-                        }
-                        break;
                 }
                 if (disp != 0) {
                     _this.region.start -= disp;
@@ -423,27 +482,10 @@ TrackListPanel.prototype = {
             });
         };
 
+        this.tlHeaderDiv = tlHeaderDiv;
+        this.panelDiv = panelDiv;
+
         this.rendered = true;
-    },
-
-    show: function () {
-        $(this.div).css({display: 'block'});
-    },
-
-    hide: function () {
-        $(this.div).css({display: 'none'});
-    },
-    setVisible: function (bool) {
-        if (bool) {
-            $(this.div).css({display: 'block'});
-        } else {
-            $(this.div).css({display: 'none'});
-        }
-    },
-    setTitle: function (title) {
-        if ('titleDiv' in this) {
-            $(this.titleDiv).html(title);
-        }
     },
 
     setHeight: function (height) {
@@ -459,7 +501,7 @@ TrackListPanel.prototype = {
         console.log(width);
         this.width = width - 18;
         var mid = this.width / 2;
-        this._setPixelBaseAndZoom();
+        this._setPixelBase();
 
         $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase});
         $(this.mouseLine).css({'width': this.pixelBase});
@@ -475,10 +517,6 @@ TrackListPanel.prototype = {
         this.trigger('trackWidth:change', {width: this.width, sender: this})
 
         this._setTextPosition();
-    },
-
-    setZoom: function (zoom) {
-//        this.zoom = zoom;
     },
 
     highlight: function (event) {
@@ -502,17 +540,18 @@ TrackListPanel.prototype = {
         var _this = this;
         this.region.load(region);
         this.visualRegion.load(region);
-        this._setPixelBaseAndZoom();
+        this._setPixelBase();
         //get pixelbase by Region
 
 
         $(this.centerLine).css({'width': this.pixelBase});
         $(this.mouseLine).css({'width': this.pixelBase});
 
-        this.viewNtsText.textContent = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
-        this.windowSize = this.viewNtsText.textContent;
+        this.windowSize = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
+        this.viewNtsText.textContent = this.viewNtsText.textContent;
+        $(this.div).find('#windowSizeSpan').html(this.windowSize);
         this._setTextPosition();
-        this.trigger('window:size', {windowSize: this.viewNtsText.textContent});
+        this.trigger('window:size', {windowSize: this.windowSize});
 
 //        if (region.species != null) {
 //            //check species and modify CellBaseAdapter, clean cache
@@ -527,7 +566,7 @@ TrackListPanel.prototype = {
 //                }
 //            }
 //        }
-        this.trigger('trackRegion:change', {region: this.region, sender: this})
+        this.trigger('trackRegion:change', {region: this.visualRegion, sender: this})
 
         this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
 
@@ -552,7 +591,7 @@ TrackListPanel.prototype = {
             return true;
         };
         if (checkAllTrackStatus('ready')) {
-            console.log('all ready')
+//            console.log('all ready')
             this.status = 'ready';
             _this.trigger('tracks:ready', {sender: _this});
         }
@@ -566,12 +605,12 @@ TrackListPanel.prototype = {
 //        setTimeout(checkStatus, 10);
         /***************************/
     },
-    addTrack :function(track){
-        if(_.isArray(track)){
-            for(var i in track){
+    addTrack: function (track) {
+        if (_.isArray(track)) {
+            for (var i in track) {
                 this._addTrack(track[i]);
             }
-        }else{
+        } else {
             this._addTrack(track);
         }
     },
@@ -581,12 +620,12 @@ TrackListPanel.prototype = {
             return;
         }
         var _this = this;
+
         var i = this.trackSvgList.push(track);
         this.swapHash[track.id] = {index: i - 1, visible: true};
 
         track.set('pixelBase', this.pixelBase);
-        track.set('zoom', this.zoom);
-        track.set('region', this.region);
+        track.set('region', this.visualRegion);
         track.set('width', this.width);
 
         // Track must be initialized after we have created
@@ -612,7 +651,6 @@ TrackListPanel.prototype = {
 
         track.set('trackRegion:change', function (event) {
             track.set('pixelBase', _this.pixelBase);
-            track.set('zoom', _this.zoom);
             track.set('region', event.region);
             track.draw();
         });
@@ -621,7 +659,6 @@ TrackListPanel.prototype = {
         track.set('trackRegion:move', function (event) {
             track.set('region', event.region);
             track.set('pixelBase', _this.pixelBase);
-            track.set('zoom', _this.zoom);
             track.move(event.disp);
         });
 
@@ -629,7 +666,6 @@ TrackListPanel.prototype = {
         track.set('trackWidth:change', function (event) {
             track.setWidth(event.width);
             track.set('pixelBase', _this.pixelBase);
-            track.set('zoom', _this.zoom);
             track.draw();
         });
 
@@ -720,6 +756,12 @@ TrackListPanel.prototype = {
         for (var i = 0; i < this.trackSvgList.length; i++) {
             var track = this.trackSvgList[i];
             track.enableAutoHeight();
+        }
+    },
+    updateHeight: function () {
+        for (var i = 0; i < this.trackSvgList.length; i++) {
+            var track = this.trackSvgList[i];
+            track.updateHeight(true);
         }
     },
 
@@ -815,7 +857,7 @@ TrackListPanel.prototype = {
         var i = this.swapHash[trackId].index;
         var track = this.trackSvgList[i];
 
-        $(track.div).css({display: 'hidden'});
+        track.hide();
 
 //        this.setHeight(this.height - track.getHeight());
 
@@ -827,7 +869,7 @@ TrackListPanel.prototype = {
         var i = this.swapHash[trackId].index;
         var track = this.trackSvgList[i];
 
-        $(track.div).css({display: 'auto'});
+        track.show();
 
 //        this.svg.appendChild(track.main);
 
@@ -835,17 +877,10 @@ TrackListPanel.prototype = {
 
         this._redraw();
     },
-
-    _setPixelBaseAndZoom: function () {
+    _setPixelBase: function () {
         this.pixelBase = this.width / this.region.length();
         this.pixelBase = this.pixelBase / this.zoomMultiplier;
-        // At maximum zoom a bp is 10px, for each zoom level (5% of zoom)
-        // pixels are divided by two.
-//        return Math.max(this.pixelBase, (10/Math.pow(2,20)));
-        this.pixelBase = Math.max(this.pixelBase, (10 / Math.pow(2, 20)));
-
         this.halfVirtualBase = (this.width * 3 / 2) / this.pixelBase;
-        this.zoom = Utils.getZoomByPixelBase(this.pixelBase);
     },
 
     _setTextPosition: function () {
@@ -859,10 +894,13 @@ TrackListPanel.prototype = {
         this.firstPositionText.textContent = Utils.formatNumber(this.visualRegion.start);
         this.lastPositionText.textContent = Utils.formatNumber(this.visualRegion.end);
 
-        this.viewNtsText.textContent = "Window size: " + Utils.formatNumber(this.visualRegion.length()) + " nts";
+
+        this.windowSize = "Window size: " + Utils.formatNumber(this.visualRegion.length()) + " nts";
+        this.viewNtsText.textContent = this.windowSize;
+        $(this.div).find('#windowSizeSpan').html(this.windowSize);
+
 //        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length * 7);
 //        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
-        this.windowSize = this.viewNtsText.textContent;
     },
 
     getTrackSvgById: function (trackId) {
@@ -871,6 +909,16 @@ TrackListPanel.prototype = {
             return this.trackSvgList[position];
         }
         return null;
+    },
+    getSequenceTrack: function () {
+        //if multiple, returns the first found
+        for (var i = 0; i < this.trackSvgList.length; i++) {
+            var track = this.trackSvgList[i];
+            if (track instanceof SequenceTrack) {
+                return track;
+            }
+        }
+        return;
     },
 
     getMousePosition: function (position) {
@@ -886,9 +934,10 @@ TrackListPanel.prototype = {
     },
 
     getSequenceNucleotid: function (position) {
-        var seqTrack = this.getTrackSvgById(1);
-        if (seqTrack != null && this.zoom >= seqTrack.visibleRange.start - this.zoomOffset && this.zoom <= seqTrack.visibleRange.end) {
-            return seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
+        var seqTrack = this.getSequenceTrack();
+        if (seqTrack != null && this.visualRegion.length() <= seqTrack.visibleRegionSize) {
+            var nt = seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
+            return nt;
         }
         return '';
     },
