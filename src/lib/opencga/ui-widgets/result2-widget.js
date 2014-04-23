@@ -256,6 +256,13 @@ ResultWidget.prototype = {
                             cls: 'inlineblock whiteborder'
                         });
                         break;
+                    case 'message':
+                        itemBox = Ext.create('Ext.Component', {
+                            html: '<div class="alert alert-' + item.type + '" style="text-align: center;font-size: 20px">' + item.title + '</div>',
+                            item: item,
+                            padding: 3
+                        });
+                        break;
                     case 'text':
                         itemBox = Ext.create('Ext.Component', {
                             html: '<span class="key">' + item.title + '</span> <span class="emph">' + item.file + '</span>',
