@@ -197,7 +197,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
         bodyPadding: 5,
         width: '100%',
         buttonAlign: 'center',
-        items: [jobNameField, jobDescriptionField, jobFolder]
+        items: [jobNameField, jobDescriptionField/*, jobFolder*/] //TODO Job folder is not fully supported,
     });
 
     return jobPanel;

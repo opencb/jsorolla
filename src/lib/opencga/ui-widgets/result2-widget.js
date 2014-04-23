@@ -303,8 +303,16 @@ ResultWidget.prototype = {
                             jobId: _this.jobId,
                             filename: item.file
                         });
-                        itemBox = Ext.create('Ext.Component', {
-                            html: '<div><img src="' + url + '"></div>'
+                        itemBox = Ext.create('Ext.Img', {
+                            src: url,
+                            listeners: {
+                                render: function(imgCmp) {
+                                    this.mon(this.getEl(), 'load', function(e) {
+                                        imgCmp.setWidth(this.getWidth());
+                                        imgCmp.setHeight(this.getHeight());
+                                    });
+                                }
+                            }
                         });
                         break;
                     case 'piechart':
@@ -316,7 +324,7 @@ ResultWidget.prototype = {
                             filename: item.file
                         });
 
-                        var img;
+                        var imgURL;
                         $.ajax({
                             type: "GET",
                             async: false,
@@ -343,14 +351,27 @@ ResultWidget.prototype = {
                                         normValues.push(Math.round(parseFloat(values[i]) / total * 100));
                                     }
                                     names = names.toString().replace(/,/gi, "|");
-                                    img = '<img src="https://chart.googleapis.com/chart?cht=p&chs=600x300&chd=t:' + normValues + '&chl=' + names + '&chtt=Consequence+types&chts=000000,14.5">';
+                                    imgURL = 'https://chart.googleapis.com/chart?cht=p&chs=600x300&chd=t:' + normValues + '&chl=' + names + '&chtt=Consequence+types&chts=000000,14.5';
                                 }
                             }
                         });
 
-                        itemBox = Ext.create('Ext.Component', {
-                            html: '<div>' + img + '</div>'
+//                        itemBox = Ext.create('Ext.Component', {
+//                            html: '<div>' + img + '</div>',
+//                        });
+
+                        itemBox = Ext.create('Ext.Img', {
+                            src: imgURL,
+                            listeners: {
+                                render: function(imgCmp) {
+                                    this.mon(this.getEl(), 'load', function(e) {
+                                        imgCmp.setWidth(this.getWidth());
+                                        imgCmp.setHeight(this.getHeight());
+                                    });
+                                }
+                            }
                         });
+
                         break;
                     case 'grid':
                         var id = 'resultTable_' + _this.jobId + item.file;
@@ -502,22 +523,30 @@ ResultWidget.prototype = {
                     boxes.push(getDetailsAsDocument(item.children[i]));
                 }
                 if (isRoot == true) {
-                    var detailsItemsContainer = {
-                        xtype: 'container',
-                        items: boxes
-                    };
+                    var detailsItemsContainer;
                     if (item.presentation == 'tabs') {
-                        detailsItemsContainer = {
-                            xtype: 'tabpanel',
+                        detailsItemsContainer = Ext.create('Ext.tab.Panel', {
                             plain: true,
                             border: 0,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
                             defaults: {
                                 overflowX: 'scroll',
-//                                height: 2000,
                                 padding: 10
                             },
+                            items: boxes,
+//                            listeners:{
+//                                tabchange:function(tabPanel, newTab){
+//                                    newTab.getHeight();
+//                                }
+//                            }
+                        });
+                    } else {
+                        detailsItemsContainer = Ext.create('Ext.container.Container', {
                             items: boxes
-                        };
+                        });
                     }
                     return Ext.create('Ext.panel.Panel', {
                         title: 'Result details',
