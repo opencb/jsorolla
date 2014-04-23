@@ -324,9 +324,11 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
                 args.beforeClick(args);
             }
             _this.opencgaBrowserWidget.once('select', function (response) {
-                var value = 'buckets:' + response.bucketId + ':' + response.id.replace(/\//g, ":");
-                fileSelectedLabel.update('<span class="emph">' + response.id + '</span>', false);
-                hiddenField.setValue(value);//this is send to the ws
+                if (typeof response !== 'undefined') {
+                    var value = 'buckets:' + response.bucketId + ':' + response.id.replace(/\//g, ":");
+                    fileSelectedLabel.update('<span class="emph">' + response.id + '</span>', false);
+                    hiddenField.setValue(value);//this is send to the ws
+                }
             });
             _this.opencgaBrowserWidget.show({mode: args.mode, allowedTypes: args.allowedTypes});
         }
