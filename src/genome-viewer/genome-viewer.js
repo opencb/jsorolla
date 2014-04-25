@@ -41,15 +41,18 @@ function GenomeViewer(args) {
     this.karyotypePanelConfig = {
         collapsed: false,
         collapsible: true
-    }
+    };
     this.chromosomePanelConfig = {
         collapsed: false,
         collapsible: true
-    }
-    this.RegionPanelConfig = {
+    };
+    this.regionPanelConfig = {
         collapsed: false,
         collapsible: true
-    }
+    };
+    this.navigationBarConfig = {
+
+    };
     this.drawStatusBar = true;
     this.border = true;
     this.resizable = true;
@@ -371,6 +374,7 @@ GenomeViewer.prototype = {
             autoRender: true,
             quickSearchResultFn: this.quickSearchResultFn,
             quickSearchDisplayKey: this.quickSearchDisplayKey,
+            componentsConfig: this.navigationBarConfig.componentsConfig,
             handlers: {
                 'region:change': function (event) {
                     event.region = _this._checkRegion(event.region);
@@ -557,7 +561,7 @@ GenomeViewer.prototype = {
             zoomMultiplier: this.overviewZoomMultiplier,
             title: 'Region overview',
             showRegionOverviewBox: true,
-            collapsible: this.RegionPanelConfig.collapsible,
+            collapsible: this.regionPanelConfig.collapsible,
             region: this.region,
             handlers: {
                 'region:change': function (event) {

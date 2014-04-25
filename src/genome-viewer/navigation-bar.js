@@ -30,6 +30,7 @@ function NavigationBar(args) {
 
     this.species = 'Homo sapiens';
     this.increment = 3;
+    this.componentsConfig = 3;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -91,7 +92,7 @@ NavigationBar.prototype = {
             '   </div>' +
 
 
-            '   <div class="btn-group" style="margin-left:5px;">' +
+            '   <div id="zoomControl" class="btn-group" style="margin-left:5px;">' +
             '       <button id="zoomOutButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
             '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:22px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
@@ -101,7 +102,7 @@ NavigationBar.prototype = {
             '   </div>' +
 
 
-            '   <div class="btn-group" style="width:150px">' +
+            '   <div id="windowSizeControl" class="btn-group" style="width:150px">' +
             '   <div class="input-group input-group-sm">' +
             '       <span class="input-group-addon custom-xs"> Window size: </span>' +
             '       <input id="windowSizeField" type="text" class="form-control custom-xs" placeholder="Window size">' +
@@ -109,7 +110,7 @@ NavigationBar.prototype = {
             '   </div>' +
 
 
-            '   <div class="btn-group" style="width:250px">' +
+            '   <div id="positionControl" class="btn-group" style="width:250px">' +
             '   <div class="input-group input-group-sm">' +
             '       <span class="input-group-addon custom-xs"> Position: </span>' +
             '       <input id="regionField" type="text" class="form-control custom-xs" placeholder="1:10000-20000">' +
@@ -120,7 +121,7 @@ NavigationBar.prototype = {
             '   </div>' +
 
 
-            '   <div class="btn-group">' +
+            '   <div id="moveControl" class="btn-group">' +
             '       <button id="moveFurtherLeftButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w-bold"></span></button>' +
             '       <button id="moveLeftButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w"></span></button>' +
             '       <button id="moveRightButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-e"></span></button>' +
@@ -133,7 +134,7 @@ NavigationBar.prototype = {
             '       <button id="compactButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon glyphicon glyphicon-compressed"></span></button>' +
             '   </div>' +
 
-            '   <div class="btn-group" style="width:250px">' +
+            '   <div id="searchControl" class="btn-group" style="width:250px">' +
             '   <div class="input-group input-group-sm">' +
             '       <span class="input-group-addon custom-xs"> Search: </span>' +
             '       <input id="searchField" list="searchDataList" type="text" class="form-control custom-xs" placeholder="gene, snp...">' +
@@ -212,6 +213,16 @@ NavigationBar.prototype = {
         this.searchDataList = $(this.div).find('#searchDataList')[0];
         this.quickSearchButton = $(this.div).find('#quickSearchButton')[0];
         this.windowSizeField = $(this.div).find('#windowSizeField')[0];
+
+
+
+        /**Check components config**/
+        for(var key in this.componentsConfig){
+            if(!this.componentsConfig[key]){
+                $(this.div).find('#'+key).css('display','none');
+            }
+        }
+        /*****/
 
         /*** ***/
         $(this.restoreDefaultRegionButton).click(function (e) {
