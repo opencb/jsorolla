@@ -160,8 +160,9 @@ ToolBar.prototype = {
 
         /*************/
         $(this.div).find('.custom-xs').css({
-            padding:'2px 4px',
-            height:'22px'
+            padding:'2px 4px 0px 4px',
+            height:'22px',
+            lineHeight: '1'
         });
         /*************/
 
