@@ -74,7 +74,7 @@ HistogramRenderer.prototype.render = function (features, args) {
         if (feature.features_count == null) {
 //            var height = Math.log(features[i].absolute);
             if (feature.absolute != 0) {
-                feature.features_count = Math.log(features[i].absolute);
+                feature.features_count = Math.log(feature.absolute);
             } else {
                 feature.features_count = 0;
             }
