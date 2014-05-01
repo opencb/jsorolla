@@ -87,7 +87,7 @@ NetworkViewer.prototype = {
         $(this.div).append(this.statusbarDiv);
 
 
-        this.mainPanelDiv = $('<div id="nv-mainpanel" style="position:relative;right:0px;height:100%;"></div>')[0];
+        this.mainPanelDiv = $('<div id="nv-mainpanel" style="position:relative;height:100%;"></div>')[0];
         $(this.centerPanelDiv).append(this.mainPanelDiv);
 
         if (this.sidePanel) {
@@ -470,15 +470,21 @@ NetworkViewer.prototype = {
 
     _createNetworkSvgLayout: function (targetId) {
         var _this = this;
+
         var toolbarHeight = $(this.toolbarDiv).height();
         var editionbarHeight = $(this.editionbarDiv).height();
-        var height = this.height - toolbarHeight - editionbarHeight;
+
+        var bTopWidth = parseInt($(this.div).css('borderTopWidth'));
+        var bBottomWidth = parseInt($(this.div).css('borderBottomWidth'));
+
+        var height = this.height - toolbarHeight - editionbarHeight - bTopWidth - bBottomWidth;
+        var width = $(this.mainPanelDiv).width();
 
         console.log(this.height);
         console.log(height)
         var networkSvgLayout = new NetworkSvgLayout({
             targetId: targetId,
-            width: this.width,
+            width: width,
             height: height,
             autoRender: true,
             handlers: {
