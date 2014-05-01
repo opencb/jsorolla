@@ -89,8 +89,10 @@ ChromosomePanel.prototype = {
         this.svg.setAttribute("width", width);
 //        this.tracksViewedRegion = this.width / Utils.getPixelBaseByZoom(this.zoom);
 
-        this.clean();
-        this._drawSvg(this.data);
+        if(typeof this.data !== 'undefined'){
+            this.clean();
+            this._drawSvg(this.data);
+        }
     },
 
     render: function (targetId) {
@@ -160,6 +162,7 @@ ChromosomePanel.prototype = {
             subCategory: 'chromosome',
             query: this.region.chromosome,
             resource: 'info',
+            async:false,
             success: function (data) {
                 _this.data = data.response[0].result.chromosomes;
                 _this.data.cytobands.sort(function (a, b) {
@@ -526,6 +529,9 @@ ChromosomePanel.prototype = {
         if (this.lastChromosome != this.region.chromosome) {
             needDraw = true;
         }
+        if (needDraw) {
+            this.draw();
+        }
 
         //recalculate positionBox
         var genomicLength = this.region.length();
@@ -534,8 +540,5 @@ ChromosomePanel.prototype = {
         this.positionBox.setAttribute("x", x);
         this.positionBox.setAttribute("width", pixelWidth);
 
-        if (needDraw) {
-            this.draw();
-        }
     }
 }

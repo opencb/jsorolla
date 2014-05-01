@@ -499,11 +499,12 @@ OpencgaBrowserWidget.prototype = {
                 //allowDeselect:true,
                 listeners: {
                     selectionchange: function (este, item) {
+                        _this.selectButton.disable();
                         if (item.length > 0) {//se compr
                             _this.selectedFileNode = item[0].raw;
                             var type = item[0].raw.fileType;
                             var fileFormat = item[0].raw.fileFormat;
-                            if (_this.mode == "fileSelection" && type == "dir") {
+                            if (_this.mode === "fileSelection" && type === "dir") {
                                 return;
                             }
                             console.log(_this.allowedTypes)
@@ -512,7 +513,11 @@ OpencgaBrowserWidget.prototype = {
                                 console.log('file format NOT allowed -' + fileFormat + '- ')
                                 return;
                             }
-                            console.log('file format allowed -' + fileFormat + '- ')
+                            if (_this.mode === "folderSelection" && type !== "dir") {
+                                return;
+                            }
+
+                            console.log('file format allowed -' + fileFormat + '- ');
                             _this.selectButton.enable();
                             //this.selectedLabel.setText('<p>The selected file <span class="emph">'+item[0].data.fileName.substr(0,40)+'</span><span class="ok"> is allowed</span>.</p>',false);
                             //TODO por defecto cojo el primero pero que pasa si el data contiene varios ficheros??
@@ -666,9 +671,13 @@ OpencgaBrowserWidget.prototype = {
             buttonAlign: 'right',
             buttons: [
                 {
-                    text: 'Close', handler: function () {
-                    _this.panel.hide();
-                }},
+                    text: 'Close',
+                    handler: function () {
+                        _this.filesGrid.getSelectionModel().deselectAll();
+                        _this.trigger('select');
+                        _this.panel.hide();
+                    }
+                },
                 this.selectButton
             ],
             listeners: {
@@ -691,6 +700,12 @@ OpencgaBrowserWidget.prototype = {
         if (this.rendered) {
             this._updateFolderTree();
         }
+    },
+
+    removeAccountData: function () {
+        this.folderStore.getRootNode().removeAll();
+        this.allStore.getRootNode().removeAll();
+        this.filesStore.removeAll();
     },
 
     _updateFolderTree: function () {

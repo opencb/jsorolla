@@ -187,6 +187,7 @@ PagedViewListWidget.prototype.render = function () {
                 listeners: {
                     itemclick: function (este, record) {
                         console.log(record.data);
+                        console.log(record.data.id);
                         _this.trigger('item:click', {sender: _this, item: record});
                     },
                     itemcontextmenu: function (este, record, item, index, e) {

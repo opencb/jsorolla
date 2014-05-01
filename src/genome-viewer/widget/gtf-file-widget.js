@@ -40,7 +40,7 @@ function GTFFileWidget(args){
 GTFFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
-	this.adapter = new GTFDataAdapter(new FileDataSource(file),{species:this.viewer.species});
+	this.adapter = new GTFDataAdapter(new FileDataSource({file:file}),{species:this.viewer.species});
 	this.adapter.onLoad.addEventListener(function(sender){
 		console.log(_this.adapter.featuresByChromosome);
 		_this._loadChartInfo();

@@ -23,7 +23,6 @@ function AttributeEditWidget(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('AttributeEditWidget');
-    console.log(this.id)
 
     this.window;
     this.grid;
@@ -67,6 +66,8 @@ AttributeEditWidget.prototype = {
             title: 'Edit multiple values',
             bodyPadding: "10 0 10 10",
             layout: 'vbox',
+            border:0,
+            flex:1,
             dockedItems: [
                 {
                     xtype: 'toolbar',
@@ -109,6 +110,13 @@ AttributeEditWidget.prototype = {
             title: 'Add attribute',
             bodyPadding: "10 0 10 10",
             layout: 'vbox',
+            border: 0,
+            flex:1,
+            style: {
+                borderTopColor: 'lightgray',
+                borderTopStyle: 'solid',
+                borderTopWidth: '1px'
+            },
             items: [
                 {
                     xtype: 'textfield',
@@ -119,7 +127,8 @@ AttributeEditWidget.prototype = {
                 },
                 {
                     xtype: 'combo',
-                    store: ['string'],
+                    hidden:true,
+                    store: ['string','int','float'],
                     value: 'string',
                     width: 170,
                     fieldLabel: 'Type',
@@ -128,13 +137,13 @@ AttributeEditWidget.prototype = {
                     queryMode: 'local',
                     allowBlank: false
                 },
-                {
-                    xtype: 'textfield',
-                    width: 170,
-                    value: '',
-                    fieldLabel: 'Default value',
-                    labelWidth: 50
-                },
+//                {
+//                    xtype: 'textfield',
+//                    width: 170,
+//                    value: '',
+//                    fieldLabel: 'Default value',
+//                    labelWidth: 50
+//                },
                 {
                     xtype: 'button',
                     width: 170,
@@ -142,10 +151,10 @@ AttributeEditWidget.prototype = {
                     formBind: true, // only enabled if the form is valid
                     disabled: true,
                     handler: function (bt) {
-                        var name = bt.prev().prev().prev().getValue();
-                        var type = bt.prev().prev().getValue();
-                        var defaultValue = bt.prev().getValue();
-                        var created = _this.attrMan.addAttribute({name: name, type: type, defaultValue: defaultValue});
+                        var name = bt.previousSibling('textfield[fieldLabel=Name]').getValue();
+                        var type = bt.previousSibling('combo[fieldLabel=Type]').getValue();
+//                        var defaultValue = bt.prev().getValue();
+                        var created = _this.attrMan.addAttribute({name: name, type: type, defaultValue: ''});
                         var msg = (created === false) ? '<span class="err">Name already exists.</span>' : '';
                         bt.next().update(msg);
                     }
@@ -161,6 +170,13 @@ AttributeEditWidget.prototype = {
             title: 'Remove attribute',
             bodyPadding: "10 0 10 10",
             layout: 'vbox',
+            border: 0,
+            flex:1,
+            style: {
+                borderTopColor: 'lightgray',
+                borderTopStyle: 'solid',
+                borderTopWidth: '1px'
+            },
             items: [
                 this.createAttributesCombo(),
                 {
@@ -230,6 +246,19 @@ AttributeEditWidget.prototype = {
                 {
                     xtype: 'tbtext',
                     text: '<span style="color:gray">Use double-click to edit</span>'
+                },
+                {
+                    xtype: 'button',
+                    text: 'Download as file',
+                    href: 'none',
+                    handler: function (bt, e) {
+                        var a = bt.getEl();
+                        var string = _this.attrMan.getAsFile();
+                        a.set({
+                            href: 'data:text/tsv,' + encodeURIComponent(string),
+                            download: _this.type+".attr"
+                        });
+                    }
                 }
             ]
         });
@@ -264,12 +293,16 @@ AttributeEditWidget.prototype = {
         });
 
         this.accordionPanel = Ext.create('Ext.container.Container', {
-            layout: 'accordion',
+            layout: {
+                type:'vbox',
+                align:'stretch'
+            },
             width: 200,
             border: '0 1 0 0',
             style: {
                 borderColor: 'lightgray',
-                borderStyle: 'solid'
+                borderStyle: 'solid',
+                backgroundColor:'#ffffff'
             },
             items: [
                 modifyRowsFormPanel,
@@ -305,14 +338,20 @@ AttributeEditWidget.prototype = {
         this.window.show();
         this.checkSelectedFilter();
     },
-    setAttributeManager: function (attrMan) {
-        var _this = this;
-        this.attrMan = attrMan;
-        this.attrMan.on('change:attributes', function () {
-            _this.reconfigureComponents();
-        });
-        this.reconfigureComponents();
+    show: function () {
+        this.window.show();
     },
+    hide: function () {
+        this.window.hide();
+    },
+//    setAttributeManager: function (attrMan) {
+//        var _this = this;
+//        this.attrMan = attrMan;
+//        this.attrMan.on('change:attributes', function () {
+//            _this.reconfigureComponents();
+//        });
+//        this.reconfigureComponents();
+//    },
     reconfigureComponents: function () {
         console.log('refresh ' + this.id);
         this.grid.reconfigure(this.attrMan.store, this.attrMan.columnsGrid);

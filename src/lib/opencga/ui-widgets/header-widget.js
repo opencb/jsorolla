@@ -483,6 +483,7 @@ HeaderWidget.prototype = {
 
         this.profileWidget.hide();
         this.opencgaBrowserWidget.hide();
+        this.opencgaBrowserWidget.removeAccountData();
     },
     setDescription: function (text) {
         $("#" + this.id + 'description').html(text);

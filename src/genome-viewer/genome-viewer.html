@@ -163,6 +163,29 @@ var run = function () {
         chromosomePanelConfig: {
             collapsed: false,
             collapsible: true
+        },
+        navigationBarConfig:{
+            componentsConfig:{
+//                restoreDefaultRegionButton:false,
+//                regionHistoryButton:false,
+//                speciesButton:false,
+//                chromosomesButton:false,
+//                karyotypeButton:false,
+//                chromosomeButton:false,
+//                regionButton:false,
+//                zoomControl:false,
+//                windowSizeControl:false,
+//                positionControl:false,
+//                moveControl:false,
+//                autoheightButton:false,
+//                compactButton:false,
+//                searchControl:false
+            }
+        },
+        handlers:{
+            'region:change':function(e){
+                console.log(e)
+            }
         }
 //        chromosomeList:[]
 //            trackListTitle: ''
@@ -329,7 +352,8 @@ $(document).ready(run);
     }
 
     #application {
-        width: 1440px;
+        /*width: 1440px;*/
+        width: 1000px;
         height: 800px;
         /*overflow-y: auto;*/
         /*overflow-x: hidden;*/

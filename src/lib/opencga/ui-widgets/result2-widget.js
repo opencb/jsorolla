@@ -25,10 +25,15 @@ function ResultWidget(args) {
     //set default args
     this.extItems = [];
 
+    this.collapseInformation = false;
+    this.drawIndex = true;
+    this.title = '';
+
     //set instantiation args, must be last
     _.extend(this, args);
 
     this.panelId = null;
+    this.type;
     this.networkViewerId = null;
     this.genomeMapsId = null;
 }
@@ -46,17 +51,43 @@ ResultWidget.prototype = {
         this.panelId = "ResultWidget_" + this.jobId;
 
         this.panel = Ext.getCmp(this.panelId);
-        if (this.panel == null) {
-            this.panel = Ext.create('Ext.panel.Panel', {
-                id: this.panelId,
-                border: 0,
-                title: this.job.name,
-                closable: true,
-                autoScroll: true
-            });
 
-            Ext.getCmp(this.targetId).add(this.panel);
-            Ext.getCmp(this.targetId).setActiveTab(this.panel);
+        var title = this.title;
+        if (this.title === '') {
+            title = this.job.name;
+        } else {
+            title = this.title + ' - ' + this.job.name
+        }
+
+
+        if (this.panel == null) {
+            if (this.type == "window") {
+                this.panel = Ext.create('Ext.window.Window', {
+                    id: this.panelId,
+                    bodyStyle: 'background:white;',
+                    title: title,
+                    closable: true,
+                    autoScroll: true,
+                    overflowY: 'auto',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    }
+                });
+            } else {
+                this.panel = Ext.create('Ext.panel.Panel', {
+                    id: this.panelId,
+                    border: 0,
+                    title: title,
+                    closable: true,
+                    autoScroll: true,
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    }
+                });
+                Ext.getCmp(this.targetId).add(this.panel);
+            }
             this.panel.setLoading("Loading job info...");
 
             var url = OpencgaManager.jobResultUrl({
@@ -72,10 +103,30 @@ ResultWidget.prototype = {
                 var layout = _this.result[_this.layoutName].layout;
                 layout.outputItems = _this.job.outputData.sort(layout.sortOutputItems);
                 layout.job = _this.job;
+
+
+                /**/
+                if (typeof layout.oldXML !== 'undefined') {
+                    _this._parseOldXML(layout);
+                }
+                /**/
+
                 _this.render(_this.result);
+
+
+                if (_this.type == "window") {
+                    _this.panel.show();
+                } else {
+                    Ext.getCmp(_this.targetId).setActiveTab(_this.panel);
+                }
             });
         } else {
-            Ext.getCmp(this.targetId).setActiveTab(this.panel);
+            if (this.type == "window") {
+                this.panel.show();
+            } else {
+                Ext.getCmp(this.targetId).setActiveTab(this.panel);
+            }
+
         }
     },
     render: function (resultData) {
@@ -85,18 +136,26 @@ ResultWidget.prototype = {
         var getJobInfo = function (args) {
             var args = args || {};
             var itemTpl = new Ext.XTemplate(
-                '<p><span class="ssel border-bot s120">Information </span><span style="color:steelblue"> &nbsp; &nbsp; Job Id: <span><span style="color:slategrey">{id}</span></p><br>',
-                '<p><span class="emph">{name}</span> - <span class="info"> {toolName} </span> - <span style="color:orangered"> {date}</span></p>',
+                '<div class="s110">',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Id: </div>{id}<br>',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Name: </div>{name}<br>',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Tool: </div>{toolName}<br>',
+                '<div style="display:inline-block;color:steelblue;width: 45px;">Date: </div>{date}<br>',
+                '</div>',
                 '<p class="tip emph">{description}</p>',
                 '<p class="">{command.html}</p>'
             );
             var container = Ext.create('Ext.panel.Panel', {
-                title: 'Job information',
-                width: '95%',
+                title: 'Information',
+                header: {
+                    baseCls: 'ocb-panel-title'
+                },
+                border: false,
                 collapsible: true,
                 titleCollapse: true,
+                collapsed: _this.collapseInformation,
+                margin: 10,
                 bodyPadding: 10,
-                margin: '15 0 15 15',
                 items: [
                     {
                         xtype: 'box',
@@ -146,14 +205,11 @@ ResultWidget.prototype = {
         };
 
         var getResultIndex = function (children) {
-            var boxes = [
-                {xtype: 'box', cls: 'inlineblock ssel border-bot s120', html: 'Index', margin: 15}
-            ];
+            var boxes = [];
             for (var i = 0; i < children.length; i++) {
                 boxes.push(Ext.create('Ext.Component', {
-                    margin: "0 15 0 15",
-                    cls: 'dedo emph',
-                    overCls: 'err',
+                    cls: 'dedo',
+                    overCls: 'u err',
                     resultId: _this.jobId + children[i].title.replace(/ /g, ''),
                     html: children[i].title,
                     listeners: {
@@ -175,14 +231,22 @@ ResultWidget.prototype = {
                     }
                 }));
             }
-            return Ext.create('Ext.container.Container', {
-                margin: '0 0 20 0',
+            return Ext.create('Ext.panel.Panel', {
+                title: 'Result index',
+                header: {
+                    baseCls: 'ocb-panel-title'
+                },
+                border: false,
+                collapsible: true,
+                titleCollapse: true,
+                margin: 10,
+                bodyPadding: 10,
                 items: boxes
             });
         };
 
         var itemTpl = new Ext.XTemplate(
-            '<span class="s140 emph">{title}</span>',
+            '<span class="s120">{title}</span>',
             '<span class="ok"> {pathi} </span>',
             '<span class="info"> {date}</span><br>'
         );
@@ -193,11 +257,25 @@ ResultWidget.prototype = {
             for (var j = 0; j < item.renderers.length; j++) {
                 var renderer = item.renderers[j];
                 switch (renderer.type) {
+                    case 'note':
+                        itemBox = Ext.create('Ext.Component', {
+                            html: renderer.html,
+                            item: item,
+//                            overCls: 'encima',
+                            cls: 'inlineblock whiteborder'
+                        });
+                        break;
+                    case 'message':
+                        itemBox = Ext.create('Ext.Component', {
+                            html: '<div class="alert alert-' + item.type + '" style="text-align: center;font-size: 20px">' + item.title + '</div>',
+                            item: item,
+                            padding: 3
+                        });
+                        break;
                     case 'text':
                         itemBox = Ext.create('Ext.Component', {
-                            html: '<span class="key">' + item.title + '</span> <span class="emph">' + item.file + '</span>',
+                            html: '<span class="key">' + item.title + ': </span> <span class="emph">' + item.file + '</span>',
                             item: item,
-                            padding: 3,
 //                            overCls: 'encima',
                             cls: 'inlineblock whiteborder'
                         });
@@ -233,8 +311,16 @@ ResultWidget.prototype = {
                             jobId: _this.jobId,
                             filename: item.file
                         });
-                        itemBox = Ext.create('Ext.Component', {
-                            html: '<div><img src="' + url + '"></div>'
+                        itemBox = Ext.create('Ext.Img', {
+                            src: url,
+                            listeners: {
+                                render: function (imgCmp) {
+                                    this.mon(this.getEl(), 'load', function (e) {
+                                        imgCmp.setWidth(this.getWidth());
+                                        imgCmp.setHeight(this.getHeight());
+                                    });
+                                }
+                            }
                         });
                         break;
                     case 'piechart':
@@ -246,7 +332,7 @@ ResultWidget.prototype = {
                             filename: item.file
                         });
 
-                        var img;
+                        var imgURL;
                         $.ajax({
                             type: "GET",
                             async: false,
@@ -273,13 +359,165 @@ ResultWidget.prototype = {
                                         normValues.push(Math.round(parseFloat(values[i]) / total * 100));
                                     }
                                     names = names.toString().replace(/,/gi, "|");
-                                    img = '<img src="https://chart.googleapis.com/chart?cht=p&chs=600x300&chd=t:' + normValues + '&chl=' + names + '&chtt=Consequence+types&chts=000000,14.5">';
+                                    imgURL = 'https://chart.googleapis.com/chart?cht=p&chs=600x300&chd=t:' + normValues + '&chl=' + names + '&chtt=Consequence+types&chts=000000,14.5';
                                 }
                             }
                         });
 
-                        itemBox = Ext.create('Ext.Component', {
-                            html: '<div>' + img + '</div>'
+//                        itemBox = Ext.create('Ext.Component', {
+//                            html: '<div>' + img + '</div>',
+//                        });
+
+                        itemBox = Ext.create('Ext.Img', {
+                            src: imgURL,
+                            listeners: {
+                                render: function (imgCmp) {
+                                    this.mon(this.getEl(), 'load', function (e) {
+                                        imgCmp.setWidth(this.getWidth());
+                                        imgCmp.setHeight(this.getHeight());
+                                    });
+                                }
+                            }
+                        });
+                        break;
+                    case 'scatter':
+                        var url = OpencgaManager.pollurl({
+                            accountId: $.cookie('bioinfo_account'),
+                            sessionId: $.cookie('bioinfo_sid'),
+                            jobId: _this.jobId,
+                            filename: item.file
+                        });
+                        var data = [];
+                        $.ajax({
+                            type: "GET",
+                            async: false,
+                            url: url,
+                            success: function (d) {
+                                var d = JSON.parse(d);
+                                if (typeof renderer.processData === 'function') {
+                                    data = renderer.processData(d);
+                                } else {
+                                    data = d;
+                                }
+                            }
+                        });
+                        var store = Ext.create('Ext.data.JsonStore', {
+                            fields: renderer.fields,
+                            data: data
+                        });
+
+
+                        var chart = Ext.create('Ext.chart.Chart', {
+                            renderTo: Ext.getBody(),
+                            width: 500,
+                            height: 200,
+                            animate: false,
+//                            theme: 'Category1',
+                            store: store,
+                            axes: [
+                                {
+                                    type: 'Numeric',
+                                    position: 'left',
+                                    fields: renderer.y.fields,
+                                    title: renderer.y.title,
+                                    grid: true,
+                                    maximum: renderer.y.max
+                                },
+                                {
+                                    type: 'Numeric',
+                                    position: 'bottom',
+                                    fields: renderer.x.fields,
+                                    title: renderer.x.title,
+                                    grid: true
+                                }
+                            ],
+                            series: [
+                                {
+                                    tips: {
+                                        trackMouse: true,
+                                        style: {
+                                            backgroundColor: 'white'
+                                        },
+                                        renderer: function (este, item) {
+                                            var xValue = item.storeItem.get(renderer.x.field);
+                                            var yValue = item.storeItem.get(renderer.y.field);
+                                            var html = '<div>' + renderer.x.field + ': <span style="font-weight: bold">' + xValue + '</span></div>' +
+                                                '<div>' + renderer.y.field + ': <span style="font-weight: bold">' + yValue + '</span></div>';
+                                            this.update(html);
+                                        }
+                                    },
+                                    type: 'scatter',
+                                    renderer: function (sprite, record, attributes, index, store) {
+                                        if (typeof renderer.config !== 'undefined') {
+                                            return Ext.apply(attributes, renderer.config(record.raw));
+                                        }
+                                    },
+                                    markerConfig: {
+                                        type: 'circle',
+                                        radius: 2,
+                                        size: 5
+                                    },
+                                    axis: 'left',
+                                    xField: renderer.x.field,
+                                    yField: renderer.y.field
+                                }
+                            ]
+                        });
+
+                        itemBox = Ext.create('Ext.container.Container', {
+                            margin: '10 0 0 0',
+                            items: [
+                                {
+                                    xtype: 'box',
+                                    html: '<span class="key s120">' + item.title + '</span>'
+                                },
+                                chart
+                            ]
+                        });
+                        break;
+                    case 'memory-grid':
+                        //Renderer must provide a data function and a field function
+                        var url = OpencgaManager.pollurl({
+                            accountId: $.cookie('bioinfo_account'),
+                            sessionId: $.cookie('bioinfo_sid'),
+                            jobId: _this.jobId,
+                            filename: item.file
+                        });
+                        var data = [];
+                        var fields = [];
+                        $.ajax({
+                            type: "GET",
+                            async: false,
+                            url: url,
+                            success: function (d) {
+                                var d = JSON.parse(d);
+                                data = renderer.data(d);
+                                fields = renderer.fields(d);
+                            }
+                        });
+                        var store = Ext.create('Ext.data.Store', {
+                            pageSize: 50,
+                            proxy: {
+                                type: 'memory'
+                            },
+                            fields: ['0', '1', '2', "3"],
+                            data: data
+                        });
+                        var columns = [];
+                        for (var i = 0; i < fields.length; i++) {
+                            columns.push({
+                                "header": fields[i], "dataIndex": i, flex: 1
+                            });
+                        }
+                        itemBox = Ext.create('Ext.grid.Panel', {
+                            title: item.title,
+                            flex: 1,
+                            store: store,
+                            height: 200,
+                            width: 400,
+                            loadMask: true,
+                            plugins: ['bufferedrenderer'],
+                            columns: columns
                         });
                         break;
                     case 'grid':
@@ -342,12 +580,12 @@ ResultWidget.prototype = {
                         var gm_id = Utils.genId('gm');
                         var vfw_id = Utils.genId('vfw');
                         var html =
-                            '<div style="width:1500px;height:800px;">' +
-                                '<div id="' + vfw_id + '" style="width:1500px;">' +
-                                '</div>' +
-                                '<div id="' + gm_id + '" style="width:1500px;height:800px;">' +
-                                '</div>' +
-                                '</div>';
+                            '<div style="width:1500px;height:1200px;">' +
+                            '<div id="' + vfw_id + '" style="width:1500px;">' +
+                            '</div>' +
+                            '<div id="' + gm_id + '" style="width:1500px;height:800px;">' +
+                            '</div>' +
+                            '</div>';
                         itemBox = Ext.create('Ext.Component', {
                             flex: 1,
                             html: html,
@@ -432,32 +670,43 @@ ResultWidget.prototype = {
                     boxes.push(getDetailsAsDocument(item.children[i]));
                 }
                 if (isRoot == true) {
-                    var detailsItemsContainer = {
-                        xtype: 'container',
-                        items: boxes
-                    };
+                    var detailsItemsContainer;
                     if (item.presentation == 'tabs') {
-                        detailsItemsContainer = {
-                            xtype: 'tabpanel',
-                            padding: '0 30 15 15',
+                        detailsItemsContainer = Ext.create('Ext.tab.Panel', {
                             plain: true,
                             border: 0,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
                             defaults: {
                                 overflowX: 'scroll',
-                                height: 2000,
                                 padding: 10
                             },
+                            items: boxes,
+//                            listeners:{
+//                                tabchange:function(tabPanel, newTab){
+//                                    newTab.getHeight();
+//                                }
+//                            }
+                        });
+                    } else {
+                        detailsItemsContainer = Ext.create('Ext.container.Container', {
                             items: boxes
-                        };
+                        });
                     }
-                    return Ext.create('Ext.container.Container', {
-                        title: item.title,
+                    return Ext.create('Ext.panel.Panel', {
+                        title: 'Result details',
+//                        title: item.title,
+                        header: {
+                            baseCls: 'ocb-panel-title'
+                        },
+                        border: false,
+                        collapsible: true,
+                        titleCollapse: true,
+                        margin: 10,
+                        bodyPadding: 10,
                         items: [
-                            {
-                                xtype: 'box',
-                                cls: 'inlineblock ssel border-bot s120', margin: '15',
-                                html: 'Details'
-                            },
                             detailsItemsContainer
                         ]
                     });
@@ -471,7 +720,7 @@ ResultWidget.prototype = {
                     return Ext.create('Ext.container.Container', {
                         id: _this.jobId + item.title.replace(/ /g, ''),
                         title: item.title,
-                        margin: '0 0 20 20',
+                        margin: '0 0 20 0',
                         items: [
                             {
                                 xtype: 'box',
@@ -499,9 +748,11 @@ ResultWidget.prototype = {
         };
 
         var detailedResutls = getDetailsAsDocument(resultData[this.layoutName].layout, true);
-        var indexResutl = getResultIndex(resultData[this.layoutName].layout.children);
         this.panel.add(getJobInfo({items: this.extItems}));
-        this.panel.insert(indexResutl);
+        if (this.drawIndex === true) {
+            var indexResutl = getResultIndex(resultData[this.layoutName].layout.children);
+            this.panel.insert(indexResutl);
+        }
         this.panel.add(detailedResutls);
 
     },//end render
@@ -712,5 +963,26 @@ ResultWidget.prototype = {
         variantFilterWidget.getPanel(targetId);
 
         return variantFilterWidget;
+    },
+
+
+    /*************************************/
+    /*************************************/
+    /*************************************/
+    _parseOldXML: function (layout) {
+
+        OpencgaManager.poll({
+            accountId: $.cookie('bioinfo_account'),
+            sessionId: $.cookie('bioinfo_sid'),
+            jobId: layout.job.id,
+            filename: layout.oldXML,
+            zip: false,
+            async: false,
+            success: function (data) {
+                var xmlDoc = $.parseXML(data);
+                layout.xml = $(xmlDoc);
+            }
+        });
     }
+
 };

@@ -19,10 +19,10 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function ImportAttributesFileWidget(args) {
+function AttributeNetworkFileWidget(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
-    this.id = Utils.genId('ImportAttributesFileWidget');
+    this.id = Utils.genId('AttributeNetworkFileWidget');
 
     this.targetId;
     this.title = 'Open an attributes file';
@@ -39,11 +39,11 @@ function ImportAttributesFileWidget(args) {
     this.on(this.handlers);
 };
 
-ImportAttributesFileWidget.prototype.getTitleName = function () {
+AttributeNetworkFileWidget.prototype.getTitleName = function () {
     return Ext.getCmp(this.id + "_title").getValue();
 };
 
-ImportAttributesFileWidget.prototype.getFileUpload = function () {
+AttributeNetworkFileWidget.prototype.getFileUpload = function () {
     var _this = this;
 
     this.fileUpload = Ext.create('Ext.form.field.File', {
@@ -58,11 +58,15 @@ ImportAttributesFileWidget.prototype.getFileUpload = function () {
                 var node = Ext.DomQuery.selectNode('input[id=' + f.getInputId() + ']');
                 node.value = v.replace("C:\\fakepath\\", "");
 
-                var attributesDataAdapter = new AttributesDataAdapter({
-                    dataSource: new FileDataSource(file),
+                var attributeNetworkDataAdapter = new AttributeNetworkDataAdapter({
+                    dataSource: new FileDataSource({file:file}),
                     handlers: {
                         'data:load': function (event) {
-                            _this.processData(attributesDataAdapter);
+                            _this.processData(attributeNetworkDataAdapter);
+                        },
+                        'error:parse': function (event) {
+                            _this.infoLabel.setText('<span class="err">' + event.errorMsg + '</span>', false);
+                            _this.panel.setLoading(false);
                         }
                     }
                 });
@@ -73,7 +77,7 @@ ImportAttributesFileWidget.prototype.getFileUpload = function () {
     return this.fileUpload;
 };
 
-ImportAttributesFileWidget.prototype.processData = function (attributesDataAdapter) {
+AttributeNetworkFileWidget.prototype.processData = function (attributesDataAdapter) {
     var _this = this;
     this.content = attributesDataAdapter.getAttributesJSON(); //para el onOK.notify event
 
@@ -166,7 +170,7 @@ ImportAttributesFileWidget.prototype.processData = function (attributesDataAdapt
 };
 
 
-ImportAttributesFileWidget.prototype.filterColumnsToImport = function () {
+AttributeNetworkFileWidget.prototype.filterColumnsToImport = function () {
     var checkeds = this.cbgAttributes.getChecked();
 
     var data = {};
@@ -208,7 +212,7 @@ ImportAttributesFileWidget.prototype.filterColumnsToImport = function () {
     return data;
 };
 
-ImportAttributesFileWidget.prototype.draw = function () {
+AttributeNetworkFileWidget.prototype.draw = function () {
     var _this = this;
 
     if (this.panel == null) {

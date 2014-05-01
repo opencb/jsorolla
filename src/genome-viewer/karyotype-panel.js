@@ -91,8 +91,10 @@ KaryotypePanel.prototype = {
         this.svg.setAttribute("width", width);
 
 
-        this.clean();
-        this._drawSvg(this.chromosomeList, this.data2);
+        if(typeof this.chromosomeList !== 'undefined'){
+            this.clean();
+            this._drawSvg(this.chromosomeList, this.data2);
+        }
     },
 
     render: function (targetId) {
@@ -174,6 +176,7 @@ KaryotypePanel.prototype = {
             category: 'genomic',
             subCategory: 'chromosome',
             resource: 'all',
+            async:false,
             success: function (data) {
                 _this.chromosomeList = data.response.result.chromosomes;
                 _this.chromosomeList.sort(sortfunction);

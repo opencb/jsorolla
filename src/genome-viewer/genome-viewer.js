@@ -37,18 +37,22 @@ function GenomeViewer(args) {
     this.drawKaryotypePanel = true;
     this.drawChromosomePanel = true;
     this.drawRegionOverviewPanel = true;
+    this.overviewZoomMultiplier = 8;
     this.karyotypePanelConfig = {
         collapsed: false,
         collapsible: true
-    }
+    };
     this.chromosomePanelConfig = {
         collapsed: false,
         collapsible: true
-    }
-    this.RegionPanelConfig = {
+    };
+    this.regionPanelConfig = {
         collapsed: false,
         collapsible: true
-    }
+    };
+    this.navigationBarConfig = {
+
+    };
     this.drawStatusBar = true;
     this.border = true;
     this.resizable = true;
@@ -110,12 +114,18 @@ GenomeViewer.prototype = {
         this.div = $('<div class="bootstrap" id="' + this.id + '" class="ocb-gv ocb-box-vertical"></div>')[0];
         $(this.targetDiv).append(this.div);
 
-        var width = Math.max($(this.div).width(), $(this.targetDiv).width())
-        if (width == 0) {
-            console.log('target div width is zero');
-            return
+
+        if (typeof this.width === 'undefined') {
+            var width = Math.max($(this.div).width(), $(this.targetDiv).width())
+            if (width == 0) {
+                console.log('target div width is zero');
+                return
+            }
+            this.width = width;
+        } else {
+            $(this.div).width(this.width);
+            $(this.targetDiv).width(this.width);
         }
-        this.width = width;
 
         if (this.border) {
             var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
@@ -345,6 +355,7 @@ GenomeViewer.prototype = {
                             var region = new Region();
                             region.parse(regionStr);
                             region = _this._checkRegion(region);
+                            _this.setMinRegion(region, _this.getSVGCanvasWidth());
                             _this.region = region;
                             _this.trigger('region:change', {region: _this.region, sender: _this});
                         }
@@ -363,6 +374,7 @@ GenomeViewer.prototype = {
             autoRender: true,
             quickSearchResultFn: this.quickSearchResultFn,
             quickSearchDisplayKey: this.quickSearchDisplayKey,
+            componentsConfig: this.navigationBarConfig.componentsConfig,
             handlers: {
                 'region:change': function (event) {
                     event.region = _this._checkRegion(event.region);
@@ -546,10 +558,10 @@ GenomeViewer.prototype = {
             targetId: targetId,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
-            zoomMultiplier: 8,
+            zoomMultiplier: this.overviewZoomMultiplier,
             title: 'Region overview',
             showRegionOverviewBox: true,
-            collapsible: this.RegionPanelConfig.collapsible,
+            collapsible: this.regionPanelConfig.collapsible,
             region: this.region,
             handlers: {
                 'region:change': function (event) {

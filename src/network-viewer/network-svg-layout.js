@@ -37,6 +37,13 @@ function NetworkSvgLayout(args) {
     this.scale = 1;
     this.network;
 
+
+    this.transformX = 0;
+    this.transformY = 0;
+
+    this.centerX = 0;
+    this.centerY = 0;
+
     /** Action mode **/
     this.mode = "select";
 
@@ -115,6 +122,7 @@ NetworkSvgLayout.prototype = {
         });
         this.scaleFrontGroup = SVG.addChild(this.frontSvg, "g", {
             id: 'scaleFrontGroup',
+            'font-family': 'Ubuntu Mono',
             "transform": "scale(" + this.scale + ")"
         });
 
@@ -144,7 +152,7 @@ NetworkSvgLayout.prototype = {
             "y": 0,
             "width": 0,
             "height": 0,
-            "stroke-width": "2",
+            "stroke-width": "1.5",
             "stroke": "deepskyblue",
             "opacity": "0.5",
             "fill": "honeydew"
@@ -157,12 +165,18 @@ NetworkSvgLayout.prototype = {
                 case 1: //left click
                     _this.leftMouseDown(event);
                     break;
+                case 2: //middle click
+                    _this.middleMouseDown(event);
+                    break;
             }
         });
         $(this.svg).bind('mouseup.networkViewer', function (event) {
             switch (event.which) {
                 case 1: //left click
                     _this.leftMouseUp(event);
+                    break;
+                case 2: //middle click
+                    _this.middleMouseUp(event);
                     break;
             }
         });
@@ -181,10 +195,23 @@ NetworkSvgLayout.prototype = {
 
 
     },
+    setSize: function (width, height) {
+        this.width = width;
+        this.height = height;
+        this.svg.setAttribute('width', width);
+        this.svg.setAttribute('height', height);
+        this.drawArea.setAttribute('width', width);
+        this.drawArea.setAttribute('height', height);
+    },
     getElementsSVG: function () {
         return this.scaleFrontGroup;
     },
     clean: function () {
+        this.transformX = 0;
+        this.transformY = 0;
+        this.centerX = 0;
+        this.centerY = 0;
+
         $(this.scaleFrontGroup).empty();
         $(this.scaleBackGroup).empty();
         $(this.svg).prepend(this.backRect);
@@ -228,20 +255,31 @@ NetworkSvgLayout.prototype = {
         }
         return images;
     },
-    removeBackGroundImage: function (imageEl) {
-        $(imageEl).remove();
-    },
     setZoom: function (zoom) {
         this.scale = (zoom == 0) ? 0.03 : (zoom / 25);
 
         var centerX = this.width / 2;
         var centerY = this.height / 2;
-        var transX = -centerX * (this.scale - 1);
-        var transY = -centerY * (this.scale - 1);
+        this.transformX = this.centerX + (-centerX * (this.scale - 1));
+        this.transformY = this.centerY + (-centerY * (this.scale - 1));
+        this._applyTransformAttribute();
 
-        this.scaleFrontGroup.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
-        this.scaleBackGroup.setAttribute("transform", "translate(" + transX + "," + transY + ") scale(" + this.scale + ")");
+    },
+    setCenter: function (c) {
+        if (typeof c !== 'undefined') {
+            this.centerX = c.x | 0;
+            this.centerY = c.y | 0;
+            var centerX = this.width / 2;
+            var centerY = this.height / 2;
+            this.transformX = this.centerX + (-centerX * (this.scale - 1));
+            this.transformY = this.centerY + (-centerY * (this.scale - 1));
+            this._applyTransformAttribute();
+        }
 
+    },
+    _applyTransformAttribute: function () {
+        this.scaleFrontGroup.setAttribute("transform", "translate(" + this.transformX + "," + this.transformY + ") scale(" + this.scale + ")");
+        this.scaleBackGroup.setAttribute("transform", "translate(" + this.transformX + "," + this.transformY + ") scale(" + this.scale + ")");
     },
     setMode: function (mode) {
         this.mode = mode;
@@ -279,10 +317,12 @@ NetworkSvgLayout.prototype = {
         var downX = (event.clientX - $(this.svg).offset().left);
         var downY = (event.clientY - $(this.svg).offset().top);
 
+        console.log(downX)
+        console.log(downY)
         switch (this.mode) {
             case "add":
                 /* event coordinates */
-                if (targetElNetworkType !== 'vertex') {
+                if (targetElNetworkType !== 'vertex' && targetElNetworkType !== 'vertex-label') {
                     this.trigger('create:vertex', {x: downX, y: downY});
                 }
                 break;
@@ -291,7 +331,7 @@ NetworkSvgLayout.prototype = {
                     case 'vertex':
                     case 'vertex-label':
                         var vertexId = this.getVertexId(targetEl);
-                        this.trigger('select:vertex', {vertexId: vertexId, sender: _this});
+                        this.trigger('select:vertex', {vertexId: vertexId, addToSelection: event.ctrlKey, sender: _this});
 
                         var lastX = downX;
                         var lastY = downY;
@@ -357,7 +397,7 @@ NetworkSvgLayout.prototype = {
                 }
                 break;
             case "delete":
-                if (targetElNetworkType === 'vertex') {
+                if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
                     var vertexId = this.getVertexId(targetEl);
                     _this.trigger('remove:vertex', {vertexId: vertexId, sender: _this});
                 }
@@ -421,12 +461,6 @@ NetworkSvgLayout.prototype = {
                         var height = parseFloat(_this.selectRect.getAttribute('height'));
 
                         _this.trigger('select:area', {x: x, y: y, width: width, height: height, sender: _this});
-
-                        _this.selectRect.setAttribute('x', 0);
-                        _this.selectRect.setAttribute('y', 0);
-                        _this.selectRect.setAttribute('width', 0);
-                        _this.selectRect.setAttribute('height', 0);
-
                 }
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
@@ -451,6 +485,50 @@ NetworkSvgLayout.prototype = {
                 }
                 break;
         }
+        this.selectRect.setAttribute('x', 0);
+        this.selectRect.setAttribute('y', 0);
+        this.selectRect.setAttribute('width', 0);
+        this.selectRect.setAttribute('height', 0);
+    },
+    middleMouseDown: function (event) {
+        var _this = this;
+        var targetEl = event.target;
+        var targetElNetworkType = $(targetEl).attr('network-type');
+        var downX = (event.clientX - $(this.svg).offset().left);
+        var downY = (event.clientY - $(this.svg).offset().top);
+        switch (this.mode) {
+            case "add":
+            case "join":
+            case "delete":
+            case "select":
+            case "selectbackground":
+                var lastX = downX;
+                var lastY = downY;
+                $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
+                    moveEvent.preventDefault();
+                    var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
+                    var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
+                    var dispX = moveX - lastX;
+                    var dispY = moveY - lastY;
+
+                    _this.transformX += dispX;
+                    _this.transformY += dispY;
+                    _this.centerX += dispX;
+                    _this.centerY += dispY;
+
+                    _this._applyTransformAttribute();
+
+                    lastX = moveX;
+                    lastY = moveY;
+
+                });
+                break;
+            default:
+        }
+    },
+    middleMouseUp: function (event) {
+        var _this = this;
+        $(_this.svg).off('mousemove.networkViewer');
     },
     contextMenu: function (event) {
 
@@ -463,25 +541,22 @@ NetworkSvgLayout.prototype = {
         var _this = this;
         var targetEl = event.target;
         var targetElNetworkType = $(targetEl).attr('network-type');
+        var downX = (event.clientX - $(this.svg).offset().left);
+        var downY = (event.clientY - $(this.svg).offset().top);
         switch (this.mode) {
             case "add":
-                break;
+            case "join":
+            case "delete":
             case "select":
-                var downX = (event.clientX - $(this.svg).offset().left);
-                var downY = (event.clientY - $(this.svg).offset().top);
-                if (targetElNetworkType === 'vertex') {
+                if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
                     var vertexId = this.getVertexId(targetEl);
                     this.trigger('rightClick:vertex', { vertexId: vertexId, x: downX, y: downY, sender: this});
                 }
                 break;
             case "selectbackground":
-                if (event.ctrlKey && event.shiftKey) {
-                    this.removeBackGroundImage(targetEl);
+                if (targetElNetworkType === 'background-image') {
+                    this.trigger('rightClick:backgroundImage', {targetEl: targetEl, x: downX, y: downY, sender: this});
                 }
-                break;
-            case "join":
-                break;
-            case "delete":
                 break;
             default:
         }
@@ -491,6 +566,6 @@ NetworkSvgLayout.prototype = {
     },
     getEdgeId: function (targetEl) {
         return $(targetEl).closest('[network-type="edge-g"]').attr('id');
-    },
+    }
 };
 

@@ -28,6 +28,7 @@ function Edge(args) {
     this.target;
     this.weight;
     this.directed;
+    this.overlapCount;
 
     //set instantiation args, must be last
     _.extend(this, args);
