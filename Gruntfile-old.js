@@ -1,4 +1,6 @@
-/*global module:false*/
+//
+//  DEPRECATED
+//
 module.exports = function (grunt) {
 
     // Project configuration.

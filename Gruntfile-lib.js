@@ -1,15 +1,13 @@
 module.exports = function (grunt) {
+
     grunt.initConfig({
         def:{
             name:'lib'
         },
         concat: {
-            options: {
-                separator: ';'
-            },
             dist: {
                 src: ['src/lib/**/*.js'],
-                dest: 'build/<%= def.name %>.js'
+                dest: 'build/<%= def.name %>/<%= def.name %>.js'
             }
         },
         uglify: {
@@ -18,7 +16,7 @@ module.exports = function (grunt) {
             },
             dist: {
                 files: {
-                    'build/<%= def.name %>.min.js': ['<%= concat.dist.dest %>']
+                    'build/<%= def.name %>/<%= def.name %>.min.js': ['<%= concat.dist.dest %>']
                 }
             }
         }
