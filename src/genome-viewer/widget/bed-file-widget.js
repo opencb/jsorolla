@@ -41,10 +41,10 @@ function BEDFileWidget(args){
 BEDFileWidget.prototype.loadFileFromLocal = function(file){
 	var _this = this;
 	this.file = file;
-	this.adapter = new BEDDataAdapter(new FileDataSource(file),{species:this.viewer.species});
-	this.adapter.onLoad.addEventListener(function(sender){
-		_this._loadChartInfo();
-	});
+	this.adapter = new BEDDataAdapter(new FileDataSource({file:file}),{species:this.viewer.species});
+    this.adapter.on('file:load',function(e){
+//		_this._loadChartInfo();
+    });
 	_this.btnOk.enable();
 };
 

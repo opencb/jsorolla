@@ -20,29 +20,25 @@
  */
 
 function DasAdapter(args){
+
+    var _this=this;
+
+    _.extend(this, Backbone.Events);
+
+    this.id = Utils.genId('DasAdapter');
+
 	this.gzip = true;
-	
 	this.proxy = CELLBASE_HOST+"/latest/utils/proxy?url=";
-	
+	this.url;
+	this.species;
+	this.featureCache;
 	this.params = {};
-	if (args != null){
-		if (args.url != null){
-			this.url = args.url;
-		}
-		if(args.species != null){
-			this.species = args.species;
-		}
-		if(args.featureCache != null){
-			var argsFeatureCache = args.featureCache;
-		}
-		if(args.params != null){
-			this.params = args.params;
-		}
-	}
-	this.featureCache =  new FeatureCache(argsFeatureCache);
-	this.onGetData = new Event();
-	this.onCheckUrl = new Event();
-	this.onError = new Event();
+
+    _.extend(this, args);
+    
+    this.on(this.handlers);
+
+	this.featureCache =  new FeatureCache(this.featureCache);
 };
 
 DasAdapter.prototype.getData = function(args){
@@ -86,7 +82,7 @@ DasAdapter.prototype.getData = function(args){
 	}
 //	//notify all chunks
 	if(itemList.length>0){
-		this.onGetData.notify({items:itemList, params:this.params, cached:true});
+		this.trigger('data:ready',{items:itemList, params:this.params, cached:true});
 	}
 	
 	
@@ -132,7 +128,7 @@ DasAdapter.prototype.getData = function(args){
 					dataType:"xml",
 					error: function(){
 						alert("error");
-						_this.onError.notify("It is not allowed by Access-Control-Allow-Origin " );
+						_this.trigger('error',"It is not allowed by Access-Control-Allow-Origin " );
 					},
 
 					success: function(data){
@@ -167,7 +163,7 @@ DasAdapter.prototype.getData = function(args){
 							console.log(_this.featureCache.cache);
 							var items = _this.featureCache.getFeatureChunksByRegion(region);
 							if(items != null){
-								_this.onGetData.notify({items:items, params:_this.params, cached:false});
+								_this.trigger('data:ready',{items:items, params:_this.params, cached:false});
 							}
 						}
 					}
@@ -188,11 +184,11 @@ DasAdapter.prototype.checkUrl = function(){
 		dataType:"xml",
 		error: function(){
 			alert("error");
-			_this.onError.notify("It is not allowed by Access-Control-Allow-Origin " );
+			_this.trigger('error',"It is not allowed by Access-Control-Allow-Origin " );
 		},
 		success: function(data){
 			_this.xml = (new XMLSerializer()).serializeToString(data);
-			_this.onCheckUrl.notify({data:_this.xml});
+			_this.trigger('url:check',{data:_this.xml});
 		}
 	});
 };

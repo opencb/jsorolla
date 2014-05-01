@@ -1,6 +1,6 @@
 
 build/
-node_modules/
+*node_modules/
 
 ## IntelliJ
 *.iml
@@ -38,4 +38,4 @@ local.properties
 # PDT-specific
 .buildpath
 
-
+example.db

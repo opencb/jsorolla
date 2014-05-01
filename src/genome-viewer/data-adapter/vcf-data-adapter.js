@@ -42,14 +42,14 @@ function VCFDataAdapter(dataSource, args){
 }
 
 VCFDataAdapter.prototype.parse = function(data, region){
-	console.log(data);
+//	console.log(data);
 	var _this = this;
-	var dataType = "data";
+	var dataType = "value";
 	var lines = data.split("\n");
-    debugger
+//    debugger
 //	console.log("creating objects");
 	for (var i = 0; i < lines.length; i++){
-        debugger
+//        debugger
 		var line = lines[i].replace(/^\s+|\s+$/g,"");
 		if ((line != null)&&(line.length > 0)){
 			var fields = line.split("\t");

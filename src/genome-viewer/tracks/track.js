@@ -26,17 +26,16 @@ function Track(args) {
 
     this.dataAdapter;
     this.renderer;
-    this.labelZoom = -1;
     this.resizable = true;
-    this.autoHeight = true;
+    this.autoHeight = false;
     this.targetId;
     this.id;
     this.title;
-    this.histogramZoom;
-    this.transcriptZoom;
+    this.minHistogramRegionSize = 300000000;
+    this.maxLabelRegionSize = 300000000;
     this.height = 100;
-    this.visibleRange = {start: 0, end: 100},
-        this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
+    this.visibleRegionSize;
+    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
 
@@ -45,12 +44,11 @@ function Track(args) {
     this.pixelPosition = this.svgCanvasWidth / 2;
     this.svgCanvasOffset;
     this.svgCanvasFeatures;
-    this.status = undefined;
+    this.status;
     this.histogram;
     this.histogramLogarithm;
     this.histogramMax;
     this.interval;
-    this.zoom;
 
     this.svgCanvasLeftLimit;
     this.svgCanvasRightLimit;
@@ -59,6 +57,7 @@ function Track(args) {
     this.invalidZoomText;
 
     this.renderedArea = {};//used for renders to store binary trees
+    this.chunksDisplayed = {};//used to avoid painting multiple times features contained in more than 1 chunk
 
     if ('handlers' in this) {
         for (eventName in this.handlers) {
@@ -81,7 +80,25 @@ Track.prototype = {
     set: function (attr, value) {
         this[attr] = value;
     },
-
+    hide: function () {
+        $(this.div).css({display: 'hidden'});
+    },
+    show: function () {
+        $(this.div).css({display: 'auto'});
+    },
+    hideContent: function () {
+        $(this.svgdiv).css({display: 'hidden'});
+        $(this.titlediv).css({display: 'hidden'});
+    },
+    showContent: function () {
+        $(this.svgdiv).css({display: 'auto'});
+        $(this.titlediv).css({display: 'auto'});
+    },
+    toggleContent: function () {
+        $(this.svgdiv).toggle('hidden');
+        $(this.resizeDiv).toggle('hidden');
+        $(this.configBtn).toggle('hidden');
+    },
     setSpecies: function (species) {
         this.species = species;
         this.dataAdapter.species = this.species
@@ -91,43 +108,58 @@ Track.prototype = {
         this.width = width;
         this.main.setAttribute("width", width);
     },
-    updateHeight: function () {
+    _updateDIVHeight: function () {
+//        $(this.rrr).remove();
+//        delete this.rrr;
+//        this.rrr = SVG.addChild(this.svgCanvasFeatures, "rect", {
+//            'x': 0,
+//            'y': 0,
+//            'width': 0,
+//            'height': 18,
+//            'stroke': '#3B0B0B',
+//            'stroke-width': 1,
+//            'stroke-opacity': 1,
+//            'fill': 'black',
+//            'cursor': 'pointer'
+//        });
         if (this.resizable) {
-            if (!this.histogram) {
-                var height = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
-                /**/
-                var x = this.renderer.getFeatureX(this.region, {width: this.width, pixelPosition: this.pixelPosition, pixelBase: this.pixelBase, position: this.region.center()});
-                var width = this.region.length() * this.pixelBase;
-                var countTrees = 0;
+            if (this.histogram) {
+                $(this.svgdiv).css({'height': this.height + 10});
+            } else {
+                var x = this.pixelPosition;
+                var width = this.width;
+                var lastContains = 0;
                 for (var i in this.renderedArea) {
-                    var foundArea = this.renderedArea[i].add({start: x, end: x + width });
-                    countTrees++;
-                    if (foundArea && i != "0") {
-                        break;
+                    if (this.renderedArea[i].contains({start: x, end: x + width })) {
+                        lastContains = i;
                     }
                 }
-                var divHeight = countTrees * 18;
-                /**/
-
-
-            } else {
-                var height = this.height;
+                var divHeight = parseInt(lastContains) + 20;
+                $(this.svgdiv).css({'height': divHeight + 25});
+//                this.rrr.setAttribute('x', x);
+//                this.rrr.setAttribute('y', divHeight);
+//                this.rrr.setAttribute('width', width);
             }
-            this.main.setAttribute('height', height);
-            this.svgCanvasFeatures.setAttribute('height', height);
-            this.titlebar.setAttribute('height', height);
-
-
-            if (this.autoHeight) {
-                $(this.svgdiv).css({'height': divHeight + 10});
-            }
+        }
+    },
+    _updateSVGHeight: function () {
+        if (this.resizable && !this.histogram) {
+            var renderedHeight = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
+            this.main.setAttribute('height', renderedHeight);
+            this.svgCanvasFeatures.setAttribute('height', renderedHeight);
+            this.hoverRect.setAttribute('height', renderedHeight);
+        }
+    },
+    updateHeight: function (ignoreAutoHeight) {
+        this._updateSVGHeight();
+        if (this.autoHeight || ignoreAutoHeight) {
+            this._updateDIVHeight();
         }
     },
     enableAutoHeight: function () {
         this.autoHeight = true;
         this.updateHeight();
     },
-
     setTitle: function (title) {
         $(this.titlediv).html(title);
     },
@@ -139,15 +171,16 @@ Track.prototype = {
         } else {
             this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
+            this.trigger('track:ready', {sender: this});
         }
     },
 
     updateHistogramParams: function () {
-        if (this.zoom <= this.histogramZoom) {
+        if (this.region.length() > this.minHistogramRegionSize) {
             this.histogram = true;
             this.histogramLogarithm = true;
             this.histogramMax = 500;
-            this.interval = parseInt(5 / this.pixelBase);//server interval limit 512
+            this.interval = Math.ceil(10 / this.pixelBase);//server interval limit 512
         } else {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
@@ -155,13 +188,13 @@ Track.prototype = {
             this.interval = undefined;
         }
 
-        if (this.histogramRenderer) {
-            if (this.zoom <= this.histogramZoom) {
-                this.histogramGroup.setAttribute('visibility', 'visible');
-            } else {
-                this.histogramGroup.setAttribute('visibility', 'hidden');
-            }
-        }
+//        if (this.histogramRenderer) {
+//            if (this.zoom <= this.histogramZoom) {
+//                this.histogramGroup.setAttribute('visibility', 'visible');
+//            } else {
+//                this.histogramGroup.setAttribute('visibility', 'hidden');
+//            }
+//        }
     },
 
     cleanSvg: function (filters) {//clean
@@ -178,21 +211,43 @@ Track.prototype = {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
-        var titlediv = $('<div id="' + this.id + '-titlediv">' + this.title + '</div>')[0];
+        var titleBardiv = $('' +
+            '<div class="btn-toolbar ocb-compactable">' +
+            '   <div class="btn-group btn-group-xs">' +
+            '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
+            '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button"><span id="titleDiv">' + this.title + '</span></button>' +
+            '   </div>' +
+            '</div>')[0];
+
+        if (_.isUndefined(this.title)) {
+            $(titleBardiv).addClass("hidden");
+        }
+
+        var titlediv = $(titleBardiv).find('#titleDiv')[0];
+        var titleBtn = $(titleBardiv).find('#titleBtn')[0];
+        var configBtn = $(titleBardiv).find('#configBtn')[0];
+
+
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
+        var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
 
         $(targetId).addClass("unselectable");
         $(targetId).append(div);
-        $(div).append(titlediv);
+        $(div).append(titleBardiv);
         $(div).append(svgdiv);
+        $(div).append(resizediv);
 
-        $(titlediv).addClass(this.fontClass);
-        $(titlediv).css({
-            'height': '16px',
-            'line-height': '16px',
-            'padding-left': '4px'
+
+        /** title div **/
+        $(titleBardiv).css({'padding': '4px'})
+            .on('dblclick', function (e) {
+                e.stopPropagation();
+            });
+        $(titleBtn).click(function (e) {
+            _this.toggleContent();
         });
 
+        /** svg div **/
         $(svgdiv).css({
             'z-index': 3,
             'height': this.height,
@@ -209,14 +264,13 @@ Track.prototype = {
             'height': this.height
         });
 
-        if (this.resizable) {
-            var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
 
+        if (this.resizable) {
             $(resizediv).mousedown(function (event) {
                 $('html').addClass('unselectable');
                 event.stopPropagation();
                 var downY = event.clientY;
-                $('html').mousemove(function (event) {
+                $('html').bind('mousemove.genomeViewer', function (event) {
                     var despY = (event.clientY - downY);
                     var actualHeight = $(svgdiv).outerHeight();
                     $(svgdiv).css({height: actualHeight + despY});
@@ -224,9 +278,12 @@ Track.prototype = {
                     _this.autoHeight = false;
                 });
             });
-            $('html').mouseup(function (event) {
+            $('html').bind('mouseup.genomeViewer', function (event) {
                 $('html').removeClass('unselectable');
-                $('html').off('mousemove');
+                $('html').off('mousemove.genomeViewer');
+            });
+            $(svgdiv).closest(".trackListPanels").mouseup(function (event) {
+                _this.updateHeight();
             });
 
 
@@ -239,17 +296,13 @@ Track.prototype = {
                 $(this).css({'opacity': 0.3});
             });
 
-            $(div).append(resizediv);
         }
 
         this.svgGroup = SVG.addChild(main, "g", {
-            "class": "trackTitle"
-            //visibility:this.titleVisibility
         });
 
         var text = this.title;
-        var textWidth = 15 + text.length * 6;
-        var titlebar = SVG.addChild(this.svgGroup, 'rect', {
+        var hoverRect = SVG.addChild(this.svgGroup, 'rect', {
             'x': 0,
             'y': 0,
             'width': this.width,
@@ -257,13 +310,6 @@ Track.prototype = {
             'opacity': '0.6',
             'fill': 'transparent'
         });
-//        var titleText = SVG.addChild(this.svgGroup, "text", {
-//            "x": 4,
-//            "y": 14,
-//            "opacity": "0.4",
-//            "fill": "black"
-//        });
-//        titleText.textContent = text;
 
         this.svgCanvasFeatures = SVG.addChild(this.svgGroup, 'svg', {
             'class': 'features',
@@ -274,14 +320,12 @@ Track.prototype = {
 
 
         this.fnTitleMouseEnter = function () {
-            titlebar.setAttribute('opacity', '0.1');
-            titlebar.setAttribute('fill', 'greenyellow');
-//            titleText.setAttribute('opacity', '1.0');
+            hoverRect.setAttribute('opacity', '0.1');
+            hoverRect.setAttribute('fill', 'lightblue');
         };
         this.fnTitleMouseLeave = function () {
-            titlebar.setAttribute('opacity', '0.6');
-            titlebar.setAttribute('fill', 'transparent');
-//            titleText.setAttribute('opacity', '0.4');
+            hoverRect.setAttribute('opacity', '0.6');
+            hoverRect.setAttribute('fill', 'transparent');
         };
 
         $(this.svgGroup).off('mouseenter');
@@ -332,15 +376,17 @@ Track.prototype = {
         this.div = div;
         this.svgdiv = svgdiv;
         this.titlediv = titlediv;
+        this.resizeDiv = resizediv;
+        this.configBtn = configBtn;
 
         this.main = main;
-        this.titlebar = titlebar;
+        this.hoverRect = hoverRect;
 //        this.titleText = titleText;
 
 
-        if (this.histogramRenderer) {
-            this._drawHistogramLegend();
-        }
+//        if (this.histogramRenderer) {
+//            this._drawHistogramLegend();
+//        }
 
         this.rendered = true;
         this.status = "ready";
@@ -426,5 +472,58 @@ Track.prototype = {
 
     draw: function () {
 
+    },
+
+    getFeaturesToRenderByChunk: function (response, filters) {
+        //Returns an array avoiding already drawn features in this.chunksDisplayed
+
+        var getChunkId = function (position) {
+            return Math.floor(position / response.chunkSize);
+        };
+        var getChunkKey = function (chromosome, chunkId) {
+            return chromosome + ":" + chunkId;
+        };
+
+        var chunks = response.items;
+        var features = [];
+
+
+        var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
+        for (var i = 0, leni = chunks.length; i < leni; i++) {
+            if (this.chunksDisplayed[chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
+
+                for (var j = 0, lenj = chunks[i].value.length; j < lenj; j++) {
+                    feature = chunks[i].value[j];
+
+                    //check if any feature has been already displayed by another chunk
+                    displayed = false;
+                    featureFirstChunk = getChunkId(feature.start);
+                    featureLastChunk = getChunkId(feature.end);
+                    for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {
+                        var chunkKey = getChunkKey(feature.chromosome, chunkId);
+                        if (this.chunksDisplayed[chunkKey] == true) {
+                            displayed = true;
+                            break;
+                        }
+                    }
+                    if (!displayed) {
+                        //apply filter
+                        // if(filters != null) {
+                        //		var pass = true;
+                        // 		for(filter in filters) {
+                        // 			pass = pass && filters[filter](feature);
+                        //			if(pass == false) {
+                        //				break;
+                        //			}
+                        // 		}
+                        //		if(pass) features.push(feature);
+                        // } else {
+                        features.push(feature);
+                    }
+                }
+                this.chunksDisplayed[chunks[i].chunkKey] = true;
+            }
+        }
+        return features;
     }
 };

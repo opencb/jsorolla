@@ -30,20 +30,15 @@ function GeneRenderer(args) {
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
     this.toolTipfontClass = 'ocb-font-default';
 
-    //set default args
-    if (_.isString(args)) {
-        _.extend(this, this.getDefaultConfig(args));
-    }
-    //set instantiation args
-    else if (_.isObject(args)) {
+    if (_.isObject(args)) {
         _.extend(this, args);
     }
 
     this.on(this.handlers);
 };
 
-GeneRenderer.prototype.setFeatureConfig = function (type) {
-    _.extend(this, this.getDefaultConfig(type));
+GeneRenderer.prototype.setFeatureConfig = function (configObject) {
+    _.extend(this, configObject);
 };
 
 GeneRenderer.prototype.render = function (features, args) {
@@ -52,9 +47,9 @@ GeneRenderer.prototype.render = function (features, args) {
         //get feature render configuration
 
         //get feature render configuration
-        _this.setFeatureConfig('gene');
+        _this.setFeatureConfig(FEATURE_TYPES.gene);
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
-        var label = _.isFunction(_this.label) ? _this.label(feature, args.zoom) : _this.label;
+        var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
         var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
         var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
         var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
@@ -69,14 +64,18 @@ GeneRenderer.prototype.render = function (features, args) {
         //transform to pixel position
         var width = length * args.pixelBase;
 
+
+//        var svgLabelWidth = _this.getLabelWidth(label, args);
+        var svgLabelWidth = label.length * 6.4;
+
         //calculate x to draw svg rect
         var x = _this.getFeatureX(feature, args);
 
         var maxWidth = Math.max(width, 2);
         var textHeight = 0;
-        if (args.zoom > args.labelZoom) {
+        if (args.maxLabelRegionSize > args.regionSize) {
             textHeight = 9;
-            maxWidth = Math.max(width, label.length * 12);
+            maxWidth = Math.max(width, svgLabelWidth);
         }
 
         var rowY = 0;
@@ -92,16 +91,20 @@ GeneRenderer.prototype.render = function (features, args) {
 
             //check if gene transcripts can be painted
             var checkRowY = rowY;
+            var foundTranscriptsArea = true;
             if (!_.isEmpty(feature.transcripts)) {
                 for (var i = 0, leni = feature.transcripts.length + 1; i < leni; i++) {
                     if (!(checkRowY in args.renderedArea)) {
                         args.renderedArea[checkRowY] = new FeatureBinarySearchTree();
                     }
-                    foundArea = !args.renderedArea[checkRowY].contains({start: x, end: x + maxWidth - 1});
-                    if (foundArea == false) {
+                    if (args.renderedArea[checkRowY].contains({start: x, end: x + maxWidth - 1})) {
+                        foundTranscriptsArea = false;
                         break;
                     }
                     checkRowY += rowHeight;
+                }
+                if (foundTranscriptsArea == true) {
+                    foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
                 }
             } else {
                 foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
@@ -109,7 +112,8 @@ GeneRenderer.prototype.render = function (features, args) {
 
             //paint genes
             if (foundArea) {
-                var rect = SVG.addChild(args.svgCanvasFeatures, 'rect', {
+                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
+                var rect = SVG.addChild(featureGroup, 'rect', {
                     'x': x,
                     'y': rowY,
                     'width': width,
@@ -117,28 +121,29 @@ GeneRenderer.prototype.render = function (features, args) {
                     'stroke': '#3B0B0B',
                     'stroke-width': 0.5,
                     'fill': color,
-                    'cursor': 'pointer',
-                    'feature_id': feature.id
+                    'cursor': 'pointer'
                 });
 
-                var text = SVG.addChild(args.svgCanvasFeatures, 'text', {
-                    'i': i,
-                    'x': x,
-                    'y': textY,
-                    'fill': 'black',
-                    'cursor': 'pointer',
-                    'class': _this.fontClass
-                });
-                text.textContent = label;
+                if (args.maxLabelRegionSize > args.regionSize) {
+                    var text = SVG.addChild(featureGroup, 'text', {
+                        'i': i,
+                        'x': x,
+                        'y': textY,
+                        'fill': 'black',
+                        'cursor': 'pointer',
+                        'class': _this.fontClass
+                    });
+                    text.textContent = label;
+                }
 
-                $([rect, text]).qtip({
+                $(featureGroup).qtip({
                     content: {text: tooltipText, title: tooltipTitle},
 //                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
                     style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
                 });
 
-                $([rect, text]).click(function (event) {
+                $(featureGroup).click(function (event) {
                     _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent: event});
                 });
 
@@ -156,7 +161,7 @@ GeneRenderer.prototype.render = function (features, args) {
                         var transcriptWidth = (transcript.end - transcript.start + 1) * ( args.pixelBase);
 
                         //get type settings object
-                        _this.setFeatureConfig('transcript');
+                        _this.setFeatureConfig(FEATURE_TYPES.transcript);
                         var transcriptColor = _.isFunction(_this.color) ? _this.color(transcript) : _this.color;
                         var label = _.isFunction(_this.label) ? _this.label(transcript) : _this.label;
                         var height = _.isFunction(_this.height) ? _this.height(transcript) : _this.height;
@@ -165,7 +170,9 @@ GeneRenderer.prototype.render = function (features, args) {
                         var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(transcript) : _this.infoWidgetId;
 
                         //se resta el trozo del final del gen hasta el principio del transcrito y se le suma el texto del transcrito
-                        var maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + label.length * 7);
+//                        var svgLabelWidth = _this.getLabelWidth(label, args);
+                        var svgLabelWidth = label.length * 6.4;
+                        var maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + svgLabelWidth);
 
 
                         //add to the tree the transcripts size
@@ -219,7 +226,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             var exonWidth = (exonEnd - exonStart + 1) * ( args.pixelBase);
 
 
-                            _this.setFeatureConfig('exon');
+                            _this.setFeatureConfig(FEATURE_TYPES.exon);
                             var color = _.isFunction(_this.color) ? _this.color(exon) : _this.color;
                             var label = _.isFunction(_this.label) ? _this.label(exon) : _this.label;
                             var height = _.isFunction(_this.height) ? _this.height(exon) : _this.height;

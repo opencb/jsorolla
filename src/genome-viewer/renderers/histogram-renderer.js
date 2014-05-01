@@ -28,7 +28,19 @@ function HistogramRenderer(args) {
 
     //set default args
     this.histogramHeight = 75;
-    this.multiplier = 7;
+//    this.multiplier = 7;
+
+    this.maxValue = 10;
+    if (args != null) {
+        if (args.height != null) {
+            this.histogramHeight = args.height * 0.95;
+        }
+        if (args.histogramMaxFreqValue != null) {
+            this.maxValue = args.histogramMaxFreqValue;
+        }
+    }
+    //this.multiplier = 7;
+    this.multiplier = this.histogramHeight / this.maxValue;
 
     //set instantiation args
     _.extend(this, args);
@@ -37,12 +49,10 @@ function HistogramRenderer(args) {
 
 
 HistogramRenderer.prototype.render = function (features, args) {
-
     var middle = args.width / 2;
     var points = '';
-
     if (features.length > 0) {//Force first point at this.histogramHeight
-        var firstFeature = features[0];
+        var firstFeature = features[0].value;
         var width = (firstFeature.end - firstFeature.start) * args.pixelBase;
         var x = args.pixelPosition + middle - ((args.position - parseInt(firstFeature.start)) * args.pixelBase);
         points = (x + (width / 2)) + ',' + this.histogramHeight + ' ';
@@ -52,28 +62,21 @@ HistogramRenderer.prototype.render = function (features, args) {
 
     for (var i = 0, len = features.length; i < len; i++) {
 
-        var feature = features[i];
+        var feature = features[i].value;
         feature.start = parseInt(feature.start);
         feature.end = parseInt(feature.end);
         var width = (feature.end - feature.start);
         //get type settings object
 
-        try {
-            var settings = args.featureTypes[feature.featureType];
-            var color = settings.histogramColor;
-        } catch (e) {
-            var color = 'gray'
-        }
-
         width = width * args.pixelBase;
         var x = args.pixelPosition + middle - ((args.position - feature.start) * args.pixelBase);
 
-        if (features[i].features_count == null) {
+        if (feature.features_count == null) {
 //            var height = Math.log(features[i].absolute);
-            if (features[i].absolute != 0) {
-                features[i].features_count = Math.log(features[i].absolute);
+            if (feature.absolute != 0) {
+                feature.features_count = Math.log(features[i].absolute);
             } else {
-                features[i].features_count = 0;
+                feature.features_count = 0;
             }
         }
 
@@ -83,14 +86,14 @@ HistogramRenderer.prototype.render = function (features, args) {
 //            height = this.histogramHeight * height;
 //        } else {
 //        }
-        var height = features[i].features_count * this.multiplier;
+        var height = feature.features_count * this.multiplier;
 
 
         points += (x + (width / 2)) + "," + (this.histogramHeight - height) + " ";
 
     }
     if (features.length > 0) {//force last point at this.histogramHeight
-        var lastFeature = features[features.length - 1];
+        var lastFeature = features[features.length - 1].value;
         var width = (lastFeature.end - lastFeature.start) * args.pixelBase;
         var x = args.pixelPosition + middle - ((args.position - parseInt(lastFeature.start)) * args.pixelBase);
         points += (x + (width / 2)) + ',' + this.histogramHeight + ' ';
@@ -101,7 +104,7 @@ HistogramRenderer.prototype.render = function (features, args) {
         "points": points,
         "stroke": "#000000",
         "stroke-width": 0.2,
-        "fill": color,
+        "fill": '#9493b1',
         "cursor": "pointer"
     });
 };

@@ -29,8 +29,6 @@ function SequenceRenderer(args){
     this.fontClass = 'ocb-font-ubuntumono ocb-font-size-16';
     this.toolTipfontClass = 'ocb-font-default';
 
-    //set default args
-    //set instantiation args
     _.extend(this, args);
 
 };

@@ -39,6 +39,18 @@ Renderer.prototype = {
 
     getDefaultConfig: function (type) {
         return FEATURE_TYPES[type];
+    },
+    getLabelWidth: function (label, args) {
+        /* insert in dom to get the label width and then remove it*/
+        var svgLabel = SVG.create("text", {
+            'font-weight': 400,
+            'class':this.fontClass
+        });
+        svgLabel.textContent = label;
+        $(args.svgCanvasFeatures).append(svgLabel);
+        var svgLabelWidth = $(svgLabel).width();
+        $(svgLabel).remove();
+        return svgLabelWidth;
     }
 }
 ;

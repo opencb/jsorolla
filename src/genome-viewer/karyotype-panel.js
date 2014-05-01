@@ -20,8 +20,8 @@
  */
 
 function KaryotypePanel(args) {
-
     // Using Underscore 'extend' function to extend and add Backbone Events
+
     _.extend(this, Backbone.Events);
 
     this.id = Utils.genId('KaryotypePanel');
@@ -30,9 +30,11 @@ function KaryotypePanel(args) {
     this.species;
     this.width = 600;
     this.height = 75;
-    this.collapsed = false,
+    this.collapsed = false;
+    this.collapsible = true;
 
-        //set instantiation args, must be last
+
+//set instantiation args, must be last
         _.extend(this, args);
 
     //set own region object
@@ -40,14 +42,10 @@ function KaryotypePanel(args) {
 
     this.lastSpecies = this.species;
 
-    this.afterRender = new Event();
-
     this.chromosomeList;
     this.data2;
 
-
     this.on(this.handlers);
-
 
     this.rendered = false;
     if (this.autoRender) {
@@ -65,14 +63,16 @@ KaryotypePanel.prototype = {
     showContent: function () {
         $(this.svg).css({display: 'inline'});
         this.collapsed = false;
-        $(this.collapseDiv).addClass('ocb-icon-collapse');
-        $(this.collapseDiv).removeClass('ocb-icon-expand');
+        $(this.collapseDiv).removeClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
     },
     hideContent: function () {
         $(this.svg).css({display: 'none'});
         this.collapsed = true;
-        $(this.collapseDiv).addClass('ocb-icon-expand');
-        $(this.collapseDiv).removeClass('ocb-icon-collapse');
+        $(this.collapseDiv).addClass('active');
+        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
     },
     setVisible: function (bool) {
         if (bool) {
@@ -83,7 +83,7 @@ KaryotypePanel.prototype = {
     },
     setTitle: function (title) {
         if ('titleDiv' in this) {
-            $(this.titleDiv).html(title);
+            $(this.titleDiv).children().first().html(title);
         }
     },
     setWidth: function (width) {
@@ -91,8 +91,10 @@ KaryotypePanel.prototype = {
         this.svg.setAttribute("width", width);
 
 
-        this.clean();
-        this._drawSvg(this.chromosomeList, this.data2);
+        if(typeof this.chromosomeList !== 'undefined'){
+            this.clean();
+            this._drawSvg(this.chromosomeList, this.data2);
+        }
     },
 
     render: function (targetId) {
@@ -107,24 +109,27 @@ KaryotypePanel.prototype = {
         $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
-            this.collapseDiv = $('<div class="ocb-icon ocb-icon-collapse" style="margin:0px 0px -2px 10px;display:inline-block; vertical-align:bottom"></div>');
-            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable">' + this.title + '</div>')[0];
-            $(this.titleDiv).dblclick(function () {
-                if (_this.collapsed) {
-                    _this.showContent();
-                } else {
-                    _this.hideContent();
-                }
-            });
-            $(this.collapseDiv).click(function () {
-                if (_this.collapsed) {
-                    _this.showContent();
-                } else {
-                    _this.hideContent();
-                }
-            });
-            $(this.titleDiv).append(this.collapseDiv);
+            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
             $(this.div).append(this.titleDiv);
+
+            if(this.collapsible == true){
+                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs pull-right" style="display:inline;margin:2px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
+                $(this.titleDiv).dblclick(function () {
+                    if (_this.collapsed) {
+                        _this.showContent();
+                    } else {
+                        _this.hideContent();
+                    }
+                });
+                $(this.collapseDiv).click(function () {
+                    if (_this.collapsed) {
+                        _this.showContent();
+                    } else {
+                        _this.hideContent();
+                    }
+                });
+                $(this.titleDiv).append(this.collapseDiv);
+            }
         }
 
         this.svg = SVG.init(this.div, {
@@ -171,13 +176,13 @@ KaryotypePanel.prototype = {
             category: 'genomic',
             subCategory: 'chromosome',
             resource: 'all',
+            async:false,
             success: function (data) {
                 _this.chromosomeList = data.response.result.chromosomes;
                 _this.chromosomeList.sort(sortfunction);
                 _this._drawSvg(_this.chromosomeList);
             }
         });
-
 
         if (this.collapsed) {
             _this.hideContent();
@@ -300,23 +305,14 @@ KaryotypePanel.prototype = {
         });
 
         _this.rendered = true;
-        _this.afterRender.notify();
+        _this.trigger('after:render',{sender:_this});
     },
 
 
     setRegion: function (region) {//item.chromosome, item.position, item.species
         this.region.load(region);
         var needDraw = false;
-//        if(item.species!=null){
-//            this.species = item.species;
-//            needDraw = true;
-//        }
-//        if(item.species==null){
-//            this.positionBox.setAttribute("x1",this.chrOffsetX[this.region.chromosome]-10);
-//            this.positionBox.setAttribute("x2",this.chrOffsetX[this.region.chromosome]+23);
-//        }
-//
-//        console.log(this.lastSpecies != this.species)
+
         if (this.lastSpecies != this.species) {
             needDraw = true;
             this.lastSpecies = this.species;
@@ -330,13 +326,6 @@ KaryotypePanel.prototype = {
         this.positionBox.setAttribute("y1", pointerPosition);
         this.positionBox.setAttribute("y2", pointerPosition);
 
-//        if(!isNaN(centerPosition)){
-//            if(item.species==null){
-//                var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
-//                this.positionBox.setAttribute("y1", pointerPosition);
-//                this.positionBox.setAttribute("y2", pointerPosition);
-//            }
-//        }
         if (needDraw) {
             this.draw();
         }
@@ -378,7 +367,7 @@ KaryotypePanel.prototype = {
         if (this.rendered) {
             mark();
         } else {
-            this.afterRender.addEventListener(function (sender, data) {
+            _this.on('after:render',function (e) {
                 mark();
             });
         }

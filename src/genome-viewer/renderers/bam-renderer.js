@@ -30,13 +30,7 @@ function BamRenderer(args) {
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
     this.toolTipfontClass = 'ocb-font-default';
 
-    //set default args
-    if (_.isString(args)) {
-        var config = this.getDefaultConfig(args);
-        _.extend(this, config);
-    }
-    //set instantiation args
-    else if (_.isObject(args)) {
+    if (_.isObject(args)) {
         _.extend(this, args);
     }
 
@@ -47,7 +41,12 @@ function BamRenderer(args) {
 BamRenderer.prototype.render = function (response, args) {
     var _this = this;
 
+
     //CHECK VISUALIZATON MODE
+    if (_.isUndefined(response.params)) {
+        response.params = {};
+    }
+
     var viewAsPairs = false;
     if (response.params["view_as_pairs"] != null) {
         viewAsPairs = true;
@@ -64,9 +63,9 @@ BamRenderer.prototype.render = function (response, args) {
     console.log("insertSizeMin " + insertSizeMax);
 
     //Prevent browser context menu
-    $(this.features).contextmenu(function (e) {
+    $(args.svgCanvasFeatures).contextmenu(function (e) {
         console.log("click derecho")
-        //e.preventDefault();
+        e.preventDefault();
     });
 
     console.time("BamRender " + response.params.resource);
@@ -170,7 +169,7 @@ BamRenderer.prototype.render = function (response, args) {
         $(dummyRect).qtip({
             content: " ",
             position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-            style: { width: true, classes: _this.toolTipfontClass+' ui-tooltip-shadow'}
+            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip-shadow'}
         });
 
 
@@ -197,8 +196,8 @@ BamRenderer.prototype.render = function (response, args) {
 
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature, args.region.chromosome) : _this.color;
-        var strokeColor = _.isFunction(_this.strokeColor) ? _this.strokeColor(feature,args.region.chromosome) : _this.strokeColor;
-        var label = _.isFunction(_this.label) ? _this.label(feature, args.zoom) : _this.label;
+        var strokeColor = _.isFunction(_this.strokeColor) ? _this.strokeColor(feature, args.region.chromosome) : _this.strokeColor;
+        var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
         var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
         var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
         var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
@@ -261,7 +260,7 @@ BamRenderer.prototype.render = function (response, args) {
                 //});
                 //readEls.push(rect);
 
-                if (diff != null && args.zoom > 95) {
+                if (diff != null && args.regionSize < 400) {
                     //var	t = SVG.addChild(featureGroup,"text",{
                     //"x":x+1,
                     //"y":rowY+settings.height-1,
@@ -278,9 +277,9 @@ BamRenderer.prototype.render = function (response, args) {
                     });
                 }
                 $(featureGroup).qtip({
-                    content: {text:tooltipText, title: tooltipTitle},
+                    content: {text: tooltipText, title: tooltipTitle},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: 300, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'},
+                    style: { width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
                     hide: 'click mouseleave'
                 });
@@ -391,7 +390,7 @@ BamRenderer.prototype.render = function (response, args) {
                     "cursor": "pointer"
                 });
 
-                if (_this.zoom > 95) {
+                if (args.regionSize < 400) {
                     if (readDiff != null) {
                         var readPath = SVG.addChild(bamReadGroup, "path", {
                             "d": Utils.genBamVariants(readDiff, _this.pixelBase, readX, rowY),
@@ -411,7 +410,7 @@ BamRenderer.prototype.render = function (response, args) {
                 $(readEls).qtip({
                     content: {text: readSettings.getTipText(read), title: readSettings.getTipTitle(read)},
                     position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                    style: { width: 280, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'},
+                    style: { width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
                     hide: 'click mouseleave'
                 });
@@ -422,7 +421,7 @@ BamRenderer.prototype.render = function (response, args) {
                 $(mateEls).qtip({
                     content: {text: mateSettings.getTipText(mate), title: mateSettings.getTipTitle(mate)},
                     position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                    style: { width: 280, classes: _this.toolTipfontClass+' ui-tooltip ui-tooltip-shadow'},
+                    style: { width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
                     hide: 'click mouseleave'
                 });
@@ -438,8 +437,8 @@ BamRenderer.prototype.render = function (response, args) {
     };
 
     var drawChunk = function (chunk) {
-        drawCoverage(chunk);
-        var readList = chunk.data;
+        drawCoverage(chunk.value);
+        var readList = chunk.value.reads;
         for (var i = 0, li = readList.length; i < li; i++) {
             var read = readList[i];
             if (viewAsPairs) {
@@ -461,9 +460,7 @@ BamRenderer.prototype.render = function (response, args) {
     //process features
     if (chunkList.length > 0) {
         for (var i = 0, li = chunkList.length; i < li; i++) {
-            if (chunkList[i].data.length > 0) {
-                drawChunk(chunkList[i]);
-            }
+            drawChunk(chunkList[i]);
         }
 //        var newHeight = Object.keys(this.renderedArea).length * 24;
 //        if (newHeight > 0) {
