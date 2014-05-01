@@ -341,7 +341,6 @@ NavigationBar.prototype = {
                 lastQuery = query;
             }
             if (event.which === 13) {
-                debugger
                 var item = _this.quickSearchDataset[query];
                 _this.trigger('quickSearch:select', {item: item, sender: _this});
             }
