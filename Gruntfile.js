@@ -35,7 +35,14 @@ module.exports = function (grunt) {
                 tasks: ['no-dep']
             },
 
-
+            'threed-viewer': {
+                src: ['Gruntfile-threed-viewer.js'],
+                tasks: ['default']
+            },
+            'threed-viewer-no-dep': {
+                src: ['Gruntfile-threed-viewer.js'],
+                tasks: ['no-dep']
+            }
         }
     })
 
@@ -46,10 +53,12 @@ module.exports = function (grunt) {
         'hub:lib',
         'hub:genome-viewer-no-dep',
         'hub:circular-genome-viewer-no-dep',
-        'hub:network-viewer-no-dep'
+        'hub:network-viewer-no-dep',
+        'hub:threed-viewer-no-dep',
     ]);
 
     grunt.registerTask('gv', ['hub:genome-viewer']);
     grunt.registerTask('cgv', ['hub:circular-genome-viewer']);
     grunt.registerTask('nv', ['hub:network-viewer']);
+    grunt.registerTask('3dv', ['hub:threed-viewer']);
 };
