@@ -3,7 +3,7 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         def: {
-            name: 'genome-viewer',
+            name: 'network-viewer',
             build: 'build/<%= pkg.version %>/<%= def.name %>'
         },
         concat: {
@@ -12,20 +12,11 @@ module.exports = function (grunt) {
                     //lib must exists
                     'build/<%= pkg.version %>/lib.js',
 
-                    'src/genome-viewer/navigation-bar.js',
-                    'src/genome-viewer/chromosome-panel.js',
-                    'src/genome-viewer/karyotype-panel.js',
-                    'src/genome-viewer/status-bar.js',
+                    'src/network-viewer/tool-bar.js',
+                    'src/network-viewer/edition-bar.js',
+                    'src/network-viewer/network-svg-layout.js',
 
-                    'src/genome-viewer/tracks/tracklist-panel.js',
-                    'src/genome-viewer/tracks/track.js',
-                    'src/genome-viewer/tracks/*-track.js',
-
-                    'src/genome-viewer/renderers/renderer.js',
-                    'src/genome-viewer/renderers/*-renderer.js',
-
-
-                    'src/genome-viewer/genome-viewer.js'
+                    'src/network-viewer/network-viewer.js'
 
                 ],
                 dest: '<%= def.build %>/<%= def.name %>.js'
@@ -46,7 +37,7 @@ module.exports = function (grunt) {
                 files: [
                     {   expand: true, cwd: './', src: ['vendor/**'], dest: '<%= def.build %>/' },
                     {   expand: true, cwd: './', src: ['styles/**'], dest: '<%= def.build %>/' }, // includes files in path and its subdirs
-                    {   expand: true, cwd: './src/<%= def.name %>/', src: ['gv-config.js'], dest: '<%= def.build %>/' }
+                    {   expand: true, cwd: './src/<%= def.name %>/', src: ['nv-config.js'], dest: '<%= def.build %>/' }
                 ]
             }
         },
@@ -64,9 +55,8 @@ module.exports = function (grunt) {
                     styles: {
                         'vendor': [
                             '<%= def.build %>/vendor/jquery.qtip*.css',
-                            '<%= def.build %>/vendor/ChemDoodleWeb*.css',
                             '<%= def.build %>/vendor/bootstrap-*-dist/css/bootstrap.min.css',
-                            '<%= def.build %>/vendor/typeahead.js-bootstrap.css'
+                            '<%= def.build %>/vendor/jquery.simplecolorpicker.css'
                         ],
                         'css': ['<%= def.build %>/styles/css/style.css']
                     },
@@ -74,18 +64,16 @@ module.exports = function (grunt) {
                         'vendor': [
                             '<%= def.build %>/vendor/underscore*.js',
                             '<%= def.build %>/vendor/backbone*.js',
-                            '<%= def.build %>/vendor/rawdeflate*.js',
                             '<%= def.build %>/vendor/jquery.min.js',
 
                             '<%= def.build %>/vendor/bootstrap-scoped-dist/js/bootstrap.min.js',
-                            '<%= def.build %>/vendor/typeahead.min.js',
                             '<%= def.build %>/vendor/jquery.qtip*.js',
                             '<%= def.build %>/vendor/jquery.cookie*.js',
                             '<%= def.build %>/vendor/jquery.sha1*.js',
                             '<%= def.build %>/vendor/purl*.js',
-                            '<%= def.build %>/vendor/jquery.mousewheel*.js',
-                            '<%= def.build %>/vendor/gl-matrix-min*.js',
-                            '<%= def.build %>/vendor/ChemDoodleWeb*.js'
+
+                            '<%= def.build %>/vendor/jquery.simplecolorpicker.js',
+                            '<%= def.build %>/vendor/d3.min.js.js'
                         ],
                         'js': '<%= def.build %>/<%= def.name %>.min.js'
                     }

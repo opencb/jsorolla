@@ -21,7 +21,7 @@
  */
 
 var OpencgaManager = {
-    host: (_.isUndefined(OPENCGA_HOST) ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST),
+    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
     getHost: function () {
         return OpencgaManager.host;
     },

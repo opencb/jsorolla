@@ -4,56 +4,41 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Network Viewer Demo</title>
 
-    <!-- CSS from vendors -->
     <!-- build:style vendor -->
     <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
     <link type="text/css" rel="stylesheet" href="../../vendor/bootstrap-scoped-dist/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="../../vendor/jquery.simplecolorpicker.css">
     <!-- /build -->
 
-    <!--css vendor-->
-
-
-    <!-- CSS custom -->
     <!-- build:style css -->
     <link href="../../styles/css/style.css" rel="stylesheet">
     <!-- /build -->
 
-
     <script type="text/javascript" src="http://cdn.sencha.io/ext/gpl/4.2.1/ext-all.js"></script>
 
-
-    <!-- JS from vendors -->
     <!-- build:script vendor -->
     <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
     <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
 
     <!-- These dependencies must go AFTER jquery -->
+    <script type="text/javascript" src="../../vendor/bootstrap-scoped-dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
     <script type="text/javascript" src="../../vendor/purl.min.js"></script>
-    <script type="text/javascript" src="../../vendor/bootstrap-scoped-dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.simplecolorpicker.js"></script>
     <script type="text/javascript" src="../../vendor/d3.min.js"></script>
     <!-- /build -->
 
 
-    <!-- JS from Network Viewer -->
-    <!-- Network-viewer -->
     <script type="text/javascript" src="nv-config.js"></script>
 
 
     <!-- build:script js -->
+    <script type="text/javascript" src="../lib/svg.js"></script>
+    <script type="text/javascript" src="../lib/utils.js"></script>
 
-    <!-- js-common-libs utils -->
-    <script type="text/javascript" src="../lib/utils/svg.js"></script>
-    <script type="text/javascript" src="../lib/utils/utils.js"></script>
-
-
-    <script type="text/javascript" src="tool-bar.js"></script>
-    <script type="text/javascript" src="edition-bar.js"></script>
     <script type="text/javascript" src="../lib/network/attributes/attribute-manager-idb.js"></script>
     <script type="text/javascript" src="../lib/network/attributes/attribute-manager-store.js"></script>
     <script type="text/javascript" src="../lib/network/network.js"></script>
@@ -67,10 +52,12 @@
     <script type="text/javascript" src="../lib/network/circos-vertex-renderer.js"></script>
     <script type="text/javascript" src="../lib/network/default-edge-renderer.js"></script>
     <script type="text/javascript" src="../lib/network/graph-layout.js"></script>
+
+    <!-- **** -->
+
+    <script type="text/javascript" src="tool-bar.js"></script>
+    <script type="text/javascript" src="edition-bar.js"></script>
     <script type="text/javascript" src="network-svg-layout.js"></script>
-
-
-    <!--<script type="text/javascript" src="network-background-settings.js"></script>-->
 
     <script type="text/javascript" src="network-viewer.js"></script>
     <!-- /build -->
@@ -97,7 +84,7 @@
         }
 
         body {
-            margin:0px;
+            margin: 0px;
             /*overflow: hidden;*/
             /*padding:50px;*/
         }
@@ -113,8 +100,8 @@
 </head>
 <body>
 <div class="bootstrap">
-<div class="container text-muted" style="font-size: 36px;padding:10px">Network Viewer</div>
-<div class="container" id="application"></div>
+    <div class="container text-muted" style="font-size: 36px;padding:10px">Network Viewer</div>
+    <div class="container" id="application"></div>
 </div>
 <div style=""></div>
 </body>
