@@ -212,7 +212,7 @@ Track.prototype = {
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
         var titleBardiv = $('' +
-            '<div class="btn-toolbar ocb-compactable">' +
+            '<div>' +
             '   <div class="btn-group btn-group-xs">' +
             '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
             '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button"><span id="titleDiv">' + this.title + '</span></button>' +

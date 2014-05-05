@@ -155,9 +155,10 @@ SequenceAdapter.prototype._processSequenceQuery = function (data, throwNotify) {
         var queryId = queryResponse.id;
         var seqResponse = queryResponse.result;
 
+
         var chromosome = seqResponse.chromosome;
         if(typeof chromosome === 'undefined'){
-            chromosome = seqResponse.seqName;
+            chromosome = seqResponse.sequenceName;
         }
 
         if (this.sequence[chromosome] == null) {
