@@ -108,14 +108,15 @@ TrackListPanel.prototype = {
         $(this.collapseDiv).children().first().addClass('glyphicon-plus');
     },
     render: function (targetId) {
+        var _this = this;
         this.targetId = (targetId) ? targetId : this.targetId;
-        if ($('#' + this.targetId).length < 1) {
-            console.log('targetId not found in DOM');
+        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
+        if (this.targetDiv === 'undefined') {
+            console.log('targetId not found');
             return;
         }
-        var _this = this;
 
-        this.targetDiv = $('#' + this.targetId)[0];
+
         this.div = $('<div id="tracklist-panel" style="height:100%;position: relative;"></div>')[0];
         $(this.targetDiv).append(this.div);
 

@@ -115,6 +115,7 @@ CELLBASE_HOST = "http://www.ebi.ac.uk/cellbase/webservices/rest";
 CELLBASE_VERSION = "v3";
 
 var genomeViewer = null;
+var div;
 var run = function () {
     /* region and species configuration */
     var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
@@ -132,8 +133,11 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
+div = $('<div></div>')[0];
+
+
     genomeViewer = new GenomeViewer({
-        targetId: 'application',
+        targetId: div,
         region: region,
         availableSpecies: availableSpecies,
         species: species,
@@ -180,10 +184,8 @@ var run = function () {
 //            drawKaryotypePanel: false,
 //            drawChromosomePanel: false,
 //            drawRegionOverviewPanel: false
+
     }); //the div must exist
-
-    genomeViewer.draw();
-
 
     tracks = [];
     this.sequence = new SequenceTrack({
@@ -322,6 +324,9 @@ var run = function () {
 //    /***************************************/
 
     genomeViewer.addTrack(tracks);
+
+
+    genomeViewer.draw();
 };
 
 $(document).ready(run);
@@ -334,6 +339,7 @@ $(document).ready(run);
     }
 
     body {
+        margin:10px;
         /*overflow: hidden;*/
         /*padding:50px;*/
     }
@@ -341,10 +347,11 @@ $(document).ready(run);
     #application {
         width: 1440px;
         /*width: 1000px;*/
-        height: 800px;
+        /*height: 800px;*/
         /*overflow-y: auto;*/
         /*overflow-x: hidden;*/
-        padding: 10px;
+        /*padding: 10px;*/
+        /*border:10px solid red*/
     }
 </style>
 

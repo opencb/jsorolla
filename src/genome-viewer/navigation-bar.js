@@ -55,8 +55,9 @@ NavigationBar.prototype = {
     render: function (targetId) {
         var _this = this;
         this.targetId = (targetId) ? targetId : this.targetId;
-        if ($('#' + this.targetId).length < 1) {
-            console.log('targetId not found in DOM');
+        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
+        if (this.targetDiv === 'undefined') {
+            console.log('targetId not found');
             return;
         }
 
@@ -161,7 +162,6 @@ NavigationBar.prototype = {
             '';
 
 
-        this.targetDiv = $('#' + this.targetId)[0];
         this.div = $('<div id="navigation-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
             height: '32px'
