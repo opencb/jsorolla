@@ -133,11 +133,10 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
-div = $('<div></div>')[0];
 
 
     genomeViewer = new GenomeViewer({
-        targetId: div,
+        targetId: 'application',
         region: region,
         availableSpecies: availableSpecies,
         species: species,
