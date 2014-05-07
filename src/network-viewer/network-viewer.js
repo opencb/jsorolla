@@ -34,6 +34,7 @@ function NetworkViewer(args) {
     this.width;
     this.border = true;
     this.overviewScale = 0.2;
+    this.session;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -225,6 +226,11 @@ NetworkViewer.prototype = {
 //            div = $('#'+this.getGraphCanvasId()+'_overview')[0];
 //            this.networkSvgOverview = new NetworkSvg(div, this.networkData, {"width": "100%", "height": "100%", "parentNetwork": this.networkSvg, "scale": this.overviewScale});
 //        }
+
+
+        if (typeof this.session !== 'undefined') {
+            this.loadJSON(this.session);
+        }
     },
     hideOverviewPanel: function () {
         $(this.overviewPanelDiv).css({display: 'none'});
@@ -497,6 +503,7 @@ NetworkViewer.prototype = {
                 },
                 'create:vertex': function (e) {
                     _this.createVertex(e.x, e.y);
+
                 },
                 'remove:vertex': function (e) {
                     var vertex = _this.network.getVertexById(e.vertexId);
@@ -526,6 +533,7 @@ NetworkViewer.prototype = {
 
 //                    _this.editionBar.showVertexToolbar();
 //                    _this.editionBar.hideEdgeToolbar();
+                    _this.trigger('change', {sender: _this});
                 },
                 'edge:leftClick': function (e) {
                     var edge = _this.network.getEdgeById(e.edgeId);
@@ -755,7 +763,7 @@ NetworkViewer.prototype = {
             vertexConfig: vertexConfig,
             target: this.networkSvgLayout.getElementsSVG()
         });
-
+        this.trigger('change', {sender: this});
         return vertex;
     },
     createEdge: function (vertexSource, vertexTarget) {
@@ -775,6 +783,8 @@ NetworkViewer.prototype = {
             edgeConfig: edgeConfig,
             target: this.networkSvgLayout.getElementsSVG()
         });
+        this.trigger('change', {sender: this});
+        return edge;
     },
     removeBackGroundImage: function (imageEl) {
         $(imageEl).remove();
@@ -1045,12 +1055,13 @@ NetworkViewer.prototype = {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     clean: function () {
-        delete localStorage.networkViewer;
         this.network.clean();
         this.networkSvgLayout.clean();
+        this.trigger('change', {sender: this});
     },
     drawNetwork: function () {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
+        this.trigger('change', {sender: this});
     },
     refreshNetwork: function () {
         this.networkSvgLayout.clean();
@@ -1085,11 +1096,11 @@ NetworkViewer.prototype = {
         return this.network.getAsSIFCustomRelation(separator, relationColumn);
     },
     setGraph: function (graph) {
-        delete localStorage.networkViewer;
         this.networkSvgLayout.clean();
 
         this.network.setGraph(graph);
         this.network.draw(this.networkSvgLayout.getElementsSVG());
+        this.trigger('change', {sender: this});
     }
 
 }
