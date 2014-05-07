@@ -28,7 +28,7 @@ function HeaderWidget(args) {
 
 
     this.targetId;
-    this.height = 67;
+    this.height = 50;
     this.accountData;
 
     this.appname = "My new App";
@@ -43,9 +43,17 @@ function HeaderWidget(args) {
     this.chunkedUpload = false;
     this.enableTextModeUW = true; // Enable Text Mode in the Upload Widget
 
+
+    this.homeLink = "http://bioinfo.cipf.es";
+    this.helpLink = "http://bioinfo.cipf.es";
+    this.tutorialLink = "http://bioinfo.cipf.es";
+    this.aboutHTML = "http://bioinfo.cipf.es";
+
+
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.els = {};
 
     this.on(this.handlers);
 
@@ -59,11 +67,118 @@ HeaderWidget.prototype = {
     render: function (targetId) {
         var _this = this;
         this.targetId = (targetId) ? targetId : this.targetId;
-        if ($('#' + this.targetId).length < 1) {
-            console.log('targetId not found in DOM');
+        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
+        if (this.targetDiv === 'undefined') {
+            console.log('targetId not found');
             return;
         }
 
+
+        var navgationHtml = '' +
+            '<div>' +
+            '   <ul class="ocb-header">' +
+            '       <li id="menu" class="menu">&#9776;' +
+            '       </li>' +
+            '       <li class="title">' + this.appname +
+            '       </li>' +
+            '       <li class="description">' + this.description +
+            '       </li>' +
+            '       <li id="signin" class="right"> sign in' +
+            '       </li>' +
+            '       <li id="logout" class="right hidden"> logout' +
+            '       </li>' +
+            '       <li id="profile" class="right hidden"> profile' +
+            '       </li>' +
+            '       <li id="upload" class="right hidden"> upload & manage' +
+            '       </li>' +
+            '       <li id="user" class="right hidden text">' +
+            '       </li>' +
+            '   </ul>'
+        '</div>' +
+        '';
+
+        var menuHtml = '' +
+            '<div>' +
+            '   <ul class="ocb-header-menu">' +
+            '       <li id="home" class="right"> home' +
+            '       </li>' +
+            '       <li id="documentation" class="right"> documentation' +
+            '       </li>' +
+            '       <li id="tutorial" class="right"> tutorial' +
+            '       </li>' +
+            '       <li id="about" class="right"> about' +
+            '       </li>' +
+            '   </ul>'
+        '</div>' +
+        '';
+
+        this.div = $('<div class="unselectable ">' + navgationHtml + '</div>')[0];
+        $(this.div).css({
+            height: '50px',
+            position: 'relative'
+        });
+        $(this.targetDiv).append(this.div);
+        this.menuDiv = $('<div class="unselectable ocb-header-menu-hidden">' + menuHtml + '</div>')[0];
+        $(this.div).append(this.menuDiv);
+
+
+        var els = $(this.div).find('ul').children();
+        for (var i = 0; i < els.length; i++) {
+            var elid = els[i].getAttribute('id');
+            if (elid) {
+                this.els[elid] = els[i];
+            }
+        }
+
+        $(this.els.menu).click(function () {
+            console.log('click')
+            $(_this.menuDiv).toggleClass('ocb-header-menu-shown');
+        });
+
+
+        $(this.els.home).click(function () {
+            window.location.href = _this.homeLink;
+        });
+        $(this.els.documentation).click(function () {
+            window.open(_this.helpLink);
+        });
+        $(this.els.tutorial).click(function () {
+            window.open(_this.tutorialLink);
+        });
+        $(this.els.about).click(function () {
+            Ext.create('Ext.window.Window', {
+                id: _this.id + "aboutWindow",
+                bodyStyle: 'background:#fff; color:#333;',
+                bodyPadding: 10,
+                title: 'About',
+                height: 340,
+                width: 500,
+                modal: true,
+                layout: 'fit',
+                html: _this.aboutText
+            }).show();
+        });
+
+
+        /* Element handlers */
+        //TODO check !this.allowLogin,
+        $(this.els.signin).click(function () {
+            _this.loginWidget.show();
+        });
+        $(this.els.logout).click(function () {
+            OpencgaManager.logout({
+                accountId: $.cookie('bioinfo_account'),
+                sessionId: $.cookie('bioinfo_sid'),
+                success: _this.logoutSuccess,
+                error: _this.logoutSuccess
+            });
+        });
+        $(this.els.profile).click(function () {
+            _this.profileWidget.show();
+        });
+        $(this.els.upload).click(function () {
+            _this.opencgaBrowserWidget.show({mode: "manager"});
+        });
 
         /****************************************/
         this.logoutSuccess = function (data) {
@@ -87,8 +202,6 @@ HeaderWidget.prototype = {
         /****************************************/
 
 
-
-
         this.rendered = true;
     },
     draw: function () {
@@ -108,7 +221,7 @@ HeaderWidget.prototype = {
         this.opencgaBrowserWidget = this._createOpencgaBrowserWidget();
 
         /* Panel */
-        this.panel = this._createPanel(this.targetId);
+//        this.panel = this._createPanel(this.targetId);
 
         if ($.cookie('bioinfo_sid') != null) {
             this.sessionInitiated();
@@ -269,44 +382,44 @@ HeaderWidget.prototype = {
                     text: ''
                 },
                 '->',
-                {
-                    id: this.id + "homeButton",
-                    text: 'home',
-                    handler: function () {
-                        window.location.href = _this.homeLink;
-                    }
-                },
-                {
-                    id: this.id + "helpButton",
-                    text: 'documentation',
-                    handler: function () {
-                        window.open(_this.helpLink);
-                    }
-                },
-                {
-                    id: this.id + "tutorialButton",
-                    text: 'tutorial',
-                    handler: function () {
-                        window.open(_this.tutorialLink);
-                    }
-                },
-                {
-                    id: this.id + "aboutButton",
-                    text: 'about',
-                    handler: function () {
-                        Ext.create('Ext.window.Window', {
-                            id: _this.id + "aboutWindow",
-                            bodyStyle: 'background:#fff; color:#333;',
-                            bodyPadding: 10,
-                            title: 'About',
-                            height: 340,
-                            width: 500,
-                            modal: true,
-                            layout: 'fit',
-                            html: _this.aboutText
-                        }).show();
-                    }
-                }
+//                {
+//                    id: this.id + "homeButton",
+//                    text: 'home',
+//                    handler: function () {
+//                        window.location.href = _this.homeLink;
+//                    }
+//                },
+//                {
+//                    id: this.id + "helpButton",
+//                    text: 'documentation',
+//                    handler: function () {
+//                        window.open(_this.helpLink);
+//                    }
+//                },
+//                {
+//                    id: this.id + "tutorialButton",
+//                    text: 'tutorial',
+//                    handler: function () {
+//                        window.open(_this.tutorialLink);
+//                    }
+//                },
+//                {
+//                    id: this.id + "aboutButton",
+//                    text: 'about',
+//                    handler: function () {
+//                        Ext.create('Ext.window.Window', {
+//                            id: _this.id + "aboutWindow",
+//                            bodyStyle: 'background:#fff; color:#333;',
+//                            bodyPadding: 10,
+//                            title: 'About',
+//                            height: 340,
+//                            width: 500,
+//                            modal: true,
+//                            layout: 'fit',
+//                            html: _this.aboutText
+//                        }).show();
+//                    }
+//                }
             ]
         });
 
@@ -332,41 +445,41 @@ HeaderWidget.prototype = {
                     id: this.id + 'textUser',
                     text: ''
                 },
-                {
-                    id: this.id + 'btnOpencga',
-                    text: '<span class="emph">Upload & Manage</span>',
-                    iconCls: 'icon-project-manager',
-                    handler: function () {
-                        _this.opencgaBrowserWidget.show({mode: "manager"});
-                    }
-                },
-                {
-                    id: this.id + 'btnSignin',
-                    disabled: !this.allowLogin,
-                    text: '<span class="emph">sign in</span>',
-                    handler: function () {
-                        _this.loginWidget.show();
-                    }
-                },
-                {
-                    id: this.id + 'btnEdit',
-                    text: '<span class="emph">profile</span>',
-                    handler: function () {
-                        _this.profileWidget.show();
-                    }
-                },
-                {
-                    id: this.id + 'btnLogout',
-                    text: '<span class="emph">logout</span>',
-                    handler: function () {
-                        OpencgaManager.logout({
-                            accountId: $.cookie('bioinfo_account'),
-                            sessionId: $.cookie('bioinfo_sid'),
-                            success: _this.logoutSuccess,
-                            error: _this.logoutSuccess
-                        });
-                    }
-                }
+//                    {
+//                        id: this.id + 'btnOpencga',
+//                        text: '<span class="emph">Upload & Manage</span>',
+//                        iconCls: 'icon-project-manager',
+//                        handler: function () {
+//                            _this.opencgaBrowserWidget.show({mode: "manager"});
+//                        }
+//                    },
+//                {
+//                    id: this.id + 'btnSignin',
+//                    disabled: !this.allowLogin,
+//                    text: '<span class="emph">sign in</span>',
+//                    handler: function () {
+//                        _this.loginWidget.show();
+//                    }
+//                },
+//                    {
+//                        id: this.id + 'btnEdit',
+//                        text: '<span class="emph">profile</span>',
+//                        handler: function () {
+//                            _this.profileWidget.show();
+//                        }
+//                    },
+//                {
+//                    id: this.id + 'btnLogout',
+//                    text: '<span class="emph">logout</span>',
+//                    handler: function () {
+//                        OpencgaManager.logout({
+//                            accountId: $.cookie('bioinfo_account'),
+//                            sessionId: $.cookie('bioinfo_sid'),
+//                            success: _this.logoutSuccess,
+//                            error: _this.logoutSuccess
+//                        });
+//                    }
+//                }
             ]
         });
 
@@ -421,7 +534,8 @@ HeaderWidget.prototype = {
     setAccountData: function (data) {
         this.accountData = data;
         this.opencgaBrowserWidget.setAccountData(data);
-        Ext.getCmp(this.id + 'textUser').setText(this._getAccountText());
+//        Ext.getCmp(this.id + 'textUser').setText(this._getAccountText());
+        $(this.els.user).html(this._getAccountText());
     },
     getAccountInfo: function () {
         var lastActivity = null;
@@ -452,13 +566,18 @@ HeaderWidget.prototype = {
     },
     sessionInitiated: function () {
         var _this = this;
-        /**HIDE**/
+//        /**HIDE**/
         this.loginWidget.hide();
-        Ext.getCmp(this.id + 'btnSignin').hide();
-        /**SHOW**/
-        Ext.getCmp(this.id + 'btnLogout').show();
-        Ext.getCmp(this.id + 'btnEdit').show();
-        Ext.getCmp(this.id + 'btnOpencga').show();
+//        Ext.getCmp(this.id + 'btnSignin').hide();
+        $(this.els.signin).addClass('hidden');
+//        /**SHOW**/
+//        Ext.getCmp(this.id + 'btnLogout').show();
+        $(this.els.logout).removeClass('hidden');
+//        Ext.getCmp(this.id + 'btnEdit').show();
+        $(this.els.profile).removeClass('hidden');
+//        Ext.getCmp(this.id + 'btnOpencga').show();
+        $(this.els.upload).removeClass('hidden');
+        $(this.els.user).removeClass('hidden');
 
         /**START OPENCGA CHECK**/
         if (!this.accountInfoInterval) {
@@ -469,15 +588,21 @@ HeaderWidget.prototype = {
         }
     },
     sessionFinished: function () {
-        /**HIDE**/
-        Ext.getCmp(this.id + 'btnOpencga').hide();
-        Ext.getCmp(this.id + 'btnLogout').hide();
-        Ext.getCmp(this.id + 'btnEdit').hide();
-        /**SHOW**/
-        Ext.getCmp(this.id + 'btnSignin').show();
-
-        Ext.getCmp(this.id + 'textUser').setText('');
-        /**CLEAR OPENCGA**/
+//        /**HIDE**/
+//        Ext.getCmp(this.id + 'btnLogout').hide();
+        $(this.els.logout).addClass('hidden');
+//        Ext.getCmp(this.id + 'btnEdit').hide();
+        $(this.els.profile).addClass('hidden');
+//        Ext.getCmp(this.id + 'btnOpencga').hide();
+        $(this.els.upload).addClass('hidden');
+        $(this.els.user).addClass('hidden');
+//        /**SHOW**/
+//        Ext.getCmp(this.id + 'btnSignin').show();
+        $(this.els.signin).removeClass('hidden');
+//        Ext.getCmp(this.id + 'textUser').setText('');
+        $(this.els.user).html('');
+        $(this.els.user).removeClass('hidden');
+//        /**CLEAR OPENCGA**/
         clearInterval(this.accountInfoInterval);
         delete this.accountInfoInterval;
 
@@ -486,7 +611,7 @@ HeaderWidget.prototype = {
         this.opencgaBrowserWidget.removeAccountData();
     },
     setDescription: function (text) {
-        $("#" + this.id + 'description').html(text);
+//        $("#" + this.id + 'description').html(text);
     },
     setWidth: function (width) {
         this.width = width;
