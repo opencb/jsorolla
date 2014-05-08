@@ -12,6 +12,10 @@
     cursor: default
 }
 
+.bootstrap {
+    font-family: 'Source Sans Pro' !important;
+}
+
 /*ocb header*/
 ul.ocb-header-menu,
 ul.ocb-header {
@@ -22,7 +26,7 @@ ul.ocb-header {
     list-style: none;
     text-transform: none;
     font-family: 'Oxygen', Arial, sans-serif;
-    line-height: 50px;
+    line-height: 60px;
     font-size:14px;
 }
 
@@ -36,8 +40,8 @@ ul.ocb-header > li {
 
 ul.ocb-header-menu > li {
     border-bottom: 1px solid #c6d0da;
-    /*border-left: 1px solid #c6d0da;*/
-    border-right: 1px solid #c6d0da;
+    border-left: 1px solid #c6d0da;
+    /*border-right: 1px solid #c6d0da;*/
     padding: 0 10px;
 }
 
@@ -81,19 +85,29 @@ ul.ocb-header > li:hover {
 
 .ocb-header-menu-hidden {
     position: absolute;
-    z-index: 10;
-    top: 50px;
-    left: -150px;
+    z-index: 1000;
+    top: 60px;
+    right: -150px;
     width: 0px;
     height: 200px;
     background: white;
     border-top: 1px solid #c6d0da;
-    transition: width 0.3s, left 0.1s;
+    transition: width 0.3s, right 0.1s;
 }
 
 .ocb-header-menu-shown {
-    width: 150px;
-    left: 0px;
+    width: 250px;
+    right: 0px;
+}
+
+.ocb-h-panel {
+    line-height: 20px;
+    font-size: 14px;
+    font-family: Oxygen;
+    background: #f5f5f5;
+    color: #596F8F;
+    padding: 4px 10px;
+    border:1px solid #c6d0da;
 }
 
 
@@ -1320,51 +1334,10 @@ a:hover {
 /*@import url(http://fonts.googleapis.com/css?family=Oxygen);*/
 /*@import url(http://fonts.googleapis.com/css?family=Lato);*/
 
-@font-face {
-    font-family: 'Ubuntu';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Ubuntu'), url(../fonts/ubuntu.woff) format('woff');
-}
 
-@font-face {
-    font-family: 'Ubuntu Mono';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Ubuntu Mono'), local('UbuntuMono-Regular'), url(../fonts/ubuntumono.woff) format('woff');
-}
-
-@font-face {
-    font-family: 'Oxygen';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Oxygen'), local('Oxygen-Regular'), url(../fonts/oxygen.woff) format('woff');
-}
-
-@font-face {
-    font-family: 'Source Sans Pro';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(../fonts/sourcesanspro.woff) format('woff');
-}
-
-@font-face {
-    font-family: 'Lato';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Lato Regular'), local('Lato-Regular'), url(../fonts/lato.woff) format('woff');
-}
-
-.bootstrap {
-    font-family: 'Source Sans Pro' !important;
-}
 
 /*.bootstrap * {*/
 /*-webkit-border-radius: 0px !important;*/
 /*-moz-border-radius: 0px !important;*/
 /*border-radius: 0px !important;*/
 /*}*/
-
-.jso-vertex-selected * {
-    stroke: #00FF00;
-}

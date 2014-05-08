@@ -73,23 +73,22 @@ HeaderWidget.prototype = {
             return;
         }
 
-
         var navgationHtml = '' +
             '<div>' +
             '   <ul class="ocb-header">' +
-            '       <li id="menu" class="menu">&#9776;' +
+            '       <li class="title"> &nbsp; ' + this.appname +
             '       </li>' +
-            '       <li class="title">' + this.appname +
+            '       <li id="description" class="description">' + this.description +
             '       </li>' +
-            '       <li class="description">' + this.description +
+            '       <li id="menu" class="right menu">&#9776;' +
             '       </li>' +
-            '       <li id="signin" class="right"> sign in' +
+            '       <li id="signin" class="right"><span class="glyphicon glyphicon-log-in"></span> sign in' +
             '       </li>' +
-            '       <li id="logout" class="right hidden"> logout' +
+            '       <li id="logout" class="right hidden"><span class="glyphicon glyphicon-log-out"></span> logout' +
             '       </li>' +
-            '       <li id="profile" class="right hidden"> profile' +
+            '       <li id="profile" class="right hidden"> <span class="glyphicon glyphicon-user"></span> profile' +
             '       </li>' +
-            '       <li id="upload" class="right hidden"> upload & manage' +
+            '       <li id="upload" class="right hidden"> <span class="glyphicon glyphicon-cloud-upload"></span> upload & manage' +
             '       </li>' +
             '       <li id="user" class="right hidden text">' +
             '       </li>' +
@@ -100,21 +99,21 @@ HeaderWidget.prototype = {
         var menuHtml = '' +
             '<div>' +
             '   <ul class="ocb-header-menu">' +
-            '       <li id="home" class="right"> home' +
+            '       <li id="home" class="right"><span class="glyphicon glyphicon-home"></span> &nbsp; home' +
             '       </li>' +
-            '       <li id="documentation" class="right"> documentation' +
+            '       <li id="documentation" class="right"><span class="glyphicon glyphicon-book"></span> &nbsp; documentation' +
             '       </li>' +
-            '       <li id="tutorial" class="right"> tutorial' +
+            '       <li id="tutorial" class="right"><span class="glyphicon glyphicon-list-alt"></span> &nbsp; tutorial' +
             '       </li>' +
-            '       <li id="about" class="right"> about' +
+            '       <li id="about" class="right"><span class="glyphicon glyphicon-question-sign"></span> &nbsp; about' +
             '       </li>' +
             '   </ul>'
         '</div>' +
         '';
 
-        this.div = $('<div class="unselectable ">' + navgationHtml + '</div>')[0];
+        this.div = $('<div class="unselectable bootstrap">' + navgationHtml + '</div>')[0];
         $(this.div).css({
-            height: '50px',
+            height: '60px',
             position: 'relative'
         });
         $(this.targetDiv).append(this.div);
@@ -220,15 +219,11 @@ HeaderWidget.prototype = {
         /* Opencga Browser Widget */
         this.opencgaBrowserWidget = this._createOpencgaBrowserWidget();
 
-        /* Panel */
-//        this.panel = this._createPanel(this.targetId);
-
         if ($.cookie('bioinfo_sid') != null) {
             this.sessionInitiated();
         } else {
             this.sessionFinished();
         }
-
 
     },
     _createLoginWidget: function () {
@@ -270,271 +265,270 @@ HeaderWidget.prototype = {
         return opencgaBrowserWidget;
     },
 
-    _createPanel: function (targetId) {
-        var _this = this;
-        switch (this.suiteId) {
-            case 11://Renato
-                this.homeLink = "http://renato.bioinfo.cipf.es";
-                this.helpLink = "http://bioinfo.cipf.es/docs/renato/";
-                this.tutorialLink = "http://bioinfo.cipf.es/docs/renato/tutorial";
-                this.aboutText = '';
-                break;
-            case 6://Variant
-                this.homeLink = "http://variant.bioinfo.cipf.es";
-                this.helpLink = "http://docs.bioinfo.cipf.es/projects/variant";
-                this.tutorialLink = "http://docs.bioinfo.cipf.es/projects/variant/wiki/Tutorial";
-                this.aboutText = '';
-                break;
-            case 9://GenomeMaps
-                this.homeLink = "http://www.genomemaps.org";
-                this.helpLink = "http://wiki.opencb.org/projects/visualization/doku.php?id=genome-maps:overview";
-                this.tutorialLink = "http://wiki.opencb.org/projects/visualization/doku.php?id=genome-maps:tutorial";
-                this.aboutText = 'Genome Maps is built with open and free technologies like HTML5 and SVG inline, ' +
-                    'so no plug-in is needed in modern internet browsers. We’ve focused on providing the ' +
-                    'best user experience possible with a modern drag navigation and many features included.<br><br>' +
-                    'Genome Maps project has been developed in the <b>Computational Biology Unit</b> led by <b>Ignacio Medina</b>, at <b>Computational Genomic' +
-                    ' Institute</b> led by <b>Joaquin Dopazo</b> at CIPF. Two people from my lab deserve special mention for their fantastic job done: ' +
-                    '<br><b>Franscisco Salavert</b> and <b>Alejandro de Maria</b>.<br><br>' +
-                    'Genome Maps has been designed to be easily be embedded in any project with a couple of lines of code,' +
-                    ' and it has been implemented as a plugin framework to extend the standard features.<br><br>' +
-                    'Supported browsers include: Google Chrome 14+, Apple Safari 5+, Opera 12+ and Mozilla Firefox 14+ ' +
-                    '(works slower than in the other browsers). Internet Explorer 10 is under RC and seems to work properly.<br><br>' +
-                    'For more information or suggestions about Genome Maps please contact <br><b>Ignacio Medina</b>:  <span class="info">imedina@cipf.es</span>'
-                break;
-            case 10://CellBrowser
-                this.homeLink = "http://www.cellbrowser.org";
-                this.helpLink = "http://docs.bioinfo.cipf.es/projects/cellbrowser";
-                this.tutorialLink = "http://docs.bioinfo.cipf.es/projects/cellbrowser/wiki/Tutorial";
-                this.aboutText = '';
-                break;
-            case 12://UNTBgen
-                this.homeLink = "http://bioinfo.cipf.es/apps/untbgen";
-                this.helpLink = "http://bioinfo.cipf.es/ecolopy/";
-                this.tutorialLink = "http://bioinfo.cipf.es/ecolopy/";
-                this.aboutText = '';
-                break;
-            case 22://Pathiways
-                this.homeLink = "http://pathiways.bioinfo.cipf.es";
-                this.helpLink = "http://bioinfo.cipf.es/pathiways";
-                this.tutorialLink = "http://bioinfo.cipf.es/pathiways/tutorial";
-                this.aboutText = 'PATHiWAYS is built with open and free technologies like HTML5 and SVG inline, ' +
-                    'so no plug-in is needed in modern internet browsers<br><br>' +
-                    'PATHiWAYS project has been developed in the <b>Computational Biology Unit</b>, at <b>Computational Medicine' +
-                    ' Institute</b> at CIPF in Valencia, Spain.<br><br>' +
-                    'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span>';
-                break;
-            case 85: //BierApp
-                this.homeLink = "http://bioinfo.cipf.es/apps/bierapp/";
-                this.helpLink = "https://github.com/babelomics/bierapp/wiki";
-                this.tutorialLink = "https://github.com/babelomics/bierapp/wiki/Tutorial";
-                this.aboutText = 'BiERApp is an interactive tool that allows finding genes affected by deleterious variants that segregate along family pedigrees, case-controls or sporadic samples. BiERApp has built with open and free technologies like HTML5 and Javascript.<br><br>' +
-                    'BierApp project is a joint development of the <b>BiER</b> and the <b>Computational Biology Unit</b>, in the <b>Computational Genomics Department</b> at CIPF in Valencia, Spain.<br><br>' + 'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span> <br><br>' +
-                    '<img width="25%" src="http://bioinfo.cipf.es/bierwiki/lib/tpl/arctic/images/logobier.jpg">'
-                ;
-                break;
-
-            case 86: // TEAM
-                this.homeLink = "http://bioinfo.cipf.es/apps/team/";
-                this.helpLink = "https://github.com/babelomics/team/wiki";
-                this.tutorialLink = "https://github.com/babelomics/team/wiki/Tutorial";
-                this.aboutText = 'TEAM (Targeted Enrichment Analysis and Management) is an open web-based tool for the design and management of panels of genes for targeted enrichment and massive sequencing for diagnostic applications. <br> TEAM has been built with open and free technologies like HTML5 and Javascript.<br><br>' +
-                    'TEAM project is a joint development of the <b>BiER</b> and the <b>Computational Biology Unit</b>, in the <b>Computational Genomics Department</b> at CIPF in Valencia, Spain.<br><br>' + 'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span> <br><br>' +
-                    '<img width="25%" src="http://bioinfo.cipf.es/bierwiki/lib/tpl/arctic/images/logobier.jpg">'
-                ;
-                break;
-
-            default:
-                this.homeLink = "http://docs.bioinfo.cipf.es";
-                this.helpLink = "http://docs.bioinfo.cipf.es";
-                this.tutorialLink = "http://docs.bioinfo.cipf.es";
-                this.aboutText = '';
-        }
-
-        if (typeof HEADER_HOME_LINK !== 'undefined') {
-            this.homeLink = HEADER_HOME_LINK;
-        }
-        if (typeof HEADER_HELP_LINK !== 'undefined') {
-            this.helpLink = HEADER_HELP_LINK;
-        }
-        if (typeof HEADER_TUTORIAL_LINK !== 'undefined') {
-            this.tutorialLink = HEADER_TUTORIAL_LINK;
-        }
-        if (typeof HEADER_ABOUT_HTML !== 'undefined') {
-            this.aboutText = HEADER_ABOUT_HTML;
-        }
-
-        var linkbar = new Ext.create('Ext.toolbar.Toolbar', {
-            id: this.id + 'linkbar',
-            dock: 'top',
-            cls: 'bio-linkbar',
-            height: 40,
-            minHeight: 40,
-            maxHeight: 40,
-            items: [
-                {
-                    xtype: 'tbtext',
-                    id: this.id + "speciesTextItem",
-                    text: ''
-                },
-                {
-                    xtype: 'tbtext',
-                    id: this.id + "assemblyTextItem",
-                    text: ''
-                },
-                '->',
+//    _createPanel: function (targetId) {
+//        var _this = this;
+//        switch (this.suiteId) {
+//            case 11://Renato
+//                this.homeLink = "http://renato.bioinfo.cipf.es";
+//                this.helpLink = "http://bioinfo.cipf.es/docs/renato/";
+//                this.tutorialLink = "http://bioinfo.cipf.es/docs/renato/tutorial";
+//                this.aboutText = '';
+//                break;
+//            case 6://Variant
+//                this.homeLink = "http://variant.bioinfo.cipf.es";
+//                this.helpLink = "http://docs.bioinfo.cipf.es/projects/variant";
+//                this.tutorialLink = "http://docs.bioinfo.cipf.es/projects/variant/wiki/Tutorial";
+//                this.aboutText = '';
+//                break;
+//            case 9://GenomeMaps
+//                this.homeLink = "http://www.genomemaps.org";
+//                this.helpLink = "http://wiki.opencb.org/projects/visualization/doku.php?id=genome-maps:overview";
+//                this.tutorialLink = "http://wiki.opencb.org/projects/visualization/doku.php?id=genome-maps:tutorial";
+//                this.aboutText = 'Genome Maps is built with open and free technologies like HTML5 and SVG inline, ' +
+//                    'so no plug-in is needed in modern internet browsers. We’ve focused on providing the ' +
+//                    'best user experience possible with a modern drag navigation and many features included.<br><br>' +
+//                    'Genome Maps project has been developed in the <b>Computational Biology Unit</b> led by <b>Ignacio Medina</b>, at <b>Computational Genomic' +
+//                    ' Institute</b> led by <b>Joaquin Dopazo</b> at CIPF. Two people from my lab deserve special mention for their fantastic job done: ' +
+//                    '<br><b>Franscisco Salavert</b> and <b>Alejandro de Maria</b>.<br><br>' +
+//                    'Genome Maps has been designed to be easily be embedded in any project with a couple of lines of code,' +
+//                    ' and it has been implemented as a plugin framework to extend the standard features.<br><br>' +
+//                    'Supported browsers include: Google Chrome 14+, Apple Safari 5+, Opera 12+ and Mozilla Firefox 14+ ' +
+//                    '(works slower than in the other browsers). Internet Explorer 10 is under RC and seems to work properly.<br><br>' +
+//                    'For more information or suggestions about Genome Maps please contact <br><b>Ignacio Medina</b>:  <span class="info">imedina@cipf.es</span>'
+//                break;
+//            case 10://CellBrowser
+//                this.homeLink = "http://www.cellbrowser.org";
+//                this.helpLink = "http://docs.bioinfo.cipf.es/projects/cellbrowser";
+//                this.tutorialLink = "http://docs.bioinfo.cipf.es/projects/cellbrowser/wiki/Tutorial";
+//                this.aboutText = '';
+//                break;
+//            case 12://UNTBgen
+//                this.homeLink = "http://bioinfo.cipf.es/apps/untbgen";
+//                this.helpLink = "http://bioinfo.cipf.es/ecolopy/";
+//                this.tutorialLink = "http://bioinfo.cipf.es/ecolopy/";
+//                this.aboutText = '';
+//                break;
+//            case 22://Pathiways
+//                this.homeLink = "http://pathiways.bioinfo.cipf.es";
+//                this.helpLink = "http://bioinfo.cipf.es/pathiways";
+//                this.tutorialLink = "http://bioinfo.cipf.es/pathiways/tutorial";
+//                this.aboutText = 'PATHiWAYS is built with open and free technologies like HTML5 and SVG inline, ' +
+//                    'so no plug-in is needed in modern internet browsers<br><br>' +
+//                    'PATHiWAYS project has been developed in the <b>Computational Biology Unit</b>, at <b>Computational Medicine' +
+//                    ' Institute</b> at CIPF in Valencia, Spain.<br><br>' +
+//                    'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span>';
+//                break;
+//            case 85: //BierApp
+//                this.homeLink = "http://bioinfo.cipf.es/apps/bierapp/";
+//                this.helpLink = "https://github.com/babelomics/bierapp/wiki";
+//                this.tutorialLink = "https://github.com/babelomics/bierapp/wiki/Tutorial";
+//                this.aboutText = 'BiERApp is an interactive tool that allows finding genes affected by deleterious variants that segregate along family pedigrees, case-controls or sporadic samples. BiERApp has built with open and free technologies like HTML5 and Javascript.<br><br>' +
+//                    'BierApp project is a joint development of the <b>BiER</b> and the <b>Computational Biology Unit</b>, in the <b>Computational Genomics Department</b> at CIPF in Valencia, Spain.<br><br>' + 'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span> <br><br>' +
+//                    '<img width="25%" src="http://bioinfo.cipf.es/bierwiki/lib/tpl/arctic/images/logobier.jpg">'
+//                ;
+//                break;
+//
+//            case 86: // TEAM
+//                this.homeLink = "http://bioinfo.cipf.es/apps/team/";
+//                this.helpLink = "https://github.com/babelomics/team/wiki";
+//                this.tutorialLink = "https://github.com/babelomics/team/wiki/Tutorial";
+//                this.aboutText = 'TEAM (Targeted Enrichment Analysis and Management) is an open web-based tool for the design and management of panels of genes for targeted enrichment and massive sequencing for diagnostic applications. <br> TEAM has been built with open and free technologies like HTML5 and Javascript.<br><br>' +
+//                    'TEAM project is a joint development of the <b>BiER</b> and the <b>Computational Biology Unit</b>, in the <b>Computational Genomics Department</b> at CIPF in Valencia, Spain.<br><br>' + 'For more information please visit our web page  <span class="info"><a target="_blank" href="http://bioinfo.cipf.es">bioinfo.cipf.es</a></span> <br><br>' +
+//                    '<img width="25%" src="http://bioinfo.cipf.es/bierwiki/lib/tpl/arctic/images/logobier.jpg">'
+//                ;
+//                break;
+//
+//            default:
+//                this.homeLink = "http://docs.bioinfo.cipf.es";
+//                this.helpLink = "http://docs.bioinfo.cipf.es";
+//                this.tutorialLink = "http://docs.bioinfo.cipf.es";
+//                this.aboutText = '';
+//        }
+//
+//        if (typeof HEADER_HOME_LINK !== 'undefined') {
+//            this.homeLink = HEADER_HOME_LINK;
+//        }
+//        if (typeof HEADER_HELP_LINK !== 'undefined') {
+//            this.helpLink = HEADER_HELP_LINK;
+//        }
+//        if (typeof HEADER_TUTORIAL_LINK !== 'undefined') {
+//            this.tutorialLink = HEADER_TUTORIAL_LINK;
+//        }
+//        if (typeof HEADER_ABOUT_HTML !== 'undefined') {
+//            this.aboutText = HEADER_ABOUT_HTML;
+//        }
+//
+//        var linkbar = new Ext.create('Ext.toolbar.Toolbar', {
+//            id: this.id + 'linkbar',
+//            dock: 'top',
+//            cls: 'bio-linkbar',
+//            height: 40,
+//            minHeight: 40,
+//            maxHeight: 40,
+//            items: [
 //                {
-//                    id: this.id + "homeButton",
-//                    text: 'home',
-//                    handler: function () {
-//                        window.location.href = _this.homeLink;
-//                    }
+//                    xtype: 'tbtext',
+//                    id: this.id + "speciesTextItem",
+//                    text: ''
 //                },
 //                {
-//                    id: this.id + "helpButton",
-//                    text: 'documentation',
-//                    handler: function () {
-//                        window.open(_this.helpLink);
-//                    }
+//                    xtype: 'tbtext',
+//                    id: this.id + "assemblyTextItem",
+//                    text: ''
 //                },
+//                '->',
+////                {
+////                    id: this.id + "homeButton",
+////                    text: 'home',
+////                    handler: function () {
+////                        window.location.href = _this.homeLink;
+////                    }
+////                },
+////                {
+////                    id: this.id + "helpButton",
+////                    text: 'documentation',
+////                    handler: function () {
+////                        window.open(_this.helpLink);
+////                    }
+////                },
+////                {
+////                    id: this.id + "tutorialButton",
+////                    text: 'tutorial',
+////                    handler: function () {
+////                        window.open(_this.tutorialLink);
+////                    }
+////                },
+////                {
+////                    id: this.id + "aboutButton",
+////                    text: 'about',
+////                    handler: function () {
+////                        Ext.create('Ext.window.Window', {
+////                            id: _this.id + "aboutWindow",
+////                            bodyStyle: 'background:#fff; color:#333;',
+////                            bodyPadding: 10,
+////                            title: 'About',
+////                            height: 340,
+////                            width: 500,
+////                            modal: true,
+////                            layout: 'fit',
+////                            html: _this.aboutText
+////                        }).show();
+////                    }
+////                }
+//            ]
+//        });
+//
+//        var userbar = new Ext.create('Ext.toolbar.Toolbar', {
+//            id: this.id + 'userbar',
+//            dock: 'top',
+//            border: false,
+////                cls:'bio-userbar',
+//            cls: 'gm-login-bar',
+//            height: 27,
+//            minHeight: 27,
+//            maxHeight: 27,
+//            layout: 'hbox',
+//            items: [
 //                {
-//                    id: this.id + "tutorialButton",
-//                    text: 'tutorial',
-//                    handler: function () {
-//                        window.open(_this.tutorialLink);
-//                    }
+//                    xtype: 'tbtext',
+//                    id: this.id + 'textNews',
+//                    text: this.news
 //                },
+//                '->',
 //                {
-//                    id: this.id + "aboutButton",
-//                    text: 'about',
-//                    handler: function () {
-//                        Ext.create('Ext.window.Window', {
-//                            id: _this.id + "aboutWindow",
-//                            bodyStyle: 'background:#fff; color:#333;',
-//                            bodyPadding: 10,
-//                            title: 'About',
-//                            height: 340,
-//                            width: 500,
-//                            modal: true,
-//                            layout: 'fit',
-//                            html: _this.aboutText
-//                        }).show();
-//                    }
-//                }
-            ]
-        });
-
-        var userbar = new Ext.create('Ext.toolbar.Toolbar', {
-            id: this.id + 'userbar',
-            dock: 'top',
-            border: false,
-//                cls:'bio-userbar',
-            cls: 'gm-login-bar',
-            height: 27,
-            minHeight: 27,
-            maxHeight: 27,
-            layout: 'hbox',
-            items: [
-                {
-                    xtype: 'tbtext',
-                    id: this.id + 'textNews',
-                    text: this.news
-                },
-                '->',
-                {
-                    xtype: 'tbtext',
-                    id: this.id + 'textUser',
-                    text: ''
-                },
-//                    {
-//                        id: this.id + 'btnOpencga',
-//                        text: '<span class="emph">Upload & Manage</span>',
-//                        iconCls: 'icon-project-manager',
-//                        handler: function () {
-//                            _this.opencgaBrowserWidget.show({mode: "manager"});
+//                    xtype: 'tbtext',
+//                    id: this.id + 'textUser',
+//                    text: ''
+//                },
+////                    {
+////                        id: this.id + 'btnOpencga',
+////                        text: '<span class="emph">Upload & Manage</span>',
+////                        iconCls: 'icon-project-manager',
+////                        handler: function () {
+////                            _this.opencgaBrowserWidget.show({mode: "manager"});
+////                        }
+////                    },
+////                {
+////                    id: this.id + 'btnSignin',
+////                    disabled: !this.allowLogin,
+////                    text: '<span class="emph">sign in</span>',
+////                    handler: function () {
+////                        _this.loginWidget.show();
+////                    }
+////                },
+////                    {
+////                        id: this.id + 'btnEdit',
+////                        text: '<span class="emph">profile</span>',
+////                        handler: function () {
+////                            _this.profileWidget.show();
+////                        }
+////                    },
+////                {
+////                    id: this.id + 'btnLogout',
+////                    text: '<span class="emph">logout</span>',
+////                    handler: function () {
+////                        OpencgaManager.logout({
+////                            accountId: $.cookie('bioinfo_account'),
+////                            sessionId: $.cookie('bioinfo_sid'),
+////                            success: _this.logoutSuccess,
+////                            error: _this.logoutSuccess
+////                        });
+////                    }
+////                }
+//            ]
+//        });
+//
+//        var panel = Ext.create('Ext.panel.Panel', {
+//            id: this.id + "panel",
+//            region: 'north',
+//            border: false,
+//            renderTo: targetId,
+//            height: this.height,
+//            minHeight: this.height,
+//            maxHeigth: this.height,
+//            width: this.width,
+//            layout: 'hbox',
+//            items: [
+//                {
+//                    xtype: 'container',
+////                    flex:1,
+//                    items: [
+//                        {
+//                            id: this.id + "appTextItem",
+//                            xtype: 'tbtext',
+//                            margin: '25 0 0 20',
+//                            //		        	html: '<span class="appName">Vitis vinifera&nbsp; '+this.args.appname +'</span> <span class="appDesc">'+this.args.description+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span><img height="30" src="http://www.demeter.es/imagenes/l_demeter.gif"></span>',
+//                            text: '<span class="appName">' + this.appname + '</span> ' +
+//                                '<span id="' + this.id + 'description" class="appDesc">' + this.description + '</span>' +
+//                                '<span id="' + this.id + 'version" class="appVersion"></span>' +
+//                                '',
+//                            padding: '0 0 0 10',
+//                            listeners: {
+//                                afterrender: function () {
+//                                    $("#" + _this.id + "appTextItem").qtip({
+//                                        content: '<span class="info">' + _this.version + '</span>',
+//                                        position: {my: "bottom center", at: "top center", adjust: { y: 12, x: -25 }}
+//
+//                                    });
+//                                }
+//                            }
 //                        }
-//                    },
-//                {
-//                    id: this.id + 'btnSignin',
-//                    disabled: !this.allowLogin,
-//                    text: '<span class="emph">sign in</span>',
-//                    handler: function () {
-//                        _this.loginWidget.show();
-//                    }
+//                    ]
 //                },
-//                    {
-//                        id: this.id + 'btnEdit',
-//                        text: '<span class="emph">profile</span>',
-//                        handler: function () {
-//                            _this.profileWidget.show();
-//                        }
-//                    },
 //                {
-//                    id: this.id + 'btnLogout',
-//                    text: '<span class="emph">logout</span>',
-//                    handler: function () {
-//                        OpencgaManager.logout({
-//                            accountId: $.cookie('bioinfo_account'),
-//                            sessionId: $.cookie('bioinfo_sid'),
-//                            success: _this.logoutSuccess,
-//                            error: _this.logoutSuccess
-//                        });
-//                    }
+//                    xtype: 'container',
+//                    flex: 2,
+//                    layout: {type: 'vbox', align: 'right'},
+//                    items: [userbar, linkbar]
 //                }
-            ]
-        });
-
-        var panel = Ext.create('Ext.panel.Panel', {
-            id: this.id + "panel",
-            region: 'north',
-            border: false,
-            renderTo: targetId,
-            height: this.height,
-            minHeight: this.height,
-            maxHeigth: this.height,
-            width: this.width,
-            layout: 'hbox',
-            items: [
-                {
-                    xtype: 'container',
-//                    flex:1,
-                    items: [
-                        {
-                            id: this.id + "appTextItem",
-                            xtype: 'tbtext',
-                            margin: '25 0 0 20',
-                            //		        	html: '<span class="appName">Vitis vinifera&nbsp; '+this.args.appname +'</span> <span class="appDesc">'+this.args.description+'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span><img height="30" src="http://www.demeter.es/imagenes/l_demeter.gif"></span>',
-                            text: '<span class="appName">' + this.appname + '</span> ' +
-                                '<span id="' + this.id + 'description" class="appDesc">' + this.description + '</span>' +
-                                '<span id="' + this.id + 'version" class="appVersion"></span>' +
-                                '',
-                            padding: '0 0 0 10',
-                            listeners: {
-                                afterrender: function () {
-                                    $("#" + _this.id + "appTextItem").qtip({
-                                        content: '<span class="info">' + _this.version + '</span>',
-                                        position: {my: "bottom center", at: "top center", adjust: { y: 12, x: -25 }}
-
-                                    });
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    xtype: 'container',
-                    flex: 2,
-                    layout: {type: 'vbox', align: 'right'},
-                    items: [userbar, linkbar]
-                }
-            ]
-        });
-        return panel;
-    },
+//            ]
+//        });
+//        return panel;
+//    },
 
     setAccountData: function (data) {
         this.accountData = data;
         this.opencgaBrowserWidget.setAccountData(data);
-//        Ext.getCmp(this.id + 'textUser').setText(this._getAccountText());
         $(this.els.user).html(this._getAccountText());
     },
     getAccountInfo: function () {
@@ -568,14 +562,10 @@ HeaderWidget.prototype = {
         var _this = this;
 //        /**HIDE**/
         this.loginWidget.hide();
-//        Ext.getCmp(this.id + 'btnSignin').hide();
         $(this.els.signin).addClass('hidden');
 //        /**SHOW**/
-//        Ext.getCmp(this.id + 'btnLogout').show();
         $(this.els.logout).removeClass('hidden');
-//        Ext.getCmp(this.id + 'btnEdit').show();
         $(this.els.profile).removeClass('hidden');
-//        Ext.getCmp(this.id + 'btnOpencga').show();
         $(this.els.upload).removeClass('hidden');
         $(this.els.user).removeClass('hidden');
 
@@ -589,17 +579,12 @@ HeaderWidget.prototype = {
     },
     sessionFinished: function () {
 //        /**HIDE**/
-//        Ext.getCmp(this.id + 'btnLogout').hide();
         $(this.els.logout).addClass('hidden');
-//        Ext.getCmp(this.id + 'btnEdit').hide();
         $(this.els.profile).addClass('hidden');
-//        Ext.getCmp(this.id + 'btnOpencga').hide();
         $(this.els.upload).addClass('hidden');
         $(this.els.user).addClass('hidden');
 //        /**SHOW**/
-//        Ext.getCmp(this.id + 'btnSignin').show();
         $(this.els.signin).removeClass('hidden');
-//        Ext.getCmp(this.id + 'textUser').setText('');
         $(this.els.user).html('');
         $(this.els.user).removeClass('hidden');
 //        /**CLEAR OPENCGA**/
@@ -611,11 +596,10 @@ HeaderWidget.prototype = {
         this.opencgaBrowserWidget.removeAccountData();
     },
     setDescription: function (text) {
-//        $("#" + this.id + 'description').html(text);
+        $(this.els.description).html(text);
     },
     setWidth: function (width) {
         this.width = width;
-        this.panel.setWidth(width);
     }
 
 };

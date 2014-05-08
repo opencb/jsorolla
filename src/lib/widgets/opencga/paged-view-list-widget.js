@@ -232,7 +232,7 @@ PagedViewListWidget.prototype.render = function () {
         this.pagBar = Ext.create('Ext.toolbar.Toolbar', {
             id: this.pagbarId,
             style: 'border: ' + this.border,
-            cls:'smokeback',
+            cls: this.headerConfig.baseCls,
             items: [
 //							{
 //							    id : this.id+'btnPrev',

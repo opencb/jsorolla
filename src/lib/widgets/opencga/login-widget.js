@@ -252,6 +252,12 @@ LoginWidget.prototype = {
             minimizable: true,
             constrain: true,
             closable: false,
+//            header:{
+//              baseCls:'ocb-h-panel'
+//            },
+//            shadow:false,
+//            baseCls:'x-box',
+//            cls:'x-box',
             modal: true,
             items: [pan],
             buttonAlign: 'center',

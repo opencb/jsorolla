@@ -132,7 +132,7 @@ function JobListWidget(args) {
 //		vertical : true,
         id: this.id + "jobsFilterBar",
         dock: 'top',
-        cls: 'smokeback',
+        cls: this.pagedViewList.headerConfig.baseCls,
         items: [
             //this.projectFilterButton,
             {
