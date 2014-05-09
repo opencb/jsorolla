@@ -129,7 +129,7 @@ ul.ocb-header > li:hover {
     font-family: 'Oxygen';
     font-style: normal;
     font-weight: 400;
-    src: local('Oxygen'), local('Oxygen-Regular'), url(../fonts/oxygen.woff) format('woff');
+    src: local('Oxygen'), local('oxygen'), local('Oxygen-Regular'), url(../fonts/oxygen.woff) format('woff');
 }
 
 @font-face {
@@ -436,25 +436,25 @@ ul.ocb-header > li:hover {
 /* background-image: -moz-linear-gradient(top, #dfe9f5,#d3e1f1); */
 /* background-image: linear-gradient(top, #dfe9f5,#d3e1f1); */
 /* } */
-a:link {
-    text-decoration: none;
-    color: #15428B;
-}
+/*a:link {*/
+    /*text-decoration: none;*/
+    /*color: #15428B;*/
+/*}*/
 
-a:visited {
-    text-decoration: none;
-    color: #15428B;
-}
+/*a:visited {*/
+    /*text-decoration: none;*/
+    /*color: #15428B;*/
+/*}*/
 
-a:active {
-    text-decoration: none;
-    color: #15428B;
-}
+/*a:active {*/
+    /*text-decoration: none;*/
+    /*color: #15428B;*/
+/*}*/
 
-a:hover {
-    text-decoration: underline;
-    color: #15428B;
-}
+/*a:hover {*/
+    /*text-decoration: underline;*/
+    /*color: #15428B;*/
+/*}*/
 
 .u {
     text-decoration: underline;
@@ -1040,17 +1040,14 @@ a:hover {
 
 .ok {
     color: #00AA33;
-    font-weight: bold;
 }
 
 .err {
     color: #CC0011;
-    font-weight: bold;
 }
 
 .info {
     color: #0066FF;
-    font-weight: bold;
 }
 
 .link {

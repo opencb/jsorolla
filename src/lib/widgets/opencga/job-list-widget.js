@@ -29,14 +29,14 @@ function JobListWidget(args) {
     this.counter = null;
     var jobstpl = [
         '<tpl for=".">',
-        '<div class="joblist-item s120">',
+        '<div class="joblist-item">',
 
         '<div style="color:#596F8F">{name}</div>',
         '<div class="{[ this.getClass(values) ]}">{toolName}{execution}</div>',
         '<div style="color: dimgray">{date}</div>',
 
         '<div style="color:grey">',
-        '<span style="color:' +
+            '<span style="color:' +
             '<tpl if="visites == 0">#298c63</tpl>' +
             '<tpl if="visites &gt; 0">#0068cc</tpl>' +
             '<tpl if="visites == -1">#b30000</tpl>' +
@@ -128,11 +128,18 @@ function JobListWidget(args) {
     });
 
 
-    this.bar = new Ext.create('Ext.toolbar.Toolbar', {
+    this.bar = new Ext.create('Ext.container.Container', {
 //		vertical : true,
+        layout: {
+            type: 'hbox',
+            align: 'stretch'
+        },
+        defaults: {
+            xtype:'button',
+            margin: 5
+        },
+        padding: 5,
         id: this.id + "jobsFilterBar",
-        dock: 'top',
-        cls: this.pagedViewList.headerConfig.baseCls,
         items: [
             //this.projectFilterButton,
             {
@@ -210,7 +217,7 @@ JobListWidget.prototype.draw = function () {
 JobListWidget.prototype.clean = function () {
     clearInterval(this.interval);
     if (this.bar.isDescendantOf(Ext.getCmp(this.pagedListViewWidget.panelId)) == true) {
-        Ext.getCmp(this.pagedListViewWidget.panelId).removeDocked(this.bar, false);
+        Ext.getCmp(this.pagedListViewWidget.panelId).remove(this.bar, false);
     }
     this.pagedListViewWidget.clean();
 };
@@ -242,7 +249,7 @@ JobListWidget.prototype.setAccountData = function (data) {
 JobListWidget.prototype.render = function () {
     this.pagedListViewWidget.draw(this.getData());
     if (this.bar.isDescendantOf(Ext.getCmp(this.pagedListViewWidget.panelId)) == false) {
-        Ext.getCmp(this.pagedListViewWidget.panelId).addDocked(this.bar);
+        Ext.getCmp(this.pagedListViewWidget.panelId).insert(0,this.bar);
     }
 
     var jobcount = this.getJobCounter();
@@ -272,11 +279,11 @@ JobListWidget.prototype.render = function () {
     } else {
         Ext.getCmp(this.btnQueuedId).show();
     }
-    Ext.getCmp(this.btnAllId).setText('<b style="color:black;font-size: 1.3em;">' + jobcount.all + '</b>');
-    Ext.getCmp(this.btnFinishedId).setText('<b style="color:#298c63;font-size: 1.3em;">' + jobcount.finished + '</b>');
-    Ext.getCmp(this.btnVisitedId).setText('<b style="color:#0068cc;font-size: 1.3em;">' + jobcount.visited + '</b>');
-    Ext.getCmp(this.btnRunningId).setText('<b style="color:#b30000;font-size: 1.3em;">' + jobcount.running + '</b>');
-    Ext.getCmp(this.btnQueuedId).setText('<b style="color:Darkorange;font-size: 1.3em;">' + jobcount.queued + '</b>');
+    Ext.getCmp(this.btnAllId).setText('<b style="color:black;">' + jobcount.all + '</b>');
+    Ext.getCmp(this.btnFinishedId).setText('<b style="color:#298c63;">' + jobcount.finished + '</b>');
+    Ext.getCmp(this.btnVisitedId).setText('<b style="color:#0068cc;">' + jobcount.visited + '</b>');
+    Ext.getCmp(this.btnRunningId).setText('<b style="color:#b30000;">' + jobcount.running + '</b>');
+    Ext.getCmp(this.btnQueuedId).setText('<b style="color:Darkorange;">' + jobcount.queued + '</b>');
 };
 
 

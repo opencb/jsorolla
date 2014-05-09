@@ -474,7 +474,7 @@ OpencgaBrowserWidget.prototype = {
             title: this.allStore.getRootNode().getPath("text", " / "),
             store: this.filesStore,
             flex: 4,
-            border: false,
+            border: true,
             viewConfig: {
                 stripeRows: true,
                 listeners: {
@@ -541,11 +541,10 @@ OpencgaBrowserWidget.prototype = {
         /**/
 
         this.panAccordion = Ext.create('Ext.panel.Panel', {
-            minWidth: 125,
+            minWidth: 200,
             minHeight: 250,
             flex: 1,
-            cls: 'ocb-border-right-lightgrey',
-            border: false,
+            border: true,
             layout: 'accordion',
             items: [this.folderTree, manageProjects /*, panFilter*/]
         });
@@ -610,11 +609,10 @@ OpencgaBrowserWidget.prototype = {
 
             default :
                 var item;
-                item = {text: '<span class="info">Upload local file</span>',handler: function () {
+                item = {text: 'Upload local file', handler: function () {
                     _this.drawUploadWidget();
                 }};
                 tbarObj.items.push(item);
-                tbarObj.items.push('-');
                 item = {text: 'New folder', handler: function () {
                     _this.folderTree.expand();
                     _this.createFolder();

@@ -37,7 +37,7 @@ function PagedViewListWidget(args) {
     this.border = 0;
     this.mode = "view";
     this.sort = 'DESC';
-    this.headerConfig;
+    this.headerConfig = {};
 
     _.extend(this, args);
 
@@ -192,7 +192,7 @@ PagedViewListWidget.prototype.render = function () {
                     },
                     itemcontextmenu: function (este, record, item, index, e) {
                         e.stopEvent();
-                        _this.trigger('item:contextmenu', {sender: _this, record: record, originalEvent:e});
+                        _this.trigger('item:contextmenu', {sender: _this, record: record, originalEvent: e});
                         return false;
                     }
                 }
@@ -218,8 +218,6 @@ PagedViewListWidget.prototype.render = function () {
         /**TEXT SEARCH FILTER**/
         var searchField = Ext.create('Ext.form.field.Text', {
             id: this.id + "searchField",
-            flex: 1,
-            margin: "0 1 0 0",
             emptyText: 'enter search term',
             enableKeyEvents: true,
             listeners: {
@@ -229,10 +227,17 @@ PagedViewListWidget.prototype.render = function () {
             }
         });
 
-        this.pagBar = Ext.create('Ext.toolbar.Toolbar', {
+        this.pagBar = Ext.create('Ext.container.Container', {
             id: this.pagbarId,
-            style: 'border: ' + this.border,
-            cls: this.headerConfig.baseCls,
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            defaults: {
+                xtype:'button',
+                margin: '0 0 0 5'
+            },
+            padding:5,
             items: [
 //							{
 //							    id : this.id+'btnPrev',
@@ -280,9 +285,11 @@ PagedViewListWidget.prototype.render = function () {
 //							    margins: '5 0 0 5'
 //							},
                 {
+                    xtype:'button',
                     id: this.id + 'btnSort',
                     iconCls: 'icon-order-desc',
                     tooltip: 'Change order',
+                    width:25,
                     handler: function () {
                         if (_this.sort == "DESC") {
                             _this.sort = "ASC";
@@ -298,10 +305,10 @@ PagedViewListWidget.prototype.render = function () {
                 },
                 searchField,
                 {
+                    xtype:'button',
                     id: this.id + 'btnClear',
 //							    iconCls: 'icon-delete',
                     text: 'Clear',
-                    margin: "0 2 0 0",
                     tooltip: 'Clear search box',
                     handler: function () {
                         searchField.reset();
@@ -315,11 +322,11 @@ PagedViewListWidget.prototype.render = function () {
         this.panel = Ext.create('Ext.panel.Panel', {
             id: this.panelId,
             title: this.title,
-            header:this.headerConfig,
+            collapsible: true,
+            titleCollapse: true,
             border: this.border,
             width: this.width,
-            tbar: this.pagBar,
-            items: [pan]
+            items: [this.pagBar, pan]
         });
 
 //				this.view.setHeight(this.panel.getHeight());

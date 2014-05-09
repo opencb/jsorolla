@@ -54,9 +54,9 @@ ProfileWidget.prototype = {
                 Ext.getCmp(_this.id + 'fldOld').setValue(null);
                 Ext.getCmp(_this.id + 'fldNew1').setValue(null);
                 Ext.getCmp(_this.id + 'fldNew2').setValue(null);
-                Ext.getCmp(_this.id + 'labelPass').setText('<span class="info">' + data.result[0].msg + '</span>', false);
+                Ext.getCmp(_this.id + 'labelPass').update('<span class="info">' + data.result[0].msg + '</span>', false);
             }else{
-                Ext.getCmp(_this.id + 'labelPass').setText('<span class="err">' + data.errorMsg + '</span>', false);
+                Ext.getCmp(_this.id + 'labelPass').update('<span class="err">' + data.errorMsg + '</span>', false);
             }
         };
         this.changeEmailSuccess = function (data) {
@@ -64,9 +64,9 @@ ProfileWidget.prototype = {
             if (data.errorMsg === '') {
                 Ext.getCmp(_this.id + 'fldEmail').setValue(null);
                 Ext.getCmp(_this.id + 'fldEmail').setFieldLabel('e-mail', false);
-                Ext.getCmp(_this.id + 'labelPass').setText('<span class="info">' + data.result[0].msg + '</span>', false);
+                Ext.getCmp(_this.id + 'labelPass').update('<span class="info">' + data.result[0].msg + '</span>', false);
             }else{
-                Ext.getCmp(_this.id + 'labelPass').setText('<span class="err">' + data.errorMsg + '</span>', false);
+                Ext.getCmp(_this.id + 'labelPass').update('<span class="err">' + data.errorMsg + '</span>', false);
             }
         };
         /**************/
@@ -88,15 +88,15 @@ ProfileWidget.prototype = {
         var _this = this;
 //        console.log(this.id + ' CREATING PANEL');
 
-        var labelPass = Ext.create('Ext.toolbar.TextItem', {
+        var labelPass = Ext.create('Ext.Component', {
             id: this.id + 'labelPass',
-            text: 'Modify your password or email.'
+            margin: '10 0 10 105',
+            html: 'Modify your password or email.'
         });
         var changePasswordForm = Ext.create('Ext.form.Panel', {
             title: 'Change password',
             bodyPadding: 15,
             width: 350,
-            height: 155,
             border: false,
             items: [
                 {
@@ -130,6 +130,7 @@ ProfileWidget.prototype = {
                         change: this.checkpass
                     }
                 },
+                labelPass,
                 {
                     xtype: 'button',
                     text: 'Change', margin: '0 0 0 105',
@@ -143,7 +144,6 @@ ProfileWidget.prototype = {
             title: 'Change email',
             bodyPadding: 15,
             width: 350,
-            height: 155,
             border: false,
             items: [
                 {
@@ -168,13 +168,11 @@ ProfileWidget.prototype = {
                 }
             ]
         });
-        var profileTabPanel = Ext.create('Ext.panel.Panel', {
+        var profilePanel = Ext.create('Ext.panel.Panel', {
             width: 350,
-            height: 225,
             border: false,
-            tbar: {items: ['->', labelPass]},
             layout: 'accordion',
-            items: [changePasswordForm, changeEmailForm],
+            items: [ changePasswordForm, changeEmailForm],
             listeners: {
                 tabchange: function () {
                     _this.clearAllFields();
@@ -188,8 +186,7 @@ ProfileWidget.prototype = {
             constrain: true,
             closable: false,
             modal: true,
-            items: [profileTabPanel],
-            buttonAlign: 'center',
+            items: [profilePanel],
             buttons: [
                 {
                     text: 'Close', handler: function () {
@@ -220,7 +217,7 @@ ProfileWidget.prototype = {
         Ext.getCmp(this.id + 'fldNew1').setValue(null);
         Ext.getCmp(this.id + 'fldNew2').setValue(null);
         Ext.getCmp(this.id + 'fldEmail').setValue(null);
-        Ext.getCmp(this.id + 'labelPass').setText('&nbsp', false);
+        Ext.getCmp(this.id + 'labelPass').update('&nbsp', false);
     },
     changeEmail: function () {
         if (this.checkemail()) {
@@ -255,18 +252,18 @@ ProfileWidget.prototype = {
         if (oldPass != '') {
             if (!patt.test(passwd1) && passwd1.length > 3) {
                 if (passwd1 == passwd2) {
-                    Ext.getCmp(this.id + 'labelPass').setText('<span class="ok">Passwords match</span>', false);
+                    Ext.getCmp(this.id + 'labelPass').update('<span class="ok">Passwords match</span>', false);
                     return true;
                 } else {
-                    Ext.getCmp(this.id + 'labelPass').setText('<span class="err">Passwords does not match</span>', false);
+                    Ext.getCmp(this.id + 'labelPass').update('<span class="err">Passwords does not match</span>', false);
                     return false;
                 }
             } else {
-                Ext.getCmp(this.id + 'labelPass').setText('<span class="err">Password must be at least 4 characters</span>', false);
+                Ext.getCmp(this.id + 'labelPass').update('<span class="err">Password must be at least 4 characters</span>', false);
                 return false;
             }
         } else {
-            Ext.getCmp(this.id + 'labelPass').setText('<span class="err">Old password is empty</span>', false);
+            Ext.getCmp(this.id + 'labelPass').update('<span class="err">Old password is empty</span>', false);
             return false;
         }
 
