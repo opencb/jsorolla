@@ -148,14 +148,14 @@ OpencgaBrowserWidget.prototype = {
             handler: function (widget, event) {
                 var record = _this.folderTree.getSelectionModel().getSelection()[0];
                 if (record) {
-                    if (record.raw.isBucket) {
+                    if (record.data.isBucket) {
                         OpencgaManager.refreshBucket({
                             accountId: $.cookie("bioinfo_account"),
-                            bucketId: record.raw.text,
+                            bucketId: record.data.text,
                             sessionId: $.cookie("bioinfo_sid"),
                             success: function (response) {
                                 if (response.errorMsg === '') {
-                                    Ext.example.msg('Refresh Bucket', '</span class="emph">' + response.result[0].msg + '</span>');
+                                    Utils.msg('Refresh Bucket', '</span class="emph">' + response.result[0].msg + '</span>');
                                     _this.trigger('need:refresh', {sender: _this});
                                 } else {
                                     Ext.Msg.alert("Refresh bucket", response.errorMsg);
@@ -174,20 +174,20 @@ OpencgaBrowserWidget.prototype = {
             handler: function (widget, event) {
                 var record = _this.folderTree.getSelectionModel().getSelection()[0];
                 if (record) {
-                    if (record.raw.isBucket) {
+                    if (record.data.isBucket) {
                         Ext.Msg.prompt('Rename bucket', 'Please enter a new name:', function (btn, text) {
                             if (btn == 'ok') {
                                 text = text.replace(/[^a-z0-9-_.\/\s]/gi, '').trim();
 
                                 OpencgaManager.renameBucket({
                                     accountId: $.cookie("bioinfo_account"),
-                                    bucketId: record.raw.bucketId,
+                                    bucketId: record.data.bucketId,
                                     newBucketId: text,
                                     sessionId: $.cookie("bioinfo_sid"),
                                     success: function (response) {
                                         if (response.errorMsg === '') {
                                             _this.trigger('need:refresh', {sender: _this});
-                                            Ext.example.msg('Rename bucket', '</span class="emph">' + response.result[0].msg + '</span>');
+                                            Utils.msg('Rename bucket', '</span class="emph">' + response.result[0].msg + '</span>');
                                         } else {
                                             Ext.Msg.alert('Rename bucket', response.errorMsg);
                                         }
@@ -205,7 +205,6 @@ OpencgaBrowserWidget.prototype = {
             id: this.id + "activeTracksTree",
             title: "Upload & Manage",
             bodyPadding: "5 0 0 0",
-            margin: "-1 0 0 0",
             border: false,
             autoScroll: true,
             flex: 4,
@@ -229,11 +228,11 @@ OpencgaBrowserWidget.prototype = {
 //                ,
 //                {
 //                    xtype: 'actioncolumn',
-//                    menuDisabled: true,
+//                    menuDisabled:[pan], true,
 //                    align: 'center',
 //                    width: 30,
 //                    renderer: function (value, metaData, record) {
-//                        if (record.raw.isBucket) {
+//                        if (record.data.isBucket) {
 //                            this.icon = Utils.images.refresh;
 //                            this.tooltip = 'Refresh bucket to find new files';
 //                        } else {
@@ -242,17 +241,17 @@ OpencgaBrowserWidget.prototype = {
 //                        }
 //                    },
 //                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-//                        if (record.raw.isBucket) {
+//                        if (record.data.isBucket) {
 //                            var opencgaManager = new OpencgaManager();
 //                            opencgaManager.onRefreshBucket.addEventListener(function (sender, res) {
-//                                Ext.example.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
+//                                Utils.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
 //                                if (res.indexOf("ERROR") != -1) {
 //                                    console.log(res);
 //                                } else {
 //                                    _this.trigger('need:refresh',{sender:_this});
 //                                }
 //                            });
-//                            opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.raw.text, $.cookie("bioinfo_sid"));
+//                            opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.data.text, $.cookie("bioinfo_sid"));
 //                        }
 //
 //                    }
@@ -276,7 +275,7 @@ OpencgaBrowserWidget.prototype = {
                         e.stopEvent();
                         var items = [];
                         console.log(record)
-                        if (record.raw.isBucket) {
+                        if (record.data.isBucket) {
                             items.push(refreshBucketAction);
                             items.push(renameBucketAction);
                             var contextMenu = Ext.create('Ext.menu.Menu', {
@@ -293,14 +292,14 @@ OpencgaBrowserWidget.prototype = {
                     var record = selected[0];
                     if (typeof record != 'undefined') {//avoid deselection
                         var field, deep;
-                        if (record.raw.isBucket != null) {//is a bucket
+                        if (record.data.isBucket != null) {//is a bucket
                             field = 'text';
                             deep = false;
                         } else {
                             field = 'oid';
                             deep = true;
                         }
-                        var node = _this.allStore.getRootNode().findChild(field, record.raw[field], deep);
+                        var node = _this.allStore.getRootNode().findChild(field, record.data[field], deep);
                         var childs = [];
                         _this.selectedFolderNode = {value: node.data[field], field: field};
                         node.eachChild(function (n) {
@@ -379,13 +378,13 @@ OpencgaBrowserWidget.prototype = {
                     OpencgaManager.indexer({
                         accountId: $.cookie("bioinfo_account"),
                         sessionId: $.cookie("bioinfo_sid"),
-                        bucketId: record.raw.bucketId,
+                        bucketId: record.data.bucketId,
                         objectId: record.data.oid,
                         success: function (response) {
                             debugger
                             console.log(response);
-                            Ext.example.msg("indexer", response);
-                            record.raw.indexerId = response;
+                            Utils.msg("indexer", response);
+                            record.data.indexerId = response;
 //                                if (response.indexOf("ERROR:") != -1){
 //                                }else{
 //                                    //delete complete
@@ -396,12 +395,12 @@ OpencgaBrowserWidget.prototype = {
                     });
 
 
-//                    console.log(record.raw.status);
-//                    if (record.raw.status.indexOf('indexer') == -1) {
+//                    console.log(record.data.status);
+//                    if (record.data.status.indexOf('indexer') == -1) {
 //                        opencgaManager.onIndexer.addEventListener(function (sender, response) {
 //                            console.log(response)
-//                            Ext.example.msg("indexer", response);
-//                            record.raw.indexerId = response;
+//                            Utils.msg("indexer", response);
+//                            record.data.indexerId = response;
 ////                                if (response.indexOf("ERROR:") != -1){
 ////                                }else{
 ////                                    //delete complete
@@ -409,12 +408,12 @@ OpencgaBrowserWidget.prototype = {
 ////                                    _this.trigger('need:refresh',{sender:_this});
 ////                                }
 //                        });
-//                        opencgaManager.indexer($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid);
+//                        opencgaManager.indexer($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.data.bucketId, record.data.oid);
 //                    } else {
-//                        Ext.example.msg('Indexer', 'The file is already being indexed');
+//                        Utils.msg('Indexer', 'The file is already being indexed');
 //                        opencgaManager.onIndexerStatus.addEventListener(function (sender, response) {
 //                            console.log(response)
-//                            Ext.example.msg("indexer status", response);
+//                            Utils.msg("indexer status", response);
 ////                                if (response.indexOf("ERROR:") != -1){
 ////                                }else{
 ////                                    //delete complete
@@ -422,7 +421,7 @@ OpencgaBrowserWidget.prototype = {
 ////                                    _this.trigger('need:refresh',{sender:_this});
 ////                                }
 //                        });
-//                        opencgaManager.indexerStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.raw.bucketId, record.data.oid, record.raw.status);
+//                        opencgaManager.indexerStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), record.data.bucketId, record.data.oid, record.data.status);
 //                    }
                 }
             }
@@ -434,7 +433,7 @@ OpencgaBrowserWidget.prototype = {
             handler: function (widget, event) {
                 var rec = _this.filesGrid.getSelectionModel().getSelection()[0];
                 if (rec) {
-                    Ext.example.msg('objectId', '' + rec.get('oid'));
+                    Utils.msg('objectId', '' + rec.get('oid'));
                 }
             }
         });
@@ -453,11 +452,11 @@ OpencgaBrowserWidget.prototype = {
                             OpencgaManager.deleteObjectFromBucket({
                                 accountId: $.cookie("bioinfo_account"),
                                 sessionId: $.cookie("bioinfo_sid"),
-                                bucketId: record.raw.bucketId,
+                                bucketId: record.data.bucketId,
                                 objectId: record.data.oid,
                                 success: function (response) {
                                     if (response.errorMsg === '') {
-                                        Ext.example.msg('Deleting', '</span class="emph">' + response.result[0].msg + '</span>');
+                                        Utils.msg('Deleting', '</span class="emph">' + response.result[0].msg + '</span>');
                                         _this.filesGrid.store.remove(record);
                                     } else {
                                         Ext.Msg.alert('Deleting', response.errorMsg);
@@ -474,7 +473,7 @@ OpencgaBrowserWidget.prototype = {
             title: this.allStore.getRootNode().getPath("text", " / "),
             store: this.filesStore,
             flex: 4,
-            border: true,
+            border: false,
             viewConfig: {
                 stripeRows: true,
                 listeners: {
@@ -482,7 +481,7 @@ OpencgaBrowserWidget.prototype = {
                         e.stopEvent();
                         var items = [showName];
                         console.log(record)
-                        if (record.raw.fileFormat == 'bam' || record.raw.fileFormat == 'vcf') {
+                        if (record.data.fileFormat == 'bam' || record.data.fileFormat == 'vcf') {
                             items.push(indexAction);
                         }
                         items.push(deleteAction);
@@ -544,7 +543,7 @@ OpencgaBrowserWidget.prototype = {
             minWidth: 200,
             minHeight: 250,
             flex: 1,
-            border: true,
+            border: false,
             layout: 'accordion',
             items: [this.folderTree, manageProjects /*, panFilter*/]
         });
@@ -654,30 +653,36 @@ OpencgaBrowserWidget.prototype = {
             width: this.width,
             minWidth: this.width,
             resizable: true,
-            layout: { type: 'vbox', align: 'stretch'},
-            tbar: tbarObj,
-            items: [
-                {
-                    xtype: 'container',
-                    flex: 3,
-                    minWidth: 125,
-                    layout: { type: 'hbox', align: 'stretch'},
-                    items: [this.panAccordion, this.filesGrid]
-                },
-                this.activeUploadsCont
-            ],
-            buttonAlign: 'right',
-            buttons: [
-                {
-                    text: 'Close',
-                    handler: function () {
-                        _this.filesGrid.getSelectionModel().deselectAll();
-                        _this.trigger('select');
-                        _this.panel.hide();
-                    }
-                },
-                this.selectButton
-            ],
+            layout: 'fit',
+            items: {
+                border:0,
+                layout: { type: 'vbox', align: 'stretch'},
+                items: [
+                    {
+                        xtype: 'container',
+                        flex: 3,
+                        minWidth: 125,
+                        layout: { type: 'hbox', align: 'stretch'},
+                        items: [this.panAccordion, this.filesGrid]
+                    },
+                    this.activeUploadsCont
+                ],
+                tbar: tbarObj,
+                bbar:{
+                    items:[
+                        '->',
+                        {
+                            text: 'Close',
+                            handler: function () {
+                                _this.filesGrid.getSelectionModel().deselectAll();
+                                _this.trigger('select');
+                                _this.panel.hide();
+                            }
+                        },
+                        this.selectButton
+                    ]
+                }
+            },
             listeners: {
                 scope: this,
                 minimize: function () {
@@ -976,19 +981,19 @@ OpencgaBrowserWidget.prototype.createProject = function () {
 OpencgaBrowserWidget.prototype._getFolderTreeSelection = function () {
     var selectedBuckets = this.folderTree.getSelectionModel().getSelection();
     if (selectedBuckets.length < 1) {
-        Ext.example.msg('No folder selected', 'Please select a bucket or a folder.');
+        Utils.msg('No folder selected', 'Please select a bucket or a folder.');
         return null;
     } else {
         var record = selectedBuckets[0];
         var bucketName;
         var parent = '';
-        if (record.raw.fileType != null && record.raw.fileType == "dir") {
+        if (record.data.fileType != null && record.data.fileType == "dir") {
             var path = record.getPath("text", "/").substr(1);
             var pathArr = path.split("/", 2);
             parent = path.replace(pathArr.join("/"), "").substr(1) + "/";
             bucketName = pathArr[1];
         } else {
-            bucketName = record.raw.text;
+            bucketName = record.data.text;
         }
         return {bucketId: bucketName, directory: parent};
     }
@@ -1021,7 +1026,7 @@ OpencgaBrowserWidget.prototype.createFolder = function () {
                         objectId: folderSelection.directory + text,
                         success: function (response) {
                             if (response.errorMsg === '') {
-                                Ext.example.msg('Create folder', '</span class="emph">' + response.result[0].msg + '</span>');
+                                Utils.msg('Create folder', '</span class="emph">' + response.result[0].msg + '</span>');
                                 _this.trigger('need:refresh', {sender: _this});
                             } else {
                                 Ext.Msg.alert('Create folder', response.errorMsg);

@@ -82,13 +82,15 @@ HeaderWidget.prototype = {
             '       </li>' +
             '       <li id="menu" class="right menu">&#9776;' +
             '       </li>' +
-            '       <li id="signin" class="right"><span class="glyphicon glyphicon-log-in"></span> sign in' +
+            '       <li id="signin" class="right"><span class="glyphicon glyphicon-log-in"></span>&nbsp; sign in' +
             '       </li>' +
-            '       <li id="logout" class="right hidden"><span class="glyphicon glyphicon-log-out"></span> logout' +
+            '       <li id="logout" class="right hidden"><span class="glyphicon glyphicon-log-out"></span>&nbsp; logout' +
             '       </li>' +
-            '       <li id="profile" class="right hidden"> <span class="glyphicon glyphicon-user"></span> profile' +
+            '       <li id="profile" class="right hidden"> <span class="glyphicon glyphicon-user"></span>&nbsp; profile' +
             '       </li>' +
-            '       <li id="upload" class="right hidden"> <span class="glyphicon glyphicon-cloud-upload"></span> upload & manage' +
+            '       <li id="upload" class="right hidden"> <span class="glyphicon glyphicon-cloud-upload"></span> &nbsp;upload & manage' +
+            '       </li>' +
+            '       <li id="jobs" class="right hidden"> <span class="glyphicon glyphicon-tasks"></span>&nbsp; jobs' +
             '       </li>' +
             '       <li id="user" class="right hidden text">' +
             '       </li>' +
@@ -178,7 +180,9 @@ HeaderWidget.prototype = {
         $(this.els.upload).click(function () {
             _this.opencgaBrowserWidget.show({mode: "manager"});
         });
-
+        $(this.els.jobs).click(function () {
+            _this.trigger('jobs:click', {sender: _this});
+        });
         /****************************************/
         this.logoutSuccess = function (data) {
             console.log(data);
@@ -568,6 +572,7 @@ HeaderWidget.prototype = {
         $(this.els.profile).removeClass('hidden');
         $(this.els.upload).removeClass('hidden');
         $(this.els.user).removeClass('hidden');
+        $(this.els.jobs).removeClass('hidden');
 
         /**START OPENCGA CHECK**/
         if (!this.accountInfoInterval) {
@@ -583,6 +588,7 @@ HeaderWidget.prototype = {
         $(this.els.profile).addClass('hidden');
         $(this.els.upload).addClass('hidden');
         $(this.els.user).addClass('hidden');
+        $(this.els.jobs).addClass('hidden');
 //        /**SHOW**/
         $(this.els.signin).removeClass('hidden');
         $(this.els.user).html('');

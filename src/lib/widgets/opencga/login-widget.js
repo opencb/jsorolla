@@ -140,9 +140,9 @@ LoginWidget.prototype = {
         var pan = Ext.create('Ext.form.Panel', {
             id: this.id + "formPanel",
             bodyPadding: 20,
-            width: 350,
-            height: 145,
-            border: false,
+            height:225,
+            width:350,
+            border: 0,
             bbar: {items: [labelEmail]},
             items: [
                 {
@@ -252,48 +252,46 @@ LoginWidget.prototype = {
             minimizable: true,
             constrain: true,
             closable: false,
-//            header:{
-//              baseCls:'ocb-h-panel'
-//            },
-//            shadow:false,
-//            baseCls:'x-box',
-//            cls:'x-box',
             modal: true,
-            items: [pan],
-            buttonAlign: 'center',
-            buttons: [
-                {
-                    id: this.btnSignId,
-                    text: 'Sign in'
-                },
-                {
-                    id: this.btnForgotId,
-                    text: 'Forgot yout password?',
-                    width: 130,
-                    minWidth: 130
-                },
-                {
-                    id: this.btnNewaccId,
-                    text: 'New account',
-                    width: 100,
-                    minWidth: 100
-                },
-                {
-                    id: this.btnSendId,
-                    text: 'Send',
-                    hidden: true
-                },
-                {
-                    id: this.btnRegisterId,
-                    text: 'Register',
-                    hidden: true
-                },
-                {
-                    id: this.btnBackId,
-                    text: 'Back',
-                    hidden: true
+            items:{
+                border:0,
+                layout: { type: 'vbox', align: 'stretch'},
+                items:[pan],
+                bbar:{
+                    layout : {
+                        pack : 'center'
+                    },
+                    items:[
+                        {
+                            id: this.btnSignId,
+                            text: 'Sign in'
+                        },
+                        {
+                            id: this.btnForgotId,
+                            text: 'Forgot yout password?'
+                        },
+                        {
+                            id: this.btnNewaccId,
+                            text: 'New account'
+                        },
+                        {
+                            id: this.btnSendId,
+                            text: 'Send',
+                            hidden: true
+                        },
+                        {
+                            id: this.btnRegisterId,
+                            text: 'Register',
+                            hidden: true
+                        },
+                        {
+                            id: this.btnBackId,
+                            text: 'Back',
+                            hidden: true
+                        }
+                    ]
                 }
-            ],
+            },
             listeners: {
                 minimize: function () {
                     _this.panel.hide();
@@ -416,7 +414,6 @@ LoginWidget.prototype.ShowForgot = function () {
     Ext.getCmp(this.id + "accountName").hide();
 
     Ext.getCmp(this.labelEmailId).setText('<span class="info">Type your account ID and email to send a new password</span>', false);
-    Ext.getCmp(this.id + "formPanel").setHeight(145);
 
     Ext.getCmp(this.id + "accountId").setFieldLabel('account ID', false);
     Ext.getCmp(this.fldEmailId).setFieldLabel('e-mail', false);
@@ -445,7 +442,6 @@ LoginWidget.prototype.ShowBack = function () {
     Ext.getCmp(this.id + "accountName").hide();
 
     Ext.getCmp(this.labelEmailId).setText('<span class="info">Type your account ID and password</span>', false);
-    Ext.getCmp(this.id + "formPanel").setHeight(145);
 
     Ext.getCmp(this.id + "accountId").setFieldLabel('account ID', false);
 };
@@ -476,7 +472,6 @@ LoginWidget.prototype.ShowNewacc = function () {
     Ext.getCmp(this.id + "accountName").show();
 
     Ext.getCmp(this.labelEmailId).setText('&nbsp;', false);
-    Ext.getCmp(this.id + "formPanel").setHeight(200);
 
     Ext.getCmp(this.id + "accountName").setFieldLabel('name', false);
     Ext.getCmp(this.id + "accountId").setFieldLabel('account ID', false);

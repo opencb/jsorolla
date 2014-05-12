@@ -199,6 +199,19 @@ var Utils = {
         return input.toLowerCase().replace(/[.-_\s](.)/g, function (match, group1) {
             return group1.toUpperCase();
         })
+    },
+    msg: function (title, msg) {
+        var div = $('<div class="ocb-msg-hidden"><div>' + title + '</div><br><div>' + msg + '</div></div>')[0];
+        $('body').append(div);
+        setTimeout(function () {
+            $(div).addClass('ocb-msg-shown');
+        }, 10);
+        setTimeout(function () {
+            $(div).removeClass('ocb-msg-shown');
+        }, 2000);
+        setTimeout(function () {
+            $(div).remove();
+        }, 2200);
     }
 
 };

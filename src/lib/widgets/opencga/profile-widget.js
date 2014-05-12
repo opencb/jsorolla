@@ -55,7 +55,7 @@ ProfileWidget.prototype = {
                 Ext.getCmp(_this.id + 'fldNew1').setValue(null);
                 Ext.getCmp(_this.id + 'fldNew2').setValue(null);
                 Ext.getCmp(_this.id + 'labelPass').update('<span class="info">' + data.result[0].msg + '</span>', false);
-            }else{
+            } else {
                 Ext.getCmp(_this.id + 'labelPass').update('<span class="err">' + data.errorMsg + '</span>', false);
             }
         };
@@ -65,7 +65,7 @@ ProfileWidget.prototype = {
                 Ext.getCmp(_this.id + 'fldEmail').setValue(null);
                 Ext.getCmp(_this.id + 'fldEmail').setFieldLabel('e-mail', false);
                 Ext.getCmp(_this.id + 'labelPass').update('<span class="info">' + data.result[0].msg + '</span>', false);
-            }else{
+            } else {
                 Ext.getCmp(_this.id + 'labelPass').update('<span class="err">' + data.errorMsg + '</span>', false);
             }
         };
@@ -184,16 +184,28 @@ ProfileWidget.prototype = {
             resizable: false,
             minimizable: true,
             constrain: true,
+            height: 350,
+            layout: 'fit',
             closable: false,
             modal: true,
-            items: [profilePanel],
-            buttons: [
-                {
-                    text: 'Close', handler: function () {
-                    _this.panel.hide();
+            items: {
+                border: 0,
+                layout: 'fit',
+                items: [profilePanel],
+                bbar: {
+                    layout: {
+                        pack: 'center'
+                    },
+                    items: [
+                        {
+                            text: 'Close',
+                            handler: function () {
+                                _this.panel.hide();
+                            }
+                        }
+                    ]
                 }
-                }
-            ],
+            },
             listeners: {
                 minimize: function () {
                     _this.panel.hide();

@@ -1,3 +1,7 @@
+html, body{
+    font-family: Lato, 'Helvetica Neue', Helvetica, Arial, 'sans-serif'; !important
+}
+
 .hidden {
     display: none !important;
     visibility: hidden !important
@@ -12,22 +16,17 @@
     cursor: default
 }
 
-.bootstrap {
-    font-family: 'Source Sans Pro' !important;
-}
-
 /*ocb header*/
 ul.ocb-header-menu,
 ul.ocb-header {
     margin: 0;
     padding: 0;
     background: white;
-    color: #596F8F;
+    color: #435f7a;
     list-style: none;
     text-transform: none;
-    font-family: 'Oxygen', Arial, sans-serif;
     line-height: 60px;
-    font-size:14px;
+    font-size:16px;
 }
 
 ul.ocb-header > li {
@@ -46,12 +45,12 @@ ul.ocb-header-menu > li {
 }
 
 ul.ocb-header > li.title {
-    font-size: 28px;
+    font-size: 30px;
 }
 ul.ocb-header li.description {
     color: #6599FF;
     margin-top:2px;
-    font-size: 20px;
+    font-size: 22px;
 }
 
 ul.ocb-header > li.menu {
@@ -69,7 +68,7 @@ ul.ocb-header > li.right {
 ul.ocb-header > li.text:hover,
 ul.ocb-header > li.title:hover {
     background: white;
-    color: #596F8F;
+    color: #435f7a;
 }
 
 ul.ocb-header > li.description:hover{
@@ -79,7 +78,7 @@ ul.ocb-header > li.description:hover{
 
 ul.ocb-header-menu > li:hover,
 ul.ocb-header > li:hover {
-    background: #596F8F;
+    background: #435f7a;
     color: white;
 }
 
@@ -103,12 +102,31 @@ ul.ocb-header > li:hover {
 .ocb-h-panel {
     line-height: 20px;
     font-size: 14px;
-    font-family: Oxygen;
     background: #f5f5f5;
-    color: #596F8F;
+    color: #435f7a;
     padding: 4px 10px;
     border:1px solid #c6d0da;
 }
+
+
+/**/
+/**/
+.ocb-msg-hidden {
+    position: absolute;
+    z-index: 1000;
+    top: -999px;
+    left:45%;
+    background: white;
+    border: 1px solid #c6d0da;
+    transition: top 0.1s;
+    padding:10px;
+    margin:5px;
+}
+.ocb-msg-shown {
+    top: 0px;
+}
+/**/
+/**/
 
 
 @font-face {
@@ -143,7 +161,7 @@ ul.ocb-header > li:hover {
     font-family: 'Lato';
     font-style: normal;
     font-weight: 400;
-    src: local('Lato Regular'), local('Lato-Regular'), url(../fonts/lato.woff) format('woff');
+    src: local('lato'), local('Lato Regular'), local('Lato-Regular'), url(../fonts/lato.woff) format('woff');
 }
 
 /*************************/

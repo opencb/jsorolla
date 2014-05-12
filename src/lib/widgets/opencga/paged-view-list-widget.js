@@ -227,17 +227,9 @@ PagedViewListWidget.prototype.render = function () {
             }
         });
 
-        this.pagBar = Ext.create('Ext.container.Container', {
+        this.pagBar = Ext.create('Ext.toolbar.Toolbar', {
             id: this.pagbarId,
-            layout: {
-                type: 'hbox',
-                align: 'stretch'
-            },
-            defaults: {
-                xtype:'button',
-                margin: '0 0 0 5'
-            },
-            padding:5,
+            height:39,
             items: [
 //							{
 //							    id : this.id+'btnPrev',
@@ -322,11 +314,12 @@ PagedViewListWidget.prototype.render = function () {
         this.panel = Ext.create('Ext.panel.Panel', {
             id: this.panelId,
             title: this.title,
-            collapsible: true,
-            titleCollapse: true,
+//            collapsible: true,
+//            titleCollapse: true,
             border: this.border,
             width: this.width,
-            items: [this.pagBar, pan]
+            tbar:this.pagBar,
+            items: [ pan]
         });
 
 //				this.view.setHeight(this.panel.getHeight());
@@ -350,6 +343,15 @@ PagedViewListWidget.prototype.show = function () {
 PagedViewListWidget.prototype.hide = function () {
     if (this.panel != null) {
         this.panel.hide();
+    }
+};
+PagedViewListWidget.prototype.toggle = function () {
+    if (this.panel != null) {
+        if(this.panel.isVisible()){
+            this.panel.hide();
+        }else{
+            this.panel.show();
+        }
     }
 };
 

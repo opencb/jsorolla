@@ -92,7 +92,7 @@ UploadWidget.prototype.draw = function (opencgaLocation) {
                 { text: "Expression", tag: "expression"}
             ] }
         ],
-        "6":[
+        "6": [
             { text: "Feature", children: [
                 { text: "VCF 4.0", tag: "vcf"},
                 { text: "GFF2", tag: "gff2"},
@@ -102,7 +102,7 @@ UploadWidget.prototype.draw = function (opencgaLocation) {
                 { text: "PED", tag: "ped"}
             ] }
         ],
-        "11":[
+        "11": [
             {text: "Annotation", tag: "annotation"},
             {text: "ID List", children: [
                 { text: "Gene", tag: "idlist:gene"    },
@@ -110,23 +110,23 @@ UploadWidget.prototype.draw = function (opencgaLocation) {
             ]
             }
         ],
-        "12":[
+        "12": [
             {text: "Abundances", tag: "abundances"}
         ],
-        "100":[
+        "100": [
             {text: "Sequence", tag: "sequence"}
         ],
-        "22":[
+        "22": [
             {text: "Tabbed text file", tag: "txt", validate: this.getTypeValidation('txt|text')},
             {text: "CEL compressed file", tag: "cel", validate: this.getTypeValidation('zip|tar|tar.gz|tgz')}
         ],
-        "85":[
+        "85": [
             { text: "Feature", children: [
                 { text: "VCF 4.0", tag: "vcf", validate: this.getTypeValidation('vcf')},
                 { text: "PED", tag: "ped", validate: this.getTypeValidation('ped')}
             ] }
         ],
-        "cellmaps":[
+        "cellmaps": [
             { text: "Network", children: [
                 { text: "SIF", tag: "sif", validate: this.getTypeValidation('sif')},
                 { text: "Expresion matrix", tag: "txt", validate: this.getTypeValidation('txt')},
@@ -135,11 +135,11 @@ UploadWidget.prototype.draw = function (opencgaLocation) {
         ]
     };
 
-    if(typeof dataTypes[this.suiteId] === 'undefined'){
+    if (typeof dataTypes[this.suiteId] === 'undefined') {
         this.render([
             {text: "No data types defined"}
         ]);
-    }else{
+    } else {
         this.checkDataTypes(dataTypes[this.suiteId]);
         this.render(dataTypes[this.suiteId]);
     }
@@ -211,17 +211,14 @@ UploadWidget.prototype.render = function (dataTypes) {
                 children: dataTypes
             }
         });
-        var height = Object.keys(store.tree.nodeHash).length * 23;
-        if (height < 250) {
-            height = 250;
-        }
+        var height = 400;
 
 
         var pan1Width = 250;
         var pan1 = Ext.create('Ext.tree.Panel', {
             title: 'Select your data type',
             bodyPadding: 10,
-            height: height,
+            height: 200,
             border: false,
             cls: 'ocb-border-right-lightgrey',
             width: pan1Width,
@@ -409,20 +406,32 @@ UploadWidget.prototype.render = function (dataTypes) {
             constrain: true,
             closable: false,
             modal: true,
-            layout: {
-                type: 'table',
-                columns: 2,
-                rows: 3
+            items: {
+                border: 0,
+                layout: {
+                    type: 'table',
+                    columns: 2,
+                    rows: 3
+                },
+                items: [pan3, pan1, pan2], // pan3],
+                bbar: [
+                    this.modebar,
+                    {
+                        layout: {
+                            pack: 'end'
+                        },
+                        items: [
+                            {
+                                text: "Close",
+                                handler: function () {
+                                    _this.panel.destroy();
+                                }
+                            },
+                            uploadButton
+                        ]
+                    }
+                ]
             },
-            items: [pan3, pan1, pan2, this.modebar], // pan3],
-            dockedItems: [],
-            buttonAlign: 'right',
-            buttons: [
-                {text: "Close", handler: function () {
-                    _this.panel.destroy();
-                }},
-                uploadButton
-            ],
             listeners: {
                 scope: this,
                 minimize: function () {

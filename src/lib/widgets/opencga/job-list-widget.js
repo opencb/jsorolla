@@ -128,18 +128,10 @@ function JobListWidget(args) {
     });
 
 
-    this.bar = new Ext.create('Ext.container.Container', {
-//		vertical : true,
-        layout: {
-            type: 'hbox',
-            align: 'stretch'
-        },
-        defaults: {
-            xtype:'button',
-            margin: 5
-        },
-        padding: 5,
+    this.bar = new Ext.create('Ext.toolbar.Toolbar', {
         id: this.id + "jobsFilterBar",
+        docked:'top',
+        height:39,
         items: [
             //this.projectFilterButton,
             {
@@ -207,6 +199,10 @@ JobListWidget.prototype.show = function () {
 JobListWidget.prototype.hide = function () {
     this.pagedListViewWidget.hide();
 };
+JobListWidget.prototype.toggle = function () {
+    this.pagedListViewWidget.toggle();
+};
+
 
 //override
 JobListWidget.prototype.draw = function () {
@@ -217,7 +213,7 @@ JobListWidget.prototype.draw = function () {
 JobListWidget.prototype.clean = function () {
     clearInterval(this.interval);
     if (this.bar.isDescendantOf(Ext.getCmp(this.pagedListViewWidget.panelId)) == true) {
-        Ext.getCmp(this.pagedListViewWidget.panelId).remove(this.bar, false);
+        Ext.getCmp(this.pagedListViewWidget.panelId).removeDocked(this.bar, false);
     }
     this.pagedListViewWidget.clean();
 };
@@ -249,7 +245,7 @@ JobListWidget.prototype.setAccountData = function (data) {
 JobListWidget.prototype.render = function () {
     this.pagedListViewWidget.draw(this.getData());
     if (this.bar.isDescendantOf(Ext.getCmp(this.pagedListViewWidget.panelId)) == false) {
-        Ext.getCmp(this.pagedListViewWidget.panelId).insert(0,this.bar);
+        Ext.getCmp(this.pagedListViewWidget.panelId).addDocked(this.bar);
     }
 
     var jobcount = this.getJobCounter();
