@@ -195,6 +195,7 @@ TranscriptInfoWidget.prototype.getMutationsGrid = function(data){
 
 
 TranscriptInfoWidget.prototype.getData = function (){
+    debugger
 	var _this = this;
 	this.panel.disable();
 	this.panel.setLoading("Getting information...");
