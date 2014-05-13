@@ -122,7 +122,7 @@ OpencgaBrowserWidget.prototype = {
             listeners: {
                 beforeinsert: function (este, node) {
                     if (node.isLeaf()) {
-//                        console.log(node.raw.oid + " is a file");
+//                        console.log(node.data.oid + " is a file");
                         return false; //cancel append because is leaf
                     }
                 }
@@ -302,13 +302,18 @@ OpencgaBrowserWidget.prototype = {
                         var node = _this.allStore.getRootNode().findChild(field, record.data[field], deep);
                         var childs = [];
                         _this.selectedFolderNode = {value: node.data[field], field: field};
-                        node.eachChild(function (n) {
-                            childs.push(n.raw);
-                        });
+
+                        for(var index in node.data.children){
+                            childs.push(node.data.children[index]);
+                        }
+
+//                        node.eachChild(function (n) {
+//                            childs.push(n.data);
+//                        });
                         _this.filesGrid.setTitle(node.getPath("text", " / "));
                         _this.filesStore.loadData(childs);
                         if (_this.mode == "folderSelection") {
-                            _this.selectedFileNode = node.raw;
+                            _this.selectedFileNode = node.data;
                             _this.selectButton.enable();
                         }
                     }
@@ -381,7 +386,6 @@ OpencgaBrowserWidget.prototype = {
                         bucketId: record.data.bucketId,
                         objectId: record.data.oid,
                         success: function (response) {
-                            debugger
                             console.log(response);
                             Utils.msg("indexer", response);
                             record.data.indexerId = response;
@@ -500,9 +504,9 @@ OpencgaBrowserWidget.prototype = {
                     selectionchange: function (este, item) {
                         _this.selectButton.disable();
                         if (item.length > 0) {//se compr
-                            _this.selectedFileNode = item[0].raw;
-                            var type = item[0].raw.fileType;
-                            var fileFormat = item[0].raw.fileFormat;
+                            _this.selectedFileNode = item[0].data;
+                            var type = item[0].data.fileType;
+                            var fileFormat = item[0].data.fileFormat;
                             if (_this.mode === "fileSelection" && type === "dir") {
                                 return;
                             }
@@ -655,7 +659,7 @@ OpencgaBrowserWidget.prototype = {
             resizable: true,
             layout: 'fit',
             items: {
-                border:0,
+                border: 0,
                 layout: { type: 'vbox', align: 'stretch'},
                 items: [
                     {
@@ -668,9 +672,14 @@ OpencgaBrowserWidget.prototype = {
                     this.activeUploadsCont
                 ],
                 tbar: tbarObj,
-                bbar:{
-                    items:[
-                        '->',
+                bbar: {
+                    layout: {
+                        pack: 'end'
+                    },
+                    defaults: {
+                        width: 100
+                    },
+                    items: [
                         {
                             text: 'Close',
                             handler: function () {

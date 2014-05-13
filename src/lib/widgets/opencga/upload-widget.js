@@ -37,7 +37,7 @@ function UploadWidget(args) {
     }
     this.uploadObjectToBucketSuccess = function (response) {
         if (response.errorMsg === '') {
-            Ext.example.msg('Object upload', '</span class="emph">' + response.result[0].msg + '</span>');
+            Utils.msg('Object upload', '</span class="emph">' + response.result[0].msg + '</span>');
             _this.uploadComplete(response.result[0].msg);
         } else {
             Ext.Msg.alert('Object upload', response.errorMsg);
@@ -211,14 +211,18 @@ UploadWidget.prototype.render = function (dataTypes) {
                 children: dataTypes
             }
         });
-        var height = 400;
+//        var height = Object.keys(store.tree.nodeHash).length * 23;
+//        if (height < 250) {
+//            height = 250;
+//        }
 
+        var height = 400;
 
         var pan1Width = 250;
         var pan1 = Ext.create('Ext.tree.Panel', {
             title: 'Select your data type',
-            bodyPadding: 10,
-            height: 200,
+            bodyPadding: '10 0 0 0',
+            height: height,
             border: false,
             cls: 'ocb-border-right-lightgrey',
             width: pan1Width,
@@ -229,13 +233,13 @@ UploadWidget.prototype.render = function (dataTypes) {
                 scope: this,
                 itemclick: function (este, record) {
                     if (record.data.leaf) {
-                        this.selectedDataType = record.raw.tag;
-                        this.selectedDataTypeObj = record.raw;
-                        this.dataTypeLabel.setText('<span class="info">Type:</span><span class="ok"> OK </span>', false);
+                        this.selectedDataType = record.data.tag;
+                        this.selectedDataTypeObj = record.data;
+                        this.dataTypeLabel.update('<span class="info">Type:</span><span class="ok"> OK </span>');
                     } else {
-                        this.selectedDataType = null;
-                        this.selectedDataTypeObj = null;
-                        this.dataTypeLabel.setText('<span class="info">Select a data type</span><span class="err"> !!!</span>', false);
+                        this.selectedDataType = undefined;
+                        this.selectedDataTypeObj = undefined;
+                        this.dataTypeLabel.update('<span class="info">Select a data type</span><span class="err"> !!!</span>');
                     }
                     this.validate();
                 }
@@ -253,9 +257,9 @@ UploadWidget.prototype.render = function (dataTypes) {
                 scope: this,
                 change: function (el) {
                     if (el.getValue() != "") {
-                        this.dataNameLabel.setText('<span class="info">Name:</span><span class="ok"> OK </span>', false);
+                        this.dataNameLabel.update('<span class="info">Name:</span><span class="ok"> OK </span>');
                     } else {
-                        this.dataNameLabel.setText('<span class="info">Enter the data name</span><span class="err"> !!!</span>', false);
+                        this.dataNameLabel.update('<span class="info">Enter the data name</span><span class="err"> !!!</span>');
                     }
                     this.validate();
                 }
@@ -298,37 +302,35 @@ UploadWidget.prototype.render = function (dataTypes) {
 
         });
 
-        this.dataTypeLabel = Ext.create('Ext.toolbar.TextItem', {
-            text: '<span class="info">Select a data type</span>'
+        this.dataTypeLabel = Ext.create('Ext.Component', {
+            html: '<span class="info">Select a data type</span>'
         });
-        this.dataNameLabel = Ext.create('Ext.toolbar.TextItem', {
-            text: '<span class="info">Enter the data name</span>'
+        this.dataNameLabel = Ext.create('Ext.Component', {
+            html: '<span class="info">Enter the data name</span>'
         });
-        this.dataFieldLabel = Ext.create('Ext.toolbar.TextItem', {
-            text: '<span class="info">Select a data file</span>'
+        this.dataFieldLabel = Ext.create('Ext.Component', {
+            html: '<span class="info">Select a data file</span>'
         });
         this.originCheck = Ext.create('Ext.form.field.Checkbox', {
             xtype: 'checkbox',
-            margin: '0 0 5 5',
             hidden: !this.enableTextMode,
             boxLabel: 'Text mode',
+            margin: '0 0 0 0',
             listeners: {
                 scope: this,
                 change: function () {
                     if (this.originCheck.getValue()) {
-                        this.dataFieldLabel.setText('<span class="ok">' + this.editor.getValue().length + '</span><span class="info"> chars</span>', false);
-                        this.uploadBar.hide();
+                        this.dataFieldLabel.update('<span class="ok">' + this.editor.getValue().length + '</span><span class="info"> chars</span>');
+                        this.uploadField.hide();
                         this.editor.show();
-                        this.uploadField.destroy();
                         this.uploadField.setRawValue(null);
                         this.pan3.setHeight(100);
                     } else {
-                        this.dataFieldLabel.setText('<span class="info">Select a data file</span>', false);
+                        this.dataFieldLabel.update('<span class="info">Select a data file</span>');
                         this.editor.hide();
-                        this.uploadBar.show();
+                        this.uploadField.show();
                         this.editor.setRawValue(null);
-                        this.createUploadField();
-                        this.pan3.setHeight(30);
+                        this.pan3.setHeight(55);
                     }
                     this.validate();
                 }
@@ -366,37 +368,24 @@ UploadWidget.prototype.render = function (dataTypes) {
             listeners: {
                 scope: this,
                 change: function () {
-                    this.dataFieldLabel.setText('<span class="ok">' + this.editor.getValue().length + '</span> <span class="info"> chars</span>', false);
+                    this.dataFieldLabel.update('<span class="ok">' + this.editor.getValue().length + '</span> <span class="info"> chars</span>');
                     this.validate();
                 }
 
             }
         });
 
-        this.uploadBar = Ext.create('Ext.toolbar.Toolbar', {cls: "bio-border-false", dock: 'top', height: 28});
-        this.createUploadField();
 
-        this.modebar = Ext.create('Ext.toolbar.Toolbar', {
-            dock: 'bottom',
-            height: 28,
-            colspan: 2,
-            cls: 'ocb-border-top-lightgrey',
-            border: false,
-            items: [this.dataTypeLabel, '-', /*this.dataNameLabel,'-',*/this.dataFieldLabel, '->', this.originCheck]
-        });
-
-        var pan3 = Ext.create('Ext.panel.Panel', {
+        this.pan3 = Ext.create('Ext.panel.Panel', {
 //            title: 'File origin',
             colspan: 2,
             border: false,
             width: pan1Width + pan2Width,
-//            cls: 'panel-border-',
-            height: 30,
+            height: 55,
 //		    bodyStyle:{"background-color":"#d3e1f1"},
-            items: [this.editor],
-            dockedItems: [this.uploadBar]
+            items: [this.editor]
         });
-        this.pan3 = pan3;
+        this.createUploadField();
 
         this.panel = Ext.create('Ext.window.Window', {
             title: 'Upload a data file',// + ' -  <span class="err">ZIP files will be allowed shortly</span>',
@@ -409,36 +398,54 @@ UploadWidget.prototype.render = function (dataTypes) {
             items: {
                 border: 0,
                 layout: {
-                    type: 'table',
-                    columns: 2,
-                    rows: 3
+                    type: 'vbox',
+                    align: 'stretch'
                 },
-                items: [pan3, pan1, pan2], // pan3],
-                bbar: [
-                    this.modebar,
+                items: [
+                    this.pan3,
                     {
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'stretch'
+                        },
+                        items: [pan1, pan2]
+                    },
+                ],
+                dockedItems: [
+                    {
+                        xtype: 'toolbar',
+                        dock: 'bottom',
                         layout: {
                             pack: 'end'
+                        },
+                        defaults: {
+                            width: 100
                         },
                         items: [
                             {
                                 text: "Close",
                                 handler: function () {
-                                    _this.panel.destroy();
+                                    _this.panel.minimize();
                                 }
                             },
                             uploadButton
                         ]
-                    }
+                    },
+                    {
+                        xtype: 'toolbar',
+                        dock: 'bottom',
+                        items: [this.originCheck, '->', this.dataTypeLabel, /*this.dataNameLabel,'-',*/this.dataFieldLabel, ]
+                    },
                 ]
             },
             listeners: {
                 scope: this,
                 minimize: function () {
-                    this.panel.destroy();
-                },
-                destroy: function () {
-                    delete this.panel;
+                    this.panel.hide();
+                    this.uploadField.setRawValue(null);
+                    this.editor.setRawValue(null);
+                    this.originCheck.setValue(false);
                 }
             }
         });
@@ -453,12 +460,11 @@ UploadWidget.prototype.createUploadField = function () {
         id: this.uploadFieldId,
         xtype: 'filefield',
         name: 'file',
-        flex: 1,
-        padding: 1,
         msgTarget: 'side',
         emptyText: 'Choose a file',
+        margin:'12 0 0 12',
+        width: 500,
         allowBlank: false,
-        anchor: '100%',
         buttonText: 'Upload local file...',
         buttonAlign: 'left',
         rtl: false,
@@ -470,7 +476,7 @@ UploadWidget.prototype.createUploadField = function () {
             }
         }
     });
-    this.uploadBar.add(this.uploadField);
+    this.pan3.add(this.uploadField);
 };
 
 UploadWidget.prototype.validate = function () {
@@ -479,16 +485,18 @@ UploadWidget.prototype.validate = function () {
 //	console.log((this.uploadField.getRawValue()!="" || this.editor.getValue()!=""));
 
     var extensionValid = true;
-    if (this.selectedDataTypeObj.validate != null) {
-        extensionValid = this.selectedDataTypeObj.validate(Ext.getCmp(this.uploadFieldId).getValue());
+    if (typeof this.selectedDataTypeObj !== 'undefined') {
+        if (typeof this.selectedDataTypeObj.validate !== 'undefined') {
+            extensionValid = this.selectedDataTypeObj.validate(Ext.getCmp(this.uploadFieldId).getValue());
+        }
     }
 
     if (extensionValid && this.selectedDataType != null /*&& this.nameField.getValue() !=""*/ && (this.uploadField.getRawValue() != "" || this.editor.getValue() != "")) {
         Ext.getCmp(this.uploadButtonId).enable();
-        this.dataTypeLabel.setText('<span class="info">Type:</span><span class="ok"> OK </span>', false);
+        this.dataTypeLabel.update('<span class="info">Type:</span><span class="ok"> OK </span>');
     } else {
         Ext.getCmp(this.uploadButtonId).disable();
-        this.dataTypeLabel.setText('<span class="info">Type:</span><span class="err"> Not valid </span>', false);
+        this.dataTypeLabel.update('<span class="info">Type:</span><span class="err"> Not valid </span>');
     }
 
     if (this.originCheck.getValue()) {
@@ -512,7 +520,7 @@ UploadWidget.prototype.fileSelected = function () {
             fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';
 
 
-        this.dataFieldLabel.setText('<span class="info">Size: </span><span class="ok">' + fileSize + '</span>', false);
+        this.dataFieldLabel.update('<span class="info">Size: </span><span class="ok">' + fileSize + '</span>');
 //          document.getElementById('fileName').innerHTML = '<b>Name</b>: ' + file.name;
 //          document.getElementById('fileSize').innerHTML = '<b>Size</b>: ' + fileSize;
 //          document.getElementById('fileType').innerHTML = '<b>Type</b>: ' + file.type;
