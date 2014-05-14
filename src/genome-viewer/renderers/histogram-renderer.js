@@ -53,7 +53,7 @@ HistogramRenderer.prototype.render = function (features, args) {
     var points = '';
     if (features.length > 0) {//Force first point at this.histogramHeight
         var firstFeature = features[0].value;
-        var width = (firstFeature.end - firstFeature.start) * args.pixelBase;
+        var width = (firstFeature.end - firstFeature.start + 1) * args.pixelBase;
         var x = args.pixelPosition + middle - ((args.position - parseInt(firstFeature.start)) * args.pixelBase);
         points = (x + (width / 2)) + ',' + this.histogramHeight + ' ';
     }
@@ -65,10 +65,9 @@ HistogramRenderer.prototype.render = function (features, args) {
         var feature = features[i].value;
         feature.start = parseInt(feature.start);
         feature.end = parseInt(feature.end);
-        var width = (feature.end - feature.start);
+        var width = (feature.end - feature.start + 1) * args.pixelBase;
         //get type settings object
 
-        width = width * args.pixelBase;
         var x = args.pixelPosition + middle - ((args.position - feature.start) * args.pixelBase);
 
         if (feature.features_count == null) {
@@ -94,7 +93,7 @@ HistogramRenderer.prototype.render = function (features, args) {
     }
     if (features.length > 0) {//force last point at this.histogramHeight
         var lastFeature = features[features.length - 1].value;
-        var width = (lastFeature.end - lastFeature.start) * args.pixelBase;
+        var width = (lastFeature.end - lastFeature.start + 1) * args.pixelBase;
         var x = args.pixelPosition + middle - ((args.position - parseInt(lastFeature.start)) * args.pixelBase);
         points += (x + (width / 2)) + ',' + this.histogramHeight + ' ';
 
