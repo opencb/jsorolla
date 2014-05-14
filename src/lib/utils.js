@@ -201,7 +201,7 @@ var Utils = {
         })
     },
     msg: function (title, msg) {
-        var div = $('<div class="ocb-msg-hidden"><div>' + title + '</div><br><div>' + msg + '</div></div>')[0];
+        var div = $('<div class="ocb-msg-hidden"><div>' + title + '</div><div>' + msg + '</div></div>')[0];
         $('body').append(div);
         setTimeout(function () {
             $(div).addClass('ocb-msg-shown');
