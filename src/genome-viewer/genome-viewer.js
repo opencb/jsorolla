@@ -111,7 +111,7 @@ GenomeViewer.prototype = {
             return;
         }
 
-        this.div = $('<div class="bootstrap" id="' + this.id + '" class="ocb-gv ocb-box-vertical"></div>')[0];
+        this.div = $('<div class="bootstrap ocb-gv ocb-box-vertical" id="' + this.id + '"></div>')[0];
 
         if (this.border) {
             var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
@@ -132,23 +132,6 @@ GenomeViewer.prototype = {
             $(this.div).height(this.height);
             $(this.targetDiv).height(this.height);
         }
-
-
-//        if (typeof this.width === 'undefined') {
-//            var width = Math.max($(this.div).width(), $(this.targetDiv).width())
-//            if (width == 0) {
-//                console.log('target div width is zero');
-//                return
-//            }
-//            this.width = width;
-//        } else {
-//
-//        }
-//
-//        if (typeof this.height === 'undefined') {
-//
-//        } else {
-//        }
 
 
         this.navigationbarDiv = $('<div id="navigation-' + this.id + '" class="ocb-gv-navigation"></div>')[0];

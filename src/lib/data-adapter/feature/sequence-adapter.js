@@ -90,14 +90,6 @@ SequenceAdapter.prototype.getData = function (args) {
                     start: this.start[chromosome],
                     end: this.end[chromosome]
                 },
-                params: params
-            });
-            this.trigger('data:ready', {
-                items: {
-                    sequence: this.sequence[chromosome],
-                    start: this.start[chromosome],
-                    end: this.end[chromosome]
-                },
                 params: params,
                 sender: this
             });
