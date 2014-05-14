@@ -312,6 +312,8 @@ TrackListPanel.prototype = {
                 //            'visibility': 'hidden',
                 'background-color': 'lightgray'
             });
+            this.regionOverviewBoxLeft = regionOverviewBoxLeft;
+            this.regionOverviewBoxRight = regionOverviewBoxRight;
         }
 
 
@@ -518,6 +520,19 @@ TrackListPanel.prototype = {
         this.trigger('trackWidth:change', {width: this.width, sender: this})
 
         this._setTextPosition();
+
+        if (this.showRegionOverviewBox) {
+            var regionOverviewBoxWidth = this.region.length() * this.pixelBase;
+            var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
+            $(this.regionOverviewBoxLeft).css({
+                'width': regionOverviewDarkBoxWidth
+            });
+            $(this.regionOverviewBoxRight).css({
+                'left': (regionOverviewDarkBoxWidth + regionOverviewBoxWidth),
+                'width': regionOverviewDarkBoxWidth
+            });
+        }
+
     },
 
     highlight: function (event) {
