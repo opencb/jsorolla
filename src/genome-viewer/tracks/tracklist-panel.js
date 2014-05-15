@@ -240,7 +240,7 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': mid - 1,
             'top': 0,
-            'width': this.pixelBase,
+            'width': this.pixelBase+2,
 //            'height': '100%',
             'height': 'calc(100% - 8px)',
             'opacity': 0.5,
@@ -256,7 +256,7 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': -20,
             'top': 0,
-            'width': this.pixelBase,
+            'width': this.pixelBase+2,
             'height': 'calc(100% - 8px)',
             'border': '1px solid lightgray',
             'opacity': 0.7,
@@ -506,7 +506,7 @@ TrackListPanel.prototype = {
         var mid = this.width / 2;
         this._setPixelBase();
 
-        $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase});
+        $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase+2});
         $(this.mouseLine).css({'width': this.pixelBase});
 
         this.svgTop.setAttribute('width', this.width);
@@ -560,8 +560,8 @@ TrackListPanel.prototype = {
         //get pixelbase by Region
 
 
-        $(this.centerLine).css({'width': this.pixelBase});
-        $(this.mouseLine).css({'width': this.pixelBase});
+        $(this.centerLine).css({'width': this.pixelBase+2});
+        $(this.mouseLine).css({'width': this.pixelBase+2});
 
         this.windowSize = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
         this.viewNtsText.textContent = this.viewNtsText.textContent;

@@ -113,7 +113,7 @@ SequenceAdapter.prototype._getSequenceQuery = function (region) {
         query = chromosome + ":" + s + "-" + e;
         querys.push(query);
     } else {
-        if (region.start < _this.start[chromosome] ) {
+        if (region.start < _this.start[chromosome]) {
             s = region.start;
             e = _this.start[chromosome] - 1;
             e = (e < 1) ? region.end = 1 : e;
@@ -149,7 +149,7 @@ SequenceAdapter.prototype._processSequenceQuery = function (data, throwNotify) {
 
 
         var chromosome = seqResponse.chromosome;
-        if(typeof chromosome === 'undefined'){
+        if (typeof chromosome === 'undefined') {
             chromosome = seqResponse.sequenceName;
         }
 
