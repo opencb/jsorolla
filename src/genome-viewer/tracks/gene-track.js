@@ -74,10 +74,6 @@ GeneTrack.prototype.render = function (targetId) {
         _this.updateHeight();
         _this.setLoading(false);
     });
-
-    this.renderer.on('feature:click', function (event) {
-        _this.showInfoWidget(event);
-    });
 };
 
 GeneTrack.prototype.updateTranscriptParams = function () {
@@ -207,18 +203,5 @@ GeneTrack.prototype.move = function (disp) {
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
-    }
-};
-
-GeneTrack.prototype.showInfoWidget = function (args) {
-    switch (args.featureType) {
-        case "gene":
-            new GeneInfoWidget(null, this.dataAdapter.species).draw(args);
-            break;
-        case "transcript":
-            new TranscriptInfoWidget(null, this.dataAdapter.species).draw(args);
-            break;
-        default:
-            break;
     }
 };
