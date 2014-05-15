@@ -79,8 +79,9 @@ FeatureTrack.prototype.render = function (targetId) {
             _this.updateHeight();
             _this.setLoading(false);
         } else {
-            console.log('************************************** ' + event.timeStamp + ' ' + _this.timeStamp)
+            console.log("**************************************")
             console.log("************************************** skip rendering due incorrect timeStamp")
+            console.log("**************************************")
         }
     });
 };

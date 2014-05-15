@@ -51,28 +51,34 @@ GeneTrack.prototype.render = function (targetId) {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
     this.dataAdapter.on('data:ready', function (event) {
-        var features;
-        if (event.dataType == 'histogram') {
-            _this.renderer = _this.histogramRenderer;
-            features = event.items;
-        } else {
-            _this.renderer = _this.defaultRenderer;
-            features = _this.getFeaturesToRenderByChunk(event);
-        }
-        _this.renderer.render(features, {
-            svgCanvasFeatures: _this.svgCanvasFeatures,
-            featureTypes: _this.featureTypes,
-            renderedArea: _this.renderedArea,
-            pixelBase: _this.pixelBase,
-            position: _this.region.center(),
-            regionSize: _this.region.length(),
-            maxLabelRegionSize: _this.maxLabelRegionSize,
-            width: _this.width,
-            pixelPosition: _this.pixelPosition
+        if (event.timeStamp === _this.timeStamp) {
+            var features;
+            if (event.dataType == 'histogram') {
+                _this.renderer = _this.histogramRenderer;
+                features = event.items;
+            } else {
+                _this.renderer = _this.defaultRenderer;
+                features = _this.getFeaturesToRenderByChunk(event);
+            }
+            _this.renderer.render(features, {
+                svgCanvasFeatures: _this.svgCanvasFeatures,
+                featureTypes: _this.featureTypes,
+                renderedArea: _this.renderedArea,
+                pixelBase: _this.pixelBase,
+                position: _this.region.center(),
+                regionSize: _this.region.length(),
+                maxLabelRegionSize: _this.maxLabelRegionSize,
+                width: _this.width,
+                pixelPosition: _this.pixelPosition
 
-        });
-        _this.updateHeight();
-        _this.setLoading(false);
+            });
+            _this.updateHeight();
+            _this.setLoading(false);
+        } else {
+            console.log("**************************************")
+            console.log("************************************** skip rendering due incorrect timeStamp")
+            console.log("**************************************")
+        }
     });
 };
 
@@ -108,6 +114,7 @@ GeneTrack.prototype.draw = function () {
 
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
+        this.timeStamp = Date.now();
         var data = this.dataAdapter.getData({
             dataType: dataType,
             region: new Region({
@@ -121,7 +128,8 @@ GeneTrack.prototype.draw = function () {
                 histogramMax: this.histogramMax,
                 interval: this.interval,
                 exclude: this.exclude
-            }
+            },
+            timeStamp: this.timeStamp
         });
 
         this.invalidZoomText.setAttribute("visibility", "hidden");
@@ -165,7 +173,8 @@ GeneTrack.prototype.move = function (disp) {
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
-            console.log('left')
+//          left
+            this.timeStamp = Date.now();
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
@@ -179,13 +188,15 @@ GeneTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval,
                     exclude: this.exclude
-                }
+                },
+                timeStamp: this.timeStamp
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
         }
 
         if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
-            console.log('right')
+//          right
+            this.timeStamp = Date.now();
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
@@ -199,7 +210,8 @@ GeneTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval,
                     exclude: this.exclude
-                }
+                },
+                timeStamp: this.timeStamp
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
