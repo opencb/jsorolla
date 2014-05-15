@@ -53,30 +53,35 @@ FeatureTrack.prototype.render = function (targetId) {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
     this.dataAdapter.on('data:ready', function (event) {
-        var features;
-        if (event.dataType == 'histogram') {
-            _this.renderer = _this.histogramRenderer;
-            features = event.items;
+        if (event.timeStamp === _this.timeStamp) {
+            var features;
+            if (event.dataType == 'histogram') {
+                _this.renderer = _this.histogramRenderer;
+                features = event.items;
+            } else {
+                _this.renderer = _this.defaultRenderer;
+                features = _this.getFeaturesToRenderByChunk(event);
+            }
+            _this.renderer.render(features, {
+                svgCanvasFeatures: _this.svgCanvasFeatures,
+                featureTypes: _this.featureTypes,
+                renderedArea: _this.renderedArea,
+                pixelBase: _this.pixelBase,
+                position: _this.region.center(),
+                regionSize: _this.region.length(),
+                maxLabelRegionSize: _this.maxLabelRegionSize,
+                width: _this.width,
+                pixelPosition: _this.pixelPosition,
+                resource: _this.resource,
+                species: _this.species,
+                featureType: _this.featureType
+            });
+            _this.updateHeight();
+            _this.setLoading(false);
         } else {
-            _this.renderer = _this.defaultRenderer;
-            features = _this.getFeaturesToRenderByChunk(event);
+            console.log('************************************** ' + event.timeStamp + ' ' + _this.timeStamp)
+            console.log("************************************** skip rendering due incorrect timeStamp")
         }
-        _this.renderer.render(features, {
-            svgCanvasFeatures: _this.svgCanvasFeatures,
-            featureTypes: _this.featureTypes,
-            renderedArea: _this.renderedArea,
-            pixelBase: _this.pixelBase,
-            position: _this.region.center(),
-            regionSize: _this.region.length(),
-            maxLabelRegionSize: _this.maxLabelRegionSize,
-            width: _this.width,
-            pixelPosition: _this.pixelPosition,
-            resource:_this.resource,
-            species:_this.species,
-            featureType:_this.featureType
-        });
-        _this.updateHeight();
-        _this.setLoading(false);
     });
 };
 
@@ -95,7 +100,9 @@ FeatureTrack.prototype.draw = function () {
         this.dataType = 'histogram';
     }
 
+
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
+        this.timeStamp = Date.now();
         this.setLoading(true);
         this.dataAdapter.getData({
             dataType: this.dataType,
@@ -109,7 +116,8 @@ FeatureTrack.prototype.draw = function () {
                 histogramLogarithm: this.histogramLogarithm,
                 histogramMax: this.histogramMax,
                 interval: this.interval
-            }
+            },
+            timeStamp: this.timeStamp
         });
 
         this.invalidZoomText.setAttribute("visibility", "hidden");
@@ -142,6 +150,7 @@ FeatureTrack.prototype.move = function (disp) {
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
+            this.timeStamp = Date.now();
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
@@ -154,12 +163,14 @@ FeatureTrack.prototype.move = function (disp) {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
-                }
+                },
+                timeStamp: this.timeStamp
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
         }
 
         if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
+            this.timeStamp = Date.now();
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
@@ -172,7 +183,8 @@ FeatureTrack.prototype.move = function (disp) {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
-                }
+                },
+                timeStamp: this.timeStamp
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }

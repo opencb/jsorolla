@@ -264,7 +264,7 @@ NavigationBar.prototype = {
                 setTimeout(function () {
                     _this._handleZoomSlider(zoom);
                     _this.zoomChanging = false;
-                }, 500);
+                }, 600);
             }
         });
         $(this.regionField).val(this.region.toString());

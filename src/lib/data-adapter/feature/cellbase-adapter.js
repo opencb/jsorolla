@@ -33,6 +33,7 @@ function CellBaseAdapter(args) {
 CellBaseAdapter.prototype = {
 
     getData: function (args) {
+        var timeStamp = args.timeStamp;
         var _this = this;
 
         /** Check region and parameters **/
@@ -82,17 +83,17 @@ CellBaseAdapter.prototype = {
                     resource: this.resource,
                     params: params,
                     success: function (data) {
-                        _this._cellbaseHistogramSuccess(data, dataType, histogramId);
+                        _this._cellbaseHistogramSuccess(data, dataType, histogramId, timeStamp);
                     }
                 });
             } else {
                 // Get chunks from cache
                 var chunksByRegion = this.cache[histogramId].getCachedByRegion(region);
                 var chunksCached = this.cache[histogramId].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
+                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, timeStamp: timeStamp, sender: this});
             }
 
-        /** Features: genes, snps ... **/
+            /** Features: genes, snps ... **/
         } else {
             // Features will be saved using the dataType features
             if (_.isUndefined(this.cache[dataType])) {
@@ -131,7 +132,7 @@ CellBaseAdapter.prototype = {
                         resource: this.resource,
                         params: params,
                         success: function (data) {
-                            _this._cellbaseSuccess(data, dataType);
+                            _this._cellbaseSuccess(data, dataType, timeStamp);
                         }
                     });
                 }
@@ -139,13 +140,13 @@ CellBaseAdapter.prototype = {
             // Get chunks from cache
             if (chunksByRegion.cached.length > 0) {
                 var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
+                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, timeStamp: timeStamp, sender: this});
             }
         }
 
     },
 
-    _cellbaseSuccess: function (data, dataType) {
+    _cellbaseSuccess: function (data, dataType, timeStamp) {
         var timeId = this.resource + " save " + Utils.randomString(4);
         console.time(timeId);
         /** time log **/
@@ -167,12 +168,12 @@ CellBaseAdapter.prototype = {
 
 
         if (chunks.length > 0) {
-            this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
+            this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, timeStamp: timeStamp, sender: this});
         }
 
 
     },
-    _cellbaseHistogramSuccess: function (data, dataType, histogramId) {
+    _cellbaseHistogramSuccess: function (data, dataType, histogramId, timeStamp) {
         var timeId = Utils.randomString(4);
         console.time(this.resource + " save " + timeId);
         /** time log **/
@@ -190,7 +191,7 @@ CellBaseAdapter.prototype = {
             }
         }
 
-        this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
+        this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, timeStamp: timeStamp, sender: this});
         /** time log **/
         console.timeEnd(this.resource + " get and save " + timeId);
     }
