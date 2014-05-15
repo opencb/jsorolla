@@ -48,10 +48,10 @@ GeneInfoWidget.prototype.getdataTypes = function (){
 	                { text: "Reactome"},
 	                { text: "Interpro"}
 	            ] },
-	            { text: "Regulatory", children: [
-	                { text: "TFBS"}
+//	            { text: "Regulatory", children: [
+//	                { text: "TFBS"}
 //	                { text: "miRNA targets"}
-	            ]},
+//	            ]},
 	            { text:"Protein", children: [
 	                { text: "Features"},//protein profile
 	                { text: "3D structure"}
@@ -74,8 +74,8 @@ GeneInfoWidget.prototype.optionClick = function (item){
 			case "GO": this.panel.add(this.getXrefGrid(this.data.transcripts, 'GO', 'transcript').show());  break;
 			case "Interpro": this.panel.add(this.getXrefGrid(this.data.transcripts, 'Interpro', 'transcript').show());  break;
 			case "Reactome": this.panel.add(this.getXrefGrid(this.data.transcripts, 'Reactome', 'transcript').show());  break;
-			case "TFBS": this.panel.add(this.getTfbsGrid(this.data.transcripts).show());  break;
-			case "miRNA targets": this.panel.add(this.getMirnaTargetGrid(this.data.mirnaTargets).show());  break;
+//			case "TFBS": this.panel.add(this.getTfbsGrid(this.data.transcripts).show());  break;
+//			case "miRNA targets": this.panel.add(this.getMirnaTargetGrid(this.data.mirnaTargets).show());  break;
 			case "Features": this.panel.add(this.getProteinFeaturesGrid(this.data.proteinFeatures).show());  break;
 			case "3D structure": this.panel.add(this.get3Dprotein(this.data.snps).show());  break;
 		}
@@ -140,13 +140,13 @@ GeneInfoWidget.prototype.getXrefGrid = function(transcripts, dbname, groupField)
         for(var j = 0; j<transcripts[i].xrefs.length; j++){
             var xref = transcripts[i].xrefs[j];
             if(dbname == 'Xref'){
-                var shortName  = xref.dbNameShort.toLowerCase();
-                if(shortName != 'go' && shortName != 'interpro' && shortName != 'reactome'){
+                var xrefName  = xref.dbName.toLowerCase();
+                if(xrefName != 'go' && xrefName != 'interpro' && xrefName != 'reactome'){
                     xref.transcript = transcripts[i].id;
                     data.push(xref);
                 }
             }else{
-                if(xref.dbNameShort.toLowerCase() == dbname.toLowerCase()){
+                if(xref.dbName.toLowerCase() == dbname.toLowerCase()){
                     xref.transcript = transcripts[i].id;
                     data.push(xref);
                 }

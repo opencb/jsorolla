@@ -356,6 +356,26 @@ FEATURE_TYPES = {
         height: 8,
         histogramColor: "orange"
     },
+    mutation: {
+        label: function (f) {
+            return ('name' in f) ? f.name : f.id;
+        },
+        tooltipTitle: function (f) {
+            var name = (f.name != null) ? f.name : f.id;
+            return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
+        },
+        tooltipText: function (f) {
+            return   FEATURE_TYPES.getTipCommons(f) +
+                '';
+
+        },
+        color: function (f) {
+            return 'limegreen'
+        },
+        infoWidgetId: "id",
+        height: 8,
+        histogramColor: "limegreen"
+    },
     file: {
         getLabel: function (f) {
             var str = "";
