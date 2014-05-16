@@ -143,6 +143,10 @@
     position: relative;
     background-color: white;
 }
+.ocb-option {
+    background:white;
+    color:black;
+}
 
 /*.ocb-gv-navigation{*/
 /*height:37px;*/

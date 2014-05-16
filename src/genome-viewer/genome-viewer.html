@@ -182,7 +182,7 @@ var run = function () {
 //            drawNavigationBar = true;
 //            drawKaryotypePanel: false,
 //            drawChromosomePanel: false,
-//            drawRegionOverviewPanel: false
+//            drawOverviewTrackListPanel: false
 
     }); //the div must exist
 
@@ -204,7 +204,7 @@ var run = function () {
         })
     });
 
-    tracks.push(this.sequence);
+//    tracks.push(this.sequence);
 
     this.gene = new GeneTrack({
         targetId: null,
@@ -344,7 +344,7 @@ $(document).ready(run);
     }
 
     #application {
-        width: 1440px;
+        /*width: 1440px;*/
         /*width: 1000px;*/
         /*height: 800px;*/
         /*overflow-y: auto;*/

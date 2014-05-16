@@ -597,19 +597,17 @@ TrackListPanel.prototype = {
     draw: function () {
         this.trigger('track:draw', {sender: this});
     },
+    _checkAllTrackStatus : function (status) {
+        for (var i in this.trackSvgList) {
+            if (this.trackSvgList[i].status != status) return false;
+        }
+        return true;
+    },
     checkTracksReady: function () {
-        var _this = this;
-        /************ Loading ************/
-        var checkAllTrackStatus = function (status) {
-            for (i in _this.trackSvgList) {
-                if (_this.trackSvgList[i].status != status) return false;
-            }
-            return true;
-        };
-        if (checkAllTrackStatus('ready')) {
-//            console.log('all ready')
+        if (this._checkAllTrackStatus('ready')) {
             this.status = 'ready';
-            _this.trigger('tracks:ready', {sender: _this});
+            console.log('all ready')
+            this.trigger('tracks:ready', {sender: this});
         }
 //        var checkStatus = function () {
 //            if (checkAllTrackStatus('ready')) {
@@ -619,7 +617,6 @@ TrackListPanel.prototype = {
 //            }
 //        };
 //        setTimeout(checkStatus, 10);
-        /***************************/
     },
     addTrack: function (track) {
         if (_.isArray(track)) {

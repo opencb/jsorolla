@@ -43,6 +43,7 @@ function NavigationBar(args) {
     this.on(this.handlers);
 
     this.zoomChanging = false;
+    this.regionChanging = false;
 
     this.rendered = false;
     if (this.autoRender) {
@@ -169,8 +170,8 @@ NavigationBar.prototype = {
         $(this.targetDiv).append(this.div);
 
         $(this.div).find('.custom-xs').css({
-            padding:'2px 4px',
-            height:'22px',
+            padding: '2px 4px',
+            height: '22px',
             lineHeight: '16px',
             fontSize: '14px'
         });
@@ -215,11 +216,10 @@ NavigationBar.prototype = {
         this.windowSizeField = $(this.div).find('#windowSizeField')[0];
 
 
-
         /**Check components config**/
-        for(var key in this.componentsConfig){
-            if(!this.componentsConfig[key]){
-                $(this.div).find('#'+key).css('display','none');
+        for (var key in this.componentsConfig) {
+            if (!this.componentsConfig[key]) {
+                $(this.div).find('#' + key).css('display', 'none');
             }
         }
         /*****/
@@ -255,8 +255,8 @@ NavigationBar.prototype = {
         });
         $(this.progressBarCont).click(function (e) {
             var offsetX = e.clientX - $(this).offset().left;
-            console.log('offsetX '+offsetX);
-            console.log('e.offsetX '+ e.offsetX);
+            console.log('offsetX ' + offsetX);
+            console.log('e.offsetX ' + e.offsetX);
             var zoom = 100 / $(this).width() * offsetX;
             if (!_this.zoomChanging) {
                 $(_this.progressBar).width(offsetX);
@@ -267,8 +267,13 @@ NavigationBar.prototype = {
                 }, 600);
             }
         });
-        $(this.regionField).val(this.region.toString());
 
+        $(this.regionField).val(this.region.toString());
+        $(this.regionField).bind("keyup", function (event) {
+            if (event.which === 13) {
+                _this._goRegion($(_this.regionField).val());
+            }
+        });
         $(this.goButton).click(function () {
             _this._goRegion($(_this.regionField).val());
         });
@@ -394,7 +399,7 @@ NavigationBar.prototype = {
                     itemKey = item[this.quickSearchDisplayKey];
                 }
                 this.quickSearchDataset[itemKey] = item;
-                var menuEntry = $('<option value="' + itemKey + '">')[0];
+                var menuEntry = $('<option class="ocb-option" value="' + itemKey + '">')[0];
                 $(this.searchDataList).append(menuEntry);
             }
         } else {
@@ -502,12 +507,17 @@ NavigationBar.prototype = {
         }
     },
 
-    setRegion: function (region) {
+    setRegion: function (region, zoom) {
         this.region.load(region);
         $(this.chromosomesText).text(this.region.chromosome);
         $(this.regionField).val(this.region.toString());
         $(this.windowSizeField).val(this.region.length());
         this._addRegionHistoryMenuItem(region);
+
+        if (zoom) {
+            this.zoom = zoom;
+            $(this.progressBar).css("width", this.zoom + '%');
+        }
     },
     moveRegion: function (region) {
         this.region.load(region);
@@ -517,10 +527,6 @@ NavigationBar.prototype = {
 
     setWidth: function (width) {
         this.width = width;
-    },
-    setZoom: function (zoom) {
-        this.zoom = zoom;
-        $(this.progressBar).css("width", this.zoom + '%');
     },
     draw: function () {
         if (!this.rendered) {
