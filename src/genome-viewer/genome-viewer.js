@@ -221,11 +221,11 @@ GenomeViewer.prototype = {
         }
         /*TrackList Panel*/
         this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
-//
-//        /*Status Bar*/
-//        if (this.drawStatusBar) {
-//            this.statusBar = this._createStatusBar(this.statusbarDiv);
-//        }
+
+        /*Status Bar*/
+        if (this.drawStatusBar) {
+            this.statusBar = this._createStatusBar(this.statusbarDiv);
+        }
 
 
         this.on('region:change region:move', function (event) {
@@ -458,7 +458,7 @@ GenomeViewer.prototype = {
 
         this.on('region:change', function (event) {
 //            if (event.sender != navigationBar) {
-                _this.navigationBar.setRegion(event.region, _this.zoom);
+            _this.navigationBar.setRegion(event.region, _this.zoom);
 //            }
         });
         this.on('region:move', function (event) {
@@ -566,12 +566,7 @@ GenomeViewer.prototype = {
                 },
                 'region:move': function (event) {
                     _this._regionMoveHandler(event);
-                },
-
-
-//                'tracks:ready': function () {
-//                    _this._checkStatus();
-//                }
+                }
             }
         });
 
@@ -610,13 +605,7 @@ GenomeViewer.prototype = {
                 },
                 'region:move': function (event) {
                     _this._regionMoveHandler(event);
-                },
-
-
-//                'tracks:ready': function () {
-//                    console.log('trackListPanel ready')
-//                    _this._checkStatus();
-//                }
+                }
             }
         });
 
@@ -674,8 +663,10 @@ GenomeViewer.prototype = {
     _checkAndSetNewChromosomeRegion: function (region) {
         var newChr = this.chromosomes[region.chromosome];
         if (region.chromosome !== this.region.chromosome) {
-            region.start = Math.round(newChr.size / 2);
-            region.end = Math.round(newChr.size / 2);
+            if (region.start > newChr.size || region.end > newChr.size) {
+                region.start = Math.round(newChr.size / 2);
+                region.end = Math.round(newChr.size / 2);
+            }
         }
     },
     _checkAndSetMinimumRegion: function (region, width) {
@@ -783,6 +774,20 @@ GenomeViewer.prototype = {
 ////        setTimeout(checkStatus, 10);
 //    },
 
+    _checkChangingRegion: function () {
+        if (typeof this.overviewTrackListPanel !== 'undefined') {
+            if (!this.overviewTrackListPanel.checkTracksReady()) {
+                return false;
+            }
+        }
+        if (typeof this.trackListPanel !== 'undefined') {
+            if (!this.trackListPanel.checkTracksReady()) {
+                return false;
+            }
+        }
+        return true;
+    },
+
     /*****************/
 
 
@@ -792,10 +797,22 @@ GenomeViewer.prototype = {
     /** EVENT METHODS **/
     /*****************/
     _regionChangeHandler: function (event) {
-        this._checkAndSetNewChromosomeRegion(event.region);
-        this._checkAndSetMinimumRegion(event.region, this.getSVGCanvasWidth());
-        //Relaunch
-        this.trigger('region:change', event);
+        if (this._checkChangingRegion()) {
+
+            /**/
+            this._checkAndSetNewChromosomeRegion(event.region);
+            this._checkAndSetMinimumRegion(event.region, this.getSVGCanvasWidth());
+            this.zoom = this._calculateZoomByRegion(event.region);
+            //Relaunch
+            this.trigger('region:change', event);
+            /**/
+
+        } else {
+            console.log('****************************');
+            console.log('**************************** region change already in progress');
+            console.log('****************************');
+        }
+
     },
     _regionMoveHandler: function (event) {
         //Relaunch
@@ -821,9 +838,20 @@ GenomeViewer.prototype = {
     /** API METHODS **/
     /*****************/
     setRegion: function (region) {
-        this._checkAndSetNewChromosomeRegion(region);
-        this._checkAndSetMinimumRegion(region, this.getSVGCanvasWidth());
-        this.trigger('region:change', {region: region, sender: this});
+        if (this._checkChangingRegion()) {
+
+            /**/
+            this._checkAndSetNewChromosomeRegion(region);
+            this._checkAndSetMinimumRegion(region, this.getSVGCanvasWidth());
+            this.zoom = this._calculateZoomByRegion(region);
+            this.trigger('region:change', {region: region, sender: this});
+            /**/
+
+        } else {
+            console.log('****************************');
+            console.log('**************************** region change already in progress');
+            console.log('****************************');
+        }
     },
     moveRegion: function (disp) {
         this.region.start += disp;
@@ -990,7 +1018,14 @@ GenomeViewer.prototype = {
         this.trackListPanel._hideTrack(trackId);
     },
 
+
+    // TODO - DEPRECATED
     checkRenderedTrack: function (trackId) {
+        console.log('DEPRECATED METHOD')
+        console.log(this.checkRenderedTrack);
+        this.trackExists(trackId);
+    },
+    trackExists: function (trackId) {
         if (this.trackListPanel.swapHash[trackId]) {
             return true;
         }

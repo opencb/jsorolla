@@ -45,6 +45,8 @@ function ChromosomePanel(args) {
 
     this.on(this.handlers);
 
+    this.regionChanging = false;
+
     this.rendered = false;
     if (this.autoRender) {
         this.render();
@@ -89,7 +91,7 @@ ChromosomePanel.prototype = {
         this.svg.setAttribute("width", width);
 //        this.tracksViewedRegion = this.width / Utils.getPixelBaseByZoom(this.zoom);
 
-        if(typeof this.data !== 'undefined'){
+        if (typeof this.data !== 'undefined') {
             this.clean();
             this._drawSvg(this.data);
         }
@@ -163,7 +165,7 @@ ChromosomePanel.prototype = {
             subCategory: 'chromosome',
             query: this.region.chromosome,
             resource: 'info',
-            async:false,
+            async: false,
             success: function (data) {
                 _this.data = data.response[0].result.chromosomes;
                 _this.data.cytobands.sort(function (a, b) {
@@ -242,7 +244,7 @@ ChromosomePanel.prototype = {
             }
         }
 
-        if(typeof cytobandsByStain['acen'] !== 'undefined'){
+        if (typeof cytobandsByStain['acen'] !== 'undefined') {
             var firstStain = cytobandsByStain['acen'][0];
             var lastStain = cytobandsByStain['acen'][1];
             var backrect = SVG.addChild(group, 'rect', {
@@ -390,57 +392,74 @@ ChromosomePanel.prototype = {
         var downY, downX, moveX, moveY, lastX, increment;
 
         $(this.svg).mousedown(function (event) {
-//            downX = (event.pageX - $(_this.svg).offset().left);
-            downX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
-            selBox.setAttribute("x", downX);
-            lastX = _this.positionBox.getAttribute("x");
-            if (status == '') {
-                status = 'setRegion'
-            }
-            hideResizeControls();
-            $(this).mousemove(function (event) {
-//                moveX = (event.pageX - $(_this.svg).offset().left);
-                moveX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
-                hideResizeControls();
-                switch (status) {
-                    case 'resizePositionBoxLeft' :
-                        var inc = moveX - downX;
-                        var newWidth = parseInt(_this.positionBox.getAttribute("width")) - inc;
-                        if (newWidth > 0) {
-                            _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
-                            _this.positionBox.setAttribute("width", newWidth);
-                        }
-                        downX = moveX;
-                        break;
-                    case 'resizePositionBoxRight' :
-                        var inc = moveX - downX;SVG
-                        var newWidth = parseInt(_this.positionBox.getAttribute("width")) + inc;
-                        if (newWidth > 0) {
-                            _this.positionBox.setAttribute("width", newWidth);
-                        }
-                        downX = moveX;
-                        break;
-                    case 'movePositionBox' :
-                        var inc = moveX - downX;
-                        _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
-                        downX = moveX;
-                        break;
-                    case 'setRegion':
-                    case 'selectingRegion' :
-                        status = 'selectingRegion';
-                        if (moveX < downX) {
-                            selBox.setAttribute("x", moveX);
-                        }
-                        selBox.setAttribute("width", Math.abs(moveX - downX));
-                        selBox.setAttribute("height", _this.height - 3);
-                        break;
-                }
+            if (!_this.regionChanging) {
+                _this.regionChanging = true;
+                /**/
+                /**/
+                /**/
+                /**/
 
-            });
+//            downX = (event.pageX - $(_this.svg).offset().left);
+                downX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
+                selBox.setAttribute("x", downX);
+                lastX = _this.positionBox.getAttribute("x");
+                if (status == '') {
+                    status = 'setRegion'
+                }
+                hideResizeControls();
+                $(this).mousemove(function (event) {
+//                moveX = (event.pageX - $(_this.svg).offset().left);
+                    moveX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
+                    hideResizeControls();
+                    switch (status) {
+                        case 'resizePositionBoxLeft' :
+                            var inc = moveX - downX;
+                            var newWidth = parseInt(_this.positionBox.getAttribute("width")) - inc;
+                            if (newWidth > 0) {
+                                _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
+                                _this.positionBox.setAttribute("width", newWidth);
+                            }
+                            downX = moveX;
+                            break;
+                        case 'resizePositionBoxRight' :
+                            var inc = moveX - downX;
+                            SVG
+                            var newWidth = parseInt(_this.positionBox.getAttribute("width")) + inc;
+                            if (newWidth > 0) {
+                                _this.positionBox.setAttribute("width", newWidth);
+                            }
+                            downX = moveX;
+                            break;
+                        case 'movePositionBox' :
+                            var inc = moveX - downX;
+                            _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
+                            downX = moveX;
+                            break;
+                        case 'setRegion':
+                        case 'selectingRegion' :
+                            status = 'selectingRegion';
+                            if (moveX < downX) {
+                                selBox.setAttribute("x", moveX);
+                            }
+                            selBox.setAttribute("width", Math.abs(moveX - downX));
+                            selBox.setAttribute("height", _this.height - 3);
+                            break;
+                    }
+
+                });
+                /**/
+                /**/
+                /**/
+                /**/
+                setTimeout(function () {
+                    _this.regionChanging = false;
+                }, 1000);
+            }
         });
 
 
         $(this.svg).mouseup(function (event) {
+
             $(this).off('mousemove');
             if (downX != null) {
 
@@ -456,7 +475,7 @@ ChromosomePanel.prototype = {
                             var pixE = x + w;
                             var bioS = (pixS - offset) / _this.pixelBase;
                             var bioE = (pixE - offset) / _this.pixelBase;
-                            var se = limitRegionToChromosome({start:bioS,end:bioE});// returns object with start and end
+                            var se = limitRegionToChromosome({start: bioS, end: bioE});// returns object with start and end
                             _this.region.start = Math.round(se.start);
                             _this.region.end = Math.round(se.end);
                             recalculatePositionBox();
@@ -468,7 +487,7 @@ ChromosomePanel.prototype = {
                         }
                         break;
                     case 'setRegion' :
-                        if(downX > offset && downX < (_this.width - offset)){
+                        if (downX > offset && downX < (_this.width - offset)) {
                             var w = _this.positionBox.getAttribute("width");
 
                             _this.positionBox.setAttribute("x", downX - (w / 2));
@@ -487,9 +506,9 @@ ChromosomePanel.prototype = {
                     case 'selectingRegion' :
                         var bioS = (downX - offset) / _this.pixelBase;
                         var bioE = (moveX - offset) / _this.pixelBase;
-                        var start = Math.min(bioS,bioE);
-                        var end = Math.max(bioS,bioE);
-                        var se = limitRegionToChromosome({start:start,end:end});// returns object with start and end
+                        var start = Math.min(bioS, bioE);
+                        var end = Math.max(bioS, bioE);
+                        var se = limitRegionToChromosome({start: start, end: end});// returns object with start and end
                         _this.region.start = parseInt(se.start);
                         _this.region.end = parseInt(se.end);
                         recalculatePositionBox();

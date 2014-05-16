@@ -171,7 +171,7 @@ Track.prototype = {
         } else {
             this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
-            this.trigger('track:ready', {sender: this});
+//            this.trigger('track:ready', {sender: this});
         }
     },
 
@@ -181,11 +181,13 @@ Track.prototype = {
             this.histogramLogarithm = true;
             this.histogramMax = 500;
             this.interval = Math.ceil(10 / this.pixelBase);//server interval limit 512
+            this.setTitle(this.title+'&nbsp;<span class="glyphicon glyphicon-signal"></span>')
         } else {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
             this.histogramMax = undefined;
             this.interval = undefined;
+            this.setTitle(this.title);
         }
 
 //        if (this.histogramRenderer) {
