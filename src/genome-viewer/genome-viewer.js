@@ -366,13 +366,8 @@ GenomeViewer.prototype = {
                         },
                         success: function (data) {
                             var feat = data.response[0].result[0];
-                            var regionStr = feat.chromosome + ":" + feat.start + "-" + feat.end;
-                            var region = new Region();
-                            region.parse(regionStr);
-                            region = _this._checkRegion(region);
-                            _this.setMinRegion(region, _this.getSVGCanvasWidth());
-                            _this.region = region;
-                            _this.trigger('region:change', {region: _this.region, sender: _this});
+                            var region = new Region(feat);
+                            _this._regionChangeHandler({region: region});
                         }
                     });
                 }
@@ -692,7 +687,7 @@ GenomeViewer.prototype = {
         var zoomLevelMultiplier = Math.pow(chr.size / minRegionLength, 0.01); // 0.01 = 1/100  100 zoom levels
 
 //      regionLength = mrl * (Math.pow(zlm,ZOOM))
-        var regionLength = minRegionLength * (Math.pow(zoomLevelMultiplier, 100 - zoom)); // 100 - zoom to change direction
+        var regionLength = minRegionLength * (Math.pow(zoomLevelMultiplier, 100 - zoom)); // invert   100 - zoom
 
         var centerPosition = this.region.center();
         var aux = Math.ceil((regionLength / 2) - 1);
@@ -838,20 +833,7 @@ GenomeViewer.prototype = {
     /** API METHODS **/
     /*****************/
     setRegion: function (region) {
-        if (this._checkChangingRegion()) {
-
-            /**/
-            this._checkAndSetNewChromosomeRegion(region);
-            this._checkAndSetMinimumRegion(region, this.getSVGCanvasWidth());
-            this.zoom = this._calculateZoomByRegion(region);
-            this.trigger('region:change', {region: region, sender: this});
-            /**/
-
-        } else {
-            console.log('****************************');
-            console.log('**************************** region change already in progress');
-            console.log('****************************');
-        }
+        this._regionChangeHandler({region: region});
     },
     moveRegion: function (disp) {
         this.region.start += disp;

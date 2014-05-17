@@ -399,7 +399,7 @@ NavigationBar.prototype = {
                     itemKey = item[this.quickSearchDisplayKey];
                 }
                 this.quickSearchDataset[itemKey] = item;
-                var menuEntry = $('<option class="ocb-option" value="' + itemKey + '">')[0];
+                var menuEntry = $('<option value="' + itemKey + '">')[0];
                 $(this.searchDataList).append(menuEntry);
             }
         } else {

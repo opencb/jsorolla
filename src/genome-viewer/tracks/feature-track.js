@@ -53,7 +53,6 @@ FeatureTrack.prototype.render = function (targetId) {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
     this.dataAdapter.on('data:ready', function (event) {
-        _this.setLoading(true);
         var features;
         if (event.dataType == 'histogram') {
             _this.renderer = _this.histogramRenderer;
@@ -61,12 +60,6 @@ FeatureTrack.prototype.render = function (targetId) {
         } else {
             _this.renderer = _this.defaultRenderer;
             features = _this.getFeaturesToRenderByChunk(event);
-        }
-        if (_this.id === 4) {
-            console.log('**************')
-            console.log('************** snp')
-            console.log(features)
-            console.log('**************')
         }
         _this.renderer.render(features, {
             svgCanvasFeatures: _this.svgCanvasFeatures,
@@ -83,7 +76,6 @@ FeatureTrack.prototype.render = function (targetId) {
             featureType: _this.featureType
         });
         _this.updateHeight();
-        _this.setLoading(false);
     });
 };
 
@@ -117,6 +109,9 @@ FeatureTrack.prototype.draw = function () {
                 histogramLogarithm: this.histogramLogarithm,
                 histogramMax: this.histogramMax,
                 interval: this.interval
+            },
+            done: function () {
+                _this.setLoading(false);
             }
         });
 

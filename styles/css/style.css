@@ -143,9 +143,11 @@
     position: relative;
     background-color: white;
 }
-.ocb-option {
-    background:white;
-    color:black;
+.ocb-warn {
+    color: orangered;
+}
+.ocb-light {
+    color: gray;
 }
 
 /*.ocb-gv-navigation{*/
