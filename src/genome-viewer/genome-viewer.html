@@ -134,7 +134,6 @@ var run = function () {
     var species = availableSpecies.items[0].items[0];
 
 
-
     genomeViewer = new GenomeViewer({
         targetId: 'application',
         region: region,
@@ -204,7 +203,7 @@ var run = function () {
         })
     });
 
-//    tracks.push(this.sequence);
+    tracks.push(this.sequence);
 
     this.gene = new GeneTrack({
         targetId: null,
@@ -231,7 +230,7 @@ var run = function () {
         })
     });
 
-//    tracks.push(this.gene);
+    tracks.push(this.gene);
 
 
     var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
@@ -244,7 +243,7 @@ var run = function () {
     var gene = new FeatureTrack({
         targetId: null,
         id: 2,
-//        title: 'Gene',
+        title: 'Gene overview',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
         height: 100,
@@ -256,7 +255,7 @@ var run = function () {
             subCategory: "region",
             resource: "gene",
             params: {
-                exclude: 'transcripts'
+                exclude: 'transcripts,chunkIds'
             },
             species: genomeViewer.species,
             cacheConfig: {
@@ -264,13 +263,12 @@ var run = function () {
             }
         })
     });
-//    genomeViewer.addOverviewTrack(gene);
+    genomeViewer.addOverviewTrack(gene);
 
     this.snp = new FeatureTrack({
         targetId: null,
         id: 4,
         title: 'SNP',
-        featureType: 'SNP',
         minHistogramRegionSize: 10000,
         maxLabelRegionSize: 3000,
         height: 100,
@@ -338,7 +336,7 @@ $(document).ready(run);
     }
 
     body {
-        margin:10px;
+        margin: 10px;
         /*overflow: hidden;*/
         /*padding:50px;*/
     }

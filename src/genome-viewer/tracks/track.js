@@ -20,8 +20,6 @@
  */
 
 function Track(args) {
-    this.width = 200;
-    this.height = 200;
 
 
     this.dataAdapter;
@@ -33,6 +31,7 @@ function Track(args) {
     this.title;
     this.minHistogramRegionSize = 300000000;
     this.maxLabelRegionSize = 300000000;
+    this.width = 200;
     this.height = 100;
     this.visibleRegionSize;
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
@@ -123,9 +122,7 @@ Track.prototype = {
 //            'cursor': 'pointer'
 //        });
         if (this.resizable) {
-            if (this.histogram) {
-                $(this.svgdiv).css({'height': this.height + 10});
-            } else {
+            if (!this.histogram) {
                 var x = this.pixelPosition;
                 var width = this.width;
                 var lastContains = 0;
@@ -139,7 +136,11 @@ Track.prototype = {
 //                this.rrr.setAttribute('x', x);
 //                this.rrr.setAttribute('y', divHeight);
 //                this.rrr.setAttribute('width', width);
+
             }
+        }
+        if (this.histogram) {
+            $(this.svgdiv).css({'height': this.height + 10});
         }
     },
     _updateSVGHeight: function () {
@@ -149,12 +150,18 @@ Track.prototype = {
             this.svgCanvasFeatures.setAttribute('height', renderedHeight);
             this.hoverRect.setAttribute('height', renderedHeight);
         }
+        if (this.histogram) {
+            this.main.setAttribute('height', this.height);
+            this.svgCanvasFeatures.setAttribute('height', this.height);
+            this.hoverRect.setAttribute('height', this.height);
+        }
     },
     updateHeight: function (ignoreAutoHeight) {
         this._updateSVGHeight();
         if (this.autoHeight || ignoreAutoHeight) {
             this._updateDIVHeight();
         }
+        if (this.histogram);
     },
     enableAutoHeight: function () {
         this.autoHeight = true;
@@ -220,7 +227,7 @@ Track.prototype = {
         var titleBardiv = $('' +
             '<div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
+//            '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
             '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button">' +
             '       <span id="titleDiv">' + this.title + '</span>' +
             '       <span id="histogramDiv"></span>' +
@@ -235,7 +242,7 @@ Track.prototype = {
 
         var titlediv = $(titleBardiv).find('#titleDiv')[0];
         this.titleBtn = $(titleBardiv).find('#titleBtn')[0];
-        var configBtn = $(titleBardiv).find('#configBtn')[0];
+//        var configBtn = $(titleBardiv).find('#configBtn')[0];
 
         this.histogramDiv = $(titleBardiv).find('#histogramDiv')[0];
         this.loadingDiv = $(titleBardiv).find('#loadingDiv')[0];
@@ -389,7 +396,7 @@ Track.prototype = {
         this.svgdiv = svgdiv;
         this.titlediv = titlediv;
         this.resizeDiv = resizediv;
-        this.configBtn = configBtn;
+//        this.configBtn = configBtn;
 
         this.main = main;
         this.hoverRect = hoverRect;

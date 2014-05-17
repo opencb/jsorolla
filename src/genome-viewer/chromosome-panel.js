@@ -280,7 +280,7 @@ ChromosomePanel.prototype = {
         });
 
         // selection box, will appear when selection is detected
-        var selBox = SVG.addChild(this.svg, "rect", {
+        this.selBox = SVG.addChild(this.svg, "rect", {
             "x": 0,
             "y": 2,
             "stroke-width": "2",
@@ -308,73 +308,41 @@ ChromosomePanel.prototype = {
         });
 
 
-        var resizeLeft = SVG.addChild(positionGroup, 'rect', {
+        this.resizeLeft = SVG.addChild(positionGroup, 'rect', {
             'x': pointerPosition - (positionBoxWidth / 2),
             'y': 2,
-            'width': 5,
+            'width': 7,
             'height': _this.height - 3,
             'opacity': 0.5,
             'fill': 'orangered',
             'visibility': 'hidden'
         });
-        $(resizeLeft).on('mousedown', function (event) {
+        $(this.resizeLeft).on('mousedown', function (event) {
             status = 'resizePositionBoxLeft';
         });
 
-        var resizeRight = SVG.addChild(positionGroup, 'rect', {
+        this.resizeRight = SVG.addChild(positionGroup, 'rect', {
             'x': positionBoxWidth - 5,
             'y': 2,
-            'width': 5,
+            'width': 7,
             'height': _this.height - 3,
             'opacity': 0.5,
             'fill': 'orangered',
             'visibility': 'hidden'
         });
-        $(resizeRight).on('mousedown', function (event) {
+        $(this.resizeRight).on('mousedown', function (event) {
             status = 'resizePositionBoxRight';
         });
 
         $(this.positionBox).off('mouseenter');
         $(this.positionBox).off('mouseleave');
 
-        var recalculateResizeControls = function () {
-            var postionBoxX = parseInt(_this.positionBox.getAttribute('x'));
-            var postionBoxWidth = parseInt(_this.positionBox.getAttribute('width'));
-            resizeLeft.setAttribute('x', postionBoxX - 5);
-            resizeRight.setAttribute('x', (postionBoxX + postionBoxWidth));
-            $(resizeLeft).css({"cursor": "ew-resize"});
-            $(resizeRight).css({"cursor": "ew-resize"});
-        };
-
-        var hideResizeControls = function () {
-            resizeLeft.setAttribute('visibility', 'hidden');
-            resizeRight.setAttribute('visibility', 'hidden');
-        };
-
-        var showResizeControls = function () {
-            resizeLeft.setAttribute('visibility', 'visible');
-            resizeRight.setAttribute('visibility', 'visible');
-        };
-
-        var recalculatePositionBox = function () {
-            var genomicLength = _this.region.length();
-            var pixelWidth = genomicLength * _this.pixelBase;
-            var x = (_this.region.start * _this.pixelBase) + 20;//20 is the margin
-            _this.positionBox.setAttribute("x", x);
-            _this.positionBox.setAttribute("width", pixelWidth);
-        };
-        var limitRegionToChromosome = function (args) {
-            args.start = (args.start < 1) ? 1 : args.start;
-            args.end = (args.end > _this.chromosomeLength) ? _this.chromosomeLength : args.end;
-            return args;
-        };
-
         $(positionGroup).mouseenter(function (event) {
-            recalculateResizeControls();
-            showResizeControls();
+            _this._recalculateResizeControls();
+            _this._showResizeControls();
         });
         $(positionGroup).mouseleave(function (event) {
-            hideResizeControls();
+            _this._hideResizeControls();
         });
 
 
@@ -392,69 +360,53 @@ ChromosomePanel.prototype = {
         var downY, downX, moveX, moveY, lastX, increment;
 
         $(this.svg).mousedown(function (event) {
-            if (!_this.regionChanging) {
-                _this.regionChanging = true;
-                /**/
-                /**/
-                /**/
-                /**/
 
-//            downX = (event.pageX - $(_this.svg).offset().left);
-                downX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
-                selBox.setAttribute("x", downX);
-                lastX = _this.positionBox.getAttribute("x");
-                if (status == '') {
-                    status = 'setRegion'
-                }
-                hideResizeControls();
-                $(this).mousemove(function (event) {
-//                moveX = (event.pageX - $(_this.svg).offset().left);
-                    moveX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
-                    hideResizeControls();
-                    switch (status) {
-                        case 'resizePositionBoxLeft' :
-                            var inc = moveX - downX;
-                            var newWidth = parseInt(_this.positionBox.getAttribute("width")) - inc;
-                            if (newWidth > 0) {
-                                _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
-                                _this.positionBox.setAttribute("width", newWidth);
-                            }
-                            downX = moveX;
-                            break;
-                        case 'resizePositionBoxRight' :
-                            var inc = moveX - downX;
-                            SVG
-                            var newWidth = parseInt(_this.positionBox.getAttribute("width")) + inc;
-                            if (newWidth > 0) {
-                                _this.positionBox.setAttribute("width", newWidth);
-                            }
-                            downX = moveX;
-                            break;
-                        case 'movePositionBox' :
-                            var inc = moveX - downX;
-                            _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
-                            downX = moveX;
-                            break;
-                        case 'setRegion':
-                        case 'selectingRegion' :
-                            status = 'selectingRegion';
-                            if (moveX < downX) {
-                                selBox.setAttribute("x", moveX);
-                            }
-                            selBox.setAttribute("width", Math.abs(moveX - downX));
-                            selBox.setAttribute("height", _this.height - 3);
-                            break;
-                    }
-
-                });
-                /**/
-                /**/
-                /**/
-                /**/
-                setTimeout(function () {
-                    _this.regionChanging = false;
-                }, 1000);
+            downX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
+            _this.selBox.setAttribute("x", downX);
+            lastX = _this.positionBox.getAttribute("x");
+            if (status == '') {
+                status = 'setRegion'
             }
+            _this._hideResizeControls();
+            $(this).mousemove(function (event) {
+                moveX = (event.clientX - $(this).parent().offset().left); //using parent offset works well on firefox and chrome. Could be because it is a div instead of svg
+                _this._hideResizeControls();
+                switch (status) {
+                    case 'resizePositionBoxLeft' :
+                        var inc = moveX - downX;
+                        var newWidth = parseInt(_this.positionBox.getAttribute("width")) - inc;
+                        if (newWidth > 0) {
+                            _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
+                            _this.positionBox.setAttribute("width", newWidth);
+                        }
+                        downX = moveX;
+                        break;
+                    case 'resizePositionBoxRight' :
+                        var inc = moveX - downX;
+                        SVG
+                        var newWidth = parseInt(_this.positionBox.getAttribute("width")) + inc;
+                        if (newWidth > 0) {
+                            _this.positionBox.setAttribute("width", newWidth);
+                        }
+                        downX = moveX;
+                        break;
+                    case 'movePositionBox' :
+                        var inc = moveX - downX;
+                        _this.positionBox.setAttribute("x", parseInt(_this.positionBox.getAttribute("x")) + inc);
+                        downX = moveX;
+                        break;
+                    case 'setRegion':
+                    case 'selectingRegion' :
+                        status = 'selectingRegion';
+                        if (moveX < downX) {
+                            _this.selBox.setAttribute("x", moveX);
+                        }
+                        _this.selBox.setAttribute("width", Math.abs(moveX - downX));
+                        _this.selBox.setAttribute("height", _this.height - 3);
+                        break;
+                }
+
+            });
         });
 
 
@@ -475,32 +427,20 @@ ChromosomePanel.prototype = {
                             var pixE = x + w;
                             var bioS = (pixS - offset) / _this.pixelBase;
                             var bioE = (pixE - offset) / _this.pixelBase;
-                            var se = limitRegionToChromosome({start: bioS, end: bioE});// returns object with start and end
-                            _this.region.start = Math.round(se.start);
-                            _this.region.end = Math.round(se.end);
-                            recalculatePositionBox();
-                            recalculateResizeControls();
-                            showResizeControls();
-                            _this.trigger('region:change', {region: _this.region, sender: _this});
-                            recalculateResizeControls();
-                            showResizeControls();
+
+                            _this._triggerRegionChange({region: new Region({chromosome: _this.region.chromosome, start: bioS, end: bioE}), sender: _this});
                         }
                         break;
                     case 'setRegion' :
                         if (downX > offset && downX < (_this.width - offset)) {
                             var w = _this.positionBox.getAttribute("width");
 
-                            _this.positionBox.setAttribute("x", downX - (w / 2));
-
                             var pixS = downX - (w / 2);
                             var pixE = downX + (w / 2);
                             var bioS = (pixS - offset) / _this.pixelBase;
                             var bioE = (pixE - offset) / _this.pixelBase;
-                            var se = limitRegionToChromosome({start: bioS, end: bioE});// returns object with start and end
-                            _this.region.start = Math.round(se.start);
-                            _this.region.end = Math.round(se.end);
-                            recalculatePositionBox();
-                            _this.trigger('region:change', {region: _this.region, sender: _this});
+
+                            _this._triggerRegionChange({region: new Region({chromosome: _this.region.chromosome, start: bioS, end: bioE}), sender: _this});
                         }
                         break;
                     case 'selectingRegion' :
@@ -508,21 +448,13 @@ ChromosomePanel.prototype = {
                         var bioE = (moveX - offset) / _this.pixelBase;
                         var start = Math.min(bioS, bioE);
                         var end = Math.max(bioS, bioE);
-                        var se = limitRegionToChromosome({start: start, end: end});// returns object with start and end
-                        _this.region.start = parseInt(se.start);
-                        _this.region.end = parseInt(se.end);
-                        recalculatePositionBox();
-//                        var w = Math.abs(downX - moveX);
-//                        _this.positionBox.setAttribute("width", w);
-//                        _this.positionBox.setAttribute("x", Math.abs((downX + moveX) / 2) - (w / 2));
-                        _this.trigger('region:change', {region: _this.region, sender: _this});
+
+                        _this._triggerRegionChange({region: new Region({chromosome: _this.region.chromosome, start: start, end: end}), sender: _this});
                         break;
                 }
                 status = '';
 
             }
-            selBox.setAttribute("width", 0);
-            selBox.setAttribute("height", 0);
             downX = null;
             moveX = null;
             lastX = _this.positionBox.getAttribute("x");
@@ -532,8 +464,8 @@ ChromosomePanel.prototype = {
             if (lastX != null) {
                 _this.positionBox.setAttribute("x", lastX);
             }
-            selBox.setAttribute("width", 0);
-            selBox.setAttribute("height", 0);
+            _this.selBox.setAttribute("width", 0);
+            _this.selBox.setAttribute("height", 0);
             downX = null;
             moveX = null;
             lastX = null;
@@ -542,7 +474,62 @@ ChromosomePanel.prototype = {
             selectingRegion = false;
         });
     },
+
+    _triggerRegionChange: function (event) {
+        var _this = this;
+        if (!this.regionChanging) {
+            this.regionChanging = true;
+
+            /**/
+            this._limitRegionToChromosome(event.region);
+            this.trigger('region:change', event);
+            /**/
+            setTimeout(function () {
+                _this.regionChanging = false;
+            }, 1000);
+        }
+    },
+
+
+    _recalculatePositionBox: function (region) {
+        var genomicLength = region.length();
+        var pixelWidth = genomicLength * this.pixelBase;
+        var x = (region.start * this.pixelBase) + 20;//20 is the margin
+        this.positionBox.setAttribute("x", x);
+        this.positionBox.setAttribute("width", pixelWidth);
+    },
+    _recalculateSelectionBox: function (region) {
+        var genomicLength = region.length();
+        var pixelWidth = genomicLength * this.pixelBase;
+        var x = (region.start * this.pixelBase) + 20;//20 is the margin
+        this.selBox.setAttribute("x", x);
+        this.selBox.setAttribute("width", pixelWidth);
+    },
+    _recalculateResizeControls: function () {
+        var postionBoxX = parseInt(this.positionBox.getAttribute('x'));
+        var postionBoxWidth = parseInt(this.positionBox.getAttribute('width'));
+        this.resizeLeft.setAttribute('x', postionBoxX - 5);
+        this.resizeRight.setAttribute('x', (postionBoxX + postionBoxWidth));
+        $(this.resizeLeft).css({"cursor": "ew-resize"});
+        $(this.resizeRight).css({"cursor": "ew-resize"});
+    },
+    _hideResizeControls: function () {
+        this.resizeLeft.setAttribute('visibility', 'hidden');
+        this.resizeRight.setAttribute('visibility', 'hidden');
+    },
+    _showResizeControls: function () {
+        this.resizeLeft.setAttribute('visibility', 'visible');
+        this.resizeRight.setAttribute('visibility', 'visible');
+    },
+    _limitRegionToChromosome: function (region) {
+        region.start = (region.start < 1) ? 1 : region.start;
+        region.end = (region.end > this.chromosomeLength) ? this.chromosomeLength : region.end;
+    },
+
+
     setRegion: function (region) {//item.chromosome, item.region
+
+        console.log('region modified chromosome')
         this.region.load(region);
         var needDraw = false;
 
@@ -553,12 +540,9 @@ ChromosomePanel.prototype = {
             this.draw();
         }
 
-        //recalculate positionBox
-        var genomicLength = this.region.length();
-        var pixelWidth = genomicLength * this.pixelBase;
-        var x = (this.region.start * this.pixelBase) + 20;//20 is the margin
-        this.positionBox.setAttribute("x", x);
-        this.positionBox.setAttribute("width", pixelWidth);
-
+        this.selBox.setAttribute("width", 0);
+        this.selBox.setAttribute("height", 0);
+        this._recalculatePositionBox(this.region);
+        this._recalculateResizeControls();
     }
 }

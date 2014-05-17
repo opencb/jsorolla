@@ -71,7 +71,6 @@ GeneTrack.prototype.render = function (targetId) {
 
         });
         _this.updateHeight();
-        _this.setLoading(false);
     });
 };
 
@@ -120,6 +119,9 @@ GeneTrack.prototype.draw = function () {
                 histogramMax: this.histogramMax,
                 interval: this.interval,
                 exclude: this.exclude
+            },
+            done: function () {
+                _this.setLoading(false);
             }
         });
 
@@ -178,6 +180,9 @@ GeneTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval,
                     exclude: this.exclude
+                },
+                done: function () {
+
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -198,6 +203,9 @@ GeneTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval,
                     exclude: this.exclude
+                },
+                done: function () {
+
                 }
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);

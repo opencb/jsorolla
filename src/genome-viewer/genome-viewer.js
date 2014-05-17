@@ -527,9 +527,9 @@ GenomeViewer.prototype = {
         });
 
         this.on('region:change region:move', function (event) {
-            if (event.sender != chromosomePanel) {
+//            if (event.sender != chromosomePanel) {
                 chromosomePanel.setRegion(event.region);
-            }
+//            }
         });
         this.on('width:change', function (event) {
             chromosomePanel.setWidth(event.width - _this.sidePanelWidth);

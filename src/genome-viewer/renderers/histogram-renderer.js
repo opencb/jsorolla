@@ -67,6 +67,7 @@ HistogramRenderer.prototype._checkFeatureValue = function (feature) {
 
 HistogramRenderer.prototype.render = function (features, args) {
     var middle = args.width / 2;
+    console.log(middle)
     var points = '';
     if (features.length > 0) {
         var firstFeature = features[0].value;
@@ -76,7 +77,7 @@ HistogramRenderer.prototype.render = function (features, args) {
         this._checkFeatureValue(firstFeature);
         var height = firstFeature.features_count * this.multiplier;
 
-        points = (x - (width / 2)) + ',' + this.histogramHeight  + ' ';
+        points = (x - (width / 2)) + ',' + this.histogramHeight + ' ';
     }
 
     for (var i = 0, len = features.length; i < len; i++) {
@@ -103,11 +104,14 @@ HistogramRenderer.prototype.render = function (features, args) {
         points += (x + (width)) + ',' + this.histogramHeight + ' ';
     }
 
-    var pol = SVG.addChild(args.svgCanvasFeatures, "polyline", {
-        "points": points,
-//        "stroke": "#000000",
-//        "stroke-width": 0.2,
-        "fill": '#428bca',
-        "cursor": "pointer"
-    });
+    if (points !== '') {
+        SVG.addChild(args.svgCanvasFeatures, "polyline", {
+            "points": points,
+            //        "stroke": "#000000",
+            //        "stroke-width": 0.2,
+            "fill": '#428bca',
+            "cursor": "pointer"
+        });
+
+    }
 };

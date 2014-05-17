@@ -157,6 +157,9 @@ FeatureTrack.prototype.move = function (disp) {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
+                },
+                done: function () {
+
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -175,7 +178,11 @@ FeatureTrack.prototype.move = function (disp) {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
+                },
+                done: function () {
+
                 }
+
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
