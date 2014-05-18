@@ -449,6 +449,8 @@ ChromosomePanel.prototype = {
                         var start = Math.min(bioS, bioE);
                         var end = Math.max(bioS, bioE);
 
+                        _this.selBox.setAttribute("width", 0);
+                        _this.selBox.setAttribute("height", 0);
                         _this._triggerRegionChange({region: new Region({chromosome: _this.region.chromosome, start: start, end: end}), sender: _this});
                         break;
                 }
@@ -486,7 +488,9 @@ ChromosomePanel.prototype = {
             /**/
             setTimeout(function () {
                 _this.regionChanging = false;
-            }, 1000);
+            }, 700);
+        }else{
+            this.updateRegionControls();
         }
     },
 
@@ -526,6 +530,12 @@ ChromosomePanel.prototype = {
         region.end = (region.end > this.chromosomeLength) ? this.chromosomeLength : region.end;
     },
 
+    updateRegionControls:function(){
+        this.selBox.setAttribute("width", 0);
+        this.selBox.setAttribute("height", 0);
+        this._recalculatePositionBox(this.region);
+        this._recalculateResizeControls();
+    },
 
     setRegion: function (region) {//item.chromosome, item.region
 
@@ -540,9 +550,6 @@ ChromosomePanel.prototype = {
             this.draw();
         }
 
-        this.selBox.setAttribute("width", 0);
-        this.selBox.setAttribute("height", 0);
-        this._recalculatePositionBox(this.region);
-        this._recalculateResizeControls();
+        this.updateRegionControls();
     }
 }

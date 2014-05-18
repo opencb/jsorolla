@@ -490,9 +490,9 @@ GenomeViewer.prototype = {
         });
 
         this.on('region:change region:move', function (event) {
-            if (event.sender != karyotypePanel) {
+//            if (event.sender != karyotypePanel) {
                 karyotypePanel.setRegion(event.region);
-            }
+//            }
         });
         this.on('width:change', function (event) {
             karyotypePanel.setWidth(event.width - _this.sidePanelWidth);
@@ -528,7 +528,7 @@ GenomeViewer.prototype = {
 
         this.on('region:change region:move', function (event) {
 //            if (event.sender != chromosomePanel) {
-                chromosomePanel.setRegion(event.region);
+            chromosomePanel.setRegion(event.region);
 //            }
         });
         this.on('width:change', function (event) {
@@ -803,6 +803,11 @@ GenomeViewer.prototype = {
             /**/
 
         } else {
+            if (event.sender) {
+                if (event.sender.updateRegionControls) {
+                    event.sender.updateRegionControls();
+                }
+            }
             console.log('****************************');
             console.log('**************************** region change already in progress');
             console.log('****************************');
