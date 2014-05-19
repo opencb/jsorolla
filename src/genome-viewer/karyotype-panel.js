@@ -35,7 +35,7 @@ function KaryotypePanel(args) {
 
 
 //set instantiation args, must be last
-        _.extend(this, args);
+    _.extend(this, args);
 
     //set own region object
     this.region = new Region(this.region);
@@ -46,6 +46,8 @@ function KaryotypePanel(args) {
     this.data2;
 
     this.on(this.handlers);
+
+    this.regionChanging = false;
 
     this.rendered = false;
     if (this.autoRender) {
@@ -91,7 +93,7 @@ KaryotypePanel.prototype = {
         this.svg.setAttribute("width", width);
 
 
-        if(typeof this.chromosomeList !== 'undefined'){
+        if (typeof this.chromosomeList !== 'undefined') {
             this.clean();
             this._drawSvg(this.chromosomeList, this.data2);
         }
@@ -113,8 +115,8 @@ KaryotypePanel.prototype = {
             this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
             $(this.div).append(this.titleDiv);
 
-            if(this.collapsible == true){
-                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs pull-right" style="display:inline;margin:2px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
+            if (this.collapsible == true) {
+                this.collapseDiv = $('<div style="display:inline;margin:5px;height:16px;float:right;"><span class="glyphicon glyphicon-minus"></span></div>');
                 $(this.titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -177,7 +179,7 @@ KaryotypePanel.prototype = {
             category: 'genomic',
             subCategory: 'chromosome',
             resource: 'all',
-            async:false,
+            async: false,
             success: function (data) {
                 _this.chromosomeList = data.response.result.chromosomes;
                 _this.chromosomeList.sort(sortfunction);
@@ -211,37 +213,31 @@ KaryotypePanel.prototype = {
 
         for (var i = 0, len = chromosomeList.length; i < len; i++) { //loop over chromosomes
             var chromosome = chromosomeList[i];
-//		var chr = chromosome.name;
+
             var chrSize = chromosome.size * _this.pixelBase;
             var y = yMargin + (biggerChr * _this.pixelBase) - chrSize;
             _this.chrOffsetY[chromosome.name] = y;
             var firstCentromere = true;
 
-            var centerPosition = _this.region.center();
-            var pointerPosition = (centerPosition * _this.pixelBase);
 
             var group = SVG.addChild(_this.svg, "g", {"cursor": "pointer", "chr": chromosome.name});
             $(group).click(function (event) {
                 var chrClicked = this.getAttribute("chr");
-//			for ( var k=0, len=chromosomeList.length; k<len; k++) {
-//			var offsetX = (event.pageX - $(_this.svg).offset().left);
-//			if(offsetX > _this.chrOffsetX[chromosomeList[k]]) chrClicked = chromosomeList[k];
-//			}
+                //			for ( var k=0, len=chromosomeList.length; k<len; k++) {
+                //			var offsetX = (event.pageX - $(_this.svg).offset().left);
+                //			if(offsetX > _this.chrOffsetX[chromosomeList[k]]) chrClicked = chromosomeList[k];
+                //			}
 
                 var offsetY = (event.pageY - $(_this.svg).offset().top);
-//			var offsetY = event.originalEvent.layerY - 3;
-
-                _this.positionBox.setAttribute("x1", _this.chrOffsetX[chrClicked] - 10);
-                _this.positionBox.setAttribute("x2", _this.chrOffsetX[chrClicked] + 23);
-                _this.positionBox.setAttribute("y1", offsetY);
-                _this.positionBox.setAttribute("y2", offsetY);
+                //			var offsetY = event.originalEvent.layerY - 3;
 
                 var clickPosition = parseInt((offsetY - _this.chrOffsetY[chrClicked]) / _this.pixelBase);
-                _this.region.chromosome = chrClicked;
-                _this.region.start = clickPosition;
-                _this.region.end = clickPosition;
-
-                _this.trigger('region:change', {region: _this.region, sender: _this});
+                var region = new Region({
+                    chromosome: chrClicked,
+                    start: clickPosition,
+                    end: clickPosition
+                });
+                _this._triggerRegionChange({region: region, sender: _this});
             });
 
             for (var j = 0, lenJ = chromosome.cytobands.length; j < lenJ; j++) { //loop over chromosome objects
@@ -295,20 +291,50 @@ KaryotypePanel.prototype = {
             _this.chrOffsetX[chromosome.name] = x;
             x += xOffset;
         }
-        _this.positionBox = SVG.addChild(_this.svg, "line", {
-            "x1": _this.chrOffsetX[_this.region.chromosome] - 10,
-            "y1": pointerPosition + _this.chrOffsetY[_this.region.chromosome],
-            "x2": _this.chrOffsetX[_this.region.chromosome] + 23,
-            "y2": pointerPosition + _this.chrOffsetY[_this.region.chromosome],
+
+
+        this.positionBox = SVG.addChild(this.svg, "line", {
+            "x1": 0,
+            "y1": 0,
+            "x2": 0,
+            "y2": 0,
             "stroke": "orangered",
             "stroke-width": 2,
             "opacity": 0.5
         });
+        this._recalculatePositionBox(this.region);
 
-        _this.rendered = true;
-        _this.trigger('after:render',{sender:_this});
+
+        this.rendered = true;
+        this.trigger('after:render', {sender: this});
     },
 
+
+    _triggerRegionChange: function (event) {
+        var _this = this;
+        if (!this.regionChanging) {
+            this.regionChanging = true;
+            /**/
+            this.trigger('region:change', event);
+            /**/
+            setTimeout(function () {
+                _this.regionChanging = false;
+            }, 700);
+        } else {
+            this.updateRegionControls();
+        }
+    },
+    _recalculatePositionBox: function (region) {
+        var centerPosition = region.center();
+        var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[region.chromosome];
+        this.positionBox.setAttribute("x1", this.chrOffsetX[region.chromosome] - 10);
+        this.positionBox.setAttribute("x2", this.chrOffsetX[region.chromosome] + 23);
+        this.positionBox.setAttribute("y1", pointerPosition);
+        this.positionBox.setAttribute("y2", pointerPosition);
+    },
+    updateRegionControls: function () {
+        this._recalculatePositionBox(this.region);
+    },
 
     setRegion: function (region) {//item.chromosome, item.position, item.species
         this.region.load(region);
@@ -319,13 +345,7 @@ KaryotypePanel.prototype = {
             this.lastSpecies = this.species;
         }
 
-        //recalculate positionBox
-        var centerPosition = this.region.center();
-        var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
-        this.positionBox.setAttribute("x1", this.chrOffsetX[this.region.chromosome] - 10);
-        this.positionBox.setAttribute("x2", this.chrOffsetX[this.region.chromosome] + 23);
-        this.positionBox.setAttribute("y1", pointerPosition);
-        this.positionBox.setAttribute("y2", pointerPosition);
+        this.updateRegionControls();
 
         if (needDraw) {
             this.draw();
@@ -333,15 +353,15 @@ KaryotypePanel.prototype = {
     },
 
 
-    updatePositionBox: function () {
-        this.positionBox.setAttribute("x1", this.chrOffsetX[this.region.chromosome] - 10);
-        this.positionBox.setAttribute("x2", this.chrOffsetX[this.region.chromosome] + 23);
-
-        var centerPosition = Utils.centerPosition(this.region);
-        var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
-        this.positionBox.setAttribute("y1", pointerPosition);
-        this.positionBox.setAttribute("y2", pointerPosition);
-    },
+//    updatePositionBox: function () {
+//        this.positionBox.setAttribute("x1", this.chrOffsetX[this.region.chromosome] - 10);
+//        this.positionBox.setAttribute("x2", this.chrOffsetX[this.region.chromosome] + 23);
+//
+//        var centerPosition = Utils.centerPosition(this.region);
+//        var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
+//        this.positionBox.setAttribute("y1", pointerPosition);
+//        this.positionBox.setAttribute("y2", pointerPosition);
+//    },
 
     addMark: function (item) {//item.chromosome, item.position
         var _this = this;
@@ -368,7 +388,7 @@ KaryotypePanel.prototype = {
         if (this.rendered) {
             mark();
         } else {
-            _this.on('after:render',function (e) {
+            _this.on('after:render', function (e) {
                 mark();
             });
         }

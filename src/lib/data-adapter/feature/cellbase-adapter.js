@@ -35,6 +35,8 @@ CellBaseAdapter.prototype = {
     getData: function (args) {
         var _this = this;
 
+        args.webServiceCallCount = 0;
+
         /** Check region and parameters **/
         var region = args.region;
         if (region.start > 300000000 || region.end < 1) {
@@ -72,6 +74,7 @@ CellBaseAdapter.prototype = {
             //      |------------------------|         -> Adjusted region
             var adjustedRegions = this.cache[histogramId].getAdjustedRegions(region);
             if (adjustedRegions.length > 0) {
+                args.webServiceCallCount++;
                 // Get CellBase data
                 CellBaseManager.get({
                     host: this.host,
@@ -82,17 +85,17 @@ CellBaseAdapter.prototype = {
                     resource: this.resource,
                     params: params,
                     success: function (data) {
-                        _this._cellbaseHistogramSuccess(data, dataType, histogramId);
+                        _this._cellbaseHistogramSuccess(data, dataType, histogramId, args);
                     }
                 });
-            } else {
-                // Get chunks from cache
-                var chunksByRegion = this.cache[histogramId].getCachedByRegion(region);
-                var chunksCached = this.cache[histogramId].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
             }
+            // Get chunks from cache
+            var chunksByRegion = this.cache[histogramId].getCachedByRegion(region);
+            var chunksCached = this.cache[histogramId].getByRegions(chunksByRegion.cached);
+            this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
 
-        /** Features: genes, snps ... **/
+
+            /** Features: genes, snps ... **/
         } else {
             // Features will be saved using the dataType features
             if (_.isUndefined(this.cache[dataType])) {
@@ -122,6 +125,7 @@ CellBaseAdapter.prototype = {
                 var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
 
                 for (var i = 0; i < queriesList.length; i++) {
+                    args.webServiceCallCount++;
                     CellBaseManager.get({
                         host: this.host,
                         species: this.species,
@@ -131,7 +135,7 @@ CellBaseAdapter.prototype = {
                         resource: this.resource,
                         params: params,
                         success: function (data) {
-                            _this._cellbaseSuccess(data, dataType);
+                            _this._cellbaseSuccess(data, dataType, args);
                         }
                     });
                 }
@@ -142,10 +146,13 @@ CellBaseAdapter.prototype = {
                 this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
             }
         }
-
+        if (args.webServiceCallCount === 0) {
+            args.done();
+        }
     },
 
-    _cellbaseSuccess: function (data, dataType) {
+    _cellbaseSuccess: function (data, dataType, args) {
+        args.webServiceCallCount--;
         var timeId = this.resource + " save " + Utils.randomString(4);
         console.time(timeId);
         /** time log **/
@@ -169,10 +176,14 @@ CellBaseAdapter.prototype = {
         if (chunks.length > 0) {
             this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
         }
+        if (args.webServiceCallCount === 0) {
+            args.done();
+        }
 
 
     },
-    _cellbaseHistogramSuccess: function (data, dataType, histogramId) {
+    _cellbaseHistogramSuccess: function (data, dataType, histogramId, args) {
+        args.webServiceCallCount--;
         var timeId = Utils.randomString(4);
         console.time(this.resource + " save " + timeId);
         /** time log **/
@@ -191,6 +202,10 @@ CellBaseAdapter.prototype = {
         }
 
         this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
+        if (args.webServiceCallCount === 0) {
+            args.done();
+        }
+
         /** time log **/
         console.timeEnd(this.resource + " get and save " + timeId);
     }

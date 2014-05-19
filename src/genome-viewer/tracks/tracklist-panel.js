@@ -64,6 +64,8 @@ function TrackListPanel(args) {//parent is a DOM div element
 
     this.on(this.handlers);
 
+    this.regionChanging = false;
+
     this.rendered = false;
     if (this.autoRender) {
         this.render();
@@ -127,7 +129,7 @@ TrackListPanel.prototype = {
             $(titleDiv).append(windowSizeDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div type="button" class="btn btn-default btn-xs pull-right" style="display:inline;margin:2px;height:20px"><span class="glyphicon glyphicon-minus"></span></div>');
+                this.collapseDiv = $('<div style="display:inline;margin:5px;height:16px;float:right;"><span class="glyphicon glyphicon-minus"></span></div>');
                 $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -240,7 +242,7 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': mid - 1,
             'top': 0,
-            'width': this.pixelBase,
+            'width': this.pixelBase + 2,
 //            'height': '100%',
             'height': 'calc(100% - 8px)',
             'opacity': 0.5,
@@ -256,7 +258,7 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': -20,
             'top': 0,
-            'width': this.pixelBase,
+            'width': this.pixelBase + 2,
             'height': 'calc(100% - 8px)',
             'border': '1px solid lightgray',
             'opacity': 0.7,
@@ -312,6 +314,8 @@ TrackListPanel.prototype = {
                 //            'visibility': 'hidden',
                 'background-color': 'lightgray'
             });
+            this.regionOverviewBoxLeft = regionOverviewBoxLeft;
+            this.regionOverviewBoxRight = regionOverviewBoxRight;
         }
 
 
@@ -331,9 +335,21 @@ TrackListPanel.prototype = {
         });
 
         $(this.tlTracksDiv).dblclick(function (event) {
-            var halfLength = _this.region.length() / 2;
-            var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition - halfLength, end: _this.mousePosition + halfLength})
-            _this.trigger('region:change', {region: mouseRegion, sender: _this});
+            if (!_this.regionChanging) {
+                _this.regionChanging = true;
+                /**/
+                /**/
+                /**/
+                var halfLength = _this.region.length() / 2;
+                var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition - halfLength, end: _this.mousePosition + halfLength})
+                _this.trigger('region:change', {region: mouseRegion, sender: _this});
+                /**/
+                /**/
+                /**/
+                setTimeout(function () {
+                    _this.regionChanging = false;
+                }, 700);
+            }
         });
 
         var downX, moveX;
@@ -504,7 +520,7 @@ TrackListPanel.prototype = {
         var mid = this.width / 2;
         this._setPixelBase();
 
-        $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase});
+        $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase + 2});
         $(this.mouseLine).css({'width': this.pixelBase});
 
         this.svgTop.setAttribute('width', this.width);
@@ -518,6 +534,19 @@ TrackListPanel.prototype = {
         this.trigger('trackWidth:change', {width: this.width, sender: this})
 
         this._setTextPosition();
+
+        if (this.showRegionOverviewBox) {
+            var regionOverviewBoxWidth = this.region.length() * this.pixelBase;
+            var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
+            $(this.regionOverviewBoxLeft).css({
+                'width': regionOverviewDarkBoxWidth
+            });
+            $(this.regionOverviewBoxRight).css({
+                'left': (regionOverviewDarkBoxWidth + regionOverviewBoxWidth),
+                'width': regionOverviewDarkBoxWidth
+            });
+        }
+
     },
 
     highlight: function (event) {
@@ -545,8 +574,8 @@ TrackListPanel.prototype = {
         //get pixelbase by Region
 
 
-        $(this.centerLine).css({'width': this.pixelBase});
-        $(this.mouseLine).css({'width': this.pixelBase});
+        $(this.centerLine).css({'width': this.pixelBase + 2});
+        $(this.mouseLine).css({'width': this.pixelBase + 2});
 
         this.windowSize = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
         this.viewNtsText.textContent = this.viewNtsText.textContent;
@@ -582,20 +611,19 @@ TrackListPanel.prototype = {
     draw: function () {
         this.trigger('track:draw', {sender: this});
     },
-    checkTracksReady: function () {
-        var _this = this;
-        /************ Loading ************/
-        var checkAllTrackStatus = function (status) {
-            for (i in _this.trackSvgList) {
-                if (_this.trackSvgList[i].status != status) return false;
-            }
-            return true;
-        };
-        if (checkAllTrackStatus('ready')) {
-//            console.log('all ready')
-            this.status = 'ready';
-            _this.trigger('tracks:ready', {sender: _this});
+    _checkAllTrackStatus: function (status) {
+        for (var i in this.trackSvgList) {
+            if (this.trackSvgList[i].status != status) return false;
         }
+        return true;
+    },
+    checkTracksReady: function () {
+        return this._checkAllTrackStatus('ready');
+//        if (this._checkAllTrackStatus('ready')) {
+//            this.status = 'ready';
+//            console.log('all ready')
+//            this.trigger('tracks:ready', {sender: this});
+//        }
 //        var checkStatus = function () {
 //            if (checkAllTrackStatus('ready')) {
 //                _this.trigger('tracks:ready', {sender: _this});
@@ -604,7 +632,6 @@ TrackListPanel.prototype = {
 //            }
 //        };
 //        setTimeout(checkStatus, 10);
-        /***************************/
     },
     addTrack: function (track) {
         if (_.isArray(track)) {
@@ -711,9 +738,9 @@ TrackListPanel.prototype = {
         this.on('trackWidth:change', track.get('trackWidth:change'));
         this.on('trackFeature:highlight', track.get('trackFeature:highlight'));
 
-        track.on('track:ready', function () {
-            _this.checkTracksReady();
-        });
+//        track.on('track:ready', function () {
+//            _this.checkTracksReady();
+//        });
     },
 
     removeTrack: function (trackId) {

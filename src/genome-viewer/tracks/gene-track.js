@@ -39,7 +39,6 @@ function GeneTrack(args) {
     _.extend(this, args);
 
     this.exclude;
-
 };
 
 GeneTrack.prototype.render = function (targetId) {
@@ -72,11 +71,6 @@ GeneTrack.prototype.render = function (targetId) {
 
         });
         _this.updateHeight();
-        _this.setLoading(false);
-    });
-
-    this.renderer.on('feature:click', function (event) {
-        _this.showInfoWidget(event);
     });
 };
 
@@ -125,6 +119,9 @@ GeneTrack.prototype.draw = function () {
                 histogramMax: this.histogramMax,
                 interval: this.interval,
                 exclude: this.exclude
+            },
+            done: function () {
+                _this.setLoading(false);
             }
         });
 
@@ -169,7 +166,7 @@ GeneTrack.prototype.move = function (disp) {
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
-            console.log('left')
+//          left
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
@@ -183,13 +180,16 @@ GeneTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval,
                     exclude: this.exclude
+                },
+                done: function () {
+
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
         }
 
         if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
-            console.log('right')
+//          right
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
@@ -203,22 +203,12 @@ GeneTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval,
                     exclude: this.exclude
+                },
+                done: function () {
+
                 }
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
-    }
-};
-
-GeneTrack.prototype.showInfoWidget = function (args) {
-    switch (args.featureType) {
-        case "gene":
-            new GeneInfoWidget(null, this.dataAdapter.species).draw(args);
-            break;
-        case "transcript":
-            new TranscriptInfoWidget(null, this.dataAdapter.species).draw(args);
-            break;
-        default:
-            break;
     }
 };

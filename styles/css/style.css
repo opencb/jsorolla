@@ -321,6 +321,12 @@ ul.ocb-header > li:hover {
     position: relative;
     background-color: white;
 }
+.ocb-warn {
+    color: orangered;
+}
+.ocb-light {
+    color: gray;
+}
 
 /*.ocb-gv-navigation{*/
 /*height:37px;*/
