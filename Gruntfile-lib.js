@@ -7,6 +7,9 @@ module.exports = function (grunt) {
             build: 'build/<%= pkg.version %>/<%= def.name %>'
         },
         concat: {
+            options: {
+                banner: '/*! <%= def.name %> <%= grunt.template.today("mmmm dd, yyyy HH:MM:ss") %> */\n'
+            },
             dist: {
                 src: [
                     //
@@ -57,7 +60,7 @@ module.exports = function (grunt) {
         },
         uglify: {
             options: {
-                banner: '/*! <%= def.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+                banner: '/*! <%= def.name %> <%= grunt.template.today("mmmm dd, yyyy HH:MM:ss") %> */\n'
             },
             dist: {
                 src: ['<%= concat.dist.dest %>'],
