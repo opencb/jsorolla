@@ -78,6 +78,7 @@ HistogramRenderer.prototype.render = function (features, args) {
         var height = firstFeature.features_count * this.multiplier;
 
         points = (x - (width / 2)) + ',' + this.histogramHeight + ' ';
+        points += (x - (width / 2)) + ',' + (this.histogramHeight - height) + ' ';
     }
 
     for (var i = 0, len = features.length; i < len; i++) {
@@ -101,6 +102,7 @@ HistogramRenderer.prototype.render = function (features, args) {
         this._checkFeatureValue(lastFeature);
         var height = lastFeature.features_count * this.multiplier;
 
+        points += (x + (width)) + ',' + (this.histogramHeight - height) + ' ';
         points += (x + (width)) + ',' + this.histogramHeight + ' ';
     }
 

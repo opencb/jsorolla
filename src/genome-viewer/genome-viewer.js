@@ -433,10 +433,11 @@ GenomeViewer.prototype = {
                     }
                 },
                 'restoreDefaultRegion:click': function (event) {
-                    event.region = _this._checkRegion(event.region);
-                    _this.setMinRegion(_this.defaultRegion, _this.getSVGCanvasWidth());
-                    event.region = _this.defaultRegion;
-                    _this.trigger('region:change', event);
+                    _this._regionChangeHandler(event);
+//                    event.region = _this._checkRegion(event.region);
+//                    _this.setMinRegion(_this.defaultRegion, _this.getSVGCanvasWidth());
+//                    event.region = _this.defaultRegion;
+//                    _this.trigger('region:change', event);
                 },
                 'autoHeight-button:click': function (event) {
                     _this.enableAutoHeight();
