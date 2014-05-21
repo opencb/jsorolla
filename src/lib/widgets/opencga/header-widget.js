@@ -43,6 +43,7 @@ function HeaderWidget(args) {
     this.chunkedUpload = false;
     this.enableTextModeUW = true; // Enable Text Mode in the Upload Widget
 
+    this.applicationMenuEl;
 
     this.homeLink = "http://bioinfo.cipf.es";
     this.helpLink = "http://bioinfo.cipf.es";
@@ -72,15 +73,20 @@ HeaderWidget.prototype = {
             console.log('targetId not found');
             return;
         }
-
+        var appLi = '';
+        if (this.applicationMenuEl) {
+//            appLi = '<li id="appMenu" class="menu"> &#9776; </li>';
+            appLi = '<li id="appMenu" class="menu"><span class="glyphicon glyphicon-th-list"></span></li>';
+        }
         var navgationHtml = '' +
             '<div>' +
             '   <ul class="ocb-header">' +
+                    appLi +
             '       <li class="title"> &nbsp; ' + this.appname +
             '       </li>' +
             '       <li id="description" class="description">' + this.description +
             '       </li>' +
-            '       <li id="menu" class="right menu">&#9776;' +
+            '       <li id="menu" class="right menu"> ? ' +
             '       </li>' +
             '       <li id="signin" class="right"><span class="glyphicon glyphicon-log-in"></span>&nbsp; sign in' +
             '       </li>' +
@@ -99,19 +105,18 @@ HeaderWidget.prototype = {
         '';
 
         var menuHtml = '' +
-            '<div>' +
-            '   <ul class="ocb-header-menu">' +
-            '       <li id="home" class="right"><span class="glyphicon glyphicon-home"></span> &nbsp; home' +
+            '   <ul class="ocb-help-menu unselectable">' +
+            '       <li id="homeHelp" class="right"><span class="glyphicon glyphicon-home"></span> &nbsp; home' +
             '       </li>' +
             '       <li id="documentation" class="right"><span class="glyphicon glyphicon-book"></span> &nbsp; documentation' +
             '       </li>' +
             '       <li id="tutorial" class="right"><span class="glyphicon glyphicon-list-alt"></span> &nbsp; tutorial' +
             '       </li>' +
-            '       <li id="about" class="right"><span class="glyphicon glyphicon-question-sign"></span> &nbsp; about' +
+            '       <li id="about" class="right"><span class="glyphicon glyphicon-info-sign"></span> &nbsp; about' +
             '       </li>' +
             '   </ul>'
-        '</div>' +
         '';
+
 
         this.div = $('<div class="unselectable bootstrap">' + navgationHtml + '</div>')[0];
         $(this.div).css({
@@ -119,10 +124,19 @@ HeaderWidget.prototype = {
             position: 'relative'
         });
         $(this.targetDiv).append(this.div);
-        this.menuDiv = $('<div class="unselectable ocb-header-menu-hidden">' + menuHtml + '</div>')[0];
-        $(this.div).append(this.menuDiv);
+        this.menuEl = $(menuHtml)[0];
+        $(this.div).append(this.menuEl);
+//        $(this.menuEl).mouseleave(function(){
+//            $(_this.menuEl).removeClass('ocb-help-menu-shown');
+//        });
 
+        if (this.applicationMenuEl) {
+            $(this.div).append(this.applicationMenuEl);
+//            $(this.applicationMenuDiv).mouseleave(function(){
+//                $(_this.applicationMenuDiv).removeClass('ocb-app-menu-shown');
+//            });
 
+        }
         var els = $(this.div).find('ul').children();
         for (var i = 0; i < els.length; i++) {
             var elid = els[i].getAttribute('id');
@@ -132,12 +146,22 @@ HeaderWidget.prototype = {
         }
 
         $(this.els.menu).click(function () {
-            console.log('click')
-            $(_this.menuDiv).toggleClass('ocb-header-menu-shown');
+            $(_this.menuEl).toggleClass('ocb-help-menu-shown');
+        });
+
+        $(this.els.appMenu).click(function () {
+            $(_this.applicationMenuEl).toggleClass('ocb-app-menu-shown');
+        });
+
+//        $(this.els.menu).mouseenter(function () {
+//            $(_this.menuEl).addClass('ocb-help-menu-shown');
+//        });
+        $(this.els.appMenu).mouseenter(function () {
+            $(_this.applicationMenuDiv).addClass('ocb-app-menu-shown');
         });
 
 
-        $(this.els.home).click(function () {
+        $(this.els.homeHelp).click(function () {
             window.location.href = _this.homeLink;
         });
         $(this.els.documentation).click(function () {

@@ -32,11 +32,13 @@ function GenericFormPanel(args) {
     this.labelWidth = 150;
 
     this.type;
+    this.style;
     this.title;
     this.resizable;
     this.width = 500;
     this.height;
     this.border = true;
+    this.formBorder = true;
     this.taskbar;
     this.bodyPadding;
     this.headerConfig;
@@ -59,7 +61,7 @@ function GenericFormPanel(args) {
                 icon: Ext.Msg.ERROR
             });
         } else {
-            Ext.example.msg('Job Launched', 'It will be listed soon');
+            Utils.msg('Job Launched', 'It will be listed soon');
             console.log(response);
             if (_this.type == "window") {
                 _this.panel.hide();
@@ -101,7 +103,7 @@ GenericFormPanel.prototype.draw = function () {
                 style: this.style,
                 overflowY: 'auto',
                 items: [this.getForm()],
-                border: 0,
+                border: this.border,
                 bodyPadding: this.bodyPadding,
                 header: this.headerConfig,
                 listeners: {
@@ -144,7 +146,14 @@ GenericFormPanel.prototype.getForm = function () {
                 align: 'stretch'
             },
             items: items,
-            buttons: [this.getRunButton()]
+            bbar: {
+                layout : {
+                    pack : 'end'
+                },
+                items: [
+                    this.getRunButton()
+                ]
+            }
         });
     }
 
@@ -193,7 +202,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
     var jobPanel = Ext.create('Ext.panel.Panel', {
         title: 'Job information',
         header: this.headerFormConfig,
-        border: this.border,
+        border: this.formBorder,
         bodyPadding: 5,
         width: '100%',
         buttonAlign: 'center',

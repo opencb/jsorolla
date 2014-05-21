@@ -18,7 +18,8 @@ html, body {
 }
 
 /*ocb header*/
-ul.ocb-header-menu,
+ul.ocb-help-menu,
+ul.ocb-app-menu,
 ul.ocb-header {
     margin: 0;
     padding: 0;
@@ -38,15 +39,9 @@ ul.ocb-header > li {
     padding: 0 10px;
 }
 
-ul.ocb-header-menu > li {
-    border-bottom: 1px solid #c6d0da;
-    border-left: 1px solid #c6d0da;
-    /*border-right: 1px solid #c6d0da;*/
-    padding: 0 10px;
-}
-
 ul.ocb-header > li.title {
     font-size: 30px;
+    padding-left: 120px;
 }
 
 ul.ocb-header li.description {
@@ -78,28 +73,61 @@ ul.ocb-header > li.description:hover {
     color: #6599FF;
 }
 
-ul.ocb-header-menu > li:hover,
+ul.ocb-help-menu > li:hover,
 ul.ocb-header > li:hover {
     background: #435f7a;
     color: white;
 }
 
-.ocb-header-menu-hidden {
+ul.ocb-help-menu {
     position: absolute;
     z-index: 1000;
     top: 60px;
-    right: -150px;
-    width: 0px;
-    height: 200px;
-    background: white;
+    right: -200px;
+    width: 200px;
+    visibility: hidden;
+    /*display:none;*/
     border-top: 1px solid #c6d0da;
-    transition: width 0.3s, right 0.1s;
+    transition: all 0.2s;
 }
 
-.ocb-header-menu-shown {
-    width: 250px;
-    right: 0px;
+ul.ocb-app-menu {
+    line-height: 40px;
+    position: absolute;
+    z-index: 1000;
+    top: 60px;
+    left: -150px;
+    width: 150px;
+    visibility: hidden;
+    /*display:none;*/
+    border-top: 1px solid #c6d0da;
+    transition: all 0.2s;
 }
+
+ul.ocb-help-menu-shown {
+    right: 0px;
+    visibility: visible;
+    /*display: block;*/
+}
+
+ul.ocb-app-menu-shown {
+    left: 0px;
+    visibility: visible;
+    /*display: block;*/
+}
+ul.ocb-help-menu > li {
+    border-bottom: 1px solid #c6d0da;
+    border-left: 1px solid #c6d0da;
+    padding: 0 10px;
+}
+
+ul.ocb-app-menu > li {
+    border-bottom: 1px solid #c6d0da;
+    border-right: 1px solid #c6d0da;
+    padding: 0 10px;
+}
+
+
 
 .ocb-h-panel {
     line-height: 20px;
@@ -113,7 +141,7 @@ ul.ocb-header > li:hover {
 /* top Message*/
 .ocb-msg-hidden {
     position: absolute;
-    z-index: 1000;
+    z-index: 50000;
     top: -999px;
     left: 45%;
     background: white;
@@ -122,19 +150,23 @@ ul.ocb-header > li:hover {
     margin: 5px;
     min-width: 150px;
 }
+
 .ocb-msg-hidden :first-child {
     padding: 5px;
     color: white;
     background-color: #435f7a;
 }
+
 .ocb-msg-hidden :last-child {
     padding: 7px;
     color: #435f7a;
     background-color: white;
 }
+
 .ocb-msg-shown {
     top: 0px;
 }
+
 /**/
 
 @font-face {
@@ -163,6 +195,13 @@ ul.ocb-header > li:hover {
     font-style: normal;
     font-weight: 400;
     src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(../fonts/sourcesanspro.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Lato Light'), local('Lato-Light'), url(http://themes.googleusercontent.com/static/fonts/lato/v7/KT3KS9Aol4WfR6Vas8kNcg.woff) format('woff');
 }
 
 @font-face {
@@ -321,9 +360,11 @@ ul.ocb-header > li:hover {
     position: relative;
     background-color: white;
 }
+
 .ocb-warn {
     color: orangered;
 }
+
 .ocb-light {
     color: gray;
 }
