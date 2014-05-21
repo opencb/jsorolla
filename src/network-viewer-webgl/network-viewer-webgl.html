@@ -57,23 +57,21 @@
 <script src="three.min.js"></script>
 <script src="js/debugaxis.js"></script>
 
-<script src="../lib/utils/utils.js"></script>
-<script src="../network/graph.js"></script>
-<script src="../network/network.js"></script>
-<script src="../network/network-config.js"></script>
-<script src="../network/vertex-config.js"></script>
-<script src="../network/edge-config.js"></script>
-<script src="../network/default-vertex-renderer.js"></script>
-<script src="../network/default-edge-renderer.js"></script>
-<script src="../network/attributes/attribute-manager-store.js"></script>
-<script src="../network/graph-layout.js"></script>
-<script src="../network/vertex.js"></script>
-<script src="../network/edge.js"></script>
+<script src="../lib/utils.js"></script>
+<script src="../lib/network/graph.js"></script>
+<script src="../lib/network/network.js"></script>
+<script src="../lib/network/network-config.js"></script>
+<script src="../lib/network/vertex-config.js"></script>
+<script src="../lib/network/edge-config.js"></script>
+<script src="../lib/network/default-vertex-renderer.js"></script>
+<script src="../lib/network/default-edge-renderer.js"></script>
+<script src="../lib/network/attributes/attribute-manager-store.js"></script>
+<script src="../lib/network/graph-layout.js"></script>
+<script src="../lib/network/vertex.js"></script>
+<script src="../lib/network/edge.js"></script>
 <script src="../lib/data-source/data-source.js"></script>
 <script src="../lib/data-source/file-data-source.js"></script>
-<script src="../lib/data-adapter/graph-data-adapter.js"></script>
-<script src="../lib/data-adapter/network-data-adapter.js"></script>
-<script src="../lib/data-adapter/sif-data-adapter.js"></script>
+<script src="../lib/data-adapter/network/sif-network-data-adapter.js"></script>
 
 <script src="network-viewer-webgl.js"></script>
 
@@ -97,11 +95,11 @@
         var sifInputFile = $('#sifInputFile')[0];
         $(sifInputFile).bind('change', function (event) {
             var file = this.files[0];
-            var sifDataAdapter = new SIFDataAdapter({
+            var sifNetworkDataAdapter = new SIFNetworkDataAdapter({
                 dataSource: new FileDataSource({file:file}),
                 handlers: {
                     'data:load': function (event) {
-                        var vertices = event.network.graph.vertices
+                        var vertices = event.graph.vertices
                         var potyVertices = [];
                         for (var i = 0; i <vertices.length; i++) {
                             var vertex = vertices[i];
@@ -109,9 +107,10 @@
                                 potyVertices.push(vertex);
                             }
                         }
-                        GraphLayout.sphereSurface(vertices, event.network, 200 ,400);
-                        GraphLayout.sphereSurface(potyVertices, event.network, 50 ,50);
-                        networkViewerWebgl.renderNetwork(event.network);
+                        //TODO fix
+//                        GraphLayout.sphereSurface(vertices, event.network, 200 ,400);
+//                        GraphLayout.sphereSurface(potyVertices, event.network, 50 ,50);
+//                        networkViewerWebgl.renderNetwork(event.network);
                     }
                 }
             })

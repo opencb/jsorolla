@@ -34,6 +34,7 @@ function NetworkViewer(args) {
     this.width;
     this.border = true;
     this.overviewScale = 0.2;
+    this.session;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -87,7 +88,7 @@ NetworkViewer.prototype = {
         $(this.div).append(this.statusbarDiv);
 
 
-        this.mainPanelDiv = $('<div id="nv-mainpanel" style="position:relative;right:0px;height:100%;"></div>')[0];
+        this.mainPanelDiv = $('<div id="nv-mainpanel" style="position:relative;height:100%;"></div>')[0];
         $(this.centerPanelDiv).append(this.mainPanelDiv);
 
         if (this.sidePanel) {
@@ -225,6 +226,11 @@ NetworkViewer.prototype = {
 //            div = $('#'+this.getGraphCanvasId()+'_overview')[0];
 //            this.networkSvgOverview = new NetworkSvg(div, this.networkData, {"width": "100%", "height": "100%", "parentNetwork": this.networkSvg, "scale": this.overviewScale});
 //        }
+
+
+        if (typeof this.session !== 'undefined') {
+            this.loadJSON(this.session);
+        }
     },
     hideOverviewPanel: function () {
         $(this.overviewPanelDiv).css({display: 'none'});
@@ -470,15 +476,21 @@ NetworkViewer.prototype = {
 
     _createNetworkSvgLayout: function (targetId) {
         var _this = this;
+
         var toolbarHeight = $(this.toolbarDiv).height();
         var editionbarHeight = $(this.editionbarDiv).height();
-        var height = this.height - toolbarHeight - editionbarHeight;
+
+        var bTopWidth = parseInt($(this.div).css('borderTopWidth'));
+        var bBottomWidth = parseInt($(this.div).css('borderBottomWidth'));
+
+        var height = this.height - toolbarHeight - editionbarHeight - bTopWidth - bBottomWidth;
+        var width = $(this.mainPanelDiv).width();
 
         console.log(this.height);
         console.log(height)
         var networkSvgLayout = new NetworkSvgLayout({
             targetId: targetId,
-            width: this.width,
+            width: width,
             height: height,
             autoRender: true,
             handlers: {
@@ -491,6 +503,7 @@ NetworkViewer.prototype = {
                 },
                 'create:vertex': function (e) {
                     _this.createVertex(e.x, e.y);
+
                 },
                 'remove:vertex': function (e) {
                     var vertex = _this.network.getVertexById(e.vertexId);
@@ -520,6 +533,7 @@ NetworkViewer.prototype = {
 
 //                    _this.editionBar.showVertexToolbar();
 //                    _this.editionBar.hideEdgeToolbar();
+                    _this.trigger('change', {sender: _this});
                 },
                 'edge:leftClick': function (e) {
                     var edge = _this.network.getEdgeById(e.edgeId);
@@ -749,7 +763,7 @@ NetworkViewer.prototype = {
             vertexConfig: vertexConfig,
             target: this.networkSvgLayout.getElementsSVG()
         });
-
+        this.trigger('change', {sender: this});
         return vertex;
     },
     createEdge: function (vertexSource, vertexTarget) {
@@ -769,6 +783,8 @@ NetworkViewer.prototype = {
             edgeConfig: edgeConfig,
             target: this.networkSvgLayout.getElementsSVG()
         });
+        this.trigger('change', {sender: this});
+        return edge;
     },
     removeBackGroundImage: function (imageEl) {
         $(imageEl).remove();
@@ -1039,12 +1055,13 @@ NetworkViewer.prototype = {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     clean: function () {
-        delete localStorage.networkViewer;
         this.network.clean();
         this.networkSvgLayout.clean();
+        this.trigger('change', {sender: this});
     },
     drawNetwork: function () {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
+        this.trigger('change', {sender: this});
     },
     refreshNetwork: function () {
         this.networkSvgLayout.clean();
@@ -1079,11 +1096,11 @@ NetworkViewer.prototype = {
         return this.network.getAsSIFCustomRelation(separator, relationColumn);
     },
     setGraph: function (graph) {
-        delete localStorage.networkViewer;
         this.networkSvgLayout.clean();
 
         this.network.setGraph(graph);
         this.network.draw(this.networkSvgLayout.getElementsSVG());
+        this.trigger('change', {sender: this});
     }
 
 }

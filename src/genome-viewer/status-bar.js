@@ -43,11 +43,12 @@ function StatusBar(args) {
 StatusBar.prototype = {
     render: function (targetId) {
         this.targetId = (targetId) ? targetId : this.targetId;
-        if($('#' + this.targetId).length < 1){
-            console.log('targetId not found in DOM');
+        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
+        if (this.targetDiv === 'undefined') {
+            console.log('targetId not found');
             return;
         }
-        this.targetDiv = $('#' + this.targetId)[0];
+
         this.div = $('<div id="' + this.id + '" class="gv-status-bar" align="right"></div>')[0];
         $(this.targetDiv).append(this.div);
 
