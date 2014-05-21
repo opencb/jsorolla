@@ -81,7 +81,7 @@ HeaderWidget.prototype = {
         var navgationHtml = '' +
             '<div>' +
             '   <ul class="ocb-header">' +
-                    appLi +
+            appLi +
             '       <li class="title"> &nbsp; ' + this.appname +
             '       </li>' +
             '       <li id="description" class="description">' + this.description +
@@ -90,13 +90,13 @@ HeaderWidget.prototype = {
             '       </li>' +
             '       <li id="signin" class="right"><span class="glyphicon glyphicon-log-in"></span>&nbsp; sign in' +
             '       </li>' +
-            '       <li id="logout" class="right hidden"><span class="glyphicon glyphicon-log-out"></span>&nbsp; logout' +
+            '       <li id="jobs" class="right hidden"> <span class="glyphicon glyphicon-tasks"></span>&nbsp; jobs' +
             '       </li>' +
             '       <li id="profile" class="right hidden"> <span class="glyphicon glyphicon-user"></span>&nbsp; profile' +
             '       </li>' +
             '       <li id="upload" class="right hidden"> <span class="glyphicon glyphicon-cloud-upload"></span> &nbsp;upload & manage' +
             '       </li>' +
-            '       <li id="jobs" class="right hidden"> <span class="glyphicon glyphicon-tasks"></span>&nbsp; jobs' +
+            '       <li id="logout" class="right hidden"><span class="glyphicon glyphicon-log-out"></span>&nbsp; logout' +
             '       </li>' +
             '       <li id="user" class="right hidden text">' +
             '       </li>' +
@@ -171,17 +171,19 @@ HeaderWidget.prototype = {
             window.open(_this.tutorialLink);
         });
         $(this.els.about).click(function () {
-            Ext.create('Ext.window.Window', {
-                id: _this.id + "aboutWindow",
-                bodyStyle: 'background:#fff; color:#333;',
-                bodyPadding: 10,
-                title: 'About',
-                height: 340,
-                width: 500,
-                modal: true,
-                layout: 'fit',
-                html: _this.aboutText
-            }).show();
+            _this.trigger('about:click', {sender: _this});
+
+//            Ext.create('Ext.window.Window', {
+//                id: _this.id + "aboutWindow",
+//                bodyStyle: 'background:#fff; color:#333;',
+//                bodyPadding: 10,
+//                title: 'About',
+//                height: 340,
+//                width: 500,
+//                modal: true,
+//                layout: 'fit',
+//                html: _this.aboutText
+//            }).show();
         });
 
 
@@ -206,6 +208,7 @@ HeaderWidget.prototype = {
         });
         $(this.els.jobs).click(function () {
             _this.trigger('jobs:click', {sender: _this});
+//            $(_this.els.jobs).toggleClass('active');
         });
         /****************************************/
         this.logoutSuccess = function (data) {
@@ -253,6 +256,23 @@ HeaderWidget.prototype = {
             this.sessionFinished();
         }
 
+    },
+    toogleAppMenu: function (value) {
+        if (this.applicationMenuEl) {
+            if (value === true) {
+                $(this.applicationMenuEl).addClass('ocb-app-menu-shown');
+            } else if (value === false) {
+                $(this.applicationMenuEl).removeClass('ocb-app-menu-shown');
+            } else {
+                $(this.applicationMenuEl).toggleClass('ocb-app-menu-shown');
+            }
+
+        }
+    },
+    showAppMenu: function () {
+        if (this.applicationMenuEl) {
+
+        }
     },
     _createLoginWidget: function () {
         var _this = this;

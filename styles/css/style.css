@@ -39,6 +39,10 @@ ul.ocb-header > li {
     padding: 0 10px;
 }
 
+ul.ocb-header > li#logout {
+    margin-right: 40px;
+}
+
 ul.ocb-header > li.title {
     font-size: 30px;
     padding-left: 120px;
@@ -54,6 +58,10 @@ ul.ocb-header > li.menu {
     font-size: 24px;
     padding: 0 20px;
     font-weight: bold;
+}
+
+ul.ocb-header > li.active {
+    color: #6599FF;
 }
 
 ul.ocb-header > li.right {
