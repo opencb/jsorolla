@@ -449,7 +449,6 @@ UploadWidget.prototype.render = function (dataTypes) {
                 }
             }
         });
-
     }
     this.panel.show();
 };
@@ -593,7 +592,7 @@ UploadWidget.prototype.uploadFile2 = function () {
         'bucketId': this.opencgaLocation.bucketId,
         'resume': true
     });
-    this.panel.close();
+    this.panel.hide();
 };
 
 //UploadWidget.prototype.uploadProgress = function(evt)  {
@@ -616,7 +615,7 @@ UploadWidget.prototype.uploadComplete = function (msg) {
     });
     this.panel.enable();
     Ext.getBody().unmask();
-    this.panel.close();
+    this.panel.hide();
 };
 
 UploadWidget.prototype.uploadFailed = function (response) {

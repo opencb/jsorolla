@@ -373,6 +373,27 @@ var OpencgaManager = {
             }
         });
     },
+    pollObject: function (args) {
+//       accountId, sessionId, bucketId, objectId
+        var queryParams = {
+            'start': args.start,
+            'limit': args.limit,
+            'sessionid': args.sessionId
+        };
+        var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/poll' + OpencgaManager.getQuery(queryParams);
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            async: args.async,
+            success: function (data, textStatus, jqXHR) {
+                args.success(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
+    },
 
     region: function (args) {
 //        accountId, sessionId, bucketId, objectId, region, queryParams

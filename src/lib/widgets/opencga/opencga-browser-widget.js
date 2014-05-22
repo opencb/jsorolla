@@ -556,7 +556,11 @@ OpencgaBrowserWidget.prototype = {
             text: 'Ok',
             disabled: true,
             handler: function () {
-                _this.trigger('select', {id: _this.selectedFileNode.oid, bucketId: _this.selectedFileNode.bucketId});
+                _this.trigger('select', {
+                    id: _this.selectedFileNode.oid,
+                    idQuery: _this.selectedFileNode.oid.replace(/\//g, ":"),
+                    bucketId: _this.selectedFileNode.bucketId
+                });
                 _this.panel.hide();
             }
         });

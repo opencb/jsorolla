@@ -327,16 +327,20 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
     var _this = this;
     var btnBrowse = Ext.create('Ext.button.Button', {
         text: 'Browse...',
-        width: 150,
+        width: 172,
         handler: function () {
             if (args.beforeClick != null) {
                 args.beforeClick(args);
             }
             _this.opencgaBrowserWidget.once('select', function (response) {
                 if (typeof response !== 'undefined') {
-                    var value = 'buckets:' + response.bucketId + ':' + response.id.replace(/\//g, ":");
+                    var value = 'buckets:' + response.bucketId + ':' + response.idQuery;
                     fileSelectedLabel.update('<span class="emph">' + response.id + '</span>', false);
                     hiddenField.setValue(value);//this is send to the ws
+
+                    if(args.onSelect){
+                        args.onSelect(response);
+                    }
                 }
             });
             _this.opencgaBrowserWidget.show({mode: args.mode, allowedTypes: args.allowedTypes});
