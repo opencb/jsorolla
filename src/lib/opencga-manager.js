@@ -394,6 +394,28 @@ var OpencgaManager = {
             }
         });
     },
+    grepObject: function (args) {
+//       accountId, sessionId, bucketId, objectId
+        var queryParams = {
+            'pattern': encodeURIComponent(args.pattern),
+            'ignoreCase': args.ignoreCase,
+            'multi': args.multi,
+            'sessionid': args.sessionId
+        };
+        var url = OpencgaManager.getObjectUrl(args.accountId, args.bucketId, args.objectId) + '/grep' + OpencgaManager.getQuery(queryParams);
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            async: args.async,
+            success: function (data, textStatus, jqXHR) {
+                args.success(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
+    },
 
     region: function (args) {
 //        accountId, sessionId, bucketId, objectId, region, queryParams
