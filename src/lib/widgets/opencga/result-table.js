@@ -178,7 +178,7 @@ ResultTable.prototype.render = function (){
 		this.st = Ext.create('Ext.data.Store', {
 			fields: filteredColNames, //las colNames no pueden tener el caracter "."
 	    	pageSize: itemsPerPage,
-		    remoteSort:true,
+		    remoteSort:false,
 //		    remoteFilter:true,//TODO o no
 	    	proxy: {
 		        type: 'jsonp',
