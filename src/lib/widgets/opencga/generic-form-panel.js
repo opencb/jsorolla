@@ -147,8 +147,8 @@ GenericFormPanel.prototype.getForm = function () {
             },
             items: items,
             bbar: {
-                layout : {
-                    pack : 'end'
+                layout: {
+                    pack: 'end'
                 },
                 items: [
                     this.getRunButton()
@@ -222,6 +222,7 @@ GenericFormPanel.prototype.getRunButton = function () {
         cls: 'btn btn-default',
         formBind: true, // only enabled if the form is valid
         handler: function () {
+            _this.paramsWS = {};
             var formParams = _this.getForm().getForm().getValues();
             for (var param in formParams) {
                 _this.paramsWS[param] = formParams[param];
@@ -243,6 +244,9 @@ GenericFormPanel.prototype.beforeRun = function () {
 };
 
 GenericFormPanel.prototype.run = function () {
+
+    delete this.paramsWS['browseFieldLabel'];
+
     this.setAccountParams();
     (this.paramsWS['outdir'] === '') ? delete this.paramsWS['outdir'] : console.log(this.paramsWS['outdir']);
 
@@ -326,57 +330,49 @@ GenericFormPanel.prototype.createTextFields = function (name) {
 
 GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLabel, dataParamName, mode, btnMargin, defaultFileLabel
     var _this = this;
-    var btnBrowse = Ext.create('Ext.button.Button', {
-        text: 'Browse...',
-        width: 172,
-        handler: function () {
-            if (args.beforeClick != null) {
-                args.beforeClick(args);
-            }
-            _this.opencgaBrowserWidget.once('select', function (response) {
-                if (typeof response !== 'undefined') {
-                    var value = 'buckets:' + response.bucketId + ':' + response.idQuery;
-                    fileSelectedLabel.update('<span class="emph">' + response.id + '</span>', false);
-                    hiddenField.setValue(value);//this is send to the ws
 
-                    if(args.onSelect){
-                        args.onSelect(response);
-                    }
-                }
-            });
-            _this.opencgaBrowserWidget.show({mode: args.mode, allowedTypes: args.allowedTypes});
-        }
-    });
-
-    var fileSelectedLabel = Ext.create('Ext.Component', {
+    var field = Ext.create('Ext.form.field.Text', {
         id: args.id,
         width: _this.labelWidth,
-        margin: '5 10',
-        html: args.defaultFileLabel || "No file selected"
+        fieldLabel: args.fieldLabel,
+        editable: false,
+        width:1000,
+        name: 'browseFieldLabel',
+        value: args.defaultFileLabel || "No file selected",
+        allowBlank: (args.allowBlank || false),
+        listeners:{
+            focus:function(){
+                if (args.beforeClick != null) {
+                    args.beforeClick(args);
+                }
+                _this.opencgaBrowserWidget.once('select', function (response) {
+                    if (typeof response !== 'undefined') {
+                        field.setValue(response.id);
+                        hiddenField.setValue(response.pathQuery);//this is send to the ws
+                        if (args.onSelect) {
+                            args.onSelect(response);
+                        }
+                    }
+                });
+                _this.opencgaBrowserWidget.show({mode: args.mode, allowedTypes: args.allowedTypes});
+            }
+        }
     });
 
     //not shown, just for validation
     var hiddenField = Ext.create('Ext.form.field.Text', {
         id: args.id + 'hidden',
-        name: args.dataParamName,
+        editable: false,
         hidden: true,
+        name: args.dataParamName,
+        value: "",
         allowBlank: (args.allowBlank || false)
     });
 
-    return Ext.create('Ext.container.Container', {
-//		bodyPadding:10,
-//		defaults:{margin:'5 0 0 5'},
+    return Ext.create('Ext.form.FieldContainer', {
         hidden: args.hidden,
-        layout: 'hbox',
         items: [
-            {
-                xtype: 'box',
-                html: args.fieldLabel + ':',
-                width: 154,
-                margin: '5 0'
-            },
-            btnBrowse,
-            fileSelectedLabel,
+            field,
             hiddenField
         ]
     });

@@ -589,6 +589,31 @@ var OpencgaManager = {
         }
     },
 
+    jobFileGrep: function (args) {
+//        accountId, sessionId, jobId, filename, zip
+        var queryParams = {
+            'pattern': encodeURIComponent(args.pattern),
+            'ignoreCase': args.ignoreCase,
+            'multi': args.multi,
+            'filename': args.filename,
+            'sessionid': args.sessionId
+        };
+        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/grep' + OpencgaManager.getQuery(queryParams);
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            async: args.async,
+            success: function (data, textStatus, jqXHR) {
+                args.success(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (_.isFunction(args.error)) args.error(jqXHR);
+            }
+        });
+    },
+
+
     pollurl: function (args) {
 //        accountId, sessionId, jobId, filename
         var queryParams = {
