@@ -192,7 +192,7 @@ ResultTable.prototype.render = function (){
 		});
 		this.st.loadPage(1);
 		
-		var altura = 75+22*itemsPerPage;
+		var altura = 75+30*itemsPerPage;
 		this.table = Ext.create('Ext.grid.Panel', {
 			title: /*this.tableName+" - "+*/this.fileName,
 			collapsible:this.collapsible,

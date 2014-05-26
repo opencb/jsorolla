@@ -62,6 +62,9 @@ function GenericFormPanel(args) {
             });
         } else {
             Utils.msg('Job Launched', 'It will be listed soon');
+            if(!_this.testing){
+                _this.clean();
+            }
             console.log(response);
             if (_this.type == "window") {
                 _this.panel.hide();
@@ -263,6 +266,9 @@ GenericFormPanel.prototype.run = function () {
 
 };
 
+GenericFormPanel.prototype.clean = function () {
+    this.getForm().reset();
+};
 
 /////////////////////////////////////////
 /////////////////////////////////////////
@@ -333,15 +339,14 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
 
     var field = Ext.create('Ext.form.field.Text', {
         id: args.id,
-        width: _this.labelWidth,
         fieldLabel: args.fieldLabel,
+        labelWidth: _this.labelWidth,
         editable: false,
-        width:1000,
         name: 'browseFieldLabel',
-        value: args.defaultFileLabel || "No file selected",
+        value: args.defaultFileLabel || "browse file...",
         allowBlank: (args.allowBlank || false),
-        listeners:{
-            focus:function(){
+        listeners: {
+            focus: function () {
                 if (args.beforeClick != null) {
                     args.beforeClick(args);
                 }
