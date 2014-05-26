@@ -538,6 +538,58 @@ ResultWidget.prototype = {
                             }
                         });
                         break;
+                    case 'vcf-grid':
+                        var id = 'resultTable_' + _this.jobId + item.file;
+
+                    var table = {
+                        name: "Stats Samples Table",
+                        colNames: ["CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT"],
+                        colTypes: ["string", "int", "string", "string", "string", "string", "string", "string", "string"],
+                        colVisibility: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+                        colOrder: [0, 1, 2, 3, ,4,5,6,7,8,9]
+                    };
+
+
+                    var session_id = $.cookie('bioinfo_sid');
+                    var accountId = $.cookie('bioinfo_account');
+
+                    OpencgaManager.jobFileGrep({
+                        pattern: "^#CHR.*",
+                        ignoreCase: "true",
+                        multi: false,
+                        filename: item.file,
+                        sessionId: session_id,
+                        accountId: accountId,
+                        jobId: _this.jobId,
+                        async: false,
+                        success: function(data,textStatus, jqXHR){
+                           var fields = data.trim().split("\t");
+
+                           for(var i = 9 ;i< fields.length; i++){
+                                table.colNames.push(fields[i]);
+                                table.colTypes.push("string");
+                                table.colVisibility.push(1);
+                                table.colOrder.push((fields[i - 1] + 1));
+                           }
+
+                           var resultTable = new ResultTable(_this.jobId, item.file, item.tags, {targetId: id, tableLayout: table});
+                           itemBox = Ext.create('Ext.Component', {
+                               flex: 1,
+                               resultTable: resultTable,
+                               html: '<div id="' + id + '" style="padding:5px;"> </div>',
+                               listeners: {
+                                   afterrender: function (este) {
+                                       este.resultTable.draw();
+                                   }
+                               }
+                           });
+
+                        }
+                    });
+
+
+
+                        break;
                     case 'table':
                         var url = OpencgaManager.pollurl({
                             accountId: $.cookie('bioinfo_account'),
