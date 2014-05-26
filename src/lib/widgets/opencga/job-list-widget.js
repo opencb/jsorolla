@@ -86,10 +86,10 @@ function JobListWidget(args) {
                                     OpencgaManager.deleteJob({
                                         accountId: $.cookie('bioinfo_account'),
                                         sessionId: $.cookie('bioinfo_sid'),
-                                        jobId: record.raw.id,
+                                        jobId: record.data.id,
                                         success: function (response) {
                                             if (response.errorMsg === '') {
-                                                Ext.example.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
+                                                Utils.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
                                             } else {
                                                 Ext.Msg.alert('Delete job, try again later.', response.errorMsg);
                                             }

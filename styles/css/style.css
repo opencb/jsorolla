@@ -89,7 +89,7 @@ ul.ocb-header > li:hover {
 
 ul.ocb-help-menu {
     position: absolute;
-    z-index: 1000;
+    z-index: 60000;
     top: 60px;
     right: -200px;
     width: 200px;
@@ -102,7 +102,7 @@ ul.ocb-help-menu {
 ul.ocb-app-menu {
     line-height: 40px;
     position: absolute;
-    z-index: 1000;
+    z-index: 60000;
     top: 60px;
     left: -150px;
     width: 150px;

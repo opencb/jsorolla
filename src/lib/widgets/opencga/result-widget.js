@@ -169,7 +169,11 @@ ResultWidget.prototype = {
                                 xtype: 'button',
                                 text: 'download',
                                 handler: function () {
-                                    OpencgaManager.downloadJob($.cookie('bioinfo_account'), $.cookie('bioinfo_sid'), _this.jobId);
+                                    OpencgaManager.downloadJob({
+                                        accountId: $.cookie('bioinfo_account'),
+                                        sessionId: $.cookie('bioinfo_sid'),
+                                        jobId: _this.jobId
+                                    })
                                 }
                             },
                             {
@@ -184,7 +188,7 @@ ResultWidget.prototype = {
                                                 jobId: _this.jobId,
                                                 success: function (response) {
                                                     if (response.errorMsg === '') {
-                                                        Ext.example.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
+                                                        Utils.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
                                                     } else {
                                                         Ext.Msg.alert('Delete job, try again later.', response.errorMsg);
                                                     }

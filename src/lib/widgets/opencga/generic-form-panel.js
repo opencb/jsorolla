@@ -256,6 +256,7 @@ GenericFormPanel.prototype.run = function () {
     //debug
     console.log(this.paramsWS);
     this.trigger('after:run', {sender: this});
+
 };
 
 

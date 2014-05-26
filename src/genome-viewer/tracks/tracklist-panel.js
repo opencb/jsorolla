@@ -297,7 +297,7 @@ TrackListPanel.prototype = {
                 'top': 0,
                 'width': regionOverviewDarkBoxWidth,
                 'height': 'calc(100% - 8px)',
-                'border': '1px solid gray',
+//                'border': '1px solid gray',
                 'opacity': 0.5,
                 //            'visibility': 'hidden',
                 'background-color': 'lightgray'
@@ -309,7 +309,7 @@ TrackListPanel.prototype = {
                 'top': 0,
                 'width': regionOverviewDarkBoxWidth,
                 'height': 'calc(100% - 8px)',
-                'border': '1px solid gray',
+//                'border': '1px solid gray',
                 'opacity': 0.5,
                 //            'visibility': 'hidden',
                 'background-color': 'lightgray'
