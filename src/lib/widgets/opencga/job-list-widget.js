@@ -82,10 +82,10 @@ function JobListWidget(args) {
     this.pagedListViewWidget.on('item:contextmenu', function (event) {
         var record = event.record;
         var contextMenu = Ext.create('Ext.menu.Menu', {
+            plain: true,
             items: [
                 {
                     text: 'Delete Job',
-                    plain: true,
                     icon: Utils.images.del,
                     handler: function (w, e) {
                         if (record) {

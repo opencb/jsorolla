@@ -62,7 +62,7 @@ function GenericFormPanel(args) {
             });
         } else {
             Utils.msg('Job Launched', 'It will be listed soon');
-            if(!_this.testing){
+            if (!_this.testing) {
                 _this.clean();
             }
             console.log(response);
@@ -259,10 +259,13 @@ GenericFormPanel.prototype.run = function () {
             paramsWS: this.paramsWS,
             success: this.runAnalysisSuccess
         });
+        this.trigger('after:run', {sender: this});
+    } else {
+        console.log("@@ Watch out!!! testing flag is on, so job will not launched.")
     }
     //debug
+    console.log("@@ Form paramsWS")
     console.log(this.paramsWS);
-    this.trigger('after:run', {sender: this});
 
 };
 
