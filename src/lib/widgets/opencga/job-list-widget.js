@@ -41,6 +41,8 @@ function JobListWidget(args) {
             '<tpl if="visites &gt; 0">#0068cc</tpl>' +
             '<tpl if="visites == -1">#b30000</tpl>' +
             '<tpl if="visites == -2">Darkorange</tpl>' +
+//            '<tpl if="status == \'execution_error\'">red</tpl>' +
+
             '">{status}</span>',
         '<tpl if="visites &gt; -1"> - {visites} views</tpl>',
 //                        '  - {id}' +
@@ -50,7 +52,12 @@ function JobListWidget(args) {
         '</tpl>',
         {
             getClass: function (item) {
-                return item.toolName.replace('.', ' ');
+                return item.toolName.replace('.', '_');
+            }
+        },
+        {
+            getClass: function (item) {
+                return item.toolName.replace('.', '_');
             }
         }
     ];
@@ -78,6 +85,7 @@ function JobListWidget(args) {
             items: [
                 {
                     text: 'Delete Job',
+                    plain: true,
                     icon: Utils.images.del,
                     handler: function (w, e) {
                         if (record) {
@@ -130,8 +138,8 @@ function JobListWidget(args) {
 
     this.bar = new Ext.create('Ext.toolbar.Toolbar', {
         id: this.id + "jobsFilterBar",
-        docked:'top',
-        height:39,
+        docked: 'top',
+        height: 39,
         items: [
             //this.projectFilterButton,
             {
@@ -218,23 +226,18 @@ JobListWidget.prototype.clean = function () {
     this.pagedListViewWidget.clean();
 };
 
-//JobListWidget.prototype.getResponse = function (){
-//this.adapter.listProject($.cookie("bioinfo_sid"), this.suiteId);
-//};
-
 JobListWidget.prototype.setAccountData = function (data) {
-
     this.accountData = data;
-//    console.log("joblistwidget");
     var jobs = [];
     var job;
     for (var i = 0; i < this.accountData.projects.length; i++) {
         for (var j = 0; j < this.accountData.projects[i].jobs.length; j++) {
             job = this.accountData.projects[i].jobs[j];
-            if (this.tools.indexOf(job.toolName) != -1) {
+            if (typeof this.tools[job.toolName] !== 'undefined') {
                 job.date = Utils.parseDate(job.date);
                 jobs.push(job);
             }
+
         }
     }
     this.data = jobs;
