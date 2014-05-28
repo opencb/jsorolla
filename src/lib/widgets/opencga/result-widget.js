@@ -90,36 +90,47 @@ ResultWidget.prototype = {
             }
             this.panel.setLoading("Loading job info...");
 
-            var url = OpencgaManager.jobResultUrl({
-                accountId: $.cookie("bioinfo_account"),
-                sessionId: sid,
-                jobId: this.jobId,
-                format: "json"
-            });
-            console.log(url);
-            $.getScript(url, function () {
-                _this.panel.setLoading(false);
-                _this.result = RESULT;
-                var layout = _this.result[_this.layoutName].layout;
-                layout.outputItems = _this.job.outputData.sort(layout.sortOutputItems);
-                layout.job = _this.job;
 
 
-                /**/
-                if (typeof layout.oldXML !== 'undefined') {
-                    _this._parseOldXML(layout);
-                }
-                /**/
+            /* Check job status before get result.js */
+            if(this.job.status.indexOf('error')!== -1){
+                this.panel.add(this._getJobInfo());
+                this.panel.add(this._getErrorInfo());
 
-                _this.render(_this.result);
+                this.panel.setLoading(false);
+            }else{
+                /* Get result.js */
+                var url = OpencgaManager.jobResultUrl({
+                    accountId: $.cookie("bioinfo_account"),
+                    sessionId: sid,
+                    jobId: this.jobId,
+                    format: "json"
+                });
+                console.log(url);
+                $.getScript(url, function () {
+                    _this.panel.setLoading(false);
+                    _this.result = RESULT;
+                    var layout = _this.result[_this.layoutName].layout;
+                    layout.outputItems = _this.job.outputData.sort(layout.sortOutputItems);
+                    layout.job = _this.job;
+
+                    /**/
+                    if (typeof layout.oldXML !== 'undefined') {
+                        _this._parseOldXML(layout);
+                    }
+                    /**/
+
+                    _this.render(_this.result);
 
 
-                if (_this.type == "window") {
-                    _this.panel.show();
-                } else {
-                    Ext.getCmp(_this.targetId).setActiveTab(_this.panel);
-                }
-            });
+                    if (_this.type == "window") {
+                        _this.panel.show();
+                    } else {
+                        Ext.getCmp(_this.targetId).setActiveTab(_this.panel);
+                    }
+                });
+            }
+
         } else {
             if (this.type == "window") {
                 this.panel.show();
@@ -132,81 +143,6 @@ ResultWidget.prototype = {
     render: function (resultData) {
         var _this = this;
         console.log(this.application);
-
-        var getJobInfo = function (args) {
-            var args = args || {};
-            var itemTpl = new Ext.XTemplate(
-                '<div class="s110">',
-                '<div style="display:inline-block;color:steelblue;width: 45px;">Id: </div>{id}<br>',
-                '<div style="display:inline-block;color:steelblue;width: 45px;">Name: </div>{name}<br>',
-                '<div style="display:inline-block;color:steelblue;width: 45px;">Tool: </div>{toolName}<br>',
-                '<div style="display:inline-block;color:steelblue;width: 45px;">Date: </div>{date}<br>',
-                '</div>',
-                '<p class="tip emph">{description}</p>',
-                '<p class="">{command.html}</p>'
-            );
-            var container = Ext.create('Ext.panel.Panel', {
-                title: 'Information',
-                header: {
-                    baseCls: 'ocb-panel-title'
-                },
-                border: false,
-                collapsible: true,
-                titleCollapse: true,
-                collapsed: _this.collapseInformation,
-                margin: 10,
-                bodyPadding: 10,
-                items: [
-                    {
-                        xtype: 'box',
-                        data: _this.job,
-                        tpl: itemTpl
-                    },
-                    {
-                        xtype: 'container', layout: 'hbox', margin: '10 0 0 0', defaults: {margin: '0 5 0 5'},
-                        items: [
-                            {
-                                xtype: 'button',
-                                text: 'download',
-                                handler: function () {
-                                    OpencgaManager.downloadJob({
-                                        accountId: $.cookie('bioinfo_account'),
-                                        sessionId: $.cookie('bioinfo_sid'),
-                                        jobId: _this.jobId
-                                    })
-                                }
-                            },
-                            {
-                                xtype: 'button',
-                                text: 'delete',
-                                handler: function () {
-                                    Ext.Msg.confirm("Delete job", "Are you sure you want to delete this job?", function (btnClicked) {
-                                        if (btnClicked == "yes") {
-                                            OpencgaManager.deleteJob({
-                                                accountId: $.cookie('bioinfo_account'),
-                                                sessionId: $.cookie('bioinfo_sid'),
-                                                jobId: _this.jobId,
-                                                success: function (response) {
-                                                    if (response.errorMsg === '') {
-                                                        Utils.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
-                                                    } else {
-                                                        Ext.Msg.alert('Delete job, try again later.', response.errorMsg);
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            }
-                        ]
-                    }
-                ]
-            });
-            if (typeof args.items != 'undefined') {
-                container.child('container').add(args.items);
-            }
-            return container;
-        };
 
         var getResultIndex = function (children) {
             var boxes = [];
@@ -804,7 +740,7 @@ ResultWidget.prototype = {
         };
 
         var detailedResutls = getDetailsAsDocument(resultData[this.layoutName].layout, true);
-        this.panel.add(getJobInfo({items: this.extItems}));
+        this.panel.add(this._getJobInfo({items: this.args}));
         if (this.drawIndex === true) {
             var indexResutl = getResultIndex(resultData[this.layoutName].layout.children);
             this.panel.insert(indexResutl);
@@ -813,7 +749,138 @@ ResultWidget.prototype = {
 
     },//end render
 
-    _createGenomeViewer: function (targetId) {
+
+    _getErrorInfo:function(){
+        var container = Ext.create('Ext.container.Container', {
+            margin: 10
+        });
+
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: OpencgaManager.pollurl({
+                accountId: $.cookie('bioinfo_account'),
+                sessionId: $.cookie('bioinfo_sid'),
+                jobId: this.jobId,
+                filename: 'sge_err.log'
+            }),
+            success: function (d) {
+                container.add({
+                    title: 'Error log',
+                    bodyPadding: 10,
+                    border:false,
+                    header: {
+                        baseCls: 'ocb-panel-title'
+                    },
+                    editable:false,
+                    html:d
+                })
+            }
+        });
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: OpencgaManager.pollurl({
+                accountId: $.cookie('bioinfo_account'),
+                sessionId: $.cookie('bioinfo_sid'),
+                jobId: this.jobId,
+                filename: 'sge_out.log'
+            }),
+            success: function (d) {
+                container.add({
+                    title: 'Out log',
+                    bodyPadding: 10,
+                    border:false,
+                    header: {
+                        baseCls: 'ocb-panel-title'
+                    },
+                    editable:false,
+                    html:d
+                })
+            }
+        });
+
+        return container;
+    },
+
+    _getJobInfo : function (args) {
+        var args = args || {};
+        var itemTpl = new Ext.XTemplate(
+            '<div class="s110">',
+            '<div style="display:inline-block;color:steelblue;width: 45px;">Id: </div>{id}<br>',
+            '<div style="display:inline-block;color:steelblue;width: 45px;">Name: </div>{name}<br>',
+            '<div style="display:inline-block;color:steelblue;width: 45px;">Tool: </div>{toolName}<br>',
+            '<div style="display:inline-block;color:steelblue;width: 45px;">Date: </div>{date}<br>',
+            '</div>',
+            '<p class="tip emph">{description}</p>',
+            '<p class="">{command.html}</p>'
+        );
+        var container = Ext.create('Ext.panel.Panel', {
+            title: 'Information',
+            header: {
+                baseCls: 'ocb-panel-title'
+            },
+            border: false,
+            collapsible: true,
+            titleCollapse: true,
+            collapsed: this.collapseInformation,
+            margin: 10,
+            bodyPadding: 10,
+            items: [
+                {
+                    xtype: 'box',
+                    data: this.job,
+                    tpl: itemTpl
+                },
+                {
+                    xtype: 'container', layout: 'hbox', margin: '10 0 0 0', defaults: {margin: '0 5 0 5'},
+                    items: [
+                        {
+                            xtype: 'button',
+                            text: 'download',
+                            handler: function () {
+                                OpencgaManager.downloadJob({
+                                    accountId: $.cookie('bioinfo_account'),
+                                    sessionId: $.cookie('bioinfo_sid'),
+                                    jobId: this.jobId
+                                })
+                            }
+                        },
+                        {
+                            xtype: 'button',
+                            text: 'delete',
+                            handler: function () {
+                                Ext.Msg.confirm("Delete job", "Are you sure you want to delete this job?", function (btnClicked) {
+                                    if (btnClicked == "yes") {
+                                        OpencgaManager.deleteJob({
+                                            accountId: $.cookie('bioinfo_account'),
+                                            sessionId: $.cookie('bioinfo_sid'),
+                                            jobId: this.jobId,
+                                            success: function (response) {
+                                                if (response.errorMsg === '') {
+                                                    Utils.msg('Delete job', '</span class="emph">' + response.result[0].msg + '</span>');
+                                                } else {
+                                                    Ext.Msg.alert('Delete job, try again later.', response.errorMsg);
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+        if (typeof args.items != 'undefined') {
+            container.child('container').add(args.items);
+        }
+        return container;
+    },
+
+
+
+_createGenomeViewer: function (targetId) {
         console.log('creating result genome viewer in: ' + targetId);
         var _this = this;
         var genomeViewer = new GenomeViewer({
