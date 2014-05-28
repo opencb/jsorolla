@@ -663,7 +663,6 @@ var OpencgaManager = {
         };
         var url = OpencgaManager.getAnalysisUrl(accountId, args.analysis) + '/run' + OpencgaManager.getQuery(queryParams);
         console.log(url);
-        console.log(args.paramsWS);
 
         $.ajax({
             type: "POST",

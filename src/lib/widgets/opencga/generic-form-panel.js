@@ -251,7 +251,10 @@ GenericFormPanel.prototype.run = function () {
     delete this.paramsWS['browseFieldLabel'];
 
     this.setAccountParams();
-    (this.paramsWS['outdir'] === '') ? delete this.paramsWS['outdir'] : console.log(this.paramsWS['outdir']);
+
+    if(this.paramsWS['outdir'] === ''){
+        delete this.paramsWS['outdir']
+    }
 
     if (!this.testing) {
         OpencgaManager.runAnalysis({
