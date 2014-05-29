@@ -26,6 +26,9 @@ function KaryotypePanel(args) {
 
     this.id = Utils.genId('KaryotypePanel');
 
+    this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseVersion = 'v3';
+
     this.pixelBase;
     this.species;
     this.width = 600;
@@ -175,6 +178,8 @@ KaryotypePanel.prototype = {
         };
 
         CellBaseManager.get({
+            host: this.cellBaseHost,
+            version:this.cellBaseVersion,
             species: this.species,
             category: 'genomic',
             subCategory: 'chromosome',

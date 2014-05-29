@@ -23,6 +23,9 @@ function CellBaseAdapter(args) {
 
     _.extend(this, Backbone.Events);
 
+    this.host;
+    this.version;
+
     _.extend(this, args);
 
     this.on(this.handlers);
@@ -78,6 +81,7 @@ CellBaseAdapter.prototype = {
                 // Get CellBase data
                 CellBaseManager.get({
                     host: this.host,
+                    version: this.version,
                     species: this.species,
                     category: this.category,
                     subCategory: this.subCategory,
@@ -128,6 +132,7 @@ CellBaseAdapter.prototype = {
                     args.webServiceCallCount++;
                     CellBaseManager.get({
                         host: this.host,
+                        version: this.version,
                         species: this.species,
                         category: this.category,
                         subCategory: this.subCategory,

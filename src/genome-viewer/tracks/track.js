@@ -21,7 +21,6 @@
 
 function Track(args) {
 
-
     this.dataAdapter;
     this.renderer;
     this.resizable = true;

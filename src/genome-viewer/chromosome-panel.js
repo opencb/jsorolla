@@ -26,6 +26,9 @@ function ChromosomePanel(args) {
 
     this.id = Utils.genId('ChromosomePanel');
 
+    this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseVersion = 'v3';
+
     this.pixelBase;
     this.species = 'hsapiens';
     this.width = 600;
@@ -160,6 +163,8 @@ ChromosomePanel.prototype = {
         this.clean();
 
         CellBaseManager.get({
+            host: this.cellBaseHost,
+            version:this.cellBaseVersion,
             species: this.species,
             category: 'genomic',
             subCategory: 'chromosome',

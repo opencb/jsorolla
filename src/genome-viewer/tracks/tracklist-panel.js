@@ -25,6 +25,9 @@ function TrackListPanel(args) {//parent is a DOM div element
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
+    this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseVersion = 'v3';
+
     //set default args
     this.id = Utils.genId("TrackListPanel");
     this.collapsed = false;
@@ -652,6 +655,12 @@ TrackListPanel.prototype = {
         var i = this.trackSvgList.push(track);
         this.swapHash[track.id] = {index: i - 1, visible: true};
 
+        if(typeof track.dataAdapter.host === 'undefined'){
+            track.dataAdapter.host = this.cellBaseHost;
+        }
+        if(typeof track.dataAdapter.version === 'undefined'){
+            track.dataAdapter.version = this.cellBaseVersion;
+        }
         track.set('pixelBase', this.pixelBase);
         track.set('region', this.visualRegion);
         track.set('width', this.width);
