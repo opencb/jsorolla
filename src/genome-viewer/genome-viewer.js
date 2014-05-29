@@ -30,6 +30,9 @@ function GenomeViewer(args) {
     this.version = 'Genome Viewer';
     this.targetId;
 
+    this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseVersion = 'v3';
+
     this.quickSearchResultFn;
     this.quickSearchDisplayKey;
 
@@ -300,6 +303,8 @@ GenomeViewer.prototype = {
             chromosomes = saveChromosomes(this.chromosomeList);
         } else {
             CellBaseManager.get({
+                host: this.cellBaseHost,
+                version: this.cellBaseVersion,
                 species: this.species,
                 category: 'genomic',
                 subCategory: 'chromosome',
@@ -328,7 +333,9 @@ GenomeViewer.prototype = {
                 var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
 
                 CellBaseManager.get({
-                    host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
+                    host: _this.cellBaseHost,
+                    version: _this.cellBaseVersion,
+//                    host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
                     species: speciesCode,
                     version: 'latest',
                     category: 'feature',
@@ -356,6 +363,8 @@ GenomeViewer.prototype = {
                 } else {
                     console.log(featureName);
                     CellBaseManager.get({
+                        host: _this.cellBaseHost,
+                        version: _this.cellBaseVersion,
                         species: _this.species,
                         category: 'feature',
                         subCategory: 'gene',
@@ -376,6 +385,8 @@ GenomeViewer.prototype = {
 
         var navigationBar = new NavigationBar({
             targetId: targetId,
+            cellBaseHost: this.cellBaseHost,
+            cellBaseVersion: this.cellBaseVersion,
             availableSpecies: this.availableSpecies,
             species: this.species,
             region: this.region,
@@ -475,6 +486,8 @@ GenomeViewer.prototype = {
         var _this = this;
         karyotypePanel = new KaryotypePanel({
             targetId: targetId,
+            cellBaseHost: this.cellBaseHost,
+            cellBaseVersion: this.cellBaseVersion,
             width: this.width - this.sidePanelWidth,
             height: 125,
             species: this.species,
@@ -492,7 +505,7 @@ GenomeViewer.prototype = {
 
         this.on('region:change region:move', function (event) {
 //            if (event.sender != karyotypePanel) {
-                karyotypePanel.setRegion(event.region);
+            karyotypePanel.setRegion(event.region);
 //            }
         });
         this.on('width:change', function (event) {
@@ -512,6 +525,8 @@ GenomeViewer.prototype = {
 
         var chromosomePanel = new ChromosomePanel({
             targetId: targetId,
+            cellBaseHost: this.cellBaseHost,
+            cellBaseVersion: this.cellBaseVersion,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
             height: 65,
@@ -547,6 +562,8 @@ GenomeViewer.prototype = {
     _createOverviewTrackListPanel: function (targetId) {
         var _this = this;
         var trackListPanel = new TrackListPanel({
+            cellBaseHost: this.cellBaseHost,
+            cellBaseVersion: this.cellBaseVersion,
             targetId: targetId,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
@@ -590,6 +607,8 @@ GenomeViewer.prototype = {
         var _this = this;
         var trackListPanel = new TrackListPanel({
             targetId: targetId,
+            cellBaseHost: this.cellBaseHost,
+            cellBaseVersion: this.cellBaseVersion,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
             title: this.trackListTitle,

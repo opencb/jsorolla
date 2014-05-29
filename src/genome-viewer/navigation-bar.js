@@ -28,6 +28,9 @@ function NavigationBar(args) {
 
     this.id = Utils.genId("NavigationBar");
 
+    this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseVersion = 'v3';
+
     this.species = 'Homo sapiens';
     this.increment = 3;
     this.componentsConfig = {};
@@ -279,6 +282,7 @@ NavigationBar.prototype = {
 
 //        var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
 //        var url = CellBaseManager.url({
+//              host: this.cellBaseHost,
 //            host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
 //            species: speciesCode,
 //            version: 'latest',

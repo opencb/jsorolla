@@ -27,6 +27,7 @@ function SequenceAdapter(args) {
 
     //set default args
     this.host;
+    this.version;
     this.gzip = true;
 
     //set instantiation args, must be last
@@ -70,6 +71,7 @@ SequenceAdapter.prototype.getData = function (args) {
 
         CellBaseManager.get({
             host: this.host,
+            version: this.version,
             species: this.species,
             category: this.category,
             subCategory: this.subCategory,
@@ -200,6 +202,7 @@ SequenceAdapter.prototype.getNucleotidByPosition = function (args) {
         if (queryString != "") {
             var data = CellBaseManager.get({
                 host: this.host,
+                version: this.version,
                 species: this.species,
                 category: this.category,
                 subCategory: this.subCategory,

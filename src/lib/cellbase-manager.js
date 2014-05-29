@@ -64,22 +64,16 @@ var CellBaseManager = {
         if (!$.isPlainObject(args.params)) args.params = {};
 
         var version = 'latest';
-        if(typeof CELLBASE_VERSION !== 'undefined'){
-            version = CELLBASE_VERSION
-        }
         if(typeof args.version !== 'undefined' && args.version != null){
             version = args.version
         }
 
         var host;
-        if(typeof CELLBASE_HOST !== 'undefined'){
-            host = CELLBASE_HOST
-        }
-        if (typeof args.host !== 'undefined' && args.version != null) {
+        if (typeof args.host !== 'undefined' && args.host != null) {
             host =  args.host;
         }
         if(typeof host === 'undefined'){
-            console.log("CELLBASE_HOST is not configured");
+            console.log("CellBase host is not configured");
             return;
         }
 

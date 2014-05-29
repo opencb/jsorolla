@@ -110,13 +110,10 @@
 
 
 <script type="text/javascript">
-//CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
-CELLBASE_HOST = "http://www.ebi.ac.uk/cellbase/webservices/rest";
-CELLBASE_VERSION = "v3";
-
 var genomeViewer = null;
 var div;
 var run = function () {
+
     /* region and species configuration */
     var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
     var availableSpecies = {
@@ -133,8 +130,9 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
-
     genomeViewer = new GenomeViewer({
+        cellBaseHost: 'http://www.ebi.ac.uk/cellbase/webservices/rest',
+        cellBaseVersion: 'v3',
         targetId: 'application',
         region: region,
         availableSpecies: availableSpecies,
