@@ -30,7 +30,7 @@ function PagedViewListWidget(args) {
     this.pageSize = 6;
     this.storeFields = {};
     this.template = {};
-    this.width = 280;
+    this.width = 300;
     this.height = 550;
     this.title = "";
     this.order = 0;

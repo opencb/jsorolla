@@ -24,35 +24,96 @@ JobListWidget.prototype.getData = UserListWidget.prototype.getData;
 JobListWidget.prototype.getCount = UserListWidget.prototype.getCount;
 
 function JobListWidget(args) {
+
+    this.RUNING_COLOR = '#298c63';
+    this.QUEUED_COLOR = 'Darkorange';
+    this.FINISHED_COLOR = '#0068cc';
+    this.ERROR_COLOR = '#b30000';
+
     var _this = this;
     UserListWidget.prototype.constructor.call(this, args);
     this.counter = null;
     var jobstpl = [
         '<tpl for=".">',
-        '<div class="joblist-item">',
+        '<div class="joblist-item bootstrap">',
 
-        '<div style="color:#596F8F">{name}</div>',
-        '<div class="{[ this.getClass(values) ]}">{toolName}{execution}</div>',
-        '<div style="color: dimgray">{date}</div>',
+        '<div style="color:#596F8F">{[ this.getNewIcon(values) ]} {name}</div>',
+            '<div> ' +
+            '<span class="{[ this.getClass(values) ]}">{toolName}{execution} </span> ' +
+            '</div>',
+            '<div>' +
+            '<span style="color: {[ this.getStatusColor(values) ]};">{status}</span> ' +
+            '<span style="color: dimgray;font-size:12px;"> &nbsp; &nbsp; {date} </span> ' +
+            '</div>',
 
-        '<div style="color:grey">',
-            '<span style="color:' +
-            '<tpl if="visites == 0">#298c63</tpl>' +
-            '<tpl if="visites &gt; 0">#0068cc</tpl>' +
-            '<tpl if="visites == -1">#b30000</tpl>' +
-            '<tpl if="visites == -2">Darkorange</tpl>' +
-//            '<tpl if="status == \'execution_error\'">red</tpl>' +
+//        '<div style="color:grey">',
 
-            '">{status}</span>',
-        '<tpl if="visites &gt; -1"> - {visites} views</tpl>',
+//            '<tpl if="visites == 0">#298c63</tpl>' +
+//            '<tpl if="visites &gt; 0">#0068cc</tpl>' +
+//            '<tpl if="visites == -1">#b30000</tpl>' +
+//            '<tpl if="visites == -2">Darkorange</tpl>' +
+////            '<tpl if="status == \'execution_error\'">red</tpl>' +
+
+
+//        '<tpl if="visites &gt; -1"> - {visites} views</tpl>',
 //                        '  - {id}' +
-        '</div>',
+//        '</div>',
 
         '</div>',
         '</tpl>',
+//        {
+//            getBackColor: function (item) {
+//                if (item.status.indexOf('error') !== -1) {
+//                    return '#FDE5E5'
+//                } else {
+//
+//                }
+//            }
+//        },
         {
-            getClass: function (item) {
-                return item.toolName.replace('.', '_');
+//
+            getStatusColor: function (item) {
+                var color = '#000000';
+                switch (item.status) {
+                    case 'running':
+                        color = _this.RUNING_COLOR;
+                        break;
+                    case 'finished':
+                        color = _this.FINISHED_COLOR;
+                        break;
+                    case 'queued':
+                        color = _this.QUEUED_COLOR;
+                        break;
+                    case 'execution_error':
+                    case 'queue_error':
+                        color = _this.ERROR_COLOR;
+                        break;
+                }
+                return color;
+            }
+        },
+        {
+            getNewIcon: function (item) {
+                var html = '';
+                if (item.visites === 0) {
+                    html += '<span style="color:' + _this.FINISHED_COLOR + '" class="glyphicon glyphicon-exclamation-sign"></span> ';
+                }
+                switch (item.status) {
+                    case 'running':
+                        html += '<span style="color:' + _this.RUNING_COLOR + '" class="glyphicon glyphicon-cog"></span>';
+                        break;
+                    case 'queued':
+                        html += '<span style="color:' + _this.QUEUED_COLOR + '" class="glyphicon glyphicon-time"></span>';
+                        break;
+                    case 'finished':
+                        html += '<span style="color:' + _this.FINISHED_COLOR + '" class="glyphicon glyphicon-ok-circle"></span>';
+                        break;
+                    case 'execution_error':
+                    case 'queue_error':
+                        html += '<span style="color:' + _this.ERROR_COLOR + '" class="glyphicon glyphicon-remove-circle"></span>';
+                        break;
+                }
+                return html;
             }
         },
         {
@@ -120,6 +181,7 @@ function JobListWidget(args) {
     this.btnVisitedId = this.id + "_btnVisited";
     this.btnRunningId = this.id + "_btnRunning";
     this.btnQueuedId = this.id + "_btnQueued";
+    this.btnErrorId = this.id + "_btnError";
 
     this.projectFilterButton = Ext.create("Ext.button.Button", {
         id: this.btnActivePrjId,
@@ -140,6 +202,7 @@ function JobListWidget(args) {
         id: this.id + "jobsFilterBar",
         docked: 'top',
         height: 39,
+        cls: 'bootstrap',
         items: [
             //this.projectFilterButton,
             {
@@ -166,6 +229,11 @@ function JobListWidget(args) {
                 id: this.btnQueuedId,
                 text: ' ',
                 tooltip: 'Queued jobs'
+            },
+            {
+                id: this.btnErrorId,
+                text: ' ',
+                tooltip: 'Error jobs'
             }
         ]
     });
@@ -175,6 +243,7 @@ function JobListWidget(args) {
     Ext.getCmp(this.btnVisitedId).on('click', this.filter, this);
     Ext.getCmp(this.btnRunningId).on('click', this.filter, this);
     Ext.getCmp(this.btnQueuedId).on('click', this.filter, this);
+    Ext.getCmp(this.btnErrorId).on('click', this.filter, this);
 
     this.allData = [];
 
@@ -278,11 +347,17 @@ JobListWidget.prototype.render = function () {
     } else {
         Ext.getCmp(this.btnQueuedId).show();
     }
-    Ext.getCmp(this.btnAllId).setText('<b style="color:black;">' + jobcount.all + '</b>');
-    Ext.getCmp(this.btnFinishedId).setText('<b style="color:#298c63;">' + jobcount.finished + '</b>');
-    Ext.getCmp(this.btnVisitedId).setText('<b style="color:#0068cc;">' + jobcount.visited + '</b>');
-    Ext.getCmp(this.btnRunningId).setText('<b style="color:#b30000;">' + jobcount.running + '</b>');
-    Ext.getCmp(this.btnQueuedId).setText('<b style="color:Darkorange;">' + jobcount.queued + '</b>');
+    if (jobcount.error == 0) {
+        Ext.getCmp(this.btnErrorId).hide();
+    } else {
+        Ext.getCmp(this.btnErrorId).show();
+    }
+    Ext.getCmp(this.btnAllId).setText(jobcount.all);
+    Ext.getCmp(this.btnFinishedId).setText('<span style="color:' + this.FINISHED_COLOR + '" class="glyphicon glyphicon-exclamation-sign"></span> ' + jobcount.finished);
+    Ext.getCmp(this.btnVisitedId).setText('<span style="color:' + this.FINISHED_COLOR + '" class="glyphicon glyphicon-ok-circle"></span> ' + jobcount.visited);
+    Ext.getCmp(this.btnRunningId).setText('<span style="color:' + this.RUNING_COLOR + '" class="glyphicon glyphicon-cog"></span> ' + jobcount.running);
+    Ext.getCmp(this.btnQueuedId).setText('<span style="color:' + this.QUEUED_COLOR + '" class="glyphicon glyphicon-time"></span> ' + jobcount.queued);
+    Ext.getCmp(this.btnErrorId).setText('<span style="color:' + this.ERROR_COLOR + '" class="glyphicon glyphicon-remove-circle"></span> ' + jobcount.error);
 };
 
 
@@ -291,22 +366,35 @@ JobListWidget.prototype.getJobCounter = function () {
     var visited = 0;
     var running = 0;
     var queued = 0;
-    for (var i = 0; i < this.getData().length; i++) {
-        if (this.getData()[i].visites > 0) {
-            visited++;
-        } else {
-            if (this.getData()[i].visites == 0) {
-                finished++;
+    var error = 0;
+
+    var data = this.getData();
+
+    for (var i = 0; i < data.length; i++) {
+        var job = data[i];
+        if (job.visites > 0) {
+            if (job.status.indexOf('error') != -1) {
+                error++;
+            } else {
+                visited++;
             }
-            if (this.getData()[i].visites == -1) {
+        } else {
+            if (job.visites == 0) {
+                if (job.status.indexOf('error') != -1) {
+                    error++;
+                } else {
+                    finished++;
+                }
+            }
+            if (job.visites == -1) {
                 running++;
             }
-            if (this.getData()[i].visites == -2) {
+            if (job.visites == -2) {
                 queued++;
             }
         }
     }
-    return {"all": this.getData().length, "visited": visited, "finished": finished, "running": running, "queued": queued};
+    return {all: data.length, visited: visited, finished: finished, running: running, queued: queued, error: error};
 };
 
 /**Filters**/
@@ -321,7 +409,7 @@ JobListWidget.prototype.filter = function (button) {
             break;
         case this.btnVisitedId:
             this.pagedListViewWidget.setFilter(function (item) {
-                return item.data.visites > 0;
+                return item.data.visites > 0 && item.data.status.indexOf('error') === -1;
             });
             break;
         case this.btnRunningId:
@@ -332,6 +420,11 @@ JobListWidget.prototype.filter = function (button) {
         case this.btnQueuedId:
             this.pagedListViewWidget.setFilter(function (item) {
                 return item.data.visites == -2;
+            });
+            break;
+        case this.btnErrorId:
+            this.pagedListViewWidget.setFilter(function (item) {
+                return item.data.status.indexOf('error') != -1;
             });
             break;
         default:

@@ -91,14 +91,22 @@ ResultWidget.prototype = {
             this.panel.setLoading("Loading job info...");
 
 
-
             /* Check job status before get result.js */
-            if(this.job.status.indexOf('error')!== -1){
+            if (this.job.status.indexOf('error') !== -1) {
                 this.panel.add(this._getJobInfo());
                 this.panel.add(this._getErrorInfo());
 
+                OpencgaManager.jobInfo({
+                    accountId: $.cookie("bioinfo_account"),
+                    sessionId: sid,
+                    jobId: this.jobId,
+                    success: function (job) {
+
+                    }
+                });
+
                 this.panel.setLoading(false);
-            }else{
+            } else {
                 /* Get result.js */
                 var url = OpencgaManager.jobResultUrl({
                     accountId: $.cookie("bioinfo_account"),
@@ -477,52 +485,51 @@ ResultWidget.prototype = {
                     case 'vcf-grid':
                         var id = 'resultTable_' + _this.jobId + item.file;
 
-                    var table = {
-                        name: "Stats Samples Table",
-                        colNames: ["CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT"],
-                        colTypes: ["string", "int", "string", "string", "string", "string", "string", "string", "string"],
-                        colVisibility: [1, 1, 1, 1, 1, 1, 1, 1, 1],
-                        colOrder: [0, 1, 2, 3, ,4,5,6,7,8,9]
-                    };
+                        var table = {
+                            name: "Stats Samples Table",
+                            colNames: ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"],
+                            colTypes: ["string", "int", "string", "string", "string", "string", "string", "string", "string"],
+                            colVisibility: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+                            colOrder: [0, 1, 2, 3, , 4, 5, 6, 7, 8, 9]
+                        };
 
 
-                    var session_id = $.cookie('bioinfo_sid');
-                    var accountId = $.cookie('bioinfo_account');
+                        var session_id = $.cookie('bioinfo_sid');
+                        var accountId = $.cookie('bioinfo_account');
 
-                    OpencgaManager.jobFileGrep({
-                        pattern: "^#CHR.*",
-                        ignoreCase: "true",
-                        multi: false,
-                        filename: item.file,
-                        sessionId: session_id,
-                        accountId: accountId,
-                        jobId: _this.jobId,
-                        async: false,
-                        success: function(data,textStatus, jqXHR){
-                           var fields = data.trim().split("\t");
+                        OpencgaManager.jobFileGrep({
+                            pattern: "^#CHR.*",
+                            ignoreCase: "true",
+                            multi: false,
+                            filename: item.file,
+                            sessionId: session_id,
+                            accountId: accountId,
+                            jobId: _this.jobId,
+                            async: false,
+                            success: function (data, textStatus, jqXHR) {
+                                var fields = data.trim().split("\t");
 
-                           for(var i = 9 ;i< fields.length; i++){
-                                table.colNames.push(fields[i]);
-                                table.colTypes.push("string");
-                                table.colVisibility.push(1);
-                                table.colOrder.push((fields[i - 1] + 1));
-                           }
+                                for (var i = 9; i < fields.length; i++) {
+                                    table.colNames.push(fields[i]);
+                                    table.colTypes.push("string");
+                                    table.colVisibility.push(1);
+                                    table.colOrder.push((fields[i - 1] + 1));
+                                }
 
-                           var resultTable = new ResultTable(_this.jobId, item.file, item.tags, {targetId: id, tableLayout: table});
-                           itemBox = Ext.create('Ext.Component', {
-                               flex: 1,
-                               resultTable: resultTable,
-                               html: '<div id="' + id + '" style="padding:5px;"> </div>',
-                               listeners: {
-                                   afterrender: function (este) {
-                                       este.resultTable.draw();
-                                   }
-                               }
-                           });
+                                var resultTable = new ResultTable(_this.jobId, item.file, item.tags, {targetId: id, tableLayout: table});
+                                itemBox = Ext.create('Ext.Component', {
+                                    flex: 1,
+                                    resultTable: resultTable,
+                                    html: '<div id="' + id + '" style="padding:5px;"> </div>',
+                                    listeners: {
+                                        afterrender: function (este) {
+                                            este.resultTable.draw();
+                                        }
+                                    }
+                                });
 
-                        }
-                    });
-
+                            }
+                        });
 
 
                         break;
@@ -750,7 +757,7 @@ ResultWidget.prototype = {
     },//end render
 
 
-    _getErrorInfo:function(){
+    _getErrorInfo: function () {
         var container = Ext.create('Ext.container.Container', {
             margin: 10
         });
@@ -768,12 +775,12 @@ ResultWidget.prototype = {
                 container.add({
                     title: 'Error log',
                     bodyPadding: 10,
-                    border:false,
+                    border: false,
                     header: {
                         baseCls: 'ocb-panel-title'
                     },
-                    editable:false,
-                    html:d
+                    editable: false,
+                    html: d
                 })
             }
         });
@@ -790,12 +797,12 @@ ResultWidget.prototype = {
                 container.add({
                     title: 'Out log',
                     bodyPadding: 10,
-                    border:false,
+                    border: false,
                     header: {
                         baseCls: 'ocb-panel-title'
                     },
-                    editable:false,
-                    html:d
+                    editable: false,
+                    html: d
                 })
             }
         });
@@ -803,7 +810,7 @@ ResultWidget.prototype = {
         return container;
     },
 
-    _getJobInfo : function (args) {
+    _getJobInfo: function (args) {
         var args = args || {};
         var itemTpl = new Ext.XTemplate(
             '<div class="s110">',
@@ -879,8 +886,7 @@ ResultWidget.prototype = {
     },
 
 
-
-_createGenomeViewer: function (targetId) {
+    _createGenomeViewer: function (targetId) {
         console.log('creating result genome viewer in: ' + targetId);
         var _this = this;
         var genomeViewer = new GenomeViewer({
