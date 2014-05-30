@@ -116,7 +116,6 @@ ResultWidget.prototype = {
                 });
                 console.log(url);
                 $.getScript(url, function () {
-                    debugger
                     _this.panel.setLoading(false);
                     _this.result = RESULT;
                     var layout = _this.result[_this.layoutName].layout;
@@ -528,7 +527,6 @@ ResultWidget.prototype = {
                                         }
                                     }
                                 });
-
                             }
                         });
 
@@ -775,13 +773,17 @@ ResultWidget.prototype = {
             success: function (d) {
                 container.add({
                     title: 'Error log',
-                    bodyPadding: 10,
+                    bodyPadding: '0 10',
                     border: false,
                     header: {
                         baseCls: 'ocb-panel-title'
                     },
-                    editable: false,
-                    html: d
+                    style:{
+                        borderBottom:'1px solid lightgray'
+                    },
+                    maxHeight:400,
+                    overflowY:true,
+                    html: '<pre>'+d+'</pre>'
                 })
             }
         });
@@ -797,13 +799,18 @@ ResultWidget.prototype = {
             success: function (d) {
                 container.add({
                     title: 'Out log',
-                    bodyPadding: 10,
+                    bodyPadding: '0 10',
+                    margin:'20 0 0 0',
                     border: false,
                     header: {
                         baseCls: 'ocb-panel-title'
                     },
-                    editable: false,
-                    html: d
+                    style:{
+                        borderBottom:'1px solid lightgray'
+                    },
+                    maxHeight:400,
+                    overflowY:true,
+                    html: '<pre>'+d+'</pre>'
                 })
             }
         });
