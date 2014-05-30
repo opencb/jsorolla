@@ -116,6 +116,7 @@ ResultWidget.prototype = {
                 });
                 console.log(url);
                 $.getScript(url, function () {
+                    debugger
                     _this.panel.setLoading(false);
                     _this.result = RESULT;
                     var layout = _this.result[_this.layoutName].layout;

@@ -26,7 +26,7 @@ function AttributeManagerStore(args) {
 
     this.model = Ext.define('Attribute', {
         extend: 'Ext.data.Model',
-        idProperty: 'Id'
+        idProperty: 'id'
     });
     this.store = Ext.create('Ext.data.Store', {
 //        groupField: 'selected',
@@ -34,7 +34,8 @@ function AttributeManagerStore(args) {
         proxy: {
             type: 'memory'
         },
-        model: this.model,
+        fields:[],
+//        model: this.model,
         listeners: {
             update: function (st, record, operation, modifiedFieldNames) {
                 if (modifiedFieldNames && modifiedFieldNames[0] != 'Selected') {
@@ -90,7 +91,7 @@ AttributeManagerStore.prototype = {
     _processAttribute: function (attribute) {
         /** Id column is not editable **/
         var editor;
-        if (attribute.name !== 'Id') {
+        if (attribute.name !== 'id') {
             editor = {xtype: 'textfield', allowBlank: true};
         }
 
@@ -102,7 +103,7 @@ AttributeManagerStore.prototype = {
             });
         }
         // set model fields
-        this.model.setFields(this.attributes);
+        this.store.setFields(this.attributes);
     },
     addAttributes: function (attributes) {
         for (var i = 0; i < attributes.length; i++) {
@@ -118,7 +119,7 @@ AttributeManagerStore.prototype = {
                 this.columnsGrid.splice(i, 1);
                 this.attributes.splice(i, 1);
 
-                this.model.setFields(this.attributes);
+                this.store.setFields(this.attributes);
                 this.trigger('change:attributes', {sender: this});
                 return true;
             }
@@ -227,7 +228,7 @@ AttributeManagerStore.prototype = {
 
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
-            var id = record.get('Id');
+            var id = record.get('id');
             var value = record.get(attributeName);
 
             /* detect number or string */
@@ -291,7 +292,7 @@ AttributeManagerStore.prototype = {
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             var value = record.get(attributeName);
-            var id = record.get('Id');
+            var id = record.get('id');
             if (value != null && value !== '') {
                 values.push({value: value, id: id});
             }
@@ -305,7 +306,7 @@ AttributeManagerStore.prototype = {
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             var value = record.get(attributeName);
-            var id = record.get('Id');
+            var id = record.get('id');
             var selected = record.get('Selected');
             if (selected === true && value != null && value !== '') {
                 values.push({value: value, id: id})
@@ -317,7 +318,7 @@ AttributeManagerStore.prototype = {
 //        var records = [];
 //        for (var i = 0; i < items.length; i++) {
 //            var item = items[i];
-//            var record = this.store.findRecord('Id', item.id);
+//            var record = this.store.findRecord('id', item.id);
 //            records.push(record);
 //        }
 //        return records;
@@ -380,7 +381,7 @@ AttributeManagerStore.prototype = {
 
         this.store.removeAll();
         this._processAttribute({name: "Selected", type: "boolean", defaultValue: false});
-        this.model.setFields(this.attributes);
+        this.store.setFields(this.attributes);
 
         this.trigger('change:attributes', {sender: this});
     },
@@ -461,7 +462,7 @@ AttributeManagerStore.prototype.updateAttribute = function (oldName, newName, ty
             this.attributes[i].type = type;
             this.attributes[i].defaultValue = defaultValue;
 
-            this.model.setFields(this.attributes);
+            this.store.setFields(this.attributes);
 
             return true;
         }

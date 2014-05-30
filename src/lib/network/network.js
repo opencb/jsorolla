@@ -34,11 +34,11 @@ function Network(args) {
     // Default attributes for vertices and edges.
     // They cannot be deleted.
     var vertexAttributes = [
-        {name: "Id", type: "string", defaultValue: "none", locked: true},
+        {name: "id", type: "string", defaultValue: "none", locked: true},
         {name: "Name", type: "string", defaultValue: "none"}
     ];
     var edgeAttributes = [
-        {name: "Id", type: "string", defaultValue: "none", locked: true},
+        {name: "id", type: "string", defaultValue: "none", locked: true},
         {name: "Name", type: "string", defaultValue: "none"},
         {name: "Relation", type: "string", defaultValue: "none"}
     ];
@@ -146,7 +146,7 @@ Network.prototype = {
             }
 
             this.vertexAttributeManager.addRecord({
-                'Id': vertex.id,
+                'id': vertex.id,
                 'Name': n
             });
 
@@ -179,7 +179,7 @@ Network.prototype = {
 
             //attributes
             this.edgeAttributeManager.addRecord({
-                'Id': edge.id,
+                'id': edge.id,
                 'Name': edge.id,
                 'Relation': edge.relation
             });
@@ -642,7 +642,7 @@ Network.prototype = {
 
                 var slicesMap = {};
 
-                var id = record.get('Id');
+                var id = record.get('id');
 
 //                if(id === 'c'){
 //                    debugger
@@ -734,7 +734,7 @@ Network.prototype = {
                                     slices.push(slice);
                                 }
                             } else {
-                                console.log(record.get('Id'));
+                                console.log(record.get('id'));
                             }
                         }
                         if (slices.length > 0) {
