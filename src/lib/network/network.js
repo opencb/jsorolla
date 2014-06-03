@@ -838,11 +838,11 @@ Network.prototype = {
         this.edgeAttributeManager.clean();
 
         var vertexAttributes = [
-            {name: "Id", type: "string", defaultValue: "none", locked: true},
+            {name: "id", type: "string", defaultValue: "none", locked: true},
             {name: "Name", type: "string", defaultValue: "none"}
         ];
         var edgeAttributes = [
-            {name: "Id", type: "string", defaultValue: "none", locked: true},
+            {name: "id", type: "string", defaultValue: "none", locked: true},
             {name: "Name", type: "string", defaultValue: "none"},
             {name: "Relation", type: "string", defaultValue: "none"}
         ];

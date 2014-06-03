@@ -55,7 +55,6 @@ NetworkEditWidget.prototype = {
             ],
             data: this.getElements()
         });
-//
 
         this.network.on('add:vertex add:edge remove:vertex remove:edge remove:vertices load:json clean draw batch:end', function () {
             _this.store.loadRawData(_this.getElements());
@@ -90,9 +89,9 @@ NetworkEditWidget.prototype = {
             id: this.id + 'grid',
             store: this.store,
             columns: [
-                {"header": "Source node", "dataIndex": "source.id", flex: 1, editor: {allowBlank: false}},
+                {"header": "Source node", xtype: 'templatecolumn', tpl: '{source.id}', flex: 1, editor: {allowBlank: false}},
                 {"header": "Relation", "dataIndex": "relation", flex: 1, editor: {allowBlank: false}},
-                {"header": "Target node", "dataIndex": "target.id", flex: 1, editor: {allowBlank: false}}
+                {"header": "Target node", xtype: 'templatecolumn', tpl: '{target.id}', flex: 1, editor: {allowBlank: false}}
             ],
             flex: 1,
             border: 0,
@@ -135,12 +134,12 @@ NetworkEditWidget.prototype = {
                                 _this.network.batchStart();
                                 for (var i = 0; i < selectedRecords.length; i++) {
                                     var record = selectedRecords[i];
-                                    var edgeId = record.raw.id;
+                                    var edgeId = record.data.id;
                                     if (typeof edgeId !== 'undefined') {
-                                        var edge = _this.network.getEdgeById(record.raw.id);
+                                        var edge = _this.network.getEdgeById(record.data.id);
                                         _this.network.removeEdge(edge);
                                     } else {
-                                        var vertex = _this.network.getVertexById(record.raw.source.id);
+                                        var vertex = _this.network.getVertexById(record.data.source.id);
                                         _this.network.removeVertex(vertex);
                                     }
                                 }
@@ -192,11 +191,15 @@ NetworkEditWidget.prototype = {
                 {
                     xtype: 'panel',
                     title: 'Add interaction',
-                    width: 170,
+                    width: 200,
                     border: 0,
                     bodyPadding: 10,
                     style: {
                         borderRight: '1px solid lightgray'
+                    },
+                    defaults: {
+                        width: '100%',
+                        labelWidth: 55
                     },
                     items: [
                         this.sourceTextfield,

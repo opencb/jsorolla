@@ -86,7 +86,7 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
         for (var i = 0; i < numColumns; i++) {
             var name = "Column" + i;
             if (i == 0) {
-                name = "Id";
+                name = "id";
             }
 
             if (this.ignoreColumns[i] !== true) {

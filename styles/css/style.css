@@ -175,6 +175,26 @@ ul.ocb-app-menu > li {
     top: 0px;
 }
 
+
+
+.ocb-nv-editionbar {
+    color: #435F7A;
+    height: 32px;
+    padding: 5px 8px;
+    /*border-bottom:1px solid #c6d0da;*/
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+    background-repeat: repeat-x;
+}
+.ocb-nv-toolbar {
+    color: #435F7A;
+    height: 32px;
+    padding: 5px 8px;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+    background-repeat: repeat-x;
+}
+
 /**/
 
 @font-face {

@@ -64,10 +64,14 @@ AttributeEditWidget.prototype = {
 
         var modifyRowsFormPanel = Ext.create('Ext.form.Panel', {
             title: 'Edit multiple values',
-            bodyPadding: "10 0 10 10",
+            bodyPadding: 10,
             layout: 'vbox',
-            border:0,
-            flex:1,
+            border: 0,
+            flex: 1,
+            defaults:{
+                width:'100%',
+                labelWidth:55
+            },
             dockedItems: [
                 {
                     xtype: 'toolbar',
@@ -93,7 +97,6 @@ AttributeEditWidget.prototype = {
                 this.createValueField(),
                 {
                     xtype: 'button',
-                    width: 170,
                     text: 'Apply on selected rows',
                     formBind: true, // only enabled if the form is valid
                     disabled: true,
@@ -108,31 +111,31 @@ AttributeEditWidget.prototype = {
         });
         var addAttributeFormPanel = Ext.create('Ext.form.Panel', {
             title: 'Add attribute',
-            bodyPadding: "10 0 10 10",
+            bodyPadding: 10,
             layout: 'vbox',
             border: 0,
-            flex:1,
+            flex: 1,
             style: {
                 borderTopColor: 'lightgray',
                 borderTopStyle: 'solid',
                 borderTopWidth: '1px'
             },
+            defaults:{
+                width:'100%',
+                labelWidth:55
+            },
             items: [
                 {
                     xtype: 'textfield',
-                    width: 170,
                     fieldLabel: 'Name',
-                    labelWidth: 50,
                     allowBlank: false
                 },
                 {
                     xtype: 'combo',
-                    hidden:true,
-                    store: ['string','int','float'],
+                    hidden: true,
+                    store: ['string', 'int', 'float'],
                     value: 'string',
-                    width: 170,
                     fieldLabel: 'Type',
-                    labelWidth: 50,
                     editable: false,
                     queryMode: 'local',
                     allowBlank: false
@@ -146,7 +149,6 @@ AttributeEditWidget.prototype = {
 //                },
                 {
                     xtype: 'button',
-                    width: 170,
                     text: 'Apply',
                     formBind: true, // only enabled if the form is valid
                     disabled: true,
@@ -161,27 +163,31 @@ AttributeEditWidget.prototype = {
                 },
                 {
                     xtype: 'box',
-                    margin: "10 0 0 0"
+                    margin:'10 0 0 0',
+                    html: ''
                 }
             ]
         });
 
         var removeAttributeFormPanel = Ext.create('Ext.form.Panel', {
             title: 'Remove attribute',
-            bodyPadding: "10 0 10 10",
+            bodyPadding: 10,
             layout: 'vbox',
             border: 0,
-            flex:1,
+            flex: 1,
             style: {
                 borderTopColor: 'lightgray',
                 borderTopStyle: 'solid',
                 borderTopWidth: '1px'
             },
+            defaults:{
+                width:'100%',
+                labelWidth:55
+            },
             items: [
                 this.createAttributesCombo(),
                 {
                     xtype: 'button',
-                    width: 170,
                     text: 'Apply',
                     formBind: true, // only enabled if the form is valid
                     disabled: true,
@@ -256,7 +262,7 @@ AttributeEditWidget.prototype = {
                         var string = _this.attrMan.getAsFile();
                         a.set({
                             href: 'data:text/tsv,' + encodeURIComponent(string),
-                            download: _this.type+".attr"
+                            download: _this.type + ".attr"
                         });
                     }
                 }
@@ -294,15 +300,15 @@ AttributeEditWidget.prototype = {
 
         this.accordionPanel = Ext.create('Ext.container.Container', {
             layout: {
-                type:'vbox',
-                align:'stretch'
+                type: 'vbox',
+                align: 'stretch'
             },
-            width: 200,
+            width: 230,
             border: '0 1 0 0',
             style: {
                 borderColor: 'lightgray',
                 borderStyle: 'solid',
-                backgroundColor:'#ffffff'
+                backgroundColor: '#ffffff'
             },
             items: [
                 modifyRowsFormPanel,
@@ -315,7 +321,7 @@ AttributeEditWidget.prototype = {
         this.window = Ext.create('Ext.window.Window', {
             id: "edit" + this.type + "AttrWindow",
             title: "Edit " + this.type.toLowerCase() + " attributes",
-            width: 800,
+            width: 850,
             height: 600,
             closable: false,
             minimizable: true,
@@ -362,10 +368,10 @@ AttributeEditWidget.prototype = {
         this.comboStore.loadData(this.attrMan.attributes);
     },
     checkSelectedFilter: function () {
-        this.attrMan.store.removeFilter(this.selectedFilter);
+        this.attrMan.store.clearFilter();
         var value = Ext.getCmp(this.id + 'selectMode').getValue();
         if (value[this.id + 'selection'] === 'selected') {
-            this.attrMan.store.addFilter(this.selectedFilter);
+            this.attrMan.store.setFilters(this.selectedFilter);
         }
     },
 
@@ -377,10 +383,8 @@ AttributeEditWidget.prototype = {
             store: this.comboStore,
             displayField: 'name',
             valueField: 'name',
-            width: 170,
             allowBlank: false,
             fieldLabel: 'Attribute',
-            labelWidth: 50,
             editable: false,
             queryMode: 'local'
         }
@@ -388,9 +392,7 @@ AttributeEditWidget.prototype = {
     createValueField: function () {
         return {
             xtype: 'textfield',
-            width: 170,
             fieldLabel: 'Value',
-            labelWidth: 50,
             allowBlank: false
         }
     }

@@ -24,17 +24,13 @@ function AttributeManagerStore(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('AttributeManagerStore');
 
-    this.model = Ext.define('Attribute', {
-        extend: 'Ext.data.Model',
-        idProperty: 'id'
-    });
     this.store = Ext.create('Ext.data.Store', {
 //        groupField: 'selected',
         pageSize: 50,
         proxy: {
             type: 'memory'
         },
-        fields:[],
+        fields: [],
 //        model: this.model,
         listeners: {
             update: function (st, record, operation, modifiedFieldNames) {
@@ -44,7 +40,6 @@ function AttributeManagerStore(args) {
             }
         }
     });
-
 
     this.columnsGrid = [];
     this.attributes = [];
@@ -95,13 +90,16 @@ AttributeManagerStore.prototype = {
             editor = {xtype: 'textfield', allowBlank: true};
         }
 
+        var columnConfig = {
+            "text": attribute.name,
+            "dataIndex": attribute.name,
+            "editor": editor
+        };
+
         if (attribute.name !== 'Selected') {
-            this.columnsGrid.push({
-                "text": attribute.name,
-                "dataIndex": attribute.name,
-                "editor": editor
-            });
+            this.columnsGrid.push(columnConfig);
         }
+
         // set model fields
         this.store.setFields(this.attributes);
     },
@@ -150,8 +148,7 @@ AttributeManagerStore.prototype = {
         if (this.isAttributeLocked(attributeName)) {
             return false;
         }
-        var data = this.store.snapshot || this.store.data;
-        var record = data.map[id];
+        var record = this.store.getById(id);
         if (record) {
             record.set(attributeName, value);
             record.commit();
@@ -160,11 +157,10 @@ AttributeManagerStore.prototype = {
     setRecordAttributeByIds: function (records) {
         this.store.suspendEvents();
 //        console.time('AttributeManagerStore.setRecordAttributeByIds');
-        var data = this.store.snapshot || this.store.data;
         for (var i = 0; i < records.length; i++) {
             var recordObject = records[i];
             if (!this.isAttributeLocked(recordObject.attributeName)) {
-                var record = data.map[recordObject.id];
+                var record = this.store.getById(recordObject.id);
                 if (record) { // if exists a row with this name
                     record.beginEdit();
                     for (var attributeName in recordObject) {
@@ -205,22 +201,19 @@ AttributeManagerStore.prototype = {
         this.store.add(data);
     },
     removeRecordById: function (id) {
-        var data = this.store.snapshot || this.store.data;
-        var record = data.map[id];
+        var record = this.store.getById(id);
         if (record) {
             this.store.remove(record);
         }
     },
     getValueByAttributeAndId: function (id, attribute) {
-        var data = this.store.snapshot || this.store.data;
-        var record = data.map[id];
+        var record = this.store.getById(id);
         if (record) {
             return record.get(attribute);
         }
     },
     getOrderedIdsByAttribute: function (attributeName) {
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
+        var records = this.store.query().items;
         var values = [];
 
         var type = 'float';
@@ -264,30 +257,27 @@ AttributeManagerStore.prototype = {
         var mixedCollection = this.store.query(attribute, value, false, false, true);
         for (var i = 0; i < mixedCollection.items.length; i++) {
             var item = mixedCollection.items[i];
-            var id = item.data["Id"];
+            var id = item.data["id"];
             if (dupHash[id] !== true) {
-                ids.push(item.data["Id"]);
+                ids.push(item.data["id"]);
             }
             dupHash[id] = true;
         }
         return ids;
     },
     eachRecord: function (eachFunction) {
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
+        var records = this.store.query().items;
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             eachFunction(record);
         }
     },
     getRecords: function () {
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
+        var records = this.store.query().items;
         return records;
     },
     getValuesByAttribute: function (attributeName) {
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
+        var records = this.store.query().items;
         var values = [];
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
@@ -300,8 +290,7 @@ AttributeManagerStore.prototype = {
         return values;
     },
     getSelectedValuesByAttribute: function (attributeName) {
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
+        var records = this.store.query().items;
         var values = [];
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
@@ -324,11 +313,10 @@ AttributeManagerStore.prototype = {
 //        return records;
 //    },
     selectByItems: function (items) {
-        var data = this.store.snapshot || this.store.data;
         this.store.suspendEvents();
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            var record = data.map[item.id];
+            var record = this.store.getById(item.id);
             if (record) {
                 record.set('Selected', true);
                 record.commit();
@@ -338,11 +326,10 @@ AttributeManagerStore.prototype = {
         this.store.fireEvent('refresh');
     },
     deselectByItems: function (items) {
-        var data = this.store.snapshot || this.store.data;
         this.store.suspendEvents();
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            var record = data.map[item.id];
+            var record = this.store.getById(item.id);
             if (record) {
                 record.set('Selected', false);
                 record.commit();
@@ -353,22 +340,22 @@ AttributeManagerStore.prototype = {
     },
     selectAll: function () {
         this.store.suspendEvents();
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
+        var records = this.store.query().items;
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             record.set('Selected', true);
+            record.commit();
         }
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
     },
     deselectAll: function () {
         this.store.suspendEvents();
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
+        var records = this.store.query().items;
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             record.set('Selected', false);
+            record.commit();
         }
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
@@ -405,8 +392,7 @@ AttributeManagerStore.prototype = {
         }
         text += '\n';
 
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
+        var records = this.store.query().items;
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             for (var j = 0; j < this.attributes.length; j++) {
@@ -431,8 +417,7 @@ AttributeManagerStore.prototype = {
         json.data = [];
 
         // add row values to data matrix
-        var data = this.store.snapshot || this.store.data;
-        var records = data.items;
+        var records = this.store.query().items;
         for (var j = 0; j < records.length; j++) {
             json.data.push([]);
             for (var i = 0; i < this.attributes.length; i++) {
@@ -663,7 +648,7 @@ AttributeManagerStore.prototype.loadJSON = function (json) {
 };
 
 AttributeManagerStore.prototype.setName = function (vertexId, newName) {
-    var register = this.store.getAt(this.store.find("Id", vertexId));
+    var register = this.store.getAt(this.store.find("id", vertexId));
     register.set("Name", newName);
     register.commit();
 };

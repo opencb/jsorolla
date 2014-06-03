@@ -59,7 +59,7 @@ AttributeNetworkFileWidget.prototype.getFileUpload = function () {
                 node.value = v.replace("C:\\fakepath\\", "");
 
                 var attributeNetworkDataAdapter = new AttributeNetworkDataAdapter({
-                    dataSource: new FileDataSource({file:file}),
+                    dataSource: new FileDataSource({file: file}),
                     handlers: {
                         'data:load': function (event) {
                             _this.processData(attributeNetworkDataAdapter);
@@ -120,7 +120,7 @@ AttributeNetworkFileWidget.prototype.processData = function (attributesDataAdapt
         });
 
         var disabled = false;
-        if (name == "Id") {
+        if (name == "id") {
             disabled = true;
             existNameColumn = true;
         }
@@ -147,22 +147,20 @@ AttributeNetworkFileWidget.prototype.processData = function (attributesDataAdapt
     }
 
     if (!existNameColumn) {
-        this.infoLabel.setText("<span class='err'>Invalid file. The column 'Id' is required.</span>", false);
+        this.infoLabel.setText("<span class='err'>Invalid file. The column 'id' is required.</span>", false);
     }
     else if (!uniqueNameValues) {
-        this.infoLabel.setText("<span class='err'>Invalid file. The values for 'Id' column must be uniques.</span>", false);
+        this.infoLabel.setText("<span class='err'>Invalid file. The values for 'id' column must be uniques.</span>", false);
     }
     else {
         this.cbgAttributes.add(cbgItems);
-        this.checkboxBar.show();
-        this.createNodesBar.show();
-
+        this.fieldContainer.show();
         Ext.getCmp(this.id + 'okBtn').setDisabled(false);
     }
 
     this.gridTbar.add(this.gridColumnNameFields);
 
-    this.model.setFields(this.content.attributes);
+    this.gridStore.setFields(this.content.attributes);
 
     this.grid.reconfigure(this.gridStore, this.columnsGrid);
 
@@ -220,28 +218,19 @@ AttributeNetworkFileWidget.prototype.draw = function () {
         var browseBar = Ext.create('Ext.toolbar.Toolbar', {cls: 'bio-border-false', dock: 'top'});
         browseBar.add(this.getFileUpload());
 
+
         this.infoLabel = Ext.create('Ext.toolbar.TextItem', {html: 'Please select a network saved File'});
         this.countLabel = Ext.create('Ext.toolbar.TextItem');
         var infobar = Ext.create('Ext.toolbar.Toolbar', {cls: 'bio-border-false', dock: 'bottom'});
         infobar.add([this.infoLabel, '->', this.countLabel]);
 
-        this.cbgLabel = Ext.create('Ext.draw.Text', {
-            text: "Import:",
-            margin: "0 0 0 3"
-        });
 
         this.cbgAttributes = Ext.create('Ext.form.CheckboxGroup', {
-            margin: '2 2 2 2',
+            fieldLabel: 'Import',
+            labelWidth: 40,
             layout: 'hbox',
             autoScroll: true,
             defaultType: 'checkboxfield'
-        });
-
-        this.checkboxBar = Ext.create('Ext.toolbar.Toolbar', {
-            cls: 'bio-border-false',
-            dock: 'bottom',
-            hidden: true,
-            items: [this.cbgLabel, this.cbgAttributes]
         });
 
         this.createNodesCkb = Ext.create('Ext.form.field.Checkbox', {
@@ -249,26 +238,23 @@ AttributeNetworkFileWidget.prototype.draw = function () {
             boxLabel: "Create nodes for unrecognized names."
         });
 
-        this.createNodesBar = Ext.create('Ext.toolbar.Toolbar', {
-            cls: 'bio-border-false',
-            dock: 'bottom',
-            hidden: true,
-            items: this.createNodesCkb
+
+        this.fieldContainer = Ext.create('Ext.form.FieldContainer', {
+            margin:'0 0 0 10',
+            hidden:true,
+            items: [this.cbgAttributes, this.createNodesCkb]
         });
+
 
         /** Grid for Preview **/
         this.columnsGrid = [];
-
-        this.model = Ext.define('User', {
-            extend: 'Ext.data.Model'
-        });
 
         this.gridStore = Ext.create('Ext.data.Store', {
             pageSize: 50,
             proxy: {
                 type: 'memory'
             },
-            model: this.model
+            fields: []
         });
 
         this.gridTbar = Ext.create('Ext.toolbar.Toolbar', {
@@ -284,34 +270,49 @@ AttributeNetworkFileWidget.prototype.draw = function () {
             loadMask: true,
             plugins: ['bufferedrenderer'],
             hideHeaders: true,
-            dockedItems: [browseBar, infobar, this.createNodesBar, this.checkboxBar]
+            dockedItems: [infobar]
         });
 
         this.panel = Ext.create('Ext.window.Window', {
             title: this.title,
-            width: this.width,
-            height: this.height,
             resizable: false,
             modal: true,
-            layout: { type: 'vbox', align: 'stretch'},
-            items: [this.grid],
-            buttons: [
-                {
-                    id: _this.id + 'okBtn',
-                    text: 'Ok',
-                    disabled: true,
-                    handler: function () {
-                        _this.trigger('okButton:click', {content: _this.filterColumnsToImport(), sender: _this});
-                        _this.panel.close();
-                    }
-                },
-                {
-                    text: 'Cancel',
-                    handler: function () {
-                        _this.panel.close();
-                    }
+            items: {
+                layout: { type: 'vbox', align: 'stretch'},
+                width: this.width,
+                height: this.height,
+                border: 0,
+                items: [
+                    this.grid,
+                    this.fieldContainer
+                ],
+                dockedItems: [
+                    browseBar
+                ],
+                bbar: {
+                    defaults: {
+                        width: 100
+                    },
+                    items: [
+                        {
+                            id: _this.id + 'okBtn',
+                            text: 'Ok',
+                            disabled: true,
+                            handler: function () {
+                                _this.trigger('okButton:click', {content: _this.filterColumnsToImport(), sender: _this});
+                                _this.panel.close();
+                            }
+                        },
+                        {
+                            text: 'Cancel',
+                            handler: function () {
+                                _this.panel.close();
+                            }
+                        }
+                    ]
+
                 }
-            ],
+            },
             listeners: {
                 scope: this,
                 minimize: function () {

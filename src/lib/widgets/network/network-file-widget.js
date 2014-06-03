@@ -116,31 +116,40 @@ NetworkFileWidget.prototype.draw = function () {
 
         this.panel = Ext.create('Ext.window.Window', {
             title: this.title,
-            width: this.width,
-            height: this.height,
             resizable: false,
-            layout: { type: 'vbox', align: 'stretch'},
-            items: [this.grid],
-            dockedItems:[
-                browseBar
-            ],
-            buttons: [
-                {
-                    xtype: 'text',
-                    margin: "5 0 0 0",
-                    text: 'Apply layout:'
-                },
-                comboLayout,
-                '->',
-                {text: 'Ok', handler: function () {
-                    _this.trigger('okButton:click', {content: _this.content, layout: comboLayout.getValue(), sender: _this});
-                    _this.panel.close();
+            items: {
+                width: this.width,
+                height: this.height,
+                border: 0,
+                layout: { type: 'vbox', align: 'stretch'},
+                items: [
+                    this.grid
+                ],
+                tbar: browseBar,
+                bbar: {
+                    defaults: {
+                        width: 100
+                    },
+                    items: [
+                        {
+                            xtype: 'box',
+                            margin: "5 0 0 0",
+                            html: 'Apply layout:'
+                        },
+                        comboLayout,
+                        '->',
+                        {text: 'Ok', handler: function () {
+                            _this.trigger('okButton:click', {content: _this.content, layout: comboLayout.getValue(), sender: _this});
+                            _this.panel.close();
+                        }
+                        },
+                        {text: 'Cancel', handler: function () {
+                            _this.panel.close();
+                        }}
+                    ]
+
                 }
-                },
-                {text: 'Cancel', handler: function () {
-                    _this.panel.close();
-                }}
-            ],
+            },
             listeners: {
                 scope: this,
                 minimize: function () {

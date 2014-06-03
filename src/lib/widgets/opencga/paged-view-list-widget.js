@@ -220,6 +220,7 @@ PagedViewListWidget.prototype.render = function () {
             id: this.id + "searchField",
             emptyText: 'enter search term',
             enableKeyEvents: true,
+            flex:1,
             listeners: {
                 change: function () {
                     _this.setFilter(null);
@@ -229,7 +230,8 @@ PagedViewListWidget.prototype.render = function () {
 
         this.pagBar = Ext.create('Ext.toolbar.Toolbar', {
             id: this.pagbarId,
-            height:39,
+            height: 39,
+            cls: 'bootstrap',
             items: [
 //							{
 //							    id : this.id+'btnPrev',
@@ -277,27 +279,27 @@ PagedViewListWidget.prototype.render = function () {
 //							    margins: '5 0 0 5'
 //							},
                 {
-                    xtype:'button',
+                    xtype: 'button',
                     id: this.id + 'btnSort',
-                    iconCls: 'icon-order-desc',
                     tooltip: 'Change order',
-                    width:25,
+                    margin:'0 15 0 0',
+                    text: '<span class="glyphicon glyphicon-sort"></span>',
                     handler: function () {
                         if (_this.sort == "DESC") {
                             _this.sort = "ASC";
                             _this.store.sort('date', 'ASC');
-                            this.setIconCls('icon-order-asc');
+//                            this.setIconCls('icon-order-asc');
                         }
                         else {
                             _this.sort = "DESC";
                             _this.store.sort('date', 'DESC');
-                            this.setIconCls('icon-order-desc');
+//                            this.setIconCls('icon-order-desc');
                         }
                     }
                 },
                 searchField,
                 {
-                    xtype:'button',
+                    xtype: 'button',
                     id: this.id + 'btnClear',
 //							    iconCls: 'icon-delete',
                     text: 'Clear',
@@ -318,7 +320,7 @@ PagedViewListWidget.prototype.render = function () {
 //            titleCollapse: true,
             border: this.border,
             width: this.width,
-            tbar:this.pagBar,
+            tbar: this.pagBar,
             items: [ pan]
         });
 
@@ -347,9 +349,9 @@ PagedViewListWidget.prototype.hide = function () {
 };
 PagedViewListWidget.prototype.toggle = function () {
     if (this.panel != null) {
-        if(this.panel.isVisible()){
+        if (this.panel.isVisible()) {
             this.panel.hide();
-        }else{
+        } else {
             this.panel.show();
         }
     }

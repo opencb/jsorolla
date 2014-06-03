@@ -45,10 +45,10 @@ function HeaderWidget(args) {
 
     this.applicationMenuEl;
 
-    this.homeLink = "http://bioinfo.cipf.es";
-    this.helpLink = "http://bioinfo.cipf.es";
-    this.tutorialLink = "http://bioinfo.cipf.es";
-    this.aboutHTML = "http://bioinfo.cipf.es";
+    this.homeLink = ".";
+    this.helpLink = ".";
+    this.tutorialLink = ".";
+    this.aboutHTML = ".";
 
 
     //set instantiation args, must be last
