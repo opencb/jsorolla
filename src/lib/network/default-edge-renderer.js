@@ -389,7 +389,7 @@ DefaultEdgeRenderer.prototype = {
                 var arrow = SVG.addChild(marker, "path", {
 //                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "d": ['M0,0', 'V', headWidth, 'L', headHeight, headWidth, 'L', headHeight, 0, 'Z'].join(' ')
+                    "d": ['M', headHeight , 0, 'V', headWidth, 'L', headHeight / 2, headWidth, 'L', headHeight / 2, 0, 'Z'].join(' ')
 //                    "x":0,
 //                    "y": 0,
 //                    "width": headWidth,

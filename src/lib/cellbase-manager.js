@@ -20,6 +20,8 @@
  */
 
 var CellBaseManager = {
+    host: 'http://www.ebi.ac.uk/cellbase/webservices/rest',
+    version: 'v3',
     get: function (args) {
         var success = args.success;
         var error = args.error;
@@ -63,18 +65,14 @@ var CellBaseManager = {
         if (!$.isPlainObject(args)) args = {};
         if (!$.isPlainObject(args.params)) args.params = {};
 
-        var version = 'latest';
+        var version = this.version;
         if(typeof args.version !== 'undefined' && args.version != null){
             version = args.version
         }
 
-        var host;
+        var host = this.host;
         if (typeof args.host !== 'undefined' && args.host != null) {
             host =  args.host;
-        }
-        if(typeof host === 'undefined'){
-            console.log("CellBase host is not configured");
-            return;
         }
 
         delete args.host;

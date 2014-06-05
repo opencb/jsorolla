@@ -842,7 +842,7 @@ Network.prototype = {
             {name: "Name", type: "string", defaultValue: "none"}
         ];
         var edgeAttributes = [
-            {name: "id", type: "string", defaultValue: "none", locked: true},
+            {name: "Id", type: "string", defaultValue: "none", locked: true},
             {name: "Name", type: "string", defaultValue: "none"},
             {name: "Relation", type: "string", defaultValue: "none"}
         ];

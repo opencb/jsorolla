@@ -111,56 +111,63 @@ AttributeLayoutConfigureWidget.prototype = {
         this.window = Ext.create('Ext.window.Window', {
             id: this.id + 'window',
             title: 'Attribute layout configuration',
-            bodyStyle: {
-                backgroundColor: 'white',
-                fontFamily: 'Oxygen'
-            },
-            bodyPadding: 10,
-            width: this.width,
             closable: false,
             minimizable: true,
             constrain: true,
             collapsible: true,
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'box',
-                    style: {
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        borderBottom: '1px solid lightgray',
-                        marginBottom: '10px'
-                    },
-                    html: 'Select attribute as node position'
+            items: {
+                bodyPadding: 10,
+                width: this.width,
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
                 },
-                {
-                    xtype: 'container',
-                    style: {
-                        marginBottom: '20px'
+                items: [
+                    {
+                        xtype: 'box',
+                        style: {
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            borderBottom: '1px solid lightgray',
+                            marginBottom: '10px'
+                        },
+                        html: 'Select attribute as node position'
                     },
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
+                    {
+                        xtype: 'container',
+                        style: {
+                            marginBottom: '20px'
+                        },
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: { margin: '1 0 1 0' },
+                        items: [
+                            this.xAtributeCombo,
+                            this.yAtributeCombo,
+                            this.normalizeCheckBox
+                        ]
+                    }
+                ],
+                bbar: {
+                    layout : {
+                        pack : 'end'
                     },
-                    defaults: { margin: '1 0 1 0' },
+                    defaults: {
+                        width: 100
+                    },
                     items: [
-                        this.xAtributeCombo,
-                        this.yAtributeCombo,
-                        this.normalizeCheckBox
+                        {
+                            text: 'Apply',
+                            handler: function () {
+                                _this.setLayout();
+                            }
+                        }
                     ]
                 }
-            ],
-            buttons: [
-                {
-                    text: 'Apply',
-                    handler: function () {
-                        _this.setLayout();
-                    }
-                }
-            ],
+            },
+
             listeners: {
                 minimize: function () {
                     this.hide();
@@ -208,8 +215,9 @@ AttributeLayoutConfigureWidget.prototype = {
                     yMin = Math.min(y, yMin);
                 }
             });
-            var xRange = xMax - xMin;
-            var yRange = yMax - yMin;
+            var xRange = (xMax === xMin) ? 1 : xMax - xMin;
+            var yRange = (yMax === yMin) ? 1 : yMax - yMin;
+
 
             var width = this.networkViewer.getLayoutWidth();
             var height = this.networkViewer.getLayoutHeight();
@@ -223,7 +231,7 @@ AttributeLayoutConfigureWidget.prototype = {
                 y = (y - yMin) * height / yRange;
 
                 if (!isNaN(x) && !isNaN(y)) {
-                    _this.network.setVertexCoordsById(record.get("Id"), x, y);
+                    _this.network.setVertexCoordsById(record.get("id"), x, y);
                 }
             });
 
@@ -234,7 +242,7 @@ AttributeLayoutConfigureWidget.prototype = {
                 var x = parseFloat(record.get(xAttributeName));
                 var y = parseFloat(record.get(yAttributeName));
                 if (!isNaN(x) && !isNaN(y)) {
-                    _this.network.setVertexCoordsById(record.get("Id"), x, y);
+                    _this.network.setVertexCoordsById(record.get("id"), x, y);
                 }
             });
         }

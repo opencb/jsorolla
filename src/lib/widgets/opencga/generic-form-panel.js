@@ -50,8 +50,6 @@ function GenericFormPanel(args) {
     _.extend(this, args);
 
 
-    this.panelId = this.analysis + "-FormPanel";
-
     this.runAnalysisSuccess = function (response) {
         if (response.errorMsg !== '') {
             Ext.Msg.show({
@@ -81,17 +79,23 @@ GenericFormPanel.prototype.draw = function () {
     if (this.panel == null) {
         if (this.type == "window") {
             this.panel = Ext.create('Ext.window.Window', {
-                id: this.panelId,
                 title: this.title,
                 closable: this.closable,
                 minimizable: this.minimizable,
                 resizable: this.resizable,
-                bodyStyle: 'background:white;',
-                overflowY: 'auto',
+//                bodyStyle: 'background:white;',
+//                overflowY: 'auto',
 //                taskbar: this.taskbar,
-                items: [this.getForm()],
+                layout: 'fit',
+                items: {
+                    border: 0,
+                    items: [this.getForm()]
+                },
                 listeners: {
                     minimize: function () {
+                        this.hide();
+                    },
+                    close: function () {
                         this.hide();
                     }
                 }
@@ -99,7 +103,6 @@ GenericFormPanel.prototype.draw = function () {
         }
         else {
             this.panel = Ext.create('Ext.panel.Panel', {
-                id: this.panelId,
                 title: this.title,
                 closable: this.closable,
 //                defaults: {margin: 30},
@@ -118,6 +121,7 @@ GenericFormPanel.prototype.draw = function () {
                 }
             });
         }
+        this.panelId = this.panel.getId();
     }
     return this.panel;
 };
@@ -252,7 +256,7 @@ GenericFormPanel.prototype.run = function () {
 
     this.setAccountParams();
 
-    if(this.paramsWS['outdir'] === ''){
+    if (this.paramsWS['outdir'] === '') {
         delete this.paramsWS['outdir']
     }
 
