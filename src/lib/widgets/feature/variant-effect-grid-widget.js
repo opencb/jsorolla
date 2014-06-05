@@ -27,31 +27,31 @@ VariantEffectPanelWidget.prototype = {
             storeId: "EffectStore",
             groupField: 'featureId',
             fields: [
-                {name: "featureId"           , type: "String" },
-                {name: "featureName"         , type: "String" },
-                {name: "featureType"         , type: "String" },
-                {name: "featureBiotype"      , type: "String" },
-                {name: "featureChromosome"   , type: "String" },
+                {name: "featureId"           , type: "string" },
+                {name: "featureName"         , type: "string" },
+                {name: "featureType"         , type: "string" },
+                {name: "featureBiotype"      , type: "string" },
+                {name: "featureChromosome"   , type: "string" },
                 {name: "featureStart"        , type: "int"    },
                 {name: "featureEnd"          , type: "int"    },
-                {name: "featureStrand"       , type: "String" },
-                {name: "snpId"               , type: "String" },
-                {name: "ancestral"           , type: "String" },
-                {name: "alternative"         , type: "String" },
-                {name: "geneId"              , type: "String" },
-                {name: "transcriptId"        , type: "String" },
-                {name: "geneName"            , type: "String" },
-                {name: "consequenceType"     , type: "String" },
-                {name: "consequenceTypeObo"  , type: "String" },
-                {name: "consequenceTypeDesc" , type: "String" },
-                {name: "consequenceTypeType" , type: "String" },
+                {name: "featureStrand"       , type: "string" },
+                {name: "snpId"               , type: "string" },
+                {name: "ancestral"           , type: "string" },
+                {name: "alternative"         , type: "string" },
+                {name: "geneId"              , type: "string" },
+                {name: "transcriptId"        , type: "string" },
+                {name: "geneName"            , type: "string" },
+                {name: "consequenceType"     , type: "string" },
+                {name: "consequenceTypeObo"  , type: "string" },
+                {name: "consequenceTypeDesc" , type: "string" },
+                {name: "consequenceTypeType" , type: "string" },
                 {name: "aaPosition"          , type: "int"    },
-                {name: "aminoacidChange"     , type: "String" },
-                {name: "codonChange"         , type: "String" },
-                {name: "polyphenScore"       , type: "float"  },
-                {name: "polyphenEfect"       , type: "float"  },
-                {name: "siftScore"           , type: "float"  },
-                {name: "siftEffect"          , type: "float"  },
+                {name: "aminoacidChange"     , type: "string" },
+                {name: "codonChange"         , type: "string" },
+                {name: "polyphenScore"       , type: "number"  },
+                {name: "polyphenEfect"       , type: "number"  },
+                {name: "siftScore"           , type: "number"  },
+                {name: "siftEffect"          , type: "number"  },
             ],
             data: [],
             autoLoad: false,
@@ -66,12 +66,11 @@ VariantEffectPanelWidget.prototype = {
         var gridArgs = {
             targetId: _this.targetId,
             title: "Variant Effect",
-            width: '100%',
-            flex: 2,
             store: this.store,
             loadMask: true,
-            border: 1,
-            margin: '0 5 5 5',
+            collapsible:true,
+            titleCollapse:true,
+            collapseDirection:'bottom',
             columns: [
                 {xtype: 'rownumberer'},
                 {
@@ -190,7 +189,9 @@ VariantEffectPanelWidget.prototype = {
         _this.grid.setLoading(true);
         _this.clear();
 
-        CellbaseManager.get({
+        CellBaseManager.get({
+           host: "http://ws.bioinfo.cipf.es/cellbase/rest",
+           version:'latest',
             species:'hsa',
             category: 'genomic',
             subCategory:'variant',
@@ -203,7 +204,7 @@ VariantEffectPanelWidget.prototype = {
                 _this.grid.setTitle(_this.gridName + ' - <span class="info">' + chr + ':' + pos + ' ' + ref + '>' + alt + '</span>');
                 Ext.getCmp(_this.id + "numRowsLabelEffect").setText(data.length + " effects");
         
-                _this.grid.setLoading(true);
+                _this.grid.setLoading(false);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log('Error loading Effect');
