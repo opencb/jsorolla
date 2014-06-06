@@ -631,11 +631,16 @@ ResultWidget.prototype = {
                             },
                             listeners: {
                                 afterrender: function () {
+
+                                    var url = OpencgaManager.getJobAnalysisUrl($.cookie("bioinfo_account"), _this.job.id) + '/variantsMongo';
+                                    console.log("URL: " + url);
+
                                     var variantWidget = new VariantWidget({
                                         targetId: itemBox,
                                         height: height,
                                         closable: false,
                                         border: true,
+                                        url: url,
 //                                        title:  _this.job.name,
                                         job: _this.job,
                                         autoRender: true

@@ -2,6 +2,7 @@ function VariantEffectPanelWidget(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId("VariantEffectPanelWidget");
 
+    this.autoRender=true;
     this.storeConfig = {};
     this.gridConfig = {};
     this.filterEffect = true;
@@ -26,6 +27,7 @@ VariantEffectPanelWidget.prototype = {
         var storeArgs = {
             storeId: "EffectStore",
             groupField: 'featureId',
+            pageSize: 10,
             fields: [
                 {name: "featureId"           , type: "string" },
                 {name: "featureName"         , type: "string" },
@@ -64,13 +66,14 @@ VariantEffectPanelWidget.prototype = {
 
 
         var gridArgs = {
-            targetId: _this.targetId,
             title: "Variant Effect",
             store: this.store,
             loadMask: true,
-            collapsible:true,
-            titleCollapse:true,
-            collapseDirection:'bottom',
+            viewConfig: {
+                emptyText: 'No records to display',
+                enableTextSelection: true
+            },
+            plugins:["bufferedrenderer"],
             columns: [
                 {xtype: 'rownumberer'},
                 {
@@ -151,19 +154,7 @@ VariantEffectPanelWidget.prototype = {
             ],
             viewConfig: {
                 emptyText: 'No records to display'
-            },
-            dockedItems: [
-                {
-                    xtype: 'toolbar',
-                    dock: 'bottom',
-                    items: [
-                        {
-                            xtype: 'tbtext',
-                            id: _this.id + "numRowsLabelEffect"
-                        }
-                    ]
-                }
-            ]
+           }
         }
 
         _.extend(gridArgs, _this.gridConfig);
@@ -171,9 +162,8 @@ VariantEffectPanelWidget.prototype = {
         _this.grid = Ext.create('Ext.grid.Panel', gridArgs);
 
     },
-    draw: function () {
-
-
+    draw: function(){
+    
     },
     getPanel: function () {
         return this.grid;
@@ -201,9 +191,8 @@ VariantEffectPanelWidget.prototype = {
                 var data = (_this.filterEffect) ? _this._filterEffectData(response): response;
 
                 _this.store.loadData(data);
-                _this.grid.setTitle(_this.gridName + ' - <span class="info">' + chr + ':' + pos + ' ' + ref + '>' + alt + '</span>');
-                Ext.getCmp(_this.id + "numRowsLabelEffect").setText(data.length + " effects");
-        
+                _this.grid.setTitle('Variant Effect - ' + chr + ':' + pos + ' ' + ref + '>' + alt );
+
                 _this.grid.setLoading(false);
             },
             error: function (jqXHR, textStatus, errorThrown) {
