@@ -6,6 +6,7 @@ function VariantEffectPanelWidget(args) {
     this.storeConfig = {};
     this.gridConfig = {};
     this.filterEffect = true;
+    this.title = "Variant Effect"
 
     _.extend(this, args);
 
@@ -66,7 +67,8 @@ VariantEffectPanelWidget.prototype = {
 
 
         var gridArgs = {
-            title: "Variant Effect",
+            title: _this.title,
+            renderTo: targetId,
             store: this.store,
             loadMask: true,
             viewConfig: {
@@ -163,12 +165,14 @@ VariantEffectPanelWidget.prototype = {
 
     },
     draw: function(){
-    
+
     },
     getPanel: function () {
         return this.grid;
     },
-    clear: function () {
+    clear: function (clearTitle) {
+        if(clearTitle)
+            this.setTitle();
         this.store.removeAll();
     },
     load: function (chr, pos, ref, alt) {
@@ -191,12 +195,15 @@ VariantEffectPanelWidget.prototype = {
                 var data = (_this.filterEffect) ? _this._filterEffectData(response): response;
 
                 _this.store.loadData(data);
-                _this.grid.setTitle('Variant Effect - ' + chr + ':' + pos + ' ' + ref + '>' + alt );
+                _this.setTitle(_this.title + ' - ' + chr + ':' + pos + ' ' + ref + '>' + alt );
 
+
+                _this.trigger("load:finish", {sender: _this})
                 _this.grid.setLoading(false);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log('Error loading Effect');
+                _this.trigger("load:finish", {sender: _this})
                 _this.grid.setLoading(false);
             }
         });
@@ -226,5 +233,10 @@ VariantEffectPanelWidget.prototype = {
         }
 
         return res;
+    },
+    setTitle: function(title){
+
+        var t = (title == null)? this.title : title;
+        this.grid.setTitle(t);
     }
 }
