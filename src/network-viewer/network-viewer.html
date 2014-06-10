@@ -14,7 +14,7 @@
     <link href="../../styles/css/style.css" rel="stylesheet">
     <!-- /build -->
 
-    <script type="text/javascript" src="http://cdn.sencha.io/ext/gpl/4.2.1/ext-all.js"></script>
+    <script type="text/javascript" src="../../vendor/ext-5/ext-all.js"></script>
 
     <!-- build:script vendor -->
     <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
@@ -67,10 +67,11 @@
         var networkViewer;
         var run = function () {
             networkViewer = new NetworkViewer({
-                targetId: 'application',
-                autoRender: true,
+                target: 'application',
                 sidePanel: false,
-                overviewPanel: false
+                overviewPanel: false,
+                width: $('#application').width(),
+                height: $('#application').height()
             });
             networkViewer.draw();
         };
@@ -78,9 +79,11 @@
     </script>
 
     <style type="text/css">
-        html, body {
-            /*height: 100%;*/
-            /*position:relative;*/
+        html {
+            position: fixed;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
         }
 
         body {

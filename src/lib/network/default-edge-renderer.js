@@ -193,10 +193,12 @@ DefaultEdgeRenderer.prototype = {
                 angle = 0;
             }
 
+
+            var separation = 15;
             var remainder = this.edge.overlapCount % 2;
             var sum = ( remainder == 0) ? 0 : 1;
             var sign = (remainder == 0) ? -1 : 1;
-            var controlPointOffset = (this.edge.overlapCount + sum) / 2 * 10 * (sign);
+            var controlPointOffset = (this.edge.overlapCount + sum) / 2 * separation * (sign);
             var controlPointOffsetLabel = controlPointOffset / 1.33;
 
             var midX = (this.sourceCoords.x + this.targetCoords.x) / 2;
@@ -204,10 +206,26 @@ DefaultEdgeRenderer.prototype = {
             var controlX = midX - (Math.sin(angle) * controlPointOffset);
             var controlY = midY + (Math.cos(angle) * controlPointOffset);
 
+
+            // Calculate source and target points on a circle circumference - TODO ellipse, square, rectangle
+//            x = cx + r * cos(a)
+//            y = cy + r * sin(a)
+            var sign2 = this.targetCoords.x > this.sourceCoords.x ? 1 : -1;
+            var srSize = this.sourceRenderer.getSize() / 2;
+            var trSize = this.targetRenderer.getSize() / 2;
+
+            var sx = this.sourceCoords.x + (sign2) * (Math.cos(angle) * srSize);
+            var sy = this.sourceCoords.y + (sign2) * (Math.sin(angle) * srSize);
+
+            var tx = this.targetCoords.x - (sign2) * (Math.cos(angle) * trSize);
+            var ty = this.targetCoords.y - (sign2) * (Math.sin(angle) * trSize);
+            /****/
+
             labelX = midX - (Math.sin(angle) * controlPointOffsetLabel);
             labelY = midY + (Math.cos(angle) * controlPointOffsetLabel);
 
-            d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'C', controlX, controlY, controlX, controlY, this.targetCoords.x, this.targetCoords.y].join(' ');
+//            d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'C', controlX, controlY, controlX, controlY, this.targetCoords.x, this.targetCoords.y].join(' ');
+            d = ['M', sx, sy, 'C', controlX, controlY, controlX, controlY, tx, ty].join(' ');
         }
         return {d: d, xl: labelX, yl: labelY};
     },
@@ -323,7 +341,8 @@ DefaultEdgeRenderer.prototype = {
         var markerArrowId = "arrow-" + this.shape + "-" + offset.toString().replace(".", "_") + '-' + this.size.toString().replace(".", "_") + '-' + this.color.replace('#', '');
         var markerArrowIdSel = '#' + markerArrowId;
         if ($(markerArrowIdSel).length == 0) {
-            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId);
+//            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId);
+            this._addArrowShape(this.shape, -2, this.color, this.size, this.targetEl, markerArrowId);
         }
         return markerArrowIdSel;
     },
@@ -436,5 +455,4 @@ DefaultEdgeRenderer.prototype = {
             labelText: this.labelText
         };
     }
-
 }

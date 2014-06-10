@@ -159,14 +159,20 @@ NetworkEditWidget.prototype = {
                         {
                             xtype: 'button',
                             text: 'Download as SIF file',
-                            href: 'none',
                             handler: function (bt, e) {
                                 var a = bt.getEl();
                                 var string = _this.network.graph.getAsSIF();
-                                a.set({
-                                    href: 'data:text/tsv,' + encodeURIComponent(string),
-                                    download: "network.sif"
+                                var blob = new Blob([string], {type: "data:text/tsv"});
+                                var url = URL.createObjectURL(blob);
+                                var link = document.createElement('a');
+                                link.href = url;
+                                link.download = "network.sif";
+                                var event = new MouseEvent('click', {
+                                    'view': window,
+                                    'bubbles': true,
+                                    'cancelable': true
                                 });
+                                link.dispatchEvent(event);
                             }
                         }
                     ]

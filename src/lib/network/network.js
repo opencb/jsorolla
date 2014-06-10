@@ -24,6 +24,26 @@ function Network(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('Network');
 
+
+    this.vertexRendererDefaults = {
+        shape: 'circle',
+        size: 40,
+        color: '#9fc6e7',
+        strokeSize: 1,
+        strokeColor: '#9fc6e7',
+        opacity: 0.8,
+        labelSize: 12,
+        labelColor: '#111111'
+    };
+    this.edgeRendererDefaults = {
+        shape: 'undirected',
+        size: 1,
+        color: '#cccccc',
+        opacity: 1,
+        labelSize: 0,
+        labelColor: '#111111'
+    };
+
     //set instantiation args, must be last
     _.extend(this, args);
 
@@ -59,6 +79,7 @@ function Network(args) {
         }
     });
 
+
     this.batchFlag = false;
 
     this.on(this.handlers);
@@ -76,7 +97,9 @@ Network.prototype = {
             if (typeof vertex !== 'undefined') {
                 this.addVertex({
                     vertex: vertex,
-                    vertexConfig: new VertexConfig({})
+                    vertexConfig: new VertexConfig({
+                        rendererConfig: this.vertexRendererDefaults
+                    })
                 });
             }
         }
@@ -85,7 +108,9 @@ Network.prototype = {
             if (typeof edge !== 'undefined') {
                 this.addEdge({
                     edge: edge,
-                    edgeConfig: new EdgeConfig({})
+                    edgeConfig: new EdgeConfig({
+                        rendererConfig: this.edgeRendererDefaults
+                    })
                 });
             }
         }
@@ -130,7 +155,9 @@ Network.prototype = {
 
             /* vertex config */
             if (typeof vertexConfig === 'undefined') {
-                vertexConfig = new VertexConfig({});
+                vertexConfig = new VertexConfig({
+                    rendererConfig: this.vertexRendererDefaults
+                });
             }
             vertexConfig.id = vertex.id;
             this.setVertexConfig(vertexConfig);
@@ -167,7 +194,9 @@ Network.prototype = {
 
             /* edge config */
             if (typeof edgeConfig === 'undefined') {
-                edgeConfig = new EdgeConfig({});
+                edgeConfig = new EdgeConfig({
+                    rendererConfig: this.edgeRendererDefaults
+                });
             }
             edgeConfig.id = edge.id;
             this.setEdgeConfig(edgeConfig);
@@ -842,7 +871,7 @@ Network.prototype = {
             {name: "Name", type: "string", defaultValue: "none"}
         ];
         var edgeAttributes = [
-            {name: "Id", type: "string", defaultValue: "none", locked: true},
+            {name: "id", type: "string", defaultValue: "none", locked: true},
             {name: "Name", type: "string", defaultValue: "none"},
             {name: "Relation", type: "string", defaultValue: "none"}
         ];
@@ -904,6 +933,9 @@ Network.prototype = {
 
         this.batchStart();
         console.time('Network.loadJSON');
+
+
+//        console.time('Network.loadJSON-Vertices');
         for (var i = 0; i < content.graph.vertices.length; i++) {
             var v = content.graph.vertices[i];
             var vertex = new Vertex({
@@ -912,8 +944,11 @@ Network.prototype = {
 
             /* vertex config */
             var config = content.config.vertices[v.id];
+//            console.time('Network.loadJSON-vertex');
             if (typeof config === 'undefined') {
-                var vertexConfig = new VertexConfig({});
+                var vertexConfig = new VertexConfig({
+                    rendererConfig: this.vertexRendererDefaults
+                });
             } else {
                 var vertexConfig = new VertexConfig({
                     id: v.id,
@@ -921,12 +956,15 @@ Network.prototype = {
                     rendererConfig: config.renderer
                 });
             }
+//            console.timeEnd('Network.loadJSON-vertex');
 
             this.addVertex({
                 vertex: vertex,
                 vertexConfig: vertexConfig
             });
         }
+//        console.timeEnd('Network.loadJSON-Vertices');
+//        console.time('Network.loadJSON-Edges');
         for (var i = 0; i < content.graph.edges.length; i++) {
             var e = content.graph.edges[i];
 
@@ -941,13 +979,15 @@ Network.prototype = {
             });
 
             /* edge config */
-            var config = content.config.edges[v.id];
+            var config = content.config.edges[e.id];
             if (typeof config === 'undefined') {
-                var edgeConfig = new EdgeConfig({});
+                var edgeConfig = new EdgeConfig({
+                    rendererConfig: this.edgeRendererDefaults
+                });
             } else {
                 var edgeConfig = new EdgeConfig({
-                    id: v.id,
-                    coords: content.config.edges[v.id].coords,
+                    id: e.id,
+                    coords: content.config.edges[e.id].coords,
                     rendererConfig: config.renderer
                 });
             }
@@ -957,6 +997,7 @@ Network.prototype = {
                 edgeConfig: edgeConfig
             });
         }
+//        console.timeEnd('Network.loadJSON-Edges');
 
         this._importAttributes(content.vertexAttributes, this.vertexAttributeManager);
         this._importAttributes(content.edgeAttributes, this.edgeAttributeManager);
@@ -1030,6 +1071,12 @@ Network.prototype = {
         this.edgeAttributeManager.store.fireEvent('refresh');
         this.batchFlag = false;
         this.trigger('batch:end');
-    }
+    },
+    setVertexRendererDefaults: function (args) {
+        this.vertexRendererDefaults = args;
+    },
+    setEdgeRendererDefaults: function (args) {
+        this.edgeRendererDefaults = args;
 
+    }
 }

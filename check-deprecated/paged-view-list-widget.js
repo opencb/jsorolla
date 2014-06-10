@@ -25,7 +25,7 @@ function PagedViewListWidget(args) {
     this.id = Utils.genId("PagedViewListWidget");
 
     this._data = null;
-    this.targetId = null;
+    this.target = null;
 
     this.pageSize = 6;
     this.storeFields = {};
@@ -220,7 +220,7 @@ PagedViewListWidget.prototype.render = function () {
             id: this.id + "searchField",
             emptyText: 'enter search term',
             enableKeyEvents: true,
-            flex:1,
+            flex: 1,
             listeners: {
                 change: function () {
                     _this.setFilter(null);
@@ -243,7 +243,7 @@ PagedViewListWidget.prototype.render = function () {
 //							    }
 //							},
 //							'-',
-//							{	
+//							{
 //							    xtype: 'numberfield',
 //							    id: this.pageFieldId,
 //							    cls: Ext.baseCSSPrefix + 'tbar-page-number',
@@ -282,7 +282,7 @@ PagedViewListWidget.prototype.render = function () {
                     xtype: 'button',
                     id: this.id + 'btnSort',
                     tooltip: 'Change order',
-                    margin:'0 15 0 0',
+                    margin: '0 15 0 0',
                     text: '<span class="glyphicon glyphicon-sort"></span>',
                     handler: function () {
                         if (_this.sort == "DESC") {
@@ -324,18 +324,13 @@ PagedViewListWidget.prototype.render = function () {
             items: [ pan]
         });
 
-//				this.view.setHeight(this.panel.getHeight());
-        var target = Ext.getCmp(this.targetId);
-        if (target instanceof Ext.panel.Panel) {
-            target.insert(this.order, this.panel);
-            //target.setActiveTab(1);//si no se pone el active da un error de EXT
-            //target.setActiveTab(0);//si no se pone el active da un error de EXT
-            //pan.setHeight = this.panel.getHeight();
-        } else {
-            this.panel.render(this.targetId);
-        }
+//
     }
 };
+PagedViewListWidget.prototype.draw = function () {
+    this.panel.render(this.target);
+};
+
 
 PagedViewListWidget.prototype.show = function () {
     if (this.panel != null) {

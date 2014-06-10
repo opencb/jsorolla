@@ -22,13 +22,14 @@
 function NetworkSvgLayout(args) {
     var _this = this;
     _.extend(this, Backbone.Events);
-    this.id = Utils.genId('networkSvg');
+    this.id = Utils.genId('NetworkSvgLayout');
 
     this.bgColor = "white";
     this.overviewScale = 1;
     this.canvasOffsetX = 0;
     this.canvasOffsetY = 0;
 
+    this.autoRender = true;
     this.width;
     this.height;
     this.bgColor;
@@ -67,17 +68,14 @@ NetworkSvgLayout.prototype = {
     getSvgEl: function () {
         return  this.svg;
     },
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        if (targetId)this.targetId = targetId;
-        if ($('#' + this.targetId).length < 1) {
-            console.log('targetId not found in DOM');
-            return;
-        }
+        this.div = document.createElement('div');
 
-        this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="' + this.id + '" style="position:relative;"></div>')[0];
-        $(this.targetDiv).append(this.div);
+        $(this.div).attr('id', this.id).css({
+            position: 'relative',
+            height: this.height + 'px'
+        });
 
         /** SVG init **/
         this.svg = SVG.init(this.div, {
@@ -195,9 +193,20 @@ NetworkSvgLayout.prototype = {
 
 
     },
+    draw: function () {
+        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (this.targetDiv === 'undefined') {
+            console.log('target not found');
+            return;
+        }
+        this.targetDiv.appendChild(this.div);
+    },
     setSize: function (width, height) {
         this.width = width;
         this.height = height;
+        $(this.div).css({
+            height: this.height + 'px'
+        });
         this.svg.setAttribute('width', width);
         this.svg.setAttribute('height', height);
         this.drawArea.setAttribute('width', width);

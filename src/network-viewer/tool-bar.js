@@ -22,11 +22,12 @@
 function ToolBar(args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
-    this.id = Utils.genId('tool-bar');
+    this.id = Utils.genId('ToolBar');
 
     //set default args
-    this.targetId;
-    this.autoRender = false;
+    this.target;
+    this.autoRender = true;
+    this.height = 32;
     this.zoom = 25;
 
     //set instantiation args, must be last
@@ -41,14 +42,8 @@ function ToolBar(args) {
 };
 
 ToolBar.prototype = {
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        if (targetId)this.targetId = targetId;
-        if ($('#' + this.targetId).length < 1) {
-            console.log('targetId not found in DOM');
-            return;
-        }
-
 //            <label class="btn btn-primary">
 //            <input type="radio" name="options" id="option1"> Option 1
 //            </label>
@@ -150,15 +145,16 @@ ToolBar.prototype = {
 
 
         /**************/
-        this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="tool-bar" class="ocb-nv-toolbar unselectable">' + navgationHtml + '</div>')[0];
-        $(this.targetDiv).append(this.div);
+        this.div = $('<div id="' + this.id + '" class="ocb-nv-toolbar unselectable">' + navgationHtml + '</div>')[0];
+        $(this.div).css({
+            height: this.height+'px'
+        });
         /**************/
 
         /*************/
         $(this.div).find('.custom-xs').css({
-            padding:'2px 4px 0px 4px',
-            height:'22px',
+            padding: '2px 4px 0px 4px',
+            height: '22px',
             lineHeight: '1'
         });
         /*************/
@@ -322,7 +318,15 @@ ToolBar.prototype = {
         this.rendered = true;
     },
     draw: function () {
-
+        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (this.targetDiv === 'undefined') {
+            console.log('target not found');
+            return;
+        }
+        this.targetDiv.appendChild(this.div);
+    },
+    getHeight: function () {
+        return this.height;
     },
     _setLayoutMenu: function (attributeNames) {
         var _this = this;

@@ -26,7 +26,8 @@ function EditionBar(args) {
 
     //set default args
     this.targetId;
-    this.autoRender = false;
+    this.autoRender = true;
+    this.height = 32;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -40,13 +41,8 @@ function EditionBar(args) {
 };
 
 EditionBar.prototype = {
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        if (targetId)this.targetId = targetId;
-        if ($('#' + this.targetId).length < 1) {
-            console.log('targetId not found in DOM');
-            return;
-        }
 
         var navgationHtml = '' +
             '<div style="width: 790px">' +
@@ -190,16 +186,17 @@ EditionBar.prototype = {
 
 
         /**************/
-        this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="edition-bar" class="ocb-nv-editionbar unselectable">' + navgationHtml + '</div>')[0];
-        $(this.targetDiv).append(this.div);
+        this.div = $('<div id="' + this.id + '" class="ocb-nv-editionbar unselectable">' + navgationHtml + '</div>')[0];
+        $(this.div).css({
+            height: this.height+'px'
+        });
         /**************/
 
 
         /*************/
         $(this.div).find('.custom-xs').css({
-            padding:'2px 4px 0px 4px',
-            height:'22px',
+            padding: '2px 4px 0px 4px',
+            height: '22px',
             lineHeight: '1'
         });
         /*************/
@@ -418,7 +415,17 @@ EditionBar.prototype = {
 
         this.rendered = true;
     },
-
+    draw: function () {
+        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (this.targetDiv === 'undefined') {
+            console.log('target not found');
+            return;
+        }
+        this.targetDiv.appendChild(this.div);
+    },
+    getHeight: function () {
+        return this.height;
+    },
     _setMenu: function (args) {
         var eventName = args.eventName;
         var menu = args.menu;

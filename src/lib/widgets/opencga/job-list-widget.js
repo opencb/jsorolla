@@ -19,129 +19,449 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-JobListWidget.prototype.draw = UserListWidget.prototype.draw;
-JobListWidget.prototype.getData = UserListWidget.prototype.getData;
-JobListWidget.prototype.getCount = UserListWidget.prototype.getCount;
-
 function JobListWidget(args) {
+    var _this = this;
+    _.extend(this, Backbone.Events);
+
+    this.id = Utils.genId("JobListWidget");
+
+    this.target;
+    this.autoRender = true;
 
     this.RUNING_COLOR = '#298c63';
     this.QUEUED_COLOR = 'Darkorange';
     this.FINISHED_COLOR = '#0068cc';
     this.ERROR_COLOR = '#b30000';
 
-    var _this = this;
-    UserListWidget.prototype.constructor.call(this, args);
-    this.counter = null;
-    var jobstpl = [
-        '<tpl for=".">',
-        '<div class="joblist-item bootstrap">',
+    //set instantiation args, must be last
+    _.extend(this, args);
 
-        '<div style="color:#596F8F">{[ this.getNewIcon(values) ]} {name}</div>',
-            '<div> ' +
-            '<span class="{[ this.getClass(values) ]}">{toolName}{execution} </span> ' +
-            '</div>',
-            '<div>' +
-            '<span style="color: {[ this.getStatusColor(values) ]};">{status}</span> ' +
-            '<span style="color: dimgray;font-size:12px;"> &nbsp; &nbsp; {date} </span> ' +
-            '</div>',
+    this.on(this.handlers);
 
-//        '<div style="color:grey">',
-
-//            '<tpl if="visites == 0">#298c63</tpl>' +
-//            '<tpl if="visites &gt; 0">#0068cc</tpl>' +
-//            '<tpl if="visites == -1">#b30000</tpl>' +
-//            '<tpl if="visites == -2">Darkorange</tpl>' +
-////            '<tpl if="status == \'execution_error\'">red</tpl>' +
-
-
-//        '<tpl if="visites &gt; -1"> - {visites} views</tpl>',
-//                        '  - {id}' +
-//        '</div>',
-
-        '</div>',
-        '</tpl>',
-//        {
-//            getBackColor: function (item) {
-//                if (item.status.indexOf('error') !== -1) {
-//                    return '#FDE5E5'
-//                } else {
-//
-//                }
-//            }
-//        },
-        {
-//
-            getStatusColor: function (item) {
-                var color = '#000000';
-                switch (item.status) {
-                    case 'running':
-                        color = _this.RUNING_COLOR;
-                        break;
-                    case 'finished':
-                        color = _this.FINISHED_COLOR;
-                        break;
-                    case 'queued':
-                        color = _this.QUEUED_COLOR;
-                        break;
-                    case 'execution_error':
-                    case 'queue_error':
-                        color = _this.ERROR_COLOR;
-                        break;
-                }
-                return color;
-            }
-        },
-        {
-            getNewIcon: function (item) {
-                var html = '';
-                if (item.visites === 0) {
-                    html += '<span style="color:' + _this.FINISHED_COLOR + '" class="glyphicon glyphicon-exclamation-sign"></span> ';
-                }
-                switch (item.status) {
-                    case 'running':
-                        html += '<span style="color:' + _this.RUNING_COLOR + '" class="glyphicon glyphicon-cog"></span>';
-                        break;
-                    case 'queued':
-                        html += '<span style="color:' + _this.QUEUED_COLOR + '" class="glyphicon glyphicon-time"></span>';
-                        break;
-                    case 'finished':
-                        html += '<span style="color:' + _this.FINISHED_COLOR + '" class="glyphicon glyphicon-ok-circle"></span>';
-                        break;
-                    case 'execution_error':
-                    case 'queue_error':
-                        html += '<span style="color:' + _this.ERROR_COLOR + '" class="glyphicon glyphicon-remove-circle"></span>';
-                        break;
-                }
-                return html;
-            }
-        },
-        {
-            getClass: function (item) {
-                return item.toolName.replace('.', '_');
-            }
+    this.buttonFilterFunction = null;
+    this.textFilterFunction = function (item) {
+        var str = Ext.getCmp(_this.id + "searchField").getValue().toLowerCase();
+        if (item.data.name.toLowerCase().indexOf(str) < 0) {
+            return false;
         }
-    ];
+        return true;
+    };
 
-    var jobsfields = ['commandLine', 'date', 'description', 'diskUsage', 'status', 'finishTime', 'inputData', 'jobId', 'message', 'name', 'outputData', 'ownerId', 'percentage', 'projectId', 'toolName', 'visites'];
-
-    this.pagedViewList.storeFields = jobsfields;
-    this.pagedViewList.template = jobstpl;
-
-
-    if (args.pagedViewList != null) {
-        if (args.pagedViewList.storeFields != null) {
-            this.pagedViewList.storeFields = args.pagedViewList.storeFields;
-        }
-        if (args.pagedViewList.template != null) {
-            this.pagedViewList.template = args.pagedViewList.template;
-        }
+    this.rendered = false;
+    if (this.autoRender) {
+        this.render();
     }
+};
 
-    this.pagedListViewWidget = new PagedViewListWidget(this.pagedViewList);
 
-    this.pagedListViewWidget.on('item:contextmenu', function (event) {
-        var record = event.record;
+JobListWidget.prototype = {
+    render: function () {
+        var _this = this;
+        this.div = $('<div></div>')[0];
+
+        this.panel = this._createPanel();
+
+    },
+    draw: function () {
+        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (this.targetDiv === 'undefined') {
+            console.log('target not found');
+            return;
+        }
+        this.targetDiv.appendChild(this.div);
+
+        this.panel.render(this.div);
+    },
+    show: function () {
+        this.panel.show()
+    },
+    hide: function () {
+        this.panel.hide();
+    },
+    toggle: function () {
+        if (this.panel.isVisible()) {
+            this.panel.hide();
+        } else {
+            this.panel.show();
+        }
+    },
+    setAccountData: function (data) {
+        this.accountData = data;
+        var jobs = [];
+        var job;
+        for (var i = 0; i < this.accountData.projects.length; i++) {
+            for (var j = 0; j < this.accountData.projects[i].jobs.length; j++) {
+                job = this.accountData.projects[i].jobs[j];
+                if (typeof this.tools[job.toolName] !== 'undefined') {
+                    job.date = Utils.parseDate(job.date);
+                    jobs.push(job);
+                }
+
+            }
+        }
+        this.store.loadData(jobs);
+        this._updateButtons(jobs);
+    },
+    _createPanel: function () {
+        var _this = this;
+        var tpl = new Ext.XTemplate([
+            '<tpl for=".">',
+            '<div class="joblist-item bootstrap">',
+
+            '<div style="color:#596F8F">{[ this.getNewIcon(values) ]} {name}</div>',
+                '<div> ' +
+                '<span class="{[ this.getClass(values) ]}">{toolName}{execution} </span> ' +
+                '</div>',
+                '<div>' +
+                '<span style="color: {[ this.getStatusColor(values) ]};">{status}</span> ' +
+                '<span style="color: dimgray;font-size:12px;"> &nbsp; &nbsp; {date} </span> ' +
+                '</div>',
+            '</div>',
+            '</tpl>',
+            {
+                getStatusColor: function (item) {
+                    var color = '#000000';
+                    switch (item.status) {
+                        case 'running':
+                            color = _this.RUNING_COLOR;
+                            break;
+                        case 'finished':
+                            color = _this.FINISHED_COLOR;
+                            break;
+                        case 'queued':
+                            color = _this.QUEUED_COLOR;
+                            break;
+                        case 'execution_error':
+                        case 'queue_error':
+                            color = _this.ERROR_COLOR;
+                            break;
+                    }
+                    return color;
+                }
+            },
+            {
+                getNewIcon: function (item) {
+                    var html = '';
+                    if (item.visites === 0) {
+                        html += '<span style="color:' + _this.FINISHED_COLOR + '" class="glyphicon glyphicon-exclamation-sign"></span> ';
+                    }
+                    switch (item.status) {
+                        case 'running':
+                            html += '<span style="color:' + _this.RUNING_COLOR + '" class="glyphicon glyphicon-cog"></span>';
+                            break;
+                        case 'queued':
+                            html += '<span style="color:' + _this.QUEUED_COLOR + '" class="glyphicon glyphicon-time"></span>';
+                            break;
+                        case 'finished':
+                            html += '<span style="color:' + _this.FINISHED_COLOR + '" class="glyphicon glyphicon-ok-circle"></span>';
+                            break;
+                        case 'execution_error':
+                        case 'queue_error':
+                            html += '<span style="color:' + _this.ERROR_COLOR + '" class="glyphicon glyphicon-remove-circle"></span>';
+                            break;
+                    }
+                    return html;
+                }
+            },
+            {
+                getClass: function (item) {
+                    return item.toolName.replace('.', '_');
+                }
+            }
+        ]);
+
+        this.store = Ext.create('Ext.data.Store', {
+            fields: ['commandLine', 'date', 'description', 'diskUsage', 'status', 'finishTime', 'inputData', 'jobId', 'message', 'name', 'outputData', 'ownerId', 'percentage', 'projectId', 'toolName', 'visites'],
+            sorters: [
+                { property: 'date', direction: 'DESC'}
+            ],
+            autoLoad: false
+        });
+
+        var view = Ext.create('Ext.view.View', {
+            padding: 15,
+            store: this.store,
+            tpl: tpl,
+            trackOver: true,
+            autoScroll: true,
+            overItemCls: 'list-item-hover',
+            itemSelector: '.joblist-item',
+            listeners: {
+                itemclick: function (este, record) {
+                    console.log(record.data);
+                    console.log(record.data.id);
+                    _this.trigger('item:click', {sender: _this, item: record});
+                },
+                itemcontextmenu: function (este, record, item, index, e) {
+                    e.stopEvent();
+                    var event = {sender: _this, record: record, originalEvent: e};
+                    _this._itemContextMenuHandler(event);
+                    _this.trigger('item:contextmenu', event);
+                    return false;
+                }
+            }
+        });
+
+        /**TEXT SEARCH FILTER**/
+        this.searchField = Ext.create('Ext.form.field.Text', {
+            id: this.id + "searchField",
+            emptyText: 'enter search term',
+            enableKeyEvents: true,
+            flex: 1,
+            listeners: {
+                change: function () {
+                    _this._setFilters();
+                }
+            }
+        });
+
+
+        //    this.projectFilterButton = Ext.create("Ext.button.Button", {
+//        id: this.btnActivePrjId,
+//        iconCls: 'icon-project-all',
+//        tooltip: 'Toggle jobs from all projects or active project',
+//        enableToggle: true,
+//        pressed: false,
+//        listeners: {
+//            toggle: function () {
+//                //_this.selectProjectData();
+//                _this.render();
+//            }
+//        }
+//    });
+
+
+        this.btnAllId = this.id + "_btnAll";
+//        this.btnActivePrjId = this.id + "_btnActivePrj";
+        this.btnFinishedId = this.id + "_btnFinished";
+        this.btnVisitedId = this.id + "_btnVisited";
+        this.btnRunningId = this.id + "_btnRunning";
+        this.btnQueuedId = this.id + "_btnQueued";
+        this.btnErrorId = this.id + "_btnError";
+
+        var panel = Ext.create('Ext.panel.Panel', {
+            height: this.height,
+            width: this.width,
+            layout: 'fit',
+            items: [
+                view
+            ],
+            dockedItems: [
+                {
+                    xtype: 'toolbar',
+                    dock: 'top',
+                    height: 39,
+                    cls: 'bootstrap',
+                    items: [
+                        {
+                            xtype: 'button',
+                            id: this.id + 'btnSort',
+                            tooltip: 'Change order',
+                            margin: '0 15 0 0',
+                            text: '<span class="glyphicon glyphicon-sort"></span>',
+                            handler: function () {
+                                if (_this.sort == "DESC") {
+                                    _this.sort = "ASC";
+                                    _this.store.sort('date', 'ASC');
+                                }
+                                else {
+                                    _this.sort = "DESC";
+                                    _this.store.sort('date', 'DESC');
+                                }
+                            }
+                        },
+                        this.searchField,
+                        {
+                            xtype: 'button',
+                            id: this.id + 'btnClear',
+//							    iconCls: 'icon-delete',
+                            text: 'Clear',
+                            tooltip: 'Clear search box',
+                            handler: function () {
+                                _this.searchField.reset();
+                            }
+                        }
+
+                    ]
+                },
+                {
+                    xtype: 'toolbar',
+                    docked: 'top',
+                    height: 39,
+                    cls: 'bootstrap',
+                    items: [
+                        //this.projectFilterButton,
+                        {
+                            id: this.btnAllId,
+                            text: ' ',
+                            tooltip: 'Total jobs',
+                            handler: function () {
+                                _this._setButtonFilterFunction(this);
+                            }
+                        },
+                        {
+                            id: this.btnFinishedId,
+                            text: ' ',
+                            tooltip: 'Finished jobs',
+                            handler: function () {
+                                _this._setButtonFilterFunction(this);
+                            }
+                        },
+                        {
+                            id: this.btnVisitedId,
+                            text: ' ',
+                            tooltip: 'Visited jobs',
+                            handler: function () {
+                                _this._setButtonFilterFunction(this);
+                            }
+                        },
+                        {
+                            id: this.btnRunningId,
+                            text: ' ',
+                            tooltip: 'Running jobs',
+                            handler: function () {
+                                _this._setButtonFilterFunction(this);
+                            }
+                        },
+                        {
+                            id: this.btnQueuedId,
+                            text: ' ',
+                            tooltip: 'Queued jobs',
+                            handler: function () {
+                                _this._setButtonFilterFunction(this);
+                            }
+                        },
+                        {
+                            id: this.btnErrorId,
+                            text: ' ',
+                            tooltip: 'Error jobs',
+                            handler: function () {
+                                _this._setButtonFilterFunction(this);
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        return panel;
+    },
+    _setButtonFilterFunction: function (button) {
+        switch (button.id) {
+            case this.btnFinishedId:
+                this.buttonFilterFunction = function (item) {
+                    return item.data.visites == 0;
+                };
+                break;
+            case this.btnVisitedId:
+                this.buttonFilterFunction = function (item) {
+                    return item.data.visites > 0 && item.data.status.indexOf('error') === -1;
+                };
+                break;
+            case this.btnRunningId:
+                this.buttonFilterFunction = function (item) {
+                    return item.data.visites == -1;
+                };
+                break;
+            case this.btnQueuedId:
+                this.buttonFilterFunction = function (item) {
+                    return item.data.visites == -2;
+                };
+                break;
+            case this.btnErrorId:
+                this.buttonFilterFunction = function (item) {
+                    return item.data.status.indexOf('error') != -1;
+                };
+                break;
+            default:
+                this.buttonFilterFunction = null;
+                break;
+        }
+        this._setFilters();
+    },
+    _setFilters: function () {
+        this.store.clearFilter();
+        if (typeof this.buttonFilterFunction === 'function') {
+            this.store.addFilter([this.buttonFilterFunction, this.textFilterFunction]);
+        } else {
+            this.store.addFilter(this.textFilterFunction);
+        }
+    },
+    _updateButtons: function (jobs) {
+        var jobcount = this._getJobCounter(jobs);
+
+        if (jobcount.all == 0) {
+            Ext.getCmp(this.btnAllId).hide();
+        } else {
+            Ext.getCmp(this.btnAllId).show();
+        }
+        if (jobcount.finished == 0) {
+            Ext.getCmp(this.btnFinishedId).hide();
+        } else {
+            Ext.getCmp(this.btnFinishedId).show();
+        }
+        if (jobcount.visited == 0) {
+            Ext.getCmp(this.btnVisitedId).hide();
+        } else {
+            Ext.getCmp(this.btnVisitedId).show();
+        }
+        if (jobcount.running == 0) {
+            Ext.getCmp(this.btnRunningId).hide();
+        } else {
+            Ext.getCmp(this.btnRunningId).show();
+        }
+        if (jobcount.queued == 0) {
+            Ext.getCmp(this.btnQueuedId).hide();
+        } else {
+            Ext.getCmp(this.btnQueuedId).show();
+        }
+        if (jobcount.error == 0) {
+            Ext.getCmp(this.btnErrorId).hide();
+        } else {
+            Ext.getCmp(this.btnErrorId).show();
+        }
+        Ext.getCmp(this.btnAllId).setText(jobcount.all);
+        Ext.getCmp(this.btnFinishedId).setText('<span style="color:' + this.FINISHED_COLOR + '" class="glyphicon glyphicon-exclamation-sign"></span> ' + jobcount.finished);
+        Ext.getCmp(this.btnVisitedId).setText('<span style="color:' + this.FINISHED_COLOR + '" class="glyphicon glyphicon-ok-circle"></span> ' + jobcount.visited);
+        Ext.getCmp(this.btnRunningId).setText('<span style="color:' + this.RUNING_COLOR + '" class="glyphicon glyphicon-cog"></span> ' + jobcount.running);
+        Ext.getCmp(this.btnQueuedId).setText('<span style="color:' + this.QUEUED_COLOR + '" class="glyphicon glyphicon-time"></span> ' + jobcount.queued);
+        Ext.getCmp(this.btnErrorId).setText('<span style="color:' + this.ERROR_COLOR + '" class="glyphicon glyphicon-remove-circle"></span> ' + jobcount.error);
+    },
+    _getJobCounter: function (jobs) {
+        var finished = 0;
+        var visited = 0;
+        var running = 0;
+        var queued = 0;
+        var error = 0;
+
+        for (var i = 0; i < jobs.length; i++) {
+            var job = jobs[i];
+            if (job.visites > 0) {
+                if (job.status.indexOf('error') != -1) {
+                    error++;
+                } else {
+                    visited++;
+                }
+            } else {
+                if (job.visites == 0) {
+                    if (job.status.indexOf('error') != -1) {
+                        error++;
+                    } else {
+                        finished++;
+                    }
+                }
+                if (job.visites == -1) {
+                    running++;
+                }
+                if (job.visites == -2) {
+                    queued++;
+                }
+            }
+        }
+        return {all: jobs.length, visited: visited, finished: finished, running: running, queued: queued, error: error};
+    },
+    _itemContextMenuHandler: function (e) {
+        var record = e.record;
         var contextMenu = Ext.create('Ext.menu.Menu', {
             plain: true,
             items: [
@@ -171,294 +491,55 @@ function JobListWidget(args) {
                 }
             ]
         });
-        contextMenu.showAt(event.originalEvent.getXY());
-    });
-
-
-    this.btnAllId = this.id + "_btnAll";
-    this.btnActivePrjId = this.id + "_btnActivePrj";
-    this.btnFinishedId = this.id + "_btnFinished";
-    this.btnVisitedId = this.id + "_btnVisited";
-    this.btnRunningId = this.id + "_btnRunning";
-    this.btnQueuedId = this.id + "_btnQueued";
-    this.btnErrorId = this.id + "_btnError";
-
-    this.projectFilterButton = Ext.create("Ext.button.Button", {
-        id: this.btnActivePrjId,
-        iconCls: 'icon-project-all',
-        tooltip: 'Toggle jobs from all projects or active project',
-        enableToggle: true,
-        pressed: false,
-        listeners: {
-            toggle: function () {
-                //_this.selectProjectData();
-                _this.render();
-            }
-        }
-    });
-
-
-    this.bar = new Ext.create('Ext.toolbar.Toolbar', {
-        id: this.id + "jobsFilterBar",
-        docked: 'top',
-        height: 39,
-        cls: 'bootstrap',
-        items: [
-            //this.projectFilterButton,
-            {
-                id: this.btnAllId,
-                text: ' ',
-                tooltip: 'Total jobs'
-            },
-            {
-                id: this.btnFinishedId,
-                text: ' ',
-                tooltip: 'Finished jobs'
-            },
-            {
-                id: this.btnVisitedId,
-                text: ' ',
-                tooltip: 'Visited jobs'
-            },
-            {
-                id: this.btnRunningId,
-                text: ' ',
-                tooltip: 'Running jobs'
-            },
-            {
-                id: this.btnQueuedId,
-                text: ' ',
-                tooltip: 'Queued jobs'
-            },
-            {
-                id: this.btnErrorId,
-                text: ' ',
-                tooltip: 'Error jobs'
-            }
-        ]
-    });
-
-    Ext.getCmp(this.btnAllId).on('click', this.filter, this);
-    Ext.getCmp(this.btnFinishedId).on('click', this.filter, this);
-    Ext.getCmp(this.btnVisitedId).on('click', this.filter, this);
-    Ext.getCmp(this.btnRunningId).on('click', this.filter, this);
-    Ext.getCmp(this.btnQueuedId).on('click', this.filter, this);
-    Ext.getCmp(this.btnErrorId).on('click', this.filter, this);
-
-    this.allData = [];
-
-
-///*HARDCODED check job status*/
-//	var checkJobsStatus = function(){
-//		if(_this.accountData != null){
-//			var opencgaManager = new OpencgaManager();
-//			for ( var i = 0; i < _this.accountData.jobs.length; i++) {
-//				if(_this.tools.indexOf(_this.accountData.jobs[i].toolName) != -1){
-//					if(_this.accountData.jobs[i].visites<0){
-//						opencgaManager.jobStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), _this.accountData.jobs[i].id);
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	this.accountInfoInterval = setInterval(function(){checkJobsStatus();}, 4000);
-//
-///*HARDCODED check job status*/
-
-
-}
-;
-
-JobListWidget.prototype.show = function () {
-    this.pagedListViewWidget.show();
-};
-JobListWidget.prototype.hide = function () {
-    this.pagedListViewWidget.hide();
-};
-JobListWidget.prototype.toggle = function () {
-    this.pagedListViewWidget.toggle();
+        contextMenu.showAt(e.originalEvent.getXY());
+    }
 };
 
+/////*HARDCODED check job status*/
+////	var checkJobsStatus = function(){
+////		if(_this.accountData != null){
+////			var opencgaManager = new OpencgaManager();
+////			for ( var i = 0; i < _this.accountData.jobs.length; i++) {
+////				if(_this.tools.indexOf(_this.accountData.jobs[i].toolName) != -1){
+////					if(_this.accountData.jobs[i].visites<0){
+////						opencgaManager.jobStatus($.cookie("bioinfo_account"), $.cookie("bioinfo_sid"), _this.accountData.jobs[i].id);
+////					}
+////				}
+////			}
+////		}
+////	}
+////
+////	this.accountInfoInterval = setInterval(function(){checkJobsStatus();}, 4000);
+////
+/////*HARDCODED check job status*/
 
-//override
-JobListWidget.prototype.draw = function () {
-    this.render();
-//
-};
-
-JobListWidget.prototype.clean = function () {
-    clearInterval(this.interval);
-    if (this.bar.isDescendantOf(Ext.getCmp(this.pagedListViewWidget.panelId)) == true) {
-        Ext.getCmp(this.pagedListViewWidget.panelId).removeDocked(this.bar, false);
-    }
-    this.pagedListViewWidget.clean();
-};
-
-JobListWidget.prototype.setAccountData = function (data) {
-    this.accountData = data;
-    var jobs = [];
-    var job;
-    for (var i = 0; i < this.accountData.projects.length; i++) {
-        for (var j = 0; j < this.accountData.projects[i].jobs.length; j++) {
-            job = this.accountData.projects[i].jobs[j];
-            if (typeof this.tools[job.toolName] !== 'undefined') {
-                job.date = Utils.parseDate(job.date);
-                jobs.push(job);
-            }
-
-        }
-    }
-    this.data = jobs;
-    this.render();
-};
-
-
-JobListWidget.prototype.render = function () {
-    this.pagedListViewWidget.draw(this.getData());
-    if (this.bar.isDescendantOf(Ext.getCmp(this.pagedListViewWidget.panelId)) == false) {
-        Ext.getCmp(this.pagedListViewWidget.panelId).addDocked(this.bar);
-    }
-
-    var jobcount = this.getJobCounter();
-
-    if (jobcount.all == 0) {
-        Ext.getCmp(this.btnAllId).hide();
-    } else {
-        Ext.getCmp(this.btnAllId).show();
-    }
-    if (jobcount.finished == 0) {
-        Ext.getCmp(this.btnFinishedId).hide();
-    } else {
-        Ext.getCmp(this.btnFinishedId).show();
-    }
-    if (jobcount.visited == 0) {
-        Ext.getCmp(this.btnVisitedId).hide();
-    } else {
-        Ext.getCmp(this.btnVisitedId).show();
-    }
-    if (jobcount.running == 0) {
-        Ext.getCmp(this.btnRunningId).hide();
-    } else {
-        Ext.getCmp(this.btnRunningId).show();
-    }
-    if (jobcount.queued == 0) {
-        Ext.getCmp(this.btnQueuedId).hide();
-    } else {
-        Ext.getCmp(this.btnQueuedId).show();
-    }
-    if (jobcount.error == 0) {
-        Ext.getCmp(this.btnErrorId).hide();
-    } else {
-        Ext.getCmp(this.btnErrorId).show();
-    }
-    Ext.getCmp(this.btnAllId).setText(jobcount.all);
-    Ext.getCmp(this.btnFinishedId).setText('<span style="color:' + this.FINISHED_COLOR + '" class="glyphicon glyphicon-exclamation-sign"></span> ' + jobcount.finished);
-    Ext.getCmp(this.btnVisitedId).setText('<span style="color:' + this.FINISHED_COLOR + '" class="glyphicon glyphicon-ok-circle"></span> ' + jobcount.visited);
-    Ext.getCmp(this.btnRunningId).setText('<span style="color:' + this.RUNING_COLOR + '" class="glyphicon glyphicon-cog"></span> ' + jobcount.running);
-    Ext.getCmp(this.btnQueuedId).setText('<span style="color:' + this.QUEUED_COLOR + '" class="glyphicon glyphicon-time"></span> ' + jobcount.queued);
-    Ext.getCmp(this.btnErrorId).setText('<span style="color:' + this.ERROR_COLOR + '" class="glyphicon glyphicon-remove-circle"></span> ' + jobcount.error);
-};
-
-
-JobListWidget.prototype.getJobCounter = function () {
-    var finished = 0;
-    var visited = 0;
-    var running = 0;
-    var queued = 0;
-    var error = 0;
-
-    var data = this.getData();
-
-    for (var i = 0; i < data.length; i++) {
-        var job = data[i];
-        if (job.visites > 0) {
-            if (job.status.indexOf('error') != -1) {
-                error++;
-            } else {
-                visited++;
-            }
-        } else {
-            if (job.visites == 0) {
-                if (job.status.indexOf('error') != -1) {
-                    error++;
-                } else {
-                    finished++;
-                }
-            }
-            if (job.visites == -1) {
-                running++;
-            }
-            if (job.visites == -2) {
-                queued++;
-            }
-        }
-    }
-    return {all: data.length, visited: visited, finished: finished, running: running, queued: queued, error: error};
-};
 
 /**Filters**/
 //var functionAssertion = function(item){return item.data.visites > 2;};
 
-JobListWidget.prototype.filter = function (button) {
-    switch (button.id) {
-        case this.btnFinishedId:
-            this.pagedListViewWidget.setFilter(function (item) {
-                return item.data.visites == 0;
-            });
-            break;
-        case this.btnVisitedId:
-            this.pagedListViewWidget.setFilter(function (item) {
-                return item.data.visites > 0 && item.data.status.indexOf('error') === -1;
-            });
-            break;
-        case this.btnRunningId:
-            this.pagedListViewWidget.setFilter(function (item) {
-                return item.data.visites == -1;
-            });
-            break;
-        case this.btnQueuedId:
-            this.pagedListViewWidget.setFilter(function (item) {
-                return item.data.visites == -2;
-            });
-            break;
-        case this.btnErrorId:
-            this.pagedListViewWidget.setFilter(function (item) {
-                return item.data.status.indexOf('error') != -1;
-            });
-            break;
-        default:
-            this.pagedListViewWidget.setFilter(function (item) {
-                return true;
-            });
-            break;
-    }
-    this.pagedListViewWidget.draw(this.getData());
-};
-
-JobListWidget.prototype.selectProjectData = function () {
-    if (!this.projectFilterButton.pressed) {
-        for (var i = 0; i < this.allData.length; i++) {
-            if (this.allData[i].active) {
-                this.data = this.allData[i].jobs;
-                break;
-            }
-        }
-    } else {
-        var allJobs = new Array();
-        for (var i = 0; i < this.allData.length; i++) {
-            if (this.allData[i].jobs != null) {
-                for (var j = 0; j < this.allData[i].jobs.length; j++) {
-
-                    //TODO care with date order
-                    allJobs.push(this.allData[i].jobs[j]);
-                }
-            }
-        }
-        this.data = allJobs;
-    }
-    if (this.data == null) {
-        this.data = [];
-    }
-    this.pagedListViewWidget.draw(this.getData());
-};
+//JobListWidget.prototype.selectProjectData = function () {
+//    if (!this.projectFilterButton.pressed) {
+//        for (var i = 0; i < this.allData.length; i++) {
+//            if (this.allData[i].active) {
+//                this.data = this.allData[i].jobs;
+//                break;
+//            }
+//        }
+//    } else {
+//        var allJobs = new Array();
+//        for (var i = 0; i < this.allData.length; i++) {
+//            if (this.allData[i].jobs != null) {
+//                for (var j = 0; j < this.allData[i].jobs.length; j++) {
+//
+//                    //TODO care with date order
+//                    allJobs.push(this.allData[i].jobs[j]);
+//                }
+//            }
+//        }
+//        this.data = allJobs;
+//    }
+//    if (this.data == null) {
+//        this.data = [];
+//    }
+//    this.pagedListViewWidget.draw(this.getData());
+//};

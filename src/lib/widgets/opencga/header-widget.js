@@ -27,19 +27,17 @@ function HeaderWidget(args) {
     this.id = Utils.genId("HeaderWidget");
 
 
-    this.targetId;
-    this.height = 50;
+    this.target;
     this.accountData;
 
     this.appname = "My new App";
     this.description = '';
     this.suiteId = -1;
-    this.news = '';
     this.checkTimeInterval = 4000;
     this.version = '';
     this.allowLogin = true;
     this.width;
-    this.height;
+    this.height = 60;
     this.chunkedUpload = false;
     this.enableTextModeUW = true; // Enable Text Mode in the Upload Widget
 
@@ -60,19 +58,14 @@ function HeaderWidget(args) {
 
     this.rendered = false;
     if (this.autoRender) {
-        this.render(this.targetId);
+        this.render();
     }
 }
 
 HeaderWidget.prototype = {
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        this.targetId = (targetId) ? targetId : this.targetId;
-        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
-        if (this.targetDiv === 'undefined') {
-            console.log('targetId not found');
-            return;
-        }
+
         var appLi = '';
         if (this.applicationMenuEl) {
 //            appLi = '<li id="appMenu" class="menu"> &#9776; </li>';
@@ -120,10 +113,10 @@ HeaderWidget.prototype = {
 
         this.div = $('<div class="unselectable bootstrap">' + navgationHtml + '</div>')[0];
         $(this.div).css({
-            height: '60px',
+            height: this.height + 'px',
             position: 'relative'
         });
-        $(this.targetDiv).append(this.div);
+
         this.menuEl = $(menuHtml)[0];
         $(this.div).append(this.menuEl);
 //        $(this.menuEl).mouseleave(function(){
@@ -231,16 +224,6 @@ HeaderWidget.prototype = {
         };
         /****************************************/
 
-
-        this.rendered = true;
-    },
-    draw: function () {
-        var _this = this;
-        if (!this.rendered) {
-            console.info('Header Widget is not rendered yet');
-            return;
-        }
-
         /* Login Widget */
         this.loginWidget = this._createLoginWidget();
 
@@ -250,12 +233,31 @@ HeaderWidget.prototype = {
         /* Opencga Browser Widget */
         this.opencgaBrowserWidget = this._createOpencgaBrowserWidget();
 
+        this.rendered = true;
+    },
+    draw: function () {
+        var _this = this;
+        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (this.targetDiv === 'undefined') {
+            console.log('target not found');
+            return;
+        }
+
+        this.targetDiv.appendChild(this.div);
+
+        this.loginWidget.draw();
+        this.profileWidget.draw();
+        this.opencgaBrowserWidget.draw();
+
         if ($.cookie('bioinfo_sid') != null) {
             this.sessionInitiated();
         } else {
             this.sessionFinished();
         }
 
+    },
+    getHeight: function () {
+        return this.height;
     },
     toogleAppMenu: function (value) {
         if (this.applicationMenuEl) {
@@ -286,14 +288,12 @@ HeaderWidget.prototype = {
                 }
             }
         });
-        loginWidget.draw();
         return loginWidget;
     },
     _createProfileWidget: function () {
         var profileWidget = new ProfileWidget({
             autoRender: true
         });
-        profileWidget.draw();
         return profileWidget;
     },
     _createOpencgaBrowserWidget: function () {
@@ -309,7 +309,6 @@ HeaderWidget.prototype = {
                 }
             }
         });
-        opencgaBrowserWidget.draw();
         return opencgaBrowserWidget;
     },
 

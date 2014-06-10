@@ -34,8 +34,7 @@ module.exports = function (grunt) {
                     'src/lib/widgets/network/**/*.js',
 
                     //opencga
-                    'src/lib/widgets/opencga/user-list-widget.js',
-                    'src/lib/widgets/**/*.js',
+                    'src/lib/widgets/opencga/**/*.js',
 
                     //network
                     'src/lib/network/**/*.js',

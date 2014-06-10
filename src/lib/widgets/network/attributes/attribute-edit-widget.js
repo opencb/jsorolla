@@ -68,9 +68,9 @@ AttributeEditWidget.prototype = {
             layout: 'vbox',
             border: 0,
             flex: 1,
-            defaults:{
-                width:'100%',
-                labelWidth:55
+            defaults: {
+                width: '100%',
+                labelWidth: 55
             },
             dockedItems: [
                 {
@@ -120,9 +120,9 @@ AttributeEditWidget.prototype = {
                 borderTopStyle: 'solid',
                 borderTopWidth: '1px'
             },
-            defaults:{
-                width:'100%',
-                labelWidth:55
+            defaults: {
+                width: '100%',
+                labelWidth: 55
             },
             items: [
                 {
@@ -163,7 +163,7 @@ AttributeEditWidget.prototype = {
                 },
                 {
                     xtype: 'box',
-                    margin:'10 0 0 0',
+                    margin: '10 0 0 0',
                     html: ''
                 }
             ]
@@ -180,9 +180,9 @@ AttributeEditWidget.prototype = {
                 borderTopStyle: 'solid',
                 borderTopWidth: '1px'
             },
-            defaults:{
-                width:'100%',
-                labelWidth:55
+            defaults: {
+                width: '100%',
+                labelWidth: 55
             },
             items: [
                 this.createAttributesCombo(),
@@ -256,14 +256,20 @@ AttributeEditWidget.prototype = {
                 {
                     xtype: 'button',
                     text: 'Download as file',
-                    href: 'none',
                     handler: function (bt, e) {
                         var a = bt.getEl();
                         var string = _this.attrMan.getAsFile();
-                        a.set({
-                            href: 'data:text/tsv,' + encodeURIComponent(string),
-                            download: _this.type + ".attr"
+                        var blob = new Blob([string], {type: "data:text/tsv"});
+                        var url = URL.createObjectURL(blob);
+                        var link = document.createElement('a');
+                        link.href = url;
+                        link.download = _this.type + ".attr"
+                        var event = new MouseEvent('click', {
+                            'view': window,
+                            'bubbles': true,
+                            'cancelable': true
                         });
+                        link.dispatchEvent(event);
                     }
                 }
             ]
