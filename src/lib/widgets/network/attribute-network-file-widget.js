@@ -290,6 +290,9 @@ AttributeNetworkFileWidget.prototype.draw = function () {
                     browseBar
                 ],
                 bbar: {
+                    layout : {
+                        pack : 'end'
+                    },
                     defaults: {
                         width: 100
                     },
