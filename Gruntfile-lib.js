@@ -30,6 +30,7 @@ module.exports = function (grunt) {
                     'src/lib/widgets/feature/info/info-widget.js',
                     'src/lib/widgets/feature/info/*.js',
                     'src/lib/widgets/feature/variant-effect-grid-widget.js',
+                    'src/lib/widgets/feature/genotype-grid-widget.js',
                     'src/lib/widgets/feature/variant-widget.js',
 
                     'src/lib/widgets/network/network-file-widget.js',

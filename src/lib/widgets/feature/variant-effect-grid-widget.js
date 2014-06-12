@@ -1,6 +1,6 @@
-function VariantEffectPanelWidget(args) {
+function VariantEffectGridWidget(args) {
     _.extend(this, Backbone.Events);
-    this.id = Utils.genId("VariantEffectPanelWidget");
+    this.id = Utils.genId("VariantEffectGridWidget");
 
     this.autoRender=true;
     this.storeConfig = {};
@@ -19,7 +19,7 @@ function VariantEffectPanelWidget(args) {
     }
 }
 
-VariantEffectPanelWidget.prototype = {
+VariantEffectGridWidget.prototype = {
     render: function (targetId) {
         var _this = this;
 
