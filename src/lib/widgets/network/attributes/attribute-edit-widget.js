@@ -67,7 +67,7 @@ AttributeEditWidget.prototype = {
             bodyPadding: 10,
             layout: 'vbox',
             border: 0,
-            flex: 1,
+//            flex: 1,
             defaults: {
                 width: '100%',
                 labelWidth: 55
@@ -114,7 +114,7 @@ AttributeEditWidget.prototype = {
             bodyPadding: 10,
             layout: 'vbox',
             border: 0,
-            flex: 1,
+//            flex: 1,
             style: {
                 borderTopColor: 'lightgray',
                 borderTopStyle: 'solid',
@@ -174,7 +174,7 @@ AttributeEditWidget.prototype = {
             bodyPadding: 10,
             layout: 'vbox',
             border: 0,
-            flex: 1,
+//            flex: 1,
             style: {
                 borderTopColor: 'lightgray',
                 borderTopStyle: 'solid',
@@ -331,6 +331,7 @@ AttributeEditWidget.prototype = {
             height: 600,
             closable: false,
             minimizable: true,
+            maximizable: true,
             constrain: true,
             collapsible: true,
             layout: {

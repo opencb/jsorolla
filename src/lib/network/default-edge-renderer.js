@@ -176,14 +176,18 @@ DefaultEdgeRenderer.prototype = {
         if (this.edge.source === this.edge.target) {
             //calculate self edge
             var length1 = this.sourceRenderer.getSize() * 0.6;
-            var length2 = this.sourceRenderer.getSize() * 2;
+            var length2 = this.sourceRenderer.getSize() * 1.8;
             labelX = this.sourceCoords.x - this.sourceRenderer.getSize();
             labelY = this.sourceCoords.y - this.sourceRenderer.getSize();
-            d = ['M', this.sourceCoords.x, this.sourceCoords.y,
+
+
+            var rSize = this.sourceRenderer.getSize() / 2;
+
+            d = ['M', this.sourceCoords.x - rSize, this.sourceCoords.y ,
                 'L', this.sourceCoords.x - length1, this.sourceCoords.y,
                 'C', this.sourceCoords.x - length2, this.sourceCoords.y, this.sourceCoords.x, this.sourceCoords.y - length2,
                 this.sourceCoords.x , this.sourceCoords.y - length1,
-                'L', this.targetCoords.x, this.targetCoords.y].join(' ');
+                'L', this.targetCoords.x, this.targetCoords.y - rSize].join(' ');
         } else {
             //calculate bezier line
             var deltaX = this.targetCoords.x - this.sourceCoords.x;
@@ -208,6 +212,7 @@ DefaultEdgeRenderer.prototype = {
 
 
             // Calculate source and target points on a circle circumference - TODO ellipse, square, rectangle
+            /** Circle **/
 //            x = cx + r * cos(a)
 //            y = cy + r * sin(a)
             var sign2 = this.targetCoords.x > this.sourceCoords.x ? 1 : -1;
@@ -220,6 +225,15 @@ DefaultEdgeRenderer.prototype = {
             var tx = this.targetCoords.x - (sign2) * (Math.cos(angle) * trSize);
             var ty = this.targetCoords.y - (sign2) * (Math.sin(angle) * trSize);
             /****/
+            /** Rectangle **/
+//            def intersect_perimeter(x, y, w, h):
+//            if abs(y*w) > abs(x*h):
+//              return (0.5*h*x/abs(y), 0.5*h*sign(y))
+//            else:
+//              return (0.5*w*sign(x), 0.5*w*y/abs(x))
+
+            /****/
+
 
             labelX = midX - (Math.sin(angle) * controlPointOffsetLabel);
             labelY = midY + (Math.cos(angle) * controlPointOffsetLabel);

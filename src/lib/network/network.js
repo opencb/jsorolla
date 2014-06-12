@@ -772,6 +772,7 @@ Network.prototype = {
                     }
                 }
                 vertexConfig.renderer.updateComplex(slicesMap, defaults);
+                _this._updateEdgeCoords(vertex);
             });
         }
     },
@@ -1077,6 +1078,5 @@ Network.prototype = {
     },
     setEdgeRendererDefaults: function (args) {
         this.edgeRendererDefaults = args;
-
     }
 }

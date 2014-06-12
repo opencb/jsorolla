@@ -192,6 +192,7 @@ TextNetworkFileWidget.prototype.addCustomComponents = function () {
     this.parsePanel = Ext.create('Ext.panel.Panel', {
         dock: 'top',
         hidden: true,
+        border:false,
 //        title: 'Parse options',
         layout: {
             type: 'vbox',
@@ -228,7 +229,7 @@ TextNetworkFileWidget.prototype.addCustomComponents = function () {
         ]
     });
 
-    this.panel.addDocked(this.parsePanel);
+    this.panel.down().addDocked(this.parsePanel);
 };
 
 

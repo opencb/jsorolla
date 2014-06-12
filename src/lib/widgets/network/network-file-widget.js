@@ -28,6 +28,7 @@ function NetworkFileWidget(args) {
     this.title = 'Network widget abstract class';
     this.width = 600;
     this.height = 300;
+    this.layoutSelector = true;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -96,31 +97,36 @@ NetworkFileWidget.prototype.draw = function () {
             ]
         });
 
-        var comboLayout = Ext.create('Ext.form.field.ComboBox', {
-            margin: "0 0 0 5",
-            width: 120,
-            editable: false,
-            displayField: 'name',
-            valueField: 'name',
-            value: "none",
-            store: new Ext.data.SimpleStore({
-                fields: ['name'],
-                data: [
-                    ["none"],
-                    ["Force directed"],
-                    ["Random"],
-                    ["Circle"]
-                ]
-            })
-        });
+        var comboLayout;
+        if (this.layoutSelector) {
+            var comboLayout = Ext.create('Ext.form.field.ComboBox', {
+                margin: "0 0 0 5",
+                width: 240,
+                editable: false,
+                labelWidth: 90,
+                fieldLabel: 'Apply layout',
+                displayField: 'name',
+                valueField: 'name',
+                value: "Force directed",
+                store: new Ext.data.SimpleStore({
+                    fields: ['name'],
+                    data: [
+                        ["Force directed"],
+                        ["Random"],
+                        ["Circle"],
+                        ["none"]
+                    ]
+                })
+            });
+        }
 
         this.panel = Ext.create('Ext.window.Window', {
             title: this.title,
             resizable: false,
             items: {
+                border: false,
                 width: this.width,
                 height: this.height,
-                border: 0,
                 layout: { type: 'vbox', align: 'stretch'},
                 items: [
                     this.grid
@@ -131,15 +137,14 @@ NetworkFileWidget.prototype.draw = function () {
                         width: 100
                     },
                     items: [
-                        {
-                            xtype: 'box',
-                            margin: "5 0 0 0",
-                            html: 'Apply layout:'
-                        },
                         comboLayout,
                         '->',
                         {text: 'Ok', handler: function () {
-                            _this.trigger('okButton:click', {content: _this.content, layout: comboLayout.getValue(), sender: _this});
+                            var layout;
+                            if (comboLayout) {
+                                layout = comboLayout.getValue()
+                            }
+                            _this.trigger('okButton:click', {content: _this.content, layout: layout, sender: _this});
                             _this.panel.close();
                         }
                         },

@@ -23,6 +23,11 @@ var Utils = {
     //properties
     characters: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
 
+    number: {
+        sign: function (x) {
+            return x ? x < 0 ? -1 : 1 : 0;
+        }
+    },
     //Methods
     formatNumber: function (position) {
         return position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");

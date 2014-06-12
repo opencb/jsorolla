@@ -69,6 +69,7 @@ ResultWidget.prototype = {
                     closable: true,
                     autoScroll: true,
                     overflowY: 'auto',
+                    maximizable:true,
                     layout: {
                         type: 'vbox',
                         align: 'stretch'

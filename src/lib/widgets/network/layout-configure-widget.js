@@ -24,7 +24,7 @@ function LayoutConfigureWidget(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('LayoutConfigureWidget');
 
-    this.width = 400;
+    this.width = 450;
     this.height = 300;
     this.window;
     this.networkViewer;
@@ -170,144 +170,152 @@ LayoutConfigureWidget.prototype = {
         this.window = Ext.create('Ext.window.Window', {
             id: this.id + 'window',
             title: 'Force directed layout configuration',
-            bodyStyle: {
-                backgroundColor: 'white',
-                fontFamily: 'Oxygen'
-            },
-            bodyPadding: 10,
-            width: this.width,
             closable: false,
             minimizable: true,
             constrain: true,
             collapsible: true,
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'box',
-                    style: {
-                        textAlign: 'right'
-                    },
-                    html: '<a target="_blank" href="https://github.com/mbostock/d3/wiki/Force-Layout">About force directed layout </a>'
+            layout: 'fit',
+            items: {
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
                 },
-                {
-                    xtype: 'box',
-                    style: {
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        borderBottom: '1px solid lightgray',
-                        marginBottom: '10px'
+                width: this.width,
+                bodyPadding: 10,
+                border: false,
+                items: [
+                    {
+                        xtype: 'box',
+                        style: {
+                            textAlign: 'right'
+                        },
+                        html: '<a target="_blank" href="https://github.com/mbostock/d3/wiki/Force-Layout">About force directed layout </a>'
                     },
-                    html: 'Node related settings'
-                },
-                {
-                    xtype: 'container',
-                    style: {
-                        marginBottom: '20px'
+                    {
+                        xtype: 'box',
+                        style: {
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            borderBottom: '1px solid lightgray',
+                            marginBottom: '10px'
+                        },
+                        html: 'Node related settings'
                     },
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
+                    {
+                        xtype: 'container',
+                        style: {
+                            marginBottom: '20px'
+                        },
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: { margin: '1 0 1 0' },
+                        items: [
+                            nodeChargeAttributeCombo
+                        ]
                     },
-                    defaults: { margin: '1 0 1 0' },
-                    items: [
-                        nodeChargeAttributeCombo
-                    ]
-                },
-                {
-                    xtype: 'box',
-                    style: {
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        borderBottom: '1px solid lightgray',
-                        marginBottom: '10px'
+                    {
+                        xtype: 'box',
+                        style: {
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            borderBottom: '1px solid lightgray',
+                            marginBottom: '10px'
+                        },
+                        html: 'Edge related settings'
                     },
-                    html: 'Edge related settings'
-                },
-                {
-                    xtype: 'container',
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
+                    {
+                        xtype: 'container',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: { margin: '1 0 1 0' },
+                        items: [
+                            edgeDistanceAttributeCombo,
+                            edgeStrengthAttributeCombo
+                        ]
                     },
-                    defaults: { margin: '1 0 1 0' },
-                    items: [
-                        edgeDistanceAttributeCombo,
-                        edgeStrengthAttributeCombo
-                    ]
-                },
-                {
-                    xtype: 'box',
-                    style: {
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        borderBottom: '1px solid lightgray',
-                        marginBottom: '10px',
-                        marginTop: '20px'
+                    {
+                        xtype: 'box',
+                        style: {
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            borderBottom: '1px solid lightgray',
+                            marginBottom: '10px',
+                            marginTop: '20px'
+                        },
+                        html: 'Global settings'
                     },
-                    html: 'Global settings'
-                },
-                {
-                    xtype: 'container',
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    defaults: { margin: '1 0 1 0' },
-                    items: [
-                        frictionField,
-                        gravityField,
-                        chargeDistanceField
+                    {
+                        xtype: 'container',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: { margin: '1 0 1 0' },
+                        items: [
+                            frictionField,
+                            gravityField,
+                            chargeDistanceField
 
-                    ]
-                }
-            ],
-            buttons: [
-                {
-                    text: 'Apply',
-                    handler: function () {
-
-                        var linkDistanceValue = edgeDistanceAttributeCombo.down('combo').getValue();
-                        var linkStrengthValue = edgeStrengthAttributeCombo.down('combo').getValue();
-                        var chargeValue = nodeChargeAttributeCombo.down('combo').getValue();
-
-                        var linkDistanceDefaultValue = edgeDistanceAttributeCombo.down('numberfield').getValue();
-                        var linkStrengthDefaultValue = edgeStrengthAttributeCombo.down('numberfield').getValue();
-                        var chargeDefaultValue = nodeChargeAttributeCombo.down('numberfield').getValue();
-
-                        linkDistanceValue = linkDistanceValue === 'Non weighted' ? linkDistanceDefaultValue : linkDistanceValue;
-                        linkStrengthValue = linkStrengthValue === 'Non weighted' ? linkStrengthDefaultValue : linkStrengthValue;
-                        chargeValue = chargeValue === 'Non weighted' ? chargeDefaultValue : chargeValue;
-
-                        GraphLayout.force({
-                            network: _this.network,
-                            width: _this.networkViewer.networkSvgLayout.getWidth(),
-                            height: _this.networkViewer.networkSvgLayout.getHeight(),
-                            linkDistance: linkDistanceValue,
-                            linkStrength: linkStrengthValue,
-                            charge: chargeValue,
-                            multipliers: {
-                                linkDistance: linkDistanceDefaultValue,
-                                linkStrength: linkStrengthDefaultValue,
-                                charge: chargeDefaultValue
-                            },
-                            friction: frictionField.getValue(),
-                            gravity: gravityField.getValue(),
-                            chargeDistance: chargeDistanceField.getValue(),
-
-                            simulation: false,
-                            end: function (verticesArray) {
-                                for (var i = 0, l = verticesArray.length; i < l; i++) {
-                                    var v = verticesArray[i];
-                                    _this.networkViewer.setVertexCoords(v.id, v.x, v.y);
-                                }
-                            }
-                        });
+                        ]
                     }
+                ],
+                bbar: {
+                    layout: {
+                        pack: 'end'
+                    },
+                    defaults: {
+                        width: 100
+                    },
+                    items: [
+                        {
+                            text: 'Apply',
+                            handler: function () {
+
+                                var linkDistanceValue = edgeDistanceAttributeCombo.down('combo').getValue();
+                                var linkStrengthValue = edgeStrengthAttributeCombo.down('combo').getValue();
+                                var chargeValue = nodeChargeAttributeCombo.down('combo').getValue();
+
+                                var linkDistanceDefaultValue = edgeDistanceAttributeCombo.down('numberfield').getValue();
+                                var linkStrengthDefaultValue = edgeStrengthAttributeCombo.down('numberfield').getValue();
+                                var chargeDefaultValue = nodeChargeAttributeCombo.down('numberfield').getValue();
+
+                                linkDistanceValue = linkDistanceValue === 'Non weighted' ? linkDistanceDefaultValue : linkDistanceValue;
+                                linkStrengthValue = linkStrengthValue === 'Non weighted' ? linkStrengthDefaultValue : linkStrengthValue;
+                                chargeValue = chargeValue === 'Non weighted' ? chargeDefaultValue : chargeValue;
+
+                                GraphLayout.force({
+                                    network: _this.network,
+                                    width: _this.networkViewer.networkSvgLayout.getWidth(),
+                                    height: _this.networkViewer.networkSvgLayout.getHeight(),
+                                    linkDistance: linkDistanceValue,
+                                    linkStrength: linkStrengthValue,
+                                    charge: chargeValue,
+                                    multipliers: {
+                                        linkDistance: linkDistanceDefaultValue,
+                                        linkStrength: linkStrengthDefaultValue,
+                                        charge: chargeDefaultValue
+                                    },
+                                    friction: frictionField.getValue(),
+                                    gravity: gravityField.getValue(),
+                                    chargeDistance: chargeDistanceField.getValue(),
+
+                                    simulation: false,
+                                    end: function (verticesArray) {
+                                        for (var i = 0, l = verticesArray.length; i < l; i++) {
+                                            var v = verticesArray[i];
+                                            _this.networkViewer.setVertexCoords(v.id, v.x, v.y);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    ]
                 }
-            ],
+            },
             listeners: {
                 minimize: function () {
                     this.hide();

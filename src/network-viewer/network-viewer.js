@@ -781,7 +781,8 @@ NetworkViewer.prototype = {
 
         /* vertex config */
         var vertexConfig = new VertexConfig({
-            coords: {x: x, y: y}
+            coords: {x: x, y: y},
+            rendererConfig: this.network.vertexRendererDefaults
         });
 
         //update variables
@@ -804,7 +805,9 @@ NetworkViewer.prototype = {
             target: vertexTarget
         });
 
-        var edgeConfig = new EdgeConfig({});
+        var edgeConfig = new EdgeConfig({
+            rendererConfig: this.network.edgeRendererDefaults
+        });
 
         this.network.addEdge({
             edge: edge,
@@ -962,7 +965,7 @@ NetworkViewer.prototype = {
         var dot = graph.getAsDOT();
         switch (type) {
             case "Circle":
-                if (typeof e.attributeName !== 'undefined') {
+                if (e && typeof e.attributeName !== 'undefined') {
                     GraphLayout.circle(this.network, this.getLayoutWidth(), this.getLayoutHeight(), this.network.getVerticesOrdered(e.attributeName));
                 } else {
                     GraphLayout.circle(this.network, this.getLayoutWidth(), this.getLayoutHeight());
