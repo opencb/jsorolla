@@ -77,9 +77,6 @@ VariantWidget.prototype = {
     },
     draw: function () {
         var _this = this;
-        _this.target.add(this.panel);
-        _this.target.setActiveTab(this.panel);
-
 
         OpencgaManager.variantInfoMongo({
             accountId: $.cookie("bioinfo_account"),
@@ -105,12 +102,16 @@ VariantWidget.prototype = {
             ]
         });
 
-        //        this.summaryPanel = this._createSummaryPanel(this.variantInfo);
-        //this.panel.add(this.summaryPanel);
+        this.summaryPanel = this._createSummaryPanel(this.variantInfo);
+
+        this.target.add(this.panel);
+        this.target.setActiveTab(this.panel);
+
 
         this.variantPanel = this._createVariantPanel();
         this.panel.add(this.variantPanel);
 
+        this.toolsPanel.add(this.summaryPanel);
         this.toolsPanel.add(this.variantEffectWidget.getPanel());
         this.toolsPanel.add(this.genomeViewerPanel);
 
@@ -321,53 +322,53 @@ VariantWidget.prototype = {
             data: ss
         });
 
-        //var chartCT = Ext.create('Ext.chart.Chart', {
-        //xtype: 'chart',
-        //width: 700,
-        //height: 700,
-        //store: _this.ctStore,
-        //animate: true,
-        //shadow: true,
-        //legend: {
-        //position: 'right'
-        //},
-        //theme: 'Base:gradients',
-        //insetPadding: 60,
-        //series: [
-        //{
-        //type: 'pie',
-        //field: 'count',
-        //showInLegend: true,
-        //tips: {
-        //trackMouse: true,
-        //width: 200,
-        //height: 28,
-        //renderer: function (storeItem, item) {
-        ////calculate percentage.
-        //var total = 0;
-        //_this.ctStore.each(function (rec) {
-        //total += rec.get('count');
-        //});
-        //var name = Utils.formatText(storeItem.get('name'), "_");
-        //this.setTitle(name + ': ' + Math.round(storeItem.get('count') / total * 100) + '%');
-        //}
-        //},
-        //highlight: {
-        //segment: {
-        //margin: 20
-        //}
-        //},
+        var chartCT = Ext.create('Ext.chart.Chart', {
+        xtype: 'chart',
+        width: 700,
+        height: 700,
+        store: _this.ctStore,
+        animate: true,
+        shadow: true,
+        legend: {
+        position: 'right'
+        },
+        theme: 'Base:gradients',
+        insetPadding: 60,
+        series: [
+        {
+        type: 'pie',
+        field: 'count',
+        showInLegend: true,
+        tips: {
+        trackMouse: true,
+        width: 200,
+        height: 28,
+        renderer: function (storeItem, item) {
+        //calculate percentage.
+        var total = 0;
+        _this.ctStore.each(function (rec) {
+        total += rec.get('count');
+        });
+        var name = Utils.formatText(storeItem.get('name'), "_");
+        this.setTitle(name + ': ' + Math.round(storeItem.get('count') / total * 100) + '%');
+        }
+        },
+        highlight: {
+        segment: {
+        margin: 20
+        }
+        },
 
-        //label: {
-        //field: 'name',
-        //display: 'rotate',
-        //contrast: true,
-        //font: '10px Arial'
-        //}
+        label: {
+        field: 'name',
+        display: 'rotate',
+        contrast: true,
+        font: '10px Arial'
+        }
 
-        //}
-        //]
-        //});
+        }
+        ]
+        });
         //var chartSS = Ext.create('Ext.chart.Chart', {
         //xtype: 'chart',
         //width: 700,
@@ -539,15 +540,15 @@ VariantWidget.prototype = {
                         xtype: 'box',
                         width: 700,
                         html: '<div style="border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;font-weight: bold;">Consequence type</div>'
-
-                    }
-                    //chartCT
+                    },
+                    chartCT
                 ]
             }
         ];
 
 
         var panel = Ext.create('Ext.panel.Panel', {
+            title:'Summary',
             width: '100%',
             height: '100%',
             border: 0,
