@@ -252,7 +252,7 @@ CircosVertexRenderer.prototype = {
         this.selectEl = SVG.create("ellipse", {
             cx: this.mid,
             cy: this.mid,
-            rx: this.figureSize * 0.9,
+            rx: this.figureSize,
             ry: this.figureSize * 0.65,
             opacity: '0.5',
             fill: '#999999',

@@ -377,7 +377,7 @@ NetworkViewer.prototype = {
             target: target,
             handlers: {
                 'vertexShape:change': function (event) {
-                    _this.setSelectedVerticesDisplayAttr('shape', event.value);
+                    _this.setSelectedVerticesDisplayAttr('shape', event.value, true);
                 },
                 'vertexSize:change': function (event) {
                     _this.setSelectedVerticesDisplayAttr('size', parseInt(event.value), true);
