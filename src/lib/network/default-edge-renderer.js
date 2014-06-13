@@ -197,27 +197,34 @@ DefaultEdgeRenderer.prototype = {
                 angle = 0;
             }
 
-            var separation = 15;
-            var remainder = this.edge.overlapCount % 2;
-            var sum = ( remainder == 0) ? 0 : 1;
-            var sign = (remainder == 0) ? -1 : 1;
-            var controlPointOffset = (this.edge.overlapCount + sum) / 2 * separation * (sign);
-            var controlPointOffsetLabel = controlPointOffset / 1.33;
 
             var midX = (this.sourceCoords.x + this.targetCoords.x) / 2;
             var midY = (this.sourceCoords.y + this.targetCoords.y) / 2;
-            var controlX = midX - (Math.sin(angle) * controlPointOffset);
-            var controlY = midY + (Math.cos(angle) * controlPointOffset);
-
-
+            var controlPath = '';
+            if (this.edge.overlapCount === 0) {
+                labelX = midX - (Math.sin(angle));
+                labelY = midY + (Math.cos(angle));
+            } else {
+                var separation = 15;
+                var remainder = this.edge.overlapCount % 2;
+                var sum = 1;
+                var sign = 1;
+                if (remainder === 0) {
+                    sum = 0;
+                    sign = -1
+                }
+                var controlPointOffset = (this.edge.overlapCount + sum) / 2 * separation * (sign);
+                var controlPointOffsetLabel = controlPointOffset / 1.33;
+                var controlX = midX - (Math.sin(angle) * controlPointOffset);
+                var controlY = midY + (Math.cos(angle) * controlPointOffset);
+                labelX = midX - (Math.sin(angle) * controlPointOffsetLabel);
+                labelY = midY + (Math.cos(angle) * controlPointOffsetLabel);
+                controlPath = ['C', controlX, controlY, controlX, controlY].join(' ');
+            }
             var pp = this._getPerimeterPositions(angle);
 
-
-            labelX = midX - (Math.sin(angle) * controlPointOffsetLabel);
-            labelY = midY + (Math.cos(angle) * controlPointOffsetLabel);
-
 //            d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'C', controlX, controlY, controlX, controlY, this.targetCoords.x, this.targetCoords.y].join(' ');
-            d = ['M', pp.sx, pp.sy, 'C', controlX, controlY, controlX, controlY, pp.tx, pp.ty].join(' ');
+            d = ['M', pp.sx, pp.sy, controlPath, pp.tx, pp.ty].join(' ');
         }
         return {d: d, xl: labelX, yl: labelY};
     },
