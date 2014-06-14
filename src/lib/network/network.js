@@ -41,6 +41,7 @@ function Network(args) {
         {name: "Name", type: "string", defaultValue: "none"},
         {name: "Relation", type: "string", defaultValue: "none"}
     ];
+
     this.vertexAttributeManager = new AttributeManagerStore({
         attributes: vertexAttributes,
         handlers: {
@@ -912,22 +913,23 @@ Network.prototype = {
 //            edgeAttributes: this.edgeAttributeManager
 //        };
     },
-    loadSession: function (content) {
+    loadSession: function () {
         this.clean();
 
         this.batchStart();
         console.time('Network.loadJSON');
 
 
+            debugger
 //        console.time('Network.loadJSON-Vertices');
-        for (var i = 0; i < content.graph.vertices.length; i++) {
-            var v = content.graph.vertices[i];
+        for (var i = 0; i < this.session.graph.vertices.length; i++) {
+            var v = this.session.graph.vertices[i];
             var vertex = new Vertex({
                 id: v.id
             });
 
             /* vertex config */
-            var config = content.config.vertices[v.id];
+            var config = this.session.config.vertices[v.id];
 //            console.time('Network.loadJSON-vertex');
             if (typeof config === 'undefined') {
                 var vertexConfig = new VertexConfig({
@@ -936,7 +938,7 @@ Network.prototype = {
             } else {
                 var vertexConfig = new VertexConfig({
                     id: v.id,
-                    coords: content.config.vertices[v.id].coords,
+                    coords: this.session.config.vertices[v.id].coords,
                     rendererConfig: config.renderer
                 });
             }
@@ -949,8 +951,8 @@ Network.prototype = {
         }
 //        console.timeEnd('Network.loadJSON-Vertices');
 //        console.time('Network.loadJSON-Edges');
-        for (var i = 0; i < content.graph.edges.length; i++) {
-            var e = content.graph.edges[i];
+        for (var i = 0; i < this.session.graph.edges.length; i++) {
+            var e = this.session.graph.edges[i];
 
             var source = this.getVertexById(e.source.id);
             var target = this.getVertexById(e.target.id);
@@ -963,7 +965,7 @@ Network.prototype = {
             });
 
             /* edge config */
-            var config = content.config.edges[e.id];
+            var config = this.session.config.edges[e.id];
             if (typeof config === 'undefined') {
                 var edgeConfig = new EdgeConfig({
                     rendererConfig: this.session.getEdgeDefaults()
@@ -971,7 +973,7 @@ Network.prototype = {
             } else {
                 var edgeConfig = new EdgeConfig({
                     id: e.id,
-                    coords: content.config.edges[e.id].coords,
+                    coords: this.session.config.edges[e.id].coords,
                     rendererConfig: config.renderer
                 });
             }
@@ -983,8 +985,8 @@ Network.prototype = {
         }
 //        console.timeEnd('Network.loadJSON-Edges');
 
-        this._importAttributes(content.vertexAttributes, this.vertexAttributeManager);
-        this._importAttributes(content.edgeAttributes, this.edgeAttributeManager);
+        this._importAttributes(this.session.attributes.vertices, this.vertexAttributeManager);
+        this._importAttributes(this.session.attributes.edges, this.edgeAttributeManager);
 
         this.batchEnd();
         this.trigger('load:json');
@@ -1013,7 +1015,7 @@ Network.prototype = {
         console.timeEnd('Network.importVertexWithAttributes');
     },
     _importAttributes: function (data, attributeManager) {
-        if (data.attributes.length > 1) {
+        if (data.attributes && data.attributes.length > 1) {
             var attributes = data.attributes;
             attributeManager.addAttributes(attributes);
             // add values for attributes

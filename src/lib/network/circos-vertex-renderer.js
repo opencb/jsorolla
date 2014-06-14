@@ -166,10 +166,12 @@ CircosVertexRenderer.prototype = {
     },
     setLabelContent: function (text) {
         this.labelText = text;
-        this._updateLabelElPosition();
-        this.labelEl.setAttribute('x', this.labelX);
-        this.labelEl.setAttribute('y', this.labelY);
-        this.labelEl.textContent = this.labelText;
+        if (this.labelEl) {
+            this._updateLabelElPosition();
+            this.labelEl.setAttribute('x', this.labelX);
+            this.labelEl.setAttribute('y', this.labelY);
+            this.labelEl.textContent = this.labelText;
+        }
     },
     getSize: function () {
         this._updateDrawParameters();

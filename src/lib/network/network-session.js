@@ -52,8 +52,14 @@ function NetworkSession() {
             y: 0
         }
     };
-    this.config = {};
-    this.graph = {};
+    this.config = {
+        vertices: {},
+        edges: {}
+    };
+    this.graph = {
+        vertices: {},
+        edges: {}
+    };
     this.attributes = {
         vertices: {},
         edges: {}

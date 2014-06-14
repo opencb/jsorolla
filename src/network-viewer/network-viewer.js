@@ -51,7 +51,7 @@ function NetworkViewer(args) {
 
     this.overviewRefreshing = false;
 
-    this.zoom = this.session.getZoom();
+    this.zoom = 25;
 
     this.on(this.handlers);
 
@@ -146,6 +146,7 @@ NetworkViewer.prototype = {
         }
 
 
+        this.zoom = this.session.getZoom();
         //
         //  Children initalization
         //
@@ -227,6 +228,7 @@ NetworkViewer.prototype = {
 //            this.loadJSON(this.session);
 //        }
 
+
         this.rendered = true;
     },
     resize: function (args) {
@@ -259,6 +261,8 @@ NetworkViewer.prototype = {
         this.editionBar.draw();
         this.networkSvgLayout.draw();
 
+        this.network.loadSession();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     hideOverviewPanel: function () {
         $(this.overviewPanelDiv).css({display: 'none'});
@@ -1102,37 +1106,40 @@ NetworkViewer.prototype = {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     loadSession: function () {
-
+        this._setZoom(this.session.getZoom());
+        this.networkSvgLayout.loadSession();
+        this.network.loadSession();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     saveSession: function () {
         this.session.setZoom(this.zoom);
         this.networkSvgLayout.saveSession();
         this.network.saveSession();
     },
-    loadJSON: function (content) {
-        try {
-            this.networkSvgLayout.clean();
-            this.network.setVertexRendererDefaults(content.vertexDefaults);
-            this.network.setEdgeRendererDefaults(content.edgeDefaults);
-            this.network.loadJSON(content);
-            this.networkSvgLayout.setZoom(content["zoom"]);
-            this.toolBar.setZoom(content["zoom"]);
-            this.network.draw(this.networkSvgLayout.getElementsSVG());
-            this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
-            this.networkSvgLayout.setCenter(content["center"]);
-            this._refreshOverview();
-        } catch (e) {
-            this.clean();
-            console.log('Error loading JSON');
-        }
-    },
-    toJSON: function () {
-        var json = this.network.toJSON();
-        json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
-        json["center"] = {x: this.networkSvgLayout.centerX, y: this.networkSvgLayout.centerY};
-        json["zoom"] = this.zoom;
-        return json;
-    },
+//    loadJSON: function (content) {
+//        try {
+//            this.networkSvgLayout.clean();
+//            this.network.setVertexRendererDefaults(content.vertexDefaults);
+//            this.network.setEdgeRendererDefaults(content.edgeDefaults);
+//            this.network.loadJSON(content);
+//            this.networkSvgLayout.setZoom(content["zoom"]);
+//            this.toolBar.setZoom(content["zoom"]);
+//            this.network.draw(this.networkSvgLayout.getElementsSVG());
+//            this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
+//            this.networkSvgLayout.setCenter(content["center"]);
+//            this._refreshOverview();
+//        } catch (e) {
+//            this.clean();
+//            console.log('Error loading JSON');
+//        }
+//    },
+//    toJSON: function () {
+//        var json = this.network.toJSON();
+//        json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
+//        json["center"] = {x: this.networkSvgLayout.centerX, y: this.networkSvgLayout.centerY};
+//        json["zoom"] = this.zoom;
+//        return json;
+//    },
     getAsSIF: function (separator) {
         return this.network.getAsSIF(separator);
     },

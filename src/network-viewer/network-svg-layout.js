@@ -192,11 +192,6 @@ NetworkSvgLayout.prototype = {
 
         });
 
-        if (this.session.getBackgroundImages().length > 0) {
-            this.addBackgroundImages(this.session.getBackgroundImages())
-        }
-
-        this.setBackgroundColor(this.session.getBackgroundColor());
 
     },
     draw: function () {
@@ -206,6 +201,8 @@ NetworkSvgLayout.prototype = {
             return;
         }
         this.targetDiv.appendChild(this.div);
+
+        this.loadSession();
     },
     setSize: function (width, height) {
         this.width = width;
@@ -584,6 +581,13 @@ NetworkSvgLayout.prototype = {
     },
     getEdgeId: function (targetEl) {
         return $(targetEl).closest('[network-type="edge-g"]').attr('id');
+    },
+    loadSession: function () {
+        this.clean();
+        if (this.session.getBackgroundImages().length > 0) {
+            this.addBackgroundImages(this.session.getBackgroundImages())
+        }
+        this.setBackgroundColor(this.session.getBackgroundColor());
     },
     saveSession: function () {
         this.session.setBackgroundImages(this.getBackGroundImages());
