@@ -24,6 +24,7 @@ function NetworkSvgLayout(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('NetworkSvgLayout');
 
+    this.session;
     this.bgColor = "white";
     this.overviewScale = 1;
     this.canvasOffsetX = 0;
@@ -191,6 +192,11 @@ NetworkSvgLayout.prototype = {
 
         });
 
+        if (this.session.getBackgroundImages().length > 0) {
+            this.addBackgroundImages(this.session.getBackgroundImages())
+        }
+
+        this.setBackgroundColor(this.session.getBackgroundColor());
 
     },
     draw: function () {
@@ -233,6 +239,9 @@ NetworkSvgLayout.prototype = {
     },
     setBackgroundColor: function (color) {
         this.backRect.setAttribute('fill', color);
+    },
+    getBackgroundColor: function () {
+        return this.backRect.getAttribute('fill');
     },
     addBackgroundImage: function (image) {
         this.backgroundImage = SVG.addChildImage(this.scaleBackGroup, {
@@ -575,6 +584,10 @@ NetworkSvgLayout.prototype = {
     },
     getEdgeId: function (targetEl) {
         return $(targetEl).closest('[network-type="edge-g"]').attr('id');
+    },
+    saveSession: function () {
+        this.session.setBackgroundImages(this.getBackGroundImages());
+        this.session.setBackgroundColor(this.getBackgroundColor());
     }
 };
 

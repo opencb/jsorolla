@@ -24,29 +24,8 @@ function Network(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('Network');
 
-
-    this.vertexRendererDefaults = {
-        shape: 'circle',
-        size: 40,
-        color: '#9fc6e7',
-        strokeSize: 1,
-        strokeColor: '#9fc6e7',
-        opacity: 0.8,
-        labelSize: 12,
-        labelColor: '#111111'
-    };
-    this.edgeRendererDefaults = {
-        shape: 'undirected',
-        size: 1,
-        color: '#cccccc',
-        opacity: 1,
-        labelSize: 0,
-        labelColor: '#111111'
-    };
-
     //set instantiation args, must be last
     _.extend(this, args);
-
 
     this.graph = new Graph();
     this.config = new NetworkConfig();
@@ -98,7 +77,7 @@ Network.prototype = {
                 this.addVertex({
                     vertex: vertex,
                     vertexConfig: new VertexConfig({
-                        rendererConfig: this.vertexRendererDefaults
+                        rendererConfig: this.session.getVertexDefaults()
                     })
                 });
             }
@@ -109,7 +88,7 @@ Network.prototype = {
                 this.addEdge({
                     edge: edge,
                     edgeConfig: new EdgeConfig({
-                        rendererConfig: this.edgeRendererDefaults
+                        rendererConfig: this.session.getEdgeDefaults()
                     })
                 });
             }
@@ -156,7 +135,7 @@ Network.prototype = {
             /* vertex config */
             if (typeof vertexConfig === 'undefined') {
                 vertexConfig = new VertexConfig({
-                    rendererConfig: this.vertexRendererDefaults
+                    rendererConfig: this.session.getVertexDefaults()
                 });
             }
             vertexConfig.id = vertex.id;
@@ -195,7 +174,7 @@ Network.prototype = {
             /* edge config */
             if (typeof edgeConfig === 'undefined') {
                 edgeConfig = new EdgeConfig({
-                    rendererConfig: this.edgeRendererDefaults
+                    rendererConfig: this.session.getEdgeDefaults()
                 });
             }
             edgeConfig.id = edge.id;
@@ -921,15 +900,19 @@ Network.prototype = {
 
     /** JSON import/export **/
     /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify */
-    toJSON: function () {
-        return {
-            graph: this.graph,
-            config: this.config,
-            vertexAttributes: this.vertexAttributeManager,
-            edgeAttributes: this.edgeAttributeManager
-        };
+    saveSession: function () {
+        this.session.loadGraph(this.graph);
+        this.session.loadConfig(this.config);
+        this.session.loadVertexAttributes(this.vertexAttributeManager);
+        this.session.loadEdgeAttributes(this.edgeAttributeManager);
+//        return {
+//            graph: this.graph,
+//            config: this.config,
+//            vertexAttributes: this.vertexAttributeManager,
+//            edgeAttributes: this.edgeAttributeManager
+//        };
     },
-    loadJSON: function (content) {
+    loadSession: function (content) {
         this.clean();
 
         this.batchStart();
@@ -948,7 +931,7 @@ Network.prototype = {
 //            console.time('Network.loadJSON-vertex');
             if (typeof config === 'undefined') {
                 var vertexConfig = new VertexConfig({
-                    rendererConfig: this.vertexRendererDefaults
+                    rendererConfig: this.session.getVertexDefaults()
                 });
             } else {
                 var vertexConfig = new VertexConfig({
@@ -983,7 +966,7 @@ Network.prototype = {
             var config = content.config.edges[e.id];
             if (typeof config === 'undefined') {
                 var edgeConfig = new EdgeConfig({
-                    rendererConfig: this.edgeRendererDefaults
+                    rendererConfig: this.session.getEdgeDefaults()
                 });
             } else {
                 var edgeConfig = new EdgeConfig({
@@ -1072,11 +1055,5 @@ Network.prototype = {
         this.edgeAttributeManager.store.fireEvent('refresh');
         this.batchFlag = false;
         this.trigger('batch:end');
-    },
-    setVertexRendererDefaults: function (args) {
-        this.vertexRendererDefaults = args;
-    },
-    setEdgeRendererDefaults: function (args) {
-        this.edgeRendererDefaults = args;
     }
 }

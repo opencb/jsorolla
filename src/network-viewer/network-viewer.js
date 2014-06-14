@@ -51,7 +51,7 @@ function NetworkViewer(args) {
 
     this.overviewRefreshing = false;
 
-    this.zoom = 25;
+    this.zoom = this.session.getZoom();
 
     this.on(this.handlers);
 
@@ -150,6 +150,7 @@ NetworkViewer.prototype = {
         //  Children initalization
         //
         this.network = new Network({
+            session: this.session,
             handlers: {
                 'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean se??': function () {
                     _this._updateStatusInfo();
@@ -172,7 +173,7 @@ NetworkViewer.prototype = {
         /* edition Bar */
         this.editionBar = this._createEditionBar(this.editionbarDiv);
 
-        this.networkSvgLayout = this._createNetworkSvgLayout($(this.mainPanelDiv).attr('id'));
+        this.networkSvgLayout = this._createNetworkSvgLayout(this.mainPanelDiv);
 
         this._createStatusBar(this.statusbarDiv);
 
@@ -222,9 +223,9 @@ NetworkViewer.prototype = {
 //        }
 
 
-        if (typeof this.session !== 'undefined') {
-            this.loadJSON(this.session);
-        }
+//        if (typeof this.session !== 'undefined') {
+//            this.loadJSON(this.session);
+//        }
 
         this.rendered = true;
     },
@@ -521,6 +522,7 @@ NetworkViewer.prototype = {
             target: target,
             width: width,
             height: height,
+            session:this.session,
             handlers: {
                 'select:vertex': function (e) {
                     var vertex = _this.network.getVertexById(e.vertexId);
@@ -899,6 +901,7 @@ NetworkViewer.prototype = {
     _setZoom: function (zoom) {
         this.zoom = zoom;
         this.networkSvgLayout.setZoom(zoom);
+        this.session.setZoom(zoom);
         if (this.overviewPanel) {
             var width = $(this.overviewPanelDiv).width();
             var height = $(this.overviewPanelDiv).height();
@@ -1097,6 +1100,14 @@ NetworkViewer.prototype = {
     refreshNetwork: function () {
         this.networkSvgLayout.clean();
         this.network.draw(this.networkSvgLayout.getElementsSVG());
+    },
+    loadSession: function () {
+
+    },
+    saveSession: function () {
+        this.session.setZoom(this.zoom);
+        this.networkSvgLayout.saveSession();
+        this.network.saveSession();
     },
     loadJSON: function (content) {
         try {

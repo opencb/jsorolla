@@ -24,13 +24,13 @@ function NetworkConfig(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('NetworkConfig');
 
+    this.session;
+
     //set instantiation args, must be last
     _.extend(this, args);
 
-
     this.vertices = {}; // [{id:"one",color:red,...},...]
     this.edges = {};  // [{id:"one",color:red,...},...]
-    this.general = {};
 
     this.on(this.handlers);
 }
@@ -67,11 +67,11 @@ NetworkConfig.prototype = {
     removeEdge: function (edge) {
         delete this.edges[edge.id];
     },
+
     toJSON: function () {
         return {
             vertices: this.vertices,
-            edges: this.edges,
-            general: this.general
+            edges: this.edges
         }
     }
 }
