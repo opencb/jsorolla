@@ -228,7 +228,9 @@ NetworkEditWidget.prototype = {
                                         });
                                         _this.network.addVertex({
                                             vertex: sourceVertex,
-                                            vertexConfig: new VertexConfig({})
+                                            vertexConfig: new VertexConfig({
+                                                rendererConfig: _this.networkViewer.session.getVertexDefaults()
+                                            })
                                         }, true);
                                     }
                                     var targetVertex = _this.network.getVertexById(targetId);
@@ -238,7 +240,9 @@ NetworkEditWidget.prototype = {
                                         });
                                         _this.network.addVertex({
                                             vertex: targetVertex,
-                                            vertexConfig: new VertexConfig({})
+                                            vertexConfig: new VertexConfig({
+                                                rendererConfig: _this.networkViewer.session.getVertexDefaults()
+                                            })
                                         }, true);
                                     }
                                     var edge = new Edge({
@@ -251,7 +255,9 @@ NetworkEditWidget.prototype = {
                                     });
                                     _this.network.addEdge({
                                         edge: edge,
-                                        edgeConfig: new EdgeConfig({})
+                                        edgeConfig: new EdgeConfig({
+                                            rendererConfig: _this.networkViewer.session.getEdgeDefaults()
+                                        })
                                     });
 
                                     _this.networkViewer.refreshNetwork();

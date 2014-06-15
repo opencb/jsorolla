@@ -673,7 +673,7 @@ Network.prototype = {
                             var config = configs[i];
                             if (typeof config !== 'undefined') {
                                 var value = record.get(config.attribute);
-                                if (typeof value !== 'undefined') {
+                                if (value) {
                                     var valueSplit = value.split(',');
                                     valuesAndConfigList.push({values: valueSplit, config: config});
                                 }
@@ -919,8 +919,6 @@ Network.prototype = {
         this.batchStart();
         console.time('Network.loadJSON');
 
-
-            debugger
 //        console.time('Network.loadJSON-Vertices');
         for (var i = 0; i < this.session.graph.vertices.length; i++) {
             var v = this.session.graph.vertices[i];

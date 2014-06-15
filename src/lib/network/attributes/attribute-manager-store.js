@@ -209,7 +209,12 @@ AttributeManagerStore.prototype = {
     getValueByAttributeAndId: function (id, attribute) {
         var record = this.store.getById(id);
         if (record) {
-            return record.get(attribute);
+            var value = record.get(attribute);
+            if (value) {
+                return value;
+            } else {
+                return '';
+            }
         }
     },
     getOrderedIdsByAttribute: function (attributeName) {
@@ -223,6 +228,9 @@ AttributeManagerStore.prototype = {
             var record = records[i];
             var id = record.get('id');
             var value = record.get(attributeName);
+            if (!value) {
+                value = '';
+            }
 
             /* detect number or string */
             if (checkType) {

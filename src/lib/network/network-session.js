@@ -27,9 +27,9 @@ function NetworkSession() {
             size: 40,
 //            color: '#9fc6e7',
             color: '#fff',
-            strokeSize: 1,
+            strokeSize: 2,
 //            strokeColor: '#9fc6e7',
-            strokeColor: '#000',
+            strokeColor: '#888888',
             opacity: 0.8,
             labelSize: 12,
             labelColor: '#111111'
@@ -37,7 +37,7 @@ function NetworkSession() {
         edgeDefaults: {
             shape: 'undirected',
             size: 1,
-            color: '#ff0000',
+            color: '#888888',
 //            color: '#cccccc',
             opacity: 1,
             labelSize: 0,
@@ -125,13 +125,19 @@ NetworkSession.prototype = {
         this.general.zoom = zoom;
     },
     loadJSON: function (o) {
-        this.config = o.config;
-        this.graph = o.graph;
-        this.attributes = o.attributes;
-        this.general = o.general;
+        _.extend(this, o)
+//        this.config = o.config;
+//        this.graph = o.graph;
+//        this.attributes = o.attributes;
+//        this.general = o.general;
     },
     toJSON: function () {
-        return this;
+        return {
+            general: this.general,
+            config: this.config,
+            graph: this.graph,
+            attributes: this.attributes
+        };
     }
 };
 

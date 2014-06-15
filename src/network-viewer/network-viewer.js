@@ -526,7 +526,7 @@ NetworkViewer.prototype = {
             target: target,
             width: width,
             height: height,
-            session:this.session,
+            session: this.session,
             handlers: {
                 'select:vertex': function (e) {
                     var vertex = _this.network.getVertexById(e.vertexId);
@@ -788,7 +788,7 @@ NetworkViewer.prototype = {
         /* vertex config */
         var vertexConfig = new VertexConfig({
             coords: {x: x, y: y},
-            rendererConfig: this.network.vertexRendererDefaults
+            rendererConfig: this.session.getVertexDefaults()
         });
 
         //update variables
@@ -812,7 +812,7 @@ NetworkViewer.prototype = {
         });
 
         var edgeConfig = new EdgeConfig({
-            rendererConfig: this.network.edgeRendererDefaults
+            rendererConfig: this.session.getEdgeDefaults()
         });
 
         this.network.addEdge({
