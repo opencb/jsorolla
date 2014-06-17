@@ -35,9 +35,18 @@ function AttributeManagerStore(args) {
         listeners: {
             update: function (st, record, operation, modifiedFieldNames) {
                 if (modifiedFieldNames && modifiedFieldNames[0] != 'Selected') {
+                    console.log("AttributeManagerStore - update")
                     _this.trigger('change:recordsAttribute', {records: [record], attributeName: modifiedFieldNames[0], sender: this});
                 }
             }
+//            remove: function () {
+//                console.log("AttributeManagerStore - remove")
+//                _this.trigger('change:data', {sender: this});
+//            },
+//            add: function () {
+//                console.log("AttributeManagerStore - add")
+//                _this.trigger('change:data', {sender: this});
+//            }
         }
     });
 
@@ -78,12 +87,13 @@ AttributeManagerStore.prototype = {
         this.attributes.push(attribute);
         this._processAttribute(attribute);
         if (fireChangeEvent !== false) {
-            console.log('change:attributes - add one attr')
+            console.log('addAttribute - change:attributes');
             this.trigger('change:attributes', {sender: this});
         }
         return true;
     },
     _processAttribute: function (attribute) {
+        attribute.id = attribute.name;
         /** Id column is not editable **/
         var editor;
         if (attribute.name !== 'id') {
@@ -107,6 +117,7 @@ AttributeManagerStore.prototype = {
         for (var i = 0; i < attributes.length; i++) {
             this.addAttribute(attributes[i], false);
         }
+        console.log('addAttributes - change:attributes');
         this.trigger('change:attributes', {sender: this});
     },
     removeAttribute: function (attributeName) {
@@ -118,6 +129,7 @@ AttributeManagerStore.prototype = {
                 this.attributes.splice(i, 1);
 
                 this.store.setFields(this.attributes);
+                console.log('removeAttribute - change:attributes');
                 this.trigger('change:attributes', {sender: this});
                 return true;
             }
@@ -378,6 +390,7 @@ AttributeManagerStore.prototype = {
         this._processAttribute({name: "Selected", type: "boolean", defaultValue: false});
         this.store.setFields(this.attributes);
 
+        console.log('clean - change:attributes');
         this.trigger('change:attributes', {sender: this});
     },
     getAsFile: function (separator) {

@@ -223,7 +223,8 @@ AttributeEditWidget.prototype = {
                     xtype: 'radiogroup',
                     id: this.id + 'selectMode',
                     fieldLabel: 'Show',
-                    labelWidth: 20,
+                    labelWidth: 30,
+                    width:230,
                     margin: '0 0 0 10',
                     defaults: {
                         margin: '0 0 0 10'
@@ -366,7 +367,6 @@ AttributeEditWidget.prototype = {
 //        this.reconfigureComponents();
 //    },
     reconfigureComponents: function () {
-        console.log('refresh ' + this.id);
         this.grid.reconfigure(this.attrMan.store, this.attrMan.columnsGrid);
 
         this.reloadComboStore();

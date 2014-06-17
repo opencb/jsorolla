@@ -153,7 +153,8 @@ NetworkViewer.prototype = {
         this.network = new Network({
             session: this.session,
             handlers: {
-                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean se??': function () {
+                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean': function (e) {
+                    console.log(e)
                     _this._updateStatusInfo();
                 },
                 'change:vertexAttributes': function (e) {
@@ -586,12 +587,12 @@ NetworkViewer.prototype = {
 //                    _this.editionBar.hideVertexToolbar();
                 },
                 'rightClick:vertex': function (e) {
-                    console.log(e);
                     _this._fillVertexContextMenu(e);
+
                     $(_this.contextMenuDiv).css({
                         display: "block",
                         left: e.x,
-                        top: e.y + 90
+                        top: e.y
                     });
                 },
                 'rightClick:backgroundImage': function (e) {
@@ -838,7 +839,7 @@ NetworkViewer.prototype = {
             '</div>';
 
         this.contextMenuDiv = $(html)[0];
-        $(this.div).append(this.contextMenuDiv);
+        $(this.centerPanelDiv).append(this.contextMenuDiv);
 
 
         $(_this.contextMenuDiv).bind('click.networkViewer', function (event) {
@@ -968,6 +969,7 @@ NetworkViewer.prototype = {
     },
     setLayout: function (type, e) {
         var _this = this;
+        this.networkSvgLayout.setCenter({x: 0, y: 0});
         var graph = this.network.getGraph();
         var dot = graph.getAsDOT();
         switch (type) {

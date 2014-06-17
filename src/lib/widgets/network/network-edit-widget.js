@@ -49,9 +49,7 @@ NetworkEditWidget.prototype = {
                 type: 'memory'
             },
             fields: [
-                {name: 'relation', type: 'string'},
-                {name: 'source.id', type: 'string'},
-                {name: 'target.id', type: 'string'}
+                {name: 'relation', type: 'string'}
             ],
             data: this.getElements()
         });
@@ -134,25 +132,28 @@ NetworkEditWidget.prototype = {
                                 _this.network.batchStart();
                                 for (var i = 0; i < selectedRecords.length; i++) {
                                     var record = selectedRecords[i];
-                                    var edgeId = record.data.id;
-                                    if (typeof edgeId !== 'undefined') {
-                                        var edge = _this.network.getEdgeById(record.data.id);
+                                    var edge = _this.network.getEdgeById(record.get('id'));
+                                    if (typeof edge !== 'undefined') {
                                         _this.network.removeEdge(edge);
+                                        _this.network.removeVertex(_this.network.getVertexById(record.get('source').id));
+                                        _this.network.removeVertex(_this.network.getVertexById(record.get('target').id));
                                     } else {
-                                        var vertex = _this.network.getVertexById(record.data.source.id);
+                                        var vertex = _this.network.getVertexById(record.get('source').id);
                                         _this.network.removeVertex(vertex);
                                     }
                                 }
-                                var vertices = _this.network.graph.vertices;
-                                for (var i = 0; i < vertices.length; i++) {
-                                    var vertex = vertices[i];
-                                    if (typeof vertex !== 'undefined') {
-                                        if (vertex.edges.length == 0) {
-                                            _this.network.removeVertex(vertex);
-                                        }
-                                    }
-                                }
+//                                var vertices = _this.network.graph.vertices;
+//                                for (var i = 0; i < vertices.length; i++) {
+//                                    var vertex = vertices[i];
+//                                    if (typeof vertex !== 'undefined') {
+//                                        if (vertex.edges.length == 0) {
+//                                            _this.network.removeVertex(vertex);
+//                                        }
+//                                    }
+//                                }
                                 _this.network.batchEnd();
+                                _this.network.vertexAttributeManager.trigger('change:data', {sender: this});
+                                _this.network.edgeAttributeManager.trigger('change:data', {sender: this});
                             }
                         },
                         '->',

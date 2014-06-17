@@ -128,6 +128,7 @@ CircosVertexRenderer.prototype = {
         console.log("update")
     },
     updateComplex: function (slicesMap, defaults) {
+        this.shape = 'circle';
         this.color = defaults['pieSlices'].color;
         this.size = defaults['pieSlices'].size;
         this.strokeColor = defaults['donutSlices'].color;

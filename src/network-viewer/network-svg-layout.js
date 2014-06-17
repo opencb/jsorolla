@@ -55,6 +55,7 @@ function NetworkSvgLayout(args) {
 
     /* join vertex click flag */
     this.joinSourceVertex = null;
+    this.selectArea = false;
 
     this.on(this.handlers);
 
@@ -280,6 +281,12 @@ NetworkSvgLayout.prototype = {
         this._applyTransformAttribute();
 
     },
+    getCenter: function () {
+        return {
+            x: this.centerX,
+            y: this.centerY
+        }
+    },
     setCenter: function (c) {
         if (typeof c !== 'undefined') {
             this.centerX = c.x | 0;
@@ -364,9 +371,9 @@ NetworkSvgLayout.prototype = {
                         });
                         break;
                     case 'edge':
-
                         break;
                     default:
+                        this.selectArea = true;
                         /* background clicked */
                         var lastX = 0, lastY = 0;
                         $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
@@ -458,24 +465,28 @@ NetworkSvgLayout.prototype = {
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
             case "select":
-                switch (targetElNetworkType) {
-                    case 'vertex':
-                    case 'vertex-label':
-                        var vertexId = this.getVertexId(targetEl);
-                        this.trigger('vertex:leftClick', {vertexId: vertexId});
-                        break;
-                    case 'edge':
-                    case 'edge-label':
-                        var edgeId = this.getEdgeId(targetEl);
-                        this.trigger('edge:leftClick', {edgeId: edgeId, sender: this});
-                        break;
-                    default:
-                        var x = parseFloat(_this.selectRect.getAttribute('x'));
-                        var y = parseFloat(_this.selectRect.getAttribute('y'));
-                        var width = parseFloat(_this.selectRect.getAttribute('width'));
-                        var height = parseFloat(_this.selectRect.getAttribute('height'));
+                if (this.selectArea) {
+                    var x = parseFloat(_this.selectRect.getAttribute('x'));
+                    var y = parseFloat(_this.selectRect.getAttribute('y'));
+                    var width = parseFloat(_this.selectRect.getAttribute('width'));
+                    var height = parseFloat(_this.selectRect.getAttribute('height'));
 
-                        _this.trigger('select:area', {x: x, y: y, width: width, height: height, sender: _this});
+                    _this.trigger('select:area', {x: x, y: y, width: width, height: height, sender: _this});
+                    this.selectArea = false;
+                } else {
+                    switch (targetElNetworkType) {
+                        case 'vertex':
+                        case 'vertex-label':
+                            var vertexId = this.getVertexId(targetEl);
+                            this.trigger('vertex:leftClick', {vertexId: vertexId});
+                            break;
+                        case 'edge':
+                        case 'edge-label':
+                            var edgeId = this.getEdgeId(targetEl);
+                            this.trigger('edge:leftClick', {edgeId: edgeId, sender: this});
+                            break;
+                        default:
+                    }
                 }
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
@@ -565,12 +576,12 @@ NetworkSvgLayout.prototype = {
             case "select":
                 if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
                     var vertexId = this.getVertexId(targetEl);
-                    this.trigger('rightClick:vertex', { vertexId: vertexId, x: downX, y: downY, sender: this});
+                    this.trigger('rightClick:vertex', { vertexId: vertexId, x: downX, y: downY, originalEvent: event.originalEvent, sender: this});
                 }
                 break;
             case "selectbackground":
                 if (targetElNetworkType === 'background-image') {
-                    this.trigger('rightClick:backgroundImage', {targetEl: targetEl, x: downX, y: downY, sender: this});
+                    this.trigger('rightClick:backgroundImage', {targetEl: targetEl, x: downX, y: downY, originalEvent: event.originalEvent, sender: this});
                 }
                 break;
             default:
@@ -588,10 +599,12 @@ NetworkSvgLayout.prototype = {
             this.addBackgroundImages(this.session.getBackgroundImages())
         }
         this.setBackgroundColor(this.session.getBackgroundColor());
+        this.setCenter(this.session.getCenter());
     },
     saveSession: function () {
         this.session.setBackgroundImages(this.getBackGroundImages());
         this.session.setBackgroundColor(this.getBackgroundColor());
+        this.session.setCenter(this.getCenter());
     }
 };
 

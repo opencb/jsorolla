@@ -232,7 +232,13 @@ DefaultEdgeRenderer.prototype = {
         // Calculate source and target points of the perimeter - TODO ellipse, square, rectangle
         var sign = this.targetCoords.x > this.sourceCoords.x ? 1 : -1;
         var srHalfSize = this.sourceRenderer.getSize() / 2;
-        var trHalfSize = this.targetRenderer.getSize() / 2;
+
+        var offset = 0;
+        if (this.shape !== 'undirected') {
+            offset = this.size * 2;
+        }
+        var trHalfSize = offset + (this.targetRenderer.getSize() / 2);
+
         var cosAngle = Math.cos(angle);
         var sinAngle = Math.sin(angle);
         var absCosAngle = Math.abs(cosAngle);
@@ -316,9 +322,11 @@ DefaultEdgeRenderer.prototype = {
             "stroke-width": this.size,
             "cursor": "pointer",
             fill: 'none',
-            "marker-end": "url(" + this._getMarkerArrowId() + ")",
             'network-type': 'edge'
         }, 0);
+        if (this.shape !== 'undirected') {
+            linkSvg.setAttribute('marker-end', "url(" + this._getMarkerArrowId() + ")");
+        }
 
         var textOffset = this.sourceRenderer.getSize();
         var text = SVG.addChild(groupSvg, "text", {
@@ -354,13 +362,12 @@ DefaultEdgeRenderer.prototype = {
     },
     /**/
     _getMarkerArrowId: function () {
-        var offset = this.targetRenderer.getSize() / 2;
+        var offset = (this.size * -2) - 1;
         // if not exists this marker, add new one to defs
         var markerArrowId = "arrow-" + this.shape + "-" + offset.toString().replace(".", "_") + '-' + this.size.toString().replace(".", "_") + '-' + this.color.replace('#', '');
         var markerArrowIdSel = '#' + markerArrowId;
         if ($(markerArrowIdSel).length == 0) {
-//            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId);
-            this._addArrowShape(this.shape, 0, this.color, this.size, this.targetEl, markerArrowId);
+            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId);
         }
         return markerArrowIdSel;
     },
@@ -375,7 +382,7 @@ DefaultEdgeRenderer.prototype = {
 
         var headWidth = 4 * mult;
         var headHeight = 5 * mult;
-        var headRadius = 4 * mult;
+        var headRadius = 3 * mult;
 
         offset = scale * offset;
 
@@ -386,7 +393,6 @@ DefaultEdgeRenderer.prototype = {
         if (defs.length == 0) {
             defsEl = SVG.addChild(targetSvg, "defs", {}, 0);
         }
-
         if (typeof color === 'undefined') {
             color = '#000000';
         }
@@ -426,7 +432,7 @@ DefaultEdgeRenderer.prototype = {
                 var arrow = SVG.addChild(marker, "path", {
 //                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "d": ['M', headHeight , 0, 'V', headWidth, 'L', headHeight / 2, headWidth, 'L', headHeight / 2, 0, 'Z'].join(' ')
+                    "d": ['M', headHeight , 0, 'V', headHeight, 'L', headHeight / 2, headHeight, 'L', headHeight / 2, 0, 'Z'].join(' ')
 //                    "x":0,
 //                    "y": 0,
 //                    "width": headWidth,

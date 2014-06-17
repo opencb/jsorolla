@@ -21,6 +21,8 @@
 
 function NetworkSession() {
 
+    this.version = 1;
+
     this.general = {
         vertexDefaults: {
             shape: 'circle',
@@ -118,6 +120,12 @@ NetworkSession.prototype = {
     setVisualSet: function (key, value) {
         this.general.visualSets[key] = value;
     },
+    setCenter: function (center) {
+        this.general.center = center;
+    },
+    getCenter: function () {
+        return this.general.center;
+    },
     getZoom: function () {
         return this.general.zoom;
     },
@@ -125,7 +133,12 @@ NetworkSession.prototype = {
         this.general.zoom = zoom;
     },
     loadJSON: function (o) {
-        _.extend(this, o)
+        if (o.version === this.version) {
+            _.extend(this, o)
+        } else {
+            console.log('Could not load session, does not match with current version');
+            localStorage.removeItem('CELLMAPS_SESSION');
+        }
 //        this.config = o.config;
 //        this.graph = o.graph;
 //        this.attributes = o.attributes;
@@ -136,7 +149,8 @@ NetworkSession.prototype = {
             general: this.general,
             config: this.config,
             graph: this.graph,
-            attributes: this.attributes
+            attributes: this.attributes,
+            version: this.version
         };
     }
 };

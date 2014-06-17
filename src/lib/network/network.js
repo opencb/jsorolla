@@ -158,6 +158,7 @@ Network.prototype = {
             });
 
             if (this.batchFlag == false) {
+                this.vertexAttributeManager.trigger('change:data', {sender: this});
                 this.trigger('add:vertex');
             }
         }
@@ -194,6 +195,7 @@ Network.prototype = {
             });
 
             if (this.batchFlag == false) {
+                this.edgeAttributeManager.trigger('change:data', {sender: this});
                 this.trigger('add:edge');
             }
         }
@@ -247,15 +249,14 @@ Network.prototype = {
         }
     },
     removeVertices: function (vertices) {
-        this.vertexAttributeManager.store.suspendEvents();
+        this.batchStart();
         for (var i = 0, li = vertices.length; i < li; i++) {
             var vertex = vertices[i];
             if (typeof vertex !== 'undefined') {
-                this.removeVertex(vertex, true);
+                this.removeVertex(vertex);
             }
         }
-        this.vertexAttributeManager.store.resumeEvents();
-        this.vertexAttributeManager.store.fireEvent('refresh');
+        this.batchEnd();
         this.trigger('remove:vertices');
     },
     renderVertex: function (vertex, target) {
@@ -1053,6 +1054,8 @@ Network.prototype = {
         this.edgeAttributeManager.store.resumeEvents();
         this.vertexAttributeManager.store.fireEvent('refresh');
         this.edgeAttributeManager.store.fireEvent('refresh');
+        this.vertexAttributeManager.trigger('change:data', {sender: this});
+        this.edgeAttributeManager.trigger('change:data', {sender: this});
         this.batchFlag = false;
         this.trigger('batch:end');
     }

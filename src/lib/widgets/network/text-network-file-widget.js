@@ -109,17 +109,15 @@ TextNetworkFileWidget.prototype.addCustomComponents = function () {
         fieldLabel: 'Choose relation column',
         emptyText: 'Choose column',
         store: this.columnsNumberStore,
-        allowBlank: false,
-        editable: false,
         displayField: 'name',
+        allowBlank: false,
         valueField: 'num',
         queryMode: 'local',
-        forceSelection: true,
+        value: 'none',
         listeners: {
             change: function (field, e) {
                 var value = field.getValue();
-                console.log(value);
-                if (value != null) {
+                if (value !== null) {
                     _this.relationColumnIndex = value;
                     _this.processColumnNumbers();
                 }
@@ -192,7 +190,7 @@ TextNetworkFileWidget.prototype.addCustomComponents = function () {
     this.parsePanel = Ext.create('Ext.panel.Panel', {
         dock: 'top',
         hidden: true,
-        border:false,
+        border: false,
 //        title: 'Parse options',
         layout: {
             type: 'vbox',
@@ -257,9 +255,18 @@ TextNetworkFileWidget.prototype._processColumns = function (adapter) {
 TextNetworkFileWidget.prototype.processColumnNumbers = function () {
     var _this = this;
 
-    if (typeof this.sourceColumnIndex !== 'undefined' && typeof this.relationColumnIndex !== 'undefined' && typeof this.targetColumnIndex !== 'undefined') {
+    if (typeof this.sourceColumnIndex !== 'undefined' && typeof this.targetColumnIndex !== 'undefined') {
         this.panel.setLoading(true);
-        var graph = this.dataAdapter.parseColumns(this.sourceColumnIndex - 1, this.relationColumnIndex - 1, this.targetColumnIndex - 1);
+        var relationDefaultName = this.relationCombo.getValue();
+        if (isNaN(this.relationColumnIndex) || this.relationColumnIndex == '') {
+            this.relationColumnIndex = -1;
+        } else {
+            this.relationColumnIndex -= 1;
+        }
+        if (relationDefaultName === '') {
+            relationDefaultName = 'none';
+        }
+        var graph = this.dataAdapter.parseColumns(this.sourceColumnIndex - 1, this.targetColumnIndex - 1, this.relationColumnIndex, relationDefaultName);
         this.processData(graph);
     }
 
