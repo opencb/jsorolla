@@ -32,12 +32,12 @@ GenotypeGridWidget.prototype = {
                 {name: "sample"    , type: "string" },
                 {name: "genotype"  , type: "string"},
                 {name: "sex"       , type: "string"},
-                {name: "phenotype" , type: "string"},
+                {name: "phenotype" , type: "string"}
             ],
             data: [],
             autoLoad: false,
             proxy: {type: 'memory'}
-        }
+        };
 
         _.extend(storeArgs, _this.storeConfig);
 
@@ -75,13 +75,9 @@ GenotypeGridWidget.prototype = {
                     text: "Phenotype",
                     dataIndex: "phenotype",
                     flex: 1
-                },
-            ],
-            viewConfig: {
-                emptyText: 'No records to display'
-            }
-        }
-
+                }
+            ]
+        };
         _.extend(gridArgs, _this.gridConfig);
 
         _this.grid = Ext.create('Ext.grid.Panel', gridArgs);
@@ -101,7 +97,7 @@ GenotypeGridWidget.prototype = {
         this.grid.setLoading(true);
         this.store.loadData(data);
 
-        this.trigger("load:finish", {sender: this})
+        this.trigger("load:finish", {sender: this});
         this.grid.setLoading(false);
     }
-}
+};
