@@ -110,33 +110,6 @@ OpencgaBrowserWidget.prototype = {
     _createPanel: function (targetId) {
         var _this = this;
 
-
-        this.folderStore = Ext.create('Ext.data.TreeStore', {
-            id: this.id + 'folderStore',
-            fields: ['text', 'oid'],
-            root: {
-                expanded: true,
-                text: 'Drive',
-                children: []
-            },
-            listeners: {
-                beforeinsert: function (este, node) {
-                    if (node.isLeaf()) {
-//                        console.log(node.data.oid + " is a file");
-                        return false; //cancel append because is leaf
-                    }
-                }
-            }
-        });
-        this.allStore = Ext.create('Ext.data.TreeStore', {
-            id: this.id + 'allStore',
-            fields: ['text', 'oid'],
-            root: {
-                expanded: true,
-                text: 'Drive',
-                children: []
-            }
-        });
         this.filesStore = Ext.create('Ext.data.Store', {
             fields: ['oid', 'fileBioType', 'fileType', 'fileFormat', 'fileName', 'multiple', 'diskUsage', 'creationTime', 'responsible', 'organization', 'date', 'description', 'status', 'statusMessage', 'members'],
             data: []
@@ -200,143 +173,6 @@ OpencgaBrowserWidget.prototype = {
             }
         });
 
-        this.folderTree = Ext.create('Ext.tree.Panel', {
-            //xtype:"treepanel",
-            id: this.id + "activeTracksTree",
-            title: "Upload & Manage",
-            bodyPadding: "5 0 0 0",
-            border: false,
-            autoScroll: true,
-            flex: 4,
-            useArrows: true,
-            rootVisible: false,
-            hideHeaders: true,
-//			selType: 'cellmodel',
-            //plugins: [Ext.create('Ext.grid.plugin.CellEditing', {clicksToEdit: 2,listeners:{
-            //edit:function(editor, e, eOpts){
-            //var record = e.record; //en la vista del cliente
-            /*todo, ahora q llame la servidor. y lo actualize*/
-            //}
-            //}})],
-            columns: [
-                {
-                    xtype: 'treecolumn',
-                    dataIndex: 'text',
-                    flex: 1,
-                    editor: {xtype: 'textfield', allowBlank: false}
-                }
-//                ,
-//                {
-//                    xtype: 'actioncolumn',
-//                    menuDisabled:[pan], true,
-//                    align: 'center',
-//                    width: 30,
-//                    renderer: function (value, metaData, record) {
-//                        if (record.data.isBucket) {
-//                            this.icon = Utils.images.refresh;
-//                            this.tooltip = 'Refresh bucket to find new files';
-//                        } else {
-//                            this.tooltip = null;
-//                            this.icon = null;
-//                        }
-//                    },
-//                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-//                        if (record.data.isBucket) {
-//                            var opencgaManager = new OpencgaManager();
-//                            opencgaManager.onRefreshBucket.addEventListener(function (sender, res) {
-//                                Utils.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
-//                                if (res.indexOf("ERROR") != -1) {
-//                                    console.log(res);
-//                                } else {
-//                                    _this.trigger('need:refresh',{sender:_this});
-//                                }
-//                            });
-//                            opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.data.text, $.cookie("bioinfo_sid"));
-//                        }
-//
-//                    }
-//                }
-            ],
-            viewConfig: {
-                markDirty: false,
-                plugins: {
-                    ptype: 'treeviewdragdrop'
-                },
-                listeners: {
-                    drop: function (node, data, overModel, dropPosition, eOpts) {
-                        var record = data.records[0];
-                        //check if is leaf and if the record has a new index
-                        if (record.isLeaf() && record.data.index != record.removedFrom && record.data.checked) {
-                            var id = record.data.trackId;
-                            _this.setTrackIndex(id, record.data.index);
-                        }
-                    },
-                    itemcontextmenu: function (este, record, item, index, e) {
-                        e.stopEvent();
-                        var items = [];
-                        console.log(record)
-                        if (record.data.isBucket) {
-                            items.push(refreshBucketAction);
-                            items.push(renameBucketAction);
-                            var contextMenu = Ext.create('Ext.menu.Menu', {
-                                items: items
-                            });
-                            contextMenu.showAt(e.getXY());
-                        }
-                        return false;
-                    }
-                }
-            },
-            listeners: {
-                selectionchange: function (este, selected, eOpts) {
-                    var record = selected[0];
-                    if (typeof record != 'undefined') {//avoid deselection
-                        var field, deep;
-                        if (record.data.isBucket != null) {//is a bucket
-                            field = 'text';
-                            deep = false;
-                        } else {
-                            field = 'oid';
-                            deep = true;
-                        }
-                        var node = _this.allStore.getRootNode().findChild(field, record.data[field], deep);
-                        var childs = [];
-                        _this.selectedFolderNode = {value: node.data[field], field: field};
-
-                        for(var index in node.data.children){
-                            childs.push(node.data.children[index]);
-                        }
-
-//                        node.eachChild(function (n) {
-//                            childs.push(n.data);
-//                        });
-                        _this.filesGrid.setTitle(node.getPath("text", " / "));
-                        _this.filesStore.loadData(childs);
-                        if (_this.mode == "folderSelection") {
-                            _this.selectedFileNode = node.data;
-                            _this.selectButton.enable();
-                        }
-                    }
-                },
-                viewready: function (este, eOpts) {//Fires when the grid view is available (use this for selecting a default row).
-                    setTimeout(function () { // forced to do this because some ExtJS 4.2.0 event problem
-                        var node = este.getRootNode().getChildAt(0);
-                        if (typeof node != 'undefined') {
-                            este.getSelectionModel().select(node);
-                        }
-                    }, 0);
-                },
-                checkchange: function (node, checked) {
-                },
-                itemmouseenter: function (este, record) {
-                },
-                itemmouseleave: function (este, record) {
-                }
-            },
-            store: this.folderStore
-        });
-
-
         /*MANAGE BUCKETS*/
         var newProjectButton = Ext.create('Ext.button.Button', {
             text: 'OK',
@@ -366,6 +202,7 @@ OpencgaBrowserWidget.prototype = {
             title: "Create bucket",
             bodyPadding: 5,
             border: false,
+            animCollapse: false,
             items: [newProjectNameField, newProjectDescriptionField, newProjectButton]
         });
         /*END MANAGE PROJECTS*/
@@ -474,7 +311,8 @@ OpencgaBrowserWidget.prototype = {
         });
 
         this.filesGrid = Ext.create('Ext.grid.Panel', {
-            title: this.allStore.getRootNode().getPath("text", " / "),
+//            title: this.allStore.getRootNode().getPath("text", " / "),
+            title: '',
             store: this.filesStore,
             flex: 4,
             border: false,
@@ -483,13 +321,15 @@ OpencgaBrowserWidget.prototype = {
                 listeners: {
                     itemcontextmenu: function (este, record, item, index, e) {
                         e.stopEvent();
-                        var items = [showName];
+//                        var items = [showName];
+                        var items = [];
                         console.log(record)
                         if (record.data.fileFormat == 'bam' || record.data.fileFormat == 'vcf') {
                             items.push(indexAction);
                         }
                         items.push(deleteAction);
                         var contextMenu = Ext.create('Ext.menu.Menu', {
+                            plain: true,
                             items: items
                         });
                         contextMenu.showAt(e.getXY());
@@ -548,7 +388,11 @@ OpencgaBrowserWidget.prototype = {
             minHeight: 250,
             flex: 1,
             border: false,
-            layout: 'accordion',
+//            layout: 'accordion',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
             items: [this.folderTree, manageProjects /*, panFilter*/]
         });
 
@@ -739,10 +583,13 @@ OpencgaBrowserWidget.prototype = {
             return -1;
         };
 
+        var folderNodes = [];
+        var filesNodes = [];
+
         if (this.accountData != null && this.accountData.accountId != null) {
 //            console.log('generating tree..')
-            this.folderStore.getRootNode().removeAll();
-            this.allStore.getRootNode().removeAll();
+//            this.folderStore.getRootNode().removeAll();
+//            this.allStore.getRootNode().removeAll();
             this.filesStore.removeAll();
 //            this.folderTree.getSelectionModel().deselectAll();
             for (var i = 0; i < this.accountData.buckets.length; i++) {
@@ -811,24 +658,29 @@ OpencgaBrowserWidget.prototype = {
                     }
                 }
 
-                this.allStore.getRootNode().appendChild({
+                filesNodes.push({
                     text: this.accountData.buckets[i].name,
                     bucketId: this.accountData.buckets[i].name,
-                    oid: "", icon: Utils.images.bucket,
+                    oid: "",
+//                    icon: Utils.images.bucket,
                     expanded: true,
                     isBucket: true,
                     children: files
-                });
-                this.folderStore.getRootNode().appendChild({
+                })
+//                this.allStore.getRootNode().appendChild();
+                folderNodes.push({
                     text: this.accountData.buckets[i].name,
                     bucketId: this.accountData.buckets[i].name,
-                    oid: "", icon: Utils.images.bucket,
+                    oid: "",
+//                    icon: Utils.images.bucket,
                     expanded: true,
                     isBucket: true,
                     children: folders
-                });
+                })
+//                this.folderStore.getRootNode().appendChild();
             }
         }
+        this._createFolderTree(folderNodes, filesNodes);
 
 //        //collapse and expand to update the view after append, possible ExtJS 4.2.0 bug
 //        this.folderStore.getRootNode().collapse();
@@ -1053,5 +905,196 @@ OpencgaBrowserWidget.prototype.createFolder = function () {
                 }
             }, null, null, "New Folder");
         }
+    }
+};
+
+
+OpencgaBrowserWidget.prototype._createFolderTree = function (data, allData) {
+    var _this = this;
+
+
+    if (this.panAccordion) {
+
+        var tree = this.panAccordion.child('panel[title~=Upload]');
+        if (tree) {
+            this.panAccordion.remove(tree, false).destroy();
+        }
+
+
+        this.allStore = Ext.create('Ext.data.TreeStore', {
+            id: this.id + 'allStore',
+            fields: ['text', 'oid'],
+            root: {
+                expanded: true,
+                text: 'Drive',
+                children: allData
+            }
+        });
+
+        var folderStore = Ext.create('Ext.data.TreeStore', {
+            fields: ['text', 'oid'],
+            root: {
+                expanded: true,
+                text: 'Drive',
+                children: data
+            },
+            listeners: {
+                beforeinsert: function (este, node) {
+                    if (node.isLeaf()) {
+//                        console.log(node.data.oid + " is a file");
+                        return false; //cancel append because is leaf
+                    }
+                }
+            }
+        });
+        this.folderStore = folderStore;
+
+
+        var folderTree = Ext.create('Ext.tree.Panel', {
+            //xtype:"treepanel",
+            title: "Upload & Manage",
+            bodyPadding: "5 0 0 0",
+            border: false,
+            autoScroll: true,
+            flex: 4,
+            useArrows: true,
+            rootVisible: false,
+            hideHeaders: true,
+            expanded: true,
+            animCollapse: false,
+//			selType: 'cellmodel',
+            //plugins: [Ext.create('Ext.grid.plugin.CellEditing', {clicksToEdit: 2,listeners:{
+            //edit:function(editor, e, eOpts){
+            //var record = e.record; //en la vista del cliente
+            /*todo, ahora q llame la servidor. y lo actualize*/
+            //}
+            //}})],
+            columns: [
+                {
+                    xtype: 'treecolumn',
+                    dataIndex: 'text',
+                    flex: 1,
+                    editor: {xtype: 'textfield', allowBlank: false}
+                }
+//                ,
+//                {
+//                    xtype: 'actioncolumn',
+//                    menuDisabled:[pan], true,
+//                    align: 'center',
+//                    width: 30,
+//                    renderer: function (value, metaData, record) {
+//                        if (record.data.isBucket) {
+//                            this.icon = Utils.images.refresh;
+//                            this.tooltip = 'Refresh bucket to find new files';
+//                        } else {
+//                            this.tooltip = null;
+//                            this.icon = null;
+//                        }
+//                    },
+//                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+//                        if (record.data.isBucket) {
+//                            var opencgaManager = new OpencgaManager();
+//                            opencgaManager.onRefreshBucket.addEventListener(function (sender, res) {
+//                                Utils.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
+//                                if (res.indexOf("ERROR") != -1) {
+//                                    console.log(res);
+//                                } else {
+//                                    _this.trigger('need:refresh',{sender:_this});
+//                                }
+//                            });
+//                            opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.data.text, $.cookie("bioinfo_sid"));
+//                        }
+//
+//                    }
+//                }
+            ],
+            viewConfig: {
+                markDirty: false,
+                plugins: {
+                    ptype: 'treeviewdragdrop'
+                },
+                listeners: {
+                    drop: function (node, data, overModel, dropPosition, eOpts) {
+                        var record = data.records[0];
+                        //check if is leaf and if the record has a new index
+                        if (record.isLeaf() && record.data.index != record.removedFrom && record.data.checked) {
+                            var id = record.data.trackId;
+                            _this.setTrackIndex(id, record.data.index);
+                        }
+                    },
+                    itemcontextmenu: function (este, record, item, index, e) {
+                        e.stopEvent();
+                        var items = [];
+                        console.log(record)
+                        if (record.data.isBucket) {
+                            items.push(refreshBucketAction);
+                            items.push(renameBucketAction);
+                            var contextMenu = Ext.create('Ext.menu.Menu', {
+                                plain: true,
+                                items: items
+                            });
+                            contextMenu.showAt(e.getXY());
+                        }
+                        return false;
+                    }
+                }
+            },
+            listeners: {
+                selectionchange: function (este, selected, eOpts) {
+                    var record = selected[0];
+                    if (typeof record != 'undefined') {//avoid deselection
+                        var field, deep;
+                        if (record.data.isBucket != null) {//is a bucket
+                            field = 'text';
+                            deep = false;
+                        } else {
+                            field = 'oid';
+                            deep = true;
+                        }
+                        var node = _this.allStore.getRootNode().findChild(field, record.data[field], deep);
+                        var childs = [];
+                        _this.selectedFolderNode = {value: node.data[field], field: field};
+
+                        for (var index in node.data.children) {
+                            childs.push(node.data.children[index]);
+                        }
+
+//                        node.eachChild(function (n) {
+//                            childs.push(n.data);
+//                        });
+                        _this.filesGrid.setTitle(node.getPath("text", " / "));
+                        _this.filesStore.loadData(childs);
+                        if (_this.mode == "folderSelection") {
+                            _this.selectedFileNode = node.data;
+                            _this.selectButton.enable();
+                        }
+                    }
+                },
+                viewready: function (este, eOpts) {//Fires when the grid view is available (use this for selecting a default row).
+                    setTimeout(function () { // forced to do this because some ExtJS 4.2.0 event problem
+                        var node = este.getRootNode().getChildAt(0);
+                        if (typeof node != 'undefined') {
+                            este.getSelectionModel().select(node);
+                        }
+                    }, 0);
+                },
+                checkchange: function (node, checked) {
+                },
+                itemmouseenter: function (este, record) {
+                },
+                itemmouseleave: function (este, record) {
+                }
+            },
+            store: folderStore
+        });
+
+        this.folderTree = folderTree;
+    }
+
+    if (this.panAccordion) {
+        this.panAccordion.getLayout().animate = false;
+        this.panAccordion.insert(0, folderTree);
+        folderTree.expand();
+        this.panAccordion.getLayout().animate = true;
     }
 };

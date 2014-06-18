@@ -25,6 +25,7 @@ module.exports = function (grunt) {
                     '!src/lib/worker-fileupload.js',
 
                     //widgets
+                    '!src/lib/widgets/widget.js',
                     'src/lib/widgets/feature/file/file-widget.js',
                     'src/lib/widgets/feature/file/*.js',
                     'src/lib/widgets/feature/info/info-widget.js',

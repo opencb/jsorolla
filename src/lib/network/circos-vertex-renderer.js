@@ -128,6 +128,7 @@ CircosVertexRenderer.prototype = {
         console.log("update")
     },
     updateComplex: function (slicesMap, defaults) {
+        this.shape = 'circle';
         this.color = defaults['pieSlices'].color;
         this.size = defaults['pieSlices'].size;
         this.strokeColor = defaults['donutSlices'].color;
@@ -166,10 +167,12 @@ CircosVertexRenderer.prototype = {
     },
     setLabelContent: function (text) {
         this.labelText = text;
-        this._updateLabelElPosition();
-        this.labelEl.setAttribute('x', this.labelX);
-        this.labelEl.setAttribute('y', this.labelY);
-        this.labelEl.textContent = this.labelText;
+        if (this.labelEl) {
+            this._updateLabelElPosition();
+            this.labelEl.setAttribute('x', this.labelX);
+            this.labelEl.setAttribute('y', this.labelY);
+            this.labelEl.textContent = this.labelText;
+        }
     },
     getSize: function () {
         this._updateDrawParameters();
@@ -252,7 +255,7 @@ CircosVertexRenderer.prototype = {
         this.selectEl = SVG.create("ellipse", {
             cx: this.mid,
             cy: this.mid,
-            rx: this.figureSize * 0.9,
+            rx: this.figureSize,
             ry: this.figureSize * 0.65,
             opacity: '0.5',
             fill: '#999999',

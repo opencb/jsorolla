@@ -24,6 +24,7 @@ function NetworkSvgLayout(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('NetworkSvgLayout');
 
+    this.session;
     this.bgColor = "white";
     this.overviewScale = 1;
     this.canvasOffsetX = 0;
@@ -54,6 +55,7 @@ function NetworkSvgLayout(args) {
 
     /* join vertex click flag */
     this.joinSourceVertex = null;
+    this.selectArea = false;
 
     this.on(this.handlers);
 
@@ -200,6 +202,8 @@ NetworkSvgLayout.prototype = {
             return;
         }
         this.targetDiv.appendChild(this.div);
+
+        this.loadSession();
     },
     setSize: function (width, height) {
         this.width = width;
@@ -233,6 +237,9 @@ NetworkSvgLayout.prototype = {
     },
     setBackgroundColor: function (color) {
         this.backRect.setAttribute('fill', color);
+    },
+    getBackgroundColor: function () {
+        return this.backRect.getAttribute('fill');
     },
     addBackgroundImage: function (image) {
         this.backgroundImage = SVG.addChildImage(this.scaleBackGroup, {
@@ -273,6 +280,12 @@ NetworkSvgLayout.prototype = {
         this.transformY = this.centerY + (-centerY * (this.scale - 1));
         this._applyTransformAttribute();
 
+    },
+    getCenter: function () {
+        return {
+            x: this.centerX,
+            y: this.centerY
+        }
     },
     setCenter: function (c) {
         if (typeof c !== 'undefined') {
@@ -358,9 +371,9 @@ NetworkSvgLayout.prototype = {
                         });
                         break;
                     case 'edge':
-
                         break;
                     default:
+                        this.selectArea = true;
                         /* background clicked */
                         var lastX = 0, lastY = 0;
                         $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
@@ -452,24 +465,28 @@ NetworkSvgLayout.prototype = {
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
             case "select":
-                switch (targetElNetworkType) {
-                    case 'vertex':
-                    case 'vertex-label':
-                        var vertexId = this.getVertexId(targetEl);
-                        this.trigger('vertex:leftClick', {vertexId: vertexId});
-                        break;
-                    case 'edge':
-                    case 'edge-label':
-                        var edgeId = this.getEdgeId(targetEl);
-                        this.trigger('edge:leftClick', {edgeId: edgeId, sender: this});
-                        break;
-                    default:
-                        var x = parseFloat(_this.selectRect.getAttribute('x'));
-                        var y = parseFloat(_this.selectRect.getAttribute('y'));
-                        var width = parseFloat(_this.selectRect.getAttribute('width'));
-                        var height = parseFloat(_this.selectRect.getAttribute('height'));
+                if (this.selectArea) {
+                    var x = parseFloat(_this.selectRect.getAttribute('x'));
+                    var y = parseFloat(_this.selectRect.getAttribute('y'));
+                    var width = parseFloat(_this.selectRect.getAttribute('width'));
+                    var height = parseFloat(_this.selectRect.getAttribute('height'));
 
-                        _this.trigger('select:area', {x: x, y: y, width: width, height: height, sender: _this});
+                    _this.trigger('select:area', {x: x, y: y, width: width, height: height, sender: _this});
+                    this.selectArea = false;
+                } else {
+                    switch (targetElNetworkType) {
+                        case 'vertex':
+                        case 'vertex-label':
+                            var vertexId = this.getVertexId(targetEl);
+                            this.trigger('vertex:leftClick', {vertexId: vertexId});
+                            break;
+                        case 'edge':
+                        case 'edge-label':
+                            var edgeId = this.getEdgeId(targetEl);
+                            this.trigger('edge:leftClick', {edgeId: edgeId, sender: this});
+                            break;
+                        default:
+                    }
                 }
                 $(_this.svg).off('mousemove.networkViewer');
                 break;
@@ -559,12 +576,12 @@ NetworkSvgLayout.prototype = {
             case "select":
                 if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
                     var vertexId = this.getVertexId(targetEl);
-                    this.trigger('rightClick:vertex', { vertexId: vertexId, x: downX, y: downY, sender: this});
+                    this.trigger('rightClick:vertex', { vertexId: vertexId, x: downX, y: downY, originalEvent: event.originalEvent, sender: this});
                 }
                 break;
             case "selectbackground":
                 if (targetElNetworkType === 'background-image') {
-                    this.trigger('rightClick:backgroundImage', {targetEl: targetEl, x: downX, y: downY, sender: this});
+                    this.trigger('rightClick:backgroundImage', {targetEl: targetEl, x: downX, y: downY, originalEvent: event.originalEvent, sender: this});
                 }
                 break;
             default:
@@ -575,6 +592,19 @@ NetworkSvgLayout.prototype = {
     },
     getEdgeId: function (targetEl) {
         return $(targetEl).closest('[network-type="edge-g"]').attr('id');
+    },
+    loadSession: function () {
+        this.clean();
+        if (this.session.getBackgroundImages().length > 0) {
+            this.addBackgroundImages(this.session.getBackgroundImages())
+        }
+        this.setBackgroundColor(this.session.getBackgroundColor());
+        this.setCenter(this.session.getCenter());
+    },
+    saveSession: function () {
+        this.session.setBackgroundImages(this.getBackGroundImages());
+        this.session.setBackgroundColor(this.getBackgroundColor());
+        this.session.setCenter(this.getCenter());
     }
 };
 

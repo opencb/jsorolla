@@ -146,12 +146,15 @@ NetworkViewer.prototype = {
         }
 
 
+        this.zoom = this.session.getZoom();
         //
         //  Children initalization
         //
         this.network = new Network({
+            session: this.session,
             handlers: {
-                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean se??': function () {
+                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean': function (e) {
+                    console.log(e)
                     _this._updateStatusInfo();
                 },
                 'change:vertexAttributes': function (e) {
@@ -172,7 +175,7 @@ NetworkViewer.prototype = {
         /* edition Bar */
         this.editionBar = this._createEditionBar(this.editionbarDiv);
 
-        this.networkSvgLayout = this._createNetworkSvgLayout($(this.mainPanelDiv).attr('id'));
+        this.networkSvgLayout = this._createNetworkSvgLayout(this.mainPanelDiv);
 
         this._createStatusBar(this.statusbarDiv);
 
@@ -222,9 +225,10 @@ NetworkViewer.prototype = {
 //        }
 
 
-        if (typeof this.session !== 'undefined') {
-            this.loadJSON(this.session);
-        }
+//        if (typeof this.session !== 'undefined') {
+//            this.loadJSON(this.session);
+//        }
+
 
         this.rendered = true;
     },
@@ -258,6 +262,8 @@ NetworkViewer.prototype = {
         this.editionBar.draw();
         this.networkSvgLayout.draw();
 
+        this.network.loadSession();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     hideOverviewPanel: function () {
         $(this.overviewPanelDiv).css({display: 'none'});
@@ -377,7 +383,7 @@ NetworkViewer.prototype = {
             target: target,
             handlers: {
                 'vertexShape:change': function (event) {
-                    _this.setSelectedVerticesDisplayAttr('shape', event.value);
+                    _this.setSelectedVerticesDisplayAttr('shape', event.value, true);
                 },
                 'vertexSize:change': function (event) {
                     _this.setSelectedVerticesDisplayAttr('size', parseInt(event.value), true);
@@ -521,6 +527,7 @@ NetworkViewer.prototype = {
             target: target,
             width: width,
             height: height,
+            session: this.session,
             handlers: {
                 'select:vertex': function (e) {
                     var vertex = _this.network.getVertexById(e.vertexId);
@@ -580,12 +587,12 @@ NetworkViewer.prototype = {
 //                    _this.editionBar.hideVertexToolbar();
                 },
                 'rightClick:vertex': function (e) {
-                    console.log(e);
                     _this._fillVertexContextMenu(e);
+
                     $(_this.contextMenuDiv).css({
                         display: "block",
                         left: e.x,
-                        top: e.y + 90
+                        top: e.y
                     });
                 },
                 'rightClick:backgroundImage': function (e) {
@@ -782,7 +789,7 @@ NetworkViewer.prototype = {
         /* vertex config */
         var vertexConfig = new VertexConfig({
             coords: {x: x, y: y},
-            rendererConfig: this.network.vertexRendererDefaults
+            rendererConfig: this.session.getVertexDefaults()
         });
 
         //update variables
@@ -806,7 +813,7 @@ NetworkViewer.prototype = {
         });
 
         var edgeConfig = new EdgeConfig({
-            rendererConfig: this.network.edgeRendererDefaults
+            rendererConfig: this.session.getEdgeDefaults()
         });
 
         this.network.addEdge({
@@ -832,7 +839,7 @@ NetworkViewer.prototype = {
             '</div>';
 
         this.contextMenuDiv = $(html)[0];
-        $(this.div).append(this.contextMenuDiv);
+        $(this.centerPanelDiv).append(this.contextMenuDiv);
 
 
         $(_this.contextMenuDiv).bind('click.networkViewer', function (event) {
@@ -899,6 +906,7 @@ NetworkViewer.prototype = {
     _setZoom: function (zoom) {
         this.zoom = zoom;
         this.networkSvgLayout.setZoom(zoom);
+        this.session.setZoom(zoom);
         if (this.overviewPanel) {
             var width = $(this.overviewPanelDiv).width();
             var height = $(this.overviewPanelDiv).height();
@@ -961,6 +969,7 @@ NetworkViewer.prototype = {
     },
     setLayout: function (type, e) {
         var _this = this;
+        this.networkSvgLayout.setCenter({x: 0, y: 0});
         var graph = this.network.getGraph();
         var dot = graph.getAsDOT();
         switch (type) {
@@ -1098,30 +1107,41 @@ NetworkViewer.prototype = {
         this.networkSvgLayout.clean();
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
-    loadJSON: function (content) {
-        try {
-            this.networkSvgLayout.clean();
-            this.network.setVertexRendererDefaults(content.vertexDefaults);
-            this.network.setEdgeRendererDefaults(content.edgeDefaults);
-            this.network.loadJSON(content);
-            this.networkSvgLayout.setZoom(content["zoom"]);
-            this.toolBar.setZoom(content["zoom"]);
-            this.network.draw(this.networkSvgLayout.getElementsSVG());
-            this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
-            this.networkSvgLayout.setCenter(content["center"]);
-            this._refreshOverview();
-        } catch (e) {
-            this.clean();
-            console.log('Error loading JSON');
-        }
+    loadSession: function () {
+        this._setZoom(this.session.getZoom());
+        this.networkSvgLayout.loadSession();
+        this.network.loadSession();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
-    toJSON: function () {
-        var json = this.network.toJSON();
-        json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
-        json["center"] = {x: this.networkSvgLayout.centerX, y: this.networkSvgLayout.centerY};
-        json["zoom"] = this.zoom;
-        return json;
+    saveSession: function () {
+        this.session.setZoom(this.zoom);
+        this.networkSvgLayout.saveSession();
+        this.network.saveSession();
     },
+//    loadJSON: function (content) {
+//        try {
+//            this.networkSvgLayout.clean();
+//            this.network.setVertexRendererDefaults(content.vertexDefaults);
+//            this.network.setEdgeRendererDefaults(content.edgeDefaults);
+//            this.network.loadJSON(content);
+//            this.networkSvgLayout.setZoom(content["zoom"]);
+//            this.toolBar.setZoom(content["zoom"]);
+//            this.network.draw(this.networkSvgLayout.getElementsSVG());
+//            this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
+//            this.networkSvgLayout.setCenter(content["center"]);
+//            this._refreshOverview();
+//        } catch (e) {
+//            this.clean();
+//            console.log('Error loading JSON');
+//        }
+//    },
+//    toJSON: function () {
+//        var json = this.network.toJSON();
+//        json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
+//        json["center"] = {x: this.networkSvgLayout.centerX, y: this.networkSvgLayout.centerY};
+//        json["zoom"] = this.zoom;
+//        return json;
+//    },
     getAsSIF: function (separator) {
         return this.network.getAsSIF(separator);
     },

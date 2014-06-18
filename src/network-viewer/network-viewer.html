@@ -43,6 +43,7 @@
     <script type="text/javascript" src="../lib/network/attributes/attribute-manager-idb.js"></script>
     <script type="text/javascript" src="../lib/network/attributes/attribute-manager-store.js"></script>
     <script type="text/javascript" src="../lib/network/network.js"></script>
+    <script type="text/javascript" src="../lib/network/network-session.js"></script>
     <script type="text/javascript" src="../lib/network/network-config.js"></script>
     <script type="text/javascript" src="../lib/network/graph.js"></script>
     <script type="text/javascript" src="../lib/network/edge.js"></script>
@@ -63,14 +64,15 @@
     <script type="text/javascript" src="network-viewer.js"></script>
     <!-- /build -->
 
-
     <script type="text/javascript">
+        session = new NetworkSession();
         var networkViewer;
         var run = function () {
             networkViewer = new NetworkViewer({
                 target: 'application',
                 sidePanel: false,
                 overviewPanel: false,
+                session:session,
                 width: $('#application').width(),
                 height: $('#application').height()
             });

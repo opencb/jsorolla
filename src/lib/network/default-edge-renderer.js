@@ -198,95 +198,113 @@ DefaultEdgeRenderer.prototype = {
             }
 
 
-            var separation = 15;
-            var remainder = this.edge.overlapCount % 2;
-            var sum = ( remainder == 0) ? 0 : 1;
-            var sign = (remainder == 0) ? -1 : 1;
-            var controlPointOffset = (this.edge.overlapCount + sum) / 2 * separation * (sign);
-            var controlPointOffsetLabel = controlPointOffset / 1.33;
-
             var midX = (this.sourceCoords.x + this.targetCoords.x) / 2;
             var midY = (this.sourceCoords.y + this.targetCoords.y) / 2;
-            var controlX = midX - (Math.sin(angle) * controlPointOffset);
-            var controlY = midY + (Math.cos(angle) * controlPointOffset);
-
-
-            // Calculate source and target points on a circle circumference - TODO ellipse, square, rectangle
-            /** Circle **/
-//            x = cx + r * cos(a)
-//            y = cy + r * sin(a)
-            var sign2 = this.targetCoords.x > this.sourceCoords.x ? 1 : -1;
-            var srSize = this.sourceRenderer.getSize() / 2;
-            var trSize = this.targetRenderer.getSize() / 2;
-
-            var sx = this.sourceCoords.x + (sign2) * (Math.cos(angle) * srSize);
-            var sy = this.sourceCoords.y + (sign2) * (Math.sin(angle) * srSize);
-
-            var tx = this.targetCoords.x - (sign2) * (Math.cos(angle) * trSize);
-            var ty = this.targetCoords.y - (sign2) * (Math.sin(angle) * trSize);
-            /****/
-            /** Rectangle **/
-//            def intersect_perimeter(x, y, w, h):
-//            if abs(y*w) > abs(x*h):
-//              return (0.5*h*x/abs(y), 0.5*h*sign(y))
-//            else:
-//              return (0.5*w*sign(x), 0.5*w*y/abs(x))
-
-            /****/
-
-
-            labelX = midX - (Math.sin(angle) * controlPointOffsetLabel);
-            labelY = midY + (Math.cos(angle) * controlPointOffsetLabel);
+            var controlPath = '';
+            if (this.edge.overlapCount === 0) {
+                labelX = midX - (Math.sin(angle));
+                labelY = midY + (Math.cos(angle));
+            } else {
+                var separation = 15;
+                var remainder = this.edge.overlapCount % 2;
+                var sum = 1;
+                var sign = 1;
+                if (remainder === 0) {
+                    sum = 0;
+                    sign = -1
+                }
+                var controlPointOffset = (this.edge.overlapCount + sum) / 2 * separation * (sign);
+                var controlPointOffsetLabel = controlPointOffset / 1.33;
+                var controlX = midX - (Math.sin(angle) * controlPointOffset);
+                var controlY = midY + (Math.cos(angle) * controlPointOffset);
+                labelX = midX - (Math.sin(angle) * controlPointOffsetLabel);
+                labelY = midY + (Math.cos(angle) * controlPointOffsetLabel);
+                controlPath = ['C', controlX, controlY, controlX, controlY].join(' ');
+            }
+            var pp = this._getPerimeterPositions(angle);
 
 //            d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'C', controlX, controlY, controlX, controlY, this.targetCoords.x, this.targetCoords.y].join(' ');
-            d = ['M', sx, sy, 'C', controlX, controlY, controlX, controlY, tx, ty].join(' ');
+            d = ['M', pp.sx, pp.sy, controlPath, pp.tx, pp.ty].join(' ');
         }
         return {d: d, xl: labelX, yl: labelY};
     },
+    _getPerimeterPositions: function (angle) {
+        // Calculate source and target points of the perimeter - TODO ellipse, square, rectangle
+        var sign = this.targetCoords.x > this.sourceCoords.x ? 1 : -1;
+        var srHalfSize = this.sourceRenderer.getSize() / 2;
+
+        var offset = 0;
+        if (this.shape !== 'undirected') {
+            offset = this.size * 2;
+        }
+        var trHalfSize = offset + (this.targetRenderer.getSize() / 2);
+
+        var cosAngle = Math.cos(angle);
+        var sinAngle = Math.sin(angle);
+        var absCosAngle = Math.abs(cosAngle);
+        var absSinAngle = Math.abs(sinAngle);
+        var sx, sy, tx, ty, magnitudeCos, magnitudeSin, magnitude;
+
+        //circle
+        // x = cx + r * cos(a)
+        // y = cy + r * sin(a)
+
+        //Square
+        // center + (cos(angle), sin(angle))*magnitude
+
+        //Source
+        switch (this.sourceRenderer.shape) {
+            case 'square':
+                magnitudeCos = srHalfSize / absCosAngle;
+                magnitudeSin = srHalfSize / absSinAngle;
+                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
+                sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
+                break;
+            case 'rectangle':
+                magnitudeCos = srHalfSize * 1.4 / absCosAngle;
+                magnitudeSin = srHalfSize / absSinAngle;
+                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
+                sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
+                break;
+            case 'ellipse':
+                sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize * 1.4);
+                sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+                break;
+            case 'circle':
+            default:
+                sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize);
+                sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+        }
+        //Target
+        switch (this.targetRenderer.shape) {
+            case 'square':
+                magnitudeCos = trHalfSize / absCosAngle;
+                magnitudeSin = trHalfSize / absSinAngle;
+                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                tx = this.targetCoords.x - (sign * cosAngle * magnitude);
+                ty = this.targetCoords.y - (sign * sinAngle * magnitude);
+                break;
+            case 'rectangle':
+                magnitudeCos = trHalfSize * 1.4 / absCosAngle;
+                magnitudeSin = trHalfSize / absSinAngle;
+                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                tx = this.targetCoords.x - (sign * cosAngle * magnitude);
+                ty = this.targetCoords.y - (sign * sinAngle * magnitude);
+                break;
+            case 'ellipse':
+                tx = this.targetCoords.x - (sign * cosAngle * trHalfSize * 1.4);
+                ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+                break;
+            case 'circle':
+            default:
+                tx = this.targetCoords.x - (sign * cosAngle * trHalfSize);
+                ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+        }
+        return {sx: sx, sy: sy, tx: tx, ty: ty};
+    },
     /* Private */
-//    _renderOff: function () {
-//        var groupSvg = SVG.create('g', {
-//            "cursor": "pointer",
-//            "id": this.edge.id,
-//            opacity: this.opacity,
-//            'network-type': 'edge-g'
-//        });
-//
-//        var linkSvg = SVG.addChild(groupSvg, "line", {
-//            "x1": this.sourceCoords.x,
-//            "y1": this.sourceCoords.y,
-//            "x2": this.targetCoords.x,
-//            "y2": this.targetCoords.y,
-//            opacity: this.opacity,
-//            "stroke": this.color,
-//            "stroke-width": this.size,
-//            "cursor": "pointer",
-//            "marker-end": "url(" + this._getMarkerArrowId() + ")",
-//            'network-type': 'edge'
-//        }, 0);
-//
-//        var x = (this.sourceCoords.x + this.targetCoords.x) / 2;
-//        var y = (this.sourceCoords.y + this.targetCoords.y) / 2;
-//
-//        var textOffset = this.sourceRenderer.getSize();
-//        var text = SVG.addChild(groupSvg, "text", {
-//            "x": x,
-//            "y": y,
-//            "font-size": this.labelSize,
-//            "fill": this.labelColor,
-//            'network-type': 'edge-label'
-//        });
-//        text.textContent = this.edge.id;
-//
-//        this.el = groupSvg;
-//        this.edgeEl = linkSvg;
-//        this.labelEl = text;
-//        SVG._insert(this.targetEl, groupSvg, 0);
-//
-//        if (this.selected) {
-//            this._renderSelect();
-//        }
-//    },
     _render: function () {
         var groupSvg = SVG.create('g', {
             "cursor": "pointer",
@@ -304,9 +322,11 @@ DefaultEdgeRenderer.prototype = {
             "stroke-width": this.size,
             "cursor": "pointer",
             fill: 'none',
-            "marker-end": "url(" + this._getMarkerArrowId() + ")",
             'network-type': 'edge'
         }, 0);
+        if (this.shape !== 'undirected') {
+            linkSvg.setAttribute('marker-end', "url(" + this._getMarkerArrowId() + ")");
+        }
 
         var textOffset = this.sourceRenderer.getSize();
         var text = SVG.addChild(groupSvg, "text", {
@@ -326,14 +346,6 @@ DefaultEdgeRenderer.prototype = {
         if (this.selected) {
             this._renderSelect();
         }
-
-//        //Debugger only
-//        this.control = SVG.addChild(groupSvg, "circle", {
-//            "cx": control.x,
-//            "cy": control.y,
-//            r: 2,
-//            "fill": this.color
-//        });
     },
 
     _renderSelect: function () {
@@ -350,13 +362,12 @@ DefaultEdgeRenderer.prototype = {
     },
     /**/
     _getMarkerArrowId: function () {
-        var offset = this.targetRenderer.getSize() / 2;
+        var offset = (this.size * -2) - 1;
         // if not exists this marker, add new one to defs
         var markerArrowId = "arrow-" + this.shape + "-" + offset.toString().replace(".", "_") + '-' + this.size.toString().replace(".", "_") + '-' + this.color.replace('#', '');
         var markerArrowIdSel = '#' + markerArrowId;
         if ($(markerArrowIdSel).length == 0) {
-//            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId);
-            this._addArrowShape(this.shape, -2, this.color, this.size, this.targetEl, markerArrowId);
+            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId);
         }
         return markerArrowIdSel;
     },
@@ -371,7 +382,7 @@ DefaultEdgeRenderer.prototype = {
 
         var headWidth = 4 * mult;
         var headHeight = 5 * mult;
-        var headRadius = 4 * mult;
+        var headRadius = 3 * mult;
 
         offset = scale * offset;
 
@@ -382,7 +393,6 @@ DefaultEdgeRenderer.prototype = {
         if (defs.length == 0) {
             defsEl = SVG.addChild(targetSvg, "defs", {}, 0);
         }
-
         if (typeof color === 'undefined') {
             color = '#000000';
         }
@@ -422,7 +432,7 @@ DefaultEdgeRenderer.prototype = {
                 var arrow = SVG.addChild(marker, "path", {
 //                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "d": ['M', headHeight , 0, 'V', headWidth, 'L', headHeight / 2, headWidth, 'L', headHeight / 2, 0, 'Z'].join(' ')
+                    "d": ['M', headHeight , 0, 'V', headHeight, 'L', headHeight / 2, headHeight, 'L', headHeight / 2, 0, 'Z'].join(' ')
 //                    "x":0,
 //                    "y": 0,
 //                    "width": headWidth,
