@@ -51,7 +51,6 @@ VariantWidget.prototype = {
         /* main panel */
         this.panel = this._createPanel(this.target);
 
-
         if (this.tools.variantEffect) {
             this.variantEffectWidget = this._createVariantEffectGridWidget();
         }
@@ -91,6 +90,7 @@ VariantWidget.prototype = {
         });
     },
     _draw: function () {
+        var activeTab = null;
         this.optValues = Ext.create('Ext.data.Store', {
             fields: ['value', 'name'],
             data: [
@@ -108,24 +108,30 @@ VariantWidget.prototype = {
         this.target.add(this.panel);
         this.target.setActiveTab(this.panel);
 
-
         this.variantPanel = this._createVariantPanel();
         this.panel.add(this.variantPanel);
 
-        this.toolsPanel.add(this.summaryPanel);
-        this.toolsPanel.setActiveTab(this.summaryPanel);
         if (this.tools.variantEffect) {
             this.toolsPanel.add(this.variantEffectWidget.getPanel());
+            if(activeTab == null)
+                activeTab = this.variantEffectWidget.getPanel();
         }
-
 
         if (this.tools.genotype) {
             this.toolsPanel.add(this.genotypeWidget.getPanel());
+            if(activeTab == null)
+                activeTab = this.genotypeWidget.getPanel();
         }
 
         if (this.tools.genomeViewer) {
             this.toolsPanel.add(this.genomeViewerPanel);
+            if(activeTab == null)
+                activeTab = this.genomeViewerPanel;
         }
+
+        console.log("ActiveTAb");
+        console.log(activeTab);
+        this.toolsPanel.setActiveTab(activeTab);
 
         this._updateInfo();
     },
@@ -182,7 +188,7 @@ VariantWidget.prototype = {
         var _this = this;
         var gw = new GenotypeGridWidget({
             gridConfig: {
-                title:'Genotypes',
+                title: 'Genotypes',
                 flex: 1,
                 layout: {
                     align: 'stretch'
@@ -263,7 +269,6 @@ VariantWidget.prototype = {
         sampleTableElems.push({html: '0/0'});
         sampleTableElems.push({html: '0/1'});
         sampleTableElems.push({html: '1/1'});
-
 
         for (var i in this.variantInfo.samples) {
             var sName = this.variantInfo.samples[i];
@@ -443,55 +448,6 @@ VariantWidget.prototype = {
                 }
             ]
         });
-        //var chartSS = Ext.create('Ext.chart.Chart', {
-        //xtype: 'chart',
-        //width: 700,
-        //height: 500,
-        //animate: true,
-        //shadow: true,
-        //store: _this.ssStore,
-        //legend: {
-        //position: 'right'
-        //},
-        //axes: [
-        //{
-        //type: 'Numeric',
-        //position: 'bottom',
-        //fields: ['homozygotesNumber', 'mendelianErrors', 'missingGenotypes'],
-        //title: false,
-        //grid: true,
-        //label: {
-        //renderer: function (v) {
-        //return String(v).replace(/000000$/, 'M');
-        //}
-        //},
-        //roundToDecimal: false
-        //},
-        //{
-        //type: 'Category',
-        //position: 'left',
-        //fields: ['sampleName'],
-        //title: false
-        //}
-        //],
-        //series: [
-        //{
-        //type: 'bar',
-        //axis: 'bottom',
-        //gutter: 80,
-        //xField: 'sampleName',
-        //yField: ['homozygotesNumber', 'mendelianErrors', 'missingGenotypes'],
-        //tips: {
-        //trackMouse: true,
-        //width: 100,
-        //height: 28,
-        //renderer: function (storeItem, item) {
-        //this.setTitle(String(item.value[1]));
-        //}
-        //}
-        //}
-        //]
-        //});
 
         var itemTplSamples = new Ext.XTemplate(
             '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><thead>',
@@ -564,9 +520,7 @@ VariantWidget.prototype = {
             '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;color:steelblue;font-weight:bold;white-space: nowrap;">Avg. Quality</td>',
             '<td style="border-collapse: collapse;border:1px solid #ccc;padding: 5px;background-color: whiteSmoke;">{[this.avgq(values)]}</td>',
             '</tr>',
-
             {
-
                 pass: function (values) {
                     var res = values.passCount / values.variantsCount;
                     return res.toFixed(2);
@@ -581,7 +535,6 @@ VariantWidget.prototype = {
                 }
             }
         );
-
 
         var items = [
             {
@@ -620,17 +573,23 @@ VariantWidget.prototype = {
             }
         ];
 
-
         var panel = Ext.create('Ext.window.Window', {
             title: 'Summary',
-            width: '100%',
-            height: '100%',
+            height: 1000,
             border: 0,
             layout: 'hbox',
             bodyPadding: 60,
+            width: 1000,
             autoScroll: true,
-            cls: 'ocb-border-top-lightgrey',
-            items: items
+            modal: true,
+            minimizable: true,
+            closable: false,
+            items: items,
+            listeners: {
+                minimize: function (win, obj) {
+                    win.hide();
+                }
+            }
         });
 
         return panel;
@@ -700,10 +659,7 @@ VariantWidget.prototype = {
                             visibleRegionSize: 200,
                             histogramZoom: 20,
                             transcriptZoom: 50,
-
-
                             renderer: new SequenceRenderer(),
-
                             dataAdapter: new SequenceAdapter({
                                 category: "genomic",
                                 subCategory: "region",
@@ -720,10 +676,7 @@ VariantWidget.prototype = {
                             minHistogramRegionSize: 20000000,
                             maxLabelRegionSize: 10000000,
                             minTranscriptRegionSize: 200000,
-                            //featureTypes: FEATURE_TYPES,
-
                             renderer: new GeneRenderer(),
-
                             dataAdapter: new CellBaseAdapter({
                                 category: "genomic",
                                 subCategory: "region",
@@ -748,11 +701,7 @@ VariantWidget.prototype = {
                             minHistogramRegionSize: 12000,
                             maxLabelRegionSize: 3000,
                             height: 100,
-                            //featureTypes: FEATURE_TYPES,
-
-                            //renderer: new FeatureRenderer('snp'),
                             renderer: new FeatureRenderer(FEATURE_TYPES.snp),
-
 
                             dataAdapter: new CellBaseAdapter({
                                 category: "genomic",
@@ -771,13 +720,11 @@ VariantWidget.prototype = {
                             })
                         });
 
-
                         var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
                         renderer.on({
                             'feature:click': function (event) {
                             }
                         });
-
 
                         var gene = new FeatureTrack({
                             targetId: null,
@@ -785,9 +732,7 @@ VariantWidget.prototype = {
                             minHistogramRegionSize: 20000000,
                             maxLabelRegionSize: 10000000,
                             height: 100,
-
                             renderer: renderer,
-
                             dataAdapter: new CellBaseAdapter({
                                 category: "genomic",
                                 subCategory: "region",
@@ -802,8 +747,6 @@ VariantWidget.prototype = {
                             })
                         });
                         genomeViewer.addOverviewTrack(gene);
-
-
                         genomeViewer.addTrack(this.sequence);
                         genomeViewer.addTrack(this.gene);
                         genomeViewer.addTrack(this.snp);
@@ -1093,8 +1036,6 @@ VariantWidget.prototype = {
                         renderer: function (val, meta, record) {
                             if (record.data.controls["EVS"]) {
                                 return parseMafControl(record.data.controls["EVS"]);
-                                //var maf = record.data.controls["EVS"].maf;
-                                //return maf.toFixed(3) + " (" + record.data.controls["EVS"].allele + ")";
                             } else {
                                 return ".";
                             }
@@ -1102,7 +1043,6 @@ VariantWidget.prototype = {
                     }
                 ]
             },
-
             {
                 text: "Consq. Type",
                 dataIndex: "consequence_types",
@@ -1142,23 +1082,23 @@ VariantWidget.prototype = {
             }
         ];
         _this.attributes = [
-            {name: "chromosome", type: "string"},
-            {name: "position", type: "int"},
-            {name: "alt", type: "string"},
-            {name: "ref", type: "string"},
-            {name: 'stats_id_snp', type: 'string'},
-            {name: 'stats_maf', type: 'number'},
-            {name: 'stats_mgf', type: 'number'},
-            {name: 'stats_miss_gt', type: 'int'},
-            {name: 'stats_is_indel', type: 'boolean'},
-            {name: 'gene_name', type: 'string'},
-            {name: 'consequence_types', type: 'string'},
-            {name: "controls", type: 'auto'},
-            {name: "phenotype", type: "string"},
-            {name: "polyphen_score", type: 'number'},
-            {name: "polyphen_effect", type: 'int'},
-            {name: "sift_score", type: 'number'},
-            {name: "sift_effect", type: 'int'}
+            {name: "chromosome"        , type: "string"},
+            {name: "position"          , type: "int"},
+            {name: "alt"               , type: "string"},
+            {name: "ref"               , type: "string"},
+            {name: 'stats_id_snp'      , type: 'string'},
+            {name: 'stats_maf'         , type: 'number'},
+            {name: 'stats_mgf'         , type: 'number'},
+            {name: 'stats_miss_gt'     , type: 'int'},
+            {name: 'stats_is_indel'    , type: 'boolean'},
+            {name: 'gene_name'         , type: 'string'},
+            {name: 'consequence_types' , type: 'string'},
+            {name: "controls"          , type: 'auto'},
+            {name: "phenotype"         , type: "string"},
+            {name: "polyphen_score"    , type: 'number'},
+            {name: "polyphen_effect"   , type: 'int'},
+            {name: "sift_score"        , type: 'number'},
+            {name: "sift_effect"       , type: 'int'}
         ];
         _this.model = Ext.define('Variant', {
             extend: 'Ext.data.Model',
@@ -1216,9 +1156,7 @@ VariantWidget.prototype = {
                     _this.st.fireEvent('refresh');
                 },
                 beforeload: function (store, operation, eOpts) {
-//                    _this.variantEffectWidget.clear(true);
                     _this.trigger("_grid:clear", {sender: _this});
-//                    _this.genotypeWidget.clear();
                 }
             }
 
@@ -1284,12 +1222,10 @@ VariantWidget.prototype = {
 
                         v.commit();
                     }
-
                     _this.st.resumeEvents();
                     _this.st.fireEvent('refresh');
                 }
             }
-
         });
 
         var paging = Ext.create('Ext.PagingToolbar', {
@@ -1384,11 +1320,8 @@ VariantWidget.prototype = {
                                             href: 'data:text/csv,' + encodeURIComponent(content),
                                             download: fileName + ".csv"
                                         });
-
-
                                         Ext.getCmp(_this.id + "_progressBarExport").updateProgress(1, "Downloaded");
                                         Ext.getCmp(_this.id + "fileName").reset();
-
                                     }
                                 }
                             ]
@@ -1402,11 +1335,11 @@ VariantWidget.prototype = {
             }
         );
         paging.add({
-                xtype: 'button',
-                text: 'View Summary',
-                handler: function () {
-                    _this.summaryPanel.show();
-                }
+            xtype: 'button',
+            text: 'View Summary',
+            handler: function () {
+                _this.summaryPanel.show();
+            }
         });
 
         var grid = Ext.create('Ext.grid.Panel', {
@@ -1432,42 +1365,9 @@ VariantWidget.prototype = {
         );
 
         grid.getSelectionModel().on('selectionchange', function (sm, selectedRecord) {
-
             if (selectedRecord.length) {
-
                 var row = selectedRecord[0].data;
-
                 _this.trigger("_grid:change", {sender: _this, args: row});
-                //_this.trigger("_grid:clear", {sender: _this});
-
-                //var chr = row.chromosome;
-                //var pos = row.position;
-                //var ref = row.ref;
-                //var alt = row.alt;
-
-                //var region = new Region({
-                //chromosome: chr,
-                //start: pos,
-                //end: pos
-                //});
-
-                //_this.grid.setLoading(true);
-
-                //if (!_.isUndefined(_this.gv)) {
-                //_this.gv.setRegion(region);
-                //}
-
-////                _this.variantEffectWidget.load(chr, pos, ref, alt);
-
-                //var gts = [];
-
-                //for (var key in row.sampleGenotypes) {
-                //gts.push({
-                //sample: key,
-                //genotype: row.sampleGenotypes[key]
-                //});
-                //}
-                //_this.genotypeWidget.load(gts);
             }
         });
 
@@ -1504,15 +1404,12 @@ VariantWidget.prototype = {
                 for (var j = 0; j < subCols.length; j++) {
                     headerLine += subCols[j] + "\t";
                     colNames.push(subCols[j]);
-
                 }
             } else {
                 headerLine += col["boxLabel"] + "\t";
                 colNames.push(col["boxLabel"]);
             }
-
             subCols.splice(0, subCols.length);
-
         }
 
         var output = "";
@@ -1525,7 +1422,6 @@ VariantWidget.prototype = {
         for (var i = 0; i < lines.length; i++) {
             var v = lines[i];
             for (var key in v.sampleGenotypes) {
-
                 aux = v.sampleGenotypes[key];
                 aux = aux.replace(/-1/g, ".");
                 aux = aux.replace("|", "/");
@@ -1533,12 +1429,9 @@ VariantWidget.prototype = {
                 _this._getEffect(v);
                 _this._getPolyphenSift(v);
             }
-
             v.genes = v.genes.join(",");
         }
-
         Ext.getCmp(_this.id + "_progressBarExport").updateProgress(0.9, "Creating File");
-
 
         for (var j = 0; j < lines.length; j++) {
             output += _this._processFileLine(lines[j], colNames);
@@ -1548,7 +1441,6 @@ VariantWidget.prototype = {
         return output;
     },
     _getDataToExport: function () {
-
 
         var _this = this;
         var totalData = _this.st.totalCount;
@@ -1626,7 +1518,6 @@ VariantWidget.prototype = {
                         line += ".";
                     }
                     break;
-
                 case "Gene":
                     line += this._getValueLine(data.genes)
                     break;
@@ -1634,11 +1525,9 @@ VariantWidget.prototype = {
                     line += this._getValueLine(data.consequence_types);
                     break;
                 case "Polyphen":
-                    //line += "-";
                     line += this._getValueLine(data.polyphen_score);
                     break;
                 case "Phenotype":
-                    //line += "-";
                     line += this._getValueLine(data.phenotype);
                     break;
                 case "SIFT":
@@ -1700,7 +1589,6 @@ VariantWidget.prototype = {
             _this.st.getProxy().setExtraParam(param, formParams[param]);
         }
         _this.st.load();
-
     },
     _getRegionList: function () {
         var regionList = Ext.create('Ext.form.field.TextArea', {
@@ -1777,7 +1665,6 @@ VariantWidget.prototype = {
             name: "miss_gt",
             margin: '0 0 0 5',
             allowBlank: false,
-            //            width: 50,
             flex: 1,
             value: 0
         });
@@ -1873,7 +1760,6 @@ VariantWidget.prototype = {
                 }
             ]
         });
-
     },
     _createCombobox: function (name, label, data, defaultValue, labelWidth, margin, width) {
         return Ext.create('Ext.form.field.ComboBox', {
@@ -1933,7 +1819,6 @@ VariantWidget.prototype = {
         var genes = Ext.getCmp(this.id + "genes");
 
         return true;
-
     },
     _getEffect: function (record) {
         var req = record.chromosome + ":" + record.position + ":" + record.ref + ":" + record.alt[0];
@@ -1943,7 +1828,7 @@ VariantWidget.prototype = {
             dataType: 'json',
             async: false,
             success: function (response, textStatus, jqXHR) {
-                if (response) { // {&& response.response && response.response.length > 0) {
+                if (response) {
                     for (var j = 0; j < response.length; j++) {
                         var elem = response[j];
                         if (elem.aaPosition != -1 &&
@@ -1962,11 +1847,9 @@ VariantWidget.prototype = {
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log('Error loading Effect');
             }
-
         });
     },
     _getPolyphenSift: function (variant) {
-
         if (variant.aaPos != undefined && variant.aaPos >= 0) {
             var change = variant.aaChange.split("/")[1];
             var url = CELLBASE_HOST + "/v3/hsapiens/feature/transcript/" + variant.transcript + "/function_prediction?aaPosition=" + variant.aaPos + "&aaChange=" + change;
@@ -1978,7 +1861,6 @@ VariantWidget.prototype = {
                     var res = response.response[0];
                     if (res.numResults > 0) {
                         if (res.result[0].aaPositions[variant.aaPos]) {
-
                             res = res.result[0].aaPositions[variant.aaPos][change];
                             if (res !== undefined) {
                                 if (res.ps != null) {
@@ -1996,7 +1878,6 @@ VariantWidget.prototype = {
                             }
                         }
                     }
-
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log('Error loading PolyPhen/SIFT');
@@ -2005,16 +1886,12 @@ VariantWidget.prototype = {
         }
     },
     _getPhenotypes: function (records) {
-
         var regs = [];
         for (var i = 0; i < records.length; i++) {
-
             var variant = records[i];
-
             var chr = variant.data.chromosome;
             var pos = variant.data.position;
             regs.push(chr + ":" + pos + "-" + pos);
-
         }
         if (regs.length > 0) {
             var url = CELLBASE_HOST + "/v3/hsapiens/genomic/region/" + regs.join(",") + "/phenotype?include=phenotype";
@@ -2024,11 +1901,9 @@ VariantWidget.prototype = {
                 dataType: 'json',
                 async: false,
                 success: function (response, textStatus, jqXHR) {
-
                     if (response != undefined && response.response.length > 0 && response.response.length == records.length) {
                         for (var i = 0; i < response.response.length; i++) {
                             var v = records[i];
-
                             var elem = response.response[i];
                             var phenotypes = [];
 
@@ -2039,8 +1914,6 @@ VariantWidget.prototype = {
                             v.set("phenotype", phenotypes.join(","));
                             v.commit();
                         }
-
-
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
