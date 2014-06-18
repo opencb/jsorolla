@@ -147,6 +147,7 @@ GenericFormPanel.prototype.getForm = function () {
         this.form = Ext.create('Ext.form.Panel', {
             border: 0,
             width: this.width,
+            trackResetOnLoad: true,
             padding: 5,
             layout: {
                 type: 'vbox',
@@ -173,7 +174,7 @@ GenericFormPanel.prototype.getPanels = function () {
 
 GenericFormPanel.prototype.getJobPanel = function () {
     var _this = this;
-    var jobNameField = Ext.create('Ext.form.field.Text', {
+    this.jobNameField = Ext.create('Ext.form.field.Text', {
         id: this.id + "jobname",
         name: "jobname",
         fieldLabel: 'Name',
@@ -182,7 +183,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
         allowBlank: false
     });
 
-    var jobDescriptionField = Ext.create('Ext.form.field.TextArea', {
+    this.jobDescriptionField = Ext.create('Ext.form.field.TextArea', {
         id: this.id + "jobdescription",
         name: "jobdescription",
         labelWidth: this.labelWidth,
@@ -213,7 +214,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
         bodyPadding: 10,
         defaults: {margin: '5 0 0 0'},
         buttonAlign: 'center',
-        items: [jobNameField, jobDescriptionField/*, jobFolder*/] //TODO Job folder is not fully supported,
+        items: [this.jobNameField, this.jobDescriptionField/*, jobFolder*/] //TODO Job folder is not fully supported,
     });
 
     return jobPanel;
@@ -277,8 +278,13 @@ GenericFormPanel.prototype.run = function () {
 };
 
 GenericFormPanel.prototype.clean = function () {
-    this.getForm().reset();
+    var items = this.form.query('field');
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        item.reset();
+    }
 };
+
 
 /////////////////////////////////////////
 /////////////////////////////////////////

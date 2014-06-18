@@ -64,16 +64,6 @@ OpencgaBrowserWidget.prototype = {
         /**ID**/
         this.searchFieldId = this.id + "_searchField";
 
-        this.createBucketSuccess = function (response) {
-            if (response.errorMsg === '') {
-                _this.trigger('need:refresh', {sender: _this});
-            } else {
-                Ext.Msg.alert("Create project", response.errorMsg);
-            }
-            _this.panel.setLoading(false);
-            Ext.getBody().unmask();
-        };
-
         this.rendered = true;
     },
     draw: function () {
@@ -115,7 +105,7 @@ OpencgaBrowserWidget.prototype = {
             data: []
         });
 
-        var refreshBucketAction = Ext.create('Ext.Action', {
+        this.refreshBucketAction = Ext.create('Ext.Action', {
             icon: Utils.images.refresh,
             text: 'Refresh bucket',
             handler: function (widget, event) {
@@ -141,7 +131,7 @@ OpencgaBrowserWidget.prototype = {
             }
         });
 
-        var renameBucketAction = Ext.create('Ext.Action', {
+        this.renameBucketAction = Ext.create('Ext.Action', {
 //            icon: Utils.images.refresh,
             text: 'Rename bucket',
             handler: function (widget, event) {
@@ -172,41 +162,6 @@ OpencgaBrowserWidget.prototype = {
                 }
             }
         });
-
-        /*MANAGE BUCKETS*/
-        var newProjectButton = Ext.create('Ext.button.Button', {
-            text: 'OK',
-            handler: function () {
-                _this.createProject();
-                _this.folderTree.toggleCollapse();
-                //manageProjects.toggleCollapse();
-            }
-        });
-        var newProjectNameField = Ext.create('Ext.form.field.Text', {
-            id: this.id + "newProjectNameField",
-//        	width: 160,
-            emptyText: 'name',
-            allowBlank: false
-        });
-        var newProjectDescriptionField = Ext.create('Ext.form.field.TextArea', {
-            id: this.id + "newProjectDescriptionField",
-//        	width: 160,
-            emptyText: 'description'
-        });
-        var newProjectCont = Ext.create('Ext.container.Container', {
-            flex: 1,
-            layout: { type: 'hbox', align: 'stretch'},
-            items: [newProjectNameField, newProjectDescriptionField]
-        });
-        var manageProjects = Ext.create('Ext.panel.Panel', {
-            title: "Create bucket",
-            bodyPadding: 5,
-            border: false,
-            animCollapse: false,
-            items: [newProjectNameField, newProjectDescriptionField, newProjectButton]
-        });
-        /*END MANAGE PROJECTS*/
-
 
         /*Files grid*/
         var indexAction = Ext.create('Ext.Action', {
@@ -311,13 +266,11 @@ OpencgaBrowserWidget.prototype = {
         });
 
         this.filesGrid = Ext.create('Ext.grid.Panel', {
-//            title: this.allStore.getRootNode().getPath("text", " / "),
-            title: '',
             store: this.filesStore,
-            flex: 4,
+            flex: 3,
             border: false,
             viewConfig: {
-                stripeRows: true,
+//                stripeRows: true,
                 listeners: {
                     itemcontextmenu: function (este, record, item, index, e) {
                         e.stopEvent();
@@ -383,17 +336,17 @@ OpencgaBrowserWidget.prototype = {
         });
         /**/
 
-        this.panAccordion = Ext.create('Ext.panel.Panel', {
-            minWidth: 200,
-            minHeight: 250,
-            flex: 1,
+
+        this.container = Ext.create('Ext.panel.Panel', {
+            title: ' ',
             border: false,
-//            layout: 'accordion',
+            minWidth: 125,
+            flex: 3,
             layout: {
-                type: 'vbox',
+                type: 'hbox',
                 align: 'stretch'
             },
-            items: [this.folderTree, manageProjects /*, panFilter*/]
+            items: [this.folderTree, this.filesGrid]
         });
 
         this.selectButton = Ext.create('Ext.button.Button', {
@@ -433,12 +386,11 @@ OpencgaBrowserWidget.prototype = {
             case "folderSelection" :
                 var item;
                 item = {text: 'New folder', handler: function () {
-                    _this.folderTree.expand();
                     _this.createFolder();
                 }};
                 tbarObj.items.splice(0, 0, item);
                 item = {text: 'New bucket', handler: function () {
-                    manageProjects.expand();
+                    _this.createBucket();
                 }};
                 tbarObj.items.splice(0, 0, item);
                 this.filesStore.filter("fileType", /dir/);
@@ -450,12 +402,11 @@ OpencgaBrowserWidget.prototype = {
                 }};
                 tbarObj.items.splice(0, 0, item);
                 item = {text: 'New folder', handler: function () {
-                    _this.folderTree.expand();
                     _this.createFolder();
                 }};
                 tbarObj.items.splice(0, 0, item);
                 item = {text: 'New bucket', handler: function () {
-                    manageProjects.expand();
+                    _this.createBucket();
                 }};
                 tbarObj.items.splice(0, 0, item);
                 this.selectButton.hide();
@@ -468,12 +419,11 @@ OpencgaBrowserWidget.prototype = {
                 }};
                 tbarObj.items.push(item);
                 item = {text: 'New folder', handler: function () {
-                    _this.folderTree.expand();
                     _this.createFolder();
                 }};
                 tbarObj.items.push(item);
                 item = {text: 'New bucket', handler: function () {
-                    manageProjects.expand();
+                    _this.createBucket();
                 }};
                 tbarObj.items.push(item);
                 break;
@@ -513,13 +463,7 @@ OpencgaBrowserWidget.prototype = {
                 border: 0,
                 layout: { type: 'vbox', align: 'stretch'},
                 items: [
-                    {
-                        xtype: 'container',
-                        flex: 3,
-                        minWidth: 125,
-                        layout: { type: 'hbox', align: 'stretch'},
-                        items: [this.panAccordion, this.filesGrid]
-                    },
+                    this.container,
                     this.activeUploadsCont
                 ],
                 tbar: tbarObj,
@@ -682,11 +626,6 @@ OpencgaBrowserWidget.prototype = {
         }
         this._createFolderTree(folderNodes, filesNodes);
 
-//        //collapse and expand to update the view after append, possible ExtJS 4.2.0 bug
-//        this.folderStore.getRootNode().collapse();
-//        this.folderStore.getRootNode().expand();
-
-
         //reselect nodes after account update
         if (this.selectedFolderNode != null) { //devuelve el value y el field porque el bucket no tiene oid
             var lastNode = this.folderTree.getRootNode().findChild(this.selectedFolderNode.field, this.selectedFolderNode.value, true);
@@ -748,9 +687,7 @@ OpencgaBrowserWidget.prototype = {
     viewBuckets: function () {
         var _this = this;
         _this.panel.removeAll(false);
-        _this.panel.add(_this.panAccordion);
-        _this.panel.add(_this.filesGrid);
-
+        _this.panel.add(_this.container);
     },
     viewUploads: function () {
         var _this = this;
@@ -828,22 +765,30 @@ OpencgaBrowserWidget.prototype.checkTags = function (tags) {
 };
 
 
-OpencgaBrowserWidget.prototype.createProject = function () {
+OpencgaBrowserWidget.prototype.createBucket = function () {
     var _this = this;
-    var name = Ext.getCmp(this.id + "newProjectNameField").getValue();
-    var desc = Ext.getCmp(this.id + "newProjectDescriptionField").getValue();
-    if (name != "") {
-        Ext.getBody().mask();
-        _this.panel.setLoading("Creating project");
+    Ext.Msg.prompt('New Bucket', 'Please enter a name and description for the new bucket:', function (btn, text) {
+        if (btn == 'ok') {
+            text = text.replace(/[^a-z0-9-_.\s]/gi, '').trim();
 
-        OpencgaManager.createBucket({
-            bucketId: name,
-            description: desc,
-            accountId: $.cookie("bioinfo_account"),
-            sessionId: $.cookie("bioinfo_sid"),
-            success: this.createBucketSuccess
-        });
-    }
+            OpencgaManager.createBucket({
+                bucketId: text,
+                description: '',
+                accountId: $.cookie("bioinfo_account"),
+                sessionId: $.cookie("bioinfo_sid"),
+                success: function (response) {
+                    if (response.errorMsg === '') {
+                        _this.trigger('need:refresh', {sender: _this});
+                    } else {
+                        Utils.msg("Create project", response.errorMsg);
+                    }
+                    _this.panel.setLoading(false);
+                    Ext.getBody().unmask();
+                }
+            });
+
+        }
+    }, null, null, "New bucket");
 };
 
 OpencgaBrowserWidget.prototype._getFolderTreeSelection = function () {
@@ -913,11 +858,11 @@ OpencgaBrowserWidget.prototype._createFolderTree = function (data, allData) {
     var _this = this;
 
 
-    if (this.panAccordion) {
+    if (this.container) {
 
-        var tree = this.panAccordion.child('panel[title~=Upload]');
+        var tree = this.container.child('treepanel');
         if (tree) {
-            this.panAccordion.remove(tree, false).destroy();
+            this.container.remove(tree, false).destroy();
         }
 
 
@@ -952,16 +897,21 @@ OpencgaBrowserWidget.prototype._createFolderTree = function (data, allData) {
 
         var folderTree = Ext.create('Ext.tree.Panel', {
             //xtype:"treepanel",
-            title: "Upload & Manage",
-            bodyPadding: "5 0 0 0",
+//            title: "Folders",
+//            bodyPadding: 2,
             border: false,
             autoScroll: true,
-            flex: 4,
             useArrows: true,
             rootVisible: false,
             hideHeaders: true,
             expanded: true,
-            animCollapse: false,
+            flex: 1,
+            style: {
+                borderColor: 'lightgray',
+                borderStyle: 'solid',
+                borderWidth: '0px 1px 0 0'
+
+            },
 //			selType: 'cellmodel',
             //plugins: [Ext.create('Ext.grid.plugin.CellEditing', {clicksToEdit: 2,listeners:{
             //edit:function(editor, e, eOpts){
@@ -976,37 +926,6 @@ OpencgaBrowserWidget.prototype._createFolderTree = function (data, allData) {
                     flex: 1,
                     editor: {xtype: 'textfield', allowBlank: false}
                 }
-//                ,
-//                {
-//                    xtype: 'actioncolumn',
-//                    menuDisabled:[pan], true,
-//                    align: 'center',
-//                    width: 30,
-//                    renderer: function (value, metaData, record) {
-//                        if (record.data.isBucket) {
-//                            this.icon = Utils.images.refresh;
-//                            this.tooltip = 'Refresh bucket to find new files';
-//                        } else {
-//                            this.tooltip = null;
-//                            this.icon = null;
-//                        }
-//                    },
-//                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-//                        if (record.data.isBucket) {
-//                            var opencgaManager = new OpencgaManager();
-//                            opencgaManager.onRefreshBucket.addEventListener(function (sender, res) {
-//                                Utils.msg('Refresh Bucket', '</span class="emph">' + res + '</span>');
-//                                if (res.indexOf("ERROR") != -1) {
-//                                    console.log(res);
-//                                } else {
-//                                    _this.trigger('need:refresh',{sender:_this});
-//                                }
-//                            });
-//                            opencgaManager.refreshBucket($.cookie("bioinfo_account"), record.data.text, $.cookie("bioinfo_sid"));
-//                        }
-//
-//                    }
-//                }
             ],
             viewConfig: {
                 markDirty: false,
@@ -1027,8 +946,8 @@ OpencgaBrowserWidget.prototype._createFolderTree = function (data, allData) {
                         var items = [];
                         console.log(record)
                         if (record.data.isBucket) {
-                            items.push(refreshBucketAction);
-                            items.push(renameBucketAction);
+                            items.push(_this.refreshBucketAction);
+                            items.push(_this.renameBucketAction);
                             var contextMenu = Ext.create('Ext.menu.Menu', {
                                 plain: true,
                                 items: items
@@ -1062,7 +981,7 @@ OpencgaBrowserWidget.prototype._createFolderTree = function (data, allData) {
 //                        node.eachChild(function (n) {
 //                            childs.push(n.data);
 //                        });
-                        _this.filesGrid.setTitle(node.getPath("text", " / "));
+                        _this.container.setTitle(node.getPath("text", " / "));
                         _this.filesStore.loadData(childs);
                         if (_this.mode == "folderSelection") {
                             _this.selectedFileNode = node.data;
@@ -1071,12 +990,14 @@ OpencgaBrowserWidget.prototype._createFolderTree = function (data, allData) {
                     }
                 },
                 viewready: function (este, eOpts) {//Fires when the grid view is available (use this for selecting a default row).
-                    setTimeout(function () { // forced to do this because some ExtJS 4.2.0 event problem
+                    if (typeof _this.selectedFolderNode === 'undefined') {
+//                        setTimeout(function () { // forced to do this because some ExtJS 4.2.0 event problem
                         var node = este.getRootNode().getChildAt(0);
                         if (typeof node != 'undefined') {
                             este.getSelectionModel().select(node);
                         }
-                    }, 0);
+//                        }, 0);
+                    }
                 },
                 checkchange: function (node, checked) {
                 },
@@ -1091,10 +1012,10 @@ OpencgaBrowserWidget.prototype._createFolderTree = function (data, allData) {
         this.folderTree = folderTree;
     }
 
-    if (this.panAccordion) {
-        this.panAccordion.getLayout().animate = false;
-        this.panAccordion.insert(0, folderTree);
+    if (this.container) {
+        this.container.getLayout().animate = false;
+        this.container.insert(0, folderTree);
         folderTree.expand();
-        this.panAccordion.getLayout().animate = true;
+        this.container.getLayout().animate = true;
     }
 };

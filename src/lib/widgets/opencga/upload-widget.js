@@ -191,11 +191,11 @@ UploadWidget.prototype.clean = function () {
 UploadWidget.prototype.checkDataTypes = function (dataTypes) {
     for (var i = 0; i < dataTypes.length; i++) {
         if (dataTypes[i]["children"] != null) {
-            dataTypes[i]["iconCls"] = 'icon-box';
+//            dataTypes[i]["iconCls"] = 'icon-box';
             dataTypes[i]["expanded"] = true;
             this.checkDataTypes(dataTypes[i]["children"]);
         } else {
-            dataTypes[i]["iconCls"] = 'icon-blue-box';
+//            dataTypes[i]["iconCls"] = 'icon-blue-box';
             dataTypes[i]["leaf"] = true;
         }
     }
@@ -220,11 +220,13 @@ UploadWidget.prototype.render = function (dataTypes) {
 
         var pan1Width = 250;
         var pan1 = Ext.create('Ext.tree.Panel', {
-            title: 'Select your data type',
+            header: {
+                baseCls: 'header-form'
+            },
+            title: 'Select your data type <span style="color:gray">(req)</span>',
             bodyPadding: '10 0 0 0',
             height: height,
             border: false,
-            cls: 'ocb-border-right-lightgrey',
             width: pan1Width,
             store: store,
             useArrows: true,
@@ -292,7 +294,10 @@ UploadWidget.prototype.render = function (dataTypes) {
 
         var pan2Width = 350;
         var pan2 = Ext.create('Ext.panel.Panel', {
-            title: 'Some aditional data',
+            title: 'Aditional information',
+            header: {
+                baseCls: 'header-form'
+            },
             width: pan2Width,
             border: false,
 //            cls: 'panel-border-top',
@@ -324,13 +329,11 @@ UploadWidget.prototype.render = function (dataTypes) {
                         this.uploadField.hide();
                         this.editor.show();
                         this.uploadField.setRawValue(null);
-                        this.pan3.setHeight(100);
                     } else {
                         this.dataFieldLabel.update('<span class="info">Select a data file</span>');
                         this.editor.hide();
                         this.uploadField.show();
                         this.editor.setRawValue(null);
-                        this.pan3.setHeight(55);
                     }
                     this.validate();
                 }
@@ -357,13 +360,11 @@ UploadWidget.prototype.render = function (dataTypes) {
 
         this.editor = Ext.create('Ext.form.field.TextArea', {
             xtype: 'textarea',
-            width: 602,
-            flex: 1,
-            height: 100,
             emptyText: 'Paste or write your file directly',
             hidden: true,
             name: 'file',
-            margin: "-1",
+            width:'100%',
+            height:100,
             enableKeyEvents: true,
             listeners: {
                 scope: this,
@@ -376,16 +377,19 @@ UploadWidget.prototype.render = function (dataTypes) {
         });
 
 
+        this.createUploadField();
         this.pan3 = Ext.create('Ext.panel.Panel', {
-//            title: 'File origin',
+            title: 'Data file',
+            header: {
+                baseCls: 'header-form'
+            },
             colspan: 2,
             border: false,
+            padding: 5,
+            bodyPadding: 15,
             width: pan1Width + pan2Width,
-            height: 55,
-//		    bodyStyle:{"background-color":"#d3e1f1"},
-            items: [this.editor]
+            items: [this.editor, this.uploadField]
         });
-        this.createUploadField();
 
         this.panel = Ext.create('Ext.window.Window', {
             title: 'Upload a data file',// + ' -  <span class="err">ZIP files will be allowed shortly</span>',
@@ -405,6 +409,7 @@ UploadWidget.prototype.render = function (dataTypes) {
                     this.pan3,
                     {
                         xtype: 'container',
+                        padding: 5,
                         layout: {
                             type: 'hbox',
                             align: 'stretch'
@@ -461,7 +466,6 @@ UploadWidget.prototype.createUploadField = function () {
         name: 'file',
         msgTarget: 'side',
         emptyText: 'Choose a file',
-        margin:'12 0 0 12',
         width: 500,
         allowBlank: false,
         buttonText: 'Upload local file...',
@@ -475,7 +479,6 @@ UploadWidget.prototype.createUploadField = function () {
             }
         }
     });
-    this.pan3.add(this.uploadField);
 };
 
 UploadWidget.prototype.validate = function () {

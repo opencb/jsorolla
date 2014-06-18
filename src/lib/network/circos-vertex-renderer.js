@@ -39,13 +39,6 @@ function CircosVertexRenderer(args) {
     this.labelPositionY = 0;
     this.labelText = '';
 
-//    if (localStorage.getItem('CELLMAPS_SESSION') !== null) {
-//        var config = JSON.parse(localStorage.getItem('CELLMAPS_SESSION'));
-//        if (typeof config.vertexDefaults !== 'undefined') {
-//            _.extend(this, config.vertexDefaults);
-//        }
-//    }
-
     this.sliceArea = 1;
 
     this.pieSlices = [
