@@ -536,6 +536,13 @@ NetworkViewer.prototype = {
                         _this.selectVertex(vertex, e.addToSelection);
                     }
                 },
+                'select:edge': function (e) {
+                    var edge = _this.network.getEdgeById(e.edgeId);
+                    var isSelected = _this.network.isEdgeSelected(edge);
+                    if (!isSelected) {
+                        _this.selectEdge(edge, e.addToSelection);
+                    }
+                },
                 'create:vertex': function (e) {
                     _this.createVertex(e.x, e.y);
 
@@ -671,12 +678,18 @@ NetworkViewer.prototype = {
         this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
         console.log('selectVertexNeighbour');
     },
-    selectEdge: function (edge) {
-        this._deselectAllEdges();
+    selectEdge: function (edge, addToSelection) {
+        if (addToSelection) {
+            this.selectedEdges.push(edge);
+        } else {
+            this._deselectAllEdges();
+            this.selectedEdges = [edge];
+
+        }
         this.network.selectEdge(edge);
 
-        this.selectedEdges = [edge];
         this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+        console.log('selectEdge');
     },
     _moveSelectedVertices: function (dispX, dispY) {
         this.scale = this.networkSvgLayout.scale; //TODO
