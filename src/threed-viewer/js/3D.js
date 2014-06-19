@@ -2,6 +2,15 @@ colors = {gneg: 0xFFFFFFFF, stalk: 0x666666FF, gvar: 0xCCCCCCFF, gpos25: 0xC0C0C
 //var colors = {gneg:0xFFFFFF, stalk:0x666666, gvar:0xCCCCCC, gpos25:0xC0C0C0, gpos33:0xD3D3D3, gpos50:0x808080, gpos66:0x696969, gpos75:0xA9A9A9, gpos100:0x000000, gpos:0x808080, acen:0x0000FF, clementina:0xffc967};
 var t = 5000;
 
+function normalize (array, max) {
+    if (!(array === undefined) && !(array === null)) {
+        for (var i = 0; i < array.length; i++) {
+            array[i] /= max;
+        }
+    }
+}
+
+
 var Viewer = function (config) {
 
     this.torusDiv = null;
@@ -309,6 +318,15 @@ Viewer.prototype = {
 
         this.disk[diskId].layers[1].setTexture(tex);
     },
+
+    setMeanCoverage: function (diskId, coverage) {
+        var length = this.metaData.ntsCount;
+        var start = (coverage.start-1)/length;
+        var end = coverage.end/length;
+        this.disk[diskId].addTrack({start:start, end:end, z:0.5, data:coverage.mean, mod:1.2, ang:+Math.PI/2,
+                baseColorHex:0xFF0000, topColorHex:0x00FF00, trackType:Viewer.Track.ColumnHistogram}
+        )
+    },
     setTrack: function (diskId, data, config) {
 
     },
@@ -412,7 +430,7 @@ Viewer.prototype = {
     },
 
     /**
-     * return the index of the element in this.data that ownes the position in coord
+     * return the index of the element in this.data that owns the position in coord
      * @param coord position in [0, 1] from the total disk, including pads
      * @returns {*}
      */

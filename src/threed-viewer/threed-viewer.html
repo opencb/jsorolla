@@ -36,6 +36,7 @@
     <script type="text/javascript" src="../lib/cellbase-manager.js"></script>
 
     <script type="text/javascript" src="js/chr.js"></script>
+    <script type="text/javascript" src="js/coverage.js"></script>
     <script type="text/javascript" src="js/3D.js"></script>
     <script type="text/javascript" src="js/torus.js"></script>
     <script type="text/javascript" id="main" src="js/main.js"></script>
@@ -93,6 +94,10 @@
                     ]
                 }
             ]);
+            console.log("coverages")
+            threeDViewer.torus.obtainCoverages();
+            threeDViewer.torus.setCoverages();
+            console.log("fin coverages")
 
         };
 

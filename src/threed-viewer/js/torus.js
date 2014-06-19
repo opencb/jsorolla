@@ -31,6 +31,7 @@ var Torus = function (args) {
     this.viewer = new Viewer(this.config);
     this.lastClick;
     this.clickPressed;
+    this.scale = 10;    // aprox: log (chromosomes.length)
 
 
     this.setDiv(args.targetId);
@@ -75,7 +76,8 @@ Torus.prototype = {
                 this.data.samples[i].id = this.data.samples[i].id === undefined ? "" : this.data.samples[i].id;
                 this.data.samples[i].features = this.data.samples[i].features === undefined ? [] : this.data.samples[i].features;
                 this.data.samples[i].species = this.data.samples[i].species === undefined ? baseSpecie : this.data.samples[i].species;
-            }
+
+}
 
             this.setChromosomes();
             this.setCytobands();
@@ -172,6 +174,30 @@ Torus.prototype = {
         }
         this.viewer.disk[0].features[0].addFeature(0, 6, -0.2, data);
 
+    },
+
+    obtainCoverages: function () {
+        normalize(coverage.result.mean, 50);
+        normalize(coverage.result.region, 50);
+        for (var j = 0; j < this.data.samples.length; j++) {
+            this.data.samples[j].coverage =  coverage.result;
+        }
+        console.log(this.data.samples);
+    },
+    /**
+     * example: when the user ticks a check box,
+     * after the coverage is requested, this function is called.
+     * @param sampleNum
+     */
+    setCoverages: function(/*,coverage.json from url to ws*/) {
+
+        for (var i = 0; i < this.data.samples.length; i++) {
+            if (this.scale > 4) {
+                this.viewer.setMeanCoverage(i, this.data.samples[i].coverage);  // meansize is not necessary, the track spans to the positions
+            } else {
+                this.viewer.setRegionCoverage(i, this.data.samples[i].coverage);
+            }
+        }
     },
 
 
