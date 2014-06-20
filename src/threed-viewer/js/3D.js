@@ -406,16 +406,15 @@ Viewer.prototype = {
     addDisksPhase: function (angle) {
         for (var i = 0; i < this.config.numDisk; i++) {
             this.disk[i].figure.rotateZ(angle);
-            var coord = (Math.PI - this.disk[i].figure.rotation.z)/this.disk[i].angularLong;
-            if (this.centralTrack !== null
-                    && this.centralTrack.tracks.length == this.disk.length
-                    && coord <= this.centralTrack.tracks[i].end
-                    && coord >= this.centralTrack.tracks[i].start) {
-                this.centralTrack.update(coord);
+        }
+        var cursor = this.disk[0].figure.rotation.z;    // This is correct, the angle will be the same in all disks
+//            var coord = (Math.PI - this.disk[i].figure.rotation.z)/this.disk[i].angularLong;
+        var coord = (Math.PI - cursor)/this.disk[0].angularLong;    // FIXME this is wrong, unless all disks have the same aperture
+//        console.log(cursor);
+        if (this.centralTrack !== null
+            && this.centralTrack.tracks.length == this.disk.length) {
+            this.centralTrack.update(coord);
 //                    console.log("in" + this.centralTrack.tracks[i].start +  " < " + coord + " < " + this.centralTrack.tracks[i].end)
-            } else {
-//                console.log("out" + this.centralTrack.tracks[i].start +  " < " + coord + " < " + this.centralTrack.tracks[i].end)
-            }
         }
     },
     addTorusPhase: function (angle) {
@@ -1064,12 +1063,6 @@ Viewer.Track.prototype = {
         var position = (coord - this.start)/(this.end - this.start);
         var index = position * this.data.length;
         index = Math.floor(index);
-        if (index >= this.data.length) {
-            index = this.data.length -1;
-        }
-        if (index < 0) {
-            index = 0;
-        }
         return index;
     }
 };
@@ -1152,7 +1145,6 @@ Viewer.CentralTrack.prototype = {
      * @param coord coordinate in disk, [0-1] doesn't include the open part of the disk
      */
     update: function(coord) {
-        var element = this.tracks[0].getElement(coord);
         var patchNum = this.tracks.length;
 
         var diff = 2 * Math.PI / patchNum;
@@ -1166,19 +1158,22 @@ Viewer.CentralTrack.prototype = {
 
 
         var m1 = new THREE.Matrix4();
-        var m2 = new THREE.Matrix4();
-        var m3 = new THREE.Matrix4();
 //        m2.makeTranslation(this.config.baseHeight, 0, 0);
 //        m3.makeScale(1, 1, width);
 
         var vertex = 0;
 
-
+        var element = 0;
         var value = 0.0;
         var verts = this.geometry.vertices;
 
-        for (var i = 0; i < patchNum; i++, vertex += 4) {
-            value = this.tracks[i].data[element]*this.config.mod;
+        for (var i = 0; i < patchNum; i++, vertex += 4, rad += diff) {
+            element = this.tracks[i].getElement(coord);
+            if (element < 0 || element >= this.tracks[i].data.length){
+                value = 0;
+            } else {
+                value = this.tracks[i].data[element]*this.config.mod;
+            }
             verts[vertex+0] = new THREE.Vector3 (this.config.baseHeight, 0,       this.config.width * basePosWidth);
             verts[vertex+1] = new THREE.Vector3 (this.config.baseHeight, 0,       this.config.width * baseNegWidth);
             verts[vertex+2] = new THREE.Vector3 (this.config.baseHeight-value, 0, this.config.width * basePosWidth*(this.config.baseHeight-value)/this.config.baseHeight);
@@ -1188,7 +1183,6 @@ Viewer.CentralTrack.prototype = {
             verts[vertex+1].applyMatrix4(m1);
             verts[vertex+2].applyMatrix4(m1);
             verts[vertex+3].applyMatrix4(m1);
-            rad += diff;
         }
          this.geometry.verticesNeedUpdate = true;
          this.geometry.elementsNeedUpdate = true;

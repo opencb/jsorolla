@@ -209,7 +209,7 @@ Torus.prototype = {
             var length = this.viewer.metaData.ntsCount;
             var start = (this.data.samples[0].coverage.start-1)/length;
             var end = this.data.samples[0].coverage.end/length;
-            var trackArgs = {start:start, end:end, z:0.5, y:0.05, mod:1.0, ang:Math.PI/2,
+            var trackArgs = {start:start, end:end, z:0.5, y:0.05, mod:0.3, ang:0/*Math.PI/2*/,
                 baseColorHex:0xFF1100, topColorHex:0x00FF00, trackType:Viewer.Track.ColumnHistogram};
             trackArgs.dataset = [];
 
