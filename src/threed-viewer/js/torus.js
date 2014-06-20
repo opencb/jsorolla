@@ -16,8 +16,8 @@ var Torus = function (args) {
 
     //default args
     this.targetId;
-    this.sampleList = [];
-    this.commons = {};
+    this.sampleList = [];   //FIXME esto no va a data?
+    this.commons = {};  //FIXME
 
     //set args
     _.extend(this, args);
@@ -97,6 +97,7 @@ Torus.prototype = {
             var sample = samples[i];
 
             this.sampleList.push(sample);
+            this.data.samples.push(sample);
             var species = sample.species;
 
             if(_.isUndefined(this.commons[species])){
@@ -179,23 +180,50 @@ Torus.prototype = {
     obtainCoverages: function () {
         normalize(coverage.result.mean, 50);
         normalize(coverage.result.region, 50);
+        console.log("samples en obtain: " + this.data.samples.length);
         for (var j = 0; j < this.data.samples.length; j++) {
-            this.data.samples[j].coverage =  coverage.result;
+            this.data.samples[j].coverage = _.extend({}, coverage.result);
+            this.data.samples[j].coverage.mean = new Array(1000);
+            for (var i = 0; i < 1000; i++) {
+                this.data.samples[j].coverage.mean[i] = Math.random();
+            }
         }
+
+        // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
+
         console.log(this.data.samples);
     },
     /**
      * example: when the user ticks a check box,
      * after the coverage is requested, this function is called.
+
+      //{start:0, end:0.35, z:0.5, y:0.05, mod:-1/5, ang:0,
+//                baseColorHex:0x0000FF, topColorHex:0xFF0000, trackType:Viewer.Track.ColumnHistogram};
+
      * @param sampleNum
      */
-    setCoverages: function(/*,coverage.json from url to ws*/) {
+    setCoverages: function(withCentralTrack/*,coverage.json from url to ws*/) {
 
-        for (var i = 0; i < this.data.samples.length; i++) {
-            if (this.scale > 4) {
-                this.viewer.setMeanCoverage(i, this.data.samples[i].coverage);  // meansize is not necessary, the track spans to the positions
-            } else {
-                this.viewer.setRegionCoverage(i, this.data.samples[i].coverage);
+        if (withCentralTrack == true) {
+            var trackArgs = {start:0, end:0.35, z:0.5, y:0.05, mod:-1/5, ang:0,
+                baseColorHex:0x0000FF, topColorHex:0xFF0000, trackType:Viewer.Track.ColumnHistogram};
+            trackArgs.dataset = [];
+
+            for (var i = 0; i < this.data.samples.length; i++) {
+
+                var data = this.data.samples[i].coverage.mean;
+                trackArgs.dataset.push(data);
+
+            }
+            this.viewer.addCentralTrack(trackArgs);
+
+        } else {
+            for (var i = 0; i < this.data.samples.length; i++) {
+                if (this.scale > 4) {
+                    this.viewer.setMeanCoverage(i, this.data.samples[i].coverage);  // meansize is not necessary, the track spans to the positions
+                } else {
+                    this.viewer.setRegionCoverage(i, this.data.samples[i].coverage);
+                }
             }
         }
     },

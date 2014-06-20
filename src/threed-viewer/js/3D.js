@@ -32,6 +32,7 @@ var Viewer = function (config) {
     this.stats = new Stats();
 
     this.disk = [];
+    this.centralTrack = null;
     this.projector = new THREE.Projector();   //para el clicado
 
 
@@ -327,6 +328,40 @@ Viewer.prototype = {
                 baseColorHex:0xFF0000, topColorHex:0x00FF00, trackType:Viewer.Track.ColumnHistogram}
         )
     },
+
+/*
+    var def = {
+        start: 0,
+        end: 1,
+        z: 0,
+        y: 0,
+        mod: 1,
+        ang: 0, //Radians
+        baseColorHex: 0x00000000,
+        topColorHex: 0xFF000000,
+        trackType: Viewer.Track.Feature,
+        data: [[],[]],
+        colorData: []   //TODO
+    };
+    */
+    addCentralTrack: function (tracksArgs) {
+        if (tracksArgs.dataset.length != this.disk.length) {
+            alert("central track: skipping: number of samples doesn't match number of disks: " + tracksArgs.data.length + " != " + this.disk.length);
+        } else {
+            var tracks =[];
+            for (var i = 0; i < tracksArgs.dataset.length; i++) {
+                var args = _.extend({}, tracksArgs);
+                args.dataset = undefined;
+                args.data = tracksArgs.dataset[i]; // share configuration, but distribute data
+                var trackNum = this.disk[i].addTrack(args);
+                tracks.push(this.disk[i].tracks[trackNum]);
+            }
+            console.log(tracks);
+            this.centralTrack = new Viewer.CentralTrack(tracks);
+            console.log(this.centralTrack);
+        }
+    },
+
     setTrack: function (diskId, data, config) {
 
     },
@@ -369,6 +404,13 @@ Viewer.prototype = {
     addDisksPhase: function (angle) {
         for (var i = 0; i < this.config.numDisk; i++) {
             this.disk[i].figure.rotateZ(angle);
+            var coord = (Math.PI - this.disk[i].figure.rotation.z)/this.disk[i].angularLong;
+            if (this.addCentralTrack !== null
+                    && coord <= this.centralTrack.tracks[i].end
+                    && coord >= this.centralTrack.tracks[i].start) {
+                console.log("llamando a update");
+                this.centralTrack.update(coord);
+            }
         }
     },
     addTorusPhase: function (angle) {
@@ -696,6 +738,9 @@ Viewer.Track = function (args) {
     this.numFaces = 0;
     this.width = args.width || 1;
     this.radius = args.radius || 2.2;
+    this.data = null;
+    this.start = null;
+    this.end = null;
 
     this.initGeometry(this.maxFaces);
     Viewer.Track.uniforms.radius.value = args.radius;
@@ -873,8 +918,11 @@ Viewer.Track.prototype = {
     },
     _addHisto: function (args) {
         var start = args.start;
+//        this.start = start;
         var end = args.end;
+//        this.end = end;
         var data = args.data;
+//        this.data = data;
         var color1Hex = args.baseColorHex;
         var color2Hex = args.topColorHex;
 
@@ -927,8 +975,11 @@ Viewer.Track.prototype = {
     },
     _addHistoCol: function (args) {
         var start = args.start;
+        this.start = start;
         var end = args.end;
+        this.end = end;
         var data = args.data;
+        this.data = data;
         var color1Hex = args.baseColorHex;
         var color2Hex = args.topColorHex;
 
@@ -999,11 +1050,32 @@ Viewer.Track.prototype = {
             this.geometry.faces[this.numFaces + 1].vertexColors.push(col4, col3, col1);
         }
         this.numFaces += 2;
-    }
+    },
 
+
+    getElement: function (coord) {
+        var position = (coord - this.start)/(this.end - this.start);
+        return position * this.data.length;
+    }
+};
+
+Viewer.CentralTrack = function (tracks) {
+    this.tracks = tracks;
 
 };
 
+Viewer.CentralTrack.prototype = {
+    /**
+     *
+     * @param coord coordinate in disk, [0-1] doesn't include the open part of the disk
+     */
+    update: function(coord) {
+//        console.log("coord = " + coord);
+        var element = this.tracks[0].getElement(coord);
+//        console.log("update");
+//        console.log(element);
+    }
+};
 
 Viewer.Layer = function (numDisk, numLayer, config) {
     this.texture = new Viewer.Texture();

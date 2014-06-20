@@ -63,6 +63,8 @@
 
 
     <script type="text/javascript">
+        // google-chrome  --ignore-gpu-blacklist --allow-file-access-from-files &
+
         var threeDViewer;
         var run = function () {
 
@@ -96,7 +98,7 @@
             ]);
             console.log("coverages")
             threeDViewer.torus.obtainCoverages();
-            threeDViewer.torus.setCoverages();
+            threeDViewer.torus.setCoverages(true);
             console.log("fin coverages")
 
         };
