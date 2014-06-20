@@ -393,6 +393,18 @@ ul.ocb-app-menu > li {
     background-color: white;
 }
 
+.ocb-gv-right-side {
+    position: absolute;
+    z-index: 50;
+    right: 0px;
+}
+
+.ocb-gv-left-side {
+    position: absolute;
+    z-index: 50;
+    left: 0px;
+}
+
 .ocb-warn {
     color: orangered;
 }

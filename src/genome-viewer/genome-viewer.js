@@ -27,8 +27,12 @@ function GenomeViewer(args) {
     this.id = Utils.genId("GenomeViewer");
 
     //set default args
+    this.autoRender = true;
     this.version = 'Genome Viewer';
-    this.targetId;
+    this.target;
+
+    this.width;
+    this.height;
 
     this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
@@ -57,7 +61,6 @@ function GenomeViewer(args) {
 
     };
     this.drawStatusBar = true;
-    this.border = true;
     this.resizable = true;
     this.sidePanel = true;//enable or disable sidePanel at construction
     this.trackListTitle = 'Detailed information';//enable or disable sidePanel at construction
@@ -85,8 +88,6 @@ function GenomeViewer(args) {
 
     this.defaultRegion = new Region(this.region);
 
-    this.width;
-    this.height;
     this.sidePanelWidth = (this.sidePanel) ? 25 : 0;
 
 
@@ -105,69 +106,57 @@ function GenomeViewer(args) {
 }
 
 GenomeViewer.prototype = {
-
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        this.targetId = (targetId) ? targetId : this.targetId;
-        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
-        if (this.targetDiv === 'undefined') {
-            console.log('targetId not found');
-            return;
-        }
+        console.log("Initializing Cell Maps");
 
-        this.div = $('<div class="bootstrap ocb-gv ocb-box-vertical" id="' + this.id + '"></div>')[0];
+        //HTML skel
+        this.div = document.createElement('div');
+        this.div.setAttribute('id', this.id);
+        this.div.setAttribute('class', 'bootstrap ocb-gv ocb-box-vertical');
 
-        if (this.border) {
-            var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
-            $(this.targetDiv).css({border: border});
-        }
+        this.navigationbarDiv = document.createElement('div');
+        this.navigationbarDiv.setAttribute('class', 'ocb-gv-navigation');
+        this.div.appendChild(this.navigationbarDiv);
 
-        if (typeof this.width === 'undefined') {
-            //try to define a width
-            this.width = $(this.targetDiv).innerWidth();
-            if (this.width === 0) {
-                this.width = $('body').width();
-            }
-        }
-        $(this.div).width(this.width);
-        $(this.targetDiv).width(this.width);
+        this.centerPanelDiv = document.createElement('div');
+        this.centerPanelDiv.setAttribute('class', 'ocb-gv-center');
+        this.div.appendChild(this.centerPanelDiv);
 
-        if (typeof this.height !== 'undefined') {
-            $(this.div).height(this.height);
-            $(this.targetDiv).height(this.height);
-        }
+        this.statusbarDiv = document.createElement('div');
+        this.statusbarDiv.setAttribute('class', 'ocb-gv-status');
+        this.div.appendChild(this.statusbarDiv);
 
 
-        this.navigationbarDiv = $('<div id="navigation-' + this.id + '" class="ocb-gv-navigation"></div>')[0];
-        $(this.div).append(this.navigationbarDiv);
+        this.rightSidebarDiv = document.createElement('div');
+        this.rightSidebarDiv.setAttribute('class', 'ocb-gv-right-side');
+        this.centerPanelDiv.appendChild(this.rightSidebarDiv);
 
-        this.centerPanelDiv = $('<div id="center-' + this.id + '" class="ocb-gv-center"></div>')[0];
-        $(this.div).append(this.centerPanelDiv);
-
-        this.statusbarDiv = $('<div id="statusbar-' + this.id + '" class="ocb-gv-status"></div>')[0];
-        $(this.div).append(this.statusbarDiv);
-
-
-        this.rightSidebarDiv = $('<div id="rightsidebar-' + this.id + '" style="position:absolute; z-index:50;right:0px;"></div>')[0];
-        this.leftSidebarDiv = $('<div id="leftsidebar-' + this.id + '" style="position:absolute; z-index:50;left:0px;"></div>')[0];
-        $(this.centerPanelDiv).append(this.rightSidebarDiv);
-        $(this.centerPanelDiv).append(this.leftSidebarDiv);
+        this.leftSidebarDiv = document.createElement('div');
+        this.leftSidebarDiv.setAttribute('class', 'ocb-gv-left-side');
+        this.centerPanelDiv.appendChild(this.leftSidebarDiv);
 
 
-        this.karyotypeDiv = $('<div id="karyotype-' + this.id + '"></div>')[0];
-        $(this.centerPanelDiv).append(this.karyotypeDiv);
+        this.karyotypeDiv = document.createElement('div');
+        this.karyotypeDiv.setAttribute('class', 'ocb-gv-karyotype');
+        this.centerPanelDiv.appendChild(this.karyotypeDiv);
 
-        this.chromosomeDiv = $('<div id="chromosome-' + this.id + '"></div>')[0];
-        $(this.centerPanelDiv).append(this.chromosomeDiv);
+        this.chromosomeDiv = document.createElement('div');
+        this.chromosomeDiv.setAttribute('class', 'ocb-gv-chromosome');
+        this.centerPanelDiv.appendChild(this.chromosomeDiv);
 
-        this.trackListPanelsDiv = $('<div id="trackListPanels-' + this.id + '" class="trackListPanels" ></div>')[0];
-        $(this.centerPanelDiv).append(this.trackListPanelsDiv);
 
-        this.regionDiv = $('<div id="region-' + this.id + '" ></div>')[0];
-        $(this.trackListPanelsDiv).append(this.regionDiv);
+        this.trackListPanelsDiv = document.createElement('div');
+        this.trackListPanelsDiv.setAttribute('class', 'ocb-gv-track');
+        this.centerPanelDiv.appendChild(this.trackListPanelsDiv);
 
-        this.tracksDiv = $('<div id="tracks-' + this.id + '" ></div>')[0];
-        $(this.trackListPanelsDiv).append(this.tracksDiv);
+        this.regionDiv = document.createElement('div');
+        this.regionDiv.setAttribute('class', 'ocb-gv-overview');
+        this.trackListPanelsDiv.appendChild(this.regionDiv);
+
+        this.tracksDiv = document.createElement('div');
+        this.tracksDiv.setAttribute('class', 'ocb-gv-detailed');
+        this.trackListPanelsDiv.appendChild(this.tracksDiv);
 
 
         /****************************/
@@ -273,11 +262,12 @@ GenomeViewer.prototype = {
         this.rendered = true;
     },
     draw: function () {
-        if (!this.rendered) {
-            console.info('Genome Viewer is not rendered yet');
+        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (this.targetDiv === 'undefined') {
+            console.log('target not found');
             return;
         }
-        $(this.targetDiv).append(this.div);
+        this.targetDiv.appendChild(this.div);
     },
 
     destroy: function () {
@@ -821,7 +811,7 @@ GenomeViewer.prototype = {
             //Relaunch
             this.trigger('region:change', event);
             /**/
-
+            return true;
         } else {
             if (event.sender) {
                 if (event.sender.updateRegionControls) {
@@ -831,6 +821,7 @@ GenomeViewer.prototype = {
             console.log('****************************');
             console.log('**************************** region change already in progress');
             console.log('****************************');
+            return false;
         }
 
     },
@@ -858,7 +849,7 @@ GenomeViewer.prototype = {
     /** API METHODS **/
     /*****************/
     setRegion: function (region) {
-        this._regionChangeHandler({region: region});
+        return this._regionChangeHandler({region: region});
     },
     moveRegion: function (disp) {
         this.region.start += disp;
