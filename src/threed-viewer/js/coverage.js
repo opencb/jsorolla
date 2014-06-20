@@ -3,7 +3,7 @@ var coverage = {
     result: {
         chromosome: "1",
         start: 1,
-        end: 40000000,
+        end: 2050000000,
         meansize: 2000,
         mean: [
             25.115, 24.585, 24.805, 23.075, 15.585,

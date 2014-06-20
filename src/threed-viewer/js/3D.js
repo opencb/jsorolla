@@ -356,9 +356,11 @@ Viewer.prototype = {
                 var trackNum = this.disk[i].addTrack(args);
                 tracks.push(this.disk[i].tracks[trackNum]);
             }
-            console.log(tracks);
+//            console.log(tracks);
             this.centralTrack = new Viewer.CentralTrack(tracks);
-            console.log(this.centralTrack);
+            this.figure.add(this.centralTrack.figure);
+//            console.log(this.figure);
+//            console.log(this.centralTrack);
         }
     },
 
@@ -405,11 +407,14 @@ Viewer.prototype = {
         for (var i = 0; i < this.config.numDisk; i++) {
             this.disk[i].figure.rotateZ(angle);
             var coord = (Math.PI - this.disk[i].figure.rotation.z)/this.disk[i].angularLong;
-            if (this.addCentralTrack !== null
+            if (this.centralTrack !== null
+                    && this.centralTrack.tracks.length == this.disk.length
                     && coord <= this.centralTrack.tracks[i].end
                     && coord >= this.centralTrack.tracks[i].start) {
-                console.log("llamando a update");
                 this.centralTrack.update(coord);
+//                    console.log("in" + this.centralTrack.tracks[i].start +  " < " + coord + " < " + this.centralTrack.tracks[i].end)
+            } else {
+//                console.log("out" + this.centralTrack.tracks[i].start +  " < " + coord + " < " + this.centralTrack.tracks[i].end)
             }
         }
     },
@@ -583,6 +588,8 @@ Viewer.Disk.prototype = {
         this.tracks[numTrack].add(args);
     },
     addTrack: function (args) {
+//        console.log("addtrack");
+//        console.log(args);
         var track = new Viewer.Track({radius: this.diskRadius, angularLong: this.angularLong, width: this.layers[0].width});
         var numTrack = this.tracks.length;
         this.tracks.push(track);
@@ -1055,23 +1062,153 @@ Viewer.Track.prototype = {
 
     getElement: function (coord) {
         var position = (coord - this.start)/(this.end - this.start);
-        return position * this.data.length;
+        var index = position * this.data.length;
+        index = Math.floor(index);
+        if (index >= this.data.length) {
+            index = this.data.length -1;
+        }
+        if (index < 0) {
+            index = 0;
+        }
+        return index;
     }
 };
 
-Viewer.CentralTrack = function (tracks) {
-    this.tracks = tracks;
 
+/** le falta argumentos de posicion */
+Viewer.CentralTrack = function (tracks, config) {
+    this.tracks = tracks;
+    this.geometry = new THREE.Geometry();
+    this.material = new THREE.MeshBasicMaterial({color:0xFFFF00});
+    this.figure = null;
+
+    var defaultConfig = {
+        baseHeight: 1.96,
+        mod: 1, // modulus
+        width: 0.9
+    };
+    _.extend(defaultConfig, config);
+
+    this.config = defaultConfig;
+
+    if (this.config.width > 1) {this.config.width = 1;}
+    if (this.config.width < 0 ) {this.config.width = 0;}
+
+
+    this.initGeometry();
+
+
+    this.figure = new THREE.Mesh(this.geometry, this.material );
 };
 
 Viewer.CentralTrack.prototype = {
+    initGeometry: function() {
+        this.geometry = new THREE.Geometry();
+        this.material = new THREE.MeshBasicMaterial({color:0xFFFF00, side: THREE.DoubleSide});
+
+        for (var i = 0; i < this.tracks.length*4; i++) {
+            this.geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+        }
+
+        for (var i = 0; i < this.tracks.length*4; i+=4) {
+            this.geometry.faces.push(new THREE.Face3(i+0, i+1, i+2));
+            this.geometry.faces.push(new THREE.Face3(i+1, i+3, i+2));
+        }
+
+        this.geometry.computeBoundingSphere();
+//        console.log("terminada geometry");
+//        console.log(this.geometry);
+    },
+    setFace: function (a, col1, col2, col3, col4) {
+        var v = this.geometry.vertices.length - 4;
+
+        if (a == 1) {
+            this.geometry.faces[this.numFaces  ].a = v
+            this.geometry.faces[this.numFaces  ].b = v + 1;
+            this.geometry.faces[this.numFaces  ].c = v + 2;
+            this.geometry.faces[this.numFaces  ].vertexColors.push(col1, col2, col3);
+
+            this.geometry.faces[this.numFaces + 1].a = v + 1
+            this.geometry.faces[this.numFaces + 1].b = v + 3;
+            this.geometry.faces[this.numFaces + 1].c = v + 2;
+            this.geometry.faces[this.numFaces + 1].vertexColors.push(col2, col4, col3);
+
+        }
+        else if (a == 2) {
+            this.geometry.faces[this.numFaces  ].a = v
+            this.geometry.faces[this.numFaces  ].b = v + 1;
+            this.geometry.faces[this.numFaces  ].c = v + 2;
+            this.geometry.faces[this.numFaces  ].vertexColors.push(col1, col2, col4);
+
+            this.geometry.faces[this.numFaces + 1].a = v + 2
+            this.geometry.faces[this.numFaces + 1].b = v + 3;
+            this.geometry.faces[this.numFaces + 1].c = v;
+            this.geometry.faces[this.numFaces + 1].vertexColors.push(col4, col3, col1);
+        }
+        this.numFaces += 2;
+    },
     /**
      *
      * @param coord coordinate in disk, [0-1] doesn't include the open part of the disk
      */
     update: function(coord) {
-//        console.log("coord = " + coord);
         var element = this.tracks[0].getElement(coord);
+        var patchNum = this.tracks.length;
+
+        var diff = 2 * Math.PI / patchNum;
+        var rad = 0;
+
+        var baseWidth = this.config.baseHeight * 2 * Math.PI / patchNum; // * disk width
+
+        if (baseWidth > 1) { baseWidth = 1;}
+        var basePosWidth = baseWidth/2;
+        var baseNegWidth = -basePosWidth;
+
+
+        var m1 = new THREE.Matrix4();
+        var m2 = new THREE.Matrix4();
+        var m3 = new THREE.Matrix4();
+//        m2.makeTranslation(this.config.baseHeight, 0, 0);
+//        m3.makeScale(1, 1, width);
+
+        var vertex = 0;
+
+
+        var value = 0.0;
+        var verts = this.geometry.vertices;
+
+        for (var i = 0; i < patchNum; i++, vertex += 4) {
+            value = this.tracks[i].data[element]*this.config.mod;
+            verts[vertex+0] = new THREE.Vector3 (this.config.baseHeight, 0,       this.config.width * basePosWidth);
+            verts[vertex+1] = new THREE.Vector3 (this.config.baseHeight, 0,       this.config.width * baseNegWidth);
+            verts[vertex+2] = new THREE.Vector3 (this.config.baseHeight-value, 0, this.config.width * basePosWidth*(this.config.baseHeight-value)/this.config.baseHeight);
+            verts[vertex+3] = new THREE.Vector3 (this.config.baseHeight-value, 0, this.config.width * baseNegWidth*(this.config.baseHeight-value)/this.config.baseHeight);
+            m1.makeRotationY(rad);
+            verts[vertex+0].applyMatrix4(m1);
+            verts[vertex+1].applyMatrix4(m1);
+            verts[vertex+2].applyMatrix4(m1);
+            verts[vertex+3].applyMatrix4(m1);
+            rad += diff;
+        }
+         this.geometry.verticesNeedUpdate = true;
+         this.geometry.elementsNeedUpdate = true;
+         this.geometry.colorsNeedUpdate = true;
+         this.geometry.computeBoundingSphere();
+
+
+        /*
+
+
+
+            this.figure.applyMatrix(m1);
+
+            m1.multiply(m2);
+
+            this.disk[i].figure.matrix.identity();
+            this.disk[i].figure.applyMatrix(m3);
+            this.disk[i].figure.applyMatrix(m1);
+
+*/
 //        console.log("update");
 //        console.log(element);
     }

@@ -180,18 +180,18 @@ Torus.prototype = {
     obtainCoverages: function () {
         normalize(coverage.result.mean, 50);
         normalize(coverage.result.region, 50);
-        console.log("samples en obtain: " + this.data.samples.length);
+        //console.log("samples en obtain: " + this.data.samples.length);
         for (var j = 0; j < this.data.samples.length; j++) {
             this.data.samples[j].coverage = _.extend({}, coverage.result);
-            this.data.samples[j].coverage.mean = new Array(1000);
-            for (var i = 0; i < 1000; i++) {
+            this.data.samples[j].coverage.mean = new Array(100);
+            for (var i = 0; i < 100; i++) {
                 this.data.samples[j].coverage.mean[i] = Math.random();
             }
         }
 
         // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
 
-        console.log(this.data.samples);
+        //console.log(this.data.samples);
     },
     /**
      * example: when the user ticks a check box,
@@ -205,8 +205,12 @@ Torus.prototype = {
     setCoverages: function(withCentralTrack/*,coverage.json from url to ws*/) {
 
         if (withCentralTrack == true) {
-            var trackArgs = {start:0, end:0.35, z:0.5, y:0.05, mod:-1/5, ang:0,
-                baseColorHex:0x0000FF, topColorHex:0xFF0000, trackType:Viewer.Track.ColumnHistogram};
+
+            var length = this.viewer.metaData.ntsCount;
+            var start = (this.data.samples[0].coverage.start-1)/length;
+            var end = this.data.samples[0].coverage.end/length;
+            var trackArgs = {start:start, end:end, z:0.5, y:0.05, mod:1.0, ang:Math.PI/2,
+                baseColorHex:0xFF1100, topColorHex:0x00FF00, trackType:Viewer.Track.ColumnHistogram};
             trackArgs.dataset = [];
 
             for (var i = 0; i < this.data.samples.length; i++) {
