@@ -100,14 +100,14 @@ NavigationBar.prototype = {
 
 
             '   <div id="zoomControl" class="btn-group" style="margin-left:5px;">' +
-            '       <button id="zoomMinButton" class="btn btn-default custom-xs" type="button" style="width:31px">0</button>' +
+            '       <button id="zoomMinButton" class="btn btn-default custom-xs" type="button" style="width:31px"> 0 </button>' +
             '       <button id="zoomOutButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
             '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:22px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
             '           </div>' +
             '       </div>' +
             '       <button id="zoomInButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-plus"></span></button>' +
-            '       <button id="zoomMaxButton" class="btn btn-default custom-xs" type="button" style="width:31px">100</button>' +
+            '       <button id="zoomMaxButton" class="btn btn-default custom-xs" type="button" style="width:40px"> 100 </button>' +
             '   </div>' +
 
 
@@ -180,7 +180,7 @@ NavigationBar.prototype = {
             padding: '2px 4px',
             height: '22px',
             lineHeight: '16px',
-            fontSize: '14px'
+            fontSize: '13px'
         });
 
         var els = $(this.div).find('*[id]');

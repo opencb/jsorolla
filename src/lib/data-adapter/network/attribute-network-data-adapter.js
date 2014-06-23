@@ -141,6 +141,7 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
         this.trigger('data:load', {sender: this});
     } catch (e) {
         console.log(e);
+        console.log(e.stack);
         this.trigger('error:parse', {errorMsg: 'Parse error', sender: this});
     }
 

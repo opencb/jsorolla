@@ -72,10 +72,6 @@ NetworkViewer.prototype = {
         //HTML skel
         this.div = document.createElement('div');
         $(this.div).attr('id', this.id).addClass('bootstrap').css({
-            borderBottomWidth: '0px',
-            borderTopWidth: '0px',
-            borderRightWidth: '0px',
-            borderLeftWidth: '0px',
             height: this.height + 'px'
         });
 
@@ -139,12 +135,6 @@ NetworkViewer.prototype = {
                 "z-index": 50
             });
         }
-
-        if (this.border) {
-            var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
-            $(this.div).css({border: border});
-        }
-
 
         this.zoom = this.session.getZoom();
         //
@@ -240,15 +230,9 @@ NetworkViewer.prototype = {
         var editionbarHeight = this.editionBar.getHeight();
         var statusBarHeight = parseInt(this.statusbarDiv.style.height);
 
-        var bTopWidth = parseInt(this.div.style.borderBottomWidth);
-        var bBottomWidth = parseInt(this.div.style.borderTopWidth);
-        var bRightWidth = parseInt(this.div.style.borderRightWidth);
-        var bLeftWidth = parseInt(this.div.style.borderLeftWidth);
+        var height = this.height - toolbarHeight - editionbarHeight - statusBarHeight;
 
-        var height = this.height - toolbarHeight - editionbarHeight - statusBarHeight - bTopWidth - bBottomWidth;
-        var width = this.width - bRightWidth - bLeftWidth;
-
-        this.networkSvgLayout.setSize(width, height);
+        this.networkSvgLayout.setSize(this.width, height);
     },
     draw: function () {
         this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
@@ -511,21 +495,16 @@ NetworkViewer.prototype = {
     _createNetworkSvgLayout: function (target) {
         var _this = this;
 
+
         var toolbarHeight = this.toolBar.getHeight();
         var editionbarHeight = this.editionBar.getHeight();
         var statusBarHeight = parseInt(this.statusbarDiv.style.height);
 
-        var bTopWidth = parseInt(this.div.style.borderBottomWidth);
-        var bBottomWidth = parseInt(this.div.style.borderTopWidth);
-        var bRightWidth = parseInt(this.div.style.borderRightWidth);
-        var bLeftWidth = parseInt(this.div.style.borderLeftWidth);
-
-        var height = this.height - toolbarHeight - editionbarHeight - statusBarHeight - bTopWidth - bBottomWidth;
-        var width = this.width - bRightWidth - bLeftWidth;
+        var height = this.height - toolbarHeight - editionbarHeight - statusBarHeight;
 
         var networkSvgLayout = new NetworkSvgLayout({
             target: target,
-            width: width,
+            width: this.width,
             height: height,
             session: this.session,
             handlers: {

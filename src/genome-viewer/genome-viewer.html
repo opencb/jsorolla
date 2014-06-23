@@ -130,10 +130,12 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
+
     genomeViewer = new GenomeViewer({
         cellBaseHost: 'http://www.ebi.ac.uk/cellbase/webservices/rest',
         cellBaseVersion: 'v3',
-        targetId: 'application',
+        target: 'application',
+        width: $('#application').width(),
         region: region,
         availableSpecies: availableSpecies,
         species: species,
@@ -329,35 +331,32 @@ $(document).ready(run);
 </script>
 
 <style type="text/css">
-    html, body {
-        /*height: 100%;*/
-        /*position:relative;*/
+    html {
+        width:100%;
+        height:100%;
+        position: fixed;
+        overflow-x: hidden;
     }
-
     body {
-        margin: 10px;
-        margin-right: 30px;
-        /*overflow: hidden;*/
-        /*padding:50px;*/
+        margin: 0px;
     }
-
     #application {
-        /*width: 1440px;*/
-        /*width: 1000px;*/
-        /*height: 800px;*/
-        /*overflow-y: auto;*/
-        /*overflow-x: hidden;*/
-        /*padding: 10px;*/
-        /*border:10px solid red*/
+        margin: 0 auto;
+        width: 1500px;
+        border: 1px solid lightgray;
+    }
+    #title {
+        margin: 20px auto;
+        width: 1500px;
+        font-size: 35px;
+        color:gray;
     }
 </style>
 
 </head>
 
 <body>
-<div style=""></div>
+<div id="title">Genome Viewer</div>
 <div id="application"></div>
-<div style=""></div>
-
 </body>
 </html>
