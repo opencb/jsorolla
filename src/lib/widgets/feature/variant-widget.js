@@ -5,13 +5,14 @@ function VariantWidget(args) {
     this.id = Utils.genId("VariantWidget");
 
     //set default args
-    this.border = true;
+    this.target;
     this.autoRender = true;
     this.width;
     this.height = '100%';
+    this
+        .url = "";
+    this.border = true;
     this.closable = true;
-    this.url = "";
-    this.target;
     this.filters = {
         segregation: true,
         maf: true,
@@ -113,19 +114,19 @@ VariantWidget.prototype = {
 
         if (this.tools.variantEffect) {
             this.toolsPanel.add(this.variantEffectWidget.getPanel());
-            if(activeTab == null)
+            if (activeTab == null)
                 activeTab = this.variantEffectWidget.getPanel();
         }
 
         if (this.tools.genotype) {
             this.toolsPanel.add(this.genotypeWidget.getPanel());
-            if(activeTab == null)
+            if (activeTab == null)
                 activeTab = this.genotypeWidget.getPanel();
         }
 
         if (this.tools.genomeViewer) {
             this.toolsPanel.add(this.genomeViewerPanel);
-            if(activeTab == null)
+            if (activeTab == null)
                 activeTab = this.genomeViewerPanel;
         }
 
@@ -798,7 +799,7 @@ VariantWidget.prototype = {
                         text: '<span style="font-weight:bold">Reload</span>',
                         tooltip: 'Reload',
                         handler: function () {
-                            Ext.example.msg('Reload', 'Sucessfully')
+                            Utils.msg('Reload', 'Sucessfully')
                             _this._reloadForm();
                         }
                     } ,
@@ -808,8 +809,8 @@ VariantWidget.prototype = {
                         text: '<span style="font-weight:bold">Clear</span>',
                         tooltip: 'Clear',
                         handler: function () {
-                            Ext.example.msg('Clear', 'Sucessfully');
                             _this._clearForm();
+                            Utils.msg('Clear', 'Sucessfully');
                             Ext.getCmp(_this.id + "region_list").setValue("");
                             Ext.getCmp(_this.id + "genes").setValue("");
                         }
@@ -1082,23 +1083,23 @@ VariantWidget.prototype = {
             }
         ];
         _this.attributes = [
-            {name: "chromosome"        , type: "string"},
-            {name: "position"          , type: "int"},
-            {name: "alt"               , type: "string"},
-            {name: "ref"               , type: "string"},
-            {name: 'stats_id_snp'      , type: 'string'},
-            {name: 'stats_maf'         , type: 'number'},
-            {name: 'stats_mgf'         , type: 'number'},
-            {name: 'stats_miss_gt'     , type: 'int'},
-            {name: 'stats_is_indel'    , type: 'boolean'},
-            {name: 'gene_name'         , type: 'string'},
-            {name: 'consequence_types' , type: 'string'},
-            {name: "controls"          , type: 'auto'},
-            {name: "phenotype"         , type: "string"},
-            {name: "polyphen_score"    , type: 'number'},
-            {name: "polyphen_effect"   , type: 'int'},
-            {name: "sift_score"        , type: 'number'},
-            {name: "sift_effect"       , type: 'int'}
+            {name: "chromosome", type: "string"},
+            {name: "position", type: "int"},
+            {name: "alt", type: "string"},
+            {name: "ref", type: "string"},
+            {name: 'stats_id_snp', type: 'string'},
+            {name: 'stats_maf', type: 'number'},
+            {name: 'stats_mgf', type: 'number'},
+            {name: 'stats_miss_gt', type: 'int'},
+            {name: 'stats_is_indel', type: 'boolean'},
+            {name: 'gene_name', type: 'string'},
+            {name: 'consequence_types', type: 'string'},
+            {name: "controls", type: 'auto'},
+            {name: "phenotype", type: "string"},
+            {name: "polyphen_score", type: 'number'},
+            {name: "polyphen_effect", type: 'int'},
+            {name: "sift_score", type: 'number'},
+            {name: "sift_effect", type: 'int'}
         ];
         _this.model = Ext.define('Variant', {
             extend: 'Ext.data.Model',
@@ -1609,9 +1610,7 @@ VariantWidget.prototype = {
             border: false,
             collapsed: true,
             items: [
-                {
-                    xtype: 'tbtext', text: '<span class="info">Enter regions (comma separated)</span>'
-                },
+                {xtype: 'tbtext', text: '<span class="info">Enter regions (comma separated)</span>'},
                 regionList
             ]
         });
@@ -1636,9 +1635,7 @@ VariantWidget.prototype = {
             margin: "0 0 5 0",
             width: "100%",
             items: [
-                {
-                    xtype: 'tbtext', text: '<span class="info">Enter genes (comma separated)</span>'
-                },
+                {xtype: 'tbtext', text: '<span class="info">Enter genes (comma separated)</span>'},
                 geneList
             ]
         });
@@ -1782,10 +1779,7 @@ VariantWidget.prototype = {
         var dataAux = [];
         for (var key in data) {
             if (key != '.') {
-                dataAux.push({
-                    name: Utils.formatText(key, "_"),
-                    value: key
-                });
+                dataAux.push({name: Utils.formatText(key, "_"), value: key});
             }
         }
         var storeAux = Ext.create('Ext.data.Store', {
@@ -1809,10 +1803,10 @@ VariantWidget.prototype = {
         });
     },
     _clearForm: function () {
-        _this.form.getForm().reset();
+        this.form.getForm().reset();
     },
     _reloadForm: function () {
-        _this.form.getForm().reset();
+        this.form.getForm().reset();
     },
     _checkForm: function () {
         var reg = Ext.getCmp(this.id + "region_list");
