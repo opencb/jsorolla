@@ -108,7 +108,7 @@ function GenomeViewer(args) {
 GenomeViewer.prototype = {
     render: function () {
         var _this = this;
-        console.log("Initializing Cell Maps");
+        console.log("Initializing Genome Viewer");
 
         //HTML skel
         this.div = document.createElement('div');
@@ -263,7 +263,7 @@ GenomeViewer.prototype = {
     },
     draw: function () {
         this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
-        if (this.targetDiv === 'undefined') {
+        if (!this.targetDiv) {
             console.log('target not found');
             return;
         }

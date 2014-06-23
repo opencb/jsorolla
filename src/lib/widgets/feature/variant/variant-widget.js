@@ -9,9 +9,7 @@ function VariantWidget(args) {
     this.autoRender = true;
     this.width;
     this.height = '100%';
-    this
-        .url = "";
-    this.border = true;
+    this.url = "";
     this.closable = true;
     this.filters = {
         segregation: true,
@@ -36,7 +34,7 @@ function VariantWidget(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.panelId = "VariantWidget_" + this.job.id;
+//    this.panelId = "VariantWidget_" + this.job.id;
 
     this.rendered = false;
     if (this.autoRender) {
@@ -47,23 +45,26 @@ function VariantWidget(args) {
 VariantWidget.prototype = {
     render: function (target) {
         var _this = this;
-        this.target = (target) ? target : this.target;
 
-        /* main panel */
-        this.panel = this._createPanel(this.target);
+        //HTML skel
+        this.div = document.createElement('div');
+        this.div.setAttribute('id', this.id);
 
-        if (this.tools.variantEffect) {
-            this.variantEffectWidget = this._createVariantEffectGridWidget();
-        }
+        this.variantBrowserGridDiv = document.createElement('div');
+        this.variantBrowserGridDiv.setAttribute('class', 'ocb-variant-widget-grid');
+        this.div.appendChild(this.variantBrowserGridDiv);
 
-        if (this.tools.genomeViewer) {
-            this.genomeViewerPanel = this._createGenomeViewer();
-        }
-        if (this.tools.genotype) {
-            this.genotypeWidget = this._createGenotypeGridWidget();
-        }
+        this.tabPanelDiv = document.createElement('div');
+        this.tabPanelDiv.setAttribute('class', 'ocb-variant-tab-panel');
+        this.div.appendChild(this.tabPanelDiv);
 
-        this.toolsPanel = Ext.create("Ext.tab.Panel", {
+        this.variantEffectGridDiv = document.createElement('div');
+        this.variantEffectGridDiv.setAttribute('class', 'ocb-variant-effect-grid');
+
+        this.variantGenotypeGridDiv = document.createElement('div');
+        this.variantGenotypeGridDiv.setAttribute('class', 'ocb-variant-genotype-grid');
+
+        this.toolTabPanel = Ext.create("Ext.tab.Panel", {
             title: 'Tools',
             border: 0,
             layout: 'fit',
@@ -72,24 +73,171 @@ VariantWidget.prototype = {
             animCollapse: false,
             collapseDirection: Ext.Component.DIRECTION_BOTTOM,
             titleCollapse: true,
-            overlapHeader: true
+            overlapHeader: true,
+            items: [
+                {
+                    title: 'Effect',
+                    items: this.variantEffectGridDiv,
+                    height: 500,
+//                    height:'100%',
+                },
+                {
+                    title: 'Genotyoe',
+                    items: this.variantGenotypeGridDiv,
+                    height: 500,
+//                    height:'100%',
+                }
+            ]
         });
+
+
+        this.variantBrowserGrid = this._createVariantBrowserGrid(this.variantBrowserGridDiv);
+
+        this.variantEffectGrid = this._createVariantEffectGrid(this.variantEffectGridDiv);
+
+        this.variantGenotypeGrid = this._createVariantGenotypeGrid(this.variantGenotypeGridDiv);
+
+//        /* main panel */
+//        this.panel = this._createPanel(this.target);
+
+//        if (this.tools.variantEffect) {
+//            this.variantEffectWidget = this._createVariantEffectGridWidget();
+//        }
+//
+//        if (this.tools.genomeViewer) {
+//            this.genomeViewerPanel = this._createGenomeViewer();
+//        }
+//        if (this.tools.genotype) {
+//            this.genotypeWidget = this._createGenotypeGridWidget();
+//        }
+
+//        this.toolsPanel = Ext.create("Ext.tab.Panel", {
+//            title: 'Tools',
+//            border: 0,
+//            layout: 'fit',
+//            margin: '10 0 0 0',
+//            collapsible: true,
+//            animCollapse: false,
+//            collapseDirection: Ext.Component.DIRECTION_BOTTOM,
+//            titleCollapse: true,
+//            overlapHeader: true
+//        });
         this.rendered = true;
+
+
     },
     draw: function () {
         var _this = this;
+        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.targetDiv) {
+            console.log('target not found');
+            return;
+        }
+        this.targetDiv.appendChild(this.div);
 
-        OpencgaManager.variantInfoMongo({
-            accountId: $.cookie("bioinfo_account"),
-            sessionId: $.cookie("bioinfo_sid"),
-            filename: this.dbName,
-            jobId: this.job.id,
-            success: function (data, textStatus, jqXHR) {
-                _this.variantInfo = data.response.result[0];
-                _this._draw();
+        this.variantBrowserGrid.draw();
+
+        this.toolTabPanel.render(this.tabPanelDiv);
+
+        this.variantEffectGrid.draw();
+
+        this.toolTabPanel.setActiveTab(1);
+        this.variantGenotypeGrid.draw();
+
+//        OpencgaManager.variantInfoMongo({
+//            accountId: $.cookie("bioinfo_account"),
+//            sessionId: $.cookie("bioinfo_sid"),
+//            filename: this.dbName,
+//            jobId: this.job.id,
+//            success: function (data, textStatus, jqXHR) {
+//                _this.variantInfo = data.response.result[0];
+//                _this._draw();
+//            }
+//        });
+
+        this.variantEffectGrid.load("1", 1849744, "G", "A");
+        this.variantGenotypeGrid.load([
+            {sample: "sample1", genotype:"0/0", sex:"1", phenotype:"phenotype"},
+            {sample: "sample2", genotype:"0/0", sex:"1", phenotype:"phenotype"},
+            {sample: "sample3", genotype:"0/0", sex:"1", phenotype:"phenotype"}
+        ]);
+        this.toolTabPanel.setActiveTab(0);
+    },
+
+    _createVariantBrowserGrid: function (target) {
+
+        var variantBrowserGrid = new VariantBrowserGrid({
+            target: target
+        });
+
+
+        return variantBrowserGrid;
+    },
+
+    _createVariantEffectGrid: function (target) {
+        var _this = this;
+        var variantEffectGrid = new VariantEffectGrid({
+            target: target,
+            gridConfig: {
+                flex: 1,
+                layout: {
+                    align: 'stretch'
+                }
+            },
+            handlers: {
+                "load:finish": function (e) {
+//                    _this.grid.setLoading(false);
+                }
             }
         });
+
+        this.on("_grid:clear", function (e) {
+            variantEffectGrid.clear(true);
+        });
+
+        this.on("_grid:change", function (e) {
+            var row = e.args;
+            variantEffectGrid.load(row.chromosome, row.position, row.ref, row.alt);
+
+        });
+        return variantEffectGrid;
     },
+    _createVariantGenotypeGrid: function (target) {
+        var _this = this;
+        var variantGenotypeGrid = new VariantGenotypeGrid({
+            target: target,
+            gridConfig: {
+                flex: 1,
+                layout: {
+                    align: 'stretch'
+                }
+            },
+            handlers: {
+                "load:finish": function (e) {
+//                    _this.grid.setLoading(false);
+                }
+            }
+        });
+
+        _this.on("_grid:clear", function (e) {
+            variantGenotypeGrid.clear(true);
+        });
+
+        _this.on("_grid:change", function (e) {
+            var row = e.args;
+            var gts = [];
+
+            for (var key in row.sampleGenotypes) {
+                gts.push({
+                    sample: key,
+                    genotype: row.sampleGenotypes[key]
+                });
+            }
+            _this.genotypeWidget.load(gts);
+        });
+        return variantGenotypeGrid;
+    },
+
     _draw: function () {
         var activeTab = null;
         this.optValues = Ext.create('Ext.data.Store', {
@@ -185,44 +333,9 @@ VariantWidget.prototype = {
 
         return panel;
     },
-    _createGenotypeGridWidget: function () {
-        var _this = this;
-        var gw = new GenotypeGridWidget({
-            gridConfig: {
-                title: 'Genotypes',
-                flex: 1,
-                layout: {
-                    align: 'stretch'
-                }
-            },
-            handlers: {
-                "load:finish": function (e) {
-                    _this.grid.setLoading(false);
-                }
-            }
-        });
-
-        _this.on("_grid:clear", function (e) {
-            gw.clear(true);
-        });
-
-        _this.on("_grid:change", function (e) {
-            var row = e.args;
-            var gts = [];
-
-            for (var key in row.sampleGenotypes) {
-                gts.push({
-                    sample: key,
-                    genotype: row.sampleGenotypes[key]
-                });
-            }
-            _this.genotypeWidget.load(gts);
-        });
-        return gw;
-    },
     _createVariantEffectGridWidget: function () {
         var _this = this;
-        var vew = new VariantEffectGridWidget({
+        var vew = new VariantEffectGrid({
             gridConfig: {
                 flex: 1,
                 layout: {
