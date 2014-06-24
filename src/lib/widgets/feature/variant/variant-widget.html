@@ -138,13 +138,16 @@
                 data: [],
                 url: url,
                 filters: {},
+                width: $('#application').width(),
                 defaultToolConfig: {
                     effect: false
                 },
-                tools: [{
-                    title:"Variant Effect Custom",
-                    tool: variantEffectGrid
-                }]
+                tools: [
+                    {
+                        title: "Variant Effect Custom",
+                        tool: variantEffectGrid
+                    }
+                ]
             }); //the div must exist
             variantWidget.draw();
         });

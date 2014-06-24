@@ -8,7 +8,7 @@ function VariantWidget(args) {
     this.target;
     this.autoRender = true;
     this.width;
-    this.height = '100%';
+//    this.height = '100%';
     this.url = "";
     this.closable = true;
     this.filters = {
@@ -106,11 +106,10 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: 'Genomic Context',
                 contentEl: this.genomeViewerDiv,
-                height: 500,
+//                height: 500,
 //                    height:'100%',
             });
         }
-
 
 
         for (var i = 0; i < this.tools.length; i++) {
@@ -325,7 +324,7 @@ VariantWidget.prototype = {
             target: target,
             border: false,
             resizable: true,
-            width: 1000,
+            width: this.width,
             region: region,
             trackListTitle: '',
             drawNavigationBar: true,
