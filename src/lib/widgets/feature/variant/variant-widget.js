@@ -18,18 +18,14 @@ function VariantWidget(args) {
         region: true,
         gene: true
     };
-    this.tools = {
-        summary: true,
-        variantEffect: true,
-        genomeViewer: true,
-        genotype: true
-    };
+    this.defaultToolConfig = {effect: true, genomeViewer: true, genotype: true};
+    this.tools = [];
 
     _.extend(this.filters, args.filters);
-    _.extend(this.tools, args.tools);
+    _.extend(this.defaultToolConfig, args.defaultToolConfig);
 
     delete args.filters;
-    delete args.tools;
+    delete args.defaultToolConfig;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -54,15 +50,12 @@ VariantWidget.prototype = {
         this.variantBrowserGridDiv.setAttribute('class', 'ocb-variant-widget-grid');
         this.div.appendChild(this.variantBrowserGridDiv);
 
+        this.variantBrowserGrid = this._createVariantBrowserGrid(this.variantBrowserGridDiv);
+
+
         this.tabPanelDiv = document.createElement('div');
         this.tabPanelDiv.setAttribute('class', 'ocb-variant-tab-panel');
         this.div.appendChild(this.tabPanelDiv);
-
-        this.variantEffectGridDiv = document.createElement('div');
-        this.variantEffectGridDiv.setAttribute('class', 'ocb-variant-effect-grid');
-
-        this.variantGenotypeGridDiv = document.createElement('div');
-        this.variantGenotypeGridDiv.setAttribute('class', 'ocb-variant-genotype-grid');
 
         this.toolTabPanel = Ext.create("Ext.tab.Panel", {
             title: 'Tools',
@@ -74,28 +67,69 @@ VariantWidget.prototype = {
             collapseDirection: Ext.Component.DIRECTION_BOTTOM,
             titleCollapse: true,
             overlapHeader: true,
-            items: [
-                {
-                    title: 'Effect',
-                    items: this.variantEffectGridDiv,
-                    height: 500,
-//                    height:'100%',
-                },
-                {
-                    title: 'Genotyoe',
-                    items: this.variantGenotypeGridDiv,
-                    height: 500,
-//                    height:'100%',
-                }
-            ]
+            defaults: {
+                hideMode: 'offsets',
+                autoShow: true
+            }
         });
 
+        var tabPanelItems = [];
 
-        this.variantBrowserGrid = this._createVariantBrowserGrid(this.variantBrowserGridDiv);
+        if (this.defaultToolConfig.effect) {
+            this.variantEffectGridDiv = document.createElement('div');
+            this.variantEffectGridDiv.setAttribute('class', 'ocb-variant-effect-grid');
+            this.variantEffectGrid = this._createVariantEffectGrid(this.variantEffectGridDiv);
+            tabPanelItems.push({
+                title: 'Effect',
+                contentEl: this.variantEffectGridDiv,
+                height: 500,
+//                    height:'100%',
+            });
+        }
 
-        this.variantEffectGrid = this._createVariantEffectGrid(this.variantEffectGridDiv);
+        if (this.defaultToolConfig.genotype) {
+            this.variantGenotypeGridDiv = document.createElement('div');
+            this.variantGenotypeGridDiv.setAttribute('class', 'ocb-variant-genotype-grid');
+            this.variantGenotypeGrid = this._createVariantGenotypeGrid(this.variantGenotypeGridDiv);
+            tabPanelItems.push({
+                title: 'Genotyoe',
+                contentEl: this.variantGenotypeGridDiv,
+                height: 500,
+//                    height:'100%',
+            });
+        }
 
-        this.variantGenotypeGrid = this._createVariantGenotypeGrid(this.variantGenotypeGridDiv);
+        if (this.defaultToolConfig.genomeViewer) {
+            this.genomeViewerDiv = document.createElement('div');
+            this.genomeViewerDiv.setAttribute('class', 'ocb-gv');
+            this.genomeViewer = this._createGenomeViewer(this.genomeViewerDiv);
+            tabPanelItems.push({
+                title: 'Genomic Context',
+                contentEl: this.genomeViewerDiv,
+                height: 500,
+//                    height:'100%',
+            });
+        }
+
+
+
+        for (var i = 0; i < this.tools.length; i++) {
+            var tool = this.tools[i];
+            var toolDiv = document.createElement('div');
+            toolDiv.setAttribute('class', 'ocb-gv');
+
+            tool.tool.target = toolDiv;
+
+            tabPanelItems.push({
+                title: tool.title,
+                contentEl: toolDiv,
+                height: 500,
+            });
+        }
+
+
+        this.toolTabPanel.add(tabPanelItems);
+
 
 //        /* main panel */
 //        this.panel = this._createPanel(this.target);
@@ -139,10 +173,32 @@ VariantWidget.prototype = {
 
         this.toolTabPanel.render(this.tabPanelDiv);
 
-        this.variantEffectGrid.draw();
 
-        this.toolTabPanel.setActiveTab(1);
-        this.variantGenotypeGrid.draw();
+        for (var i = 0; i < this.toolTabPanel.items.items.length; i++) {
+//            var obj = this.toolTabPanel.items.items[i];
+            this.toolTabPanel.setActiveTab(i);
+        }
+
+
+        if (this.defaultToolConfig.effect) {
+
+            this.variantEffectGrid.draw();
+        }
+
+
+        if (this.defaultToolConfig.genotype) {
+
+            this.variantGenotypeGrid.draw();
+        }
+
+        if (this.defaultToolConfig.genomeViewer) {
+            this.genomeViewer.draw();
+        }
+
+        for (var i = 0; i < this.tools.length; i++) {
+            var tool = this.tools[i];
+            tool.tool.draw();
+        }
 
 //        OpencgaManager.variantInfoMongo({
 //            accountId: $.cookie("bioinfo_account"),
@@ -155,13 +211,17 @@ VariantWidget.prototype = {
 //            }
 //        });
 
-        this.variantEffectGrid.load("1", 1849744, "G", "A");
-        this.variantGenotypeGrid.load([
-            {sample: "sample1", genotype:"0/0", sex:"1", phenotype:"phenotype"},
-            {sample: "sample2", genotype:"0/0", sex:"1", phenotype:"phenotype"},
-            {sample: "sample3", genotype:"0/0", sex:"1", phenotype:"phenotype"}
-        ]);
-        this.toolTabPanel.setActiveTab(0);
+//        this.variantEffectGrid.load("1", 1849744, "G", "A");
+//        this.variantGenotypeGrid.load([
+//            {sample: "sample1", genotype: "0/0", sex: "1", phenotype: "phenotype"},
+//            {sample: "sample2", genotype: "0/0", sex: "1", phenotype: "phenotype"},
+//            {sample: "sample3", genotype: "0/0", sex: "1", phenotype: "phenotype"}
+//        ]);
+
+//        this.toolTabPanel.setActiveTab(0);
+    },
+    addTool: function (tool, position) {
+
     },
 
     _createVariantBrowserGrid: function (target) {
@@ -237,6 +297,183 @@ VariantWidget.prototype = {
         });
         return variantGenotypeGrid;
     },
+
+
+    _createGenomeViewer: function (target) {
+        var _this = this;
+
+
+        var region = new Region({
+            chromosome: "13",
+            start: 32889611,
+            end: 32889611
+        });
+
+//        var selection = _this.grid.getView().getSelectionModel().getSelection();
+//        if (selection.length > 0) {
+//            row = selection[0];
+//            region = new Region({
+//                chromosome: row.get("chromosome"),
+//                start: row.get("position"),
+//                end: row.get("position")
+//            });
+//
+//        }
+
+        var genomeViewer = new GenomeViewer({
+            sidePanel: false,
+            target: target,
+            border: false,
+            resizable: true,
+            width: 1000,
+            region: region,
+            trackListTitle: '',
+            drawNavigationBar: true,
+            drawKaryotypePanel: false,
+            drawChromosomePanel: false,
+            drawRegionOverviewPanel: true,
+            overviewZoomMultiplier: 50,
+            navigationBarConfig: {
+                componentsConfig: {
+                    restoreDefaultRegionButton: false,
+                    regionHistoryButton: false,
+                    speciesButton: false,
+                    chromosomesButton: false,
+                    karyotypeButton: false,
+                    chromosomeButton: false,
+                    regionButton: false,
+//                    zoomControl: false,
+                    windowSizeControl: false,
+//                    positionControl: false,
+//                    moveControl: false,
+//                    autoheightButton: false,
+//                    compactButton: false,
+//                    searchControl: false
+                }
+            },
+        }); //the div must exist
+
+
+        var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
+        renderer.on({
+            'feature:click': function (event) {
+                // feature click event example
+                console.log(event)
+            }
+        });
+        var geneOverview = new FeatureTrack({
+            targetId: null,
+            id: 2,
+//        title: 'Gene overview',
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            height: 100,
+
+            renderer: renderer,
+
+            dataAdapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "gene",
+                params: {
+                    exclude: 'transcripts,chunkIds'
+                },
+                species: genomeViewer.species,
+                cacheConfig: {
+                    chunkSize: 100000
+                }
+            })
+        });
+
+
+        var sequence = new SequenceTrack({
+            targetId: null,
+            id: 1,
+//        title: 'Sequence',
+            height: 30,
+            visibleRegionSize: 200,
+
+            renderer: new SequenceRenderer(),
+
+            dataAdapter: new SequenceAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "sequence",
+                species: genomeViewer.species
+            })
+        });
+
+
+        var gene = new GeneTrack({
+            targetId: null,
+            id: 2,
+            title: 'Gene',
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            minTranscriptRegionSize: 200000,
+            height: 140,
+
+            renderer: new GeneRenderer(),
+
+            dataAdapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "gene",
+                species: genomeViewer.species,
+                params: {
+                    exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                },
+                cacheConfig: {
+                    chunkSize: 100000
+                }
+            })
+        });
+
+        var snp = new FeatureTrack({
+            targetId: null,
+            id: 4,
+            title: 'SNP',
+            featureType: 'SNP',
+            minHistogramRegionSize: 10000,
+            maxLabelRegionSize: 3000,
+            height: 100,
+
+            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
+
+            dataAdapter: new CellBaseAdapter({
+                category: "genomic",
+                subCategory: "region",
+                resource: "snp",
+                params: {
+                    exclude: 'transcriptVariations,xrefs,samples'
+                },
+                species: genomeViewer.species,
+                cacheConfig: {
+                    chunkSize: 10000
+                }
+            })
+        });
+
+        genomeViewer.addOverviewTrack(geneOverview);
+        genomeViewer.addTrack([sequence, gene, snp]);
+
+
+        this.on("_grid:change", function (e) {
+            var row = e.args;
+
+            var region = new Region({
+                chromosome: row.chromosome,
+                start: row.position,
+                end: row.position
+            });
+
+            if (!_.isUndefined(_this.gv)) {
+                _this.gv.setRegion(region);
+            }
+        });
+        return genomeViewer;
+    },
+
 
     _draw: function () {
         var activeTab = null;
@@ -708,184 +945,7 @@ VariantWidget.prototype = {
 
         return panel;
     },
-    _createGenomeViewer: function () {
-        var _this = this;
 
-        var rendered = true;
-
-        var gvpanel = Ext.create('Ext.panel.Panel', {
-            title: 'Genome Viewer',
-            flex: 8,
-            height: '100%',
-            border: 1,
-            html: '<div id="' + this.id + 'genomeViewer" style="width:1200px;height:300px;position:relative;"></div>',
-            listeners: {
-                afterlayout: {
-                    fn: function () {
-                        //prevent fires multiple times
-                        if (!rendered) {
-                            return;
-                        }
-                        rendered = false;
-                        var w = this.getWidth();
-                        console.log(w);
-                        $('#' + _this.id + 'genomeViewer').width(w);
-
-                        var region = new Region({
-                            chromosome: "13",
-                            start: 32889611,
-                            end: 32889611
-                        });
-
-                        var selection = _this.grid.getView().getSelectionModel().getSelection();
-                        if (selection.length > 0) {
-                            row = selection[0];
-                            region = new Region({
-                                chromosome: row.get("chromosome"),
-                                start: row.get("position"),
-                                end: row.get("position")
-                            });
-
-                        }
-
-                        var genomeViewer = new GenomeViewer({
-                            sidePanel: false,
-                            targetId: _this.id + 'genomeViewer',
-                            autoRender: true,
-                            border: false,
-                            resizable: true,
-                            region: region,
-                            trackListTitle: '',
-                            drawNavigationBar: true,
-                            drawKaryotypePanel: false,
-                            drawChromosomePanel: false,
-                            drawRegionOverviewPanel: true,
-                            overviewZoomMultiplier: 50
-                        }); //the div must exist
-
-                        genomeViewer.draw();
-
-                        this.sequence = new SequenceTrack({
-                            targetId: null,
-                            id: 1,
-                            title: 'Sequence',
-                            height: 30,
-                            visibleRegionSize: 200,
-                            histogramZoom: 20,
-                            transcriptZoom: 50,
-                            renderer: new SequenceRenderer(),
-                            dataAdapter: new SequenceAdapter({
-                                category: "genomic",
-                                subCategory: "region",
-                                resource: "sequence",
-                                species: genomeViewer.species
-                            })
-                        });
-
-                        this.gene = new GeneTrack({
-                            targetId: null,
-                            id: 2,
-                            title: 'Gene',
-                            height: 140,
-                            minHistogramRegionSize: 20000000,
-                            maxLabelRegionSize: 10000000,
-                            minTranscriptRegionSize: 200000,
-                            renderer: new GeneRenderer(),
-                            dataAdapter: new CellBaseAdapter({
-                                category: "genomic",
-                                subCategory: "region",
-                                resource: "gene",
-                                species: genomeViewer.species,
-                                params: {
-                                    exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                                },
-                                cacheConfig: {
-                                    chunkSize: 50000
-                                },
-                                filters: {},
-                                options: {},
-                                featureConfig: FEATURE_CONFIG.gene
-                            })
-                        });
-
-                        this.snp = new FeatureTrack({
-                            targetId: null,
-                            id: 4,
-                            title: 'SNP',
-                            minHistogramRegionSize: 12000,
-                            maxLabelRegionSize: 3000,
-                            height: 100,
-                            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
-
-                            dataAdapter: new CellBaseAdapter({
-                                category: "genomic",
-                                subCategory: "region",
-                                resource: "snp",
-                                params: {
-                                    exclude: 'transcriptVariations,xrefs,samples'
-                                },
-                                species: genomeViewer.species,
-                                cacheConfig: {
-                                    chunkSize: 10000
-                                },
-                                filters: {},
-                                options: {},
-                                featureConfig: FEATURE_CONFIG.snp
-                            })
-                        });
-
-                        var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
-                        renderer.on({
-                            'feature:click': function (event) {
-                            }
-                        });
-
-                        var gene = new FeatureTrack({
-                            targetId: null,
-                            id: 2,
-                            minHistogramRegionSize: 20000000,
-                            maxLabelRegionSize: 10000000,
-                            height: 100,
-                            renderer: renderer,
-                            dataAdapter: new CellBaseAdapter({
-                                category: "genomic",
-                                subCategory: "region",
-                                resource: "gene",
-                                params: {
-                                    exclude: 'transcripts'
-                                },
-                                species: genomeViewer.species,
-                                cacheConfig: {
-                                    chunkSize: 100000
-                                }
-                            })
-                        });
-                        genomeViewer.addOverviewTrack(gene);
-                        genomeViewer.addTrack(this.sequence);
-                        genomeViewer.addTrack(this.gene);
-                        genomeViewer.addTrack(this.snp);
-
-                        _this.gv = genomeViewer;
-                    }
-                }
-            }
-        });
-
-        _this.on("_grid:change", function (e) {
-            var row = e.args;
-
-            var region = new Region({
-                chromosome: row.chromosome,
-                start: row.position,
-                end: row.position
-            });
-
-            if (!_.isUndefined(_this.gv)) {
-                _this.gv.setRegion(region);
-            }
-        });
-        return gvpanel;
-    },
     _createForm: function () {
 
         var _this = this;

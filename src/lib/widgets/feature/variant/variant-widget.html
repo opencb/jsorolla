@@ -31,6 +31,7 @@
     <script type="text/javascript" src="../../../../../vendor/jquery.cookie.js"></script>
     <script type="text/javascript" src="../../../../../vendor/jquery.sha1.js"></script>
     <script type="text/javascript" src="../../../../../vendor/purl.min.js"></script>
+    <script type="text/javascript" src="../../../../../vendor/jquery.qtip.min.js"></script>
     <!-- /build -->
 
     <script type="text/javascript" src="../../../../genome-viewer/gv-config.js"></script>
@@ -113,6 +114,23 @@
 
         var variantWidget;
         Ext.onReady(function () {
+
+            var variantEffectGrid = new VariantEffectGrid({
+//                target: target,
+                gridConfig: {
+                    flex: 1,
+                    layout: {
+                        align: 'stretch'
+                    }
+                },
+                handlers: {
+                    "load:finish": function (e) {
+//                    _this.grid.setLoading(false);
+                    }
+                }
+            });
+
+
             variantWidget = new VariantWidget({
                 target: 'application',
                 title: 'Variant Widget',
@@ -120,9 +138,13 @@
                 data: [],
                 url: url,
                 filters: {},
-                tools: {
-                    //variantEffect:false
-                }
+                defaultToolConfig: {
+                    effect: false
+                },
+                tools: [{
+                    title:"Variant Effect Custom",
+                    tool: variantEffectGrid
+                }]
             }); //the div must exist
             variantWidget.draw();
         });
