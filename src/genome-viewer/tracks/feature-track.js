@@ -71,12 +71,11 @@ FeatureTrack.prototype.render = function (targetId) {
             maxLabelRegionSize: _this.maxLabelRegionSize,
             width: _this.width,
             pixelPosition: _this.pixelPosition,
-            resource:_this.resource,
-            species:_this.species,
-            featureType:_this.featureType
+            resource: _this.resource,
+            species: _this.species,
+            featureType: _this.featureType
         });
         _this.updateHeight();
-        _this.setLoading(false);
     });
 };
 
@@ -95,6 +94,7 @@ FeatureTrack.prototype.draw = function () {
         this.dataType = 'histogram';
     }
 
+
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
         this.dataAdapter.getData({
@@ -109,6 +109,9 @@ FeatureTrack.prototype.draw = function () {
                 histogramLogarithm: this.histogramLogarithm,
                 histogramMax: this.histogramMax,
                 interval: this.interval
+            },
+            done: function () {
+                _this.setLoading(false);
             }
         });
 
@@ -154,6 +157,9 @@ FeatureTrack.prototype.move = function (disp) {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
+                },
+                done: function () {
+
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -172,7 +178,11 @@ FeatureTrack.prototype.move = function (disp) {
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
+                },
+                done: function () {
+
                 }
+
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }

@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>3D Viewer Demo</title>
+
+
+    <!-- build:style vendor -->
+
+    <!-- /build -->
+
+    <!-- build:style css -->
+    <link href="../../styles/css/style.css" rel="stylesheet">
+    <!-- /build -->
+
+
+    <!-- build:script vendor -->
+    <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
+    <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
+
+    <!--<script type="text/javascript" src="../../vendor/core/embed.js"></script>-->
+    <script type="text/javascript" src="../../vendor/three.js"></script>
+    <script type="text/javascript" src="../../vendor/Stats.js"></script>
+    <script type="text/javascript" src="../../vendor/RequestAnimationFrame.js"></script>
+
+    <!-- These dependencies must go AFTER jquery -->
+
+    <!-- /build -->
+
+    <script type="text/javascript" src="threedv-config.js"></script>
+
+    <!-- build:script js -->
+    <script type="text/javascript" src="../lib/svg.js"></script>
+    <script type="text/javascript" src="../lib/utils.js"></script>
+    <script type="text/javascript" src="../lib/cellbase-manager.js"></script>
+
+    <script type="text/javascript" src="js/chr.js"></script>
+    <script type="text/javascript" src="js/3D.js"></script>
+    <script type="text/javascript" src="js/torus.js"></script>
+    <script type="text/javascript" id="main" src="js/main.js"></script>
+
+    <script type="text/javascript" src="threed-viewer.js"></script>
+    <!-- /build -->
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-16414504-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+
+    <script type="text/javascript">
+        var threeDViewer;
+        var run = function () {
+
+            threeDViewer = new ThreeDViewer({
+                targetId: 'application',
+                autoRender: true,
+                demoTorus: true,
+                demoCellbase: chrjson,
+                handlers: {
+                    'okButton:click': function (e) {
+
+                    }
+                }
+            });
+            threeDViewer.draw();
+
+
+            threeDViewer.addSample([
+                {
+                    id:"uno",
+                    species:"hsapiens",
+                    tracks:[
+                    ]
+                },
+                {
+                    id:"dos",
+                    species:"hsapiens",
+                    tracks:[
+                    ]
+                }
+            ]);
+
+        };
+
+        $(document).ready(run);
+    </script>
+
+    <style type="text/css">
+        html, body {
+            /*height: 100%;*/
+            /*position:relative;*/
+            overflow: hidden;
+        }
+
+        body {
+            /*overflow: hidden;*/
+            /*padding:50px;*/
+        }
+
+        #application {
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+
+<body>
+<div style="z-index: 1; position: absolute; left:0px; top:0px" id="application"></div>
+</body>
+</html>

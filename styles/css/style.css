@@ -1,4 +1,253 @@
-.jso-white-background{
+html, body {
+    font-family: Lato, 'Helvetica Neue', Helvetica, Arial, 'sans-serif';
+!important
+}
+
+.hidden {
+    display: none !important;
+    visibility: hidden !important
+}
+
+.unselectable {
+    user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: -moz-none;
+    -webkit-user-select: none;
+    cursor: default
+}
+
+/*ocb header*/
+ul.ocb-help-menu,
+ul.ocb-app-menu,
+ul.ocb-header {
+    margin: 0;
+    padding: 0;
+    background: white;
+    color: #435f7a;
+    list-style: none;
+    text-transform: none;
+    line-height: 60px;
+    font-size: 16px;
+}
+
+ul.ocb-header > li {
+    display: block;
+    float: left;
+    /*border-right: 1px solid #c6d0da;*/
+    text-align: center;
+    padding: 0 10px;
+}
+
+ul.ocb-header > li#logout {
+    margin-right: 40px;
+}
+
+ul.ocb-header > li.title {
+    font-size: 30px;
+    padding-left: 120px;
+}
+
+ul.ocb-header li.description {
+    color: #6599FF;
+    margin-top: 2px;
+    font-size: 22px;
+}
+
+ul.ocb-header > li.menu {
+    font-size: 24px;
+    padding: 0 20px;
+    font-weight: bold;
+}
+
+ul.ocb-header > li.active {
+    color: #6599FF;
+}
+
+ul.ocb-header > li.right {
+    float: right;
+    border-right: none;
+    /*border-left: 1px solid #c6d0da;*/
+}
+
+ul.ocb-header > li.text:hover,
+ul.ocb-header > li.title:hover {
+    background: white;
+    color: #435f7a;
+}
+
+ul.ocb-header > li.description:hover {
+    background: white;
+    color: #6599FF;
+}
+
+ul.ocb-help-menu > li:hover,
+ul.ocb-header > li:hover {
+    background: #435f7a;
+    color: white;
+}
+
+ul.ocb-help-menu {
+    position: absolute;
+    z-index: 60000;
+    top: 60px;
+    right: -200px;
+    width: 200px;
+    visibility: hidden;
+    /*display:none;*/
+    border-top: 1px solid #c6d0da;
+    transition: all 0.2s;
+}
+
+ul.ocb-app-menu {
+    line-height: 40px;
+    position: absolute;
+    z-index: 60000;
+    top: 60px;
+    left: -150px;
+    width: 150px;
+    visibility: hidden;
+    /*display:none;*/
+    border-top: 1px solid #c6d0da;
+    transition: all 0.2s;
+}
+
+ul.ocb-help-menu-shown {
+    right: 0px;
+    visibility: visible;
+    /*display: block;*/
+}
+
+ul.ocb-app-menu-shown {
+    left: 0px;
+    visibility: visible;
+    /*display: block;*/
+}
+
+ul.ocb-help-menu > li {
+    border-bottom: 1px solid #c6d0da;
+    border-left: 1px solid #c6d0da;
+    padding: 0 10px;
+}
+
+ul.ocb-app-menu > li {
+    border-bottom: 1px solid #c6d0da;
+    border-right: 1px solid #c6d0da;
+    padding: 0 10px;
+}
+
+.ocb-h-panel {
+    line-height: 20px;
+    font-size: 14px;
+    background: #f5f5f5;
+    color: #435f7a;
+    padding: 4px 10px;
+    border: 1px solid #c6d0da;
+}
+
+/* top Message*/
+.ocb-msg-hidden {
+    position: absolute;
+    z-index: 50000;
+    top: -999px;
+    left: 45%;
+    background: white;
+    border: 1px solid #435f7a;
+    transition: top 0.1s;
+    margin: 5px;
+    min-width: 150px;
+}
+
+.ocb-msg-hidden :first-child {
+    padding: 5px;
+    color: white;
+    background-color: #435f7a;
+}
+
+.ocb-msg-hidden :last-child {
+    padding: 7px;
+    color: #435f7a;
+    background-color: white;
+}
+
+.ocb-msg-shown {
+    top: 0px;
+}
+
+.ocb-nv-editionbar {
+    color: #435F7A;
+    padding: 5px 8px;
+    /*border-bottom:1px solid #c6d0da;*/
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+    background-repeat: repeat-x;
+}
+
+.ocb-nv-toolbar {
+    color: #435F7A;
+    padding: 5px 8px;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+    background-repeat: repeat-x;
+}
+
+.ocb-nv-statusbar {
+    height: 32px;
+    line-height: 32px;
+    font-size: 14px;
+    padding-left: 10px;
+    background-color: #f5f5f5;
+}
+
+/**/
+
+@font-face {
+    font-family: 'Ubuntu';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Ubuntu'), url(../fonts/ubuntu.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Ubuntu Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Ubuntu Mono'), local('UbuntuMono-Regular'), url(../fonts/ubuntumono.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Oxygen';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Oxygen'), local('oxygen'), local('Oxygen-Regular'), url(../fonts/oxygen.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(../fonts/sourcesanspro.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Lato Light'), local('Lato-Light'), url(http://themes.googleusercontent.com/static/fonts/lato/v7/KT3KS9Aol4WfR6Vas8kNcg.woff) format('woff');
+}
+
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 400;
+    src: local('lato'), local('Lato Regular'), local('Lato-Regular'), url(../fonts/lato.woff) format('woff');
+}
+
+/*************************/
+/*************************/
+/*************************/
+
+.jso-white-background {
     background-color: white;
     background: white;
 }
@@ -144,6 +393,26 @@
     background-color: white;
 }
 
+.ocb-gv-right-side {
+    position: absolute;
+    z-index: 50;
+    right: 0px;
+}
+
+.ocb-gv-left-side {
+    position: absolute;
+    z-index: 50;
+    left: 0px;
+}
+
+.ocb-warn {
+    color: orangered;
+}
+
+.ocb-light {
+    color: gray;
+}
+
 /*.ocb-gv-navigation{*/
 /*height:37px;*/
 /*}*/
@@ -267,12 +536,14 @@
 
 #nvContextMenu {
     position: absolute;
-    display:none;
+    display: none;
 }
 
 .app-header {
     background-color: darkred;
 }
+
+/**/
 
 /* .x-toolbar-default { */
 /* border-color: #99BCE8; */
@@ -282,34 +553,25 @@
 /* background-image: -moz-linear-gradient(top, #dfe9f5,#d3e1f1); */
 /* background-image: linear-gradient(top, #dfe9f5,#d3e1f1); */
 /* } */
-a:link {
-    text-decoration: none;
-    color: #15428B;
-}
+/*a:link {*/
+/*text-decoration: none;*/
+/*color: #15428B;*/
+/*}*/
 
-a:visited {
-    text-decoration: none;
-    color: #15428B;
-}
+/*a:visited {*/
+/*text-decoration: none;*/
+/*color: #15428B;*/
+/*}*/
 
-a:active {
-    text-decoration: none;
-    color: #15428B;
-}
+/*a:active {*/
+/*text-decoration: none;*/
+/*color: #15428B;*/
+/*}*/
 
-a:hover {
-    text-decoration: underline;
-    color: #15428B;
-}
-
-.unselectable {
-    user-select: none;
-    -o-user-select: none;
-    -ms-user-select: none;
-    -moz-user-select: -moz-none;
-    -webkit-user-select: none;
-    cursor: default
-}
+/*a:hover {*/
+/*text-decoration: underline;*/
+/*color: #15428B;*/
+/*}*/
 
 .u {
     text-decoration: underline;
@@ -574,14 +836,16 @@ a:hover {
 .ocb-icon-node-select {
     background: url(../img/icon-node-select.png) !important;
 }
+
 .ocb-icon-edge-select {
     background: url(../img/icon-edge-select.png) !important;
 }
+
 .ocb-icon-backitem-select {
     background: url(../img/icon-backitem-select.png) !important;
 }
 
-.ocb-panel-title{
+.ocb-panel-title {
     font-size: 13px;
     font-family: Oxygen;
     /*background-color: #f5f5f5;*/
@@ -589,7 +853,6 @@ a:hover {
     padding: 4px 6px;
     /*border:0px solid #d3d3d3;*/
 }
-
 
 .icon-save {
     background: url('../img/save.png');
@@ -820,7 +1083,6 @@ a:hover {
     cursor: pointer;
 }
 
-
 .jso-li-over {
     background-color: #aa0000;
 }
@@ -895,17 +1157,14 @@ a:hover {
 
 .ok {
     color: #00AA33;
-    font-weight: bold;
 }
 
 .err {
     color: #CC0011;
-    font-weight: bold;
 }
 
 .info {
     color: #0066FF;
-    font-weight: bold;
 }
 
 .link {
@@ -1105,16 +1364,18 @@ a:hover {
 }
 
 .msg .x-box-mc {
-    font-size:16px;
+    font-size: 16px;
 }
+
 #msg-div {
-    position:absolute;
-    left:50%;
-    top:10px;
-    width:400px;
-    margin-left:-200px;
-    z-index:20000;
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    width: 400px;
+    margin-left: -200px;
+    z-index: 20000;
 }
+
 #msg-div .msg {
     /*border-radius: 8px;*/
     /*-moz-border-radius: 8px;*/
@@ -1124,24 +1385,24 @@ a:hover {
     padding: 10px 15px;
     color: #FFF;
 }
+
 #msg-div .msg h3 {
     margin: 0 0 8px;
     font-weight: bold;
 }
+
 #msg-div .msg p {
     margin: 0;
 }
 
-
-
 /*GridFilters Styles*/
 /*.ux-filtered-column {*/
-    /*font-style: italic;*/
-    /*font-weight: bold;*/
+/*font-style: italic;*/
+/*font-weight: bold;*/
 /*}*/
 
 /*.ux-gridfilter-text-icon {*/
-    /*background-image: url(../img/find.png) !important;*/
+/*background-image: url(../img/find.png) !important;*/
 /*}*/
 
 /*RangeMenu Styles*/
@@ -1165,20 +1426,20 @@ a:hover {
 /***Sencha rewrite***/
 /********************/
 /*.x-toolbar .x-toolbar-separator-horizontal {*/
-    /*border-left-color: #bbb;*/
+/*border-left-color: #bbb;*/
 /*}*/
 
 /*EXTJS 4.2 BUG FIX FOR TOOLTIPS*/
 /*.x-tip {*/
-    /*width: auto !important;*/
+/*width: auto !important;*/
 /*}*/
 
 /*.x-tip-body {*/
-    /*width: auto !important;*/
+/*width: auto !important;*/
 /*}*/
 
 /*.x-tip-body span {*/
-    /*width: auto !important;*/
+/*width: auto !important;*/
 /*}*/
 
 /*@import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono);*/
@@ -1187,51 +1448,8 @@ a:hover {
 /*@import url(http://fonts.googleapis.com/css?family=Oxygen);*/
 /*@import url(http://fonts.googleapis.com/css?family=Lato);*/
 
-@font-face {
-    font-family: 'Ubuntu';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Ubuntu'), url(../fonts/ubuntu.woff) format('woff');
-}
-
-@font-face {
-    font-family: 'Ubuntu Mono';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Ubuntu Mono'), local('UbuntuMono-Regular'), url(../fonts/ubuntumono.woff) format('woff');
-}
-
-@font-face {
-    font-family: 'Oxygen';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Oxygen'), local('Oxygen-Regular'), url(../fonts/oxygen.woff) format('woff');
-}
-
-@font-face {
-    font-family: 'Source Sans Pro';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(../fonts/sourcesanspro.woff) format('woff');
-}
-
-@font-face {
-    font-family: 'Lato';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Lato Regular'), local('Lato-Regular'), url(../fonts/lato.woff) format('woff');
-}
-
-.bootstrap {
-    font-family: 'Source Sans Pro' !important;
-}
-
 /*.bootstrap * {*/
-    /*-webkit-border-radius: 0px !important;*/
-    /*-moz-border-radius: 0px !important;*/
-    /*border-radius: 0px !important;*/
+/*-webkit-border-radius: 0px !important;*/
+/*-moz-border-radius: 0px !important;*/
+/*border-radius: 0px !important;*/
 /*}*/
-
-.jso-vertex-selected * {
-    stroke: #00FF00;
-}

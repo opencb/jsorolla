@@ -5,7 +5,6 @@
 <title>Genome Viewer Demo</title>
 
 
-<!-- CSS from vendors -->
 <!-- build:style vendor -->
 <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
 <link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
@@ -13,13 +12,12 @@
 <link type="text/css" rel="stylesheet" href="../../vendor/typeahead.js-bootstrap.css">
 <!-- /build -->
 
-<!-- CSS from Genome Viewer -->
-<!-- build:style gv-css -->
+
+<!-- build:style css -->
 <link href="../../styles/css/style.css" rel="stylesheet">
 <!-- /build -->
 
 
-<!-- JS from vendors -->
 <!-- build:script vendor -->
 <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
 <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
@@ -39,59 +37,48 @@
 <!-- /build -->
 
 
-<!-- JS from Genome Viewer -->
-<!-- Genome-viewer -->
 <script type="text/javascript" src="gv-config.js"></script>
 
-<!-- build:script gv-js -->
 
-<!-- js-common-libs utils -->
-<script type="text/javascript" src="../lib/utils/svg.js"></script>
-<script type="text/javascript" src="../lib/utils/utils.js"></script>
-
-<!-- js-common-libs ui-widgets -->
-<script type="text/javascript" src="../lib/ui-widgets/ux-window.js"></script>
-
-
-<!-- js-common-libs cellbase ui-widgets -->
-<script type="text/javascript" src="../lib/cellbase/ui-widgets/info-widget.js"></script>
-<script type="text/javascript" src="../lib/cellbase/ui-widgets/gene-info-widget.js"></script>
-<script type="text/javascript" src="../lib/cellbase/ui-widgets/protein-info-widget.js"></script>
-<script type="text/javascript" src="../lib/cellbase/ui-widgets/snp-info-widget.js"></script>
-<script type="text/javascript" src="../lib/cellbase/ui-widgets/transcript-info-widget.js"></script>
-<script type="text/javascript" src="../lib/cellbase/ui-widgets/vcf-variant-info-widget.js"></script>
-
-<!-- js-common-libs cellbase ws-manager -->
-<script type="text/javascript" src="../lib/cellbase/cellbase-manager.js"></script>
-
-<script type="text/javascript" src="data-adapter/cellbase-adapter.js"></script>
-<script type="text/javascript" src="data-adapter/sequence-adapter.js"></script>
-
-<!-- js-common-libs ensemble manager -->
-<script type="text/javascript" src="../lib/ensembl/ensembl-manager.js"></script>
-<script type="text/javascript" src="data-adapter/ensembl-adapter.js"></script>
-
+<!-- build:script js -->
+<script type="text/javascript" src="../lib/svg.js"></script>
+<script type="text/javascript" src="../lib/utils.js"></script>
 <script type="text/javascript" src="../lib/region.js"></script>
 <script type="text/javascript" src="../lib/feature-binary-search-tree.js"></script>
-<script type="text/javascript" src="cache/feature-cache.js"></script>
-<script type="text/javascript" src="../cache/feature-chunk-cache.js"></script>
-<script type="text/javascript" src="../cache/memory-store.js"></script>
+<script type="text/javascript" src="../lib/cellbase-manager.js"></script>
+<script type="text/javascript" src="../lib/ensembl-manager.js"></script>
 
+<script type="text/javascript" src="../lib/cache/feature-chunk-cache.js"></script>
+<script type="text/javascript" src="../lib/cache/memory-store.js"></script>
+
+<script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter.js"></script>
+<script type="text/javascript" src="../lib/data-adapter/feature/sequence-adapter.js"></script>
+<script type="text/javascript" src="../lib/data-adapter/feature/ensembl-adapter.js"></script>
+
+<script type="text/javascript" src="../lib/widgets/feature/info/info-widget.js"></script>
+<script type="text/javascript" src="../lib/widgets/feature/info/gene-info-widget.js"></script>
+<script type="text/javascript" src="../lib/widgets/feature/info/protein-info-widget.js"></script>
+<script type="text/javascript" src="../lib/widgets/feature/info/snp-info-widget.js"></script>
+<script type="text/javascript" src="../lib/widgets/feature/info/transcript-info-widget.js"></script>
+<script type="text/javascript" src="../lib/widgets/feature/info/vcf-variant-info-widget.js"></script>
+
+<script type="text/javascript" src="../lib/widgets/feature/file/legend-panel.js"></script>
+<script type="text/javascript" src="../lib/widgets/feature/file/legend-widget.js"></script>
+
+<script type="text/javascript" src="../lib/widgets/ux-window.js"></script>
+
+<!-- **** -->
 
 <script type="text/javascript" src="navigation-bar.js"></script>
 <script type="text/javascript" src="chromosome-panel.js"></script>
 <script type="text/javascript" src="karyotype-panel.js"></script>
-<script type="text/javascript" src="tracks/tracklist-panel.js"></script>
 <script type="text/javascript" src="status-bar.js"></script>
-<script type="text/javascript" src="widget/legend-panel.js"></script>
-<script type="text/javascript" src="widget/legend-widget.js"></script>
 
-
+<script type="text/javascript" src="tracks/tracklist-panel.js"></script>
 <script type="text/javascript" src="tracks/track.js"></script>
 <script type="text/javascript" src="tracks/feature-track.js"></script>
 <script type="text/javascript" src="tracks/sequence-track.js"></script>
 <script type="text/javascript" src="tracks/gene-track.js"></script>
-
 
 <script type="text/javascript" src="renderers/renderer.js"></script>
 <script type="text/javascript" src="renderers/feature-renderer.js"></script>
@@ -102,7 +89,6 @@
 
 
 <script type="text/javascript" src="genome-viewer.js"></script>
-
 <!-- /build -->
 
 
@@ -124,11 +110,10 @@
 
 
 <script type="text/javascript">
-CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
-CELLBASE_VERSION = "v3";
-
 var genomeViewer = null;
+var div;
 var run = function () {
+
     /* region and species configuration */
     var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
     var availableSpecies = {
@@ -145,8 +130,12 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
+
     genomeViewer = new GenomeViewer({
-        targetId: 'application',
+        cellBaseHost: 'http://www.ebi.ac.uk/cellbase/webservices/rest',
+        cellBaseVersion: 'v3',
+        target: 'application',
+        width: $('#application').width(),
         region: region,
         availableSpecies: availableSpecies,
         species: species,
@@ -164,8 +153,8 @@ var run = function () {
             collapsed: false,
             collapsible: true
         },
-        navigationBarConfig:{
-            componentsConfig:{
+        navigationBarConfig: {
+            componentsConfig: {
 //                restoreDefaultRegionButton:false,
 //                regionHistoryButton:false,
 //                speciesButton:false,
@@ -182,8 +171,8 @@ var run = function () {
 //                searchControl:false
             }
         },
-        handlers:{
-            'region:change':function(e){
+        handlers: {
+            'region:change': function (e) {
                 console.log(e)
             }
         }
@@ -192,11 +181,9 @@ var run = function () {
 //            drawNavigationBar = true;
 //            drawKaryotypePanel: false,
 //            drawChromosomePanel: false,
-//            drawRegionOverviewPanel: false
+//            drawOverviewTrackListPanel: false
+
     }); //the div must exist
-
-    genomeViewer.draw();
-
 
     tracks = [];
     this.sequence = new SequenceTrack({
@@ -256,7 +243,7 @@ var run = function () {
     var gene = new FeatureTrack({
         targetId: null,
         id: 2,
-//        title: 'Gene',
+//        title: 'Gene overview',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
         height: 100,
@@ -268,7 +255,7 @@ var run = function () {
             subCategory: "region",
             resource: "gene",
             params: {
-                exclude: 'transcripts'
+                exclude: 'transcripts,chunkIds'
             },
             species: genomeViewer.species,
             cacheConfig: {
@@ -282,8 +269,8 @@ var run = function () {
         targetId: null,
         id: 4,
         title: 'SNP',
-        featureType:'SNP',
-        minHistogramRegionSize: 12000,
+        featureType: 'SNP',
+        minHistogramRegionSize: 10000,
         maxLabelRegionSize: 3000,
         height: 100,
 
@@ -335,38 +322,41 @@ var run = function () {
 //    /***************************************/
 
     genomeViewer.addTrack(tracks);
+
+
+    genomeViewer.draw();
 };
 
 $(document).ready(run);
 </script>
 
 <style type="text/css">
-    html, body {
-        /*height: 100%;*/
-        /*position:relative;*/
+    html {
+        width:100%;
+        height:100%;
+        position: fixed;
+        overflow-x: hidden;
     }
-
     body {
-        /*overflow: hidden;*/
-        /*padding:50px;*/
+        margin: 0px;
     }
-
     #application {
-        /*width: 1440px;*/
-        width: 1000px;
-        height: 800px;
-        /*overflow-y: auto;*/
-        /*overflow-x: hidden;*/
-        padding: 10px;
+        margin: 0 auto;
+        width: 1500px;
+        border: 1px solid lightgray;
+    }
+    #title {
+        margin: 20px auto;
+        width: 1500px;
+        font-size: 35px;
+        color:gray;
     }
 </style>
 
 </head>
 
 <body>
-<div style=""></div>
+<div id="title">Genome Viewer</div>
 <div id="application"></div>
-<div style=""></div>
-
 </body>
 </html>

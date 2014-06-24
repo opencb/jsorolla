@@ -26,14 +26,15 @@ function NetworkViewer(args) {
 
 
     //set default args
-    this.targetId;
-    this.autoRender = false;
+    this.target;
+    this.autoRender = true;
     this.sidePanel = false;
     this.overviewPanel = false;
     this.height;
     this.width;
     this.border = true;
     this.overviewScale = 0.2;
+    this.session;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -61,25 +62,30 @@ function NetworkViewer(args) {
 }
 
 NetworkViewer.prototype = {
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        if (targetId)this.targetId = targetId;
-        if ($('#' + this.targetId).length < 1) {
-            console.log('targetId not found in DOM');
-            return;
+
+        if (typeof this.height !== 'number' || typeof this.width !== 'number') {
+            throw new Error("width and/or height are not defined");
         }
 
-        this.targetDiv = $('#' + this.targetId)[0];
-        this.div = $('<div id="' + this.id + '" class="bootstrap" style="height:100%;position:relative;"></div>')[0];
-        $(this.targetDiv).append(this.div);
+        //HTML skel
+        this.div = document.createElement('div');
+        $(this.div).attr('id', this.id).addClass('bootstrap').css({
+            height: this.height + 'px'
+        });
 
-        this.height = $(this.targetDiv).height();
-        this.width = $(this.targetDiv).width();
+        this.toolbarDiv = document.createElement('div');
+        this.editionbarDiv = document.createElement('div');
+        this.centerPanelDiv = document.createElement('div');
+        $(this.centerPanelDiv).css({
+            position: 'relative'
+        });
+        this.statusbarDiv = document.createElement('div');
+        $(this.statusbarDiv).css({
+            height: '32px'
+        });
 
-        this.toolbarDiv = $('<div id="nv-toolbar"></div>')[0];
-        this.editionbarDiv = $('<div id="nv-editionbar"></div>')[0];
-        this.centerPanelDiv = $('<div id="nv-centerpanel" style="position:relative;"></div>')[0];
-        this.statusbarDiv = $('<div id="nv-statusbar"></div>')[0];
 
         $(this.div).append(this.toolbarDiv);
         $(this.div).append(this.editionbarDiv);
@@ -87,7 +93,7 @@ NetworkViewer.prototype = {
         $(this.div).append(this.statusbarDiv);
 
 
-        this.mainPanelDiv = $('<div id="nv-mainpanel" style="position:relative;right:0px;height:100%;"></div>')[0];
+        this.mainPanelDiv = $('<div id="nv-mainpanel" style="position:relative;height:100%"></div>')[0];
         $(this.centerPanelDiv).append(this.mainPanelDiv);
 
         if (this.sidePanel) {
@@ -130,32 +136,15 @@ NetworkViewer.prototype = {
             });
         }
 
-        if (this.border) {
-            var border = (_.isString(this.border)) ? this.border : '1px solid lightgray';
-            $(this.div).css({border: border});
-        }
-
-        this.rendered = true;
-    },
-    resize: function () {
-        this.height = $(this.targetDiv).height();
-        this.width = $(this.targetDiv).width();
-
-        var toolbarHeight = $(this.toolbarDiv).height();
-        var editionbarHeight = $(this.editionbarDiv).height();
-        var height = this.height - toolbarHeight - editionbarHeight;
-        this.networkSvgLayout.setSize(this.width, height);
-    },
-    draw: function () {
-        var _this = this;
-        if (!this.rendered) {
-            console.info('Genome Viewer is not rendered yet');
-            return;
-        }
-
+        this.zoom = this.session.getZoom();
+        //
+        //  Children initalization
+        //
         this.network = new Network({
+            session: this.session,
             handlers: {
-                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean se??': function () {
+                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean': function (e) {
+                    console.log(e)
                     _this._updateStatusInfo();
                 },
                 'change:vertexAttributes': function (e) {
@@ -171,14 +160,14 @@ NetworkViewer.prototype = {
         });
 
         /* Toolbar Bar */
-        this.toolBar = this._createToolBar($(this.toolbarDiv).attr('id'));
+        this.toolBar = this._createToolBar(this.toolbarDiv);
 
         /* edition Bar */
-        this.editionBar = this._createEditionBar($(this.editionbarDiv).attr('id'));
+        this.editionBar = this._createEditionBar(this.editionbarDiv);
 
-        this.networkSvgLayout = this._createNetworkSvgLayout($(this.mainPanelDiv).attr('id'));
+        this.networkSvgLayout = this._createNetworkSvgLayout(this.mainPanelDiv);
 
-        this._createStatusBar($(this.statusbarDiv).attr('id'));
+        this._createStatusBar(this.statusbarDiv);
 
         if (this.overviewPanel) {
             var width = this.networkSvgLayout.width * this.overviewScale * this.networkSvgLayout.scale;
@@ -192,7 +181,6 @@ NetworkViewer.prototype = {
                 "height": height + 2
             });
         }
-
 
         /* context menu*/
         this.contextMenu = this._createContextMenu();
@@ -225,6 +213,41 @@ NetworkViewer.prototype = {
 //            div = $('#'+this.getGraphCanvasId()+'_overview')[0];
 //            this.networkSvgOverview = new NetworkSvg(div, this.networkData, {"width": "100%", "height": "100%", "parentNetwork": this.networkSvg, "scale": this.overviewScale});
 //        }
+
+
+//        if (typeof this.session !== 'undefined') {
+//            this.loadJSON(this.session);
+//        }
+
+
+        this.rendered = true;
+    },
+    resize: function (args) {
+        this.height = args.height;
+        this.width = args.width;
+
+        var toolbarHeight = this.toolBar.getHeight();
+        var editionbarHeight = this.editionBar.getHeight();
+        var statusBarHeight = parseInt(this.statusbarDiv.style.height);
+
+        var height = this.height - toolbarHeight - editionbarHeight - statusBarHeight;
+
+        this.networkSvgLayout.setSize(this.width, height);
+    },
+    draw: function () {
+        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (this.targetDiv === 'undefined') {
+            console.log('target not found');
+            return;
+        }
+        this.targetDiv.appendChild(this.div);
+
+        this.toolBar.draw();
+        this.editionBar.draw();
+        this.networkSvgLayout.draw();
+
+        this.network.loadSession();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     hideOverviewPanel: function () {
         $(this.overviewPanelDiv).css({display: 'none'});
@@ -268,11 +291,10 @@ NetworkViewer.prototype = {
             $(this.overviewDiv).append(dup);
         }
     },
-    _createToolBar: function (targetId) {
+    _createToolBar: function (target) {
         var _this = this;
         var toolBar = new ToolBar({
-            targetId: targetId,
-            autoRender: true,
+            target: target,
             handlers: {
                 'click:selectButton': function (event) {
                     _this.networkSvgLayout.setMode("select");
@@ -339,14 +361,13 @@ NetworkViewer.prototype = {
         });
         return toolBar;
     },
-    _createEditionBar: function (targetId) {
+    _createEditionBar: function (target) {
         var _this = this;
         var editionBar = new EditionBar({
-            targetId: targetId,
-            autoRender: true,
+            target: target,
             handlers: {
                 'vertexShape:change': function (event) {
-                    _this.setSelectedVerticesDisplayAttr('shape', event.value);
+                    _this.setSelectedVerticesDisplayAttr('shape', event.value, true);
                 },
                 'vertexSize:change': function (event) {
                     _this.setSelectedVerticesDisplayAttr('size', parseInt(event.value), true);
@@ -397,14 +418,10 @@ NetworkViewer.prototype = {
         });
         return editionBar;
     },
-    _createStatusBar: function (targetId) {
+    _createStatusBar: function (target) {
         var _this = this;
         var div = $('<div></div>')[0];
-        $(div).css({
-            padding: '5px',
-            fontSize: '14px'
-        });
-        $('#' + targetId).append(div);
+        $(div).addClass('ocb-nv-statusbar');
 
         this.numVertices = $('<span></span>')[0];
         this.numEdges = $('<span></span>')[0];
@@ -415,17 +432,17 @@ NetworkViewer.prototype = {
         $(this.numSelectedVertices).css({
             fontWeight: 'bold',
             color: '#428bca'
-        });
+        }).html(0);
         $(this.numSelectedEdges).css({
             fontWeight: 'bold',
             color: '#428bca'
-        });
+        }).html(0);
         $(this.numVertices).css({
             fontWeight: 'bold'
-        });
+        }).html(0);
         $(this.numEdges).css({
             fontWeight: 'bold'
-        });
+        }).html(0);
         $(this.loadingMessage).css({
             marginLeft: '20px'
         });
@@ -458,6 +475,13 @@ NetworkViewer.prototype = {
         $(div).append(infoSelEdges);
         $(div).append(this.numSelectedEdges);
         $(div).append(this.loadingMessage);
+
+        var targetDiv = (target instanceof HTMLElement ) ? target : document.querySelector('#' + target);
+        if (targetDiv === 'undefined') {
+            console.log('target not found');
+            return;
+        }
+        targetDiv.appendChild(div);
     },
     setLoading: function (msg) {
         $(this.loadingMessage).text(msg);
@@ -468,19 +492,21 @@ NetworkViewer.prototype = {
         $(this.numEdges).html(this.getEdgesLength());
     },
 
-    _createNetworkSvgLayout: function (targetId) {
+    _createNetworkSvgLayout: function (target) {
         var _this = this;
-        var toolbarHeight = $(this.toolbarDiv).height();
-        var editionbarHeight = $(this.editionbarDiv).height();
-        var height = this.height - toolbarHeight - editionbarHeight;
 
-        console.log(this.height);
-        console.log(height)
+
+        var toolbarHeight = this.toolBar.getHeight();
+        var editionbarHeight = this.editionBar.getHeight();
+        var statusBarHeight = parseInt(this.statusbarDiv.style.height);
+
+        var height = this.height - toolbarHeight - editionbarHeight - statusBarHeight;
+
         var networkSvgLayout = new NetworkSvgLayout({
-            targetId: targetId,
+            target: target,
             width: this.width,
             height: height,
-            autoRender: true,
+            session: this.session,
             handlers: {
                 'select:vertex': function (e) {
                     var vertex = _this.network.getVertexById(e.vertexId);
@@ -489,8 +515,16 @@ NetworkViewer.prototype = {
                         _this.selectVertex(vertex, e.addToSelection);
                     }
                 },
+                'select:edge': function (e) {
+                    var edge = _this.network.getEdgeById(e.edgeId);
+                    var isSelected = _this.network.isEdgeSelected(edge);
+                    if (!isSelected) {
+                        _this.selectEdge(edge, e.addToSelection);
+                    }
+                },
                 'create:vertex': function (e) {
                     _this.createVertex(e.x, e.y);
+
                 },
                 'remove:vertex': function (e) {
                     var vertex = _this.network.getVertexById(e.vertexId);
@@ -520,6 +554,7 @@ NetworkViewer.prototype = {
 
 //                    _this.editionBar.showVertexToolbar();
 //                    _this.editionBar.hideEdgeToolbar();
+                    _this.trigger('change', {sender: _this});
                 },
                 'edge:leftClick': function (e) {
                     var edge = _this.network.getEdgeById(e.edgeId);
@@ -538,12 +573,12 @@ NetworkViewer.prototype = {
 //                    _this.editionBar.hideVertexToolbar();
                 },
                 'rightClick:vertex': function (e) {
-                    console.log(e);
                     _this._fillVertexContextMenu(e);
+
                     $(_this.contextMenuDiv).css({
                         display: "block",
                         left: e.x,
-                        top: e.y + 90
+                        top: e.y
                     });
                 },
                 'rightClick:backgroundImage': function (e) {
@@ -622,12 +657,18 @@ NetworkViewer.prototype = {
         this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
         console.log('selectVertexNeighbour');
     },
-    selectEdge: function (edge) {
-        this._deselectAllEdges();
+    selectEdge: function (edge, addToSelection) {
+        if (addToSelection) {
+            this.selectedEdges.push(edge);
+        } else {
+            this._deselectAllEdges();
+            this.selectedEdges = [edge];
+
+        }
         this.network.selectEdge(edge);
 
-        this.selectedEdges = [edge];
         this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
+        console.log('selectEdge');
     },
     _moveSelectedVertices: function (dispX, dispY) {
         this.scale = this.networkSvgLayout.scale; //TODO
@@ -739,7 +780,8 @@ NetworkViewer.prototype = {
 
         /* vertex config */
         var vertexConfig = new VertexConfig({
-            coords: {x: x, y: y}
+            coords: {x: x, y: y},
+            rendererConfig: this.session.getVertexDefaults()
         });
 
         //update variables
@@ -749,7 +791,7 @@ NetworkViewer.prototype = {
             vertexConfig: vertexConfig,
             target: this.networkSvgLayout.getElementsSVG()
         });
-
+        this.trigger('change', {sender: this});
         return vertex;
     },
     createEdge: function (vertexSource, vertexTarget) {
@@ -762,13 +804,17 @@ NetworkViewer.prototype = {
             target: vertexTarget
         });
 
-        var edgeConfig = new EdgeConfig({});
+        var edgeConfig = new EdgeConfig({
+            rendererConfig: this.session.getEdgeDefaults()
+        });
 
         this.network.addEdge({
             edge: edge,
             edgeConfig: edgeConfig,
             target: this.networkSvgLayout.getElementsSVG()
         });
+        this.trigger('change', {sender: this});
+        return edge;
     },
     removeBackGroundImage: function (imageEl) {
         $(imageEl).remove();
@@ -785,7 +831,7 @@ NetworkViewer.prototype = {
             '</div>';
 
         this.contextMenuDiv = $(html)[0];
-        $(this.div).append(this.contextMenuDiv);
+        $(this.centerPanelDiv).append(this.contextMenuDiv);
 
 
         $(_this.contextMenuDiv).bind('click.networkViewer', function (event) {
@@ -852,6 +898,7 @@ NetworkViewer.prototype = {
     _setZoom: function (zoom) {
         this.zoom = zoom;
         this.networkSvgLayout.setZoom(zoom);
+        this.session.setZoom(zoom);
         if (this.overviewPanel) {
             var width = $(this.overviewPanelDiv).width();
             var height = $(this.overviewPanelDiv).height();
@@ -914,11 +961,12 @@ NetworkViewer.prototype = {
     },
     setLayout: function (type, e) {
         var _this = this;
+        this.networkSvgLayout.setCenter({x: 0, y: 0});
         var graph = this.network.getGraph();
         var dot = graph.getAsDOT();
         switch (type) {
             case "Circle":
-                if (typeof e.attributeName !== 'undefined') {
+                if (e && typeof e.attributeName !== 'undefined') {
                     GraphLayout.circle(this.network, this.getLayoutWidth(), this.getLayoutHeight(), this.network.getVerticesOrdered(e.attributeName));
                 } else {
                     GraphLayout.circle(this.network, this.getLayoutWidth(), this.getLayoutHeight());
@@ -1039,39 +1087,53 @@ NetworkViewer.prototype = {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
     clean: function () {
-        delete localStorage.networkViewer;
         this.network.clean();
         this.networkSvgLayout.clean();
+        this.trigger('change', {sender: this});
     },
     drawNetwork: function () {
         this.network.draw(this.networkSvgLayout.getElementsSVG());
+        this.trigger('change', {sender: this});
     },
     refreshNetwork: function () {
         this.networkSvgLayout.clean();
         this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
-    loadJSON: function (content) {
-        try {
-            this.networkSvgLayout.clean();
-            this.network.loadJSON(content);
-            this.networkSvgLayout.setZoom(content["zoom"]);
-            this.toolBar.setZoom(content["zoom"]);
-            this.network.draw(this.networkSvgLayout.getElementsSVG());
-            this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
-            this.networkSvgLayout.setCenter(content["center"]);
-            this._refreshOverview();
-        } catch (e) {
-            this.clean();
-            console.log('Error loading JSON');
-        }
+    loadSession: function () {
+        this._setZoom(this.session.getZoom());
+        this.networkSvgLayout.loadSession();
+        this.network.loadSession();
+        this.network.draw(this.networkSvgLayout.getElementsSVG());
     },
-    toJSON: function () {
-        var json = this.network.toJSON();
-        json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
-        json["center"] = {x: this.networkSvgLayout.centerX, y: this.networkSvgLayout.centerY};
-        json["zoom"] = this.zoom;
-        return json;
+    saveSession: function () {
+        this.session.setZoom(this.zoom);
+        this.networkSvgLayout.saveSession();
+        this.network.saveSession();
     },
+//    loadJSON: function (content) {
+//        try {
+//            this.networkSvgLayout.clean();
+//            this.network.setVertexRendererDefaults(content.vertexDefaults);
+//            this.network.setEdgeRendererDefaults(content.edgeDefaults);
+//            this.network.loadJSON(content);
+//            this.networkSvgLayout.setZoom(content["zoom"]);
+//            this.toolBar.setZoom(content["zoom"]);
+//            this.network.draw(this.networkSvgLayout.getElementsSVG());
+//            this.networkSvgLayout.addBackgroundImages(content["backgroundImages"]);
+//            this.networkSvgLayout.setCenter(content["center"]);
+//            this._refreshOverview();
+//        } catch (e) {
+//            this.clean();
+//            console.log('Error loading JSON');
+//        }
+//    },
+//    toJSON: function () {
+//        var json = this.network.toJSON();
+//        json["backgroundImages"] = this.networkSvgLayout.getBackGroundImages();
+//        json["center"] = {x: this.networkSvgLayout.centerX, y: this.networkSvgLayout.centerY};
+//        json["zoom"] = this.zoom;
+//        return json;
+//    },
     getAsSIF: function (separator) {
         return this.network.getAsSIF(separator);
     },
@@ -1079,11 +1141,11 @@ NetworkViewer.prototype = {
         return this.network.getAsSIFCustomRelation(separator, relationColumn);
     },
     setGraph: function (graph) {
-        delete localStorage.networkViewer;
         this.networkSvgLayout.clean();
 
         this.network.setGraph(graph);
         this.network.draw(this.networkSvgLayout.getElementsSVG());
+        this.trigger('change', {sender: this});
     }
 
 }

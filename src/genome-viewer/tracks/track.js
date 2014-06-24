@@ -20,9 +20,6 @@
  */
 
 function Track(args) {
-    this.width = 200;
-    this.height = 200;
-
 
     this.dataAdapter;
     this.renderer;
@@ -33,6 +30,7 @@ function Track(args) {
     this.title;
     this.minHistogramRegionSize = 300000000;
     this.maxLabelRegionSize = 300000000;
+    this.width = 200;
     this.height = 100;
     this.visibleRegionSize;
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
@@ -123,9 +121,7 @@ Track.prototype = {
 //            'cursor': 'pointer'
 //        });
         if (this.resizable) {
-            if (this.histogram) {
-                $(this.svgdiv).css({'height': this.height + 10});
-            } else {
+            if (!this.histogram) {
                 var x = this.pixelPosition;
                 var width = this.width;
                 var lastContains = 0;
@@ -139,7 +135,11 @@ Track.prototype = {
 //                this.rrr.setAttribute('x', x);
 //                this.rrr.setAttribute('y', divHeight);
 //                this.rrr.setAttribute('width', width);
+
             }
+        }
+        if (this.histogram) {
+            $(this.svgdiv).css({'height': this.height + 10});
         }
     },
     _updateSVGHeight: function () {
@@ -149,12 +149,18 @@ Track.prototype = {
             this.svgCanvasFeatures.setAttribute('height', renderedHeight);
             this.hoverRect.setAttribute('height', renderedHeight);
         }
+        if (this.histogram) {
+            this.main.setAttribute('height', this.height);
+            this.svgCanvasFeatures.setAttribute('height', this.height);
+            this.hoverRect.setAttribute('height', this.height);
+        }
     },
     updateHeight: function (ignoreAutoHeight) {
         this._updateSVGHeight();
         if (this.autoHeight || ignoreAutoHeight) {
             this._updateDIVHeight();
         }
+        if (this.histogram);
     },
     enableAutoHeight: function () {
         this.autoHeight = true;
@@ -168,10 +174,14 @@ Track.prototype = {
         if (bool) {
             this.svgLoading.setAttribute("visibility", "visible");
             this.status = "rendering";
+            $(this.loadingDiv).html('&nbsp;<span class="ocb-light">Loading...</span>');
+//            $(this.titleBtn).addClass('btn-info');
         } else {
             this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
-            this.trigger('track:ready', {sender: this});
+            $(this.loadingDiv).html('');
+//            $(this.titleBtn).removeClass('btn-info');
+//            this.trigger('track:ready', {sender: this});
         }
     },
 
@@ -181,11 +191,13 @@ Track.prototype = {
             this.histogramLogarithm = true;
             this.histogramMax = 500;
             this.interval = Math.ceil(10 / this.pixelBase);//server interval limit 512
+            $(this.histogramDiv).html('&nbsp;<span class="glyphicon glyphicon-signal"></span>');
         } else {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
             this.histogramMax = undefined;
             this.interval = undefined;
+            $(this.histogramDiv).html('');
         }
 
 //        if (this.histogramRenderer) {
@@ -212,10 +224,14 @@ Track.prototype = {
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
         var titleBardiv = $('' +
-            '<div class="btn-toolbar ocb-compactable">' +
+            '<div>' +
             '   <div class="btn-group btn-group-xs">' +
-            '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
-            '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button"><span id="titleDiv">' + this.title + '</span></button>' +
+//            '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
+            '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button">' +
+            '       <span id="titleDiv">' + this.title + '</span>' +
+            '       <span id="histogramDiv"></span>' +
+            '       <span id="loadingDiv"></span>' +
+            '   </button>' +
             '   </div>' +
             '</div>')[0];
 
@@ -224,9 +240,11 @@ Track.prototype = {
         }
 
         var titlediv = $(titleBardiv).find('#titleDiv')[0];
-        var titleBtn = $(titleBardiv).find('#titleBtn')[0];
-        var configBtn = $(titleBardiv).find('#configBtn')[0];
+        this.titleBtn = $(titleBardiv).find('#titleBtn')[0];
+//        var configBtn = $(titleBardiv).find('#configBtn')[0];
 
+        this.histogramDiv = $(titleBardiv).find('#histogramDiv')[0];
+        this.loadingDiv = $(titleBardiv).find('#loadingDiv')[0];
 
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
         var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
@@ -243,7 +261,7 @@ Track.prototype = {
             .on('dblclick', function (e) {
                 e.stopPropagation();
             });
-        $(titleBtn).click(function (e) {
+        $(this.titleBtn).click(function (e) {
             _this.toggleContent();
         });
 
@@ -377,7 +395,7 @@ Track.prototype = {
         this.svgdiv = svgdiv;
         this.titlediv = titlediv;
         this.resizeDiv = resizediv;
-        this.configBtn = configBtn;
+//        this.configBtn = configBtn;
 
         this.main = main;
         this.hoverRect = hoverRect;
