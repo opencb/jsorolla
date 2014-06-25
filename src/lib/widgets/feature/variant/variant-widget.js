@@ -6,8 +6,9 @@ function VariantWidget(args) {
 
     //set default args
     this.target;
-    this.autoRender = true;
     this.width;
+    this.autoRender = true;
+    this.data = [];
 //    this.height = '100%';
     this.url = "";
     this.closable = true;
@@ -36,6 +37,7 @@ function VariantWidget(args) {
     if (this.autoRender) {
         this.render();
     }
+
 }
 
 VariantWidget.prototype = {
@@ -92,7 +94,7 @@ VariantWidget.prototype = {
             this.variantGenotypeGridDiv.setAttribute('class', 'ocb-variant-genotype-grid');
             this.variantGenotypeGrid = this._createVariantGenotypeGrid(this.variantGenotypeGridDiv);
             tabPanelItems.push({
-                title: 'Genotyoe',
+                title: 'Genotype',
                 contentEl: this.variantGenotypeGridDiv,
                 height: 500,
 //                    height:'100%',
@@ -217,7 +219,11 @@ VariantWidget.prototype = {
 //            {sample: "sample3", genotype: "0/0", sex: "1", phenotype: "phenotype"}
 //        ]);
 
-//        this.toolTabPanel.setActiveTab(0);
+        this.toolTabPanel.setActiveTab(0);
+
+//        if (this.data.length > 0) {
+//            this.variantBrowserGrid.load(this.data);
+//        }
     },
     addTool: function (tool, position) {
 
@@ -226,7 +232,8 @@ VariantWidget.prototype = {
     _createVariantBrowserGrid: function (target) {
 
         var variantBrowserGrid = new VariantBrowserGrid({
-            target: target
+            target: target,
+            data: this.data
         });
 
 
@@ -250,13 +257,14 @@ VariantWidget.prototype = {
             }
         });
 
-        this.on("_grid:clear", function (e) {
+        this.variantBrowserGrid.on("variantBrowserGrid:clear", function (e) {
             variantEffectGrid.clear(true);
         });
 
-        this.on("_grid:change", function (e) {
+        this.variantBrowserGrid.on("variantBrowserGrid:change", function (e) {
+            console.log("Capturo");
             var row = e.args;
-            variantEffectGrid.load(row.chromosome, row.position, row.ref, row.alt);
+            variantEffectGrid.load(row.chr, row.start, row.ref, row.alt);
 
         });
         return variantEffectGrid;
@@ -457,19 +465,22 @@ VariantWidget.prototype = {
         genomeViewer.addTrack([sequence, gene, snp]);
 
 
-        this.on("_grid:change", function (e) {
+        this.variantBrowserGrid.on("variantBrowserGrid:change", function (e) {
+
             var row = e.args;
 
             var region = new Region({
-                chromosome: row.chromosome,
-                start: row.position,
-                end: row.position
+                chromosome: row.chr,
+                start: row.start,
+                end: row.end
             });
 
-            if (!_.isUndefined(_this.gv)) {
-                _this.gv.setRegion(region);
+            if (!_.isUndefined(genomeViewer)) {
+                genomeViewer.setRegion(region);
             }
+
         });
+
         return genomeViewer;
     },
 
@@ -519,19 +530,6 @@ VariantWidget.prototype = {
         this.toolsPanel.setActiveTab(activeTab);
 
         this._updateInfo();
-    },
-    _createPanel: function () {
-        var panel = Ext.create('Ext.panel.Panel', {
-            title: this.title,
-            id: this.panelId,
-            width: '100%',
-            height: this.height,
-            border: this.border,
-            layout: 'hbox',
-            closable: this.closable,
-            items: []
-        });
-        return panel;
     },
     _createVariantPanel: function () {
 
@@ -1115,144 +1113,148 @@ VariantWidget.prototype = {
 
         _this.columnsGrid = [
             {
-                text: "Variant",
-                dataIndex: 'chromosome',
-                flex: 1,
-                xtype: "templatecolumn",
-                tpl: "{chromosome}:{position}"
+                text: "ID",
+                dataIndex: 'id'
             },
-            {
-                text: "Alleles",
-                flex: 0.5,
-                xtype: "templatecolumn",
-                tpl: "{ref}>{alt}",
-                sortable: false
-            },
-            {
-                text: "Gene",
-                dataIndex: 'genes',
-                flex: 1,
-                sortable: false
-            },
-            {
-                text: 'Samples',
-                flex: 1,
-                sortable: false,
-                columns: []
-            },
-            {
-                text: "SNP Id",
-                dataIndex: 'snpid',
-                flex: 1,
-                sortable: true
-            },
-            {
-                flex: 1,
-                text: "Controls (MAF)",
-                defaults: {
-                    width: 70
-                },
-                columns: [
-                    {
-                        text: "1000G",
-                        renderer: function (val, meta, record) {
-                            if (record.data.controls["1000G"]) {
-                                return parseMafControl(record.data.controls["1000G"]);
-                            } else {
-                                return ".";
-                            }
-                        }
-                    },
-                    {
-                        text: "1000G-AFR",
-                        renderer: function (val, meta, record) {
-                            if (record.data.controls["1000G-AFR"]) {
-                                return parseMafControl(record.data.controls["1000G-AFR"]);
-                            } else {
-                                return ".";
-                            }
-                        }
-                    },
-                    {
-                        text: "1000G-ASI",
-                        renderer: function (val, meta, record) {
-                            if (record.data.controls["1000G-ASI"]) {
-                                return parseMafControl(record.data.controls["1000G-ASI"]);
-
-                            } else {
-                                return ".";
-                            }
-                        }
-                    },
-                    {
-                        text: "1000G-AME",
-                        renderer: function (val, meta, record) {
-                            if (record.data.controls["1000G-AME"]) {
-                                return parseMafControl(record.data.controls["1000G-AME"]);
-                            } else {
-                                return ".";
-                            }
-                        }
-                    },
-                    {
-                        text: "1000G-EUR",
-                        renderer: function (val, meta, record) {
-                            if (record.data.controls["1000G-EUR"]) {
-                                return parseMafControl(record.data.controls["1000G-EUR"]);
-                            } else {
-                                return ".";
-                            }
-                        }
-                    },
-                    {
-                        text: "EVS",
-                        renderer: function (val, meta, record) {
-                            if (record.data.controls["EVS"]) {
-                                return parseMafControl(record.data.controls["EVS"]);
-                            } else {
-                                return ".";
-                            }
-                        }
-                    }
-                ]
-            },
-            {
-                text: "Consq. Type",
-                dataIndex: "consequence_types",
-                flex: 1,
-                sortable: false
-            },
-            {
-                text: 'Polyphen',
-                flex: 1,
-                dataIndex: 'polyphen_score',
-                xtype: 'templatecolumn',
-                tpl: xtmplPoly,
-                sortable: false
-            },
-            {
-                text: 'SIFT',
-                flex: 1,
-                dataIndex: 'sift_score',
-                xtype: "templatecolumn",
-                tpl: xtmplSift,
-                sortable: false
-            },
-            {
-                text: 'Phenotype',
-                dataIndex: 'phenotype',
-                sortable: false
-            },
-            {
-                text: "Is indel?",
-                flex: 1,
-                xtype: 'booleancolumn',
-                trueText: 'Yes',
-                falseText: 'No',
-                dataIndex: 'stats_is_indel',
-                sortable: true,
-                hidden: true
-            }
+//            {
+//                text: "Variant",
+//                dataIndex: 'chromosome',
+//                flex: 1,
+//                xtype: "templatecolumn",
+//                tpl: "{chromosome}:{position}"
+//            },
+//            {
+//                text: "Alleles",
+//                flex: 0.5,
+//                xtype: "templatecolumn",
+//                tpl: "{ref}>{alt}",
+//                sortable: false
+//            },
+//            {
+//                text: "Gene",
+//                dataIndex: 'genes',
+//                flex: 1,
+//                sortable: false
+//            },
+//            {
+//                text: 'Samples',
+//                flex: 1,
+//                sortable: false,
+//                columns: []
+//            },
+//            {
+//                text: "SNP Id",
+//                dataIndex: 'snpid',
+//                flex: 1,
+//                sortable: true
+//            },
+//            {
+//                flex: 1,
+//                text: "Controls (MAF)",
+//                defaults: {
+//                    width: 70
+//                },
+//                columns: [
+//                    {
+//                        text: "1000G",
+//                        renderer: function (val, meta, record) {
+//                            if (record.data.controls["1000G"]) {
+//                                return parseMafControl(record.data.controls["1000G"]);
+//                            } else {
+//                                return ".";
+//                            }
+//                        }
+//                    },
+//                    {
+//                        text: "1000G-AFR",
+//                        renderer: function (val, meta, record) {
+//                            if (record.data.controls["1000G-AFR"]) {
+//                                return parseMafControl(record.data.controls["1000G-AFR"]);
+//                            } else {
+//                                return ".";
+//                            }
+//                        }
+//                    },
+//                    {
+//                        text: "1000G-ASI",
+//                        renderer: function (val, meta, record) {
+//                            if (record.data.controls["1000G-ASI"]) {
+//                                return parseMafControl(record.data.controls["1000G-ASI"]);
+//
+//                            } else {
+//                                return ".";
+//                            }
+//                        }
+//                    },
+//                    {
+//                        text: "1000G-AME",
+//                        renderer: function (val, meta, record) {
+//                            if (record.data.controls["1000G-AME"]) {
+//                                return parseMafControl(record.data.controls["1000G-AME"]);
+//                            } else {
+//                                return ".";
+//                            }
+//                        }
+//                    },
+//                    {
+//                        text: "1000G-EUR",
+//                        renderer: function (val, meta, record) {
+//                            if (record.data.controls["1000G-EUR"]) {
+//                                return parseMafControl(record.data.controls["1000G-EUR"]);
+//                            } else {
+//                                return ".";
+//                            }
+//                        }
+//                    },
+//                    {
+//                        text: "EVS",
+//                        renderer: function (val, meta, record) {
+//                            if (record.data.controls["EVS"]) {
+//                                return parseMafControl(record.data.controls["EVS"]);
+//                            } else {
+//                                return ".";
+//                            }
+//                        }
+//                    }
+//                ]
+//            },
+//            {
+//                text: "Consq. Type",
+//                dataIndex: "consequence_types",
+//                flex: 1,
+//                sortable: false
+//            },
+//            {
+//                text: 'Polyphen',
+//                flex: 1,
+//                dataIndex: 'polyphen_score',
+//                xtype: 'templatecolumn',
+//                tpl: xtmplPoly,
+//                sortable: false
+//            },
+//            {
+//                text: 'SIFT',
+//                flex: 1,
+//                dataIndex: 'sift_score',
+//                xtype: "templatecolumn",
+//                tpl: xtmplSift,
+//                sortable: false
+//            },
+//            {
+//                text: 'Phenotype',
+//                dataIndex: 'phenotype',
+//                sortable: false
+//            },
+//            {
+//                text: "Is indel?",
+//                flex: 1,
+//                xtype: 'booleancolumn',
+//                trueText: 'Yes',
+//                falseText: 'No',
+//                dataIndex: 'stats_is_indel',
+//                sortable: true,
+//                hidden: true
+//            }
         ];
         _this.attributes = [
             {name: "chromosome", type: "string"},

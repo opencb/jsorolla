@@ -39,9 +39,6 @@ VariantEffectGrid.prototype = {
         this.panel.render(this.div);
     },
 
-//    getPanel: function () {
-//        return this.grid;
-//    },
     clear: function () {
         this.store.removeAll();
     },
