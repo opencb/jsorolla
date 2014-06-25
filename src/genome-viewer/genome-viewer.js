@@ -853,7 +853,7 @@ GenomeViewer.prototype = {
     /** API METHODS **/
     /*****************/
     setRegion: function (region) {
-        return this._regionChangeHandler({region: region});
+        return this._regionChangeHandler({region: new Region(region)});
     },
     moveRegion: function (disp) {
         this.region.start += disp;

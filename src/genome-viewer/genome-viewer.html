@@ -48,12 +48,26 @@
 <script type="text/javascript" src="../lib/cellbase-manager.js"></script>
 <script type="text/javascript" src="../lib/ensembl-manager.js"></script>
 
+<script type="text/javascript" src="../lib/cache/file-feature-cache.js"></script>
 <script type="text/javascript" src="../lib/cache/feature-chunk-cache.js"></script>
 <script type="text/javascript" src="../lib/cache/memory-store.js"></script>
+
 
 <script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter.js"></script>
 <script type="text/javascript" src="../lib/data-adapter/feature/sequence-adapter.js"></script>
 <script type="text/javascript" src="../lib/data-adapter/feature/ensembl-adapter.js"></script>
+
+<!--**-->
+<script type="text/javascript" src="../lib/data-adapter/feature/feature-data-adapter.js"></script>
+<script type="text/javascript" src="../lib/data-adapter/feature/vcf-data-adapter.js"></script>
+<script type="text/javascript" src="../lib/data-adapter/feature/gff2-data-adapter.js"></script>
+<script type="text/javascript" src="../lib/data-adapter/feature/gff3-data-adapter.js"></script>
+<script type="text/javascript" src="../lib/data-adapter/feature/bed-data-adapter.js"></script>
+
+<script type="text/javascript" src="../lib/data-source/data-source.js"></script>
+<script type="text/javascript" src="../lib/data-source/string-data-source.js"></script>
+<script type="text/javascript" src="../lib/data-source/file-data-source.js"></script>
+<!--**-->
 
 <script type="text/javascript" src="../lib/widgets/feature/info/info-widget.js"></script>
 <script type="text/javascript" src="../lib/widgets/feature/info/gene-info-widget.js"></script>
@@ -324,6 +338,23 @@ var run = function () {
     genomeViewer.addTrack(tracks);
 
 
+//    $('#importFileField').change(function (e) {
+//        var file = this.files[0];
+//        var fileTrack = new FeatureTrack({
+//            id: 100,
+//            title: 'VCF track',
+//            height: 150,
+//            renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
+//            dataAdapter: new VCFDataAdapter(
+//                    new FileDataSource({
+//                        file: file
+//                    })
+//            )
+//        });
+//        genomeViewer.addTrack(fileTrack);
+//    });
+
+
     genomeViewer.draw();
 };
 
@@ -332,30 +363,34 @@ $(document).ready(run);
 
 <style type="text/css">
     html {
-        width:100%;
-        height:100%;
+        width: 100%;
+        height: 100%;
         position: fixed;
         overflow-x: hidden;
     }
+
     body {
         margin: 0px;
     }
+
     #application {
         margin: 0 auto;
         width: 1500px;
         border: 1px solid lightgray;
     }
+
     #title {
         margin: 20px auto;
         width: 1500px;
         font-size: 35px;
-        color:gray;
+        color: gray;
     }
 </style>
 
 </head>
 
 <body>
+<!--<input id="importFileField" type="file"/>-->
 <div id="title">Genome Viewer</div>
 <div id="application"></div>
 </body>
