@@ -41,7 +41,7 @@ function VariantWidget(args) {
 }
 
 VariantWidget.prototype = {
-    render: function (target) {
+    render: function () {
         var _this = this;
 
         //HTML skel
@@ -1784,7 +1784,10 @@ VariantWidget.prototype = {
             border: false,
             collapsed: true,
             items: [
-                {xtype: 'tbtext', text: '<span class="info">Enter regions (comma separated)</span>'},
+                {
+                    xtype: 'tbtext',
+                    text: '<span class="info">Enter regions (comma separated)</span>'
+                },
                 regionList
             ]
         });
