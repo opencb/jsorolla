@@ -28,6 +28,9 @@ function StatusBar(args) {
 
     this.id = Utils.genId("StatusBar");
 
+    this.target;
+    this.autoRender = true;
+
     //set instantiation args, must be last
     _.extend(this, args);
 
@@ -41,16 +44,9 @@ function StatusBar(args) {
 };
 
 StatusBar.prototype = {
-    render: function (targetId) {
-        this.targetId = (targetId) ? targetId : this.targetId;
-        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
-        if (this.targetDiv === 'undefined') {
-            console.log('targetId not found');
-            return;
-        }
+    render: function () {
 
         this.div = $('<div id="' + this.id + '" class="gv-status-bar" align="right"></div>')[0];
-        $(this.targetDiv).append(this.div);
 
         this.mousePositionDiv = $('<div id="' + this.id + 'position" style="display: inline">&nbsp;</div>')[0];
         $(this.mousePositionDiv).css({
@@ -70,6 +66,15 @@ StatusBar.prototype = {
         $(this.div).append(this.versionDiv);
 
         this.rendered = true;
+    },
+    draw:function(){
+        var _this = this;
+        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.targetDiv) {
+            console.log('target not found');
+            return;
+        }
+        this.targetDiv.appendChild(this.div);
     },
     setRegion: function (event) {
         this.region.load(event.region);

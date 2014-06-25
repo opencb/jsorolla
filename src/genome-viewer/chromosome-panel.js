@@ -26,6 +26,8 @@ function ChromosomePanel(args) {
 
     this.id = Utils.genId('ChromosomePanel');
 
+    this.target;
+    this.autoRender = true;
     this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
@@ -100,17 +102,10 @@ ChromosomePanel.prototype = {
         }
     },
 
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        this.targetId = (targetId) ? targetId : this.targetId;
-        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
-        if (this.targetDiv === 'undefined') {
-            console.log('targetId not found');
-            return;
-        }
 
         this.div = $('<div id="chromosome-panel"></div>')[0];
-        $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
             this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
@@ -154,11 +149,13 @@ ChromosomePanel.prototype = {
         $(this.svg).empty();
     },
     draw: function () {
-        if (!this.rendered) {
-            console.info(this.id + ' is not rendered yet');
+        var _this = this;
+        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.targetDiv) {
+            console.log('target not found');
             return;
         }
-        var _this = this;
+        this.targetDiv.appendChild(this.div);
 
         this.clean();
 
@@ -181,7 +178,6 @@ ChromosomePanel.prototype = {
         });
 
         this.lastChromosome = this.region.chromosome;
-
 
         if (this.collapsed) {
             _this.hideContent();

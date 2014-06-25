@@ -235,8 +235,8 @@ NetworkViewer.prototype = {
         this.networkSvgLayout.setSize(this.width, height);
     },
     draw: function () {
-        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
-        if (this.targetDiv === 'undefined') {
+        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.targetDiv) {
             console.log('target not found');
             return;
         }

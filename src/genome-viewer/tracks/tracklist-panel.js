@@ -29,6 +29,8 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.cellBaseVersion = 'v3';
 
     //set default args
+    this.target;
+    this.autoRender = true;
     this.id = Utils.genId("TrackListPanel");
     this.collapsed = false;
     this.collapsible = false;
@@ -112,18 +114,9 @@ TrackListPanel.prototype = {
         $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
         $(this.collapseDiv).children().first().addClass('glyphicon-plus');
     },
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        this.targetId = (targetId) ? targetId : this.targetId;
-        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
-        if (this.targetDiv === 'undefined') {
-            console.log('targetId not found');
-            return;
-        }
-
-
         this.div = $('<div id="tracklist-panel" style="height:100%;position: relative;"></div>')[0];
-        $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
             var titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><div style="display:inline-block;line-height: 24px;margin-left: 5px;width:120px">' + this.title + '</div></div>')[0];
@@ -612,6 +605,14 @@ TrackListPanel.prototype = {
     },
 
     draw: function () {
+        var _this = this;
+        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.targetDiv) {
+            console.log('target not found');
+            return;
+        }
+        this.targetDiv.appendChild(this.div);
+
         this.trigger('track:draw', {sender: this});
     },
     _checkAllTrackStatus: function (status) {
@@ -655,10 +656,10 @@ TrackListPanel.prototype = {
         var i = this.trackSvgList.push(track);
         this.swapHash[track.id] = {index: i - 1, visible: true};
 
-        if(typeof track.dataAdapter.host === 'undefined'){
+        if (typeof track.dataAdapter.host === 'undefined') {
             track.dataAdapter.host = this.cellBaseHost;
         }
-        if(typeof track.dataAdapter.version === 'undefined'){
+        if (typeof track.dataAdapter.version === 'undefined') {
             track.dataAdapter.version = this.cellBaseVersion;
         }
         track.set('pixelBase', this.pixelBase);

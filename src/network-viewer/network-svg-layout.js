@@ -197,7 +197,7 @@ NetworkSvgLayout.prototype = {
     },
     draw: function () {
         this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
-        if (this.targetDiv === 'undefined') {
+        if (!this.targetDiv) {
             console.log('target not found');
             return;
         }
