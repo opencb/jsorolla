@@ -262,8 +262,8 @@ GenomeViewer.prototype = {
         this.rendered = true;
     },
     draw: function () {
-        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
-        if (this.targetDiv === 'undefined') {
+        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.targetDiv) {
             console.log('target not found');
             return;
         }
@@ -472,10 +472,10 @@ GenomeViewer.prototype = {
         return navigationBar;
     },
 
-    _drawKaryotypePanel: function (targetId) {
+    _drawKaryotypePanel: function (target) {
         var _this = this;
         karyotypePanel = new KaryotypePanel({
-            targetId: targetId,
+            target: target,
             cellBaseHost: this.cellBaseHost,
             cellBaseVersion: this.cellBaseVersion,
             width: this.width - this.sidePanelWidth,
@@ -510,11 +510,11 @@ GenomeViewer.prototype = {
         return karyotypePanel;
     },
 
-    _drawChromosomePanel: function (targetId) {
+    _drawChromosomePanel: function (target) {
         var _this = this;
 
         var chromosomePanel = new ChromosomePanel({
-            targetId: targetId,
+            target: target,
             cellBaseHost: this.cellBaseHost,
             cellBaseVersion: this.cellBaseVersion,
             autoRender: true,
@@ -549,12 +549,12 @@ GenomeViewer.prototype = {
         return chromosomePanel;
     },
 
-    _createOverviewTrackListPanel: function (targetId) {
+    _createOverviewTrackListPanel: function (target) {
         var _this = this;
         var trackListPanel = new TrackListPanel({
             cellBaseHost: this.cellBaseHost,
             cellBaseVersion: this.cellBaseVersion,
-            targetId: targetId,
+            target: target,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
             zoomMultiplier: this.overviewZoomMultiplier,
@@ -590,13 +590,15 @@ GenomeViewer.prototype = {
             trackListPanel.setSpecies(event.species);
         });
 
+        trackListPanel.draw();
+
         return  trackListPanel;
     },
 
-    _createTrackListPanel: function (targetId) {
+    _createTrackListPanel: function (target) {
         var _this = this;
         var trackListPanel = new TrackListPanel({
-            targetId: targetId,
+            target: target,
             cellBaseHost: this.cellBaseHost,
             cellBaseVersion: this.cellBaseVersion,
             autoRender: true,
@@ -635,14 +637,15 @@ GenomeViewer.prototype = {
             trackListPanel.highlight(event);
         });
 
+        trackListPanel.draw();
 
         return  trackListPanel;
     },
 
-    _createStatusBar: function (targetId) {
+    _createStatusBar: function (target) {
         var _this = this;
         var statusBar = new StatusBar({
-            targetId: targetId,
+            target: target,
             autoRender: true,
             region: this.region,
             width: this.width,
@@ -658,6 +661,7 @@ GenomeViewer.prototype = {
             statusBar.setMousePosition(event);
         });
 
+        statusBar.draw();
         return  statusBar;
     },
 

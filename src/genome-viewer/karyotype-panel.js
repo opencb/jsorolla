@@ -24,6 +24,8 @@ function KaryotypePanel(args) {
 
     _.extend(this, Backbone.Events);
 
+    this.target;
+    this.autoRender = true;
     this.id = Utils.genId('KaryotypePanel');
 
     this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
@@ -102,17 +104,10 @@ KaryotypePanel.prototype = {
         }
     },
 
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        this.targetId = (targetId) ? targetId : this.targetId;
-        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
-        if (this.targetDiv === 'undefined') {
-            console.log('targetId not found');
-            return;
-        }
 
         this.div = $('<div id="karyotype-panel"></div>')[0];
-        $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
             this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
@@ -158,11 +153,13 @@ KaryotypePanel.prototype = {
         $(this.svg).empty();
     },
     draw: function () {
-        if (!this.rendered) {
-            console.info(this.id + ' is not rendered yet');
+        var _this = this;
+        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.targetDiv) {
+            console.log('target not found');
             return;
         }
-        var _this = this;
+        this.targetDiv.appendChild(this.div);
 
         this.clean();
 
