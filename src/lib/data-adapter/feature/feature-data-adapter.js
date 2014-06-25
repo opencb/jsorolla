@@ -39,7 +39,7 @@ function FeatureDataAdapter(dataSource, args) {
         }
     }
 
-    this.featureCache = new FeatureCache({chunkSize: 10000, gzip: this.gzip});
+    this.featureCache = new FileFeatureCache({chunkSize: 10000, gzip: this.gzip});
 
 //	this.onLoad = new Event();
 //	this.onGetData = new Event();
@@ -62,8 +62,9 @@ FeatureDataAdapter.prototype.getData = function (args) {
 
     var itemList = this.featureCache.getFeatureChunksByRegion(args.region);
     if (itemList != null) {
-        this.trigger('data:ready', {items: itemList, params: this.params, chunkSize:this.featureCache.chunkSize, cached: true, sender: this});
+        this.trigger('data:ready', {items: itemList, params: this.params, chunkSize: this.featureCache.chunkSize, cached: true, sender: this});
     }
+    args.done();
 };
 
 FeatureDataAdapter.prototype._fetchData = function (region) {
@@ -78,7 +79,7 @@ FeatureDataAdapter.prototype._fetchData = function (region) {
 
                 var itemList = _this.featureCache.getFeatureChunksByRegion(region);
                 if (itemList != null) {
-                    _this.trigger('data:ready', {items: itemList, params: _this.params, chunkSize:_this.featureCache.chunkSize, cached: true, sender: _this});
+                    _this.trigger('data:ready', {items: itemList, params: _this.params, chunkSize: _this.featureCache.chunkSize, cached: true, sender: _this});
                 }
 
             });

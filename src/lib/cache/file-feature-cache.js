@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function FeatureCache(args) {
+function FileFeatureCache(args) {
 	this.args = args;
 	this.id = Math.round(Math.random() * 10000000); // internal id for this class
 
@@ -47,17 +47,17 @@ function FeatureCache(args) {
 
 };
 
-FeatureCache.prototype._getChunk = function(position){
+FileFeatureCache.prototype._getChunk = function(position){
 	return Math.floor(position/this.chunkSize);
 };
 
-FeatureCache.prototype.getChunkRegion = function(region){
+FileFeatureCache.prototype.getChunkRegion = function(region){
 	start = this._getChunk(region.start) * this.chunkSize;
 	end = (this._getChunk(region.end) * this.chunkSize) + this.chunkSize-1;
 	return {start:start,end:end};
 };
 
-FeatureCache.prototype.getFirstFeature = function(){
+FileFeatureCache.prototype.getFirstFeature = function(){
 	var feature;
 	if(this.gzip) {
 		feature = JSON.parse(RawDeflate.inflate(this.cache[Object.keys(this.cache)[0]].data[0]));
@@ -69,13 +69,13 @@ FeatureCache.prototype.getFirstFeature = function(){
 
 
 //new 
-FeatureCache.prototype.getFeatureChunk = function(key){
+FileFeatureCache.prototype.getFeatureChunk = function(key){
 	if(this.cache[key] != null) {
 		return this.cache[key];
 	}
 	return null;
 };
-FeatureCache.prototype.getFeatureChunkByDataType = function(key,dataType){
+FileFeatureCache.prototype.getFeatureChunkByDataType = function(key,dataType){
 	if(this.cache[key] != null) {
         if(this.cache[key][dataType] != null){
 		    return this.cache[key][dataType];
@@ -84,7 +84,7 @@ FeatureCache.prototype.getFeatureChunkByDataType = function(key,dataType){
 	return null;
 };
 //new
-FeatureCache.prototype.getFeatureChunksByRegion = function(region){
+FileFeatureCache.prototype.getFeatureChunksByRegion = function(region){
 	var firstRegionChunk, lastRegionChunk,  chunks = [], key;
 	firstRegionChunk = this._getChunk(region.start);
 	lastRegionChunk = this._getChunk(region.end);
@@ -103,7 +103,7 @@ FeatureCache.prototype.getFeatureChunksByRegion = function(region){
 };
 
 
-FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, featureType, dataType){
+FileFeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, featureType, dataType){
 	var key, firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, feature, gzipFeature;
 
 
@@ -157,7 +157,7 @@ FeatureCache.prototype.putFeaturesByRegion = function(featureDataList, region, f
 
 
 //used by BED, GFF, VCF
-FeatureCache.prototype.putFeatures = function(featureDataList, dataType){
+FileFeatureCache.prototype.putFeatures = function(featureDataList, dataType){
 	var feature, key, firstChunk, lastChunk;
 
 	//Check if is a single object
@@ -190,25 +190,25 @@ FeatureCache.prototype.putFeatures = function(featureDataList, dataType){
 
 
 
-FeatureCache.prototype.putChunk = function(key, item){
+FileFeatureCache.prototype.putChunk = function(key, item){
 	this.cache[key] = item;
 };
 
-FeatureCache.prototype.getChunk = function(key){
+FileFeatureCache.prototype.getChunk = function(key){
 	return this.cache[key];
 };
 
-FeatureCache.prototype.putCustom = function(f){
+FileFeatureCache.prototype.putCustom = function(f){
 	f(this);
 };
 
-FeatureCache.prototype.getCustom = function(f){
+FileFeatureCache.prototype.getCustom = function(f){
 	f(this);
 };
 
 
 
-FeatureCache.prototype.remove = function(region){
+FileFeatureCache.prototype.remove = function(region){
 	var firstChunk = this._getChunk(region.start);
 	var lastChunk = this._getChunk(region.end);
 	for(var i=firstChunk; i<=lastChunk; i++){
@@ -217,7 +217,7 @@ FeatureCache.prototype.remove = function(region){
 	}
 };
 
-FeatureCache.prototype.clear = function(){
+FileFeatureCache.prototype.clear = function(){
 		this.size = 0;		
 		this.cache = {};
 };
@@ -232,7 +232,7 @@ FeatureCache.prototype.clear = function(){
 
 
 /*
-FeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
+FileFeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 	var features =  [];
 	var feature, firstChunk, lastChunk;
 	
@@ -269,7 +269,7 @@ FeatureCache.prototype.getFeaturesByChunk = function(key, dataType){
 };
 
 
-FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
+FileFeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 	var firstRegionChunk, lastRegionChunk, firstChunk, lastChunk, features = [], feature, key, returnNull = true, displayed;
 	firstRegionChunk = this._getChunk(region.start);
 	lastRegionChunk = this._getChunk(region.end);
@@ -339,7 +339,7 @@ FeatureCache.prototype.getFeaturesByRegion = function(region, dataType){
 
 /*
 
-FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dataType){
+FileFeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dataType){
 	var feature, key, chunk;
 	chunk = this._getChunk(chunkRegion.start);
 	key = chunkRegion.chromosome+":"+chunk;
@@ -374,7 +374,7 @@ FeatureCache.prototype.putChunk = function(featureDataList, chunkRegion, dataTyp
 
 
 //NOT USED dev not tested
-//FeatureCache.prototype.histogram = function(region, interval){
+//FileFeatureCache.prototype.histogram = function(region, interval){
 //
 	//var intervals = (region.end-region.start+1)/interval;
 	//var intervalList = [];
