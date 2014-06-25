@@ -22,74 +22,75 @@
 VCFDataAdapter.prototype.getData = FeatureDataAdapter.prototype.getData;
 VCFDataAdapter.prototype._fetchData = FeatureDataAdapter.prototype._fetchData;
 
-function VCFDataAdapter(dataSource, args){
-	FeatureDataAdapter.prototype.constructor.call(this, dataSource, args);
-	var _this = this;
-	
-	this.async = true;
-	//stat atributes
-	this.featuresCount = 0;
-	this.featuresByChromosome = {};
-	
-	this.header = "";
-	this.samples = [];
+function VCFDataAdapter(dataSource, args) {
+    FeatureDataAdapter.prototype.constructor.call(this, dataSource, args);
+    var _this = this;
 
-	if (args != null){
-		if(args.async != null){
-			this.async = args.async;
-		}
-	}
+    this.async = true;
+    //stat atributes
+    this.featuresCount = 0;
+    this.featuresByChromosome = {};
+
+    this.header = "";
+    this.samples = [];
+
+    if (args != null) {
+        if (args.async != null) {
+            this.async = args.async;
+        }
+    }
 }
 
-VCFDataAdapter.prototype.parse = function(data, region){
+VCFDataAdapter.prototype.parse = function (data, region) {
 //	console.log(data);
-	var _this = this;
-	var dataType = "value";
-	var lines = data.split("\n");
+    var _this = this;
+    var dataType = "value";
+    var lines = data.split("\n");
 //    debugger
 //	console.log("creating objects");
-	for (var i = 0; i < lines.length; i++){
+    for (var i = 0; i < lines.length; i++) {
 //        debugger
-		var line = lines[i].replace(/^\s+|\s+$/g,"");
-		if ((line != null)&&(line.length > 0)){
-			var fields = line.split("\t");
-			if(fields[0]==region.chromosome){// load only one chromosome on the cache
-			
-				if(line.substr(0,1)==="#"){
-					if(line.substr(1,1)==="#"){
-						this.header+=line.replace(/</gi,"&#60;").replace(/>/gi,"&#62;")+"<br>";
-					}else{
-						this.samples = fields.slice(9);
-					}
-				}else{
-	//				_this.addQualityControl(fields[5]);
-					var feature = {
-							"chromosome": 	fields[0],
-							"position": 	parseInt(fields[1]), 
-							"start": 		parseInt(fields[1]),//added
-							"end": 			parseInt(fields[1]),//added
-							"id":  			fields[2],
-							"reference": 			fields[3],
-							"alternate": 			fields[4],
-							"quality": 		fields[5], 
-							"filter": 		fields[6], 
-							"info": 		fields[7].replace(/;/gi,"<br>"), 
-							"format": 		fields[8],
-							"sampleData":	line,
-	//						"record":		fields,
-	//						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
-							"featureType":	"vcf"
-					};
-					
-					this.featureCache.putFeatures(feature, dataType);
-					
-					if (this.featuresByChromosome[fields[0]] == null){
-						this.featuresByChromosome[fields[0]] = 0;
-					}
-					this.featuresByChromosome[fields[0]]++;
-					this.featuresCount++;
-				}
-			}
-		}
-	}
+        var line = lines[i].replace(/^\s+|\s+$/g, "");
+        if ((line != null) && (line.length > 0)) {
+            var fields = line.split("\t");
+            var chrom = fields[0].replace(/chr/gi, "");
+            if (chrom == region.chromosome) {// load only one chromosome on the cache
+
+                if (line.substr(0, 1) === "#") {
+                    if (line.substr(1, 1) === "#") {
+                        this.header += line.replace(/</gi, "&#60;").replace(/>/gi, "&#62;") + "<br>";
+                    } else {
+                        this.samples = fields.slice(9);
+                    }
+                } else {
+                    //				_this.addQualityControl(fields[5]);
+                    var feature = {
+                        "chromosome": chrom,
+                        "position": parseInt(fields[1]),
+                        "start": parseInt(fields[1]),//added
+                        "end": parseInt(fields[1]),//added
+                        "id": fields[2],
+                        "reference": fields[3],
+                        "alternate": fields[4],
+                        "quality": fields[5],
+                        "filter": fields[6],
+                        "info": fields[7].replace(/;/gi, "<br>"),
+                        "format": fields[8],
+                        "sampleData": line,
+                        //						"record":		fields,
+                        //						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
+                        "featureType": "vcf"
+                    };
+
+                    this.featureCache.putFeatures(feature, dataType);
+
+                    if (this.featuresByChromosome[chrom] == null) {
+                        this.featuresByChromosome[chrom] = 0;
+                    }
+                    this.featuresByChromosome[chrom]++;
+                    this.featuresCount++;
+                }
+            }
+        }
+    }
 };

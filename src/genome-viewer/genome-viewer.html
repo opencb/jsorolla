@@ -338,22 +338,28 @@ var run = function () {
     genomeViewer.addTrack(tracks);
 
 
-//    $('#importFileField').change(function (e) {
-//        var file = this.files[0];
-//        var fileTrack = new FeatureTrack({
-//            id: 100,
-//            title: 'VCF track',
-//            height: 150,
-//            renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
-//            dataAdapter: new VCFDataAdapter(
-//                    new FileDataSource({
-//                        file: file
-//                    })
-//            )
-//        });
-//        genomeViewer.addTrack(fileTrack);
-//    });
+    $('#test').click(function (e) {
+        $.ajax({
+            url: 'http://fsalavert/appl/1.vcf',
+            success: function (content) {
+                var fileTrack = new FeatureTrack({
+                    id: 100,
+                    title: 'VCF track',
+                    height: 150,
+                    renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
+                    dataAdapter: new VCFDataAdapter(
+                            //                    new FileDataSource({
+                            //                        file: file
+                            //                    })
+                            new StringDataSource(content)
+                    )
+                });
+                genomeViewer.addTrack(fileTrack);
 
+            }
+        })
+
+    });
 
     genomeViewer.draw();
 };
@@ -391,6 +397,8 @@ $(document).ready(run);
 
 <body>
 <!--<input id="importFileField" type="file"/>-->
+<div id="test">TEST</div>
+
 <div id="title">Genome Viewer</div>
 <div id="application"></div>
 </body>
