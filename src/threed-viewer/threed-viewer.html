@@ -81,6 +81,7 @@
             });
             threeDViewer.draw();
 
+            //threeDViewer.addSample([]);
 
             threeDViewer.addSample([
                 {
@@ -96,9 +97,9 @@
                     ]
                 }
             ]);
+
             threeDViewer.torus.obtainCoverages();
             threeDViewer.torus.setCoverages(true);
-
         };
 
         $(document).ready(run);

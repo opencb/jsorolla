@@ -16,8 +16,8 @@ var Torus = function (args) {
 
     //default args
     this.targetId;
-    this.sampleList = [];   //FIXME esto no va a data?
-    this.commons = {};  //FIXME
+    //this.sampleList = [];   //FIXME esto no va a data?
+    //this.commons = {};  //FIXME
 
     //set args
     _.extend(this, args);
@@ -79,8 +79,12 @@ Torus.prototype = {
 
 }
 
-            this.setChromosomes();
-            this.setCytobands();
+            if (this.config.numLayers >= 1) {
+                this.setChromosomes();
+                if (this.config.numLayers >= 2) {
+                    this.setCytobands();
+                }
+            }
             //this.setGenes();
 
 
@@ -96,11 +100,11 @@ Torus.prototype = {
         for(var i=0; i < samples.length; i++){
             var sample = samples[i];
 
-            this.sampleList.push(sample);
+            //this.sampleList.push(sample);
             this.data.samples.push(sample);
             var species = sample.species;
 
-            if(_.isUndefined(this.commons[species])){
+            if(_.isUndefined(this.data.commons[species])){   // ask for the chromosomes if the species is missing in this.data.commons
                 var chromosomes = [];
                 CellBaseManager.get({
                     species: species,
@@ -112,11 +116,11 @@ Torus.prototype = {
                         chromosomes = data.response.result.chromosomes
                     }
                 });
-                this.commons[species] = {chromosomes : chromosomes};
+                this.data.commons[species] = {chromosomes : chromosomes};
             }
 
             if(_.isUndefined(sample.chromosomes)){
-                sample.chromosomes = this.commons[species].chromosomes;
+                sample.chromosomes = this.data.commons[species].chromosomes;
             }
         }
 

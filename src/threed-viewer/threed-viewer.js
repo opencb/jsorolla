@@ -101,10 +101,10 @@ ThreeDViewer.prototype = {
 //                torus.viewer.disk[i].features[0].addFeature({start:0, end:1, z:0.2, data:data, mod:0.2, ang:Math.PI/2,
 //                    baseColorHex:0x000000, topColorHex:0xFF0000, histogramType:Viewer.Features.ColumnHistogram});
 
-
+/*
 
                 var end = 0.35;
-/*
+
                 torus.viewer.disk[i].addTrack({start:0, end:end, z:0.5, y:0.05, data:data, mod:-1/5, ang:0,
                     baseColorHex:0x0000FF, topColorHex:0xFF0000, trackType:Viewer.Track.ColumnHistogram});
                 torus.viewer.disk[i].addTrack({start:0, end:end, z:0.5, y:0.05, data:data, mod:+1/5, ang:0,

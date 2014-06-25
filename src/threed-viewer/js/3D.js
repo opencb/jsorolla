@@ -179,8 +179,12 @@ Viewer.prototype = {
             this.disk.push(new Viewer.Disk(diskId, this.config));
             this.figure.add(this.disk[diskId].figure);
 
-            this.setChromosomes(diskId, sample.chromosomes);
-            this.setCytobands(diskId, sample.chromosomes);
+            if (this.config.numLayers >= 1) {
+                this.setChromosomes(diskId, sample.chromosomes);
+                if (this.config.numLayers >= 2) {
+                    this.setCytobands(diskId, sample.chromosomes);
+                }
+            }
         }
 
         var diff = 2 * Math.PI / this.config.numDisk;
