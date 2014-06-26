@@ -103,6 +103,7 @@
     <script type="text/javascript" src="variant-browser-grid.js"></script>
     <script type="text/javascript" src="variant-effect-grid.js"></script>
     <script type="text/javascript" src="variant-genotype-grid.js"></script>
+    <script type="text/javascript" src="variant-stats-panel.js"></script>
 
     <script type="text/javascript" src="variant-widget.js"></script>
 
@@ -144,7 +145,7 @@
                 url: url,
                 filters: {},
                 width: $('#application').width(),
-                defaultToolConfig: {},
+                defaultToolConfig: {effect:false, genomeViewer:false, genotype:false},
                 tools: []
             }); //the div must exist
             variantWidget.draw();

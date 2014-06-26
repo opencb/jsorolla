@@ -14,7 +14,7 @@ function VariantEffectGrid(args) {
 
     this.rendered = false;
     if (this.autoRender) {
-        this.render(this.targetId);
+        this.render();
     }
 }
 
