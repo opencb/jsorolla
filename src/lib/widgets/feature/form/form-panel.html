@@ -43,6 +43,7 @@
     <script type="text/javascript" src="form-panel.js"></script>
     <script type="text/javascript" src="position-filter-form-panel.js"></script>
     <script type="text/javascript" src="study-filter-form-panel.js"></script>
+    <script type="text/javascript" src="consequence-type-filter-form-panel.js"></script>
 
 
     <!-- /build -->
@@ -55,14 +56,16 @@
             urlStudies: "http://www.ebi.ac.uk/eva/webservices/rest/v1/studies/list"
         });
 
-        Ext.onReady(function () {
+        var conseqType = new ConsequenceTypeFilterFormPanel();
 
+        Ext.onReady(function () {
 
             var formPanel = new FormPanel({
                 target: 'application',
                 title: 'Form Panel',
-                filters: [positionFilter, studyFilter],
-                height: 1000
+                filters: [positionFilter, studyFilter, conseqType],
+                height: 1000,
+                width: 500
             }); //the div must exist
             formPanel.draw();
         });

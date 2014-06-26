@@ -7,6 +7,7 @@ function FormPanel(args) {
     this.target;
     this.autoRender = true;
     this.height;
+    this.width;
     this.filters = [];
 
     //set instantiation args, must be last
@@ -56,8 +57,8 @@ FormPanel.prototype = {
         var form = Ext.create('Ext.form.Panel', {
             border: 1,
             height: this.height,
+            width: this.width,
             title: this.title,
-            width: 220,
             margin: '0 20 0 0',
             layout: {
                 type: 'accordion',

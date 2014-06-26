@@ -122,6 +122,7 @@
                 dataType: 'json',
                 async: false,
                 success: function (response, textStatus, jqXHR) {
+                    console.log(response);
                     if (response != undefined && response.response.numResults > 0) {
 
                         for (var i = 0; i < response.response.result.length; i++) {
