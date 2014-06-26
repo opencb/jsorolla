@@ -100,8 +100,6 @@
     <script type="text/javascript" src="../../../../lib/widgets/opencga/result-table.js"></script>
     <script type="text/javascript" src="../../../../lib/widgets/opencga/upload-widget.js"></script>
 
-
-    <script type="text/javascript" src="data.js"></script>
     <script type="text/javascript" src="variant-browser-grid.js"></script>
     <script type="text/javascript" src="variant-effect-grid.js"></script>
     <script type="text/javascript" src="variant-genotype-grid.js"></script>
@@ -116,6 +114,27 @@
 
         var variantWidget;
         Ext.onReady(function () {
+
+            var EXAMPLE_DATA = [];
+
+            $.ajax({
+                url: "http://www.ebi.ac.uk/eva/webservices/rest/v1/segments/1:5000-35000/variants",
+                dataType: 'json',
+                async: false,
+                success: function (response, textStatus, jqXHR) {
+                    if (response != undefined && response.response.numResults > 0) {
+
+                        for (var i = 0; i < response.response.result.length; i++) {
+                            var elem = response.response.result[i];
+                            EXAMPLE_DATA.push(elem);
+                        }
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log('Error loading Phenotypes');
+                }
+            });
+
 
             variantWidget = new VariantWidget({
                 target: 'application',
