@@ -59,11 +59,12 @@ VariantWidget.prototype = {
         this.div.appendChild(this.tabPanelDiv);
 
         this.toolTabPanel = Ext.create("Ext.tab.Panel", {
-            title: 'Tools',
+//            title: 'Tools',
             border: 0,
             layout: 'fit',
             margin: '10 0 0 0',
-            collapsible: true,
+            plain:true,
+//            collapsible: true,
             animCollapse: false,
             collapseDirection: Ext.Component.DIRECTION_BOTTOM,
             titleCollapse: true,

@@ -14,7 +14,7 @@ function VariantBrowserGrid(args) {
     this.on(this.handlers);
 
     this._parserFunction(this.data);
-    
+
     this.rendered = false;
     if (this.autoRender) {
         this.render(this.targetId);
@@ -47,7 +47,7 @@ VariantBrowserGrid.prototype = {
 
         var _this = this;
 
-       parseMafControl = function (control) {
+        parseMafControl = function (control) {
             var maf = control.maf;
             var res = maf.toFixed(3);
             if (control.allele != "") {
@@ -59,7 +59,7 @@ VariantBrowserGrid.prototype = {
         _this.columnsGrid = [
             {
                 text: "Id",
-                dataIndex: '_id'
+                dataIndex: 'id'
             },
             {
                 text: "Chromosome",
@@ -93,7 +93,7 @@ VariantBrowserGrid.prototype = {
         ];
 
         _this.attributes = [
-            {name: '_id', type: 'string'},
+            {name: 'id', type: 'string'},
             {name: "chromosome", type: "string"},
             {name: "start", type: "int"},
             {name: "end", type: "int"},
@@ -104,15 +104,16 @@ VariantBrowserGrid.prototype = {
         ];
         _this.model = Ext.define('Variant', {
             extend: 'Ext.data.Model',
+            idProperty: 'aaaa',
             fields: _this.attributes
         });
 
         _this.store = Ext.create('Ext.data.Store', {
                 pageSize: _this.pageSize,
                 model: _this.model,
-                data: _this.data,
+//                data: _this.data,
                 storeId: 'gridStore',
-                remoteSort:true,
+                remoteSort: true,
                 proxy: {
                     type: 'memory',
                     enablePaging: true
@@ -124,9 +125,8 @@ VariantBrowserGrid.prototype = {
                 }
 
             }
-        )
-        ;
-        var paging = Ext.create('Ext.PagingToolbar', {
+        );
+        this.paging = Ext.create('Ext.PagingToolbar', {
             store: _this.store,
             id: _this.id + "_pagingToolbar",
             pageSize: _this.pageSize,
@@ -153,7 +153,7 @@ VariantBrowserGrid.prototype = {
                     emptyText: 'No records to display',
                     enableTextSelection: true
                 },
-                bbar: paging
+                bbar: this.paging
             }
         );
 
@@ -167,10 +167,29 @@ VariantBrowserGrid.prototype = {
         return grid;
     },
     load: function (data) {
-
-
-        this.store.loadData(data);
-        this.store.reload();
+        var _this = this;
+        this.store.destroy();
+        this.store = Ext.create('Ext.data.Store', {
+            pageSize: _this.pageSize,
+            model: _this.model,
+            data: data,
+            storeId: 'gridStore',
+            remoteSort: true,
+            proxy: {
+                type: 'memory',
+                enablePaging: true
+            },
+            listeners: {
+                beforeload: function (store, operation, eOpts) {
+                    _this.trigger("VariantBrowserGrid:clear", {sender: _this});
+                }
+            }
+        });
+        this.panel.reconfigure(this.store, this.columnsGrid);
+        this.paging.bindStore(this.store);
+        this.paging.doRefresh();
+//        this.store.loadData(data);
+//        this.store.reload();
     },
     _parserFunction: function (data) {
         for (var i = 0; i < data.length; i++) {

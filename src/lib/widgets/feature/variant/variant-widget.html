@@ -141,14 +141,15 @@
             variantWidget = new VariantWidget({
                 target: 'application',
                 title: 'Variant Widget',
-                data: EXAMPLE_DATA,
+//                data: EXAMPLE_DATA,
                 url: url,
                 filters: {},
                 width: $('#application').width(),
-                defaultToolConfig: {effect:true, genomeViewer:true, genotype:true},
+                defaultToolConfig: {effect: true, genomeViewer: true, genotype: true},
                 tools: []
             }); //the div must exist
             variantWidget.draw();
+            variantWidget.variantBrowserGrid.load(EXAMPLE_DATA);
         });
     </script>
 
