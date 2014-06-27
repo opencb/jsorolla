@@ -19,7 +19,7 @@ function VariantWidget(args) {
         region: true,
         gene: true
     };
-    this.defaultToolConfig = {effect: true, genomeViewer: true, genotype: true};
+    this.defaultToolConfig = {effect: true, genomeViewer: true, genotype: true, stats: true};
     this.tools = [];
 
     _.extend(this.filters, args.filters);
@@ -53,7 +53,6 @@ VariantWidget.prototype = {
         this.div.appendChild(this.variantBrowserGridDiv);
 
         this.variantBrowserGrid = this._createVariantBrowserGrid(this.variantBrowserGridDiv);
-
 
         this.tabPanelDiv = document.createElement('div');
         this.tabPanelDiv.setAttribute('class', 'ocb-variant-tab-panel');
@@ -108,11 +107,20 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: 'Genomic Context',
                 contentEl: this.genomeViewerDiv,
-//                height: 500,
-//                    height:'100%',
             });
         }
 
+
+        if (this.defaultToolConfig.stats) {
+            this.variantStatsPanelDiv = document.createElement('div');
+            this.variantStatsPanelDiv.setAttribute('class', 'ocb-variant-stats-panel');
+            this.variantStatsPanel = this._createVariantStatsPanel(this.variantStatsPanelDiv);
+            tabPanelItems.push({
+                title: 'Stats',
+                contentEl: this.variantStatsPanelDiv,
+                height: 500,
+            });
+        }
 
         for (var i = 0; i < this.tools.length; i++) {
             var tool = this.tools[i];
@@ -124,7 +132,7 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: tool.title,
                 contentEl: toolDiv,
-                height: 500,
+                height: 500
             });
         }
 
@@ -195,6 +203,10 @@ VariantWidget.prototype = {
         if (this.defaultToolConfig.genomeViewer) {
             this.genomeViewer.draw();
         }
+        
+        if (this.defaultToolConfig.stats) {
+            this.variantStatsPanel.draw();
+        }
 
         for (var i = 0; i < this.tools.length; i++) {
             var tool = this.tools[i];
@@ -257,17 +269,38 @@ VariantWidget.prototype = {
             }
         });
 
-        this.variantBrowserGrid.on("variantBrowserGrid:clear", function (e) {
+        this.variantBrowserGrid.on("VariantBrowserGrid:clear", function (e) {
             variantEffectGrid.clear(true);
         });
 
-        this.variantBrowserGrid.on("variantBrowserGrid:change", function (e) {
-            console.log("Capturo");
+        this.variantBrowserGrid.on("VariantBrowserGrid:change", function (e) {
             var row = e.args;
             variantEffectGrid.load(row.chr, row.start, row.ref, row.alt);
 
         });
         return variantEffectGrid;
+    },
+    _createVariantStatsPanel: function (target) {
+        var _this = this;
+        var variantStatsPanel = new VariantStatsPanel({
+            target: target,
+            handlers: {
+                "load:finish": function (e) {
+//                    _this.grid.setLoading(false);
+                }
+            }
+        });
+
+        this.variantBrowserGrid.on("VariantBrowserGrid:clear", function (e) {
+            //variantStatsPanel.clear(true);
+        });
+
+        this.variantBrowserGrid.on("VariantBrowserGrid:change", function (e) {
+            var row = e.args;
+            variantStatsPanel.load(row);
+
+        });
+        return variantStatsPanel;
     },
     _createVariantGenotypeGrid: function (target) {
         var _this = this;
@@ -465,7 +498,7 @@ VariantWidget.prototype = {
         genomeViewer.addTrack([sequence, gene, snp]);
 
 
-        this.variantBrowserGrid.on("variantBrowserGrid:change", function (e) {
+        this.variantBrowserGrid.on("VariantBrowserGrid:change", function (e) {
 
             var row = e.args;
 
@@ -525,8 +558,6 @@ VariantWidget.prototype = {
                 activeTab = this.genomeViewerPanel;
         }
 
-        console.log("ActiveTAb");
-        console.log(activeTab);
         this.toolsPanel.setActiveTab(activeTab);
 
         this._updateInfo();
@@ -1745,8 +1776,6 @@ VariantWidget.prototype = {
         _this.st.getProxy().extraParams = {};
 
         var values = this.form.getForm().getValues();
-
-        console.log(values);
 
         var formParams = {};
         for (var param in values) {

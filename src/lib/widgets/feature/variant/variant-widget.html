@@ -103,6 +103,7 @@
     <script type="text/javascript" src="variant-browser-grid.js"></script>
     <script type="text/javascript" src="variant-effect-grid.js"></script>
     <script type="text/javascript" src="variant-genotype-grid.js"></script>
+    <script type="text/javascript" src="variant-stats-panel.js"></script>
 
     <script type="text/javascript" src="variant-widget.js"></script>
 
@@ -122,6 +123,7 @@
                 dataType: 'json',
                 async: false,
                 success: function (response, textStatus, jqXHR) {
+                    console.log(response);
                     if (response != undefined && response.response.numResults > 0) {
 
                         for (var i = 0; i < response.response.result.length; i++) {
@@ -143,7 +145,7 @@
                 url: url,
                 filters: {},
                 width: $('#application').width(),
-                defaultToolConfig: {},
+                defaultToolConfig: {effect:true, genomeViewer:true, genotype:true},
                 tools: []
             }); //the div must exist
             variantWidget.draw();

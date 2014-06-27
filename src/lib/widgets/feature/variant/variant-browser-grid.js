@@ -13,12 +13,13 @@ function VariantBrowserGrid(args) {
 
     this.on(this.handlers);
 
+    this._parserFunction(this.data);
+    
     this.rendered = false;
     if (this.autoRender) {
         this.render(this.targetId);
     }
 
-    this._parserFunction(this.data);
 }
 
 VariantBrowserGrid.prototype = {
@@ -92,7 +93,7 @@ VariantBrowserGrid.prototype = {
         ];
 
         _this.attributes = [
-            {name: 'id', type: 'string'},
+            {name: '_id', type: 'string'},
             {name: "chromosome", type: "string"},
             {name: "start", type: "int"},
             {name: "end", type: "int"},
@@ -111,14 +112,14 @@ VariantBrowserGrid.prototype = {
                 model: _this.model,
                 data: _this.data,
                 storeId: 'gridStore',
+                remoteSort:true,
                 proxy: {
                     type: 'memory',
                     enablePaging: true
-
                 },
                 listeners: {
                     beforeload: function (store, operation, eOpts) {
-                        _this.trigger("_grid:clear", {sender: _this});
+                        _this.trigger("VariantBrowserGrid:clear", {sender: _this});
                     }
                 }
 
@@ -159,7 +160,7 @@ VariantBrowserGrid.prototype = {
         grid.getSelectionModel().on('selectionchange', function (sm, selectedRecord) {
             if (selectedRecord.length) {
                 var row = selectedRecord[0].data;
-                _this.trigger("variantBrowserGrid:change", {sender: _this, args: row});
+                _this.trigger("VariantBrowserGrid:change", {sender: _this, args: row});
             }
         });
 
