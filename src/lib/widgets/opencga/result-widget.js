@@ -157,7 +157,7 @@ ResultWidget.prototype = {
             var boxes = [];
             for (var i = 0; i < children.length; i++) {
                 boxes.push(Ext.create('Ext.Component', {
-                    cls: 'dedo',
+                    cls: 'ocb-pointer',
                     overCls: 'u err',
                     resultId: _this.jobId + children[i].title.replace(/ /g, ''),
                     html: children[i].title,
@@ -728,8 +728,9 @@ ResultWidget.prototype = {
                         items: [
                             {
                                 xtype: 'box',
-                                overCls: 'dedo',
-                                cls: 'panel-border-bottom', margin: '0 20 10 0',
+                                overCls: 'ocb-pointer',
+                                cls: 'panel-border-bottom',
+                                margin: '0 20 10 0',
                                 data: item, tpl: itemTpl,
                                 listeners: {
                                     afterrender: function () {

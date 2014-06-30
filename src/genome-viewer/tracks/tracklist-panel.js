@@ -119,13 +119,15 @@ TrackListPanel.prototype = {
         this.div = $('<div id="tracklist-panel" style="height:100%;position: relative;"></div>')[0];
 
         if ('title' in this && this.title !== '') {
-            var titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><div style="display:inline-block;line-height: 24px;margin-left: 5px;width:120px">' + this.title + '</div></div>')[0];
+
+            var titleDiv = $('<div id="tl-title" class="ocb-gv-panel-title unselectable"></div>')[0];
             $(this.div).append(titleDiv);
-            var windowSizeDiv = $('<div style="display:inline;margin-left:35%" id="windowSizeSpan"></div>');
+
+            var windowSizeDiv = $('<div class="ocb-gv-tracklist-windowsize" id="windowSizeSpan"></div>');
             $(titleDiv).append(windowSizeDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div style="display:inline;margin:5px;height:16px;float:right;"><span class="glyphicon glyphicon-minus"></span></div>');
+                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="glyphicon glyphicon-minus"></span></div>');
                 $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -143,6 +145,8 @@ TrackListPanel.prototype = {
                 $(titleDiv).append(this.collapseDiv);
             }
 
+            var titleTextDiv = $('<div class="ocb-gv-panel-text">' + this.title + '</div>');
+            $(titleDiv).append(titleTextDiv);
         }
 
         var tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];

@@ -247,7 +247,7 @@ Track.prototype = {
         this.loadingDiv = $(titleBardiv).find('#loadingDiv')[0];
 
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
-        var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
+        var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-gv-track-resize"></div>')[0];
 
         $(targetId).addClass("unselectable");
         $(targetId).append(div);

@@ -106,7 +106,7 @@ JobListWidget.prototype = {
         var _this = this;
         var tpl = new Ext.XTemplate([
             '<tpl for=".">',
-            '<div class="joblist-item bootstrap">',
+            '<div class="ocb-job-list-widget-item bootstrap">',
 
             '<div style="color:#596F8F">{[ this.getNewIcon(values) ]} {name}</div>',
                 '<div> ' +
@@ -184,8 +184,8 @@ JobListWidget.prototype = {
             tpl: tpl,
             trackOver: true,
             autoScroll: true,
-            overItemCls: 'list-item-hover',
-            itemSelector: '.joblist-item',
+            overItemCls: 'ocb-job-list-widget-item-hover',
+            itemSelector: '.ocb-job-list-widget-item',
             listeners: {
                 itemclick: function (este, record) {
                     console.log(record.data);

@@ -343,7 +343,7 @@ GeneInfoWidget.prototype.get3Dprotein = function(data){
       	    			var pdb_name=pdbs[i].id;
       	    			var pan = Ext.create('Ext.panel.Panel',{
       	    				title:pdb_name,
-      	    				bodyCls:'background-black',
+      	    				bodyCls:'ocb-background-black',
       	    				html:'<canvas class="ChemDoodleWebComponent" id="pdb_canvas_'+pdb_name+'" width="600" height="600" style="width: 600px; height: 600px; ">This browser does not support HTML5/Canvas.</canvas>',
       	    				listeners:{
       	    					afterrender:function(este){

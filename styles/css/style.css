@@ -1,6 +1,5 @@
-html, body {
-    font-family: Lato, 'Helvetica Neue', Helvetica, Arial, 'sans-serif';
-!important
+html.ocb, body.ocb {
+    font-family: Lato, 'Helvetica Neue', Helvetica, Arial, 'sans-serif' !important;
 }
 
 .hidden {
@@ -174,6 +173,7 @@ ul.ocb-app-menu > li {
     top: 0px;
 }
 
+/*Network viewer*/
 .ocb-nv-editionbar {
     color: #435F7A;
     padding: 5px 8px;
@@ -199,7 +199,160 @@ ul.ocb-app-menu > li {
     background-color: #f5f5f5;
 }
 
+.ocb-nv-contextmenu {
+    position: absolute;
+    display: none;
+}
+
 /**/
+
+/* Genome viewer */
+.ocb-gv {
+    position: relative;
+    background-color: white;
+}
+
+.ocb-gv-right-side {
+    position: absolute;
+    z-index: 50;
+    right: 0px;
+}
+
+.ocb-gv-left-side {
+    position: absolute;
+    z-index: 50;
+    left: 0px;
+}
+
+.ocb-warn {
+    color: orangered;
+}
+
+.ocb-light {
+    color: gray;
+}
+
+.ocb-gv-track-resize {
+    background-color: lightgray;
+    background-image: url(../img/ocb-grab-track-resize.png) !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 7px;
+    opacity: 0.3;
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+    box-sizing: border-box;
+}
+
+.ocb-feature-mark {
+    fill: yellow;
+}
+
+.ocb-gv-navigation-bar {
+    font-size: 10px;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+    background-repeat: repeat-x;
+    padding: 5px;
+}
+
+.ocv-gv-status-bar {
+    font-size: 12px;
+    color: #333;
+    padding: 3px 0 5px 5px;
+    border-top: 1px solid #d4d4d4;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, 3 ffffff, #f2f2f2);
+    background-repeat: repeat-x;
+    line-height: normal;
+    position: relative;
+}
+
+.ocb-gv-panel-title {
+    font-size: 12px;
+    color: #333;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+    background-repeat: repeat-x;
+    border-top: 1px solid #d4d4d4;
+    border-bottom: 1px solid #d4d4d4;
+    position: relative;
+}
+
+.ocb-gv-panel-text {
+    left: 0;
+    line-height: 24px;
+    margin-left: 5px;
+}
+
+.ocb-gv-tracklist-windowsize {
+    position: absolute;
+    line-height: 24px;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.ocb-gv-panel-collapse-control {
+    position: absolute;
+    right: 0;
+    margin: 5px;
+    height: 16px;
+}
+
+.ocb-gv-status-bar {
+    color: #333;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+    background-repeat: repeat-x;
+    padding: 3px;
+    position: relative;
+}
+
+.ocb-gv-status-right {
+    position: relative;
+    font-size: 13px;
+    display: inline-block;
+    line-height: 24px;
+    margin-left: 5px;
+    margin-right: 5px;
+    float: right;
+}
+
+.ocb-gv-status-left {
+    position: relative;
+    font-size: 13px;
+    display: inline-block;
+    line-height: 24px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.ocb-gm-navigation-bar {
+    background-image: linear-gradient(to bottom, #ffffff, #eeeeee);
+    background-image: -webkit-linear-gradient(top, #ffffff, #eeeeee);
+    background-repeat: repeat-x;
+}
+
+/**/
+
+.ocb-pointer {
+    cursor: pointer;
+}
+
+.ocb-job-list-widget-item {
+    border: 1px solid #fff;
+    margin-top: 1px;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.ocb-job-list-widget-item-hover {
+    border: 1px solid #b2becf;
+    background-color: #f1f3f6;
+}
 
 @font-face {
     font-family: 'Ubuntu';
@@ -243,16 +396,7 @@ ul.ocb-app-menu > li {
     src: local('lato'), local('Lato Regular'), local('Lato-Regular'), url(../fonts/lato.woff) format('woff');
 }
 
-/*************************/
-/*************************/
-/*************************/
-
-.jso-white-background {
-    background-color: white;
-    background: white;
-}
-
-.ocb-font-default {
+.ocb-tooltip-font {
     font-family: tahoma, arial, verdana, sans-serif;
 }
 
@@ -328,427 +472,19 @@ ul.ocb-app-menu > li {
     border: 1px solid lightgrey;
 }
 
-.ocb-scroll-x {
-    overflow-x: auto;
-}
-
-.ocb-scroll-y {
-    overflow-y: auto;
-}
-
-.ocb-input-text {
-    vertical-align: middle;
-    padding: 1px 3px;
-    border: 1px solid;
-    background-color: white;
-    color: black;
-    border-color: #b5b8c8;
-}
-
-.ocb-text {
-    vertical-align: middle;
-    font-family: tahoma, arial, verdana, sans-serif;
-    font-size: 1.1em;
-}
-
-.ocb-zoom-slider {
-    vertical-align: middle;
-    margin: 0 10px;
-    display: inline-block !important;
-    width: 120px;
-}
-
-/*Google-like scrollbars webkit only*/
-/*::-webkit-scrollbar {*/
-/*width: 10px;*/
-/*}*/
-/*::-webkit-scrollbar-track {*/
-/*background: #FFF;*/
-/*-webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);*/
-/*}*/
-/*::-webkit-scrollbar-thumb {*/
-/*background: #CCC;*/
-/*-webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);*/
-/*}*/
-/*::-webkit-scrollbar-thumb:hover {*/
-/*background: #AAA;*/
-/*}*/
-/*::-webkit-scrollbar-thumb:active {*/
-/*background: #888;*/
-/*-webkit-box-shadow: inset 1px 1px 2px rgba(0,0,0,0.3);*/
-/*}*/
-
-/*Genome viewer Layout*/
-/*.ocb-box-vertical{*/
-/*display : box;*/
-/*display : -moz-box;*/
-/*display : -webkit-box;*/
-
-/*box-orient : vertical;*/
-/*-moz-box-orient : vertical;*/
-/*-webkit-box-orient : vertical;*/
-/*}*/
-.ocb-gv {
-    position: relative;
-    background-color: white;
-}
-
-.ocb-gv-right-side {
-    position: absolute;
-    z-index: 50;
-    right: 0px;
-}
-
-.ocb-gv-left-side {
-    position: absolute;
-    z-index: 50;
-    left: 0px;
-}
-
-.ocb-warn {
-    color: orangered;
-}
-
-.ocb-light {
-    color: gray;
-}
-
-/*.ocb-gv-navigation{*/
-/*height:37px;*/
-/*}*/
-/*.ocb-gv-center{*/
-/*position:relative;*/
-/*height:100%*/
-
-/*box-flex:1;*/
-/*-moz-box-flex:1;*/
-/*-webkit-box-flex:1;*/
-/*overflow-y: scroll;*/
-/*overflow-x: hidden;*/
-/*}*/
-/*.ocb-gv-status{*/
-/*height:25px;*/
-/*}*/
-
-/*.ocb-tlp-tracks{*/
-/*position: relative;*/
-/*z-index: 3;*/
-/*box-flex:1;*/
-/*-moz-box-flex:1;*/
-/*-webkit-box-flex:1;*/
-/*overflow-y: scroll;*/
-/*overflow-x: hidden;*/
-/*}*/
-
-/*END Genome viewer Layout*/
-
-.ocb-track-resize {
-    background-color: lightgray;
-    background-image: url(../img/ocb-grab-track-resize.png) !important;
-    background-repeat: no-repeat;
-    background-position: center;
-    height: 7px;
-    opacity: 0.3;
-    border-top: 1px solid gray;
-    border-bottom: 1px solid gray;
-    box-sizing: border-box;
-}
-
-.feature-emph {
-    fill: yellow;
-}
-
-/*.x-custom-button-over{*/
-/*background-color: lightgray;*/
-/*background-image: none;*/
-/*border-color: green;*/
-/*}*/
-
-/*.x-custom-button-pressed{*/
-/*background-color: lightgray;*/
-/*background-image: none;*/
-/*border-color: red;*/
-/*}*/
-
-.gv-navigation-bar {
-    font-size: 10px;
-    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
-    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
-    background-repeat: repeat-x;
-    padding: 5px;
-}
-
-.gm-navigation-bar {
-    background-image: linear-gradient(to bottom, #ffffff, #eeeeee);
-    background-image: -webkit-linear-gradient(top, #ffffff, #eeeeee);
-    background-repeat: repeat-x;
-}
-
-.gm-login-bar {
-    background: white;
-    /*background-image: linear-gradient(to top, #ffffff, #f2f2f2);*/
-    /*background-image: -webkit-linear-gradient(bottom, white, #f2f2f2);*/
-    /*background-repeat: repeat-x;*/
-}
-
-.gv-status-bar {
-    font-family: tahoma, arial, verdana, sans-serif;
-    font-size: 11px;
-    color: #333;
-    padding: 3px 0 5px 5px;
-    border-top: 1px solid #d4d4d4;
-    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
-    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
-    background-repeat: repeat-x;
-    line-height: normal;
-}
-
-.gv-panel-title {
-    font-family: tahoma, arial, verdana, sans-serif;
+/*************************/
+/*************************/
+/*************************/
+.ocb-panel-title {
+    font-size: 13px;
+    background-color: #fff;
     font-weight: bold;
-    color: #333;
-    font-size: 11px;
-    /*padding: 5px 0 6px 5px;*/
-    background-image: linear-gradient(to bottom, #ffffff, #d0d0d0);
-    background-image: -webkit-linear-gradient(top, white, #d0d0d0);
-    background-repeat: repeat-x;
-    border-top: 1px solid #d4d4d4;
-    border-bottom: 1px solid #d4d4d4;
-    line-height: normal;
+    padding: 4px 6px;
+    border-width: 0px;
 }
 
-.gv-nav {
-    font-family: 'Lato';
-    color: #333;
-    font-size: 11px;
-    padding: 3px 0 5px 5px;
-    background: whitesmoke;
-    background-color: whitesmoke;
-    border-bottom: 1px solid #d4d4d4;
-}
-
-.nv-toolbar {
-    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
-    background-image: -webkit-linear-gradient(top, white, #f2f2f2);
-    background-repeat: repeat-x;
-    padding: 5px;
-}
-
-#nvContextMenu {
-    position: absolute;
-    display: none;
-}
-
-.app-header {
-    background-color: darkred;
-}
-
-/**/
-
-/* .x-toolbar-default { */
-/* border-color: #99BCE8; */
-/* background-image: none; */
-/* background-color: #D3E1F1; */
-/* background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #dfe9f5), color-stop(100%, #d3e1f1)); */
-/* background-image: -moz-linear-gradient(top, #dfe9f5,#d3e1f1); */
-/* background-image: linear-gradient(top, #dfe9f5,#d3e1f1); */
-/* } */
-/*a:link {*/
-/*text-decoration: none;*/
-/*color: #15428B;*/
-/*}*/
-
-/*a:visited {*/
-/*text-decoration: none;*/
-/*color: #15428B;*/
-/*}*/
-
-/*a:active {*/
-/*text-decoration: none;*/
-/*color: #15428B;*/
-/*}*/
-
-/*a:hover {*/
-/*text-decoration: underline;*/
-/*color: #15428B;*/
-/*}*/
-
-.u {
-    text-decoration: underline;
-}
-
-.background-black {
+.ocb-background-black {
     background: #000000;
-}
-
-.bio-hiddenbar {
-    background: transparent;
-    border: 0px;
-}
-
-.bio-border-false {
-    border: 0px;
-}
-
-.bio-userbar {
-    background: #e0e0e0;
-    border-top: 1px solid #c5c5c5;
-    border-bottom: 1px solid #c5c5c5;
-    border-left: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
-}
-
-.bio-linkbar {
-    background-image: none;
-    background: white;
-    border-top: 1px solid white;
-    border-bottom: 1px solid white;
-    border-left: 0px solid white;
-    border-right: 0px solid white;
-}
-
-.bio-menubar {
-    background: white;
-    border-top: 1px solid white;
-    border-bottom: 1px solid white;
-    border-left: 0px;
-    border-right: 0px;
-}
-
-.bio-toolbar {
-    background: whiteSmoke;
-    border-top: 1px solid #E5E5E5;
-    border-bottom: 1px solid #E5E5E5;
-    border-left: 1px solid whiteSmoke;
-    border-right: 1px solid whiteSmoke;
-}
-
-.bio-botbar {
-    background: whiteSmoke;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
-    border-left: 0px;
-    border-right: 0px;
-}
-
-.bio-toolbar-bot {
-    background: whiteSmoke;
-    border-top: 0px;
-    border-bottom: 1px solid #E5E5E5;
-    border-left: 0px;
-    border-right: 0px;
-}
-
-.appName {
-    font-family: 'Oxygen';
-    text-decoration: none;
-    color: #596F8F;
-    font-size: 28px;
-    text-shadow: 0 1px 0 white;
-}
-
-.appDesc {
-    margin-left: 10px;
-    margin-right: 20px;
-    font-family: 'Oxygen';
-    text-decoration: none;
-    /*color: #637c9f;*/
-    color: #6599FF;
-    font-size: 20px;
-    text-shadow: 0 1px 0 white;
-}
-
-.appVersion {
-    margin-left: 10px;
-    margin-right: 20px;
-    font-family: 'Oxygen';
-    text-decoration: none;
-    color: orange;
-    font-size: 18px;
-    text-shadow: 0 1px 0 white;
-}
-
-.top-links {
-    text-decoration: none;
-    color: #596F8F;
-    font-size: 14px;
-    text-align: right;
-    margin: 5px 10px 0 0;
-}
-
-.top-links:hover {
-    text-decoration: none;
-    color: #596F8F;
-}
-
-.top-links:visited {
-    text-decoration: none;
-    color: #596F8F;
-}
-
-.file {
-    color: blue;
-    background-color: AliceBlue;
-    padding: 0 3px 0 3px;
-    text-decoration: underline;
-}
-
-.message {
-    color: green;
-    background-color: honeydew;
-    padding: 0 3px 0 3px;
-}
-
-.group {
-    background-color: LightCyan;
-    padding: 5px;
-}
-
-.groups {
-    background-color: bisque;
-    padding: 5px;
-}
-
-.none {
-    text-decoration: none;
-}
-
-.whiteborder {
-    border: 1px solid #ffffff;
-}
-
-.smokeback {
-    background: whiteSmoke;
-}
-
-.greyborder {
-    border: 1px solid #BBBBBB;
-}
-
-.encima {
-    cursor: pointer;
-    border-color: deepSkyBlue;
-    background: honeydew;
-}
-
-.encima2 {
-    cursor: pointer;
-    border-color: lightgray;
-    background: whitesmoke;
-}
-
-.outputItem {
-    display: inline-block;
-}
-
-.inlineblock {
-    display: inline-block;
-}
-
-.tools-icons {
-    background: url('../img/tools-sprites-trans.gif');
-    width: 15px;
-    height: 15px;
 }
 
 .ocb-icon {
@@ -843,15 +579,6 @@ ul.ocb-app-menu > li {
 
 .ocb-icon-backitem-select {
     background: url(../img/icon-backitem-select.png) !important;
-}
-
-.ocb-panel-title {
-    font-size: 13px;
-    font-family: Oxygen;
-    /*background-color: #f5f5f5;*/
-    font-weight: bold;
-    padding: 4px 6px;
-    /*border:0px solid #d3d3d3;*/
 }
 
 .icon-save {
@@ -1079,55 +806,10 @@ ul.ocb-app-menu > li {
     background: url(../img/sbgn-logo.png) no-repeat;
 }
 
-.dedo {
-    cursor: pointer;
-}
-
-.jso-li-over {
-    background-color: #aa0000;
-}
-
-.list-item {
-    margin-top: 1px;
-    padding-left: 20px;
-    font-size: 11px;
-    line-height: 20px;
-    cursor: pointer;
-    background: url(../img/icons.png) no-repeat -3px -296px;
-    border: 1px solid #fff;
-}
-
-.joblist-item {
-    border: 1px solid #fff;
-    margin-top: 1px;
-    padding: 4px;
-    cursor: pointer;
-}
-
-.chromosome-item {
-    border: 1px solid transparent;
-    padding: 4px;
-    cursor: pointer;
-    min-width: 25px;
-    height: 25px;
-    text-align: center;
-}
-
-.list .x-item-selected {
-    font-weight: bold;
-    border: 1px solid #6599FF;
-    background-color: #f5f5f5;
-}
-
-.list-item-hover {
-    border: 1px solid #b2becf;
-    background-color: #f1f3f6;
-}
-
 /*TEXT FORMAT*/
 .emph {
     font-weight: bold;
-    /*     color: #15428B; */
+    color: #15428B;
 }
 
 .ssel {
@@ -1362,94 +1044,3 @@ ul.ocb-app-menu > li {
 .border-all {
     border: 1px solid #E5E5E5;
 }
-
-.msg .x-box-mc {
-    font-size: 16px;
-}
-
-#msg-div {
-    position: absolute;
-    left: 50%;
-    top: 10px;
-    width: 400px;
-    margin-left: -200px;
-    z-index: 20000;
-}
-
-#msg-div .msg {
-    /*border-radius: 8px;*/
-    /*-moz-border-radius: 8px;*/
-    background: #596F8F;
-    border: 2px solid #D1D9E3;
-    margin-top: 2px;
-    padding: 10px 15px;
-    color: #FFF;
-}
-
-#msg-div .msg h3 {
-    margin: 0 0 8px;
-    font-weight: bold;
-}
-
-#msg-div .msg p {
-    margin: 0;
-}
-
-/*GridFilters Styles*/
-/*.ux-filtered-column {*/
-/*font-style: italic;*/
-/*font-weight: bold;*/
-/*}*/
-
-/*.ux-gridfilter-text-icon {*/
-/*background-image: url(../img/find.png) !important;*/
-/*}*/
-
-/*RangeMenu Styles*/
-.ux-rangemenu-icon {
-    margin-top: 0;
-}
-
-.ux-rangemenu-gt {
-    background-image: url(../img/greater_than.png) !important;
-}
-
-.ux-rangemenu-lt {
-    background-image: url(../img/less_than.png) !important;
-}
-
-.ux-rangemenu-eq {
-    background-image: url(../img/equals.png) !important;
-}
-
-/********************/
-/***Sencha rewrite***/
-/********************/
-/*.x-toolbar .x-toolbar-separator-horizontal {*/
-/*border-left-color: #bbb;*/
-/*}*/
-
-/*EXTJS 4.2 BUG FIX FOR TOOLTIPS*/
-/*.x-tip {*/
-/*width: auto !important;*/
-/*}*/
-
-/*.x-tip-body {*/
-/*width: auto !important;*/
-/*}*/
-
-/*.x-tip-body span {*/
-/*width: auto !important;*/
-/*}*/
-
-/*@import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono);*/
-/*@import url(http://fonts.googleapis.com/css?family=Ubuntu);*/
-/*@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro);*/
-/*@import url(http://fonts.googleapis.com/css?family=Oxygen);*/
-/*@import url(http://fonts.googleapis.com/css?family=Lato);*/
-
-/*.bootstrap * {*/
-/*-webkit-border-radius: 0px !important;*/
-/*-moz-border-radius: 0px !important;*/
-/*border-radius: 0px !important;*/
-/*}*/

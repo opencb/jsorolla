@@ -90,7 +90,7 @@ KaryotypePanel.prototype = {
     },
     setTitle: function (title) {
         if ('titleDiv' in this) {
-            $(this.titleDiv).children().first().html(title);
+            $(this.titleTextDiv).html(title);
         }
     },
     setWidth: function (width) {
@@ -110,12 +110,13 @@ KaryotypePanel.prototype = {
         this.div = $('<div id="karyotype-panel"></div>')[0];
 
         if ('title' in this && this.title !== '') {
-            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
-            $(this.div).append(this.titleDiv);
+
+            var titleDiv = $('<div id="tl-title" class="ocb-gv-panel-title unselectable"></div>')[0];
+            $(this.div).append(titleDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div style="display:inline;margin:5px;height:16px;float:right;"><span class="glyphicon glyphicon-minus"></span></div>');
-                $(this.titleDiv).dblclick(function () {
+                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="glyphicon glyphicon-minus"></span></div>');
+                $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
                     } else {
@@ -129,8 +130,11 @@ KaryotypePanel.prototype = {
                         _this.hideContent();
                     }
                 });
-                $(this.titleDiv).append(this.collapseDiv);
+                $(titleDiv).append(this.collapseDiv);
             }
+
+            this.titleTextDiv = $('<div class="ocb-gv-panel-text">' + this.title + '</div>');
+            $(titleDiv).append(this.titleTextDiv);
         }
 
         this.svg = SVG.init(this.div, {
@@ -176,7 +180,7 @@ KaryotypePanel.prototype = {
 
         CellBaseManager.get({
             host: this.cellBaseHost,
-            version:this.cellBaseVersion,
+            version: this.cellBaseVersion,
             species: this.species,
             category: 'genomic',
             subCategory: 'chromosome',

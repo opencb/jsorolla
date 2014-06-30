@@ -822,7 +822,7 @@ NetworkViewer.prototype = {
     _createContextMenu: function () {
         var _this = this;
         var html = '' +
-            '<div id="nvContextMenu" class="dropdown clearfix">' +
+            '<div class="ocb-nv-contextmenu dropdown clearfix">' +
             '    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">' +
             '        <li><a tabindex="-1" href="#">Action</a></li>' +
             '        <li class="divider"></li>' +

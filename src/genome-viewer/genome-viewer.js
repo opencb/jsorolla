@@ -28,7 +28,7 @@ function GenomeViewer(args) {
 
     //set default args
     this.autoRender = true;
-    this.version = 'Genome Viewer';
+    this.version = 'Powered by <a target="_blank" href="http://www.genomemaps.org/">Genome Maps</a>';
     this.target;
 
     this.width;
@@ -891,7 +891,7 @@ GenomeViewer.prototype = {
 
     mark: function (args) {
         var attrName = args.attrName || 'feature_id';
-        var cssClass = args.class || 'feature-emph';
+        var cssClass = args.class || 'ocb-feature-mark';
         if ('attrValues' in args) {
             args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
             for (var key in args.attrValues) {

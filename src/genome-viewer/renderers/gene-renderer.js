@@ -28,7 +28,7 @@ function GeneRenderer(args) {
     _.extend(this, Backbone.Events);
 
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
-    this.toolTipfontClass = 'ocb-font-default';
+    this.toolTipfontClass = 'ocb-tooltip-font';
 
     if (_.isObject(args)) {
         _.extend(this, args);
