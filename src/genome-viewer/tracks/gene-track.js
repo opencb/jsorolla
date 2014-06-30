@@ -60,7 +60,6 @@ GeneTrack.prototype.render = function (targetId) {
         }
         _this.renderer.render(features, {
             svgCanvasFeatures: _this.svgCanvasFeatures,
-            featureTypes: _this.featureTypes,
             renderedArea: _this.renderedArea,
             pixelBase: _this.pixelBase,
             position: _this.region.center(),

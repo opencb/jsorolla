@@ -302,6 +302,40 @@ ul.ocb-app-menu > li {
     height: 16px;
 }
 
+.ocb-gv-track-title-el {
+    font-size: 12px;
+    line-height: 20px;
+    border: 1px solid lightgray;
+    padding-left: 5px;
+    padding-right: 5px;
+    display: inline-block;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+}
+
+.ocb-gv-track-title-el:hover {
+    background-image: linear-gradient(to bottom, #f2f2f2, #e4e4e4);
+    background-image: -webkit-linear-gradient(top, #f2f2f2, #e4e4e4);
+}
+
+.ocb-gv-track-title-el:focus {
+    background-image: linear-gradient(to bottom, #f2f2f2, #e4e4e4);
+    background-image: -webkit-linear-gradient(top, #f2f2f2, #e4e4e4);
+    border: 1px solid gray;
+}
+.ocb-track-resize {
+    background-color: lightgray;
+    background-image: url(../img/ocb-grab-track-resize.png) !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 7px;
+    opacity: 0.3;
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+    box-sizing: border-box;
+}
+
+
 .ocb-gv-status-bar {
     color: #333;
     background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
