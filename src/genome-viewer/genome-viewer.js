@@ -984,42 +984,44 @@ GenomeViewer.prototype = {
     },
 
     /*Track management*/
-    addOverviewTrack: function (trackData, args) {
-        this.overviewTrackListPanel.addTrack(trackData, args);
+    addOverviewTrack: function (track) {
+        this.overviewTrackListPanel.addTrack(track);
     },
 
-    addTrack: function (trackData, args) {
-        this.trackListPanel.addTrack(trackData, args);
+    addTrack: function (track) {
+        this.trackListPanel.addTrack(track);
     },
 
-    getTrackSvgById: function (trackId) {
-        return this.trackListPanel.getTrackSvgById(trackId);
+    getTrackById: function (trackId) {
+        return this.trackListPanel.getTrackById(trackId);
     },
 
-    removeTrack: function (trackId) {
-        return this.trackListPanel.removeTrack(trackId);
+    removeTrack: function (track) {
+        return this.trackListPanel.removeTrack(track);
     },
 
-    restoreTrack: function (trackSvg, index) {
-        return this.trackListPanel.restoreTrack(trackSvg, index);
+    restoreTrack: function (track, index) {
+        return this.trackListPanel.restoreTrack(track, index);
     },
 
-    setTrackIndex: function (trackId, newIndex) {
-        return this.trackListPanel.setTrackIndex(trackId, newIndex);
+    setTrackIndex: function (track, newIndex) {
+        return this.trackListPanel.setTrackIndex(track, newIndex);
     },
 
-    scrollToTrack: function (trackId) {
-        return this.trackListPanel.scrollToTrack(trackId);
+    scrollToTrack: function (track) {
+        return this.trackListPanel.scrollToTrack(track);
     },
 
-    showTrack: function (trackId) {
-        this.trackListPanel._showTrack(trackId);
+    showTrack: function (track) {
+        this.trackListPanel.showTrack(track);
     },
 
-    hideTrack: function (trackId) {
-        this.trackListPanel._hideTrack(trackId);
+    hideTrack: function (track) {
+        this.trackListPanel.hideTrack(track);
     },
-
+    containsTrack: function (track) {
+        return this.trackListPanel.containsTrack(track);
+    },
 
     // TODO - DEPRECATED
     checkRenderedTrack: function (trackId) {
@@ -1027,12 +1029,6 @@ GenomeViewer.prototype = {
         console.log(this.checkRenderedTrack);
         this.trackExists(trackId);
     },
-    trackExists: function (trackId) {
-        if (this.trackListPanel.swapHash[trackId]) {
-            return true;
-        }
-        return false;
-    }
 };
 
 

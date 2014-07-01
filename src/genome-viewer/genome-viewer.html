@@ -231,8 +231,6 @@ var run = function () {
 
     tracks = [];
     this.sequence = new SequenceTrack({
-        targetId: null,
-        id: 1,
 //        title: 'Sequence',
         height: 30,
         visibleRegionSize: 200,
@@ -250,8 +248,6 @@ var run = function () {
     tracks.push(this.sequence);
 
     this.gene = new GeneTrack({
-        targetId: null,
-        id: 2,
         title: 'Gene',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
@@ -285,8 +281,6 @@ var run = function () {
         }
     });
     var gene = new FeatureTrack({
-        targetId: null,
-        id: 2,
 //        title: 'Gene overview',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
@@ -310,8 +304,6 @@ var run = function () {
     genomeViewer.addOverviewTrack(gene);
 
     this.snp = new FeatureTrack({
-        targetId: null,
-        id: 4,
         title: 'SNP',
         featureType: 'SNP',
         minHistogramRegionSize: 10000,
@@ -373,7 +365,7 @@ var run = function () {
 //            url: 'http://fsalavert/appl/1.vcf',
 //            success: function (content) {
 //                var fileTrack = new FeatureTrack({
-//                    id: 100,
+//                    id: Utils.genId('vcf'),
 //                    title: 'VCF track',
 //                    height: 150,
 //                    renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
@@ -398,7 +390,9 @@ $(document).ready(run);
 </script>
 
 
+<!--<div id="test">TEST</div>-->
 <!--<input id="importFileField" type="file"/>-->
+
 
 <div id="title">Genome Viewer</div>
 <div id="application"></div>

@@ -21,18 +21,19 @@
 
 function Track(args) {
 
+    this.id = Utils.genId('track');
     this.dataAdapter;
     this.renderer;
     this.resizable = true;
     this.autoHeight = false;
     this.targetId;
-    this.id;
     this.title;
     this.minHistogramRegionSize = 300000000;
     this.maxLabelRegionSize = 300000000;
     this.width = 200;
     this.height = 100;
     this.visibleRegionSize;
+    this.visible = true;
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
@@ -79,9 +80,11 @@ Track.prototype = {
         this[attr] = value;
     },
     hide: function () {
+        this.visible = false;
         $(this.div).css({display: 'hidden'});
     },
     show: function () {
+        this.visible = true;
         $(this.div).css({display: 'auto'});
     },
     hideContent: function () {
