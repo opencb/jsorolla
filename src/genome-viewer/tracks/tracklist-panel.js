@@ -973,7 +973,7 @@ TrackListPanel.prototype = {
 
     getTrackById: function (trackId) {
         if (typeof this.tracksIndex[trackId] !== 'undefined') {
-            var i = this.getTrackIndex();
+            var i = this.tracksIndex[trackId];
             return this.tracks[i];
         }
     },
