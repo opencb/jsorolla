@@ -7,6 +7,7 @@ function VariantEffectGrid(args) {
     this.storeConfig = {};
     this.gridConfig = {};
     this.filterEffect = true;
+    this.cellbaseHost = "http://ws.bioinfo.cipf.es/cellbase/rest";
 
     _.extend(this, args);
 
@@ -51,7 +52,7 @@ VariantEffectGrid.prototype = {
         _this.clear();
 
         CellBaseManager.get({
-            host: "http://ws.bioinfo.cipf.es/cellbase/rest",
+            host: this.cellbaseHost,
             version: 'latest',
             species: 'hsa',
             category: 'genomic',
@@ -146,7 +147,7 @@ VariantEffectGrid.prototype = {
         var gridArgs = {
             store: this.store,
             loadMask: true,
-            border:false,
+            border: false,
             viewConfig: {
                 emptyText: 'No records to display',
                 enableTextSelection: true

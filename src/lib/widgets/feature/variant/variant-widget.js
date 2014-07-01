@@ -140,32 +140,6 @@ VariantWidget.prototype = {
 
         this.toolTabPanel.add(tabPanelItems);
 
-
-//        /* main panel */
-//        this.panel = this._createPanel(this.target);
-
-//        if (this.tools.variantEffect) {
-//            this.variantEffectWidget = this._createVariantEffectGridWidget();
-//        }
-//
-//        if (this.tools.genomeViewer) {
-//            this.genomeViewerPanel = this._createGenomeViewer();
-//        }
-//        if (this.tools.genotype) {
-//            this.genotypeWidget = this._createGenotypeGridWidget();
-//        }
-
-//        this.toolsPanel = Ext.create("Ext.tab.Panel", {
-//            title: 'Tools',
-//            border: 0,
-//            layout: 'fit',
-//            margin: '10 0 0 0',
-//            collapsible: true,
-//            animCollapse: false,
-//            collapseDirection: Ext.Component.DIRECTION_BOTTOM,
-//            titleCollapse: true,
-//            overlapHeader: true
-//        });
         this.rendered = true;
 
 
@@ -185,10 +159,8 @@ VariantWidget.prototype = {
 
 
         for (var i = 0; i < this.toolTabPanel.items.items.length; i++) {
-//            var obj = this.toolTabPanel.items.items[i];
             this.toolTabPanel.setActiveTab(i);
         }
-
 
         if (this.defaultToolConfig.effect) {
 
@@ -214,29 +186,8 @@ VariantWidget.prototype = {
             tool.tool.draw();
         }
 
-//        OpencgaManager.variantInfoMongo({
-//            accountId: $.cookie("bioinfo_account"),
-//            sessionId: $.cookie("bioinfo_sid"),
-//            filename: this.dbName,
-//            jobId: this.job.id,
-//            success: function (data, textStatus, jqXHR) {
-//                _this.variantInfo = data.response.result[0];
-//                _this._draw();
-//            }
-//        });
-
-//        this.variantEffectGrid.load("1", 1849744, "G", "A");
-//        this.variantGenotypeGrid.load([
-//            {sample: "sample1", genotype: "0/0", sex: "1", phenotype: "phenotype"},
-//            {sample: "sample2", genotype: "0/0", sex: "1", phenotype: "phenotype"},
-//            {sample: "sample3", genotype: "0/0", sex: "1", phenotype: "phenotype"}
-//        ]);
 
         this.toolTabPanel.setActiveTab(0);
-
-//        if (this.data.length > 0) {
-//            this.variantBrowserGrid.load(this.data);
-//        }
     },
     addTool: function (tool, position) {
 
@@ -265,7 +216,6 @@ VariantWidget.prototype = {
             },
             handlers: {
                 "load:finish": function (e) {
-//                    _this.grid.setLoading(false);
                 }
             }
         });
@@ -276,7 +226,8 @@ VariantWidget.prototype = {
 
         this.variantBrowserGrid.on("VariantBrowserGrid:change", function (e) {
             var row = e.args;
-            variantEffectGrid.load(row.chr, row.start, row.ref, row.alt);
+
+            variantEffectGrid.load(row.chromosome, row.start, row.reference, row.alternate);
 
         });
         return variantEffectGrid;
@@ -298,7 +249,10 @@ VariantWidget.prototype = {
 
         this.variantBrowserGrid.on("VariantBrowserGrid:change", function (e) {
             var row = e.args;
-            variantStatsPanel.load(row);
+
+            if(row.files){
+                variantStatsPanel.load(row.files);
+            }
 
         });
         return variantStatsPanel;
@@ -315,26 +269,20 @@ VariantWidget.prototype = {
             },
             handlers: {
                 "load:finish": function (e) {
-//                    _this.grid.setLoading(false);
+
                 }
             }
         });
 
-        _this.on("_grid:clear", function (e) {
+        this.variantBrowserGrid.on("VariantBrowserGrid:clear", function (e) {
             variantGenotypeGrid.clear(true);
         });
 
-        _this.on("_grid:change", function (e) {
+        _this.variantBrowserGrid.on("VariantBrowserGrid:change", function (e) {
             var row = e.args;
             var gts = [];
 
-            for (var key in row.sampleGenotypes) {
-                gts.push({
-                    sample: key,
-                    genotype: row.sampleGenotypes[key]
-                });
-            }
-            _this.genotypeWidget.load(gts);
+            variantGenotypeGrid.load(row.files);
         });
         return variantGenotypeGrid;
     },
@@ -349,17 +297,6 @@ VariantWidget.prototype = {
             start: 32889611,
             end: 32889611
         });
-
-//        var selection = _this.grid.getView().getSelectionModel().getSelection();
-//        if (selection.length > 0) {
-//            row = selection[0];
-//            region = new Region({
-//                chromosome: row.get("chromosome"),
-//                start: row.get("position"),
-//                end: row.get("position")
-//            });
-//
-//        }
 
         var genomeViewer = new GenomeViewer({
             sidePanel: false,
@@ -504,7 +441,7 @@ VariantWidget.prototype = {
             var row = e.args;
 
             var region = new Region({
-                chromosome: row.chr,
+                chromosome: row.chromosome,
                 start: row.start,
                 end: row.end
             });

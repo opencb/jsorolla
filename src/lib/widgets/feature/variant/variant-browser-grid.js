@@ -13,8 +13,6 @@ function VariantBrowserGrid(args) {
 
     this.on(this.handlers);
 
-    this._parserFunction(this.data);
-
     this.rendered = false;
     if (this.autoRender) {
         this.render(this.targetId);
@@ -47,15 +45,6 @@ VariantBrowserGrid.prototype = {
 
         var _this = this;
 
-        parseMafControl = function (control) {
-            var maf = control.maf;
-            var res = maf.toFixed(3);
-            if (control.allele != "") {
-                res = res + " (" + control.allele + ")";
-            }
-            return res;
-        };
-
         _this.columnsGrid = [
             {
                 text: "Id",
@@ -63,7 +52,7 @@ VariantBrowserGrid.prototype = {
             },
             {
                 text: "Chromosome",
-                dataIndex: 'chr'
+                dataIndex: 'chromosome'
             },
             {
                 text: 'Start',
@@ -80,7 +69,7 @@ VariantBrowserGrid.prototype = {
             {
                 text: 'Ref/Alt',
                 xtype: "templatecolumn",
-                tpl: "{ref}>{alt}",
+                tpl: "{reference}>{alternate}"
             },
             {
                 text: 'HGVS Name',
@@ -169,6 +158,9 @@ VariantBrowserGrid.prototype = {
     load: function (data) {
         var _this = this;
         this.store.destroy();
+
+        this._parserFunction(data);
+
         this.store = Ext.create('Ext.data.Store', {
             pageSize: _this.pageSize,
             model: _this.model,
@@ -188,17 +180,16 @@ VariantBrowserGrid.prototype = {
         this.panel.reconfigure(this.store, this.columnsGrid);
         this.paging.bindStore(this.store);
         this.paging.doRefresh();
-//        this.store.loadData(data);
-//        this.store.reload();
+        console.log(data);
     },
     _parserFunction: function (data) {
         for (var i = 0; i < data.length; i++) {
             var variant = data[i];
-            variant._id = variant.id ? variant.id : '';
+
             if (variant.hgvs && variant.hgvs.length > 0) {
-                variant.hgvs_name = variant.hgvs[0].name;
+                variant.hgvs_name = variant.hgvs[0].genomic;
             }
         }
 
     }
-}
+};

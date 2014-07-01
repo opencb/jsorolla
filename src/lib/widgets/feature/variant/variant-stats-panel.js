@@ -9,7 +9,6 @@ function VariantStatsPanel(args) {
 
     _.extend(this, args);
 
-
     this.on(this.handlers);
 
     this.rendered = false;
@@ -45,20 +44,16 @@ VariantStatsPanel.prototype = {
 
         this.panel.removeAll(true);
 
-        var studies = (data.files) ? data.files : [];
         var panels = [];
-
-        for (var i = 0, l = studies.length; i < l; i++) {
-            var v = studies[i];
-
-
-            var studyPanel = this._createStudyPanel(v);
+        
+        for(var key in data){
+            var study = data[key];
+            var studyPanel = this._createStudyPanel(study);
             panels.push(studyPanel);
-
+        
         }
 
         this.panel.add(panels);
-
     },
     _createPanel: function () {
         var panel = Ext.create('Ext.panel.Panel', {
@@ -69,7 +64,6 @@ VariantStatsPanel.prototype = {
     },
     _createStudyPanel: function (data) {
 
-
         var stats = (data.stats) ? data.stats : [];
         var attributes = (data.attributes) ? data.attributes : [];
         var statsTable = Utils.htmlTable(stats);
@@ -78,19 +72,18 @@ VariantStatsPanel.prototype = {
         var studyPanel = Ext.create('Ext.panel.Panel', {
             title: data.studyId,
             height: 250,
-            layout:'hbox',
+            layout: 'hbox',
             items: [
-                {xtype: 'box', html: attrTable, margin:'5 5 5 10'},
-                {xtype: 'box', html: statsTable, margin:'5 5 5 10'},
+                {xtype: 'box', html: attrTable, margin: '5 5 5 10'},
+                {xtype: 'box', html: statsTable, margin: '5 5 5 10'},
             ]
-
         });
 
-        var gts = this._getGenotypeCount(stats.genotypeCount);
+        var gts = this._getGenotypeCount(stats.genotypesCount);
 
-        if(gts.length > 0 ){
-            var store = Ext.create('Ext.data.Store',{
-                fields:['genotype','count'],
+        if (gts.length > 0) {
+            var store = Ext.create('Ext.data.Store', {
+                fields: ['genotype', 'count'],
                 data: gts
             });
 
@@ -108,32 +101,29 @@ VariantStatsPanel.prototype = {
                 //insetPadding: 60,
                 series: [
                     {
-                    type: 'pie',
-                    field: 'count',
-                    showInLegend: true,
-                    tips: {
-                        trackMouse: true,
-                        //width: 200,
-                        //height: 28,
-                        renderer: function (storeItem, item) {
-                            var name = storeItem.get('genotype');
-                            this.setTitle(name + ': ' + storeItem.get('count'));
+                        type: 'pie',
+                        field: 'count',
+                        showInLegend: true,
+                        tips: {
+                            trackMouse: true,
+                            renderer: function (storeItem, item) {
+                                var name = storeItem.get('genotype');
+                                this.setTitle(name + ': ' + storeItem.get('count'));
+                            }
+                        },
+                        highlight: {
+                            segment: {
+                                margin: 20
+                            }
+                        },
+                        label: {
+                            field: 'genotype',
+                            display: 'rotate',
+                            contrast: true,
+                            font: '10px Arial'
                         }
-                    },
-                    highlight: {
-                        segment: {
-                            margin: 20
-                        }
-                    },
 
-                    label: {
-                        field: 'genotype',
-                        display: 'rotate',
-                        contrast: true,
-                        font: '10px Arial'
                     }
-
-                }
                 ]
             });
             studyPanel.add(genotypeChart);
@@ -141,12 +131,9 @@ VariantStatsPanel.prototype = {
 
         return studyPanel;
     },
-    _getGenotypeCount: function(gc){
-        //debugger
-    
-        var res =[];
-        for(var key in gc){
-
+    _getGenotypeCount: function (gc) {
+        var res = [];
+        for (var key in gc) {
             res.push({
                 genotype: key,
                 count: gc[key]
@@ -154,5 +141,4 @@ VariantStatsPanel.prototype = {
         }
         return res;
     }
-
 };

@@ -39,20 +39,37 @@ VariantGenotypeGrid.prototype = {
         this.panel.render(this.div);
     },
     clear: function () {
-        this.store.removeAll();
+
     },
     load: function (data) {
 
-        this.panel.setLoading(true);
-        this.store.loadData(data);
+        this.panel.removeAll(true);
 
-        this.trigger("load:finish", {sender: this});
-        this.panel.setLoading(false);
+        var panels = [];
+
+        for (var key in data) {
+            var study = data[key];
+            var studyPanel = this._createStudyPanel(study);
+            panels.push(studyPanel);
+
+        }
+
+        this.panel.add(panels);
+
     },
     _createPanel: function () {
-        var _this = this;
-        var storeArgs = {
-            storeId: "GenotypeStore",
+        var panel = Ext.create('Ext.panel.Panel', {
+            title: "Studies",
+            height: this.height
+        });
+        return panel;
+    },
+    _createStudyPanel: function (data) {
+
+        var samples = (data.samplesData) ? data.samplesData : [];
+
+        var store = Ext.create("Ext.data.Store", {
+            //storeId: "GenotypeStore",
             pageSize: 10,
             fields: [
                 {name: "sample", type: "string" },
@@ -63,48 +80,56 @@ VariantGenotypeGrid.prototype = {
             data: [],
             autoLoad: false,
             proxy: {type: 'memory'}
-        };
+        });
 
-        _.extend(storeArgs, _this.storeConfig);
-
-        this.store = Ext.create("Ext.data.Store", storeArgs);
-
-
-        var gridArgs = {
-            store: this.store,
-            border: false,
-            loadMask: true,
-            viewConfig: {
-                emptyText: 'No records to display',
-                enableTextSelection: true
-            },
-            plugins: ["bufferedrenderer"],
-            columns: [
-                {xtype: 'rownumberer'},
-                {
-                    text: "Sample",
-                    dataIndex: "sample",
-                    flex: 1
+        var grid = Ext.create('Ext.grid.Panel',
+            {
+                store: store,
+            title: data.studyId,
+                border: false,
+                loadMask: true,
+                viewConfig: {
+                    emptyText: 'No records to display',
+                    enableTextSelection: true
                 },
-                {
-                    text: "Genotype",
-                    dataIndex: "genotype",
-                    flex: 1
-                },
-                {
-                    text: "Sex",
-                    dataIndex: "sex",
-                    flex: 1
-                },
-                {
-                    text: "Phenotype",
-                    dataIndex: "phenotype",
-                    flex: 1
-                }
-            ]
-        };
-        _.extend(gridArgs, this.gridConfig);
+                plugins: ["bufferedrenderer"],
+                columns: [
+                    {xtype: 'rownumberer'},
+                    {
+                        text: "Sample",
+                        dataIndex: "sample",
+                        flex: 1
+                    },
+                    {
+                        text: "Genotype",
+                        dataIndex: "genotype",
+                        flex: 1
+                    },
+                    {
+                        text: "Sex",
+                        dataIndex: "sex",
+                        flex: 1
+                    },
+                    {
+                        text: "Phenotype",
+                        dataIndex: "phenotype",
+                        flex: 1
+                    }
+                ]
+            });
 
-        return Ext.create('Ext.grid.Panel', gridArgs);
+            var finalData  = [];
+        for (var key in samples) {
+            var s = samples[key];
+            finalData.push({
+               sample: key,
+               genotype: s.GT
+            });
+        }
+
+        console.log(finalData);
+        store.loadData(finalData);
+        return grid;
+
     }
 };
