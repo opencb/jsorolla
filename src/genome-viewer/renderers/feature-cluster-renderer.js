@@ -44,7 +44,7 @@ function FeatureClusterRenderer(args) {
 //    this.multiplier = this.histogramHeight / this.maxValue;
 
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
-    this.toolTipfontClass = 'ocb-font-default';
+    this.toolTipfontClass = 'ocb-tooltip-font';
 
     //set instantiation args
     _.extend(this, args);

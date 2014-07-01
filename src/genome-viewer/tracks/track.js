@@ -21,18 +21,19 @@
 
 function Track(args) {
 
+    this.id = Utils.genId('track');
     this.dataAdapter;
     this.renderer;
     this.resizable = true;
     this.autoHeight = false;
     this.targetId;
-    this.id;
     this.title;
     this.minHistogramRegionSize = 300000000;
     this.maxLabelRegionSize = 300000000;
     this.width = 200;
     this.height = 100;
     this.visibleRegionSize;
+    this.visible = true;
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
@@ -79,9 +80,11 @@ Track.prototype = {
         this[attr] = value;
     },
     hide: function () {
+        this.visible = false;
         $(this.div).css({display: 'hidden'});
     },
     show: function () {
+        this.visible = true;
         $(this.div).css({display: 'auto'});
     },
     hideContent: function () {
@@ -167,19 +170,19 @@ Track.prototype = {
         this.updateHeight();
     },
     setTitle: function (title) {
-        $(this.titlediv).html(title);
+        $(this.titleText).html(title);
     },
 
     setLoading: function (bool) {
         if (bool) {
             this.svgLoading.setAttribute("visibility", "visible");
             this.status = "rendering";
-            $(this.loadingDiv).html('&nbsp;<span class="ocb-light">Loading...</span>');
+            $(this.loadingEl).html('&nbsp;<span class="ocb-light">Loading...</span>');
 //            $(this.titleBtn).addClass('btn-info');
         } else {
             this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
-            $(this.loadingDiv).html('');
+            $(this.loadingEl).html('');
 //            $(this.titleBtn).removeClass('btn-info');
 //            this.trigger('track:ready', {sender: this});
         }
@@ -191,13 +194,13 @@ Track.prototype = {
             this.histogramLogarithm = true;
             this.histogramMax = 500;
             this.interval = Math.ceil(10 / this.pixelBase);//server interval limit 512
-            $(this.histogramDiv).html('&nbsp;<span class="glyphicon glyphicon-signal"></span>');
+            $(this.histogramEl).html('&nbsp;<span class="glyphicon glyphicon-signal"></span>');
         } else {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
             this.histogramMax = undefined;
             this.interval = undefined;
-            $(this.histogramDiv).html('');
+            $(this.histogramEl).html('');
         }
 
 //        if (this.histogramRenderer) {
@@ -224,27 +227,25 @@ Track.prototype = {
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
         var titleBardiv = $('' +
-            '<div>' +
-            '   <div class="btn-group btn-group-xs">' +
+            '   <div class="ocb-gv-track-title">' +
 //            '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
-            '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button">' +
-            '       <span id="titleDiv">' + this.title + '</span>' +
-            '       <span id="histogramDiv"></span>' +
-            '       <span id="loadingDiv"></span>' +
-            '   </button>' +
+            '   <div class="ocb-gv-track-title-el">' +
+            '       <span class="ocb-gv-track-title-text">' + this.title + '</span>' +
+            '       <span class="ocb-gv-track-title-histogram"></span>' +
+            '       <span class="ocb-gv-track-title-loading"></span>' +
             '   </div>' +
-            '</div>')[0];
+            '   </div>')[0];
 
-        if (_.isUndefined(this.title)) {
+        if (typeof this.title === 'undefined') {
             $(titleBardiv).addClass("hidden");
         }
 
-        var titlediv = $(titleBardiv).find('#titleDiv')[0];
-        this.titleBtn = $(titleBardiv).find('#titleBtn')[0];
-//        var configBtn = $(titleBardiv).find('#configBtn')[0];
+        var titlediv = $(titleBardiv).find('.ocb-gv-track-title')[0];
+        this.titleEl = $(titleBardiv).find('.ocb-gv-track-title-el')[0];
 
-        this.histogramDiv = $(titleBardiv).find('#histogramDiv')[0];
-        this.loadingDiv = $(titleBardiv).find('#loadingDiv')[0];
+        this.titleText = $(titleBardiv).find('.ocb-gv-track-title-text')[0];
+        this.histogramEl = $(titleBardiv).find('.ocb-gv-track-title-histogram')[0];
+        this.loadingEl = $(titleBardiv).find('.ocb-gv-track-title-loading')[0];
 
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
         var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
@@ -261,7 +262,7 @@ Track.prototype = {
             .on('dblclick', function (e) {
                 e.stopPropagation();
             });
-        $(this.titleBtn).click(function (e) {
+        $(this.titleEl).click(function (e) {
             _this.toggleContent();
         });
 

@@ -27,7 +27,7 @@ function SequenceRenderer(args){
     _.extend(this, Backbone.Events);
 
     this.fontClass = 'ocb-font-ubuntumono ocb-font-size-16';
-    this.toolTipfontClass = 'ocb-font-default';
+    this.toolTipfontClass = 'ocb-tooltip-font';
 
     _.extend(this, args);
 

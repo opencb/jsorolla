@@ -37,8 +37,8 @@ function StatusBar(args) {
     //set new region object
     this.region = new Region(this.region);
 
-    this.rendered=false;
-    if(this.autoRender){
+    this.rendered = false;
+    if (this.autoRender) {
         this.render();
     }
 };
@@ -46,28 +46,21 @@ function StatusBar(args) {
 StatusBar.prototype = {
     render: function () {
 
-        this.div = $('<div id="' + this.id + '" class="gv-status-bar" align="right"></div>')[0];
+        this.div = $('<div id="' + this.id + '" class="ocb-gv-status-bar"></div>')[0];
 
-        this.mousePositionDiv = $('<div id="' + this.id + 'position" style="display: inline">&nbsp;</div>')[0];
-        $(this.mousePositionDiv).css({
-            'margin-left': '5px',
-            'margin-right': '5px',
-            'font-size':'12px'
-        });
+        this.rightDiv = $('<div class="ocb-gv-status-right" id="' + this.id + 'position"</div>')[0];
+        this.leftDiv = $('<div class="ocb-gv-status-left" id="' + this.id + 'position"></div>')[0];
+        $(this.div).append(this.leftDiv);
+        $(this.div).append(this.rightDiv);
 
-        this.versionDiv = $('<div id="' + this.id + 'version" style="display: inline">' + this.version + '</div>')[0];
-        $(this.versionDiv).css({
-            'margin-left': '5px',
-            'margin-right': '5px'
-        });
-
-
-        $(this.div).append(this.mousePositionDiv);
-        $(this.div).append(this.versionDiv);
+        this.mousePositionEl = $('<span id="' + this.id + 'position">&nbsp;</span>')[0];
+        this.versionEl = $('<span id="' + this.id + 'version">' + this.version + '</span>')[0];
+        $(this.rightDiv).append(this.mousePositionEl);
+        $(this.leftDiv).append(this.versionEl);
 
         this.rendered = true;
     },
-    draw:function(){
+    draw: function () {
         var _this = this;
         this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
         if (!this.targetDiv) {
@@ -78,10 +71,10 @@ StatusBar.prototype = {
     },
     setRegion: function (event) {
         this.region.load(event.region);
-        $(this.mousePositionDiv).html(Utils.formatNumber(event.region.center()));
+        $(this.mousePositionEl).html(Utils.formatNumber(event.region.center()));
     },
     setMousePosition: function (event) {
-        $(this.mousePositionDiv).html(event.baseHtml+' '+this.region.chromosome+':'+Utils.formatNumber(event.mousePos));
+        $(this.mousePositionEl).html(event.baseHtml + ' ' + this.region.chromosome + ':' + Utils.formatNumber(event.mousePos));
     }
 
 }
