@@ -108,7 +108,7 @@ function GenomeViewer(args) {
 GenomeViewer.prototype = {
     render: function () {
         var _this = this;
-        console.log("Initializing Cell Maps");
+        console.log("Initializing Genome Viewer");
 
         //HTML skel
         this.div = document.createElement('div');
@@ -269,7 +269,6 @@ GenomeViewer.prototype = {
         }
         this.targetDiv.appendChild(this.div);
     },
-
     destroy: function () {
         $(this.div).remove();
         this.off();
@@ -1028,7 +1027,7 @@ GenomeViewer.prototype = {
         console.log('DEPRECATED METHOD')
         console.log(this.checkRenderedTrack);
         this.trackExists(trackId);
-    },
+    }
 };
 
 
