@@ -7,6 +7,7 @@ function VariantBrowserGrid(args) {
     this.data = [];
     this.pageSize = 10;
     this.autoRender = true;
+    this.dataParser;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -93,7 +94,7 @@ VariantBrowserGrid.prototype = {
         ];
         _this.model = Ext.define('Variant', {
             extend: 'Ext.data.Model',
-            idProperty: 'aaaa',
+            idProperty: 'iid',
             fields: _this.attributes
         });
 
@@ -149,7 +150,7 @@ VariantBrowserGrid.prototype = {
         grid.getSelectionModel().on('selectionchange', function (sm, selectedRecord) {
             if (selectedRecord.length) {
                 var row = selectedRecord[0].data;
-                _this.trigger("VariantBrowserGrid:change", {sender: _this, args: row});
+                _this.trigger("variant:change", {sender: _this, args: row});
             }
         });
 
@@ -159,7 +160,12 @@ VariantBrowserGrid.prototype = {
         var _this = this;
         this.store.destroy();
 
-        this._parserFunction(data);
+        if (typeof this.dataParser !== 'undefined') {
+            this.dataParser(data)
+        } else {
+            this._parserFunction(data);
+
+        }
 
         this.store = Ext.create('Ext.data.Store', {
             pageSize: _this.pageSize,
