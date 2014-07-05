@@ -29,6 +29,7 @@ function ThreeDViewer(args) {
     if (this.autoRender) {
         this.render();
     }
+    this.setGUI();
 };
 
 ThreeDViewer.prototype = {
@@ -56,7 +57,7 @@ ThreeDViewer.prototype = {
         this.torusDiv = $('<div id="torus-' + this.id + '" class="ocb-gv-navigation"></div>')[0];
         $(this.div).append(this.torusDiv);
 
-
+//        $('#dg ac').insertBefore('#application');
 
         this.torus = this._createTorus($(this.torusDiv).attr('id'));
 
@@ -72,6 +73,110 @@ ThreeDViewer.prototype = {
         }
 
 
+    },
+
+    setGUI: function() {
+        this.gui = new dat.GUI();
+
+        var parameters =
+        {
+            /*
+             x: 0, y: 30, z: 0,
+             color: "#ff0000", // color (change "#" to "0x")
+             opacity: 1,
+             visible: true,
+             material: "Phong",
+             reset: function() { resetCube()
+             */
+//            visible: false
+            start: 0,
+            end: 1,
+            position: 0.5, // numeric slider
+            zoom: 31.5,
+            sampleName: true,
+            tool: "Selection"
+        };
+
+/*
+        var diskVisible = this.gui.add( parameters, 'visible' ).name('Visible?').listen();
+        diskVisible.onChange(
+            function(_this) {
+                return function (value) {
+                    if (value) {
+                        _this.torus.viewer.selectDisk(0);
+                    } else {
+                        _this.torus.viewer.unselectDisk(0);
+                    }
+                }
+            } (this)
+        );
+        */
+        var sampleName = this.gui.add( parameters, 'sampleName').name('Sample name').listen();
+
+        var _this =  this;
+        sampleName.onChange(function (value) {
+                _this.torus.viewer.viewSampleName(value);
+            }
+        );
+
+        var mouseTool = this.gui.add( parameters, 'tool', [ "Information", "Selection", "Zoom"] ).name('Tool').listen();
+
+        mouseTool.onChange(function (value) {
+                _this.torus.changeMouseTool(value);
+            }
+        );
+
+        this.gui.add(parameters, 'position', 0, 1).step(0.001).name('Position').listen().onChange(function (value) {
+                _this.torus.setPosition(value);
+                _this.torus.updateScale();
+            }
+        );
+        this.gui.add(parameters, 'zoom', 20, 32).step(0.01).name('Zoom').listen().onChange(function (value) {
+                _this.torus.scale = value;
+                _this.torus.updateScale();
+            }
+        );
+
+        this.gui.region = {start: 0, end:1};
+        var folderRegion = this.gui.addFolder('Region');
+        folderRegion.add( parameters, 'start').min(0).onChange( function (value) {
+                _this.torus.setRegion(_this.gui.__controllers[0].object.start, _this.gui.__controllers[0].object.end);
+            }
+        );
+        folderRegion.add( parameters, 'end' ).onChange( function (value) {
+                _this.torus.setRegion(_this.gui.__controllers[0].object.start, _this.gui.__controllers[0].object.end);
+            }
+        );
+        folderRegion.close();
+//        folderRegion.onChange(function () {
+//            _this.torus.setRegion(_this.gui.region.start, _this.gui.region.end);
+//            console.log(_this.torus.viewer.getRegion());
+//        });
+
+        console.log(this.gui);
+        console.log(this.gui.region);
+        console.log(folderRegion);
+        console.log(this.gui.__controllers[0].object);
+        this.gui.open();
+
+        /*
+         var folder1 = this.gui.addFolder('Position');
+         var cubeX = folder1.add( parameters, 'x' ).min(-200).max(200).step(1).listen();
+         var cubeY = folder1.add( parameters, 'y' ).min(0).max(100).step(1).listen();
+         var cubeZ = folder1.add( parameters, 'z' ).min(-200).max(200).step(1).listen();
+         folder1.open();
+
+         cubeX.onChange(function(value)
+         {   cube.position.x = value;   });
+         cubeY.onChange(function(value)
+         {   cube.position.y = value;   });
+         cubeZ.onChange(function(value)
+         {   cube.position.z = value;   });
+
+         var cubeColor = this.gui.addColor( parameters, 'color' ).name('Color').listen();
+         cubeColor.onChange(function(value) // onFinishChange
+         {   cube.material.color.setHex( value.replace("#", "0x") );   });
+         */
     },
     _createTorus:function(targetId){
 

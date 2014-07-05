@@ -23,6 +23,8 @@
     <script type="text/javascript" src="../../vendor/three.js"></script>
     <script type="text/javascript" src="../../vendor/Stats.js"></script>
     <script type="text/javascript" src="../../vendor/RequestAnimationFrame.js"></script>
+    <!--<script type="text/javascript" src="../../vendor/dat.gui.min.js"></script>-->
+    <script type="text/javascript" src="../../vendor/DAT.GUI.min.js"></script>
 
     <!-- These dependencies must go AFTER jquery -->
 
@@ -120,11 +122,13 @@
         #application {
             overflow: hidden;
         }
+
+
     </style>
 
 </head>
 
 <body>
-<div style="z-index: 1; position: absolute; left:0px; top:0px" id="application"></div>
+<div style="z-index: 0; position: absolute; left:0px; top:0px" id="application"></div>
 </body>
 </html>

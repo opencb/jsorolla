@@ -31,13 +31,20 @@ var Torus = function (args) {
     this.viewer = new Viewer(this.config);
     this.lastClick;
     this.clickPressed;
-    this.scale = 10;    // aprox: log (chromosomes.length)
+    this.scale = 32;    // 1 = full genome, 0 = 1 nucleotide
+    this.position = 0.5;
+    this.cursor = 0.5;
 
 
     this.setDiv(args.targetId);
     this.setData(args.components);
 
 
+    this.mouseToolDown = this.selectionMouse;
+    this.mouseToolUp = this.nothingMouseUp;
+    this.mouseToolWheel = this.cameraMouseWheel;
+
+    this.onMouseMoveWrapper(this);
     $(this.torusDiv).on("mousedown", this.onMouseDown(this));
     $(this.torusDiv).on("mouseup", this.onMouseUp(this));
 //    $(this.torusDiv).on("mousewheel", this.onMouseWheel(this));
@@ -92,6 +99,7 @@ Torus.prototype = {
 //        this.viewer.pause();
         }
     },
+
     addSample:function(samples){
         if(!_.isArray(samples)){
             samples = [samples];
@@ -182,15 +190,15 @@ Torus.prototype = {
     },
 
     obtainCoverages: function () {
-        normalize(coverage.result.mean, 50);
-        normalize(coverage.result.region, 50);
+        normalize(coverage.regions[0].coverage, 20);
+        normalize(coverage.regions[1].coverage, 20);
         //console.log("samples en obtain: " + this.data.samples.length);
         for (var j = 0; j < this.data.samples.length; j++) {
-            this.data.samples[j].coverage = _.extend({}, coverage.result);
-            this.data.samples[j].coverage.mean = new Array(100);
-            for (var i = 0; i < 100; i++) {
-                this.data.samples[j].coverage.mean[i] = Math.random();
-            }
+            this.data.samples[j].coverage = _.extend({}, coverage);
+//            this.data.samples[j].coverage.mean = new Array(100);
+//            for (var i = 0; i < 100; i++) {
+//                this.data.samples[j].coverage.mean[i] = Math.random();
+//            }
         }
 
         // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
@@ -219,7 +227,7 @@ Torus.prototype = {
 
             for (var i = 0; i < this.data.samples.length; i++) {
 
-                var data = this.data.samples[i].coverage.mean;
+                var data = this.data.samples[i].coverage.regions[0].coverage;
                 trackArgs.dataset.push(data);
 
             }
@@ -230,76 +238,66 @@ Torus.prototype = {
                 if (this.scale > 4) {
                     this.viewer.setMeanCoverage(i, this.data.samples[i].coverage);  // meansize is not necessary, the track spans to the positions
                 } else {
-                    this.viewer.setRegionCoverage(i, this.data.samples[i].coverage);
+                    this.viewer.setRegionCoverage(i, this.data.samples[i].coverage);    // FIXME: data model updated
                 }
             }
         }
     },
 
+
+    setPosition: function (pos) {
+        this.position = pos;
+//        var increment = pos - this.position;
+//        this.cursor = this.cursor + increment*this.scale*this.scale;
+    },
+
+    updateScale: function () {
+        console.log(this.scale);
+        var region = this.viewer.getRegion();
+        var position = region.x + (region.y - region.x)*this.position;
+        var frame = Math.pow(2, this.scale)/Math.pow(2, 32);
+        var start = position - frame*this.position;
+        var end = position + frame*(1-this.position);
+        this.viewer.setRegion(start, end);
+    },
+
+    setRegion: function(start, end) {
+        if (this.viewer.metaData.ntsCount !== undefined) {
+
+            console.log("torus.setRegion: " + start + ", " + end + " ::: " + start/this.viewer.metaData.ntsCount + ", " + end/this.viewer.metaData.ntsCount);
+            this.viewer.setRegion(start/this.viewer.metaData.ntsCount, end/this.viewer.metaData.ntsCount);
+        }
+    },
 
     onMouseDown: function (_this) {
         return function (event) {
             _this.lastClick = new THREE.Vector2(event.clientX, event.clientY);
             _this.clickPressed = event.button;
 //        event.preventDefault();
-            document.addEventListener('mousemove', _this.onMouseMove(_this), false);
 //        console.log(_this.lastClick);
-            var where = _this.viewer.getClickPosition(_this.lastClick);
-//        console.log ("clickado en disk ");
-            if (where !== undefined) {
-//            console.log(where);
-//            console.log (where.coord.x);
-//            console.log (where.coord.y);
-                switch (event.button) {
-                    case 0:
-                        _this.viewer.selectChromosomeCoord(where.disk, where.coord);
-//                    _this.viewer.selectDisk(where.disk);
-                        break;
-                    case 1:
-                        var chromosomes = _this.data.samples[where.disk].chromosomes;
-                        if (chromosomes === undefined)
-                            chromosomes = _this.data.commons[_this.data.samples[where.disk].species].chromosomes;
-                        if (chromosomes === undefined) {
-                            console.log("ALERT: Missing Chromosomes in sample " + where.disk);
-                        } else {
 
-                            numChr = _this.viewer.getChrFromCoord(where.coord);
-                            for (var i = 0; i < _this.config.numDisk; i++) {
-                                _this.viewer.setChromosomes(i, [chromosomes[numChr]]);
-                                _this.viewer.setCytobands(i, [chromosomes[numChr]]);
-                            }
-                        }
-                        break;
-                    case 2:
-//                    _this.viewer.unselectDisk(where.disk);
-                        break;
-                }
-            }
+
+            _this.mouseToolDown(_this, event);
         }
     },
     onMouseUp: function (_this) {
         return function (event) {
             _this.clickPressed = -1;
-            document.removeEventListener('mousemove', _this.onMouseMove, false);
+//            document.removeEventListener('mousemove', _this.onMouseMove, false);
+            _this.mouseToolUp(_this, event);
         }
     },
 
     onMouseWheel: function (_this) {
         return function (event) {
-            var delta = 0;
 
-            if (event.wheelDelta) { // WebKit / Opera / Explorer 9
-                delta = event.wheelDelta;
-            } else if (event.detail) { // Firefox
-                delta = -event.detail;
-            }
-
-            delta = delta / 1000 + 1;
-            _this.viewer.addZoom(delta);
+            _this.mouseToolWheel(_this, event);
         }
     },
-    onMouseMove: function (_this) {
-        return function (event) {
+    onMouseMoveWrapper: function (_this) {
+        _this.onMouseMove = function (event) {
+            console.log("en onmousemove");
+            var where = _this.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
             switch (_this.clickPressed) {
                 case 0:
                     _this.viewer.addTorusPhase((event.clientX - _this.lastClick.x) / 500);
@@ -318,8 +316,154 @@ Torus.prototype = {
             _this.lastClick.x = event.clientX;
             _this.lastClick.y = event.clientY;
         }
+    },
+
+    changeMouseTool: function (tool) {
+        if (tool == "Information") {
+            this.mouseToolDown = this.informationMouse;
+            this.mouseToolUp = this.nothingMouseUp;
+            this.mouseToolWheel = this.cameraMouseWheel;
+        } else if (tool == "Selection") {
+            this.mouseToolDown = this.selectionMouse;
+            this.mouseToolUp = this.nothingMouseUp;
+            this.mouseToolWheel = this.cameraMouseWheel;
+        } else if (tool == "Zoom") {
+            this.mouseToolDown = this.zoomMouseDown;
+            this.mouseToolUp = this.zoomMouseUp;
+            this.mouseToolWheel = this.zoomMouseWheel;
+//            document.removeEventListener('mousemove', this.onMouseMove, false);
+        }
+    },
+    ///////////////// mouse tools
+    informationMouse: function (_this, event) {
+        document.addEventListener('mousemove', _this.onMouseMove, false);
+        var where = _this.viewer.getClickPosition(_this.lastClick);
+
+        if (where !== undefined) {
+            switch (event.button) {
+                case 0:
+                    _this.viewer.selectChromosomeCoord(where.disk, where.coord);
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    _this.viewer.unselectChromosome(where.disk);
+                    break;
+            }
+        }
+    },
+    selectionMouse: function (_this, event) {
+//        document.addEventListener('mousemove', _this.onMouseMove(_this), false);
+        document.addEventListener('mousemove', _this.onMouseMove, false);
+//        this.torusDiv.addEventListener('mousemove', _this.onMouseMove(_this));
+        console.log("poniendo");
+//        console.log(_this.lastClick);
+        var where = _this.viewer.getClickPosition(_this.lastClick);
+//        console.log ("clickado en disk ");
+
+        if (where !== undefined) {
+            switch (event.button) {
+                case 0:
+                    _this.viewer.selectDisk(where.disk);
+                    break;
+                case 1:
+//                var chromosomes = _this.data.samples[where.disk].chromosomes;
+//                if (chromosomes === undefined)
+//                    chromosomes = _this.data.commons[_this.data.samples[where.disk].species].chromosomes;
+//                if (chromosomes === undefined) {
+//                    console.log("ALERT: Missing Chromosomes in sample " + where.disk);
+//                } else {
+//                    numChr = _this.viewer.getChrFromCoord(where.coord);
+//                    for (var i = 0; i < _this.config.numDisk; i++) {
+//                        _this.viewer.setChromosomes(i, [chromosomes[numChr]]);
+//                        _this.viewer.setCytobands(i, [chromosomes[numChr]]);
+//                    }
+//                }
+                    break;
+                case 2:
+                    _this.viewer.unselectDisk(where.disk);
+                    break;
+            }
+        }
+    },
+    zoomMouseDown: function (_this, event) {
+        switch (event.button) {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                _this.scale+=0.2;
+                _this.postion = 0.5;
+                _this.updateScale();
+                break;
+        }
+    },
+
+    zoomMouseUp: function (_this, event) {
+        var whereStart = _this.viewer.getClickPosition(_this.lastClick);
+        var whereEnd = _this.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
+        if (whereStart !== undefined && whereEnd !== undefined) {
+            var start = whereStart.coord.y <= whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // min
+            var end = whereStart.coord.y > whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // max
+
+            _this.viewer.setRegion(start, end);
+            var frame = end - start;
+            _this.scale = Math.log(frame)/Math.log(2) + 32;
+
+/*
+            console.log(start)
+            console.log(end )
+            var region = _this.viewer.getRegion();
+            var frame = region.y - region.x;
+            console.log(frame)
+            console.log(end-start)
+            console.log(_this.scale);
+            var region2 = {x: region.x + start*frame,
+                y: region.x + end*frame};
+            console.log(region2)
+            _this.viewer.setRegion(region2.x, region2.y);
+            _this.scale = Math.log(region2.y - region2.x)/Math.log(2) + 32;
+*/
+
+        }
+    },
+    nothingMouseUp: function (_this, event) {
+        console.log("quitando");
+        document.removeEventListener('mousemove', _this.onMouseMove, false);
+    },
+
+    cameraMouseWheel: function(_this, event) {
+        var delta = 0;
+
+        if (event.wheelDelta) { // WebKit / Opera / Explorer 9
+            delta = event.wheelDelta;
+        } else if (event.detail) { // Firefox
+            delta = -event.detail;
+        }
+
+        delta = delta / 1000 + 1;
+        _this.viewer.addZoom(delta);
+    },
+
+    zoomMouseWheel: function (_this, event) {
+        var delta = 0;
+
+        if (event.wheelDelta) { // WebKit / Opera / Explorer 9
+            delta = event.wheelDelta;
+        } else if (event.detail) { // Firefox
+            delta = -event.detail;
+        }
+        delta *= 0.0001;
+        var region = _this.viewer.getRegion();
+        var frame = region.y-region.x;
+
+        _this.viewer.setRegion(region.x + delta*frame, region.y + delta*frame);
+
     }
+
 };
+
 
 Torus.Config = function (components) {
     var conf = {

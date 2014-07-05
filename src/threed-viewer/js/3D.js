@@ -417,7 +417,7 @@ Viewer.prototype = {
 //        console.log(cursor);
         if (this.centralTrack !== null
             && this.centralTrack.tracks.length == this.disk.length) {
-            this.centralTrack.update(coord);
+            this.centralTrack.update(coord, this.getRegion());
 //                    console.log("in" + this.centralTrack.tracks[i].start +  " < " + coord + " < " + this.centralTrack.tracks[i].end)
         }
     },
@@ -433,7 +433,7 @@ Viewer.prototype = {
         this.metaData.visibleStart = start;
         this.metaData.visibleEnd = end;
         this.metaData.visibleRange = end - start;
-
+        console.log("viewer.setRegion: " + start + ", " + end);
         for (var i = 0; i < this.config.numDisk; i++) {
             for (var j = 0; j < this.disk[i].layers.length; j++) {
                 this.disk[i].layers[j].setRegion(start, end);
@@ -477,6 +477,24 @@ Viewer.prototype = {
         var height = this.config.diskRadius * 1.2;
         this.disk[diskId].updateTextSprite(1, ["Chromosome " + this.data[chr].name, this.data[chr].numberGenes + " genes", "size " + this.data[chr].size]);
         this.disk[diskId].sprites[1].position.set(Math.cos(angle) * height, Math.sin(angle) * height, 0);
+    },
+
+    unselectChromosome: function (diskId) {
+        this.disk[diskId].layers[0].uniforms.selectionStart.value = -1;
+        this.disk[diskId].layers[0].uniforms.selectionEnd.value = -1;
+        this.disk[diskId].layers[1].uniforms.selectionStart.value = -1;
+        this.disk[diskId].layers[1].uniforms.selectionEnd.value = -1;
+        this.disk[diskId].removeTextSprite(1);
+    },
+
+    viewSampleName: function (hideOrShow) {
+        for (var i = 0; i < this.disk.length; i++) {
+            if (hideOrShow == true || hideOrShow == false) {
+                this.disk[i].sprites[0].visible = hideOrShow;
+            } else {
+                this.disk[i].sprites[0].visible = !this.disk[i].sprite[0].visible;
+            }
+        }
     },
 
     /**
@@ -580,10 +598,17 @@ Viewer.Disk.prototype = {
         for (var i = 0; i < this.layers.length; i++) {
             this.layers[i].uniforms.selected.value = 1;
         }
+        for (var i = 0; i < this.tracks.length; i++) {
+            this.tracks[i].visible(true);
+        }
     },
     unselect: function (n) {
         for (var i = 0; i < this.layers.length; i++) {
             this.layers[i].uniforms.selected.value = 0;
+            console.log("unselecting " + i);
+        }
+        for (var i = 0; i < this.tracks.length; i++) {
+            this.tracks[i].visible(false);
         }
     },
 
@@ -636,6 +661,10 @@ Viewer.Disk.prototype = {
         this.figure.remove(this.sprites[i]);
         this.sprites[i] = this.makeTextSprite(text, {useScreenCoordinates: false});
         this.figure.add(this.sprites[1]);
+    },
+    removeTextSprite: function(i) {
+        this.figure.remove(this.sprites[i]);
+        this.sprites[i] = null;
     },
     makeTextSprite: function (message, parameters) {
         if (parameters === undefined) parameters = {};
@@ -851,6 +880,19 @@ Viewer.Track.prototype = {
         this.numFaces = 0;
     },
 
+    visible: function(hideOrShow) {
+        var vis;
+        if (hideOrShow == true || hideOrShow == false) {
+            vis = hideOrShow;
+        } else {
+            vis = !this.figure.visible;
+        }
+        this.figure.visible = vis;
+        this.figure.traverse(function(child) {
+            child.visible = vis;
+        });
+    },
+
 
     add: function (args) {
         if (args.topColorHex === undefined) {
@@ -1063,9 +1105,10 @@ Viewer.Track.prototype = {
     },
 
 
-    getElement: function (coord) {
-        var position = (coord - this.start)/(this.end - this.start);
-        var index = position * this.data.length;
+    getElement: function (coord, region) {
+        var position = region.x + (region.y - region.x)*coord;
+        var interpolator = (position - this.start)/(this.end - this.start);
+        var index = interpolator * this.data.length;
         index = Math.floor(index);
         return index;
     }
@@ -1148,7 +1191,7 @@ Viewer.CentralTrack.prototype = {
      *
      * @param coord coordinate in disk, [0-1] doesn't include the open part of the disk
      */
-    update: function(coord) {
+    update: function(coord, region) {
         var patchNum = this.tracks.length;
 
         var diff = 2 * Math.PI / patchNum;
@@ -1172,8 +1215,8 @@ Viewer.CentralTrack.prototype = {
         var verts = this.geometry.vertices;
 
         for (var i = 0; i < patchNum; i++, vertex += 4, rad += diff) {
-            element = this.tracks[i].getElement(coord);
-            if (element < 0 || element >= this.tracks[i].data.length){
+            element = this.tracks[i].getElement(coord, region);
+            if (element < 0 || element >= this.tracks[i].data.length || !this.tracks[i].figure.visible){
                 value = 0;
             } else {
                 value = this.tracks[i].data[element]*this.config.mod;
