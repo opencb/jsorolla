@@ -376,9 +376,21 @@ Viewer.prototype = {
      * @returns index of track in the disk.
      */
     addTrack: function (diskId, config) {
+        if (config === undefined) {
+            config = {};
+        } else {
+            config.end = config.end/this.metaData.ntsCount;
+            config.start = config.start/this.metaData.ntsCount;
+        }
+
+        return this.disk[diskId].addTrack(config);
+    },
+
+    add2Track: function (diskId, trackId, config) {
         config.end = config.end/this.metaData.ntsCount;
         config.start = config.start/this.metaData.ntsCount;
-        return this.disk[diskId].addTrack(config);
+
+        return this.disk[diskId].add2Track(trackId, config);
     },
 
 
@@ -573,7 +585,8 @@ Viewer.prototype = {
             return {
                 disk: intersects[0].object.diskId,
                 layer: intersects[0].object.layerId,
-                coord: location
+                coord: location,
+                visibleTexPos: visibleTexPos
             };
         }
         return undefined;
@@ -636,8 +649,7 @@ Viewer.Disk.prototype = {
         this.tracks.push(track);
         this.figure.add(track.figure);
 
-        if (args !== undefined)
-            track.add(args);
+        track.add(args);
 
         return numTrack;
     },
@@ -801,7 +813,7 @@ Viewer.Track = function (args) {
 };
 
 Viewer.Track.precision = 0.01;
-Viewer.Track.maxFaces = 4;
+Viewer.Track.maxFaces = 2000;
 Viewer.Track.vertexShader = null;
 Viewer.Track.fragmentShader = null;
 
@@ -908,14 +920,17 @@ Viewer.Track.prototype = {
 
 
     add: function (args) {
+        if (args === undefined) {
+            args = {};
+        }
+
         if (args.topColorHex === undefined) {
             args.topColorHex = args.baseColorHex;
         }
 
-
         var def = {
             start: 0,
-            end: 1,
+            end: 0,
             z: 0,
             y: 0,
             mod: 1,
@@ -1134,14 +1149,14 @@ Viewer.CentralTrack = function (tracks, config) {
         baseHeight: 1.96,
         mod: 1, // modulus
         width: 0.9,
-        baseColorHex: 0xFFFFb3
+        baseColorHex: 0xFFFF33
     };
     _.extend(defaultConfig, config);
 
     this.config = defaultConfig;
     this.tracks = tracks;
-    this.geometry = new THREE.Geometry();
-    this.material = new THREE.MeshBasicMaterial({color:this.config.baseColorHex});
+//    this.geometry = new THREE.Geometry();
+//    this.material = new THREE.MeshBasicMaterial({color:this.config.baseColorHex});
     this.figure = null;
 
 
@@ -1158,7 +1173,7 @@ Viewer.CentralTrack = function (tracks, config) {
 Viewer.CentralTrack.prototype = {
     initGeometry: function() {
         this.geometry = new THREE.Geometry();
-        this.material = new THREE.MeshBasicMaterial({color:0xFFFF00, side: THREE.DoubleSide});
+        this.material = new THREE.MeshBasicMaterial({color:this.config.baseColorHex, side: THREE.DoubleSide});
 
         for (var i = 0; i < this.tracks.length*4; i++) {
             this.geometry.vertices.push(new THREE.Vector3(0, 0, 0));

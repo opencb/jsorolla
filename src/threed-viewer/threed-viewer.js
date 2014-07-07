@@ -298,6 +298,7 @@ ThreeDViewer.prototype = {
 
         components.config = {
             type: "torus",  // cylinder, plane
+//            backgroundColor: 0x984ea3,
             torusRadius: 4,
             diskRadius: 2,
             diskWidth: 1, // [0, 1]

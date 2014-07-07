@@ -222,7 +222,8 @@ Torus.prototype = {
             var start = (this.data.samples[0].coverage.start-1)/length;
             var end = this.data.samples[0].coverage.end/length;
             var trackArgs = {start:start, end:end, z:0.5, y:0.05, mod:0.3, ang:0/*Math.PI/2*/,
-                baseColorHex:0xfb8072, topColorHex:0xb3de69, trackType:Viewer.Track.ColumnHistogram};
+                    baseColorHex:0xe41a1c, topColorHex:0x4daf4a, trackType:Viewer.Track.ColumnHistogram};
+//                baseColorHex:0xfb8072, topColorHex:0xb3de69, trackType:Viewer.Track.ColumnHistogram};
             trackArgs.dataset = [];
 
             for (var i = 0; i < this.data.samples.length; i++) {
@@ -253,6 +254,8 @@ Torus.prototype = {
     },
 
     setAlignments: function () {
+        var trackId = this.viewer.addTrack(0);
+
         for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
             var width = 0.1;
             var alig = this.data.samples[0].alignments[i];
@@ -267,8 +270,7 @@ Torus.prototype = {
                 trackType: Viewer.Track.Feature
             };
 
-            this.viewer.addTrack(0, config);
-
+            this.viewer.add2Track(0, trackId, config);
         }
     },
 
@@ -286,12 +288,41 @@ Torus.prototype = {
         var start = position - frame*this.position;
         var end = position + frame*(1-this.position);
         this.viewer.setRegion(start, end);
-        if (this.scale < )
-        if (this.scale < 14.5) {    // TODO jj un-hardcode...
+
+        if (this.scale < 10) {    // TODO jj un-hardcode...
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                for (var j = 0; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(false);
+                }
+            }
+        } else if (this.scale < 14.5) {
             for (var i = 0; i < this.viewer.disk.length; i++) {
                 this.viewer.disk[i].tracks[0].visible(false);
+                for (var j = 1; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(true);
+                }
+            }
+        } else if (this.scale < 16) {
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                for (var j = 0; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(true);
+                }
+            }
+        } else if (this.scale < 26) {
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                this.viewer.disk[i].tracks[0].visible(true);
+                for (var j = 1; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(false);
+                }
+            }
+        } else {
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                for (var j = 0; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(false);
+                }
             }
         }
+
         console.log(this);
     },
 
@@ -427,40 +458,48 @@ Torus.prototype = {
             case 1:
                 break;
             case 2:
+                console.log("boton derecho");
+                console.log(_this.position);
+                console.log(_this.scale);
                 _this.scale+=0.2;
                 _this.postion = 0.5;
                 _this.updateScale();
+                console.log(_this.position);
+                console.log(_this.scale);
                 break;
         }
     },
 
     zoomMouseUp: function (_this, event) {
-        var whereStart = _this.viewer.getClickPosition(_this.lastClick);
-        var whereEnd = _this.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
-        if (whereStart !== undefined && whereEnd !== undefined) {
-            var start = whereStart.coord.y <= whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // min
-            var end = whereStart.coord.y > whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // max
+        if (event.button == 0) {
+            var whereStart = _this.viewer.getClickPosition(_this.lastClick);
+            var whereEnd = _this.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
+            if (whereStart !== undefined && whereEnd !== undefined) {
+                var start = whereStart.coord.y <= whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // min
+                var end = whereStart.coord.y > whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // max
 
-            _this.viewer.setRegion(start, end);
-            var frame = end - start;
-            _this.scale = Math.log(frame)/Math.log(2) + 32;
-            
+                var frame = end - start;
+                _this.scale = Math.log(frame)/Math.log(2) + 32;
+                _this.position = (whereStart.visibleTexPos + whereEnd.visibleTexPos) * 0.5;
+                _this.updateScale();
 
-/*
-            console.log(start)
-            console.log(end )
-            var region = _this.viewer.getRegion();
-            var frame = region.y - region.x;
-            console.log(frame)
-            console.log(end-start)
-            console.log(_this.scale);
-            var region2 = {x: region.x + start*frame,
-                y: region.x + end*frame};
-            console.log(region2)
-            _this.viewer.setRegion(region2.x, region2.y);
-            _this.scale = Math.log(region2.y - region2.x)/Math.log(2) + 32;
-*/
 
+                /*
+                 console.log(start)
+                 console.log(end )
+                 var region = _this.viewer.getRegion();
+                 var frame = region.y - region.x;
+                 console.log(frame)
+                 console.log(end-start)
+                 console.log(_this.scale);
+                 var region2 = {x: region.x + start*frame,
+                 y: region.x + end*frame};
+                 console.log(region2)
+                 _this.viewer.setRegion(region2.x, region2.y);
+                 _this.scale = Math.log(region2.y - region2.x)/Math.log(2) + 32;
+                 */
+
+            }
         }
     },
     nothingMouseUp: function (_this, event) {
