@@ -368,8 +368,17 @@ Viewer.prototype = {
         }
     },
 
-    setTrack: function (diskId, data, config) {
-
+    /**
+     * Adds a track to the disk diskId. the track can be a Viewer.Track.Feature, Viewer.Track.ColumnHistogram,
+     * or Viewer.Track.LinearHistogram.
+     * @param diskId
+     * @param config
+     * @returns index of track in the disk.
+     */
+    addTrack: function (diskId, config) {
+        config.end = config.end/this.metaData.ntsCount;
+        config.start = config.start/this.metaData.ntsCount;
+        return this.disk[diskId].addTrack(config);
     },
 
 
@@ -411,15 +420,7 @@ Viewer.prototype = {
         for (var i = 0; i < this.config.numDisk; i++) {
             this.disk[i].figure.rotateZ(angle);
         }
-        var cursor = this.disk[0].figure.rotation.z;    // This is correct, the angle will be the same in all disks
-//            var coord = (Math.PI - this.disk[i].figure.rotation.z)/this.disk[i].angularLong;
-        var coord = (Math.PI - cursor)/this.disk[0].angularLong;    // FIXME this is wrong, unless all disks have the same aperture
-//        console.log(cursor);
-        if (this.centralTrack !== null
-            && this.centralTrack.tracks.length == this.disk.length) {
-            this.centralTrack.update(coord, this.getRegion());
-//                    console.log("in" + this.centralTrack.tracks[i].start +  " < " + coord + " < " + this.centralTrack.tracks[i].end)
-        }
+        this.updateCentralTrack();
     },
     addTorusPhase: function (angle) {
         this.figure.rotateY(angle);// this.angleY);
@@ -433,7 +434,7 @@ Viewer.prototype = {
         this.metaData.visibleStart = start;
         this.metaData.visibleEnd = end;
         this.metaData.visibleRange = end - start;
-        console.log("viewer.setRegion: " + start + ", " + end);
+//        console.log("viewer.setRegion: " + start + ", " + end);
         for (var i = 0; i < this.config.numDisk; i++) {
             for (var j = 0; j < this.disk[i].layers.length; j++) {
                 this.disk[i].layers[j].setRegion(start, end);
@@ -441,9 +442,21 @@ Viewer.prototype = {
             Viewer.Track.uniforms.rangeStart.value = start;
             Viewer.Track.uniforms.range.value = (end - start);
         }
+        this.updateCentralTrack();
     },
     getRegion: function () {
         return this.disk[0].layers[0].getRegion();
+    },
+    updateCentralTrack: function () {
+        if (this.centralTrack !== null
+            && this.centralTrack.tracks.length == this.disk.length) {
+            var cursor = this.disk[0].figure.rotation.z;    // This is correct, the angle will be the same in all disks
+//            var coord = (Math.PI - this.disk[i].figure.rotation.z)/this.disk[i].angularLong;
+            var coord = (Math.PI - cursor)/this.disk[0].angularLong;    // FIXME this is wrong, unless all disks have the same aperture
+//        console.log(cursor);
+            this.centralTrack.update(coord, this.getRegion());
+//                    console.log("in" + this.centralTrack.tracks[i].start +  " < " + coord + " < " + this.centralTrack.tracks[i].end)
+        }
     },
     selectDisk: function (n) {
         if (n < this.config.numDisk && n >= 0) {
@@ -788,7 +801,7 @@ Viewer.Track = function (args) {
 };
 
 Viewer.Track.precision = 0.01;
-Viewer.Track.maxFaces = 300;
+Viewer.Track.maxFaces = 4;
 Viewer.Track.vertexShader = null;
 Viewer.Track.fragmentShader = null;
 
@@ -1117,19 +1130,20 @@ Viewer.Track.prototype = {
 
 /** le falta argumentos de posicion */
 Viewer.CentralTrack = function (tracks, config) {
-    this.tracks = tracks;
-    this.geometry = new THREE.Geometry();
-    this.material = new THREE.MeshBasicMaterial({color:0xFFFF00});
-    this.figure = null;
-
     var defaultConfig = {
         baseHeight: 1.96,
         mod: 1, // modulus
-        width: 0.9
+        width: 0.9,
+        baseColorHex: 0xFFFFb3
     };
     _.extend(defaultConfig, config);
 
     this.config = defaultConfig;
+    this.tracks = tracks;
+    this.geometry = new THREE.Geometry();
+    this.material = new THREE.MeshBasicMaterial({color:this.config.baseColorHex});
+    this.figure = null;
+
 
     if (this.config.width > 1) {this.config.width = 1;}
     if (this.config.width < 0 ) {this.config.width = 0;}

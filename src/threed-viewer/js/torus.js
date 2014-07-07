@@ -190,8 +190,8 @@ Torus.prototype = {
     },
 
     obtainCoverages: function () {
-        normalize(coverage.regions[0].coverage, 20);
-        normalize(coverage.regions[1].coverage, 20);
+        normalize(coverage.regions[0].coverage, 15);
+        normalize(coverage.regions[1].coverage, 15);
         //console.log("samples en obtain: " + this.data.samples.length);
         for (var j = 0; j < this.data.samples.length; j++) {
             this.data.samples[j].coverage = _.extend({}, coverage);
@@ -222,7 +222,7 @@ Torus.prototype = {
             var start = (this.data.samples[0].coverage.start-1)/length;
             var end = this.data.samples[0].coverage.end/length;
             var trackArgs = {start:start, end:end, z:0.5, y:0.05, mod:0.3, ang:0/*Math.PI/2*/,
-                baseColorHex:0xFF1100, topColorHex:0x00FF00, trackType:Viewer.Track.ColumnHistogram};
+                baseColorHex:0xfb8072, topColorHex:0xb3de69, trackType:Viewer.Track.ColumnHistogram};
             trackArgs.dataset = [];
 
             for (var i = 0; i < this.data.samples.length; i++) {
@@ -234,7 +234,7 @@ Torus.prototype = {
             this.viewer.addCentralTrack(trackArgs);
 
         } else {
-            for (var i = 0; i < this.data.samples.length; i++) {
+            for (var i = 0; i < this.data.samples.length; i++) {        // TODO substitute setMeanCoverage to addtrack
                 if (this.scale > 4) {
                     this.viewer.setMeanCoverage(i, this.data.samples[i].coverage);  // meansize is not necessary, the track spans to the positions
                 } else {
@@ -244,6 +244,33 @@ Torus.prototype = {
         }
     },
 
+    obtainAlignments: function () {
+//        for (var j = 0; j < this.data.samples.length; j++) {
+//            this.data.samples[j].alignments = _.extend({}, alignments);
+//        }
+        this.data.samples[0].alignments = _.extend([], alignments);
+
+    },
+
+    setAlignments: function () {
+        for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
+            var width = 0.1;
+            var alig = this.data.samples[0].alignments[i];
+            var config = {
+                start: alig.start,
+                end: alig.end,
+                z: Math.random()*(1-width),
+                y: 0.2,
+                mod: width,
+                ang: 0, //Radians
+                baseColorHex: 0x00fdb462,
+                trackType: Viewer.Track.Feature
+            };
+
+            this.viewer.addTrack(0, config);
+
+        }
+    },
 
     setPosition: function (pos) {
         this.position = pos;
@@ -259,6 +286,13 @@ Torus.prototype = {
         var start = position - frame*this.position;
         var end = position + frame*(1-this.position);
         this.viewer.setRegion(start, end);
+        if (this.scale < )
+        if (this.scale < 14.5) {    // TODO jj un-hardcode...
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                this.viewer.disk[i].tracks[0].visible(false);
+            }
+        }
+        console.log(this);
     },
 
     setRegion: function(start, end) {
@@ -296,7 +330,7 @@ Torus.prototype = {
     },
     onMouseMoveWrapper: function (_this) {
         _this.onMouseMove = function (event) {
-            console.log("en onmousemove");
+//            console.log("en onmousemove");
             var where = _this.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
             switch (_this.clickPressed) {
                 case 0:
@@ -356,7 +390,7 @@ Torus.prototype = {
 //        document.addEventListener('mousemove', _this.onMouseMove(_this), false);
         document.addEventListener('mousemove', _this.onMouseMove, false);
 //        this.torusDiv.addEventListener('mousemove', _this.onMouseMove(_this));
-        console.log("poniendo");
+//        console.log("poniendo");
 //        console.log(_this.lastClick);
         var where = _this.viewer.getClickPosition(_this.lastClick);
 //        console.log ("clickado en disk ");
@@ -410,6 +444,7 @@ Torus.prototype = {
             _this.viewer.setRegion(start, end);
             var frame = end - start;
             _this.scale = Math.log(frame)/Math.log(2) + 32;
+            
 
 /*
             console.log(start)
@@ -429,7 +464,7 @@ Torus.prototype = {
         }
     },
     nothingMouseUp: function (_this, event) {
-        console.log("quitando");
+//        console.log("quitando");
         document.removeEventListener('mousemove', _this.onMouseMove, false);
     },
 

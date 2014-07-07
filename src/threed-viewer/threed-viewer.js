@@ -91,8 +91,8 @@ ThreeDViewer.prototype = {
 //            visible: false
             start: 0,
             end: 1,
-            position: 0.5, // numeric slider
-            zoom: 31.5,
+//            position: 0.5, // numeric slider
+//            zoom: 31.5,
             sampleName: true,
             tool: "Selection"
         };
@@ -126,6 +126,7 @@ ThreeDViewer.prototype = {
             }
         );
 
+        /*
         this.gui.add(parameters, 'position', 0, 1).step(0.001).name('Position').listen().onChange(function (value) {
                 _this.torus.setPosition(value);
                 _this.torus.updateScale();
@@ -135,7 +136,8 @@ ThreeDViewer.prototype = {
                 _this.torus.scale = value;
                 _this.torus.updateScale();
             }
-        );
+        );*/
+
 
         this.gui.region = {start: 0, end:1};
         var folderRegion = this.gui.addFolder('Region');
@@ -153,10 +155,6 @@ ThreeDViewer.prototype = {
 //            console.log(_this.torus.viewer.getRegion());
 //        });
 
-        console.log(this.gui);
-        console.log(this.gui.region);
-        console.log(folderRegion);
-        console.log(this.gui.__controllers[0].object);
         this.gui.open();
 
         /*
