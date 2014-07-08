@@ -10,7 +10,7 @@ function VariantWidget(args) {
     this.autoRender = true;
     this.data = [];
 //    this.height = '100%';
-    this.url = "";
+    this.host;
     this.closable = true;
     this.filters = {
         segregation: true,
@@ -203,10 +203,61 @@ VariantWidget.prototype = {
     },
     _createVariantBrowserGrid: function (target) {
         var _this = this;
+
+        var columns = [
+            {
+                text: "Id",
+                dataIndex: 'id'
+            },
+            {
+                text: "Chromosome",
+                dataIndex: 'chromosome'
+            },
+            {
+                text: 'Start',
+                dataIndex: 'start'
+            },
+            {
+                text: 'End',
+                dataIndex: 'end'
+            },
+            {
+                text: 'Type',
+                dataIndex: 'type'
+            },
+            {
+                text: 'Ref/Alt',
+                xtype: "templatecolumn",
+                tpl: "{reference}>{alternate}"
+            },
+            {
+                text: 'HGVS Name',
+                dataIndex: 'hgvs_name'
+            },
+            {
+                text: 'View'
+            }
+//
+        ];
+
+        var attributes = [
+            {name: 'id', type: 'string'},
+            {name: "chromosome", type: "string"},
+            {name: "start", type: "int"},
+            {name: "end", type: "int"},
+            {name: "type", type: "string"},
+            {name: "ref", type: "string"},
+            {name: "alt", type: "string"},
+            {name: 'hgvs_name', type: 'string'},
+        ];
+
+
         var variantBrowserGrid = new VariantBrowserGrid({
             target: target,
             data: this.data,
             dataParser: this.dataParser,
+            attributes:attributes,
+            columns:columns,
             handlers: {
                 "variant:change": function (e) {
                     _this.lastVariant = e.args;
@@ -463,6 +514,9 @@ VariantWidget.prototype = {
         });
 
         return genomeViewer;
+    },
+    retrieveData:function(baseUrl, filterParams){
+        this.variantBrowserGrid.loadUrl(baseUrl, filterParams);
     }
 };
 //////////////

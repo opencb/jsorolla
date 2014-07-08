@@ -99,8 +99,9 @@ FormPanel.prototype = {
                         formBind: true,
                         handler: function () {
 
-                            var values = form.getForm().getValues()
-                            console.log(values);
+                            var values = form.getForm().getValues();
+                            _this.trigger('search', {filterParams: values, sender: _this});
+//                            console.log(values);
 //
 //                            for (var i = 0; i < _this.filters.length; i++) {
 //                                var filter = _this.filters[i];

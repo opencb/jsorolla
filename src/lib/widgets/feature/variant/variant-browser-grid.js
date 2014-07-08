@@ -5,9 +5,12 @@ function VariantBrowserGrid(args) {
     this.id = Utils.genId("Widget");
     this.target;
     this.data = [];
-    this.pageSize = 10;
-    this.autoRender = true;
     this.dataParser;
+    this.columns;
+    this.attributes;
+    this.type;
+    this.pageSize = 15;
+    this.autoRender = true;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -46,63 +49,16 @@ VariantBrowserGrid.prototype = {
 
         var _this = this;
 
-        _this.columnsGrid = [
-            {
-                text: "Id",
-                dataIndex: 'id'
-            },
-            {
-                text: "Chromosome",
-                dataIndex: 'chromosome'
-            },
-            {
-                text: 'Start',
-                dataIndex: 'start'
-            },
-            {
-                text: 'End',
-                dataIndex: 'end'
-            },
-            {
-                text: 'Type',
-                dataIndex: 'type'
-            },
-            {
-                text: 'Ref/Alt',
-                xtype: "templatecolumn",
-                tpl: "{reference}>{alternate}"
-            },
-            {
-                text: 'HGVS Name',
-                dataIndex: 'hgvs_name'
-            },
-            {
-                text: 'View'
-            }
-//
-        ];
-
-        _this.attributes = [
-            {name: 'id', type: 'string'},
-            {name: "chromosome", type: "string"},
-            {name: "start", type: "int"},
-            {name: "end", type: "int"},
-            {name: "type", type: "string"},
-            {name: "ref", type: "string"},
-            {name: "alt", type: "string"},
-            {name: 'hgvs_name', type: 'string'},
-        ];
-        _this.model = Ext.define('Variant', {
+        this.model = Ext.define('Variant', {
             extend: 'Ext.data.Model',
             idProperty: 'iid',
-            fields: _this.attributes
+            fields: this.attributes
         });
 
-        _this.store = Ext.create('Ext.data.Store', {
-                pageSize: _this.pageSize,
-                model: _this.model,
+        this.store = Ext.create('Ext.data.Store', {
+                pageSize: this.pageSize,
+                model: this.model,
 //                data: _this.data,
-                storeId: 'gridStore',
                 remoteSort: true,
                 proxy: {
                     type: 'memory',
@@ -127,11 +83,10 @@ VariantBrowserGrid.prototype = {
 
         var grid = Ext.create('Ext.grid.Panel', {
                 title: 'Variant Info',
-                store: _this.store,
+                store: this.store,
                 loadMask: true,
-                columns: this.columnsGrid,
+                columns: this.columns,
                 plugins: 'bufferedrenderer',
-                loadMask: true,
                 collapsible: true,
                 titleCollapse: true,
                 animCollapse: false,
@@ -168,10 +123,9 @@ VariantBrowserGrid.prototype = {
         }
 
         this.store = Ext.create('Ext.data.Store', {
-            pageSize: _this.pageSize,
-            model: _this.model,
+            pageSize: this.pageSize,
+            model: this.model,
             data: data,
-            storeId: 'gridStore',
             remoteSort: true,
             proxy: {
                 type: 'memory',
@@ -186,7 +140,72 @@ VariantBrowserGrid.prototype = {
         this.panel.reconfigure(this.store, this.columnsGrid);
         this.paging.bindStore(this.store);
         this.paging.doRefresh();
-        console.log(data);
+    },
+    loadUrl:function(baseUrl, filterParams){
+        var _this = this;
+        this.store.destroy();
+
+        this.store = Ext.create('Ext.data.Store', {
+            pageSize: this.pageSize,
+            model: this.model,
+//            remoteSort: true,
+//            sorters: [
+//                {
+//                    property: 'chromosome',
+//                    direction: 'ASC'
+//                }
+//            ],
+            proxy: {
+                url: baseUrl,
+                type: 'ajax',
+                startParam:'skip',
+                reader: {
+                    root: "response[0].result",
+                    totalProperty: "response[0].numTotalResults"
+                },
+                extraParams: filterParams,
+                actionMethods: {create: 'GET', read: 'GET', update: 'GET', destroy: 'GET'}
+            },
+            listeners: {
+                load: function (store, records, successful, operation, eOpts) {
+
+                    console.log(records)
+//                    debugger
+//                    store.suspendEvents();
+//                    var aux;
+//
+//                    for (var i = 0; i < records.length; i++) {
+//                        var v = records[i];
+//                        for (var key in v.data.sampleGenotypes) {
+//
+//                            aux = v.data.sampleGenotypes[key];
+//                            aux = aux.replace(/-1/g, ".");
+//                            aux = aux.replace("|", "/");
+//                            v.set(key, aux);
+//                        }
+//
+//                        v.set("snpid", v.data.snpid);
+//                        v.set("genes", v.data.genes.join(","));
+//
+//                        v.commit();
+//                    }
+//
+//                    _this._getPhenotypes(records);
+//                    store.resumeEvents();
+//                    store.fireEvent('refresh');
+                },
+                beforeload: function (store, operation, eOpts) {
+                    _this.trigger("_grid:clear", {sender: _this});
+                }
+            }
+
+        });
+
+        this.panel.reconfigure(this.store, this.columnsGrid);
+        this.paging.bindStore(this.store);
+//        this.paging.doRefresh();
+        this.store.load();
+
     },
     _parserFunction: function (data) {
         for (var i = 0; i < data.length; i++) {

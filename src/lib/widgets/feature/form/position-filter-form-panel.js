@@ -52,8 +52,8 @@ PositionFilterFormPanel.prototype = {
         });
 
         var regionList = Ext.create('Ext.form.field.TextArea', {
-            id: this.id + "region_list",
-            name: "region_list",
+            id: this.id + "region",
+            name: "region",
             emptyText: '1:1-1000000,2:1-1000000',
             margin: '0 0 0 5',
             allowBlank: true,
