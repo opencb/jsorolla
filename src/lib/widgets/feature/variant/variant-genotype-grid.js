@@ -40,10 +40,11 @@ VariantGenotypeGrid.prototype = {
     },
     clear: function () {
 
+        this.panel.removeAll(true);
     },
     load: function (data) {
 
-        this.panel.removeAll(true);
+       this.clear(); 
 
         var panels = [];
 
