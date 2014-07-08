@@ -33,10 +33,30 @@ function NavigationBar(args) {
 
     this.species = 'Homo sapiens';
     this.increment = 3;
-    this.componentsConfig = {};
+    this.componentsConfig = {
+        leftSideButton: false,
+        restoreDefaultRegionButton: true,
+        regionHistoryButton: true,
+        speciesButton: true,
+        chromosomesButton: true,
+        karyotypeButton: true,
+        chromosomeButton: true,
+        regionButton: true,
+        zoomControl: true,
+        windowSizeControl: true,
+        positionControl: true,
+        moveControl: true,
+        autoheightButton: true,
+        compactButton: true,
+        searchControl: true
+    };
+
+    _.extend(this.componentsConfig, args.componentsConfig);
+    delete args.componentsConfig;
 
     //set instantiation args, must be last
     _.extend(this, args);
+
 
     //set new region object
     this.region = new Region(this.region);
@@ -69,6 +89,9 @@ NavigationBar.prototype = {
 
         var navgationHtml = '' +
             '<div style="width: 1350px">' +
+            '   <div class="btn-group">' +
+            '       <button id="leftSideButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="glyphicon glyphicon glyphicon-th-list"></span></button>' +
+            '   </div>' +
             '   <div class="btn-group">' +
             '       <button id="restoreDefaultRegionButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="glyphicon glyphicon-repeat"></span></button>' +
             '   </div>' +
@@ -200,6 +223,10 @@ NavigationBar.prototype = {
         /*****/
 
         /*** ***/
+        $(this.els.leftSideButton).click(function (e) {
+            _this.trigger('leftSideButton:click', {clickEvent: e, sender: {}})
+        });
+
         $(this.els.restoreDefaultRegionButton).click(function (e) {
             _this.trigger('restoreDefaultRegion:click', {clickEvent: e, sender: {}})
         });
