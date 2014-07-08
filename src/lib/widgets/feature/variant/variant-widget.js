@@ -89,15 +89,25 @@ VariantWidget.prototype = {
 
         var tabPanelItems = [];
 
+        if (this.defaultToolConfig.stats) {
+            this.variantStatsPanelDiv = document.createElement('div');
+            this.variantStatsPanelDiv.setAttribute('class', 'ocb-variant-stats-panel');
+            this.variantStatsPanel = this._createVariantStatsPanel(this.variantStatsPanelDiv);
+            tabPanelItems.push({
+                title: 'File and Stats',
+                contentEl: this.variantStatsPanelDiv,
+                height: 500,
+            });
+        }
+
         if (this.defaultToolConfig.effect) {
             this.variantEffectGridDiv = document.createElement('div');
             this.variantEffectGridDiv.setAttribute('class', 'ocb-variant-effect-grid');
             this.variantEffectGrid = this._createVariantEffectGrid(this.variantEffectGridDiv);
             tabPanelItems.push({
-                title: 'Effect',
+                title: 'Effect and Annotation',
                 contentEl: this.variantEffectGridDiv,
                 height: 500,
-//                    height:'100%',
             });
         }
 
@@ -109,7 +119,6 @@ VariantWidget.prototype = {
                 title: 'Genotype',
                 contentEl: this.variantGenotypeGridDiv,
                 height: 500,
-//                    height:'100%',
             });
         }
 
@@ -120,18 +129,6 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: 'Genomic Context',
                 contentEl: this.genomeViewerDiv,
-            });
-        }
-
-
-        if (this.defaultToolConfig.stats) {
-            this.variantStatsPanelDiv = document.createElement('div');
-            this.variantStatsPanelDiv.setAttribute('class', 'ocb-variant-stats-panel');
-            this.variantStatsPanel = this._createVariantStatsPanel(this.variantStatsPanelDiv);
-            tabPanelItems.push({
-                title: 'Stats',
-                contentEl: this.variantStatsPanelDiv,
-                height: 500,
             });
         }
 
@@ -149,12 +146,9 @@ VariantWidget.prototype = {
             });
         }
 
-
         this.toolTabPanel.add(tabPanelItems);
 
         this.rendered = true;
-
-
     },
     draw: function () {
         var _this = this;
@@ -206,38 +200,60 @@ VariantWidget.prototype = {
 
         var columns = [
             {
-                text: "Id",
-                dataIndex: 'id'
-            },
-            {
-                text: "Chromosome",
-                dataIndex: 'chromosome'
-            },
-            {
-                text: 'Start',
-                dataIndex: 'start'
-            },
-            {
-                text: 'End',
-                dataIndex: 'end'
-            },
-            {
-                text: 'Type',
-                dataIndex: 'type'
-            },
-            {
-                text: 'Ref/Alt',
-                xtype: "templatecolumn",
-                tpl: "{reference}>{alternate}"
-            },
-            {
-                text: 'HGVS Name',
-                dataIndex: 'hgvs_name'
-            },
-            {
-                text: 'View'
-            }
-//
+            text: "SNP Id",
+            dataIndex: 'id'
+        },
+        {
+            text: "Chromosome",
+            dataIndex: 'chromosome'
+        },
+        {
+            text: 'Position',
+            dataIndex: 'start'
+        },
+        //{
+        //text: 'End',
+        //dataIndex: 'end'
+        //},
+        {
+            text: 'Aleles',
+            xtype: "templatecolumn",
+            tpl: "{reference}>{alternate}"
+        },
+        {
+            text: 'Class',
+            dataIndex: 'type'
+        },
+        {
+            text: '1000G MAF',
+            dataIndex: ''
+        },
+        {
+            text: 'Consequence Type',
+            dataIndex: 'ct'
+        },
+        {
+            text: 'Gene',
+            dataIndex: 'gene'
+        },
+        {
+            text: 'HGVS Names',
+            dataIndex: 'hgvs_name'
+        },
+        {
+            text: 'View'
+        },
+        {
+            text     : 'View',
+            //dataIndex: 'id',
+            xtype: 'templatecolumn',
+            tpl: '<tpl if="id"><a href="?variantID={id}" target="_blank"><img class="grid-img" src="img/eva_logo.png"/></a>&nbsp;' +
+                '<a href="http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v={id}" target="_blank"><img alt="" src="http://static.ensembl.org/i/search/ensembl.gif"></a>' +
+            '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs={id}" target="_blank"><span>dbSNP</span></a>'+
+            '<tpl else><a href="?variantID={chromosome}:{start}:{ref}:{alt}" target="_blank"><img class="grid-img" src="img/eva_logo.png"/></a>&nbsp;<img alt="" class="in-active" src="http://static.ensembl.org/i/search/ensembl.gif">&nbsp;<span  style="opacity:0.2" class="in-active">dbSNP</span></tpl>'
+        }
+
+        //
         ];
 
         var attributes = [

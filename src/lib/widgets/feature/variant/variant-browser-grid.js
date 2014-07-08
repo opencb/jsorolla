@@ -130,6 +130,7 @@ VariantBrowserGrid.prototype = {
             proxy: {
                 type: 'memory',
                 enablePaging: true
+
             },
             listeners: {
                 beforeload: function (store, operation, eOpts) {
@@ -145,23 +146,31 @@ VariantBrowserGrid.prototype = {
         var _this = this;
         this.store.destroy();
 
+        console.log("filter");
+        console.log(filterParams)
+
         this.store = Ext.create('Ext.data.Store', {
             pageSize: this.pageSize,
             model: this.model,
-//            remoteSort: true,
-//            sorters: [
-//                {
-//                    property: 'chromosome',
-//                    direction: 'ASC'
-//                }
-//            ],
             proxy: {
                 url: baseUrl,
                 type: 'ajax',
                 startParam:'skip',
                 reader: {
                     root: "response[0].result",
-                    totalProperty: "response[0].numTotalResults"
+                    totalProperty: "response[0].numTotalResults",
+                    transform: function(response){
+
+                        var data = (response.response[0].result)? response.response[0].result: [];
+
+                        if (typeof this.dataParser !== 'undefined') {
+                            _this.dataParser(data);
+                        } else {
+                            _this._parserFunction(data);
+
+                        }
+                        return response;
+                    }
                 },
                 extraParams: filterParams,
                 actionMethods: {create: 'GET', read: 'GET', update: 'GET', destroy: 'GET'}
@@ -169,30 +178,18 @@ VariantBrowserGrid.prototype = {
             listeners: {
                 load: function (store, records, successful, operation, eOpts) {
 
-                    console.log(records)
-//                    debugger
-//                    store.suspendEvents();
-//                    var aux;
-//
-//                    for (var i = 0; i < records.length; i++) {
-//                        var v = records[i];
-//                        for (var key in v.data.sampleGenotypes) {
-//
-//                            aux = v.data.sampleGenotypes[key];
-//                            aux = aux.replace(/-1/g, ".");
-//                            aux = aux.replace("|", "/");
-//                            v.set(key, aux);
-//                        }
-//
-//                        v.set("snpid", v.data.snpid);
-//                        v.set("genes", v.data.genes.join(","));
-//
-//                        v.commit();
-//                    }
-//
-//                    _this._getPhenotypes(records);
-//                    store.resumeEvents();
-//                    store.fireEvent('refresh');
+                    console.log(records);
+
+                    if (typeof this.dataParser !== 'undefined') {
+                        _this.dataParser(records);
+                    } else {
+                        _this._parserFunction(records);
+
+                    }
+
+                    console.log(records);
+
+
                 },
                 beforeload: function (store, operation, eOpts) {
                     _this.trigger("_grid:clear", {sender: _this});
@@ -211,8 +208,8 @@ VariantBrowserGrid.prototype = {
         for (var i = 0; i < data.length; i++) {
             var variant = data[i];
 
-            if (variant.hgvs && variant.hgvs.length > 0) {
-                variant.hgvs_name = variant.hgvs[0].genomic;
+            if (variant.hgvs && variant.hgvs.genomic.length > 0) {
+                variant.hgvs_name = variant.hgvs.genomic[0];
             }
         }
 

@@ -60,7 +60,8 @@ StudyFilterFormPanel.prototype = {
             var study = this.studies[i];
             cbgItems.push(Ext.create('Ext.form.field.Checkbox', {
                 boxLabel: study,
-                name: 'study',
+                name: 'studies',
+                inputValue: study,
                 margin: '0 0 0 5',
                 checked: false
             }));
@@ -89,12 +90,11 @@ StudyFilterFormPanel.prototype = {
             dataType: 'json',
             async: false,
             success: function (response, textStatus, jqXHR) {
-                if (response != undefined && response.response.numResults > 0) {
-                    console.log("ENTRA");
-                    for (var i = 0; i < response.response.result.length; i++) {
-                        var study = response.response.result[i];
-                        _this.studies.push(study);
-                    }
+                var data = (response !== undefined && response.response.length > 0 && response.response[0].numResults > 0)? response.response[0].result : [];
+
+                for (var i = 0; i < data.length; i++) {
+                    var study = data[i];
+                    _this.studies.push(study);
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
