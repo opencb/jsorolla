@@ -44,11 +44,11 @@ PositionFilterFormPanel.prototype = {
             id: this.id + "snp",
             name: "snp",
             margin: '0 0 0 5',
-            allowBlank: true,
+            //allowBlank: true,
             width: '100%',
             fieldLabel: 'SNP id',
             labelAlign: 'top',
-            regex: /^rs\d+$/
+            regex: /^[rs]s\d+$/
         });
 
         var regionList = Ext.create('Ext.form.field.TextArea', {
@@ -56,7 +56,7 @@ PositionFilterFormPanel.prototype = {
             name: "region",
             emptyText: '1:1-1000000,2:1-1000000',
             margin: '0 0 0 5',
-            allowBlank: true,
+            //allowBlank: true,
             width: '100%',
             fieldLabel: 'Chromosomal Location',
             labelAlign: 'top'
@@ -66,7 +66,7 @@ PositionFilterFormPanel.prototype = {
             id: this.id + "gene",
             name: "gene",
             margin: '0 0 0 5',
-            allowBlank: true,
+            //allowBlank: true,
             width: '100%',
             fieldLabel: 'Gene / Transcript',
             labelAlign: 'top'
@@ -79,6 +79,7 @@ PositionFilterFormPanel.prototype = {
             layout: 'vbox',
             title: this.title,
             border: false,
+            allowBlank:false,
             items: [snp, regionList, gene]
         });
 

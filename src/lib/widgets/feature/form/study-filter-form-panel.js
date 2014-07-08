@@ -59,9 +59,9 @@ StudyFilterFormPanel.prototype = {
         for (var i = 0; i < this.studies.length; i++) {
             var study = this.studies[i];
             cbgItems.push(Ext.create('Ext.form.field.Checkbox', {
-                boxLabel: study,
+                boxLabel: study.studyName,
                 name: 'studies',
-                inputValue: study,
+                inputValue: study.studyId,
                 margin: '0 0 0 5',
                 checked: false
             }));

@@ -66,7 +66,7 @@ VariantBrowserGrid.prototype = {
                 },
                 listeners: {
                     beforeload: function (store, operation, eOpts) {
-                        _this.trigger("VariantBrowserGrid:clear", {sender: _this});
+                        _this.trigger("variant:clear", {sender: _this});
                     }
                 }
 
@@ -98,7 +98,7 @@ VariantBrowserGrid.prototype = {
                     emptyText: 'No records to display',
                     enableTextSelection: true
                 },
-                bbar: this.paging
+                tbar: this.paging
             }
         );
 
@@ -134,7 +134,10 @@ VariantBrowserGrid.prototype = {
             },
             listeners: {
                 beforeload: function (store, operation, eOpts) {
-                    _this.trigger("VariantBrowserGrid:clear", {sender: _this});
+                    _this.trigger("variant:clear", {sender: _this});
+                },
+                load: function (store, records, successful, operation, eOpts) {
+                _this.setLoading(false);
                 }
             }
         });
@@ -189,11 +192,13 @@ VariantBrowserGrid.prototype = {
 
                     console.log(records);
 
-
+                    _this.setLoading(false);
                 },
                 beforeload: function (store, operation, eOpts) {
-                    _this.trigger("_grid:clear", {sender: _this});
-                }
+                    _this.trigger("variant:clear", {sender: _this});
+                },
+                
+
             }
 
         });
@@ -213,5 +218,8 @@ VariantBrowserGrid.prototype = {
             }
         }
 
+    },
+    setLoading: function(loading){
+        this.panel.setLoading(loading);
     }
 };

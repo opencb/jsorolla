@@ -278,6 +278,10 @@ VariantWidget.prototype = {
                 "variant:change": function (e) {
                     _this.lastVariant = e.args;
                     _this.trigger('variant:change', {variant: _this.lastVariant, sender: _this});
+                },
+                "variant:clear": function (e) {
+                    //_this.lastVariant = e.args;
+                    _this.trigger('variant:clear', {sender: _this});
                 }
             }
         });
@@ -300,7 +304,7 @@ VariantWidget.prototype = {
             }
         });
 
-        this.variantBrowserGrid.on("VariantBrowserGrid:clear", function (e) {
+        this.variantBrowserGrid.on("variant:clear", function (e) {
             variantEffectGrid.clear(true);
         });
 
@@ -324,8 +328,8 @@ VariantWidget.prototype = {
             }
         });
 
-        this.variantBrowserGrid.on("VariantBrowserGrid:clear", function (e) {
-            //variantStatsPanel.clear(true);
+        this.variantBrowserGrid.on("variant:clear", function (e) {
+            variantStatsPanel.clear(true);
         });
 
         this.on("variant:change", function (e) {
@@ -355,7 +359,7 @@ VariantWidget.prototype = {
             }
         });
 
-        this.variantBrowserGrid.on("VariantBrowserGrid:clear", function (e) {
+        this.variantBrowserGrid.on("variant:clear", function (e) {
             variantGenotypeGrid.clear(true);
         });
 
@@ -533,6 +537,9 @@ VariantWidget.prototype = {
     },
     retrieveData:function(baseUrl, filterParams){
         this.variantBrowserGrid.loadUrl(baseUrl, filterParams);
+    },
+    setLoading: function(loading){
+        this.variantBrowserGrid.setLoading(loading);
     }
 };
 //////////////

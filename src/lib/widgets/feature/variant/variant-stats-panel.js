@@ -40,6 +40,10 @@ VariantStatsPanel.prototype = {
         this.panel.render(this.div);
 
     },
+    clear: function(){
+
+        this.panel.removeAll(true);
+    },
     load: function (data) {
 
         this.panel.removeAll(true);
