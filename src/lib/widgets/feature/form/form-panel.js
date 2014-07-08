@@ -72,17 +72,7 @@ FormPanel.prototype = {
                 items: [
                     {
                         xtype: 'button',
-                        width: 55,
-                        text: '<span style="font-weight:bold">Reload</span>',
-                        tooltip: 'Reload',
-                        handler: function () {
-                            Utils.msg('Reload', 'Sucessfully')
-//                            _this._reloadForm();
-                        }
-                    } ,
-                    {
-                        xtype: 'button',
-                        flex: 46,
+                        width: 56,
                         text: '<span style="font-weight:bold">Clear</span>',
                         tooltip: 'Clear',
                         handler: function () {
@@ -93,7 +83,7 @@ FormPanel.prototype = {
                     '->',
                     {
                         xtype: 'button',
-                        flex: 54,
+                        width: 65,
                         text: '<span style="font-weight:bold">Search</span>',
                         tooltip: 'Search',
                         formBind: true,
