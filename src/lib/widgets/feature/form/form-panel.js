@@ -8,6 +8,9 @@ function FormPanel(args) {
     this.autoRender = true;
     this.height;
     this.width;
+    this.submitButtonText = 'Search';
+    this.clearButtonText = 'Clear';
+    this.border = true;
     this.filters = [];
 
     //set instantiation args, must be last
@@ -52,10 +55,25 @@ FormPanel.prototype = {
         this.panel.render(this.div);
 
     },
+    clear: function () {
+        for (var i = 0; i < this.filters.length; i++) {
+            var filter = this.filters[i];
+            filter.clear();
+        }
+        return values;
+    },
+    getValues: function () {
+        var values = {};
+        for (var i = 0; i < this.filters.length; i++) {
+            var filter = this.filters[i];
+            _.extend(values, filter.getValues());
+        }
+        return values;
+    },
     _createPanel: function () {
         var _this = this;
         var form = Ext.create('Ext.form.Panel', {
-            border: 1,
+            border: this.border,
             height: this.height,
             width: this.width,
             title: this.title,
@@ -73,8 +91,8 @@ FormPanel.prototype = {
                     {
                         xtype: 'button',
                         width: 56,
-                        text: '<span style="font-weight:bold">Clear</span>',
-                        tooltip: 'Clear',
+                        text: this.clearButtonText,
+                        tooltip: this.clearButtonText,
                         handler: function () {
                             form.getForm().reset();
                             Utils.msg('Clear', 'Sucessfully');
@@ -84,13 +102,11 @@ FormPanel.prototype = {
                     {
                         xtype: 'button',
                         width: 65,
-                        text: '<span style="font-weight:bold">Search</span>',
-                        tooltip: 'Search',
+                        text: this.submitButtonText,
+                        tooltip: this.submitButtonText,
                         formBind: true,
                         handler: function () {
-
-                            var values = form.getForm().getValues();
-                            _this.trigger('search', {filterParams: values, sender: _this});
+                            _this.trigger('submit', {values: _this.getValues(), sender: _this});
 //                            console.log(values);
 //
 //                            for (var i = 0; i < _this.filters.length; i++) {

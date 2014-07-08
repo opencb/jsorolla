@@ -40,6 +40,22 @@ ConsequenceTypeFilterFormPanel.prototype = {
 
         this.panel.render(this.div);
     },
+    clear: function () {
+        var node = this.panel.getRootNode();
+        node.cascadeBy(function (n) {
+            n.set('checked', false);
+        });
+    },
+    getValues: function () {
+        var node = this.panel.getRootNode();
+        var consequence_types = [];
+        node.cascadeBy(function (n) {
+            if (n.get('checked')) {
+                consequence_types.push(n.get('name'));
+            }
+        });
+        return {ct: consequence_types};
+    },
     _createPanel: function () {
 
 

@@ -113,10 +113,10 @@ GenomeViewer.prototype = {
         //HTML skel
         this.div = document.createElement('div');
         this.div.setAttribute('id', this.id);
-        this.div.setAttribute('class', 'bootstrap ocb-gv ocb-box-vertical');
+        this.div.setAttribute('class', 'ocb-gv ocb-box-vertical');
 
         this.navigationbarDiv = document.createElement('div');
-        this.navigationbarDiv.setAttribute('class', 'ocb-gv-navigation');
+        this.navigationbarDiv.setAttribute('class', 'bootstrap ocb-gv-navigation');
         this.div.appendChild(this.navigationbarDiv);
 
         this.centerPanelDiv = document.createElement('div');
@@ -124,7 +124,7 @@ GenomeViewer.prototype = {
         this.div.appendChild(this.centerPanelDiv);
 
         this.statusbarDiv = document.createElement('div');
-        this.statusbarDiv.setAttribute('class', 'ocb-gv-status');
+        this.statusbarDiv.setAttribute('class', 'bootstrap ocb-gv-status');
         this.div.appendChild(this.statusbarDiv);
 
 
