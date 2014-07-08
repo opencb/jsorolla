@@ -86,5 +86,11 @@ PositionFilterFormPanel.prototype = {
     },
     getPanel: function () {
         return this.panel;
+    },
+    getValues: function(){
+        return this.panel.getValues();
+    },
+    clear: function(){
+        this.panel.reset();
     }
 }
