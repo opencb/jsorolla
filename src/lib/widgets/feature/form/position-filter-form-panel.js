@@ -59,7 +59,8 @@ PositionFilterFormPanel.prototype = {
             //allowBlank: true,
             width: '100%',
             fieldLabel: 'Chromosomal Location',
-            labelAlign: 'top'
+            labelAlign: 'top',
+            value:'1:879341-879365'
         });
 
         var gene = Ext.create('Ext.form.field.TextArea', {

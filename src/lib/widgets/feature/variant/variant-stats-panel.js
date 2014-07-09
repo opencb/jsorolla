@@ -4,7 +4,7 @@ function VariantStatsPanel(args) {
 
     this.target;
     this.title = "Stats";
-    this.height = 800;
+    this.height = 500;
     this.autoRender = true;
 
     _.extend(this, args);
@@ -40,46 +40,121 @@ VariantStatsPanel.prototype = {
         this.panel.render(this.div);
 
     },
-    clear: function(){
-
-        this.panel.removeAll(true);
+    clear: function () {
+        this.studiesContainer.removeAll(true);
     },
     load: function (data) {
-
-        this.panel.removeAll(true);
+        this.clear();
 
         var panels = [];
-        
-        for(var key in data){
+
+        for (var key in data) {
             var study = data[key];
             var studyPanel = this._createStudyPanel(study);
             panels.push(studyPanel);
-        
+
         }
 
-        this.panel.add(panels);
+        this.studiesContainer.add(panels);
     },
     _createPanel: function () {
-        var panel = Ext.create('Ext.panel.Panel', {
-            title: "Studies",
+        this.studiesContainer = Ext.create('Ext.container.Container', {
+            layout: {
+                type: 'accordion',
+                titleCollapse: true,
+//                fill: false,
+                multi: true
+            }
+        });
+
+        var panel = Ext.create('Ext.container.Container', {
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            overflowY: true,
+            padding: 10,
+            items: [
+                {
+                    xtype: 'box',
+                    cls: 'eva-header-4',
+                    html: 'Studies',
+                    margin: '5 0 10 10'
+                },
+                this.studiesContainer
+            ],
             height: this.height
         });
         return panel;
     },
     _createStudyPanel: function (data) {
 
-        var stats = (data.stats) ? data.stats : [];
-        var attributes = (data.attributes) ? data.attributes : [];
-        var statsTable = Utils.htmlTable(stats);
-        var attrTable = Utils.htmlTable(attributes);
+        var stats = (data.stats) ? data.stats : {};
+        var attributes = (data.attributes) ? data.attributes : {};
 
         var studyPanel = Ext.create('Ext.panel.Panel', {
             title: data.studyId,
-            height: 250,
-            layout: 'hbox',
+            border: false,
+            layout: 'vbox',
             items: [
-                {xtype: 'box', html: attrTable, margin: '5 5 5 10'},
-                {xtype: 'box', html: statsTable, margin: '5 5 5 10'},
+                {
+                    xtype: 'container',
+                    data: attributes,
+                    tpl: new Ext.XTemplate(
+                        '<table class="eva-attributes-table"><tr>',
+                        '<tpl foreach=".">',
+                        '<td class="header">{$}</td>', // the special **`{$}`** variable contains the property name
+                            '</tpl>' +
+                            '</tr><tr>',
+                        '<tpl foreach=".">',
+                        '<td>{.}</td>', // within the loop, the **`{.}`** variable is set to the property value
+                        '</tpl>',
+                        '</tr></table>'
+                    ),
+                    margin: '10 5 5 10'
+                },
+                {
+                    xtype: 'box',
+                    cls: 'eva-header-5',
+                    margin: '5 5 5 10',
+                    html: 'Stats'
+                },
+                {
+                    xtype: 'container',
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'container',
+                            data: stats,
+                            tpl: new Ext.XTemplate(
+                                    '<table class="eva-stats-table">' +
+                                    '<tr>' +
+                                    '<td class="header">Minor Allele Frequency:</td>' +
+                                    '<td>{maf} ({mafAllele})</td>' +
+                                    '</tr>',
+                                    '<tr>' +
+                                    '<td class="header">Minor Genotype Frequency:</td>' +
+                                    '<td>{mgf} ({mgfAllele})</td>' +
+                                    '</tr>',
+                                    '<tr>' +
+                                    '<td class="header">Mendelian Errors:</td>' +
+                                    '<td>{mendelianErrors}</td>' +
+                                    '</tr>',
+                                    '<tr>' +
+                                    '<td class="header">Missing Alleles:</td>' +
+                                    '<td>{missingAlleles}</td>' +
+                                    '</tr>',
+                                    '<tr>' +
+                                    '<td class="header">Missing Genotypes:</td>' +
+                                    '<td>{missingGenotypes}</td>' +
+                                    '</tr>',
+                                '</table>'
+                            ),
+                            margin: '5 5 5 10'
+                        },
+                    ]
+                },
+
             ]
         });
 
@@ -130,7 +205,7 @@ VariantStatsPanel.prototype = {
                     }
                 ]
             });
-            studyPanel.add(genotypeChart);
+            studyPanel.down().nextSibling().nextSibling().add(genotypeChart);
         }
 
         return studyPanel;

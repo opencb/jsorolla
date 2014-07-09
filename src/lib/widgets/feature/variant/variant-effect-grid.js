@@ -7,6 +7,7 @@ function VariantEffectGrid(args) {
     this.storeConfig = {};
     this.gridConfig = {};
     this.filterEffect = true;
+    this.height = 500;
     this.cellbaseHost = "http://ws.bioinfo.cipf.es/cellbase/rest";
 
     _.extend(this, args);
@@ -148,6 +149,7 @@ VariantEffectGrid.prototype = {
             store: this.store,
             loadMask: true,
             border: false,
+            height:this.height,
             viewConfig: {
                 emptyText: 'No records to display',
                 enableTextSelection: true
