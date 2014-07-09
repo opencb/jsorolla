@@ -155,6 +155,7 @@ VariantBrowserGrid.prototype = {
         this.store = Ext.create('Ext.data.Store', {
             pageSize: this.pageSize,
             model: this.model,
+            remoteSort:true,
             proxy: {
                 url: baseUrl,
                 type: 'ajax',

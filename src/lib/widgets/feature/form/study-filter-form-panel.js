@@ -83,6 +83,12 @@ StudyFilterFormPanel.prototype = {
     getPanel: function () {
         return this.panel;
     },
+    getValues: function(){
+        return this.panel.getValues();
+    },
+    clear: function(){
+        this.panel.reset();
+    },
     _loadStudies: function () {
         var _this = this;
         $.ajax({
@@ -101,5 +107,5 @@ StudyFilterFormPanel.prototype = {
                 console.log('Error loading Phenotypes');
             }
         });
-    }
+    },
 }

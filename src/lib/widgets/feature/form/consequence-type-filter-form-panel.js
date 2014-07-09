@@ -50,44 +50,13 @@ ConsequenceTypeFilterFormPanel.prototype = {
         var node = this.panel.getRootNode();
         var consequence_types = [];
         node.cascadeBy(function (n) {
-            if (n.get('checked')) {
+            if (n.get('checked') && n.isLeaf()) {
                 consequence_types.push(n.get('name'));
             }
         });
         return {ct: consequence_types};
     },
     _createPanel: function () {
-
-
-//        var model = Ext.define('ConsequenceTypeSelectorModel', {
-//            extend: 'Ext.data.Model',
-//            fields: [
-//                {name: 'so', type: 'string'},
-//                {name: 'name', type: 'string'},
-//            ]
-//        });
-//
-//        var store = Ext.create('Ext.data.Store', {
-//            model: model,
-//            storeId: 'ConsequenceTypeSelectorStore',
-//            data: [
-//                {so: 'SO:0001587', name: 'stop_gained'},
-//                {so: 'SO:0001578', name: 'stop_lost'},
-//                {so: 'SO:0001821', name: 'inframe_insertion'},
-//                {so: 'SO:0001822', name: 'inframe_deletion'},
-//                {so: 'SO:0001589', name: 'frameshift_variant'},
-//                {so: 'SO:0001621', name: 'NMD_transcript_variant'},
-//                {so: 'SO:0001582', name: 'initiator_codon_variant'},
-//                {so: 'SO:0001626', name: 'incomplete_terminal_codon_variant'},
-//                {so: 'SO:0001583', name: 'missense_variant'},
-//                {so: 'SO:0001819', name: 'synonymous_variant'},
-//                {so: 'SO:0001567', name: 'stop_retained_variant'},
-//                {so: 'SO:0001580', name: 'coding_sequence_variant'},
-//                {so: 'SO:0001907', name: 'feature_elongation'},
-//                {so: 'SO:0001906', name: 'feature_truncation'}
-//            ]
-//        });
-
 
         Ext.define('Tree Model', {
             extend: 'Ext.data.Model',
@@ -123,10 +92,6 @@ ConsequenceTypeFilterFormPanel.prototype = {
                     sortable: false,
                     dataIndex: 'name',
                     tooltipType: 'qtip'
-//                    renderer:function (value, meta, record) {
-//                        var link = "http://www.sequenceontology.org/miso/current_release/term/"+record.data.acc;
-//                        return value+' <a href='+link+' target="_blank">'+record.data.acc+'</a>';
-//                    }
                 },
                 {
                     text: '',
@@ -147,47 +112,6 @@ ConsequenceTypeFilterFormPanel.prototype = {
                 }
             }
         });
-
-//        return Ext.create('Ext.form.Panel', {
-//            bodyPadding: "5",
-//            margin: "0 0 5 0",
-//            buttonAlign: 'center',
-//            layout: {
-//                type: 'vbox',
-//                align: 'stretch'
-//            },
-//            title: this.title,
-//            border: false,
-//            viewModel: {},
-//
-//            items: [
-//                treePanel
-//                {
-//                    xtype: 'tagfield',
-//                    fieldLabel: 'Select a CT',
-//                    labelAlign: 'top',
-//                    store: store,
-//                    reference: 'ConsequenceTypeSelectorStore',
-//                    displayField: 'name',
-//                    valueField: 'name',
-//                    filterPickList: true,
-//                    queryMode: 'local',
-//                    publishes: 'value',
-////                height: 100,
-//                    autoScroll: true,
-//                    name: 'consequenceTypes'
-//                },
-//                {
-//                    xtype: 'displayfield',
-//                    fieldLabel: 'Selected CT',
-//                    labelAlign: 'top',
-//                    bind: '{ConsequenceTypeSelectorStore.value}',
-////                    flex: 1,
-//                    height: 200,
-//                    width: '100%'
-//                }
-//            ]
-//        });
 
         return treePanel;
     },

@@ -60,7 +60,6 @@ FormPanel.prototype = {
             var filter = this.filters[i];
             filter.clear();
         }
-        return values;
     },
     getValues: function () {
         var values = {};
@@ -93,7 +92,7 @@ FormPanel.prototype = {
                         text: this.clearButtonText,
                         tooltip: this.clearButtonText,
                         handler: function () {
-                            form.getForm().reset();
+                            _this.clear();
                             Utils.msg('Clear', 'Sucessfully');
                         }
                     },
