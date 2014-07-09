@@ -55,6 +55,11 @@ VariantWidget.prototype = {
 
         this.variantBrowserGrid = this._createVariantBrowserGrid(this.variantBrowserGridDiv);
 
+        this.tabPanelTitle = document.createElement('div');
+        this.tabPanelTitle.setAttribute('class', 'eva-header-3 ocb-variant-tab-panel-title');
+        this.tabPanelTitle.innerHTML = 'Variant Data';
+        this.div.appendChild(this.tabPanelTitle);
+
         this.tabPanelDiv = document.createElement('div');
         this.tabPanelDiv.setAttribute('class', 'ocb-variant-tab-panel');
         this.div.appendChild(this.tabPanelDiv);

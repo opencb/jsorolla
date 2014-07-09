@@ -10,7 +10,7 @@ function VariantBrowserGrid(args) {
     this.attributes;
     this.type;
     this.pageSize = 15;
-    this.title = "Variant Info";
+    this.title = "Variant Browser";
     this.autoRender = true;
 
     //set instantiation args, must be last
