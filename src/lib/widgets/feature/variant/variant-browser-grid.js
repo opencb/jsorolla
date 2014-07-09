@@ -10,6 +10,7 @@ function VariantBrowserGrid(args) {
     this.attributes;
     this.type;
     this.pageSize = 15;
+    this.title = "Variant Info";
     this.autoRender = true;
 
     //set instantiation args, must be last
@@ -58,7 +59,6 @@ VariantBrowserGrid.prototype = {
         this.store = Ext.create('Ext.data.Store', {
                 pageSize: this.pageSize,
                 model: this.model,
-//                data: _this.data,
                 remoteSort: true,
                 proxy: {
                     type: 'memory',
@@ -82,13 +82,10 @@ VariantBrowserGrid.prototype = {
         });
 
         var grid = Ext.create('Ext.grid.Panel', {
-                title: 'Variant Info',
                 store: this.store,
                 loadMask: true,
                 columns: this.columns,
                 plugins: 'bufferedrenderer',
-                collapsible: true,
-                titleCollapse: true,
                 animCollapse: false,
                 height: 500,
                 features: [
@@ -109,7 +106,20 @@ VariantBrowserGrid.prototype = {
             }
         });
 
-        return grid;
+        this.grid = grid;
+
+        var panel = Ext.create('Ext.container.Container',{
+            border:false,
+            items:[
+                { 
+                xtype: 'box',
+                cls:'eva-header-3',
+                html: this.title
+            },
+            grid
+            ]
+        });
+        return panel ;
     },
     load: function (data) {
         var _this = this;
@@ -141,7 +151,7 @@ VariantBrowserGrid.prototype = {
                 }
             }
         });
-        this.panel.reconfigure(this.store, this.columnsGrid);
+        this.grid.reconfigure(this.store, this.columnsGrid);
         this.paging.bindStore(this.store);
         this.paging.doRefresh();
     },
@@ -198,15 +208,12 @@ VariantBrowserGrid.prototype = {
                 beforeload: function (store, operation, eOpts) {
                     _this.trigger("variant:clear", {sender: _this});
                 },
-                
-
             }
 
         });
 
-        this.panel.reconfigure(this.store, this.columnsGrid);
+        this.grid.reconfigure(this.store, this.columnsGrid);
         this.paging.bindStore(this.store);
-//        this.paging.doRefresh();
         this.store.load();
 
     },

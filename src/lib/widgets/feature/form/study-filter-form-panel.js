@@ -107,5 +107,5 @@ StudyFilterFormPanel.prototype = {
                 console.log('Error loading Phenotypes');
             }
         });
-    },
+    }
 }
