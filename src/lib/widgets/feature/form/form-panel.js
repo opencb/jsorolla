@@ -90,7 +90,6 @@ FormPanel.prototype = {
                 items: [
                     {
                         xtype: 'button',
-                        width: 56,
                         text: this.clearButtonText,
                         tooltip: this.clearButtonText,
                         handler: function () {
@@ -101,7 +100,6 @@ FormPanel.prototype = {
                     '->',
                     {
                         xtype: 'button',
-                        width: 65,
                         text: this.submitButtonText,
                         tooltip: this.submitButtonText,
                         formBind: true,
