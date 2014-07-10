@@ -1,9 +1,9 @@
-function VariantFileBrowserPanel(args) {
+function VariantStudyBrowserPanel(args) {
     _.extend(this, Backbone.Events);
-    this.id = Utils.genId("VariantFileBrowserPanel");
+    this.id = Utils.genId("VariantStudyBrowserPanel");
 
     this.target;
-    this.title = "File Browser";
+    this.title = "Study Browser";
     this.height = 800;
     this.autoRender = true;
     this.studies = [];
@@ -19,7 +19,7 @@ function VariantFileBrowserPanel(args) {
     }
 }
 
-VariantFileBrowserPanel.prototype = {
+VariantStudyBrowserPanel.prototype = {
     render: function () {
         var _this = this;
 
@@ -65,11 +65,10 @@ VariantFileBrowserPanel.prototype = {
     },
     _createStudyPanel: function (study) {
 
-
         var filePanels = [];
         for (var i = 0; i < study.files.length; i++) {
             var file = study.files[i];
-            filePanels.push(this._createFilePanel(file));
+            filePanels.push(this._createStudyPanel(file));
         }
 
         var filesContainer = Ext.create('Ext.container.Container', {
@@ -107,7 +106,7 @@ VariantFileBrowserPanel.prototype = {
         return studyPanel;
 
     },
-    _createFilePanel: function (file) {
+    _createStudyPanel: function (file) {
 
         var filePanel = Ext.create('Ext.container.Container', {
             layout: 'vbox',
@@ -122,23 +121,6 @@ VariantFileBrowserPanel.prototype = {
                     xtype: 'container',
                     layout: 'hbox',
                     items: [
-//                        {
-//                            xtype: 'container',
-//                            data: file,
-//                            tpl: new Ext.XTemplate(
-//                                    '<table class="eva-stats-table">' +
-//                                    '<tr>' +
-//                                    '<td class="header">File name:</td>' +
-//                                    '<td>{fileName}</td>' +
-//                                    '</tr>',
-//                                    '<tr>' +
-//                                    '<td class="header">Study name:</td>' +
-//                                    '<td>{studyName}</td>' +
-//                                    '</tr>',
-//                                '</table>'
-//                            ),
-//                            margin: '5 5 5 10'
-//                        },
                         {
                             xtype: 'container',
                             data: file.stats,
