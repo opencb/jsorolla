@@ -219,7 +219,11 @@ Torus.prototype = {
 
             for (var i = 0; i < this.data.samples.length; i++) {
 
-                var data = this.data.samples[i].coverage.regions[0].coverage;
+//                var data = this.data.samples[i].coverage.regions[0].coverage;
+                var data = [];
+                for(var j= 0; j < 38; j++) {
+                    data[j] = Math.random()*0.4;
+                }
                 trackArgs.dataset.push(data);
 
             }
@@ -242,8 +246,11 @@ Torus.prototype = {
 //        for (var j = 0; j < this.data.samples.length; j++) {
 //            this.data.samples[j].alignments = _.extend({}, alignments);
 //        }
-        this.data.samples[0].alignments = _.extend([], alignments);
 
+        this.data.samples[0].alignments = _.extend([], alignments);
+//        for (var i = 0; i < this.viewer.disk.length; i++) {
+//            this.data.samples[i].alignments = _.extend([], aligs[i]);
+//        }
     },
 
     setAlignments: function () {
@@ -270,53 +277,56 @@ Torus.prototype = {
     },
     setFullAlignments: function (withMismatch) {
         var mismatch = withMismatch === undefined? true: withMismatch;
-        var trackId = this.viewer.addTrack(0);
         var z = 0;
         var width = 0.08;
-        for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
-            var alig = this.data.samples[0].alignments[i];
-            var end = alig.flags&4? alig.start + alig.length: alig.end; // unmapped
-            var color = alig.flags&4? 0xbc80bd: 0x00fdb462;
+        for (var s = 0; s < this.viewer.disk.length; s++) {
+            var distance = Math.random()*10000;
+            var trackId = this.viewer.addTrack(s);
+            for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
+                var alig = this.data.samples[0].alignments[i];
+                var end = alig.flags&4? alig.start + alig.length: alig.end; // unmapped
+                var color = alig.flags&4? 0xbc80bd: 0x00fdb462;
 
-            var config = {
-                start: alig.start,
-                end: end,
-                z: z,
-                y: 0.04,
-                mod: width,
-                ang: 0, //Radians
-                baseColorHex: color,
-                trackType: Viewer.Track.Feature
-            };
-            this.viewer.add2Track(0, trackId, config);
-            if (!(alig.flags & 4)) { //unmapped, no assumptions can be made about CIGAR
-                var offset = 0;
-                if (alig.differences[0].op == "S" && alig.differences[0].pos == 0) {
-                    offset = alig.start - alig.unclippedStart;
-                }
-                for (var j = 0; j < this.data.samples[0].alignments[i].differences.length; j++) {
-                    var difference = this.data.samples[0].alignments[i].differences[j];
-                    var start = alig.start + difference.pos - offset;
-                    var end = (difference.length === undefined? difference.seq.length: difference.length) + start;
-                    var color = this.colors[difference.op];
-                    var config = {
-                        start: start,
-                        end:end,
-                        z:z,
-                        y: 0.06,
-                        mod: width*0.8,
-                        ang: 0, //Radians
-                        baseColorHex: color === undefined? 0x2020A0: color, // else blue
-                        trackType: Viewer.Track.Feature
-                    };
-                    if (mismatch || difference.op != "M") {
-                        this.viewer.add2Track(0, trackId, config);
+                var config = {
+                    start: alig.start+distance,
+                    end: end+distance,
+                    z: z,
+                    y: 0.04,
+                    mod: width,
+                    ang: 0, //Radians
+                    baseColorHex: color,
+                    trackType: Viewer.Track.Feature
+                };
+                this.viewer.add2Track(s, trackId, config);
+                if (!(alig.flags & 4)) { //unmapped, no assumptions can be made about CIGAR
+                    var offset = 0;
+                    if (alig.differences[0].op == "S" && alig.differences[0].pos == 0) {
+                        offset = alig.start - alig.unclippedStart;
+                    }
+                    for (var j = 0; j < this.data.samples[0].alignments[i].differences.length; j++) {
+                        var difference = this.data.samples[0].alignments[i].differences[j];
+                        var start = alig.start + difference.pos - offset;
+                        var end = (difference.length === undefined? difference.seq.length: difference.length) + start;
+                        var color = this.colors[difference.op];
+                        var config = {
+                            start: start+distance,
+                            end:end+distance,
+                            z:z,
+                            y: 0.06,
+                            mod: width*0.8,
+                            ang: 0, //Radians
+                            baseColorHex: color === undefined? 0x2020A0: color, // else blue
+                            trackType: Viewer.Track.Feature
+                        };
+                        if (mismatch || difference.op != "M") {
+                            this.viewer.add2Track(s, trackId, config);
+                        }
                     }
                 }
-            }
-            z = z + width * 1.1;
-            if (z > (1-width)) {
-                z = 0;
+                z = z + width * 1.1;
+                if (z > (1-width)) {
+                    z = 0;
+                }
             }
         }
     },
@@ -356,6 +366,7 @@ Torus.prototype = {
 
     setScale: function (frame) {
         this.scale = Math.log(frame)/Math.log(2) + 32;
+        this.updateScale();
     },
 
     updateScale: function () {
