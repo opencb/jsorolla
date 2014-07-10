@@ -332,6 +332,15 @@ Viewer.prototype = {
                 baseColorHex:0xFF0000, topColorHex:0x00FF00, trackType:Viewer.Track.ColumnHistogram}
         )
     },
+    setCoverage: function (diskId, coverage, precisionId) {
+        var length = this.metaData.ntsCount;
+        var start = (coverage.start-1)/length;
+        var end = coverage.end/length;
+        var data = coverage.regions[precisionId].coverage;
+        this.disk[diskId].addTrack({start:start, end:end, z:0.5, data:data, mod:1.2, ang:+Math.PI/2,
+                baseColorHex:0xFF0000, topColorHex:0x00FF00, trackType:Viewer.Track.ColumnHistogram}
+        )
+    },
 
 /*
     var def = {
@@ -551,6 +560,7 @@ Viewer.prototype = {
      *     disk number of disk clicked,
      *     layer layer of the disk,
      *     coord coordinates in [0, 1] from total disk (not visible disk)
+     *     visibleTexCoord coordinates [0, 1] from visible disk
      * }
      */
     getClickPosition: function (mousePosition) {

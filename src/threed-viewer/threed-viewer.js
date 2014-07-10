@@ -29,6 +29,26 @@ function ThreeDViewer(args) {
     if (this.autoRender) {
         this.render();
     }
+
+    /// event handling
+    this.mouseToolDown = this.torus.selectionMouse;
+    this.mouseToolUp = this.torus.nothingMouseUp;
+    this.mouseToolWheel = this.torus.cameraMouseWheel;
+
+    this.onMouseMoveWrapper(this);
+    $(this.torusDiv).on("mousedown", this.onMouseDown(this));
+    $(this.torusDiv).on("mouseup", this.onMouseUp(this));
+//    $(this.torusDiv).on("mousewheel", this.onMouseWheel(this));
+    $(this.torusDiv).on("contextmenu", function (event) {
+        event.preventDefault();
+    });
+
+//    this.torusDiv.addEventListener('mousedown', this.onMouseDown(this), false);
+//    this.torusDiv.addEventListener('mouseup', this.onMouseUp(this), false);
+    this.torusDiv.addEventListener('mousewheel', this.onMouseWheel(this), false);
+//    this.torusDiv.addEventListener('contextmenu', function (event) {
+//        event.preventDefault();
+//    }, false);
     this.setGUI();
 };
 
@@ -75,6 +95,73 @@ ThreeDViewer.prototype = {
 
     },
 
+    onMouseDown: function (_this) {
+        return function (event) {
+            _this.torus.lastClick = new THREE.Vector2(event.clientX, event.clientY);
+            _this.torus.clickPressed = event.button;
+//        event.preventDefault();
+//        console.log(_this.lastClick);
+
+
+            _this.mouseToolDown(_this.torus, event);
+        }
+    },
+    onMouseUp: function (_this) {
+        return function (event) {
+            _this.torus.clickPressed = -1;
+//            document.removeEventListener('mousemove', _this.onMouseMove, false);
+            _this.mouseToolUp(_this.torus, event);
+            _this.updateGUI();
+        }
+    },
+
+    onMouseWheel: function (_this) {
+        return function (event) {
+
+            _this.mouseToolWheel(_this.torus, event);
+            _this.updateGUI();
+        }
+    },
+    onMouseMoveWrapper: function (_this) {
+        _this.torus.onMouseMove = function (event) {
+//            console.log("en onmousemove");
+            var where = _this.torus.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
+            switch (_this.torus.clickPressed) {
+                case 0:
+                    _this.torus.viewer.addTorusPhase((event.clientX - _this.torus.lastClick.x) / 500);
+                    _this.torus.viewer.addVerticalRotation((event.clientY - _this.torus.lastClick.y) / 500);
+                    break;
+                case 1:
+                    var pos = _this.torus.viewer.getRegion();
+
+                    pos.x += (event.clientX - _this.torus.lastClick.x) / 5000;
+                    pos.y += (event.clientY - _this.torus.lastClick.y) / 5000;
+                    _this.torus.viewer.setRegion(pos.x, pos.y);
+                    break;
+                case 2:
+                    _this.torus.viewer.addDisksPhase(-(event.clientY - _this.torus.lastClick.y) / 500);
+            }
+            _this.torus.lastClick.x = event.clientX;
+            _this.torus.lastClick.y = event.clientY;
+        }
+    },
+
+    changeMouseTool: function (tool) {
+        if (tool == "Information") {
+            this.mouseToolDown = this.torus.informationMouse;
+            this.mouseToolUp = this.torus.nothingMouseUp;
+            this.mouseToolWheel = this.torus.cameraMouseWheel;
+        } else if (tool == "Selection") {
+            this.mouseToolDown = this.torus.selectionMouse;
+            this.mouseToolUp = this.torus.nothingMouseUp;
+            this.mouseToolWheel = this.torus.cameraMouseWheel;
+        } else if (tool == "Zoom") {
+            this.mouseToolDown = this.torus.zoomMouseDown;
+            this.mouseToolUp = this.torus.zoomMouseUp;
+            this.mouseToolWheel = this.torus.zoomMouseWheel;
+//            document.removeEventListener('mousemove', this.onMouseMove, false);
+        }
+    },
     setGUI: function() {
         this.gui = new dat.GUI();
 
@@ -96,6 +183,7 @@ ThreeDViewer.prototype = {
             sampleName: true,
             tool: "Selection"
         };
+        this.parameters = parameters;
 
 /*
         var diskVisible = this.gui.add( parameters, 'visible' ).name('Visible?').listen();
@@ -122,7 +210,7 @@ ThreeDViewer.prototype = {
         var mouseTool = this.gui.add( parameters, 'tool', [ "Information", "Selection", "Zoom"] ).name('Tool').listen();
 
         mouseTool.onChange(function (value) {
-                _this.torus.changeMouseTool(value);
+                _this.changeMouseTool(value);
             }
         );
 
@@ -175,6 +263,20 @@ ThreeDViewer.prototype = {
          cubeColor.onChange(function(value) // onFinishChange
          {   cube.material.color.setHex( value.replace("#", "0x") );   });
          */
+    },
+
+    updateGUI: function () {
+        var region = this.torus.getRegion();
+        if (region !== undefined) {
+            this.parameters.start = region.start;
+            this.parameters.end = region.end;
+            for (var i = 0; i < this.gui.__folders.Region.__controllers.length; i++) {
+                this.gui.__folders.Region.__controllers[i].updateDisplay();
+            }
+
+//            this.gui.region.start = region.start;
+//            this.gui.region.end = region.end;
+        }
     },
     _createTorus:function(targetId){
 

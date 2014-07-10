@@ -40,24 +40,15 @@ var Torus = function (args) {
     this.setData(args.components);
 
 
-    this.mouseToolDown = this.selectionMouse;
-    this.mouseToolUp = this.nothingMouseUp;
-    this.mouseToolWheel = this.cameraMouseWheel;
 
-    this.onMouseMoveWrapper(this);
-    $(this.torusDiv).on("mousedown", this.onMouseDown(this));
-    $(this.torusDiv).on("mouseup", this.onMouseUp(this));
-//    $(this.torusDiv).on("mousewheel", this.onMouseWheel(this));
-    $(this.torusDiv).on("contextmenu", function (event) {
-        event.preventDefault();
-    });
+    this.colors = {
+        "S": 0x808080,  // dark gray
+        "D": 0x0,   // black
+        "I": 0x20ff20,  //  green
+        "X": 0xff2020,  // red
+        "M": 0xC0C0C0   // gray
+    };
 
-//    this.torusDiv.addEventListener('mousedown', this.onMouseDown(this), false);
-//    this.torusDiv.addEventListener('mouseup', this.onMouseUp(this), false);
-    this.torusDiv.addEventListener('mousewheel', this.onMouseWheel(this), false);
-//    this.torusDiv.addEventListener('contextmenu', function (event) {
-//        event.preventDefault();
-//    }, false);
 };
 
 Torus.prototype = {
@@ -221,8 +212,8 @@ Torus.prototype = {
             var length = this.viewer.metaData.ntsCount;
             var start = (this.data.samples[0].coverage.start-1)/length;
             var end = this.data.samples[0].coverage.end/length;
-            var trackArgs = {start:start, end:end, z:0.5, y:0.05, mod:0.3, ang:0/*Math.PI/2*/,
-                    baseColorHex:0xe41a1c, topColorHex:0x4daf4a, trackType:Viewer.Track.ColumnHistogram};
+            var trackArgs = {start:start, end:end, z:1, y:0.05, mod:0.3, ang:Math.PI/2,
+                    baseColorHex:0xe41a1c, topColorHex:0x4dff4a, trackType:Viewer.Track.ColumnHistogram};
 //                baseColorHex:0xfb8072, topColorHex:0xb3de69, trackType:Viewer.Track.ColumnHistogram};
             trackArgs.dataset = [];
 
@@ -235,12 +226,14 @@ Torus.prototype = {
             this.viewer.addCentralTrack(trackArgs);
 
         } else {
+            var precisionId;
+            if (this.scale > 10) {
+                precisionId = 1;
+            } else {
+                precisionId = 0;
+            }
             for (var i = 0; i < this.data.samples.length; i++) {        // TODO substitute setMeanCoverage to addtrack
-                if (this.scale > 4) {
-                    this.viewer.setMeanCoverage(i, this.data.samples[i].coverage);  // meansize is not necessary, the track spans to the positions
-                } else {
-                    this.viewer.setRegionCoverage(i, this.data.samples[i].coverage);    // FIXME: data model updated
-                }
+                this.viewer.setCoverage(i, this.data.samples[i].coverage, precisionId);
             }
         }
     },
@@ -259,18 +252,99 @@ Torus.prototype = {
         for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
             var width = 0.1;
             var alig = this.data.samples[0].alignments[i];
+            var end = alig.flags&4? alig.start + alig.length: alig.end; // unmapped
+            var color = alig.flags&4? 0xbc80bd: 0x00fdb462;
             var config = {
                 start: alig.start,
-                end: alig.end,
+                end: end,
                 z: Math.random()*(1-width),
                 y: 0.2,
                 mod: width,
                 ang: 0, //Radians
-                baseColorHex: 0x00fdb462,
+                baseColorHex: color,
                 trackType: Viewer.Track.Feature
             };
 
             this.viewer.add2Track(0, trackId, config);
+        }
+    },
+    setFullAlignments: function (withMismatch) {
+        var mismatch = withMismatch === undefined? true: withMismatch;
+        var trackId = this.viewer.addTrack(0);
+        var z = 0;
+        var width = 0.08;
+        for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
+            var alig = this.data.samples[0].alignments[i];
+            var end = alig.flags&4? alig.start + alig.length: alig.end; // unmapped
+            var color = alig.flags&4? 0xbc80bd: 0x00fdb462;
+
+            var config = {
+                start: alig.start,
+                end: end,
+                z: z,
+                y: 0.04,
+                mod: width,
+                ang: 0, //Radians
+                baseColorHex: color,
+                trackType: Viewer.Track.Feature
+            };
+            this.viewer.add2Track(0, trackId, config);
+            if (!(alig.flags & 4)) { //unmapped, no assumptions can be made about CIGAR
+                var offset = 0;
+                if (alig.differences[0].op == "S" && alig.differences[0].pos == 0) {
+                    offset = alig.start - alig.unclippedStart;
+                }
+                for (var j = 0; j < this.data.samples[0].alignments[i].differences.length; j++) {
+                    var difference = this.data.samples[0].alignments[i].differences[j];
+                    var start = alig.start + difference.pos - offset;
+                    var end = (difference.length === undefined? difference.seq.length: difference.length) + start;
+                    var color = this.colors[difference.op];
+                    var config = {
+                        start: start,
+                        end:end,
+                        z:z,
+                        y: 0.06,
+                        mod: width*0.8,
+                        ang: 0, //Radians
+                        baseColorHex: color === undefined? 0x2020A0: color, // else blue
+                        trackType: Viewer.Track.Feature
+                    };
+                    if (mismatch || difference.op != "M") {
+                        this.viewer.add2Track(0, trackId, config);
+                    }
+                }
+            }
+            z = z + width * 1.1;
+            if (z > (1-width)) {
+                z = 0;
+            }
+        }
+    },
+
+    setDifferences: function () {
+        var width = 0.05;
+        var trackId = this.viewer.addTrack(0);
+        for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
+            var alig = this.data.samples[0].alignments[i];
+            for (var j = 0; j < this.data.samples[0].alignments[i].differences.length; j++) {
+                var difference = this.data.samples[0].alignments[i].differences[j];
+                var start = alig.start + difference.pos;
+                var end = (difference.length === undefined? difference.seq.length: difference.length) + start;
+                var color = this.colors[difference.op];
+                var config = {
+                    start: start,
+                    end:end,
+                    z: Math.random()*(1-width),
+                    y: 0.3,
+                    mod: width,
+                    ang: 0, //Radians
+                    baseColorHex: color === undefined? 0x2020A0: color, // else blue
+                    trackType: Viewer.Track.Feature
+                };
+                if (difference.op != "M") {
+                    this.viewer.add2Track(0, trackId, config);
+                }
+            }
         }
     },
 
@@ -278,6 +352,10 @@ Torus.prototype = {
         this.position = pos;
 //        var increment = pos - this.position;
 //        this.cursor = this.cursor + increment*this.scale*this.scale;
+    },
+
+    setScale: function (frame) {
+        this.scale = Math.log(frame)/Math.log(2) + 32;
     },
 
     updateScale: function () {
@@ -331,74 +409,16 @@ Torus.prototype = {
 
             console.log("torus.setRegion: " + start + ", " + end + " ::: " + start/this.viewer.metaData.ntsCount + ", " + end/this.viewer.metaData.ntsCount);
             this.viewer.setRegion(start/this.viewer.metaData.ntsCount, end/this.viewer.metaData.ntsCount);
+            var region = this.viewer.getRegion();
+            this.setScale(region.y - region.x);
         }
     },
 
-    onMouseDown: function (_this) {
-        return function (event) {
-            _this.lastClick = new THREE.Vector2(event.clientX, event.clientY);
-            _this.clickPressed = event.button;
-//        event.preventDefault();
-//        console.log(_this.lastClick);
-
-
-            _this.mouseToolDown(_this, event);
-        }
-    },
-    onMouseUp: function (_this) {
-        return function (event) {
-            _this.clickPressed = -1;
-//            document.removeEventListener('mousemove', _this.onMouseMove, false);
-            _this.mouseToolUp(_this, event);
-        }
+    getRegion: function () {
+        var region = this.viewer.getRegion();
+        return {start: region.x * this.viewer.metaData.ntsCount, end: region.y * this.viewer.metaData.ntsCount};
     },
 
-    onMouseWheel: function (_this) {
-        return function (event) {
-
-            _this.mouseToolWheel(_this, event);
-        }
-    },
-    onMouseMoveWrapper: function (_this) {
-        _this.onMouseMove = function (event) {
-//            console.log("en onmousemove");
-            var where = _this.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
-            switch (_this.clickPressed) {
-                case 0:
-                    _this.viewer.addTorusPhase((event.clientX - _this.lastClick.x) / 500);
-                    _this.viewer.addVerticalRotation((event.clientY - _this.lastClick.y) / 500);
-                    break;
-                case 1:
-                    var pos = _this.viewer.getRegion();
-
-                    pos.x += (event.clientX - _this.lastClick.x) / 5000;
-                    pos.y += (event.clientY - _this.lastClick.y) / 5000;
-                    _this.viewer.setRegion(pos.x, pos.y);
-                    break;
-                case 2:
-                    _this.viewer.addDisksPhase(-(event.clientY - _this.lastClick.y) / 500);
-            }
-            _this.lastClick.x = event.clientX;
-            _this.lastClick.y = event.clientY;
-        }
-    },
-
-    changeMouseTool: function (tool) {
-        if (tool == "Information") {
-            this.mouseToolDown = this.informationMouse;
-            this.mouseToolUp = this.nothingMouseUp;
-            this.mouseToolWheel = this.cameraMouseWheel;
-        } else if (tool == "Selection") {
-            this.mouseToolDown = this.selectionMouse;
-            this.mouseToolUp = this.nothingMouseUp;
-            this.mouseToolWheel = this.cameraMouseWheel;
-        } else if (tool == "Zoom") {
-            this.mouseToolDown = this.zoomMouseDown;
-            this.mouseToolUp = this.zoomMouseUp;
-            this.mouseToolWheel = this.zoomMouseWheel;
-//            document.removeEventListener('mousemove', this.onMouseMove, false);
-        }
-    },
     ///////////////// mouse tools
     informationMouse: function (_this, event) {
         document.addEventListener('mousemove', _this.onMouseMove, false);
@@ -430,6 +450,7 @@ Torus.prototype = {
             switch (event.button) {
                 case 0:
                     _this.viewer.selectDisk(where.disk);
+                    _this.updateScale();
                     break;
                 case 1:
 //                var chromosomes = _this.data.samples[where.disk].chromosomes;
@@ -474,12 +495,15 @@ Torus.prototype = {
         if (event.button == 0) {
             var whereStart = _this.viewer.getClickPosition(_this.lastClick);
             var whereEnd = _this.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
-            if (whereStart !== undefined && whereEnd !== undefined) {
+            console.log("mouseup");
+            console.log(whereStart);
+            console.log(whereEnd);
+            if (whereStart !== undefined && whereEnd !== undefined && (whereEnd.coord.y - whereStart.coord.y > 0.00000001)) {
                 var start = whereStart.coord.y <= whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // min
                 var end = whereStart.coord.y > whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // max
 
                 var frame = end - start;
-                _this.scale = Math.log(frame)/Math.log(2) + 32;
+                _this.setScale(frame);
                 _this.position = (whereStart.visibleTexPos + whereEnd.visibleTexPos) * 0.5;
                 _this.updateScale();
 
