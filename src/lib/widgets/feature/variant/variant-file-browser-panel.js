@@ -191,6 +191,7 @@ VariantFileBrowserPanel.prototype = {
         return filePanel;
 
     },
-    _getGenotypeCount: function (gc) {
+    setLoading: function(loading){
+        this.panel.setLoading(loading);
     }
 };

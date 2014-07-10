@@ -6,9 +6,7 @@ function VariantEffectGrid(args) {
     this.autoRender = true;
     this.storeConfig = {};
     this.gridConfig = {};
-    this.filterEffect = true;
     this.height = 500;
-    this.cellbaseHost = "http://ws.bioinfo.cipf.es/cellbase/rest";
 
     _.extend(this, args);
 
@@ -18,6 +16,7 @@ function VariantEffectGrid(args) {
     if (this.autoRender) {
         this.render();
     }
+
 }
 
 VariantEffectGrid.prototype = {
@@ -44,62 +43,20 @@ VariantEffectGrid.prototype = {
     clear: function () {
         this.store.removeAll();
     },
-    load: function (chr, pos, ref, alt) {
+    load: function (data) {
 
         var _this = this;
-        var req = chr + ":" + pos + ":" + ref + ":" + alt;
 
-        _this.panel.setLoading(true);
+        var effects = _this._prepareEffectData(data);
+        var freqs = _this._prepareFrequencyData(data);
+
+        _this.grid.setLoading(true);
         _this.clear();
+        this.store.loadData(effects);
+        this.freqStore.loadData(freqs);
+        this.trigger("load:finish", {sender: _this})
+        this.grid.setLoading(false);
 
-        CellBaseManager.get({
-            host: this.cellbaseHost,
-            version: 'latest',
-            species: 'hsa',
-            category: 'genomic',
-            subCategory: 'variant',
-            query: req,
-            resource: 'consequence_type',
-            success: function (response) {
-                var data = (_this.filterEffect) ? _this._filterEffectData(response) : response;
-
-                _this.store.loadData(data);
-
-                _this.trigger("load:finish", {sender: _this})
-                _this.panel.setLoading(false);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log('Error loading Effect');
-                _this.trigger("load:finish", {sender: _this})
-                _this.panel.setLoading(false);
-            }
-        });
-    },
-    _filterEffectData: function (data) {
-        var _this = this;
-        var res = [];
-
-        var regulatory = {};
-
-        for (var i = 0; i < data.length; i++) {
-            var elem = data[i];
-            if (elem.consequenceTypeObo == "coding_sequence_variant" || elem.consequenceTypeObo == "exon_variant" || elem.consequenceTypeObo == "intron_variant") {
-                continue;
-            } else if (elem.consequenceTypeObo == "regulatory_region_variant") {
-                if (!(elem.featureId in regulatory)) {
-                    regulatory[elem.featureId] = elem;
-                }
-                continue;
-            }
-
-            res.push(elem);
-        }
-
-        for (var elem in regulatory) {
-            res.push(regulatory[elem]);
-        }
-
-        return res;
     },
     _createPanel: function () {
         var _this = this;
@@ -109,31 +66,23 @@ VariantEffectGrid.prototype = {
             groupField: 'featureId',
             pageSize: 10,
             fields: [
-                {name: "featureId", type: "string" },
-                {name: "featureName", type: "string" },
-                {name: "featureType", type: "string" },
-                {name: "featureBiotype", type: "string" },
-                {name: "featureChromosome", type: "string" },
-                {name: "featureStart", type: "int"    },
-                {name: "featureEnd", type: "int"    },
-                {name: "featureStrand", type: "string" },
-                {name: "snpId", type: "string" },
-                {name: "ancestral", type: "string" },
-                {name: "alternative", type: "string" },
-                {name: "geneId", type: "string" },
-                {name: "transcriptId", type: "string" },
-                {name: "geneName", type: "string" },
-                {name: "consequenceType", type: "string" },
-                {name: "consequenceTypeObo", type: "string" },
-                {name: "consequenceTypeDesc", type: "string" },
-                {name: "consequenceTypeType", type: "string" },
-                {name: "aaPosition", type: "int"    },
-                {name: "aminoacidChange", type: "string" },
-                {name: "codonChange", type: "string" },
-                {name: "polyphenScore", type: "number"  },
-                {name: "polyphenEfect", type: "number"  },
-                {name: "siftScore", type: "number"  },
-                {name: "siftEffect", type: "number"  },
+                {name: 'position', type: 'string'},
+                { name: 'allele', type: 'string'},
+                { name: 'cDnaPosition', type: 'int'},
+                { name: 'canonical', type: 'boolean'},
+                { name: 'cdsPosition', type: 'int'},
+                { name: 'consequenceTypes', type: 'string'},
+                { name: 'featureBiotype', type: 'string'},
+                { name: 'featureId', type: 'string'},
+                { name: 'featureStrand', type: 'string'},
+                { name: 'featureType', type: 'string'},
+                { name: 'geneId', type: 'string'},
+                { name: 'geneName', type: 'string'},
+                { name: 'geneNameSource', type: 'string'},
+                { name: 'proteinPosition', type: 'int'},
+                { name: 'variantToTranscriptDistance', type: 'int'},
+                { name: 'polyphenScore', type: 'number'},
+                { name: 'siftScore', type: 'number'}
             ],
             data: [],
             autoLoad: false,
@@ -149,89 +98,39 @@ VariantEffectGrid.prototype = {
             store: this.store,
             loadMask: true,
             border: false,
-            height:this.height,
+            //height: this.height,
+            height: 200,
             viewConfig: {
                 emptyText: 'No records to display',
                 enableTextSelection: true
             },
             plugins: ["bufferedrenderer"],
             columns: [
-                {xtype: 'rownumberer'},
-                {
-                    text: "Position chr:start:end (strand)",
-                    dataIndex: "featureChromosome",
-                    xtype: "templatecolumn",
-                    tpl: '{featureChromosome}:{featureStart}-{featureEnd} <tpl if="featureStrand == 1">(+)<tpl elseif="featureStrand == -1">(-)</tpl>',
-                    flex: 1
-                },
-                {
-                    text: "SNP Id",
-                    dataIndex: "snpId",
-                    flex: 1
-                },
-                {
-                    text: "Conseq. Type",
-                    dataIndex: "consequenceTypeObo",
-                    xtype: "templatecolumn",
-                    tpl: '{consequenceTypeObo} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{consequenceType}" target="_blank">{consequenceType}</a>)',
-                    flex: 1
-                },
-                {
-                    text: "Aminoacid Change",
-                    xtype: "templatecolumn",
-                    tpl: '<tpl if="aminoacidChange">{aminoacidChange} - {codonChange} ({aaPosition}) <tpl else>.</tpl>  ',
-                    flex: 1
-                },
-                {
-                    text: "Gene (EnsemblId)",
-                    dataIndex: "geneName",
-                    xtype: 'templatecolumn',
-                    tpl: '<tpl if="geneName">{geneName} (<a href="http://www.ensembl.org/Homo_sapiens/Location/View?g={geneId}" target="_blank">{geneId}</a>)<tpl else>.</tpl>',
-                    flex: 1
-                },
-                {
-                    text: "Transcript Id",
-                    dataIndex: "transcriptId",
-                    xtype: 'templatecolumn',
-                    tpl: '<a href="http://www.ensembl.org/Homo_sapiens/Location/View?t={transcriptId}" target="_blank">{transcriptId}</a>',
-                    flex: 1
-                },
-                {
-                    text: "Feature Id",
-                    dataIndex: "featureId",
-                    flex: 1
-
-                },
-                {
-                    text: "Feature Name",
-                    dataIndex: "featureName",
-                    flex: 1
-
-                },
-                {
-                    text: "Feature Type",
-                    dataIndex: "featureType",
-                    flex: 1
-
-                },
-                {
-                    text: "Feature Biotype",
-                    dataIndex: "featureBiotype",
-                    flex: 1
-
-                },
-                {
-                    text: "Ancestral",
-                    dataIndex: "ancestral",
-                    hidden: true,
-                    flex: 1
-                },
-                {
-                    text: "Alternative",
-                    dataIndex: "alternative",
-                    hidden: true,
-                    flex: 1
-                }
+                { text: "Location", dataIndex: "position", flex: 1},
+                //{ text: "cDnaPosition"                , dataIndex: "cDnaPosition", flex: 1},
+                //{ text: "canonical"                   , dataIndex: "canonical", flex: 1},
+                //{ text: "cdsPosition"                 , dataIndex: "cdsPosition", flex: 1},
+                { text: "Conseq. Types", dataIndex: "consequenceTypes", flex: 1},
+                {text: "Feature", columns:[
+                    { text: "Id", dataIndex: "featureId", flex: 1},
+                    { text: "Strand", dataIndex: "featureStrand", flex: 1},
+                    { text: "Biotype", dataIndex: "featureBiotype", flex: 1},
+                    { text: "Type", dataIndex: "featureType", flex: 1},
+                ]},
+                {text:'Genes',
+                    columns:[
+                        { text: "Id", dataIndex: "geneId", flex: 1},
+                        { text: "Name", dataIndex: "geneName", flex: 1},
+                        { text: "Source", dataIndex: "geneNameSource", flex: 1},
+                    ]},
+                    { text: "Protein Position", dataIndex: "proteinPosition", flex: 1},
+                    { text: "Distance to Transcript", dataIndex: "variantToTranscriptDistance", flex: 1},
+                    { text: "Scores",
+                        columns: [
+                            { text: "Polyphen", dataIndex: "polyphenScore", flex: 1},
+                            { text: "SIFT", dataIndex: "siftScore", flex: 1},
+                        ]
+                    }
             ],
             viewConfig: {
                 emptyText: 'No records to display'
@@ -240,6 +139,135 @@ VariantEffectGrid.prototype = {
 
         _.extend(gridArgs, this.gridConfig);
 
-        return Ext.create('Ext.grid.Panel', gridArgs);
+        this.grid = Ext.create('Ext.grid.Panel', gridArgs);
+
+        this.freqStore = Ext.create('Ext.data.Store', {
+            fields: ['maf', 'name'],
+            autoLoad: false
+        });
+        var freqChart = Ext.create('Ext.chart.Chart', {
+                    xtype: 'chart',
+                    width: 200,
+                    height: 200,
+                    store: this.freqStore,
+                    animate: true,
+                    shadow: true,
+                    margin: 10,
+                    legend: {
+                        position: 'right'
+                    },
+                    theme: 'Base:gradients',
+                    axes: [
+                        {
+                            type: 'numeric',
+                            position: 'bottom',
+                            fields: ['maf'],
+                            titleMargin: 20,
+                            title: 'Minimum Allele Frequency',
+                            minimum: 0,
+                            maximum: 1
+                        },
+                        {
+                            type: 'category',
+                            position: 'left',
+                            fields: ['name'],
+                            title: 'Populations'
+                        }
+                    ],
+                    series: [
+                        {
+                            type: 'bar',
+                            axis: 'bottom',
+                            xField: 'name',
+                            yField: 'maf',
+                            //style: {
+                            //minGapWidth: 20
+                            //},
+                            highlight: {
+                                strokeStyle: 'black',
+                                fillStyle: '#c1e30d',
+                                lineDash: [5, 3]
+                            },
+                            label: {
+                                field: 'maf',
+                                display: 'insideEnd',
+                                renderer: function (value) {
+                                    return value.toFixed(3);
+                                }
+                            }
+                        }
+                    ]
+                }
+            )
+            ;
+
+        var panel = Ext.create('Ext.container.Container', {
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            overflowY: true,
+            padding: 10,
+            items: [
+                {
+                    xtype: 'box',
+                    cls: 'eva-header-4',
+                    html: 'Effects',
+                    margin: '5 0 10 10'
+                },
+                this.grid,
+                {
+                    xtype: 'box',
+                    cls: 'eva-header-4',
+                    html: 'Population Frequencies',
+                    margin: '20 0 10 10'
+                },
+                freqChart
+            ],
+            height: this.height
+        });
+        return panel;
+
+
+    },
+    _prepareEffectData: function (data) {
+
+        var finalData = [];
+        var chromosome = data.chromosome;
+        var position = data.start;
+        var reference = data.referenceAllele;
+
+        console.log(data);
+        for (var key in data.effects) {
+
+            for (var i = 0, l = data.effects[key].length; i < l; i++) {
+                var v = data.effects[key][i];
+                v.position = chromosome + ":" + position + " " + reference + " > " + key;
+                v.consequenceTypes = v.consequenceTypes.join(",");
+                v.polyphenScore = data.proteinSubstitutionScores.polyphenScore;
+                v.siftScore = data.proteinSubstitutionScores.siftScore;
+
+                finalData.push(v);
+            }
+
+        }
+
+        return finalData;
+    },
+    _prepareFrequencyData: function (data) {
+
+        var finalData = [];
+
+        finalData.push({ name: "maf1000G", maf: Math.random()});
+        finalData.push({ name: "maf1000GAfrican", maf: Math.random()});
+        finalData.push({ name: "maf1000GAmerican", maf: Math.random()});
+        finalData.push({ name: "maf1000GAsian", maf: Math.random()});
+        finalData.push({ name: "maf1000GEuropean", maf: Math.random()});
+        finalData.push({ name: "mafNhlbiEspAfricanAmerican", maf: Math.random()});
+        finalData.push({ name: "mafNhlbiEspEuropeanAmerican", maf: Math.random()});
+
+        return finalData;
     }
 }
+
+
