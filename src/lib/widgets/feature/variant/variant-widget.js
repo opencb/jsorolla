@@ -95,7 +95,7 @@ VariantWidget.prototype = {
             this.variantStatsPanel = this._createVariantStatsPanel(this.variantStatsPanelDiv);
             tabPanelItems.push({
                 title: 'File and Stats',
-                border: 0,
+//                border: 0,
                 contentEl: this.variantStatsPanelDiv,
                 height: 500,
             });
@@ -118,7 +118,7 @@ VariantWidget.prototype = {
             this.variantGenotypeGrid = this._createVariantGenotypeGrid(this.variantGenotypeGridDiv);
             tabPanelItems.push({
                 title: 'Genotype',
-                border: 0,
+//                border: 0,
                 contentEl: this.variantGenotypeGridDiv,
                 height: 500,
             });
@@ -137,7 +137,6 @@ VariantWidget.prototype = {
         for (var i = 0; i < this.tools.length; i++) {
             var tool = this.tools[i];
             var toolDiv = document.createElement('div');
-            toolDiv.setAttribute('class', 'ocb-gv');
 
             tool.tool.target = toolDiv;
 

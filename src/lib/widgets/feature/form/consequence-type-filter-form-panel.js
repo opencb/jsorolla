@@ -4,6 +4,7 @@ function ConsequenceTypeFilterFormPanel(args) {
     //set default args
     this.id = Utils.genId("ConsequenceTypeFilterFormPanel");
     this.target;
+    this.height = 400;
     this.title = "Consequence Type";
     this.autoRender = true;
 
@@ -54,7 +55,11 @@ ConsequenceTypeFilterFormPanel.prototype = {
                 consequence_types.push(n.get('name'));
             }
         });
-        return {ct: consequence_types};
+        if (consequence_types.length > 0) {
+            return {ct: consequence_types};
+        } else {
+            return {};
+        }
     },
     _createPanel: function () {
 
@@ -85,6 +90,7 @@ ConsequenceTypeFilterFormPanel.prototype = {
             multiSelect: true,
             singleExpand: true,
             hideHeaders: true,
+            height: this.height,
             columns: [
                 {
                     xtype: 'treecolumn',

@@ -1,4 +1,3 @@
-//TEMPLATE widget
 function FormPanel(args) {
     _.extend(this, Backbone.Events);
 
@@ -8,8 +7,12 @@ function FormPanel(args) {
     this.autoRender = true;
     this.height;
     this.width;
+    this.title;
+    this.collapsible = false;
+    this.titleCollapse = false;
     this.submitButtonText = 'Search';
     this.clearButtonText = 'Clear';
+    this.barItems = [];
     this.border = true;
     this.filters = [];
 
@@ -71,39 +74,24 @@ FormPanel.prototype = {
     },
     _createPanel: function () {
         var _this = this;
-        var form = Ext.create('Ext.form.Panel', {
-            border: this.border,
-            height: this.height,
-            width: this.width,
-            title: this.title,
-            margin: '0 20 0 0',
-            layout: {
-                type: 'accordion',
-                titleCollapse: true,
-                fill: false,
-                multi: true
+
+        var barItems = [
+            {
+                xtype: 'button',
+                text: this.clearButtonText,
+                tooltip: this.clearButtonText,
+                handler: function () {
+                    _this.clear();
+                    Utils.msg('Clear', 'Sucessfully');
+                }
             },
-            autoScroll: true,
-            tbar: {
-                width: '100%',
-                items: [
-                    {
-                        xtype: 'button',
-                        text: this.clearButtonText,
-                        tooltip: this.clearButtonText,
-                        handler: function () {
-                            _this.clear();
-                            Utils.msg('Clear', 'Sucessfully');
-                        }
-                    },
-                    '->',
-                    {
-                        xtype: 'button',
-                        text: this.submitButtonText,
-                        tooltip: this.submitButtonText,
-                        formBind: true,
-                        handler: function () {
-                            _this.trigger('submit', {values: _this.getValues(), sender: _this});
+            {
+                xtype: 'button',
+                text: this.submitButtonText,
+                tooltip: this.submitButtonText,
+                formBind: true,
+                handler: function () {
+                    _this.trigger('submit', {values: _this.getValues(), sender: _this});
 //                            console.log(values);
 //
 //                            for (var i = 0; i < _this.filters.length; i++) {
@@ -113,9 +101,30 @@ FormPanel.prototype = {
 //
 //                            }
 
-                        }
-                    }
-                ]
+                }
+            }
+        ];
+        barItems = barItems.concat(this.barItems);
+
+        var form = Ext.create('Ext.form.Panel', {
+            border: this.border,
+            height: this.height,
+            width: this.width,
+            title: this.title,
+            collapsible: this.collapsible,
+            titleCollapse: this.titleCollapse,
+            margin: '0 20 0 0',
+            layout: {
+                type: 'accordion',
+                titleCollapse: true,
+                multi: true,
+            },
+            autoScroll: true,
+            tbar: {
+                width: '100%',
+                height: 45,
+//                border:false,
+                items:barItems
             }
         });
         return form;

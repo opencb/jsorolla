@@ -87,7 +87,8 @@ VariantFileBrowserPanel.prototype = {
             items: [
                 {
                     xtype: 'box',
-                    cls: 'eva-header-3 ocb-pointer',
+                    cls: 'eva-header-3',
+                    overCls:'eva-pointer eva-underline',
                     html: study.studyName,
                     listeners: {
                         afterrender: function () {

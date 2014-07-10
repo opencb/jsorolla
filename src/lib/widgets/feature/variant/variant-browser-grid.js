@@ -108,18 +108,19 @@ VariantBrowserGrid.prototype = {
 
         this.grid = grid;
 
-        var panel = Ext.create('Ext.container.Container',{
-            border:false,
-            items:[
-                { 
-                xtype: 'box',
-                cls:'eva-header-3',
-                html: this.title
-            },
-            grid
+        var panel = Ext.create('Ext.container.Container', {
+            border: false,
+            items: [
+                {
+                    xtype: 'box',
+                    cls: 'eva-header-3',
+                    margin: '0 0 10 0',
+                    html: this.title
+                },
+                grid
             ]
         });
-        return panel ;
+        return panel;
     },
     load: function (data) {
         var _this = this;
@@ -147,7 +148,7 @@ VariantBrowserGrid.prototype = {
                     _this.trigger("variant:clear", {sender: _this});
                 },
                 load: function (store, records, successful, operation, eOpts) {
-                _this.setLoading(false);
+                    _this.setLoading(false);
                 }
             }
         });
@@ -155,7 +156,7 @@ VariantBrowserGrid.prototype = {
         this.paging.bindStore(this.store);
         this.paging.doRefresh();
     },
-    loadUrl:function(baseUrl, filterParams){
+    loadUrl: function (baseUrl, filterParams) {
         var _this = this;
         this.store.destroy();
 
@@ -165,17 +166,17 @@ VariantBrowserGrid.prototype = {
         this.store = Ext.create('Ext.data.Store', {
             pageSize: this.pageSize,
             model: this.model,
-            remoteSort:true,
+            remoteSort: true,
             proxy: {
                 url: baseUrl,
                 type: 'ajax',
-                startParam:'skip',
+                startParam: 'skip',
                 reader: {
                     root: "response[0].result",
                     totalProperty: "response[0].numTotalResults",
-                    transform: function(response){
+                    transform: function (response) {
 
-                        var data = (response.response[0].result)? response.response[0].result: [];
+                        var data = (response.response[0].result) ? response.response[0].result : [];
 
                         if (typeof this.dataParser !== 'undefined') {
                             _this.dataParser(data);
@@ -227,7 +228,7 @@ VariantBrowserGrid.prototype = {
         }
 
     },
-    setLoading: function(loading){
+    setLoading: function (loading) {
         this.panel.setLoading(loading);
     }
 };

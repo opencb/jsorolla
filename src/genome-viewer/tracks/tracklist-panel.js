@@ -756,6 +756,16 @@ TrackListPanel.prototype = {
             }
         });
 
+        track.on('track:close', function (event) {
+            _this.removeTrack(event.sender);
+        });
+        track.on('track:up', function (event) {
+            _this._reallocateAbove(event.sender);
+        });
+        track.on('track:down', function (event) {
+            _this._reallocateUnder(event.sender);
+        });
+
         this.on('track:draw', track.get('track:draw'));
         this.on('trackSpecies:change', track.get('trackSpecies:change'));
         this.on('trackRegion:change', track.get('trackRegion:change'));
@@ -845,7 +855,6 @@ TrackListPanel.prototype = {
     },
 
 
-
     //This routine is called when track order is modified
     _reallocateAbove: function (track) {
         if (!this.containsTrack((track))) {
@@ -933,7 +942,6 @@ TrackListPanel.prototype = {
         if (!this.containsTrack((track))) {
             return false;
         }
-
         track.hide();
         this.refreshTracksDom();
     },
