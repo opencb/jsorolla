@@ -112,59 +112,38 @@ VariantStudyBrowserPanel.prototype = {
             layout: 'vbox',
             items: [
                 {
-                    xtype: 'box',
-                    cls: 'eva-header-5',
-                    margin: '5 5 5 10',
-                    html: file.fileName
-                },
-                {
-                    xtype: 'container',
-                    layout: 'hbox',
-                    items: [
-                        {
-                            xtype: 'container',
-                            data: file.stats,
-                            tpl: new Ext.XTemplate(
-                                    '<table class="eva-stats-table">' +
-                                    '<tr>' +
-                                    '<td class="header">Variants count:</td>' +
-                                    '<td>{variantsCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Samples count:</td>' +
-                                    '<td>{samplesCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">SNPs count:</td>' +
-                                    '<td>{snpsCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Indels count:</td>' +
-                                    '<td>{indelsCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Pass count:</td>' +
-                                    '<td>{passCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Ti/Tv Ratio:</td>' +
-                                    '<td>{[this.titv(values)]}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Mean quality:</td>' +
-                                    '<td>{meanQuality}</td>' +
-                                    '</tr>',
-                                '</table>', {
-                                    titv: function (values) {
-                                        var res = values.transitionsCount / values.transversionsCount;
-                                        return res.toFixed(2);
-                                    }
-                                }
-                            ),
-                            margin: '5 5 5 10'
-                        },
-                    ]
-                },
+                xtype: 'container',
+                data: file,
+                tpl: new Ext.XTemplate(
+                    '<table class="eva-stats-table">' +
+                    '<tr>' +
+                    '<td class="header">Species</td>' +
+                    '<td>{species}</td>' +
+                    '</tr>',
+                    '<tr>' +
+                        '<td class="header">Material</td>' +
+                        '<td>{material}</td>' +
+                        '</tr>',
+                    '<tr>' +
+                        '<td class="header">Scope</td>' +
+                        '<td>{scope}</td>' +
+                        '</tr>',
+                    '<tr>' +
+                        '<td class="header">Type</td>' +
+                        '<td>{type}</td>' +
+                        '</tr>',
+                    '<tr>' +
+                        '<td class="header">Sources</td>' +
+                        '<td>{sources}</td>' +
+                        '</tr>',
+                    '<tr>' +
+                        '<td class="header">Description</td>' +
+                        '<td>{description}</td>' +
+                        '</tr>',
+                    '</table>'
+                ),
+                margin: '5 5 5 10'
+            }
 
             ]
         });
