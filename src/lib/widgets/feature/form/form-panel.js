@@ -15,6 +15,8 @@ function FormPanel(args) {
     this.barItems = [];
     this.border = true;
     this.filters = [];
+    this.mode = 'accordion';
+    this.toolbarPosition = 'top';
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -44,7 +46,10 @@ FormPanel.prototype = {
         }
 
         this.panel = this._createPanel();
-        this.panel.add(filters);
+        this.filtersPanel.add(filters);
+        if (this.mode == 'tabs') {
+            this.filtersPanel.setActiveTab(0);
+        }
 
     },
     draw: function () {
@@ -106,6 +111,23 @@ FormPanel.prototype = {
         ];
         barItems = barItems.concat(this.barItems);
 
+
+        var pan;
+        if (this.mode == 'tabs') {
+            this.filtersPanel = Ext.create('Ext.tab.Panel', {
+                border: false,
+                plain: false
+            });
+        } else {
+            this.filtersPanel = Ext.create('Ext.container.Container', {
+                layout: {
+                    type: 'accordion',
+                    titleCollapse: true,
+                    multi: true
+                }
+            });
+        }
+
         var form = Ext.create('Ext.form.Panel', {
             border: this.border,
             height: this.height,
@@ -114,18 +136,21 @@ FormPanel.prototype = {
             collapsible: this.collapsible,
             titleCollapse: this.titleCollapse,
             margin: '0 20 0 0',
-            layout: {
-                type: 'accordion',
-                titleCollapse: true,
-                multi: true,
-            },
+            layout: 'fit',
             autoScroll: true,
-            tbar: {
-                width: '100%',
-                height: 45,
+            items: [
+                this.filtersPanel
+            ],
+            dockedItems: [
+                {
+                    xtype:'toolbar',
+                    dock: this.toolbarPosition,
+                    width: '100%',
+                    height: 45,
 //                border:false,
-                items:barItems
-            }
+                    items: barItems
+                }
+            ]
         });
         return form;
 

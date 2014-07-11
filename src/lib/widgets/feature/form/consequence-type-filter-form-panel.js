@@ -6,6 +6,7 @@ function ConsequenceTypeFilterFormPanel(args) {
     this.target;
     this.height = 400;
     this.title = "Consequence Type";
+    this.border = false;
     this.autoRender = true;
 
     //set instantiation args, must be last
@@ -84,6 +85,7 @@ ConsequenceTypeFilterFormPanel.prototype = {
 
         var treePanel = Ext.create('Ext.tree.Panel', {
             title: this.title,
+            border:this.border,
             useArrows: true,
             rootVisible: false,
             store: store,

@@ -193,7 +193,6 @@ VariantWidget.prototype = {
             tool.tool.draw();
         }
 
-
         this.toolTabPanel.setActiveTab(0);
     },
     _createVariantBrowserGrid: function (target) {
