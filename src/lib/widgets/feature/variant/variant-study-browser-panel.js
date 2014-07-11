@@ -7,6 +7,7 @@ function VariantStudyBrowserPanel(args) {
     this.height = 800;
     this.autoRender = true;
     this.studies = [];
+    this.host;
 
     _.extend(this, args);
 
@@ -42,27 +43,13 @@ VariantStudyBrowserPanel.prototype = {
 
     },
     load: function (studies) {
-//        this.panel.removeAll(true);
-//        var studiesPanels = [];
-//        for (var i = 0; i < studies.length; i++) {
-//            var study = studies[i];
-//            studiesPanels.push(this._createStudyPanel(study));
-//        }
-//        this.panel.add(studiesPanels);
-//        this.studiesStore.loadRawData(studies);
-
+        //TODO
     },
     _createPanel: function () {
         var _this = this;
         this.studiesStore = Ext.create('Ext.data.Store', {
             fields: ["projectId", "alias", "title"],
-            data: [
-                {projectId: "PRJEB4019", alias: "1000g", title: "1000 Genomes"},
-                {projectId: "PRJEB5439", alias: "evs", title: "Exome Variant Server NHLBI Exome Sequencing Project"},
-                {projectId: "PRJEB5829", alias: "gonl", title: "Genome of the Netherlands (GoNL) Release 5"},
-                {projectId: "PRJEB6040", alias: "uk10k", title: "UK10K"},
-                {projectId: "PRJEB6042", alias: "geuvadis", title: "GEUVADIS Genetic European Variation in Disease"}
-            ]
+            data: this.studies
         });
         this.leftPanel = Ext.create('Ext.container.Container', {
             flex: 1,
@@ -74,14 +61,13 @@ VariantStudyBrowserPanel.prototype = {
                 {
                     xtype: 'box',
                     html: 'Species',
-                    cls: 'eva-header-3',
+                    cls: 'ocb-header-3',
                     margin: '0 0 25 0'
                 },
                 {
                     xtype: 'box',
                     html: 'Studies',
-                    cls: 'eva-header-3',
-//                    margin: '0 0 5 0'
+                    cls: 'ocb-header-3'
                 },
                 Ext.create('Ext.view.View', {
                     padding: 15,
@@ -97,7 +83,7 @@ VariantStudyBrowserPanel.prototype = {
                     itemSelector: '.ocb-job-list-widget-item',
                     listeners: {
                         itemclick: function (este, record) {
-                            var url = "http://wwwdev.ebi.ac.uk/eva/webservices/rest/v1/studies/" + record.get("projectId") + "/summary"
+                            var url = _this.host + "v1/studies/" + record.get("projectId") + "/summary"
                             $.ajax({
                                 url: url,
                                 dataType: 'json',
@@ -108,7 +94,7 @@ VariantStudyBrowserPanel.prototype = {
                                     var studyPanel = _this._createStudyPanel(data);
 
                                     $.ajax({
-                                        url: "http://wwwdev.ebi.ac.uk/eva/webservices/rest/v1/studies/" + record.get("alias") + "/files",
+                                        url: _this.host + "v1/studies/" + record.get("alias") + "/files",
                                         dataType: 'json',
                                         success: function (response, textStatus, jqXHR) {
                                             var files = (response !== undefined && response.response.length > 0 && response.response[0].numResults > 0) ? response.response[0].result : [];
@@ -123,28 +109,14 @@ VariantStudyBrowserPanel.prototype = {
                                             console.log('Error loading studies');
                                         }
                                     });
-
-
-//                                    for (var i = 0; i < data.length; i++) {
-//                                        var proj = data[i];
-//                                        res.push(proj);
-//                                    }
-
                                 },
                                 error: function (jqXHR, textStatus, errorThrown) {
                                     console.log('Error loading studies');
                                 }
                             });
-//                            console.log(record.data);
-//                            console.log(record.data.id);
-//                            _this.trigger('item:click', {sender: _this, item: record});
                         },
                         itemcontextmenu: function (este, record, item, index, e) {
-//                            e.stopEvent();
-//                            var event = {sender: _this, record: record, originalEvent: e};
-//                            _this._itemContextMenuHandler(event);
-//                            _this.trigger('item:contextmenu', event);
-//                            return false;
+
                         }
                     }
                 })
@@ -155,10 +127,7 @@ VariantStudyBrowserPanel.prototype = {
             layout: {
                 type: 'vbox',
                 align: 'stretch'
-            },
-            items: [
-
-            ]
+            }
         });
 
         var panel = Ext.create('Ext.container.Container', {
@@ -169,17 +138,17 @@ VariantStudyBrowserPanel.prototype = {
             items: [
                 this.leftPanel,
                 {
-                    xtype:'container',
+                    xtype: 'container',
                     flex: 4,
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
                     },
-                    items:[
+                    items: [
                         {
                             xtype: 'box',
                             html: 'Information',
-                            cls: 'eva-header-3'
+                            cls: 'ocb-header-3'
                         },
                         this.rightPanel
                     ]
@@ -187,55 +156,9 @@ VariantStudyBrowserPanel.prototype = {
 
             ]
         });
-//        if (this.studies.length > 0) {
-//            this.load(this.studies);
-//        }
 
         return panel;
     },
-//    _createStudyPanel: function (study) {
-//
-//        var filePanels = [];
-//        for (var i = 0; i < study.files.length; i++) {
-//            var file = study.files[i];
-//            filePanels.push(this._createStudyPanel(file));
-//        }
-//
-//        var filesContainer = Ext.create('Ext.container.Container', {
-//            layout: {
-//                type: 'vbox',
-//                align: 'stretch'
-//            },
-//            overflowY: true,
-//            padding: 10,
-//            items: filePanels
-//
-//        });
-//
-//        var studyPanel = Ext.create('Ext.container.Container', {
-//            items: [
-//                {
-//                    xtype: 'box',
-//                    cls: 'eva-header-3 ocb-pointer',
-//                    html: study.studyName,
-//                    listeners: {
-//                        afterrender: function () {
-//                            this.getEl().on('click', function () {
-//                                if (filesContainer.isHidden()) {
-//                                    filesContainer.show();
-//                                } else {
-//                                    filesContainer.hide();
-//                                }
-//                            });
-//                        }
-//                    }
-//                },
-//                filesContainer
-//            ]
-//        });
-//        return studyPanel;
-//
-//    },
     _createStudyPanel: function (file) {
 
         var filePanel = Ext.create('Ext.container.Container', {
@@ -303,23 +226,6 @@ VariantStudyBrowserPanel.prototype = {
 
         var studyPanel = Ext.create('Ext.container.Container', {
             items: [
-//                {
-//                    xtype: 'box',
-//                    cls: 'eva-header-3',
-//                    overCls:'eva-pointer eva-underline',
-//                    html: file.studyId,
-//                    listeners: {
-//                        afterrender: function () {
-//                            this.getEl().on('click', function () {
-//                                if (filesContainer.isHidden()) {
-//                                    filesContainer.show();
-//                                } else {
-//                                    filesContainer.hide();
-//                                }
-//                            });
-//                        }
-//                    }
-//                },
                 filesContainer
             ]
         });
@@ -341,23 +247,6 @@ VariantStudyBrowserPanel.prototype = {
                     xtype: 'container',
                     layout: 'hbox',
                     items: [
-//                        {
-//                            xtype: 'container',
-//                            data: file,
-//                            tpl: new Ext.XTemplate(
-//                                    '<table class="eva-stats-table">' +
-//                                    '<tr>' +
-//                                    '<td class="header">File name:</td>' +
-//                                    '<td>{fileName}</td>' +
-//                                    '</tr>',
-//                                    '<tr>' +
-//                                    '<td class="header">Study name:</td>' +
-//                                    '<td>{studyName}</td>' +
-//                                    '</tr>',
-//                                '</table>'
-//                            ),
-//                            margin: '5 5 5 10'
-//                        },
                         {
                             xtype: 'container',
                             data: file.stats,
@@ -399,17 +288,14 @@ VariantStudyBrowserPanel.prototype = {
                                 }
                             ),
                             margin: '5 5 5 10'
-                        },
+                        }
                     ]
-                },
+                }
 
             ]
         });
-
         return filePanel;
-
     },
-
     setLoading: function (loading) {
         this.panel.setLoading(loading);
     }

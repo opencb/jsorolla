@@ -77,7 +77,7 @@ VariantStatsPanel.prototype = {
             items: [
                 {
                     xtype: 'box',
-                    cls: 'eva-header-4',
+                    cls: 'ocb-header-4',
                     html: 'Studies',
                     margin: '5 0 10 10'
                 },
@@ -101,7 +101,7 @@ VariantStatsPanel.prototype = {
                     xtype: 'container',
                     data: attributes,
                     tpl: new Ext.XTemplate(
-                        '<table class="eva-attributes-table"><tr>',
+                        '<table class="ocb-attributes-table"><tr>',
                         '<tpl foreach=".">',
                         '<td class="header">{$}</td>', // the special **`{$}`** variable contains the property name
                             '</tpl>' +
@@ -115,7 +115,7 @@ VariantStatsPanel.prototype = {
                 },
                 {
                     xtype: 'box',
-                    cls: 'eva-header-5',
+                    cls: 'ocb-header-5',
                     margin: '5 5 5 10',
                     html: 'Stats'
                 },
@@ -127,7 +127,7 @@ VariantStatsPanel.prototype = {
                             xtype: 'container',
                             data: stats,
                             tpl: new Ext.XTemplate(
-                                    '<table class="eva-stats-table">' +
+                                    '<table class="ocb-stats-table">' +
                                     '<tr>' +
                                     '<td class="header">Minor Allele Frequency:</td>' +
                                     '<td>{maf} ({mafAllele})</td>' +
@@ -151,9 +151,9 @@ VariantStatsPanel.prototype = {
                                 '</table>'
                             ),
                             margin: '5 5 5 10'
-                        },
+                        }
                     ]
-                },
+                }
 
             ]
         });
@@ -177,7 +177,6 @@ VariantStatsPanel.prototype = {
                     position: 'right'
                 },
                 theme: 'Base:gradients',
-                //insetPadding: 60,
                 series: [
                     {
                         type: 'pie',

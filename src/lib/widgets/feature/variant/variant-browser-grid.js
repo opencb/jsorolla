@@ -113,7 +113,7 @@ VariantBrowserGrid.prototype = {
             items: [
                 {
                     xtype: 'box',
-                    cls: 'eva-header-3',
+                    cls: 'ocb-header-3',
                     margin: '0 0 10 0',
                     html: this.title
                 },

@@ -136,7 +136,6 @@ FormPanel.prototype = {
             collapsible: this.collapsible,
             titleCollapse: this.titleCollapse,
             margin: '0 20 0 0',
-            layout: 'fit',
             autoScroll: true,
             items: [
                 this.filtersPanel

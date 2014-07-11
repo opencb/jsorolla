@@ -111,26 +111,26 @@ VariantEffectGrid.prototype = {
                 //{ text: "canonical"                   , dataIndex: "canonical", flex: 1},
                 //{ text: "cdsPosition"                 , dataIndex: "cdsPosition", flex: 1},
                 { text: "Conseq. Types", dataIndex: "consequenceTypes", flex: 1},
-                {text: "Feature", columns:[
+                {text: "Feature", columns: [
                     { text: "Id", dataIndex: "featureId", flex: 1},
                     { text: "Strand", dataIndex: "featureStrand", flex: 1},
                     { text: "Biotype", dataIndex: "featureBiotype", flex: 1},
-                    { text: "Type", dataIndex: "featureType", flex: 1},
+                    { text: "Type", dataIndex: "featureType", flex: 1}
                 ]},
-                {text:'Genes',
-                    columns:[
+                {text: 'Genes',
+                    columns: [
                         { text: "Id", dataIndex: "geneId", flex: 1},
                         { text: "Name", dataIndex: "geneName", flex: 1},
-                        { text: "Source", dataIndex: "geneNameSource", flex: 1},
+                        { text: "Source", dataIndex: "geneNameSource", flex: 1}
                     ]},
-                    { text: "Protein Position", dataIndex: "proteinPosition", flex: 1},
-                    { text: "Distance to Transcript", dataIndex: "variantToTranscriptDistance", flex: 1},
-                    { text: "Scores",
-                        columns: [
-                            { text: "Polyphen", dataIndex: "polyphenScore", flex: 1},
-                            { text: "SIFT", dataIndex: "siftScore", flex: 1},
-                        ]
-                    }
+                { text: "Protein Position", dataIndex: "proteinPosition", flex: 1},
+                { text: "Distance to Transcript", dataIndex: "variantToTranscriptDistance", flex: 1},
+                { text: "Scores",
+                    columns: [
+                        { text: "Polyphen", dataIndex: "polyphenScore", flex: 1},
+                        { text: "SIFT", dataIndex: "siftScore", flex: 1}
+                    ]
+                }
             ],
             viewConfig: {
                 emptyText: 'No records to display'
@@ -211,14 +211,14 @@ VariantEffectGrid.prototype = {
             items: [
                 {
                     xtype: 'box',
-                    cls: 'eva-header-4',
+                    cls: 'ocb-header-4',
                     html: 'Effects',
                     margin: '5 0 10 10'
                 },
                 this.grid,
                 {
                     xtype: 'box',
-                    cls: 'eva-header-4',
+                    cls: 'ocb-header-4',
                     html: 'Population Frequencies',
                     margin: '20 0 10 10'
                 },

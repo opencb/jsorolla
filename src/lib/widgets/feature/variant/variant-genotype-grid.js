@@ -74,7 +74,7 @@ VariantGenotypeGrid.prototype = {
             items: [
                 {
                     xtype: 'box',
-                    cls: 'eva-header-4',
+                    cls: 'ocb-header-4',
                     html: 'Studies',
                     margin: '5 0 10 10'
                 },

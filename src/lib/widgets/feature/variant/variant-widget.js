@@ -18,6 +18,8 @@ function VariantWidget(args) {
         region: true,
         gene: true
     };
+    this.attributes = [];
+    this.columns = [];
     this.defaultToolConfig = {effect: true, genomeViewer: true, genotype: true, stats: true};
     this.tools = [];
     this.dataParser;
@@ -56,7 +58,7 @@ VariantWidget.prototype = {
         this.variantBrowserGrid = this._createVariantBrowserGrid(this.variantBrowserGridDiv);
 
         this.tabPanelTitle = document.createElement('div');
-        this.tabPanelTitle.setAttribute('class', 'eva-header-3 ocb-variant-tab-panel-title');
+        this.tabPanelTitle.setAttribute('class', 'ocb-variant-tab-panel-title');
         this.tabPanelTitle.innerHTML = 'Variant Data';
         this.div.appendChild(this.tabPanelTitle);
 
@@ -97,7 +99,7 @@ VariantWidget.prototype = {
                 title: 'File and Stats',
 //                border: 0,
                 contentEl: this.variantStatsPanelDiv,
-                height: 500,
+                height: 500
             });
         }
 
@@ -108,7 +110,7 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: 'Effect and Annotation',
                 contentEl: this.variantEffectGridDiv,
-                height: 500,
+                height: 500
             });
         }
 
@@ -120,7 +122,7 @@ VariantWidget.prototype = {
                 title: 'Genotype',
 //                border: 0,
                 contentEl: this.variantGenotypeGridDiv,
-                height: 500,
+                height: 500
             });
         }
 
@@ -130,7 +132,7 @@ VariantWidget.prototype = {
             this.genomeViewer = this._createGenomeViewer(this.genomeViewerDiv);
             tabPanelItems.push({
                 title: 'Genomic Context',
-                contentEl: this.genomeViewerDiv,
+                contentEl: this.genomeViewerDiv
             });
         }
 
@@ -174,7 +176,6 @@ VariantWidget.prototype = {
             this.variantEffectGrid.draw();
         }
 
-
         if (this.defaultToolConfig.genotype) {
 
             this.variantGenotypeGrid.draw();
@@ -198,79 +199,13 @@ VariantWidget.prototype = {
     _createVariantBrowserGrid: function (target) {
         var _this = this;
 
-        var columns = [
-            {
-                text: "SNP Id",
-                dataIndex: 'id'
-            },
-            {
-                text: "Chromosome",
-                dataIndex: 'chromosome'
-            },
-            {
-                text: 'Position',
-                dataIndex: 'start'
-            },
-            //{
-            //text: 'End',
-            //dataIndex: 'end'
-            //},
-            {
-                text: 'Aleles',
-                xtype: "templatecolumn",
-                tpl: "{reference}>{alternate}"
-            },
-            {
-                text: 'Class',
-                dataIndex: 'type'
-            },
-            {
-                text: '1000G MAF',
-                dataIndex: ''
-            },
-            {
-                text: 'Consequence Type',
-                dataIndex: 'ct'
-            },
-            {
-                text: 'Gene',
-                dataIndex: 'gene'
-            },
-            {
-                text: 'HGVS Names',
-                dataIndex: 'hgvs_name'
-            },
-            {
-                text: 'View',
-                //dataIndex: 'id',
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="id"><a href="?variantID={id}" target="_blank"><img class="eva-grid-img" src="img/eva_logo.png"/></a>&nbsp;' +
-                    '<a href="http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v={id}" target="_blank"><img alt="" src="http://static.ensembl.org/i/search/ensembl.gif"></a>' +
-                    '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs={id}" target="_blank"><span>dbSNP</span></a>' +
-                    '<tpl else><a href="?variantID={chromosome}:{start}:{ref}:{alt}" target="_blank"><img class="eva-grid-img" src="img/eva_logo.png"/></a>&nbsp;<img alt="" class="in-active" src="http://static.ensembl.org/i/search/ensembl.gif">&nbsp;<span  style="opacity:0.2" class="in-active">dbSNP</span></tpl>'
-            }
-
-            //
-        ];
-
-        var attributes = [
-            {name: 'id', type: 'string'},
-            {name: "chromosome", type: "string"},
-            {name: "start", type: "int"},
-            {name: "end", type: "int"},
-            {name: "type", type: "string"},
-            {name: "ref", type: "string"},
-            {name: "alt", type: "string"},
-            {name: 'hgvs_name', type: 'string'},
-        ];
-
 
         var variantBrowserGrid = new VariantBrowserGrid({
             target: target,
             data: this.data,
             dataParser: this.dataParser,
-            attributes: attributes,
-            columns: columns,
+            attributes: this.attributes,
+            columns: this.columns,
             handlers: {
                 "variant:change": function (e) {
                     _this.lastVariant = e.args;
@@ -308,7 +243,7 @@ VariantWidget.prototype = {
         this.on("variant:change", function (e) {
             if (target === _this.selectedToolDiv) {
                 var variant = e.variant;
-                
+
                 var effectData = _this._loadExampleData();
 
                 variantEffectGrid.load(effectData);
@@ -415,8 +350,8 @@ VariantWidget.prototype = {
 //                    compactButton: false,
 //                    searchControl: false
                 }
-            },
-        }); //the div must exist
+            }
+        });
 
 
         var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
@@ -427,8 +362,6 @@ VariantWidget.prototype = {
             }
         });
         var geneOverview = new FeatureTrack({
-            targetId: null,
-            id: 2,
 //        title: 'Gene overview',
             minHistogramRegionSize: 20000000,
             maxLabelRegionSize: 10000000,
@@ -452,8 +385,6 @@ VariantWidget.prototype = {
 
 
         var sequence = new SequenceTrack({
-            targetId: null,
-            id: 1,
 //        title: 'Sequence',
             height: 30,
             visibleRegionSize: 200,
@@ -470,8 +401,6 @@ VariantWidget.prototype = {
 
 
         var gene = new GeneTrack({
-            targetId: null,
-            id: 2,
             title: 'Gene',
             minHistogramRegionSize: 20000000,
             maxLabelRegionSize: 10000000,
@@ -495,8 +424,6 @@ VariantWidget.prototype = {
         });
 
         var snp = new FeatureTrack({
-            targetId: null,
-            id: 4,
             title: 'SNP',
             featureType: 'SNP',
             minHistogramRegionSize: 10000,
@@ -541,9 +468,53 @@ VariantWidget.prototype = {
     setLoading: function (loading) {
         this.variantBrowserGrid.setLoading(loading);
     },
-    _loadExampleData: function(){
-        var data = {"chromosome":"1","start":10001,"end":10001,"referenceAllele":"T","genes":[],"effects":{"G":[{"allele":"G","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000456328","featureType":"Transcript","featureBiotype":"processed_transcript","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":true,"variantToTranscriptDistance":1868},{"allele":"G","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000488147","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4403},{"allele":"G","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000541675","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4362},{"allele":"G","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000450305","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":2009},{"allele":"G","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000515242","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":1871},{"allele":"G","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000538476","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4410},{"allele":"G","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000518655","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":1873},{"allele":"G","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000438504","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":true,"variantToTranscriptDistance":4362},{"allele":"G","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000423562","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4362},{"allele":"G","featureId":"ENSR00000668495","featureType":"RegulatoryFeature","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1566],"canonical":false,"variantToTranscriptDistance":-1}],"A":[{"allele":"A","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000456328","featureType":"Transcript","featureBiotype":"processed_transcript","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":true,"variantToTranscriptDistance":1868},{"allele":"A","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000488147","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4403},{"allele":"A","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000541675","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4362},{"allele":"A","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000450305","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":2009},{"allele":"A","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000515242","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":1871},{"allele":"A","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000538476","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4410},{"allele":"A","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000518655","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":1873},{"allele":"A","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000438504","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":true,"variantToTranscriptDistance":4362},{"allele":"A","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000423562","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4362},{"allele":"A","featureId":"ENSR00000668495","featureType":"RegulatoryFeature","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1566],"canonical":false,"variantToTranscriptDistance":-1}],"C":[{"allele":"C","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000456328","featureType":"Transcript","featureBiotype":"processed_transcript","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":true,"variantToTranscriptDistance":1868},{"allele":"C","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000488147","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4403},{"allele":"C","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000541675","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4362},{"allele":"C","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000450305","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":2009},{"allele":"C","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000515242","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":1871},{"allele":"C","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000538476","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4410},{"allele":"C","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000518655","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":1873},{"allele":"C","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000438504","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":true,"variantToTranscriptDistance":4362},{"allele":"C","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000423562","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4362},{"allele":"C","featureId":"ENSR00000668495","featureType":"RegulatoryFeature","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1566],"canonical":false,"variantToTranscriptDistance":-1}],"-":[{"allele":"-","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000456328","featureType":"Transcript","featureBiotype":"processed_transcript","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":true,"variantToTranscriptDistance":1868},{"allele":"-","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000488147","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4403},{"allele":"-","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000541675","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4362},{"allele":"-","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000450305","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":2009},{"allele":"-","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000515242","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":1871},{"allele":"-","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000538476","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4410},{"allele":"-","geneId":"ENSG00000223972","geneName":"DDX11L1","geneNameSource":"HGNC","featureId":"ENST00000518655","featureType":"Transcript","featureBiotype":"transcribed_unprocessed_pseudogene","featureStrand":"1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1631],"canonical":false,"variantToTranscriptDistance":1873},{"allele":"-","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000438504","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":true,"variantToTranscriptDistance":4362},{"allele":"-","geneId":"ENSG00000227232","geneName":"WASH7P","geneNameSource":"HGNC","featureId":"ENST00000423562","featureType":"Transcript","featureBiotype":"unprocessed_pseudogene","featureStrand":"-1","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1632],"canonical":false,"variantToTranscriptDistance":4362},{"allele":"-","featureId":"ENSR00000668495","featureType":"RegulatoryFeature","cDnaPosition":-1,"cdsPosition":-1,"proteinPosition":-1,"consequenceTypes":[1566],"canonical":false,"variantToTranscriptDistance":-1}]},"frequencies":{"maf1000G":0.6,"maf1000GAfrican":0.5,"maf1000GAmerican":0.4,"maf1000GAsian":0.3,"maf1000GEuropean":0.2,"mafNhlbiEspAfricanAmerican":0.1,"mafNhlbiEspEuropeanAmerican":0.2},"proteinSubstitutionScores":{"polyphenScore":-1.0,"siftScore":-1.0},"regulatoryEffect":{"motifPosition":0,"motifScoreChange":0.0,"highInformationPosition":false}}
-        ;
-    return data 
+    _loadExampleData: function () {
+        var data = {"chromosome": "1", "start": 10001, "end": 10001, "referenceAllele": "T", "genes": [], "effects": {"G": [
+                {"allele": "G", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000456328", "featureType": "Transcript", "featureBiotype": "processed_transcript", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": true, "variantToTranscriptDistance": 1868},
+                {"allele": "G", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000488147", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4403},
+                {"allele": "G", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000541675", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4362},
+                {"allele": "G", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000450305", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 2009},
+                {"allele": "G", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000515242", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 1871},
+                {"allele": "G", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000538476", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4410},
+                {"allele": "G", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000518655", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 1873},
+                {"allele": "G", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000438504", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": true, "variantToTranscriptDistance": 4362},
+                {"allele": "G", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000423562", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4362},
+                {"allele": "G", "featureId": "ENSR00000668495", "featureType": "RegulatoryFeature", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1566], "canonical": false, "variantToTranscriptDistance": -1}
+            ], "A": [
+                {"allele": "A", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000456328", "featureType": "Transcript", "featureBiotype": "processed_transcript", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": true, "variantToTranscriptDistance": 1868},
+                {"allele": "A", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000488147", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4403},
+                {"allele": "A", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000541675", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4362},
+                {"allele": "A", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000450305", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 2009},
+                {"allele": "A", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000515242", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 1871},
+                {"allele": "A", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000538476", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4410},
+                {"allele": "A", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000518655", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 1873},
+                {"allele": "A", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000438504", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": true, "variantToTranscriptDistance": 4362},
+                {"allele": "A", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000423562", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4362},
+                {"allele": "A", "featureId": "ENSR00000668495", "featureType": "RegulatoryFeature", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1566], "canonical": false, "variantToTranscriptDistance": -1}
+            ], "C": [
+                {"allele": "C", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000456328", "featureType": "Transcript", "featureBiotype": "processed_transcript", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": true, "variantToTranscriptDistance": 1868},
+                {"allele": "C", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000488147", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4403},
+                {"allele": "C", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000541675", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4362},
+                {"allele": "C", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000450305", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 2009},
+                {"allele": "C", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000515242", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 1871},
+                {"allele": "C", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000538476", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4410},
+                {"allele": "C", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000518655", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 1873},
+                {"allele": "C", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000438504", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": true, "variantToTranscriptDistance": 4362},
+                {"allele": "C", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000423562", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4362},
+                {"allele": "C", "featureId": "ENSR00000668495", "featureType": "RegulatoryFeature", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1566], "canonical": false, "variantToTranscriptDistance": -1}
+            ], "-": [
+                {"allele": "-", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000456328", "featureType": "Transcript", "featureBiotype": "processed_transcript", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": true, "variantToTranscriptDistance": 1868},
+                {"allele": "-", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000488147", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4403},
+                {"allele": "-", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000541675", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4362},
+                {"allele": "-", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000450305", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 2009},
+                {"allele": "-", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000515242", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 1871},
+                {"allele": "-", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000538476", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4410},
+                {"allele": "-", "geneId": "ENSG00000223972", "geneName": "DDX11L1", "geneNameSource": "HGNC", "featureId": "ENST00000518655", "featureType": "Transcript", "featureBiotype": "transcribed_unprocessed_pseudogene", "featureStrand": "1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1631], "canonical": false, "variantToTranscriptDistance": 1873},
+                {"allele": "-", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000438504", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": true, "variantToTranscriptDistance": 4362},
+                {"allele": "-", "geneId": "ENSG00000227232", "geneName": "WASH7P", "geneNameSource": "HGNC", "featureId": "ENST00000423562", "featureType": "Transcript", "featureBiotype": "unprocessed_pseudogene", "featureStrand": "-1", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1632], "canonical": false, "variantToTranscriptDistance": 4362},
+                {"allele": "-", "featureId": "ENSR00000668495", "featureType": "RegulatoryFeature", "cDnaPosition": -1, "cdsPosition": -1, "proteinPosition": -1, "consequenceTypes": [1566], "canonical": false, "variantToTranscriptDistance": -1}
+            ]}, "frequencies": {"maf1000G": 0.6, "maf1000GAfrican": 0.5, "maf1000GAmerican": 0.4, "maf1000GAsian": 0.3, "maf1000GEuropean": 0.2, "mafNhlbiEspAfricanAmerican": 0.1, "mafNhlbiEspEuropeanAmerican": 0.2}, "proteinSubstitutionScores": {"polyphenScore": -1.0, "siftScore": -1.0}, "regulatoryEffect": {"motifPosition": 0, "motifScoreChange": 0.0, "highInformationPosition": false}}
+            ;
+        return data
     }
 };
