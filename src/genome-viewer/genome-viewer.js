@@ -124,7 +124,7 @@ GenomeViewer.prototype = {
         this.div.appendChild(this.centerPanelDiv);
 
         this.statusbarDiv = document.createElement('div');
-        this.statusbarDiv.setAttribute('class', 'bootstrap ocb-gv-status');
+        this.statusbarDiv.setAttribute('class', 'ocb-gv-status');
         this.div.appendChild(this.statusbarDiv);
 
 

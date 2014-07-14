@@ -211,7 +211,6 @@ AttributeEditWidget.prototype = {
                 {
                     xtype: 'button',
                     text: '<span style="font-size: 12px">Columns <span class="caret"></span></span>',
-                    cls: 'bootstrap',
                     handler: function (bt, e) {
                         var menu = _this.grid.headerCt.getMenu().down('menuitem[text=Columns]').menu;
                         menu.showBy(bt);
@@ -256,7 +255,7 @@ AttributeEditWidget.prototype = {
                 },
                 {
                     xtype: 'button',
-                    text: 'Download as file',
+                    text: '<i class="fa fa-download"></i> Download as file',
                     handler: function (bt, e) {
                         var a = bt.getEl();
                         var string = _this.attrMan.getAsFile();
