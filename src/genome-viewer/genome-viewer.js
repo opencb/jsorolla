@@ -108,15 +108,15 @@ function GenomeViewer(args) {
 GenomeViewer.prototype = {
     render: function () {
         var _this = this;
-        console.log("Initializing Cell Maps");
+        console.log("Initializing Genome Viewer");
 
         //HTML skel
         this.div = document.createElement('div');
         this.div.setAttribute('id', this.id);
-        this.div.setAttribute('class', 'bootstrap ocb-gv ocb-box-vertical');
+        this.div.setAttribute('class', 'ocb-gv ocb-box-vertical');
 
         this.navigationbarDiv = document.createElement('div');
-        this.navigationbarDiv.setAttribute('class', 'ocb-gv-navigation');
+        this.navigationbarDiv.setAttribute('class', 'bootstrap ocb-gv-navigation');
         this.div.appendChild(this.navigationbarDiv);
 
         this.centerPanelDiv = document.createElement('div');
@@ -269,7 +269,6 @@ GenomeViewer.prototype = {
         }
         this.targetDiv.appendChild(this.div);
     },
-
     destroy: function () {
         $(this.div).remove();
         this.off();
@@ -1028,7 +1027,7 @@ GenomeViewer.prototype = {
         console.log('DEPRECATED METHOD')
         console.log(this.checkRenderedTrack);
         this.trackExists(trackId);
-    },
+    }
 };
 
 

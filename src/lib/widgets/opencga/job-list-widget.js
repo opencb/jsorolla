@@ -106,7 +106,7 @@ JobListWidget.prototype = {
         var _this = this;
         var tpl = new Ext.XTemplate([
             '<tpl for=".">',
-            '<div class="ocb-job-list-widget-item bootstrap">',
+            '<div class="ocb-job-list-widget-item">',
 
             '<div style="color:#596F8F">{[ this.getNewIcon(values) ]} {name}</div>',
                 '<div> ' +
@@ -143,21 +143,21 @@ JobListWidget.prototype = {
                 getNewIcon: function (item) {
                     var html = '';
                     if (item.visites === 0) {
-                        html += '<span style="color:' + _this.FINISHED_COLOR + '" class="glyphicon glyphicon-exclamation-sign"></span> ';
+                        html += '<i style="color:' + _this.FINISHED_COLOR + '" class="fa fa-exclamation-circle"></i> ';
                     }
                     switch (item.status) {
                         case 'running':
-                            html += '<span style="color:' + _this.RUNING_COLOR + '" class="glyphicon glyphicon-cog"></span>';
+                            html += '<i style="color:' + _this.RUNING_COLOR + '" class="fa fa-cog"></i>';
                             break;
                         case 'queued':
-                            html += '<span style="color:' + _this.QUEUED_COLOR + '" class="glyphicon glyphicon-time"></span>';
+                            html += '<i style="color:' + _this.QUEUED_COLOR + '" class="fa fa-clock-o"></i>';
                             break;
                         case 'finished':
-                            html += '<span style="color:' + _this.FINISHED_COLOR + '" class="glyphicon glyphicon-ok-circle"></span>';
+                            html += '<i style="color:' + _this.FINISHED_COLOR + '" class="fa fa-check-circle"></i>';
                             break;
                         case 'execution_error':
                         case 'queue_error':
-                            html += '<span style="color:' + _this.ERROR_COLOR + '" class="glyphicon glyphicon-remove-circle"></span>';
+                            html += '<i style="color:' + _this.ERROR_COLOR + '" class="fa fa-times-circle"></i>';
                             break;
                     }
                     return html;
@@ -251,14 +251,13 @@ JobListWidget.prototype = {
                     xtype: 'toolbar',
                     dock: 'top',
                     height: 39,
-                    cls: 'bootstrap',
                     items: [
                         {
                             xtype: 'button',
                             id: this.id + 'btnSort',
                             tooltip: 'Change order',
                             margin: '0 15 0 0',
-                            text: '<span class="glyphicon glyphicon-sort"></span>',
+                            text: '<i class="fa fa-sort"></i>',
                             handler: function () {
                                 if (_this.sort == "DESC") {
                                     _this.sort = "ASC";
@@ -288,7 +287,6 @@ JobListWidget.prototype = {
                     xtype: 'toolbar',
                     docked: 'top',
                     height: 39,
-                    cls: 'bootstrap',
                     items: [
                         //this.projectFilterButton,
                         {
@@ -420,12 +418,13 @@ JobListWidget.prototype = {
         } else {
             Ext.getCmp(this.btnErrorId).show();
         }
+
         Ext.getCmp(this.btnAllId).setText(jobcount.all);
-        Ext.getCmp(this.btnFinishedId).setText('<span style="color:' + this.FINISHED_COLOR + '" class="glyphicon glyphicon-exclamation-sign"></span> ' + jobcount.finished);
-        Ext.getCmp(this.btnVisitedId).setText('<span style="color:' + this.FINISHED_COLOR + '" class="glyphicon glyphicon-ok-circle"></span> ' + jobcount.visited);
-        Ext.getCmp(this.btnRunningId).setText('<span style="color:' + this.RUNING_COLOR + '" class="glyphicon glyphicon-cog"></span> ' + jobcount.running);
-        Ext.getCmp(this.btnQueuedId).setText('<span style="color:' + this.QUEUED_COLOR + '" class="glyphicon glyphicon-time"></span> ' + jobcount.queued);
-        Ext.getCmp(this.btnErrorId).setText('<span style="color:' + this.ERROR_COLOR + '" class="glyphicon glyphicon-remove-circle"></span> ' + jobcount.error);
+        Ext.getCmp(this.btnFinishedId).setText('<i style="color:' + this.FINISHED_COLOR + '" class="fa fa-exclamation-circle"></i> ' + jobcount.finished);
+        Ext.getCmp(this.btnVisitedId).setText('<i style="color:' + this.FINISHED_COLOR + '" class="fa fa-check-circle"></i> ' + jobcount.visited);
+        Ext.getCmp(this.btnRunningId).setText('<i style="color:' + this.RUNING_COLOR + '" class="fa fa-cog"></i> ' + jobcount.running);
+        Ext.getCmp(this.btnQueuedId).setText('<i style="color:' + this.QUEUED_COLOR + '" class="fa fa-clock-o"></i> ' + jobcount.queued);
+        Ext.getCmp(this.btnErrorId).setText('<i style="color:' + this.ERROR_COLOR + '" class="fa fa-times-circle"></i> ' + jobcount.error);
     },
     _getJobCounter: function (jobs) {
         var finished = 0;

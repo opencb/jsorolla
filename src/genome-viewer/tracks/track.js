@@ -100,6 +100,15 @@ Track.prototype = {
         $(this.resizeDiv).toggle('hidden');
         $(this.configBtn).toggle('hidden');
     },
+    close: function () {
+        this.trigger('track:close', {sender: this});
+    },
+    up: function () {
+        this.trigger('track:up', {sender: this});
+    },
+    down: function () {
+        this.trigger('track:down', {sender: this});
+    },
     setSpecies: function (species) {
         this.species = species;
         this.dataAdapter.species = this.species
@@ -163,7 +172,9 @@ Track.prototype = {
         if (this.autoHeight || ignoreAutoHeight) {
             this._updateDIVHeight();
         }
-        if (this.histogram);
+//        if (this.histogram) {
+//
+//        }
     },
     enableAutoHeight: function () {
         this.autoHeight = true;
@@ -175,16 +186,11 @@ Track.prototype = {
 
     setLoading: function (bool) {
         if (bool) {
-            this.svgLoading.setAttribute("visibility", "visible");
             this.status = "rendering";
-            $(this.loadingEl).html('&nbsp;<span class="ocb-light">Loading...</span>');
-//            $(this.titleBtn).addClass('btn-info');
+            $(this.loadingEl).html('&nbsp; &nbsp;<i class="fa fa-spinner fa-spin"></i> <span class="ocb-light">Loading...</span></span>');
         } else {
-            this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
             $(this.loadingEl).html('');
-//            $(this.titleBtn).removeClass('btn-info');
-//            this.trigger('track:ready', {sender: this});
         }
     },
 
@@ -194,7 +200,7 @@ Track.prototype = {
             this.histogramLogarithm = true;
             this.histogramMax = 500;
             this.interval = Math.ceil(10 / this.pixelBase);//server interval limit 512
-            $(this.histogramEl).html('&nbsp;<span class="glyphicon glyphicon-signal"></span>');
+            $(this.histogramEl).html('&nbsp;<i class="fa fa-signal"></i>');
         } else {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
@@ -232,6 +238,9 @@ Track.prototype = {
             '   <div class="ocb-gv-track-title-el">' +
             '       <span class="ocb-gv-track-title-text">' + this.title + '</span>' +
             '       <span class="ocb-gv-track-title-histogram"></span>' +
+            '       <span class="ocb-gv-track-title-down"><i class="fa fa-chevron-down"></i></span>' +
+            '       <span class="ocb-gv-track-title-up"><i class="fa fa-chevron-up"></i></span>' +
+            '       <span class="ocb-gv-track-title-close"><i class="fa fa-times"></i></span>' +
             '       <span class="ocb-gv-track-title-loading"></span>' +
             '   </div>' +
             '   </div>')[0];
@@ -246,6 +255,9 @@ Track.prototype = {
         this.titleText = $(titleBardiv).find('.ocb-gv-track-title-text')[0];
         this.histogramEl = $(titleBardiv).find('.ocb-gv-track-title-histogram')[0];
         this.loadingEl = $(titleBardiv).find('.ocb-gv-track-title-loading')[0];
+        this.closeEl = $(titleBardiv).find('.ocb-gv-track-title-close')[0];
+        this.upEl = $(titleBardiv).find('.ocb-gv-track-title-up')[0];
+        this.downEl = $(titleBardiv).find('.ocb-gv-track-title-down')[0];
 
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
         var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
@@ -262,9 +274,19 @@ Track.prototype = {
             .on('dblclick', function (e) {
                 e.stopPropagation();
             });
-        $(this.titleEl).click(function (e) {
+        $(this.titleText).click(function (e) {
             _this.toggleContent();
         });
+        $(this.closeEl).click(function (e) {
+            _this.close();
+        });
+        $(this.upEl).click(function (e) {
+            _this.up();
+        });
+        $(this.downEl).click(function (e) {
+            _this.down();
+        });
+
 
         /** svg div **/
         $(svgdiv).css({
@@ -362,35 +384,6 @@ Track.prototype = {
             'class': this.fontClass
         });
         this.invalidZoomText.textContent = "Zoom in to view the sequence";
-
-
-        var loadingImg = '<?xml version="1.0" encoding="utf-8"?>' +
-            '<svg version="1.1" width="22px" height="22px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +
-            '<defs>' +
-            '<g id="pair">' +
-            '<ellipse cx="7" cy="0" rx="4" ry="1.7" style="fill:#ccc; fill-opacity:0.5;"/>' +
-            '<ellipse cx="-7" cy="0" rx="4" ry="1.7" style="fill:#aaa; fill-opacity:1.0;"/>' +
-            '</g>' +
-            '</defs>' +
-            '<g transform="translate(11,11)">' +
-            '<g>' +
-            '<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.5s" repeatDur="indefinite"/>' +
-            '<use xlink:href="#pair"/>' +
-            '<use xlink:href="#pair" transform="rotate(45)"/>' +
-            '<use xlink:href="#pair" transform="rotate(90)"/>' +
-            '<use xlink:href="#pair" transform="rotate(135)"/>' +
-            '</g>' +
-            '</g>' +
-            '</svg>';
-
-        this.svgLoading = SVG.addChildImage(main, {
-            "xlink:href": "data:image/svg+xml," + encodeURIComponent(loadingImg),
-            "x": 10,
-            "y": 0,
-            "width": 22,
-            "height": 22,
-            "visibility": "hidden"
-        });
 
         this.div = div;
         this.svgdiv = svgdiv;

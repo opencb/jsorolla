@@ -69,7 +69,7 @@ HeaderWidget.prototype = {
         var appLi = '';
         if (this.applicationMenuEl) {
 //            appLi = '<li id="appMenu" class="menu"> &#9776; </li>';
-            appLi = '<li id="appMenu" class="menu"><span class="glyphicon glyphicon-th-list"></span></li>';
+            appLi = '<li id="appMenu" class="menu">&nbsp;<i class="fa fa-ellipsis-v"></i>&nbsp;</li>';
         }
         var navgationHtml = '' +
             '<div>' +
@@ -79,17 +79,17 @@ HeaderWidget.prototype = {
             '       </li>' +
             '       <li id="description" class="description">' + this.description +
             '       </li>' +
-            '       <li id="menu" class="right menu"> ? ' +
+            '       <li id="menu" class="right"><i class="fa fa-support"></i> &nbsp;support ' +
             '       </li>' +
-            '       <li id="signin" class="right"><span class="glyphicon glyphicon-log-in"></span>&nbsp; sign in' +
+            '       <li id="signin" class="right"><i class="fa fa-sign-in"></i> &nbsp;sign in' +
             '       </li>' +
-            '       <li id="jobs" class="right hidden"> <span class="glyphicon glyphicon-tasks"></span>&nbsp; jobs' +
+            '       <li id="jobs" class="right hidden"><i class="fa fa-tasks"></i> &nbsp;jobs' +
             '       </li>' +
-            '       <li id="profile" class="right hidden"> <span class="glyphicon glyphicon-user"></span>&nbsp; profile' +
+            '       <li id="profile" class="right hidden"><i class="fa fa-user"></i> &nbsp;profile' +
             '       </li>' +
-            '       <li id="upload" class="right hidden"> <span class="glyphicon glyphicon-cloud-upload"></span> &nbsp;upload & manage' +
+            '       <li id="upload" class="right hidden"><i class="fa fa-cloud-upload"></i> &nbsp;upload & manage' +
             '       </li>' +
-            '       <li id="logout" class="right hidden"><span class="glyphicon glyphicon-log-out"></span>&nbsp; logout' +
+            '       <li id="logout" class="right hidden"><i class="fa fa-sign-out"></i> &nbsp;logout' +
             '       </li>' +
             '       <li id="user" class="right hidden text">' +
             '       </li>' +
@@ -99,19 +99,19 @@ HeaderWidget.prototype = {
 
         var menuHtml = '' +
             '   <ul class="ocb-help-menu unselectable">' +
-            '       <li id="homeHelp" class="right"><span class="glyphicon glyphicon-home"></span> &nbsp; home' +
+            '       <li id="homeHelp" class="right"><i class="fa fa-home"></i> &nbsp;home' +
             '       </li>' +
-            '       <li id="documentation" class="right"><span class="glyphicon glyphicon-book"></span> &nbsp; documentation' +
+            '       <li id="documentation" class="right"><i class="fa fa-book"></i> &nbsp;documentation' +
             '       </li>' +
-            '       <li id="tutorial" class="right"><span class="glyphicon glyphicon-list-alt"></span> &nbsp; tutorial' +
+            '       <li id="tutorial" class="right"><i class="fa fa-list-alt"></i> &nbsp;tutorial' +
             '       </li>' +
-            '       <li id="about" class="right"><span class="glyphicon glyphicon-info-sign"></span> &nbsp; about' +
+            '       <li id="about" class="right"><i class="fa fa-info"></i> &nbsp; about' +
             '       </li>' +
             '   </ul>'
         '';
 
 
-        this.div = $('<div class="unselectable bootstrap">' + navgationHtml + '</div>')[0];
+        this.div = $('<div class="unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
             height: this.height + 'px',
             position: 'relative'

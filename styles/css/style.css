@@ -42,6 +42,10 @@ ul.ocb-header > li#logout {
     margin-right: 40px;
 }
 
+ul.ocb-header > li#menu {
+    margin-left: 40px;
+}
+
 ul.ocb-header > li.title {
     font-size: 30px;
     padding-left: 120px;
@@ -323,6 +327,36 @@ ul.ocb-app-menu > li {
     background-image: -webkit-linear-gradient(top, #f2f2f2, #e4e4e4);
     border: 1px solid gray;
 }
+
+.ocb-gv-track-title-histogram {
+    margin-right: 10px;
+}
+.ocb-gv-track-title-close {
+    margin-left: 5px;
+}
+
+.ocb-gv-track-title-text:hover {
+    color: steelblue;
+    text-decoration: underline;
+}
+
+
+
+.ocb-gv-track-title-close:hover {
+    color: darkred;
+    text-decoration: underline;
+}
+
+.ocb-gv-track-title-up:hover {
+    color: steelblue;
+    text-decoration: underline;
+}
+
+.ocb-gv-track-title-down:hover {
+    color: steelblue;
+    text-decoration: underline;
+}
+
 .ocb-track-resize {
     background-color: lightgray;
     background-image: url(../img/ocb-grab-track-resize.png) !important;
@@ -334,7 +368,6 @@ ul.ocb-app-menu > li {
     border-bottom: 1px solid gray;
     box-sizing: border-box;
 }
-
 
 .ocb-gv-status-bar {
     color: #333;
