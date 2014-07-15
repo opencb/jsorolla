@@ -33,6 +33,7 @@ var Viewer = function (config) {
 
     this.disk = [];
     this.centralTrack = null;
+    this.leap = null;
     this.projector = new THREE.Projector();   //para el clicado
 
 
@@ -117,6 +118,19 @@ Viewer.prototype = {
         }
         this.figure.name = "TORUS";
         this.scene.add(this.figure);
+
+
+
+        var light = new THREE.PointLight(0xffffff);
+        light.position.set(0,250,0);
+        this.scene.add(light);
+
+        var sphereGeometry = new THREE.SphereGeometry(0.1, 4, 3);
+        var sphereMaterial = new THREE.MeshLambertMaterial( {color: 0x8888ff} );
+        this.leap = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        this.leap.position.set(0, 0, 0);
+        this.leap.visible = false;
+        this.scene.add(this.leap);
 
         this.setRegion(0, 1);
     },
@@ -477,6 +491,18 @@ Viewer.prototype = {
 //        console.log(cursor);
             this.centralTrack.update(coord, this.getRegion());
 //                    console.log("in" + this.centralTrack.tracks[i].start +  " < " + coord + " < " + this.centralTrack.tracks[i].end)
+        }
+    },
+    setLeapPosition: function (position) {
+        if (position !== undefined) {
+            this.leap.visible = true;
+            var worldPos = new THREE.Vector3( position[0]*0.03,
+                position[1]*0.03 - 5,
+                position[2]*0.03);
+            worldPos.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/4);
+            console.log(worldPos);
+            this.leap.position.set(worldPos.x,worldPos.y,worldPos.z);
+            console.log(this.leap.position);
         }
     },
     selectDisk: function (n) {

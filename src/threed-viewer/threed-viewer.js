@@ -50,6 +50,7 @@ function ThreeDViewer(args) {
 //        event.preventDefault();
 //    }, false);
     this.setGUI();
+    this.setupLeap();
 };
 
 ThreeDViewer.prototype = {
@@ -426,9 +427,112 @@ ThreeDViewer.prototype = {
 
     addSample:function(args){
         this.torus.addSample(args);
+    },
+
+
+    setupLeap: function (config) {
+        var completeConf = {enableGestures: false};
+        _.extend(completeConf, config);
+
+        var _this = this;
+
+// the LeapMotion update function
+        Leap.loop( completeConf, function( frame )
+        {
+            //console.log("leap:");
+            //console.log(frame);
+            if (frame === undefined) {
+                return;
+            }
+
+            var handData = frame.hands[0];
+            if (handData === undefined || frame.fingers === undefined) {
+                return;
+            }
+
+            var fingersExtended = 0;
+            for (var i = 0; i < frame.fingers.length; i++) {
+                fingersExtended += frame.fingers[i].extended;
+            }
+
+
+//            console.log(frame);
+            if (_this.torus.lastLeapPosition !== undefined && fingersExtended <= 3) {
+                var delta = [];
+                delta[0] = (handData.palmPosition[0] - _this.torus.lastLeapPosition[0]) / 200;
+                delta[1] = -1*(handData.palmPosition[1] - _this.torus.lastLeapPosition[1]) / 200;
+                delta[2] = (handData.palmPosition[2] - _this.torus.lastLeapPosition[2])/ 500 + 1;
+
+
+                if (fingersExtended == 2) {
+                    _this.torus.viewer.addDisksPhase(delta[1]);
+                } else {
+//                if ( Math.abs(delta[0]) < 0.01) {
+                    _this.torus.viewer.addTorusPhase(delta[0]);
+//                }
+//                if ( Math.abs(delta[1]) < 0.01) {
+                    _this.torus.viewer.addVerticalRotation(delta[1]);
+//                }
+//                if ( Math.abs(delta[2]) < 0.01) {
+                    _this.torus.viewer.addZoom(delta[2]);
+//                }
+                }
+            }
+
+            _this.torus.lastLeapPosition = handData.palmPosition;
+            _this.torus.viewer.setLeapPosition(handData.palmPosition);
+//            console.log(handData.palmPosition);
+
+/*
+            handMesh.position.set( , handData.palmPosition[1] - 200, handData.palmPosition[2] );
+            handMesh.material = lightMaterial;
+
+            handMesh.rotation.set(0,0,0);
+            handMesh.rotateX(  Math.atan2( handData.palmNormal[1], -handData.palmNormal[2] ) );
+            handMesh.rotateY( -Math.atan2( handData.palmNormal[0], -handData.palmNormal[1] ) );
+
+            handShadow.position.x = handData.palmPosition[0];
+            handShadow.position.z = handData.palmPosition[2];
+            handShadow.material = lightMaterial;
+
+            var	handPosition = new THREE.Vector3( handData.palmPosition[0], handData.palmPosition[1] - 200, handData.palmPosition[2] );
+            for (var i = 0; i < Math.min(frame.pointables.length,5); i++)
+            {
+                var pointer = frame.pointables[i];
+                fingerMeshArray[i].visible = true;
+                fingerMeshArray[i].position.set( pointer.tipPosition[0], pointer.tipPosition[1] - 200, pointer.tipPosition[2] );
+
+                fingerLengthArray[i].visible = true;
+                var fingerPosition = new THREE.Vector3( pointer.tipPosition[0], pointer.tipPosition[1] - 200, pointer.tipPosition[2] );
+                var direction = new THREE.Vector3().subVectors( fingerPosition, handPosition );
+                var arrow = new THREE.ArrowHelper( direction.clone().normalize(), handPosition, direction.length() );
+                fingerLengthArray[i].position = new THREE.Vector3().addVectors( handPosition, direction.clone().multiplyScalar(0.5) );
+                fingerLengthArray[i].setRotationFromEuler( arrow.rotation );
+                fingerLengthArray[i].scale.y = direction.length();
+
+                fingerShadowArray[i].visible = true;
+                fingerShadowArray[i].position.x = pointer.tipPosition[0];
+                fingerShadowArray[i].position.z = pointer.tipPosition[2];
+            }
+*/
+            /*
+             scene.remove(curveBall);
+             curveBall = new THREE.Mesh( new THREE.SphereGeometry( handData.sphereRadius / 1.1, 32, 16 ), curveBall.material );
+             curveBall.position.set( handData.sphereCenter[0], handData.sphereCenter[1] - 200, handData.sphereCenter[2]  );
+             scene.add(curveBall);
+             */
+/*
+            // gesture debugging
+            var n = frame.gestures.length;
+            if (n > 0)
+            {
+                for (var i = 0; i < n; i++)
+                {
+                    console.log( frame.gestures[i] );
+                }
+            }*/
+
+        });
     }
-
-
-
 
 }
