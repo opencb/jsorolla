@@ -28,6 +28,9 @@ function ConsequenceTypeFilterFormPanel(args) {
     this.title = "Consequence Type";
     this.border = false;
     this.autoRender = true;
+    this.collapsible = true;
+    this.titleCollapse = false;
+    this.headerConfig;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -113,6 +116,10 @@ ConsequenceTypeFilterFormPanel.prototype = {
             singleExpand: true,
             hideHeaders: true,
             height: this.height,
+            collapsible :this.collapsible,
+            titleCollapse :this.titleCollapse,
+            header: this.headerConfig,
+            flex:1,
             columns: [
                 {
                     xtype: 'treecolumn',

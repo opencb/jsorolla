@@ -29,9 +29,11 @@ function VariantBrowserGrid(args) {
     this.columns;
     this.attributes;
     this.type;
+    this.height = 300;
     this.pageSize = 15;
     this.title = "Variant Browser";
     this.autoRender = true;
+    this.border = false;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -102,12 +104,15 @@ VariantBrowserGrid.prototype = {
         });
 
         var grid = Ext.create('Ext.grid.Panel', {
+                title: this.title,
                 store: this.store,
+                border: this.border,
+                header: this.headerConfig,
                 loadMask: true,
                 columns: this.columns,
                 plugins: 'bufferedrenderer',
                 animCollapse: false,
-                height: 500,
+                height: this.height,
                 features: [
                     {ftype: 'summary'}
                 ],
@@ -127,20 +132,7 @@ VariantBrowserGrid.prototype = {
         });
 
         this.grid = grid;
-
-        var panel = Ext.create('Ext.container.Container', {
-            border: false,
-            items: [
-                {
-                    xtype: 'box',
-                    cls: 'ocb-header-3',
-                    margin: '0 0 10 0',
-                    html: this.title
-                },
-                grid
-            ]
-        });
-        return panel;
+        return grid;
     },
     load: function (data) {
         var _this = this;

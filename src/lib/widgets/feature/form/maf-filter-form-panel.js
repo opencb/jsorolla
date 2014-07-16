@@ -18,14 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with JSorolla. If not, see <http://www.gnu.org/licenses/>.
  */
-function PositionFilterFormPanel(args) {
+function MafFilterFormPanel(args) {
     _.extend(this, Backbone.Events);
 
     //set default args
-    this.id = Utils.genId("PositionFilterFormPanel");
+    this.id = Utils.genId("MafFilterFormPanel");
     this.target;
     this.autoRender = true;
-    this.title = "Position";
+    this.title = "MAF";
     this.border = false;
     this.collapsible = true;
     this.titleCollapse = false;
@@ -43,7 +43,7 @@ function PositionFilterFormPanel(args) {
     }
 }
 
-PositionFilterFormPanel.prototype = {
+MafFilterFormPanel.prototype = {
     render: function () {
         var _this = this;
         console.log("Initializing " + this.id);
@@ -65,52 +65,89 @@ PositionFilterFormPanel.prototype = {
         this.panel.render(this.div);
     },
     _createPanel: function () {
-        var snp = Ext.create('Ext.form.field.TextArea', {
-            id: this.id + "snp",
-            name: "snp",
-            margin: '0 0 0 5',
-            //allowBlank: true,
-            width: '100%',
-            fieldLabel: 'SNP id',
-            labelAlign: 'top',
-            regex: /^[rs]s\d+$/
+
+
+        var thousandContainer = Ext.create('Ext.form.FieldContainer', {
+            margin: '10 0 0 0',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    xtype: 'textfield',
+                    labelAlign: 'right',
+                    fieldLabel: '1000G MAF < ',
+                    name: 'maf_1000g_controls',
+                    labelWidth: 100
+                },
+                {
+                    xtype: 'textfield',
+                    labelAlign: 'right',
+                    fieldLabel: 'EVS MAF < ',
+                    labelWidth: 100,
+                    name: 'maf_evs_controls'
+
+                }
+            ]
         });
 
-        var regionList = Ext.create('Ext.form.field.TextArea', {
-            id: this.id + "region",
-            name: "region",
-            emptyText: '1:1-1000000,2:1-1000000',
-            margin: '0 0 0 5',
-            //allowBlank: true,
-            width: '100%',
-            fieldLabel: 'Chromosomal Location',
+        var populationsContainer = Ext.create('Ext.form.FieldContainer', {
+            fieldLabel: '<span style="color:gray">1000G Populations</span>',
             labelAlign: 'top',
-            value: this.testRegion
-        });
-
-        var gene = Ext.create('Ext.form.field.TextArea', {
-            id: this.id + "gene",
-            name: "gene",
-            margin: '0 0 0 5',
-            //allowBlank: true,
-            width: '100%',
-            fieldLabel: 'Gene / Transcript',
-            labelAlign: 'top'
+            margin: '20 0 0 0',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    xtype: 'textfield',
+                    labelAlign: 'right',
+                    fieldLabel: 'African MAF < ',
+                    labelWidth: 110,
+                    name: 'maf_1000g_afr_controls'
+                },
+                {
+                    xtype: 'textfield',
+                    labelAlign: 'right',
+                    fieldLabel: 'American MAF < ',
+                    labelWidth: 110,
+                    name: 'maf_1000g_ame_controls'
+                },
+                {
+                    xtype: 'textfield',
+                    labelAlign: 'right',
+                    fieldLabel: 'Asian MAF < ',
+                    labelWidth: 110,
+                    name: 'maf_1000g_asi_controls'
+                },
+                {
+                    xtype: 'textfield',
+                    labelAlign: 'right',
+                    fieldLabel: 'European MAF < ',
+                    labelWidth: 110,
+                    name: 'maf_1000g_eur_controls'
+                }
+            ]
         });
 
         return Ext.create('Ext.form.Panel', {
-            bodyPadding: "5",
-            margin: "0 0 5 0",
-            buttonAlign: 'center',
-            layout: 'vbox',
             title: this.title,
             border: this.border,
             collapsible: this.collapsible,
             titleCollapse: this.titleCollapse,
             header: this.headerConfig,
-            allowBlank: false,
+            bodyPadding: "5",
+            margin: "0 0 5 0",
+            buttonAlign: 'center',
             flex: 1,
-            items: [snp, regionList, gene]
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            allowBlank: false,
+            items: [thousandContainer, populationsContainer]
         });
 
     },

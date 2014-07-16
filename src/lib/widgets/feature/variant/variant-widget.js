@@ -28,6 +28,7 @@ function VariantWidget(args) {
     //set default args
     this.target;
     this.width;
+    this.height;
     this.autoRender = true;
     this.data = [];
     this.host;
@@ -39,20 +40,25 @@ function VariantWidget(args) {
         region: true,
         gene: true
     };
+    this.headerConfig;
     this.attributes = [];
     this.columns = [];
     this.defaultToolConfig = {effect: true, genomeViewer: true, genotype: true, stats: true};
     this.tools = [];
     this.dataParser;
+    this.browserGridConfig = {
+        border: false
+    };
 
 
     _.extend(this.filters, args.filters);
+    _.extend(this.browserGridConfig, args.browserGridConfig);
     _.extend(this.defaultToolConfig, args.defaultToolConfig);
 
     delete args.filters;
     delete args.defaultToolConfig;
 
-    //set instantiation args, must be last
+//set instantiation args, must be last
     _.extend(this, args);
 
     this.selectedToolDiv;
@@ -78,21 +84,22 @@ VariantWidget.prototype = {
 
         this.variantBrowserGrid = this._createVariantBrowserGrid(this.variantBrowserGridDiv);
 
-        this.tabPanelTitle = document.createElement('div');
-        this.tabPanelTitle.setAttribute('class', 'ocb-variant-tab-panel-title');
-        this.tabPanelTitle.innerHTML = 'Variant Data';
-        this.div.appendChild(this.tabPanelTitle);
+//        this.tabPanelTitle = document.createElement('div');
+//        this.tabPanelTitle.setAttribute('class', 'ocb-variant-tab-panel-title');
+//        this.tabPanelTitle.innerHTML = 'Variant Data';
+//        this.div.appendChild(this.tabPanelTitle);
 
         this.tabPanelDiv = document.createElement('div');
         this.tabPanelDiv.setAttribute('class', 'ocb-variant-tab-panel');
         this.div.appendChild(this.tabPanelDiv);
 
         this.toolTabPanel = Ext.create("Ext.tab.Panel", {
-            border: 0,
+            border: false,
             layout: 'fit',
             margin: '10 0 0 0',
             plain: true,
             animCollapse: false,
+            header: this.headerConfig,
             collapseDirection: Ext.Component.DIRECTION_BOTTOM,
             titleCollapse: true,
             overlapHeader: true,
@@ -224,9 +231,11 @@ VariantWidget.prototype = {
         var variantBrowserGrid = new VariantBrowserGrid({
             target: target,
             data: this.data,
+            border: this.browserGridConfig.border,
             dataParser: this.dataParser,
             attributes: this.attributes,
             columns: this.columns,
+            headerConfig: this.headerConfig,
             handlers: {
                 "variant:change": function (e) {
                     _this.lastVariant = e.args;

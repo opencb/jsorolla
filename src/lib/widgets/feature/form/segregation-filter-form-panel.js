@@ -18,14 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with JSorolla. If not, see <http://www.gnu.org/licenses/>.
  */
-function PositionFilterFormPanel(args) {
+function SegregationFilterFormPanel(args) {
     _.extend(this, Backbone.Events);
 
     //set default args
-    this.id = Utils.genId("PositionFilterFormPanel");
+    this.id = Utils.genId("SegregationFilterFormPanel");
     this.target;
     this.autoRender = true;
-    this.title = "Position";
+    this.title = "Segregation";
     this.border = false;
     this.collapsible = true;
     this.titleCollapse = false;
@@ -43,7 +43,7 @@ function PositionFilterFormPanel(args) {
     }
 }
 
-PositionFilterFormPanel.prototype = {
+SegregationFilterFormPanel.prototype = {
     render: function () {
         var _this = this;
         console.log("Initializing " + this.id);
@@ -65,52 +65,62 @@ PositionFilterFormPanel.prototype = {
         this.panel.render(this.div);
     },
     _createPanel: function () {
-        var snp = Ext.create('Ext.form.field.TextArea', {
-            id: this.id + "snp",
-            name: "snp",
-            margin: '0 0 0 5',
-            //allowBlank: true,
-            width: '100%',
-            fieldLabel: 'SNP id',
-            labelAlign: 'top',
-            regex: /^[rs]s\d+$/
+
+
+        var header = Ext.create('Ext.form.FieldContainer', {
+            margin: '0 0 0 100',
+            flex: 1,
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [
+                { xtype: 'label', text: '0/0', flex: 1},
+                { xtype: 'label', text: '0/1', flex: 1},
+                { xtype: 'label', text: '1/1', flex: 1}
+            ]
         });
 
-        var regionList = Ext.create('Ext.form.field.TextArea', {
-            id: this.id + "region",
-            name: "region",
-            emptyText: '1:1-1000000,2:1-1000000',
-            margin: '0 0 0 5',
-            //allowBlank: true,
-            width: '100%',
-            fieldLabel: 'Chromosomal Location',
-            labelAlign: 'top',
-            value: this.testRegion
-        });
+        var items = [header];
 
-        var gene = Ext.create('Ext.form.field.TextArea', {
-            id: this.id + "gene",
-            name: "gene",
-            margin: '0 0 0 5',
-            //allowBlank: true,
-            width: '100%',
-            fieldLabel: 'Gene / Transcript',
-            labelAlign: 'top'
-        });
+        for (var i = 0; i < this.samples.length; i++) {
+            var name = this.samples[i];
+
+            items.push(
+                Ext.create('Ext.form.FieldContainer', {
+                    fieldLabel: name,
+                    labelWidth: 100,
+                    flex: 1,
+                    layout: {
+                        type: 'hbox',
+                        align: 'stretch'
+                    },
+                    items: [
+                        {xtype: 'checkbox', name: "sampleGT_" + name, inputValue: '0/0,0|0', flex: 1},
+                        {xtype: 'checkbox', name: "sampleGT_" + name, inputValue: '0/1,1/0, 0|1,1|0', flex: 1},
+                        {xtype: 'checkbox', name: "sampleGT_" + name, inputValue: '1/1,1|1', flex: 1}
+                    ]
+                })
+            );
+        }
+
 
         return Ext.create('Ext.form.Panel', {
-            bodyPadding: "5",
-            margin: "0 0 5 0",
-            buttonAlign: 'center',
-            layout: 'vbox',
             title: this.title,
             border: this.border,
             collapsible: this.collapsible,
             titleCollapse: this.titleCollapse,
             header: this.headerConfig,
-            allowBlank: false,
+            bodyPadding: "5",
+            margin: "0 0 5 0",
+            buttonAlign: 'center',
             flex: 1,
-            items: [snp, regionList, gene]
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            allowBlank: false,
+            items: items
         });
 
     },
