@@ -843,6 +843,7 @@ ResultWidget.prototype = {
     },
 
     _getJobInfo: function (args) {
+        var _this = this;
         var args = args || {};
         var itemTpl = new Ext.XTemplate(
             '<div class="s110">',
@@ -881,7 +882,7 @@ ResultWidget.prototype = {
                                 OpencgaManager.downloadJob({
                                     accountId: $.cookie('bioinfo_account'),
                                     sessionId: $.cookie('bioinfo_sid'),
-                                    jobId: this.jobId
+                                    jobId: _this.jobId
                                 })
                             }
                         },
