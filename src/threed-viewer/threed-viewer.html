@@ -38,8 +38,8 @@
     <script type="text/javascript" src="../lib/cellbase-manager.js"></script>
 
     <script type="text/javascript" src="js/chr.js"></script>
-    <script type="text/javascript" src="js/coverage.js"></script>
-    <script type="text/javascript" src="js/miAlignment.alignments.js"></script>
+    <!-- <script type="text/javascript" src="js/coverage.js"></script> -->
+    <!-- <script type="text/javascript" src="js/miAlignment.alignments.js"></script> -->
     <script type="text/javascript" src="js/3D.js"></script>
     <script type="text/javascript" src="js/torus.js"></script>
     <script type="text/javascript" id="main" src="js/main.js"></script>
@@ -101,11 +101,12 @@
                 }
             ]);
 
-            threeDViewer.torus.obtainCoverages();
-            threeDViewer.torus.setCoverages(true);
+            threeDViewer.torus.obtainCoverages(function() {
+                threeDViewer.torus.setCoverages(true);
+            });
 
-            threeDViewer.torus.obtainAlignments();
-            threeDViewer.torus.setFullAlignments(true);
+//            threeDViewer.torus.obtainAlignments();
+//            threeDViewer.torus.setFullAlignments(true);
 //            threeDViewer.torus.setAlignments();
 //            threeDViewer.torus.setDifferences();
 

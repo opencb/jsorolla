@@ -31,8 +31,8 @@ var Torus = function (args) {
     this.viewer = new Viewer(this.config);
     this.lastClick;
     this.clickPressed;
-    this.scale = 32;    // 1 = full genome, 0 = 1 nucleotide
-    this.position = 0.5;
+    this.scale = 32;    // log2(range). 32 is 2^32 ~ 4000000000
+    this.position = 0.5;    // position [0, 1] en visible disk
     this.cursor = 0.5;
 
 
@@ -180,7 +180,8 @@ Torus.prototype = {
 
     },
 
-    obtainCoverages: function () {
+    obtainCoverages: function (callback) {
+/*
         normalize(coverage.regions[0].coverage, 15);
         normalize(coverage.regions[1].coverage, 15);
         //console.log("samples en obtain: " + this.data.samples.length);
@@ -191,8 +192,23 @@ Torus.prototype = {
 //                this.data.samples[j].coverage.mean[i] = Math.random();
 //            }
         }
+*/
 
-        // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
+        var _this = this;
+        for (var i = 0; i < 4; i++) {
+
+            $.getJSON('/home/josemi/tmp/m' + i + '.json', function (data){
+                console.log("in callback");
+                console.log(data);
+                normalize(data[0].coverage, 15);
+//                for (var i = 0; i < _this.data.samples.length; i++) {
+                _this.data.samples[i].coverage = {};
+                _this.data.samples[i].coverage.regions = _.extend([], data);
+//            }
+            });
+        }
+        callback();
+    // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
 
         //console.log(this.data.samples);
     },
@@ -209,9 +225,12 @@ Torus.prototype = {
 
         if (withCentralTrack == true) {
 
+            console.log("setcov")
+            console.log(this.data.samples[0].coverage)
             var length = this.viewer.metaData.ntsCount;
-            var start = (this.data.samples[0].coverage.start-1)/length;
-            var end = this.data.samples[0].coverage.end/length;
+            var cov = this.data.samples[0].coverage.regions[0];
+            var start = (cov.initPosition*cov.size)/length;
+            var end = ((cov.initPosition+cov.coverage.length)*cov.size -1)/length;
             var trackArgs = {start:start, end:end, z:1, y:0.05, mod:0.3, ang:Math.PI/2,
                     baseColorHex:0xe41a1c, topColorHex:0x4dff4a, trackType:Viewer.Track.ColumnHistogram};
 //                baseColorHex:0xfb8072, topColorHex:0xb3de69, trackType:Viewer.Track.ColumnHistogram};
@@ -219,13 +238,15 @@ Torus.prototype = {
 
             for (var i = 0; i < this.data.samples.length; i++) {
 
-//                var data = this.data.samples[i].coverage.regions[0].coverage;
+                var data = this.data.samples[i].coverage.regions[0].coverage;
+                /*
                 var data = [];
                 for(var j= 0; j < 38; j++) {
-                    data[j] = Math.random()*0.4;
+//                    data[j] = Math.random()*0.4;
+                    data[j] = cov.coverage;
                 }
+            */
                 trackArgs.dataset.push(data);
-
             }
             this.viewer.addCentralTrack(trackArgs);
 
@@ -251,6 +272,7 @@ Torus.prototype = {
 //        for (var i = 0; i < this.viewer.disk.length; i++) {
 //            this.data.samples[i].alignments = _.extend([], aligs[i]);
 //        }
+
     },
 
     setAlignments: function () {
@@ -370,14 +392,23 @@ Torus.prototype = {
     },
 
     updateScale: function () {
+        console.log("update scale")
         console.log(this.scale);
         var region = this.viewer.getRegion();
+
+        console.log(region.x * this.viewer.metaData.ntsCount+ ", " + region.y* this.viewer.metaData.ntsCount);
         var position = region.x + (region.y - region.x)*this.position;
+        console.log(position* this.viewer.metaData.ntsCount);
         var frame = Math.pow(2, this.scale)/Math.pow(2, 32);
-        var start = position - frame*this.position;
-        var end = position + frame*(1-this.position);
+        console.log(frame);
+//        var start = position - frame*this.position;
+//        var end = position + frame*(1-this.position);
+        var start = position - frame*0.5;
+        var end = position + frame*0.5;
+        console.log("start, end" +( start * this.viewer.metaData.ntsCount) + ", " + (end * this.viewer.metaData.ntsCount));
         this.viewer.setRegion(start, end);
 
+        console.log(region);
         if (this.scale < 10) {    // TODO jj un-hardcode...
             for (var i = 0; i < this.viewer.disk.length; i++) {
                 for (var j = 0; j < this.viewer.disk[i].tracks.length; j++) {
@@ -386,7 +417,7 @@ Torus.prototype = {
             }
         } else if (this.scale < 14.5) {
             for (var i = 0; i < this.viewer.disk.length; i++) {
-                this.viewer.disk[i].tracks[0].visible(false);
+                this.viewer.disk[i].tracks[0].visible(true);
                 for (var j = 1; j < this.viewer.disk[i].tracks.length; j++) {
                     this.viewer.disk[i].tracks[j].visible(true);
                 }
@@ -435,6 +466,8 @@ Torus.prototype = {
         document.addEventListener('mousemove', _this.onMouseMove, false);
         var where = _this.viewer.getClickPosition(_this.lastClick);
 
+        console.log ("click: ");
+        console.log(where)
         if (where !== undefined) {
             switch (event.button) {
                 case 0:
@@ -447,6 +480,7 @@ Torus.prototype = {
                     break;
             }
         }
+        console.log(where.coord.y * _this.viewer.metaData.ntsCount)
     },
     selectionMouse: function (_this, event) {
 //        document.addEventListener('mousemove', _this.onMouseMove(_this), false);
@@ -455,8 +489,6 @@ Torus.prototype = {
 //        console.log("poniendo");
 //        console.log(_this.lastClick);
         var where = _this.viewer.getClickPosition(_this.lastClick);
-//        console.log ("clickado en disk ");
-
         if (where !== undefined) {
             switch (event.button) {
                 case 0:
@@ -494,7 +526,7 @@ Torus.prototype = {
                 console.log(_this.position);
                 console.log(_this.scale);
                 _this.scale+=0.2;
-                _this.postion = 0.5;
+                _this.position = 0.5;
                 _this.updateScale();
                 console.log(_this.position);
                 console.log(_this.scale);
@@ -508,15 +540,21 @@ Torus.prototype = {
             var whereEnd = _this.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
             console.log("mouseup");
             console.log(whereStart);
+            console.log(whereStart.coord.y * _this.viewer.metaData.ntsCount)
             console.log(whereEnd);
-            if (whereStart !== undefined && whereEnd !== undefined && (whereEnd.coord.y - whereStart.coord.y > 0.00000001)) {
+            console.log(whereEnd.coord.y * _this.viewer.metaData.ntsCount)
+            if (whereStart !== undefined && whereEnd !== undefined
+                    && (Math.abs(whereEnd.coord.y - whereStart.coord.y) > 0.00000001)) {
                 var start = whereStart.coord.y <= whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // min
                 var end = whereStart.coord.y > whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // max
 
                 var frame = end - start;
-                _this.setScale(frame);
+                console.log(frame )
                 _this.position = (whereStart.visibleTexPos + whereEnd.visibleTexPos) * 0.5;
-                _this.updateScale();
+                console.log(_this.position)
+                _this.setScale(frame);
+
+//                _this.updateScale();
 
 
                 /*
