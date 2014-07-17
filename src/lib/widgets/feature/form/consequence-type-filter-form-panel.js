@@ -31,6 +31,30 @@ function ConsequenceTypeFilterFormPanel(args) {
     this.collapsible = true;
     this.titleCollapse = false;
     this.headerConfig;
+    this.consequenceTypes = [];
+    this.fields = [
+        {name: 'name', type: 'string'},
+        {name: 'acc', type: 'string'}
+    ];
+    this.columns = [
+        {
+            xtype: 'treecolumn',
+            flex: 2,
+            sortable: false,
+            dataIndex: 'name',
+            tooltipType: 'qtip'
+        },
+        {
+            text: '',
+            flex: 1,
+            dataIndex: 'acc',
+            renderer: function (value, meta, record) {
+                var link = "http://www.sequenceontology.org/miso/current_release/term/" + value;
+                return ' <a href=' + link + ' target="_blank">' + value + '</a>';
+            }
+
+        }
+    ];
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -89,17 +113,14 @@ ConsequenceTypeFilterFormPanel.prototype = {
 
         Ext.define('Tree Model', {
             extend: 'Ext.data.Model',
-            fields: [
-                {name: 'name', type: 'string'},
-                {name: 'acc', type: 'string'}
-            ]
+            fields: this.fields
         });
 
         var store = Ext.create('Ext.data.TreeStore', {
             model: 'Tree Model',
             proxy: {
                 type: 'memory',
-                data: consequenceTypes,
+                data: this.consequenceTypes,
                 reader: {
                     type: 'json'
                 }
@@ -108,7 +129,7 @@ ConsequenceTypeFilterFormPanel.prototype = {
 
         var treePanel = Ext.create('Ext.tree.Panel', {
             title: this.title,
-            border:this.border,
+            border: this.border,
             useArrows: true,
             rootVisible: false,
             store: store,
@@ -116,29 +137,11 @@ ConsequenceTypeFilterFormPanel.prototype = {
             singleExpand: true,
             hideHeaders: true,
             height: this.height,
-            collapsible :this.collapsible,
-            titleCollapse :this.titleCollapse,
+            collapsible: this.collapsible,
+            titleCollapse: this.titleCollapse,
             header: this.headerConfig,
-            flex:1,
-            columns: [
-                {
-                    xtype: 'treecolumn',
-                    flex: 2,
-                    sortable: false,
-                    dataIndex: 'name',
-                    tooltipType: 'qtip'
-                },
-                {
-                    text: '',
-                    flex: 1,
-                    dataIndex: 'acc',
-                    renderer: function (value, meta, record) {
-                        var link = "http://www.sequenceontology.org/miso/current_release/term/" + value;
-                        return ' <a href=' + link + ' target="_blank">' + value + '</a>';
-                    }
-
-                }
-            ],
+            flex: 1,
+            columns: this.columns,
             listeners: {
                 'checkchange': function (node, checked) {
                     node.cascadeBy(function (n) {
