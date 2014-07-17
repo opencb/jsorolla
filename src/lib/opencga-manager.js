@@ -653,7 +653,7 @@ var OpencgaManager = {
         open(OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/download' + OpencgaManager.getQuery(queryParams));
     },
 
-    jobInfo:function(args){
+    jobInfo: function (args) {
         var queryParams = {
             'sessionid': args.sessionId
         };
@@ -749,44 +749,31 @@ var OpencgaManager = {
         OpencgaManager.doGet(url, success, error);
     },
 
-    variants: function (args) {
-//        accountId, sessionId, jobId, filename
+
+/********/
+/********/
+/********/
+/********/
+/********/
+    // variation
+    variantsUrl: function (args) {
+//        accountId, sessionId, jobId
         var queryParams = {
-            'sessionid': args.sessionId,
-            'filename': args.fileName
-        };
-        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variants' + OpencgaManager.getQuery(queryParams);
-
-        function success(data) {
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: args.formData,
-            dataType: 'json',
-            success: success,
-            error: error
-        });
-
-//        OpencgaManager.doPost(url, args.formData ,success, error);
-        //	console.log(url);
-    },
-    variantsMongo: function (args) {
-//        accountId, sessionId, jobId, filename
-        var queryParams = {
-            'sessionid': args.sessionId,
-            'filename': args.fileName
+            'sessionid': args.sessionId
         };
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variantsMongo' + OpencgaManager.getQuery(queryParams);
-        console.log(url);
+        return url
+    },
+    variantInfoMongo: function (args) {
+//        accountId, sessionId, jobId, filename
+        var queryParams = {
+            'sessionid': args.sessionId
+//            'filename': args.filename
+        };
+        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variantInfoMongo' + OpencgaManager.getQuery(queryParams);
 
         function success(data) {
+            console.log(data);
             args.success(data);
         }
 
@@ -795,17 +782,17 @@ var OpencgaManager = {
         }
 
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: url,
-            data: args.formData,
-            dataType: 'json',
+            async: args.async,
             success: success,
             error: error
         });
-
-//        OpencgaManager.doPost(url, args.formData ,success, error);
         //	console.log(url);
     },
+
+
+
     variant_effects: function (args) {
 //        accountId, sessionId, jobId, filename
         var queryParams = {
@@ -841,26 +828,6 @@ var OpencgaManager = {
             'filename': args.filename
         };
         var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variant_info' + OpencgaManager.getQuery(queryParams);
-
-        function success(data) {
-            console.log(data);
-            args.success(data);
-        }
-
-        function error(data) {
-            if (_.isFunction(args.error)) args.error(data);
-        }
-
-        OpencgaManager.doGet(url, success, error);
-        //	console.log(url);
-    },
-    variantInfoMongo: function (args) {
-//        accountId, sessionId, jobId, filename
-        var queryParams = {
-            'sessionid': args.sessionId
-//            'filename': args.filename
-        };
-        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variantInfoMongo' + OpencgaManager.getQuery(queryParams);
 
         function success(data) {
             console.log(data);

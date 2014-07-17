@@ -26,14 +26,18 @@ function VariantBrowserGrid(args) {
     this.target;
     this.data = [];
     this.dataParser;
+    this.responseParser;
     this.columns;
     this.attributes;
     this.type;
-    this.height = 300;
-    this.pageSize = 15;
+    this.height = 400;
+    this.pageSize = 10;
     this.title = "VariantBrowserGrid";
     this.autoRender = true;
     this.border = false;
+    this.responseRoot = "response[0].result";
+    this.responseTotal = "response[0].numTotalResults";
+    this.startParam = "skip";
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -182,15 +186,19 @@ VariantBrowserGrid.prototype = {
             proxy: {
                 url: baseUrl,
                 type: 'ajax',
-                startParam: 'skip',
+                startParam: this.startParam,
                 reader: {
-                    root: "response[0].result",
-                    totalProperty: "response[0].numTotalResults",
+                    root: this.responseRoot,
+                    totalProperty: this.responseTotal,
                     transform: function (response) {
+//                        var data = [];
+//                        if (typeof _this.responseParser !== 'undefined') {
+//                            data = _this.responseParser(response);
+//                        }
 
-                        var data = (response.response[0].result) ? response.response[0].result : [];
+                        var data = response.response.result
 
-                        if (typeof this.dataParser !== 'undefined') {
+                        if (typeof _this.dataParser !== 'undefined') {
                             _this.dataParser(data);
                         } else {
                             _this._parserFunction(data);

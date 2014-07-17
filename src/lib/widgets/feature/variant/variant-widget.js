@@ -46,6 +46,10 @@ function VariantWidget(args) {
     this.defaultToolConfig = {effect: true, genomeViewer: true, genotype: true, stats: true};
     this.tools = [];
     this.dataParser;
+    this.responseParser;
+    this.responseRoot;
+    this.responseTotal;
+    this.startParam;
     this.browserGridConfig = {
         title: 'variant browser grid',
         border: false
@@ -241,6 +245,10 @@ VariantWidget.prototype = {
             data: this.data,
             border: this.browserGridConfig.border,
             dataParser: this.dataParser,
+            responseRoot: this.responseRoot,
+            responseTotal: this.responseTotal,
+            responseParser: this.responseParser,
+            startParam: this.startParam,
             attributes: this.attributes,
             columns: this.columns,
             headerConfig: this.headerConfig,

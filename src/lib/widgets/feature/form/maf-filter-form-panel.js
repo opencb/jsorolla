@@ -69,6 +69,7 @@ MafFilterFormPanel.prototype = {
 
         var thousandContainer = Ext.create('Ext.form.FieldContainer', {
             margin: '10 0 0 0',
+            flex: 1,
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -79,6 +80,7 @@ MafFilterFormPanel.prototype = {
                     labelAlign: 'right',
                     fieldLabel: '1000G MAF < ',
                     name: 'maf_1000g_controls',
+                    flex: 1,
                     labelWidth: 100
                 },
                 {
@@ -86,6 +88,7 @@ MafFilterFormPanel.prototype = {
                     labelAlign: 'right',
                     fieldLabel: 'EVS MAF < ',
                     labelWidth: 100,
+                    flex: 1,
                     name: 'maf_evs_controls'
 
                 }
@@ -95,7 +98,8 @@ MafFilterFormPanel.prototype = {
         var populationsContainer = Ext.create('Ext.form.FieldContainer', {
             fieldLabel: '<span style="color:gray">1000G Populations</span>',
             labelAlign: 'top',
-            margin: '20 0 0 0',
+            margin: '20 0 5 0',
+            flex: 1,
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -106,6 +110,7 @@ MafFilterFormPanel.prototype = {
                     labelAlign: 'right',
                     fieldLabel: 'African MAF < ',
                     labelWidth: 110,
+                    flex: 1,
                     name: 'maf_1000g_afr_controls'
                 },
                 {
@@ -113,6 +118,7 @@ MafFilterFormPanel.prototype = {
                     labelAlign: 'right',
                     fieldLabel: 'American MAF < ',
                     labelWidth: 110,
+                    flex: 1,
                     name: 'maf_1000g_ame_controls'
                 },
                 {
@@ -120,6 +126,7 @@ MafFilterFormPanel.prototype = {
                     labelAlign: 'right',
                     fieldLabel: 'Asian MAF < ',
                     labelWidth: 110,
+                    flex: 1,
                     name: 'maf_1000g_asi_controls'
                 },
                 {
@@ -127,6 +134,7 @@ MafFilterFormPanel.prototype = {
                     labelAlign: 'right',
                     fieldLabel: 'European MAF < ',
                     labelWidth: 110,
+                    flex: 1,
                     name: 'maf_1000g_eur_controls'
                 }
             ]
