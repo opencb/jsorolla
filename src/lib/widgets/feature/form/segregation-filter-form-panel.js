@@ -114,7 +114,6 @@ SegregationFilterFormPanel.prototype = {
             bodyPadding: "5",
             margin: "0 0 5 0",
             buttonAlign: 'center',
-            flex: 1,
             layout: {
                 type: 'vbox',
                 align: 'stretch'

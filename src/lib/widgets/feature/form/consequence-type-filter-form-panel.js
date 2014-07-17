@@ -30,6 +30,7 @@ function ConsequenceTypeFilterFormPanel(args) {
     this.autoRender = true;
     this.collapsible = true;
     this.titleCollapse = false;
+    this.collapsed = false;
     this.headerConfig;
     this.consequenceTypes = [];
     this.fields = [
@@ -139,8 +140,8 @@ ConsequenceTypeFilterFormPanel.prototype = {
             height: this.height,
             collapsible: this.collapsible,
             titleCollapse: this.titleCollapse,
+            collapsed: this.collapsed,
             header: this.headerConfig,
-            flex: 1,
             columns: this.columns,
             listeners: {
                 'checkchange': function (node, checked) {

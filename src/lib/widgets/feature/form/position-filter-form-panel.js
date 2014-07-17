@@ -109,7 +109,6 @@ PositionFilterFormPanel.prototype = {
             titleCollapse: this.titleCollapse,
             header: this.headerConfig,
             allowBlank: false,
-            flex: 1,
             items: [snp, regionList, gene]
         });
 
