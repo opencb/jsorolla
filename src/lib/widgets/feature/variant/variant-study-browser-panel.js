@@ -26,8 +26,19 @@ function VariantStudyBrowserPanel(args) {
     this.title = "Study Browser";
     this.height = 800;
     this.autoRender = true;
-    this.studies = [];
+    this.studiesStore;
     this.host;
+    this.border = false;
+    this.speciesList = [
+        {
+            assembly: "GRCh37.p7",
+            common: "human",
+            id: "extModel256-1",
+            sciAsembly: "Homo sapiens (GRCh37.p7)",
+            scientific: "Homo sapiens",
+            species: "hsa"
+        }
+    ];
 
     _.extend(this, args);
 
@@ -67,113 +78,218 @@ VariantStudyBrowserPanel.prototype = {
     },
     _createPanel: function () {
         var _this = this;
-        this.studiesStore = Ext.create('Ext.data.Store', {
-            fields: ["projectId", "alias", "title"],
-            data: this.studies
+
+        var speciesStore = Ext.create('Ext.data.Store', {
+            autoLoad: true,
+            fields: ['species', 'common', 'scientific', 'assembly', 'sciAsembly'],
+            data: this.speciesList
         });
+
+        var speciesCombo = Ext.create('Ext.form.field.ComboBox', {
+            fieldLabel: 'Choose Species',
+//            labelWidth: this.labelWidth,
+            labelAlign: 'top',
+            name: 'species',
+            displayField: 'scientific',
+            valueField: 'species',
+            editable: false,
+            allowBlank: false,
+            store: speciesStore,
+            listeners: {
+                change: function () {
+                    if (this.getValue()) {
+
+                    }
+                }
+            }
+        });
+
+//        var studiesStore = Ext.create('Ext.data.Store', {
+//            fields: [
+//                {name: 'studyName', type: 'string'},
+//                {name: 'studyId', type: 'string'}
+//            ],
+//            storeId: this.id+'ConsequenceTypeSelectorStore',
+//            data: this.studies
+//        });
+
+//        var tagField = Ext.create('Ext.form.field.Tag', {
+//            fieldLabel: 'Select a study',
+//            labelAlign: 'top',
+//            store: this.studiesStore,
+//            reference: this.id + 'ConsequenceTypeSelectorStore',
+//            displayField: 'title',
+//            valueField: 'projectId',
+//            filterPickList: true,
+//            queryMode: 'local',
+//            publishes: 'value',
+//            flex: 1,
+//            grow: false,
+//            autoScroll: true,
+//            name: 'studies',
+//            listeners: {
+//                change: function () {
+//                    var parent = this.up();
+//                    if (parent) {
+//                        parent.update();
+//                    }
+//                }
+//            }
+//        });
+
+        var studySearchField = Ext.create('Ext.form.field.Text', {
+            fieldLabel: 'Name Search',
+            labelAlign: 'top',
+            emptyText: 'search',
+            listeners: {
+                change: function () {
+                    var value = this.getValue();
+                    if (value == "") {
+                        _this.studiesStore.clearFilter();
+                    } else {
+                        var regex = new RegExp(value, "gi");
+                        _this.studiesStore.filterBy(function (e) {
+                            return regex.test(e.get('title'));
+                        });
+                    }
+                }
+            }
+
+        });
+
+        var grid = Ext.create('Ext.grid.Panel', {
+                title: 'Studies',
+                store: this.studiesStore,
+                header: this.headerConfig,
+                loadMask: true,
+//                hideHeaders: true,
+                plugins: 'bufferedrenderer',
+                height: 500,
+                features: [
+                    {ftype: 'summary'}
+                ],
+                viewConfig: {
+                    emptyText: 'No studies found',
+                    enableTextSelection: true,
+                    markDirty:false,
+                    listeners: {
+                        itemclick: function (este, record) {
+//                            var url = _this.host + "v1/studies/" + record.get("projectId") + "/summary"
+//                            $.ajax({
+//                                url: url,
+//                                dataType: 'json',
+//                                async: false,
+//                                success: function (response, textStatus, jqXHR) {
+//                                    var data = (response !== undefined && response.response.length > 0 ) ? response.response[0].result[0] : [];
+//
+//                                    var studyPanel = _this._createStudyPanel(data);
+//
+//                                    $.ajax({
+//                                        url: _this.host + "v1/studies/" + record.get("alias") + "/files",
+//                                        dataType: 'json',
+//                                        success: function (response, textStatus, jqXHR) {
+//                                            var files = (response !== undefined && response.response.length > 0 && response.response[0].numResults > 0) ? response.response[0].result : [];
+//
+//                                            var filesPanel = _this._createFilesPanel(files);
+//                                            _this.rightPanel.removeAll(true);
+//                                            _this.rightPanel.add(studyPanel);
+//                                            _this.rightPanel.add(filesPanel);
+//
+//                                        },
+//                                        error: function (jqXHR, textStatus, errorThrown) {
+//                                            console.log('Error loading studies');
+//                                        }
+//                                    });
+//                                },
+//                                error: function (jqXHR, textStatus, errorThrown) {
+//                                    console.log('Error loading studies');
+//                                }
+//                            });
+                        },
+                        itemcontextmenu: function (este, record, item, index, e) {
+
+                        }
+                    }
+                },
+                selModel: {
+                    listeners: {
+                        'selectionchange': function (sm, selectedRecord) {
+                            if (selectedRecord.length) {
+                                var row = selectedRecord[0].data;
+                                _this.trigger("variant:change", {sender: _this, args: row});
+                            }
+                        }
+                    }
+                },
+                columns: [
+                    {
+                        text: 'Active',
+                        xtype: 'checkcolumn',
+                        dataIndex: 'uiactive',
+                        flex: 1
+                    },
+                    {
+                        text: "Name",
+                        dataIndex: 'studyName',
+                        flex:10
+                    },
+                    {
+                        text: "ID",
+                        dataIndex: 'studyId',
+                        flex: 3
+                    }
+                ],
+//                tbar: {
+//                    height: 40,
+//                    items: [
+//
+//                    ]
+//                }
+            }
+        );
+
         this.leftPanel = Ext.create('Ext.container.Container', {
             flex: 1,
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
+            defaults: {
+                margin: 10
+            },
             items: [
-                {
-                    xtype: 'box',
-                    html: 'Species',
-                    cls: 'ocb-header-3',
-                    margin: '0 0 25 0'
-                },
-                {
-                    xtype: 'box',
-                    html: 'Studies',
-                    cls: 'ocb-header-3'
-                },
-                Ext.create('Ext.view.View', {
-                    padding: 15,
-                    store: this.studiesStore,
-                    tpl: new Ext.XTemplate([
-                        '<tpl for=".">',
-                            '<div class="ocb-job-list-widget-item">{title} </div> ' +
-                            '</tpl>']),
-
-                    trackOver: true,
-                    autoScroll: true,
-                    overItemCls: 'ocb-job-list-widget-item-hover',
-                    itemSelector: '.ocb-job-list-widget-item',
-                    listeners: {
-                        itemclick: function (este, record) {
-                            var url = _this.host + "v1/studies/" + record.get("projectId") + "/summary"
-                            $.ajax({
-                                url: url,
-                                dataType: 'json',
-                                async: false,
-                                success: function (response, textStatus, jqXHR) {
-                                    var data = (response !== undefined && response.response.length > 0 ) ? response.response[0].result[0] : [];
-
-                                    var studyPanel = _this._createStudyPanel(data);
-
-                                    $.ajax({
-                                        url: _this.host + "v1/studies/" + record.get("alias") + "/files",
-                                        dataType: 'json',
-                                        success: function (response, textStatus, jqXHR) {
-                                            var files = (response !== undefined && response.response.length > 0 && response.response[0].numResults > 0) ? response.response[0].result : [];
-
-                                            var filesPanel = _this._createFilesPanel(files);
-                                            _this.rightPanel.removeAll(true);
-                                            _this.rightPanel.add(studyPanel);
-                                            _this.rightPanel.add(filesPanel);
-
-                                        },
-                                        error: function (jqXHR, textStatus, errorThrown) {
-                                            console.log('Error loading studies');
-                                        }
-                                    });
-                                },
-                                error: function (jqXHR, textStatus, errorThrown) {
-                                    console.log('Error loading studies');
-                                }
-                            });
-                        },
-                        itemcontextmenu: function (este, record, item, index, e) {
-
-                        }
-                    }
-                })
+                speciesCombo,
+                studySearchField
             ]
         });
 
+
         this.rightPanel = Ext.create('Ext.container.Container', {
+            flex: 4,
             layout: {
                 type: 'vbox',
                 align: 'stretch'
-            }
+            },
+            defaults: {
+                margin: 10
+            },
+            items: [grid]
         });
 
-        var panel = Ext.create('Ext.container.Container', {
+        var panel = Ext.create('Ext.panel.Panel', {
+            title: this.title,
+            border: this.border,
+            header: this.headerConfig,
             layout: {
                 type: 'hbox',
                 align: 'stretch'
             },
+            defaults: {
+                margin: 10
+            },
             items: [
                 this.leftPanel,
-                {
-                    xtype: 'container',
-                    flex: 4,
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    items: [
-                        {
-                            xtype: 'box',
-                            html: 'Information',
-                            cls: 'ocb-header-3'
-                        },
-                        this.rightPanel
-                    ]
-                }
-
+                this.rightPanel
             ]
         });
 

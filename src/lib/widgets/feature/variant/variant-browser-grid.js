@@ -31,7 +31,7 @@ function VariantBrowserGrid(args) {
     this.type;
     this.height = 300;
     this.pageSize = 15;
-    this.title = "Variant Browser";
+    this.title = "VariantBrowserGrid";
     this.autoRender = true;
     this.border = false;
 

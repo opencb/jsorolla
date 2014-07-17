@@ -26,17 +26,13 @@ function StudyFilterFormPanel(args) {
     this.target;
     this.autoRender = true;
     this.title = "Select Studies";
-    this.studies = [];
-    this.urlStudies = "";
+    this.studiesStore;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
     this.on(this.handlers);
 
-    if (this.studies.length == 0 && this.urlStudies != "") {
-        this._loadStudies();
-    }
 
     this.rendered = false;
     if (this.autoRender) {
@@ -67,20 +63,15 @@ StudyFilterFormPanel.prototype = {
         this.panel.render(this.div);
     },
     _createPanel: function () {
-
-        var model = Ext.define('ConsequenceTypeSelectorModel', {
-            extend: 'Ext.data.Model',
-            fields: [
-                {name: 'studyName', type: 'string'},
-                {name: 'studyId', type: 'string'}
-            ]
-        });
-
-        var store = Ext.create('Ext.data.Store', {
-            model: model,
-            storeId: 'ConsequenceTypeSelectorStore',
-            data: this.studies
-        });
+        var _this = this;
+//        var store = Ext.create('Ext.data.Store', {
+//            fields: [
+//                {name: 'studyName', type: 'string'},
+//                {name: 'studyId', type: 'string'}
+//            ],
+//            storeId: this.id + 'ConsequenceTypeSelectorStore',
+//            data: this.studiesStore
+//        });
 
 //        var cbg = Ext.create('Ext.form.CheckboxGroup', {
 ////            layout: 'hbox',
@@ -103,42 +94,117 @@ StudyFilterFormPanel.prototype = {
 //
 //        cbg.add(cbgItems);
 
-        this.tagField = Ext.create('Ext.form.field.Tag', {
-//            fieldLabel: 'Select a study',
-//                    labelAlign: 'top',
-            store: store,
-            reference: 'ConsequenceTypeSelectorStore',
-            displayField: 'studyName',
-            valueField: 'studyId',
-            filterPickList: true,
-            queryMode: 'local',
-            publishes: 'value',
+//        this.tagField = Ext.create('Ext.form.field.Tag', {
+////            fieldLabel: 'Select a study',
+////                    labelAlign: 'top',
+//            store: this.studiesStore,
+//            reference: this.id + 'ConsequenceTypeSelectorStore',
+//            displayField: 'studyName',
+//            valueField: 'studyId',
+//            filterPickList: true,
+//            queryMode: 'local',
+//            publishes: 'value',
+//            flex: 1,
+//            grow: false,
+//            autoScroll: true,
+//            name: 'studies',
+//            listeners: {
+//                change: function () {
+//                    var form = this.up();
+//                    if (form) {
+//                        form.update();
+//                    }
+//                }
+//            }
+//        });
+
+        var studySearchField = Ext.create('Ext.form.field.Text', {
             flex: 1,
-            grow: false,
-            autoScroll: true,
-            name: 'studies',
+            emptyText: 'search',
             listeners: {
                 change: function () {
-                    var form = this.up();
-                    if (form) {
-                        form.update();
+                    var value = this.getValue();
+                    if (value == "") {
+                        _this.studiesStore.clearFilter();
+                    } else {
+                        var regex = new RegExp(value, "gi");
+                        _this.studiesStore.filterBy(function (e) {
+                            return regex.test(e.get('title'));
+                        });
                     }
                 }
             }
         });
 
+        var grid = Ext.create('Ext.grid.Panel', {
+                store: this.studiesStore,
+                border: false,
+                loadMask: true,
+//                hideHeaders: true,
+                plugins: 'bufferedrenderer',
+                height: 300,
+                features: [
+                    {ftype: 'summary'}
+                ],
+                viewConfig: {
+                    emptyText: 'No studies found',
+                    enableTextSelection: true,
+                    markDirty: false,
+                    listeners: {
+                        itemclick: function (este, record) {
+                        },
+                        itemcontextmenu: function (este, record, item, index, e) {
+
+                        }
+                    }
+                },
+                selModel: {
+                    listeners: {
+                        'selectionchange': function (selModel, selectedRecord) {
+
+                        }
+                    }
+                },
+                columns: [
+                    {
+                        text: 'Active',
+                        xtype: 'checkcolumn',
+                        dataIndex: 'uiactive',
+                        flex: 3
+                    },
+                    {
+                        text: "Name",
+                        dataIndex: 'studyName',
+                        flex: 10
+                    },
+//                    {
+//                        text: "ID",
+//                        dataIndex: 'studyId',
+//                        flex: 3
+//                    }
+                ],
+                tbar: {
+                    height: 40,
+                    items: [
+                        studySearchField
+                    ]
+                }
+            }
+        );
+
+
         var form = Ext.create('Ext.form.Panel', {
             bodyPadding: "5",
             margin: "0 0 5 0",
             buttonAlign: 'center',
-            title: this.title,
             border: false,
+            title: this.title,
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
             items: [
-                this.tagField
+                grid
             ]
         });
 
@@ -152,24 +218,5 @@ StudyFilterFormPanel.prototype = {
     },
     clear: function () {
         this.panel.reset();
-    },
-    _loadStudies: function () {
-        var _this = this;
-        $.ajax({
-            url: this.urlStudies,
-            dataType: 'json',
-            async: false,
-            success: function (response, textStatus, jqXHR) {
-                var data = (response !== undefined && response.response.length > 0 && response.response[0].numResults > 0) ? response.response[0].result : [];
-
-                for (var i = 0; i < data.length; i++) {
-                    var study = data[i];
-                    _this.studies.push(study);
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log('Error loading Phenotypes');
-            }
-        });
     }
 }

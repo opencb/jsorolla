@@ -47,12 +47,18 @@ function VariantWidget(args) {
     this.tools = [];
     this.dataParser;
     this.browserGridConfig = {
+        title: 'variant browser grid',
+        border: false
+    };
+    this.toolPanelConfig = {
+        title: 'Variant data',
         border: false
     };
 
 
     _.extend(this.filters, args.filters);
     _.extend(this.browserGridConfig, args.browserGridConfig);
+    _.extend(this.toolsPanelConfig, args.toolsPanelConfig);
     _.extend(this.defaultToolConfig, args.defaultToolConfig);
 
     delete args.filters;
@@ -94,7 +100,8 @@ VariantWidget.prototype = {
         this.div.appendChild(this.tabPanelDiv);
 
         this.toolTabPanel = Ext.create("Ext.tab.Panel", {
-            border: false,
+            title: this.toolPanelConfig.title,
+            border: this.toolPanelConfig.border,
             layout: 'fit',
             margin: '10 0 0 0',
             plain: true,
@@ -229,6 +236,7 @@ VariantWidget.prototype = {
 
 
         var variantBrowserGrid = new VariantBrowserGrid({
+            title: this.browserGridConfig.title,
             target: target,
             data: this.data,
             border: this.browserGridConfig.border,
