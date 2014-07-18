@@ -750,18 +750,15 @@ var OpencgaManager = {
     },
 
 
-/********/
-/********/
-/********/
-/********/
-/********/
+    /********/
+    /********/
+    /********/
+    /********/
+    /********/
     // variation
     variantsUrl: function (args) {
-//        accountId, sessionId, jobId
-        var queryParams = {
-            'sessionid': args.sessionId
-        };
-        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variantsMongo' + OpencgaManager.getQuery(queryParams);
+//        accountId, jobId
+        var url = OpencgaManager.getJobAnalysisUrl(args.accountId, args.jobId) + '/variantsMongo'
         return url
     },
     variantInfoMongo: function (args) {
@@ -790,7 +787,6 @@ var OpencgaManager = {
         });
         //	console.log(url);
     },
-
 
 
     variant_effects: function (args) {

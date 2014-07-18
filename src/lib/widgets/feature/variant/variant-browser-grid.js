@@ -82,6 +82,8 @@ VariantBrowserGrid.prototype = {
             fields: this.attributes
         });
 
+
+
         this.store = Ext.create('Ext.data.Store', {
                 pageSize: this.pageSize,
                 model: this.model,
@@ -98,6 +100,13 @@ VariantBrowserGrid.prototype = {
 
             }
         );
+
+        for (var i = 0; i < this.samples.length; i++) {
+            var sampleName = this.samples[i];
+            this._addSampleColumn(sampleName);
+        }
+
+
         this.paging = Ext.create('Ext.PagingToolbar', {
             store: _this.store,
             id: _this.id + "_pagingToolbar",
@@ -250,5 +259,34 @@ VariantBrowserGrid.prototype = {
     },
     setLoading: function (loading) {
         this.panel.setLoading(loading);
+    },
+    _addSampleColumn: function (sampleName) {
+
+        var _this = this;
+
+        for (var i = 0; i < _this.attributes.length; i++) {
+            if (_this.attributes[i].name == sampleName) {
+                return false;
+            }
+        }
+
+        _this.attributes.push({
+            "name": sampleName,
+            "type": "string"
+        });
+
+        for (var i = 0; i < _this.columns.length; i++) {
+            var col = _this.columns[i];
+
+            if (col['text'] == "Samples") {
+                col["columns"].push({
+                    "text": sampleName,
+                    "dataIndex": sampleName,
+                    "flex": 1,
+                    "sortable": false
+                });
+            }
+        }
+        this.store.setFields(this.attributes);
     }
 };

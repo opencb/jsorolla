@@ -43,6 +43,7 @@ function VariantWidget(args) {
     this.headerConfig;
     this.attributes = [];
     this.columns = [];
+    this.samples = [];
     this.defaultToolConfig = {effect: true, genomeViewer: true, genotype: true, stats: true};
     this.tools = [];
     this.dataParser;
@@ -114,6 +115,7 @@ VariantWidget.prototype = {
             collapseDirection: Ext.Component.DIRECTION_BOTTOM,
             titleCollapse: true,
             overlapHeader: true,
+            height:540,
             defaults: {
                 hideMode: 'offsets',
                 autoShow: true
@@ -137,8 +139,7 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: 'File and Stats',
 //                border: 0,
-                contentEl: this.variantStatsPanelDiv,
-                height: 500
+                contentEl: this.variantStatsPanelDiv
             });
         }
 
@@ -148,8 +149,7 @@ VariantWidget.prototype = {
             this.variantEffectGrid = this._createVariantEffectGrid(this.variantEffectGridDiv);
             tabPanelItems.push({
                 title: 'Effect and Annotation',
-                contentEl: this.variantEffectGridDiv,
-                height: 500
+                contentEl: this.variantEffectGridDiv
             });
         }
 
@@ -160,8 +160,7 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: 'Genotype',
 //                border: 0,
-                contentEl: this.variantGenotypeGridDiv,
-                height: 500
+                contentEl: this.variantGenotypeGridDiv
             });
         }
 
@@ -171,7 +170,8 @@ VariantWidget.prototype = {
             this.genomeViewer = this._createGenomeViewer(this.genomeViewerDiv);
             tabPanelItems.push({
                 title: 'Genomic Context',
-                contentEl: this.genomeViewerDiv
+                contentEl: this.genomeViewerDiv,
+                autoScroll:true
             });
         }
 
@@ -183,8 +183,7 @@ VariantWidget.prototype = {
 
             tabPanelItems.push({
                 title: tool.title,
-                contentEl: toolDiv,
-                height: 500
+                contentEl: toolDiv
             });
         }
 
@@ -251,6 +250,7 @@ VariantWidget.prototype = {
             startParam: this.startParam,
             attributes: this.attributes,
             columns: this.columns,
+            samples:this.samples,
             headerConfig: this.headerConfig,
             handlers: {
                 "variant:change": function (e) {
@@ -371,7 +371,7 @@ VariantWidget.prototype = {
             target: target,
             border: false,
             resizable: true,
-            width: this.width,
+            width: this.width-20,
             region: region,
             trackListTitle: '',
             drawNavigationBar: true,
