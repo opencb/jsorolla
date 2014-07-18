@@ -58,9 +58,8 @@ ul.ocb-header li.description {
 }
 
 ul.ocb-header > li.menu {
-    font-size: 24px;
+    font-size: 16px;
     padding: 0 20px;
-    font-weight: bold;
 }
 
 ul.ocb-header > li.active {
@@ -176,6 +175,60 @@ ul.ocb-app-menu > li {
 .ocb-msg-shown {
     top: 0px;
 }
+
+
+/*Table*/
+.ocb-attributes-table {
+    cellspacing: 0;
+    border-collapse: collapse;
+    border: 1px solid #d3d3d3;
+}
+
+.ocb-attributes-table tr {
+    border-collapse: collapse;
+    border: 1px solid #d3d3d3;
+}
+
+.ocb-attributes-table td {
+    border-collapse: collapse;
+    border: 1px solid #d3d3d3;
+    padding: 5px;
+    max-width: 200px;
+    overflow: hidden;
+}
+
+.ocb-attributes-table td.header {
+    border-collapse: collapse;
+    border: 1px solid #d3d3d3;
+    padding: 5px;
+    background-color: whiteSmoke;
+    color: steelblue;
+    font-weight: bold;
+}
+
+.ocb-stats-table {
+    cellspacing: 0;
+    border-collapse: collapse;
+}
+
+.ocb-stats-table tr {
+    border-collapse: collapse;
+}
+
+.ocb-stats-table td {
+    border-collapse: collapse;
+    padding: 5px;
+}
+
+.ocb-stats-table td.header {
+    border-collapse: collapse;
+    padding: 5px;
+    color: steelblue;
+    /*font-weight:bold;*/
+}
+
+
+
 
 /*Network viewer*/
 .ocb-nv-editionbar {
