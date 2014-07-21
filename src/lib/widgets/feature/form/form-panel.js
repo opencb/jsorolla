@@ -144,7 +144,7 @@ FormPanel.prototype = {
             case 'tabs':
                 this.filtersPanel = Ext.create('Ext.tab.Panel', {
                     border: false,
-                    plain: false
+                    plain: true
                 });
                 break;
             case 'accordion':
@@ -186,7 +186,7 @@ FormPanel.prototype = {
                     width: '100%',
                     bodyPadding: 5,
                     defaults: {
-                        margin: '10 5 5 5'
+                        margin: '10'
                     },
                     layout: {
                         type: 'hbox'
