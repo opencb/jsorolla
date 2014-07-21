@@ -225,7 +225,20 @@ StudyFilterFormPanel.prototype = {
         return this.panel;
     },
     getValues: function () {
-        return this.panel.getValues();
+        var values = [];
+        var records = this.studiesStore.query().items;
+        for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            var active = record.get('uiactive');
+            if (active) {
+                values.push(record.get('studyId'))
+            }
+        }
+        var res = {};
+        if (values.length > 0) {
+            res['studies'] = values;
+        }
+        return res;
     },
     clear: function () {
         this.panel.reset();
