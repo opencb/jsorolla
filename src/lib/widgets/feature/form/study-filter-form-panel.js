@@ -26,7 +26,10 @@ function StudyFilterFormPanel(args) {
     this.target;
     this.autoRender = true;
     this.title = "Select Studies";
+//    this.studies = [];
     this.studiesStore;
+    this.border = true;
+    this.height = 300;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -70,7 +73,7 @@ StudyFilterFormPanel.prototype = {
 //                {name: 'studyId', type: 'string'}
 //            ],
 //            storeId: this.id + 'ConsequenceTypeSelectorStore',
-//            data: this.studiesStore
+//            data: []
 //        });
 
 //        var cbg = Ext.create('Ext.form.CheckboxGroup', {
@@ -118,8 +121,20 @@ StudyFilterFormPanel.prototype = {
 //            }
 //        });
 
+//
+//        this.studiesStore = Ext.create('Ext.data.Store', {
+//            pageSize: 50,
+//            proxy: {
+//                type: 'memory'
+//            },
+//            fields: [
+//                {name: 'studyName', type: 'string'},
+//                {name: 'studyId', type: 'string'}
+//            ],
+//            autoLoad: false
+//        });
+
         var studySearchField = Ext.create('Ext.form.field.Text', {
-            flex: 1,
             emptyText: 'search',
             listeners: {
                 change: function () {
@@ -127,9 +142,9 @@ StudyFilterFormPanel.prototype = {
                     if (value == "") {
                         _this.studiesStore.clearFilter();
                     } else {
-                        var regex = new RegExp(value, "gi");
+                        var regex = new RegExp(value, "i");
                         _this.studiesStore.filterBy(function (e) {
-                            return regex.test(e.get('title'));
+                            return regex.test(e.get('studyName'));
                         });
                     }
                 }
@@ -138,14 +153,14 @@ StudyFilterFormPanel.prototype = {
 
         var grid = Ext.create('Ext.grid.Panel', {
                 store: this.studiesStore,
-                border: false,
+                border: this.border,
                 loadMask: true,
-//                hideHeaders: true,
+                hideHeaders: true,
                 plugins: 'bufferedrenderer',
-                height: 300,
                 features: [
                     {ftype: 'summary'}
                 ],
+                height: this.height - 70,
                 viewConfig: {
                     emptyText: 'No studies found',
                     enableTextSelection: true,
@@ -170,7 +185,7 @@ StudyFilterFormPanel.prototype = {
                         text: 'Active',
                         xtype: 'checkcolumn',
                         dataIndex: 'uiactive',
-                        flex: 3
+                        width: 50
                     },
                     {
                         text: "Name",
@@ -182,13 +197,7 @@ StudyFilterFormPanel.prototype = {
 //                        dataIndex: 'studyId',
 //                        flex: 3
 //                    }
-                ],
-                tbar: {
-                    height: 40,
-                    items: [
-                        studySearchField
-                    ]
-                }
+                ]
             }
         );
 
@@ -199,11 +208,13 @@ StudyFilterFormPanel.prototype = {
             buttonAlign: 'center',
             border: false,
             title: this.title,
+            height: this.height,
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
             items: [
+                studySearchField,
                 grid
             ]
         });

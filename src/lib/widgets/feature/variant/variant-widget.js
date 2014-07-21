@@ -44,13 +44,23 @@ function VariantWidget(args) {
     this.attributes = [];
     this.columns = [];
     this.samples = [];
-    this.defaultToolConfig = {effect: true, genomeViewer: true, genotype: true, stats: true};
+    this.defaultToolConfig = {
+        headerConfig: {
+            baseCls: 'ocb-title-2'
+        },
+        effect: true,
+        genomeViewer: true,
+        genotype: true,
+        stats: true
+    };
     this.tools = [];
     this.dataParser;
     this.responseParser;
-    this.responseRoot;
-    this.responseTotal;
-    this.startParam;
+
+    this.responseRoot = "response[0].result";
+    this.responseTotal = "response[0].numTotalResults";
+    this.startParam = "skip";
+
     this.browserGridConfig = {
         title: 'variant browser grid',
         border: false
@@ -59,11 +69,15 @@ function VariantWidget(args) {
         title: 'Variant data',
         border: false
     };
+    this.toolsConfig = {
+        headerConfig: {
+            baseCls: 'ocb-title-2'
+        }
+    };
 
 
     _.extend(this.filters, args.filters);
     _.extend(this.browserGridConfig, args.browserGridConfig);
-    _.extend(this.toolsPanelConfig, args.toolsPanelConfig);
     _.extend(this.defaultToolConfig, args.defaultToolConfig);
 
     delete args.filters;
@@ -95,11 +109,6 @@ VariantWidget.prototype = {
 
         this.variantBrowserGrid = this._createVariantBrowserGrid(this.variantBrowserGridDiv);
 
-//        this.tabPanelTitle = document.createElement('div');
-//        this.tabPanelTitle.setAttribute('class', 'ocb-variant-tab-panel-title');
-//        this.tabPanelTitle.innerHTML = 'Variant Data';
-//        this.div.appendChild(this.tabPanelTitle);
-
         this.tabPanelDiv = document.createElement('div');
         this.tabPanelDiv.setAttribute('class', 'ocb-variant-tab-panel');
         this.div.appendChild(this.tabPanelDiv);
@@ -115,7 +124,7 @@ VariantWidget.prototype = {
             collapseDirection: Ext.Component.DIRECTION_BOTTOM,
             titleCollapse: true,
             overlapHeader: true,
-            height:540,
+            height: 540,
             defaults: {
                 hideMode: 'offsets',
                 autoShow: true
@@ -171,7 +180,7 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: 'Genomic Context',
                 contentEl: this.genomeViewerDiv,
-                autoScroll:true
+                autoScroll: true
             });
         }
 
@@ -250,7 +259,7 @@ VariantWidget.prototype = {
             startParam: this.startParam,
             attributes: this.attributes,
             columns: this.columns,
-            samples:this.samples,
+            samples: this.samples,
             headerConfig: this.headerConfig,
             handlers: {
                 "variant:change": function (e) {
@@ -270,6 +279,7 @@ VariantWidget.prototype = {
         var _this = this;
         var variantEffectGrid = new VariantEffectGrid({
             target: target,
+            headerConfig: this.defaultToolConfig.headerConfig,
             gridConfig: {
                 flex: 1,
                 layout: {
@@ -302,6 +312,7 @@ VariantWidget.prototype = {
         var _this = this;
         var variantStatsPanel = new VariantStatsPanel({
             target: target,
+            headerConfig: this.defaultToolConfig.headerConfig,
             handlers: {
                 "load:finish": function (e) {
 //                    _this.grid.setLoading(false);
@@ -327,6 +338,7 @@ VariantWidget.prototype = {
         var _this = this;
         var variantGenotypeGrid = new VariantGenotypeGrid({
             target: target,
+            headerConfig: this.defaultToolConfig.headerConfig,
             gridConfig: {
                 flex: 1,
                 layout: {
@@ -371,7 +383,7 @@ VariantWidget.prototype = {
             target: target,
             border: false,
             resizable: true,
-            width: this.width-20,
+            width: this.width - 20,
             region: region,
             trackListTitle: '',
             drawNavigationBar: true,

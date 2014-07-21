@@ -26,6 +26,7 @@ function VariantStudyBrowserPanel(args) {
     this.title = "Study Browser";
     this.height = 800;
     this.autoRender = true;
+//    this.studies = [];
     this.studiesStore;
     this.host;
     this.border = false;
@@ -104,37 +105,16 @@ VariantStudyBrowserPanel.prototype = {
             }
         });
 
-//        var studiesStore = Ext.create('Ext.data.Store', {
+//        this.studiesStore = Ext.create('Ext.data.Store', {
+//            pageSize: 50,
+//            proxy: {
+//                type: 'memory'
+//            },
 //            fields: [
 //                {name: 'studyName', type: 'string'},
 //                {name: 'studyId', type: 'string'}
 //            ],
-//            storeId: this.id+'ConsequenceTypeSelectorStore',
 //            data: this.studies
-//        });
-
-//        var tagField = Ext.create('Ext.form.field.Tag', {
-//            fieldLabel: 'Select a study',
-//            labelAlign: 'top',
-//            store: this.studiesStore,
-//            reference: this.id + 'ConsequenceTypeSelectorStore',
-//            displayField: 'title',
-//            valueField: 'projectId',
-//            filterPickList: true,
-//            queryMode: 'local',
-//            publishes: 'value',
-//            flex: 1,
-//            grow: false,
-//            autoScroll: true,
-//            name: 'studies',
-//            listeners: {
-//                change: function () {
-//                    var parent = this.up();
-//                    if (parent) {
-//                        parent.update();
-//                    }
-//                }
-//            }
 //        });
 
         var studySearchField = Ext.create('Ext.form.field.Text', {
@@ -147,9 +127,9 @@ VariantStudyBrowserPanel.prototype = {
                     if (value == "") {
                         _this.studiesStore.clearFilter();
                     } else {
-                        var regex = new RegExp(value, "gi");
+                        var regex = new RegExp(value, "i");
                         _this.studiesStore.filterBy(function (e) {
-                            return regex.test(e.get('title'));
+                            return regex.test(e.get('studyName'));
                         });
                     }
                 }
@@ -157,7 +137,7 @@ VariantStudyBrowserPanel.prototype = {
 
         });
 
-        var grid = Ext.create('Ext.grid.Panel', {
+        this.grid = Ext.create('Ext.grid.Panel', {
                 title: 'Studies',
                 store: this.studiesStore,
                 header: this.headerConfig,
@@ -171,7 +151,7 @@ VariantStudyBrowserPanel.prototype = {
                 viewConfig: {
                     emptyText: 'No studies found',
                     enableTextSelection: true,
-                    markDirty:false,
+                    markDirty: false,
                     listeners: {
                         itemclick: function (este, record) {
 //                            var url = _this.host + "v1/studies/" + record.get("projectId") + "/summary"
@@ -231,7 +211,7 @@ VariantStudyBrowserPanel.prototype = {
                     {
                         text: "Name",
                         dataIndex: 'studyName',
-                        flex:10
+                        flex: 10
                     },
                     {
                         text: "ID",
@@ -273,7 +253,7 @@ VariantStudyBrowserPanel.prototype = {
             defaults: {
                 margin: 10
             },
-            items: [grid]
+            items: [this.grid]
         });
 
         var panel = Ext.create('Ext.panel.Panel', {
@@ -295,144 +275,153 @@ VariantStudyBrowserPanel.prototype = {
 
         return panel;
     },
-    _createStudyPanel: function (file) {
 
-        var filePanel = Ext.create('Ext.container.Container', {
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'container',
-                    data: file,
-                    tpl: new Ext.XTemplate(
-                            '<table class="eva-stats-table">' +
-                            '<tr>' +
-                            '<td class="header">Species</td>' +
-                            '<td>{species}</td>' +
-                            '</tr>',
-                            '<tr>' +
-                            '<td class="header">Material</td>' +
-                            '<td>{material}</td>' +
-                            '</tr>',
-                            '<tr>' +
-                            '<td class="header">Scope</td>' +
-                            '<td>{scope}</td>' +
-                            '</tr>',
-                            '<tr>' +
-                            '<td class="header">Type</td>' +
-                            '<td>{type}</td>' +
-                            '</tr>',
-                            '<tr>' +
-                            '<td class="header">Sources</td>' +
-                            '<td>{sources}</td>' +
-                            '</tr>',
-                            '<tr>' +
-                            '<td class="header">Description</td>' +
-                            '<td>{description}</td>' +
-                            '</tr>',
-                        '</table>'
-                    ),
-                    margin: '5 5 5 10'
-                }
-
-            ]
-        });
-
-        return filePanel;
-
-    },
-
-
-    _createFilesPanel: function (files) {
-        var filePanels = [];
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            filePanels.push(this._createFilePanel(file));
-        }
-
-        var filesContainer = Ext.create('Ext.container.Container', {
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            overflowY: true,
-            padding: 10,
-            items: filePanels
-
-        });
-
-        var studyPanel = Ext.create('Ext.container.Container', {
-            items: [
-                filesContainer
-            ]
-        });
-        return studyPanel;
-
-    },
-    _createFilePanel: function (file) {
-
-        var filePanel = Ext.create('Ext.container.Container', {
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'box',
-                    cls: 'eva-header-5',
-                    margin: '5 5 5 10',
-                    html: file.fileName
-                },
-                {
-                    xtype: 'container',
-                    layout: 'hbox',
-                    items: [
-                        {
-                            xtype: 'container',
-                            data: file.stats,
-                            tpl: new Ext.XTemplate(
-                                    '<table class="eva-stats-table">' +
-                                    '<tr>' +
-                                    '<td class="header">Variants count:</td>' +
-                                    '<td>{variantsCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Samples count:</td>' +
-                                    '<td>{samplesCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">SNPs count:</td>' +
-                                    '<td>{snpsCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Indels count:</td>' +
-                                    '<td>{indelsCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Pass count:</td>' +
-                                    '<td>{passCount}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Ti/Tv Ratio:</td>' +
-                                    '<td>{[this.titv(values)]}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Mean quality:</td>' +
-                                    '<td>{meanQuality}</td>' +
-                                    '</tr>',
-                                '</table>', {
-                                    titv: function (values) {
-                                        var res = values.transitionsCount / values.transversionsCount;
-                                        return res.toFixed(2);
-                                    }
-                                }
-                            ),
-                            margin: '5 5 5 10'
-                        }
-                    ]
-                }
-
-            ]
-        });
-        return filePanel;
-    },
     setLoading: function (loading) {
         this.panel.setLoading(loading);
+    },
+
+    update: function () {
+        if(this.panel){
+            this.panel.update();
+        }
     }
+
+//    _createStudyPanel: function (file) {
+//
+//        var filePanel = Ext.create('Ext.container.Container', {
+//            layout: 'vbox',
+//            items: [
+//                {
+//                    xtype: 'container',
+//                    data: file,
+//                    tpl: new Ext.XTemplate(
+//                            '<table class="eva-stats-table">' +
+//                            '<tr>' +
+//                            '<td class="header">Species</td>' +
+//                            '<td>{species}</td>' +
+//                            '</tr>',
+//                            '<tr>' +
+//                            '<td class="header">Material</td>' +
+//                            '<td>{material}</td>' +
+//                            '</tr>',
+//                            '<tr>' +
+//                            '<td class="header">Scope</td>' +
+//                            '<td>{scope}</td>' +
+//                            '</tr>',
+//                            '<tr>' +
+//                            '<td class="header">Type</td>' +
+//                            '<td>{type}</td>' +
+//                            '</tr>',
+//                            '<tr>' +
+//                            '<td class="header">Sources</td>' +
+//                            '<td>{sources}</td>' +
+//                            '</tr>',
+//                            '<tr>' +
+//                            '<td class="header">Description</td>' +
+//                            '<td>{description}</td>' +
+//                            '</tr>',
+//                        '</table>'
+//                    ),
+//                    margin: '5 5 5 10'
+//                }
+//
+//            ]
+//        });
+//
+//        return filePanel;
+//
+//    },
+//
+//
+//    _createFilesPanel: function (files) {
+//        var filePanels = [];
+//        for (var i = 0; i < files.length; i++) {
+//            var file = files[i];
+//            filePanels.push(this._createFilePanel(file));
+//        }
+//
+//        var filesContainer = Ext.create('Ext.container.Container', {
+//            layout: {
+//                type: 'vbox',
+//                align: 'stretch'
+//            },
+//            overflowY: true,
+//            padding: 10,
+//            items: filePanels
+//
+//        });
+//
+//        var studyPanel = Ext.create('Ext.container.Container', {
+//            items: [
+//                filesContainer
+//            ]
+//        });
+//        return studyPanel;
+//
+//    },
+//    _createFilePanel: function (file) {
+//
+//        var filePanel = Ext.create('Ext.container.Container', {
+//            layout: 'vbox',
+//            items: [
+//                {
+//                    xtype: 'box',
+//                    cls: 'eva-header-5',
+//                    margin: '5 5 5 10',
+//                    html: file.fileName
+//                },
+//                {
+//                    xtype: 'container',
+//                    layout: 'hbox',
+//                    items: [
+//                        {
+//                            xtype: 'container',
+//                            data: file.stats,
+//                            tpl: new Ext.XTemplate(
+//                                    '<table class="eva-stats-table">' +
+//                                    '<tr>' +
+//                                    '<td class="header">Variants count:</td>' +
+//                                    '<td>{variantsCount}</td>' +
+//                                    '</tr>',
+//                                    '<tr>' +
+//                                    '<td class="header">Samples count:</td>' +
+//                                    '<td>{samplesCount}</td>' +
+//                                    '</tr>',
+//                                    '<tr>' +
+//                                    '<td class="header">SNPs count:</td>' +
+//                                    '<td>{snpsCount}</td>' +
+//                                    '</tr>',
+//                                    '<tr>' +
+//                                    '<td class="header">Indels count:</td>' +
+//                                    '<td>{indelsCount}</td>' +
+//                                    '</tr>',
+//                                    '<tr>' +
+//                                    '<td class="header">Pass count:</td>' +
+//                                    '<td>{passCount}</td>' +
+//                                    '</tr>',
+//                                    '<tr>' +
+//                                    '<td class="header">Ti/Tv Ratio:</td>' +
+//                                    '<td>{[this.titv(values)]}</td>' +
+//                                    '</tr>',
+//                                    '<tr>' +
+//                                    '<td class="header">Mean quality:</td>' +
+//                                    '<td>{meanQuality}</td>' +
+//                                    '</tr>',
+//                                '</table>', {
+//                                    titv: function (values) {
+//                                        var res = values.transitionsCount / values.transversionsCount;
+//                                        return res.toFixed(2);
+//                                    }
+//                                }
+//                            ),
+//                            margin: '5 5 5 10'
+//                        }
+//                    ]
+//                }
+//
+//            ]
+//        });
+//        return filePanel;
+//    },
+
 };

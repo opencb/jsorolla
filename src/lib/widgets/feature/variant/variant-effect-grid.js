@@ -26,7 +26,7 @@ function VariantEffectGrid(args) {
     this.autoRender = true;
     this.storeConfig = {};
     this.gridConfig = {};
-    this.height = 500;
+    this.headerConfig;
 
     _.extend(this, args);
 
@@ -47,6 +47,11 @@ VariantEffectGrid.prototype = {
         this.div = document.createElement('div');
         this.div.setAttribute('id', this.id);
 
+        this.chartDiv = document.createElement('div');
+        $(this.chartDiv).css({
+            'height': '200px'
+        });
+
         this.panel = this._createPanel();
 
     },
@@ -62,21 +67,40 @@ VariantEffectGrid.prototype = {
 
     clear: function () {
         this.store.removeAll();
+        this._updateChart([], []);
     },
     load: function (data) {
 
         var _this = this;
 
         var effects = _this._prepareEffectData(data);
-        var freqs = _this._prepareFrequencyData(data);
 
         _this.grid.setLoading(true);
         _this.clear();
         this.store.loadData(effects);
-        this.freqStore.loadData(freqs);
+
+
+        var populations = [];
+        var values = [];
+        //TODO
+//        for (key in data.controls) {
+//            values.push(data.controls[key].maf);
+//            populations.push(key);
+//        }
+        this._updateChart(populations, values);
+
+
         this.trigger("load:finish", {sender: _this})
         this.grid.setLoading(false);
 
+    },
+    _updateChart: function (populations, values) {
+        var chart = $(this.chartDiv).highcharts();
+        if (chart) {
+            chart.xAxis[0].setCategories(populations, false);
+            chart.series[0].setData(values, false);
+            chart.redraw();
+        }
     },
     _createPanel: function () {
         var _this = this;
@@ -115,11 +139,13 @@ VariantEffectGrid.prototype = {
 
 
         var gridArgs = {
+            title: 'Effects',
             store: this.store,
             loadMask: true,
-            border: false,
+            border: true,
             //height: this.height,
             height: 200,
+            header: this.headerConfig,
             viewConfig: {
                 emptyText: 'No records to display',
                 enableTextSelection: true
@@ -161,65 +187,61 @@ VariantEffectGrid.prototype = {
 
         this.grid = Ext.create('Ext.grid.Panel', gridArgs);
 
-        this.freqStore = Ext.create('Ext.data.Store', {
-            fields: ['maf', 'name'],
-            autoLoad: false
-        });
-        var freqChart = Ext.create('Ext.chart.Chart', {
-                    xtype: 'chart',
-                    width: 200,
-                    height: 200,
-                    store: this.freqStore,
-                    animate: true,
-                    shadow: true,
-                    margin: 10,
-                    legend: {
-                        position: 'right'
-                    },
-                    theme: 'Base:gradients',
-                    axes: [
-                        {
-                            type: 'numeric',
-                            position: 'bottom',
-                            fields: ['maf'],
-                            titleMargin: 20,
-                            title: 'Minimum Allele Frequency',
-                            minimum: 0,
-                            maximum: 1
-                        },
-                        {
-                            type: 'category',
-                            position: 'left',
-                            fields: ['name'],
-                            title: 'Populations'
-                        }
-                    ],
-                    series: [
-                        {
-                            type: 'bar',
-                            axis: 'bottom',
-                            xField: 'name',
-                            yField: 'maf',
-                            //style: {
-                            //minGapWidth: 20
-                            //},
-                            highlight: {
-                                strokeStyle: 'black',
-                                fillStyle: '#c1e30d',
-                                lineDash: [5, 3]
-                            },
-                            label: {
-                                field: 'maf',
-                                display: 'insideEnd',
-                                renderer: function (value) {
-                                    return value.toFixed(3);
-                                }
-                            }
-                        }
-                    ]
+        $(this.chartDiv).highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: null
+            },
+            xAxis: {
+//                categories: populations,
+//                categories: [],
+                title: {
+                    text: 'Populations',
+                    align: 'high'
                 }
-            )
-            ;
+            },
+            yAxis: {
+                min: 0,
+                max: 1,
+                title: {
+                    text: 'Minimum Allele Frequency',
+                    align: 'high'
+                },
+                labels: {
+                    overflow: 'justify'
+                }
+            },
+            plotOptions: {
+                bar: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'top',
+                x: -40,
+                y: 100,
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor || '#FFFFFF'),
+                shadow: true
+            },
+            credits: {
+                enabled: false
+            },
+            series: [
+                {
+                    name: 'MAF',
+//                    data: []
+//                    data: data
+                }
+            ]
+        });
 
         var panel = Ext.create('Ext.container.Container', {
             layout: {
@@ -229,20 +251,15 @@ VariantEffectGrid.prototype = {
             overflowY: true,
             padding: 10,
             items: [
-                {
-                    xtype: 'box',
-                    cls: 'ocb-header-4',
-                    html: 'Effects',
-                    margin: '5 0 10 10'
-                },
                 this.grid,
                 {
-                    xtype: 'box',
-                    cls: 'ocb-header-4',
-                    html: 'Population Frequencies',
-                    margin: '20 0 10 10'
-                },
-                freqChart
+                    xtype: 'panel',
+                    margin: '10 0 0 0',
+                    border: false,
+                    title: 'Population Frequencies',
+                    header: this.headerConfig,
+                    contentEl: this.chartDiv
+                }
             ],
             height: this.height
         });

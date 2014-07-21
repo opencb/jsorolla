@@ -200,18 +200,14 @@ VariantBrowserGrid.prototype = {
                     root: this.responseRoot,
                     totalProperty: this.responseTotal,
                     transform: function (response) {
-//                        var data = [];
-//                        if (typeof _this.responseParser !== 'undefined') {
-//                            data = _this.responseParser(response);
-//                        }
-
-                        var data = response.response.result
-
+                        var data = [];
+                        if (typeof _this.responseParser !== 'undefined') {
+                            data = _this.responseParser(response);
+                        }
                         if (typeof _this.dataParser !== 'undefined') {
                             _this.dataParser(data);
                         } else {
                             _this._parserFunction(data);
-
                         }
                         return response;
                     }

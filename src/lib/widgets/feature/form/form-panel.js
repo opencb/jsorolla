@@ -98,6 +98,11 @@ FormPanel.prototype = {
         }
         return values;
     },
+    update: function () {
+        if (this.panel) {
+            this.panel.update();
+        }
+    },
     _createPanel: function () {
         var _this = this;
 

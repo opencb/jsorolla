@@ -474,6 +474,22 @@ ul.ocb-app-menu > li {
     background-color: #f1f3f6;
 }
 
+.ocb-title-1 {
+    color: #435F7A;
+    font-size: 160%;
+    padding: 4px 6px;
+    margin-bottom: 5px;
+    border: none;
+}
+
+.ocb-title-2 {
+    color: #435F7A;
+    font-size: 16px;
+    line-height: 22px;
+    padding: 4px 6px;
+    border: none;
+}
+
 @font-face {
     font-family: 'Ubuntu';
     font-style: normal;
