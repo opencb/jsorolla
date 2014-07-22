@@ -28,6 +28,7 @@ function VariantWidget(args) {
     //set default args
     this.target;
     this.width;
+    this.height;
     this.autoRender = true;
     this.data = [];
     this.host;
@@ -39,20 +40,50 @@ function VariantWidget(args) {
         region: true,
         gene: true
     };
+    this.headerConfig;
     this.attributes = [];
     this.columns = [];
-    this.defaultToolConfig = {effect: true, genomeViewer: true, genotype: true, stats: true};
+    this.samples = [];
+    this.defaultToolConfig = {
+        headerConfig: {
+            baseCls: 'ocb-title-2'
+        },
+        effect: true,
+        genomeViewer: true,
+        genotype: true,
+        stats: true
+    };
     this.tools = [];
     this.dataParser;
+    this.responseParser;
+
+    this.responseRoot = "response[0].result";
+    this.responseTotal = "response[0].numTotalResults";
+    this.startParam = "skip";
+
+    this.browserGridConfig = {
+        title: 'variant browser grid',
+        border: false
+    };
+    this.toolPanelConfig = {
+        title: 'Variant data',
+        border: false
+    };
+    this.toolsConfig = {
+        headerConfig: {
+            baseCls: 'ocb-title-2'
+        }
+    };
 
 
     _.extend(this.filters, args.filters);
+    _.extend(this.browserGridConfig, args.browserGridConfig);
     _.extend(this.defaultToolConfig, args.defaultToolConfig);
 
     delete args.filters;
     delete args.defaultToolConfig;
 
-    //set instantiation args, must be last
+//set instantiation args, must be last
     _.extend(this, args);
 
     this.selectedToolDiv;
@@ -78,24 +109,22 @@ VariantWidget.prototype = {
 
         this.variantBrowserGrid = this._createVariantBrowserGrid(this.variantBrowserGridDiv);
 
-        this.tabPanelTitle = document.createElement('div');
-        this.tabPanelTitle.setAttribute('class', 'ocb-variant-tab-panel-title');
-        this.tabPanelTitle.innerHTML = 'Variant Data';
-        this.div.appendChild(this.tabPanelTitle);
-
         this.tabPanelDiv = document.createElement('div');
         this.tabPanelDiv.setAttribute('class', 'ocb-variant-tab-panel');
         this.div.appendChild(this.tabPanelDiv);
 
         this.toolTabPanel = Ext.create("Ext.tab.Panel", {
-            border: 0,
+            title: this.toolPanelConfig.title,
+            border: this.toolPanelConfig.border,
             layout: 'fit',
             margin: '10 0 0 0',
             plain: true,
             animCollapse: false,
+            header: this.headerConfig,
             collapseDirection: Ext.Component.DIRECTION_BOTTOM,
             titleCollapse: true,
             overlapHeader: true,
+            height: 540,
             defaults: {
                 hideMode: 'offsets',
                 autoShow: true
@@ -119,8 +148,7 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: 'File and Stats',
 //                border: 0,
-                contentEl: this.variantStatsPanelDiv,
-                height: 500
+                contentEl: this.variantStatsPanelDiv
             });
         }
 
@@ -130,8 +158,7 @@ VariantWidget.prototype = {
             this.variantEffectGrid = this._createVariantEffectGrid(this.variantEffectGridDiv);
             tabPanelItems.push({
                 title: 'Effect and Annotation',
-                contentEl: this.variantEffectGridDiv,
-                height: 500
+                contentEl: this.variantEffectGridDiv
             });
         }
 
@@ -142,8 +169,7 @@ VariantWidget.prototype = {
             tabPanelItems.push({
                 title: 'Genotype',
 //                border: 0,
-                contentEl: this.variantGenotypeGridDiv,
-                height: 500
+                contentEl: this.variantGenotypeGridDiv
             });
         }
 
@@ -153,7 +179,8 @@ VariantWidget.prototype = {
             this.genomeViewer = this._createGenomeViewer(this.genomeViewerDiv);
             tabPanelItems.push({
                 title: 'Genomic Context',
-                contentEl: this.genomeViewerDiv
+                contentEl: this.genomeViewerDiv,
+                autoScroll: true
             });
         }
 
@@ -165,8 +192,7 @@ VariantWidget.prototype = {
 
             tabPanelItems.push({
                 title: tool.title,
-                contentEl: toolDiv,
-                height: 500
+                contentEl: toolDiv
             });
         }
 
@@ -222,11 +248,19 @@ VariantWidget.prototype = {
 
 
         var variantBrowserGrid = new VariantBrowserGrid({
+            title: this.browserGridConfig.title,
             target: target,
             data: this.data,
+            border: this.browserGridConfig.border,
             dataParser: this.dataParser,
+            responseRoot: this.responseRoot,
+            responseTotal: this.responseTotal,
+            responseParser: this.responseParser,
+            startParam: this.startParam,
             attributes: this.attributes,
             columns: this.columns,
+            samples: this.samples,
+            headerConfig: this.headerConfig,
             handlers: {
                 "variant:change": function (e) {
                     _this.lastVariant = e.args;
@@ -245,6 +279,7 @@ VariantWidget.prototype = {
         var _this = this;
         var variantEffectGrid = new VariantEffectGrid({
             target: target,
+            headerConfig: this.defaultToolConfig.headerConfig,
             gridConfig: {
                 flex: 1,
                 layout: {
@@ -277,6 +312,7 @@ VariantWidget.prototype = {
         var _this = this;
         var variantStatsPanel = new VariantStatsPanel({
             target: target,
+            headerConfig: this.defaultToolConfig.headerConfig,
             handlers: {
                 "load:finish": function (e) {
 //                    _this.grid.setLoading(false);
@@ -302,6 +338,7 @@ VariantWidget.prototype = {
         var _this = this;
         var variantGenotypeGrid = new VariantGenotypeGrid({
             target: target,
+            headerConfig: this.defaultToolConfig.headerConfig,
             gridConfig: {
                 flex: 1,
                 layout: {
@@ -346,7 +383,7 @@ VariantWidget.prototype = {
             target: target,
             border: false,
             resizable: true,
-            width: this.width,
+            width: this.width - 20,
             region: region,
             trackListTitle: '',
             drawNavigationBar: true,

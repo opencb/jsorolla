@@ -37,6 +37,7 @@ function FormPanel(args) {
     this.filters = [];
     this.mode = 'accordion';
     this.toolbarPosition = 'top';
+    this.headerConfig;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -97,6 +98,11 @@ FormPanel.prototype = {
         }
         return values;
     },
+    update: function () {
+        if (this.panel) {
+            this.panel.update();
+        }
+    },
     _createPanel: function () {
         var _this = this;
 
@@ -115,6 +121,7 @@ FormPanel.prototype = {
                 text: this.submitButtonText,
                 tooltip: this.submitButtonText,
                 formBind: true,
+                flex:1,
                 handler: function () {
                     _this.trigger('submit', {values: _this.getValues(), sender: _this});
 //                            console.log(values);
@@ -133,19 +140,34 @@ FormPanel.prototype = {
 
 
         var pan;
-        if (this.mode == 'tabs') {
-            this.filtersPanel = Ext.create('Ext.tab.Panel', {
-                border: false,
-                plain: false
-            });
-        } else {
-            this.filtersPanel = Ext.create('Ext.container.Container', {
-                layout: {
-                    type: 'accordion',
-                    titleCollapse: true,
-                    multi: true
-                }
-            });
+        switch (this.mode) {
+            case 'tabs':
+                this.filtersPanel = Ext.create('Ext.tab.Panel', {
+                    border: false,
+                    plain: true
+                });
+                break;
+            case 'accordion':
+                this.filtersPanel = Ext.create('Ext.container.Container', {
+                    layout: {
+                        type: 'accordion',
+                        titleCollapse: true,
+                        multi: true
+                    }
+                });
+                break;
+            case 'vbox':
+                this.filtersPanel = Ext.create('Ext.container.Container', {
+                    margin: '20 0 0 0',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    defaults: {
+                        margin: '20 0 0 0'
+                    }
+                });
+                break;
         }
 
         var form = Ext.create('Ext.form.Panel', {
@@ -153,23 +175,36 @@ FormPanel.prototype = {
             height: this.height,
             width: this.width,
             title: this.title,
+            header: this.headerConfig,
             collapsible: this.collapsible,
             titleCollapse: this.titleCollapse,
             margin: '0 20 0 0',
             autoScroll: true,
             items: [
-                this.filtersPanel
-            ],
-            dockedItems: [
                 {
-                    xtype:'toolbar',
-                    dock: this.toolbarPosition,
+                    xtype: 'container',
                     width: '100%',
-                    height: 45,
-//                border:false,
+                    bodyPadding: 5,
+                    defaults: {
+                        margin: '10'
+                    },
+                    layout: {
+                        type: 'hbox'
+                    },
                     items: barItems
-                }
+                },
+                this.filtersPanel
             ]
+//            dockedItems: [
+//                {
+//                    xtype: 'toolbar',
+//                    dock: this.toolbarPosition,
+//                    width: '100%',
+//                    height: 45,
+////                border:false,
+//                    items: barItems
+//                }
+//            ]
         });
         return form;
 

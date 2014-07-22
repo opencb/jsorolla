@@ -69,7 +69,7 @@ HeaderWidget.prototype = {
         var appLi = '';
         if (this.applicationMenuEl) {
 //            appLi = '<li id="appMenu" class="menu"> &#9776; </li>';
-            appLi = '<li id="appMenu" class="menu">&nbsp;<i class="fa fa-ellipsis-v"></i>&nbsp;</li>';
+            appLi = '<li id="appMenu" class="menu">&nbsp;<i class="fa fa-chevron-right"></i>&nbsp; <span class="">Menu</span></li>';
         }
         var navgationHtml = '' +
             '<div>' +
@@ -79,7 +79,7 @@ HeaderWidget.prototype = {
             '       </li>' +
             '       <li id="description" class="description">' + this.description +
             '       </li>' +
-            '       <li id="menu" class="right"><i class="fa fa-support"></i> &nbsp;support ' +
+            '       <li id="support" class="right"><i class="fa fa-support"></i> &nbsp;support ' +
             '       </li>' +
             '       <li id="signin" class="right"><i class="fa fa-sign-in"></i> &nbsp;sign in' +
             '       </li>' +
@@ -117,10 +117,10 @@ HeaderWidget.prototype = {
             position: 'relative'
         });
 
-        this.menuEl = $(menuHtml)[0];
-        $(this.div).append(this.menuEl);
-//        $(this.menuEl).mouseleave(function(){
-//            $(_this.menuEl).removeClass('ocb-help-menu-shown');
+        this.supportMenuEl = $(menuHtml)[0];
+        $(this.div).append(this.supportMenuEl);
+//        $(this.supportMenuEl).mouseleave(function(){
+//            $(_this.supportMenuEl).removeClass('ocb-help-menu-shown');
 //        });
 
         if (this.applicationMenuEl) {
@@ -130,6 +130,7 @@ HeaderWidget.prototype = {
 //            });
 
         }
+
         var els = $(this.div).find('ul').children();
         for (var i = 0; i < els.length; i++) {
             var elid = els[i].getAttribute('id');
@@ -138,21 +139,20 @@ HeaderWidget.prototype = {
             }
         }
 
-        $(this.els.menu).click(function () {
-            $(_this.menuEl).toggleClass('ocb-help-menu-shown');
+        $(this.div).mouseleave(function () {
+            _this.toogleSupportMenu(false);
+        });
+        $(this.div).click(function (e) {
+            if ($(e.target).attr('id') !== $(_this.els.support).attr('id')) {
+                _this.toogleSupportMenu(false);
+            }else{
+                _this.toogleSupportMenu();
+            }
         });
 
         $(this.els.appMenu).click(function () {
-            $(_this.applicationMenuEl).toggleClass('ocb-app-menu-shown');
+            _this.toogleAppMenu();
         });
-
-//        $(this.els.menu).mouseenter(function () {
-//            $(_this.menuEl).addClass('ocb-help-menu-shown');
-//        });
-        $(this.els.appMenu).mouseenter(function () {
-            $(_this.applicationMenuDiv).addClass('ocb-app-menu-shown');
-        });
-
 
         $(this.els.homeHelp).click(function () {
             window.location.href = _this.homeLink;
@@ -263,16 +263,29 @@ HeaderWidget.prototype = {
         if (this.applicationMenuEl) {
             if (value === true) {
                 $(this.applicationMenuEl).addClass('ocb-app-menu-shown');
+                $(this.els.appMenu).children('i').removeClass('fa-chevron-right');
+                $(this.els.appMenu).children('i').addClass('fa-chevron-left');
             } else if (value === false) {
                 $(this.applicationMenuEl).removeClass('ocb-app-menu-shown');
+                $(this.els.appMenu).children('i').addClass('fa-chevron-right');
+                $(this.els.appMenu).children('i').removeClass('fa-chevron-left');
             } else {
                 $(this.applicationMenuEl).toggleClass('ocb-app-menu-shown');
+                $(this.els.appMenu).children('i').toggleClass('fa-chevron-right');
+                $(this.els.appMenu).children('i').toggleClass('fa-chevron-left');
             }
 
         }
     },
-    showAppMenu: function () {
-        if (this.applicationMenuEl) {
+    toogleSupportMenu: function (value) {
+        if (this.supportMenuEl) {
+            if (value === true) {
+                $(this.supportMenuEl).addClass('ocb-help-menu-shown');
+            } else if (value === false) {
+                $(this.supportMenuEl).removeClass('ocb-help-menu-shown');
+            } else {
+                $(this.supportMenuEl).toggleClass('ocb-help-menu-shown');
+            }
 
         }
     },

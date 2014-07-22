@@ -26,12 +26,18 @@ function VariantBrowserGrid(args) {
     this.target;
     this.data = [];
     this.dataParser;
+    this.responseParser;
     this.columns;
     this.attributes;
     this.type;
-    this.pageSize = 15;
-    this.title = "Variant Browser";
+    this.height = 400;
+    this.pageSize = 10;
+    this.title = "VariantBrowserGrid";
     this.autoRender = true;
+    this.border = false;
+    this.responseRoot = "response[0].result";
+    this.responseTotal = "response[0].numTotalResults";
+    this.startParam = "skip";
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -76,6 +82,8 @@ VariantBrowserGrid.prototype = {
             fields: this.attributes
         });
 
+
+
         this.store = Ext.create('Ext.data.Store', {
                 pageSize: this.pageSize,
                 model: this.model,
@@ -92,6 +100,13 @@ VariantBrowserGrid.prototype = {
 
             }
         );
+
+        for (var i = 0; i < this.samples.length; i++) {
+            var sampleName = this.samples[i];
+            this._addSampleColumn(sampleName);
+        }
+
+
         this.paging = Ext.create('Ext.PagingToolbar', {
             store: _this.store,
             id: _this.id + "_pagingToolbar",
@@ -102,12 +117,15 @@ VariantBrowserGrid.prototype = {
         });
 
         var grid = Ext.create('Ext.grid.Panel', {
+                title: this.title,
                 store: this.store,
+                border: this.border,
+                header: this.headerConfig,
                 loadMask: true,
                 columns: this.columns,
                 plugins: 'bufferedrenderer',
                 animCollapse: false,
-                height: 500,
+                height: this.height,
                 features: [
                     {ftype: 'summary'}
                 ],
@@ -127,20 +145,7 @@ VariantBrowserGrid.prototype = {
         });
 
         this.grid = grid;
-
-        var panel = Ext.create('Ext.container.Container', {
-            border: false,
-            items: [
-                {
-                    xtype: 'box',
-                    cls: 'ocb-header-3',
-                    margin: '0 0 10 0',
-                    html: this.title
-                },
-                grid
-            ]
-        });
-        return panel;
+        return grid;
     },
     load: function (data) {
         var _this = this;
@@ -190,19 +195,19 @@ VariantBrowserGrid.prototype = {
             proxy: {
                 url: baseUrl,
                 type: 'ajax',
-                startParam: 'skip',
+                startParam: this.startParam,
                 reader: {
-                    root: "response[0].result",
-                    totalProperty: "response[0].numTotalResults",
+                    root: this.responseRoot,
+                    totalProperty: this.responseTotal,
                     transform: function (response) {
-
-                        var data = (response.response[0].result) ? response.response[0].result : [];
-
-                        if (typeof this.dataParser !== 'undefined') {
+                        var data = [];
+                        if (typeof _this.responseParser !== 'undefined') {
+                            data = _this.responseParser(response);
+                        }
+                        if (typeof _this.dataParser !== 'undefined') {
                             _this.dataParser(data);
                         } else {
                             _this._parserFunction(data);
-
                         }
                         return response;
                     }
@@ -250,5 +255,34 @@ VariantBrowserGrid.prototype = {
     },
     setLoading: function (loading) {
         this.panel.setLoading(loading);
+    },
+    _addSampleColumn: function (sampleName) {
+
+        var _this = this;
+
+        for (var i = 0; i < _this.attributes.length; i++) {
+            if (_this.attributes[i].name == sampleName) {
+                return false;
+            }
+        }
+
+        _this.attributes.push({
+            "name": sampleName,
+            "type": "string"
+        });
+
+        for (var i = 0; i < _this.columns.length; i++) {
+            var col = _this.columns[i];
+
+            if (col['text'] == "Samples") {
+                col["columns"].push({
+                    "text": sampleName,
+                    "dataIndex": sampleName,
+                    "flex": 1,
+                    "sortable": false
+                });
+            }
+        }
+        this.store.setFields(this.attributes);
     }
 };
