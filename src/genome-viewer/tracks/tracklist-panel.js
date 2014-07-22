@@ -242,7 +242,7 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': mid - 1,
             'top': 0,
-            'width': this.pixelBase + 2,
+            'width': this.pixelBase + 1,
 //            'height': '100%',
             'height': 'calc(100% - 8px)',
             'opacity': 0.5,

@@ -34,6 +34,7 @@ function Track(args) {
     this.height = 100;
     this.visibleRegionSize;
     this.visible = true;
+    this.closable = false;
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
@@ -232,18 +233,26 @@ Track.prototype = {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
-        var titleBardiv = $('' +
-            '   <div class="ocb-gv-track-title">' +
-//            '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
-            '   <div class="ocb-gv-track-title-el">' +
-            '       <span class="ocb-gv-track-title-text">' + this.title + '</span>' +
-            '       <span class="ocb-gv-track-title-histogram"></span>' +
-            '       <span class="ocb-gv-track-title-down"><i class="fa fa-chevron-down"></i></span>' +
-            '       <span class="ocb-gv-track-title-up"><i class="fa fa-chevron-up"></i></span>' +
-            '       <span class="ocb-gv-track-title-close"><i class="fa fa-times"></i></span>' +
-            '       <span class="ocb-gv-track-title-loading"></span>' +
-            '   </div>' +
-            '   </div>')[0];
+        var titleBarHtml = '';
+        titleBarHtml += '   <div class="ocb-gv-track-title">';
+//      titleBarHtml+=       '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' ;
+        titleBarHtml += '   <div class="ocb-gv-track-title-el">';
+        titleBarHtml += '       <span class="ocb-gv-track-title-text">' + this.title + '</span>';
+        titleBarHtml += '       <span class="ocb-gv-track-title-histogram"></span>';
+        titleBarHtml += '       <span class="ocb-gv-track-title-down"><i class="fa fa-chevron-down"></i></span>';
+        titleBarHtml += '       <span class="ocb-gv-track-title-up"><i class="fa fa-chevron-up"></i></span>';
+
+        if (this.closable == true) {
+            titleBarHtml += '       <span class="ocb-gv-track-title-close"><i class="fa fa-times"></i></span>';
+        }
+
+        titleBarHtml += '       <span class="ocb-gv-track-title-loading"></span>';
+        titleBarHtml += '   </div>';
+        titleBarHtml += '   </div>';
+
+
+        var titleBardiv = $(titleBarHtml)[0];
+
 
         if (typeof this.title === 'undefined') {
             $(titleBardiv).addClass("hidden");
