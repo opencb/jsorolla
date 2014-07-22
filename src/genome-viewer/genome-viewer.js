@@ -166,7 +166,7 @@ GenomeViewer.prototype = {
 
         this.chromosomes = this.getChromosomes();
 
-        this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth())
+        this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
         this.zoom = this._calculateZoomByRegion(this.region);
 
         // Resize

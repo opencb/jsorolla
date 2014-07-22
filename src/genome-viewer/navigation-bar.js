@@ -50,6 +50,7 @@ function NavigationBar(args) {
         compactButton: true,
         searchControl: true
     };
+    this.zoom = 100;
 
     _.extend(this.componentsConfig, args.componentsConfig);
     delete args.componentsConfig;
@@ -126,7 +127,7 @@ NavigationBar.prototype = {
             '       <button id="zoomMinButton" class="btn btn-default custom-xs" type="button" style="width:31px"> 0 </button>' +
             '       <button id="zoomOutButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
             '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:22px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
-            '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
+            '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: '+this.zoom+'%">' +
             '           </div>' +
             '       </div>' +
             '       <button id="zoomInButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-plus"></span></button>' +
