@@ -116,7 +116,6 @@ VariantWidget.prototype = {
         this.toolTabPanel = Ext.create("Ext.tab.Panel", {
             title: this.toolPanelConfig.title,
             border: this.toolPanelConfig.border,
-            layout: 'fit',
             margin: '10 0 0 0',
             plain: true,
             animCollapse: false,
@@ -124,7 +123,6 @@ VariantWidget.prototype = {
             collapseDirection: Ext.Component.DIRECTION_BOTTOM,
             titleCollapse: true,
             overlapHeader: true,
-            height: 540,
             defaults: {
                 hideMode: 'offsets',
                 autoShow: true
@@ -176,11 +174,12 @@ VariantWidget.prototype = {
         if (this.defaultToolConfig.genomeViewer) {
             this.genomeViewerDiv = document.createElement('div');
             this.genomeViewerDiv.setAttribute('class', 'ocb-gv');
+            $(this.genomeViewerDiv).css({border: '1px solid lightgray'});
             this.genomeViewer = this._createGenomeViewer(this.genomeViewerDiv);
             tabPanelItems.push({
                 title: 'Genomic Context',
-                contentEl: this.genomeViewerDiv,
-                autoScroll: true
+                border: 0,
+                contentEl: this.genomeViewerDiv
             });
         }
 
@@ -383,7 +382,7 @@ VariantWidget.prototype = {
             target: target,
             border: false,
             resizable: true,
-            width: this.width - 20,
+            width: this.width,
             region: region,
             trackListTitle: '',
             drawNavigationBar: true,

@@ -40,7 +40,7 @@ function JobListWidget(args) {
 
     this.buttonFilterFunction = null;
     this.textFilterFunction = function (item) {
-        var str = Ext.getCmp(_this.id + "searchField").getValue().toLowerCase();
+        var str = _this.searchField.getValue().toLowerCase();
         if (item.data.name.toLowerCase().indexOf(str) < 0) {
             return false;
         }
@@ -204,8 +204,7 @@ JobListWidget.prototype = {
 
         /**TEXT SEARCH FILTER**/
         this.searchField = Ext.create('Ext.form.field.Text', {
-            id: this.id + "searchField",
-            emptyText: 'enter search term',
+            emptyText: 'search...',
             enableKeyEvents: true,
             flex: 1,
             listeners: {
@@ -240,8 +239,8 @@ JobListWidget.prototype = {
         this.btnErrorId = this.id + "_btnError";
 
         var panel = Ext.create('Ext.panel.Panel', {
-            height: this.height,
-            width: this.width,
+            height: '80vh',
+            width: '250px',
             layout: 'fit',
             items: [
                 view
@@ -250,13 +249,12 @@ JobListWidget.prototype = {
                 {
                     xtype: 'toolbar',
                     dock: 'top',
-                    height: 39,
+                    height: 40,
                     items: [
                         {
                             xtype: 'button',
                             id: this.id + 'btnSort',
                             tooltip: 'Change order',
-                            margin: '0 15 0 0',
                             text: '<i class="fa fa-sort"></i>',
                             handler: function () {
                                 if (_this.sort == "DESC") {
@@ -269,17 +267,17 @@ JobListWidget.prototype = {
                                 }
                             }
                         },
-                        this.searchField,
                         {
                             xtype: 'button',
                             id: this.id + 'btnClear',
 //							    iconCls: 'icon-delete',
-                            text: 'Clear',
+                            text: '<i class="fa fa-eraser"></i>',
                             tooltip: 'Clear search box',
                             handler: function () {
-                                _this.searchField.reset();
+                                _this.searchField.setValue('');
                             }
-                        }
+                        },
+                        this.searchField,
 
                     ]
                 },

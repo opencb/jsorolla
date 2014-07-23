@@ -126,6 +126,7 @@ VariantBrowserGrid.prototype = {
                 plugins: 'bufferedrenderer',
                 animCollapse: false,
                 height: this.height,
+                overflowX:true,
                 features: [
                     {ftype: 'summary'}
                 ],
