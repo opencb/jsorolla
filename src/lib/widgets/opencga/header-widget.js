@@ -141,10 +141,10 @@ HeaderWidget.prototype = {
             _this.toogleSupportMenu(false);
         });
         $(this.div).click(function (e) {
-            if ($(e.target).attr('id') !== $(_this.els.support).attr('id')) {
-                _this.toogleSupportMenu(false);
-            } else {
+            if (e.target === _this.els.support || e.target.parentNode === _this.els.support) {
                 _this.toogleSupportMenu();
+            } else {
+                _this.toogleSupportMenu(false);
             }
         });
 
