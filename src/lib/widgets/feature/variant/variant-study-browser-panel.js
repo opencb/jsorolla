@@ -28,7 +28,7 @@ function VariantStudyBrowserPanel(args) {
     this.autoRender = true;
 //    this.studies = [];
     this.studiesStore;
-    this.host;
+    this.host = '';
     this.border = false;
     this.speciesList = [
         {
@@ -75,37 +75,13 @@ VariantStudyBrowserPanel.prototype = {
 
     },
     load: function (studies) {
-        //TODO
+
     },
     _createPanel: function () {
+
         var _this = this;
 
-        var speciesStore = Ext.create('Ext.data.Store', {
-            autoLoad: true,
-            fields: ['species', 'common', 'scientific', 'assembly', 'sciAsembly'],
-            data: this.speciesList
-        });
-
-        var speciesCombo = Ext.create('Ext.form.field.ComboBox', {
-            fieldLabel: 'Choose Species',
-//            labelWidth: this.labelWidth,
-            labelAlign: 'top',
-            name: 'species',
-            displayField: 'scientific',
-            valueField: 'species',
-            editable: false,
-            allowBlank: false,
-            store: speciesStore,
-            listeners: {
-                change: function () {
-                    if (this.getValue()) {
-
-                    }
-                }
-            }
-        });
-
-//        this.studiesStore = Ext.create('Ext.data.Store', {
+        //        this.studiesStore = Ext.create('Ext.data.Store', {
 //            pageSize: 50,
 //            proxy: {
 //                type: 'memory'
@@ -117,28 +93,138 @@ VariantStudyBrowserPanel.prototype = {
 //            data: this.studies
 //        });
 
+        var speciesStore = Ext.create('Ext.data.Store', {
+            autoLoad: true,
+            fields: ['species', 'common', 'scientific', 'assembly', 'sciAsembly'],
+            data: this.speciesList
+        });
+
+        var assemblyStore = Ext.create('Ext.data.Store', {
+            autoLoad: true,
+            fields: ['text', 'value'],
+            data: [
+                {display: '37', value: '37'}
+            ]
+        });
+
+        var methodStore = Ext.create('Ext.data.Store', {
+            autoLoad: true,
+            fields: ['text', 'value'],
+            data: [
+                {display: 'NGS', value: 'ngs'},
+                {display: 'Array', value: 'array'}
+            ]
+        });
+
+        var typeStore = Ext.create('Ext.data.Store', {
+            autoLoad: true,
+            fields: ['text', 'value'],
+            data: [
+                {display: 'Control Set', value: 'controlset'},
+                {display: 'Case-Control', value: 'casecontrol'},
+                {display: 'Case-Set', value: 'caseset'},
+                {display: 'Paired', value: 'paired'}
+            ]
+        });
+
+
+        /* tag fields*/
+//        this.tagField = Ext.create('Ext.form.field.Tag', {
+//            fieldLabel: 'Select a study',
+//            labelAlign: 'top',
+//            store: this.studiesStore,
+//            reference: this.id + 'ConsequenceTypeSelectorStore',
+//            displayField: 'studyName',
+//            valueField: 'studyId',
+//            filterPickList: true,
+//            queryMode: 'local',
+//            publishes: 'value',
+//            flex: 1,
+//            grow: false,
+//            autoScroll: true,
+//            name: 'studies',
+//            listeners: {
+//                change: function () {
+//                    var form = this.up();
+//                    if (form) {
+//                        form.update();
+//                    }
+//                }
+//            }
+//        });
+
+        this.speciesFieldTag = Ext.create('Ext.form.field.Tag', {
+            fieldLabel: 'Species',
+//            labelWidth: this.labelWidth,
+            labelAlign: 'top',
+            store: speciesStore,
+            queryMode: 'local',
+            displayField: 'scientific',
+            valueField: 'species',
+            publishes: 'value',
+            name: 'species'
+        });
+
+        this.assemblyFieldTag = Ext.create('Ext.form.field.Tag', {
+            fieldLabel: 'Assembly',
+//            labelWidth: this.labelWidth,
+            labelAlign: 'top',
+            store: assemblyStore,
+            queryMode: 'local',
+            displayField: 'display',
+            valueField: 'value',
+            publishes: 'value',
+            name: 'assembly'
+        });
+
+        this.methodFieldTag = Ext.create('Ext.form.field.Tag', {
+            fieldLabel: 'Method',
+//            labelWidth: this.labelWidth,
+            labelAlign: 'top',
+            store: methodStore,
+            queryMode: 'local',
+            displayField: 'display',
+            valueField: 'value',
+            publishes: 'value',
+            name: 'method'
+        });
+        this.typeFieldTag = Ext.create('Ext.form.field.Tag', {
+            fieldLabel: 'Type',
+//            labelWidth: this.labelWidth,
+            labelAlign: 'top',
+            store: typeStore,
+            queryMode: 'local',
+            displayField: 'display',
+            valueField: 'value',
+            publishes: 'value',
+            name: 'type'
+        });
+
+
         var studySearchField = Ext.create('Ext.form.field.Text', {
             fieldLabel: 'Name Search',
             labelAlign: 'top',
             emptyText: 'search',
+            name: 'search',
             listeners: {
                 change: function () {
-                    var value = this.getValue();
-                    if (value == "") {
-                        _this.studiesStore.clearFilter();
-                    } else {
-                        var regex = new RegExp(value, "i");
-                        _this.studiesStore.filterBy(function (e) {
-                            return regex.test(e.get('studyName'));
-                        });
-                    }
+//                    var value = this.getValue();
+//                    if (value == "") {
+//                        _this.studiesStore.clearFilter();
+//                    } else {
+//                        var regex = new RegExp(value, "i");
+//                        _this.studiesStore.filterBy(function (e) {
+//                            return regex.test(e.get('studyName'));
+//                        });
+//                    }
                 }
             }
 
         });
 
+
         this.grid = Ext.create('Ext.grid.Panel', {
-                title: 'Studies',
+                title: 'Studies found',
                 store: this.studiesStore,
                 header: this.headerConfig,
                 loadMask: true,
@@ -228,6 +314,37 @@ VariantStudyBrowserPanel.prototype = {
             }
         );
 
+
+        var submitButton = Ext.create('Ext.button.Button', {
+            text: 'Submit',
+            handler: function (btn) {
+//                .../studies/list?species=hsapiens&assembly=37&methods=ngs,array&type=case-control&date=2013&search=rare
+                var values = panel.getValues();
+                for (key in values) {
+                    if (values[key] == '') {
+                        delete values[key]
+                    }
+                }
+                console.log(values);
+                EvaManager.get({
+                    host: 'http://wwwdev.ebi.ac.uk/eva/webservices/rest',
+                    category: 'studies',
+                    resource: 'list',
+                    params: values,
+                    success: function (response) {
+                        var studies = [];
+                        try {
+                            studies = response.response[0].result;
+                        } catch (e) {
+                            console.log(e);
+                        }
+                        _this.studiesStore.loadRawData(studies);
+                    }
+                });
+            }
+        });
+
+
         this.leftPanel = Ext.create('Ext.container.Container', {
             flex: 1,
             layout: {
@@ -235,10 +352,14 @@ VariantStudyBrowserPanel.prototype = {
                 align: 'stretch'
             },
             defaults: {
-                margin: 10
+                margin: 5
             },
             items: [
-                speciesCombo,
+                submitButton,
+                this.speciesFieldTag,
+                this.assemblyFieldTag,
+                this.methodFieldTag,
+                this.typeFieldTag,
                 studySearchField
             ]
         });
@@ -251,12 +372,12 @@ VariantStudyBrowserPanel.prototype = {
                 align: 'stretch'
             },
             defaults: {
-                margin: 10
+                margin: 5
             },
             items: [this.grid]
         });
 
-        var panel = Ext.create('Ext.panel.Panel', {
+        var panel = Ext.create('Ext.form.Panel', {
             title: this.title,
             border: this.border,
             header: this.headerConfig,
@@ -281,7 +402,7 @@ VariantStudyBrowserPanel.prototype = {
     },
 
     update: function () {
-        if(this.panel){
+        if (this.panel) {
             this.panel.update();
         }
     }
