@@ -17,6 +17,10 @@ html.ocb, body.ocb {
 }
 
 /*ocb header*/
+.ocb-header-widget {
+    background-color: #FFFFFF;
+}
+
 ul.ocb-help-menu,
 ul.ocb-app-menu,
 ul.ocb-header {
@@ -35,31 +39,30 @@ ul.ocb-header > li {
     float: left;
     /*border-right: 1px solid #c6d0da;*/
     text-align: center;
-    padding: 0 10px;
+    padding: 0 1vw;
 }
 
 ul.ocb-header > li#logout {
-    margin-right: 40px;
+    margin-right: 1.1vw;
 }
 
 ul.ocb-header > li#menu {
-    margin-left: 40px;
+    margin-left: 5vw;
 }
 
 ul.ocb-header > li.title {
     font-size: 30px;
-    padding-left: 120px;
+    padding-left: 4vw;
 }
 
 ul.ocb-header li.description {
     color: #6599FF;
-    margin-top: 2px;
-    font-size: 22px;
+    font-size: 20px;
 }
 
 ul.ocb-header > li.menu {
     font-size: 16px;
-    padding: 0 20px;
+    padding: 0 1vw;
 }
 
 ul.ocb-header > li.active {
@@ -74,7 +77,7 @@ ul.ocb-header > li.right {
 
 ul.ocb-header > li.text:hover,
 ul.ocb-header > li.title:hover {
-    background: white;
+    background: none;
     color: #435f7a;
 }
 
@@ -93,9 +96,10 @@ ul.ocb-help-menu {
     position: absolute;
     z-index: 60000;
     top: 60px;
-    right: -200px;
+    right: 0px;
     width: 200px;
     visibility: hidden;
+    opacity: 0;
     /*display:none;*/
     border-top: 1px solid #c6d0da;
     transition: all 0.2s;
@@ -115,9 +119,8 @@ ul.ocb-app-menu {
 }
 
 ul.ocb-help-menu-shown {
-    right: 0px;
     visibility: visible;
-    /*display: block;*/
+    opacity: 1;
 }
 
 ul.ocb-app-menu-shown {
@@ -176,7 +179,6 @@ ul.ocb-app-menu > li {
     top: 0px;
 }
 
-
 /*Table*/
 .ocb-attributes-table {
     cellspacing: 0;
@@ -226,9 +228,6 @@ ul.ocb-app-menu > li {
     color: steelblue;
     /*font-weight:bold;*/
 }
-
-
-
 
 /*Network viewer*/
 .ocb-nv-editionbar {
@@ -384,6 +383,7 @@ ul.ocb-app-menu > li {
 .ocb-gv-track-title-histogram {
     margin-right: 10px;
 }
+
 .ocb-gv-track-title-close {
     margin-left: 5px;
 }
@@ -392,8 +392,6 @@ ul.ocb-app-menu > li {
     color: steelblue;
     text-decoration: underline;
 }
-
-
 
 .ocb-gv-track-title-close:hover {
     color: darkred;

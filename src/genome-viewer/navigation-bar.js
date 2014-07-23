@@ -89,9 +89,9 @@ NavigationBar.prototype = {
 
         var navgationHtml = '' +
             '<div style="width: 1350px">' +
-            '   <div class="btn-group">' +
+//            '   <div class="btn-group">' +
             '       <button id="leftSideButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="glyphicon glyphicon glyphicon-th-list"></span></button>' +
-            '   </div>' +
+//            '   </div>' +
             '   <div class="btn-group">' +
             '       <button id="restoreDefaultRegionButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="glyphicon glyphicon-repeat"></span></button>' +
             '   </div>' +
@@ -122,10 +122,10 @@ NavigationBar.prototype = {
             '   </div>' +
 
 
-            '   <div id="zoomControl" class="btn-group" style="margin-left:5px;">' +
+            '   <div id="zoomControl" class="btn-group" style="margin-left:2px;">' +
             '       <button id="zoomMinButton" class="btn btn-default custom-xs" type="button" style="width:31px"> 0 </button>' +
             '       <button id="zoomOutButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
-            '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:22px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
+            '       <div id="progressBarCont" class="progress pull-left" style="width:6vw;height:22px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
             '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
             '           </div>' +
             '       </div>' +
@@ -166,7 +166,7 @@ NavigationBar.prototype = {
             '       <button id="compactButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon glyphicon glyphicon-compressed"></span></button>' +
             '   </div>' +
 
-            '   <div id="searchControl" class="btn-group" style="width:250px">' +
+            '   <div id="searchControl" class="btn-group" style="width:12vw">' +
             '   <div class="input-group input-group-sm">' +
             '       <span class="input-group-addon custom-xs"> Search: </span>' +
             '       <input id="searchField" list="searchDataList" type="text" class="form-control custom-xs" placeholder="gene, snp...">' +
