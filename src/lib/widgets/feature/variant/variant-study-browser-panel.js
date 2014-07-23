@@ -28,7 +28,9 @@ function VariantStudyBrowserPanel(args) {
     this.autoRender = true;
 //    this.studies = [];
     this.studiesStore;
-    this.host = '';
+    this.searchFunction = function (params) {
+        console.log(params)
+    };
     this.border = false;
     this.speciesList = [
         {
@@ -202,7 +204,7 @@ VariantStudyBrowserPanel.prototype = {
 
 
         var studySearchField = Ext.create('Ext.form.field.Text', {
-            fieldLabel: 'Name Search',
+            fieldLabel: 'Name',
             labelAlign: 'top',
             emptyText: 'search',
             name: 'search',
@@ -326,21 +328,10 @@ VariantStudyBrowserPanel.prototype = {
                     }
                 }
                 console.log(values);
-                EvaManager.get({
-                    host: 'http://wwwdev.ebi.ac.uk/eva/webservices/rest',
-                    category: 'studies',
-                    resource: 'list',
-                    params: values,
-                    success: function (response) {
-                        var studies = [];
-                        try {
-                            studies = response.response[0].result;
-                        } catch (e) {
-                            console.log(e);
-                        }
-                        _this.studiesStore.loadRawData(studies);
-                    }
-                });
+
+                _this.studiesStore.clearFilter();
+                _this.searchFunction(_this, values);
+
             }
         });
 
@@ -356,11 +347,11 @@ VariantStudyBrowserPanel.prototype = {
             },
             items: [
                 submitButton,
+                studySearchField,
                 this.speciesFieldTag,
                 this.assemblyFieldTag,
                 this.methodFieldTag,
-                this.typeFieldTag,
-                studySearchField
+                this.typeFieldTag
             ]
         });
 
