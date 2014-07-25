@@ -359,7 +359,7 @@ ThreeDViewer.prototype = {
 
 
         var cellbase = this.demoCellbase || chrjson;
-        var numDisks = 15;
+        var numDisks = 0;
         var components = {};
         components.commons = {};
         components.commons.hsapiens = {};

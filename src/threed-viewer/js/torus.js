@@ -195,22 +195,34 @@ Torus.prototype = {
 */
 
         var _this = this;
-        for (var i = 0; i < 4; i++) {
-
-            $.getJSON('/home/josemi/tmp/m' + i + '.json', function (data){
-                console.log("in callback");
-                console.log(data);
-                normalize(data[0].coverage, 15);
-//                for (var i = 0; i < _this.data.samples.length; i++) {
-                _this.data.samples[i].coverage = {};
-                _this.data.samples[i].coverage.regions = _.extend([], data);
-//            }
+        var samples = 4;
+        var completed = 0;
+        for (var i = 0; i < samples; i++) {
+            this.obtainCoverage('/home/josemi/tmp/m' + i + '.json', i, function (){
+                completed++;
+                if (completed == samples) {
+                    console.log("completed: " + completed);
+                    console.log(_this.data.samples)
+                    callback();
+                }
             });
         }
-        callback();
-    // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
+        // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
 
         //console.log(this.data.samples);
+    },
+    obtainCoverage: function(name, id, callback) {
+        var _this = this;
+        $.getJSON(name, function (data){
+            console.log("in callback");
+            console.log(data);
+            normalize(data[0].coverage, 45);
+//                for (var i = 0; i < _this.data.samples.length; i++) {
+            _this.data.samples[id].coverage = {};
+            _this.data.samples[id].coverage.regions = _.extend([], data);
+            callback();
+//            }
+        });
     },
     /**
      * example: when the user ticks a check box,
