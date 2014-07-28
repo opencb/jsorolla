@@ -1,0 +1,191 @@
+<template>
+    <style>
+        #control {
+            position: relative;
+            display: table;
+            margin: 0px;
+        }
+
+        #colorinput {
+            display: table-cell;
+            border: 1px solid #909090;
+            padding: 2px 4px;
+            margin: 0px;
+            background-color: #ffffff;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        }
+
+        #colorinput:focus {
+            border-color: #66afe9;
+            outline: 0;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+        }
+
+        #colorbox {
+            cursor: pointer;
+            display: table-cell;
+            width: 20px;
+            border: 1px solid #909090;
+            border-right-width: 0px;
+        }
+
+        ul#colorlist {
+            z-index: 50000;
+            visibility: hidden;
+            opacity: 0;
+            padding: 5px;
+            width: 200px;
+            margin: 0;
+            top: 20px;
+            left: 0px;
+            position: absolute;
+            border: 1px solid #909090;
+            background: white;
+            list-style: none;
+            text-transform: none;
+            transition: all 0.1s;
+            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        ul#colorlist > li {
+            display: block;
+            float: left;
+            width: 16px;
+            height: 18px;
+            margin: 1px;
+            border: 1px solid #ffffff;
+            background-color: rgba(255, 0, 0, 1.0);
+        }
+
+        ul#colorlist > li:hover {
+            cursor: pointer;
+            border: 1px solid #000000;
+        }
+    </style>
+
+
+    <div id="control">
+        <span id="colorbox"></span>
+        <input id="colorinput" type="text" value="">
+        <ul id="colorlist">
+            <li style="background-color: #435f7a"></li>
+        </ul>
+    </div>
+</template>
+
+<script>
+    // This document reference
+    var thisDoc = document._currentScript.ownerDocument;
+
+    var ColorPicker = document.registerElement('jso-color-picker', {
+        prototype: Object.create(HTMLElement.prototype, {
+            /*
+             * Lifecycle callback methods
+             */
+            createdCallback: {
+                value: function () {
+                    var me = this;
+
+                    //Create a copy of the template node.
+                    var template = document.importNode(thisDoc.querySelector('template').content, true);
+                    this.createShadowRoot().appendChild(template);
+
+                    //Work with the copy of the template and create the els object. The keys are the ids of the elements;
+                    this.els = {};
+                    var els = this.shadowRoot.querySelectorAll('[id]');
+                    for (var i = 0; i < els.length; i++) {
+                        var el = els[i];
+                        var id = el.getAttribute('id');
+                        this.els[id] = el;
+                    }
+
+                    //Set initial attributes and events
+                    this.setColor(this.getAttribute('color'));
+
+                    this.els.colorinput.addEventListener('keyup', function (e) {
+                        me.setAttribute('color', this.value);
+                    });
+                    this.els.colorinput.addEventListener('click', function (e) {
+                        me.toggleMenu(false);
+                    });
+                    this.els.colorbox.addEventListener('click', function (e) {
+                        me.toggleMenu();
+                    });
+                    this.els.colorlist.addEventListener('click', function (e) {
+                        if (e.target.hasAttribute('coloroption')) {
+                            var cs = getComputedStyle(e.target, null);
+                            me.setAttribute('color', cs.backgroundColor);
+                        }
+                        me.toggleMenu(false);
+                    });
+
+
+                }
+            },
+            attachedCallback: {
+                value: function () {
+                }
+            },
+            detachedCallback: {
+                value: function () {
+                }
+            },
+            attributeChangedCallback: {
+                value: function (attr, oldVal, newVal) {
+                    switch (attr) {
+                        case 'color':
+                            this.setColor(newVal);
+                            break;
+                    }
+                }
+            },
+
+            /*
+             * Methods and attributes
+             */
+            getColor: {
+                value: function () {
+                    return this.getAttribute('color');
+                }
+            },
+            setColor: {
+                value: function (colorString) {
+                    this.els.colorinput.setAttribute('value', colorString);
+                    this.els.colorbox.style.backgroundColor = colorString;
+                    this.dispatchEvent(new CustomEvent("change", {"detail": {"color": this.getColor()}}));
+                }
+            },
+            showMenu: {
+                value: function () {
+                    this.els.colorlist.style.visibility = "visible";
+                    this.els.colorlist.style.opacity = "1";
+                }
+            },
+            toggleMenu: {
+                value: function (bool) {
+                    if (bool === true) {
+                        this.showMenu();
+                        return;
+                    }
+                    if (bool === false) {
+                        this.hideMenu();
+                        return;
+                    }
+                    var cs = getComputedStyle(this.els.colorlist, null);
+                    if (cs.visibility === "hidden") {
+                        this.showMenu();
+                    } else {
+                        this.hideMenu();
+                    }
+                }
+            },
+            hideMenu: {
+                value: function () {
+                    this.els.colorlist.style.visibility = "hidden";
+                    this.els.colorlist.style.opacity = "0";
+                }
+            }
+        })
+    });
+</script>
+
