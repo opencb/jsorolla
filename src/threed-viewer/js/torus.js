@@ -195,13 +195,13 @@ Torus.prototype = {
 */
 
         var _this = this;
-        var samples = 4;
+        var samples = 5;
         var completed = 0;
         for (var i = 0; i < samples; i++) {
-            this.obtainCoverage('/home/josemi/tmp/m' + i + '.json', i, function (){
+            this.obtainCoverage('/home/josemi/tmp/covs/c' + i + '.json', i, function (){
                 completed++;
                 if (completed == samples) {
-                    console.log("completed: " + completed);
+                    console.log("coverage completed: " + completed);
                     console.log(_this.data.samples)
                     callback();
                 }
@@ -214,9 +214,9 @@ Torus.prototype = {
     obtainCoverage: function(name, id, callback) {
         var _this = this;
         $.getJSON(name, function (data){
-            console.log("in callback");
-            console.log(data);
-            normalize(data[0].coverage, 45);
+//            console.log("in callback");
+//            console.log(data);
+            normalize(data[0].coverage, 65);
 //                for (var i = 0; i < _this.data.samples.length; i++) {
             _this.data.samples[id].coverage = {};
             _this.data.samples[id].coverage.regions = _.extend([], data);
@@ -275,16 +275,51 @@ Torus.prototype = {
         }
     },
 
-    obtainAlignments: function () {
+    obtainAlignments: function (callback) {
 //        for (var j = 0; j < this.data.samples.length; j++) {
 //            this.data.samples[j].alignments = _.extend({}, alignments);
 //        }
 
-        this.data.samples[0].alignments = _.extend([], alignments);
+//        this.data.samples[0].alignments = _.extend([], alignments);
+
 //        for (var i = 0; i < this.viewer.disk.length; i++) {
 //            this.data.samples[i].alignments = _.extend([], aligs[i]);
 //        }
 
+        var _this = this;
+        var samples = 5;
+        var completed = 0;
+        console.log("obtain alignments");
+        for (var i = 0; i < samples; i++) {
+            this.obtainAlignment('/home/josemi/tmp/aligs/a' + i + '.json', i, function (){
+                completed++;
+                console.log("loop obtain alignments");
+                if (completed == samples) {
+                    console.log("alignments completed: " + completed);
+                    console.log(_this.data.samples)
+                    callback();
+                }
+            });
+        }
+        // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
+
+        //console.log(this.data.samples);
+    },
+    obtainAlignment: function(name, id, callback) {
+        console.log("obtain 1 alignment");
+        var _this = this;
+        $.getJSON(name, function (data){
+            console.log("in alignment getjson callback");
+            console.log(data);
+//                for (var i = 0; i < _this.data.samples.length; i++) {
+            _this.data.samples[id].alignments = data.aligs;
+            callback();
+//            }
+        }).fail(function( jqxhr, textStatus, error ) {
+                var err = textStatus + ", " + error;
+                console.log( "Request Failed: " + err );
+                console.log(jqxhr);
+            });
     },
 
     setAlignments: function () {
@@ -312,18 +347,18 @@ Torus.prototype = {
     setFullAlignments: function (withMismatch) {
         var mismatch = withMismatch === undefined? true: withMismatch;
         var z = 0;
-        var width = 0.08;
+        var width = 0.05;
         for (var s = 0; s < this.viewer.disk.length; s++) {
-            var distance = Math.random()*10000;
+//            var distance = Math.random()*10000;
             var trackId = this.viewer.addTrack(s);
-            for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
-                var alig = this.data.samples[0].alignments[i];
+            for (var i = 0; i < this.data.samples[s].alignments.length; i++) {
+                var alig = this.data.samples[s].alignments[i];
                 var end = alig.flags&4? alig.start + alig.length: alig.end; // unmapped
                 var color = alig.flags&4? 0xbc80bd: 0x00fdb462;
 
                 var config = {
-                    start: alig.start+distance,
-                    end: end+distance,
+                    start: alig.start,
+                    end: end,
                     z: z,
                     y: 0.04,
                     mod: width,
@@ -331,20 +366,22 @@ Torus.prototype = {
                     baseColorHex: color,
                     trackType: Viewer.Track.Feature
                 };
+//                console.log("alig");
+//                console.log(alig);
                 this.viewer.add2Track(s, trackId, config);
-                if (!(alig.flags & 4)) { //unmapped, no assumptions can be made about CIGAR
+                if (!(alig.flags & 4) && alig.differences.length != 0) { //unmapped, no assumptions can be made about CIGAR
                     var offset = 0;
                     if (alig.differences[0].op == "S" && alig.differences[0].pos == 0) {
                         offset = alig.start - alig.unclippedStart;
                     }
-                    for (var j = 0; j < this.data.samples[0].alignments[i].differences.length; j++) {
-                        var difference = this.data.samples[0].alignments[i].differences[j];
+                    for (var j = 0; j < this.data.samples[s].alignments[i].differences.length; j++) {
+                        var difference = this.data.samples[s].alignments[i].differences[j];
                         var start = alig.start + difference.pos - offset;
                         var end = (difference.length === undefined? difference.seq.length: difference.length) + start;
                         var color = this.colors[difference.op];
                         var config = {
-                            start: start+distance,
-                            end:end+distance,
+                            start: start,
+                            end:end,
                             z:z,
                             y: 0.06,
                             mod: width*0.8,
@@ -429,7 +466,7 @@ Torus.prototype = {
             }
         } else if (this.scale < 14.5) {
             for (var i = 0; i < this.viewer.disk.length; i++) {
-                this.viewer.disk[i].tracks[0].visible(true);
+                this.viewer.disk[i].tracks[0].visible(false);
                 for (var j = 1; j < this.viewer.disk[i].tracks.length; j++) {
                     this.viewer.disk[i].tracks[j].visible(true);
                 }

@@ -384,7 +384,7 @@ Viewer.prototype = {
                 tracks.push(this.disk[i].tracks[trackNum]);
             }
 //            console.log(tracks);
-            this.centralTrack = new Viewer.CentralTrack(tracks);
+            this.centralTrack = new Viewer.CentralTrack(tracks, {mod: 0.8,baseHeight: this.config.torusRadius - this.config.diskRadius - 0.04});
             this.figure.add(this.centralTrack.figure);
 //            console.log(this.figure);
 //            console.log(this.centralTrack);

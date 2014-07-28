@@ -110,6 +110,12 @@
                     species:"hsapiens",
                     tracks:[
                     ]
+                },
+                {
+                    id:"cinco",
+                    species:"hsapiens",
+                    tracks:[
+                    ]
                 }
             ]);
 
@@ -117,8 +123,9 @@
                 threeDViewer.torus.setCoverages(true);
             });
 
-//            threeDViewer.torus.obtainAlignments();
-//            threeDViewer.torus.setFullAlignments(true);
+            threeDViewer.torus.obtainAlignments(function() {
+                threeDViewer.torus.setFullAlignments(true);
+            });
 //            threeDViewer.torus.setAlignments();
 //            threeDViewer.torus.setDifferences();
 
