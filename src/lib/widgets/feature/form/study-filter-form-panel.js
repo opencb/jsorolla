@@ -27,9 +27,28 @@ function StudyFilterFormPanel(args) {
     this.autoRender = true;
     this.title = "Select Studies";
 //    this.studies = [];
-    this.studiesStore;
+//    this.studiesStore;
     this.border = true;
     this.height = 300;
+
+
+    /**
+     * TO BE REMOVED!
+     * @type {Ext.data.Store}
+     */
+    this.studiesStore = Ext.create('Ext.data.Store', {
+        pageSize: 50,
+        proxy: {
+            type: 'memory'
+        },
+        fields: [
+            {name: 'studyName', type: 'string'},
+            {name: 'studyId', type: 'string'}
+        ],
+        autoLoad: false
+    });
+
+
 
     //set instantiation args, must be last
     _.extend(this, args);
