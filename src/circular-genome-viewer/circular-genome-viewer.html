@@ -32,8 +32,8 @@
 <script type="text/javascript" src="../../vendor/gl-matrix-min.js"></script>
 <script type="text/javascript" src="../../vendor/ChemDoodleWeb.js"></script>
 
-<script type="text/javascript" src="../../build/1.0.0/genome-viewer/gv-config.js"></script>
-<script type="text/javascript" src="../../build/1.0.0/genome-viewer/genome-viewer.js"></script>
+<script type="text/javascript" src="../../build/1.1.6/genome-viewer/gv-config.js"></script>
+<script type="text/javascript" src="../../build/1.1.6/genome-viewer/genome-viewer.js"></script>
 <!-- /build -->
 
 
@@ -103,14 +103,17 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
+
     genomeViewer = new GenomeViewer({
-        targetId: 'mydiv2',
+        cellBaseHost: 'http://www.ebi.ac.uk/cellbase/webservices/rest',
+        cellBaseVersion: 'v3',
+        target: 'mydiv2',
+        width: $('#mydiv2').width(),
         region: region,
         availableSpecies: availableSpecies,
         species: species,
         sidePanel: false,
         autoRender: true,
-        border: true,
         resizable: true,
 //        quickSearchResultFn:quickSearchResultFn,
 //        quickSearchDisplayKey:,
@@ -150,16 +153,12 @@ var run = function () {
 //            drawNavigationBar = true;
 //            drawKaryotypePanel: false,
 //            drawChromosomePanel: false,
-//            drawRegionOverviewPanel: false
+//            drawOverviewTrackListPanel: false
+
     }); //the div must exist
-
-    genomeViewer.draw();
-
 
     tracks = [];
     this.sequence = new SequenceTrack({
-        targetId: null,
-        id: 1,
 //        title: 'Sequence',
         height: 30,
         visibleRegionSize: 200,
@@ -177,8 +176,6 @@ var run = function () {
     tracks.push(this.sequence);
 
     this.gene = new GeneTrack({
-        targetId: null,
-        id: 2,
         title: 'Gene',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
@@ -212,9 +209,7 @@ var run = function () {
         }
     });
     var gene = new FeatureTrack({
-        targetId: null,
-        id: 2,
-//        title: 'Gene',
+//        title: 'Gene overview',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
         height: 100,
@@ -226,7 +221,7 @@ var run = function () {
             subCategory: "region",
             resource: "gene",
             params: {
-                exclude: 'transcripts'
+                exclude: 'transcripts,chunkIds'
             },
             species: genomeViewer.species,
             cacheConfig: {
@@ -237,11 +232,9 @@ var run = function () {
     genomeViewer.addOverviewTrack(gene);
 
     this.snp = new FeatureTrack({
-        targetId: null,
-        id: 4,
         title: 'SNP',
         featureType: 'SNP',
-        minHistogramRegionSize: 12000,
+        minHistogramRegionSize: 10000,
         maxLabelRegionSize: 3000,
         height: 100,
 
@@ -293,6 +286,32 @@ var run = function () {
 //    /***************************************/
 
     genomeViewer.addTrack(tracks);
+
+
+//    $('#test').click(function (e) {
+//        $.ajax({
+//            url: 'http://fsalavert/appl/1.vcf',
+//            success: function (content) {
+//                var fileTrack = new FeatureTrack({
+//                    id: Utils.genId('vcf'),
+//                    title: 'VCF track',
+//                    height: 150,
+//                    renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
+//                    dataAdapter: new VCFDataAdapter(
+//                            //                    new FileDataSource({
+//                            //                        file: file
+//                            //                    })
+//                            new StringDataSource(content)
+//                    )
+//                });
+//                genomeViewer.addTrack(fileTrack);
+//
+//            }
+//        })
+//
+//    });
+
+    genomeViewer.draw();
 };
 
 $(document).ready(run);
@@ -317,14 +336,15 @@ $(document).ready(run);
     }
 
     #mydiv2 {
-        padding-right: 50px;
-        padding-left: 50px;
-        padding-bottom: 50px;
+        margin-right: 50px;
+        margin-left: 50px;
+        margin-bottom: 50px;
+        border: 1px solid #d3d3d3;
     }
 </style>
 </head>
 
-<body class="unselectable">
+<body class="unselectable ocb">
 <div style="" id="mydiv" class="bootstrap"></div>
 <div style="background:whitesmoke;" id="mydiv2"></div>
 </body>

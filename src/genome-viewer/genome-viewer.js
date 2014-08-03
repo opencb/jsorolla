@@ -473,7 +473,7 @@ GenomeViewer.prototype = {
 
     _drawKaryotypePanel: function (target) {
         var _this = this;
-        karyotypePanel = new KaryotypePanel({
+        var karyotypePanel = new KaryotypePanel({
             target: target,
             cellBaseHost: this.cellBaseHost,
             cellBaseVersion: this.cellBaseVersion,

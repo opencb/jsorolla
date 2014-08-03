@@ -356,7 +356,9 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
     var field = Ext.create('Ext.form.field.Text', {
         id: args.id,
         fieldLabel: args.fieldLabel,
+        labelAlign: args.labelAlign,
         labelWidth: _this.labelWidth,
+        width:args.width,
         editable: false,
         name: 'browseFieldLabel',
         value: args.defaultFileLabel || "browse file...",

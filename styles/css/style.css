@@ -154,11 +154,11 @@ ul.ocb-app-menu > li {
 .ocb-msg-hidden {
     position: absolute;
     z-index: 50000;
-    top: -999px;
+    top: -200px;
     left: 45%;
     background: white;
     border: 1px solid #435f7a;
-    transition: top 0.1s;
+    transition: top 0.9s;
     margin: 5px;
     min-width: 150px;
 }
@@ -610,11 +610,11 @@ ul.ocb-app-menu > li {
 /*************************/
 /*************************/
 .ocb-panel-title {
-    font-size: 13px;
-    background-color: #fff;
-    font-weight: bold;
+    font-size: 16px;
+    line-height: 20px;
     padding: 4px 6px;
-    border-width: 0px;
+    border: 1px solid #fff;
+    background-color: #fff;
 }
 
 .ocb-background-black {

@@ -371,6 +371,7 @@ NetworkSvgLayout.prototype = {
                         });
                         break;
                     case 'edge':
+                    case 'edge-label':
                         var edgeId = this.getEdgeId(targetEl);
                         this.trigger('select:edge', {edgeId: edgeId, addToSelection: event.ctrlKey, sender: _this});
                         break;

@@ -57,12 +57,12 @@ Genome.prototype = {
         /** Navigation Bar **/
         this.karyotype = this._createKaryotype(args);
 
-//        for (var i = 0; i < this.chromosomes.length; i++) {
-//            var chr = this.chromosomes[i];
-//            if (chr.visible != false) {
-//                this._getChromosomeGenes(chr);
-//            }
-//        }
+        for (var i = 0; i < this.chromosomes.length; i++) {
+            var chr = this.chromosomes[i];
+            if (chr.visible != false) {
+                this._getChromosomeGenes(chr);
+            }
+        }
     },
     _createKaryotype: function (args) {
         var _this = this;
@@ -86,6 +86,7 @@ Genome.prototype = {
         karyotype.draw();
     },
     drawFeatureTrack: function (features, offset, color) {
+        var _this = this;
         var feature;
         var segment;
         var chromosome;
@@ -228,29 +229,32 @@ Genome.prototype = {
     _getChromosomeGenes: function (chromosome) {
         var _this = this;
         var region = new Region(chromosome.name + ':1-' + chromosome.size);
-        if (_.isUndefined(this.chromosomeGenes[chromosome.name])) {
-            CellBaseManager.get({
-                species: this.species,
-                category: 'genomic',
-                subCategory: 'region',
-                resource: 'gene',
-                query: region.toString(),
-                params: {
-                    histogram: true,
-                    interval: 1000000
-                },
-                async: false,
-                success: function (data) {
-                    var features = data.response[0].result;
-                    _this.chromosomeGenes[chromosome.name] = features;
-                   // _this.drawHistogramTrack(features, 30, region, '#9493b1');
-                    _this.drawSampleTrack(features, -60, region, '#9493b1');
 
-                }
-            });
-        } else {
-            _this.drawSampleTrack(this.chromosomeGenes[chromosome.name], 30, region, '#9493b1');
-        }
+        //Uncomment to activate, long time load !!!
+
+//        if (_.isUndefined(this.chromosomeGenes[chromosome.name])) {
+//            CellBaseManager.get({
+//                species: this.species,
+//                category: 'genomic',
+//                subCategory: 'region',
+//                resource: 'gene',
+//                query: region.toString(),
+//                params: {
+//                    histogram: true,
+//                    interval: 1000000
+//                },
+//                async: false,
+//                success: function (data) {
+//                    var features = data.response[0].result;
+//                    _this.chromosomeGenes[chromosome.name] = features;
+//                   // _this.drawHistogramTrack(features, 30, region, '#9493b1');
+//                    _this.drawSampleTrack(features, -60, region, '#9493b1');
+//
+//                }
+//            });
+//        } else {
+//            _this.drawSampleTrack(this.chromosomeGenes[chromosome.name], 30, region, '#9493b1');
+//        }
 
 //        var features = [];
 //        var features2 = [];
