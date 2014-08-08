@@ -119,7 +119,7 @@ VariantWidget.prototype = {
             margin: '10 0 0 0',
             plain: true,
             animCollapse: false,
-            header: this.headerConfig,
+            header: this.toolPanelConfig.headerConfig,
             collapseDirection: Ext.Component.DIRECTION_BOTTOM,
             titleCollapse: true,
             overlapHeader: true,
