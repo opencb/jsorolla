@@ -103,16 +103,16 @@ TrackListPanel.prototype = {
         $(this.panelDiv).css({display: 'block'});
         this.collapsed = false;
         $(this.collapseDiv).removeClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().removeClass('fa-plus');
+        $(this.collapseDiv).children().first().addClass('fa-minus');
     },
     hideContent: function () {
         $(this.tlHeaderDiv).css({display: 'none'});
         $(this.panelDiv).css({display: 'none'});
         this.collapsed = true;
         $(this.collapseDiv).addClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
+        $(this.collapseDiv).children().first().removeClass('fa-minus');
+        $(this.collapseDiv).children().first().addClass('fa-plus');
     },
     render: function () {
         var _this = this;
@@ -127,7 +127,7 @@ TrackListPanel.prototype = {
             $(titleDiv).append(windowSizeDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="glyphicon glyphicon-minus"></span></div>');
+                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="fa fa-minus"></span></div>');
                 $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();

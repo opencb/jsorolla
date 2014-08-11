@@ -301,7 +301,7 @@ ul.ocb-app-menu > li {
 }
 
 .ocb-gv-navigation-bar {
-    font-size: 10px;
+    font-size: 13px;
     background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
     background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
     background-repeat: repeat-x;
@@ -491,7 +491,19 @@ CONTROLS
 .ocb-ctrl {
     position: relative;
     margin: 0px;
-    font-size: 12px;
+    display: block;
+    float: left;
+}
+.ocb-ctrl-label {
+    float:left;
+    display:block;
+    vertical-align: top;
+    height: 15px;
+    border: 1px solid #ccc;
+    padding: 2px 5px;
+    background-color: #f2f2f2;
+    line-height: 14px;
+    font-size: inherit;
 }
 
 label.ocb-ctrl > input[type=radio],
@@ -499,10 +511,10 @@ label.ocb-ctrl > input[type=checkbox] {
     display: none;
 }
 
-label.ocb-ctrl {
-    display: block;
-    float: left;
-}
+/*label.ocb-ctrl {*/
+    /*display: block;*/
+    /*float: left;*/
+/*}*/
 
 button.ocb-ctrl,
 input.ocb-ctrl[type=text],
@@ -513,12 +525,14 @@ label.ocb-ctrl > input[type=checkbox] + span {
     /*text-align: center;*/
     vertical-align: top;
 
+    outline: 0;
     height: 15px;
     padding: 2px 5px;
     border: 1px solid #ccc;
     color: #333;
     background-color: #fff;
     line-height: 14px;
+    font-size: inherit;
 }
 
 button.ocb-ctrl {
@@ -542,9 +556,8 @@ input.ocb-ctrl[type=text] {
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 
-input.ocb-ctrl[type=text]:focus {
+input.ocb-ctrl[type=text]:focus{
     border-color: #66afe9;
-    outline: 0;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
 }
 
@@ -623,7 +636,7 @@ ul.ocb-context li:hover {
 div.ocb-dropdown ul li.active,
 div.ocb-dropdown ul li:active,
 ul.ocb-context li:active {
-    background-color: #6599FF;
+    background-color: #428bca;
     color: #fff;
 }
 
