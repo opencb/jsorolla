@@ -231,20 +231,16 @@ ul.ocb-app-menu > li {
 
 /*Network viewer*/
 .ocb-nv-editionbar {
-    color: #435F7A;
-    padding: 5px 8px;
-    /*border-bottom:1px solid #c6d0da;*/
-    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
-    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
-    background-repeat: repeat-x;
+    padding: 4px 8px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #D9D9D9;
 }
 
 .ocb-nv-toolbar {
-    color: #435F7A;
-    padding: 5px 8px;
-    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
-    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
-    background-repeat: repeat-x;
+    padding: 4px 8px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #D9D9D9;
+    border-top: 1px solid #D9D9D9;
 }
 
 .ocb-nv-statusbar {
@@ -487,6 +483,176 @@ ul.ocb-app-menu > li {
     padding: 4px 6px;
     border: none;
 }
+
+/*
+CONTROLS
+*/
+
+.ocb-ctrl {
+    position: relative;
+    margin: 0px;
+    font-size: 12px;
+}
+
+label.ocb-ctrl > input[type=radio],
+label.ocb-ctrl > input[type=checkbox] {
+    display: none;
+}
+
+label.ocb-ctrl {
+    display: block;
+    float: left;
+}
+
+button.ocb-ctrl,
+input.ocb-ctrl[type=text],
+label.ocb-ctrl > input[type=radio] + span,
+label.ocb-ctrl > input[type=checkbox] + span {
+    display: block;
+    float: left;
+    /*text-align: center;*/
+    vertical-align: top;
+
+    height: 15px;
+    padding: 2px 5px;
+    border: 1px solid #ccc;
+    color: #333;
+    background-color: #fff;
+    line-height: 14px;
+}
+
+button.ocb-ctrl {
+    cursor: pointer;
+    height: 21px;
+}
+
+label.ocb-ctrl > input[type=radio]:checked + span,
+label.ocb-ctrl > input[type=checkbox]:checked + span {
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+    background-color: #ebebeb;
+}
+
+button.ocb-ctrl:hover,
+label.ocb-ctrl > input[type=radio] + span:hover,
+label.ocb-ctrl > input[type=checkbox]:hover + span:hover {
+    background-color: #ebebeb;
+}
+
+input.ocb-ctrl[type=text] {
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+input.ocb-ctrl[type=text]:focus {
+    border-color: #66afe9;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+}
+
+/******* Infinite drop down *****************/
+/*
+  data-divider: add li with boolean attribute data-divider to add a space between li
+  data-sub: add attribute data-sub to add the angle for sub ul
+*/
+
+div.ocb-dropdown {
+    position: relative;
+    display: block;
+    float: left;
+}
+
+div.ocb-dropdown ul,
+ul.ocb-context {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    list-style: none outside none;
+    z-index: 100000;
+    border: 1px solid #adadad;
+    background-color: #fff;
+    line-height: 22px;
+    min-width: 100px;
+    margin: 1px 0 0 0;
+    padding: 5px 0;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
+    /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
+    transition: all 0.1s;
+}
+
+div.ocb-dropdown ul,
+ul.ocb-context ul {
+    left: 0;
+    top: 100%;
+}
+
+div.ocb-dropdown ul ul{
+    top: 0px;
+    left: 100%;
+}
+
+div.ocb-dropdown ul li,
+ul.ocb-context li {
+    position: relative;
+    text-align: left;
+    padding: 2px 30px 2px 10px;
+    white-space: nowrap;
+}
+
+div.ocb-dropdown ul li[data-divider],
+ul.ocb-context li[data-divider] {
+    height: 1px;
+    margin: 7px 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #DEDEDE;
+}
+
+div.ocb-dropdown ul li[data-sub]:after,
+ul.ocb-context li[data-sub]:after {
+    font-family: FontAwesome;
+    content: '\f105'; /* > */
+    /*content:'\f0da';*/
+    position: absolute;
+    right: 10px;
+}
+
+div.ocb-dropdown ul li:hover,
+ul.ocb-context li:hover {
+    background-color: #DEDEDE;
+}
+
+div.ocb-dropdown ul li.active,
+div.ocb-dropdown ul li:active,
+ul.ocb-context li:active {
+    background-color: #6599FF;
+    color: #fff;
+}
+
+div.ocb-dropdown > button:focus + ul,
+div.ocb-dropdown > button:focus + ul li:hover > ul {
+    visibility: visible;
+    opacity: 1;
+}
+
+.ocb-zoom-bar {
+    position: relative;
+    float: left;
+    width: 120px;
+    height: 19px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background-color: #d5d5d5;
+}
+
+.ocb-zoom-bar > div {
+    background-color: #428bca;
+    height: 17px;
+    padding: 1px 0;
+    transition: all 0.2s;
+}
+
+/*
+END CONTROLS
+*/
 
 @font-face {
     font-family: 'Ubuntu';

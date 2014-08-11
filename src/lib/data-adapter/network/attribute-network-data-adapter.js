@@ -77,7 +77,6 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
 //        }
 //    }
 
-
     try {
         var lines = data.split("\n");
         var firstLine = lines[0].replace(/^\s+|\s+$/g, "");

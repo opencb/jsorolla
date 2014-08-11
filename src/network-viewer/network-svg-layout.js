@@ -159,8 +159,8 @@ NetworkSvgLayout.prototype = {
         });
 
 
-        $(this.svg).bind('mousedown.networkViewer', function (event) {
-            event.preventDefault();
+        $(this.svg).bind('mousedown', function (event) {
+//            event.preventDefault();
             switch (event.which) {
                 case 1: //left click
                     _this.leftMouseDown(event);
@@ -170,7 +170,7 @@ NetworkSvgLayout.prototype = {
                     break;
             }
         });
-        $(this.svg).bind('mouseup.networkViewer', function (event) {
+        $(this.svg).bind('mouseup', function (event) {
             switch (event.which) {
                 case 1: //left click
                     _this.leftMouseUp(event);
@@ -180,7 +180,7 @@ NetworkSvgLayout.prototype = {
                     break;
             }
         });
-        $(this.svg).bind('contextmenu.networkViewer', function (event) {
+        $(this.svg).bind('contextmenu', function (event) {
             event.preventDefault();
             switch (event.which) {
                 case 3: //right click
@@ -189,9 +189,9 @@ NetworkSvgLayout.prototype = {
             }
 
         });
-        $(this.svg).bind('mouseleave.networkViewer', function (event) {
-
-        });
+//        $(this.svg).bind('mouseleave', function (event) {
+//
+//        });
 
 
     },
@@ -357,7 +357,7 @@ NetworkSvgLayout.prototype = {
 
                         var lastX = downX;
                         var lastY = downY;
-                        $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
+                        $(_this.svg).bind('mousemove', function (moveEvent) {
                             moveEvent.preventDefault();
                             var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
                             var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
@@ -372,14 +372,12 @@ NetworkSvgLayout.prototype = {
                         break;
                     case 'edge':
                     case 'edge-label':
-                        var edgeId = this.getEdgeId(targetEl);
-                        this.trigger('select:edge', {edgeId: edgeId, addToSelection: event.ctrlKey, sender: _this});
                         break;
                     default:
                         this.selectArea = true;
                         /* background clicked */
                         var lastX = 0, lastY = 0;
-                        $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
+                        $(_this.svg).bind('mousemove', function (moveEvent) {
                             moveEvent.preventDefault();
                             var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
                             var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
@@ -407,7 +405,7 @@ NetworkSvgLayout.prototype = {
                         _this.temporalLinkSvg.setAttribute('y1', downY);
                         _this.temporalLinkSvg.setAttribute('x2', downX);
                         _this.temporalLinkSvg.setAttribute('y2', downY);
-                        $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
+                        $(_this.svg).bind('mousemove', function (moveEvent) {
                             moveEvent.preventDefault();
                             var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
                             var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
@@ -432,7 +430,7 @@ NetworkSvgLayout.prototype = {
                     $(targetEl).parent().append(targetEl);
                     var lastX = downX;
                     var lastY = downY;
-                    $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
+                    $(_this.svg).bind('mousemove', function (moveEvent) {
                         moveEvent.preventDefault();
                         var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
                         var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
@@ -465,7 +463,7 @@ NetworkSvgLayout.prototype = {
 
         switch (this.mode) {
             case "add":
-                $(_this.svg).off('mousemove.networkViewer');
+                $(_this.svg).off('mousemove');
                 break;
             case "select":
                 if (this.selectArea) {
@@ -486,22 +484,23 @@ NetworkSvgLayout.prototype = {
                         case 'edge':
                         case 'edge-label':
                             var edgeId = this.getEdgeId(targetEl);
+                            this.trigger('select:edge', {edgeId: edgeId, addToSelection: event.ctrlKey, sender: _this});
                             this.trigger('edge:leftClick', {edgeId: edgeId, sender: this});
                             break;
                         default:
                     }
                 }
-                $(_this.svg).off('mousemove.networkViewer');
+                $(_this.svg).off('mousemove');
                 break;
             case "selectbackground":
-                $(_this.svg).off('mousemove.networkViewer');
+                $(_this.svg).off('mousemove');
                 break;
             case "join":
                 if (!(targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label')) {
                     _this.joinSourceVertex = null;
                 }
                 if (_this.joinSourceVertex == null) {
-                    $(_this.svg).off('mousemove.networkViewer');
+                    $(_this.svg).off('mousemove');
                     _this.temporalLinkSvg.setAttribute('x1', 0);
                     _this.temporalLinkSvg.setAttribute('y1', 0);
                     _this.temporalLinkSvg.setAttribute('x2', 0);
@@ -533,7 +532,7 @@ NetworkSvgLayout.prototype = {
             case "selectbackground":
                 var lastX = downX;
                 var lastY = downY;
-                $(_this.svg).bind('mousemove.networkViewer', function (moveEvent) {
+                $(_this.svg).bind('mousemove', function (moveEvent) {
                     moveEvent.preventDefault();
                     var moveX = (moveEvent.clientX - $(_this.svg).offset().left);
                     var moveY = (moveEvent.clientY - $(_this.svg).offset().top);
@@ -557,7 +556,7 @@ NetworkSvgLayout.prototype = {
     },
     middleMouseUp: function (event) {
         var _this = this;
-        $(_this.svg).off('mousemove.networkViewer');
+        $(_this.svg).off('mousemove');
     },
     contextMenu: function (event) {
 

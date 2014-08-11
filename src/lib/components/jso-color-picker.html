@@ -2,31 +2,40 @@
     <style>
         #control {
             position: relative;
-            display: table;
-            margin: 0px;
+            height: 21px;
+            margin: 0;
         }
 
         #colorinput {
-            display: table-cell;
-            border: 1px solid #909090;
+            display: block;
+            float: left;
+            border: 1px solid #ccc;
             padding: 2px 4px;
-            margin: 0px;
+            margin: 0;
+            width: calc(100% - 31px);
             background-color: #ffffff;
+
             transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
         }
 
-        #colorinput:focus {
+        #colorinput:focus, #colorbox:focus {
             border-color: #66afe9;
             outline: 0;
             box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
         }
 
         #colorbox {
+            float: left;
             cursor: pointer;
-            display: table-cell;
+            border: 1px solid #ccc;
             width: 20px;
-            border: 1px solid #909090;
-            border-right-width: 0px;
+            height: 21px;
+            border-right-width: 0;
+        }
+
+        #colorbox:focus + input + ul {
+            visibility: visible;
+            opacity: 1;
         }
 
         ul#colorlist {
@@ -39,7 +48,7 @@
             top: 20px;
             left: 0px;
             position: absolute;
-            border: 1px solid #909090;
+            border: 1px solid #ccc;
             background: white;
             list-style: none;
             text-transform: none;
@@ -65,18 +74,16 @@
 
 
     <div id="control">
-        <span id="colorbox"></span>
+        <button id="colorbox"></button>
         <input id="colorinput" type="text" value="">
         <ul id="colorlist">
-            <li coloroption style="background-color: rgba(100,50,100,0.5)"></li>
-            <li coloroption style="background-color: rgba(100,100,100,0.5)"></li>
         </ul>
     </div>
 </template>
 
 <script>
     // This document reference
-    var thisDoc = document._currentScript.ownerDocument;
+    var thisDoc = document.currentScript.ownerDocument;
 
     var ColorPicker = document.registerElement('jso-color-picker', {
         prototype: Object.create(HTMLElement.prototype, {
@@ -86,6 +93,7 @@
             createdCallback: {
                 value: function () {
                     var me = this;
+
 
                     //Create a copy of the template node.
                     var template = document.importNode(thisDoc.querySelector('template').content, true);
@@ -100,25 +108,34 @@
                         this.els[id] = el;
                     }
 
+                    for (var i = 0; i < this.colors.length; i++) {
+                        var color = this.colors[i];
+                        this._addColor(color);
+                    }
+
                     //Set initial attributes and events
-                    this.setColor(this.getAttribute('color'));
+                    this._updateColorEls();
+
 
                     this.els.colorinput.addEventListener('keyup', function (e) {
-                        me.setAttribute('color', this.value);
+                        me.setColor(this.value);
+                        me.addColor(this.value);
                     });
-                    this.els.colorinput.addEventListener('click', function (e) {
-                        me.toggleMenu(false);
-                    });
-                    this.els.colorbox.addEventListener('click', function (e) {
-                        me.toggleMenu();
-                    });
+//                    this.els.colorinput.addEventListener('click', function (e) {
+//                        me.toggleMenu(false);
+//                    });
+//                    this.els.colorbox.addEventListener('click', function (e) {
+//                        me.toggleMenu();
+//                    });
                     this.els.colorlist.addEventListener('click', function (e) {
-                        if (e.target.hasAttribute('coloroption')) {
-                            var cs = getComputedStyle(e.target, null);
-                            me.setAttribute('color', cs.backgroundColor);
+                        if (e.target.hasAttribute('data-color')) {
+                            me.setColor(e.target.getAttribute('data-color'));
                         }
-                        me.toggleMenu(false);
+//                        me.toggleMenu(false);
                     });
+//                    this.els.colorlist.addEventListener('mouseleave', function (e) {
+//                        me.toggleMenu(false);
+//                    });
 
 
                 }
@@ -135,7 +152,9 @@
                 value: function (attr, oldVal, newVal) {
                     switch (attr) {
                         case 'color':
-                            this.setColor(newVal);
+                            console.log('attributechanged')
+                            this._updateColorEls();
+                            this.dispatchEvent(new CustomEvent("change", {"detail": {"color": this.getColor()}}));
                             break;
                     }
                 }
@@ -144,6 +163,34 @@
             /*
              * Methods and attributes
              */
+            colorPattern: {
+                value: /^(#[A-Fa-f0-9]{6}|#[A-Fa-f0-9]{3})$/
+            },
+            colors: {
+                value: [
+                    "#cccccc", "#888888", '#ffffff',
+                    "#ac725e", "#d06b64", "#f83a22", "#fa573c", "#ff7537", "#ffad46", "#42d692", "#16a765", "#7bd148", "#b3dc6c", "#fbe983", "#fad165",
+                    "#92e1c0", "#9fe1e7", "#9fc6e7", "#4986e7", "#9a9cff", "#b99aff", "#c2c2c2", "#cabdbf", "#cca6ac", "#f691b2", "#cd74e6", "#a47ae2",
+                    "#000000"
+                ]
+            },
+            _addColor: {
+                value: function (colorString) {
+                    var li = document.createElement('li');
+                    li.setAttribute('data-color', colorString);
+                    li.setAttribute('style', 'background-color: ' + colorString);
+                    this.els.colorlist.appendChild(li);
+                }
+            },
+            addColor: {
+                value: function (colorString) {
+                    if (this.colorPattern.test(colorString) && this.colors.indexOf(colorString) === -1) {
+                        this._addColor(colorString);
+                    }
+                }
+            },
+
+
             getColor: {
                 value: function () {
                     return this.getAttribute('color');
@@ -151,9 +198,15 @@
             },
             setColor: {
                 value: function (colorString) {
+                    this.setAttribute('color', colorString);
+                }
+            },
+            _updateColorEls: {
+                value: function () {
+                    var colorString = this.getColor();
                     this.els.colorinput.setAttribute('value', colorString);
+                    this.els.colorinput.value = colorString;
                     this.els.colorbox.style.backgroundColor = colorString;
-                    this.dispatchEvent(new CustomEvent("change", {"detail": {"color": this.getColor()}}));
                 }
             },
             showMenu: {
