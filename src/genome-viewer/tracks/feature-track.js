@@ -23,6 +23,7 @@ FeatureTrack.prototype = new Track({});
 
 function FeatureTrack(args) {
     Track.call(this, args);
+
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 

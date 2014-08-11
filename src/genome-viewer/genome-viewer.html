@@ -1,113 +1,154 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Genome Viewer Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Genome Viewer Demo</title>
 
 
-<!-- build:style vendor -->
-<link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
-<link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
-<link type="text/css" rel="stylesheet" href="../../vendor/bootstrap-scoped-dist/css/bootstrap.min.css">
-<link type="text/css" rel="stylesheet" href="../../vendor/typeahead.js-bootstrap.css">
-<!-- /build -->
+    <!-- build:style vendor -->
+    <link rel="stylesheet" href="../../vendor/font-awesome-4.1.0/css/font-awesome.min.css">
+    <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
+    <link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
+    <link type="text/css" rel="stylesheet" href="../../vendor/typeahead.js-bootstrap.css">
+    <!-- /build -->
+
+    <!-- build:style css -->
+    <link href="../../styles/css/style.css" rel="stylesheet">
+    <!-- /build -->
+
+    <!-- build:script vendor -->
+    <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
+    <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
+    <script type="text/javascript" src="../../vendor/rawdeflate.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
+
+    <!-- These dependencies must go AFTER jquery -->
+    <script type="text/javascript" src="../../vendor/typeahead.min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
+    <script type="text/javascript" src="../../vendor/purl.min.js"></script>
+    <script type="text/javascript" src="../../vendor/jquery.mousewheel.min.js"></script>
+    <script type="text/javascript" src="../../vendor/gl-matrix-min.js"></script>
+    <script type="text/javascript" src="../../vendor/ChemDoodleWeb.js"></script>
+    <!-- /build -->
 
 
-<!-- build:style css -->
-<link href="../../styles/css/style.css" rel="stylesheet">
-<!-- /build -->
+    <script type="text/javascript" src="gv-config.js"></script>
 
 
-<!-- build:script vendor -->
-<script type="text/javascript" src="../../vendor/underscore-min.js"></script>
-<script type="text/javascript" src="../../vendor/backbone-min.js"></script>
-<script type="text/javascript" src="../../vendor/rawdeflate.js"></script>
-<script type="text/javascript" src="../../vendor/jquery.min.js"></script>
+    <!-- build:script js -->
+    <script type="text/javascript" src="../lib/svg.js"></script>
+    <script type="text/javascript" src="../lib/utils.js"></script>
+    <script type="text/javascript" src="../lib/region.js"></script>
+    <script type="text/javascript" src="../lib/feature-binary-search-tree.js"></script>
+    <script type="text/javascript" src="../lib/cellbase-manager.js"></script>
+    <script type="text/javascript" src="../lib/ensembl-manager.js"></script>
 
-<!-- These dependencies must go AFTER jquery -->
-<script type="text/javascript" src="../../vendor/bootstrap-scoped-dist/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="../../vendor/typeahead.min.js"></script>
-<script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
-<script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
-<script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
-<script type="text/javascript" src="../../vendor/purl.min.js"></script>
-<script type="text/javascript" src="../../vendor/jquery.mousewheel.min.js"></script>
-<script type="text/javascript" src="../../vendor/gl-matrix-min.js"></script>
-<script type="text/javascript" src="../../vendor/ChemDoodleWeb.js"></script>
-<!-- /build -->
+    <script type="text/javascript" src="../lib/cache/file-feature-cache.js"></script>
+    <script type="text/javascript" src="../lib/cache/feature-chunk-cache.js"></script>
+    <script type="text/javascript" src="../lib/cache/memory-store.js"></script>
 
 
-<script type="text/javascript" src="gv-config.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature/sequence-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature/ensembl-adapter.js"></script>
+
+    <!--**-->
+    <script type="text/javascript" src="../lib/data-adapter/feature/feature-data-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature/vcf-data-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature/gff2-data-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature/gff3-data-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature/bed-data-adapter.js"></script>
+
+    <script type="text/javascript" src="../lib/data-source/data-source.js"></script>
+    <script type="text/javascript" src="../lib/data-source/string-data-source.js"></script>
+    <script type="text/javascript" src="../lib/data-source/file-data-source.js"></script>
+    <!--**-->
+
+    <script type="text/javascript" src="../lib/widgets/feature/info/info-widget.js"></script>
+    <script type="text/javascript" src="../lib/widgets/feature/info/gene-info-widget.js"></script>
+    <script type="text/javascript" src="../lib/widgets/feature/info/protein-info-widget.js"></script>
+    <script type="text/javascript" src="../lib/widgets/feature/info/snp-info-widget.js"></script>
+    <script type="text/javascript" src="../lib/widgets/feature/info/transcript-info-widget.js"></script>
+    <script type="text/javascript" src="../lib/widgets/feature/info/vcf-variant-info-widget.js"></script>
+
+    <script type="text/javascript" src="../lib/widgets/feature/file/legend-panel.js"></script>
+    <script type="text/javascript" src="../lib/widgets/feature/file/legend-widget.js"></script>
+
+    <script type="text/javascript" src="../lib/widgets/ux-window.js"></script>
+
+    <!-- **** -->
+
+    <script type="text/javascript" src="navigation-bar.js"></script>
+    <script type="text/javascript" src="chromosome-panel.js"></script>
+    <script type="text/javascript" src="karyotype-panel.js"></script>
+    <script type="text/javascript" src="status-bar.js"></script>
+
+    <script type="text/javascript" src="tracks/tracklist-panel.js"></script>
+    <script type="text/javascript" src="tracks/track.js"></script>
+    <script type="text/javascript" src="tracks/feature-track.js"></script>
+    <script type="text/javascript" src="tracks/sequence-track.js"></script>
+    <script type="text/javascript" src="tracks/gene-track.js"></script>
+
+    <script type="text/javascript" src="renderers/renderer.js"></script>
+    <script type="text/javascript" src="renderers/feature-renderer.js"></script>
+    <script type="text/javascript" src="renderers/feature-cluster-renderer.js"></script>
+    <script type="text/javascript" src="renderers/sequence-renderer.js"></script>
+    <script type="text/javascript" src="renderers/histogram-renderer.js"></script>
+    <script type="text/javascript" src="renderers/gene-renderer.js"></script>
 
 
-<!-- build:script js -->
-<script type="text/javascript" src="../lib/svg.js"></script>
-<script type="text/javascript" src="../lib/utils.js"></script>
-<script type="text/javascript" src="../lib/region.js"></script>
-<script type="text/javascript" src="../lib/feature-binary-search-tree.js"></script>
-<script type="text/javascript" src="../lib/cellbase-manager.js"></script>
-<script type="text/javascript" src="../lib/ensembl-manager.js"></script>
-
-<script type="text/javascript" src="../lib/cache/feature-chunk-cache.js"></script>
-<script type="text/javascript" src="../lib/cache/memory-store.js"></script>
-
-<script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter.js"></script>
-<script type="text/javascript" src="../lib/data-adapter/feature/sequence-adapter.js"></script>
-<script type="text/javascript" src="../lib/data-adapter/feature/ensembl-adapter.js"></script>
-
-<script type="text/javascript" src="../lib/widgets/feature/info/info-widget.js"></script>
-<script type="text/javascript" src="../lib/widgets/feature/info/gene-info-widget.js"></script>
-<script type="text/javascript" src="../lib/widgets/feature/info/protein-info-widget.js"></script>
-<script type="text/javascript" src="../lib/widgets/feature/info/snp-info-widget.js"></script>
-<script type="text/javascript" src="../lib/widgets/feature/info/transcript-info-widget.js"></script>
-<script type="text/javascript" src="../lib/widgets/feature/info/vcf-variant-info-widget.js"></script>
-
-<script type="text/javascript" src="../lib/widgets/feature/file/legend-panel.js"></script>
-<script type="text/javascript" src="../lib/widgets/feature/file/legend-widget.js"></script>
-
-<script type="text/javascript" src="../lib/widgets/ux-window.js"></script>
-
-<!-- **** -->
-
-<script type="text/javascript" src="navigation-bar.js"></script>
-<script type="text/javascript" src="chromosome-panel.js"></script>
-<script type="text/javascript" src="karyotype-panel.js"></script>
-<script type="text/javascript" src="status-bar.js"></script>
-
-<script type="text/javascript" src="tracks/tracklist-panel.js"></script>
-<script type="text/javascript" src="tracks/track.js"></script>
-<script type="text/javascript" src="tracks/feature-track.js"></script>
-<script type="text/javascript" src="tracks/sequence-track.js"></script>
-<script type="text/javascript" src="tracks/gene-track.js"></script>
-
-<script type="text/javascript" src="renderers/renderer.js"></script>
-<script type="text/javascript" src="renderers/feature-renderer.js"></script>
-<script type="text/javascript" src="renderers/feature-cluster-renderer.js"></script>
-<script type="text/javascript" src="renderers/sequence-renderer.js"></script>
-<script type="text/javascript" src="renderers/histogram-renderer.js"></script>
-<script type="text/javascript" src="renderers/gene-renderer.js"></script>
+    <script type="text/javascript" src="genome-viewer.js"></script>
+    <!-- /build -->
 
 
-<script type="text/javascript" src="genome-viewer.js"></script>
-<!-- /build -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-16414504-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
 
 
-<!-- Google Analytics -->
-<script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-16414504-2']);
-    _gaq.push(['_trackPageview']);
+    <style type="text/css">
+        html {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            overflow-x: hidden;
+        }
 
-    (function () {
-        var ga = document.createElement('script');
-        ga.type = 'text/javascript';
-        ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(ga, s);
-    })();
-</script>
+        body {
+            margin: 0px;
+        }
 
+        #application {
+            margin: 0 auto;
+            width: 1500px;
+            border: 1px solid lightgray;
+        }
+
+        #title {
+            margin: 20px auto;
+            width: 1500px;
+            font-size: 35px;
+            color: gray;
+        }
+    </style>
+
+</head>
+
+<body class="ocb">
 
 <script type="text/javascript">
 var genomeViewer = null;
@@ -130,16 +171,17 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
+
     genomeViewer = new GenomeViewer({
         cellBaseHost: 'http://www.ebi.ac.uk/cellbase/webservices/rest',
         cellBaseVersion: 'v3',
-        targetId: 'application',
+        target: 'application',
+        width: $('#application').width(),
         region: region,
         availableSpecies: availableSpecies,
         species: species,
         sidePanel: false,
         autoRender: true,
-        border: true,
         resizable: true,
 //        quickSearchResultFn:quickSearchResultFn,
 //        quickSearchDisplayKey:,
@@ -185,8 +227,6 @@ var run = function () {
 
     tracks = [];
     this.sequence = new SequenceTrack({
-        targetId: null,
-        id: 1,
 //        title: 'Sequence',
         height: 30,
         visibleRegionSize: 200,
@@ -204,8 +244,6 @@ var run = function () {
     tracks.push(this.sequence);
 
     this.gene = new GeneTrack({
-        targetId: null,
-        id: 2,
         title: 'Gene',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
@@ -239,8 +277,6 @@ var run = function () {
         }
     });
     var gene = new FeatureTrack({
-        targetId: null,
-        id: 2,
 //        title: 'Gene overview',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
@@ -264,8 +300,6 @@ var run = function () {
     genomeViewer.addOverviewTrack(gene);
 
     this.snp = new FeatureTrack({
-        targetId: null,
-        id: 4,
         title: 'SNP',
         featureType: 'SNP',
         minHistogramRegionSize: 10000,
@@ -322,42 +356,41 @@ var run = function () {
     genomeViewer.addTrack(tracks);
 
 
+//    $('#test').click(function (e) {
+//        $.ajax({
+//            url: 'http://fsalavert/appl/1.vcf',
+//            success: function (content) {
+//                var fileTrack = new FeatureTrack({
+//                    id: Utils.genId('vcf'),
+//                    title: 'VCF track',
+//                    height: 150,
+//                    renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
+//                    dataAdapter: new VCFDataAdapter(
+//                            //                    new FileDataSource({
+//                            //                        file: file
+//                            //                    })
+//                            new StringDataSource(content)
+//                    )
+//                });
+//                genomeViewer.addTrack(fileTrack);
+//
+//            }
+//        })
+//
+//    });
+
     genomeViewer.draw();
 };
 
 $(document).ready(run);
 </script>
 
-<style type="text/css">
-    html, body {
-        /*height: 100%;*/
-        /*position:relative;*/
-    }
 
-    body {
-        margin: 10px;
-        margin-right: 30px;
-        /*overflow: hidden;*/
-        /*padding:50px;*/
-    }
+<!--<div id="test">TEST</div>-->
+<!--<input id="importFileField" type="file"/>-->
 
-    #application {
-        /*width: 1440px;*/
-        /*width: 1000px;*/
-        /*height: 800px;*/
-        /*overflow-y: auto;*/
-        /*overflow-x: hidden;*/
-        /*padding: 10px;*/
-        /*border:10px solid red*/
-    }
-</style>
 
-</head>
-
-<body>
-<div style=""></div>
+<div id="title">Genome Viewer</div>
 <div id="application"></div>
-<div style=""></div>
-
 </body>
 </html>

@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-BamCache.prototype.putHistogramFeaturesByRegion = FeatureCache.prototype.putFeaturesByRegion;
+BamCache.prototype.putHistogramFeaturesByRegion = FileFeatureCache.prototype.putFeaturesByRegion;
 
 function BamCache(args) {
 	this.args = args;

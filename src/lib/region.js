@@ -38,7 +38,11 @@ Region.prototype = {
             return this.parse(obj);
         }
         this.chromosome = obj.chromosome || this.chromosome;
-        this.chromosome = this.chromosome;
+
+        if (typeof obj.position !== 'undefined') {
+            obj.start = parseInt(obj.position);
+            obj.end = obj.start;
+        }
 
         (_.isUndefined(obj.start)) ? this.start = parseInt(this.start) : this.start = parseInt(obj.start);
         (_.isUndefined(obj.end)) ? this.end = parseInt(this.end) : this.end = parseInt(obj.end);

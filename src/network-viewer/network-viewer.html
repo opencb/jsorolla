@@ -6,7 +6,6 @@
 
     <!-- build:style vendor -->
     <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
-    <link type="text/css" rel="stylesheet" href="../../vendor/bootstrap-scoped-dist/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="../../vendor/jquery.simplecolorpicker.css">
     <!-- /build -->
 
@@ -23,7 +22,6 @@
     <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
 
     <!-- These dependencies must go AFTER jquery -->
-    <script type="text/javascript" src="../../vendor/bootstrap-scoped-dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
@@ -72,7 +70,7 @@
                 target: 'application',
                 sidePanel: false,
                 overviewPanel: false,
-                session:session,
+                session: session,
                 width: $('#application').width(),
                 height: $('#application').height()
             });
@@ -83,32 +81,33 @@
 
     <style type="text/css">
         html {
+            width: 100%;
+            height: 100%;
             position: fixed;
             overflow: hidden;
-            height: 100%;
-            width: 100%;
         }
 
         body {
             margin: 0px;
-            /*overflow: hidden;*/
-            /*padding:50px;*/
         }
 
         #application {
-            /*width: 1440px;*/
+            margin: 0 auto;
+            width: 1500px;
             height: 800px;
-            /*overflow-y: auto;*/
-            /*overflow-x: hidden;*/
-            padding: 10px;
+            border: 1px solid lightgray;
+        }
+
+        #title {
+            margin: 20px auto;
+            width: 1500px;
+            font-size: 35px;
+            color: gray;
         }
     </style>
 </head>
 <body>
-<div class="bootstrap">
-    <div class="container text-muted" style="font-size: 36px;padding:10px">Network Viewer</div>
-    <div class="container" id="application"></div>
-</div>
-<div style=""></div>
+<div id="title">Network Viewer</div>
+<div id="application"></div>
 </body>
 </html>

@@ -69,58 +69,56 @@ HeaderWidget.prototype = {
         var appLi = '';
         if (this.applicationMenuEl) {
 //            appLi = '<li id="appMenu" class="menu"> &#9776; </li>';
-            appLi = '<li id="appMenu" class="menu"><span class="glyphicon glyphicon-th-list"></span></li>';
+            appLi = '<li id="appMenu" class="menu">&nbsp;<i class="fa fa-chevron-right"></i>&nbsp; <span class="">Menu</span></li>';
         }
         var navgationHtml = '' +
-            '<div>' +
             '   <ul class="ocb-header">' +
             appLi +
             '       <li class="title"> &nbsp; ' + this.appname +
             '       </li>' +
             '       <li id="description" class="description">' + this.description +
             '       </li>' +
-            '       <li id="menu" class="right menu"> ? ' +
+            '       <li id="support" class="right"> &nbsp; <i class="fa fa-support"></i>&nbsp;' +
             '       </li>' +
-            '       <li id="signin" class="right"><span class="glyphicon glyphicon-log-in"></span>&nbsp; sign in' +
+            '       <li id="signin" class="right"><i class="fa fa-sign-in"></i> &nbsp;sign in' +
             '       </li>' +
-            '       <li id="jobs" class="right hidden"> <span class="glyphicon glyphicon-tasks"></span>&nbsp; jobs' +
+            '       <li id="jobs" class="right hidden"><i class="fa fa-tasks"></i> &nbsp;jobs' +
             '       </li>' +
-            '       <li id="profile" class="right hidden"> <span class="glyphicon glyphicon-user"></span>&nbsp; profile' +
+            '       <li id="profile" class="right hidden"><i class="fa fa-user"></i> &nbsp;profile' +
             '       </li>' +
-            '       <li id="upload" class="right hidden"> <span class="glyphicon glyphicon-cloud-upload"></span> &nbsp;upload & manage' +
+            '       <li id="upload" class="right hidden"><i class="fa fa-cloud-upload"></i> &nbsp;upload & manage' +
             '       </li>' +
-            '       <li id="logout" class="right hidden"><span class="glyphicon glyphicon-log-out"></span>&nbsp; logout' +
+            '       <li id="logout" class="right hidden"><i class="fa fa-sign-out"></i> &nbsp;logout' +
             '       </li>' +
             '       <li id="user" class="right hidden text">' +
             '       </li>' +
             '   </ul>'
-        '</div>' +
-        '';
+        ' ';
 
         var menuHtml = '' +
             '   <ul class="ocb-help-menu unselectable">' +
-            '       <li id="homeHelp" class="right"><span class="glyphicon glyphicon-home"></span> &nbsp; home' +
+            '       <li id="homeHelp" class="right"><i class="fa fa-home"></i> &nbsp;home' +
             '       </li>' +
-            '       <li id="documentation" class="right"><span class="glyphicon glyphicon-book"></span> &nbsp; documentation' +
+            '       <li id="documentation" class="right"><i class="fa fa-book"></i> &nbsp;documentation' +
             '       </li>' +
-            '       <li id="tutorial" class="right"><span class="glyphicon glyphicon-list-alt"></span> &nbsp; tutorial' +
+            '       <li id="tutorial" class="right"><i class="fa fa-list-alt"></i> &nbsp;tutorial' +
             '       </li>' +
-            '       <li id="about" class="right"><span class="glyphicon glyphicon-info-sign"></span> &nbsp; about' +
+            '       <li id="about" class="right"><i class="fa fa-info"></i> &nbsp; about' +
             '       </li>' +
             '   </ul>'
         '';
 
 
-        this.div = $('<div class="unselectable bootstrap">' + navgationHtml + '</div>')[0];
+        this.div = $('<div class="ocb-header-widget unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
             height: this.height + 'px',
             position: 'relative'
         });
 
-        this.menuEl = $(menuHtml)[0];
-        $(this.div).append(this.menuEl);
-//        $(this.menuEl).mouseleave(function(){
-//            $(_this.menuEl).removeClass('ocb-help-menu-shown');
+        this.supportMenuEl = $(menuHtml)[0];
+        $(this.div).append(this.supportMenuEl);
+//        $(this.supportMenuEl).mouseleave(function(){
+//            $(_this.supportMenuEl).removeClass('ocb-help-menu-shown');
 //        });
 
         if (this.applicationMenuEl) {
@@ -130,6 +128,7 @@ HeaderWidget.prototype = {
 //            });
 
         }
+
         var els = $(this.div).find('ul').children();
         for (var i = 0; i < els.length; i++) {
             var elid = els[i].getAttribute('id');
@@ -138,21 +137,20 @@ HeaderWidget.prototype = {
             }
         }
 
-        $(this.els.menu).click(function () {
-            $(_this.menuEl).toggleClass('ocb-help-menu-shown');
+        $(this.div).mouseleave(function () {
+            _this.toogleSupportMenu(false);
+        });
+        $(this.div).click(function (e) {
+            if (e.target === _this.els.support || e.target.parentNode === _this.els.support) {
+                _this.toogleSupportMenu();
+            } else {
+                _this.toogleSupportMenu(false);
+            }
         });
 
         $(this.els.appMenu).click(function () {
-            $(_this.applicationMenuEl).toggleClass('ocb-app-menu-shown');
+            _this.toogleAppMenu();
         });
-
-//        $(this.els.menu).mouseenter(function () {
-//            $(_this.menuEl).addClass('ocb-help-menu-shown');
-//        });
-        $(this.els.appMenu).mouseenter(function () {
-            $(_this.applicationMenuDiv).addClass('ocb-app-menu-shown');
-        });
-
 
         $(this.els.homeHelp).click(function () {
             window.location.href = _this.homeLink;
@@ -238,7 +236,7 @@ HeaderWidget.prototype = {
     draw: function () {
         var _this = this;
         this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
-        if (this.targetDiv === 'undefined') {
+        if (!this.targetDiv) {
             console.log('target not found');
             return;
         }
@@ -263,16 +261,29 @@ HeaderWidget.prototype = {
         if (this.applicationMenuEl) {
             if (value === true) {
                 $(this.applicationMenuEl).addClass('ocb-app-menu-shown');
+                $(this.els.appMenu).children('i').removeClass('fa-chevron-right');
+                $(this.els.appMenu).children('i').addClass('fa-chevron-left');
             } else if (value === false) {
                 $(this.applicationMenuEl).removeClass('ocb-app-menu-shown');
+                $(this.els.appMenu).children('i').addClass('fa-chevron-right');
+                $(this.els.appMenu).children('i').removeClass('fa-chevron-left');
             } else {
                 $(this.applicationMenuEl).toggleClass('ocb-app-menu-shown');
+                $(this.els.appMenu).children('i').toggleClass('fa-chevron-right');
+                $(this.els.appMenu).children('i').toggleClass('fa-chevron-left');
             }
 
         }
     },
-    showAppMenu: function () {
-        if (this.applicationMenuEl) {
+    toogleSupportMenu: function (value) {
+        if (this.supportMenuEl) {
+            if (value === true) {
+                $(this.supportMenuEl).addClass('ocb-help-menu-shown');
+            } else if (value === false) {
+                $(this.supportMenuEl).removeClass('ocb-help-menu-shown');
+            } else {
+                $(this.supportMenuEl).toggleClass('ocb-help-menu-shown');
+            }
 
         }
     },
@@ -603,7 +614,7 @@ HeaderWidget.prototype = {
         if (nameToShow.indexOf('anonymous_') != -1) {
             nameToShow = 'anonymous';
         }
-        return 'logged in as <span style="color:darkred">' + nameToShow + '</span>'
+        return '<span style="color:darkred">' + nameToShow + '</span>'
     },
     sessionInitiated: function () {
         var _this = this;

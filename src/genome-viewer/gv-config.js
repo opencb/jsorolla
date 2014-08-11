@@ -194,18 +194,18 @@ FEATURE_TYPES = {
         color: SEQUENCE_COLORS
     },
     undefined: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.chromosome + ":" + f.start + "-" + f.end;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return " ";
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return " ";
         },
-        getColor: function (f) {
+        color: function (f) {
             return "grey";
         },
 //		infoWidgetId: "id",

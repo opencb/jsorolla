@@ -30,9 +30,7 @@ module.exports = function (grunt) {
                     'src/lib/widgets/feature/file/*.js',
                     'src/lib/widgets/feature/info/info-widget.js',
                     'src/lib/widgets/feature/info/*.js',
-                    'src/lib/widgets/feature/variant-effect-grid-widget.js',
-                    'src/lib/widgets/feature/genotype-grid-widget.js',
-                    'src/lib/widgets/feature/variant-widget.js',
+                    'src/lib/widgets/feature/**/*.js',
 
                     'src/lib/widgets/network/network-file-widget.js',
                     'src/lib/widgets/network/**/*.js',
@@ -55,7 +53,7 @@ module.exports = function (grunt) {
                     //cache
                     'src/lib/cache/memory-store.js',
                     'src/lib/cache/feature-chunk-cache.js',
-                    'src/lib/cache/feature-cache.js',
+                    'src/lib/cache/file-feature-cache.js',
                     'src/lib/cache/bam-cache.js'
                 ],
                 dest: '<%= def.build %>.js'

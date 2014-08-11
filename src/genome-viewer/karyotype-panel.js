@@ -24,6 +24,8 @@ function KaryotypePanel(args) {
 
     _.extend(this, Backbone.Events);
 
+    this.target;
+    this.autoRender = true;
     this.id = Utils.genId('KaryotypePanel');
 
     this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
@@ -69,15 +71,15 @@ KaryotypePanel.prototype = {
         $(this.svg).css({display: 'inline'});
         this.collapsed = false;
         $(this.collapseDiv).removeClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().removeClass('fa-plus');
+        $(this.collapseDiv).children().first().addClass('fa-minus');
     },
     hideContent: function () {
         $(this.svg).css({display: 'none'});
         this.collapsed = true;
         $(this.collapseDiv).addClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
+        $(this.collapseDiv).children().first().removeClass('fa-minus');
+        $(this.collapseDiv).children().first().addClass('fa-plus');
     },
     setVisible: function (bool) {
         if (bool) {
@@ -88,7 +90,7 @@ KaryotypePanel.prototype = {
     },
     setTitle: function (title) {
         if ('titleDiv' in this) {
-            $(this.titleDiv).children().first().html(title);
+            $(this.titleTextDiv).html(title);
         }
     },
     setWidth: function (width) {
@@ -102,25 +104,19 @@ KaryotypePanel.prototype = {
         }
     },
 
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        this.targetId = (targetId) ? targetId : this.targetId;
-        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
-        if (this.targetDiv === 'undefined') {
-            console.log('targetId not found');
-            return;
-        }
 
         this.div = $('<div id="karyotype-panel"></div>')[0];
-        $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
-            this.titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><span style="line-height: 24px;margin-left: 5px;">' + this.title + '</span></div>')[0];
-            $(this.div).append(this.titleDiv);
+
+            var titleDiv = $('<div id="tl-title" class="ocb-gv-panel-title unselectable"></div>')[0];
+            $(this.div).append(titleDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div style="display:inline;margin:5px;height:16px;float:right;"><span class="glyphicon glyphicon-minus"></span></div>');
-                $(this.titleDiv).dblclick(function () {
+                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="fa fa-minus"></span></div>');
+                $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
                     } else {
@@ -134,8 +130,11 @@ KaryotypePanel.prototype = {
                         _this.hideContent();
                     }
                 });
-                $(this.titleDiv).append(this.collapseDiv);
+                $(titleDiv).append(this.collapseDiv);
             }
+
+            this.titleTextDiv = $('<div class="ocb-gv-panel-text">' + this.title + '</div>');
+            $(titleDiv).append(this.titleTextDiv);
         }
 
         this.svg = SVG.init(this.div, {
@@ -158,11 +157,13 @@ KaryotypePanel.prototype = {
         $(this.svg).empty();
     },
     draw: function () {
-        if (!this.rendered) {
-            console.info(this.id + ' is not rendered yet');
+        var _this = this;
+        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.targetDiv) {
+            console.log('target not found');
             return;
         }
-        var _this = this;
+        this.targetDiv.appendChild(this.div);
 
         this.clean();
 
@@ -179,7 +180,7 @@ KaryotypePanel.prototype = {
 
         CellBaseManager.get({
             host: this.cellBaseHost,
-            version:this.cellBaseVersion,
+            version: this.cellBaseVersion,
             species: this.species,
             category: 'genomic',
             subCategory: 'chromosome',

@@ -118,12 +118,11 @@ FileWidget.prototype.draw = function(){
 		featureCountBar.add([this.featureCountLabel]);
 		
 		/** Bar for the file upload browser **/
-		var browseBar = Ext.create('Ext.toolbar.Toolbar',{cls:'bio-border-false'});
+		var browseBar = Ext.create('Ext.toolbar.Toolbar');
 		browseBar.add(this.getFileUpload());
 		
 		this.panel = Ext.create('Ext.panel.Panel', {
 			border: false,
-			cls:'panel-border-top panel-border-bottom',
 	//		padding: "0 0 10 0",
 			height:230,
 			title: "Previsualization",

@@ -33,10 +33,31 @@ function NavigationBar(args) {
 
     this.species = 'Homo sapiens';
     this.increment = 3;
-    this.componentsConfig = {};
+    this.componentsConfig = {
+        leftSideButton: false,
+        restoreDefaultRegionButton: true,
+        regionHistoryButton: true,
+        speciesButton: true,
+        chromosomesButton: true,
+        karyotypeButton: true,
+        chromosomeButton: true,
+        regionButton: true,
+        zoomControl: true,
+        windowSizeControl: true,
+        positionControl: true,
+        moveControl: true,
+        autoheightButton: true,
+        compactButton: true,
+        searchControl: true
+    };
+    this.zoom = 100;
+
+    _.extend(this.componentsConfig, args.componentsConfig);
+    delete args.componentsConfig;
 
     //set instantiation args, must be last
     _.extend(this, args);
+
 
     //set new region object
     this.region = new Region(this.region);
@@ -67,130 +88,84 @@ NavigationBar.prototype = {
             return;
         }
 
-        var navgationHtml = '' +
-            '<div style="width: 1350px">' +
-            '   <div class="btn-group">' +
-            '       <button id="restoreDefaultRegionButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="glyphicon glyphicon-repeat"></span></button>' +
-            '   </div>' +
-            '   <div class="btn-group">' +
-            '       <button id="regionHistoryButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" ><span class="glyphicon glyphicon-time"></span> <span class="caret"></button>' +
-            '       <ul id="regionHistoryMenu" class="dropdown-menu" role="menu">' +
-            '       </ul>' +
-            '   </div>' +
-            '   <div class="btn-group">' +
-            '       <button id="speciesButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" >' +
-            '           <span id="speciesText"></span>&nbsp;<span class="caret"></span>' +
-            '       </button>' +
-            '       <ul id="speciesMenu" class="dropdown-menu" role="menu">' +
-            '       </ul>' +
-            '   </div>' +
-            '   <div class="btn-group">' +
-//            '       <div class="pull-left" style="height:22px;line-height: 22px;color:#708090">Chr&nbsp;</div>' +
-            '       <button id="chromosomesButton" class="btn btn-default btn-xs custom-xs dropdown-toggle" data-toggle="dropdown"  type="button" >' +
-            '           <span id="chromosomesText"></span>&nbsp;<span class="caret"></span>' +
-            '       </button>' +
-            '       <ul id="chromosomesMenu" class="dropdown-menu" role="menu">' +
-            '       </ul>' +
-            '   </div>' +
-            '   <div class="btn-group" data-toggle="buttons">' +
-            '       <button id="karyotypeButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-karyotype"></span></button>' +
-            '       <button id="chromosomeButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-chromosome"></span></button>' +
-            '       <button id="regionButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-region"></span></button>' +
-            '   </div>' +
+
+        var HTML = '' +
+            '<button style="margin-right: 5px" id="leftSideButton" class="ocb-ctrl"><i class="fa fa-navicon"></i></button>' +
+            '<button id="restoreDefaultRegionButton" class="ocb-ctrl"><i class="fa fa-repeat"></i></button>' +
+
+            '<div class="ocb-dropdown" style="margin-left: 5px">' +
+            '   <button id="regionHistoryButton" class="ocb-ctrl"><i class="fa fa-history"></i></button>' +
+            '   <ul id="regionHistoryMenu"></ul>' +
+            '</div>' +
+
+            '<div class="ocb-dropdown" style="margin-left: 5px">' +
+            '   <button id="speciesButton" class="ocb-ctrl"><span id="speciesText"></span></button>' +
+            '   <ul id="speciesMenu"></ul>' +
+            '</div>' +
+
+            '<div class="ocb-dropdown" style="margin-left: 5px">' +
+            '   <button id="chromosomesButton" class="ocb-ctrl"><span id="chromosomesText"></span></button>' +
+            '   <ul id="chromosomesMenu"></ul>' +
+            '</div>' +
+
+            '<label style="margin-left: 5px;" class="ocb-ctrl"><input type="checkbox" id="karyotypeButton"><span style="border-right: none"><span class="ocb-icon ocb-icon-karyotype"></span></span></label>' +
+            '<label class="ocb-ctrl"><input type="checkbox" id="chromosomeButton"><span style="border-right: none"><span class="ocb-icon ocb-icon-chromosome"></span></span></label>' +
+            '<label class="ocb-ctrl"><input type="checkbox" id="regionButton"><span><span class="ocb-icon ocb-icon-region"></span></span></label>' +
 
 
-            '   <div id="zoomControl" class="btn-group" style="margin-left:5px;">' +
-            '       <button id="zoomMinButton" class="btn btn-default custom-xs" type="button" style="width:31px">0</button>' +
-            '       <button id="zoomOutButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-minus"></span></button>' +
-            '       <div id="progressBarCont" class="progress pull-left" style="width:120px;height:22px;margin:0px;background-color: #d5d5d5;border-radius: 0px;">' +
-            '           <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">' +
-            '           </div>' +
-            '       </div>' +
-            '       <button id="zoomInButton" class="btn btn-default custom-xs" type="button"><span class="glyphicon glyphicon-plus"></span></button>' +
-            '       <button id="zoomMaxButton" class="btn btn-default custom-xs" type="button" style="width:31px">100</button>' +
-            '   </div>' +
+            '<button id="zoomMinButton" class="ocb-ctrl" style="margin-left: 5px;border-right: none;">0</button>' +
+            '<button id="zoomOutButton" class="ocb-ctrl"><span class="fa fa-minus"></span></button>' +
+            '<div id="progressBarCont" class="ocb-zoom-bar">' +
+            '   <div id="progressBar" style="width: ' + this.zoom + '%"></div>' +
+            '</div>' +
+            '<button id="zoomInButton" class="ocb-ctrl" style="border-right: none;"><span class="fa fa-plus"></span></button>' +
+            '<button id="zoomMaxButton" class="ocb-ctrl">100</button>' +
 
 
-            '   <div id="windowSizeControl" class="btn-group" style="width:150px">' +
-            '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon custom-xs"> Window size: </span>' +
-            '       <input id="windowSizeField" type="text" class="form-control custom-xs" placeholder="Window size">' +
-            '   </div>' +
-            '   </div>' +
+            '<div class="ocb-ctrl-label" style="border-right: none;margin-left: 5px;">Window size:</div>' +
+            '<input id="windowSizeField" class="ocb-ctrl"  type="text" style="width: 60px;">' +
+
+            '<div class="ocb-ctrl-label" style="border-right: none;margin-left: 5px;">Position:</div>' +
+            '<input id="regionField" class="ocb-ctrl" placeholder="1:10000-20000" type="text" style="width: 170px;">' +
+            '<button id="goButton" class="ocb-ctrl" style="border-left: none;">Go!</button>' +
 
 
-            '   <div id="positionControl" class="btn-group" style="width:250px">' +
-            '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon custom-xs"> Position: </span>' +
-            '       <input id="regionField" type="text" class="form-control custom-xs" placeholder="1:10000-20000">' +
-            '       <div class="input-group-btn">' +
-            '           <button id="goButton" class="btn btn-default btn-sm custom-xs" type="button">Go!</button>' +
-            '       </div>' +
-            '   </div>' +
-            '   </div>' +
+            '<button id="moveFurtherLeftButton" class="ocb-ctrl" style="border-right: none;margin-left: 5px;"><i class="fa fa-angle-double-left"></i></button>' +
+            '<button id="moveLeftButton" class="ocb-ctrl" style="border-right: none;"><i class="fa fa-angle-left"></i></button>' +
+            '<button id="moveRightButton" class="ocb-ctrl" style="border-right: none;"><i class="fa fa-angle-right"></i></button>' +
+            '<button id="moveFurtherRightButton" class="ocb-ctrl"><i class="fa fa-angle-double-right"></i></button>' +
 
 
-            '   <div id="moveControl" class="btn-group">' +
-            '       <button id="moveFurtherLeftButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w-bold"></span></button>' +
-            '       <button id="moveLeftButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-w"></span></button>' +
-            '       <button id="moveRightButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-e"></span></button>' +
-            '       <button id="moveFurtherRightButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-arrow-e-bold"></span></button>' +
-            '   </div>' +
-            '   <div class="btn-group">' +
-            '       <button id="autoheightButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon ocb-icon-track-autoheight"></span></button>' +
-            '   </div>' +
-            '    <div class="btn-group">' +
-            '       <button id="compactButton" class="btn btn-default btn-xs custom-xs" type="button"><span class="ocb-icon glyphicon glyphicon-compressed"></span></button>' +
-            '   </div>' +
+            '<button id="autoheightButton" class="ocb-ctrl" style="margin-left: 5px;"><i class="fa fa-expand"></i></button>' +
+            '<button id="compactButton" class="ocb-ctrl" style="margin-left: 5px;"><i class="fa fa-compress"></i></button>' +
 
-            '   <div id="searchControl" class="btn-group" style="width:250px">' +
-            '   <div class="input-group input-group-sm">' +
-            '       <span class="input-group-addon custom-xs"> Search: </span>' +
-            '       <input id="searchField" list="searchDataList" type="text" class="form-control custom-xs" placeholder="gene, snp...">' +
+            '<div class="ocb-ctrl-label" style="border-right: none;margin-left: 5px;">Search:</div>' +
+            '<input id="searchField" class="ocb-ctrl"  list="searchDataList"  placeholder="gene, snp..." type="text" style="width: 90px;">' +
             '       <datalist id="searchDataList">' +
             '       </datalist>' +
-            '       <div class="input-group-btn">' +
-            '           <button id="quickSearchButton" class="btn btn-default btn-sm custom-xs" type="button"><span class="glyphicon glyphicon-search"></span></button>' +
-            '       </div>' +
-            '   </div>' +
-            '   </div>' +
-
-//            '   <div class="btn-group pull-right">' +
-//            '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
-//            '       <div class="input-group pull-left">' +
-//            '           <input id="searchField" list="searchDataList" type="text" class="form-control" placeholder="gene, snp..." style="padding:0px 4px;height:22px;width:100px">' +
-//            '           <datalist id="searchDataList">' +
-//            '           </datalist>' +
-//            '       </div>' +
-////            '       <ul id="quickSearchMenu" class="dropdown-menu" role="menu">' +
-////            '       </ul>' +
-//            '       <button id="quickSearchButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-search"></span></button>' +
-//            '   </div>' +
-            '</div>' +
+            '<button id="quickSearchButton" class="ocb-ctrl" style="border-left: none;"><i class="fa fa-search"></i></button>' +
             '';
 
 
-        this.div = $('<div id="navigation-bar" class="gv-navigation-bar unselectable">' + navgationHtml + '</div>')[0];
-        $(this.div).css({
-            height: '32px'
-        });
+        /**************/
+        this.div = document.createElement('div');
+        this.div.setAttribute('class', "ocb-gv-navigation-bar unselectable");
+        this.div.style.height = 21 + 'px';
+        this.div.innerHTML = HTML;
         $(this.targetDiv).append(this.div);
 
-        $(this.div).find('.custom-xs').css({
-            padding: '2px 4px',
-            height: '22px',
-            lineHeight: '16px',
-            fontSize: '14px'
-        });
-
-        var els = $(this.div).find('*[id]');
+        var els = this.div.querySelectorAll('[id]');
         for (var i = 0; i < els.length; i++) {
             var elid = els[i].getAttribute('id');
             if (elid) {
                 this.els[elid] = els[i];
             }
         }
+        /**************/
 
+
+        //TODO check all functionality
+        return
         /**Check components config**/
         for (var key in this.componentsConfig) {
             if (!this.componentsConfig[key]) {
@@ -200,6 +175,10 @@ NavigationBar.prototype = {
         /*****/
 
         /*** ***/
+        $(this.els.leftSideButton).click(function (e) {
+            _this.trigger('leftSideButton:click', {clickEvent: e, sender: {}})
+        });
+
         $(this.els.restoreDefaultRegionButton).click(function (e) {
             _this.trigger('restoreDefaultRegion:click', {clickEvent: e, sender: {}})
         });

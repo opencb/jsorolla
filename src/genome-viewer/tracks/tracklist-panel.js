@@ -29,14 +29,16 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.cellBaseVersion = 'v3';
 
     //set default args
+    this.target;
+    this.autoRender = true;
     this.id = Utils.genId("TrackListPanel");
     this.collapsed = false;
     this.collapsible = false;
 
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
-    this.trackSvgList = [];
-    this.swapHash = {};
+    this.tracks = [];
+    this.tracksIndex = {};
 
     this.parentLayout;
     this.mousePosition;
@@ -101,38 +103,31 @@ TrackListPanel.prototype = {
         $(this.panelDiv).css({display: 'block'});
         this.collapsed = false;
         $(this.collapseDiv).removeClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().removeClass('fa-plus');
+        $(this.collapseDiv).children().first().addClass('fa-minus');
     },
     hideContent: function () {
         $(this.tlHeaderDiv).css({display: 'none'});
         $(this.panelDiv).css({display: 'none'});
         this.collapsed = true;
         $(this.collapseDiv).addClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
+        $(this.collapseDiv).children().first().removeClass('fa-minus');
+        $(this.collapseDiv).children().first().addClass('fa-plus');
     },
-    render: function (targetId) {
+    render: function () {
         var _this = this;
-        this.targetId = (targetId) ? targetId : this.targetId;
-        this.targetDiv = (this.targetId instanceof HTMLElement ) ? this.targetId : $('#' + this.targetId)[0];
-        if (this.targetDiv === 'undefined') {
-            console.log('targetId not found');
-            return;
-        }
-
-
         this.div = $('<div id="tracklist-panel" style="height:100%;position: relative;"></div>')[0];
-        $(this.targetDiv).append(this.div);
 
         if ('title' in this && this.title !== '') {
-            var titleDiv = $('<div id="tl-title" class="gv-panel-title unselectable"><div style="display:inline-block;line-height: 24px;margin-left: 5px;width:120px">' + this.title + '</div></div>')[0];
+
+            var titleDiv = $('<div id="tl-title" class="ocb-gv-panel-title unselectable"></div>')[0];
             $(this.div).append(titleDiv);
-            var windowSizeDiv = $('<div style="display:inline;margin-left:35%" id="windowSizeSpan"></div>');
+
+            var windowSizeDiv = $('<div class="ocb-gv-tracklist-windowsize" id="windowSizeSpan"></div>');
             $(titleDiv).append(windowSizeDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div style="display:inline;margin:5px;height:16px;float:right;"><span class="glyphicon glyphicon-minus"></span></div>');
+                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="fa fa-minus"></span></div>');
                 $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -150,6 +145,8 @@ TrackListPanel.prototype = {
                 $(titleDiv).append(this.collapseDiv);
             }
 
+            var titleTextDiv = $('<div class="ocb-gv-panel-text">' + this.title + '</div>');
+            $(titleDiv).append(titleTextDiv);
         }
 
         var tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];
@@ -245,7 +242,7 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': mid - 1,
             'top': 0,
-            'width': this.pixelBase + 2,
+            'width': this.pixelBase + 1,
 //            'height': '100%',
             'height': 'calc(100% - 8px)',
             'opacity': 0.5,
@@ -588,14 +585,14 @@ TrackListPanel.prototype = {
 
 //        if (region.species != null) {
 //            //check species and modify CellBaseAdapter, clean cache
-//            for (i in this.trackSvgList) {
-//                if (this.trackSvgList[i].trackData.adapter instanceof CellBaseAdapter ||
-//                    this.trackSvgList[i].trackData.adapter instanceof SequenceAdapter
+//            for (i in this.tracks) {
+//                if (this.tracks[i].trackData.adapter instanceof CellBaseAdapter ||
+//                    this.tracks[i].trackData.adapter instanceof SequenceAdapter
 //                    ) {
-//                    this.trackSvgList[i].trackData.adapter.species = region.species;
-//                    //this.trackSvgList[i].trackData.adapter.featureCache.clear();
+//                    this.tracks[i].trackData.adapter.species = region.species;
+//                    //this.tracks[i].trackData.adapter.featureCache.clear();
 //
-//                    this.trackSvgList[i].trackData.adapter.clearData();
+//                    this.tracks[i].trackData.adapter.clearData();
 //                }
 //            }
 //        }
@@ -612,11 +609,19 @@ TrackListPanel.prototype = {
     },
 
     draw: function () {
+        var _this = this;
+        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.targetDiv) {
+            console.log('target not found');
+            return;
+        }
+        this.targetDiv.appendChild(this.div);
+
         this.trigger('track:draw', {sender: this});
     },
     _checkAllTrackStatus: function (status) {
-        for (var i in this.trackSvgList) {
-            if (this.trackSvgList[i].status != status) return false;
+        for (var i in this.tracks) {
+            if (this.tracks[i].status != status) return false;
         }
         return true;
     },
@@ -652,13 +657,24 @@ TrackListPanel.prototype = {
         }
         var _this = this;
 
-        var i = this.trackSvgList.push(track);
-        this.swapHash[track.id] = {index: i - 1, visible: true};
+        if (track == null) {
+            return false
+        }
+        // Check if already exists
+        if (this.containsTrack(track)) {
+            return false;
+        }
 
-        if(typeof track.dataAdapter.host === 'undefined'){
+
+        var length = this.tracks.push(track);
+        var insertPosition = length - 1;
+        this.tracksIndex[track.id] = insertPosition;
+
+
+        if (typeof track.dataAdapter.host === 'undefined') {
             track.dataAdapter.host = this.cellBaseHost;
         }
-        if(typeof track.dataAdapter.version === 'undefined'){
+        if (typeof track.dataAdapter.version === 'undefined') {
             track.dataAdapter.version = this.cellBaseVersion;
         }
         track.set('pixelBase', this.pixelBase);
@@ -740,6 +756,16 @@ TrackListPanel.prototype = {
             }
         });
 
+        track.on('track:close', function (event) {
+            _this.removeTrack(event.sender);
+        });
+        track.on('track:up', function (event) {
+            _this._reallocateAbove(event.sender);
+        });
+        track.on('track:down', function (event) {
+            _this._reallocateUnder(event.sender);
+        });
+
         this.on('track:draw', track.get('track:draw'));
         this.on('trackSpecies:change', track.get('trackSpecies:change'));
         this.on('trackRegion:change', track.get('trackRegion:change'));
@@ -751,16 +777,57 @@ TrackListPanel.prototype = {
 //            _this.checkTracksReady();
 //        });
     },
+    enableAutoHeight: function () {
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            track.enableAutoHeight();
+        }
+    },
+    updateHeight: function () {
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            track.updateHeight(true);
+        }
+    },
 
-    removeTrack: function (trackId) {
+    containsTrack: function (track) {
+        if (typeof this.tracksIndex[track.id] !== 'undefined') {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    getTrackIndex: function (track) {
+        return this.tracksIndex[track.id];
+    },
+    _updateTracksIndex: function () {
+        //update index with correct index after splice
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            this.tracksIndex[track.id] = i;
+        }
+    },
+    refreshTracksDom: function () {
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            $(track.div).detach();
+            if (track.visible) {
+                $(this.tlTracksDiv).append(track.div);
+            }
+        }
+    },
+    removeTrack: function (track) {
+        if (!this.containsTrack(track)) {
+            return false;
+        }
         // first hide the track
-        this._hideTrack(trackId);
+        this.hideTrack(track);
 
-        var i = this.swapHash[trackId].index;
-
+        var index = this.getTrackIndex(track);
         // remove track from list and hash data
-        var track = this.trackSvgList.splice(i, 1)[0];
-        delete this.swapHash[trackId];
+        this.tracks.splice(index, 1)[0];
+        delete this.tracksIndex[track.id];
+        this._updateTracksIndex();
 
         // delete listeners
         this.off('track:draw', track.get('track:draw'));
@@ -770,149 +837,121 @@ TrackListPanel.prototype = {
         this.off('trackWidth:change', track.set('trackWidth:change'));
         this.off('trackFeature:highlight', track.get('trackFeature:highlight'));
 
-
-        //uddate swapHash with correct index after splice
-        for (var i = 0; i < this.trackSvgList.length; i++) {
-            this.swapHash[this.trackSvgList[i].id].index = i;
-        }
+        this.refreshTracksDom();
         return track;
     },
 
     restoreTrack: function (track, index) {
-        var _this = this;
+        if (this.containsTrack((track))) {
+            return false;
+        }
 
         this.addTrack(track);
-
-        if (index != null) {
-            this.setTrackIndex(track.id, index);
+        if (typeof index !== 'undefined') {
+            this.setTrackIndex(track, index);
         }
-//        this._showTrack(track.id);
+        track.show();
+        this.refreshTracksDom();
     },
 
-    enableAutoHeight: function () {
-        for (var i = 0; i < this.trackSvgList.length; i++) {
-            var track = this.trackSvgList[i];
-            track.enableAutoHeight();
-        }
-    },
-    updateHeight: function () {
-        for (var i = 0; i < this.trackSvgList.length; i++) {
-            var track = this.trackSvgList[i];
-            track.updateHeight(true);
-        }
-    },
-
-    _redraw: function () {
-        $(this.tlTracksDiv)
-        for (var i = 0; i < this.trackSvgList.length; i++) {
-            var track = this.trackSvgList[i];
-            $(track.div).detach();
-            if (this.swapHash[track.id].visible) {
-                $(this.tlTracksDiv).append(track.div);
-            }
-        }
-    },
 
     //This routine is called when track order is modified
-    _reallocateAbove: function (trackId) {
-        var i = this.swapHash[trackId].index;
+    _reallocateAbove: function (track) {
+        if (!this.containsTrack((track))) {
+            return false;
+        }
+
+        var i = this.getTrackIndex(track);
         console.log(i + " wants to move up");
         if (i > 0) {
-            var aboveTrack = this.trackSvgList[i - 1];
-            var underTrack = this.trackSvgList[i];
+            var aboveTrack = this.tracks[i - 1];
+            var underTrack = this.tracks[i];
 
             var y = parseInt(aboveTrack.main.getAttribute("y"));
             var h = parseInt(underTrack.main.getAttribute("height"));
             aboveTrack.main.setAttribute("y", y + h);
             underTrack.main.setAttribute("y", y);
 
-            this.trackSvgList[i] = aboveTrack;
-            this.trackSvgList[i - 1] = underTrack;
-            this.swapHash[aboveTrack.id].index = i;
-            this.swapHash[underTrack.id].index = i - 1;
+            this.tracks[i] = aboveTrack;
+            this.tracks[i - 1] = underTrack;
+            this.tracksIndex[aboveTrack.id] = i;
+            this.tracksIndex[underTrack.id] = i - 1;
+            this.refreshTracksDom();
         } else {
             console.log("is at top");
         }
     },
 
     //This routine is called when track order is modified
-    _reallocateUnder: function (trackId) {
-        var i = this.swapHash[trackId].index;
+    _reallocateUnder: function (track) {
+        if (!this.containsTrack((track))) {
+            return false;
+        }
+
+        var i = this.getTrackIndex(track);
         console.log(i + " wants to move down");
-        if (i + 1 < this.trackSvgList.length) {
-            var aboveTrack = this.trackSvgList[i];
-            var underTrack = this.trackSvgList[i + 1];
+        if (i + 1 < this.tracks.length) {
+            var aboveTrack = this.tracks[i];
+            var underTrack = this.tracks[i + 1];
 
             var y = parseInt(aboveTrack.main.getAttribute("y"));
             var h = parseInt(underTrack.main.getAttribute("height"));
             aboveTrack.main.setAttribute("y", y + h);
             underTrack.main.setAttribute("y", y);
 
-            this.trackSvgList[i] = underTrack;
-            this.trackSvgList[i + 1] = aboveTrack;
-            this.swapHash[underTrack.id].index = i;
-            this.swapHash[aboveTrack.id].index = i + 1;
-
+            this.tracks[i] = underTrack;
+            this.tracks[i + 1] = aboveTrack;
+            this.tracksIndex[underTrack.id] = i;
+            this.tracksIndex[aboveTrack.id] = i + 1;
+            this.refreshTracksDom();
         } else {
             console.log("is at bottom");
         }
     },
 
-    setTrackIndex: function (trackId, newIndex) {
-        var oldIndex = this.swapHash[trackId].index;
+    setTrackIndex: function (track, newIndex) {
+        if (!this.containsTrack((track))) {
+            return false;
+        }
+
+        var oldIndex = this.getTrackIndex(track);
 
         //remove track from old index
-        var track = this.trackSvgList.splice(oldIndex, 1)[0]
+        this.tracks.splice(oldIndex, 1)[0];
 
         //add track at new Index
-        this.trackSvgList.splice(newIndex, 0, track);
+        this.tracks.splice(newIndex, 0, track);
 
-        //uddate swapHash with correct index after slice
-        for (var i = 0; i < this.trackSvgList.length; i++) {
-            this.swapHash[this.trackSvgList[i].id].index = i;
-        }
+        this._updateTracksIndex();
 
         //update track div positions
-        this._redraw();
+        this.refreshTracksDom();
     },
 
-    scrollToTrack: function (trackId) {
-        var swapTrack = this.swapHash[trackId];
-        if (swapTrack != null) {
-            var i = swapTrack.index;
-            var track = this.trackSvgList[i];
-            var y = $(track.div).position().top;
-            $(this.tlTracksDiv).scrollTop(y);
-
-//            $(this.svg).parent().parent().scrollTop(track.main.getAttribute("y"));
+    scrollToTrack: function (track) {
+        if (!this.containsTrack((track))) {
+            return false;
         }
+
+        var y = $(track.div).position().top;
+        $(this.tlTracksDiv).scrollTop(y);
     },
 
 
-    _hideTrack: function (trackId) {
-        this.swapHash[trackId].visible = false;
-        var i = this.swapHash[trackId].index;
-        var track = this.trackSvgList[i];
-
+    hideTrack: function (track) {
+        if (!this.containsTrack((track))) {
+            return false;
+        }
         track.hide();
-
-//        this.setHeight(this.height - track.getHeight());
-
-        this._redraw();
+        this.refreshTracksDom();
     },
 
-    _showTrack: function (trackId) {
-        this.swapHash[trackId].visible = true;
-        var i = this.swapHash[trackId].index;
-        var track = this.trackSvgList[i];
-
+    showTrack: function (track) {
+        if (!this.containsTrack((track))) {
+            return false;
+        }
         track.show();
-
-//        this.svg.appendChild(track.main);
-
-//        this.setHeight(this.height + track.getHeight());
-
-        this._redraw();
+        this.refreshTracksDom();
     },
     _setPixelBase: function () {
         this.pixelBase = this.width / this.region.length();
@@ -940,17 +979,16 @@ TrackListPanel.prototype = {
 //        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
     },
 
-    getTrackSvgById: function (trackId) {
-        if (this.swapHash[trackId] != null) {
-            var position = this.swapHash[trackId].index;
-            return this.trackSvgList[position];
+    getTrackById: function (trackId) {
+        if (typeof this.tracksIndex[trackId] !== 'undefined') {
+            var i = this.tracksIndex[trackId];
+            return this.tracks[i];
         }
-        return null;
     },
     getSequenceTrack: function () {
         //if multiple, returns the first found
-        for (var i = 0; i < this.trackSvgList.length; i++) {
-            var track = this.trackSvgList[i];
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
             if (track instanceof SequenceTrack) {
                 return track;
             }
