@@ -80,6 +80,13 @@ Region.prototype = {
         return this.end - this.start + 1;
     },
 
+    equals: function (r) {
+        if (this.chromosome === r.chromosome && this.start === r.start && this.end === r.end) {
+            return true;
+        }
+        return false;
+    },
+
     toString: function (formated) {
         var str;
         if (formated == true) {

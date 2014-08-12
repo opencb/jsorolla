@@ -7,13 +7,15 @@
         }
 
         #colorinput {
+            box-sizing: border-box;
             display: block;
             float: left;
             border: 1px solid #ccc;
-            padding: 2px 4px;
+            padding: 0px 4px;
             margin: 0;
-            width: calc(100% - 31px);
+            width: calc(100% - 21px);
             background-color: #ffffff;
+            line-height: 21px;
 
             transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
         }
@@ -25,11 +27,13 @@
         }
 
         #colorbox {
+            box-sizing: border-box;
             float: left;
             cursor: pointer;
+            padding:0;
+            height: 23px;
+            width: 21px;
             border: 1px solid #ccc;
-            width: 20px;
-            height: 21px;
             border-right-width: 0;
         }
 
@@ -74,7 +78,7 @@
 
 
     <div id="control">
-        <button id="colorbox"></button>
+        <div tabindex="-1" id="colorbox"></div>
         <input id="colorinput" type="text" value="">
         <ul id="colorlist">
         </ul>
