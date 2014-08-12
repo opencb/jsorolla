@@ -819,7 +819,7 @@ NetworkViewer.prototype = {
         var _this = this;
 
         var contextMenu = document.createElement('ul');
-        contextMenu.classList.add('ocb-context');
+        contextMenu.classList.add('ocb-context', 'ocb-nv-context');
         this.centerPanelDiv.appendChild(contextMenu);
 
         document.body.addEventListener('click', function (e) {

@@ -27,7 +27,7 @@ function ToolBar(args) {
     //set default args
     this.target;
     this.autoRender = true;
-    this.height = 31;
+    this.height = 32;
     this.zoom = 25;
 
     //set instantiation args, must be last
@@ -51,42 +51,42 @@ ToolBar.prototype = {
 
         var HTML = '' +
 
-            '   <label class="ocb-ctrl"><input type="radio" name="mode1" id="selectButton" title="Network select mode" checked="true"><span style="border-right: none"><span class="ocb-icon icon-mouse-select"></span></span></label>' +
-            '   <label class="ocb-ctrl"><input type="radio" name="mode1" id="backgroundButton" title="Background select mode"><span><span class="ocb-icon ocb-icon-backitem-select"></span></span></label>' +
+            '   <label class="ocb-ctrl"><input type="radio" name="mode1" id="selectButton" title="Network select mode" checked="true"><span style="border-right: none"><i class="fa fa-hand-o-up"></i></span></label>' +
+            '   <label class="ocb-ctrl"><input type="radio" name="mode1" id="backgroundButton" title="Background select mode"><span><i class="fa fa-image"></i></span></label>' +
 
-            '   <label style="margin-left: 10px;" class="ocb-ctrl"><input type="radio" name="mode1" id="addButton" title="Add mode"><span style="border-right: none"><span class="ocb-icon icon-add"></span></span></label>' +
-            '   <label class="ocb-ctrl"><input type="radio" name="mode1" id="linkButton" title="Link mode"><span style="border-right: none"><span class="ocb-icon icon-link"></span></span></label>' +
-            '   <label class="ocb-ctrl"><input type="radio" name="mode1" id="deleteButton" title="Delete mode"><span><span class="ocb-icon icon-delete"></span></span></label>' +
+            '   <label style="margin-left: 10px;" class="ocb-ctrl"><input type="radio" name="mode1" id="addButton" title="Add mode"><span style="border-right: none"><i class="fa fa-plus"></i></span></label>' +
+            '   <label class="ocb-ctrl"><input type="radio" name="mode1" id="linkButton" title="Link mode"><span style="border-right: none"><i class="fa fa-link"></i></span></label>' +
+            '   <label class="ocb-ctrl"><input type="radio" name="mode1" id="deleteButton" title="Delete mode"><span><i class="fa fa-times"></i></span></label>' +
 
-            '   <button style="margin-left: 10px" id="collapseButton" class="ocb-ctrl hidden"><span class="ocb-icon icon-collapse"></span></button>' +
+            '   <div style="margin-left: 10px" id="collapseButton" class="ocb-ctrl hidden"><span class="ocb-icon icon-collapse"></span></div>' +
 
 
             '   <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '       <button id="layoutButton" class="ocb-ctrl"><span class="ocb-icon icon-layout"></span></button>' +
+            '       <div tabindex="-1" id="layoutButton" class="ocb-ctrl"><i class="fa fa-share-alt"></i></div>' +
             '       <ul id="layoutMenu"></ul>' +
             '  </div>' +
 
             '   <div class="ocb-dropdown" title="Select" style="margin-left: 10px">' +
-            '       <button id="autoSelectButton" class="ocb-ctrl"><span class="ocb-icon icon-auto-select"></span></button>' +
+            '       <div tabindex="-1"  id="autoSelectButton" class="ocb-ctrl"><i class="fa fa-dot-circle-o"></i></div>' +
             '       <ul id="autoSelectMenu"></ul>' +
             '  </div>' +
 
-            '   <button style="margin-left: 10px" id="importBackgroundImageButton" class="ocb-ctrl"><span class="ocb-icon icon-background-option"></span></button>' +
+            '   <div style="margin-left: 10px" id="importBackgroundImageButton" class="ocb-ctrl"><i class="fa fa-file-image-o"></i></div>' +
             '   <input id="importBackgroundImageField" type="file" style="display:none" />' +
 
             '   <jso-color-picker id="backgroundColorPicker" color="#ffffff" style="float:left;width:90px;margin-left: 2px;"></jso-color-picker>' +
 
             '   <div class="ocb-dropdown"  title="Rotate"  style="margin-left: 10px">' +
-            '       <button id="rotateButton" class="ocb-ctrl" style="border-right: none"><i class="fa fa-rotate-right"></i></button>' +
+            '       <div tabindex="-1"  id="rotateButton" class="ocb-ctrl" style="border-right: none"><i class="fa fa-rotate-right"></i></div>' +
             '       <ul id="rotateMenu"></ul>' +
             '   </div>' +
-            '   <input id="rotateField" class="ocb-ctrl"  type="text" style="width: 30px;" placeholder="90&deg;">' +
+            '   <input id="rotateField" class="ocb-ctrl"  type="text" style="width: 50px;" placeholder="90&deg;">' +
 
-            '   <button id="zoomOutButton" class="ocb-ctrl" style="margin-left: 10px"><span class="fa fa-minus"></span></button>' +
+            '   <div id="zoomOutButton" class="ocb-ctrl" style="margin-left: 10px"><span class="fa fa-minus"></span></div>' +
             '   <div id="progressBarCont" class="ocb-zoom-bar">' +
             '       <div id="progressBar" style="width: ' + this.zoom + '%"></div>' +
             '   </div>' +
-            '   <button id="zoomInButton" class="ocb-ctrl"><span class="fa fa-plus"></span></button>' +
+            '   <div id="zoomInButton" class="ocb-ctrl"><span class="fa fa-plus"></span></div>' +
 
             '   </div>' +
 
@@ -99,7 +99,6 @@ ToolBar.prototype = {
 
         var div = document.createElement('div');
         div.setAttribute('class', "ocb-nv-toolbar unselectable");
-        div.style.height = 21 + 'px';
         div.innerHTML = HTML;
         this.div.appendChild(div);
 
@@ -151,7 +150,7 @@ ToolBar.prototype = {
 
         this.els.importBackgroundImageField.addEventListener('change', function (e) {
             var file = this.files[0];
-            if(file){
+            if (file) {
                 var reader = new FileReader();
                 reader.onload = function (evt) {
                     var image = new Image;
@@ -173,10 +172,9 @@ ToolBar.prototype = {
             _this._handleZoomInButton();
         });
         this.els.progressBarCont.addEventListener('click', function (e) {
-            var offsetX = e.clientX - this.offsetLeft;
-            var zoom = 100 / this.offsetWidth * offsetX;
+            var zoom = 100 / parseInt(getComputedStyle(this).width) * e.offsetX;
             if (!_this.zoomChanging) {
-                _this.els.progressBar.style.width = offsetX + 'px';
+                _this.els.progressBar.style.width = e.offsetX + 'px';
                 _this.zoomChanging = true;
                 setTimeout(function () {
                     _this._handleZoomSlider(zoom);
@@ -297,7 +295,7 @@ ToolBar.prototype = {
                 menuEntry.innerHTML = options[i];
                 _this.els.rotateMenu.appendChild(menuEntry);
                 menuEntry.addEventListener('click', function (e) {
-                    _this.trigger('select:rotate', {option: this.innerHTML, sender: _this});
+                    _this.trigger('change:rotate', {angle: parseFloat(this.textContent), sender: _this});
                 });
             }
         }

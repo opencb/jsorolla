@@ -147,7 +147,7 @@ GenomeViewer.prototype = {
 
 
         this.trackListPanelsDiv = document.createElement('div');
-        this.trackListPanelsDiv.setAttribute('class', 'ocb-gv-track');
+        this.trackListPanelsDiv.setAttribute('class', 'ocb-gv-tracklist-target');
         this.centerPanelDiv.appendChild(this.trackListPanelsDiv);
 
         this.regionDiv = document.createElement('div');
@@ -313,7 +313,7 @@ GenomeViewer.prototype = {
     /*Components*/
     /**/
 
-    _createNavigationBar: function (targetId) {
+    _createNavigationBar: function (target) {
         var _this = this;
 
         if (!$.isFunction(this.quickSearchResultFn)) {
@@ -373,7 +373,7 @@ GenomeViewer.prototype = {
         };
 
         var navigationBar = new NavigationBar({
-            targetId: targetId,
+            target: target,
             cellBaseHost: this.cellBaseHost,
             cellBaseVersion: this.cellBaseVersion,
             availableSpecies: this.availableSpecies,
@@ -381,11 +381,13 @@ GenomeViewer.prototype = {
             region: this.region,
             width: this.width,
             svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
-            autoRender: true,
             zoom: this.zoom,
             quickSearchResultFn: this.quickSearchResultFn,
             quickSearchDisplayKey: this.quickSearchDisplayKey,
             componentsConfig: this.navigationBarConfig.componentsConfig,
+            karyotypePanelConfig: this.karyotypePanelConfig,
+            chromosomePanelConfig: this.chromosomePanelConfig,
+            regionPanelConfig: this.regionPanelConfig,
             handlers: {
                 'region:change': function (event) {
                     _this._regionChangeHandler(event);
@@ -433,11 +435,8 @@ GenomeViewer.prototype = {
                     }
                 },
                 'restoreDefaultRegion:click': function (event) {
+                    event.region = _this.defaultRegion;
                     _this._regionChangeHandler(event);
-//                    event.region = _this._checkRegion(event.region);
-//                    _this.setMinRegion(_this.defaultRegion, _this.getSVGCanvasWidth());
-//                    event.region = _this.defaultRegion;
-//                    _this.trigger('region:change', event);
                 },
                 'autoHeight-button:click': function (event) {
                     _this.enableAutoHeight();
@@ -826,7 +825,6 @@ GenomeViewer.prototype = {
             console.log('****************************');
             return false;
         }
-
     },
     _regionMoveHandler: function (event) {
         //Relaunch
