@@ -28,7 +28,7 @@ function GeneRenderer(args) {
     _.extend(this, Backbone.Events);
 
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
-    this.toolTipfontClass = 'ocb-font-default';
+    this.toolTipfontClass = 'ocb-tooltip-font';
 
     if (_.isObject(args)) {
         _.extend(this, args);
@@ -144,7 +144,7 @@ GeneRenderer.prototype.render = function (features, args) {
                 });
 
                 $(featureGroup).click(function (event) {
-                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent: event});
+                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: 'gene', clickEvent: event});
                 });
 
 
@@ -212,7 +212,7 @@ GeneRenderer.prototype.render = function (features, args) {
                         });
                         $(transcriptGroup).click(function (event) {
                             var query = this.getAttribute("widgetId");
-                            _this.trigger('feature:click', {query: query, feature: transcript, featureType: transcript.featureType, clickEvent: event});
+                            _this.trigger('feature:click', {query: query, feature: transcript, featureType: 'transcript', clickEvent: event});
                         });
 
                         //paint exons

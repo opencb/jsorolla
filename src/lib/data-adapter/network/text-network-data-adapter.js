@@ -95,7 +95,7 @@ TextNetworkDataAdapter.prototype.parse = function (data) {
     }
 };
 
-TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, relationIndex, targetIndex) {
+TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, targetIndex, relationIndex, relationDefaultName) {
     this.graph = new Graph();
     this.addedVertex = {};
     this.addedEdges = {};
@@ -104,8 +104,13 @@ TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, relationI
         var fields = this.lines[i];
 
         var sourceName = fields[sourceIndex];
-        var edgeName = fields[relationIndex];
         var targetName = fields[targetIndex];
+        var edgeName;
+        if(relationIndex < 0){
+            edgeName = relationDefaultName;
+        }else{
+            edgeName = fields[relationIndex];
+        }
 
         /** create source vertex **/
         if (typeof this.addedVertex[sourceName] === 'undefined') {

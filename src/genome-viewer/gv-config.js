@@ -194,18 +194,18 @@ FEATURE_TYPES = {
         color: SEQUENCE_COLORS
     },
     undefined: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.chromosome + ":" + f.start + "-" + f.end;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return " ";
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return " ";
         },
-        getColor: function (f) {
+        color: function (f) {
             return "grey";
         },
 //		infoWidgetId: "id",
@@ -345,21 +345,36 @@ FEATURE_TYPES = {
         tooltipText: function (f) {
             return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f) +
-                'source:&nbsp;<span class="ssel">' + f.source + '</span><br>';
+                'conseq. type :&nbsp;<span class="ssel">' + f.displayConsequenceType + '</span><br>';
+//                'source:&nbsp;<span class="ssel">' + f.source + '</span><br>';
 
         },
-        color: 'lightblue',
+        color: function (f) {
+            return SNP_BIOTYPE_COLORS[f.displayConsequenceType];
+        },
         infoWidgetId: "id",
         height: 8,
-        histogramColor: "orange",
-        handlers: {
-            'feature:mouseover': function (e) {
-                console.log(e)
-            }
-//            'feature:click': function (event) {
-//                new SnpInfoWidget(null, genomeViewer.species).draw(event);
-//            }
-        }
+        histogramColor: "orange"
+    },
+    mutation: {
+        label: function (f) {
+            return ('name' in f) ? f.name : f.id;
+        },
+        tooltipTitle: function (f) {
+            var name = (f.name != null) ? f.name : f.id;
+            return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
+        },
+        tooltipText: function (f) {
+            return   FEATURE_TYPES.getTipCommons(f) +
+                '';
+
+        },
+        color: function (f) {
+            return 'limegreen'
+        },
+        infoWidgetId: "id",
+        height: 8,
+        histogramColor: "limegreen"
     },
     file: {
         getLabel: function (f) {

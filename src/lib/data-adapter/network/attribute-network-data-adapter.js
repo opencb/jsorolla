@@ -77,18 +77,29 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
 //        }
 //    }
 
-
     try {
-
         var lines = data.split("\n");
         var firstLine = lines[0].replace(/^\s+|\s+$/g, "");
+        var columnNames = [];
+        if (firstLine.substr(0, 1) === "#") {
+            columnNames = firstLine.split("\t");
+
+            //search for first non header line "#"
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].replace(/^\s+|\s+$/g, "");
+                if(line.substr(0, 1) !== "#"){
+                    firstLine = line;
+                    break;
+                }
+            }
+        }
+
         var numColumns = firstLine.split("\t").length;
         for (var i = 0; i < numColumns; i++) {
-            var name = "Column" + i;
+            var name = (columnNames[i]) ? columnNames[i] : "Column" + i;
             if (i == 0) {
-                name = "Id";
+                name = "id";
             }
-
             if (this.ignoreColumns[i] !== true) {
                 this.attributes.push({
                     "name": name,
@@ -97,6 +108,7 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
                 });
             }
         }
+
 
         //ignore attributes
         if (Object.keys(this.ignoreColumns).length > 0) {
@@ -115,7 +127,7 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
                     this.data.push(filteredFields);
                 }
             }
-        }else{
+        } else {
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].replace(/^\s+|\s+$/g, "");
                 if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
@@ -128,6 +140,7 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
         this.trigger('data:load', {sender: this});
     } catch (e) {
         console.log(e);
+        console.log(e.stack);
         this.trigger('error:parse', {errorMsg: 'Parse error', sender: this});
     }
 

@@ -20,21 +20,21 @@
  */
 
 function Track(args) {
-    this.width = 200;
-    this.height = 200;
 
-
+    this.id = Utils.genId('track');
     this.dataAdapter;
     this.renderer;
     this.resizable = true;
     this.autoHeight = false;
     this.targetId;
-    this.id;
     this.title;
     this.minHistogramRegionSize = 300000000;
     this.maxLabelRegionSize = 300000000;
+    this.width = 200;
     this.height = 100;
     this.visibleRegionSize;
+    this.visible = true;
+    this.closable = false;
     this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
 
     _.extend(this, args);
@@ -81,9 +81,11 @@ Track.prototype = {
         this[attr] = value;
     },
     hide: function () {
+        this.visible = false;
         $(this.div).css({display: 'hidden'});
     },
     show: function () {
+        this.visible = true;
         $(this.div).css({display: 'auto'});
     },
     hideContent: function () {
@@ -98,6 +100,15 @@ Track.prototype = {
         $(this.svgdiv).toggle('hidden');
         $(this.resizeDiv).toggle('hidden');
         $(this.configBtn).toggle('hidden');
+    },
+    close: function () {
+        this.trigger('track:close', {sender: this});
+    },
+    up: function () {
+        this.trigger('track:up', {sender: this});
+    },
+    down: function () {
+        this.trigger('track:down', {sender: this});
     },
     setSpecies: function (species) {
         this.species = species;
@@ -123,9 +134,7 @@ Track.prototype = {
 //            'cursor': 'pointer'
 //        });
         if (this.resizable) {
-            if (this.histogram) {
-                $(this.svgdiv).css({'height': this.height + 10});
-            } else {
+            if (!this.histogram) {
                 var x = this.pixelPosition;
                 var width = this.width;
                 var lastContains = 0;
@@ -139,7 +148,11 @@ Track.prototype = {
 //                this.rrr.setAttribute('x', x);
 //                this.rrr.setAttribute('y', divHeight);
 //                this.rrr.setAttribute('width', width);
+
             }
+        }
+        if (this.histogram) {
+            $(this.svgdiv).css({'height': this.height + 10});
         }
     },
     _updateSVGHeight: function () {
@@ -149,29 +162,36 @@ Track.prototype = {
             this.svgCanvasFeatures.setAttribute('height', renderedHeight);
             this.hoverRect.setAttribute('height', renderedHeight);
         }
+        if (this.histogram) {
+            this.main.setAttribute('height', this.height);
+            this.svgCanvasFeatures.setAttribute('height', this.height);
+            this.hoverRect.setAttribute('height', this.height);
+        }
     },
     updateHeight: function (ignoreAutoHeight) {
         this._updateSVGHeight();
         if (this.autoHeight || ignoreAutoHeight) {
             this._updateDIVHeight();
         }
+//        if (this.histogram) {
+//
+//        }
     },
     enableAutoHeight: function () {
         this.autoHeight = true;
         this.updateHeight();
     },
     setTitle: function (title) {
-        $(this.titlediv).html(title);
+        $(this.titleText).html(title);
     },
 
     setLoading: function (bool) {
         if (bool) {
-            this.svgLoading.setAttribute("visibility", "visible");
             this.status = "rendering";
+            $(this.loadingEl).html('&nbsp; &nbsp;<i class="fa fa-spinner fa-spin"></i> <span class="ocb-light">Loading...</span></span>');
         } else {
-            this.svgLoading.setAttribute("visibility", "hidden");
             this.status = "ready";
-            this.trigger('track:ready', {sender: this});
+            $(this.loadingEl).html('');
         }
     },
 
@@ -181,11 +201,13 @@ Track.prototype = {
             this.histogramLogarithm = true;
             this.histogramMax = 500;
             this.interval = Math.ceil(10 / this.pixelBase);//server interval limit 512
+            $(this.histogramEl).html('&nbsp;<i class="fa fa-signal"></i>');
         } else {
             this.histogram = undefined;
             this.histogramLogarithm = undefined;
             this.histogramMax = undefined;
             this.interval = undefined;
+            $(this.histogramEl).html('');
         }
 
 //        if (this.histogramRenderer) {
@@ -211,22 +233,40 @@ Track.prototype = {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
-        var titleBardiv = $('' +
-            '<div class="btn-toolbar ocb-compactable">' +
-            '   <div class="btn-group btn-group-xs">' +
-            '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' +
-            '   <button id="titleBtn" type="button" class="btn btn-xs btn-default" data-toggle="button"><span id="titleDiv">' + this.title + '</span></button>' +
-            '   </div>' +
-            '</div>')[0];
+        var titleBarHtml = '';
+        titleBarHtml += '   <div class="ocb-gv-track-title">';
+//      titleBarHtml+=       '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' ;
+        titleBarHtml += '   <div class="ocb-gv-track-title-el">';
+        titleBarHtml += '       <span class="ocb-gv-track-title-text">' + this.title + '</span>';
+        titleBarHtml += '       <span class="ocb-gv-track-title-histogram"></span>';
+        titleBarHtml += '       <span class="ocb-gv-track-title-down"><i class="fa fa-chevron-down"></i></span>';
+        titleBarHtml += '       <span class="ocb-gv-track-title-up"><i class="fa fa-chevron-up"></i></span>';
 
-        if (_.isUndefined(this.title)) {
+        if (this.closable == true) {
+            titleBarHtml += '       <span class="ocb-gv-track-title-close"><i class="fa fa-times"></i></span>';
+        }
+
+        titleBarHtml += '       <span class="ocb-gv-track-title-loading"></span>';
+        titleBarHtml += '   </div>';
+        titleBarHtml += '   </div>';
+
+
+        var titleBardiv = $(titleBarHtml)[0];
+
+
+        if (typeof this.title === 'undefined') {
             $(titleBardiv).addClass("hidden");
         }
 
-        var titlediv = $(titleBardiv).find('#titleDiv')[0];
-        var titleBtn = $(titleBardiv).find('#titleBtn')[0];
-        var configBtn = $(titleBardiv).find('#configBtn')[0];
+        var titlediv = $(titleBardiv).find('.ocb-gv-track-title')[0];
+        this.titleEl = $(titleBardiv).find('.ocb-gv-track-title-el')[0];
 
+        this.titleText = $(titleBardiv).find('.ocb-gv-track-title-text')[0];
+        this.histogramEl = $(titleBardiv).find('.ocb-gv-track-title-histogram')[0];
+        this.loadingEl = $(titleBardiv).find('.ocb-gv-track-title-loading')[0];
+        this.closeEl = $(titleBardiv).find('.ocb-gv-track-title-close')[0];
+        this.upEl = $(titleBardiv).find('.ocb-gv-track-title-up')[0];
+        this.downEl = $(titleBardiv).find('.ocb-gv-track-title-down')[0];
 
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
         var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
@@ -243,9 +283,19 @@ Track.prototype = {
             .on('dblclick', function (e) {
                 e.stopPropagation();
             });
-        $(titleBtn).click(function (e) {
+        $(this.titleText).click(function (e) {
             _this.toggleContent();
         });
+        $(this.closeEl).click(function (e) {
+            _this.close();
+        });
+        $(this.upEl).click(function (e) {
+            _this.up();
+        });
+        $(this.downEl).click(function (e) {
+            _this.down();
+        });
+
 
         /** svg div **/
         $(svgdiv).css({
@@ -344,40 +394,11 @@ Track.prototype = {
         });
         this.invalidZoomText.textContent = "Zoom in to view the sequence";
 
-
-        var loadingImg = '<?xml version="1.0" encoding="utf-8"?>' +
-            '<svg version="1.1" width="22px" height="22px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +
-            '<defs>' +
-            '<g id="pair">' +
-            '<ellipse cx="7" cy="0" rx="4" ry="1.7" style="fill:#ccc; fill-opacity:0.5;"/>' +
-            '<ellipse cx="-7" cy="0" rx="4" ry="1.7" style="fill:#aaa; fill-opacity:1.0;"/>' +
-            '</g>' +
-            '</defs>' +
-            '<g transform="translate(11,11)">' +
-            '<g>' +
-            '<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.5s" repeatDur="indefinite"/>' +
-            '<use xlink:href="#pair"/>' +
-            '<use xlink:href="#pair" transform="rotate(45)"/>' +
-            '<use xlink:href="#pair" transform="rotate(90)"/>' +
-            '<use xlink:href="#pair" transform="rotate(135)"/>' +
-            '</g>' +
-            '</g>' +
-            '</svg>';
-
-        this.svgLoading = SVG.addChildImage(main, {
-            "xlink:href": "data:image/svg+xml," + encodeURIComponent(loadingImg),
-            "x": 10,
-            "y": 0,
-            "width": 22,
-            "height": 22,
-            "visibility": "hidden"
-        });
-
         this.div = div;
         this.svgdiv = svgdiv;
         this.titlediv = titlediv;
         this.resizeDiv = resizediv;
-        this.configBtn = configBtn;
+//        this.configBtn = configBtn;
 
         this.main = main;
         this.hoverRect = hoverRect;

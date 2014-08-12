@@ -174,7 +174,7 @@ CircularGenomeViewer.prototype = {
         /** draw components **/
 
         this._drawGenomes(this.genomes);
-        //this.drawLink()
+        this.drawLink()
     },
     drawLink: function () {
 
@@ -182,15 +182,14 @@ CircularGenomeViewer.prototype = {
             var d = '';
             var angleStart1 = 10;
             var angleEnd1 = 20;
-            var angleStart2 = 270;
-            var angleEnd2 = 290;
+            var angleStart2 = 80;
+            var angleEnd2 = 90;
 
             var coordsStart1 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, angleStart1);
             var coordsEnd1 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, angleEnd1);
 
             var coordsStart2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, angleStart2);
             var coordsEnd2 = SVG._polarToCartesian(this.x, this.y, this.radius - 20, angleEnd2);
-
 
             d += SVG.describeArc(this.x, this.y, this.radius - 20, angleStart1, angleEnd1) + ' ';
             d += ['Q', this.x, this.y, coordsEnd2.x, coordsEnd2.y, ' '].join(' ');
