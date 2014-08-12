@@ -233,6 +233,7 @@ Track.prototype = {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
+        div.classList.add('ocb-gv-track');
         var titleBarHtml = '';
         titleBarHtml += '   <div class="ocb-gv-track-title">';
 //      titleBarHtml+=       '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' ;
@@ -335,17 +336,6 @@ Track.prototype = {
             $(svgdiv).closest(".trackListPanels").mouseup(function (event) {
                 _this.updateHeight();
             });
-
-
-            $(resizediv).mouseenter(function (event) {
-                $(this).css({'cursor': 'ns-resize'});
-                $(this).css({'opacity': 1});
-            });
-            $(resizediv).mouseleave(function (event) {
-                $(this).css({'cursor': 'default'});
-                $(this).css({'opacity': 0.3});
-            });
-
         }
 
         this.svgGroup = SVG.addChild(main, "g", {

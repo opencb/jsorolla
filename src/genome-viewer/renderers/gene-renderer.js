@@ -112,7 +112,9 @@ GeneRenderer.prototype.render = function (features, args) {
 
             //paint genes
             if (foundArea) {
-                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
+                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
+                    'feature_id': feature.id
+                });
                 var rect = SVG.addChild(featureGroup, 'rect', {
                     'x': x,
                     'y': rowY,
@@ -180,7 +182,8 @@ GeneRenderer.prototype.render = function (features, args) {
 
 
                         var transcriptGroup = SVG.addChild(args.svgCanvasFeatures, 'g', {
-                            "widgetId": transcript[infoWidgetId]
+                            "data-widget-id": transcript[infoWidgetId],
+                            "data-transcript-idx": i
                         });
 
 
@@ -210,9 +213,10 @@ GeneRenderer.prototype.render = function (features, args) {
                             position: {target: "mouse", adjust: {x: 25, y: 15}},
                             style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
                         });
-                        $(transcriptGroup).click(function (event) {
-                            var query = this.getAttribute("widgetId");
-                            _this.trigger('feature:click', {query: query, feature: transcript, featureType: 'transcript', clickEvent: event});
+                        transcriptGroup.addEventListener('click', function (e) {
+                            var query = this.getAttribute('data-widget-id');
+                            var idx = this.getAttribute("data-transcript-idx");
+                            _this.trigger('feature:click', {query: query, feature: feature.transcripts[idx], featureType: 'transcript', clickEvent: event});
                         });
 
                         //paint exons
