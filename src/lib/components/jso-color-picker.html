@@ -87,7 +87,7 @@
 
 <script>
     // This document reference
-    var thisDoc = document.currentScript.ownerDocument;
+    var thisDoc = document._currentScript.ownerDocument;
 
     var ColorPicker = document.registerElement('jso-color-picker', {
         prototype: Object.create(HTMLElement.prototype, {
