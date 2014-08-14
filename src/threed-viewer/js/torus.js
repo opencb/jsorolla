@@ -195,6 +195,7 @@ Torus.prototype = {
 */
 
         var _this = this;
+<<<<<<< Updated upstream
         var samples = 5;
         var completed = 0;
         for (var i = 0; i < samples; i++) {
@@ -205,6 +206,21 @@ Torus.prototype = {
                     console.log(_this.data.samples)
                     callback();
                 }
+=======
+        console.log("antes de getJSON")
+        for (var i = 0; i < 4; i++) {
+            var path = '/home/josemi/tmp/m' + i + '.json';
+            console.log(path)
+            $.getJSON(path, function (data){
+                console.log("in callback");
+                console.log(data);
+                normalize(data[0].coverage, 15);
+//                for (var i = 0; i < _this.data.samples.length; i++) {
+                _this.data.samples[i].coverages = {};
+                _this.data.samples[i].coverages.regions = _.extend([], data);
+                console.log(_this.samples)
+//            }
+>>>>>>> Stashed changes
             });
         }
         // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
@@ -238,9 +254,10 @@ Torus.prototype = {
         if (withCentralTrack == true) {
 
             console.log("setcov")
-            console.log(this.data.samples[0].coverage)
+            console.log(this.data)
+            console.log(this.data.samples[0].coverages)
             var length = this.viewer.metaData.ntsCount;
-            var cov = this.data.samples[0].coverage.regions[0];
+            var cov = this.data.samples[0].coverages.regions[0];
             var start = (cov.initPosition*cov.size)/length;
             var end = ((cov.initPosition+cov.coverage.length)*cov.size -1)/length;
             var trackArgs = {start:start, end:end, z:1, y:0.05, mod:0.3, ang:Math.PI/2,
@@ -250,7 +267,7 @@ Torus.prototype = {
 
             for (var i = 0; i < this.data.samples.length; i++) {
 
-                var data = this.data.samples[i].coverage.regions[0].coverage;
+                var data = this.data.samples[i].coverages.regions[0].coverage;
                 /*
                 var data = [];
                 for(var j= 0; j < 38; j++) {
