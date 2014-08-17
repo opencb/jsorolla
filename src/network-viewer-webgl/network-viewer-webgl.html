@@ -3,11 +3,12 @@
 <head>
     <meta charset="utf-8"/>
     <title>Network Viewer WebGL</title>
+    <link type="text/css" rel="stylesheet" href="../../styles/css/style.css"/>
     <style>
         #container {
-            background: #000;
             /*width: 400px;*/
             /*height: 300px;*/
+            background-color: #f5f5f5;
         }
 
         #header {
@@ -17,7 +18,9 @@
         }
 
         body {
+            background-color: #f0f0f0;
             height: 100%;
+            margin: 0px;
         }
 
         html {
@@ -25,37 +28,26 @@
         }
     </style>
 </head>
-<body>
+<body class="ocb">
 
-<div id="header">
-    <form role="form">
-        <div class="form-group container">
-            <label for="sifInputFile">Select a SIF file</label>
-            <input type="file" id="sifInputFile">
-        </div>
-    </form>
-</div>
+<label for="sifInputFile">Select a SIF file</label>
+<input type="file" id="sifInputFile">
+
 <div id="container"></div>
 
 </body>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="../../vendor/jquery.min.js"></script>
 <!--&lt;!&ndash; Latest compiled and minified CSS &ndash;&gt;-->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-
-<!--&lt;!&ndash; Optional theme &ndash;&gt;-->
-
-<!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">-->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.2/cyborg/bootstrap.min.css">
-
-<script type="text/javascript" src="http://cdn.sencha.io/ext/gpl/4.2.1/ext-all.js"></script>
 
 <!--&lt;!&ndash; Latest compiled and minified JavaScript &ndash;&gt;-->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
 <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
 <script src="three.min.js"></script>
 <script src="js/debugaxis.js"></script>
+
+
+<script src="../../vendor/ext-5/ext-all.js"></script>
 
 <script src="../lib/utils.js"></script>
 <script src="../lib/network/graph.js"></script>
@@ -63,12 +55,13 @@
 <script src="../lib/network/network-config.js"></script>
 <script src="../lib/network/vertex-config.js"></script>
 <script src="../lib/network/edge-config.js"></script>
-<script src="../lib/network/default-vertex-renderer.js"></script>
+<script src="../lib/network/circos-vertex-renderer.js"></script>
 <script src="../lib/network/default-edge-renderer.js"></script>
 <script src="../lib/network/attributes/attribute-manager-store.js"></script>
 <script src="../lib/network/graph-layout.js"></script>
 <script src="../lib/network/vertex.js"></script>
 <script src="../lib/network/edge.js"></script>
+<script src="../lib/network/network-session.js"></script>
 <script src="../lib/data-source/data-source.js"></script>
 <script src="../lib/data-source/file-data-source.js"></script>
 <script src="../lib/data-adapter/network/sif-network-data-adapter.js"></script>
@@ -80,9 +73,9 @@
     $(document).ready(function () {
 
         var w = $('body').width() - 50;
-        var h = $('body').height() - $('#header').height() - 5;
+        var h = $('body').height() - $('#header').height() - 100;
         networkViewerWebgl = new NetworkViewerWebgl({
-            targetId: 'container',
+            target: 'container',
             height: h,
             width: w,
             autoRender: true
@@ -95,22 +88,33 @@
         var sifInputFile = $('#sifInputFile')[0];
         $(sifInputFile).bind('change', function (event) {
             var file = this.files[0];
+
+
             var sifNetworkDataAdapter = new SIFNetworkDataAdapter({
-                dataSource: new FileDataSource({file:file}),
+                dataSource: new FileDataSource({file: file}),
                 handlers: {
                     'data:load': function (event) {
                         var vertices = event.graph.vertices
-                        var potyVertices = [];
-                        for (var i = 0; i <vertices.length; i++) {
-                            var vertex = vertices[i];
-                            if(potyvirusPorteinNames.indexOf(vertex.id)!== -1){
-                                potyVertices.push(vertex);
-                            }
-                        }
+//                        var potyVertices = [];
+//                        for (var i = 0; i < vertices.length; i++) {
+//                            var vertex = vertices[i];
+//                            if (potyvirusPorteinNames.indexOf(vertex.id) !== -1) {
+//                                potyVertices.push(vertex);
+//                            }
+//                        }
+                        var network = new Network({
+                            session: new NetworkSession()
+                        });
+                        network.setGraph(event.graph);
+                        GraphLayout.sphereSurface(event.graph.vertices, network, 200, 400);
+
                         //TODO fix
 //                        GraphLayout.sphereSurface(vertices, event.network, 200 ,400);
 //                        GraphLayout.sphereSurface(potyVertices, event.network, 50 ,50);
-//                        networkViewerWebgl.renderNetwork(event.network);
+                        networkViewerWebgl.renderNetwork(network);
+                    },
+                    'error:parse': function (event) {
+                        console.log(event.errorMsg);
                     }
                 }
             })

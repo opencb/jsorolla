@@ -513,6 +513,7 @@ CONTROLS
     margin: 0px;
     display: block;
     float: left;
+    user-select: none;
 }
 
 .ocb-ctrl-label {
@@ -551,10 +552,6 @@ label.ocb-ctrl > input[type=checkbox] + span {
     color: #333;
     background-color: #fff;
     font-size: inherit;
-}
-
-div.ocb-ctrl {
-    cursor: pointer;
 }
 
 label.ocb-ctrl > input[type=radio]:checked + span,
@@ -603,7 +600,7 @@ ul.ocb-context {
     list-style: none;
     text-decoration: none;
     z-index: 100000;
-    border: 1px solid #adadad;
+    border: 1px solid #afafaf;
     background-color: #fff;
     line-height: 22px;
     min-width: 100px;
@@ -611,7 +608,7 @@ ul.ocb-context {
     padding: 5px 0;
     box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
     /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
-    transition: all 0.1s;
+    transition: all 0.35s;
 }
 
 div.ocb-dropdown ul,
@@ -636,7 +633,7 @@ ul.ocb-context li {
 div.ocb-dropdown ul li[data-divider],
 ul.ocb-context li[data-divider] {
     height: 1px;
-    margin: 7px 0;
+    margin: 3px 0;
     padding: 0;
     overflow: hidden;
     background-color: #DEDEDE;

@@ -163,7 +163,7 @@ AttributeManagerStore.prototype = {
         var record = this.store.getById(id);
         if (record) {
             record.set(attributeName, value);
-            record.commit();
+//            record.commit();
         }
     },
     setRecordAttributeByIds: function (records) {
@@ -180,7 +180,7 @@ AttributeManagerStore.prototype = {
                             record.set(attributeName, recordObject[attributeName]);
                         }
                     }
-                    record.commit();
+//                    record.commit();
                     record.endEdit();
                 }
             }
@@ -200,7 +200,7 @@ AttributeManagerStore.prototype = {
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             record.set(attributeName, value);
-            record.commit();
+//            record.commit();
         }
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
@@ -339,7 +339,7 @@ AttributeManagerStore.prototype = {
             var record = this.store.getById(item.id);
             if (record) {
                 record.set('Selected', true);
-                record.commit();
+//                record.commit();
             }
         }
         this.store.resumeEvents();
@@ -352,7 +352,7 @@ AttributeManagerStore.prototype = {
             var record = this.store.getById(item.id);
             if (record) {
                 record.set('Selected', false);
-                record.commit();
+//                record.commit();
             }
         }
         this.store.resumeEvents();
@@ -364,7 +364,7 @@ AttributeManagerStore.prototype = {
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             record.set('Selected', true);
-            record.commit();
+//            record.commit();
         }
         this.store.resumeEvents();
         this.store.fireEvent('refresh');
@@ -375,7 +375,7 @@ AttributeManagerStore.prototype = {
         for (var i = 0; i < records.length; i++) {
             var record = records[i];
             record.set('Selected', false);
-            record.commit();
+//            record.commit();
         }
         this.store.resumeEvents();
         this.store.fireEvent('refresh');

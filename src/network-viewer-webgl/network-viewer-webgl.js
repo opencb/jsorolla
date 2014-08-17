@@ -9,7 +9,7 @@ function NetworkViewerWebgl(args) {
     this.camera;
     this.renderer;
 
-    this.targetId;
+    this.target;
     this.cameraRadius;
     this.cameraTheta;
     this.cameraPhi;
@@ -60,17 +60,24 @@ NetworkViewerWebgl.prototype = {
             L = 1;
         }
 
-        var spriteMaterial = new THREE.SpriteMaterial({ map: this.particleTexture, useScreenCoordinates: false, color: 0xffffff });
-        var sprite = new THREE.Sprite(spriteMaterial);
-        sprite.scale.set(32, 32, 1.0); // imageWidth, imageHeight
-        sprite.position.set(coords.x, coords.y, coords.z);
-        sprite.material.color.setHSL(H,S,L);
-        sprite.material.blending = THREE.AdditiveBlending;
-//        this.groupElements.add(sprite);
-        target.add(sprite);
+//        var spriteMaterial = new THREE.SpriteMaterial({ map: this.particleTexture, useScreenCoordinates: false, color: 0xffffff });
+//        var sprite = new THREE.Sprite(spriteMaterial);
+//        sprite.scale.set(32, 32, 1.0); // imageWidth, imageHeight
+//        sprite.material.color.setHSL(H, S, L);
+//        sprite.material.blending = THREE.AdditiveBlending;
+////        this.groupElements.add(sprite);
+
+
+        var geometry = new THREE.BoxGeometry(10, 10, 10);
+        var material = new THREE.MeshBasicMaterial({color: 0x111111});
+        var cube = new THREE.Mesh(geometry, material);
+        cube.position.set(coords.x, coords.y, coords.z);
+
+
+        target.add(cube);
         /** ************************/
 
-        this.elements[vertex.id] = sprite;
+        this.elements[vertex.id] = cube;
 
         if (updateScene != false) {
             this.renderScene();
@@ -100,8 +107,8 @@ NetworkViewerWebgl.prototype = {
             L = 1;
         }
 
-        var material = new THREE.LineBasicMaterial({color: 0xffffff});
-        material.color.setHSL(H,S,L);
+        var material = new THREE.LineBasicMaterial({color: 0x222222});
+//        material.color.setHSL(H, S, L);
         var geometry = new THREE.Geometry();
         geometry.vertices.push(new THREE.Vector3(sourceCoords.x, sourceCoords.y, sourceCoords.z));
         geometry.vertices.push(new THREE.Vector3(targetCoods.x, targetCoods.y, targetCoods.z));
@@ -117,11 +124,11 @@ NetworkViewerWebgl.prototype = {
 
     },
     renderNetwork: function (network) {
+
         for (var element in this.elements) {
             this.scene.remove(this.elements[element]);
         }
         this.renderScene();
-
         var edges = network.graph.edges;
         var vertices = network.graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
@@ -160,11 +167,15 @@ NetworkViewerWebgl.prototype = {
 
         // get the DOM element to attach to
         // - assume we've got jQuery to hand
-        this.target = $('#' + this.targetId)[0];
+        this.targetEl = document.querySelector('#' + this.target);
 
         // create a WebGL renderer, camera
         // and a scene
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            preserveDrawingBuffer: true,
+            alpha: true
+        });
         this.camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
         this.scene = new THREE.Scene();
 
@@ -173,7 +184,7 @@ NetworkViewerWebgl.prototype = {
         this.renderer.setSize(WIDTH, HEIGHT);
 
         // attach the render-supplied DOM element
-        $(this.target).append(this.renderer.domElement);
+        $(this.targetEl).append(this.renderer.domElement);
 
         // and the camera
         this.scene.add(this.camera);
@@ -195,7 +206,19 @@ NetworkViewerWebgl.prototype = {
         this.groupElements = new THREE.Object3D();
 
         // debug plane
-        var plane = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({color: 0x333333}));
+        var planeW = 600;
+        var planeH = 600;
+        var plane = new THREE.Mesh(
+//            new THREE.PlaneGeometry(planeW * 40, planeH * 40, planeW, planeH),
+            new THREE.PlaneGeometry(planeW, planeH),
+            new THREE.MeshBasicMaterial({
+                shading: THREE.SmoothShading,
+                color: 0x333333,
+                wireframe: true,
+//                wireframeLinewidth: 1,
+                opacity: 0.5
+            })
+        );
 //        var plane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshNormalMaterial({ shading: THREE.SmoothShading }));
 //        plane.overdraw = true;
         this.scene.add(plane);
@@ -238,7 +261,7 @@ NetworkViewerWebgl.prototype = {
     },
     setControls: function () {
         var _this = this;
-        this.target.addEventListener('mousewheel', function (event) {
+        this.targetEl.addEventListener('mousewheel', function (event) {
             _this.cameraRadius -= event.wheelDeltaY;
             _this.cameraRadius = Math.min(_this.cameraRadius, 2000);
             _this.cameraRadius = Math.max(_this.cameraRadius, 10);
@@ -270,7 +293,7 @@ NetworkViewerWebgl.prototype = {
                 _this.renderScene();
             }
         });
-        $(this.target).mousedown(function (mouseDownEvent) {
+        $(this.targetEl).mousedown(function (mouseDownEvent) {
             var mouseDownX = mouseDownEvent.clientX;
             var mouseDownY = mouseDownEvent.clientY;
             $(this).mousemove(function (mouseMoveEvent) {
@@ -292,10 +315,10 @@ NetworkViewerWebgl.prototype = {
             });
 
         });
-        $(this.target).mouseup(function () {
+        $(this.targetEl).mouseup(function () {
             $(this).off('mousemove');
         });
-        $(this.target).mouseleave(function () {
+        $(this.targetEl).mouseleave(function () {
             $(this).off('mousemove');
         });
     }
