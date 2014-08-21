@@ -70,7 +70,7 @@ MemoryStore.prototype = {
             delete this.store[item.key];
         }
     },
-    get : function(key) {
+    get : function(key, callback) {
         // First, find our cache item
         var item = this.store[key];
         if (item === undefined) return; // Not cached. Sorry.
@@ -97,6 +97,9 @@ MemoryStore.prototype = {
         if (this.tail)
             this.tail.newer = item; // E. <-- D
         this.tail = item;
+        if (callback) {
+            callback(item.value);
+        }
         return item.value;
     },
 

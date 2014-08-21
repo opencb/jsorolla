@@ -10,12 +10,13 @@
  * Each event has to enqueue itself, and when it is done, dequeue itself and call the next event.
  *
  * structure of methods:
- *
- * method = function () {
+
+method = function () {
     var _this = this;
-    var myEvent = {func: function () {
-        // stuff
-        // on complete
+    var myEvent = {
+        func: function () {
+            // stuff
+            // on complete
             _this._dequeue();
         }
     };
@@ -48,11 +49,12 @@ IndexedDBStore.prototype = {
         var queue = this.transactionQueue;
 //        debugger
         queue.push(event);
+            console.log("ENqueue " + event.type + " before and after: ");
         if (event.type =="get" || event.type == "count") {
 //            console.log("ENqueue " + event.type + " before and after: ");
-            console.log("ENqueue " + event.type + " after: ");
-            var snap = _.extend([], queue);
-            console.log(snap);
+//            console.log("ENqueue " + event.type + " after: ");
+//            var snap = _.extend([], queue);
+//            console.log(snap);
         }
 //        console.log(queue);
         if (queue.length == 1) {
@@ -90,7 +92,7 @@ IndexedDBStore.prototype = {
         console.log("Trying to open database ...");
         var myEvent = {type: "init", func: function() {
             try {
-                var dbOpenRequest = window.indexedDB.open("IndexedDBStore");
+                var dbOpenRequest = window.indexedDB.open("IndexedDBStore",2);
                 dbOpenRequest.onsuccess = function(event){
                     _this.db = dbOpenRequest.result;
 
@@ -222,8 +224,8 @@ IndexedDBStore.prototype = {
             var objectStore = transaction.objectStore(_this.datatype);
             var request = objectStore.get(key);
             request.onsuccess = function (event) {
-                console.log("result of get:");  //
-                console.log(event.target.result);    //
+//                console.log("result of get:");  //
+//                console.log(event.target.result);    //
                 callback(event.target.result)
             };
         }
@@ -232,6 +234,90 @@ IndexedDBStore.prototype = {
         this._enqueue(myEvent);
     },
 
+
+    /**
+     * Calls the callback ONCE. As a parameter there is an Array with all the values.
+     * @param keyArray
+     * @param callback (valuesArray) The order is the same as in the keyArray.
+     */
+    getCollection: function(keyArray, callback) {
+        if (!(keyArray instanceof Array) || !callback) {
+            console.error("Bad use of IndexedDBStore: getCollection must receive an Arrays of keys and a callback function.");
+            return;
+        }
+        var _this = this;
+        var results = new Array(keyArray.length);
+
+        var myEvent = {
+            type: "getCollection",
+            func: function () {
+                var transaction = _this.db.transaction([_this.datatype], "readonly");
+                transaction.oncomplete = function(event) {
+                    callback(results);
+                    _this._dequeue();
+                };
+                transaction.onerror = function (event) {
+                    console.log("There was an error in the transaction get (" + key + ")");
+                    console.log(event);
+                };
+
+                var objectStore = transaction.objectStore(_this.datatype);
+
+                for (var i = 0; i < keyArray.length; i++) {
+                    var request = objectStore.get(keyArray[i]);
+
+                    request.onsuccess = function (iteration) {
+                        return function (event) {
+                            results[iteration] = event.target.result;
+                        };
+                    } (i);     // to force the closure to have each value of i, and not just the last one
+                }
+            }
+        };
+
+        this._enqueue(myEvent);
+    },
+
+    /**
+     * Calls the callback with the value of each key. The callback is called keyArray.length times.
+     * @param callback (value, key) Receives as parameters the value and its key.
+     */
+    foreach: function(keyArray, callback) {
+        if (!(keyArray instanceof Array) || !callback) {
+            console.error("Bad use of IndexedDBStore: getCollection must receive an Arrays of keys and a callback function.");
+            return;
+        }
+        var _this = this;
+        var results = new Array(keyArray.length);
+
+        var myEvent = {
+            type: "getCollection",
+            func: function () {
+                var transaction = _this.db.transaction([_this.datatype], "readonly");
+                transaction.oncomplete = function(event) {
+                    _this._dequeue();
+                };
+                transaction.onerror = function (event) {
+                    console.log("There was an error in the transaction get (" + key + ")");
+                    console.log(event);
+                };
+
+                var objectStore = transaction.objectStore(_this.datatype);
+
+                for (var i = 0; i < keyArray.length; i++) {
+                    var request = objectStore.get(keyArray[i]);
+
+                    request.onsuccess = function (iteration) {
+                        return function (event) {
+                            callback(event.target.result, keyArray[iteration]);
+                        };
+                    } (i);     // to force the closure to have each value of i, and not just the last one
+                }
+            }
+        };
+
+        this._enqueue(myEvent);
+    },
 
     add: function(key, value) {
         var _this = this;
@@ -328,25 +414,17 @@ IndexedDBStore.prototype = {
     }
 
 };
-
-//console.log("in test");
-//var idb = new IndexedDBStore();
+/*
+console.log("in test");
+var idb = new IndexedDBStore();
 //debugger
-//idb.init("feature");
-//idb.clear();
-/*
-var n = 150
-var keyArray = new Array(n);
-var valueArray = new Array(n);
-for (var i = 0; i < n; i++) {
-    keyArray[i] = "key" + i;
-    valueArray[i] = "value" + i;
-}
-idb.putCollection(keyArray, valueArray);
-*/
-//console.time("creation");
-//var n = 1000;
-/*
+idb.init("feature");
+idb.clear();
+///*
+
+
+console.time("creation");
+var n = 1000;
 var keyArray = new Array(n);
 var valueArray = new Array(n);
 for (var i = 0; i < n; i++) {
@@ -354,9 +432,11 @@ for (var i = 0; i < n; i++) {
     valueArray[i] = "value" + i;
 }
 console.timeEnd("creation");
-console.time("firstget");
+console.time("put");
 idb.putCollection(keyArray, valueArray);
 // */
+//console.time("creation");
+
 /*
 console.time("firstget");
 for (var i = 0; i < n; i++) {
@@ -369,14 +449,26 @@ for (var i = 0; i < n; i++) {
 //    debugger
 
 
+/*
+idb.count(function(result) {
+    console.timeEnd("put");
+    console.log("number of rows: " + result);
+});
 
-//idb.count(function(result) {console.log("number of rows: " + result);});
-//idb.get("key100", function (value){
-//    console.log("value returned from get is " + value);
-//    console.timeEnd("firstget");
+console.time("firstget");
+idb.get("key100", function (value){
+    console.log("value returned from get is " + value);
+    console.timeEnd("firstget");
 //    debugger
-//});
+});
 
+console.time("getcol");
+idb.getCollection(["key10", "key70", "key800", "key5"], function (value){
+    console.log("value returned from get is " + value);
+    console.log(value);
+    console.timeEnd("getcol");
+//    debugger
+});
 /*
 
 var f = function (tag, lim){
@@ -415,29 +507,69 @@ idb.get("key50000", function (value){
 //        }
 
 //debugger
-/*
 
- write("Trying to delete database");
- try {
- var dbDeleteRequest = window.indexedDB.deleteDatabase("BookShop1");
- dbDeleteRequest.onsuccess = function(e){
- write("Database successfully deleted");
- // Code for ${db.open}
- };
- dbDeleteRequest.onupgradeneeded = function(e){
- var db = dbOpenRequest.result;
- write("Database upgrade needed");
- // Code for ${db.upgrade}
- };
- dbDeleteRequest.onerror = function(e){
- write("Error deleting DB");
- writeError(e);
- };
- dbDeleteRequest.onblocked = function(e){
- write("Deleting DB Blocked. Try closing the database and then deleting it", dbDeleteRequest.error, e.type);
- };
- } catch (e) {
- writeError(e);
- }
- }
- */
+
+
+
+/* featurechunk cache test
+var fcc = new FeatureChunkCache();
+fcc.chunkSize = 10;
+fcc.store = new IndexedDBStore();
+var idb = fcc.store;
+
+idb.init("chunks");
+idb.clear();
+
+console.time("creation");
+var n = 10;
+var keyArray = new Array(n);
+var valueArray = new Array(n);
+for (var i = 0; i < n; i++) {
+    keyArray[i] = fcc.getChunkKey("1", i);
+    valueArray[i] = "value" + i;
+}
+console.log("key for chunk");
+console.log(fcc.getChunkKey("1", fcc.getChunkId(15)));
+console.timeEnd("creation");
+idb.putCollection(keyArray, valueArray);
+
+console.time("firstget");
+idb.get(fcc.getChunkKey("1", fcc.getChunkId(25)), function (value){
+    console.log("value returned from get is " + value);
+    console.timeEnd("firstget");
+//    debugger
+});
+
+fcc.getChunknew(fcc.getChunkKey("1", fcc.getChunkId(15)), function (value){
+    console.log("value getchunk: " + value);
+});
+
+idb.delete(fcc.getChunkKey("1", fcc.getChunkId(65)));
+idb.delete(fcc.getChunkKey("1", fcc.getChunkId(59)));
+fcc.getAdjustedRegionsnew(
+    new Region({start: 45, end: 135, chromosome: "1"})
+    , function(results){
+        console.log("getAdjustedRegions");
+        console.log(results);
+    }
+);
+fcc.getCachedByRegionnew(
+    new Region({start: 45, end: 135, chromosome: "1"})
+    , function(results){
+        console.log("getcachedbyRegions");
+        console.log(results);
+    }
+);
+
+fcc.getByRegionsnew([
+        new Region({start: 45, end: 48, chromosome: "1"})
+        , new Region({start: 80, end: 85, chromosome: "1"})]
+    , function(results){
+        console.log("getbyRegions");
+        console.log(results);
+    }
+);
+*/
+
+
+

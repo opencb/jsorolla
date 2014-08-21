@@ -18,6 +18,7 @@ function FeatureChunkCache(args) {
     _.extend(this, args);
 
     this.store = new MemoryStore({});
+//    this.store = new IndexedDBStore({});
 
     this.verbose = false;
 }
@@ -25,8 +26,17 @@ function FeatureChunkCache(args) {
 
 FeatureChunkCache.prototype = {
 
+
     getChunk: function (chunkId) {
         return this.store.get(chunkId);
+    },
+    //Async
+    getChunknew: function (chunkKey, callback) {
+        this.store.get(chunkKey, callback);
+    },
+
+    getChunksnew: function (chunkKeysArray, callback) {
+        this.store.getCollection(chunkKeysArray, callback);
     },
 
     getAdjustedRegion: function (region) {
@@ -37,10 +47,50 @@ FeatureChunkCache.prototype = {
     },
 
 
-    getAdjustedRegions: function (region) {
+    /**
+     * Returns an Array of regions (chromosome, start, end) that are missing in the cache.
+     * If two or more chunks are adjacent, they are returned as a single region.
+     */
+    //Async
+    getAdjustedRegionsnew: function (region, callback) {
+        var _this = this;
         var firstChunkId = this.getChunkId(region.start);
         var lastChunkId = this.getChunkId(region.end);
+        var keys = [];
 
+        for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
+            keys.push(this.getChunkKey(region.chromosome, chunkId));
+        }
+
+        this.getChunksnew(keys, function(chunks){
+            console.log("in getAdjustedRegionsnew");
+            console.log(chunks);
+            var regions = [];
+            var chunkStart = parseInt(firstChunkId * _this.chunkSize);
+
+            for (var i = 0; i < chunks.length - 1; i++) {
+                if (!chunks[i]) {
+                    if (chunks[i+1]) {  // missing chunks region ends here. build it.
+                        var chunkEnd = parseInt(((firstChunkId + i) * _this.chunkSize) + _this.chunkSize - 1);
+                        var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd});
+                        regions.push(r);
+                    }
+                } else {
+                    chunkStart = parseInt((firstChunkId + i + 1) * _this.chunkSize);  // prepare start for next chunk
+                }
+            }
+
+            if (!chunks[chunks.length - 1]) {
+                var chunkEnd = parseInt(((lastChunkId) * _this.chunkSize) + _this.chunkSize - 1);
+                var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd});
+                regions.push(r);
+            }
+            callback(regions);
+        });
+    },
+
+
+    getAdjustedRegions: function (region) {
         var regions = [], updateStart = true, updateEnd = true, chunkStart, chunkEnd;
         for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
             var chunkKey = this.getChunkKey(region.chromosome, chunkId);
@@ -58,11 +108,11 @@ FeatureChunkCache.prototype = {
 
             if (!chunk) {
                 updateEnd = true;
-                if (nextChunk && chunkId < lastChunkId) {
+                if (nextChunk && chunkId < lastChunkId) {   // region of missing chunks ends here. build the region
                     var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd})
                     regions.push(r);
                     updateStart = true;
-                }
+                }   // else, there are more adjacent missing chunks, so the region is bigger: don't build the region yet.
                 if (chunkId == lastChunkId) {
                     var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd})
                     regions.push(r);
@@ -75,6 +125,15 @@ FeatureChunkCache.prototype = {
         return regions;
     },
 
+    getByRegionsnew: function (regions, callback) {
+        var chunkKeys = [];
+        for (var i in regions) {
+            var chunkId = this.getChunkId(regions[i].start);
+            chunkKeys.push(this.getChunkKey(regions[i].chromosome, chunkId));
+        }
+        this.getChunksnew(chunkKeys, callback);
+    },
+
     getByRegions: function (regions) {
         var chunks = [];
         for (var i in regions) {
@@ -85,6 +144,35 @@ FeatureChunkCache.prototype = {
         return chunks;
     },
 
+    getCachedByRegionnew: function (region, callback) {
+        var _this = this;
+        var firstChunkId = this.getChunkId(region.start);
+        var lastChunkId = this.getChunkId(region.end);
+        var keys = [];
+        var chunkRegions = {cached: [], notCached: []};
+
+        for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
+            keys.push(this.getChunkKey(region.chromosome, chunkId));
+        }
+
+        this.getChunksnew(keys, function(chunks){
+            for (var i = 0; i < chunks.length; i++) {
+                var chunkRegionEnd = parseInt(((firstChunkId + i) * _this.chunkSize) + _this.chunkSize - 1);
+                var chunkRegionStart = parseInt((firstChunkId + i) * _this.chunkSize);
+                var chunkRegion = new Region({chromosome: region.chromosome, start: chunkRegionStart, end: chunkRegionEnd});
+
+                if (_.isUndefined(chunks[i])) {
+                    chunkRegions.notCached.push(chunkRegion);
+                } else {
+                    chunkRegions.cached.push(chunkRegion);
+                }
+            }
+            if (this.verbose) {
+                console.log(chunkRegions);
+            }
+            callback(chunkRegions);
+        });
+    },
 
     getCachedByRegion: function (region) {
         var chunkRegions = {cached: [], notCached: []};
@@ -139,4 +227,6 @@ FeatureChunkCache.prototype = {
     }
 
 
-}
+};
+
+
