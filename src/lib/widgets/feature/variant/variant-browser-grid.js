@@ -38,6 +38,7 @@ function VariantBrowserGrid(args) {
     this.responseRoot = "response[0].result";
     this.responseTotal = "response[0].numTotalResults";
     this.startParam = "skip";
+    this.plugins = 'bufferedrenderer';
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -123,7 +124,7 @@ VariantBrowserGrid.prototype = {
                 header: this.headerConfig,
                 loadMask: true,
                 columns: this.columns,
-                plugins: 'bufferedrenderer',
+                plugins: this.plugins,
                 animCollapse: false,
                 height: this.height,
                 overflowX:true,
