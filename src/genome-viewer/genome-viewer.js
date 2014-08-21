@@ -34,7 +34,7 @@ function GenomeViewer(args) {
     this.width;
     this.height;
 
-    this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'https://www.ebi.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
     this.quickSearchResultFn;

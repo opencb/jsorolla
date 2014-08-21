@@ -13,6 +13,7 @@ function NetworkViewerWebgl(args) {
     this.cameraRadius;
     this.cameraTheta;
     this.cameraPhi;
+    this.autoRender = true;
 
 
     this.elements = {};
@@ -20,7 +21,6 @@ function NetworkViewerWebgl(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.potyvirusPorteinNames = ['P1', 'HC-Pro', 'P3', '6K1', 'CI', '6K2', 'VPg', 'Nia-Pro', 'Nib', 'CP', 'P3N-PIPO'];
 
     this.on(this.handlers);
     if (this.autoRender) {
@@ -32,6 +32,9 @@ function NetworkViewerWebgl(args) {
 NetworkViewerWebgl.prototype = {
     render: function () {
         var _this = this;
+
+        this.targetEl = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+
         this.initScene();
 //
 //
@@ -40,25 +43,24 @@ NetworkViewerWebgl.prototype = {
 //        }, 100);
 
     },
-    renderVertex: function (vertex, target, network, updateScene) {
-
-
-        var vertexConfig = network.config.getVertexConfig(vertex);
-        var coords = vertexConfig.coords;
+    renderVertex: function (vertex, target, updateScene) {
 
         var element = this.elements[vertex.id];
         if (element != null) {
             target.remove(element);
+
         }
+
+
         /** vertex representation **/
-        var H = Math.random();
-        var S = 0.9;
-        var L = 0.7;
-        if (this.potyvirusPorteinNames.indexOf(vertex.id) !== -1) {
-            H = 1;
-            S = 1;
-            L = 1;
-        }
+//        var H = Math.random();
+//        var S = 0.9;
+//        var L = 0.7;
+//        if (this.potyvirusPorteinNames.indexOf(vertex.id) !== -1) {
+//            H = 1;
+//            S = 1;
+//            L = 1;
+//        }
 
 //        var spriteMaterial = new THREE.SpriteMaterial({ map: this.particleTexture, useScreenCoordinates: false, color: 0xffffff });
 //        var sprite = new THREE.Sprite(spriteMaterial);
@@ -69,13 +71,14 @@ NetworkViewerWebgl.prototype = {
 
 
         var geometry = new THREE.BoxGeometry(10, 10, 10);
-        var material = new THREE.MeshBasicMaterial({color: 0x111111});
+        var material = new THREE.MeshNormalMaterial();
         var cube = new THREE.Mesh(geometry, material);
-        cube.position.set(coords.x, coords.y, coords.z);
+        cube.position.set(vertex.position.x, vertex.position.y, vertex.position.z);
 
 
         target.add(cube);
         /** ************************/
+
 
         this.elements[vertex.id] = cube;
 
@@ -84,34 +87,34 @@ NetworkViewerWebgl.prototype = {
         }
 
     },
-    renderEdge: function (edge, target, network, updateScene) {
+    renderEdge: function (edge, target, updateScene) {
 
-        var edgeConfig = network.config.getEdgeConfig(edge);
-        var sourceConfig = network.config.getVertexConfig(edge.source);
-        var targetConfig = network.config.getVertexConfig(edge.target);
-
-        var sourceCoords = sourceConfig.coords;
-        var targetCoods = targetConfig.coords;
+//        var edgeConfig = network.config.getEdgeConfig(edge);
+//        var sourceConfig = network.config.getVertexConfig(edge.source);
+//        var targetConfig = network.config.getVertexConfig(edge.target);
+//
+//        var sourceCoords = sourceConfig.coords;
+//        var targetCoods = targetConfig.coords;
 
         var element = this.elements[edge.id];
         if (element != null) {
             target.remove(element);
         }
-        /** vertex representation **/
-        var H = Math.random();
-        var S = 0.9;
-        var L = 0.7;
-        if (this.potyvirusPorteinNames.indexOf(edge.source.id) !== -1) {
-            H = 1;
-            S = 1;
-            L = 1;
-        }
+//        /** vertex representation **/
+//        var H = Math.random();
+//        var S = 0.9;
+//        var L = 0.7;
+//        if (this.potyvirusPorteinNames.indexOf(edge.source.id) !== -1) {
+//            H = 1;
+//            S = 1;
+//            L = 1;
+//        }
 
         var material = new THREE.LineBasicMaterial({color: 0x222222});
 //        material.color.setHSL(H, S, L);
         var geometry = new THREE.Geometry();
-        geometry.vertices.push(new THREE.Vector3(sourceCoords.x, sourceCoords.y, sourceCoords.z));
-        geometry.vertices.push(new THREE.Vector3(targetCoods.x, targetCoods.y, targetCoods.z));
+        geometry.vertices.push(new THREE.Vector3(edge.source.position.x, edge.source.position.y, edge.source.position.z));
+        geometry.vertices.push(new THREE.Vector3(edge.target.position.x, edge.target.position.y, edge.target.position.z));
         var line = new THREE.Line(geometry, material);
         target.add(line);
         /** ************************/
@@ -123,31 +126,34 @@ NetworkViewerWebgl.prototype = {
         }
 
     },
-    renderNetwork: function (network) {
 
-        for (var element in this.elements) {
-            this.scene.remove(this.elements[element]);
-        }
+    renderGraph: function (graph) {
+
         this.renderScene();
-        var edges = network.graph.edges;
-        var vertices = network.graph.vertices;
+        var edges = graph.edges;
+        var vertices = graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
             var vertex = vertices[i];
             if (typeof vertex !== 'undefined') {
-                this.renderVertex(vertex, this.scene, network, false);
+                this.renderVertex(vertex, this.scene, false);
             }
         }
         for (var i = 0, l = edges.length; i < l; i++) {
             var edge = edges[i];
             if (typeof edge !== 'undefined') {
-                this.renderEdge(edge, this.scene, network, false);
+                this.renderEdge(edge, this.scene, false);
             }
         }
 
         this.renderScene();
     },
+    clean: function () {
+        for (var element in this.elements) {
+            this.scene.remove(this.elements[element]);
+        }
+    },
     initScene: function () {
-        this.particleTexture = THREE.ImageUtils.loadTexture('images/spark.png');
+//        this.particleTexture = THREE.ImageUtils.loadTexture('images/spark.png');
 
         // camera vars
         this.cameraRadius = 1600;
@@ -164,10 +170,6 @@ NetworkViewerWebgl.prototype = {
             NEAR = 1,
             FAR = 10000;
 
-
-        // get the DOM element to attach to
-        // - assume we've got jQuery to hand
-        this.targetEl = document.querySelector('#' + this.target);
 
         // create a WebGL renderer, camera
         // and a scene

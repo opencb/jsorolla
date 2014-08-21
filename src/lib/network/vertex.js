@@ -25,6 +25,12 @@ function Vertex(args) {
     this.edges = [];
     this.edgesIndex = {};
 
+    this.position = new Point();
+
+    this.x = 0;
+    this.y = 0;
+    this.z = 0;
+
     //set instantiation args, must be last
     _.extend(this, args);
 }
@@ -44,7 +50,7 @@ Vertex.prototype = {
         this.edgesIndex = {};
     },
     addEdge: function (edge) {
-        if(this.containsEdge(edge) === false){
+        if (this.containsEdge(edge) === false) {
             this.edges.push(edge);
             this.edgesIndex[edge.id] = edge;
         }

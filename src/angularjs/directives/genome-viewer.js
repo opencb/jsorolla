@@ -48,7 +48,7 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
         link: function($scope, el, $attr) {
             $scope.region = "13:32931615-32931801";
             $scope.species = "Homo sapiens";
-            $scope.cellbaseHost = "http://www.ebi.ac.uk/cellbase/webservices/rest";
+            $scope.cellbaseHost = "https://www.ebi.ac.uk/cellbase/webservices/rest";
             $scope.cellbaseVersion = "v3";
 
             CELLBASE_HOST = $scope.cellbaseHost;
@@ -195,7 +195,7 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
 
         controller: function($scope, $rootScope, CellBaseService) {
 //            CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
-//            CELLBASE_HOST = "http://www.ebi.ac.uk/cellbase/webservices/rest";
+//            CELLBASE_HOST = "https://www.ebi.ac.uk/cellbase/webservices/rest";
 //            CELLBASE_VERSION = "v3";
 
             $scope.$on('genesRegionToGV', function () {

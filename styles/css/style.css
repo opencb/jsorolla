@@ -119,13 +119,13 @@ ul.ocb-app-menu {
 }
 
 ul.ocb-help-menu-shown {
-    visibility: visible;
-    opacity: 1;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 ul.ocb-app-menu-shown {
-    left: 0px;
-    visibility: visible;
+    left: 0px !important;
+    visibility: visible !important;
     /*display: block;*/
 }
 
@@ -139,6 +139,14 @@ ul.ocb-app-menu > li {
     border-bottom: 1px solid #c6d0da;
     border-right: 1px solid #c6d0da;
     padding: 0 10px;
+}
+ul.ocb-app-menu > li.active {
+    background: #d1d9e3;
+    color: #435f7a;
+}
+ul.ocb-app-menu > li:hover {
+    background: #d1d9e3;
+    color: #435f7a;
 }
 
 .ocb-h-panel {
