@@ -4,40 +4,32 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Genome Viewer Demo</title>
 
-
-    <!-- build:style vendor -->
+    <!-- build:[href] vendor/font-awesome-4.1.0/css/ -->
     <link rel="stylesheet" href="../../vendor/font-awesome-4.1.0/css/font-awesome.min.css">
-    <link type="text/css" rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
-    <link type="text/css" rel="stylesheet" href="../../vendor/ChemDoodleWeb.css">
-    <link type="text/css" rel="stylesheet" href="../../vendor/typeahead.js-bootstrap.css">
     <!-- /build -->
 
-    <!-- build:style css -->
-    <link href="../../styles/css/style.css" rel="stylesheet">
+    <!-- build:[href] vendor/ -->
+    <link rel="stylesheet" href="../../vendor/jquery.qtip.min.css">
     <!-- /build -->
 
-    <!-- build:script vendor -->
+    <!-- build:[href] styles/css/ -->
+    <link rel="stylesheet" href="../../styles/css/style.css" >
+    <!-- /build -->
+
+
+    <!-- build:[src] vendor/ -->
     <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
     <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
-    <script type="text/javascript" src="../../vendor/rawdeflate.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.min.js"></script>
 
-    <!-- These dependencies must go AFTER jquery -->
-    <script type="text/javascript" src="../../vendor/typeahead.min.js"></script>
     <script type="text/javascript" src="../../vendor/jquery.qtip.min.js"></script>
-    <script type="text/javascript" src="../../vendor/jquery.cookie.js"></script>
-    <script type="text/javascript" src="../../vendor/jquery.sha1.js"></script>
-    <script type="text/javascript" src="../../vendor/purl.min.js"></script>
-    <script type="text/javascript" src="../../vendor/jquery.mousewheel.min.js"></script>
-    <script type="text/javascript" src="../../vendor/gl-matrix-min.js"></script>
-    <script type="text/javascript" src="../../vendor/ChemDoodleWeb.js"></script>
     <!-- /build -->
 
 
     <script type="text/javascript" src="gv-config.js"></script>
 
 
-    <!-- build:script js -->
+    <!-- build:js genome-viewer.min.js -->
     <script type="text/javascript" src="../lib/svg.js"></script>
     <script type="text/javascript" src="../lib/utils.js"></script>
     <script type="text/javascript" src="../lib/region.js"></script>
@@ -174,7 +166,7 @@ var run = function () {
 
 
     genomeViewer = new GenomeViewer({
-        cellBaseHost: 'http://www.ebi.ac.uk/cellbase/webservices/rest',
+        cellBaseHost: 'https://www.ebi.ac.uk/cellbase/webservices/rest',
         cellBaseVersion: 'v3',
         target: 'application',
         width: $('#application').width(),
@@ -224,7 +216,10 @@ var run = function () {
 //            drawChromosomePanel: false,
 //            drawOverviewTrackListPanel: false
 
-    }); //the div must exist
+    });
+
+
+
 
     tracks = [];
     this.sequence = new SequenceTrack({
@@ -251,7 +246,13 @@ var run = function () {
         minTranscriptRegionSize: 200000,
         height: 140,
 
-        renderer: new GeneRenderer(),
+        renderer: new GeneRenderer({
+            handlers: {
+                'feature:click': function (e) {
+                    console.log(e)
+                }
+            }
+        }),
 
         dataAdapter: new CellBaseAdapter({
             category: "genomic",
@@ -357,28 +358,28 @@ var run = function () {
     genomeViewer.addTrack(tracks);
 
 
-//    $('#test').click(function (e) {
-//        $.ajax({
-//            url: 'http://fsalavert/appl/1.vcf',
-//            success: function (content) {
-//                var fileTrack = new FeatureTrack({
-//                    id: Utils.genId('vcf'),
-//                    title: 'VCF track',
-//                    height: 150,
-//                    renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
-//                    dataAdapter: new VCFDataAdapter(
-//                            //                    new FileDataSource({
-//                            //                        file: file
-//                            //                    })
-//                            new StringDataSource(content)
-//                    )
-//                });
-//                genomeViewer.addTrack(fileTrack);
-//
-//            }
-//        })
-//
-//    });
+    $('#test').click(function (e) {
+        $.ajax({
+            url: 'http://fsalavert/appl/1.vcf',
+            success: function (content) {
+                var fileTrack = new FeatureTrack({
+                    id: Utils.genId('vcf'),
+                    title: 'VCF track',
+                    height: 150,
+                    renderer: new FeatureRenderer(FEATURE_TYPES.vcf),
+                    dataAdapter: new VCFDataAdapter(
+                            //                    new FileDataSource({
+                            //                        file: file
+                            //                    })
+                            new StringDataSource(content)
+                    )
+                });
+                genomeViewer.addTrack(fileTrack);
+
+            }
+        })
+
+    });
 
     genomeViewer.draw();
 };

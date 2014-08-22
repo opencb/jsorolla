@@ -9,10 +9,11 @@ function NetworkViewerWebgl(args) {
     this.camera;
     this.renderer;
 
-    this.targetId;
+    this.target;
     this.cameraRadius;
     this.cameraTheta;
     this.cameraPhi;
+    this.autoRender = true;
 
 
     this.elements = {};
@@ -20,7 +21,6 @@ function NetworkViewerWebgl(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.potyvirusPorteinNames = ['P1', 'HC-Pro', 'P3', '6K1', 'CI', '6K2', 'VPg', 'Nia-Pro', 'Nib', 'CP', 'P3N-PIPO'];
 
     this.on(this.handlers);
     if (this.autoRender) {
@@ -32,6 +32,9 @@ function NetworkViewerWebgl(args) {
 NetworkViewerWebgl.prototype = {
     render: function () {
         var _this = this;
+
+        this.targetEl = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+
         this.initScene();
 //
 //
@@ -40,71 +43,78 @@ NetworkViewerWebgl.prototype = {
 //        }, 100);
 
     },
-    renderVertex: function (vertex, target, network, updateScene) {
-
-
-        var vertexConfig = network.config.getVertexConfig(vertex);
-        var coords = vertexConfig.coords;
+    renderVertex: function (vertex, target, updateScene) {
 
         var element = this.elements[vertex.id];
         if (element != null) {
             target.remove(element);
-        }
-        /** vertex representation **/
-        var H = Math.random();
-        var S = 0.9;
-        var L = 0.7;
-        if (this.potyvirusPorteinNames.indexOf(vertex.id) !== -1) {
-            H = 1;
-            S = 1;
-            L = 1;
+
         }
 
-        var spriteMaterial = new THREE.SpriteMaterial({ map: this.particleTexture, useScreenCoordinates: false, color: 0xffffff });
-        var sprite = new THREE.Sprite(spriteMaterial);
-        sprite.scale.set(32, 32, 1.0); // imageWidth, imageHeight
-        sprite.position.set(coords.x, coords.y, coords.z);
-        sprite.material.color.setHSL(H,S,L);
-        sprite.material.blending = THREE.AdditiveBlending;
-//        this.groupElements.add(sprite);
-        target.add(sprite);
+
+        /** vertex representation **/
+//        var H = Math.random();
+//        var S = 0.9;
+//        var L = 0.7;
+//        if (this.potyvirusPorteinNames.indexOf(vertex.id) !== -1) {
+//            H = 1;
+//            S = 1;
+//            L = 1;
+//        }
+
+//        var spriteMaterial = new THREE.SpriteMaterial({ map: this.particleTexture, useScreenCoordinates: false, color: 0xffffff });
+//        var sprite = new THREE.Sprite(spriteMaterial);
+//        sprite.scale.set(32, 32, 1.0); // imageWidth, imageHeight
+//        sprite.material.color.setHSL(H, S, L);
+//        sprite.material.blending = THREE.AdditiveBlending;
+////        this.groupElements.add(sprite);
+
+
+        var geometry = new THREE.BoxGeometry(10, 10, 10);
+        var material = new THREE.MeshNormalMaterial();
+        var cube = new THREE.Mesh(geometry, material);
+        cube.position.set(vertex.position.x, vertex.position.y, vertex.position.z);
+
+
+        target.add(cube);
         /** ************************/
 
-        this.elements[vertex.id] = sprite;
+
+        this.elements[vertex.id] = cube;
 
         if (updateScene != false) {
             this.renderScene();
         }
 
     },
-    renderEdge: function (edge, target, network, updateScene) {
+    renderEdge: function (edge, target, updateScene) {
 
-        var edgeConfig = network.config.getEdgeConfig(edge);
-        var sourceConfig = network.config.getVertexConfig(edge.source);
-        var targetConfig = network.config.getVertexConfig(edge.target);
-
-        var sourceCoords = sourceConfig.coords;
-        var targetCoods = targetConfig.coords;
+//        var edgeConfig = network.config.getEdgeConfig(edge);
+//        var sourceConfig = network.config.getVertexConfig(edge.source);
+//        var targetConfig = network.config.getVertexConfig(edge.target);
+//
+//        var sourceCoords = sourceConfig.coords;
+//        var targetCoods = targetConfig.coords;
 
         var element = this.elements[edge.id];
         if (element != null) {
             target.remove(element);
         }
-        /** vertex representation **/
-        var H = Math.random();
-        var S = 0.9;
-        var L = 0.7;
-        if (this.potyvirusPorteinNames.indexOf(edge.source.id) !== -1) {
-            H = 1;
-            S = 1;
-            L = 1;
-        }
+//        /** vertex representation **/
+//        var H = Math.random();
+//        var S = 0.9;
+//        var L = 0.7;
+//        if (this.potyvirusPorteinNames.indexOf(edge.source.id) !== -1) {
+//            H = 1;
+//            S = 1;
+//            L = 1;
+//        }
 
-        var material = new THREE.LineBasicMaterial({color: 0xffffff});
-        material.color.setHSL(H,S,L);
+        var material = new THREE.LineBasicMaterial({color: 0x222222});
+//        material.color.setHSL(H, S, L);
         var geometry = new THREE.Geometry();
-        geometry.vertices.push(new THREE.Vector3(sourceCoords.x, sourceCoords.y, sourceCoords.z));
-        geometry.vertices.push(new THREE.Vector3(targetCoods.x, targetCoods.y, targetCoods.z));
+        geometry.vertices.push(new THREE.Vector3(edge.source.position.x, edge.source.position.y, edge.source.position.z));
+        geometry.vertices.push(new THREE.Vector3(edge.target.position.x, edge.target.position.y, edge.target.position.z));
         var line = new THREE.Line(geometry, material);
         target.add(line);
         /** ************************/
@@ -116,31 +126,34 @@ NetworkViewerWebgl.prototype = {
         }
 
     },
-    renderNetwork: function (network) {
-        for (var element in this.elements) {
-            this.scene.remove(this.elements[element]);
-        }
-        this.renderScene();
 
-        var edges = network.graph.edges;
-        var vertices = network.graph.vertices;
+    renderGraph: function (graph) {
+
+        this.renderScene();
+        var edges = graph.edges;
+        var vertices = graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
             var vertex = vertices[i];
             if (typeof vertex !== 'undefined') {
-                this.renderVertex(vertex, this.scene, network, false);
+                this.renderVertex(vertex, this.scene, false);
             }
         }
         for (var i = 0, l = edges.length; i < l; i++) {
             var edge = edges[i];
             if (typeof edge !== 'undefined') {
-                this.renderEdge(edge, this.scene, network, false);
+                this.renderEdge(edge, this.scene, false);
             }
         }
 
         this.renderScene();
     },
+    clean: function () {
+        for (var element in this.elements) {
+            this.scene.remove(this.elements[element]);
+        }
+    },
     initScene: function () {
-        this.particleTexture = THREE.ImageUtils.loadTexture('images/spark.png');
+//        this.particleTexture = THREE.ImageUtils.loadTexture('images/spark.png');
 
         // camera vars
         this.cameraRadius = 1600;
@@ -158,13 +171,13 @@ NetworkViewerWebgl.prototype = {
             FAR = 10000;
 
 
-        // get the DOM element to attach to
-        // - assume we've got jQuery to hand
-        this.target = $('#' + this.targetId)[0];
-
         // create a WebGL renderer, camera
         // and a scene
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            preserveDrawingBuffer: true,
+            alpha: true
+        });
         this.camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
         this.scene = new THREE.Scene();
 
@@ -173,7 +186,7 @@ NetworkViewerWebgl.prototype = {
         this.renderer.setSize(WIDTH, HEIGHT);
 
         // attach the render-supplied DOM element
-        $(this.target).append(this.renderer.domElement);
+        $(this.targetEl).append(this.renderer.domElement);
 
         // and the camera
         this.scene.add(this.camera);
@@ -195,7 +208,19 @@ NetworkViewerWebgl.prototype = {
         this.groupElements = new THREE.Object3D();
 
         // debug plane
-        var plane = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({color: 0x333333}));
+        var planeW = 600;
+        var planeH = 600;
+        var plane = new THREE.Mesh(
+//            new THREE.PlaneGeometry(planeW * 40, planeH * 40, planeW, planeH),
+            new THREE.PlaneGeometry(planeW, planeH),
+            new THREE.MeshBasicMaterial({
+                shading: THREE.SmoothShading,
+                color: 0x333333,
+                wireframe: true,
+//                wireframeLinewidth: 1,
+                opacity: 0.5
+            })
+        );
 //        var plane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshNormalMaterial({ shading: THREE.SmoothShading }));
 //        plane.overdraw = true;
         this.scene.add(plane);
@@ -238,7 +263,7 @@ NetworkViewerWebgl.prototype = {
     },
     setControls: function () {
         var _this = this;
-        this.target.addEventListener('mousewheel', function (event) {
+        this.targetEl.addEventListener('mousewheel', function (event) {
             _this.cameraRadius -= event.wheelDeltaY;
             _this.cameraRadius = Math.min(_this.cameraRadius, 2000);
             _this.cameraRadius = Math.max(_this.cameraRadius, 10);
@@ -270,7 +295,7 @@ NetworkViewerWebgl.prototype = {
                 _this.renderScene();
             }
         });
-        $(this.target).mousedown(function (mouseDownEvent) {
+        $(this.targetEl).mousedown(function (mouseDownEvent) {
             var mouseDownX = mouseDownEvent.clientX;
             var mouseDownY = mouseDownEvent.clientY;
             $(this).mousemove(function (mouseMoveEvent) {
@@ -292,10 +317,10 @@ NetworkViewerWebgl.prototype = {
             });
 
         });
-        $(this.target).mouseup(function () {
+        $(this.targetEl).mouseup(function () {
             $(this).off('mousemove');
         });
-        $(this.target).mouseleave(function () {
+        $(this.targetEl).mouseleave(function () {
             $(this).off('mousemove');
         });
     }

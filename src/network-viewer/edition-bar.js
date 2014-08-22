@@ -25,9 +25,9 @@ function EditionBar(args) {
     this.id = Utils.genId('EditionBar');
 
     //set default args
-    this.targetId;
+    this.target;
     this.autoRender = true;
-    this.height = 30;
+    this.height = 32;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -58,40 +58,40 @@ EditionBar.prototype = {
             '       <input id="vertexNameField"  class="ocb-ctrl" type="text" placeholder="name" style="width: 70px;margin-left: 10px;">' +
 
             '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="vertexShapeButton" class="ocb-ctrl"><i class="fa fa-star"></i></button>' +
+            '           <div tabindex="-1"  id="vertexShapeButton" class="ocb-ctrl"><i class="fa fa-star"></i></div>' +
             '           <ul id="vertexShapeMenu"></ul>' +
             '       </div>' +
 
             '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="vertexOpacityButton" class="ocb-ctrl"><i class="fa fa-adjust"></i></button>' +
+            '           <div tabindex="-1"  id="vertexOpacityButton" class="ocb-ctrl"><i class="fa fa-adjust"></i></div>' +
             '           <ul id="vertexOpacityMenu"></ul>' +
             '       </div>' +
 
-            '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="vertexSizeButton" class="ocb-ctrl" style="border-right: none"><i class="fa fa-circle"></i></button>' +
+            '       <div class="ocb-dropdown" style="margin-left: 20px">' +
+            '           <div tabindex="-1" id="vertexSizeButton" class="ocb-ctrl" style="border-right: none"><i class="fa fa-circle"></i></div>' +
             '           <ul id="vertexSizeMenu"></ul>' +
             '       </div>' +
-            '       <input id="vertexSizeField" class="ocb-ctrl"  type="text" style="width: 30px;">' +
+            '       <input id="vertexSizeField" class="ocb-ctrl"  type="text" style="width: 50px;">' +
 //
             '       <jso-color-picker id="vertexColorPicker" color="#ffffff" style="float:left;width:90px;margin-left: 2px;"></jso-color-picker>' +
 
-            '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="vertexStrokeSizeButton" class="ocb-ctrl" style="border-right: none"><i class="fa fa-circle-o"></i></button>' +
+            '       <div class="ocb-dropdown" style="margin-left: 20px">' +
+            '           <div tabindex="-1" id="vertexStrokeSizeButton" class="ocb-ctrl" style="border-right: none"><i class="fa fa-circle-o"></i></div>' +
             '           <ul id="vertexStrokeSizeMenu"></ul>' +
             '       </div>' +
-            '       <input id="vertexStrokeSizeField" class="ocb-ctrl"  type="text" style="width: 30px;">' +
+            '       <input id="vertexStrokeSizeField" class="ocb-ctrl"  type="text" style="width: 50px;">' +
 //
             '       <jso-color-picker id="vertexStrokeColorPicker" color="#888888" style="float:left;width:90px;margin-left: 2px;"></jso-color-picker>' +
 
 
-            '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="vertexLabelSizeButton" class="ocb-ctrl"><i class="fa fa-text-height"></i></button>' +
+            '       <div class="ocb-dropdown" style="margin-left: 20px">' +
+            '           <div tabindex="-1" id="vertexLabelSizeButton" class="ocb-ctrl"><i class="fa fa-text-height"></i></div>' +
             '           <ul id="vertexLabelSizeMenu"></ul>' +
             '       </div>' +
 
 
             '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="vertexSearchButton" class="ocb-ctrl" style="border-right: none;"><i class="fa fa-search"></i></button>' +
+            '           <div tabindex="-1" id="vertexSearchButton" class="ocb-ctrl" style="border-right: none;"><i class="fa fa-search"></i></div>' +
             '           <ul id="vertexSearchMenu"></ul>' +
             '       </div>' +
             '       <input id="vertexSearchField" class="ocb-ctrl"  type="text" placeholder="Search" style="width: 80px;">' +
@@ -104,12 +104,12 @@ EditionBar.prototype = {
             '       <input id="edgeNameField"  class="ocb-ctrl" type="text" placeholder="name" style="width: 70px;margin-left: 10px;">' +
 
             '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="edgeShapeButton" class="ocb-ctrl"><i class="fa fa-location-arrow"></i></button>' +
+            '           <div tabindex="-1"  id="edgeShapeButton" class="ocb-ctrl"><i class="fa fa-location-arrow"></i></div>' +
             '           <ul id="edgeShapeMenu"></ul>' +
             '       </div>' +
 
             '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="edgeSizeButton" class="ocb-ctrl" style="border-right: none"><i class="fa fa-minus"></i></button>' +
+            '           <div tabindex="-1" id="edgeSizeButton" class="ocb-ctrl" style="border-right: none"><i class="fa fa-minus"></i></div>' +
             '           <ul id="edgeSizeMenu"></ul>' +
             '       </div>' +
             '       <input id="edgeSizeField" class="ocb-ctrl"  type="text" style="width: 30px;">' +
@@ -118,12 +118,12 @@ EditionBar.prototype = {
 
 
             '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="edgeLabelSizeButton" class="ocb-ctrl"><i class="fa fa-text-height"></i></button>' +
+            '           <div tabindex="-1"  id="edgeLabelSizeButton" class="ocb-ctrl"><i class="fa fa-text-height"></i></div>' +
             '           <ul id="edgeLabelSizeMenu"></ul>' +
             '       </div>' +
 
             '       <div class="ocb-dropdown" style="margin-left: 10px">' +
-            '           <button id="edgeSearchButton" class="ocb-ctrl" style="border-right: none;"><i class="fa fa-search"></i></button>' +
+            '           <div tabindex="-1"  id="edgeSearchButton" class="ocb-ctrl" style="border-right: none;"><i class="fa fa-search"></i></div>' +
             '           <ul id="edgeSearchMenu"></ul>' +
             '       </div>' +
             '       <input id="edgeSearchField" class="ocb-ctrl"  type="text" placeholder="Search" style="width: 80px;">' +
@@ -138,7 +138,6 @@ EditionBar.prototype = {
 
         var div = document.createElement('div');
         div.setAttribute('class', "ocb-nv-editionbar unselectable");
-        div.style.height = 21 + 'px';
         div.innerHTML = HTML;
         this.div.appendChild(div);
 
