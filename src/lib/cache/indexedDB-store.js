@@ -41,37 +41,21 @@ function IndexedDBStore(args) {
     this.db = null;
     this.transactionQueue = [];
     iDBInstances++;
-    this.dequeues = 0;
-};
+}
 
 IndexedDBStore.prototype = {
     _enqueue: function(event) {
         var queue = this.transactionQueue;
-//        debugger
         queue.push(event);
-            console.log("ENqueue " + event.type + " before and after: ");
-        if (event.type =="get" || event.type == "count") {
-//            console.log("ENqueue " + event.type + " before and after: ");
-//            console.log("ENqueue " + event.type + " after: ");
-//            var snap = _.extend([], queue);
-//            console.log(snap);
-        }
-//        console.log(queue);
+
         if (queue.length == 1) {
             event.func();
         }
     },
     _dequeue: function () {
-        this.dequeues++;
         var queue = this.transactionQueue;
-//        console.log("DEqueue " + event.type + " before and after: ");
-//        console.log(queue.length);
-
-//        if (queue[0].type =="get" || queue[0].type == "count") {
-//            debugger
-//        }
         queue.shift(); // remove the just finished event.
-//        console.log(queue);
+
         if (queue.length != 0) {
             var next = queue[0];   // run the first in the queue
             next.func();
@@ -92,7 +76,7 @@ IndexedDBStore.prototype = {
         console.log("Trying to open database ...");
         var myEvent = {type: "init", func: function() {
             try {
-                var dbOpenRequest = window.indexedDB.open("IndexedDBStore",2);
+                var dbOpenRequest = window.indexedDB.open("IndexedDBStore", 2); // second parameter is the version. increase to modify tables.
                 dbOpenRequest.onsuccess = function(event){
                     _this.db = dbOpenRequest.result;
 
@@ -108,7 +92,7 @@ IndexedDBStore.prototype = {
                 dbOpenRequest.onupgradeneeded = function(e){
                     console.log("Database upgrade needed");
                     _this.db = dbOpenRequest.result;
-                    var db2 = e.target.result;
+//                    var db2 = e.target.result;
 
 //                if(!objectStoreNames.contains('storename'))
                     var objectStore = _this.db.createObjectStore(_this.datatype);
@@ -240,9 +224,9 @@ IndexedDBStore.prototype = {
      * @param keyArray
      * @param callback (valuesArray) The order is the same as in the keyArray.
      */
-    getCollection: function(keyArray, callback) {
+    getAll: function(keyArray, callback) {
         if (!(keyArray instanceof Array) || !callback) {
-            console.error("Bad use of IndexedDBStore: getCollection must receive an Arrays of keys and a callback function.");
+            console.error("Bad use of IndexedDBStore: getAll must receive an Arrays of keys and a callback function.");
             return;
         }
         var _this = this;
@@ -257,7 +241,7 @@ IndexedDBStore.prototype = {
                     _this._dequeue();
                 };
                 transaction.onerror = function (event) {
-                    console.log("There was an error in the transaction get (" + key + ")");
+                    console.log("There was an error in the transaction get (" + keyArray + ")");
                     console.log(event);
                 };
 
@@ -298,7 +282,7 @@ IndexedDBStore.prototype = {
                     _this._dequeue();
                 };
                 transaction.onerror = function (event) {
-                    console.log("There was an error in the transaction get (" + key + ")");
+                    console.log("There was an error in the transaction get (" + keyArray + ")");
                     console.log(event);
                 };
 
@@ -360,10 +344,10 @@ IndexedDBStore.prototype = {
         this._enqueue(myEvent);
     },
 
-    putCollection: function(keyArray, valueArray) {
+    putAll: function(keyArray, valueArray) {
 
         if (!(keyArray instanceof Array) || !(valueArray instanceof Array) || (keyArray.length != valueArray.length)) {
-            console.error("Bad use of IndexedDBStore: addCollection must receive two Arrays of the same length.");
+            console.error("Bad use of IndexedDBStore: putAll must receive two Arrays of the same length.");
             return;
         }
 
@@ -531,7 +515,7 @@ for (var i = 0; i < n; i++) {
 console.log("key for chunk");
 console.log(fcc.getChunkKey("1", fcc.getChunkId(15)));
 console.timeEnd("creation");
-idb.putCollection(keyArray, valueArray);
+idb.putAll(keyArray, valueArray);
 
 console.time("firstget");
 idb.get(fcc.getChunkKey("1", fcc.getChunkId(25)), function (value){
@@ -540,20 +524,20 @@ idb.get(fcc.getChunkKey("1", fcc.getChunkId(25)), function (value){
 //    debugger
 });
 
-fcc.getChunknew(fcc.getChunkKey("1", fcc.getChunkId(15)), function (value){
+fcc.getChunk(fcc.getChunkKey("1", fcc.getChunkId(15)), function (value){
     console.log("value getchunk: " + value);
 });
 
 idb.delete(fcc.getChunkKey("1", fcc.getChunkId(65)));
 idb.delete(fcc.getChunkKey("1", fcc.getChunkId(59)));
-fcc.getAdjustedRegionsnew(
+fcc.getAdjustedRegions(
     new Region({start: 45, end: 135, chromosome: "1"})
     , function(results){
         console.log("getAdjustedRegions");
         console.log(results);
     }
 );
-fcc.getCachedByRegionnew(
+fcc.getCachedByRegion(
     new Region({start: 45, end: 135, chromosome: "1"})
     , function(results){
         console.log("getcachedbyRegions");
@@ -561,7 +545,7 @@ fcc.getCachedByRegionnew(
     }
 );
 
-fcc.getByRegionsnew([
+fcc.getByRegions([
         new Region({start: 45, end: 48, chromosome: "1"})
         , new Region({start: 80, end: 85, chromosome: "1"})]
     , function(results){
@@ -569,7 +553,12 @@ fcc.getByRegionsnew([
         console.log(results);
     }
 );
-*/
+
+fcc.getByRegion(new Region({start: 15, end: 120, chromosome:"1"}),function(chunks){
+    console.log("getByRegion");
+    console.log(chunks);
+});
+// */
 
 
 

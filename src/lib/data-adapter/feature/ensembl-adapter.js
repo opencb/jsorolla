@@ -71,25 +71,26 @@ EnsemblAdapter.prototype = {
             // |----|----|----|----|----|----|----|    -> Logical chunk division
             //      |----|----|----|----|----|         -> Chunks covered by needed region
             //      |----|++++|++++|----|----|         -> + means the chunk is cached so its region will not be retrieved
-            var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
+            this.cache[dataType].getCachedByRegion(region, function(chunksByRegion){
+                if (chunksByRegion.notCached.length > 0) {
+                    var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
+                        return new Region(region).toString();
+                    });
 
-            if (chunksByRegion.notCached.length > 0) {
-                var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
-                    return new Region(region).toString();
-                });
-
-                for (var i = 0; i < queryRegionStrings.length; i++) {
-                    this._get(queryRegionStrings[i], params, dataType);
+                    for (var i = 0; i < queryRegionStrings.length; i++) {
+                        _this._get(queryRegionStrings[i], params, dataType);
+                    }
                 }
-            }
-            // Get chunks from cache
-            if (chunksByRegion.cached.length > 0) {
-                var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
-            }
+                // Get chunks from cache
+                if (chunksByRegion.cached.length > 0) {
+                    _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
+                        _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                    });
+                }
+            });
         }
-
     },
+
     _get: function (query, params, dataType) {
         var _this = this;
         EnsemblManager.get({

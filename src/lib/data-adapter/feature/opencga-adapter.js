@@ -62,55 +62,56 @@ OpencgaAdapter.prototype = {
             }
             chunkSize = this.cache[dataType].chunkSize;
 
-            var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
-
-            if (chunksByRegion.notCached.length > 0) {
-                var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
-                    return new Region(region).toString();
-                });
-
-                //limit queries
-                var n = 50;
-                var lists = _.groupBy(queryRegionStrings, function (a, b) {
-                    return Math.floor(b / n);
-                });
-                var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
-
-                for (var i = 0; i < queriesList.length; i++) {
-                    var cookie = $.cookie("bioinfo_sid");
-                    cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
-                    OpencgaManager.region({
-                        accountId: this.resource.account,
-                        sessionId: cookie,
-                        bucketId: this.resource.bucketId,
-                        objectId: this.resource.oid,
-                        region: queriesList[i],
-                        queryParams: params,
-                        success: function (data) {
-                            _this._opencgaSuccess(data, dataType);
-                        }
+            this.cache[dataType].getCachedByRegion(region, function (chunksByRegion) {
+                if (chunksByRegion.notCached.length > 0) {
+                    var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
+                        return new Region(region).toString();
                     });
+
+                    //limit queries
+                    var n = 50;
+                    var lists = _.groupBy(queryRegionStrings, function (a, b) {
+                        return Math.floor(b / n);
+                    });
+                    var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
+
+                    for (var i = 0; i < queriesList.length; i++) {
+                        var cookie = $.cookie("bioinfo_sid");
+                        cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
+                        OpencgaManager.region({
+                            accountId: _this.resource.account,
+                            sessionId: cookie,
+                            bucketId: _this.resource.bucketId,
+                            objectId: _this.resource.oid,
+                            region: queriesList[i],
+                            queryParams: params,
+                            success: function (data) {
+                                _this._opencgaSuccess(data, dataType);
+                            }
+                        });
 //                    CellBaseManager.get({
-//                        host: this.host,
-//                        species: this.species,
-//                        category: this.category,
-//                        subCategory: this.subCategory,
+//                        host: _this.host,
+//                        species: _this.species,
+//                        category: _this.category,
+//                        subCategory: _this.subCategory,
 //                        query: queriesList[i],
-//                        resource: this.resource,
+//                        resource: _this.resource,
 //                        params: params,
 //                        success: function (data) {
 //                            _this._cellbaseSuccess(data, dataType);
 //                        }
 //                    });
+                    }
                 }
-            }
-            if (chunksByRegion.cached.length > 0) {
-                var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
-            }
+                if (chunksByRegion.cached.length > 0) {
+                    _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
+                        _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                    });
+                }
+            });
         }
-
     },
+
     _opencgaSuccess: function (data, dataType) {
         var timeId = this.resource + " save " + Utils.randomString(4);
         console.time(timeId);

@@ -103,6 +103,20 @@ MemoryStore.prototype = {
         return item.value;
     },
 
+    getAll: function (keyArray, callback) {
+        var valueArray = [];
+        for (var i = 0; i < keyArray.length; i++) {
+            valueArray[i] = this.get(keyArray[i]);
+        }
+        callback(valueArray);
+    },
+
+    foreach: function (keyArray, callback) {
+        for (var i = 0; i < keyArray.length; i++) {
+            callback(this.get(keyArray[i]), keyArray[i]);
+        }
+    },
+
     init: function () {
         this.size = 0;
         this.store = {};
