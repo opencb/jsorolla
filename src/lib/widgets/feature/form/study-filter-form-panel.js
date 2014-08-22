@@ -30,6 +30,7 @@ function StudyFilterFormPanel(args) {
 //    this.studiesStore;
     this.border = true;
     this.height = 300;
+    this.collapsed = false;
 
 
     /**
@@ -228,6 +229,7 @@ StudyFilterFormPanel.prototype = {
             border: false,
             title: this.title,
             height: this.height,
+            collapsed: this.collapsed,
             layout: {
                 type: 'vbox',
                 align: 'stretch'
