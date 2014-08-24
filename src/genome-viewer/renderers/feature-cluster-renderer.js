@@ -43,7 +43,7 @@ function FeatureClusterRenderer(args) {
 //    }
 //    this.multiplier = this.histogramHeight / this.maxValue;
 
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
+    this.fontClass = 'ocb-font-roboto ocb-font-size-11';
     this.toolTipfontClass = 'ocb-tooltip-font';
 
     //set instantiation args

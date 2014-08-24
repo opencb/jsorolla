@@ -43,7 +43,7 @@ NetworkViewerWebgl.prototype = {
 //        }, 100);
 
     },
-    renderVertex: function (vertex, target, updateScene) {
+    renderVertex: function (vertex, mainGeometry, updateScene) {
 
         var element = this.elements[vertex.id];
         if (element != null) {
@@ -75,8 +75,8 @@ NetworkViewerWebgl.prototype = {
         var cube = new THREE.Mesh(geometry, material);
         cube.position.set(vertex.position.x, vertex.position.y, vertex.position.z);
 
-
-        target.add(cube);
+//        THREE.GeometryUtils.merge(mainGeometry, cube);
+//        .merge( geometry2, matrix, materialIndexOffset )
         /** ************************/
 
 
@@ -87,7 +87,7 @@ NetworkViewerWebgl.prototype = {
         }
 
     },
-    renderEdge: function (edge, target, updateScene) {
+    renderEdge: function (edge, mainGeometry, updateScene) {
 
 //        var edgeConfig = network.config.getEdgeConfig(edge);
 //        var sourceConfig = network.config.getVertexConfig(edge.source);
@@ -116,7 +116,7 @@ NetworkViewerWebgl.prototype = {
         geometry.vertices.push(new THREE.Vector3(edge.source.position.x, edge.source.position.y, edge.source.position.z));
         geometry.vertices.push(new THREE.Vector3(edge.target.position.x, edge.target.position.y, edge.target.position.z));
         var line = new THREE.Line(geometry, material);
-        target.add(line);
+        THREE.GeometryUtils.merge(mainGeometry, line);
         /** ************************/
 
         this.elements[edge.id] = line;
@@ -130,20 +130,25 @@ NetworkViewerWebgl.prototype = {
     renderGraph: function (graph) {
 
         this.renderScene();
+
+        var geometry = new THREE.Geometry();
+
+
         var edges = graph.edges;
         var vertices = graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
             var vertex = vertices[i];
             if (typeof vertex !== 'undefined') {
-                this.renderVertex(vertex, this.scene, false);
+                this.renderVertex(vertex, geometry, false);
             }
         }
-        for (var i = 0, l = edges.length; i < l; i++) {
-            var edge = edges[i];
-            if (typeof edge !== 'undefined') {
-                this.renderEdge(edge, this.scene, false);
-            }
-        }
+//        for (var i = 0, l = edges.length; i < l; i++) {
+//            var edge = edges[i];
+//            if (typeof edge !== 'undefined') {
+//                this.renderEdge(edge, geometry, false);
+//            }
+//        }
+        this.scene.add(geometry);
 
         this.renderScene();
     },

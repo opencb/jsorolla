@@ -1,5 +1,5 @@
 html.ocb, body.ocb {
-    font-family: Lato, 'Helvetica Neue', Helvetica, Arial, 'sans-serif' !important;
+    font-family: 'Lato', 'Roboto', 'Helvetica Neue', Helvetica, Arial, 'sans-serif' !important;
 }
 
 .hidden {
@@ -140,10 +140,12 @@ ul.ocb-app-menu > li {
     border-right: 1px solid #c6d0da;
     padding: 0 10px;
 }
+
 ul.ocb-app-menu > li.active {
     background: #d1d9e3;
     color: #435f7a;
 }
+
 ul.ocb-app-menu > li:hover {
     background: #d1d9e3;
     color: #435f7a;
@@ -242,7 +244,7 @@ ul.ocb-app-menu > li:hover {
     font-size: 13px;
     padding: 4px 8px;
     height: 23px;
-    background-color: #f7f7f7;
+    background-color: #FAFAFA;
     border-bottom: 1px solid #D9D9D9;
 }
 
@@ -250,7 +252,7 @@ ul.ocb-app-menu > li:hover {
     font-size: 13px;
     padding: 4px 8px;
     height: 23px;
-    background-color: #f7f7f7;
+    background-color: #FAFAFA;
     border-bottom: 1px solid #D9D9D9;
 }
 
@@ -261,7 +263,7 @@ ul.ocb-app-menu > li:hover {
     line-height: 32px;
     font-size: 14px;
     padding-left: 10px;
-    background-color: #f5f5f5;
+    background-color: #FAFAFA;
 }
 
 .ocb-nv-context {
@@ -598,6 +600,7 @@ div.ocb-dropdown {
     position: relative;
     display: block;
     float: left;
+    color: #333;
 }
 
 div.ocb-dropdown ul,
@@ -636,6 +639,7 @@ ul.ocb-context li {
     text-align: left;
     padding: 2px 30px 2px 10px;
     white-space: nowrap;
+    color: #333;
 }
 
 div.ocb-dropdown ul li[data-divider],
@@ -656,17 +660,19 @@ ul.ocb-context li[data-sub]:after {
     right: 10px;
 }
 
-div.ocb-dropdown ul li:hover,
-ul.ocb-context li:hover {
-    background-color: #DEDEDE;
-}
 
 div.ocb-dropdown ul li.active,
 div.ocb-dropdown ul li:active,
 ul.ocb-context li:active {
-    background-color: #428bca;
+    background-color: #DEDEDE;
+}
+
+div.ocb-dropdown ul li:hover,
+ul.ocb-context li:hover {
+    background-color: #2F65F4;
     color: #fff;
 }
+
 
 div.ocb-dropdown > div:focus + ul,
 div.ocb-dropdown > div:focus + ul li:hover > ul {
@@ -682,13 +688,14 @@ div.ocb-dropdown > div:focus + ul li:hover > ul {
     box-sizing: border-box;
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
-    background-color: #d5d5d5;
+    background-color: #FFFFFF;
 }
 
 .ocb-zoom-bar > div {
-    background-color: #428bca;
-    height: 100%;
+    background-color: #2F65F4;
+    /*background-color: #DCDCDC;*/
     box-sizing: border-box;
+    height: 100%;
     transition: all 0.2s;
 }
 
@@ -718,24 +725,47 @@ END CONTROLS
 }
 
 @font-face {
-    font-family: 'Source Sans Pro';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(../fonts/sourcesanspro.woff) format('woff');
-}
-
-@font-face {
     font-family: 'Lato';
     font-style: normal;
     font-weight: 300;
-    src: local('Lato Light'), local('Lato-Light'), url(http://themes.googleusercontent.com/static/fonts/lato/v7/KT3KS9Aol4WfR6Vas8kNcg.woff) format('woff');
+    src: local('Lato Light'), local('Lato-Light'), url(../fonts/lato-light.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }
 
 @font-face {
     font-family: 'Lato';
     font-style: normal;
     font-weight: 400;
-    src: local('lato'), local('Lato Regular'), local('Lato-Regular'), url(../fonts/lato.woff) format('woff');
+    src: local('Lato Regular'), local('Lato-Regular'), url(../fonts/lato-regular.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Roboto Light'), local('Roboto-Light'), url(../fonts/roboto-light.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Roboto Regular'), local('Roboto-Regular'), url(../fonts/roboto-regular.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: italic;
+    font-weight: 300;
+    src: local('Roboto Light Italic'), local('Roboto-LightItalic'), url(../fonts/roboto-light-italic.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: italic;
+    font-weight: 400;
+    src: local('Roboto Italic'), local('Roboto-Italic'), url(../fonts/roboto-italic.woff2) format('woff2');
 }
 
 .ocb-tooltip-font {
@@ -756,6 +786,10 @@ END CONTROLS
 
 .ocb-font-lato {
     font-family: 'Lato';
+}
+
+.ocb-font-roboto {
+    font-family: 'Roboto';
 }
 
 .ocb-font-size-16 {

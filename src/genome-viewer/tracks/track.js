@@ -35,7 +35,7 @@ function Track(args) {
     this.visibleRegionSize;
     this.visible = true;
     this.closable = false;
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
+    this.fontClass = 'ocb-font-roboto ocb-font-size-14';
 
     _.extend(this, args);
 

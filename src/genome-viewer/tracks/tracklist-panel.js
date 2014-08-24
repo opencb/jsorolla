@@ -35,7 +35,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.collapsed = false;
     this.collapsible = false;
 
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
+    this.fontClass = 'ocb-font-roboto ocb-font-size-14';
 
     this.tracks = [];
     this.tracksIndex = {};

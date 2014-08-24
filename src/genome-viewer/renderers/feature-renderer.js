@@ -27,7 +27,7 @@ function FeatureRenderer(args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
+    this.fontClass = 'ocb-font-roboto ocb-font-size-11';
     this.toolTipfontClass = 'ocb-tooltip-font';
 
      if (_.isObject(args)) {
