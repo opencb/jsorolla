@@ -27,10 +27,6 @@ function Vertex(args) {
 
     this.position = new Point();
 
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
-
     //set instantiation args, must be last
     _.extend(this, args);
 }
