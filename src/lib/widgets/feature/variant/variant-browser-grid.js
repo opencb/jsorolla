@@ -39,7 +39,7 @@ function VariantBrowserGrid(args) {
     this.responseTotal = "response[0].numTotalResults";
     this.startParam = "skip";
     this.plugins = 'bufferedrenderer';
-    this.viewConfigListeners= '';
+    this.viewConfigListeners = '';
 
     //set instantiation args, must be last
     _.extend(this, args);
