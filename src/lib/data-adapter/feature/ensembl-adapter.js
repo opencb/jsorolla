@@ -114,15 +114,15 @@ EnsemblAdapter.prototype = {
 
         var chunkSize = this.cache[dataType].chunkSize;
 
+        var regions = [];
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
             var queryResult = data.response[i];
 
-            var region = new Region(queryResult.id);
-            var features = queryResult.result;
-            var chunk = this.cache[dataType].putByRegion(region, features);
-            chunks.push(chunk);
+            regions.push(new Region(queryResult.id));
+            chunks.push(queryResult.result);
         }
+        this.cache[dataType].putByRegions(regions, chunks);
 
         /** time log **/
         console.timeEnd(timeId);

@@ -23,7 +23,7 @@ function MemoryStore(args) {
 };
 
 MemoryStore.prototype = {
-    add: function (key, value) {
+    put: function (key, value) {
         if (typeof this.store === 'undefined') {
             this.store = {};
         }
@@ -53,6 +53,12 @@ MemoryStore.prototype = {
         this.size++;
 
     },
+    putAll: function (keyArray, valueArray) {
+        for (var i = 0; i < keyArray.length; i++) {
+            this.put(keyArray[i], valueArray[i]);
+        }
+    },
+
     shift: function () {
         // todo: handle special case when limit == 1
         var item = this.head;
