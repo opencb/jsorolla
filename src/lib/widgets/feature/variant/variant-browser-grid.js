@@ -39,6 +39,7 @@ function VariantBrowserGrid(args) {
     this.responseTotal = "response[0].numTotalResults";
     this.startParam = "skip";
     this.plugins = 'bufferedrenderer';
+    this.viewConfigListeners= '';
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -133,7 +134,8 @@ VariantBrowserGrid.prototype = {
                 ],
                 viewConfig: {
                     emptyText: 'No records to display',
-                    enableTextSelection: true
+                    enableTextSelection: true,
+                    listeners:this.viewConfigListeners
                 },
                 tbar: this.paging
             }
