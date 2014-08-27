@@ -26,6 +26,30 @@ function VariantStatsPanel(args) {
     this.title = "Stats";
     this.height = 500;
     this.autoRender = true;
+    this.statsTpl = new Ext.XTemplate(
+                        '<table class="ocb-stats-table">' +
+                            '<tr>' +
+                            '<td class="header">Minor Allele Frequency:</td>' +
+                            '<td>{maf} ({mafAllele})</td>' +
+                            '</tr>',
+                        '<tr>' +
+                            '<td class="header">Minor Genotype Frequency:</td>' +
+                            '<td>{mgf} ({mgfAllele})</td>' +
+                            '</tr>',
+                        '<tr>' +
+                            '<td class="header">Mendelian Errors:</td>' +
+                            '<td>{mendelianErrors}</td>' +
+                            '</tr>',
+                        '<tr>' +
+                            '<td class="header">Missing Alleles:</td>' +
+                            '<td>{missingAlleles}</td>' +
+                            '</tr>',
+                        '<tr>' +
+                            '<td class="header">Missing Genotypes:</td>' +
+                            '<td>{missingGenotypes}</td>' +
+                            '</tr>',
+                        '</table>'
+                    );
 
     _.extend(this, args);
 
@@ -146,30 +170,7 @@ VariantStatsPanel.prototype = {
                         {
                             xtype: 'container',
                             data: stats,
-                            tpl: new Ext.XTemplate(
-                                    '<table class="ocb-stats-table">' +
-                                    '<tr>' +
-                                    '<td class="header">Minor Allele Frequency:</td>' +
-                                    '<td>{maf} ({mafAllele})</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Minor Genotype Frequency:</td>' +
-                                    '<td>{mgf} ({mgfAllele})</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Mendelian Errors:</td>' +
-                                    '<td>{mendelianErrors}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Missing Alleles:</td>' +
-                                    '<td>{missingAlleles}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Missing Genotypes:</td>' +
-                                    '<td>{missingGenotypes}</td>' +
-                                    '</tr>',
-                                '</table>'
-                            ),
+                            tpl: this.statsTpl,
                             margin: '5 5 5 10'
                         }
                     ]
