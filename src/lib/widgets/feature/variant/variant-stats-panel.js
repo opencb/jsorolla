@@ -186,45 +186,45 @@ VariantStatsPanel.prototype = {
                 data: gts
             });
 
-            var genotypeChart = Ext.create('Ext.chart.Chart', {
-                xtype: 'chart',
-                width: 200,
-                height: 130,
-                store: store,
-                animate: true,
-                shadow: true,
-                legend: {
-                    position: 'right'
-                },
-                theme: 'Base:gradients',
-                series: [
-                    {
-                        type: 'pie',
-                        field: 'count',
-                        showInLegend: true,
-                        tips: {
-                            trackMouse: true,
-                            renderer: function (storeItem, item) {
-                                var name = storeItem.get('genotype');
-                                this.setTitle(name + ': ' + storeItem.get('count'));
-                            }
-                        },
-                        highlight: {
-                            segment: {
-                                margin: 20
-                            }
-                        },
-                        label: {
-                            field: 'genotype',
-                            display: 'rotate',
-                            contrast: true,
-                            font: '10px Arial'
-                        }
-
-                    }
-                ]
-            });
-            studyPanel.down().nextSibling().nextSibling().add(genotypeChart);
+//            var genotypeChart = Ext.create('Ext.chart.Chart', {
+//                xtype: 'chart',
+//                width: 200,
+//                height: 130,
+//                store: store,
+//                animate: true,
+//                shadow: true,
+//                legend: {
+//                    position: 'right'
+//                },
+//                theme: 'Base:gradients',
+//                series: [
+//                    {
+//                        type: 'pie',
+//                        field: 'count',
+//                        showInLegend: true,
+//                        tips: {
+//                            trackMouse: true,
+//                            renderer: function (storeItem, item) {
+//                                var name = storeItem.get('genotype');
+//                                this.setTitle(name + ': ' + storeItem.get('count'));
+//                            }
+//                        },
+//                        highlight: {
+//                            segment: {
+//                                margin: 20
+//                            }
+//                        },
+//                        label: {
+//                            field: 'genotype',
+//                            display: 'rotate',
+//                            contrast: true,
+//                            font: '10px Arial'
+//                        }
+//
+//                    }
+//                ]
+//            });
+//            studyPanel.down().nextSibling().nextSibling().add(genotypeChart);
         }
 
         return studyPanel;
