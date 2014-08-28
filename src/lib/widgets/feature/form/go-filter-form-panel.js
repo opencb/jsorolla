@@ -94,62 +94,93 @@ GoFilterFormPanel.prototype = {
 //            extend: 'Ext.data.Model',
 //            fields: this.fields
 //        });
-        var store = Ext.create('Ext.data.TreeStore', {
-            root: {
-                expanded: true,
-                children: [
-                    { text: "SLC10A5", leaf: true, checked: false },
-                    { text: "UTP6", expanded: true, checked: false, children: [
-                        { text: "CALR3", leaf: true, checked: false },
-                        { text: "RDH8", leaf: true, checked: false}
-                    ] },
-                    { text: "NOTCH4", leaf: true, checked: false }
-                ]
-            }
+//        var store = Ext.create('Ext.data.TreeStore', {
+//            root: {
+//                expanded: true,
+//                children: [
+//                    { text: "SLC10A5", leaf: true, checked: false },
+//                    { text: "UTP6", expanded: true, checked: false, children: [
+//                        { text: "CALR3", leaf: true, checked: false },
+//                        { text: "RDH8", leaf: true, checked: false}
+//                    ] },
+//                    { text: "NOTCH4", leaf: true, checked: false }
+//                ]
+//            }
+//        });
+//
+//        var treePanel = Ext.create('Ext.tree.Panel', {
+//            title: this.title,
+//            border: this.border,
+//            useArrows: true,
+//            rootVisible: false,
+//            store: store,
+//            multiSelect: true,
+//            singleExpand: true,
+//            hideHeaders: true,
+//            height: this.height,
+//            collapsible: this.collapsible,
+//            titleCollapse: this.titleCollapse,
+//            collapsed: this.collapsed,
+//            header: this.headerConfig,
+//            //columns: this.columns,
+//            listeners: {
+//                'checkchange': function (node, checked) {
+//                    node.cascadeBy(function (n) {
+//                        n.set('checked', checked);
+//                    });
+//                }
+//            }
+//        });
+//
+//        return treePanel;
+        var goField = Ext.create('Ext.form.field.TextArea', {
+            id: this.id + "go",
+            name: "gene",
+            margin: '0 0 0 5',
+            //allowBlank: true,
+            width: '100%',
+            fieldLabel: 'Go Term',
+            labelAlign: 'top'
         });
 
-        var treePanel = Ext.create('Ext.tree.Panel', {
+        return Ext.create('Ext.form.Panel', {
+            bodyPadding: "5",
+            margin: "0 0 5 0",
+            buttonAlign: 'center',
+            layout: 'vbox',
             title: this.title,
             border: this.border,
-            useArrows: true,
-            rootVisible: false,
-            store: store,
-            multiSelect: true,
-            singleExpand: true,
-            hideHeaders: true,
-            height: this.height,
             collapsible: this.collapsible,
             titleCollapse: this.titleCollapse,
-            collapsed: this.collapsed,
             header: this.headerConfig,
-            //columns: this.columns,
-            listeners: {
-                'checkchange': function (node, checked) {
-                    node.cascadeBy(function (n) {
-                        n.set('checked', checked);
-                    });
-                }
-            }
+            allowBlank: false,
+            items: goField
         });
-
-        return treePanel;
     },
     getPanel: function () {
         return this.panel;
     },
     getValues: function () {
-        var node = this.panel.getRootNode();
-        var go_selection = [];
-        node.cascadeBy(function (n) {
-            if (n.get('checked') && n.isLeaf()) {
-                go_selection.push(n.get('text'));
+//        var node = this.panel.getRootNode();
+//        var go_selection = [];
+//        node.cascadeBy(function (n) {
+//            if (n.get('checked') && n.isLeaf()) {
+//                go_selection.push(n.get('text'));
+//            }
+//        });
+//        debugger
+//        if (go_selection.length > 0) {
+//            return {genes: go_selection};
+//        } else {
+//            return {};
+//        }
+        var values = this.panel.getValues();
+        for (key in values) {
+            if (values[key] == '') {
+                delete values[key]
             }
-        });
-        if (go_selection.length > 0) {
-            return {genes: go_selection};
-        } else {
-            return {};
         }
+        return values;
     },
     clear: function () {
         this.panel.reset();

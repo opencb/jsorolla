@@ -520,7 +520,6 @@ VariantWidget.prototype = {
         return genomeViewer;
     },
     retrieveData: function (baseUrl, filterParams) {
-        debugger
         this.variantBrowserGrid.loadUrl(baseUrl, filterParams);
     },
     setLoading: function (loading) {
