@@ -95,7 +95,7 @@ VariantGenotypeGrid.prototype = {
                 {
                     xtype: 'box',
                     cls: 'ocb-header-4',
-                    html: 'Studies',
+                    html: '<h5>Studies</h5>',
                     margin: '5 0 10 10'
                 },
                 this.studiesContainer

@@ -122,7 +122,7 @@ VariantStatsPanel.prototype = {
                 {
                     xtype: 'box',
                     cls: 'ocb-header-4',
-                    html: 'Studies',
+                    html: '<h5>Studies</h5>',
                     margin: '5 0 10 10'
                 },
                 this.studiesContainer
@@ -135,7 +135,6 @@ VariantStatsPanel.prototype = {
 
         var stats = (data.stats) ? data.stats : {};
         var attributes = (data.attributes) ? data.attributes : {};
-
         var studyPanel = Ext.create('Ext.panel.Panel', {
             title: data.studyId,
             border: false,
@@ -161,7 +160,7 @@ VariantStatsPanel.prototype = {
                     xtype: 'box',
                     cls: 'ocb-header-5',
                     margin: '5 5 5 10',
-                    html: 'Stats'
+                    html: '<h5>Stats</h5>'
                 },
                 {
                     xtype: 'container',
