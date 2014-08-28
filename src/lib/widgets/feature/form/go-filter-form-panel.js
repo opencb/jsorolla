@@ -135,7 +135,7 @@ GoFilterFormPanel.prototype = {
 //        return treePanel;
         var goField = Ext.create('Ext.form.field.TextArea', {
             id: this.id + "go",
-            name: "gene",
+            name: "go",
             margin: '0 0 0 5',
             //allowBlank: true,
             width: '100%',
