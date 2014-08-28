@@ -237,7 +237,7 @@ VariantBrowserGrid.prototype = {
                 },
                 beforeload: function (store, operation, eOpts) {
                     _this.trigger("variant:clear", {sender: _this});
-                },
+                }
             }
 
         });
