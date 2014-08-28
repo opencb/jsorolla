@@ -41,6 +41,7 @@ function IndexedDBStore(args) {
     // must be the last instruction
     _.extend(this, args);
 
+    window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
     this.db = null;
     this.transactionQueue = [];
     this.version = iDBVersion;
@@ -50,7 +51,7 @@ function IndexedDBStore(args) {
 IndexedDBStore.prototype = {
     _enqueue: function(event) {
         var queue = this.transactionQueue;
-//        console.log("ENqueue: " + this.cacheId + ", " + event.type);
+        console.log("ENqueue: " + this.cacheId, event.type);
         queue.push(event);
 
         if (queue.length == 1) {
@@ -60,7 +61,8 @@ IndexedDBStore.prototype = {
     _dequeue: function () {
         var queue = this.transactionQueue;
         var me = queue.shift(); // remove the just finished event.
-//        console.log("DEqueue: " + this.cacheId + ", " + me.type);
+        console.log("DEqueue: " + this.cacheId, me);
+        console.log( me.type);
 
         if (queue.length != 0) {
             var next = queue[0];   // run the first in the queue
@@ -68,6 +70,11 @@ IndexedDBStore.prototype = {
         }
 
     },
+
+    _reset : function(){
+        //_getConnection()
+    },
+
     init: function(cacheId) {
         var _this = this;
         this.cacheId = cacheId;
@@ -77,73 +84,91 @@ IndexedDBStore.prototype = {
 //        if (!window.indexedDB) {
 //            window.alert("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
 //        }
-        window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 //        debugger;
         console.log("Trying to open database, to use " + _this.cacheId);
         var myEvent = {type: "init", func: function() {
+            _this._getConnection(function (db) {
+                console.log(db);
+            });
+        }};
+        console.log("end init");
+        _this._enqueue(myEvent);
+    },
+
+    _getConnection: function (callback, version) {
+        var _this = this;
+        console.log("new GETCONNECTION");
+//        debugger
+        if (_this.db && _this.db.objectStoreNames.contains(_this.cacheId)) {
+            callback(_this.db);
+            return;
+        } else {
             try {
-                var dbOpenRequest = window.indexedDB.open("IndexedDBStore"); // second parameter is the version. increase to modify tables.
+                var dbOpenRequest;
+                if (version) {
+                    dbOpenRequest = window.indexedDB.open("IndexedDBStore", version); // second parameter is the version. increase to modify tables.
+//                    dbOpenRequest.onsuccess = success;
+                } else {
+                    dbOpenRequest = window.indexedDB.open("IndexedDBStore");
+                }
                 dbOpenRequest.onsuccess = function(event){
-//        debugger;
-                    console.log("idbrequest.onsuccess");
+//                    debugger;
+                    console.log("idbrequest.onsuccess in " + _this.cacheId);
                     _this.db = event.target.result;
 
                     _this.db.onversionchange = function(e){
-//        debugger;
-                        console.log("Version change triggered, so closing database connection", e.oldVersion, e.newVersion, _this.db);
-                        _this.db.close();
+//                        debugger;
+                        console.log("Version change triggered, so closing database connection " + _this.cacheId + " (old version, new version, db, event)", e.oldVersion, e.newVersion, _this.db, e);
+                        if (_this.db) {
+                            _this.db.close();
+                            _this.db = undefined;
+                        }
                     };
-
 
                     if(!_this.db.objectStoreNames.contains(_this.cacheId)) {
                         console.log("adding ObjectStore " + _this.cacheId);
                         _this.db.close();
                         iDBVersion = _this.db.version + 1;
                         _this.version = iDBVersion;
-                        var dbOpenRequest2 = window.indexedDB.open("IndexedDBStore", _this.version); // second parameter is the version. increase to modify tables.
-                        dbOpenRequest2.onsuccess = dbOpenRequest.onsuccess;
-                        dbOpenRequest2.onupgradeneeded = dbOpenRequest.onupgradeneeded;
-                        dbOpenRequest2.onerror = dbOpenRequest.onerror;
-                        dbOpenRequest2.onblocked = dbOpenRequest.onblocked;
-//                        _this.init(_this.cacheId);
-
+                        _this.db = undefined;
+                        _this._getConnection(callback, _this.version);
                     } else {
-                        console.log("Database Opened", _this.db, event);
+                        console.log("Database Opened for " + _this.cacheId, _this.db, event);
+                        callback(_this.db);
                         _this._dequeue();
-                        /* Code for ${db.open} */
                     }
+                    console.log("endonsuccess " + _this.cacheId);
                 };
+//                debugger
                 dbOpenRequest.onupgradeneeded = function(e){
 //        debugger;
-                    console.log("Database upgrade needed");
-//                    _this.db = dbOpenRequest.result;
+                    console.log("Database upgrade needed in " + _this.cacheId);
                     _this.db = e.target.result;
 
                     if(!_this.db.objectStoreNames.contains(_this.cacheId)) {
-                        console.log("onupgradeneeded: createObjectStore");
+                        console.log("onupgradeneeded: createObjectStore" + _this.cacheId);
                         var objectStore = _this.db.createObjectStore(_this.cacheId);
                     }
-
-
-                    /* Code for ${db.upgrade} */
                 };
                 dbOpenRequest.onerror = function(e){
 //        debugger;
-                    console.log("DB Open Request Error");
+                    console.log("DB Open Request Error in " + _this.cacheId);
                     console.log(e);
                 };
                 dbOpenRequest.onblocked = function(e){
 //        debugger;
-                    console.log("DB Open Request Blocked");
+                    console.log("DB Open Request Blocked in " + _this.cacheId);
                     console.log(e);
-
+//                    if (_this.db) {
+//                        _this.db.close();
+//                    }
+//                    _this._getConnection(callback)
                 };
             } catch (e) {
+                console.log("catch error:");
                 console.error(e);
             }
-        }};
-        console.log("end init");
-        _this._enqueue(myEvent);
+        }
     },
 
     clear: function () {
