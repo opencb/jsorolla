@@ -200,6 +200,7 @@ VariantBrowserGrid.prototype = {
                 url: baseUrl,
                 type: 'ajax',
                 startParam: this.startParam,
+                useDefaultXhrHeader: false,
                 reader: {
                     root: this.responseRoot,
                     totalProperty: this.responseTotal,
