@@ -122,7 +122,7 @@ VariantStatsPanel.prototype = {
                 {
                     xtype: 'box',
                     cls: 'ocb-header-4',
-                    html: '<h5>Studies</h5>',
+                    html: '<h4>Studies</h4>',
                     margin: '5 0 10 10'
                 },
                 this.studiesContainer
@@ -135,6 +135,12 @@ VariantStatsPanel.prototype = {
 
         var stats = (data.stats) ? data.stats : {};
         var attributes = (data.attributes) ? data.attributes : {};
+        // removing src from attributes
+        var attributesData = {};
+        _.extend(attributesData,attributes);
+        delete attributesData['src'];
+
+
         var studyPanel = Ext.create('Ext.panel.Panel', {
             title: data.studyId,
             border: false,
@@ -142,7 +148,7 @@ VariantStatsPanel.prototype = {
             items: [
                 {
                     xtype: 'container',
-                    data: attributes,
+                    data: attributesData,
                     tpl: new Ext.XTemplate(
                         '<table class="ocb-attributes-table"><tr>',
                         '<tpl foreach=".">',

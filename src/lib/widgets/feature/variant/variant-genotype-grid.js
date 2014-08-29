@@ -67,9 +67,9 @@ VariantGenotypeGrid.prototype = {
         var panels = [];
         for (var key in data) {
             var study = data[key];
-            if (Object.keys(study.samplesData).length > 0) {
+//            if (Object.keys(study.samplesData).length > 0) {
                 panels.push(this._createStudyPanel(study));
-            }
+//            }
         }
         this.studiesContainer.add(panels);
 
@@ -95,7 +95,7 @@ VariantGenotypeGrid.prototype = {
                 {
                     xtype: 'box',
                     cls: 'ocb-header-4',
-                    html: '<h5>Studies</h5>',
+                    html: '<h4>Studies</h4s>',
                     margin: '5 0 10 10'
                 },
                 this.studiesContainer
@@ -117,103 +117,115 @@ VariantGenotypeGrid.prototype = {
             });
         }
         console.log(finalData);
-        var store = Ext.create("Ext.data.Store", {
-            //storeId: "GenotypeStore",
-            pageSize: 10,
-            fields: [
-                {name: "sample", type: "string" },
-                {name: "genotype", type: "string"},
-                {name: "sex", type: "string"},
-                {name: "phenotype", type: "string"}
-            ],
-            data: finalData,
-            proxy: {type: 'memory'}
-        });
-
-        var grid = Ext.create('Ext.grid.Panel', {
-            store: store,
-            loadMask: true,
-            width: 400,
-            height: 300,
-            margin: 20,
-            viewConfig: {
-                emptyText: 'No records to display',
-                enableTextSelection: true
-            },
-            plugins: ["bufferedrenderer"],
-            columns: [
-                {
-                    text: "Sample",
-                    dataIndex: "sample",
-                    flex: 1
-                },
-                {
-                    text: "Genotype",
-                    dataIndex: "genotype",
-                    flex: 1
-                },
-                {
-                    text: "Sex",
-                    dataIndex: "sex",
-                    flex: 1
-                },
-                {
-                    text: "Phenotype",
-                    dataIndex: "phenotype",
-                    flex: 1
-                }
-            ]
-        });
-
-        var gts = this._getGenotypeCount(stats.genotypesCount);
-
-        var genotypeChart;
-        if (gts.length > 0) {
-            var store = Ext.create('Ext.data.Store', {
-                fields: ['genotype', 'count'],
-                data: gts
+        if(_.isEmpty(finalData)){
+            var grid = {
+                xtype: 'container',
+                html: '<p>No Genotypes available</p>',
+                margin: '5 0 10 10'
+            }
+        }else{
+            var store = Ext.create("Ext.data.Store", {
+                //storeId: "GenotypeStore",
+                pageSize: 10,
+                fields: [
+                    {name: "sample", type: "string" },
+                    {name: "genotype", type: "string"},
+                    {name: "sex", type: "string"},
+                    {name: "phenotype", type: "string"}
+                ],
+                data: finalData,
+                proxy: {type: 'memory'}
             });
 
-            genotypeChart = Ext.create('Ext.chart.Chart', {
-                xtype: 'chart',
-                width: 200,
-                height: 130,
+            var grid = Ext.create('Ext.grid.Panel', {
                 store: store,
-                animate: true,
-                shadow: true,
-                legend: {
-                    position: 'right'
+                loadMask: true,
+                width: 400,
+                height: 300,
+                margin: 20,
+                viewConfig: {
+                    emptyText: 'No records to display',
+                    enableTextSelection: true
                 },
-                theme: 'Base:gradients',
-                //insetPadding: 60,
-                series: [
+                plugins: ["bufferedrenderer"],
+                columns: [
                     {
-                        type: 'pie',
-                        field: 'count',
-                        showInLegend: true,
-                        tips: {
-                            trackMouse: true,
-                            renderer: function (storeItem, item) {
-                                var name = storeItem.get('genotype');
-                                this.setTitle(name + ': ' + storeItem.get('count'));
-                            }
-                        },
-                        highlight: {
-                            segment: {
-                                margin: 20
-                            }
-                        },
-                        label: {
-                            field: 'genotype',
-                            display: 'rotate',
-                            contrast: true,
-                            font: '10px Arial'
-                        }
-
+                        text: "Sample",
+                        dataIndex: "sample",
+                        flex: 1
+                    },
+                    {
+                        text: "Genotype",
+                        dataIndex: "genotype",
+                        flex: 1
+                    },
+                    {
+                        text: "Sex",
+                        dataIndex: "sex",
+                        flex: 1
+                    },
+                    {
+                        text: "Phenotype",
+                        dataIndex: "phenotype",
+                        flex: 1
                     }
                 ]
             });
+
+            var gts = this._getGenotypeCount(stats.genotypesCount);
+
+            var genotypeChart;
+            if (gts.length > 0) {
+                var store = Ext.create('Ext.data.Store', {
+                    fields: ['genotype', 'count'],
+                    data: gts
+                });
+
+//                genotypeChart = Ext.create('Ext.chart.Chart', {
+//                    xtype: 'chart',
+//                    width: 200,
+//                    height: 130,
+//                    store: store,
+//                    animate: true,
+//                    shadow: true,
+//                    legend: {
+//                        position: 'right'
+//                    },
+//                    theme: 'Base:gradients',
+//                    //insetPadding: 60,
+//                    series: [
+//                        {
+//                            type: 'pie',
+//                            field: 'count',
+//                            showInLegend: true,
+//                            tips: {
+//                                trackMouse: true,
+//                                renderer: function (storeItem, item) {
+//                                    var name = storeItem.get('genotype');
+//                                    this.setTitle(name + ': ' + storeItem.get('count'));
+//                                }
+//                            },
+//                            highlight: {
+//                                segment: {
+//                                    margin: 20
+//                                }
+//                            },
+//                            label: {
+//                                field: 'genotype',
+//                                display: 'rotate',
+//                                contrast: true,
+//                                font: '10px Arial'
+//                            }
+//
+//                        }
+//                    ]
+//                });
+            }
         }
+
+
+
+
 
         var studyPanel = Ext.create('Ext.panel.Panel', {
             title: data.studyId,
