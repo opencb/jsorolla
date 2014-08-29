@@ -26,40 +26,6 @@
  */
 
 
-var test = function(dbName, version){
-    or1 = window.indexedDB.open(dbName, version);
-    or1.onsuccess = function(e){
-        var db = e.target.result;
-        console.log("or1.onsuccess");
-        console.log("Close " + db.version);
-        console.log("Opening " + (version+1));
-        db.close();
-        or3 = window.indexedDB.open(dbName, version+1);
-        or3.onsuccess = function(e){console.log("or3.onsuccess " + e.target.result.version)}
-        or3.onerror = function(){console.log("or3.onerror")}
-        or3.onupgradeneeded = function(){console.log("or3.onupgradeneeded")}
-        or3.onblocked = function(){
-            console.log("or3.onblocked");
-            console.log(e);
-            console.log("Try again! Opening " + (version+1));
-            or4 = window.indexedDB.open(dbName, version+1);
-            or4.onsuccess =         function(e){console.log("or4.onsuccess " + e.target.result.version)}
-            or4.onerror =           function(e){console.log("or4.onerror")}
-            or4.onupgradeneeded =   function(e){console.log("or4.onupgradeneeded")}
-            or4.onblocked =         function(e){console.log("or4.onblocked")}
-        }
-    }
-    or1.onerror = function(){console.log("or1.onerror")}
-    or1.onupgradeneeded = function(){console.log("or1.onupgradeneeded")}
-    or1.onblocked = function(){console.log("or1.onblocked")}
-
-    or2 = window.indexedDB.open(dbName, version);
-    or2.onsuccess =         function(e){console.log("or2.onsuccess " + e.target.result.version);console.log(e);}
-    or2.onerror =           function(e){console.log("or2.onerror")}
-    or2.onupgradeneeded =   function(e){console.log("or2.onupgradeneeded")}
-    or2.onblocked =         function(e){console.log("or2.onblocked")}
-};
-
 var iDBInstances = [];
 var iDBVersion = 1;
 var putTime = 0;
@@ -67,7 +33,7 @@ var getTime= 0;
 var idbopened = 0;
 var idbclosed = 0;
 function IndexedDBStore(args) {
-
+debugger
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
@@ -81,77 +47,74 @@ function IndexedDBStore(args) {
     window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
     this.db = null;
     this.version = iDBVersion;
+    this.objectStoreName = "ObjectStore";
+
+    if (!this.cacheId) {
+        console.log("IndexedDBStore: not supplied cacheId to constructor. Using default DataBase...");
+        this.cacheId = "default";
+    }
+
     iDBInstances.push(this);
-}
-
-IndexedDBStore.prototype = {
-    init: function(cacheId) {
-        var _this = this;
-        this.cacheId = cacheId;
-        this.size = 0;
-        this.cache = {};
-
 //        if (!window.indexedDB) {
 //            window.alert("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
 //        }
-//        debugger;
-        console.log("Trying to open database, to use " + _this.cacheId);
-        _this._getConnection(function (db) {
-            console.log("obtained connection in init");
-            console.log(db);
-        });
-        console.log("end init");
-    },
+    this._getConnection(function (db) {
+        console.log("obtained connection in init");
+        console.log(db);
+    });
+}
 
+IndexedDBStore.prototype = {
     _getConnection: function (callback, version) {
         var _this = this;
-        console.log("new GETCONNECTION" + _this.cacheId);
-        if (_this.db) {
-            console.log(_this.db.closed);
-        }
+//        console.log("new GETCONNECTION" + _this.cacheId);
+//        if (_this.db) {
+//            console.log(_this.db.closed);
+//        }
 //        debugger
-        if (_this.db && !_this.db.closed && _this.db.objectStoreNames.contains(_this.cacheId)) {
+        if (_this.db && !_this.db.closed && _this.db.objectStoreNames.contains(_this.objectStoreName)) {
+//            console.log("reusing dbc");
             callback(_this.db);
         } else {
-            console.log("obtaining...");
+            console.log("obtaining..." + _this.cacheId);
             try {
                 var dbOpenRequest;
                 if (version) {
-                    dbOpenRequest = window.indexedDB.open("IndexedDBStore", version); // second parameter is the version. increase to modify tables.
+                    dbOpenRequest = window.indexedDB.open(_this.cacheId, version); // second parameter is the version. increase to modify tables.
 //                    dbOpenRequest.onsuccess = success;
                 } else {
-                    dbOpenRequest = window.indexedDB.open("IndexedDBStore");
+                    dbOpenRequest = window.indexedDB.open(_this.cacheId);
                 }
                 idbopened++;
-                dbOpenRequest.onsuccess = function(event){
+                dbOpenRequest.onsuccess = function (event) {
 //                    debugger;
                     console.log("idbrequest.onsuccess in " + _this.cacheId);
                     if (_this.db) {
                         console.log("already opened, closing...");
                         _this.db.close();
-                        _this.db.closed=true;
+                        _this.db.closed = true;
                         _this.db = undefined;
                         idbclosed++;
                     }
                     _this.db = event.target.result;
 
-                    _this.db.onversionchange = function(e){
+                    _this.db.onversionchange = function (e) {
 //                        debugger;
                         console.log("Version change triggered, so closing database connection " + _this.cacheId + " (old version, new version, db, event)", e.oldVersion, e.newVersion, _this.db, e);
                         if (_this.db) {
                             _this.db.close();
-                            _this.db.closed=true;
+                            _this.db.closed = true;
                             idbclosed++;
                             _this.db = undefined;
                         }
                     };
 
-                    if(!_this.db.objectStoreNames.contains(_this.cacheId)) {
+                    if (!_this.db.objectStoreNames.contains(_this.objectStoreName)) {
                         console.log("adding ObjectStore " + _this.cacheId);
-                        iDBVersion = Math.max(iDBVersion,_this.db.version) + 1;
+                        iDBVersion = Math.max(iDBVersion, _this.db.version) + 1;
                         _this.db.close();
                         idbclosed++;
-                        _this.db.closed=true;
+                        _this.db.closed = true;
                         _this.db = undefined;
                         _this.version = iDBVersion;
                         _this._getConnection(callback, _this.version);
@@ -162,22 +125,22 @@ IndexedDBStore.prototype = {
                     console.log("endonsuccess " + _this.cacheId);
                 };
 //                debugger
-                dbOpenRequest.onupgradeneeded = function(e){
+                dbOpenRequest.onupgradeneeded = function (e) {
 //        debugger;
                     console.log("Database upgrade needed in " + _this.cacheId);
                     _this.db = e.target.result;
 
-                    if(!_this.db.objectStoreNames.contains(_this.cacheId)) {
-                        console.log("onupgradeneeded: createObjectStore" + _this.cacheId);
-                        var objectStore = _this.db.createObjectStore(_this.cacheId);
+                    if (!_this.db.objectStoreNames.contains(_this.objectStoreName)) {
+                        console.log("onupgradeneeded: createObjectStore" + _this.objectStoreName);
+                        var objectStore = _this.db.createObjectStore(_this.objectStoreName);
                     }
                 };
-                dbOpenRequest.onerror = function(e){
+                dbOpenRequest.onerror = function (e) {
 //        debugger;
                     console.log("DB Open Request Error in " + _this.cacheId);
                     console.log(e);
                 };
-                dbOpenRequest.onblocked = function(e){
+                dbOpenRequest.onblocked = function (e) {
 //        debugger;
                     console.log("DB Open Request Blocked in " + _this.cacheId);
                     console.log(e);
@@ -198,14 +161,14 @@ IndexedDBStore.prototype = {
 
         var _this = this;
         _this._getConnection(function(){
-            var transaction = _this.db.transaction([_this.cacheId], "readwrite");
+            var transaction = _this.db.transaction([_this.objectStoreName], "readwrite");
             transaction.oncomplete = function(event) {
                 console.log("clear success!");
             };
-            var objectStore = transaction.objectStore(_this.cacheId);
+            var objectStore = transaction.objectStore(_this.objectStoreName);
             var req = objectStore.clear();
             req.onerror = function (evt) {
-                console.error("Error trying to clear the object store " + _this.cacheId);
+                console.error("Error trying to clear the object store " + _this.objectStoreName);
             }
         });
     },
@@ -213,11 +176,11 @@ IndexedDBStore.prototype = {
     count: function (callback) {
         var _this = this;
         _this._getConnection(function(){
-            var transaction = _this.db.transaction([_this.cacheId], "readwrite");
-            var objectStore = transaction.objectStore(_this.cacheId);
+            var transaction = _this.db.transaction([_this.objectStoreName], "readwrite");
+            var objectStore = transaction.objectStore(_this.objectStoreName);
             var req = objectStore.count();
             req.onerror = function (evt) {
-                console.error("Error trying to count the object store " + _this.cacheId);
+                console.error("Error trying to count the object store " + _this.objectStoreName);
             };
             req.onsuccess = function (event) {
                 callback(event.target.result);
@@ -231,6 +194,7 @@ IndexedDBStore.prototype = {
 
             idbclosed++;
             _this.db.close();
+            console.log("Database " + _this.cacheId + " closed");
             _this.db.closed=true;
             _this.db = undefined;
         });
@@ -268,13 +232,13 @@ IndexedDBStore.prototype = {
     get: function(key, callback) {
         var _this = this;
         _this._getConnection(function () {
-            var transaction = _this.db.transaction([_this.cacheId], "readonly");
+            var transaction = _this.db.transaction([_this.objectStoreName], "readonly");
             transaction.onerror = function (event) {
                 console.log("There was an error in the transaction get (" + key + ")");
                 console.log(event);
             };
 
-            var objectStore = transaction.objectStore(_this.cacheId);
+            var objectStore = transaction.objectStore(_this.objectStoreName);
             var request = objectStore.get(key);
             request.onsuccess = function (event) {
 //                console.log("result of get:");  //
@@ -299,7 +263,7 @@ IndexedDBStore.prototype = {
         var results = new Array(keyArray.length);
 
         _this._getConnection(function () {
-            var transaction = _this.db.transaction([_this.cacheId], "readonly");
+            var transaction = _this.db.transaction([_this.objectStoreName], "readonly");
             console.time("getall");
             transaction.oncomplete = function(event) {
                 console.timeEnd("getall");
@@ -310,7 +274,7 @@ IndexedDBStore.prototype = {
                 console.log(event);
             };
 
-            var objectStore = transaction.objectStore(_this.cacheId);
+            var objectStore = transaction.objectStore(_this.objectStoreName);
 
             for (var i = 0; i < keyArray.length; i++) {
                 var request = objectStore.get(keyArray[i]);
@@ -337,13 +301,13 @@ IndexedDBStore.prototype = {
         var results = new Array(keyArray.length);
 
         _this._getConnection( function () {
-            var transaction = _this.db.transaction([_this.cacheId], "readonly");
+            var transaction = _this.db.transaction([_this.objectStoreName], "readonly");
             transaction.onerror = function (event) {
                 console.log("There was an error in the transaction foreach (" + keyArray + ")");
                 console.log(event);
             };
 
-            var objectStore = transaction.objectStore(_this.cacheId);
+            var objectStore = transaction.objectStore(_this.objectStoreName);
 
             for (var i = 0; i < keyArray.length; i++) {
                 var request = objectStore.get(keyArray[i]);
@@ -361,14 +325,14 @@ IndexedDBStore.prototype = {
         var _this = this;
 
         _this._getConnection(function() {
-            var transaction = _this.db.transaction([_this.cacheId], "readwrite");
+            var transaction = _this.db.transaction([_this.objectStoreName], "readwrite");
 
             transaction.onerror = function (event) {
                 console.log("There was an error in the transaction add (" + key + ", " + value + ")");
                 console.log(event);
             };
 
-            var objectStore = transaction.objectStore(_this.cacheId);
+            var objectStore = transaction.objectStore(_this.objectStoreName);
             var request = objectStore.add(value, key);    // as the key is optional depending on the database scheme, it is the 2nd parameter
         });
     },
@@ -377,7 +341,7 @@ IndexedDBStore.prototype = {
         var _this = this;
 
         _this._getConnection(function() {
-            var transaction = _this.db.transaction([_this.cacheId], "readwrite");
+            var transaction = _this.db.transaction([_this.objectStoreName], "readwrite");
             transaction.oncomplete = function(event) {
                 console.log("put");
             };
@@ -386,7 +350,7 @@ IndexedDBStore.prototype = {
                 console.log(event);
             };
 
-            var objectStore = transaction.objectStore(_this.cacheId);
+            var objectStore = transaction.objectStore(_this.objectStoreName);
             var request = objectStore.put(value, key);    // as the key is optional depending on the database scheme, it is the 2nd parameter
         });
     },
@@ -402,7 +366,7 @@ IndexedDBStore.prototype = {
         var _this = this;
 
         _this._getConnection(function() {
-            var transaction = _this.db.transaction([_this.cacheId], "readwrite");
+            var transaction = _this.db.transaction([_this.objectStoreName], "readwrite");
             console.time("putall");
             transaction.oncomplete = function(event) {
                 console.timeEnd("putall");
@@ -412,7 +376,7 @@ IndexedDBStore.prototype = {
                 console.log(event);
             };
 
-            var objectStore = transaction.objectStore(_this.cacheId);
+            var objectStore = transaction.objectStore(_this.objectStoreName);
 
             for (var i = 0; i < keyArray.length; i++) {
                 objectStore.put(valueArray[i], keyArray[i]);    // as the key is optional depending on the database scheme, it is the 2nd parameter
@@ -425,13 +389,13 @@ IndexedDBStore.prototype = {
         var _this = this;
 
         _this._getConnection(function() {
-            var transaction = _this.db.transaction([_this.cacheId], "readwrite");
+            var transaction = _this.db.transaction([_this.objectStoreName], "readwrite");
             transaction.onerror = function (event) {
                 console.log("There was an error in the transaction delete (" + key + ")");
                 console.log(event);
             };
 
-            var objectStore = transaction.objectStore(_this.cacheId);
+            var objectStore = transaction.objectStore(_this.objectStoreName);
             var request = objectStore.delete(key);    // as the key is optional depending on the database scheme, it is the 2nd parameter
 
         });
@@ -439,46 +403,80 @@ IndexedDBStore.prototype = {
 };
 
 console.log("in test");
-var idb = new IndexedDBStore();
+var idb = new IndexedDBStore({cacheId: "test"});
 
+
+var test = function(dbName, version){
+    or1 = window.indexedDB.open(dbName, version);
+    or1.onsuccess = function(e){
+        var db = e.target.result;
+        console.log("or1.onsuccess");
+        console.log("Close " + db.version);
+        console.log("Opening " + (version+1));
+        db.close();
+        or3 = window.indexedDB.open(dbName, version+1);
+        or3.onsuccess = function(e){console.log("or3.onsuccess " + e.target.result.version)}
+        or3.onerror = function(){console.log("or3.onerror")}
+        or3.onupgradeneeded = function(){console.log("or3.onupgradeneeded")}
+        or3.onblocked = function(){
+            console.log("or3.onblocked");
+            console.log(e);
+            console.log("Try again! Opening " + (version+1));
+            or4 = window.indexedDB.open(dbName, version+1);
+            or4.onsuccess =         function(e){console.log("or4.onsuccess " + e.target.result.version)}
+            or4.onerror =           function(e){console.log("or4.onerror")}
+            or4.onupgradeneeded =   function(e){console.log("or4.onupgradeneeded")}
+            or4.onblocked =         function(e){console.log("or4.onblocked")}
+        }
+    }
+    or1.onerror = function(){console.log("or1.onerror")}
+    or1.onupgradeneeded = function(){console.log("or1.onupgradeneeded")}
+    or1.onblocked = function(){console.log("or1.onblocked")}
+
+    or2 = window.indexedDB.open(dbName, version);
+    or2.onsuccess =         function(e){console.log("or2.onsuccess " + e.target.result.version);console.log(e);}
+    or2.onerror =           function(e){console.log("or2.onerror")}
+    or2.onupgradeneeded =   function(e){console.log("or2.onupgradeneeded")}
+    or2.onblocked =         function(e){console.log("or2.onblocked")}
+};
 
 
 
 //debugger
 /*
-idb.init("feature");
-idb.clear();
-///*
+ idb.init("feature");
+ idb.clear();
+ ///*
 
 
-console.time("creation");
-var n = 1000;
-var keyArray = new Array(n);
-var valueArray = new Array(n);
-for (var i = 0; i < n; i++) {
-    keyArray[i] = "key" + i;
-    valueArray[i] = "value" + i;
-}
-console.timeEnd("creation");
-console.time("put");
-idb.putAll(keyArray, valueArray);
-// */
+ console.time("creation");
+ var n = 1000;
+ var keyArray = new Array(n);
+ var valueArray = new Array(n);
+ for (var i = 0; i < n; i++) {
+ keyArray[i] = "key" + i;
+ valueArray[i] = "value" + i;
+ }
+ console.timeEnd("creation");
+ console.time("put");
+ idb.putAll(keyArray, valueArray);
+ // */
 
 /*
-idb2 = new IndexedDBStore();
-idb2.init("feature");
-idb2.count(function(times){
-    console.log("numero de lineas rescatadas: " + times);
-})
-*/
+ idb2 = new IndexedDBStore();
+ idb2.init("feature");
+ idb2.count(function(times){
+ console.log("numero de lineas rescatadas: " + times);
+ })
+ */
 //console.time("creation");
 
 /*
-console.time("firstget");
-for (var i = 0; i < n; i++) {
-    idb.put("key" + i, "value" + i);
-}
-// */
+ console.time("firstget");
+ for (var i = 0; i < n; i++) {
+ idb.put("key" + i, "value" + i);
+ }
+ // */
 
 //        this.idb.add("key00", "value00");
 //        this.idb.add("key01", "value01");
@@ -486,57 +484,57 @@ for (var i = 0; i < n; i++) {
 
 
 /*
-idb.count(function(result) {
-    console.timeEnd("put");
-    console.log("number of rows: " + result);
-});
+ idb.count(function(result) {
+ console.timeEnd("put");
+ console.log("number of rows: " + result);
+ });
 
-console.time("firstget");
-idb.get("key100", function (value){
-    console.log("value returned from get is " + value);
-    console.timeEnd("firstget");
-//    debugger
-});
+ console.time("firstget");
+ idb.get("key100", function (value){
+ console.log("value returned from get is " + value);
+ console.timeEnd("firstget");
+ //    debugger
+ });
 
-console.time("getcol");
-idb.getCollection(["key10", "key70", "key800", "key5"], function (value){
-    console.log("value returned from get is " + value);
-    console.log(value);
-    console.timeEnd("getcol");
-//    debugger
-});
+ console.time("getcol");
+ idb.getCollection(["key10", "key70", "key800", "key5"], function (value){
+ console.log("value returned from get is " + value);
+ console.log(value);
+ console.timeEnd("getcol");
+ //    debugger
+ });
+ /*
+
+ var f = function (tag, lim){
+ console.time(tag);
+ var t = idb.db.transaction(["feature"], "readwrite");
+ t.oncomplete = function(){
+ console.log("Fin");
+ console.timeEnd(tag);
+ };
+ var os = t.objectStore("feature");
+ for(i = 0; i < lim; i++){
+ var r = os.add(i*2,tag+"_"+i);
+ if(i%100000 == 0) {
+ console.log(i);
+ var fAux = function(mensaje){
+ return function(){
+ console.log(mensaje);
+ };
+ };
+ r.onsuccess = fAux("Fin Tramo " + i);
+ }
+ }
+ };
+ */
+
 /*
-
-var f = function (tag, lim){
-    console.time(tag);
-    var t = idb.db.transaction(["feature"], "readwrite");
-    t.oncomplete = function(){
-        console.log("Fin");
-        console.timeEnd(tag);
-    };
-    var os = t.objectStore("feature");
-    for(i = 0; i < lim; i++){
-        var r = os.add(i*2,tag+"_"+i);
-        if(i%100000 == 0) {
-            console.log(i);
-            var fAux = function(mensaje){
-                return function(){
-                    console.log(mensaje);
-                };
-            };
-            r.onsuccess = fAux("Fin Tramo " + i);
-        }
-    }
-};
-*/
-
-/*
-console.time("secondget");
-idb.get("key50000", function (value){
-    console.log("value returned from get is " + value);
-    console.timeEnd("secondget");
-});
-*/
+ console.time("secondget");
+ idb.get("key50000", function (value){
+ console.log("value returned from get is " + value);
+ console.timeEnd("secondget");
+ });
+ */
 
 //        for (var i = 0; i < 10000; i++) {
 //            this.idb.delete("key" + i);
@@ -548,69 +546,69 @@ idb.get("key50000", function (value){
 
 
 /* featurechunk cache test
-var fcc = new FeatureChunkCache();
-fcc.chunkSize = 10;
-fcc.store = new IndexedDBStore();
-var idb = fcc.store;
+ var fcc = new FeatureChunkCache();
+ fcc.chunkSize = 10;
+ fcc.store = new IndexedDBStore();
+ var idb = fcc.store;
 
-idb.init("chunks");
-idb.clear();
+ idb.init("chunks");
+ idb.clear();
 
-console.time("creation");
-var n = 10;
-var keyArray = new Array(n);
-var valueArray = new Array(n);
-for (var i = 0; i < n; i++) {
-    keyArray[i] = fcc.getChunkKey("1", i);
-    valueArray[i] = "value" + i;
-}
-console.log("key for chunk");
-console.log(fcc.getChunkKey("1", fcc.getChunkId(15)));
-console.timeEnd("creation");
-idb.putAll(keyArray, valueArray);
+ console.time("creation");
+ var n = 10;
+ var keyArray = new Array(n);
+ var valueArray = new Array(n);
+ for (var i = 0; i < n; i++) {
+ keyArray[i] = fcc.getChunkKey("1", i);
+ valueArray[i] = "value" + i;
+ }
+ console.log("key for chunk");
+ console.log(fcc.getChunkKey("1", fcc.getChunkId(15)));
+ console.timeEnd("creation");
+ idb.putAll(keyArray, valueArray);
 
-console.time("firstget");
-idb.get(fcc.getChunkKey("1", fcc.getChunkId(25)), function (value){
-    console.log("value returned from get is " + value);
-    console.timeEnd("firstget");
-//    debugger
-});
+ console.time("firstget");
+ idb.get(fcc.getChunkKey("1", fcc.getChunkId(25)), function (value){
+ console.log("value returned from get is " + value);
+ console.timeEnd("firstget");
+ //    debugger
+ });
 
-fcc.getChunk(fcc.getChunkKey("1", fcc.getChunkId(15)), function (value){
-    console.log("value getchunk: " + value);
-});
+ fcc.getChunk(fcc.getChunkKey("1", fcc.getChunkId(15)), function (value){
+ console.log("value getchunk: " + value);
+ });
 
-idb.delete(fcc.getChunkKey("1", fcc.getChunkId(65)));
-idb.delete(fcc.getChunkKey("1", fcc.getChunkId(59)));
-fcc.getAdjustedRegions(
-    new Region({start: 45, end: 135, chromosome: "1"})
-    , function(results){
-        console.log("getAdjustedRegions");
-        console.log(results);
-    }
-);
-fcc.getCachedByRegion(
-    new Region({start: 45, end: 135, chromosome: "1"})
-    , function(results){
-        console.log("getcachedbyRegions");
-        console.log(results);
-    }
-);
+ idb.delete(fcc.getChunkKey("1", fcc.getChunkId(65)));
+ idb.delete(fcc.getChunkKey("1", fcc.getChunkId(59)));
+ fcc.getAdjustedRegions(
+ new Region({start: 45, end: 135, chromosome: "1"})
+ , function(results){
+ console.log("getAdjustedRegions");
+ console.log(results);
+ }
+ );
+ fcc.getCachedByRegion(
+ new Region({start: 45, end: 135, chromosome: "1"})
+ , function(results){
+ console.log("getcachedbyRegions");
+ console.log(results);
+ }
+ );
 
-fcc.getByRegions([
-        new Region({start: 45, end: 48, chromosome: "1"})
-        , new Region({start: 80, end: 85, chromosome: "1"})]
-    , function(results){
-        console.log("getbyRegions");
-        console.log(results);
-    }
-);
+ fcc.getByRegions([
+ new Region({start: 45, end: 48, chromosome: "1"})
+ , new Region({start: 80, end: 85, chromosome: "1"})]
+ , function(results){
+ console.log("getbyRegions");
+ console.log(results);
+ }
+ );
 
-fcc.getByRegion(new Region({start: 15, end: 120, chromosome:"1"}),function(chunks){
-    console.log("getByRegion");
-    console.log(chunks);
-});
-// */
+ fcc.getByRegion(new Region({start: 15, end: 120, chromosome:"1"}),function(chunks){
+ console.log("getByRegion");
+ console.log(chunks);
+ });
+ // */
 
 
 

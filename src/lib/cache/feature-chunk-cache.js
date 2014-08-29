@@ -19,8 +19,7 @@ function FeatureChunkCache(args) {
 
 //    this.store = new MemoryStore({});
 
-    this.store = new IndexedDBStore({});
-    this.store.init(this.cacheId);
+    this.store = new IndexedDBStore({cacheId: this.cacheId});
 
     this.verbose = false;
 }
