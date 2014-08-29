@@ -228,6 +228,7 @@ VariantBrowserGrid.prototype = {
                         _this.dataParser(records);
                     } else {
                         _this._parserFunction(records);
+                        _this.grid.getSelectionModel().select(0, true);
 
                     }
 
