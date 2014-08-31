@@ -279,15 +279,18 @@ NetworkViewerWebgl.prototype = {
 //        console.log({x: camera.position.x, y: camera.position.y, z: camera.position.z});
 //        console.log({r: cameraRadius, theta: theta, phi: phi});
     },
+    setZoom: function (disp) {
+        this.cameraRadius -= disp;
+        this.cameraRadius = Math.min(this.cameraRadius, 2000);
+        this.cameraRadius = Math.max(this.cameraRadius, 10);
+        if (this.cameraRadius > 10 && this.cameraRadius < 2000) {
+            this.renderScene();
+        }
+    },
     setControls: function () {
         var _this = this;
         this.targetEl.addEventListener('mousewheel', function (event) {
-            _this.cameraRadius -= event.wheelDeltaY;
-            _this.cameraRadius = Math.min(_this.cameraRadius, 2000);
-            _this.cameraRadius = Math.max(_this.cameraRadius, 10);
-            if (_this.cameraRadius > 10 && _this.cameraRadius < 2000) {
-                _this.renderScene();
-            }
+            _this.setZoom(event.wheelDeltaY);
         }, false);
 
         $('body').keydown(function (event) {
