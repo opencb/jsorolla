@@ -77,7 +77,8 @@ SegregationFilterFormPanel.prototype = {
             items: [
                 { xtype: 'label', text: '0/0', flex: 1},
                 { xtype: 'label', text: '0/1', flex: 1},
-                { xtype: 'label', text: '1/1', flex: 1}
+                { xtype: 'label', text: '1/1', flex: 1},
+                { xtype: 'label', text: './.', flex: 1},
             ]
         });
 
@@ -97,8 +98,9 @@ SegregationFilterFormPanel.prototype = {
                     },
                     items: [
                         {xtype: 'checkbox', name: "sampleGT_" + name, inputValue: '0/0,0|0', flex: 1},
-                        {xtype: 'checkbox', name: "sampleGT_" + name, inputValue: '0/1,1/0, 0|1,1|0', flex: 1},
-                        {xtype: 'checkbox', name: "sampleGT_" + name, inputValue: '1/1,1|1', flex: 1}
+                        {xtype: 'checkbox', name: "sampleGT_" + name, inputValue: '0/1,1/0,0|1,1|0', flex: 1},
+                        {xtype: 'checkbox', name: "sampleGT_" + name, inputValue: '1/1,1|1', flex: 1},
+                        {xtype: 'checkbox', name: "sampleGT_" + name, inputValue: './.,.|.', flex: 1}
                     ]
                 })
             );
