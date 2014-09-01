@@ -31,6 +31,7 @@ function StudyFilterFormPanel(args) {
     this.border = true;
     this.height = 300;
     this.collapsed = false;
+    this.studyFilterTpl = '<tpl><div class="ocb-study-filter">{studyName}</div></tpl>';
 
 
     /**
@@ -210,10 +211,10 @@ StudyFilterFormPanel.prototype = {
                     {
                         text: "Name",
                         dataIndex: 'studyName',
-//                        flex: 10,
-                        width: 500,
+                        flex: 10,
+//                        width: 500,
                         xtype: 'templatecolumn',
-                        tpl:'<tpl>{studyName}(<a href="http://www.ebi.ac.uk/ena/data/view/{studyId}" target="_blank">{studyId}</a>)</tpl>'
+                        tpl:this.studyFilterTpl
                     }
 //                    {
 //                        text: "ID",
