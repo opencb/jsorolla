@@ -210,8 +210,11 @@ StudyFilterFormPanel.prototype = {
                     {
                         text: "Name",
                         dataIndex: 'studyName',
-                        flex: 10
-                    },
+//                        flex: 10,
+                        width: 500,
+                        xtype: 'templatecolumn',
+                        tpl:'<tpl>{studyName}(<a href="http://www.ebi.ac.uk/ena/data/view/{studyId}" target="_blank">{studyId}</a>)</tpl>'
+                    }
 //                    {
 //                        text: "ID",
 //                        dataIndex: 'studyId',
