@@ -424,7 +424,7 @@ NavigationBar.prototype = {
 
         var createEntry = function (species, ul) {
             var menuEntry = document.createElement('li');
-            menuEntry.textContent = species.text;
+            menuEntry.textContent = species.text + ' '+ species.assembly;
             ul.appendChild(menuEntry);
 
             menuEntry.addEventListener('click', function () {
