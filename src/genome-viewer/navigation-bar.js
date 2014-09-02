@@ -52,7 +52,7 @@ function NavigationBar(args) {
         autoheightButton: true,
         compactButton: true,
         searchControl: true,
-        configureButton:false
+        configureButton: false
     };
     this.zoom = 100;
 
@@ -395,13 +395,37 @@ NavigationBar.prototype = {
         }
     },
 
+//    _setSpeciesMenu: function () {
+//        var _this = this;
+//
+//        var createEntry = function (species) {
+//            var menuEntry = document.createElement('li');
+//            menuEntry.textContent = species.text;
+//            _this.els.speciesMenu.appendChild(menuEntry);
+//
+//            menuEntry.addEventListener('click', function () {
+//                _this.species = species;
+//                _this.els.speciesText.textContent = this.textContent;
+//                _this._setChromosomeMenu();
+//                _this.trigger('species:change', {species: species, sender: _this});
+//            });
+//        };
+//        //find species object
+//        var list = [];
+//        for (var i in this.availableSpecies.items) {
+//            for (var j in this.availableSpecies.items[i].items) {
+//                var species = this.availableSpecies.items[i].items[j];
+//                createEntry(species);
+//            }
+//        }
+//    },
     _setSpeciesMenu: function () {
         var _this = this;
 
-        var createEntry = function (species) {
+        var createEntry = function (species, ul) {
             var menuEntry = document.createElement('li');
             menuEntry.textContent = species.text;
-            _this.els.speciesMenu.appendChild(menuEntry);
+            ul.appendChild(menuEntry);
 
             menuEntry.addEventListener('click', function () {
                 _this.species = species;
@@ -410,12 +434,28 @@ NavigationBar.prototype = {
                 _this.trigger('species:change', {species: species, sender: _this});
             });
         };
+
+        var createTaxonomy = function (taxonomy) {
+            var menuEntry = document.createElement('li');
+            menuEntry.setAttribute('data-sub', true);
+            menuEntry.textContent = taxonomy.text;
+            _this.els.speciesMenu.appendChild(menuEntry);
+
+            var ul = document.createElement('ul');
+            menuEntry.appendChild(ul);
+
+            return ul;
+        };
+
         //find species object
         var list = [];
-        for (var i in this.availableSpecies.items) {
-            for (var j in this.availableSpecies.items[i].items) {
-                var species = this.availableSpecies.items[i].items[j];
-                createEntry(species);
+        for (var i = 0; i < this.availableSpecies.items.length; i++) {
+            var taxonomy = this.availableSpecies.items[i];
+            var taxUl = createTaxonomy(taxonomy);
+
+            for (var j = 0; j < taxonomy.items.length; j++) {
+                var species = taxonomy.items[j];
+                createEntry(species, taxUl);
             }
         }
     },
