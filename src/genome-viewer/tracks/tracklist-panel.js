@@ -35,8 +35,6 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.collapsed = false;
     this.collapsible = false;
 
-    this.fontClass = 'ocb-font-roboto ocb-font-size-14';
-
     this.tracks = [];
     this.tracksIndex = {};
 
@@ -123,8 +121,8 @@ TrackListPanel.prototype = {
             var titleDiv = $('<div id="tl-title" class="ocb-gv-panel-title unselectable"></div>')[0];
             $(this.div).append(titleDiv);
 
-            var windowSizeDiv = $('<div class="ocb-gv-tracklist-windowsize" id="windowSizeSpan"></div>');
-            $(titleDiv).append(windowSizeDiv);
+            this.windowSizeDiv = $('<div class="ocb-gv-tracklist-windowsize" id="windowSizeSpan"></div>');
+            $(titleDiv).append(this.windowSizeDiv);
 
             if (this.collapsible == true) {
                 this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="fa fa-minus"></span></div>');
@@ -165,73 +163,35 @@ TrackListPanel.prototype = {
         $(panelDiv).append(this.tlTracksDiv);
 
 
-        //Main SVG and his events
-        this.svgTop = SVG.init(tlHeaderDiv, {
-            "width": this.width,
-            "height": 12
-        });
+        //Main SVG and its events
+
+        //Position div
+        this.positionDiv = document.createElement('div');
+        this.positionDiv.classList.add('ocb-gv-tracklist-position');
+
+        this.positionLeftDiv = document.createElement('div');
+        this.positionLeftDiv.classList.add('ocb-gv-tracklist-position-left');
+        this.positionNucleotidDiv = document.createElement('div');
+        this.positionNucleotidDiv.classList.add('ocb-gv-tracklist-position-mid-nt');
+        this.positionMidPosDiv = document.createElement('div');
+        this.positionMidPosDiv.classList.add('ocb-gv-tracklist-position-mid-pos');
+        this.positionMidDiv = document.createElement('div');
+        this.positionMidDiv.classList.add('ocb-gv-tracklist-position-mid');
+        this.positionRightDiv = document.createElement('div');
+        this.positionRightDiv.classList.add('ocb-gv-tracklist-position-right');
+
+        this.positionDiv.appendChild(this.positionLeftDiv);
+        this.positionDiv.appendChild(this.positionNucleotidDiv);
+        this.positionMidDiv.appendChild(this.positionNucleotidDiv);
+        this.positionMidDiv.appendChild(this.positionMidPosDiv);
+        this.positionDiv.appendChild(this.positionMidDiv);
+        this.positionDiv.appendChild(this.positionRightDiv);
+        tlHeaderDiv.appendChild(this.positionDiv);
+
 
         var mid = this.width / 2;
-        var yOffset = 11;
-        this.positionText = SVG.addChild(this.svgTop, 'text', {
-            'x': mid - 30,
-            'y': yOffset,
-            'fill': 'steelblue',
-            'class': this.fontClass
-        });
-        this.nucleotidText = SVG.addChild(this.svgTop, 'text', {
-            'x': mid + 35,
-            'y': yOffset,
-            'class': this.fontClass
-        });
-        this.firstPositionText = SVG.addChild(this.svgTop, 'text', {
-            'x': 0,
-            'y': yOffset,
-            'fill': 'steelblue',
-            'class': this.fontClass
-        });
-        this.lastPositionText = SVG.addChild(this.svgTop, 'text', {
-            'x': this.width - 70,
-            'y': yOffset,
-            'fill': 'steelblue',
-            'class': this.fontClass
-        });
-//        this.viewNtsArrow = SVG.addChild(this.svgTop, 'rect', {
-//            'x': 2,
-//            'y': 6,
-//            'width': this.width - 4,
-//            'height': 2,
-//            'opacity': '0.5',
-//            'fill': 'black'
-//        });
-//        this.viewNtsArrowLeft = SVG.addChild(this.svgTop, 'polyline', {
-//            'points': '0,1 2,1 2,13 0,13',
-//            'opacity': '0.5',
-//            'fill': 'black'
-//        });
-//        this.viewNtsArrowRight = SVG.addChild(this.svgTop, 'polyline', {
-//            'points': this.width + ',1 ' + (this.width - 2) + ',1 ' + (this.width - 2) + ',13 ' + this.width + ',13',
-//            'opacity': '0.5',
-//            'fill': 'black'
-//        });
         this.windowSize = 'Window size: ' + Utils.formatNumber(this.region.length()) + ' nts';
-//        this.viewNtsTextBack = SVG.addChild(this.svgTop, 'rect', {
-//            'x': mid - 40,
-//            'y': 0,
-//            'width': 0,
-//            'height': 13,
-//            'fill': 'white'
-//        });
-        this.viewNtsText = SVG.addChild(this.svgTop, 'text', {
-            'x': mid - (this.windowSize.length * 7 / 2),
-            'y': 11,
-            'fill': 'black',
-            'class': this.fontClass
-        });
-        this.viewNtsText.setAttribute('visibility', 'hidden');
-//        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
-        this.viewNtsText.textContent = this.windowSize;
-        $(this.div).find('#windowSizeSpan').html(this.windowSize);
+        this.windowSizeDiv.innerHTML = this.windowSize;
         this._setTextPosition();
 
 
@@ -523,14 +483,6 @@ TrackListPanel.prototype = {
         $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase + 2});
         $(this.mouseLine).css({'width': this.pixelBase});
 
-        this.svgTop.setAttribute('width', this.width);
-        this.positionText.setAttribute("x", mid - 30);
-        this.nucleotidText.setAttribute("x", mid + 35);
-        this.lastPositionText.setAttribute("x", this.width - 70);
-//        this.viewNtsArrow.setAttribute("width", this.width - 4);
-//        this.viewNtsArrowRight.setAttribute("points", this.width + ",1 " + (this.width - 2) + ",1 " + (this.width - 2) + ",13 " + this.width + ",13");
-        this.viewNtsText.setAttribute("x", mid - (this.windowSize.length * 7 / 2));
-//        this.viewNtsTextBack.setAttribute("x", mid - 40);
         this.trigger('trackWidth:change', {width: this.width, sender: this})
 
         this._setTextPosition();
@@ -577,10 +529,10 @@ TrackListPanel.prototype = {
         $(this.centerLine).css({'width': this.pixelBase + 2});
         $(this.mouseLine).css({'width': this.pixelBase + 2});
 
-        this.windowSize = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
-        this.viewNtsText.textContent = this.viewNtsText.textContent;
-        $(this.div).find('#windowSizeSpan').html(this.windowSize);
+        this.windowSize = 'Window size: ' + Utils.formatNumber(this.region.length()) + ' nts';
+        this.windowSizeDiv.innerHTML = this.windowSize;
         this._setTextPosition();
+
         this.trigger('window:size', {windowSize: this.windowSize});
 
 //        if (region.species != null) {
@@ -598,7 +550,7 @@ TrackListPanel.prototype = {
 //        }
         this.trigger('trackRegion:change', {region: this.visualRegion, sender: this})
 
-        this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
+        this.positionNucleotidDiv.textContent = "";//remove base char, will be drawn later if needed
 
         this.status = 'rendering';
 
@@ -966,17 +918,13 @@ TrackListPanel.prototype = {
         this.visualRegion.start = Math.floor(centerPosition - aux);
         this.visualRegion.end = Math.floor(centerPosition + aux);
 
-        this.positionText.textContent = Utils.formatNumber(centerPosition);
-        this.firstPositionText.textContent = Utils.formatNumber(this.visualRegion.start);
-        this.lastPositionText.textContent = Utils.formatNumber(this.visualRegion.end);
+        this.positionMidPosDiv.textContent = Utils.formatNumber(centerPosition);
+        this.positionLeftDiv.textContent = Utils.formatNumber(this.visualRegion.start);
+        this.positionRightDiv.textContent = Utils.formatNumber(this.visualRegion.end);
 
 
-        this.windowSize = "Window size: " + Utils.formatNumber(this.visualRegion.length()) + " nts";
-        this.viewNtsText.textContent = this.windowSize;
-        $(this.div).find('#windowSizeSpan').html(this.windowSize);
-
-//        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length * 7);
-//        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
+        this.windowSize = 'Window size: ' + Utils.formatNumber(this.region.length()) + ' nts';
+        this.windowSizeDiv.innerHTML = this.windowSize;
     },
 
     getTrackById: function (trackId) {
@@ -1019,7 +967,7 @@ TrackListPanel.prototype = {
 
     setNucleotidPosition: function (position) {
         var base = this.getSequenceNucleotid(position);
-        this.nucleotidText.setAttribute("fill", SEQUENCE_COLORS[base]);
-        this.nucleotidText.textContent = base;
+        this.positionNucleotidDiv.style.color = SEQUENCE_COLORS[base];
+        this.positionNucleotidDiv.textContent = base;
     }
 };

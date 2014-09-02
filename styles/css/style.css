@@ -361,6 +361,45 @@ ul.ocb-app-menu > li:hover {
     text-align: center;
 }
 
+.ocb-gv-tracklist-position {
+    height: 14px;
+    color: steelblue;
+    font-family: 'Ubuntu Mono', 'Helvetica Neue', Helvetica, Arial, 'sans-serif';
+    font-size: 14px;
+    position: relative;
+}
+
+.ocb-gv-tracklist-position > div {
+    line-height: 14px;
+    color: steelblue;
+    position: absolute;
+}
+
+.ocb-gv-tracklist-position-left {
+    left: 0;
+}
+
+.ocb-gv-tracklist-position-mid {
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.ocb-gv-tracklist-position-mid-pos {
+    display: inline-block;
+}
+
+.ocb-gv-tracklist-position-mid-nt {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.ocb-gv-tracklist-position-right {
+    right: 0;
+}
+
 .ocb-gv-panel-collapse-control {
     position: absolute;
     right: 0;
@@ -660,7 +699,6 @@ ul.ocb-context li[data-sub]:after {
     right: 10px;
 }
 
-
 div.ocb-dropdown ul li.active,
 div.ocb-dropdown ul li:active,
 ul.ocb-context li:active {
@@ -672,7 +710,6 @@ ul.ocb-context li:hover {
     background-color: #2F65F4;
     color: #fff;
 }
-
 
 div.ocb-dropdown > div:focus + ul,
 div.ocb-dropdown > div:focus + ul li:hover > ul {
@@ -873,54 +910,6 @@ END CONTROLS
     background-repeat: no-repeat;
 }
 
-.ocb-icon-resize {
-    background: url(../img/resize.png) !important;
-}
-
-.ocb-icon-plus {
-    background: url(../img/ocb-icon-plus.png) !important;
-}
-
-.ocb-icon-minus {
-    background: url(../img/ocb-icon-minus.png) !important;
-}
-
-.ocb-icon-arrow-e {
-    background: url(../img/ocb-icon-arrow-e.png) !important;
-}
-
-.ocb-icon-arrow-w {
-    background: url(../img/ocb-icon-arrow-w.png) !important;
-}
-
-.ocb-icon-arrow-e-bold {
-    background: url(../img/ocb-icon-arrow-e-bold.png) !important;
-}
-
-.ocb-icon-arrow-w-bold {
-    background: url(../img/ocb-icon-arrow-w-bold.png) !important;
-}
-
-.ocb-icon-arrow-n-bold {
-    background: url(../img/ocb-icon-arrow-n-bold.png) !important;
-}
-
-.ocb-icon-collapse {
-    background: url(../img/ocb-icon-collapse.png) !important;
-}
-
-.ocb-icon-expand {
-    background: url(../img/ocb-icon-expand.png) !important;
-}
-
-.ocb-icon-clock {
-    background: url(../img/ocb-icon-clock.png) !important;
-}
-
-.ocb-icon-repeat {
-    background: url(../img/ocb-icon-repeat.png) !important;
-}
-
 .ocb-icon-karyotype {
     background: url(../img/ocb-icon-karyotype.png) !important;
 }
@@ -931,178 +920,6 @@ END CONTROLS
 
 .ocb-icon-region {
     background: url(../img/ocb-icon-region.png) !important;
-}
-
-.ocb-icon-find {
-    background: url(../img/ocb-icon-find.png) !important;
-}
-
-.ocb-icon-gear {
-    background: url(../img/ocb-icon-gear.png) !important;
-}
-
-.ocb-icon-track-autoheight {
-    background: url(../img/ocb-icon-track-autoheight.png) !important;
-}
-
-.ocb-icon-compressed {
-    background: url(../img/ocb-icon-compressed.png) !important;
-}
-
-.ocb-icon-node-select {
-    background: url(../img/icon-node-select.png) !important;
-}
-
-.ocb-icon-edge-select {
-    background: url(../img/icon-edge-select.png) !important;
-}
-
-.ocb-icon-backitem-select {
-    background: url(../img/icon-backitem-select.png) !important;
-}
-
-.icon-save {
-    background: url('../img/save.png');
-}
-
-.icon-grid {
-    background: url('../img/grid.png');
-}
-
-.icon-box {
-    background: url(../img/icons.png) no-repeat -3px -57px !important;
-}
-
-.icon-blue-box {
-    background: url(../img/icons.png) no-repeat -3px -84px !important;
-}
-
-.icon-change-project {
-    background: url(../img/jfk_sprite22.png) no-repeat -3px -1922px !important;
-}
-
-.icon-rename-project {
-    background: url(../img/jfk_sprite40.png) no-repeat -24px -2344px !important;
-}
-
-.icon-add {
-    background: url(../img/jfk_sprite22.png) no-repeat -3px -844px !important;
-}
-
-.icon-link {
-    background: url(../img/jfk_sprite22.png) no-repeat -3px -759px !important;
-}
-
-.icon-delete {
-    background: url(../img/sprite_black2.png) no-repeat -65px -45px !important;
-}
-
-.icon-drag {
-    background: url(../img/jfk_sprite22.png) no-repeat -3px -737px !important;
-}
-
-.icon-select {
-    background: url(../img/jfk_sprite22.png) no-repeat -3px -1964px !important;
-}
-
-.icon-zoom-out {
-    background: url(../img/jfk_sprite22.png) no-repeat -3px -2787px !important;
-}
-
-.icon-zoom-in {
-    background: url(../img/jfk_sprite22.png) no-repeat -3px -2850px !important;
-}
-
-.icon-upload {
-    background: url(../img/jfk_sprite22.png) no-repeat -3px -2048px !important;
-}
-
-.icon-local {
-    background: url(../img/local.png) !important;
-}
-
-.icon-node-size {
-    background: url(../img/resize.png) !important;
-}
-
-.icon-fill-color {
-    background: url(../img/jfk_sprite40.png) no-repeat -24px -1545px !important;
-}
-
-.icon-stroke-size {
-    background: url(../img/jfk_sprite40.png) no-repeat -24px -128px !important;
-}
-
-.icon-stroke-color {
-    background: url(../img/jfk_sprite40.png) no-repeat -24px -2226px !important;
-}
-
-.icon-node-shape {
-    background: url(../img/jfk_sprite40.png) no-repeat -1px -1565px !important;
-}
-
-.icon-background-option {
-    background: url(../img/icon-background.png) !important;
-}
-
-.icon-node-opacity {
-    background: url(../img/opacity.png) !important;
-}
-
-.icon-edge-type {
-    background: url(../img/edgetype.png) !important;
-}
-
-.icon-find {
-    background: url(../img/find.png) !important;
-}
-
-.icon-label-size {
-    background: url(../img/label-size.png) !important;
-}
-
-.icon-layout {
-    background: url(../img/icon-layout.png) !important;
-}
-
-.icon-collapse {
-    background: url(../img/icon-collapse.png) !important;
-}
-
-.icon-auto-select {
-    background: url(../img/icon-auto-select.png) !important;
-}
-
-.icon-project-delete {
-    background: url(../img/icon-project-delete.png) !important;
-}
-
-.icon-project-all {
-    background: url(../img/icon-project-all.png) !important;
-}
-
-.icon-project-manager {
-    background: url(../img/jfk_sprite40.png) no-repeat -1px -896px !important;
-}
-
-.icon-mouse-select {
-    background: url(../img/jfk_sprite40.png) no-repeat -2px -1504px !important;
-}
-
-.icon-order {
-    background: url(../img/icon-order.png);
-}
-
-.icon-order-asc {
-    background: url(../img/icon-order-asc.png);
-}
-
-.icon-order-desc {
-    background: url(../img/icon-order-desc.png);
-}
-
-.icon-regular-file {
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB90CDRIvNbHTpbwAAADjSURBVDjLpZFBbsIwEEUfVRZYahcVK3qKXoauMFK5C91nkyUB+xC5BqeAA7SKq1B5ugl2EiC04UkjayzN17NnROTRWvvJFbTWL8CBHqbGWOlSlqVkWSbGWAGm3aGHZiMiAByPP6FOd1rP2W7NvhvSCvDe10E+VJPFQpPnm1ZIcsmgPgJVVZGmaejX63y/XL4/AV/JJYPTCeDcN7PZWyuwKAqA8wARqSsGKDVGqXGjV8H07AnRQPq21TK8+YSBAQMN4hb6Df7wB/5eA+4zmEyehxk451itPrhFksSxUeP+lf+z+wXwdayJk/mqtgAAAABJRU5ErkJggg==);
 }
 
 /*SBGN icons*/

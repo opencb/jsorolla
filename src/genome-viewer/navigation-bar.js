@@ -51,7 +51,8 @@ function NavigationBar(args) {
         moveControl: true,
         autoheightButton: true,
         compactButton: true,
-        searchControl: true
+        searchControl: true,
+        configureButton:false
     };
     this.zoom = 100;
 
@@ -154,8 +155,10 @@ NavigationBar.prototype = {
             '       </datalist>' +
             '<div id="quickSearchButton" class="ocb-ctrl" style="border-left: none;"><i class="fa fa-search"></i></div>' +
             '</div>' +
-            '';
 
+
+            '<div id="configureButton" class="ocb-ctrl" style="float:right;"><i class="fa fa-cog"></i> Configure</div>' +
+            '';
 
         /**************/
         this.div = document.createElement('div');
@@ -266,6 +269,11 @@ NavigationBar.prototype = {
 
 //        this.els.compactButton.addEventListener('click', function (e) {
 //        });
+
+        this.els.configureButton.addEventListener('click', function (e) {
+            _this.trigger('configureButton:click', {clickEvent: e, sender: {}})
+        });
+
 
         var lastQuery = '';
         this.els.searchField.addEventListener('keyup', function (event) {
