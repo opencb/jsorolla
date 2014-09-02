@@ -30,6 +30,8 @@ function StudyFilterFormPanel(args) {
 //    this.studiesStore;
     this.border = true;
     this.height = 300;
+    this.collapsed = false;
+    this.studyFilterTpl = '<tpl><div class="ocb-study-filter">{studyName}</div></tpl>';
 
 
     /**
@@ -209,8 +211,11 @@ StudyFilterFormPanel.prototype = {
                     {
                         text: "Name",
                         dataIndex: 'studyName',
-                        flex: 10
-                    },
+                        flex: 10,
+//                        width: 500,
+                        xtype: 'templatecolumn',
+                        tpl:this.studyFilterTpl
+                    }
 //                    {
 //                        text: "ID",
 //                        dataIndex: 'studyId',
@@ -228,6 +233,7 @@ StudyFilterFormPanel.prototype = {
             border: false,
             title: this.title,
             height: this.height,
+            collapsed: this.collapsed,
             layout: {
                 type: 'vbox',
                 align: 'stretch'

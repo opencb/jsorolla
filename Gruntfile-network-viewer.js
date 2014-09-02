@@ -79,8 +79,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-processhtml');
     grunt.loadNpmTasks('grunt-hub');
 
-    grunt.registerTask('vendor', ['curl-dir']);
-
     grunt.registerTask('default', ['hub:lib', 'clean', 'concat', 'uglify', 'copy', 'processhtml']);
     grunt.registerTask('no-dep', ['clean', 'concat', 'uglify', 'copy', 'processhtml']);
 };

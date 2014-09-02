@@ -28,6 +28,7 @@ function HeaderWidget(args) {
 
 
     this.target;
+    this.autoRender = true;
     this.accountData;
 
     this.appname = "My new App";
