@@ -84,7 +84,7 @@ function NavigationBar(args) {
 
 NavigationBar.prototype = {
 
-    render: function (targetId) {
+    render: function () {
         var _this = this;
 
 
@@ -163,7 +163,6 @@ NavigationBar.prototype = {
         /**************/
         this.div = document.createElement('div');
         this.div.setAttribute('class', "ocb-gv-navigation-bar unselectable");
-        this.div.style.height = 21 + 'px';
         this.div.innerHTML = HTML;
 
         var els = this.div.querySelectorAll('[id]');
@@ -184,9 +183,9 @@ NavigationBar.prototype = {
         }
         /*****/
 
-        this.els.karyotypeButton.checked = (this.karyotypePanelConfig.collapsed) ? false : true;
-        this.els.chromosomeButton.checked = (this.chromosomePanelConfig.collapsed) ? false : true;
-        this.els.regionButton.checked = (this.regionPanelConfig.collapsed) ? false : true;
+        this.els.karyotypeButton.checked = (this.karyotypePanelConfig.hidden) ? false : true;
+        this.els.chromosomeButton.checked = (this.chromosomePanelConfig.hidden) ? false : true;
+        this.els.regionButton.checked = (this.regionPanelConfig.hidden) ? false : true;
 
 
         /*** ***/
@@ -378,7 +377,6 @@ NavigationBar.prototype = {
         }
 
         this.currentChromosomeList = list;
-        //add bootstrap elements to the menu
         for (var i in list) {
             var menuEntry = document.createElement('li');
             menuEntry.textContent = list[i];

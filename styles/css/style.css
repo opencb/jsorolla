@@ -320,6 +320,8 @@ ul.ocb-app-menu > li:hover {
     background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
     background-repeat: repeat-x;
     padding: 5px;
+    box-sizing: border-box;
+    height: 33px;
 }
 
 .ocv-gv-status-bar {
@@ -351,6 +353,11 @@ ul.ocb-app-menu > li:hover {
     margin-left: 5px;
 }
 
+.ocb-gv-tracklist {
+    height: 100%;
+    position: relative;
+}
+
 .ocb-gv-tracklist-windowsize {
     position: absolute;
     line-height: 24px;
@@ -359,6 +366,14 @@ ul.ocb-app-menu > li:hover {
     margin-left: auto;
     margin-right: auto;
     text-align: center;
+}
+
+.ocb-gv-panel-collapse-control {
+    line-height: 24px;
+    position: absolute;
+    right: 0;
+    margin-right: 5px;
+    height: 16px;
 }
 
 .ocb-gv-tracklist-position {
@@ -398,13 +413,6 @@ ul.ocb-app-menu > li:hover {
 
 .ocb-gv-tracklist-position-right {
     right: 0;
-}
-
-.ocb-gv-panel-collapse-control {
-    position: absolute;
-    right: 0;
-    margin: 5px;
-    height: 16px;
 }
 
 .ocb-gv-track {

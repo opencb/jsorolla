@@ -137,7 +137,9 @@ FeatureClusterRenderer.prototype.render = function (features, args) {
                 }
             },
             position: {target: 'mouse', adjust: {x: 25, y: 15}},
-            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
+            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+            show: {delay: 300},
+            hide: {delay: 300}
         });
 
 //        $(rect).qtip({
