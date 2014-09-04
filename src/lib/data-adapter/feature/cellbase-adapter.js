@@ -66,7 +66,9 @@ CellBaseAdapter.prototype = {
             // The chunkSize will be the histogram interval
             var histogramId = dataType + '_' + params.interval;
             if (_.isUndefined(this.cache[histogramId])) {
-                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId});
+//                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId});
+                //test
+                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId+':'+histogramId});
             }
             chunkSize = this.cache[histogramId].chunkSize;
 
@@ -94,12 +96,16 @@ CellBaseAdapter.prototype = {
                         }
                     });
                 }
+
+                // Get chunks from cache
+                _this.cache[histogramId].getByRegion(region, function (cachedChunks) {
+                    _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                    if (args.webServiceCallCount === 0) {
+                        args.done();
+                    }
+                });
             });
 
-            // Get chunks from cache
-            _this.cache[histogramId].getByRegion(region, function (cachedChunks) {
-                _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-            });
             /** Features: genes, snps ... **/
         } else {
             // Features will be saved using the dataType features
@@ -150,13 +156,12 @@ CellBaseAdapter.prototype = {
                 if (chunksByRegion.cached.length > 0) {
                     _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
                         _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-
+                        if (args.webServiceCallCount === 0) {
+                            args.done();
+                        }
                     });
                 }
             });
-        }
-        if (args.webServiceCallCount === 0) {
-            args.done();
         }
     },
 
