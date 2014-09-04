@@ -204,16 +204,18 @@ CellBaseAdapter.prototype = {
 
         var chunkSize = this.cache[histogramId].chunkSize;
 
+        var regions = [];
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
             var queryResult = data.response[i];
             for (var j = 0; j < queryResult.result.length; j++) {
                 var interval = queryResult.result[j];
-                var region = new Region(queryResult.id);
-                region.load(interval);
-                chunks.push(this.cache[histogramId].putByRegion(region, interval));
+                var region = new Region(interval);
+                regions.push(region);
+                chunks.push(interval);
             }
         }
+        this.cache[histogramId].putByRegions(regions, chunks);
 
         this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
         if (args.webServiceCallCount === 0) {
