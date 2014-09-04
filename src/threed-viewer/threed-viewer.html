@@ -23,6 +23,8 @@
     <script type="text/javascript" src="../../vendor/three.js"></script>
     <script type="text/javascript" src="../../vendor/Stats.js"></script>
     <script type="text/javascript" src="../../vendor/RequestAnimationFrame.js"></script>
+    <script type="text/javascript" src="../../vendor/dat.gui.min.js"></script>
+    <script type="text/javascript" src="../../vendor/leap-0.6.1.js"></script>
 
     <!-- These dependencies must go AFTER jquery -->
 
@@ -36,6 +38,8 @@
     <script type="text/javascript" src="../lib/cellbase-manager.js"></script>
 
     <script type="text/javascript" src="js/chr.js"></script>
+    <!-- <script type="text/javascript" src="js/coverage.js"></script> -->
+    <!-- <script type="text/javascript" src="js/miAlignment.alignments.js"></script> -->
     <script type="text/javascript" src="js/3D.js"></script>
     <script type="text/javascript" src="js/torus.js"></script>
     <script type="text/javascript" id="main" src="js/main.js"></script>
@@ -62,6 +66,8 @@
 
 
     <script type="text/javascript">
+        // google-chrome  --ignore-gpu-blacklist --allow-file-access-from-files &
+
         var threeDViewer;
         var run = function () {
 
@@ -78,8 +84,15 @@
             });
             threeDViewer.draw();
 
+            //threeDViewer.addSample([]);
 
             threeDViewer.addSample([
+                {
+                    id:"cero",
+                    species:"hsapiens",
+                    tracks:[
+                    ]
+                },
                 {
                     id:"uno",
                     species:"hsapiens",
@@ -91,8 +104,36 @@
                     species:"hsapiens",
                     tracks:[
                     ]
+                },
+                {
+                    id:"tres",
+                    species:"hsapiens",
+                    tracks:[
+                    ]
+                },
+                {
+                    id:"cuatro",
+                    species:"hsapiens",
+                    tracks:[
+                    ]
+                },
+                {
+                    id:"cinco",
+                    species:"hsapiens",
+                    tracks:[
+                    ]
                 }
             ]);
+
+            threeDViewer.torus.obtainCoverages(function() {
+                threeDViewer.torus.setCoverages(true);
+            });
+
+            threeDViewer.torus.obtainAlignments(function() {
+                threeDViewer.torus.setFullAlignments(true);
+            });
+//            threeDViewer.torus.setAlignments();
+//            threeDViewer.torus.setDifferences();
 
         };
 
@@ -114,11 +155,13 @@
         #application {
             overflow: hidden;
         }
+
+
     </style>
 
 </head>
 
 <body>
-<div style="z-index: 1; position: absolute; left:0px; top:0px" id="application"></div>
+<div style="z-index: 0; position: absolute; left:0px; top:0px" id="application"></div>
 </body>
 </html>

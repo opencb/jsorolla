@@ -16,8 +16,8 @@ var Torus = function (args) {
 
     //default args
     this.targetId;
-    this.sampleList = [];
-    this.commons = {};
+    //this.sampleList = [];   //FIXME esto no va a data?
+    //this.commons = {};  //FIXME
 
     //set args
     _.extend(this, args);
@@ -31,25 +31,24 @@ var Torus = function (args) {
     this.viewer = new Viewer(this.config);
     this.lastClick;
     this.clickPressed;
+    this.scale = 32;    // log2(range). 32 is 2^32 ~ 4000000000
+    this.position = 0.5;    // position [0, 1] en visible disk
+    this.cursor = 0.5;
 
 
     this.setDiv(args.targetId);
     this.setData(args.components);
 
 
-    $(this.torusDiv).on("mousedown", this.onMouseDown(this));
-    $(this.torusDiv).on("mouseup", this.onMouseUp(this));
-//    $(this.torusDiv).on("mousewheel", this.onMouseWheel(this));
-    $(this.torusDiv).on("contextmenu", function (event) {
-        event.preventDefault();
-    });
 
-//    this.torusDiv.addEventListener('mousedown', this.onMouseDown(this), false);
-//    this.torusDiv.addEventListener('mouseup', this.onMouseUp(this), false);
-    this.torusDiv.addEventListener('mousewheel', this.onMouseWheel(this), false);
-//    this.torusDiv.addEventListener('contextmenu', function (event) {
-//        event.preventDefault();
-//    }, false);
+    this.colors = {
+        "S": 0x808080,  // dark gray
+        "D": 0x0,   // black
+        "I": 0x20ff20,  //  green
+        "X": 0xff2020,  // red
+        "M": 0xC0C0C0   // gray
+    };
+
 };
 
 Torus.prototype = {
@@ -75,10 +74,15 @@ Torus.prototype = {
                 this.data.samples[i].id = this.data.samples[i].id === undefined ? "" : this.data.samples[i].id;
                 this.data.samples[i].features = this.data.samples[i].features === undefined ? [] : this.data.samples[i].features;
                 this.data.samples[i].species = this.data.samples[i].species === undefined ? baseSpecie : this.data.samples[i].species;
-            }
 
-            this.setChromosomes();
-            this.setCytobands();
+}
+
+            if (this.config.numLayers >= 1) {
+                this.setChromosomes();
+                if (this.config.numLayers >= 2) {
+                    this.setCytobands();
+                }
+            }
             //this.setGenes();
 
 
@@ -86,6 +90,7 @@ Torus.prototype = {
 //        this.viewer.pause();
         }
     },
+
     addSample:function(samples){
         if(!_.isArray(samples)){
             samples = [samples];
@@ -94,10 +99,11 @@ Torus.prototype = {
         for(var i=0; i < samples.length; i++){
             var sample = samples[i];
 
-            this.sampleList.push(sample);
+            //this.sampleList.push(sample);
+            this.data.samples.push(sample);
             var species = sample.species;
 
-            if(_.isUndefined(this.commons[species])){
+            if(_.isUndefined(this.data.commons[species])){   // ask for the chromosomes if the species is missing in this.data.commons
                 var chromosomes = [];
                 CellBaseManager.get({
                     species: species,
@@ -109,11 +115,11 @@ Torus.prototype = {
                         chromosomes = data.response.result.chromosomes
                     }
                 });
-                this.commons[species] = {chromosomes : chromosomes};
+                this.data.commons[species] = {chromosomes : chromosomes};
             }
 
             if(_.isUndefined(sample.chromosomes)){
-                sample.chromosomes = this.commons[species].chromosomes;
+                sample.chromosomes = this.data.commons[species].chromosomes;
             }
         }
 
@@ -174,90 +180,504 @@ Torus.prototype = {
 
     },
 
+    obtainCoverages: function (callback) {
+/*
+        normalize(coverage.regions[0].coverage, 15);
+        normalize(coverage.regions[1].coverage, 15);
+        //console.log("samples en obtain: " + this.data.samples.length);
+        for (var j = 0; j < this.data.samples.length; j++) {
+            this.data.samples[j].coverage = _.extend({}, coverage);
+//            this.data.samples[j].coverage.mean = new Array(100);
+//            for (var i = 0; i < 100; i++) {
+//                this.data.samples[j].coverage.mean[i] = Math.random();
+//            }
+        }
+*/
+/*
+        var _this = this;
+<<<<<<< Updated upstream
+        var samples = 5;
+        var completed = 0;
+        for (var i = 0; i < samples; i++) {
+            this.obtainCoverage('/home/josemi/tmp/covs/c' + i + '.json', i, function (){
+                completed++;
+                if (completed == samples) {
+                    console.log("coverage completed: " + completed);
+                    console.log(_this.data.samples)
+                    callback();
+                }
+=======
+        console.log("antes de getJSON")
+        for (var i = 0; i < 4; i++) {
+            var path = '/home/josemi/tmp/m' + i + '.json';
+            console.log(path)
+            $.getJSON(path, function (data){
+                console.log("in callback");
+                console.log(data);
+                normalize(data[0].coverage, 15);
+//                for (var i = 0; i < _this.data.samples.length; i++) {
+                _this.data.samples[i].coverages = {};
+                _this.data.samples[i].coverages.regions = _.extend([], data);
+                console.log(_this.samples)
+//            }
+>>>>>>> Stashed changes
+            });
+        }
+        // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
 
-    onMouseDown: function (_this) {
-        return function (event) {
-            _this.lastClick = new THREE.Vector2(event.clientX, event.clientY);
-            _this.clickPressed = event.button;
-//        event.preventDefault();
-            document.addEventListener('mousemove', _this.onMouseMove(_this), false);
-//        console.log(_this.lastClick);
-            var where = _this.viewer.getClickPosition(_this.lastClick);
-//        console.log ("clickado en disk ");
-            if (where !== undefined) {
-//            console.log(where);
-//            console.log (where.coord.x);
-//            console.log (where.coord.y);
-                switch (event.button) {
-                    case 0:
-                        _this.viewer.selectChromosomeCoord(where.disk, where.coord);
-//                    _this.viewer.selectDisk(where.disk);
-                        break;
-                    case 1:
-                        var chromosomes = _this.data.samples[where.disk].chromosomes;
-                        if (chromosomes === undefined)
-                            chromosomes = _this.data.commons[_this.data.samples[where.disk].species].chromosomes;
-                        if (chromosomes === undefined) {
-                            console.log("ALERT: Missing Chromosomes in sample " + where.disk);
-                        } else {
+        //console.log(this.data.samples);
+        */
+    },
+    obtainCoverage: function(name, id, callback) {
+        var _this = this;
+        $.getJSON(name, function (data){
+//            console.log("in callback");
+//            console.log(data);
+            normalize(data[0].coverage, 65);
+//                for (var i = 0; i < _this.data.samples.length; i++) {
+            _this.data.samples[id].coverage = {};
+            _this.data.samples[id].coverage.regions = _.extend([], data);
+            callback();
+//            }
+        });
+    },
+    /**
+     * example: when the user ticks a check box,
+     * after the coverage is requested, this function is called.
 
-                            numChr = _this.viewer.getChrFromCoord(where.coord);
-                            for (var i = 0; i < _this.config.numDisk; i++) {
-                                _this.viewer.setChromosomes(i, [chromosomes[numChr]]);
-                                _this.viewer.setCytobands(i, [chromosomes[numChr]]);
-                            }
+      //{start:0, end:0.35, z:0.5, y:0.05, mod:-1/5, ang:0,
+//                baseColorHex:0x0000FF, topColorHex:0xFF0000, trackType:Viewer.Track.ColumnHistogram};
+
+     * @param sampleNum
+     */
+    setCoverages: function(withCentralTrack/*,coverage.json from url to ws*/) {
+
+        if (withCentralTrack == true) {
+
+            console.log("setcov")
+            console.log(this.data)
+            console.log(this.data.samples[0].coverages)
+            var length = this.viewer.metaData.ntsCount;
+            var cov = this.data.samples[0].coverages.regions[0];
+            var start = (cov.initPosition*cov.size)/length;
+            var end = ((cov.initPosition+cov.coverage.length)*cov.size -1)/length;
+            var trackArgs = {start:start, end:end, z:1, y:0.05, mod:0.3, ang:Math.PI/2,
+                    baseColorHex:0xe41a1c, topColorHex:0x4dff4a, trackType:Viewer.Track.ColumnHistogram};
+//                baseColorHex:0xfb8072, topColorHex:0xb3de69, trackType:Viewer.Track.ColumnHistogram};
+            trackArgs.dataset = [];
+
+            for (var i = 0; i < this.data.samples.length; i++) {
+
+                var data = this.data.samples[i].coverages.regions[0].coverage;
+                /*
+                var data = [];
+                for(var j= 0; j < 38; j++) {
+//                    data[j] = Math.random()*0.4;
+                    data[j] = cov.coverage;
+                }
+            */
+                trackArgs.dataset.push(data);
+            }
+            this.viewer.addCentralTrack(trackArgs);
+
+        } else {
+            var precisionId;
+            if (this.scale > 10) {
+                precisionId = 1;
+            } else {
+                precisionId = 0;
+            }
+            for (var i = 0; i < this.data.samples.length; i++) {        // TODO substitute setMeanCoverage to addtrack
+                this.viewer.setCoverage(i, this.data.samples[i].coverage, precisionId);
+            }
+        }
+    },
+
+    obtainAlignments: function (callback) {
+//        for (var j = 0; j < this.data.samples.length; j++) {
+//            this.data.samples[j].alignments = _.extend({}, alignments);
+//        }
+
+//        this.data.samples[0].alignments = _.extend([], alignments);
+
+//        for (var i = 0; i < this.viewer.disk.length; i++) {
+//            this.data.samples[i].alignments = _.extend([], aligs[i]);
+//        }
+
+        var _this = this;
+        var samples = 5;
+        var completed = 0;
+        console.log("obtain alignments");
+        for (var i = 0; i < samples; i++) {
+            this.obtainAlignment('/home/josemi/tmp/aligs/a' + i + '.json', i, function (){
+                completed++;
+                console.log("loop obtain alignments");
+                if (completed == samples) {
+                    console.log("alignments completed: " + completed);
+                    console.log(_this.data.samples)
+                    callback();
+                }
+            });
+        }
+        // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
+
+        //console.log(this.data.samples);
+    },
+    obtainAlignment: function(name, id, callback) {
+        console.log("obtain 1 alignment");
+        var _this = this;
+        $.getJSON(name, function (data){
+            console.log("in alignment getjson callback");
+            console.log(data);
+//                for (var i = 0; i < _this.data.samples.length; i++) {
+            _this.data.samples[id].alignments = data.aligs;
+            callback();
+//            }
+        }).fail(function( jqxhr, textStatus, error ) {
+                var err = textStatus + ", " + error;
+                console.log( "Request Failed: " + err );
+                console.log(jqxhr);
+            });
+    },
+
+    setAlignments: function () {
+        var trackId = this.viewer.addTrack(0);
+
+        for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
+            var width = 0.1;
+            var alig = this.data.samples[0].alignments[i];
+            var end = alig.flags&4? alig.start + alig.length: alig.end; // unmapped
+            var color = alig.flags&4? 0xbc80bd: 0x00fdb462;
+            var config = {
+                start: alig.start,
+                end: end,
+                z: Math.random()*(1-width),
+                y: 0.2,
+                mod: width,
+                ang: 0, //Radians
+                baseColorHex: color,
+                trackType: Viewer.Track.Feature
+            };
+
+            this.viewer.add2Track(0, trackId, config);
+        }
+    },
+    setFullAlignments: function (withMismatch) {
+        var mismatch = withMismatch === undefined? true: withMismatch;
+        var z = 0;
+        var width = 0.05;
+        for (var s = 0; s < this.viewer.disk.length; s++) {
+//            var distance = Math.random()*10000;
+            var trackId = this.viewer.addTrack(s);
+            for (var i = 0; i < this.data.samples[s].alignments.length; i++) {
+                var alig = this.data.samples[s].alignments[i];
+                var end = alig.flags&4? alig.start + alig.length: alig.end; // unmapped
+                var color = alig.flags&4? 0xbc80bd: 0x00fdb462;
+
+                var config = {
+                    start: alig.start,
+                    end: end,
+                    z: z,
+                    y: 0.04,
+                    mod: width,
+                    ang: 0, //Radians
+                    baseColorHex: color,
+                    trackType: Viewer.Track.Feature
+                };
+//                console.log("alig");
+//                console.log(alig);
+                this.viewer.add2Track(s, trackId, config);
+                if (!(alig.flags & 4) && alig.differences.length != 0) { //unmapped, no assumptions can be made about CIGAR
+                    var offset = 0;
+                    if (alig.differences[0].op == "S" && alig.differences[0].pos == 0) {
+                        offset = alig.start - alig.unclippedStart;
+                    }
+                    for (var j = 0; j < this.data.samples[s].alignments[i].differences.length; j++) {
+                        var difference = this.data.samples[s].alignments[i].differences[j];
+                        var start = alig.start + difference.pos - offset;
+                        var end = (difference.length === undefined? difference.seq.length: difference.length) + start;
+                        var color = this.colors[difference.op];
+                        var config = {
+                            start: start,
+                            end:end,
+                            z:z,
+                            y: 0.06,
+                            mod: width*0.8,
+                            ang: 0, //Radians
+                            baseColorHex: color === undefined? 0x2020A0: color, // else blue
+                            trackType: Viewer.Track.Feature
+                        };
+                        if (mismatch || difference.op != "M") {
+                            this.viewer.add2Track(s, trackId, config);
                         }
-                        break;
-                    case 2:
-//                    _this.viewer.unselectDisk(where.disk);
-                        break;
+                    }
+                }
+                z = z + width * 1.1;
+                if (z > (1-width)) {
+                    z = 0;
                 }
             }
         }
     },
-    onMouseUp: function (_this) {
-        return function (event) {
-            _this.clickPressed = -1;
-            document.removeEventListener('mousemove', _this.onMouseMove, false);
-        }
-    },
 
-    onMouseWheel: function (_this) {
-        return function (event) {
-            var delta = 0;
-
-            if (event.wheelDelta) { // WebKit / Opera / Explorer 9
-                delta = event.wheelDelta;
-            } else if (event.detail) { // Firefox
-                delta = -event.detail;
+    setDifferences: function () {
+        var width = 0.05;
+        var trackId = this.viewer.addTrack(0);
+        for (var i = 0; i < this.data.samples[0].alignments.length; i++) {
+            var alig = this.data.samples[0].alignments[i];
+            for (var j = 0; j < this.data.samples[0].alignments[i].differences.length; j++) {
+                var difference = this.data.samples[0].alignments[i].differences[j];
+                var start = alig.start + difference.pos;
+                var end = (difference.length === undefined? difference.seq.length: difference.length) + start;
+                var color = this.colors[difference.op];
+                var config = {
+                    start: start,
+                    end:end,
+                    z: Math.random()*(1-width),
+                    y: 0.3,
+                    mod: width,
+                    ang: 0, //Radians
+                    baseColorHex: color === undefined? 0x2020A0: color, // else blue
+                    trackType: Viewer.Track.Feature
+                };
+                if (difference.op != "M") {
+                    this.viewer.add2Track(0, trackId, config);
+                }
             }
-
-            delta = delta / 1000 + 1;
-            _this.viewer.addZoom(delta);
         }
     },
-    onMouseMove: function (_this) {
-        return function (event) {
-            switch (_this.clickPressed) {
+
+    setPosition: function (pos) {
+        this.position = pos;
+//        var increment = pos - this.position;
+//        this.cursor = this.cursor + increment*this.scale*this.scale;
+    },
+
+    setScale: function (frame) {
+        this.scale = Math.log(frame)/Math.log(2) + 32;
+        this.updateScale();
+    },
+
+    updateScale: function () {
+        console.log("update scale")
+        console.log(this.scale);
+        var region = this.viewer.getRegion();
+
+        console.log(region.x * this.viewer.metaData.ntsCount+ ", " + region.y* this.viewer.metaData.ntsCount);
+        var position = region.x + (region.y - region.x)*this.position;
+        console.log(position* this.viewer.metaData.ntsCount);
+        var frame = Math.pow(2, this.scale)/Math.pow(2, 32);
+        console.log(frame);
+//        var start = position - frame*this.position;
+//        var end = position + frame*(1-this.position);
+        var start = position - frame*0.5;
+        var end = position + frame*0.5;
+        console.log("start, end" +( start * this.viewer.metaData.ntsCount) + ", " + (end * this.viewer.metaData.ntsCount));
+        this.viewer.setRegion(start, end);
+
+        console.log(region);
+        if (this.scale < 10) {    // TODO jj un-hardcode...
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                for (var j = 0; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(false);
+                }
+            }
+        } else if (this.scale < 14.5) {
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                this.viewer.disk[i].tracks[0].visible(false);
+                for (var j = 1; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(true);
+                }
+            }
+        } else if (this.scale < 16) {
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                for (var j = 0; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(true);
+                }
+            }
+        } else if (this.scale < 26) {
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                this.viewer.disk[i].tracks[0].visible(true);
+                for (var j = 1; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(false);
+                }
+            }
+        } else {
+            for (var i = 0; i < this.viewer.disk.length; i++) {
+                for (var j = 0; j < this.viewer.disk[i].tracks.length; j++) {
+                    this.viewer.disk[i].tracks[j].visible(false);
+                }
+            }
+        }
+
+        console.log(this);
+    },
+
+    setRegion: function(start, end) {
+        if (this.viewer.metaData.ntsCount !== undefined) {
+
+            console.log("torus.setRegion: " + start + ", " + end + " ::: " + start/this.viewer.metaData.ntsCount + ", " + end/this.viewer.metaData.ntsCount);
+            this.viewer.setRegion(start/this.viewer.metaData.ntsCount, end/this.viewer.metaData.ntsCount);
+            var region = this.viewer.getRegion();
+            this.setScale(region.y - region.x);
+        }
+    },
+
+    getRegion: function () {
+        var region = this.viewer.getRegion();
+        return {start: region.x * this.viewer.metaData.ntsCount, end: region.y * this.viewer.metaData.ntsCount};
+    },
+
+    ///////////////// mouse tools
+    informationMouse: function (_this, event) {
+        document.addEventListener('mousemove', _this.onMouseMove, false);
+        var where = _this.viewer.getClickPosition(_this.lastClick);
+
+        console.log ("click: ");
+        console.log(where)
+        if (where !== undefined) {
+            switch (event.button) {
                 case 0:
-                    _this.viewer.addTorusPhase((event.clientX - _this.lastClick.x) / 500);
-                    _this.viewer.addVerticalRotation((event.clientY - _this.lastClick.y) / 500);
+                    _this.viewer.selectChromosomeCoord(where.disk, where.coord);
                     break;
                 case 1:
-                    var pos = _this.viewer.getRegion();
-
-                    pos.x += (event.clientX - _this.lastClick.x) / 5000;
-                    pos.y += (event.clientY - _this.lastClick.y) / 5000;
-                    _this.viewer.setRegion(pos.x, pos.y);
                     break;
                 case 2:
-                    _this.viewer.addDisksPhase(-(event.clientY - _this.lastClick.y) / 500);
+                    _this.viewer.unselectChromosome(where.disk);
+                    break;
             }
-            _this.lastClick.x = event.clientX;
-            _this.lastClick.y = event.clientY;
         }
+        console.log(where.coord.y * _this.viewer.metaData.ntsCount)
+    },
+    selectionMouse: function (_this, event) {
+//        document.addEventListener('mousemove', _this.onMouseMove(_this), false);
+        document.addEventListener('mousemove', _this.onMouseMove, false);
+//        this.torusDiv.addEventListener('mousemove', _this.onMouseMove(_this));
+//        console.log("poniendo");
+//        console.log(_this.lastClick);
+        var where = _this.viewer.getClickPosition(_this.lastClick);
+        if (where !== undefined) {
+            switch (event.button) {
+                case 0:
+                    _this.viewer.selectDisk(where.disk);
+                    _this.updateScale();
+                    break;
+                case 1:
+//                var chromosomes = _this.data.samples[where.disk].chromosomes;
+//                if (chromosomes === undefined)
+//                    chromosomes = _this.data.commons[_this.data.samples[where.disk].species].chromosomes;
+//                if (chromosomes === undefined) {
+//                    console.log("ALERT: Missing Chromosomes in sample " + where.disk);
+//                } else {
+//                    numChr = _this.viewer.getChrFromCoord(where.coord);
+//                    for (var i = 0; i < _this.config.numDisk; i++) {
+//                        _this.viewer.setChromosomes(i, [chromosomes[numChr]]);
+//                        _this.viewer.setCytobands(i, [chromosomes[numChr]]);
+//                    }
+//                }
+                    break;
+                case 2:
+                    _this.viewer.unselectDisk(where.disk);
+                    break;
+            }
+        }
+    },
+    zoomMouseDown: function (_this, event) {
+        switch (event.button) {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                console.log("boton derecho");
+                console.log(_this.position);
+                console.log(_this.scale);
+                _this.scale+=0.2;
+                _this.position = 0.5;
+                _this.updateScale();
+                console.log(_this.position);
+                console.log(_this.scale);
+                break;
+        }
+    },
+
+    zoomMouseUp: function (_this, event) {
+        if (event.button == 0) {
+            var whereStart = _this.viewer.getClickPosition(_this.lastClick);
+            var whereEnd = _this.viewer.getClickPosition(new THREE.Vector2(event.clientX, event.clientY));
+            console.log("mouseup");
+            console.log(whereStart);
+            console.log(whereStart.coord.y * _this.viewer.metaData.ntsCount)
+            console.log(whereEnd);
+            console.log(whereEnd.coord.y * _this.viewer.metaData.ntsCount)
+            if (whereStart !== undefined && whereEnd !== undefined
+                    && (Math.abs(whereEnd.coord.y - whereStart.coord.y) > 0.00000001)) {
+                var start = whereStart.coord.y <= whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // min
+                var end = whereStart.coord.y > whereEnd.coord.y ? whereStart.coord.y : whereEnd.coord.y;  // max
+
+                var frame = end - start;
+                console.log(frame )
+                _this.position = (whereStart.visibleTexPos + whereEnd.visibleTexPos) * 0.5;
+                console.log(_this.position)
+                _this.setScale(frame);
+
+//                _this.updateScale();
+
+
+                /*
+                 console.log(start)
+                 console.log(end )
+                 var region = _this.viewer.getRegion();
+                 var frame = region.y - region.x;
+                 console.log(frame)
+                 console.log(end-start)
+                 console.log(_this.scale);
+                 var region2 = {x: region.x + start*frame,
+                 y: region.x + end*frame};
+                 console.log(region2)
+                 _this.viewer.setRegion(region2.x, region2.y);
+                 _this.scale = Math.log(region2.y - region2.x)/Math.log(2) + 32;
+                 */
+
+            }
+        }
+    },
+    nothingMouseUp: function (_this, event) {
+//        console.log("quitando");
+        document.removeEventListener('mousemove', _this.onMouseMove, false);
+    },
+
+    cameraMouseWheel: function(_this, event) {
+        var delta = 0;
+
+        if (event.wheelDelta) { // WebKit / Opera / Explorer 9
+            delta = event.wheelDelta;
+        } else if (event.detail) { // Firefox
+            delta = -event.detail;
+        }
+
+        delta = delta / 1000 + 1;
+        _this.viewer.addZoom(delta);
+    },
+
+    zoomMouseWheel: function (_this, event) {
+        var delta = 0;
+
+        if (event.wheelDelta) { // WebKit / Opera / Explorer 9
+            delta = event.wheelDelta;
+        } else if (event.detail) { // Firefox
+            delta = -event.detail;
+        }
+        delta *= 0.0001;
+        var region = _this.viewer.getRegion();
+        var frame = region.y-region.x;
+
+        _this.viewer.setRegion(region.x + delta*frame, region.y + delta*frame);
+
     }
+
 };
+
 
 Torus.Config = function (components) {
     var conf = {

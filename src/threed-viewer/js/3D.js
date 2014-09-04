@@ -2,6 +2,15 @@ colors = {gneg: 0xFFFFFFFF, stalk: 0x666666FF, gvar: 0xCCCCCCFF, gpos25: 0xC0C0C
 //var colors = {gneg:0xFFFFFF, stalk:0x666666, gvar:0xCCCCCC, gpos25:0xC0C0C0, gpos33:0xD3D3D3, gpos50:0x808080, gpos66:0x696969, gpos75:0xA9A9A9, gpos100:0x000000, gpos:0x808080, acen:0x0000FF, clementina:0xffc967};
 var t = 5000;
 
+function normalize (array, max) {
+    if (!(array === undefined) && !(array === null)) {
+        for (var i = 0; i < array.length; i++) {
+            array[i] /= max;
+        }
+    }
+}
+
+
 var Viewer = function (config) {
 
     this.torusDiv = null;
@@ -23,6 +32,8 @@ var Viewer = function (config) {
     this.stats = new Stats();
 
     this.disk = [];
+    this.centralTrack = null;
+    this.leap = null;
     this.projector = new THREE.Projector();   //para el clicado
 
 
@@ -108,6 +119,19 @@ Viewer.prototype = {
         this.figure.name = "TORUS";
         this.scene.add(this.figure);
 
+
+
+        var light = new THREE.PointLight(0xffffff);
+        light.position.set(0,250,0);
+        this.scene.add(light);
+
+        var sphereGeometry = new THREE.SphereGeometry(0.1, 4, 3);
+        var sphereMaterial = new THREE.MeshLambertMaterial( {color: 0x8888ff} );
+        this.leap = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        this.leap.position.set(0, 0, 0);
+        this.leap.visible = false;
+        this.scene.add(this.leap);
+
         this.setRegion(0, 1);
     },
 
@@ -169,8 +193,12 @@ Viewer.prototype = {
             this.disk.push(new Viewer.Disk(diskId, this.config));
             this.figure.add(this.disk[diskId].figure);
 
-            this.setChromosomes(diskId, sample.chromosomes);
-            this.setCytobands(diskId, sample.chromosomes);
+            if (this.config.numLayers >= 1) {
+                this.setChromosomes(diskId, sample.chromosomes);
+                if (this.config.numLayers >= 2) {
+                    this.setCytobands(diskId, sample.chromosomes);
+                }
+            }
         }
 
         var diff = 2 * Math.PI / this.config.numDisk;
@@ -309,8 +337,83 @@ Viewer.prototype = {
 
         this.disk[diskId].layers[1].setTexture(tex);
     },
-    setTrack: function (diskId, data, config) {
 
+    setMeanCoverage: function (diskId, coverage) {
+        var length = this.metaData.ntsCount;
+        var start = (coverage.start-1)/length;
+        var end = coverage.end/length;
+        this.disk[diskId].addTrack({start:start, end:end, z:0.5, data:coverage.mean, mod:1.2, ang:+Math.PI/2,
+                baseColorHex:0xFF0000, topColorHex:0x00FF00, trackType:Viewer.Track.ColumnHistogram}
+        )
+    },
+    setCoverage: function (diskId, coverage, precisionId) {
+        var length = this.metaData.ntsCount;
+        var start = (coverage.start-1)/length;
+        var end = coverage.end/length;
+        var data = coverage.regions[precisionId].coverage;
+        this.disk[diskId].addTrack({start:start, end:end, z:0.5, data:data, mod:1.2, ang:+Math.PI/2,
+                baseColorHex:0xFF0000, topColorHex:0x00FF00, trackType:Viewer.Track.ColumnHistogram}
+        )
+    },
+
+/*
+    var def = {
+        start: 0,
+        end: 1,
+        z: 0,
+        y: 0,
+        mod: 1,
+        ang: 0, //Radians
+        baseColorHex: 0x00000000,
+        topColorHex: 0xFF000000,
+        trackType: Viewer.Track.Feature,
+        data: [[],[]],
+        colorData: []   //TODO
+    };
+    */
+    addCentralTrack: function (tracksArgs) {
+        if (tracksArgs.dataset.length != this.disk.length) {
+            alert("central track: skipping: number of samples doesn't match number of disks: " + tracksArgs.data.length + " != " + this.disk.length);
+        } else {
+            var tracks =[];
+            for (var i = 0; i < tracksArgs.dataset.length; i++) {
+                var args = _.extend({}, tracksArgs);
+                args.dataset = undefined;
+                args.data = tracksArgs.dataset[i]; // share configuration, but distribute data
+                var trackNum = this.disk[i].addTrack(args);
+                tracks.push(this.disk[i].tracks[trackNum]);
+            }
+//            console.log(tracks);
+            this.centralTrack = new Viewer.CentralTrack(tracks, {mod: 0.8,baseHeight: this.config.torusRadius - this.config.diskRadius - 0.04});
+            this.figure.add(this.centralTrack.figure);
+//            console.log(this.figure);
+//            console.log(this.centralTrack);
+        }
+    },
+
+    /**
+     * Adds a track to the disk diskId. the track can be a Viewer.Track.Feature, Viewer.Track.ColumnHistogram,
+     * or Viewer.Track.LinearHistogram.
+     * @param diskId
+     * @param config
+     * @returns index of track in the disk.
+     */
+    addTrack: function (diskId, config) {
+        if (config === undefined) {
+            config = {};
+        } else {
+            config.end = config.end/this.metaData.ntsCount;
+            config.start = config.start/this.metaData.ntsCount;
+        }
+
+        return this.disk[diskId].addTrack(config);
+    },
+
+    add2Track: function (diskId, trackId, config) {
+        config.end = config.end/this.metaData.ntsCount;
+        config.start = config.start/this.metaData.ntsCount;
+
+        return this.disk[diskId].add2Track(trackId, config);
     },
 
 
@@ -352,6 +455,7 @@ Viewer.prototype = {
         for (var i = 0; i < this.config.numDisk; i++) {
             this.disk[i].figure.rotateZ(angle);
         }
+        this.updateCentralTrack();
     },
     addTorusPhase: function (angle) {
         this.figure.rotateY(angle);// this.angleY);
@@ -365,7 +469,7 @@ Viewer.prototype = {
         this.metaData.visibleStart = start;
         this.metaData.visibleEnd = end;
         this.metaData.visibleRange = end - start;
-
+//        console.log("viewer.setRegion: " + start + ", " + end);
         for (var i = 0; i < this.config.numDisk; i++) {
             for (var j = 0; j < this.disk[i].layers.length; j++) {
                 this.disk[i].layers[j].setRegion(start, end);
@@ -373,9 +477,33 @@ Viewer.prototype = {
             Viewer.Track.uniforms.rangeStart.value = start;
             Viewer.Track.uniforms.range.value = (end - start);
         }
+        this.updateCentralTrack();
     },
     getRegion: function () {
         return this.disk[0].layers[0].getRegion();
+    },
+    updateCentralTrack: function () {
+        if (this.centralTrack !== null
+            && this.centralTrack.tracks.length == this.disk.length) {
+            var cursor = this.disk[0].figure.rotation.z;    // This is correct, the angle will be the same in all disks
+//            var coord = (Math.PI - this.disk[i].figure.rotation.z)/this.disk[i].angularLong;
+            var coord = (Math.PI - cursor)/this.disk[0].angularLong;    // FIXME this is wrong, unless all disks have the same aperture
+//        console.log(cursor);
+            this.centralTrack.update(coord, this.getRegion());
+//                    console.log("in" + this.centralTrack.tracks[i].start +  " < " + coord + " < " + this.centralTrack.tracks[i].end)
+        }
+    },
+    setLeapPosition: function (position) {
+        if (position !== undefined) {
+            this.leap.visible = true;
+            var worldPos = new THREE.Vector3( position[0]*0.03,
+                position[1]*0.03 - 5,
+                position[2]*0.03);
+            worldPos.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/4);
+            console.log(worldPos);
+            this.leap.position.set(worldPos.x,worldPos.y,worldPos.z);
+            console.log(this.leap.position);
+        }
     },
     selectDisk: function (n) {
         if (n < this.config.numDisk && n >= 0) {
@@ -411,8 +539,26 @@ Viewer.prototype = {
         this.disk[diskId].sprites[1].position.set(Math.cos(angle) * height, Math.sin(angle) * height, 0);
     },
 
+    unselectChromosome: function (diskId) {
+        this.disk[diskId].layers[0].uniforms.selectionStart.value = -1;
+        this.disk[diskId].layers[0].uniforms.selectionEnd.value = -1;
+        this.disk[diskId].layers[1].uniforms.selectionStart.value = -1;
+        this.disk[diskId].layers[1].uniforms.selectionEnd.value = -1;
+        this.disk[diskId].removeTextSprite(1);
+    },
+
+    viewSampleName: function (hideOrShow) {
+        for (var i = 0; i < this.disk.length; i++) {
+            if (hideOrShow == true || hideOrShow == false) {
+                this.disk[i].sprites[0].visible = hideOrShow;
+            } else {
+                this.disk[i].sprites[0].visible = !this.disk[i].sprite[0].visible;
+            }
+        }
+    },
+
     /**
-     * return the index of the element in this.data that ownes the position in coord
+     * return the index of the element in this.data that owns the position in coord
      * @param coord position in [0, 1] from the total disk, including pads
      * @returns {*}
      */
@@ -440,6 +586,7 @@ Viewer.prototype = {
      *     disk number of disk clicked,
      *     layer layer of the disk,
      *     coord coordinates in [0, 1] from total disk (not visible disk)
+     *     visibleTexCoord coordinates [0, 1] from visible disk
      * }
      */
     getClickPosition: function (mousePosition) {
@@ -474,7 +621,8 @@ Viewer.prototype = {
             return {
                 disk: intersects[0].object.diskId,
                 layer: intersects[0].object.layerId,
-                coord: location
+                coord: location,
+                visibleTexPos: visibleTexPos
             };
         }
         return undefined;
@@ -512,10 +660,17 @@ Viewer.Disk.prototype = {
         for (var i = 0; i < this.layers.length; i++) {
             this.layers[i].uniforms.selected.value = 1;
         }
+        for (var i = 0; i < this.tracks.length; i++) {
+            this.tracks[i].visible(true);
+        }
     },
     unselect: function (n) {
         for (var i = 0; i < this.layers.length; i++) {
             this.layers[i].uniforms.selected.value = 0;
+            console.log("unselecting " + i);
+        }
+        for (var i = 0; i < this.tracks.length; i++) {
+            this.tracks[i].visible(false);
         }
     },
 
@@ -523,13 +678,14 @@ Viewer.Disk.prototype = {
         this.tracks[numTrack].add(args);
     },
     addTrack: function (args) {
+//        console.log("addtrack");
+//        console.log(args);
         var track = new Viewer.Track({radius: this.diskRadius, angularLong: this.angularLong, width: this.layers[0].width});
         var numTrack = this.tracks.length;
         this.tracks.push(track);
         this.figure.add(track.figure);
 
-        if (args !== undefined)
-            track.add(args);
+        track.add(args);
 
         return numTrack;
     },
@@ -566,6 +722,10 @@ Viewer.Disk.prototype = {
         this.figure.remove(this.sprites[i]);
         this.sprites[i] = this.makeTextSprite(text, {useScreenCoordinates: false});
         this.figure.add(this.sprites[1]);
+    },
+    removeTextSprite: function(i) {
+        this.figure.remove(this.sprites[i]);
+        this.sprites[i] = null;
     },
     makeTextSprite: function (message, parameters) {
         if (parameters === undefined) parameters = {};
@@ -678,6 +838,9 @@ Viewer.Track = function (args) {
     this.numFaces = 0;
     this.width = args.width || 1;
     this.radius = args.radius || 2.2;
+    this.data = null;
+    this.start = null;
+    this.end = null;
 
     this.initGeometry(this.maxFaces);
     Viewer.Track.uniforms.radius.value = args.radius;
@@ -686,7 +849,7 @@ Viewer.Track = function (args) {
 };
 
 Viewer.Track.precision = 0.01;
-Viewer.Track.maxFaces = 300;
+Viewer.Track.maxFaces = 2000;
 Viewer.Track.vertexShader = null;
 Viewer.Track.fragmentShader = null;
 
@@ -778,16 +941,32 @@ Viewer.Track.prototype = {
         this.numFaces = 0;
     },
 
+    visible: function(hideOrShow) {
+        var vis;
+        if (hideOrShow == true || hideOrShow == false) {
+            vis = hideOrShow;
+        } else {
+            vis = !this.figure.visible;
+        }
+        this.figure.visible = vis;
+        this.figure.traverse(function(child) {
+            child.visible = vis;
+        });
+    },
+
 
     add: function (args) {
+        if (args === undefined) {
+            args = {};
+        }
+
         if (args.topColorHex === undefined) {
             args.topColorHex = args.baseColorHex;
         }
 
-
         var def = {
             start: 0,
-            end: 1,
+            end: 0,
             z: 0,
             y: 0,
             mod: 1,
@@ -855,8 +1034,11 @@ Viewer.Track.prototype = {
     },
     _addHisto: function (args) {
         var start = args.start;
+//        this.start = start;
         var end = args.end;
+//        this.end = end;
         var data = args.data;
+//        this.data = data;
         var color1Hex = args.baseColorHex;
         var color2Hex = args.topColorHex;
 
@@ -909,8 +1091,11 @@ Viewer.Track.prototype = {
     },
     _addHistoCol: function (args) {
         var start = args.start;
+        this.start = start;
         var end = args.end;
+        this.end = end;
         var data = args.data;
+        this.data = data;
         var color1Hex = args.baseColorHex;
         var color2Hex = args.topColorHex;
 
@@ -981,11 +1166,159 @@ Viewer.Track.prototype = {
             this.geometry.faces[this.numFaces + 1].vertexColors.push(col4, col3, col1);
         }
         this.numFaces += 2;
+    },
+
+
+    getElement: function (coord, region) {
+        var position = region.x + (region.y - region.x)*coord;
+        var interpolator = (position - this.start)/(this.end - this.start);
+        var index = interpolator * this.data.length;
+        index = Math.floor(index);
+        return index;
     }
-
-
 };
 
+
+/** le falta argumentos de posicion */
+Viewer.CentralTrack = function (tracks, config) {
+    var defaultConfig = {
+        baseHeight: 1.96,
+        mod: 1, // modulus
+        width: 0.9,
+        baseColorHex: 0xFFFF33
+    };
+    _.extend(defaultConfig, config);
+
+    this.config = defaultConfig;
+    this.tracks = tracks;
+//    this.geometry = new THREE.Geometry();
+//    this.material = new THREE.MeshBasicMaterial({color:this.config.baseColorHex});
+    this.figure = null;
+
+
+    if (this.config.width > 1) {this.config.width = 1;}
+    if (this.config.width < 0 ) {this.config.width = 0;}
+
+
+    this.initGeometry();
+
+
+    this.figure = new THREE.Mesh(this.geometry, this.material );
+};
+
+Viewer.CentralTrack.prototype = {
+    initGeometry: function() {
+        this.geometry = new THREE.Geometry();
+        this.material = new THREE.MeshBasicMaterial({color:this.config.baseColorHex, side: THREE.DoubleSide});
+
+        for (var i = 0; i < this.tracks.length*4; i++) {
+            this.geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+        }
+
+        for (var i = 0; i < this.tracks.length*4; i+=4) {
+            this.geometry.faces.push(new THREE.Face3(i+0, i+1, i+2));
+            this.geometry.faces.push(new THREE.Face3(i+1, i+3, i+2));
+        }
+
+        this.geometry.computeBoundingSphere();
+//        console.log("terminada geometry");
+//        console.log(this.geometry);
+    },
+    setFace: function (a, col1, col2, col3, col4) {
+        var v = this.geometry.vertices.length - 4;
+
+        if (a == 1) {
+            this.geometry.faces[this.numFaces  ].a = v
+            this.geometry.faces[this.numFaces  ].b = v + 1;
+            this.geometry.faces[this.numFaces  ].c = v + 2;
+            this.geometry.faces[this.numFaces  ].vertexColors.push(col1, col2, col3);
+
+            this.geometry.faces[this.numFaces + 1].a = v + 1
+            this.geometry.faces[this.numFaces + 1].b = v + 3;
+            this.geometry.faces[this.numFaces + 1].c = v + 2;
+            this.geometry.faces[this.numFaces + 1].vertexColors.push(col2, col4, col3);
+
+        }
+        else if (a == 2) {
+            this.geometry.faces[this.numFaces  ].a = v
+            this.geometry.faces[this.numFaces  ].b = v + 1;
+            this.geometry.faces[this.numFaces  ].c = v + 2;
+            this.geometry.faces[this.numFaces  ].vertexColors.push(col1, col2, col4);
+
+            this.geometry.faces[this.numFaces + 1].a = v + 2
+            this.geometry.faces[this.numFaces + 1].b = v + 3;
+            this.geometry.faces[this.numFaces + 1].c = v;
+            this.geometry.faces[this.numFaces + 1].vertexColors.push(col4, col3, col1);
+        }
+        this.numFaces += 2;
+    },
+    /**
+     *
+     * @param coord coordinate in disk, [0-1] doesn't include the open part of the disk
+     */
+    update: function(coord, region) {
+        var patchNum = this.tracks.length;
+
+        var diff = 2 * Math.PI / patchNum;
+        var rad = 0;
+
+        var baseWidth = this.config.baseHeight * 2 * Math.PI / patchNum; // * disk width
+
+        if (baseWidth > 1) { baseWidth = 1;}
+        var basePosWidth = baseWidth/2;
+        var baseNegWidth = -basePosWidth;
+
+
+        var m1 = new THREE.Matrix4();
+//        m2.makeTranslation(this.config.baseHeight, 0, 0);
+//        m3.makeScale(1, 1, width);
+
+        var vertex = 0;
+
+        var element = 0;
+        var value = 0.0;
+        var verts = this.geometry.vertices;
+
+        for (var i = 0; i < patchNum; i++, vertex += 4, rad += diff) {
+            element = this.tracks[i].getElement(coord, region);
+            if (element < 0 || element >= this.tracks[i].data.length || !this.tracks[i].figure.visible){
+                value = 0;
+            } else {
+                value = this.tracks[i].data[element]*this.config.mod;
+            }
+            verts[vertex+0] = new THREE.Vector3 (this.config.baseHeight, 0,       this.config.width * basePosWidth);
+            verts[vertex+1] = new THREE.Vector3 (this.config.baseHeight, 0,       this.config.width * baseNegWidth);
+            verts[vertex+2] = new THREE.Vector3 (this.config.baseHeight-value, 0, this.config.width * basePosWidth*(this.config.baseHeight-value)/this.config.baseHeight);
+            verts[vertex+3] = new THREE.Vector3 (this.config.baseHeight-value, 0, this.config.width * baseNegWidth*(this.config.baseHeight-value)/this.config.baseHeight);
+            m1.makeRotationY(rad);
+            verts[vertex+0].applyMatrix4(m1);
+            verts[vertex+1].applyMatrix4(m1);
+            verts[vertex+2].applyMatrix4(m1);
+            verts[vertex+3].applyMatrix4(m1);
+        }
+         this.geometry.verticesNeedUpdate = true;
+         this.geometry.elementsNeedUpdate = true;
+         this.geometry.colorsNeedUpdate = true;
+         this.geometry.computeBoundingSphere();
+
+
+        /*
+
+
+
+            this.figure.applyMatrix(m1);
+
+            m1.multiply(m2);
+
+            this.disk[i].figure.matrix.identity();
+            this.disk[i].figure.applyMatrix(m3);
+            this.disk[i].figure.applyMatrix(m1);
+
+*/
+//        console.log("update");
+//        console.log(element);
+    }
+};
 
 Viewer.Layer = function (numDisk, numLayer, config) {
     this.texture = new Viewer.Texture();

@@ -71,25 +71,26 @@ EnsemblAdapter.prototype = {
             // |----|----|----|----|----|----|----|    -> Logical chunk division
             //      |----|----|----|----|----|         -> Chunks covered by needed region
             //      |----|++++|++++|----|----|         -> + means the chunk is cached so its region will not be retrieved
-            var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
+            this.cache[dataType].getCachedByRegion(region, function(chunksByRegion){
+                if (chunksByRegion.notCached.length > 0) {
+                    var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
+                        return new Region(region).toString();
+                    });
 
-            if (chunksByRegion.notCached.length > 0) {
-                var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
-                    return new Region(region).toString();
-                });
-
-                for (var i = 0; i < queryRegionStrings.length; i++) {
-                    this._get(queryRegionStrings[i], params, dataType);
+                    for (var i = 0; i < queryRegionStrings.length; i++) {
+                        _this._get(queryRegionStrings[i], params, dataType);
+                    }
                 }
-            }
-            // Get chunks from cache
-            if (chunksByRegion.cached.length > 0) {
-                var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
-            }
+                // Get chunks from cache
+                if (chunksByRegion.cached.length > 0) {
+                    _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
+                        _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                    });
+                }
+            });
         }
-
     },
+
     _get: function (query, params, dataType) {
         var _this = this;
         EnsemblManager.get({
@@ -113,15 +114,15 @@ EnsemblAdapter.prototype = {
 
         var chunkSize = this.cache[dataType].chunkSize;
 
+        var regions = [];
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
             var queryResult = data.response[i];
 
-            var region = new Region(queryResult.id);
-            var features = queryResult.result;
-            var chunk = this.cache[dataType].putByRegion(region, features);
-            chunks.push(chunk);
+            regions.push(new Region(queryResult.id));
+            chunks.push(queryResult.result);
         }
+        this.cache[dataType].putByRegions(regions, chunks);
 
         /** time log **/
         console.timeEnd(timeId);
