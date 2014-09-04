@@ -193,7 +193,7 @@ Torus.prototype = {
 //            }
         }
 */
-
+/*
         var _this = this;
 <<<<<<< Updated upstream
         var samples = 5;
@@ -226,6 +226,7 @@ Torus.prototype = {
         // alert(" mala copia? " + (this.data.samples[0].coverage.mean[0] == this.data.samples[1].coverage.mean[0]));
 
         //console.log(this.data.samples);
+        */
     },
     obtainCoverage: function(name, id, callback) {
         var _this = this;

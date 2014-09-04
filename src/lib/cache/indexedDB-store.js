@@ -292,14 +292,9 @@ IndexedDBStore.prototype = {
     put: function(key, value) {
         var _this = this;
 
-        var timeStart = new Date().getTime();
         _this._getConnection(function() {
             var transaction = _this.db.transaction([_this.objectStoreName], "readwrite");
             transaction.oncomplete = function(event) {
-                console.log("put");
-                var timeSpent = new Date().getTime() - timeStart;
-                putsTime += timeSpent;
-                puts++;
             };
             transaction.onerror = function (event) {
                 console.log("There was an error in the transaction put(" + key + ", ", value, ")");
