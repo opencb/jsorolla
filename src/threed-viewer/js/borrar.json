@@ -104,8 +104,15 @@ JSON = {
         {
             id: "Marcelo",
             species: "hsapiens",
-            features:
-            [
+            coverage: {
+                chromosome:"1",
+                start:1,
+                end:4000,
+                meansize:200,
+                mean:[],
+                region: []
+            }
+            features: [
                 {
                     id: "",
                     type: "indel",
