@@ -66,9 +66,9 @@ CellBaseAdapter.prototype = {
             // The chunkSize will be the histogram interval
             var histogramId = dataType + '_' + params.interval;
             if (_.isUndefined(this.cache[histogramId])) {
-//                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId});
+                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId});
                 //test
-                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId+':'+histogramId});
+//                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId+':'+histogramId});
             }
             chunkSize = this.cache[histogramId].chunkSize;
 
@@ -103,8 +103,8 @@ CellBaseAdapter.prototype = {
                     if (args.webServiceCallCount === 0) {
                         args.done();
                     }
-                });
-            });
+                }, histogramId);
+            }, histogramId);
 
             /** Features: genes, snps ... **/
         } else {
@@ -215,7 +215,8 @@ CellBaseAdapter.prototype = {
                 chunks.push(interval);
             }
         }
-        var items = this.cache[histogramId].putByRegions(regions, chunks);
+        debugger
+        var items = this.cache[histogramId].putByRegions(regions, chunks, histogramId);
 
         this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         if (args.webServiceCallCount === 0) {

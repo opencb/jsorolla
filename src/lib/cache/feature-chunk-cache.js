@@ -61,14 +61,14 @@ FeatureChunkCache.prototype = {
      * Calls the callback with an Array of regions (chromosome, start, end) that are missing in the cache.
      * If two or more chunks are adjacent, they are returned as a single region.
      */
-    getAdjustedRegions: function (region, callback) {
+    getAdjustedRegions: function (region, callback, histogramId) {
         var _this = this;
         var firstChunkId = this.getChunkId(region.start);
         var lastChunkId = this.getChunkId(region.end);
         var keys = [];
 
         for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
-            keys.push(this.getChunkKey(region.chromosome, chunkId));
+            keys.push(this.getChunkKey(region.chromosome, chunkId, histogramId));
         }
 
         this.getChunks(keys, function(chunks){
@@ -113,7 +113,7 @@ FeatureChunkCache.prototype = {
     /**
      * get cached chunks in a region. The region can cover several chunks.
      */
-    getByRegion: function (region, callback) {
+    getByRegion: function (region, callback, histogramId) {
         var _this = this;
         var firstChunkId = this.getChunkId(region.start);
         var lastChunkId = this.getChunkId(region.end);
@@ -121,7 +121,7 @@ FeatureChunkCache.prototype = {
         var chunks = [];
 
         for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
-            keys.push(this.getChunkKey(region.chromosome, chunkId));
+            keys.push(this.getChunkKey(region.chromosome, chunkId, histogramId));
         }
 
         this.getChunks(keys, function(allChunks){
@@ -187,18 +187,22 @@ FeatureChunkCache.prototype = {
         this.store.putAll(chunkKeyArray, valueStoredArray);
         return valueStoredArray;
     },
-    putByRegions: function (regionArray, valueArray) {
+    putByRegions: function (regionArray, valueArray, histogramId) {
         var chunkKeyArray = [];
         for (var i = 0; i < regionArray.length; i++) {
             var chunkId = this.getChunkId(regionArray[i].start);
-            var chunkKey = this.getChunkKey(regionArray[i].chromosome, chunkId);
+            var chunkKey = this.getChunkKey(regionArray[i].chromosome, chunkId, histogramId);
             chunkKeyArray.push(chunkKey);
         }
         return this.putChunks(chunkKeyArray, valueArray);
     },
 
-    getChunkKey: function (chromosome, chunkId) {
-        return chromosome + ":" + chunkId;
+    getChunkKey: function (chromosome, chunkId, histogramId) {
+        if (histogramId) {
+            return chromosome + ":" + chunkId + "_" + histogramId;
+        } else {
+            return chromosome + ":" + chunkId;
+        }
     },
 
     getChunkId: function (position) {
