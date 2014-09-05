@@ -86,10 +86,11 @@ AlignmentRenderer.prototype.render = function (response, args) {
     var drawCoverage = function (chunk) {
         //var coverageList = chunk.coverage.all;
         var coverageList = chunk.coverage.all;
-        var coverageListA = chunk.coverage.a;
-        var coverageListC = chunk.coverage.c;
-        var coverageListG = chunk.coverage.g;
-        var coverageListT = chunk.coverage.t;
+        debugger
+//        var coverageListA = chunk.coverage.a;
+//        var coverageListC = chunk.coverage.c;
+//        var coverageListG = chunk.coverage.g;
+//        var coverageListT = chunk.coverage.t;
         var start = parseInt(chunk.start);
         var end = parseInt(chunk.end);
         var pixelWidth = (end - start + 1) * args.pixelBase;
@@ -106,14 +107,14 @@ AlignmentRenderer.prototype.render = function (response, args) {
             x = args.pixelPosition + middle - ((args.position - p) * args.pixelBase);
             xx = args.pixelPosition + middle - ((args.position - p) * args.pixelBase) + args.pixelBase;
 
-            lineA += x + "," + coverageListA[i] / coverageNorm * covHeight + " ";
-            lineA += xx + "," + coverageListA[i] / coverageNorm * covHeight + " ";
-            lineC += x + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineC += xx + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineG += x + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineG += xx + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineT += x + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-            lineT += xx + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+//            lineA += x + "," + coverageListA[i] / coverageNorm * covHeight + " ";
+//            lineA += xx + "," + coverageListA[i] / coverageNorm * covHeight + " ";
+//            lineC += x + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+//            lineC += xx + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+//            lineG += x + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+//            lineG += xx + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+//            lineT += x + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+//            lineT += xx + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
 
             p++;
         }
@@ -439,7 +440,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
     };
 
     var drawChunk = function (chunk) {
-        drawCoverage(chunk.value);
+//        drawCoverage(chunk.value);
         var readList = chunk.value.reads;
         for (var i = 0, li = readList.length; i < li; i++) {
             var read = readList[i];
