@@ -70,7 +70,7 @@ HistogramRenderer.prototype.render = function (features, args) {
     console.log(middle)
     var points = '';
     if (features.length > 0) {
-        var firstFeature = features[0];
+        var firstFeature = features[0].value;
         var width = (firstFeature.end - firstFeature.start + 1) * args.pixelBase;
         var x = args.pixelPosition + middle - ((args.position - parseInt(firstFeature.start)) * args.pixelBase);
 
@@ -81,7 +81,7 @@ HistogramRenderer.prototype.render = function (features, args) {
         points += (x - (width / 2)) + ',' + (this.histogramHeight - height) + ' ';
     }
     for (var i = 0, len = features.length; i < len; i++) {
-        var feature = features[i];
+        var feature = features[i].value;
         feature.start = parseInt(feature.start);
         feature.end = parseInt(feature.end);
         var width = (feature.end - feature.start + 1) * args.pixelBase;
@@ -94,7 +94,7 @@ HistogramRenderer.prototype.render = function (features, args) {
 
     }
     if (features.length > 0) {
-        var lastFeature = features[features.length - 1];
+        var lastFeature = features[features.length - 1].value;
         var width = (lastFeature.end - lastFeature.start + 1) * args.pixelBase;
         var x = args.pixelPosition + middle - ((args.position - parseInt(lastFeature.start)) * args.pixelBase);
 

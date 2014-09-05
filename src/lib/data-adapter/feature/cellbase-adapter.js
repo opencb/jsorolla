@@ -215,9 +215,9 @@ CellBaseAdapter.prototype = {
                 chunks.push(interval);
             }
         }
-        this.cache[histogramId].putByRegions(regions, chunks);
+        var items = this.cache[histogramId].putByRegions(regions, chunks);
 
-        this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
+        this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         if (args.webServiceCallCount === 0) {
             args.done();
         }
