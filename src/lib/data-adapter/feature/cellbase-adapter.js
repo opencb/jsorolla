@@ -215,7 +215,6 @@ CellBaseAdapter.prototype = {
                 chunks.push(interval);
             }
         }
-        debugger
         var items = this.cache[histogramId].putByRegions(regions, chunks, histogramId);
 
         this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
