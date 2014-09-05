@@ -202,7 +202,7 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': mid - 1,
             'top': 0,
-            'width': this.pixelBase + 1,
+            'width': Math.floor(this.pixelBase),//this.pixelBase + 1,
 //            'height': '100%',
             'height': 'calc(100% - 8px)',
             'opacity': 0.5,
@@ -216,11 +216,11 @@ TrackListPanel.prototype = {
         $(this.mouseLine).css({
             'z-index': 1,
             'position': 'absolute',
-            'left': -20,
+            'left': -20.5,
             'top': 0,
-            'width': this.pixelBase + 2,
+            'width': Math.floor(this.pixelBase),//this.pixelBase + 2,
             'height': 'calc(100% - 8px)',
-            'border': '1px solid lightgray',
+            'border': '1px solid gray',
             'opacity': 0.7,
             'visibility': 'hidden',
             'background-color': 'gainsboro'

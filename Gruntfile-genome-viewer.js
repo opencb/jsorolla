@@ -49,7 +49,7 @@ module.exports = function (grunt) {
                 files: [
                     {   expand: true, cwd: './', src: ['vendor/underscore-min.js'], dest: '<%= def.build %>' },
                     {   expand: true, cwd: './', src: ['vendor/backbone-min.js'], dest: '<%= def.build %>' },
-                    {   expand: true, cwd: './', src: ['vendor/font-awesome-4.1.0/**'], dest: '<%= def.build %>' },
+                    {   expand: true, cwd: './', src: ['vendor/font-awesome/**'], dest: '<%= def.build %>' },
                     {   expand: true, cwd: './', src: ['vendor/jquery.min.js'], dest: '<%= def.build %>' },
                     {   expand: true, cwd: './', src: ['vendor/jquery.qtip.min.css'], dest: '<%= def.build %>' },
                     {   expand: true, cwd: './', src: ['vendor/jquery.qtip.min.js'], dest: '<%= def.build %>' },
