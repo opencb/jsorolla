@@ -34,6 +34,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.id = Utils.genId("TrackListPanel");
     this.collapsed = false;
     this.collapsible = false;
+    this.hidden = false;
 
     this.tracks = [];
     this.tracksIndex = {};
@@ -79,16 +80,18 @@ function TrackListPanel(args) {//parent is a DOM div element
 TrackListPanel.prototype = {
     show: function () {
         $(this.div).css({display: 'block'});
+        this.hidden = false;
     },
 
     hide: function () {
         $(this.div).css({display: 'none'});
+        this.hidden = true;
     },
     setVisible: function (bool) {
         if (bool) {
-            $(this.div).css({display: 'block'});
+            this.show()
         } else {
-            $(this.div).css({display: 'none'});
+            this.hide()
         }
     },
     setTitle: function (title) {
@@ -114,18 +117,29 @@ TrackListPanel.prototype = {
     },
     render: function () {
         var _this = this;
-        this.div = $('<div id="tracklist-panel" style="height:100%;position: relative;"></div>')[0];
+
+        this.div = document.createElement('div');
+        this.div.classList.add('ocb-gv-tracklist')
+
+        this.windowSizeDiv = document.createElement('div');
+        this.windowSizeDiv.classList.add('ocb-gv-tracklist-windowsize');
 
         if ('title' in this && this.title !== '') {
 
-            var titleDiv = $('<div id="tl-title" class="ocb-gv-panel-title unselectable"></div>')[0];
-            $(this.div).append(titleDiv);
+            var titleDiv = document.createElement('div');
+            titleDiv.classList.add('ocb-gv-panel-title', 'unselectable');
 
-            this.windowSizeDiv = $('<div class="ocb-gv-tracklist-windowsize" id="windowSizeSpan"></div>');
-            $(titleDiv).append(this.windowSizeDiv);
+            titleDiv.appendChild(this.windowSizeDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="fa fa-minus"></span></div>');
+                this.collapseDiv = document.createElement('div');
+                this.collapseDiv.classList.add('ocb-gv-panel-collapse-control');
+
+                var collapseSpan = document.createElement('span');
+                collapseSpan.classList.add('fa', 'fa-minus');
+
+                this.collapseDiv.appendChild(collapseSpan);
+
                 $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -140,11 +154,16 @@ TrackListPanel.prototype = {
                         _this.hideContent();
                     }
                 });
-                $(titleDiv).append(this.collapseDiv);
+                titleDiv.appendChild(this.collapseDiv);
             }
 
-            var titleTextDiv = $('<div class="ocb-gv-panel-text">' + this.title + '</div>');
-            $(titleDiv).append(titleTextDiv);
+            var titleTextDiv = document.createElement('div');
+            titleTextDiv.classList.add('ocb-gv-panel-text');
+            titleTextDiv.textContent = this.title;
+            titleDiv.appendChild(titleTextDiv);
+
+
+            this.div.appendChild(titleDiv);
         }
 
         var tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];
@@ -190,8 +209,6 @@ TrackListPanel.prototype = {
 
 
         var mid = this.width / 2;
-        this.windowSize = 'Window size: ' + Utils.formatNumber(this.region.length()) + ' nts';
-        this.windowSizeDiv.innerHTML = this.windowSize;
         this._setTextPosition();
 
 
@@ -529,8 +546,6 @@ TrackListPanel.prototype = {
         $(this.centerLine).css({'width': this.pixelBase + 2});
         $(this.mouseLine).css({'width': this.pixelBase + 2});
 
-        this.windowSize = 'Window size: ' + Utils.formatNumber(this.region.length()) + ' nts';
-        this.windowSizeDiv.innerHTML = this.windowSize;
         this._setTextPosition();
 
         this.trigger('window:size', {windowSize: this.windowSize});
@@ -923,7 +938,7 @@ TrackListPanel.prototype = {
         this.positionRightDiv.textContent = Utils.formatNumber(this.visualRegion.end);
 
 
-        this.windowSize = 'Window size: ' + Utils.formatNumber(this.region.length()) + ' nts';
+        this.windowSize = 'Window size: ' + Utils.formatNumber(this.visualRegion.length()) + ' nts';
         this.windowSizeDiv.innerHTML = this.windowSize;
     },
 

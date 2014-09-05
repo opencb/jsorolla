@@ -169,7 +169,9 @@ BamRenderer.prototype.render = function (response, args) {
         $(dummyRect).qtip({
             content: " ",
             position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip-shadow'}
+            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip-shadow'},
+            show: {delay: 300},
+            hide: {delay: 300}
         });
 
 

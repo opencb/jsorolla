@@ -37,6 +37,7 @@ function ChromosomePanel(args) {
     this.height = 75;
     this.collapsed = false;
     this.collapsible = false;
+    this.hidden = false;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -61,9 +62,18 @@ function ChromosomePanel(args) {
 ChromosomePanel.prototype = {
     show: function () {
         $(this.div).css({display: 'block'});
+        this.hidden = false;
     },
     hide: function () {
         $(this.div).css({display: 'none'});
+        this.hidden = true;
+    },
+    setVisible: function (bool) {
+        if (bool) {
+            this.show()
+        } else {
+            this.hide()
+        }
     },
     showContent: function () {
         $(this.svg).css({display: 'inline'});
@@ -78,13 +88,6 @@ ChromosomePanel.prototype = {
         $(this.collapseDiv).addClass('active');
         $(this.collapseDiv).children().first().removeClass('fa-minus');
         $(this.collapseDiv).children().first().addClass('fa-plus');
-    },
-    setVisible: function (bool) {
-        if (bool) {
-            $(this.div).css({display: 'block'});
-        } else {
-            $(this.div).css({display: 'none'});
-        }
     },
     setTitle: function (title) {
         if ('titleDiv' in this) {

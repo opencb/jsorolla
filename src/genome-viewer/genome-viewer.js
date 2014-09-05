@@ -116,7 +116,7 @@ GenomeViewer.prototype = {
         this.div.setAttribute('class', 'ocb-gv ocb-box-vertical');
 
         this.navigationbarDiv = document.createElement('div');
-        this.navigationbarDiv.setAttribute('class', 'bootstrap ocb-gv-navigation');
+        this.navigationbarDiv.setAttribute('class', 'ocb-gv-navigation');
         this.div.appendChild(this.navigationbarDiv);
 
         this.centerPanelDiv = document.createElement('div');

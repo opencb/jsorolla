@@ -142,7 +142,9 @@ GeneRenderer.prototype.render = function (features, args) {
                     content: {text: tooltipText, title: tooltipTitle},
 //                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
+                    style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                    show: {delay: 300},
+                    hide: {delay: 300}
                 });
 
                 $(featureGroup).click(function (event) {
@@ -211,7 +213,9 @@ GeneRenderer.prototype.render = function (features, args) {
                             content: {text: tooltipText, title: tooltipTitle},
 //                            position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                             position: {target: "mouse", adjust: {x: 25, y: 15}},
-                            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
+                            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                            show: {delay: 300},
+                            hide: {delay: 300}
                         });
                         transcriptGroup.addEventListener('click', function (e) {
                             var query = this.getAttribute('data-widget-id');
@@ -244,7 +248,9 @@ GeneRenderer.prototype.render = function (features, args) {
                                 content: {text: tooltipText, title: tooltipTitle},
 //                                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                                 position: {target: "mouse", adjust: {x: 25, y: 15}},
-                                style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
+                                style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                                show: {delay: 300},
+                                hide: {delay: 300}
                             });
 
                             var eRect = SVG.addChild(exonGroup, "rect", {//paint exons in white without coding region
