@@ -479,6 +479,8 @@ TrackListPanel.prototype = {
         this.tlHeaderDiv = tlHeaderDiv;
         this.panelDiv = panelDiv;
 
+
+        this.setVisible(!this.hidden);
         this.rendered = true;
     },
 

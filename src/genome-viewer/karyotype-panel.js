@@ -149,6 +149,9 @@ KaryotypePanel.prototype = {
 
         this.colors = {gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue"};
 
+
+        this.setVisible(!this.hidden);
+
         this.rendered = true;
     },
 

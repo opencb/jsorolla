@@ -46,14 +46,17 @@ function GenomeViewer(args) {
     this.drawOverviewTrackListPanel = true;
     this.overviewZoomMultiplier = 8;
     this.karyotypePanelConfig = {
+        hidden:false,
         collapsed: false,
         collapsible: true
     };
     this.chromosomePanelConfig = {
+        hidden:false,
         collapsed: false,
         collapsible: true
     };
     this.regionPanelConfig = {
+        hidden:false,
         collapsed: false,
         collapsible: true
     };
@@ -482,6 +485,7 @@ GenomeViewer.prototype = {
             title: 'Karyotype',
             collapsed: this.karyotypePanelConfig.collapsed,
             collapsible: this.karyotypePanelConfig.collapsible,
+            hidden:this.karyotypePanelConfig.hidden,
             region: this.region,
             autoRender: true,
             handlers: {
@@ -522,6 +526,7 @@ GenomeViewer.prototype = {
             title: 'Chromosome',
             collapsed: this.chromosomePanelConfig.collapsed,
             collapsible: this.chromosomePanelConfig.collapsible,
+            hidden:this.chromosomePanelConfig.hidden,
             region: this.region,
             handlers: {
                 'region:change': function (event) {
@@ -603,6 +608,7 @@ GenomeViewer.prototype = {
             width: this.width - this.sidePanelWidth,
             title: this.trackListTitle,
             region: this.region,
+            hidden:this.regionPanelConfig.hidden,
             handlers: {
                 'region:change': function (event) {
                     event.sender = undefined;

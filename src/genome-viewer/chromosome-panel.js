@@ -144,6 +144,9 @@ ChromosomePanel.prototype = {
         $(this.div).addClass('unselectable');
 
         this.colors = {gneg: "#eeeeee", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue", clementina: '#ffc967'};
+
+
+        this.setVisible(!this.hidden);
         this.rendered = true;
     },
 
