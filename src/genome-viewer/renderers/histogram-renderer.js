@@ -80,7 +80,6 @@ HistogramRenderer.prototype.render = function (features, args) {
         points = (x - (width / 2)) + ',' + this.histogramHeight + ' ';
         points += (x - (width / 2)) + ',' + (this.histogramHeight - height) + ' ';
     }
-
     for (var i = 0, len = features.length; i < len; i++) {
         var feature = features[i].value;
         feature.start = parseInt(feature.start);
