@@ -41,6 +41,7 @@
     <script type="text/javascript" src="../lib/cache/feature-chunk-cache.js"></script>
     <script type="text/javascript" src="../lib/cache/memory-store.js"></script>
     <script type="text/javascript" src="../lib/cache/indexedDB-store.js"></script>
+    <script type="text/javascript" src="../lib/cache/bam-cache.js"></script>
 
 
     <script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter.js"></script>
@@ -83,6 +84,7 @@
     <script type="text/javascript" src="tracks/feature-track.js"></script>
     <script type="text/javascript" src="tracks/sequence-track.js"></script>
     <script type="text/javascript" src="tracks/gene-track.js"></script>
+    <script type="text/javascript" src="tracks/bam-track.js"></script>
 
     <script type="text/javascript" src="renderers/renderer.js"></script>
     <script type="text/javascript" src="renderers/feature-renderer.js"></script>
@@ -90,6 +92,10 @@
     <script type="text/javascript" src="renderers/sequence-renderer.js"></script>
     <script type="text/javascript" src="renderers/histogram-renderer.js"></script>
     <script type="text/javascript" src="renderers/gene-renderer.js"></script>
+    <script type="text/javascript" src="renderers/alignment-renderer.js"></script>
+
+
+    <script type="text/javascript" src="fakeBam.js"></script>
 
 
     <script type="text/javascript" src="genome-viewer.js"></script>
@@ -329,6 +335,20 @@ var run = function () {
 
     tracks.push(this.snp);
 
+    this.alignment = new BamTrack({
+        title: 'Alignments',
+        featureType: 'Alignments',
+        minHistogramRegionSize: 10000,
+        maxLabelRegionSize: 3000,
+        height: 100,
+
+        renderer: new AlignmentRenderer(FEATURE_TYPES.bam),
+
+        dataAdapter: new FakeBamAdapter()
+
+    });
+
+    tracks.push(this.alignment);
 
 //    /***************************************/
 //    var geneEnsembl = new FeatureTrack({
