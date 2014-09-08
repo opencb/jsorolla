@@ -84,37 +84,39 @@ AlignmentRenderer.prototype.render = function (response, args) {
     });
 
     var drawCoverage = function (chunk) {
-        //var coverageList = chunk.coverage.all;
         var coverageList = chunk.coverage.all;
-        debugger
-//        var coverageListA = chunk.coverage.a;
-//        var coverageListC = chunk.coverage.c;
-//        var coverageListG = chunk.coverage.g;
-//        var coverageListT = chunk.coverage.t;
-        var start = parseInt(chunk.start);
-        var end = parseInt(chunk.end);
+        var coverageListA = chunk.coverage.a;
+        var coverageListC = chunk.coverage.c;
+        var coverageListG = chunk.coverage.g;
+        var coverageListT = chunk.coverage.t;
+        var start = parseInt(chunk.coverage.start);
+        var end = parseInt(chunk.coverage.end);
         var pixelWidth = (end - start + 1) * args.pixelBase;
 
         var middle = args.width / 2;
         var points = "", pointsA = "", pointsC = "", pointsG = "", pointsT = "";
         var baseMid = (args.pixelBase / 2) - 0.5;//4.5 cuando pixelBase = 10
 
-        var x, y, p = parseInt(chunk.start);
+        var x, y, p = parseInt(start);
+        //var lineAll = "";
         var lineA = "", lineC = "", lineG = "", lineT = "";
         var coverageNorm = 200, covHeight = 50;
+
         for (var i = 0; i < coverageList.length; i++) {
             //x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+baseMid;
             x = args.pixelPosition + middle - ((args.position - p) * args.pixelBase);
             xx = args.pixelPosition + middle - ((args.position - p) * args.pixelBase) + args.pixelBase;
 
-//            lineA += x + "," + coverageListA[i] / coverageNorm * covHeight + " ";
-//            lineA += xx + "," + coverageListA[i] / coverageNorm * covHeight + " ";
-//            lineC += x + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-//            lineC += xx + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-//            lineG += x + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-//            lineG += xx + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-//            lineT += x + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
-//            lineT += xx + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+//            lineAll += x + "," + coverageList[i] / coverageNorm * covHeight + " ";
+//            lineAll += xx + "," + coverageList[i] / coverageNorm * covHeight + " ";
+            lineA += x + "," + coverageListA[i] / coverageNorm * covHeight + " ";
+            lineA += xx + "," + coverageListA[i] / coverageNorm * covHeight + " ";
+            lineC += x + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+            lineC += xx + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+            lineG += x + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+            lineG += xx + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+            lineT += x + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+            lineT += xx + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
 
             p++;
         }
@@ -124,8 +126,8 @@ AlignmentRenderer.prototype.render = function (response, args) {
         var rlineG = lineG.split(" ").reverse().join(" ").trim();
         var rlineT = lineT.split(" ").reverse().join(" ").trim();
 
-        var firstPoint = args.pixelPosition + middle - ((args.position - parseInt(chunk.start)) * args.pixelBase) + baseMid;
-        var lastPoint = args.pixelPosition + middle - ((args.position - parseInt(chunk.end)) * args.pixelBase) + baseMid;
+        var firstPoint = args.pixelPosition + middle - ((args.position - parseInt(start)) * args.pixelBase) + baseMid;
+        var lastPoint = args.pixelPosition + middle - ((args.position - parseInt(end)) * args.pixelBase) + baseMid;
 
         var polA = SVG.addChild(aligCoverGroup, "polyline", {
             "points": firstPoint + ",0 " + lineA + lastPoint + ",0",
@@ -156,6 +158,15 @@ AlignmentRenderer.prototype.render = function (response, args) {
             "fill": "red"
         });
 
+/*
+        var polAll = SVG.addChild(aligCoverGroup, "polyline", {
+            "points": firstPoint + ",0 " + lineAll + lastPoint + ",0",
+            //"opacity":"1",
+            //"stroke-width":"1",
+            //"stroke":"gray",
+            "fill": "green"
+        });
+*/
         var dummyRect = SVG.addChild(aligCoverGroup, "rect", {
             "x": args.pixelPosition + middle - ((args.position - start) * args.pixelBase),
             "y": 0,
@@ -241,7 +252,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 var points = {
                     "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + 5) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width - 5) + "," + (rowY + height) + " " + (x + 5) + "," + (rowY + height),
                     "Forward": x + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + x + "," + (rowY + height)
-                }
+                };
                 var poly = SVG.addChild(featureGroup, "polygon", {
                     "points": points[strand],
                     "stroke": strokeColor,
@@ -440,7 +451,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
     };
 
     var drawChunk = function (chunk) {
-//        drawCoverage(chunk.value);
+        drawCoverage(chunk.value);
         var readList = chunk.value.reads;
         for (var i = 0, li = readList.length; i < li; i++) {
             var read = readList[i];
