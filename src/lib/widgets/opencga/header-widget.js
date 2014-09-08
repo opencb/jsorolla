@@ -28,6 +28,7 @@ function HeaderWidget(args) {
 
 
     this.target;
+    this.autoRender = true;
     this.accountData;
 
     this.appname = "My new App";
@@ -72,14 +73,13 @@ HeaderWidget.prototype = {
             appLi = '<li id="appMenu" class="menu">&nbsp;<i class="fa fa-chevron-right"></i>&nbsp; <span class="">Menu</span></li>';
         }
         var navgationHtml = '' +
-            '<div>' +
             '   <ul class="ocb-header">' +
             appLi +
             '       <li class="title"> &nbsp; ' + this.appname +
             '       </li>' +
             '       <li id="description" class="description">' + this.description +
             '       </li>' +
-            '       <li id="support" class="right"><i class="fa fa-support"></i> &nbsp;support ' +
+            '       <li id="support" class="right"> &nbsp; <i class="fa fa-support"></i>&nbsp;' +
             '       </li>' +
             '       <li id="signin" class="right"><i class="fa fa-sign-in"></i> &nbsp;sign in' +
             '       </li>' +
@@ -94,8 +94,7 @@ HeaderWidget.prototype = {
             '       <li id="user" class="right hidden text">' +
             '       </li>' +
             '   </ul>'
-        '</div>' +
-        '';
+        ' ';
 
         var menuHtml = '' +
             '   <ul class="ocb-help-menu unselectable">' +
@@ -111,7 +110,7 @@ HeaderWidget.prototype = {
         '';
 
 
-        this.div = $('<div class="unselectable">' + navgationHtml + '</div>')[0];
+        this.div = $('<div class="ocb-header-widget unselectable">' + navgationHtml + '</div>')[0];
         $(this.div).css({
             height: this.height + 'px',
             position: 'relative'
@@ -143,10 +142,10 @@ HeaderWidget.prototype = {
             _this.toogleSupportMenu(false);
         });
         $(this.div).click(function (e) {
-            if ($(e.target).attr('id') !== $(_this.els.support).attr('id')) {
-                _this.toogleSupportMenu(false);
-            }else{
+            if (e.target === _this.els.support || e.target.parentNode === _this.els.support) {
                 _this.toogleSupportMenu();
+            } else {
+                _this.toogleSupportMenu(false);
             }
         });
 
@@ -616,7 +615,7 @@ HeaderWidget.prototype = {
         if (nameToShow.indexOf('anonymous_') != -1) {
             nameToShow = 'anonymous';
         }
-        return 'logged in as <span style="color:darkred">' + nameToShow + '</span>'
+        return '<span style="color:darkred">' + nameToShow + '</span>'
     },
     sessionInitiated: function () {
         var _this = this;

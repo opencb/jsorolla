@@ -26,6 +26,30 @@ function VariantStatsPanel(args) {
     this.title = "Stats";
     this.height = 500;
     this.autoRender = true;
+    this.statsTpl = new Ext.XTemplate(
+                        '<table class="ocb-stats-table">' +
+                            '<tr>' +
+                            '<td class="header">Minor Allele Frequency:</td>' +
+                            '<td>{maf} ({mafAllele})</td>' +
+                            '</tr>',
+                        '<tr>' +
+                            '<td class="header">Minor Genotype Frequency:</td>' +
+                            '<td>{mgf} ({mgfAllele})</td>' +
+                            '</tr>',
+                        '<tr>' +
+                            '<td class="header">Mendelian Errors:</td>' +
+                            '<td>{mendelianErrors}</td>' +
+                            '</tr>',
+                        '<tr>' +
+                            '<td class="header">Missing Alleles:</td>' +
+                            '<td>{missingAlleles}</td>' +
+                            '</tr>',
+                        '<tr>' +
+                            '<td class="header">Missing Genotypes:</td>' +
+                            '<td>{missingGenotypes}</td>' +
+                            '</tr>',
+                        '</table>'
+                    );
 
     _.extend(this, args);
 
@@ -98,7 +122,7 @@ VariantStatsPanel.prototype = {
                 {
                     xtype: 'box',
                     cls: 'ocb-header-4',
-                    html: 'Studies',
+                    html: '<h4>Studies</h4>',
                     margin: '5 0 10 10'
                 },
                 this.studiesContainer
@@ -111,6 +135,11 @@ VariantStatsPanel.prototype = {
 
         var stats = (data.stats) ? data.stats : {};
         var attributes = (data.attributes) ? data.attributes : {};
+        // removing src from attributes
+        var attributesData = {};
+        _.extend(attributesData,attributes);
+        delete attributesData['src'];
+
 
         var studyPanel = Ext.create('Ext.panel.Panel', {
             title: data.studyId,
@@ -119,7 +148,7 @@ VariantStatsPanel.prototype = {
             items: [
                 {
                     xtype: 'container',
-                    data: attributes,
+                    data: attributesData,
                     tpl: new Ext.XTemplate(
                         '<table class="ocb-attributes-table"><tr>',
                         '<tpl foreach=".">',
@@ -137,7 +166,7 @@ VariantStatsPanel.prototype = {
                     xtype: 'box',
                     cls: 'ocb-header-5',
                     margin: '5 5 5 10',
-                    html: 'Stats'
+                    html: '<h5>Stats</h5>'
                 },
                 {
                     xtype: 'container',
@@ -146,30 +175,7 @@ VariantStatsPanel.prototype = {
                         {
                             xtype: 'container',
                             data: stats,
-                            tpl: new Ext.XTemplate(
-                                    '<table class="ocb-stats-table">' +
-                                    '<tr>' +
-                                    '<td class="header">Minor Allele Frequency:</td>' +
-                                    '<td>{maf} ({mafAllele})</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Minor Genotype Frequency:</td>' +
-                                    '<td>{mgf} ({mgfAllele})</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Mendelian Errors:</td>' +
-                                    '<td>{mendelianErrors}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Missing Alleles:</td>' +
-                                    '<td>{missingAlleles}</td>' +
-                                    '</tr>',
-                                    '<tr>' +
-                                    '<td class="header">Missing Genotypes:</td>' +
-                                    '<td>{missingGenotypes}</td>' +
-                                    '</tr>',
-                                '</table>'
-                            ),
+                            tpl: this.statsTpl,
                             margin: '5 5 5 10'
                         }
                     ]
@@ -186,45 +192,45 @@ VariantStatsPanel.prototype = {
                 data: gts
             });
 
-            var genotypeChart = Ext.create('Ext.chart.Chart', {
-                xtype: 'chart',
-                width: 200,
-                height: 130,
-                store: store,
-                animate: true,
-                shadow: true,
-                legend: {
-                    position: 'right'
-                },
-                theme: 'Base:gradients',
-                series: [
-                    {
-                        type: 'pie',
-                        field: 'count',
-                        showInLegend: true,
-                        tips: {
-                            trackMouse: true,
-                            renderer: function (storeItem, item) {
-                                var name = storeItem.get('genotype');
-                                this.setTitle(name + ': ' + storeItem.get('count'));
-                            }
-                        },
-                        highlight: {
-                            segment: {
-                                margin: 20
-                            }
-                        },
-                        label: {
-                            field: 'genotype',
-                            display: 'rotate',
-                            contrast: true,
-                            font: '10px Arial'
-                        }
-
-                    }
-                ]
-            });
-            studyPanel.down().nextSibling().nextSibling().add(genotypeChart);
+//            var genotypeChart = Ext.create('Ext.chart.Chart', {
+//                xtype: 'chart',
+//                width: 200,
+//                height: 130,
+//                store: store,
+//                animate: true,
+//                shadow: true,
+//                legend: {
+//                    position: 'right'
+//                },
+//                theme: 'Base:gradients',
+//                series: [
+//                    {
+//                        type: 'pie',
+//                        field: 'count',
+//                        showInLegend: true,
+//                        tips: {
+//                            trackMouse: true,
+//                            renderer: function (storeItem, item) {
+//                                var name = storeItem.get('genotype');
+//                                this.setTitle(name + ': ' + storeItem.get('count'));
+//                            }
+//                        },
+//                        highlight: {
+//                            segment: {
+//                                margin: 20
+//                            }
+//                        },
+//                        label: {
+//                            field: 'genotype',
+//                            display: 'rotate',
+//                            contrast: true,
+//                            font: '10px Arial'
+//                        }
+//
+//                    }
+//                ]
+//            });
+//            studyPanel.down().nextSibling().nextSibling().add(genotypeChart);
         }
 
         return studyPanel;

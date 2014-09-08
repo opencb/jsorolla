@@ -27,7 +27,7 @@ function FeatureRenderer(args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
+    this.fontClass = 'ocb-font-roboto ocb-font-size-11';
     this.toolTipfontClass = 'ocb-tooltip-font';
 
      if (_.isObject(args)) {
@@ -121,7 +121,9 @@ FeatureRenderer.prototype.render = function (features, args) {
                         content: {text: tooltipText, title: tooltipTitle},
 //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
                         position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
+                        style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                        show: {delay: 300},
+                        hide: {delay: 300}
                     });
                 }
 

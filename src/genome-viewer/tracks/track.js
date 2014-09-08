@@ -34,8 +34,10 @@ function Track(args) {
     this.height = 100;
     this.visibleRegionSize;
     this.visible = true;
+    this.contentVisible = true;
     this.closable = false;
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
+    this.fontClass = 'ocb-font-roboto ocb-font-size-14';
+    this.externalLink = '';
 
     _.extend(this, args);
 
@@ -82,24 +84,35 @@ Track.prototype = {
     },
     hide: function () {
         this.visible = false;
-        $(this.div).css({display: 'hidden'});
+        this.div.classList.add('hidden');
     },
     show: function () {
         this.visible = true;
-        $(this.div).css({display: 'auto'});
+        this.div.classList.remove('hidden');
     },
     hideContent: function () {
-        $(this.svgdiv).css({display: 'hidden'});
-        $(this.titlediv).css({display: 'hidden'});
+        this.contentVisible = false;
+        this.svgdiv.classList.add('hidden');
+        this.resizeDiv.classList.add('hidden');
+
+        this.iToggleEl.classList.remove('fa-minus');
+        this.iToggleEl.classList.add('fa-plus');
     },
     showContent: function () {
-        $(this.svgdiv).css({display: 'auto'});
-        $(this.titlediv).css({display: 'auto'});
+        this.contentVisible = true;
+        this.svgdiv.classList.remove('hidden');
+        this.resizeDiv.classList.remove('hidden');
+
+        this.iToggleEl.classList.remove('fa-plus');
+        this.iToggleEl.classList.add('fa-minus');
     },
     toggleContent: function () {
-        $(this.svgdiv).toggle('hidden');
-        $(this.resizeDiv).toggle('hidden');
-        $(this.configBtn).toggle('hidden');
+        if (this.contentVisible) {
+            this.hideContent();
+        } else {
+            this.showContent();
+
+        }
     },
     close: function () {
         this.trigger('track:close', {sender: this});
@@ -188,7 +201,7 @@ Track.prototype = {
     setLoading: function (bool) {
         if (bool) {
             this.status = "rendering";
-            $(this.loadingEl).html('&nbsp; &nbsp;<i class="fa fa-spinner fa-spin"></i> <span class="ocb-light">Loading...</span></span>');
+            $(this.loadingEl).html('&nbsp; &nbsp;<i class="fa fa-spinner fa-spin"></i> Loading...</span>');
         } else {
             this.status = "ready";
             $(this.loadingEl).html('');
@@ -233,17 +246,23 @@ Track.prototype = {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
+        div.classList.add('ocb-gv-track');
         var titleBarHtml = '';
         titleBarHtml += '   <div class="ocb-gv-track-title">';
 //      titleBarHtml+=       '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' ;
         titleBarHtml += '   <div class="ocb-gv-track-title-el">';
         titleBarHtml += '       <span class="ocb-gv-track-title-text">' + this.title + '</span>';
         titleBarHtml += '       <span class="ocb-gv-track-title-histogram"></span>';
+        titleBarHtml += '       <span class="ocb-gv-track-title-toggle"><i class="fa fa-minus"></i></span>';
         titleBarHtml += '       <span class="ocb-gv-track-title-down"><i class="fa fa-chevron-down"></i></span>';
         titleBarHtml += '       <span class="ocb-gv-track-title-up"><i class="fa fa-chevron-up"></i></span>';
 
         if (this.closable == true) {
             titleBarHtml += '       <span class="ocb-gv-track-title-close"><i class="fa fa-times"></i></span>';
+        }
+
+        if (this.externalLink !== '') {
+            titleBarHtml += '       <span class="ocb-gv-track-title-external-link"><i class="fa fa-external-link"></i></span>';
         }
 
         titleBarHtml += '       <span class="ocb-gv-track-title-loading"></span>';
@@ -258,15 +277,18 @@ Track.prototype = {
             $(titleBardiv).addClass("hidden");
         }
 
-        var titlediv = $(titleBardiv).find('.ocb-gv-track-title')[0];
-        this.titleEl = $(titleBardiv).find('.ocb-gv-track-title-el')[0];
+        var titlediv = titleBardiv.querySelector('.ocb-gv-track-title');
+        this.titleEl = titleBardiv.querySelector('.ocb-gv-track-title-el');
 
-        this.titleText = $(titleBardiv).find('.ocb-gv-track-title-text')[0];
-        this.histogramEl = $(titleBardiv).find('.ocb-gv-track-title-histogram')[0];
-        this.loadingEl = $(titleBardiv).find('.ocb-gv-track-title-loading')[0];
-        this.closeEl = $(titleBardiv).find('.ocb-gv-track-title-close')[0];
-        this.upEl = $(titleBardiv).find('.ocb-gv-track-title-up')[0];
-        this.downEl = $(titleBardiv).find('.ocb-gv-track-title-down')[0];
+        this.titleText = titleBardiv.querySelector('.ocb-gv-track-title-text');
+        this.histogramEl = titleBardiv.querySelector('.ocb-gv-track-title-histogram');
+        this.toggleEl = titleBardiv.querySelector('.ocb-gv-track-title-toggle');
+        this.iToggleEl = this.toggleEl.querySelector('i');
+        this.loadingEl = titleBardiv.querySelector('.ocb-gv-track-title-loading');
+        this.closeEl = titleBardiv.querySelector('.ocb-gv-track-title-close');
+        this.upEl = titleBardiv.querySelector('.ocb-gv-track-title-up');
+        this.downEl = titleBardiv.querySelector('.ocb-gv-track-title-down');
+        this.externalLinkEl = titleBardiv.querySelector('.ocb-gv-track-title-external-link');
 
         var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
         var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
@@ -283,7 +305,10 @@ Track.prototype = {
             .on('dblclick', function (e) {
                 e.stopPropagation();
             });
-        $(this.titleText).click(function (e) {
+//        $(this.titleText).click(function (e) {
+//            _this.toggleContent();
+//        });
+        $(this.toggleEl).click(function (e) {
             _this.toggleContent();
         });
         $(this.closeEl).click(function (e) {
@@ -294,6 +319,9 @@ Track.prototype = {
         });
         $(this.downEl).click(function (e) {
             _this.down();
+        });
+        $(this.externalLinkEl).click(function (e) {
+            window.open(_this.externalLink);
         });
 
 
@@ -335,17 +363,6 @@ Track.prototype = {
             $(svgdiv).closest(".trackListPanels").mouseup(function (event) {
                 _this.updateHeight();
             });
-
-
-            $(resizediv).mouseenter(function (event) {
-                $(this).css({'cursor': 'ns-resize'});
-                $(this).css({'opacity': 1});
-            });
-            $(resizediv).mouseleave(function (event) {
-                $(this).css({'cursor': 'default'});
-                $(this).css({'opacity': 0.3});
-            });
-
         }
 
         this.svgGroup = SVG.addChild(main, "g", {

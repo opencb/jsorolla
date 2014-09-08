@@ -105,7 +105,7 @@ ConsequenceTypeFilterFormPanel.prototype = {
             }
         });
         if (consequence_types.length > 0) {
-            return {ct: consequence_types};
+            return {conseq_type: consequence_types};
         } else {
             return {};
         }

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>&lt;color-picker&gt;</title>
+
+    <!-- Importing Web Component's Polyfill -->
+    <script src="../../../vendor/platform.js"></script>
+
+    <!-- Importing Custom Elements -->
+    <link rel="import" href="jso-color-picker.html">
+</head>
+<body>
+
+<!-- Using Custom Elements -->
+<jso-color-picker class="a" style="margin:5px; display: inline-block" color="#aaaaee"></jso-color-picker>
+<jso-color-picker class="b" style="margin:5px; display: inline-block" color="#333333"></jso-color-picker>
+
+<script>
+    var el = document.querySelector('jso-color-picker.a');
+    el.addEventListener('change', function (e) {
+        console.log(e.detail);
+    });
+    var el = document.querySelector('jso-color-picker.b');
+    el.addEventListener('change', function (e) {
+        console.log(e.detail);
+    });
+</script>
+
+</body>
+</html>

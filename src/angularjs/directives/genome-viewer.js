@@ -13,6 +13,12 @@ angular.module('jsorolla.directives').controller('jsorollaGenomeViewerController
         });
     });
 
+//    $scope.region = {
+//        chromosome: "1",
+//        start: 3288911,
+//        end: 3288961
+//    };
+
     $scope.setRegion = function () {
         console.log("Button pressed");
         var reg = {
@@ -34,93 +40,40 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
 //        templateUrl: './views/genes-gv.html',
         scope: {
             targetId: '@id',
-            species: '=species',
-            r: '=region'
+            species: '@species',
+            region: '@region'
 
         },
 
-        link: function(scope, el, attr) {
-            console.log(scope)
-            scope.genomeViewer.render();
-            scope.genomeViewer.draw();
-            scope.genomeViewer.addOverviewTrack(scope.gene);
-            scope.genomeViewer.addTrack(scope.tracks);
+        link: function($scope, el, $attr) {
+            $scope.region = "13:32931615-32931801";
+            $scope.species = "Homo sapiens";
+            $scope.cellbaseHost = "https://www.ebi.ac.uk/cellbase/webservices/rest";
+            $scope.cellbaseVersion = "v3";
 
-        },
+            CELLBASE_HOST = $scope.cellbaseHost;
+            CELLBASE_vesrion = $scope.cellbaseVersion;
 
-        controller: function($scope, $rootScope, CellBaseService) {
-            console.log('aaaa')
-            CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
-            CELLBASE_VERSION = "v3";
+///            _.extend($scope, $attr);
+            $scope.species = $scope.availableSpecies.items[0].items[0];
+            $scope.tracks = [];
+            if($scope.species == undefined) {
+                $scope.species = "Homo sapiens";
+            }
 
-
-            $scope.broadcastRegion = true;
-
-            $scope.$on('genesRegionToGV', function () {
-//                $scope.genomeViewer.setRegion(new Region(mySharedService.genesRegionToGV));
-
-//                if(mySharedService.genesSpecie.shortName == "hsapiens" || mySharedService.genesSpecie.shortName == "mmusculus"){
-//
-//                    $scope.broadcastRegion = false;
-//                    $scope.genomeViewer.setRegion(new Region(mySharedService.genesRegionToGV));
-//                    //                $scope.genomeViewer.setSpecies(mySharedService.genesSpecie.shortName);
-//                }
-
-            });
-
-            $scope.$on('test3', function(reg, mesg) {
-                $scope.genomeViewer.setRegion(mesg);
-            });
-
-            /* region and species configuration */
-            var region = new Region({
-                chromosome: "13",
-                start: 32889611,
-                end: 32889611
-            });
-
-            var availableSpecies = {
-                "text": "Species",
-                "items": [{
-                    "text": "Vertebrates",
-                    "items": [{
-                        "text": "Homo sapiens",
-                        "assembly": "GRCh37.p10",
-                        "region": {
-                            "chromosome": "13",
-                            "start": 32889611,
-                            "end": 32889611
-                        },
-                        "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"],
-                        "url": "ftp://ftp.ensembl.org/pub/release-71/"
-                    }, {
-                        "text": "Mus musculus",
-                        "assembly": "GRCm38.p1",
-                        "region": {
-                            "chromosome": "1",
-                            "start": 18422009,
-                            "end": 18422009
-                        },
-                        "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"],
-                        "url": "ftp://ftp.ensembl.org/pub/release-71/"
-                    }
-                    ]
-                }
-                ]
-            };
-            var species = availableSpecies.items[0].items[0];
+            $scope.regionObj = new Region($attr.region);
 
             $scope.genomeViewer = new GenomeViewer({
                 targetId: $scope.targetId,
-                region: region,
-                availableSpecies: availableSpecies,
-                species: species,
+                host: $scope.cellbaseHost,
+                version: $scope.cellbaseversion,
+                region: $scope.regionObj,
+                availableSpecies: $scope.availableSpecies,
+                species: $scope.species,
                 sidePanel: false,
                 autoRender: false,
                 border: true,
                 resizable: true,
-                //        quickSearchResultFn:quickSearchResultFn,
-                //        quickSearchDisplayKey:,
                 karyotypePanelConfig: {
                     collapsed: false,
                     collapsible: true
@@ -135,21 +88,10 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
                         if(!(event.sender instanceof GenomeViewer)) {
                             $rootScope.$broadcast('test2', event.region);
                         }
-//                        $scope.$emit('test', region);
                         console.log("aaaaaaaaaaaaa")
-//                        if(mySharedService.genesSpecie.shortName == "hsapiens" || mySharedService.genesSpecie.shortName == "mmusculus"){
-//
-//                            if($scope.broadcastRegion){
-//                                mySharedService.broadcastGenesRegionGV(event.region.chromosome + ":" + event.region.start + "-" + event.region.end);
-//                            }
-//                            $scope.broadcastRegion = true;
-//                        }
                     },
                     'region:move':function(event){
 
-//                        if(mySharedService.genesSpecie.shortName == "hsapiens" || mySharedService.genesSpecie.shortName == "mmusculus"){
-//                            mySharedService.broadcastGenesRegionGV(event.region.chromosome + ":" + event.region.start + "-" + event.region.end);
-//                        }
                     },
 //                    'chromosome-button:change':function(event){
 //                    },
@@ -157,17 +99,8 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
 //                        mySharedService.broadcastGenesSpecieGV(event.species.text);
                     }
                 }
-                //        chromosomeList:[]
-                //            trackListTitle: ''
-//                            drawNavigationBar = true;
-                //            drawKaryotypePanel: false,
-//                            drawChromosomePanel: false,
-                //            drawRegionOverviewPanel: false
             }); //the div must exist
 
-            $scope.genomeViewer.draw();
-
-            $scope.tracks = [];
             $scope.sequence = new SequenceTrack({
                 targetId: null,
                 id: 1,
@@ -178,15 +111,17 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
                 renderer: new SequenceRenderer(),
 
                 dataAdapter: new SequenceAdapter({
+                    host: $scope.cellbaseHost,
+                    version: $scope.cellbaseversion,
                     category: "genomic",
                     subCategory: "region",
                     resource: "sequence",
-                    species:  $scope.genomeViewer.species
+//                    species:  $$scope.genomeViewer.species
+                    species:  $scope.species
                 })
             });
 
             $scope.tracks.push($scope.sequence);
-
             $scope.gene = new GeneTrack({
                 targetId: null,
                 id: 2,
@@ -199,10 +134,13 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
                 renderer: new GeneRenderer(),
 
                 dataAdapter: new CellBaseAdapter({
+                    host: $scope.cellbaseHost,
+                    version: $scope.cellbaseversion,
                     category: "genomic",
                     subCategory: "region",
                     resource: "gene",
-                    species:  $scope.genomeViewer.species,
+//                    species:  $$scope.genomeViewer.species,
+                    species:  $scope.species,
                     params: {
                         exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
                     },
@@ -233,53 +171,78 @@ angular.module('jsorolla.directives').directive('jsorollaGenomeViewer', function
                 renderer: renderer,
 
                 dataAdapter: new CellBaseAdapter({
+                    host: $scope.cellbaseHost,
+                    version: $scope.cellbaseversion,
                     category: "genomic",
                     subCategory: "region",
                     resource: "gene",
                     params: {
                         exclude: 'transcripts'
                     },
-                    species:  $scope.genomeViewer.species,
+//                    species:  $$scope.genomeViewer.species,
+                    species:  $scope.species,
                     cacheConfig: {
                         chunkSize: 50000
                     }
                 })
             });
-//            $scope.genomeViewer.addOverviewTrack(gene);
+            $scope.genomeViewer.render();
+            $scope.genomeViewer.draw();
+            $scope.genomeViewer.addOverviewTrack($scope.gene);
+            $scope.genomeViewer.addTrack($scope.tracks);
 
-            $scope.snp = new FeatureTrack({
-                targetId: null,
-                id: 4,
-                title: 'SNP',
-                featureType: 'SNP',
-                minHistogramRegionSize: 12000,
-                maxLabelRegionSize: 3000,
-                height: 100,
+        },
 
-                renderer: new FeatureRenderer(FEATURE_TYPES.snp),
+        controller: function($scope, $rootScope, CellBaseService) {
+//            CELLBASE_HOST = "http://ws-beta.bioinfo.cipf.es/cellbase/rest";
+//            CELLBASE_HOST = "https://www.ebi.ac.uk/cellbase/webservices/rest";
+//            CELLBASE_VERSION = "v3";
 
-                dataAdapter: new CellBaseAdapter({
-                    category: "genomic",
-                    subCategory: "region",
-                    resource: "snp",
-                    params: {
-                        exclude: 'transcriptVariations,xrefs,samples'
-                    },
-                    species:  $scope.genomeViewer.species,
-                    cacheConfig: {
-                        chunkSize: 10000
-                    }
-                })
+            $scope.$on('genesRegionToGV', function () {
+//                $scope.genomeViewer.setRegion(new Region(mySharedService.genesRegionToGV));
             });
-            $scope.tracks.push($scope.snp);
 
+            $scope.$on('test3', function(reg, mesg) {
+                $scope.genomeViewer.setRegion(mesg);
+            });
 
-//            $scope.genomeViewer.addTrack(tracks);
+            /* region and species configuration */
+            $scope.region = new Region({
+                chromosome: "13",
+                start: 32889611,
+                end: 32889611
+            });
+
+            $scope.availableSpecies = {
+                "text": "Species",
+                "items": [{
+                    "text": "Vertebrates",
+                    "items": [{
+                        "text": "Homo sapiens",
+                        "assembly": "GRCh37.p10",
+                        "region": {
+                            "chromosome": "13",
+                            "start": 32889611,
+                            "end": 32889611
+                        },
+                        "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"],
+                        "url": "ftp://ftp.ensembl.org/pub/release-71/"
+                    }, {
+                        "text": "Mus musculus",
+                        "assembly": "GRCm38.p1",
+                        "region": {
+                            "chromosome": "1",
+                            "start": 18422009,
+                            "end": 18422009
+                        },
+                        "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"],
+                        "url": "ftp://ftp.ensembl.org/pub/release-71/"
+                    }
+                    ]
+                }
+                ]
+            };
         }
-
-
-
-
 
     }
 });

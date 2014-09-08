@@ -25,7 +25,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
-    this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'https://www.ebi.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
     //set default args
@@ -34,8 +34,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     this.id = Utils.genId("TrackListPanel");
     this.collapsed = false;
     this.collapsible = false;
-
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-14';
+    this.hidden = false;
 
     this.tracks = [];
     this.tracksIndex = {};
@@ -81,16 +80,18 @@ function TrackListPanel(args) {//parent is a DOM div element
 TrackListPanel.prototype = {
     show: function () {
         $(this.div).css({display: 'block'});
+        this.hidden = false;
     },
 
     hide: function () {
         $(this.div).css({display: 'none'});
+        this.hidden = true;
     },
     setVisible: function (bool) {
         if (bool) {
-            $(this.div).css({display: 'block'});
+            this.show()
         } else {
-            $(this.div).css({display: 'none'});
+            this.hide()
         }
     },
     setTitle: function (title) {
@@ -103,31 +104,42 @@ TrackListPanel.prototype = {
         $(this.panelDiv).css({display: 'block'});
         this.collapsed = false;
         $(this.collapseDiv).removeClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().removeClass('fa-plus');
+        $(this.collapseDiv).children().first().addClass('fa-minus');
     },
     hideContent: function () {
         $(this.tlHeaderDiv).css({display: 'none'});
         $(this.panelDiv).css({display: 'none'});
         this.collapsed = true;
         $(this.collapseDiv).addClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
+        $(this.collapseDiv).children().first().removeClass('fa-minus');
+        $(this.collapseDiv).children().first().addClass('fa-plus');
     },
     render: function () {
         var _this = this;
-        this.div = $('<div id="tracklist-panel" style="height:100%;position: relative;"></div>')[0];
+
+        this.div = document.createElement('div');
+        this.div.classList.add('ocb-gv-tracklist')
+
+        this.windowSizeDiv = document.createElement('div');
+        this.windowSizeDiv.classList.add('ocb-gv-tracklist-windowsize');
 
         if ('title' in this && this.title !== '') {
 
-            var titleDiv = $('<div id="tl-title" class="ocb-gv-panel-title unselectable"></div>')[0];
-            $(this.div).append(titleDiv);
+            var titleDiv = document.createElement('div');
+            titleDiv.classList.add('ocb-gv-panel-title', 'unselectable');
 
-            var windowSizeDiv = $('<div class="ocb-gv-tracklist-windowsize" id="windowSizeSpan"></div>');
-            $(titleDiv).append(windowSizeDiv);
+            titleDiv.appendChild(this.windowSizeDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="glyphicon glyphicon-minus"></span></div>');
+                this.collapseDiv = document.createElement('div');
+                this.collapseDiv.classList.add('ocb-gv-panel-collapse-control');
+
+                var collapseSpan = document.createElement('span');
+                collapseSpan.classList.add('fa', 'fa-minus');
+
+                this.collapseDiv.appendChild(collapseSpan);
+
                 $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -142,11 +154,16 @@ TrackListPanel.prototype = {
                         _this.hideContent();
                     }
                 });
-                $(titleDiv).append(this.collapseDiv);
+                titleDiv.appendChild(this.collapseDiv);
             }
 
-            var titleTextDiv = $('<div class="ocb-gv-panel-text">' + this.title + '</div>');
-            $(titleDiv).append(titleTextDiv);
+            var titleTextDiv = document.createElement('div');
+            titleTextDiv.classList.add('ocb-gv-panel-text');
+            titleTextDiv.textContent = this.title;
+            titleDiv.appendChild(titleTextDiv);
+
+
+            this.div.appendChild(titleDiv);
         }
 
         var tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];
@@ -165,73 +182,33 @@ TrackListPanel.prototype = {
         $(panelDiv).append(this.tlTracksDiv);
 
 
-        //Main SVG and his events
-        this.svgTop = SVG.init(tlHeaderDiv, {
-            "width": this.width,
-            "height": 12
-        });
+        //Main SVG and its events
+
+        //Position div
+        this.positionDiv = document.createElement('div');
+        this.positionDiv.classList.add('ocb-gv-tracklist-position');
+
+        this.positionLeftDiv = document.createElement('div');
+        this.positionLeftDiv.classList.add('ocb-gv-tracklist-position-left');
+        this.positionNucleotidDiv = document.createElement('div');
+        this.positionNucleotidDiv.classList.add('ocb-gv-tracklist-position-mid-nt');
+        this.positionMidPosDiv = document.createElement('div');
+        this.positionMidPosDiv.classList.add('ocb-gv-tracklist-position-mid-pos');
+        this.positionMidDiv = document.createElement('div');
+        this.positionMidDiv.classList.add('ocb-gv-tracklist-position-mid');
+        this.positionRightDiv = document.createElement('div');
+        this.positionRightDiv.classList.add('ocb-gv-tracklist-position-right');
+
+        this.positionDiv.appendChild(this.positionLeftDiv);
+        this.positionDiv.appendChild(this.positionNucleotidDiv);
+        this.positionMidDiv.appendChild(this.positionNucleotidDiv);
+        this.positionMidDiv.appendChild(this.positionMidPosDiv);
+        this.positionDiv.appendChild(this.positionMidDiv);
+        this.positionDiv.appendChild(this.positionRightDiv);
+        tlHeaderDiv.appendChild(this.positionDiv);
+
 
         var mid = this.width / 2;
-        var yOffset = 11;
-        this.positionText = SVG.addChild(this.svgTop, 'text', {
-            'x': mid - 30,
-            'y': yOffset,
-            'fill': 'steelblue',
-            'class': this.fontClass
-        });
-        this.nucleotidText = SVG.addChild(this.svgTop, 'text', {
-            'x': mid + 35,
-            'y': yOffset,
-            'class': this.fontClass
-        });
-        this.firstPositionText = SVG.addChild(this.svgTop, 'text', {
-            'x': 0,
-            'y': yOffset,
-            'fill': 'steelblue',
-            'class': this.fontClass
-        });
-        this.lastPositionText = SVG.addChild(this.svgTop, 'text', {
-            'x': this.width - 70,
-            'y': yOffset,
-            'fill': 'steelblue',
-            'class': this.fontClass
-        });
-//        this.viewNtsArrow = SVG.addChild(this.svgTop, 'rect', {
-//            'x': 2,
-//            'y': 6,
-//            'width': this.width - 4,
-//            'height': 2,
-//            'opacity': '0.5',
-//            'fill': 'black'
-//        });
-//        this.viewNtsArrowLeft = SVG.addChild(this.svgTop, 'polyline', {
-//            'points': '0,1 2,1 2,13 0,13',
-//            'opacity': '0.5',
-//            'fill': 'black'
-//        });
-//        this.viewNtsArrowRight = SVG.addChild(this.svgTop, 'polyline', {
-//            'points': this.width + ',1 ' + (this.width - 2) + ',1 ' + (this.width - 2) + ',13 ' + this.width + ',13',
-//            'opacity': '0.5',
-//            'fill': 'black'
-//        });
-        this.windowSize = 'Window size: ' + Utils.formatNumber(this.region.length()) + ' nts';
-//        this.viewNtsTextBack = SVG.addChild(this.svgTop, 'rect', {
-//            'x': mid - 40,
-//            'y': 0,
-//            'width': 0,
-//            'height': 13,
-//            'fill': 'white'
-//        });
-        this.viewNtsText = SVG.addChild(this.svgTop, 'text', {
-            'x': mid - (this.windowSize.length * 7 / 2),
-            'y': 11,
-            'fill': 'black',
-            'class': this.fontClass
-        });
-        this.viewNtsText.setAttribute('visibility', 'hidden');
-//        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
-        this.viewNtsText.textContent = this.windowSize;
-        $(this.div).find('#windowSizeSpan').html(this.windowSize);
         this._setTextPosition();
 
 
@@ -242,7 +219,7 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': mid - 1,
             'top': 0,
-            'width': this.pixelBase + 1,
+            'width': Math.floor(this.pixelBase),//this.pixelBase + 1,
 //            'height': '100%',
             'height': 'calc(100% - 8px)',
             'opacity': 0.5,
@@ -256,11 +233,11 @@ TrackListPanel.prototype = {
         $(this.mouseLine).css({
             'z-index': 1,
             'position': 'absolute',
-            'left': -20,
+            'left': -20.5,
             'top': 0,
-            'width': this.pixelBase + 2,
+            'width': Math.floor(this.pixelBase),//this.pixelBase + 2,
             'height': 'calc(100% - 8px)',
-            'border': '1px solid lightgray',
+            'border': '1px solid gray',
             'opacity': 0.7,
             'visibility': 'hidden',
             'background-color': 'gainsboro'
@@ -502,6 +479,8 @@ TrackListPanel.prototype = {
         this.tlHeaderDiv = tlHeaderDiv;
         this.panelDiv = panelDiv;
 
+
+        this.setVisible(!this.hidden);
         this.rendered = true;
     },
 
@@ -523,14 +502,6 @@ TrackListPanel.prototype = {
         $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase + 2});
         $(this.mouseLine).css({'width': this.pixelBase});
 
-        this.svgTop.setAttribute('width', this.width);
-        this.positionText.setAttribute("x", mid - 30);
-        this.nucleotidText.setAttribute("x", mid + 35);
-        this.lastPositionText.setAttribute("x", this.width - 70);
-//        this.viewNtsArrow.setAttribute("width", this.width - 4);
-//        this.viewNtsArrowRight.setAttribute("points", this.width + ",1 " + (this.width - 2) + ",1 " + (this.width - 2) + ",13 " + this.width + ",13");
-        this.viewNtsText.setAttribute("x", mid - (this.windowSize.length * 7 / 2));
-//        this.viewNtsTextBack.setAttribute("x", mid - 40);
         this.trigger('trackWidth:change', {width: this.width, sender: this})
 
         this._setTextPosition();
@@ -577,10 +548,8 @@ TrackListPanel.prototype = {
         $(this.centerLine).css({'width': this.pixelBase + 2});
         $(this.mouseLine).css({'width': this.pixelBase + 2});
 
-        this.windowSize = "Window size: " + Utils.formatNumber(this.region.length()) + " nts";
-        this.viewNtsText.textContent = this.viewNtsText.textContent;
-        $(this.div).find('#windowSizeSpan').html(this.windowSize);
         this._setTextPosition();
+
         this.trigger('window:size', {windowSize: this.windowSize});
 
 //        if (region.species != null) {
@@ -598,7 +567,7 @@ TrackListPanel.prototype = {
 //        }
         this.trigger('trackRegion:change', {region: this.visualRegion, sender: this})
 
-        this.nucleotidText.textContent = "";//remove base char, will be drawn later if needed
+        this.positionNucleotidDiv.textContent = "";//remove base char, will be drawn later if needed
 
         this.status = 'rendering';
 
@@ -966,17 +935,13 @@ TrackListPanel.prototype = {
         this.visualRegion.start = Math.floor(centerPosition - aux);
         this.visualRegion.end = Math.floor(centerPosition + aux);
 
-        this.positionText.textContent = Utils.formatNumber(centerPosition);
-        this.firstPositionText.textContent = Utils.formatNumber(this.visualRegion.start);
-        this.lastPositionText.textContent = Utils.formatNumber(this.visualRegion.end);
+        this.positionMidPosDiv.textContent = Utils.formatNumber(centerPosition);
+        this.positionLeftDiv.textContent = Utils.formatNumber(this.visualRegion.start);
+        this.positionRightDiv.textContent = Utils.formatNumber(this.visualRegion.end);
 
 
-        this.windowSize = "Window size: " + Utils.formatNumber(this.visualRegion.length()) + " nts";
-        this.viewNtsText.textContent = this.windowSize;
-        $(this.div).find('#windowSizeSpan').html(this.windowSize);
-
-//        this.viewNtsTextBack.setAttribute("width", this.viewNtsText.textContent.length * 7);
-//        this.viewNtsTextBack.setAttribute('width', $(this.viewNtsText).width() + 15);
+        this.windowSize = 'Window size: ' + Utils.formatNumber(this.visualRegion.length()) + ' nts';
+        this.windowSizeDiv.innerHTML = this.windowSize;
     },
 
     getTrackById: function (trackId) {
@@ -1019,7 +984,7 @@ TrackListPanel.prototype = {
 
     setNucleotidPosition: function (position) {
         var base = this.getSequenceNucleotid(position);
-        this.nucleotidText.setAttribute("fill", SEQUENCE_COLORS[base]);
-        this.nucleotidText.textContent = base;
+        this.positionNucleotidDiv.style.color = SEQUENCE_COLORS[base];
+        this.positionNucleotidDiv.textContent = base;
     }
 };

@@ -67,12 +67,12 @@
     <script type="text/javascript" src="../lib/cache/memory-store.js"></script>
 
     <script type="text/javascript" src="../genome-viewer/navigation-bar.js"></script>
-    <script type="text/javascript" src="../genome-viewer/chromosome-panel.js"></script>
+    <script type="text/javascript" src="../genome-viewer/sequenceName-panel.js"></script>
     <script type="text/javascript" src="../genome-viewer/karyotype-panel.js"></script>
     <script type="text/javascript" src="../genome-viewer/tracks/tracklist-panel.js"></script>
     <script type="text/javascript" src="../genome-viewer/status-bar.js"></script>
-    <script type="text/javascript" src="../lib/widgets/feature/file/legend-panel.js"></script>
-    <script type="text/javascript" src="../lib/widgets/feature/file/legend-widget.js"></script>
+    <script type="text/javascript" src="../../check-deprecated/legend-panel.js"></script>
+    <script type="text/javascript" src="../../check-deprecated/legend-widget.js"></script>
 
     <script type="text/javascript" src="../genome-viewer/tracks/track.js"></script>
     <script type="text/javascript" src="../genome-viewer/tracks/feature-track.js"></script>
@@ -105,7 +105,7 @@
     <label>{{region}}</label>
     <input type="button" ng-click="setRegion()" value="change region">
 
-    <jsorolla-genome-viewer id="gv"  class="ocb-gv"></jsorolla-genome-viewer>
+    <jsorolla-genome-viewer id="gv"  region="2:44444-666666" class="ocb-gv"></jsorolla-genome-viewer>
 </div>
 <!--<div opencb-genome-viewer id="gv" class="ocb-gv" aa={{test}}></div>-->
 <!--<div id="gv">-->

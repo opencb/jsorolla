@@ -71,7 +71,7 @@ NetworkViewer.prototype = {
 
         //HTML skel
         this.div = document.createElement('div');
-        $(this.div).attr('id', this.id).addClass('bootstrap').css({
+        $(this.div).attr('id', this.id).css({
             height: this.height + 'px'
         });
 
@@ -564,7 +564,6 @@ NetworkViewer.prototype = {
                     if (!isSelected) {
                         _this.selectEdge(edge);
                     }
-
                     _this.editionBar.setEdgeColor(edgeConfig.renderer.color);
                     _this.editionBar.setEdgeSizeField(edgeConfig.renderer.size);
                     _this.editionBar.setEdgeNameField(edgeConfig.renderer.labelText);
@@ -574,21 +573,18 @@ NetworkViewer.prototype = {
                 },
                 'rightClick:vertex': function (e) {
                     _this._fillVertexContextMenu(e);
+                    _this.contextMenu.style.visibility = 'visible';
+                    _this.contextMenu.style.opacity = '1';
+                    _this.contextMenu.style.left = e.x + 'px';
+                    _this.contextMenu.style.top = e.y + 'px';
 
-                    $(_this.contextMenuDiv).css({
-                        display: "block",
-                        left: e.x,
-                        top: e.y
-                    });
                 },
                 'rightClick:backgroundImage': function (e) {
-                    console.log(e);
                     _this._fillBackImageContextMenu(e);
-                    $(_this.contextMenuDiv).css({
-                        display: "block",
-                        left: e.x,
-                        top: e.y + 90
-                    });
+                    _this.contextMenu.style.visibility = 'visible';
+                    _this.contextMenu.style.opacity = '1';
+                    _this.contextMenu.style.left = e.x + 'px';
+                    _this.contextMenu.style.top = e.y + 'px';
                 }
             }
         });
@@ -821,64 +817,68 @@ NetworkViewer.prototype = {
     },
     _createContextMenu: function () {
         var _this = this;
-        var html = '' +
-            '<div class="ocb-nv-contextmenu dropdown clearfix">' +
-            '    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">' +
-            '        <li><a tabindex="-1" href="#">Action</a></li>' +
-            '        <li class="divider"></li>' +
-            '        <li><a tabindex="-1" href="#">Separated link</a></li>' +
-            '    </ul>' +
-            '</div>';
 
-        this.contextMenuDiv = $(html)[0];
-        $(this.centerPanelDiv).append(this.contextMenuDiv);
+        var contextMenu = document.createElement('ul');
+        contextMenu.classList.add('ocb-context', 'ocb-nv-context', 'unselectable');
+        this.centerPanelDiv.appendChild(contextMenu);
 
-
-        $(_this.contextMenuDiv).bind('click.networkViewer', function (event) {
-            var targetEl = event.target;
-            var text = $(targetEl).text();
+        document.body.addEventListener('click', function (e) {
+            contextMenu.style.visibility = 'hidden';
+            contextMenu.style.opacity = '0';
         });
+        return contextMenu;
 
-
-        $(document).bind('click.networkViewer', function () {
-            $(_this.contextMenuDiv).hide();
-        });
-
-        /**************/
     },
     _fillVertexContextMenu: function (event) {
         var _this = this;
         var attributes = event.attributes;
         var vertex = this.network.getVertexById(event.vertexId);
-        var ul = $(this.contextMenuDiv).children().first()[0];
-        $(ul).empty();
-        for (var i in attributes) {
-            var menuEntry = $('<li role="presentation"><a>' + attributes[i] + '</a></li>')[0];
-            $(ul).append(menuEntry);
-        }
-        var menuEntry = $('<li role="presentation"><input id="nodeColorField" type="text"></li>')[0];
-        var deleteEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete</a></li>')[0];
-        var deleteSelectedEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete selected nodes</a></li>')[0];
-        var selectDirectNeighbours = $('<li role="presentation"><a tabindex="-1" role="menuitem">First neighbour nodes</a></li>')[0];
-        var selectAdjacentEdges = $('<li role="presentation"><a tabindex="-1" role="menuitem">Adjacent edges</a></li>')[0];
-//        $(ul).append(menuEntry);
-        $(ul).append(deleteEntry);
-        $(ul).append(deleteSelectedEntry);
-        $(ul).append('<li role="presentation" class="divider"></li>');
-        $(ul).append(selectDirectNeighbours);
-        $(ul).append(selectAdjacentEdges);
+        var ul = this.contextMenu;
 
-        $(deleteEntry).bind('click.networkViewer', function (event) {
+        while (ul.firstChild) {
+            ul.removeChild(ul.firstChild);
+        }
+//        for (var i in attributes) {
+//            var menuEntry = document.createElement('li');
+//            menuEntry.textContent = attributes[i];
+//            ul.appendChild(menuEntry);
+//        }
+
+        var deleteEntry = document.createElement('li');
+        deleteEntry.textContent = 'Delete';
+
+        var deleteSelectedEntry = document.createElement('li');
+        deleteSelectedEntry.textContent = 'Delete selected nodes';
+
+        var selectDirectNeighbours = document.createElement('li');
+        selectDirectNeighbours.textContent = 'First neighbour nodes';
+
+        var selectAdjacentEdges = document.createElement('li');
+        selectAdjacentEdges.textContent = 'Adjacent edges';
+
+
+        ul.appendChild(deleteEntry);
+        ul.appendChild(deleteSelectedEntry);
+
+        var sep = document.createElement('li');
+        sep.setAttribute('data-divider', true);
+        ul.appendChild(sep);
+
+        ul.appendChild(selectDirectNeighbours);
+        ul.appendChild(selectAdjacentEdges);
+
+
+        deleteEntry.addEventListener('click', function (event) {
             _this.removeVertex(vertex);
         });
-        $(deleteSelectedEntry).bind('click.networkViewer', function (event) {
+        deleteSelectedEntry.addEventListener('click', function (event) {
             _this.removeSelectedVertices();
         });
-        $(selectDirectNeighbours).bind('click.networkViewer', function (event) {
+        selectDirectNeighbours.addEventListener('click', function (event) {
             _this.selectVertex(vertex);
             _this.selectVerticesNeighbour();
         });
-        $(selectAdjacentEdges).bind('click.networkViewer', function (event) {
+        selectAdjacentEdges.addEventListener('click', function (event) {
             _this.selectVertex(vertex);
             _this.selectEdgesNeighbour();
         });
@@ -886,14 +886,19 @@ NetworkViewer.prototype = {
     _fillBackImageContextMenu: function (event) {
         var _this = this;
         var targetEl = event.targetEl;
-        var ul = $(this.contextMenuDiv).children().first()[0];
-        $(ul).empty();
-        var deleteEntry = $('<li role="presentation"><a tabindex="-1" role="menuitem">Delete</a></li>')[0];
-        $(ul).append(deleteEntry);
+        var ul = this.contextMenu;
+        while (ul.firstChild) {
+            ul.removeChild(ul.firstChild);
+        }
+        var deleteEntry = document.createElement('li');
+        deleteEntry.textContent = 'Delete';
 
-        $(deleteEntry).bind('click.networkViewer', function (event) {
+        deleteEntry.addEventListener('click', function (event) {
             _this.removeBackGroundImage(targetEl);
         });
+
+        ul.appendChild(deleteEntry);
+
     },
     _setZoom: function (zoom) {
         this.zoom = zoom;
@@ -1006,31 +1011,31 @@ NetworkViewer.prototype = {
                 break;
             default:
                 console.log(dot);
-                var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
-//        		var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
-//                var url = "http://ws-beta.bioinfo.cipf.es/opencga-staging/rest/utils/network/layout/" + type.toLowerCase() + ".coords";
-                $.ajax({
-                    async: false,
-                    type: "POST",
-                    url: url,
-                    dataType: "json",
-                    data: {
-                        dot: dot
-                    },
-                    cache: false,
-                    success: function (data) {
-                        console.log('Layout back')
-                        for (var vertexId in data) {
-                            var x = _this.getLayoutWidth() * (0.05 + 0.85 * data[vertexId].x);
-                            var y = _this.getLayoutHeight() * (0.05 + 0.85 * data[vertexId].y);
-                            _this.setVertexCoords(vertexId, x, y);
-                        }
-                    },
-                    error: function (data) {
-                        debugger
-                    },
-
-                });
+//                var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
+////        		var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
+////                var url = "http://ws-beta.bioinfo.cipf.es/opencga-staging/rest/utils/network/layout/" + type.toLowerCase() + ".coords";
+//                $.ajax({
+//                    async: false,
+//                    type: "POST",
+//                    url: url,
+//                    dataType: "json",
+//                    data: {
+//                        dot: dot
+//                    },
+//                    cache: false,
+//                    success: function (data) {
+//                        console.log('Layout back')
+//                        for (var vertexId in data) {
+//                            var x = _this.getLayoutWidth() * (0.05 + 0.85 * data[vertexId].x);
+//                            var y = _this.getLayoutHeight() * (0.05 + 0.85 * data[vertexId].y);
+//                            _this.setVertexCoords(vertexId, x, y);
+//                        }
+//                    },
+//                    error: function (data) {
+//                        debugger
+//                    },
+//
+//                });
                 break;
         }
     },

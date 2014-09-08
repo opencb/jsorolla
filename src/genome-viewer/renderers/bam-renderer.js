@@ -27,7 +27,7 @@ function BamRenderer(args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
+    this.fontClass = 'ocb-font-roboto ocb-font-size-11';
     this.toolTipfontClass = 'ocb-tooltip-font';
 
     if (_.isObject(args)) {
@@ -169,7 +169,9 @@ BamRenderer.prototype.render = function (response, args) {
         $(dummyRect).qtip({
             content: " ",
             position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip-shadow'}
+            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip-shadow'},
+            show: {delay: 300},
+            hide: {delay: 300}
         });
 
 

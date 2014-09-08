@@ -38,59 +38,29 @@ module.exports = function (grunt) {
         copy: {
             dist: {
                 files: [
-                    {   expand: true, cwd: './', src: ['vendor/**'], dest: '<%= def.build %>/' },
-                    {   expand: true, cwd: './', src: ['styles/**'], dest: '<%= def.build %>/' }, // includes files in path and its subdirs
-                    {   expand: true, cwd: './src/<%= def.name %>/', src: ['nv-config.js'], dest: '<%= def.build %>/' }
+                    {   expand: true, cwd: './', src: ['vendor/underscore-min.js'], dest: '<%= def.build %>' },
+                    {   expand: true, cwd: './', src: ['vendor/backbone-min.js'], dest: '<%= def.build %>' },
+                    {   expand: true, cwd: './', src: ['vendor/font-awesome/**'], dest: '<%= def.build %>' },
+                    {   expand: true, cwd: './', src: ['vendor/jquery.min.js'], dest: '<%= def.build %>' },
+                    {   expand: true, cwd: './', src: ['vendor/d3.min.js'], dest: '<%= def.build %>' },
+                    {   expand: true, cwd: './', src: ['vendor/platform.js'], dest: '<%= def.build %>' },
+                    {   expand: true, cwd: './', src: ['styles/**'], dest: '<%= def.build %>' }, // includes files in path and its subdirs
+                    {   expand: true, cwd: './', src: ['src/lib/components/jso-color-picker.html'], dest: '<%= def.build %>/components', flatten: true},
+                    {   expand: true, cwd: './src/<%= def.name %>/', src: ['nv-config.js'], dest: '<%= def.build %>' }
                 ]
             }
         },
-
         clean: {
             dist: ['<%= def.build %>/']
         },
-
-        htmlbuild: {
+        processhtml: {
+            options: {
+                strip: true
+            },
             dist: {
-                src: 'src/<%= def.name %>/<%= def.name %>.html',
-                dest: '<%= def.build %>/',
-                options: {
-                    beautify: true,
-                    styles: {
-                        'vendor': [
-                            '<%= def.build %>/vendor/jquery.qtip*.css',
-                            '<%= def.build %>/vendor/bootstrap-*-dist/css/bootstrap.min.css',
-                            '<%= def.build %>/vendor/jquery.simplecolorpicker.css'
-                        ],
-                        'css': ['<%= def.build %>/styles/css/style.css']
-                    },
-                    scripts: {
-                        'vendor': [
-                            '<%= def.build %>/vendor/underscore*.js',
-                            '<%= def.build %>/vendor/backbone*.js',
-                            '<%= def.build %>/vendor/jquery.min.js',
-
-                            '<%= def.build %>/vendor/bootstrap-scoped-dist/js/bootstrap.min.js',
-                            '<%= def.build %>/vendor/jquery.qtip*.js',
-                            '<%= def.build %>/vendor/jquery.cookie*.js',
-                            '<%= def.build %>/vendor/jquery.sha1*.js',
-                            '<%= def.build %>/vendor/purl*.js',
-
-                            '<%= def.build %>/vendor/jquery.simplecolorpicker.js',
-                            '<%= def.build %>/vendor/d3.min.js.js'
-                        ],
-                        'js': '<%= def.build %>/<%= def.name %>.min.js'
-                    }
+                files: {
+                    '<%= def.build %>/index.html': ['src/<%= def.name %>/<%= def.name %>.html']
                 }
-            }
-        },
-        rename: {
-            dist: {
-                files: [
-                    {
-                        src: ['<%= def.build %>/<%= def.name %>.html'],
-                        dest: '<%= def.build %>/index.html'
-                    }
-                ]
             }
         },
         hub: {
@@ -106,12 +76,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-html-build');
-    grunt.loadNpmTasks('grunt-contrib-rename');
+    grunt.loadNpmTasks('grunt-processhtml');
     grunt.loadNpmTasks('grunt-hub');
 
-    grunt.registerTask('vendor', ['curl-dir']);
-
-    grunt.registerTask('default', ['hub:lib','clean', 'concat', 'uglify', 'copy', 'htmlbuild', 'rename']);
-    grunt.registerTask('no-dep', ['clean', 'concat', 'uglify', 'copy', 'htmlbuild', 'rename']);
+    grunt.registerTask('default', ['hub:lib', 'clean', 'concat', 'uglify', 'copy', 'processhtml']);
+    grunt.registerTask('no-dep', ['clean', 'concat', 'uglify', 'copy', 'processhtml']);
 };

@@ -27,7 +27,7 @@ function GeneRenderer(args) {
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
-    this.fontClass = 'ocb-font-sourcesanspro ocb-font-size-12';
+    this.fontClass = 'ocb-font-roboto ocb-font-size-11';
     this.toolTipfontClass = 'ocb-tooltip-font';
 
     if (_.isObject(args)) {
@@ -112,7 +112,9 @@ GeneRenderer.prototype.render = function (features, args) {
 
             //paint genes
             if (foundArea) {
-                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
+                var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
+                    'feature_id': feature.id
+                });
                 var rect = SVG.addChild(featureGroup, 'rect', {
                     'x': x,
                     'y': rowY,
@@ -140,7 +142,9 @@ GeneRenderer.prototype.render = function (features, args) {
                     content: {text: tooltipText, title: tooltipTitle},
 //                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
+                    style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                    show: {delay: 300},
+                    hide: {delay: 300}
                 });
 
                 $(featureGroup).click(function (event) {
@@ -180,7 +184,8 @@ GeneRenderer.prototype.render = function (features, args) {
 
 
                         var transcriptGroup = SVG.addChild(args.svgCanvasFeatures, 'g', {
-                            "widgetId": transcript[infoWidgetId]
+                            "data-widget-id": transcript[infoWidgetId],
+                            "data-transcript-idx": i
                         });
 
 
@@ -208,11 +213,14 @@ GeneRenderer.prototype.render = function (features, args) {
                             content: {text: tooltipText, title: tooltipTitle},
 //                            position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                             position: {target: "mouse", adjust: {x: 25, y: 15}},
-                            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
+                            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                            show: {delay: 300},
+                            hide: {delay: 300}
                         });
-                        $(transcriptGroup).click(function (event) {
-                            var query = this.getAttribute("widgetId");
-                            _this.trigger('feature:click', {query: query, feature: transcript, featureType: 'transcript', clickEvent: event});
+                        transcriptGroup.addEventListener('click', function (e) {
+                            var query = this.getAttribute('data-widget-id');
+                            var idx = this.getAttribute("data-transcript-idx");
+                            _this.trigger('feature:click', {query: query, feature: feature.transcripts[idx], featureType: 'transcript', clickEvent: event});
                         });
 
                         //paint exons
@@ -240,7 +248,9 @@ GeneRenderer.prototype.render = function (features, args) {
                                 content: {text: tooltipText, title: tooltipTitle},
 //                                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                                 position: {target: "mouse", adjust: {x: 25, y: 15}},
-                                style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'}
+                                style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                                show: {delay: 300},
+                                hide: {delay: 300}
                             });
 
                             var eRect = SVG.addChild(exonGroup, "rect", {//paint exons in white without coding region

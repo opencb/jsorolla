@@ -52,7 +52,7 @@ module.exports = function (grunt) {
     grunt.registerTask('default', [
         'hub:lib',
         'hub:genome-viewer-no-dep',
-        'hub:circular-genome-viewer-no-dep',
+//        'hub:circular-genome-viewer-no-dep',
         'hub:network-viewer-no-dep',
         'hub:threed-viewer-no-dep',
     ]);

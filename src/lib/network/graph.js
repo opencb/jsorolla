@@ -149,6 +149,7 @@ Graph.prototype = {
         var position = this.edgesIndex[edge.id];
         delete this.edgesIndex[edge.id];
         delete this.edges[position];
+//        this.edges.splice(position, 1);
 
         this.trigger('edge:remove', {edge: edge, graph: this});
         this.numberOfEdges--;
@@ -178,6 +179,8 @@ Graph.prototype = {
             var position = this.edgesIndex[edge.id];
             delete this.edgesIndex[edge.id];
             delete this.edges[position];
+//            this.edges.splice(position, 1);
+
 
             this.trigger('edge:remove', {edge: edge, graph: this});
             this.numberOfEdges--;
@@ -187,6 +190,7 @@ Graph.prototype = {
         var position = this.verticesIndex[vertex.id];
         delete this.verticesIndex[vertex.id];
         delete this.vertices[position];
+//        this.vertices.splice(position, 1);
 
         this.trigger('vertex:remove', {vertex: vertex, graph: this});
         this.numberOfVertices--;

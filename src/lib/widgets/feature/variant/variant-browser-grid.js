@@ -38,6 +38,8 @@ function VariantBrowserGrid(args) {
     this.responseRoot = "response[0].result";
     this.responseTotal = "response[0].numTotalResults";
     this.startParam = "skip";
+    this.plugins = 'bufferedrenderer';
+    this.viewConfigListeners = '';
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -123,15 +125,17 @@ VariantBrowserGrid.prototype = {
                 header: this.headerConfig,
                 loadMask: true,
                 columns: this.columns,
-                plugins: 'bufferedrenderer',
+                plugins: this.plugins,
                 animCollapse: false,
                 height: this.height,
+                overflowX:true,
                 features: [
                     {ftype: 'summary'}
                 ],
                 viewConfig: {
                     emptyText: 'No records to display',
-                    enableTextSelection: true
+                    enableTextSelection: true,
+                    listeners:this.viewConfigListeners
                 },
                 tbar: this.paging
             }
@@ -196,6 +200,7 @@ VariantBrowserGrid.prototype = {
                 url: baseUrl,
                 type: 'ajax',
                 startParam: this.startParam,
+                useDefaultXhrHeader: false,
                 reader: {
                     root: this.responseRoot,
                     totalProperty: this.responseTotal,
@@ -224,6 +229,7 @@ VariantBrowserGrid.prototype = {
                         _this.dataParser(records);
                     } else {
                         _this._parserFunction(records);
+                        _this.grid.getSelectionModel().select(0, true);
 
                     }
 
@@ -233,7 +239,7 @@ VariantBrowserGrid.prototype = {
                 },
                 beforeload: function (store, operation, eOpts) {
                     _this.trigger("variant:clear", {sender: _this});
-                },
+                }
             }
 
         });

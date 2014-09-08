@@ -34,7 +34,7 @@ function GenomeViewer(args) {
     this.width;
     this.height;
 
-    this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'https://www.ebi.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
     this.quickSearchResultFn;
@@ -46,14 +46,17 @@ function GenomeViewer(args) {
     this.drawOverviewTrackListPanel = true;
     this.overviewZoomMultiplier = 8;
     this.karyotypePanelConfig = {
+        hidden:false,
         collapsed: false,
         collapsible: true
     };
     this.chromosomePanelConfig = {
+        hidden:false,
         collapsed: false,
         collapsible: true
     };
     this.regionPanelConfig = {
+        hidden:false,
         collapsed: false,
         collapsible: true
     };
@@ -116,7 +119,7 @@ GenomeViewer.prototype = {
         this.div.setAttribute('class', 'ocb-gv ocb-box-vertical');
 
         this.navigationbarDiv = document.createElement('div');
-        this.navigationbarDiv.setAttribute('class', 'bootstrap ocb-gv-navigation');
+        this.navigationbarDiv.setAttribute('class', 'ocb-gv-navigation');
         this.div.appendChild(this.navigationbarDiv);
 
         this.centerPanelDiv = document.createElement('div');
@@ -147,7 +150,7 @@ GenomeViewer.prototype = {
 
 
         this.trackListPanelsDiv = document.createElement('div');
-        this.trackListPanelsDiv.setAttribute('class', 'ocb-gv-track');
+        this.trackListPanelsDiv.setAttribute('class', 'ocb-gv-tracklist-target');
         this.centerPanelDiv.appendChild(this.trackListPanelsDiv);
 
         this.regionDiv = document.createElement('div');
@@ -166,7 +169,7 @@ GenomeViewer.prototype = {
 
         this.chromosomes = this.getChromosomes();
 
-        this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth())
+        this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
         this.zoom = this._calculateZoomByRegion(this.region);
 
         // Resize
@@ -313,7 +316,7 @@ GenomeViewer.prototype = {
     /*Components*/
     /**/
 
-    _createNavigationBar: function (targetId) {
+    _createNavigationBar: function (target) {
         var _this = this;
 
         if (!$.isFunction(this.quickSearchResultFn)) {
@@ -373,7 +376,7 @@ GenomeViewer.prototype = {
         };
 
         var navigationBar = new NavigationBar({
-            targetId: targetId,
+            target: target,
             cellBaseHost: this.cellBaseHost,
             cellBaseVersion: this.cellBaseVersion,
             availableSpecies: this.availableSpecies,
@@ -381,11 +384,13 @@ GenomeViewer.prototype = {
             region: this.region,
             width: this.width,
             svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
-            autoRender: true,
             zoom: this.zoom,
             quickSearchResultFn: this.quickSearchResultFn,
             quickSearchDisplayKey: this.quickSearchDisplayKey,
             componentsConfig: this.navigationBarConfig.componentsConfig,
+            karyotypePanelConfig: this.karyotypePanelConfig,
+            chromosomePanelConfig: this.chromosomePanelConfig,
+            regionPanelConfig: this.regionPanelConfig,
             handlers: {
                 'region:change': function (event) {
                     _this._regionChangeHandler(event);
@@ -433,11 +438,8 @@ GenomeViewer.prototype = {
                     }
                 },
                 'restoreDefaultRegion:click': function (event) {
+                    event.region = _this.defaultRegion;
                     _this._regionChangeHandler(event);
-//                    event.region = _this._checkRegion(event.region);
-//                    _this.setMinRegion(_this.defaultRegion, _this.getSVGCanvasWidth());
-//                    event.region = _this.defaultRegion;
-//                    _this.trigger('region:change', event);
                 },
                 'autoHeight-button:click': function (event) {
                     _this.enableAutoHeight();
@@ -473,7 +475,7 @@ GenomeViewer.prototype = {
 
     _drawKaryotypePanel: function (target) {
         var _this = this;
-        karyotypePanel = new KaryotypePanel({
+        var karyotypePanel = new KaryotypePanel({
             target: target,
             cellBaseHost: this.cellBaseHost,
             cellBaseVersion: this.cellBaseVersion,
@@ -483,6 +485,7 @@ GenomeViewer.prototype = {
             title: 'Karyotype',
             collapsed: this.karyotypePanelConfig.collapsed,
             collapsible: this.karyotypePanelConfig.collapsible,
+            hidden:this.karyotypePanelConfig.hidden,
             region: this.region,
             autoRender: true,
             handlers: {
@@ -523,6 +526,7 @@ GenomeViewer.prototype = {
             title: 'Chromosome',
             collapsed: this.chromosomePanelConfig.collapsed,
             collapsible: this.chromosomePanelConfig.collapsible,
+            hidden:this.chromosomePanelConfig.hidden,
             region: this.region,
             handlers: {
                 'region:change': function (event) {
@@ -604,6 +608,7 @@ GenomeViewer.prototype = {
             width: this.width - this.sidePanelWidth,
             title: this.trackListTitle,
             region: this.region,
+            hidden:this.regionPanelConfig.hidden,
             handlers: {
                 'region:change': function (event) {
                     event.sender = undefined;
@@ -826,7 +831,6 @@ GenomeViewer.prototype = {
             console.log('****************************');
             return false;
         }
-
     },
     _regionMoveHandler: function (event) {
         //Relaunch

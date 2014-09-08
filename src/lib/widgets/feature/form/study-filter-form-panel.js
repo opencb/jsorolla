@@ -27,9 +27,30 @@ function StudyFilterFormPanel(args) {
     this.autoRender = true;
     this.title = "Select Studies";
 //    this.studies = [];
-    this.studiesStore;
+//    this.studiesStore;
     this.border = true;
     this.height = 300;
+    this.collapsed = false;
+    this.studyFilterTpl = '<tpl><div class="ocb-study-filter">{studyName}</div></tpl>';
+
+
+    /**
+     * TO BE REMOVED!
+     * @type {Ext.data.Store}
+     */
+    this.studiesStore = Ext.create('Ext.data.Store', {
+        pageSize: 50,
+        proxy: {
+            type: 'memory'
+        },
+        fields: [
+            {name: 'studyName', type: 'string'},
+            {name: 'studyId', type: 'string'}
+        ],
+        autoLoad: false
+    });
+
+
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -190,8 +211,11 @@ StudyFilterFormPanel.prototype = {
                     {
                         text: "Name",
                         dataIndex: 'studyName',
-                        flex: 10
-                    },
+                        flex: 10,
+//                        width: 500,
+                        xtype: 'templatecolumn',
+                        tpl:this.studyFilterTpl
+                    }
 //                    {
 //                        text: "ID",
 //                        dataIndex: 'studyId',
@@ -209,6 +233,7 @@ StudyFilterFormPanel.prototype = {
             border: false,
             title: this.title,
             height: this.height,
+            collapsed: this.collapsed,
             layout: {
                 type: 'vbox',
                 align: 'stretch'

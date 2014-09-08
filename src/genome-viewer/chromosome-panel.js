@@ -28,7 +28,7 @@ function ChromosomePanel(args) {
 
     this.target;
     this.autoRender = true;
-    this.cellBaseHost = 'http://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'https://www.ebi.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
     this.pixelBase;
@@ -37,6 +37,7 @@ function ChromosomePanel(args) {
     this.height = 75;
     this.collapsed = false;
     this.collapsible = false;
+    this.hidden = false;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -61,30 +62,32 @@ function ChromosomePanel(args) {
 ChromosomePanel.prototype = {
     show: function () {
         $(this.div).css({display: 'block'});
+        this.hidden = false;
     },
     hide: function () {
         $(this.div).css({display: 'none'});
+        this.hidden = true;
+    },
+    setVisible: function (bool) {
+        if (bool) {
+            this.show()
+        } else {
+            this.hide()
+        }
     },
     showContent: function () {
         $(this.svg).css({display: 'inline'});
         this.collapsed = false;
         $(this.collapseDiv).removeClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-plus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-minus');
+        $(this.collapseDiv).children().first().removeClass('fa-plus');
+        $(this.collapseDiv).children().first().addClass('fa-minus');
     },
     hideContent: function () {
         $(this.svg).css({display: 'none'});
         this.collapsed = true;
         $(this.collapseDiv).addClass('active');
-        $(this.collapseDiv).children().first().removeClass('glyphicon-minus');
-        $(this.collapseDiv).children().first().addClass('glyphicon-plus');
-    },
-    setVisible: function (bool) {
-        if (bool) {
-            $(this.div).css({display: 'block'});
-        } else {
-            $(this.div).css({display: 'none'});
-        }
+        $(this.collapseDiv).children().first().removeClass('fa-minus');
+        $(this.collapseDiv).children().first().addClass('fa-plus');
     },
     setTitle: function (title) {
         if ('titleDiv' in this) {
@@ -112,7 +115,7 @@ ChromosomePanel.prototype = {
             $(this.div).append(titleDiv);
 
             if (this.collapsible == true) {
-                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="glyphicon glyphicon-minus"></span></div>');
+                this.collapseDiv = $('<div class="ocb-gv-panel-collapse-control"><span class="fa fa-minus"></span></div>');
                 $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
@@ -141,6 +144,9 @@ ChromosomePanel.prototype = {
         $(this.div).addClass('unselectable');
 
         this.colors = {gneg: "#eeeeee", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue", clementina: '#ffc967'};
+
+
+        this.setVisible(!this.hidden);
         this.rendered = true;
     },
 
