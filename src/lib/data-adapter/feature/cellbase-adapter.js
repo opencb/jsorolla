@@ -173,8 +173,6 @@ CellBaseAdapter.prototype = {
 
         var chunkSize = this.cache[dataType].chunkSize;
 
-        console.log(data);
-        debugger
         var regions = [];
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
