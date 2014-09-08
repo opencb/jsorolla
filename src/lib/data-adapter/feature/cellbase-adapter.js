@@ -173,6 +173,8 @@ CellBaseAdapter.prototype = {
 
         var chunkSize = this.cache[dataType].chunkSize;
 
+        console.log(data);
+        debugger
         var regions = [];
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
@@ -215,7 +217,7 @@ CellBaseAdapter.prototype = {
                 chunks.push(interval);
             }
         }
-        var items = this.cache[histogramId].putByRegions(regions, chunks, histogramId);
+        var items = this.cache[histogramId].putByRegions(regions, chunks, histogramId); // TODO remove "histogram" from "_histogram_<interval>"
 
         this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         if (args.webServiceCallCount === 0) {

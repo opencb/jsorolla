@@ -165,34 +165,45 @@ FeatureChunkCache.prototype = {
         });
     },
 
-    putChunk: function (chunkKey, value) {
-        var valueStored = {value: value, chunkKey: chunkKey}; // TODO add timestamp, last usage time, size, etc.
-        this.store.put(chunkKey, valueStored);
+    createEntryValue: function (chunkKey, value, encoded) {
+        var valueStored;
+        if (encoded) {
+            valueStored = {value: value, chunkKey: chunkKey, enc: encoded}; // TODO add timestamp, last usage time, size, etc.
+        } else {
+            valueStored = {value: value, chunkKey: chunkKey}; // TODO add timestamp, last usage time, size, etc.
+        }
         return valueStored;
     },
 
-    putByRegion: function (region, value) {
+    /** single chunk in one transaction. this is a slow put */
+    putChunk: function (chunkKey, value, encoded) {
+        var valueStored = this.createEntryValue(chunkKey, value, encoded);
+        this.store.put(chunkKey, valueStored);
+        return valueStored;
+    },
+    putByRegion: function (region, value, encoded) {
         var chunkId = this.getChunkId(region.start);
         var chunkKey = this.getChunkKey(region.chromosome, chunkId);
         return this.putChunk(chunkKey, value);
     },
 
-    putChunks: function (chunkKeyArray, valueArray) {
+    /** several chunks in one transaction. this is a fast put */
+    putChunks: function (chunkKeyArray, valueArray, encoded) {
         var valueStoredArray = [];
         for (var i = 0; i < valueArray.length; i++) {
-            valueStoredArray.push({value: valueArray[i], chunkKey: chunkKeyArray[i]});   // TODO add timestamp, last usage time, size, etc.
+            valueStoredArray.push(this.createEntryValue(chunkKeyArray[i], valueArray[i], encoded));   // TODO add timestamp, last usage time, size, etc.
         }
         this.store.putAll(chunkKeyArray, valueStoredArray);
         return valueStoredArray;
     },
-    putByRegions: function (regionArray, valueArray, keySuffix) {
+    putByRegions: function (regionArray, valueArray, encoded, keySuffix) {
         var chunkKeyArray = [];
         for (var i = 0; i < regionArray.length; i++) {
             var chunkId = this.getChunkId(regionArray[i].start);
             var chunkKey = this.getChunkKey(regionArray[i].chromosome, chunkId, keySuffix);
             chunkKeyArray.push(chunkKey);
         }
-        return this.putChunks(chunkKeyArray, valueArray);
+        return this.putChunks(chunkKeyArray, valueArray, encoded);
     },
 
     getChunkKey: function (chromosome, chunkId, keySuffix) {

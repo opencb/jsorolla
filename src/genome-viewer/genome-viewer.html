@@ -47,6 +47,7 @@
     <script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter.js"></script>
     <script type="text/javascript" src="../lib/data-adapter/feature/sequence-adapter.js"></script>
     <script type="text/javascript" src="../lib/data-adapter/feature/ensembl-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature/opencga-adapter.js"></script>
 
     <!--**-->
     <script type="text/javascript" src="../lib/data-adapter/feature/feature-data-adapter.js"></script>
@@ -95,7 +96,7 @@
     <script type="text/javascript" src="renderers/alignment-renderer.js"></script>
 
 
-    <script type="text/javascript" src="fakeBam.js"></script>
+    <!--<script type="text/javascript" src="fakeBam.js"></script>-->
 
 
     <script type="text/javascript" src="genome-viewer.js"></script>
@@ -344,7 +345,12 @@ var run = function () {
 
         renderer: new AlignmentRenderer(FEATURE_TYPES.bam),
 
-        dataAdapter: new FakeBamAdapter()
+        dataAdapter: new OpencgaAdapter({
+            cacheConfig: {
+                chunkSize: 10000,
+                cacheId: "opencga:alignment"
+            }
+        })
 
     });
 
