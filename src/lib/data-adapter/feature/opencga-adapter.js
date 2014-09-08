@@ -95,8 +95,8 @@ OpencgaAdapter.prototype = {
                 }
                 if (chunksByRegion.cached.length > 0) {
                     _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
-                        // if (cachecChunks.enc == true) {decrypt}
-                        _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                        var decryptedChunks = _this._decryptChunks(cachedChunks, "mypassword");
+                        _this.trigger('data:ready', {items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                     });
                 }
             });
@@ -114,14 +114,27 @@ OpencgaAdapter.prototype = {
         for (var i = 0; i < data.response.length; i++) {
             chunks.push(data.response[i].result);
         }
-        this.cache[dataType].putByRegions(regions, chunks);
+        var items = this.cache[dataType].putByRegions(regions, chunks);
 
+        var decryptedChunks = this._decryptChunks(items, "mypassword");
         /** time log **/
         console.timeEnd(timeId);
 
         if (chunks.length > 0) {
             // if (data.encoded) {decrypt }
-            this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
+            this.trigger('data:ready', {items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: this});
         }
+    },
+
+    _decryptChunks: function (chunks, password) {
+        var decryptedChunks = [];
+        for (var i = 0; i < chunks.length; i++) {
+            if (chunks[i].enc == true) {
+                decryptedChunks.push(CryptoJS.AES.decrypt(chunks[i], password));
+            } else {
+                decryptedChunks.push(chunks);
+            }
+        }
+        return decryptedChunks;
     }
 };
