@@ -37,6 +37,7 @@ function NavigationBar(args) {
     this.species = 'Homo sapiens';
     this.increment = 3;
     this.componentsConfig = {
+        menuButton: false,
         leftSideButton: false,
         restoreDefaultRegionButton: true,
         regionHistoryButton: true,
@@ -51,8 +52,7 @@ function NavigationBar(args) {
         moveControl: true,
         autoheightButton: true,
         compactButton: true,
-        searchControl: true,
-        configureButton: false
+        searchControl: true
     };
     this.zoom = 100;
 
@@ -157,7 +157,7 @@ NavigationBar.prototype = {
             '</div>' +
 
 
-            '<div id="configureButton" class="ocb-ctrl" style="float:right;"><i class="fa fa-cog"></i> Configure</div>' +
+            '<div style="float:right;margin-right:10px;" id="menuButton" class="ocb-ctrl"><i class="fa fa-navicon"></i> Configure</div>' +
             '';
 
         /**************/
@@ -189,6 +189,11 @@ NavigationBar.prototype = {
 
 
         /*** ***/
+
+        this.els.menuButton.addEventListener('click', function (e) {
+            _this.trigger('menuButton:click', {clickEvent: e, sender: {}})
+        });
+
         this.els.leftSideButton.addEventListener('click', function (e) {
             _this.trigger('leftSideButton:click', {clickEvent: e, sender: {}})
         });
@@ -268,10 +273,6 @@ NavigationBar.prototype = {
 
 //        this.els.compactButton.addEventListener('click', function (e) {
 //        });
-
-        this.els.configureButton.addEventListener('click', function (e) {
-            _this.trigger('configureButton:click', {clickEvent: e, sender: {}})
-        });
 
 
         var lastQuery = '';

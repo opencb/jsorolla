@@ -73,6 +73,7 @@ module.exports = function (grunt) {
                             '<%= def.build %>/vendor/three.js',
                             '<%= def.build %>/vendor/Stats.js',
                             '<%= def.build %>/vendor/RequestAnimationFrame.js',
+                            '<%= def.build %>/vendor/dat.gui.min.js',
                         ],
                         'js': '<%= def.build %>/<%= def.name %>.min.js'
                     }

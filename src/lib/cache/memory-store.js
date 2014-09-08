@@ -23,7 +23,7 @@ function MemoryStore(args) {
 };
 
 MemoryStore.prototype = {
-    add: function (key, value) {
+    put: function (key, value) {
         if (typeof this.store === 'undefined') {
             this.store = {};
         }
@@ -53,6 +53,12 @@ MemoryStore.prototype = {
         this.size++;
 
     },
+    putAll: function (keyArray, valueArray) {
+        for (var i = 0; i < keyArray.length; i++) {
+            this.put(keyArray[i], valueArray[i]);
+        }
+    },
+
     shift: function () {
         // todo: handle special case when limit == 1
         var item = this.head;
@@ -70,7 +76,7 @@ MemoryStore.prototype = {
             delete this.store[item.key];
         }
     },
-    get : function(key) {
+    get : function(key, callback) {
         // First, find our cache item
         var item = this.store[key];
         if (item === undefined) return; // Not cached. Sorry.
@@ -97,7 +103,24 @@ MemoryStore.prototype = {
         if (this.tail)
             this.tail.newer = item; // E. <-- D
         this.tail = item;
+        if (callback) {
+            callback(item.value);
+        }
         return item.value;
+    },
+
+    getAll: function (keyArray, callback) {
+        var valueArray = [];
+        for (var i = 0; i < keyArray.length; i++) {
+            valueArray[i] = this.get(keyArray[i]);
+        }
+        callback(valueArray);
+    },
+
+    foreach: function (keyArray, callback) {
+        for (var i = 0; i < keyArray.length; i++) {
+            callback(this.get(keyArray[i]), keyArray[i]);
+        }
     },
 
     init: function () {

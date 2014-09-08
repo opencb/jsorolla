@@ -66,7 +66,9 @@ CellBaseAdapter.prototype = {
             // The chunkSize will be the histogram interval
             var histogramId = dataType + '_' + params.interval;
             if (_.isUndefined(this.cache[histogramId])) {
-                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval});
+//                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId});
+                //test
+                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId+':'+histogramId});
             }
             chunkSize = this.cache[histogramId].chunkSize;
 
@@ -75,29 +77,34 @@ CellBaseAdapter.prototype = {
             // |----|----|----|----|----|----|----|    -> Logical chunk division
             //      |----|----|----|----|----|         -> Chunks covered by needed region
             //      |------------------------|         -> Adjusted region
-            var adjustedRegions = this.cache[histogramId].getAdjustedRegions(region);
-            if (adjustedRegions.length > 0) {
-                args.webServiceCallCount++;
-                // Get CellBase data
-                CellBaseManager.get({
-                    host: this.host,
-                    version: this.version,
-                    species: this.species,
-                    category: this.category,
-                    subCategory: this.subCategory,
-                    query: adjustedRegions,
-                    resource: this.resource,
-                    params: params,
-                    success: function (data) {
-                        _this._cellbaseHistogramSuccess(data, dataType, histogramId, args);
+            this.cache[histogramId].getAdjustedRegions(region, function(adjustedRegions) {
+
+                if (adjustedRegions.length > 0) {
+                    args.webServiceCallCount++;
+                    // Get CellBase data
+                    CellBaseManager.get({
+                        host: _this.host,
+                        version: _this.version,
+                        species: _this.species,
+                        category: _this.category,
+                        subCategory: _this.subCategory,
+                        query: adjustedRegions,
+                        resource: _this.resource,
+                        params: params,
+                        success: function (data) {
+                            _this._cellbaseHistogramSuccess(data, dataType, histogramId, args);
+                        }
+                    });
+                }
+
+                // Get chunks from cache
+                _this.cache[histogramId].getByRegion(region, function (cachedChunks) {
+                    _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                    if (args.webServiceCallCount === 0) {
+                        args.done();
                     }
                 });
-            }
-            // Get chunks from cache
-            var chunksByRegion = this.cache[histogramId].getCachedByRegion(region);
-            var chunksCached = this.cache[histogramId].getByRegions(chunksByRegion.cached);
-            this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
-
+            });
 
             /** Features: genes, snps ... **/
         } else {
@@ -112,47 +119,49 @@ CellBaseAdapter.prototype = {
             // |----|----|----|----|----|----|----|    -> Logical chunk division
             //      |----|----|----|----|----|         -> Chunks covered by needed region
             //      |----|++++|++++|----|----|         -> + means the chunk is cached so its region will not be retrieved
-            var chunksByRegion = this.cache[dataType].getCachedByRegion(region);
+            this.cache[dataType].getCachedByRegion(region, function (chunksByRegion){
+                if (chunksByRegion.notCached.length > 0) {
+                    var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
+                        return new Region(region).toString();
+                    });
 
-            if (chunksByRegion.notCached.length > 0) {
-                var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
-                    return new Region(region).toString();
-                });
+                    // Multiple CellBase calls will be performed, each one will
+                    // query 50 or less chunk regions
+                    var n = 50;
+                    var lists = _.groupBy(queryRegionStrings, function (a, b) {
+                        return Math.floor(b / n);
+                    });
+                    // Each element on queriesList contains and array of 50 or less regions
+                    var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
 
-                // Multiple CellBase calls will be performed, each one will
-                // query 50 or less chunk regions
-                var n = 50;
-                var lists = _.groupBy(queryRegionStrings, function (a, b) {
-                    return Math.floor(b / n);
-                });
-                // Each element on queriesList contains and array of 50 or less regions
-                var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
+                    for (var i = 0; i < queriesList.length; i++) {
+                        args.webServiceCallCount++;
+                        CellBaseManager.get({
+                            host: _this.host,
+                            version: _this.version,
+                            species: _this.species,
+                            category: _this.category,
+                            subCategory: _this.subCategory,
+                            query: queriesList[i],
+                            resource: _this.resource,
+                            params: params,
+                            success: function (data) {
+                                _this._cellbaseSuccess(data, dataType, args);
+                            }
+                        });
+                    }
+                }
 
-                for (var i = 0; i < queriesList.length; i++) {
-                    args.webServiceCallCount++;
-                    CellBaseManager.get({
-                        host: this.host,
-                        version: this.version,
-                        species: this.species,
-                        category: this.category,
-                        subCategory: this.subCategory,
-                        query: queriesList[i],
-                        resource: this.resource,
-                        params: params,
-                        success: function (data) {
-                            _this._cellbaseSuccess(data, dataType, args);
+                // Get chunks from cache
+                if (chunksByRegion.cached.length > 0) {
+                    _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
+                        _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                        if (args.webServiceCallCount === 0) {
+                            args.done();
                         }
                     });
                 }
-            }
-            // Get chunks from cache
-            if (chunksByRegion.cached.length > 0) {
-                var chunksCached = this.cache[dataType].getByRegions(chunksByRegion.cached);
-                this.trigger('data:ready', {items: chunksCached, dataType: dataType, chunkSize: chunkSize, sender: this});
-            }
-        }
-        if (args.webServiceCallCount === 0) {
-            args.done();
+            });
         }
     },
 
@@ -164,15 +173,15 @@ CellBaseAdapter.prototype = {
 
         var chunkSize = this.cache[dataType].chunkSize;
 
+        var regions = [];
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
             var queryResult = data.response[i];
 
-            var region = new Region(queryResult.id);
-            var features = queryResult.result;
-            var chunk = this.cache[dataType].putByRegion(region, features);
-            chunks.push(chunk);
+            regions.push(new Region(queryResult.id));
+            chunks.push(queryResult.result);
         }
+        chunks = this.cache[dataType].putByRegions(regions, chunks);
 
         /** time log **/
         console.timeEnd(timeId);
@@ -195,18 +204,20 @@ CellBaseAdapter.prototype = {
 
         var chunkSize = this.cache[histogramId].chunkSize;
 
+        var regions = [];
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
             var queryResult = data.response[i];
             for (var j = 0; j < queryResult.result.length; j++) {
                 var interval = queryResult.result[j];
-                var region = new Region(queryResult.id);
-                region.load(interval);
-                chunks.push(this.cache[histogramId].putByRegion(region, interval));
+                var region = new Region(interval);
+                regions.push(region);
+                chunks.push(interval);
             }
         }
+        var items = this.cache[histogramId].putByRegions(regions, chunks);
 
-        this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
+        this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         if (args.webServiceCallCount === 0) {
             args.done();
         }

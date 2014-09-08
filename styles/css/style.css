@@ -434,10 +434,10 @@ ul.ocb-app-menu > li:hover {
     background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
 }
 
-.ocb-gv-track-title-el:hover {
-    background-image: linear-gradient(to bottom, #f2f2f2, #e4e4e4);
-    background-image: -webkit-linear-gradient(top, #f2f2f2, #e4e4e4);
-}
+/*.ocb-gv-track-title-el:hover {*/
+    /*background-image: linear-gradient(to bottom, #f2f2f2, #e4e4e4);*/
+    /*background-image: -webkit-linear-gradient(top, #f2f2f2, #e4e4e4);*/
+/*}*/
 
 .ocb-gv-track-title-el:focus {
     background-image: linear-gradient(to bottom, #f2f2f2, #e4e4e4);
@@ -448,29 +448,47 @@ ul.ocb-app-menu > li:hover {
 .ocb-gv-track-title-histogram {
     margin-right: 10px;
 }
+.ocb-gv-track-title-toggle {
+    margin-right: 5px;
+}
 
 .ocb-gv-track-title-close {
     margin-left: 5px;
 }
 
+.ocb-gv-track-title-external-link {
+    margin-left: 5px;
+}
+
 .ocb-gv-track-title-text:hover {
-    color: steelblue;
-    text-decoration: underline;
+    /*color: steelblue;*/
+    /*text-decoration: underline;*/
+    /*cursor:pointer;*/
 }
 
 .ocb-gv-track-title-close:hover {
     color: darkred;
-    text-decoration: underline;
 }
 
 .ocb-gv-track-title-up:hover {
     color: steelblue;
-    text-decoration: underline;
 }
 
 .ocb-gv-track-title-down:hover {
     color: steelblue;
-    text-decoration: underline;
+}
+
+.ocb-gv-track-title-toggle:hover {
+    color: steelblue;
+}
+
+.ocb-gv-track-title-external-link:hover {
+    color: #1d9d74;
+}
+
+.ocb-gv-track-title-loading {
+    /*color: #6599FF;*/
+    color: orangered;
 }
 
 .ocb-track-resize {
@@ -573,7 +591,7 @@ CONTROLS
     user-select: none;
 }
 
-.ocb-ctrl-label {
+.ocb-ctrl-label, .ocb-ctrl-text {
     display: block;
     float: left;
     box-sizing: border-box;
@@ -583,6 +601,11 @@ CONTROLS
     color: #333;
     background-color: #f2f2f2;
     font-size: inherit;
+}
+
+.ocb-ctrl-text {
+    border-color:transparent;
+    background-color: transparent;
 }
 
 label.ocb-ctrl > input[type=radio],
@@ -640,7 +663,7 @@ input.ocb-ctrl[type=text].error {
 /******* Infinite drop down *****************/
 /*
   data-divider: add li with boolean attribute data-divider to add a space between li
-  data-sub: add attribute data-sub to add the angle for sub ul
+  data-sub: add attribute data-sub to add the angle icon for sub ul
 */
 
 div.ocb-dropdown {
@@ -674,6 +697,12 @@ ul.ocb-context ul {
     left: 0;
     top: 100%;
 }
+div.ocb-dropdown ul[data-upward]{
+    top:inherit;
+    bottom:100%;
+    margin-bottom: 2px;
+    left: 0;
+}
 
 div.ocb-dropdown ul ul {
     top: 0px;
@@ -698,6 +727,7 @@ ul.ocb-context li[data-divider] {
     background-color: #DEDEDE;
 }
 
+
 div.ocb-dropdown ul li[data-sub]:after,
 ul.ocb-context li[data-sub]:after {
     font-family: FontAwesome;
@@ -718,6 +748,13 @@ ul.ocb-context li:hover {
     background-color: #2F65F4;
     color: #fff;
 }
+
+div.ocb-dropdown ul li[data-text]:hover,
+ul.ocb-context li[data-text]:hover {
+    background-color: inherit;
+    color: inherit;
+}
+
 
 div.ocb-dropdown > div:focus + ul,
 div.ocb-dropdown > div:focus + ul li:hover > ul {

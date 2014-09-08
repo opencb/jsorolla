@@ -4,8 +4,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Genome Viewer Demo</title>
 
-    <!-- build:[href] vendor/font-awesome-4.1.0/css/ -->
-    <link rel="stylesheet" href="../../vendor/font-awesome-4.1.0/css/font-awesome.min.css">
+    <!-- build:[href] vendor/font-awesome/css/ -->
+    <link rel="stylesheet" href="../../vendor/font-awesome/css/font-awesome.min.css">
     <!-- /build -->
 
     <!-- build:[href] vendor/ -->
@@ -40,6 +40,7 @@
     <script type="text/javascript" src="../lib/cache/file-feature-cache.js"></script>
     <script type="text/javascript" src="../lib/cache/feature-chunk-cache.js"></script>
     <script type="text/javascript" src="../lib/cache/memory-store.js"></script>
+    <script type="text/javascript" src="../lib/cache/indexedDB-store.js"></script>
 
 
     <script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter.js"></script>
@@ -65,8 +66,8 @@
     <script type="text/javascript" src="../lib/widgets/feature/info/transcript-info-widget.js"></script>
     <script type="text/javascript" src="../lib/widgets/feature/info/vcf-variant-info-widget.js"></script>
 
-    <script type="text/javascript" src="../lib/widgets/feature/file/legend-panel.js"></script>
-    <script type="text/javascript" src="../lib/widgets/feature/file/legend-widget.js"></script>
+    <script type="text/javascript" src="../../check-deprecated/legend-panel.js"></script>
+    <script type="text/javascript" src="../../check-deprecated/legend-widget.js"></script>
 
     <script type="text/javascript" src="../lib/widgets/ux-window.js"></script>
 
@@ -262,7 +263,8 @@ var run = function () {
                 exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
             },
             cacheConfig: {
-                chunkSize: 100000
+                chunkSize: 100000,
+                cacheId: "cellbase:gene"
             }
         })
     });
@@ -294,7 +296,8 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                chunkSize: 100000
+                chunkSize: 100000,
+                cacheId: "cellbase:feature"
             }
         })
     });
@@ -318,7 +321,8 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                chunkSize: 10000
+                chunkSize: 10000,
+                cacheId: "cellbase:snp"
             }
         })
     });
