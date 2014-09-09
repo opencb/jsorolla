@@ -67,8 +67,6 @@ CellBaseAdapter.prototype = {
             var histogramId = dataType + '_' + params.interval;
             if (_.isUndefined(this.cache[histogramId])) {
                 this.cache[histogramId] = new FeatureChunkCache(_.extend({chunkSize: params.interval, objectStore: this.species.text}, this.cacheConfig));
-                //test
-//                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId+':'+histogramId});
             }
             chunkSize = this.cache[histogramId].chunkSize;
 
@@ -215,7 +213,7 @@ CellBaseAdapter.prototype = {
                 chunks.push(interval);
             }
         }
-        var items = this.cache[histogramId].putByRegions(regions, chunks, histogramId); // TODO remove "histogram" from "_histogram_<interval>"
+        var items = this.cache[histogramId].putByRegions(regions, chunks, false, histogramId); // TODO remove "histogram" from "_histogram_<interval>"
 
         this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         if (args.webServiceCallCount === 0) {
