@@ -66,9 +66,9 @@ CellBaseAdapter.prototype = {
             // The chunkSize will be the histogram interval
             var histogramId = dataType + '_' + params.interval;
             if (_.isUndefined(this.cache[histogramId])) {
-//                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId});
+                this.cache[histogramId] = new FeatureChunkCache(_.extend({chunkSize: params.interval, objectStore: this.species.text}, this.cacheConfig));
                 //test
-                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId+':'+histogramId});
+//                this.cache[histogramId] = new FeatureChunkCache({chunkSize: params.interval, cacheId: this.cacheConfig.cacheId+':'+histogramId});
             }
             chunkSize = this.cache[histogramId].chunkSize;
 
@@ -103,14 +103,14 @@ CellBaseAdapter.prototype = {
                     if (args.webServiceCallCount === 0) {
                         args.done();
                     }
-                });
-            });
+                }, histogramId);
+            }, histogramId);
 
             /** Features: genes, snps ... **/
         } else {
             // Features will be saved using the dataType features
             if (_.isUndefined(this.cache[dataType])) {
-                this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
+                this.cache[dataType] = new FeatureChunkCache(_.extend({objectStore: this.species.text}, this.cacheConfig));
             }
             chunkSize = this.cache[dataType].chunkSize;
 
@@ -215,7 +215,7 @@ CellBaseAdapter.prototype = {
                 chunks.push(interval);
             }
         }
-        var items = this.cache[histogramId].putByRegions(regions, chunks);
+        var items = this.cache[histogramId].putByRegions(regions, chunks, histogramId); // TODO remove "histogram" from "_histogram_<interval>"
 
         this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         if (args.webServiceCallCount === 0) {
