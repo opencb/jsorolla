@@ -20,6 +20,47 @@
  *
  */
 
+/**
+ * Composes an url with the given parameters. Valid parameters:
+ * args: {
+ *
+ * }
+ *
+
+var exampleCellbaseArgs = {
+    success: function(){},
+    error: function(){},
+
+    host: "",
+    version: 0,
+    params: {
+        of: ""
+    },
+    query: "",
+    species: "",
+    category: "",
+    subcategory: "",
+    resource: ""
+};
+var exampleOpencgaArgs = {
+    success: function(){},
+    error: function(){},
+
+    host: "",
+        version: 0,
+        params: {
+        of: ""
+    },
+    query: "",
+        user: "",
+        dataType: "", // alignment / variant
+        study: "",
+        file: "",
+        method: ""
+},
+    */
+
+
 var OpencgaManager = {
     study: {
         host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,  // TODO find out proper host
@@ -103,21 +144,17 @@ var OpencgaManager = {
                 query = '/' + config.query;
             }
 
-            //species can be the species code(String) or an object with text attribute
-            if ($.isPlainObject(config.species)) {
-                config.species = Utils.getSpeciesCode(config.species.text);
-            }
-
 //            var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
-            // /account/jcoll/analysis/alignment/[[u@]p:]study/file/method
-            var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource; // TODO change to opencga URL
+            // /account/jcoll/analysis/alignment/[[owner@]project:]study/file/method
+            var url = config.host + '/' + config.version + '/account/' + config.user + '/analysis/' + config.dataType + '/'
+                + config.study + '/' + config.file + '/' + config.method; // TODO what is query?
             url = Utils.addQueryParamtersToUrl(config.params, url);
             return url;
         }
 
     },
 
-    //////// old version
+//////// old version
     host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
     getHost: function () {
         return OpencgaManager.host;
