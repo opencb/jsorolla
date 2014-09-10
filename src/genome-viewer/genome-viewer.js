@@ -46,17 +46,17 @@ function GenomeViewer(args) {
     this.drawOverviewTrackListPanel = true;
     this.overviewZoomMultiplier = 8;
     this.karyotypePanelConfig = {
-        hidden:false,
+        hidden: false,
         collapsed: false,
         collapsible: true
     };
     this.chromosomePanelConfig = {
-        hidden:false,
+        hidden: false,
         collapsed: false,
         collapsible: true
     };
     this.regionPanelConfig = {
-        hidden:false,
+        hidden: false,
         collapsed: false,
         collapsible: true
     };
@@ -485,7 +485,7 @@ GenomeViewer.prototype = {
             title: 'Karyotype',
             collapsed: this.karyotypePanelConfig.collapsed,
             collapsible: this.karyotypePanelConfig.collapsible,
-            hidden:this.karyotypePanelConfig.hidden,
+            hidden: this.karyotypePanelConfig.hidden,
             region: this.region,
             autoRender: true,
             handlers: {
@@ -503,9 +503,9 @@ GenomeViewer.prototype = {
         this.on('width:change', function (event) {
             karyotypePanel.setWidth(event.width - _this.sidePanelWidth);
         });
-        this.on('species:change', function (event) {
-            karyotypePanel.setSpecies(event.species);
-        });
+//        this.on('species:change', function (event) {
+//            karyotypePanel.setSpecies(event.species);
+//        });
 
         karyotypePanel.draw();
 
@@ -526,7 +526,7 @@ GenomeViewer.prototype = {
             title: 'Chromosome',
             collapsed: this.chromosomePanelConfig.collapsed,
             collapsible: this.chromosomePanelConfig.collapsible,
-            hidden:this.chromosomePanelConfig.hidden,
+            hidden: this.chromosomePanelConfig.hidden,
             region: this.region,
             handlers: {
                 'region:change': function (event) {
@@ -543,9 +543,9 @@ GenomeViewer.prototype = {
         this.on('width:change', function (event) {
             chromosomePanel.setWidth(event.width - _this.sidePanelWidth);
         });
-        this.on('species:change', function (event) {
-            chromosomePanel.setSpecies(event.species);
-        });
+//        this.on('species:change', function (event) {
+//            chromosomePanel.setSpecies(event.species);
+//        });
 
         chromosomePanel.draw();
 
@@ -589,9 +589,9 @@ GenomeViewer.prototype = {
         this.on('width:change', function (event) {
             trackListPanel.setWidth(event.width - _this.sidePanelWidth);
         });
-        this.on('species:change', function (event) {
-            trackListPanel.setSpecies(event.species);
-        });
+//        this.on('species:change', function (event) {
+//            trackListPanel.setSpecies(event.species);
+//        });
 
         trackListPanel.draw();
 
@@ -608,7 +608,7 @@ GenomeViewer.prototype = {
             width: this.width - this.sidePanelWidth,
             title: this.trackListTitle,
             region: this.region,
-            hidden:this.regionPanelConfig.hidden,
+            hidden: this.regionPanelConfig.hidden,
             handlers: {
                 'region:change': function (event) {
                     event.sender = undefined;
@@ -633,9 +633,9 @@ GenomeViewer.prototype = {
         this.on('width:change', function (event) {
             trackListPanel.setWidth(event.width - _this.sidePanelWidth);
         });
-        this.on('species:change', function (event) {
-            trackListPanel.setSpecies(event.species);
-        });
+//        this.on('species:change', function (event) {
+//            trackListPanel.setSpecies(event.species);
+//        });
 
         this.on('feature:highlight', function (event) {
             trackListPanel.highlight(event);
@@ -716,7 +716,7 @@ GenomeViewer.prototype = {
     },
     _calculateZoomByRegion: function (region) {
         var minNtPixels = 10; // 10 is the minimum pixels per nt
-        var chr = this.chromosomes[this.region.chromosome];
+        var chr = this.chromosomes[region.chromosome];
         var minRegionLength = this.getSVGCanvasWidth() / minNtPixels;
         var zoomLevelMultiplier = Math.pow(chr.size / minRegionLength, 0.01); // 0.01 = 1/100  100 zoom levels
 
@@ -846,6 +846,12 @@ GenomeViewer.prototype = {
     _speciesChangeHandler: function (event) {
         //Relaunch
         this.trigger('species:change', event);
+
+        this.overviewTrackListPanel.setSpecies(event.species);
+        this.trackListPanel.setSpecies(event.species);
+        this.chromosomePanel.setSpecies(event.species);
+        this.karyotypePanel.setSpecies(event.species);
+
         this.setRegion(event.species.region);
     },
 

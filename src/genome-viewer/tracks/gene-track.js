@@ -95,7 +95,7 @@ GeneTrack.prototype.draw = function () {
     var dataType = 'features';
 
     if (!_.isUndefined(this.exclude)) {
-        dataType = 'features' + this.exclude;
+        dataType = 'features' + this.exclude.replace(/[,.]/gi,'');
     }
 
     if (this.histogram) {

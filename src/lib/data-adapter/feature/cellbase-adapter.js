@@ -59,23 +59,26 @@ CellBaseAdapter.prototype = {
         }
         var chunkSize;
 
+        var speciesId = (this.species.text + this.species.assembly).replace(/[/_().\ -]/g, '');
 
         /** Check dataType histogram  **/
         if (dataType == 'histogram') {
             // Histogram chunks will be saved in different caches by interval size
             // The chunkSize will be the histogram interval
-            var histogramId = dataType + '_' + params.interval;
-            if (_.isUndefined(this.cache[histogramId])) {
-                this.cache[histogramId] = new FeatureChunkCache(_.extend({chunkSize: params.interval, objectStore: this.species.text}, this.cacheConfig));
+            var histogramId = dataType + params.interval;
+            var cacheId = histogramId + speciesId;
+
+            if (_.isUndefined(this.cache[cacheId])) {
+                this.cache[cacheId] = new FeatureChunkCache(_.extend({chunkSize: params.interval, objectStore: cacheId}, this.cacheConfig));
             }
-            chunkSize = this.cache[histogramId].chunkSize;
+            chunkSize = this.cache[cacheId].chunkSize;
 
             // Extend region to be adjusted with the chunks
             //        --------------------             -> Region needed
             // |----|----|----|----|----|----|----|    -> Logical chunk division
             //      |----|----|----|----|----|         -> Chunks covered by needed region
             //      |------------------------|         -> Adjusted region
-            this.cache[histogramId].getAdjustedRegions(region, function(adjustedRegions) {
+            this.cache[cacheId].getAdjustedRegions(region, function (adjustedRegions) {
 
                 if (adjustedRegions.length > 0) {
                     args.webServiceCallCount++;
@@ -90,13 +93,13 @@ CellBaseAdapter.prototype = {
                         resource: _this.resource,
                         params: params,
                         success: function (data) {
-                            _this._cellbaseHistogramSuccess(data, dataType, histogramId, args);
+                            _this._cellbaseHistogramSuccess(data, dataType, cacheId, histogramId, args);
                         }
                     });
                 }
 
                 // Get chunks from cache
-                _this.cache[histogramId].getByRegion(region, function (cachedChunks) {
+                _this.cache[cacheId].getByRegion(region, function (cachedChunks) {
                     _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                     if (args.webServiceCallCount === 0) {
                         args.done();
@@ -107,17 +110,18 @@ CellBaseAdapter.prototype = {
             /** Features: genes, snps ... **/
         } else {
             // Features will be saved using the dataType features
-            if (_.isUndefined(this.cache[dataType])) {
-                this.cache[dataType] = new FeatureChunkCache(_.extend({objectStore: this.species.text}, this.cacheConfig));
+            var cacheId = dataType + speciesId;
+            if (_.isUndefined(this.cache[cacheId])) {
+                this.cache[cacheId] = new FeatureChunkCache(_.extend({objectStore: cacheId}, this.cacheConfig));
             }
-            chunkSize = this.cache[dataType].chunkSize;
+            chunkSize = this.cache[cacheId].chunkSize;
 
             // Get cached chunks and not cached chunk regions
             //        --------------------             -> Region needed
             // |----|----|----|----|----|----|----|    -> Logical chunk division
             //      |----|----|----|----|----|         -> Chunks covered by needed region
             //      |----|++++|++++|----|----|         -> + means the chunk is cached so its region will not be retrieved
-            this.cache[dataType].getCachedByRegion(region, function (chunksByRegion){
+            this.cache[cacheId].getCachedByRegion(region, function (chunksByRegion) {
                 if (chunksByRegion.notCached.length > 0) {
                     var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
                         return new Region(region).toString();
@@ -144,7 +148,7 @@ CellBaseAdapter.prototype = {
                             resource: _this.resource,
                             params: params,
                             success: function (data) {
-                                _this._cellbaseSuccess(data, dataType, args);
+                                _this._cellbaseSuccess(data, dataType, cacheId, args);
                             }
                         });
                     }
@@ -152,7 +156,7 @@ CellBaseAdapter.prototype = {
 
                 // Get chunks from cache
                 if (chunksByRegion.cached.length > 0) {
-                    _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
+                    _this.cache[cacheId].getByRegions(chunksByRegion.cached, function (cachedChunks) {
                         _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                         if (args.webServiceCallCount === 0) {
                             args.done();
@@ -163,13 +167,13 @@ CellBaseAdapter.prototype = {
         }
     },
 
-    _cellbaseSuccess: function (data, dataType, args) {
+    _cellbaseSuccess: function (data, dataType, cacheId, args) {
         args.webServiceCallCount--;
         var timeId = this.resource + " save " + Utils.randomString(4);
         console.time(timeId);
         /** time log **/
 
-        var chunkSize = this.cache[dataType].chunkSize;
+        var chunkSize = this.cache[cacheId].chunkSize;
 
         var regions = [];
         var chunks = [];
@@ -179,7 +183,7 @@ CellBaseAdapter.prototype = {
             regions.push(new Region(queryResult.id));
             chunks.push(queryResult.result);
         }
-        chunks = this.cache[dataType].putByRegions(regions, chunks);
+        chunks = this.cache[cacheId].putByRegions(regions, chunks);
 
         /** time log **/
         console.timeEnd(timeId);
@@ -194,13 +198,13 @@ CellBaseAdapter.prototype = {
 
 
     },
-    _cellbaseHistogramSuccess: function (data, dataType, histogramId, args) {
+    _cellbaseHistogramSuccess: function (data, dataType, cacheId, histogramId, args) {
         args.webServiceCallCount--;
         var timeId = Utils.randomString(4);
         console.time(this.resource + " save " + timeId);
         /** time log **/
 
-        var chunkSize = this.cache[histogramId].chunkSize;
+        var chunkSize = this.cache[cacheId].chunkSize;
 
         var regions = [];
         var chunks = [];
@@ -213,7 +217,7 @@ CellBaseAdapter.prototype = {
                 chunks.push(interval);
             }
         }
-        var items = this.cache[histogramId].putByRegions(regions, chunks, false, histogramId); // TODO remove "histogram" from "_histogram_<interval>"
+        var items = this.cache[cacheId].putByRegions(regions, chunks, false, histogramId); // TODO remove "histogram" from "_histogram_<interval>"
 
         this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         if (args.webServiceCallCount === 0) {
