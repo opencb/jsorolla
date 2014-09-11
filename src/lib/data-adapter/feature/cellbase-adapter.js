@@ -25,6 +25,7 @@ function CellBaseAdapter(args) {
 
     this.host;
     this.version;
+    this.cacheId = args.resource;
 
     _.extend(this, args);
 
@@ -67,9 +68,12 @@ CellBaseAdapter.prototype = {
             // The chunkSize will be the histogram interval
             var histogramId = dataType + params.interval;
             var cacheId = histogramId + speciesId;
-
+            cacheId = _this.cacheId + speciesId;    // TODO jmmut: temporal
+            if (_.isUndefined(_this.cacheId)){
+                debugger;
+            }
             if (_.isUndefined(this.cache[cacheId])) {
-                this.cache[cacheId] = new FeatureChunkCache(_.extend({chunkSize: params.interval, objectStore: cacheId}, this.cacheConfig));
+                this.cache[cacheId] = new FeatureChunkCache(_.extend({chunkSize: params.interval, objectStore: speciesId}, this.cacheConfig));
             }
             chunkSize = this.cache[cacheId].chunkSize;
 
@@ -111,8 +115,12 @@ CellBaseAdapter.prototype = {
         } else {
             // Features will be saved using the dataType features
             var cacheId = dataType + speciesId;
+            cacheId = _this.cacheId + speciesId;    // TODO jmmut: temporal
+            if (_.isUndefined(_this.cacheId)){
+                debugger;
+            }
             if (_.isUndefined(this.cache[cacheId])) {
-                this.cache[cacheId] = new FeatureChunkCache(_.extend({objectStore: cacheId}, this.cacheConfig));
+                this.cache[cacheId] = new FeatureChunkCache(_.extend({objectStore: speciesId}, this.cacheConfig));
             }
             chunkSize = this.cache[cacheId].chunkSize;
 

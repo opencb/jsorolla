@@ -18,6 +18,7 @@
 var iDBInstances = [];
 var iDBVersion = 1;
 function IndexedDBStore(args) {
+    var _this = this;
 //debugger
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
@@ -27,6 +28,8 @@ function IndexedDBStore(args) {
 
     this.cacheId = "default";
     this.objectStore = "ObjectStore";
+    this.opening = false;
+    this.timeout = 30;  // time to wait if the DB connection is being already opened
     // Now we set the args parameters
     // must be the last instruction in order to overwrite default attributes
     _.extend(this, args);
@@ -47,7 +50,7 @@ function IndexedDBStore(args) {
 //            window.alert("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
 //        }
     this._getConnection(function (db) {
-        console.log("obtained IndexedDB connection");
+        console.log("obtained initial IndexedDB connection for " + _this.cacheId + ", " + _this.objectStore);
         console.log(db);
     });
 }
@@ -55,17 +58,25 @@ function IndexedDBStore(args) {
 IndexedDBStore.prototype = {
     _getConnection: function (callback, version) {
         var _this = this;
-        if (_this.db && !_this.db.closed && _this.db.objectStoreNames.contains(_this.objectStore)) {
+//        console.log(_this.cacheId + " opening? "+ _this.opening);
+        if (_this.opening == true) {
+            console.log("Database " + _this.cacheId + " is already opening. To avoid block: waiting...");
+            setTimeout(_this._getConnection.bind(_this), _this.timeout * (1 + Math.random()*0.25), callback, version);
+        } else if (_this.db && !_this.db.closed && _this.db.objectStoreNames.contains(_this.objectStore)) {
             callback(_this.db);
         } else {
             try {
                 var dbOpenRequest;
-                if (version) {
+                _this.opening = true;
+//                console.log("lock:"+_this.cacheId+" opening = "+ _this.opening);
+                if (!_.isUndefined(version)) {
                     dbOpenRequest = window.indexedDB.open(_this.cacheId, version); // second parameter is the version. increase to modify tables.
                 } else {
                     dbOpenRequest = window.indexedDB.open(_this.cacheId);
                 }
                 dbOpenRequest.onsuccess = function (event) {
+                    _this.opening = false;
+//                    console.log("unlock:"+_this.cacheId+" opening = "+ _this.opening);
                     if (_this.db) {
                         _this.db.close();
                         _this.db.closed = true;
@@ -83,7 +94,7 @@ IndexedDBStore.prototype = {
                     };
 
                     if (!_this.db.objectStoreNames.contains(_this.objectStore)) {
-//                        console.log("adding ObjectStore " + _this.cacheId);
+//                        console.log("adding ObjectStore " + _this.objectStore + " in " + _this.cacheId);
                         iDBVersion = Math.max(iDBVersion, _this.db.version) + 1;
                         _this.db.close();
                         _this.db.closed = true;
@@ -186,6 +197,13 @@ IndexedDBStore.prototype = {
             console.log(e);
         }
 
+    },
+
+    destroyDBs: function() {
+        for (var i = 0; i < iDBInstances.length; i++){
+            iDBInstances[i].close();
+            iDBInstances[i].destroyDB();
+        }
     },
 
 
