@@ -25,7 +25,6 @@ function CellBaseAdapter(args) {
 
     this.host;
     this.version;
-    this.cacheId = args.resource;
 
     _.extend(this, args);
 
@@ -60,29 +59,28 @@ CellBaseAdapter.prototype = {
         }
         var chunkSize;
 
-        var speciesId = (this.species.text + this.species.assembly).replace(/[/_().\ -]/g, '');
+        // two levels of cache. In this adapter, default are: species and type of track.
+        this.cacheConfig.cacheId = (this.species.text + this.species.assembly).replace(/[/_().\ -]/g, '');
+        this.cacheConfig.subCacheId = this.resource + this.params.exclude;
+        var combinedCacheId = _this.cacheConfig.cacheId + "_" + _this.cacheConfig.subCacheId;
 
         /** Check dataType histogram  **/
         if (dataType == 'histogram') {
             // Histogram chunks will be saved in different caches by interval size
             // The chunkSize will be the histogram interval
             var histogramId = dataType + params.interval;
-            var cacheId = histogramId + speciesId;
-            cacheId = _this.cacheId + speciesId;    // TODO jmmut: temporal
-            if (_.isUndefined(_this.cacheId)){
-                debugger;
+
+            if (_.isUndefined(this.cache[combinedCacheId])) {
+                this.cache[combinedCacheId] = new FeatureChunkCache(_.extend({chunkSize: params.interval}, _this.cacheConfig));
             }
-            if (_.isUndefined(this.cache[cacheId])) {
-                this.cache[cacheId] = new FeatureChunkCache(_.extend({chunkSize: params.interval, objectStore: speciesId}, this.cacheConfig));
-            }
-            chunkSize = this.cache[cacheId].chunkSize;
+            chunkSize = this.cache[combinedCacheId].chunkSize;
 
             // Extend region to be adjusted with the chunks
             //        --------------------             -> Region needed
             // |----|----|----|----|----|----|----|    -> Logical chunk division
             //      |----|----|----|----|----|         -> Chunks covered by needed region
             //      |------------------------|         -> Adjusted region
-            this.cache[cacheId].getAdjustedRegions(region, function (adjustedRegions) {
+            this.cache[combinedCacheId].getAdjustedRegions(region, function (adjustedRegions) {
 
                 if (adjustedRegions.length > 0) {
                     args.webServiceCallCount++;
@@ -97,13 +95,13 @@ CellBaseAdapter.prototype = {
                         resource: _this.resource,
                         params: params,
                         success: function (data) {
-                            _this._cellbaseHistogramSuccess(data, dataType, cacheId, histogramId, args);
+                            _this._cellbaseHistogramSuccess(data, dataType, combinedCacheId, histogramId, args);
                         }
                     });
                 }
 
                 // Get chunks from cache
-                _this.cache[cacheId].getByRegion(region, function (cachedChunks) {
+                _this.cache[combinedCacheId].getByRegion(region, function (cachedChunks) {
                     _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                     if (args.webServiceCallCount === 0) {
                         args.done();
@@ -114,22 +112,17 @@ CellBaseAdapter.prototype = {
             /** Features: genes, snps ... **/
         } else {
             // Features will be saved using the dataType features
-            var cacheId = dataType + speciesId;
-            cacheId = _this.cacheId + speciesId;    // TODO jmmut: temporal
-            if (_.isUndefined(_this.cacheId)){
-                debugger;
+            if (_.isUndefined(this.cache[combinedCacheId])) {
+                this.cache[combinedCacheId] = new FeatureChunkCache(this.cacheConfig);
             }
-            if (_.isUndefined(this.cache[cacheId])) {
-                this.cache[cacheId] = new FeatureChunkCache(_.extend({objectStore: speciesId}, this.cacheConfig));
-            }
-            chunkSize = this.cache[cacheId].chunkSize;
+            chunkSize = this.cache[combinedCacheId].chunkSize;
 
             // Get cached chunks and not cached chunk regions
             //        --------------------             -> Region needed
             // |----|----|----|----|----|----|----|    -> Logical chunk division
             //      |----|----|----|----|----|         -> Chunks covered by needed region
             //      |----|++++|++++|----|----|         -> + means the chunk is cached so its region will not be retrieved
-            this.cache[cacheId].getCachedByRegion(region, function (chunksByRegion) {
+            this.cache[combinedCacheId].getCachedByRegion(region, function (chunksByRegion) {
                 if (chunksByRegion.notCached.length > 0) {
                     var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
                         return new Region(region).toString();
@@ -156,7 +149,7 @@ CellBaseAdapter.prototype = {
                             resource: _this.resource,
                             params: params,
                             success: function (data) {
-                                _this._cellbaseSuccess(data, dataType, cacheId, args);
+                                _this._cellbaseSuccess(data, dataType, combinedCacheId, args);
                             }
                         });
                     }
@@ -164,7 +157,7 @@ CellBaseAdapter.prototype = {
 
                 // Get chunks from cache
                 if (chunksByRegion.cached.length > 0) {
-                    _this.cache[cacheId].getByRegions(chunksByRegion.cached, function (cachedChunks) {
+                    _this.cache[combinedCacheId].getByRegions(chunksByRegion.cached, function (cachedChunks) {
                         _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                         if (args.webServiceCallCount === 0) {
                             args.done();
@@ -175,13 +168,13 @@ CellBaseAdapter.prototype = {
         }
     },
 
-    _cellbaseSuccess: function (data, dataType, cacheId, args) {
+    _cellbaseSuccess: function (data, dataType, combinedCacheId, args) {
         args.webServiceCallCount--;
         var timeId = this.resource + " save " + Utils.randomString(4);
         console.time(timeId);
         /** time log **/
 
-        var chunkSize = this.cache[cacheId].chunkSize;
+        var chunkSize = this.cache[combinedCacheId].chunkSize;
 
         var regions = [];
         var chunks = [];
@@ -191,7 +184,7 @@ CellBaseAdapter.prototype = {
             regions.push(new Region(queryResult.id));
             chunks.push(queryResult.result);
         }
-        chunks = this.cache[cacheId].putByRegions(regions, chunks);
+        chunks = this.cache[combinedCacheId].putByRegions(regions, chunks);
 
         /** time log **/
         console.timeEnd(timeId);
@@ -206,13 +199,13 @@ CellBaseAdapter.prototype = {
 
 
     },
-    _cellbaseHistogramSuccess: function (data, dataType, cacheId, histogramId, args) {
+    _cellbaseHistogramSuccess: function (data, dataType, combinedCacheId, histogramId, args) {
         args.webServiceCallCount--;
         var timeId = Utils.randomString(4);
         console.time(this.resource + " save " + timeId);
         /** time log **/
 
-        var chunkSize = this.cache[cacheId].chunkSize;
+        var chunkSize = this.cache[combinedCacheId].chunkSize;
 
         var regions = [];
         var chunks = [];
@@ -225,7 +218,7 @@ CellBaseAdapter.prototype = {
                 chunks.push(interval);
             }
         }
-        var items = this.cache[cacheId].putByRegions(regions, chunks, false, histogramId); // TODO remove "histogram" from "_histogram_<interval>"
+        var items = this.cache[combinedCacheId].putByRegions(regions, chunks, false, histogramId); // TODO remove "histogram" from "_histogram_<interval>"
 
         this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         if (args.webServiceCallCount === 0) {

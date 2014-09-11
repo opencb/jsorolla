@@ -26,7 +26,7 @@ function IndexedDBStore(args) {
     this.chunkSize = 50000;
     this.lru = [];
 
-    this.cacheId = "default";
+    this.cacheId = "DataBase";
     this.objectStore = "ObjectStore";
     this.opening = false;
     this.timeout = 30;  // time to wait if the DB connection is being already opened
