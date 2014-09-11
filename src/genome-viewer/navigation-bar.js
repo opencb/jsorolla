@@ -56,6 +56,8 @@ function NavigationBar(args) {
     };
     this.zoom = 100;
 
+    this.quickSearchDisplayKey = 'name';
+
 
     _.extend(this.componentsConfig, args.componentsConfig);
     delete args.componentsConfig;
@@ -150,7 +152,7 @@ NavigationBar.prototype = {
 
             '<div id="searchControl" style="float:left;">' +
             '<div class="ocb-ctrl-label" style="border-right: none;margin-left: 5px;">Search:</div>' +
-            '<input id="searchField" class="ocb-ctrl"  list="searchDataList"  placeholder="gene, snp..." type="text" style="width: 90px;">' +
+            '<input id="searchField" class="ocb-ctrl"  list="searchDataList"  placeholder="gene" type="text" style="width: 90px;">' +
             '       <datalist id="searchDataList">' +
             '       </datalist>' +
             '<div id="quickSearchButton" class="ocb-ctrl" style="border-left: none;"><i class="fa fa-search"></i></div>' +
@@ -277,6 +279,7 @@ NavigationBar.prototype = {
 
         var lastQuery = '';
         this.els.searchField.addEventListener('keyup', function (event) {
+            this.classList.remove('error');
             var query = this.value;
             if (query.length > 2 && lastQuery !== query && event.which !== 13) {
                 _this._setQuickSearchMenu(query);
@@ -284,14 +287,23 @@ NavigationBar.prototype = {
             }
             if (event.which === 13) {
                 var item = _this.quickSearchDataset[query];
-                _this.trigger('quickSearch:select', {item: item, sender: _this});
+                if (item) {
+                    _this.trigger('quickSearch:select', {item: item, sender: _this});
+                } else {
+                    this.classList.add('error');
+                }
             }
         });
 
         this.els.quickSearchButton.addEventListener('click', function () {
+            _this.els.searchField.classList.remove('error');
             var query = _this.els.searchField.value;
             var item = _this.quickSearchDataset[query];
-            _this.trigger('quickSearch:go', {item: item, sender: _this});
+            if (item) {
+                _this.trigger('quickSearch:go', {item: item, sender: _this});
+            } else {
+                _this.els.searchField.classList.add('error');
+            }
         });
 
         this.els.windowSizeField.value = this.region.length();
@@ -342,15 +354,13 @@ NavigationBar.prototype = {
             }
             this.quickSearchDataset = {};
             var items = this.quickSearchResultFn(query);
+//            for (var i = 0; i < items.length; i++) {
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
-                var itemKey = item;
-                if (typeof this.quickSearchDisplayKey === "string") {
-                    itemKey = item[this.quickSearchDisplayKey];
-                }
-                this.quickSearchDataset[itemKey] = item;
+                var value = item[this.quickSearchDisplayKey];
+                this.quickSearchDataset[value] = item;
                 var menuEntry = document.createElement('option');
-                menuEntry.setAttribute('value', itemKey);
+                menuEntry.setAttribute('value', value);
                 this.els.searchDataList.appendChild(menuEntry);
             }
         } else {
@@ -423,7 +433,7 @@ NavigationBar.prototype = {
 
         var createEntry = function (species, ul) {
             var menuEntry = document.createElement('li');
-            menuEntry.textContent = species.text + ' '+ species.assembly;
+            menuEntry.textContent = species.text + ' ' + species.assembly;
             ul.appendChild(menuEntry);
 
             menuEntry.addEventListener('click', function () {
