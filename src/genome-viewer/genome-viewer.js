@@ -38,7 +38,7 @@ function GenomeViewer(args) {
     this.cellBaseVersion = 'v3';
 
     this.quickSearchResultFn;
-    this.quickSearchDisplayKey;
+    this.quickSearchDisplayKey = 'name';
 
     this.drawNavigationBar = true;
     this.drawKaryotypePanel = true;
@@ -322,57 +322,60 @@ GenomeViewer.prototype = {
         if (!$.isFunction(this.quickSearchResultFn)) {
             this.quickSearchResultFn = function (query) {
                 var results = [];
-                var speciesCode = Utils.getSpeciesCode(this.species.text).substr(0, 3);
+                var speciesCode = Utils.getSpeciesCode(this.species.text);
 
                 CellBaseManager.get({
                     host: _this.cellBaseHost,
                     version: _this.cellBaseVersion,
 //                    host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
                     species: speciesCode,
-                    version: 'latest',
                     category: 'feature',
                     subCategory: 'id',
                     query: query,
                     resource: 'starts_with',
                     params: {
-                        of: 'json'
+                        limit: 10
                     },
                     async: false,
                     success: function (data, textStatus, jqXHR) {
-                        for (var i in data[0]) {
-                            results.push(data[0][i].displayId);
-                        }
+                        results = data.response[0].result;
+//                        var features = data.response[0].result;
+//                        for (var i = 0; i < features.length; i++) {
+//                            results.push(features[i].name)
+//                        }
                     }
                 });
                 return results;
             };
         }
 
-        var goFeature = function (featureName) {
-            if (featureName != null) {
-                if (featureName.slice(0, "rs".length) == "rs" || featureName.slice(0, "AFFY_".length) == "AFFY_" || featureName.slice(0, "SNP_".length) == "SNP_" || featureName.slice(0, "VAR_".length) == "VAR_" || featureName.slice(0, "CRTAP_".length) == "CRTAP_" || featureName.slice(0, "FKBP10_".length) == "FKBP10_" || featureName.slice(0, "LEPRE1_".length) == "LEPRE1_" || featureName.slice(0, "PPIB_".length) == "PPIB_") {
-                    this.openSNPListWidget(featureName);
-                } else {
-                    console.log(featureName);
-                    CellBaseManager.get({
-                        host: _this.cellBaseHost,
-                        version: _this.cellBaseVersion,
-                        species: _this.species,
-                        category: 'feature',
-                        subCategory: 'gene',
-                        query: featureName,
-                        resource: 'info',
-                        params: {
-                            include: 'chromosome,start,end'
-                        },
-                        success: function (data) {
-                            var feat = data.response[0].result[0];
-                            var region = new Region(feat);
-                            _this._regionChangeHandler({region: region});
-                        }
-                    });
-                }
-            }
+        var goFeature = function (feature) {
+            _this._regionChangeHandler({region: new Region(feature)});
+//            if (featureName != null) {
+//                if (featureName.slice(0, "rs".length) == "rs" || featureName.slice(0, "AFFY_".length) == "AFFY_" || featureName.slice(0, "SNP_".length) == "SNP_" || featureName.slice(0, "VAR_".length) == "VAR_" || featureName.slice(0, "CRTAP_".length) == "CRTAP_" || featureName.slice(0, "FKBP10_".length) == "FKBP10_" || featureName.slice(0, "LEPRE1_".length) == "LEPRE1_" || featureName.slice(0, "PPIB_".length) == "PPIB_") {
+//                    this.openSNPListWidget(featureName);
+//                } else {
+//                    console.log(featureName);
+//                    CellBaseManager.get({
+//                        host: _this.cellBaseHost,
+//                        version: _this.cellBaseVersion,
+//                        species: _this.species,
+//                        category: 'feature',
+//                        subCategory: 'id',
+//                        query: featureName,
+//                        resource: 'info',
+//                        params: {
+//                            include: 'chromosome,start,end'
+//                        },
+//                        success: function (data) {
+//                            debugger
+//                            var feat = data.response[0].result[0];
+//                            var region = new Region(feat);
+//                            _this._regionChangeHandler({region: region});
+//                        }
+//                    });
+//                }
+//            }
         };
 
         var navigationBar = new NavigationBar({
