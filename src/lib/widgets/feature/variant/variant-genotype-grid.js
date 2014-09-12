@@ -27,6 +27,28 @@ function VariantGenotypeGrid(args) {
     this.gridConfig = {};
     this.height = 500;
     this.target;
+    this.columns = [
+        {
+            text: "Sample",
+            dataIndex: "sample",
+            flex: 1
+        },
+        {
+            text: "Genotype",
+            dataIndex: "genotype",
+            flex: 1
+        },
+        {
+            text: "Sex",
+            dataIndex: "sex",
+            flex: 1
+        },
+        {
+            text: "Phenotype",
+            dataIndex: "phenotype",
+            flex: 1
+        }
+    ];
 
     _.extend(this, args);
 
@@ -148,28 +170,7 @@ VariantGenotypeGrid.prototype = {
                     enableTextSelection: true
                 },
                 plugins: ["bufferedrenderer"],
-                columns: [
-                    {
-                        text: "Sample",
-                        dataIndex: "sample",
-                        flex: 1
-                    },
-                    {
-                        text: "Genotype",
-                        dataIndex: "genotype",
-                        flex: 1
-                    },
-                    {
-                        text: "Sex",
-                        dataIndex: "sex",
-                        flex: 1
-                    },
-                    {
-                        text: "Phenotype",
-                        dataIndex: "phenotype",
-                        flex: 1
-                    }
-                ]
+                columns: this.columns
             });
 
             var gts = this._getGenotypeCount(stats.genotypesCount);
