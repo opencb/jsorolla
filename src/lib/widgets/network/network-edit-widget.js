@@ -139,7 +139,9 @@ NetworkEditWidget.prototype = {
                                         _this.network.removeVertex(_this.network.getVertexById(record.get('target').id));
                                     } else {
                                         var vertex = _this.network.getVertexById(record.get('source').id);
-                                        _this.network.removeVertex(vertex);
+                                        if(vertex){
+                                            _this.network.removeVertex(vertex);
+                                        }
                                     }
                                 }
 //                                var vertices = _this.network.graph.vertices;

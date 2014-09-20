@@ -77,6 +77,7 @@ CircosVertexRenderer.prototype = {
         return this[attr];
     },
     set: function (attr, value, update) {
+        this.complex = false;
         this[attr] = value;
         switch (attr) {
             case 'opacity':
@@ -100,7 +101,6 @@ CircosVertexRenderer.prototype = {
                     this.update();
                 }
         }
-
     },
     setConfig: function (args) {
         _.extend(this, args);
@@ -121,6 +121,7 @@ CircosVertexRenderer.prototype = {
         console.log("update")
     },
     updateComplex: function (slicesMap, defaults) {
+        this.complex = true;
         this.shape = 'circle';
         this.color = defaults['pieSlices'].color;
         this.size = defaults['pieSlices'].size;
@@ -140,11 +141,10 @@ CircosVertexRenderer.prototype = {
             ];
         }
         if (typeof slicesMap['pieSlices'] === 'undefined' && typeof slicesMap['donutSlices'] === 'undefined') {
+            this.complex = false;
             this.update();
         } else {
-            this.complex = true;
             this.update();
-            this.complex = false;
         }
     },
     select: function () {
@@ -168,7 +168,11 @@ CircosVertexRenderer.prototype = {
         }
     },
     getSize: function () {
-        this._updateDrawParameters();
+        if (this.complex) {
+            this._updateComplexDrawParameters();
+        } else {
+            this._updateDrawParameters();
+        }
         return this.figureSize;
     },
     toJSON: function () {
