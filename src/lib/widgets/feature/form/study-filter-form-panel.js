@@ -181,7 +181,8 @@ StudyFilterFormPanel.prototype = {
                 features: [
                     {ftype: 'summary'}
                 ],
-                height: this.height - 70,
+//                height: this.height - 70,
+                height: this.height,
                 viewConfig: {
                     emptyText: 'No studies found',
                     enableTextSelection: true,

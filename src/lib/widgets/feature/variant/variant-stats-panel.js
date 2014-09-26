@@ -139,12 +139,14 @@ VariantStatsPanel.prototype = {
         var attributesData = {};
         _.extend(attributesData,attributes);
         delete attributesData['src'];
+        delete attributesData['ACC'];
 
 
         var studyPanel = Ext.create('Ext.panel.Panel', {
             title: data.studyId,
             border: false,
             layout: 'vbox',
+            overflowX: true,
             items: [
                 {
                     xtype: 'container',
