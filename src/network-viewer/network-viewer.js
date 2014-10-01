@@ -143,7 +143,7 @@ NetworkViewer.prototype = {
         this.network = new Network({
             session: this.session,
             handlers: {
-                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean': function (e) {
+                'add:vertex add:edge remove:vertex remove:vertices load:json import:attributes clean batch:end': function (e) {
                     console.log(e)
                     _this._updateStatusInfo();
                 },
