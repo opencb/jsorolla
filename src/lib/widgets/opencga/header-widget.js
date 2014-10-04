@@ -26,15 +26,14 @@ function HeaderWidget(args) {
     var _this = this;
     this.id = Utils.genId("HeaderWidget");
 
-
     this.target;
     this.autoRender = true;
-    this.accountData;
+    this.userData;
 
     this.appname = "My new App";
     this.description = '';
     this.suiteId = -1;
-    this.checkTimeInterval = 4000;
+    this.checkTimeInterval = 5000;
     this.version = '';
     this.allowLogin = true;
     this.width;
@@ -88,6 +87,8 @@ HeaderWidget.prototype = {
             '       <li id="profile" class="right hidden"><i class="fa fa-user"></i> &nbsp;profile' +
             '       </li>' +
             '       <li id="upload" class="right hidden"><i class="fa fa-cloud-upload"></i> &nbsp;upload & manage' +
+            '       </li>' +
+            '       <li id="projects" class="right hidden"><i class="fa fa-folder"></i> &nbsp;projects' +
             '       </li>' +
             '       <li id="logout" class="right hidden"><i class="fa fa-sign-out"></i> &nbsp;logout' +
             '       </li>' +
@@ -185,11 +186,19 @@ HeaderWidget.prototype = {
             _this.loginWidget.show();
         });
         $(this.els.logout).click(function () {
-            OpencgaManager.logout({
-                accountId: $.cookie('bioinfo_account'),
-                sessionId: $.cookie('bioinfo_sid'),
-                success: _this.logoutSuccess,
-                error: _this.logoutSuccess
+            OpencgaManager.user.req({
+                path: {
+                    id: $.cookie('bioinfo_user'),
+                    action: 'logout'
+                },
+                query: {
+                    sid: $.cookie('bioinfo_sid')
+                },
+                request: {
+                    success: _this.logoutSuccess,
+                    error: _this.logoutSuccess
+
+                }
             });
         });
         $(this.els.profile).click(function () {
@@ -202,23 +211,29 @@ HeaderWidget.prototype = {
             _this.trigger('jobs:click', {sender: _this});
 //            $(_this.els.jobs).toggleClass('active');
         });
+        $(this.els.projects).click(function () {
+            _this.trigger('projects:click', {sender: _this});
+//            $(_this.els.jobs).toggleClass('active');
+        });
         /****************************************/
-        this.logoutSuccess = function (data) {
-            console.log(data);
-            //Se borran todas las cookies por si acaso
-            $.cookie('bioinfo_sid', null);
-            $.cookie('bioinfo_sid', null, {path: '/'});
-            $.cookie('bioinfo_account', null);
-            $.cookie('bioinfo_account', null, {path: '/'});
-            _this.sessionFinished();
-            _this.trigger('logout', {sender: this});
+        this.logoutSuccess = function (response) {
+            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                console.log(response);
+                //Se borran todas las cookies por si acaso
+                $.cookie('bioinfo_sid', null);
+                $.cookie('bioinfo_sid', null, {path: '/'});
+                $.cookie('bioinfo_user', null);
+                $.cookie('bioinfo_user', null, {path: '/'});
+                _this.sessionFinished();
+                _this.trigger('logout', {sender: this});
+            }
         };
 
-        this.getAccountInfoSuccess = function (response) {
-            if (response.accountId != null) {
-                _this.setAccountData(response);
-                _this.trigger('account:change', {sender: this, response: response});
-                console.log("accountData has been modified since last call");
+        this.getUserInfoSuccess = function (response) {
+            if ((response.response[0].errorMsg === '' || response.response[0].errorMsg == null) && response.response[0].result.length > 0) {
+                _this.setUserData(response.response[0].result[0]);
+                _this.trigger('user:change', {sender: this, response: response.response[0].result[0]});
+                console.log("userData has been modified since last call");
             }
         };
         /****************************************/
@@ -231,6 +246,8 @@ HeaderWidget.prototype = {
 
         /* Opencga Browser Widget */
         this.opencgaBrowserWidget = this._createOpencgaBrowserWidget();
+
+        this.projectBrowser = this._createProjectBrowser();
 
         this.rendered = true;
     },
@@ -317,12 +334,17 @@ HeaderWidget.prototype = {
             autoRender: true,
             handlers: {
                 'need:refresh': function () {
-                    _this.getAccountInfo();
+                    _this.getUserInfo();
                 }
             }
         });
         return opencgaBrowserWidget;
     },
+    _createProjectBrowser: function () {
+        var projectBrowser = document.createElement('jso-project-browser');
+        return projectBrowser;
+    },
+
 
 //    _createPanel: function (targetId) {
 //        var _this = this;
@@ -527,7 +549,7 @@ HeaderWidget.prototype = {
 ////                    text: '<span class="emph">logout</span>',
 ////                    handler: function () {
 ////                        OpencgaManager.logout({
-////                            accountId: $.cookie('bioinfo_account'),
+////                            userId: $.cookie('bioinfo_user'),
 ////                            sessionId: $.cookie('bioinfo_sid'),
 ////                            success: _this.logoutSuccess,
 ////                            error: _this.logoutSuccess
@@ -585,33 +607,40 @@ HeaderWidget.prototype = {
 //        return panel;
 //    },
 
-    setAccountData: function (data) {
-        this.accountData = data;
-        this.opencgaBrowserWidget.setAccountData(data);
-        $(this.els.user).html(this._getAccountText());
+    setUserData: function (data) {
+        this.userData = data;
+        this.opencgaBrowserWidget.setUserData(data);
+        console.log(data)
+        this.projectBrowser.projectList = data.projects;
     },
-    getAccountInfo: function () {
+    getUserInfo: function () {
         var lastActivity = null;
-        if (this.accountData != null) {
-            lastActivity = this.accountData.lastActivity;
+        if (this.userData != null) {
+            lastActivity = this.userData.lastActivity;
         }
-        if (!$.cookie('bioinfo_account')) {
-            console.log('cookie: bioinfo_account, is not set, session will be finished...');
+        if (!$.cookie('bioinfo_user')) {
+            console.log('cookie: bioinfo_user, is not set, session will be finished...');
             this.sessionFinished();
         } else {
-
-            OpencgaManager.getAccountInfo({
-                accountId: $.cookie('bioinfo_account'),
-                sessionId: $.cookie('bioinfo_sid'),
-                lastActivity: lastActivity,
-                success: this.getAccountInfoSuccess,
-                error: this.logoutSuccess
+            OpencgaManager.user.req({
+                path: {
+                    id: $.cookie('bioinfo_user'),
+                    action: 'info'
+                },
+                query: {
+                    sid: $.cookie('bioinfo_sid'),
+                    lastActivity: lastActivity
+                },
+                request: {
+                    success: this.getUserInfoSuccess,
+                    error: this.logoutSuccess
+                }
             });
         }
 
     },
-    _getAccountText: function () {
-        var nameToShow = this.accountData.accountId;
+    _getUserText: function () {
+        var nameToShow = $.cookie('bioinfo_user');
         if (nameToShow.indexOf('anonymous_') != -1) {
             nameToShow = 'anonymous';
         }
@@ -619,6 +648,7 @@ HeaderWidget.prototype = {
     },
     sessionInitiated: function () {
         var _this = this;
+        this.els.user.innerHTML = this._getUserText();
 //        /**HIDE**/
         this.loginWidget.hide();
         $(this.els.signin).addClass('hidden');
@@ -626,14 +656,16 @@ HeaderWidget.prototype = {
         $(this.els.logout).removeClass('hidden');
         $(this.els.profile).removeClass('hidden');
         $(this.els.upload).removeClass('hidden');
+        $(this.els.projects).removeClass('hidden');
         $(this.els.user).removeClass('hidden');
         $(this.els.jobs).removeClass('hidden');
 
+
         /**START OPENCGA CHECK**/
-        if (!this.accountInfoInterval) {
-            this.getAccountInfo();//first call
-            this.accountInfoInterval = setInterval(function () {
-                _this.getAccountInfo();
+        if (!this.userInfoInterval) {
+            this.getUserInfo();//first call
+            this.userInfoInterval = setInterval(function () {
+                _this.getUserInfo();
             }, this.checkTimeInterval);
         }
     },
@@ -642,6 +674,7 @@ HeaderWidget.prototype = {
         $(this.els.logout).addClass('hidden');
         $(this.els.profile).addClass('hidden');
         $(this.els.upload).addClass('hidden');
+        $(this.els.projects).addClass('hidden');
         $(this.els.user).addClass('hidden');
         $(this.els.jobs).addClass('hidden');
 //        /**SHOW**/
@@ -649,12 +682,12 @@ HeaderWidget.prototype = {
         $(this.els.user).html('');
         $(this.els.user).removeClass('hidden');
 //        /**CLEAR OPENCGA**/
-        clearInterval(this.accountInfoInterval);
-        delete this.accountInfoInterval;
+        clearInterval(this.userInfoInterval);
+        delete this.userInfoInterval;
 
         this.profileWidget.hide();
         this.opencgaBrowserWidget.hide();
-        this.opencgaBrowserWidget.removeAccountData();
+        this.opencgaBrowserWidget.removeUserData();
     },
     setDescription: function (text) {
         $(this.els.description).html(text);

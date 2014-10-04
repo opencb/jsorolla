@@ -28,6 +28,65 @@ var OpencgaManager = {
     setHost: function (hostUrl) {
         OpencgaManager.host = hostUrl;
     },
+
+
+    user: {
+        req: function (args) {
+            var url = OpencgaManager.user.url(args);
+            OpencgaManager._doRequest(url, args);
+        },
+        url: function (args) {
+            var host = OpencgaManager.host;
+            if (typeof args.request.host !== 'undefined' && args.request.host != null) {
+                host = args.request.host;
+            }
+
+            var id = '';
+            if (typeof args.path.id !== 'undefined' && args.path.id != null) {
+                id = '/' + args.path.id;
+            }
+
+            var url = host + '/users' + id + '/' + args.path.action;
+            url = Utils.addQueryParamtersToUrl(args.query, url);
+            return url;
+        }
+    },
+
+
+    _doRequest: function (url, args) {
+        var method = 'GET';
+        if (typeof args.request.method !== 'undefined' && args.request.method != null) {
+            method = args.request.method;
+        }
+        var async = true;
+        if (typeof args.request.async !== 'undefined' && args.request.async != null) {
+            async = args.request.async;
+        }
+
+        var oReq = new XMLHttpRequest();
+        oReq.onload = function () {
+            var contentType = this.getResponseHeader('Content-Type');
+            if (contentType === 'application/json') {
+                args.request.success(JSON.parse(this.response), this);
+            } else {
+                args.request.success(this.response, this);
+            }
+        };
+        oReq.onerror = function () {
+            args.request.error(this);
+        };
+        oReq.open(method, url, async);
+        oReq.send();
+    },
+
+    _check: function (args) {
+
+    },
+
+    /*************/
+    /*************/
+
+
     doGet: function (url, successCallback, errorCallback) {
         $.ajax({
             type: "GET",

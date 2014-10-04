@@ -502,14 +502,14 @@ OpencgaBrowserWidget.prototype = {
         return panel;
     },
 
-    setAccountData: function (data) {
+    setUserData: function (data) {
         this.accountData = data;
         if (this.rendered) {
             this._updateFolderTree();
         }
     },
 
-    removeAccountData: function () {
+    removeUserData: function () {
         this.folderStore.getRootNode().removeAll();
         this.allStore.getRootNode().removeAll();
         this.filesStore.removeAll();

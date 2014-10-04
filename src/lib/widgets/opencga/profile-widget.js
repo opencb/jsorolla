@@ -48,25 +48,25 @@ ProfileWidget.prototype = {
         var _this = this;
 
         /**************/
-        this.changePasswordSuccess = function (data) {
+        this.changePasswordSuccess = function (response) {
             _this.panel.setLoading(false);
-            if (data.errorMsg === '') {
+            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                 Ext.getCmp(_this.id + 'fldOld').setValue(null);
                 Ext.getCmp(_this.id + 'fldNew1').setValue(null);
                 Ext.getCmp(_this.id + 'fldNew2').setValue(null);
-                Ext.getCmp(_this.id + 'labelPass').update('<span class="info">' + data.result[0].msg + '</span>', false);
+                Ext.getCmp(_this.id + 'labelPass').update('<span class="info">' + 'OK' + '</span>', false);
             } else {
-                Ext.getCmp(_this.id + 'labelPass').update('<span class="err">' + data.errorMsg + '</span>', false);
+                Ext.getCmp(_this.id + 'labelPass').update('<span class="err">' + response.response[0].errorMsg + '</span>', false);
             }
         };
-        this.changeEmailSuccess = function (data) {
+        this.changeEmailSuccess = function (response) {
             _this.panel.setLoading(false);
-            if (data.errorMsg === '') {
+            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                 Ext.getCmp(_this.id + 'fldEmail').setValue(null);
                 Ext.getCmp(_this.id + 'fldEmail').setFieldLabel('e-mail', false);
-                Ext.getCmp(_this.id + 'labelPass').update('<span class="info">' + data.result[0].msg + '</span>', false);
+                Ext.getCmp(_this.id + 'labelPass').update('<span class="info">' + 'OK' + '</span>', false);
             } else {
-                Ext.getCmp(_this.id + 'labelPass').update('<span class="err">' + data.errorMsg + '</span>', false);
+                Ext.getCmp(_this.id + 'labelPass').update('<span class="err">' + response.response[0].errorMsg + '</span>', false);
             }
         };
         /**************/
@@ -89,8 +89,8 @@ ProfileWidget.prototype = {
 //        console.log(this.id + ' CREATING PANEL');
 
         var labelPass = Ext.create('Ext.Component', {
+            width: 200,
             id: this.id + 'labelPass',
-            margin: '10 0 10 105',
             html: 'Modify your password or email.'
         });
         var changePasswordForm = Ext.create('Ext.form.Panel', {
@@ -130,7 +130,6 @@ ProfileWidget.prototype = {
                         change: this.checkpass
                     }
                 },
-                labelPass,
                 {
                     xtype: 'button',
                     text: 'Change', margin: '0 0 0 105',
@@ -194,9 +193,11 @@ ProfileWidget.prototype = {
                 items: [profilePanel],
                 bbar: {
                     layout: {
-                        pack: 'center'
+                        pack: 'start'
                     },
                     items: [
+                        labelPass,
+                        '->',
                         {
                             text: 'Close',
                             handler: function () {
@@ -221,7 +222,7 @@ ProfileWidget.prototype = {
     getNewPassword: function () {
         return $.sha1(Ext.getCmp(this.id + 'fldNew1').getValue());
     },
-    getLogin: function () {
+    getEmail: function () {
         return Ext.getCmp(this.id + 'fldEmail').getValue();
     },
     clearAllFields: function () {
@@ -233,24 +234,37 @@ ProfileWidget.prototype = {
     },
     changeEmail: function () {
         if (this.checkemail()) {
-            OpencgaManager.changeEmail({
-                accountId: $.cookie('bioinfo_account'),
-                sessionId: $.cookie('bioinfo_sid'),
-                new_email: this.getLogin(),
-                success: this.changeEmailSuccess
+            OpencgaManager.user.req({
+                path: {
+                    id: $.cookie('bioinfo_user'),
+                    action: 'change-email'
+                },
+                query: {
+                    nemail: this.getEmail(),
+                    sid: $.cookie('bioinfo_sid')
+                },
+                request: {
+                    success: this.changeEmailSuccess
+                }
             });
             this.panel.setLoading('Waiting for the server to respond...');
         }
     },
     changePassword: function () {
         if (this.checkpass()) {
-            OpencgaManager.changePassword({
-                accountId: $.cookie('bioinfo_account'),
-                sessionId: $.cookie('bioinfo_sid'),
-                old_password: this.getOldPassword(),
-                new_password1: this.getNewPassword(),
-                new_password2: this.getNewPassword(),
-                success: this.changePasswordSuccess
+            OpencgaManager.user.req({
+                path: {
+                    id: $.cookie('bioinfo_user'),
+                    action: 'change-password'
+                },
+                query: {
+                    password: this.getOldPassword(),
+                    npassword: this.getNewPassword(),
+                    sid: $.cookie('bioinfo_sid')
+                },
+                request: {
+                    success: this.changePasswordSuccess
+                }
             });
             this.panel.setLoading('Waiting for the server to respond...');
         }

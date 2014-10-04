@@ -54,43 +54,42 @@ LoginWidget.prototype = {
                 _this.panel.setLoading(false);
             }
             console.log(response);
-            if (response.errorMsg === '') {
-                var data = response.result[0];
-                $.cookie('bioinfo_sid', data.sessionId /*,{path: '/'}*/);//TODO ATENCION si se indica el path el 'bioinfo_sid' es comun entre dominios
-                $.cookie('bioinfo_account', data.accountId);
-                $.cookie('bioinfo_bucket', data.bucketId);
+            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                $.cookie('bioinfo_sid', response.response[0].result[0].sessionId /*,{path: '/'}*/);
+                $.cookie('bioinfo_user', response.response[0].result[0].userId);
                 _this.trigger('session:initiated', {sender: _this});
             } else {
-                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + response.errorMsg + '</span>', false);
+                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + response.response[0].errorMsg + '</span>', false);
                 //Delete all cookies
                 $.cookie('bioinfo_sid', null);
                 $.cookie('bioinfo_sid', null, {path: '/'});
-                $.cookie('bioinfo_account', null);
-                $.cookie('bioinfo_account', null, {path: '/'});
+                $.cookie('bioinfo_user', null);
+                $.cookie('bioinfo_user', null, {path: '/'});
             }
         };
 
-        this.createAccountSuccess = function (data) {
+        this.createUserSuccess = function (response) {
             _this.panel.setLoading(false);
-            if (data.errorMsg === '') {
-                var accountId = data.result[0].accountId;
-                Ext.getCmp(_this.labelEmailId).setText('<span class="ok">'+accountId+' account created</span>', false);
+
+            if (response.response[0].errorMsg === '') {
+                var userId = response.response[0].result[0].id;
+                Ext.getCmp(_this.labelEmailId).setText('<span class="ok">' + userId + ' created</span>', false);
             } else {
-//                Ext.getCmp(_this.labelEmailId).setText('<span class="err">Account already exists</span>', false);
-                Ext.getCmp(_this.labelEmailId).setText('<span class="err">'+data.errorMsg+'</span>', false);
+                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + response.response[0].errorMsg + '</span>', false);
                 //Delete cookies
                 $.cookie('bioinfo_sid', null);
                 $.cookie('bioinfo_sid', null, {path: '/'});
-                $.cookie('bioinfo_account', null);
-                $.cookie('bioinfo_account', null, {path: '/'});
+                $.cookie('bioinfo_user', null);
+                $.cookie('bioinfo_user', null, {path: '/'});
             }
         };
-        this.resetPasswordSuccess = function (data) {
+
+        this.resetPasswordSuccess = function (response) {
             _this.panel.setLoading(false);
-            if (data.errorMsg === '') {
-                Ext.getCmp(_this.labelEmailId).setText('<span class="emph">' + data.result[0].msg + '</span>', false);
+            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                Ext.getCmp(_this.labelEmailId).setText('<span class="emph">' + 'OK' + '</span>', false);
             } else {
-                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + data.errorMsg + '</span>', false);
+                Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + response.response[0].errorMsg + '</span>', false);
             }
         };
 
@@ -135,26 +134,26 @@ LoginWidget.prototype = {
         var labelEmail = Ext.create('Ext.toolbar.TextItem', {
             id: this.labelEmailId,
             padding: 3,
-            text: '<span class="info">Type your account ID and password</span>'
+            text: '<span class="info">Type your user ID and password</span>'
         });
         var pan = Ext.create('Ext.form.Panel', {
             id: this.id + "formPanel",
             bodyPadding: 20,
-            height:225,
-            width:350,
+            height: 225,
+            width: 350,
             border: 0,
             bbar: {items: [labelEmail]},
             items: [
                 {
-                    id: this.id + "accountId",
+                    id: this.id + "userId",
                     xtype: 'textfield',
                     value: $.cookie('bioinfo_user'),
-                    fieldLabel: 'account ID',
+                    fieldLabel: 'user ID',
                     hidden: false,
 //		        enableKeyEvents: true,
                     listeners: {
                         scope: this,
-                        change: this.checkAccountId
+                        change: this.checkUserId
                     }
                 },
                 {
@@ -190,7 +189,7 @@ LoginWidget.prototype = {
                     }
                 },
                 {
-                    id: this.id + "accountName",
+                    id: this.id + "userName",
                     xtype: 'textfield',
                     fieldLabel: 'name',
                     hidden: true,
@@ -233,10 +232,10 @@ LoginWidget.prototype = {
                     listeners: {
                         change: function (me, newValue, oldValue, eOpts) {
                             if (newValue) {
-                                Ext.getCmp(_this.id + "accountId").disable();
+                                Ext.getCmp(_this.id + "userId").disable();
                                 Ext.getCmp(_this.fldPasswordId).disable();
                             } else {
-                                Ext.getCmp(_this.id + "accountId").enable();
+                                Ext.getCmp(_this.id + "userId").enable();
                                 Ext.getCmp(_this.fldPasswordId).enable();
                             }
                         }
@@ -253,15 +252,15 @@ LoginWidget.prototype = {
             constrain: true,
             closable: false,
             modal: true,
-            items:{
-                border:0,
+            items: {
+                border: 0,
                 layout: { type: 'vbox', align: 'stretch'},
-                items:[pan],
-                bbar:{
-                    layout : {
-                        pack : 'center'
+                items: [pan],
+                bbar: {
+                    layout: {
+                        pack: 'center'
                     },
-                    items:[
+                    items: [
                         {
                             id: this.btnSignId,
                             text: 'Sign in'
@@ -272,7 +271,7 @@ LoginWidget.prototype = {
                         },
                         {
                             id: this.btnNewaccId,
-                            text: 'New account'
+                            text: 'New user'
                         },
                         {
                             id: this.btnSendId,
@@ -318,12 +317,18 @@ LoginWidget.prototype.sign = function () {
         this.anonymousSign();
         this.panel.setLoading('Waiting server...');
     } else {
-        if (this.checkAccountId()) {
-            OpencgaManager.login({
-                accountId: this.getLogin(),
-                password: this.getPassword(),
-                suiteId: this.suiteId,
-                success: this.loginSuccess
+        if (this.checkUserId()) {
+            OpencgaManager.user.req({
+                path: {
+                    id: this.getLogin(),
+                    action: 'login'
+                },
+                query: {
+                    password: this.getPassword()
+                },
+                request: {
+                    success: this.loginSuccess
+                }
             });
             this.panel.setLoading('Waiting server...');
             $.cookie('bioinfo_user', null, {path: '/'});
@@ -334,7 +339,7 @@ LoginWidget.prototype.sign = function () {
 
 LoginWidget.prototype.anonymousSign = function () {
     OpencgaManager.login({
-        accountId: "anonymous",
+        userId: "anonymous",
         password: "",
         suiteId: this.suiteId,
         success: this.loginSuccess
@@ -342,14 +347,20 @@ LoginWidget.prototype.anonymousSign = function () {
 };
 
 LoginWidget.prototype.register = function () {
-    if (this.checkAccountId() && this.checkemail() && this.checkName() && this.checkpass()) {
-        OpencgaManager.createAccount({
-            accountId: this.getLogin(),
-            email: this.getEmail(),
-            name: this.getAccountName(),
-            password: this.getPasswordReg(),
-            suiteId: this.suiteId,
-            success: this.createAccountSuccess
+    if (this.checkUserId() && this.checkemail() && this.checkName() && this.checkpass()) {
+        OpencgaManager.user.req({
+            path: {
+                action: 'create'
+            },
+            query: {
+                userId: this.getLogin(),
+                name: this.getUserName(),
+                email: this.getEmail(),
+                password: this.getPasswordReg()
+            },
+            request: {
+                success: this.createUserSuccess
+            }
         });
     } else {
         Ext.getCmp(this.labelEmailId).setText('<span class="info">Fill all fields</span>', false);
@@ -357,21 +368,28 @@ LoginWidget.prototype.register = function () {
 };
 
 LoginWidget.prototype.sendRecover = function () {
-    if (this.checkAccountId() && this.checkemail()) {
-        OpencgaManager.resetPassword({
-            accountId: this.getLogin(),
-            email: this.getEmail(),
-            success: this.resetPasswordSuccess
+    if (this.checkUserId() && this.checkemail()) {
+        OpencgaManager.user.req({
+            path: {
+                id: this.getLogin(),
+                action: 'reset-password'
+            },
+            query: {
+                email: this.getEmail()
+            },
+            request: {
+                success: this.resetPasswordSuccess
+            }
         });
         this.panel.setLoading('Waiting server...');
     }
 };
 
 LoginWidget.prototype.getLogin = function () {
-    return Ext.getCmp(this.id + "accountId").getValue();
+    return Ext.getCmp(this.id + "userId").getValue();
 };
-LoginWidget.prototype.getAccountName = function () {
-    return Ext.getCmp(this.id + "accountName").getValue();
+LoginWidget.prototype.getUserName = function () {
+    return Ext.getCmp(this.id + "userName").getValue();
 };
 LoginWidget.prototype.getEmail = function () {
     return Ext.getCmp(this.fldEmailId).getValue();
@@ -410,12 +428,12 @@ LoginWidget.prototype.ShowForgot = function () {
     Ext.getCmp(this.btnBackId).show();
     Ext.getCmp(this.btnRegisterId).hide();
 
-    Ext.getCmp(this.id + "accountId").reset();
-    Ext.getCmp(this.id + "accountName").hide();
+    Ext.getCmp(this.id + "userId").reset();
+    Ext.getCmp(this.id + "userName").hide();
 
-    Ext.getCmp(this.labelEmailId).setText('<span class="info">Type your account ID and email to send a new password</span>', false);
+    Ext.getCmp(this.labelEmailId).setText('<span class="info">Type your user ID and email to send a new password</span>', false);
 
-    Ext.getCmp(this.id + "accountId").setFieldLabel('account ID', false);
+    Ext.getCmp(this.id + "userId").setFieldLabel('user ID', false);
     Ext.getCmp(this.fldEmailId).setFieldLabel('e-mail', false);
 };
 LoginWidget.prototype.ShowBack = function () {
@@ -438,12 +456,12 @@ LoginWidget.prototype.ShowBack = function () {
     Ext.getCmp(this.btnBackId).hide();
     Ext.getCmp(this.btnRegisterId).hide();
 
-    Ext.getCmp(this.id + "accountId").reset();
-    Ext.getCmp(this.id + "accountName").hide();
+    Ext.getCmp(this.id + "userId").reset();
+    Ext.getCmp(this.id + "userName").hide();
 
-    Ext.getCmp(this.labelEmailId).setText('<span class="info">Type your account ID and password</span>', false);
+    Ext.getCmp(this.labelEmailId).setText('<span class="info">Type your user ID and password</span>', false);
 
-    Ext.getCmp(this.id + "accountId").setFieldLabel('account ID', false);
+    Ext.getCmp(this.id + "userId").setFieldLabel('user ID', false);
 };
 LoginWidget.prototype.ShowNewacc = function () {
 
@@ -467,18 +485,18 @@ LoginWidget.prototype.ShowNewacc = function () {
     Ext.getCmp(this.btnBackId).show();
     Ext.getCmp(this.btnRegisterId).show();
 
-    Ext.getCmp(this.id + "accountId").reset();
-    Ext.getCmp(this.id + "accountName").reset();
-    Ext.getCmp(this.id + "accountName").show();
+    Ext.getCmp(this.id + "userId").reset();
+    Ext.getCmp(this.id + "userName").reset();
+    Ext.getCmp(this.id + "userName").show();
 
     Ext.getCmp(this.labelEmailId).setText('&nbsp;', false);
 
-    Ext.getCmp(this.id + "accountName").setFieldLabel('name', false);
-    Ext.getCmp(this.id + "accountId").setFieldLabel('account ID', false);
+    Ext.getCmp(this.id + "userName").setFieldLabel('name', false);
+    Ext.getCmp(this.id + "userId").setFieldLabel('user ID', false);
     Ext.getCmp(this.fldEmailId).setFieldLabel('e-mail', false);
     Ext.getCmp(this.fldNpass1Id).setFieldLabel('password', false);
     Ext.getCmp(this.fldNpass2Id).setFieldLabel('re-password', false);
-    Ext.getCmp(this.id + "accountId").setValue("");
+    Ext.getCmp(this.id + "userId").setValue("");
 };
 
 LoginWidget.prototype.checkpass = function () {
@@ -510,7 +528,7 @@ LoginWidget.prototype.anonymousSelected = function (este, value) {
     if (value) {
         Ext.getCmp(this.labelEmailId).setText('<span class="ok">Anonymous selected</span>', false);
     } else {
-        Ext.getCmp(this.labelEmailId).setText('<span class="info">Type your account ID and password</span>', false);
+        Ext.getCmp(this.labelEmailId).setText('<span class="info">Type your user ID and password</span>', false);
     }
 
 };
@@ -529,22 +547,22 @@ LoginWidget.prototype.checkemail = function (a, b, c) {
     }
 };
 LoginWidget.prototype.checkName = function (a, b, c) {
-    var name = Ext.getCmp(this.id + "accountName").getValue();
+    var name = Ext.getCmp(this.id + "userName").getValue();
     if (name != "" && name != null) {
-        Ext.getCmp(this.id + "accountName").setFieldLabel('<span class="ok">name</span>', false);
+        Ext.getCmp(this.id + "userName").setFieldLabel('<span class="ok">name</span>', false);
         return true;
     } else {
-        Ext.getCmp(this.id + "accountName").setFieldLabel('<span class="err">name</span>', false);
+        Ext.getCmp(this.id + "userName").setFieldLabel('<span class="err">name</span>', false);
         return false;
     }
 };
-LoginWidget.prototype.checkAccountId = function (a, b, c) {
-    var accountId = Ext.getCmp(this.id + "accountId").getValue();
-    if (accountId != "" && accountId != null) {
-        Ext.getCmp(this.id + "accountId").setFieldLabel('<span class="ok">account ID</span>', false);
+LoginWidget.prototype.checkUserId = function (a, b, c) {
+    var userId = Ext.getCmp(this.id + "userId").getValue();
+    if (userId != "" && userId != null) {
+        Ext.getCmp(this.id + "userId").setFieldLabel('<span class="ok">user ID</span>', false);
         return true;
     } else {
-        Ext.getCmp(this.id + "accountId").setFieldLabel('<span class="err">account ID</span>', false);
+        Ext.getCmp(this.id + "userId").setFieldLabel('<span class="err">user ID</span>', false);
         return false;
     }
 };

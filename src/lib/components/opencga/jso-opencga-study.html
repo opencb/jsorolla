@@ -1,0 +1,100 @@
+<polymer-element name="jso-opencga-study" attributes="study">
+    <template>
+        <link rel="stylesheet" href="../../../../vendor/font-awesome/css/font-awesome.min.css">
+        <style>
+            :host {
+                display: block;
+                padding: 10px;
+                /*border: 1px solid #d3d3d3;*/
+            }
+
+            #title {
+                font-size: 20px;
+                text-transform: capitalize;
+            }
+            #container > div{
+                color: #333;
+            }
+
+        </style>
+        <div layout horizontal layout>
+            <div layout vertical>
+                <div id="title">
+                    {{study.name}}
+                </div>
+                <div id="container" vertical layout>
+                    <div>
+                        {{study.description}}
+                    </div>
+                    <div>
+                        {{study.type}}
+                    </div>
+                    <div>
+                        {{study.status}}
+                    </div>
+                    <div>
+                        {{study.diskUsage}} bytes
+                    </div>
+                </div>
+            </div>
+            <div id="files" flex>
+                <template repeat="{{file in study.files}}">
+                    {{file.name}}
+                </template>
+            </div>
+            <div id="experiments" flex>
+                <template repeat="{{experiment in study.experiments}}">
+                    {{experiment.name}}
+                </template>
+            </div>
+            <div id="analyses" flex>
+                <template repeat="{{analysis in study.analyses}}">
+                    {{analysis.name}}
+                </template>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.study;
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="jso-opencga-study-card" attributes="study">
+    <template>
+        <link rel="stylesheet" href="../../../../vendor/font-awesome/css/font-awesome.min.css">
+        <style>
+            :host {
+                display: block;
+                padding: 5px 5px;
+            }
+            #name {
+                text-transform: capitalize;
+            }
+        </style>
+        <div vertical layout>
+            <div id="name">
+                <i class="fa fa-bar-chart-o"></i> &nbsp; {{study.name}}
+            </div>
+            <!--<div>-->
+            <!--{{study.type}}-->
+            <!--</div>-->
+            <!--<div>-->
+            <!--{{study.status}}-->
+            <!--</div>-->
+            <!--<div>-->
+            <!--{{study.diskUsage}}-->
+            <!--</div>-->
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.study;
+            }
+        });
+    </script>
+</polymer-element>

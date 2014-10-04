@@ -1,0 +1,18 @@
+<polymer-element name="jso-opencga-project" attributes="project">
+    <template>
+        <link rel="stylesheet" href="../../../../vendor/font-awesome/css/font-awesome.min.css">
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <i class="fa fa-folder-o"></i> &nbsp; {{project.name}}
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.project;
+            }
+        });
+    </script>
+</polymer-element>
