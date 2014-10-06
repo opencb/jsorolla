@@ -174,6 +174,7 @@ StudyFilterFormPanel.prototype = {
 
         var grid = Ext.create('Ext.grid.Panel', {
                 store: this.studiesStore,
+            autoScroll:true,
                 border: this.border,
                 loadMask: true,
                 hideHeaders: true,
@@ -182,7 +183,8 @@ StudyFilterFormPanel.prototype = {
                     {ftype: 'summary'}
                 ],
 //                height: this.height - 70,
-                height: this.height,
+                minHeight: 250,
+                maxHeight: this.height-70,
                 viewConfig: {
                     emptyText: 'No studies found',
                     enableTextSelection: true,
