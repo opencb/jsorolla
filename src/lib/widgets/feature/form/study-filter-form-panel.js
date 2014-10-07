@@ -184,7 +184,7 @@ StudyFilterFormPanel.prototype = {
                 ],
 //                height: this.height - 70,
                 minHeight: 250,
-                maxHeight: this.height-70,
+                maxHeight: this.height,
                 viewConfig: {
                     emptyText: 'No studies found',
                     enableTextSelection: true,
