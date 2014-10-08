@@ -178,6 +178,7 @@ StudyFilterFormPanel.prototype = {
                 border: this.border,
                 loadMask: true,
                 hideHeaders: false,
+                enableColumnHide:false,
                 plugins: 'bufferedrenderer',
                 features: [
                     {ftype: 'summary'}
@@ -220,6 +221,7 @@ StudyFilterFormPanel.prototype = {
                         xtype: 'templatecolumn',
                         tpl:this.studyFilterTpl,
                         sortable : true
+
 
                     }
 //                    {
