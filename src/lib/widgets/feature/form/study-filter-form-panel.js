@@ -177,7 +177,7 @@ StudyFilterFormPanel.prototype = {
             autoScroll:true,
                 border: this.border,
                 loadMask: true,
-                hideHeaders: true,
+                hideHeaders: false,
                 plugins: 'bufferedrenderer',
                 features: [
                     {ftype: 'summary'}
@@ -206,10 +206,11 @@ StudyFilterFormPanel.prototype = {
                 },
                 columns: [
                     {
-                        text: 'Active',
+//                        text: 'Active',
                         xtype: 'checkcolumn',
                         dataIndex: 'uiactive',
-                        width: 50
+                        width: 50,
+                        sortable : false
                     },
                     {
                         text: "Name",
@@ -217,7 +218,9 @@ StudyFilterFormPanel.prototype = {
                         flex: 10,
 //                        width: 500,
                         xtype: 'templatecolumn',
-                        tpl:this.studyFilterTpl
+                        tpl:this.studyFilterTpl,
+                        sortable : true
+
                     }
 //                    {
 //                        text: "ID",
