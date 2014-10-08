@@ -183,7 +183,7 @@ StudyFilterFormPanel.prototype = {
                     {ftype: 'summary'}
                 ],
 //                height: this.height - 70,
-                minHeight: 250,
+//                minHeight: 250,
                 maxHeight: this.height,
                 viewConfig: {
                     emptyText: 'No studies found',
