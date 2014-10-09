@@ -31,6 +31,7 @@ function PositionFilterFormPanel(args) {
     this.titleCollapse = false;
     this.headerConfig;
     this.testRegion = "";
+    this.emptyText = '1:1-1000000,2:1-1000000';
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -79,7 +80,7 @@ PositionFilterFormPanel.prototype = {
         var regionList = Ext.create('Ext.form.field.TextArea', {
             id: this.id + "region",
             name: "region",
-            emptyText: '1:1-1000000,2:1-1000000',
+            emptyText:  this.emptyText,
             margin: '0 0 0 5',
             //allowBlank: true,
             width: '100%',

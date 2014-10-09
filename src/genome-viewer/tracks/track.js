@@ -170,7 +170,7 @@ Track.prototype = {
     },
     _updateSVGHeight: function () {
         if (this.resizable && !this.histogram) {
-            var renderedHeight = Object.keys(this.renderedArea).length * 20;//this must be passed by config, 20 for test
+            var renderedHeight = Object.keys(this.renderedArea).length * 21;//this must be passed by config, 20 for test
             this.main.setAttribute('height', renderedHeight);
             this.svgCanvasFeatures.setAttribute('height', renderedHeight);
             this.hoverRect.setAttribute('height', renderedHeight);
@@ -409,7 +409,7 @@ Track.prototype = {
             'visibility': 'hidden',
             'class': this.fontClass
         });
-        this.invalidZoomText.textContent = "Zoom in to view the sequence";
+        this.invalidZoomText.textContent = "No information available at this zoom";
 
         this.div = div;
         this.svgdiv = svgdiv;

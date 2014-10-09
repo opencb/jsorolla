@@ -241,17 +241,19 @@ ul.ocb-app-menu > li:hover {
 
 /*Network viewer*/
 .ocb-nv-editionbar {
+    box-sizing: border-box;
+    height: 32px;
     font-size: 13px;
     padding: 4px 8px;
-    height: 23px;
     background-color: #FAFAFA;
     border-bottom: 1px solid #D9D9D9;
 }
 
 .ocb-nv-toolbar {
+    box-sizing: border-box;
+    height: 32px;
     font-size: 13px;
     padding: 4px 8px;
-    height: 23px;
     background-color: #FAFAFA;
     border-bottom: 1px solid #D9D9D9;
 }

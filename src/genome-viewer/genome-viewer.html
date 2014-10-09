@@ -267,11 +267,10 @@ var run = function () {
             resource: "gene",
             species: genomeViewer.species,
             params: {
-                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence,chunkIds'
             },
             cacheConfig: {
-                chunkSize: 100000,
-                cacheId: "cellbase:gene"
+                chunkSize: 100000
             }
         })
     });
@@ -303,8 +302,7 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                chunkSize: 100000,
-                cacheId: "cellbase:feature"
+                chunkSize: 100000
             }
         })
     });
@@ -328,8 +326,7 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                chunkSize: 10000,
-                cacheId: "cellbase:snp"
+                chunkSize: 10000
             }
         })
     });

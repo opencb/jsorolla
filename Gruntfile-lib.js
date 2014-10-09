@@ -51,7 +51,7 @@ module.exports = function (grunt) {
                     'src/lib/data-adapter/network/**/*.js',
 
                     //cache
-                    'src/lib/cache/memory-store.js',
+                    'src/lib/cache/*-store.js',
                     'src/lib/cache/feature-chunk-cache.js',
                     'src/lib/cache/file-feature-cache.js',
                     'src/lib/cache/bam-cache.js'

@@ -139,11 +139,11 @@ Graph.prototype = {
         edge.source.removeEdge(edge);
         edge.target.removeEdge(edge);
 
-//        /* count edges between same vertices */
-//        var stId = edge.source.id + edge.target.id;
-//        var tsId = edge.target.id + edge.source.id;
-//        this.edgeDraw[stId]--;
-//        this.edgeDraw[tsId]--;
+//      /* count edges between same vertices */
+        var stId = edge.source.id + edge.target.id;
+        var tsId = edge.target.id + edge.source.id;
+        this.edgeDraw[stId]--;
+        this.edgeDraw[tsId]--;
 
 
         var position = this.edgesIndex[edge.id];
@@ -175,6 +175,12 @@ Graph.prototype = {
             if (edge.target !== vertex) {
                 edge.target.removeEdge(edge);
             }
+
+            var stId = edge.source.id + edge.target.id;
+            var tsId = edge.target.id + edge.source.id;
+            this.edgeDraw[stId]--;
+            this.edgeDraw[tsId]--;
+
 
             var position = this.edgesIndex[edge.id];
             delete this.edgesIndex[edge.id];

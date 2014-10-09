@@ -356,12 +356,11 @@ KaryotypePanel.prototype = {
             needDraw = true;
             this.lastSpecies = this.species;
         }
-
-        this.updateRegionControls();
-
         if (needDraw) {
             this.draw();
         }
+
+        this.updateRegionControls();
     },
 
 
