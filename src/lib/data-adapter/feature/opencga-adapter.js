@@ -34,6 +34,7 @@ OpencgaAdapter.prototype = {
     getData: function (args) {
         var _this = this;
         /********/
+        args.webServiceCallCount = 0;
 
         var region = args.region;
         if (region.start > 300000000 || region.end < 1) {
@@ -53,18 +54,23 @@ OpencgaAdapter.prototype = {
             console.log("dataType must be provided!!!");
         }
         var chunkSize;
+
+        // two levels of cache. In this adapter, default are: resource and subResource
+        this.cacheConfig.cacheId = this.resource;
+        this.cacheConfig.subCacheId = this.subResource;
+        var combinedCacheId = _this.cacheConfig.cacheId + "_" + _this.cacheConfig.subCacheId;
         /********/
 
         if (dataType == 'histogram') {  // coverage?
 
         } else {
-            //Create one FeatureChunkCache by datatype
-            if (_.isUndefined(this.cache[dataType])) {
-                this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
+            //Create one FeatureChunkCache by combinedCacheId
+            if (_.isUndefined(this.cache[combinedCacheId])) {
+                this.cache[combinedCacheId] = new FeatureChunkCache(this.cacheConfig);
             }
-            chunkSize = this.cache[dataType].chunkSize;
+            chunkSize = this.cache[combinedCacheId].chunkSize;
 
-            this.cache[dataType].getCachedByRegion(region, function (chunksByRegion) {
+            this.cache[combinedCacheId].getCachedByRegion(region, function (chunksByRegion) {
                 if (chunksByRegion.notCached.length > 0) {
                     var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
                         return new Region(region).toString();
@@ -78,6 +84,7 @@ OpencgaAdapter.prototype = {
                     var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
 
                     for (var i = 0; i < queriesList.length; i++) {
+                        args.webServiceCallCount++;
 //                        var cookie = $.cookie("bioinfo_sid");   // FIXME sense?
 //                        cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
                         OpencgaManager.get({
@@ -85,45 +92,61 @@ OpencgaAdapter.prototype = {
 //             //               sessionId: cookie,
 //                            bucketId: _this.resource.bucketId,
 //                            objectId: _this.resource.oid,
-//                            region: queriesList[i],
+                            region: queryRegionStrings[i],
 //                            queryParams: params,
                             success: function (data) {
-                                _this._opencgaSuccess(data, dataType, chunksByRegion.notCached);
+                                _this._opencgaSuccess(data, dataType, combinedCacheId, args);
                             }
                         });
                     }
                 }
                 if (chunksByRegion.cached.length > 0) {
-                    _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
+                    _this.cache[combinedCacheId].getByRegions(chunksByRegion.cached, function (cachedChunks) {
                         var decryptedChunks = _this._decryptChunks(cachedChunks, "mypassword");
                         _this.trigger('data:ready', {items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                        if (args.webServiceCallCount === 0) {
+                            args.done();
+                        }
                     });
                 }
             });
         }
     },
 
-    _opencgaSuccess: function (data, dataType, regions) {
+    _opencgaSuccess: function (data, dataType, combinedCacheId, args) {
+        args.webServiceCallCount--;
         var timeId = this.resource + " save " + Utils.randomString(4);
         console.time(timeId);
         /** time log **/
-        debugger
 
-        var chunkSize = this.cache[dataType].chunkSize;
+        var chunkSize = this.cache[combinedCacheId].chunkSize;
+
 
         var chunks = [];
+        var regions = [];
         for (var i = 0; i < data.response.length; i++) {
-            chunks.push(data.response[i].result);
-        }
-        var items = this.cache[dataType].putByRegions(regions, chunks);
+            var queryResult = data.response[i];
+            regions.push(new Region(queryResult.id));
+            chunks.push(queryResult.result);
 
-        var decryptedChunks = this._decryptChunks(items, "mypassword");
+//            if (data.response[i].result.length == 1) {
+//            } else {
+//                console.log("unexpected data structure");
+//            }
+        }
+        var items = this.cache[combinedCacheId].putByRegions(regions, chunks);
+
+//        var decryptedChunks = this._decryptChunks(items, "mypassword");
         /** time log **/
         console.timeEnd(timeId);
 
         if (chunks.length > 0) {
             // if (data.encoded) {decrypt }
-            this.trigger('data:ready', {items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: this});
+            this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
+        }
+
+        if (args.webServiceCallCount === 0) {
+            args.done();
         }
     },
 
@@ -133,7 +156,7 @@ OpencgaAdapter.prototype = {
             if (chunks[i].enc == true) {
                 decryptedChunks.push(CryptoJS.AES.decrypt(chunks[i], password));
             } else {
-                decryptedChunks.push(chunks);
+                decryptedChunks.push(chunks[i]);
             }
         }
         return decryptedChunks;

@@ -27,8 +27,11 @@
  * }
  *
  *    http://cafetal:8080/opencga/rest/files/3/fetch?region=20:100-200&sid=nsrblm
-
-var exampleCellbaseArgs = {
+ *    http://172.22.69.166:8080/opencga/rest/files/17/fetch?sid=eUZtTdnA9EU89vjACyAe&region=20%3A80000-82000&view_as_pairs=false&include_coverage=true&process_differences=false
+ *    http://172.22.69.166:8080/opencga/rest/files/17/fetch?sid=eUZtTdnA9EU89vjACyAe&region=20%3A80000-82000&view_as_pairs=false&include_coverage=true&process_differences=false
+ *
+ *
+ var exampleCellbaseArgs = {
     success: function(){},
     error: function(){},
 
@@ -88,7 +91,6 @@ var OpencgaManager = {
         }
         console.log(url);
 
-        debugger
         var d;
         $.ajax({
             type: "GET",
@@ -150,18 +152,21 @@ var OpencgaManager = {
 
         // test
         config = {
+//            host: 'http://cafetal:8080',
             host: 'http://cafetal:8080',
             opencga : '/opencga/rest/',
             resource : 'files',
-            resourceId : '3',
+            resourceId : '7',   // 17
             operation : 'fetch',
             params: {
-                sid: '',
-                region: '20:85000-88000'
-//                    region: args.region
+                sid: 'RNk4P0ttFGHyqLA3YGS8',
+//                region: '20:80000-82000',
+                    region: args.region,
+                view_as_pairs: 'false',
+                include_coverage: 'true',
+                process_differences: 'false'
             }
         };
-
 
 //            var query = '';
 //            if(typeof config.query !== 'undefined' && config.query != null){
@@ -174,7 +179,7 @@ var OpencgaManager = {
 //            var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
         // /account/jcoll/analysis/alignment/[[owner@]project:]study/file/method
 
-        var url = config.host + '/' + config.opencga + config.resource + '/' + config.resourceId + '/' + config.operation;
+        var url = config.host + config.opencga + config.resource + '/' + config.resourceId + '/' + config.operation;
         url = Utils.addQueryParamtersToUrl(config.params, url);
         return url;
     },

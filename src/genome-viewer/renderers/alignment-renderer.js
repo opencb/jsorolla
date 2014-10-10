@@ -38,10 +38,11 @@ function AlignmentRenderer(args) {
 };
 
 
-AlignmentRenderer.prototype.render = function (response, args) {
+AlignmentRenderer.prototype.render = function (features, args) {
     var _this = this;
 
 
+    /* this code uses the old signature of AlignmentRenderer.render(response, args)
     //CHECK VISUALIZATON MODE
     if (_.isUndefined(response.params)) {
         response.params = {};
@@ -62,15 +63,21 @@ AlignmentRenderer.prototype.render = function (response, args) {
     console.log("insertSizeMin " + insertSizeMin);
     console.log("insertSizeMin " + insertSizeMax);
 
-    //Prevent browser context menu
-    $(args.svgCanvasFeatures).contextmenu(function (e) {
-        console.log("click derecho")
-        e.preventDefault();
-    });
-
-    console.time("AligRender " + response.params.resource);
 
     var chunkList = response.items;
+*/
+    console.time("AligRender " + features.length + " features");
+    var viewAsPairs = false;
+    var insertSizeMin = 100;
+    var insertSizeMax = 250;
+    var variantColor = "orangered";
+    var chunkList = features;
+
+    //Prevent browser context menu
+    $(args.svgCanvasFeatures).contextmenu(function (e) {
+        console.log("right click");
+        e.preventDefault();
+    });
 
 //    var middle = this.width / 2;
 
@@ -451,8 +458,9 @@ AlignmentRenderer.prototype.render = function (response, args) {
     };
 
     var drawChunk = function (chunk) {
-        drawCoverage(chunk.value);
-        var readList = chunk.value.reads;
+        args.region = chunk.region;
+        drawCoverage(chunk);
+        var readList = chunk.alignments;
         for (var i = 0, li = readList.length; i < li; i++) {
             var read = readList[i];
             if (viewAsPairs) {
@@ -483,5 +491,5 @@ AlignmentRenderer.prototype.render = function (response, args) {
         //TEST
 //        this.setHeight(200);
     }
-    console.timeEnd("AligRender " + response.params.resource);
+    console.timeEnd("AligRender " + features.length + " features");
 };

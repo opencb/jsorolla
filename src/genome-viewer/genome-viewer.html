@@ -334,7 +334,7 @@ var run = function () {
 
     tracks.push(this.snp);
 
-    this.alignment = new BamTrack({
+    this.alignment = new FeatureTrack({
         title: 'Alignments',
         featureType: 'Alignments',
         minHistogramRegionSize: 10000,
@@ -344,6 +344,8 @@ var run = function () {
         renderer: new AlignmentRenderer(FEATURE_TYPES.bam),
 
         dataAdapter: new OpencgaAdapter({
+            resource: "alignment",
+            subResource: "bamTrack",
             cacheConfig: {
                 chunkSize: 10000,
                 cacheId: "opencga:alignment"
