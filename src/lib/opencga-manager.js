@@ -26,6 +26,7 @@
  *
  * }
  *
+ *    http://cafetal:8080/opencga/rest/files/3/fetch?region=20:100-200&sid=nsrblm
 
 var exampleCellbaseArgs = {
     success: function(){},
@@ -59,103 +60,127 @@ var exampleOpencgaArgs = {
         method: ""
 },
     */
-
+/*
+OpencgaManager.region({
+    accountId: _this.resource.account,
+//                            sessionId: cookie,
+    bucketId: _this.resource.bucketId,
+    objectId: _this.resource.oid,
+    region: queriesList[i],
+    queryParams: params,
+    success: function (data) {
+        _this._opencgaSuccess(data, dataType, chunksByRegion.notCached);
+    }
+});*/
 
 var OpencgaManager = {
-    study: {
-        host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,  // TODO find out proper host
-        version: 'v3',
-        get: function (args) {
-            var success = args.success;
-            var error = args.error;
-            var async = (_.isUndefined(args.async) || _.isNull(args.async) ) ? true : args.async;
-            var urlConfig = _.omit(args, ['success', 'error', 'async']);
+    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080' : OPENCGA_HOST,  // TODO find out proper host
+    version: 'v3',
+    get: function (args) {
+        var success = args.success;
+        var error = args.error;
+        var async = (_.isUndefined(args.async) || _.isNull(args.async) ) ? true : args.async;
+        var urlConfig = _.omit(args, ['success', 'error', 'async']);
 
-            var url = OpencgaManager.url(urlConfig);
-            if(typeof url === 'undefined'){
-                return;
-            }
-            console.log(url);
+        var url = OpencgaManager.url(urlConfig);
+        if(typeof url === 'undefined'){
+            return;
+        }
+        console.log(url);
 
-            var d;
-            $.ajax({
-                type: "GET",
-                url: url,
-                dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
-                async: async,
-                success: function (data, textStatus, jqXHR) {
-                    if($.isPlainObject(data) || $.isArray(data)){
+        debugger
+        var d;
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            async: async,
+            success: function (data, textStatus, jqXHR) {
+                if($.isPlainObject(data) || $.isArray(data)){
 //                    data.params = args.params;
 //                    data.resource = args.resource;
 //                    data.category = args.category;
 //                    data.subCategory = args.subCategory;
-                        if (_.isFunction(success)) {
-                            success(data);
-                        }
-                        d = data;
-                    }else{
-                        console.log('Cellbase returned a non json object or list, please check the url.');
-                        console.log(url);
-                        console.log(data)
+                    if (_.isFunction(success)) {
+                        success(data);
                     }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.log("CellBaseManager: Ajax call returned : " + errorThrown + '\t' + textStatus + '\t' + jqXHR.statusText + " END");
-                    if (_.isFunction(error)) error(jqXHR, textStatus, errorThrown);
+                    d = data;
+                }else{
+                    console.log('Cellbase returned a non json object or list, please check the url.');
+                    console.log(url);
+                    console.log(data)
                 }
-            });
-            return d;
-        },
-
-        url: function (args) {
-            if (!$.isPlainObject(args)) args = {};
-            if (!$.isPlainObject(args.params)) args.params = {};
-
-            var version = this.version;
-            if(typeof args.version !== 'undefined' && args.version != null){
-                version = args.version
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("CellBaseManager: Ajax call returned : " + errorThrown + '\t' + textStatus + '\t' + jqXHR.statusText + " END");
+                if (_.isFunction(error)) error(jqXHR, textStatus, errorThrown);
             }
+        });
+        return d;
+    },
 
-            var host = this.host;
-            if (typeof args.host !== 'undefined' && args.host != null) {
-                host =  args.host;
-            }
+    url: function (args) {
+        if (!$.isPlainObject(args)) args = {};
+        if (!$.isPlainObject(args.params)) args.params = {};
 
-            delete args.host;
-            delete args.version;
-
-            var config = {
-                host: host,
-                version: version
-            };
-
-            var params = {
-                of: 'json'
-            };
-
-            _.extend(config, args);
-            _.extend(config.params, params);
-
-            var query = '';
-            if(typeof config.query !== 'undefined' && config.query != null){
-                if ($.isArray(config.query)) {
-                    config.query = config.query.toString();
-                }
-                query = '/' + config.query;
-            }
-
-//            var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
-            // /account/jcoll/analysis/alignment/[[owner@]project:]study/file/method
-            var url = config.host + '/' + config.version + '/account/' + config.user + '/analysis/' + config.dataType + '/'
-                + config.study + '/' + config.file + '/' + config.method; // TODO what is query?
-            url = Utils.addQueryParamtersToUrl(config.params, url);
-            return url;
+        var version = this.version;
+        if(typeof args.version !== 'undefined' && args.version != null){
+            version = args.version
         }
 
+        var host = this.host;
+        if (typeof args.host !== 'undefined' && args.host != null) {
+            host =  args.host;
+        }
+
+        delete args.host;
+        delete args.version;
+
+        var config = {
+            host: host,
+            version: version
+        };
+
+        var params = {
+            of: 'json'
+        };
+
+        _.extend(config, args);
+        _.extend(config.params, params);
+
+        // test
+        config = {
+            host: 'http://cafetal:8080',
+            opencga : '/opencga/rest/',
+            resource : 'files',
+            resourceId : '3',
+            operation : 'fetch',
+            params: {
+                sid: '',
+                region: '20:85000-88000'
+//                    region: args.region
+            }
+        };
+
+
+//            var query = '';
+//            if(typeof config.query !== 'undefined' && config.query != null){
+//                if ($.isArray(config.query)) {
+//                    config.query = config.query.toString();
+//                }
+//                query = '/' + config.query;
+//            }
+
+//            var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
+        // /account/jcoll/analysis/alignment/[[owner@]project:]study/file/method
+
+        var url = config.host + '/' + config.opencga + config.resource + '/' + config.resourceId + '/' + config.operation;
+        url = Utils.addQueryParamtersToUrl(config.params, url);
+        return url;
     },
 
 //////// old version
-    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
+//    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
     getHost: function () {
         return OpencgaManager.host;
     },

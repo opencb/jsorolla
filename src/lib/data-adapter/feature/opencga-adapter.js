@@ -80,13 +80,13 @@ OpencgaAdapter.prototype = {
                     for (var i = 0; i < queriesList.length; i++) {
 //                        var cookie = $.cookie("bioinfo_sid");   // FIXME sense?
 //                        cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
-                        OpencgaManager.region({
-                            accountId: _this.resource.account,
-//                            sessionId: cookie,
-                            bucketId: _this.resource.bucketId,
-                            objectId: _this.resource.oid,
-                            region: queriesList[i],
-                            queryParams: params,
+                        OpencgaManager.get({
+//                            accountId: _this.resource.account,
+//             //               sessionId: cookie,
+//                            bucketId: _this.resource.bucketId,
+//                            objectId: _this.resource.oid,
+//                            region: queriesList[i],
+//                            queryParams: params,
                             success: function (data) {
                                 _this._opencgaSuccess(data, dataType, chunksByRegion.notCached);
                             }
@@ -107,6 +107,7 @@ OpencgaAdapter.prototype = {
         var timeId = this.resource + " save " + Utils.randomString(4);
         console.time(timeId);
         /** time log **/
+        debugger
 
         var chunkSize = this.cache[dataType].chunkSize;
 
