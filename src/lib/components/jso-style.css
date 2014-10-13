@@ -157,7 +157,7 @@ ul.context li[data-divider] {
 
 div.dropdown ul li[data-sub]:after,
 ul.context li[data-sub]:after {
-    font-family: FontAwesome;
+    font-family: 'FontAwesome';
     content: '\f105'; /* > */
     /*content:'\f0da';*/
     position: absolute;
@@ -190,8 +190,8 @@ div.dropdown > div.button:focus + ul li:hover > ul {
 
 /* dropdown button combination */
 div.dropdown > div.button::after {
-    content: '\f0d7'; /* > */
-    /*content:'\f0da';*/
+    font-family: 'FontAwesome';
+    content: '\f107';
     position: absolute;
     right: 10px;
     top: 0px;
