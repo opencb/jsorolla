@@ -1,0 +1,220 @@
+/* only import this inside a polymer component */
+/*
+CONTROLS
+*/
+input {
+    margin: 0px;
+    font-family: inherit;
+}
+
+div.label, div.text {
+    display: block;
+    float: left;
+    box-sizing: border-box;
+    line-height: 21px;
+    border: 1px solid #ccc;
+    padding: 0px 5px;
+    color: #333;
+    background-color: #f2f2f2;
+    font-size: inherit;
+}
+
+div.text {
+    border-color: transparent;
+    background-color: transparent;
+}
+
+label.button > input[type=radio],
+label.button > input[type=checkbox] {
+    display: none;
+}
+
+div.button,
+input[type=text],
+input[type=email],
+input[type=password],
+input[type=file],
+label.button > input[type=radio] + span,
+label.button > input[type=checkbox] + span {
+    display: block;
+    position: relative;
+    outline: 0;
+    box-sizing: border-box;
+    line-height: 21px;
+    border: 1px solid #ccc;
+    padding: 0px 5px;
+    color: #333;
+    background-color: #fff;
+    font-size: inherit;
+    user-select: none;
+}
+
+label.button > input[type=radio]:checked + span,
+label.button > input[type=checkbox]:checked + span {
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+    background-color: #ebebeb;
+}
+
+div.button:hover,
+label.button > input[type=radio] + span:hover,
+label.button > input[type=checkbox]:hover + span:hover {
+    background-color: #ebebeb;
+}
+
+input[type=text],
+input[type=email],
+input[type=password] {
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+input[type=text]:focus,
+input[type=email]:focus,
+input[type=password]:focus {
+    border-color: #66afe9;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+}
+
+input[type=text].error,
+input[type=email].error,
+input[type=password].error {
+    border-color: #e32b2b;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(227, 43, 43, .6);
+}
+
+input[type=text]:invalid:focus,
+input[type=email]:invalid:focus,
+input[type=password]:invalid:focus {
+    border-color: #e32b2b;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(227, 43, 43, .6);
+}
+
+/******* Infinite drop down *****************/
+/*
+  data-divider: add li with boolean attribute data-divider to add a space between li
+  data-sub: add attribute data-sub to add the angle icon for sub ul
+*/
+
+div.dropdown {
+    position: relative;
+    display: block;
+    color: #333;
+}
+
+div.dropdown ul, ul.context {
+    box-sizing: border-box;
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    list-style: none;
+    text-decoration: none;
+    z-index: 100000;
+    border: 1px solid #afafaf;
+    background-color: #fff;
+    line-height: 22px;
+    min-width: 100px;
+    width: 100%;
+    margin: 1px 0 0 0;
+    padding: 5px 0;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
+    /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
+    transition: all 0.35s;
+}
+
+div.dropdown ul, ul.context ul {
+    left: 0;
+    top: 100%;
+}
+
+div.dropdown ul[data-upward] {
+    top: inherit;
+    bottom: 100%;
+    margin-bottom: 2px;
+    left: 0;
+}
+
+div.dropdown ul ul {
+    top: 0px;
+    left: 100%;
+}
+
+div.dropdown ul li,
+ul.context li {
+    position: relative;
+    text-align: left;
+    padding: 2px 30px 2px 10px;
+    white-space: nowrap;
+    color: #333;
+}
+
+div.dropdown ul li[data-divider],
+ul.context li[data-divider] {
+    height: 1px;
+    margin: 3px 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #DEDEDE;
+}
+
+div.dropdown ul li[data-sub]:after,
+ul.context li[data-sub]:after {
+    font-family: FontAwesome;
+    content: '\f105'; /* > */
+    /*content:'\f0da';*/
+    position: absolute;
+    right: 10px;
+}
+
+div.dropdown ul li.active,
+div.dropdown ul li:active,
+ul.context li:active {
+    background-color: #DEDEDE;
+}
+
+div.dropdown ul li:hover,
+ul.context li:hover {
+    background-color: #445D76;
+    color: #fff;
+}
+
+div.dropdown ul li[data-text]:hover,
+ul.context li[data-text]:hover {
+    background-color: inherit;
+    color: inherit;
+}
+
+div.dropdown > div.button:focus + ul,
+div.dropdown > div.button:focus + ul li:hover > ul {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* dropdown button combination */
+div.dropdown > div.button::after {
+    content: '\f0d7'; /* > */
+    /*content:'\f0da';*/
+    position: absolute;
+    right: 10px;
+    top: 0px;
+}
+
+.zoom-bar {
+    position: relative;
+    width: 120px;
+    height: 23px;
+    box-sizing: border-box;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background-color: #FFFFFF;
+}
+
+.zoom-bar > div {
+    background-color: #445D76;
+    /*background-color: #DCDCDC;*/
+    box-sizing: border-box;
+    height: 100%;
+    transition: all 0.2s;
+}
+
+/*
+END CONTROLS
+*/
