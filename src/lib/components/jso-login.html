@@ -1,0 +1,131 @@
+<polymer-element name="jso-login">
+    <template>
+        <link rel="stylesheet" href="jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
+
+                z-index: 50000;
+                top: 90px;
+
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+
+                width: 500px;
+                border: 0px solid #c6d0da;
+                border-width: 1px;
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            div.button {
+                height:40px;
+                line-height:40px;
+                margin-top: 30px;
+                background-color: #f5f5f5;
+                text-align: center;
+            }
+
+            div.button:active {
+                background-color: #445D76;
+                color: #fff !important;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+        </style>
+        <div class="title">
+            <div>
+                Log in with your user
+            </div>
+            <div class="icon">
+                <font-awesome icon="sign-in"></font-awesome>
+            </div>
+        </div>
+        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
+            <label>User</label> <input type="text" id="user" value="{{user}}" required pattern="[a-zA-Z0-9]+">
+            <label>Password</label> <input type="password" id="password" value="{{password}}" required pattern="[a-zA-Z0-9]+">
+
+            <div class="button" on-click="{{handleForm}}">Log in</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.user;
+                this.password;
+            },
+            handleFormKey: function (e) {
+                if (e.which == 13) {
+                    this.handleForm();
+                }
+            },
+            handleForm: function (e) {
+                var me = this;
+                this.message = '';
+
+                if (this.$.form.checkValidity()) {
+
+                    OpencgaManager.users.req({
+                        path: {
+                            id: this.user,
+                            action: 'login'
+                        },
+                        query: {
+                            password: CryptoJS.SHA1(this.password).toString()
+                        },
+                        request: {
+                            success: function (response) {
+                                console.log(response);
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
+                                    Cookies.set('bioinfo_user', response.response[0].result[0].userId);
+                                    me.fire('login', {status: true});
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                    //Delete all cookies
+                                    Cookies.expire('bioinfo_sid');
+                                    Cookies.expire('bioinfo_user');
+                                }
+                            },
+                            error: function () {
+                                me.message = 'Server error, try again later.';
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</polymer-element>

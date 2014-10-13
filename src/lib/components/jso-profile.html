@@ -1,0 +1,166 @@
+<polymer-element name="jso-profile">
+    <template>
+        <link rel="stylesheet" href="jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
+
+                z-index: 50000;
+                top: 90px;
+
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+
+                width: 500px;
+                border: 0px solid #c6d0da;
+                border-width: 1px;
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            div.button {
+                height: 40px;
+                line-height: 40px;
+                margin-top: 10px;
+                background-color: #f5f5f5;
+                text-align: center;
+            }
+
+            div.button:active {
+                background-color: #445D76;
+                color: #fff !important;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            #formEmail{
+                margin-top: 40px;;
+            }
+        </style>
+        <div class="title">
+            <div>
+                User profile
+            </div>
+            <div class="icon">
+                <font-awesome icon="user"></font-awesome>
+            </div>
+        </div>
+        <form id="formPassword" vertical layout>
+            <label>Old password</label> <input type="password" id="oldpassword" value="{{oldpassword}}" required pattern="[a-zA-Z0-9]+">
+            <label>New password</label> <input type="password" id="password" value="{{password}}" required pattern="[a-zA-Z0-9]+">
+            <label>Check password</label> <input type="password" id="check" value="{{check}}" required pattern="[a-zA-Z0-9]+">
+
+            <div class="button" on-click="{{handleChangePasswordForm}}">Change password</div>
+        </form>
+
+        <form id="formEmail" vertical layout>
+            <label>New e-mail</label> <input type="email" id="email" value="{{email}}" required>
+
+            <div class="button" on-click="{{handleChangeEmailForm}}">Change e-mail</div>
+        </form>
+
+        <div class="message">{{message}}</div>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.email;
+                this.oldpassword;
+                this.password;
+                this.check;
+
+                this.message;
+            },
+            handleChangePasswordForm: function (e) {
+                var me = this;
+                this.message = '';
+
+                if (this.$.formPassword.checkValidity() && (this.password === this.check)) {
+                    OpencgaManager.users.req({
+                        path: {
+                            id: Cookies('bioinfo_user'),
+                            action: 'change-password'
+                        },
+                        query: {
+                            password: CryptoJS.SHA1(this.oldpassword).toString(),
+                            npassword: CryptoJS.SHA1(this.password).toString(),
+                            sid: Cookies('bioinfo_sid')
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.message = 'OK';
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                me.message = 'Server error, try again later.';
+                            }
+                        }
+                    });
+                }
+            },
+            handleChangeEmailForm: function (e) {
+                var me = this;
+                this.message = '';
+
+                if (this.$.formEmail.checkValidity()) {
+                    OpencgaManager.users.req({
+                        path: {
+                            id: Cookies('bioinfo_user'),
+                            action: 'change-email'
+                        },
+                        query: {
+                            nemail: this.email,
+                            sid: Cookies('bioinfo_sid')
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.message = 'OK';
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                me.message = 'Server error, try again later.';
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</polymer-element>

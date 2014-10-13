@@ -1,0 +1,166 @@
+<polymer-element name="jso-opencga-upload" attributes="projectList">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                padding-left: 30px;
+                padding-top: 10px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .action {
+                margin-top: 30px;
+                background-color: #f5f5f5 !important;
+                text-align: center;
+            }
+
+            .action:active {
+                background-color: #445D76 !important;
+                color: #fff !important;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+        </style>
+
+        <form id="form" vertical layout>
+            <label>Project</label>
+
+            <div class="dropdown">
+                <div tabindex="-1" class="button">
+                    <jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>
+                </div>
+                <ul>
+                    <template repeat="{{project in projectList}}">
+                        <li>
+                            <jso-opencga-project-item
+                                    project="{{project}}"
+                                    data-selected="{{selectedProject == project}}"
+                                    on-mousedown="{{handleProjectClick}}">
+                            </jso-opencga-project-item>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+
+            <label>Study</label>
+
+            <div class="dropdown">
+                <div tabindex="-1" class="button">
+                    <jso-opencga-study-item study="{{selectedStudy}}"></jso-opencga-study-item>
+                </div>
+                <ul>
+                    <template repeat="{{study in selectedProject.studies}}">
+                        <li>
+                            <jso-opencga-study-item
+                                    study="{{study}}"
+                                    data-selected="{{selectedStudy == study}}"
+                                    on-mousedown="{{handleStudyClick}}">
+                            </jso-opencga-study-item>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+
+
+            <label>File format</label> <input type="text" id="fileFormat" value="{{fileFormat}}" required pattern="[a-zA-Z0-9]+">
+            <label>Bio format</label> <input class="button" type="text" id="bioFormat" value="{{bioFormat}}" required
+                                             pattern="[a-zA-Z0-9]+">
+            <label>Description</label> <input type="text" id="description" value="{{description}}" required pattern="[a-zA-Z0-9\s]+">
+
+            <label>Browse</label>
+
+            <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+
+            <div class="button action" on-click="{{handleForm}}">Upload</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.fileFormat = '';
+                this.bioFormat = '';
+                this.description = '';
+
+                this.selectedProject;
+                this.selectedStudy;
+
+                this.fileName = 'Choose file...';
+                this.message = '';
+
+                this.uploading = false;
+            },
+            handleProjectClick: function (e) {
+                this.selectedProject = e.target.project;
+                this.selectedStudy = null;
+            },
+            handleStudyClick: function (e) {
+                this.selectedStudy = e.target.study;
+            },
+            handleBrowseClick: function (e) {
+                this.$.fileInput.click();
+            },
+            handleInputChange: function (e) {
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name
+            },
+            handleForm: function (e) {
+                var me = this;
+                this.message = '';
+
+                if (this.uploading == false && this.$.form.checkValidity() && this.selectedProject && this.selectedStudy) {
+
+                    this.uploading = true;
+
+                    var inputFile = this.$.fileInput.files[0];
+                    var dir = ''; //TODO
+                    var relativeFilePath = dir + inputFile.name;
+
+                    var fileuploadWorker = new Worker(WORKERS_PATH + 'worker-fileupload.js');
+
+                    fileuploadWorker.onmessage = function (e) {
+                        var res = e.data;
+                        console.log("@@@@@@@@@@@@@@@@ WORKER event message");
+                        console.log(res);
+                        var part = res.chunkId + 1;
+                        me.message = Math.round((part / res.total) * 100) + '%, uploading part ' + part + ' of ' + res.total;
+                        if (res.finished == true) {
+                            me.message = 'Done';
+                            me.uploading = false;
+                        }
+                    };
+
+
+                    fileuploadWorker.postMessage({
+                        'host': OPENCGA_HOST,
+                        'userId': $.cookie("bioinfo_user"),
+                        'sid': $.cookie("bioinfo_sid"),
+
+                        'projectId': this.selectedProject.id,
+                        'studyId': this.selectedStudy.id,
+                        'file': inputFile,
+                        'fileFormat': this.fileFormat,
+                        'bioFormat': this.bioFormat,
+                        'description': this.description,
+                        'relativeFilePath': relativeFilePath,
+
+                        'resume': true
+                    });
+                }
+            }
+        });
+    </script>
+</polymer-element>

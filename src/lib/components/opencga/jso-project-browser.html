@@ -1,13 +1,20 @@
-<link rel="import" href="../../../../vendor/polymer/polymer.html">
-<polymer-element name="jso-project-browser" constructor="JsoProjectBrowser" attributes="projectList">
+<link rel="import" href="jso-opencga-project.html">
+<link rel="import" href="jso-opencga-study.html">
+<link rel="import" href="jso-opencga-create-project.html">
+<link rel="import" href="jso-opencga-create-study.html">
+<link rel="import" href="jso-opencga-upload.html">
+
+<polymer-element name="jso-project-browser" constructor="JsoProjectBrowser" attributes="userData">
 <template>
-<link rel="stylesheet" href="../../../../vendor/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="../jso-style.css">
 <style>
     :host {
+        font-size: 16px;
+        cursor: default;
+
         display: block;
         position: relative;
-        height: 700px;
-        font-size: 16px;
+        color: #444;
     }
 
     #main {
@@ -18,7 +25,8 @@
     #bar {
         box-sizing: border-box;
         background-color: #FAFAFA;
-        height: 30px;
+        height: 32px;
+        line-height: 26px;
         border: 0px solid #d3d3d3;
         border-top-width: 1px;
         border-bottom-width: 1px;
@@ -45,7 +53,6 @@
         box-sizing: border-box;
         color: #314559;
         padding: 5px 20px;
-        cursor: default;
         user-select: none;
     }
 
@@ -60,6 +67,7 @@
 
     #content {
         font-size: 14px;
+        position: relative;
     }
 
     #browse {
@@ -84,6 +92,10 @@
         border-right-width: 1px;
     }
 
+    #study {
+        position: relative;
+    }
+
     .project:hover {
         background-color: #D1D9E3;
     }
@@ -91,6 +103,11 @@
     .project {
         box-sizing: border-box;
         padding: 5px 5px;
+        margin: 2px;
+    }
+
+    .project[data-selected=true] {
+        background-color: #D1D9E3;
     }
 
     .study:hover {
@@ -100,9 +117,15 @@
     .study {
         box-sizing: border-box;
         padding: 5px 5px;
+        margin: 2px;
+    }
+
+    .study[data-selected=true] {
+        background-color: #D1D9E3;
     }
 
     #search {
+        margin: 2px 4px;
         display: block;
         outline: 0;
         box-sizing: border-box;
@@ -120,16 +143,43 @@
     }
 
     #searchIcon {
-        padding: 4px 5px;
+        color: #666;
+        margin: 0px 5px;
+    }
+
+    #breadcrums {
+        color: #314559;
+        box-sizing: border-box;
+        padding-left: 20px;
+    }
+
+    #breadcrums > span:not(:last-of-type)::after {
+        font-family: 'FontAwesome';
+        content: '\f105';
+        margin-left: 5px;
+        margin-right: 5px;
+        color: #888;
     }
 
 </style>
 <div id="main" vertical layout>
     <div id="bar" horizontal layout>
-        <div flex>
+        <div id="breadcrums">
+            <template if="{{ selectedOption }}">
+                <span>{{selectedOptionText}}</span>
+
+                <template if="{{ selectedOption == 'browse' && selectedProject }}">
+                    <span>{{selectedProject.name}}</span>
+
+                    <template if="{{ selectedOption == 'browse' && selectedStudy }}">
+                        <span>{{selectedStudy.name}}</span>
+                    </template>
+                </template>
+
+            </template>
         </div>
         <div flex horizontal layout end-justified>
-            <div id="searchIcon"><i class="fa fa-search"></i></div>
+            <div id="searchIcon"><font-awesome icon="search"></font-awesome></div>
             <input id="search" type="text">
         </div>
     </div>
@@ -138,109 +188,151 @@
         <div id="navigation" on-click="{{handleNavigationClick}}">
             <form>
                 <div class="navigation-title">Main</div>
-                <div class="navigation-item" data-content="browse" data-selected="{{selected.browse}}"><i
-                        class="fa fa-folder-open-o"></i>
-                    &nbsp; Projects
+                <div class="navigation-item" data-content="browse" data-selected="{{selectedOption == 'browse'}}">
+                    <font-awesome icon="folder-open-o"></font-awesome> &nbsp; Projects
                 </div>
-                <div class="navigation-item" data-content="browseStudies" data-selected="{{selected.browseStudies}}"><i
-                        class="fa fa-bar-chart-o"></i>
-                    &nbsp; Studies
-                </div>
+                <!--<div class="navigation-item" data-content="browseStudies" data-selected="{{selectedOption == 'browseStudies'}}">-->
+                <!--<font-awesome icon="bar-chart-o"></font-awesome>&nbsp; Studies-->
+                <!--</div>-->
                 <br>
 
                 <div class="navigation-title">Actions</div>
-                <div class="navigation-item" data-content="createProject" data-selected="{{selected.createProject}}"><i
-                        class="fa fa-folder-o"></i>
-                    &nbsp; Create project
+                <div class="navigation-item" data-content="createProject" data-selected="{{selectedOption == 'createProject'}}">
+                    <font-awesome icon="folder-o"></font-awesome> &nbsp; Create project
                 </div>
-                <div class="navigation-item" data-content="createStudy" data-selected="{{selected.createStudy}}"><i
-                        class="fa fa-bar-chart-o"></i>
-                    &nbsp; Create study
+
+                <div class="navigation-item" data-content="createStudy" data-selected="{{selectedOption == 'createStudy'}}">
+                    <font-awesome icon="pie-chart"></font-awesome> &nbsp; Create study
                 </div>
-                <div class="navigation-item" data-content="uploadFile" data-selected="{{selected.uploadFile}}"><i
-                        class="fa fa-cloud-upload"></i>
-                    &nbsp; Upload file
+
+                <div class="navigation-item" data-content="createExperiment" data-selected="{{selectedOption == 'createExperiment'}}">
+                    <font-awesome icon="flask"></font-awesome> &nbsp; Create experiment
+                </div>
+
+
+                <div class="navigation-item" data-content="runAnalysis" data-selected="{{selectedOption == 'runAnalysis'}}">
+                    <font-awesome icon="cogs"></font-awesome> &nbsp; Run analysis
+                </div>
+
+                <div class="navigation-item" data-content="uploadFile" data-selected="{{selectedOption == 'uploadFile'}}">
+                    <font-awesome icon="cloud-upload"></font-awesome> &nbsp; Upload file
                 </div>
             </form>
         </div>
         <div id="content" horizontal layout flex>
 
-            <div id="browse" horizontal layout hidden>
-                <div id="projectsContent">
-                    <template repeat="{{project in projectList}}">
-                        <jso-opencga-project
-                                class="project" project="{{project}}"
-                                on-click="{{handleProjectClick}}">
-                        </jso-opencga-project>
-                    </template>
-                </div>
-                <template if="{{ selectedProject.studies.length > 0 }}">
-                    <div id="studiesContent">
-                        <template repeat="{{study in selectedProject.studies}}">
-                            <jso-opencga-study-card
-                                    class="study" study="{{study}}"
-                                    on-click="{{handleStudyClick}}">
-                            </jso-opencga-study-card>
+
+            <template if="{{ selectedOption == 'browse' }}">
+                <div horizontal layout flex>
+                    <div id="projectsContent">
+                        <template repeat="{{project in userData.projects}}">
+                            <jso-opencga-project
+                                    class="project" project="{{project}}" data-selected="{{selectedProject == project}}"
+                                    on-click="{{handleProjectClick}}">
+                            </jso-opencga-project>
                         </template>
                     </div>
-                </template>
-                <template if="{{ selectedProject.studies.length > 0 && selectedStudy }}">
-                    <div id="study" flex>
-                        <jso-opencga-study study="{{selectedStudy}}"></jso-opencga-study>
-                    </div>
-                </template>
+                    <template if="{{ selectedProject.studies.length > 0 }}">
+                        <div id="studiesContent">
+                            <template repeat="{{study in selectedProject.studies}}">
+                                <jso-opencga-study-card
+                                        class="study" study="{{study}}" data-selected="{{selectedStudy == study}}"
+                                        on-click="{{handleStudyClick}}">
+                                </jso-opencga-study-card>
+                            </template>
+                        </div>
+                    </template>
+                    <template if="{{ selectedProject.studies.length > 0 && selectedStudy }}">
+                        <div id="study" flex>
+                            <jso-opencga-study study="{{selectedStudy}}"></jso-opencga-study>
+                        </div>
+                    </template>
 
-            </div>
+                </div>
+            </template>
 
-            <div id="createProject" hidden>
+
+            <template if="{{ selectedOption == 'createProject' }}">
                 <jso-opencga-create-project></jso-opencga-create-project>
-            </div>
+            </template>
 
-            <div id="browseStudies" hidden>
-            </div>
+            <template if="{{ selectedOption == 'createStudy' }}">
+                <jso-opencga-create-study projectList="{{userData.projects}}"></jso-opencga-create-study>
+            </template>
 
-            <div id="createStudy" hidden>
-            </div>
-            <div id="uploadFile" hidden>
-            </div>
+            <template if="{{ selectedOption == 'createExperiment' }}">
+                TODO
+            </template>
 
+            <template if="{{ selectedOption == 'runAnalysis' }}">
+                TODO
+            </template>
+
+            <template if="{{ selectedOption == 'uploadFile' }}">
+                <jso-opencga-upload projectList="{{userData.projects}}"></jso-opencga-upload>
+            </template>
+
+            <template if="{{ selectedOption == 'browseStudies' }}">
+
+            </template>
         </div>
-
     </div>
-
-
 </div>
 
 </template>
 <script>
     Polymer({
         created: function () {
-            this.projectList = [
-            ];
-            this.selected = {};
+            this.userData;
+            this.selectedOption;
+            this.selectedOptionText;
         },
-
+        userDataChanged: function (oldValue, newValue) {
+            if (newValue) {
+                var projects = newValue.projects;
+                if (this.selectedProject) {
+                    for (var i = 0; i < projects.length; i++) {
+                        var project = projects[i];
+                        if (this.selectedProject.id === project.id) {
+                            this.selectedProject = project;
+                            break;
+                        }
+                    }
+                }
+                if (this.selectedStudy) {
+                    for (var i = 0; i < this.selectedProject.studies.length; i++) {
+                        var study = this.selectedProject.studies[i];
+                        if (this.selectedStudy.id === study.id) {
+                            this.selectedStudy = study;
+                            break;
+                        }
+                    }
+                }
+            }
+        },
         checkNavigtationSelected: function () {
             return e.target.dataset['content'] === this.selectedNavigation;
         },
 
         handleProjectClick: function (e) {
-            this.selectedProject = e.target.project;
+            if (this.selectedProject === e.target.project) {
+                this.selectedProject = null;
+            } else {
+                this.selectedProject = e.target.project;
+            }
         },
         handleStudyClick: function (e) {
-            this.selectedStudy = e.target.study;
+            if (this.selectedStudy === e.target.study) {
+                this.selectedStudy = null;
+            } else {
+                this.selectedStudy = e.target.study;
+            }
         },
         handleNavigationClick: function (e) {
             var option = e.target.dataset['content'];
             if (option) {
-                var nodeList = this.$.navigation.querySelectorAll('.navigation-item');
-                for (var i = 0; i < nodeList.length; i++) {
-                    var content = nodeList[i].dataset.content
-                    this.$[content].setAttribute('hidden', "");
-                    this.selected[content] = false;
-                }
-                this.$[option].removeAttribute('hidden');
-                this.selected[option] = true;
+                this.selectedOption = option;
+                this.selectedOptionText = e.target.innerText.trim();
             }
         }
     });

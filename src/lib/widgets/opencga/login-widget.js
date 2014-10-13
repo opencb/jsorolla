@@ -318,7 +318,7 @@ LoginWidget.prototype.sign = function () {
         this.panel.setLoading('Waiting server...');
     } else {
         if (this.checkUserId()) {
-            OpencgaManager.user.req({
+            OpencgaManager.users.req({
                 path: {
                     id: this.getLogin(),
                     action: 'login'
@@ -348,7 +348,7 @@ LoginWidget.prototype.anonymousSign = function () {
 
 LoginWidget.prototype.register = function () {
     if (this.checkUserId() && this.checkemail() && this.checkName() && this.checkpass()) {
-        OpencgaManager.user.req({
+        OpencgaManager.users.req({
             path: {
                 action: 'create'
             },
@@ -369,7 +369,7 @@ LoginWidget.prototype.register = function () {
 
 LoginWidget.prototype.sendRecover = function () {
     if (this.checkUserId() && this.checkemail()) {
-        OpencgaManager.user.req({
+        OpencgaManager.users.req({
             path: {
                 id: this.getLogin(),
                 action: 'reset-password'

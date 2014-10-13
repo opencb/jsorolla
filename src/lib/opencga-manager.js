@@ -30,26 +30,52 @@ var OpencgaManager = {
     },
 
 
-    user: {
+    users: {
         req: function (args) {
-            var url = OpencgaManager.user.url(args);
+            var url = OpencgaManager.users.url(args);
             OpencgaManager._doRequest(url, args);
         },
         url: function (args) {
-            var host = OpencgaManager.host;
-            if (typeof args.request.host !== 'undefined' && args.request.host != null) {
-                host = args.request.host;
-            }
-
-            var id = '';
-            if (typeof args.path.id !== 'undefined' && args.path.id != null) {
-                id = '/' + args.path.id;
-            }
-
-            var url = host + '/users' + id + '/' + args.path.action;
-            url = Utils.addQueryParamtersToUrl(args.query, url);
-            return url;
+            return OpencgaManager._url(args, 'users');
         }
+    },
+
+
+    projects: {
+        req: function (args) {
+            var url = OpencgaManager.projects.url(args);
+            OpencgaManager._doRequest(url, args);
+        },
+        url: function (args) {
+            return OpencgaManager._url(args, 'projects');
+        }
+    },
+
+    studies: {
+        req: function (args) {
+            var url = OpencgaManager.studies.url(args);
+            OpencgaManager._doRequest(url, args);
+        },
+        url: function (args) {
+            return OpencgaManager._url(args, 'studies');
+        }
+    },
+
+
+    _url: function (args, api) {
+        var host = OpencgaManager.host;
+        if (typeof args.request.host !== 'undefined' && args.request.host != null) {
+            host = args.request.host;
+        }
+
+        var id = '';
+        if (typeof args.path.id !== 'undefined' && args.path.id != null) {
+            id = '/' + args.path.id;
+        }
+
+        var url = host + '/' + api + id + '/' + args.path.action;
+        url = Utils.addQueryParamtersToUrl(args.query, url);
+        return url;
     },
 
 
@@ -79,9 +105,6 @@ var OpencgaManager = {
         oReq.send();
     },
 
-    _check: function (args) {
-
-    },
 
     /*************/
     /*************/

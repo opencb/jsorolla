@@ -234,7 +234,7 @@ ProfileWidget.prototype = {
     },
     changeEmail: function () {
         if (this.checkemail()) {
-            OpencgaManager.user.req({
+            OpencgaManager.users.req({
                 path: {
                     id: $.cookie('bioinfo_user'),
                     action: 'change-email'
@@ -252,7 +252,7 @@ ProfileWidget.prototype = {
     },
     changePassword: function () {
         if (this.checkpass()) {
-            OpencgaManager.user.req({
+            OpencgaManager.users.req({
                 path: {
                     id: $.cookie('bioinfo_user'),
                     action: 'change-password'

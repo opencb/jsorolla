@@ -186,7 +186,7 @@ HeaderWidget.prototype = {
             _this.loginWidget.show();
         });
         $(this.els.logout).click(function () {
-            OpencgaManager.user.req({
+            OpencgaManager.users.req({
                 path: {
                     id: $.cookie('bioinfo_user'),
                     action: 'logout'
@@ -200,6 +200,15 @@ HeaderWidget.prototype = {
 
                 }
             });
+
+            //Se borran todas las cookies por si acaso
+            $.cookie('bioinfo_sid', null);
+            $.cookie('bioinfo_sid', null, {path: '/'});
+            $.cookie('bioinfo_user', null);
+            $.cookie('bioinfo_user', null, {path: '/'});
+            _this.sessionFinished();
+            _this.trigger('logout', {sender: this});
+
         });
         $(this.els.profile).click(function () {
             _this.profileWidget.show();
@@ -219,13 +228,6 @@ HeaderWidget.prototype = {
         this.logoutSuccess = function (response) {
             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                 console.log(response);
-                //Se borran todas las cookies por si acaso
-                $.cookie('bioinfo_sid', null);
-                $.cookie('bioinfo_sid', null, {path: '/'});
-                $.cookie('bioinfo_user', null);
-                $.cookie('bioinfo_user', null, {path: '/'});
-                _this.sessionFinished();
-                _this.trigger('logout', {sender: this});
             }
         };
 
@@ -622,7 +624,7 @@ HeaderWidget.prototype = {
             console.log('cookie: bioinfo_user, is not set, session will be finished...');
             this.sessionFinished();
         } else {
-            OpencgaManager.user.req({
+            OpencgaManager.users.req({
                 path: {
                     id: $.cookie('bioinfo_user'),
                     action: 'info'
