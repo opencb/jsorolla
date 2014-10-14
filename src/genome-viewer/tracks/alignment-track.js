@@ -52,34 +52,6 @@ AlignmentTrack.prototype.render = function (targetId) {
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
-
-    this.dataAdapter.on('data:ready', function (event) {
-        var features;
-        if (event.dataType == 'histogram') {
-            _this.renderer = _this.histogramRenderer;
-            features = event.items;
-        } else {
-            _this.renderer = _this.defaultRenderer;
-            features = _this.getFeaturesToRenderByChunk(event);
-        }
-        console.log(event);
-        debugger
-        _this.renderer.render(features, {
-            svgCanvasFeatures: _this.svgCanvasFeatures,
-            featureTypes: _this.featureTypes,
-            renderedArea: _this.renderedArea,
-            pixelBase: _this.pixelBase,
-            position: _this.region.center(),
-            regionSize: _this.region.length(),
-            maxLabelRegionSize: _this.maxLabelRegionSize,
-            width: _this.width,
-            pixelPosition: _this.pixelPosition,
-            resource: _this.resource,
-            species: _this.species,
-            featureType: _this.featureType
-        });
-        _this.updateHeight();
-    });
 };
 
 AlignmentTrack.prototype.draw = function () {
@@ -115,7 +87,8 @@ AlignmentTrack.prototype.draw = function () {
             },
             done: function () {
                 _this.setLoading(false);
-            }
+            },
+            dataReady: _this.dataReady
         });
 
         this.invalidZoomText.setAttribute("visibility", "hidden");
@@ -162,7 +135,6 @@ AlignmentTrack.prototype.move = function (disp) {
                     interval: this.interval
                 },
                 done: function () {
-
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -183,9 +155,7 @@ AlignmentTrack.prototype.move = function (disp) {
                     interval: this.interval
                 },
                 done: function () {
-
                 }
-
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
@@ -193,3 +163,34 @@ AlignmentTrack.prototype.move = function (disp) {
     }
 
 };
+
+AlignmentTrack.prototype.dataReady = function (response) {
+    var _this = this;
+    var features;
+    if (response.dataType == 'histogram') {
+        _this.renderer = _this.histogramRenderer;
+    } else {
+        _this.renderer = _this.defaultRenderer;
+        features = _this.getFeaturesToRenderByChunk(response);
+    }
+    console.log(response);
+    debugger;
+//    response.items = features;    // why not?
+//    _this.renderer.render(response, {
+    _this.renderer.render(features, {
+        svgCanvasFeatures: _this.svgCanvasFeatures,
+        featureTypes: _this.featureTypes,
+        renderedArea: _this.renderedArea,
+        pixelBase: _this.pixelBase,
+        position: _this.region.center(),
+        regionSize: _this.region.length(),
+        maxLabelRegionSize: _this.maxLabelRegionSize,
+        width: _this.width,
+        pixelPosition: _this.pixelPosition,
+        resource: _this.resource,
+        species: _this.species,
+        featureType: _this.featureType
+    });
+    _this.updateHeight();
+};
+
