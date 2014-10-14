@@ -77,8 +77,29 @@ OpencgaManager.region({
 });*/
 
 var OpencgaManager = {
-    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080' : OPENCGA_HOST,  // TODO find out proper host
+//    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080' : OPENCGA_HOST,  // TODO find out proper host
     version: 'v3',
+
+    host: 'http://cafetal:8080',
+    opencga : '/opencga/rest/',
+
+    LOGIN: "login",
+    LOGOUT: "logout",
+    CREATE: "create",
+    UPLOAD: "upload",
+    INFO: "info",
+    LIST: "list",
+    FETCH: "fetch",
+    UPDATE: "update",
+    DELETE: "delete",
+
+    USERS: "users",
+    PROJECTS: "projects",
+    STUDIES: "studies",
+    FILES: "files",
+    ANALYSES: "analyses",
+    JOBS: "jobs",
+
     get: function (args) {
         var success = args.success;
         var error = args.error;
@@ -119,6 +140,60 @@ var OpencgaManager = {
             }
         });
         return d;
+    },
+
+    _call: function (resourceType, resourceId, action, queryParams) {
+        if (resourceId == undefined || resourceId == null) {
+            resourceId = "";
+        } else {
+            resourceId = resourceId + "/";
+        }
+        var url = this.host + this.opencga + resourceType + '/' + resourceId + action;
+        url = Utils.addQueryParamtersToUrl(queryParams, url);
+        return url;
+    },
+    /**
+     * @param queryParams required: {password, sid // sessionId}
+     * @return sid (sessionId)
+     */
+    login: function (userId, queryParams) {
+        this._call(this.USERS, userId, this.LOGIN, queryParams);
+    },
+    /**
+     * @param queryParams required: {sid // sessionId}
+     */
+    logout: function (userId, queryParams) {
+        this._call(this.USERS, "", this.CREATE, queryParams);
+    },
+    /**
+     * @param queryParams required: {id, sid // sessionId}
+     */
+    create: function (resourceType, queryParams) {
+        this._call(resourceType, "", this.CREATE, queryParams);
+    },
+    /**
+     * @param queryParams required: {sid // sessionId}
+     */
+    upload: function (resourceType, queryParams) {
+        this._call(resourceType, "", this.CREATE, queryParams);
+    },
+    /**
+     * @param queryParams required: {sid // sessionId}
+     */
+    get: function (resourceType, resourceId, action, queryParams) {
+        this._call(resourceType, resourceId, action, queryParams);
+    },
+    /**
+     * @param queryParams required: {sid // sessionId}
+     */
+    update: function (resourceType, resourceId, queryParams) {
+        this._call(resourceType, resourceId, this.UPDATE, queryParams);
+    },
+    /**
+     * @param queryParams required: {sid // sessionId}
+     */
+    delete: function (resourceType, resourceId, queryParams) {
+        this._call(resourceType, resourceId, this.DELETE, queryParams);
     },
 
     url: function (args) {
@@ -180,10 +255,7 @@ var OpencgaManager = {
 
 //            var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
         // /account/jcoll/analysis/alignment/[[owner@]project:]study/file/method
-
-        var url = config.host + config.opencga + config.resource + '/' + config.resourceId + '/' + config.operation;
-        url = Utils.addQueryParamtersToUrl(config.params, url);
-        return url;
+        return this._call(config);
     },
 
 //////// old version
