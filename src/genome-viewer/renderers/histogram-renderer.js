@@ -50,8 +50,9 @@ function HistogramRenderer(args) {
 HistogramRenderer.prototype._checkFeatureValue = function (feature) {
     if (feature.features_count == null) {
 //            var height = Math.log(features[i].absolute);
-        if (feature.absolute != 0) {
-            feature.features_count = Math.log(feature.absolute);
+        if (feature.absolute != 0 && feature.absolute > 0) {
+            // take care of feature.absolute==1 counts and set scaled value to 0.2 as log(2) ~= 0.3
+            feature.features_count = Math.max(0.2,Math.log(feature.absolute));
         } else {
             feature.features_count = 0;
         }

@@ -598,14 +598,14 @@ Network.prototype = {
             }
         }
     },
-    setVerticesRendererAttributeMap: function (rendererAttr, vertexAttribute, uniqueMap) {
+    setVerticesRendererAttributeMap: function (rendererAttr, vertexAttribute, uniqueMap, updateEdges) {
         for (var uniqueAttrValue in uniqueMap) {
             var rendererValue = uniqueMap[uniqueAttrValue];
             var ids = this.vertexAttributeManager.getIdsByAttributeValue(vertexAttribute, uniqueAttrValue);
             for (var i = 0, l = ids.length; i < l; i++) {
                 var id = ids[i];
                 var vertex = this.graph.getVertexById(id);
-                this.setVertexRendererAttribute(vertex, rendererAttr, rendererValue);
+                this.setVertexRendererAttribute(vertex, rendererAttr, rendererValue, updateEdges);
             }
         }
     },

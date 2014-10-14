@@ -36,7 +36,7 @@ function GenericFormPanel(args) {
     this.title;
     this.resizable;
     this.width = 500;
-    this.height;
+    this.height = 600;
     this.border = true;
     this.formBorder = true;
     this.taskbar;
@@ -147,8 +147,10 @@ GenericFormPanel.prototype.getForm = function () {
         this.form = Ext.create('Ext.form.Panel', {
             border: 0,
             width: this.width,
+            height: this.height,
+            autoScroll:true,
             trackResetOnLoad: true,
-            padding: 5,
+            bodyPadding: 5,
             layout: {
                 type: 'vbox',
                 align: 'stretch'

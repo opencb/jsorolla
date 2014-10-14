@@ -103,6 +103,9 @@ DefaultEdgeRenderer.prototype = {
         this.updateShape();
     },
     updateShape: function () {
+        if(!this.edgeEl){
+            debugger
+        }
         if (this.shape === 'undirected') {
             this.edgeEl.removeAttribute('marker-end');
         } else {
