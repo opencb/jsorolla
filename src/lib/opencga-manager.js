@@ -155,9 +155,9 @@ var OpencgaManager = {
 //            host: 'http://cafetal:8080',
             host: 'http://cafetal:8080',
             opencga : '/opencga/rest/',
-            resource : 'files',
-            resourceId : '7',   // 17
-            operation : 'fetch',
+            resource : 'files',         // TODO generify
+            resourceId : '7',   // 17   // TODO generify
+            operation : 'fetch',        // TODO generify?
             params: {
                 sid: 'RNk4P0ttFGHyqLA3YGS8',
 //                region: '20:80000-82000',
@@ -167,6 +167,8 @@ var OpencgaManager = {
                 process_differences: 'false'
             }
         };
+        _.extend(config.params, params);
+        _.extend(config.params, args.queryParams);
 
 //            var query = '';
 //            if(typeof config.query !== 'undefined' && config.query != null){

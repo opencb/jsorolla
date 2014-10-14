@@ -69,6 +69,7 @@ HistogramRenderer.prototype.render = function (features, args) {
     var middle = args.width / 2;
     console.log(middle)
     var points = '';
+    debugger
     if (features.length > 0) {
         var firstFeature = features[0].value;
         var width = (firstFeature.end - firstFeature.start + 1) * args.pixelBase;

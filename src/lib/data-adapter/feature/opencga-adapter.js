@@ -62,7 +62,15 @@ OpencgaAdapter.prototype = {
         /********/
 
         if (dataType == 'histogram') {  // coverage?
-
+            // TODO ask only not cached
+            var queryParams = {histogram: true/*, interval: this.interval*/};
+            OpencgaManager.get({
+                    region: new Region(region).toString(),
+                    queryParams: queryParams,
+                    success: function (data) {
+                        _this._opencgaSuccess(data, dataType, combinedCacheId, args);
+                    }
+                });
         } else {
             //Create one FeatureChunkCache by combinedCacheId
             if (_.isUndefined(this.cache[combinedCacheId])) {
@@ -93,7 +101,7 @@ OpencgaAdapter.prototype = {
 //                            bucketId: _this.resource.bucketId,
 //                            objectId: _this.resource.oid,
                             region: queryRegionStrings[i],
-//                            queryParams: params,
+//                            queryParams: params = {histogram : true},
                             success: function (data) {
                                 _this._opencgaSuccess(data, dataType, combinedCacheId, args);
                             }
