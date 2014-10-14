@@ -49,21 +49,29 @@ VCFDataAdapter.prototype.parse = function (data, region) {
 //    debugger
 //	console.log("creating objects");
     for (var i = 0; i < lines.length; i++) {
-//        debugger
         var line = lines[i].replace(/^\s+|\s+$/g, "");
         if ((line != null) && (line.length > 0)) {
-            var fields = line.split("\t");
-            var chrom = fields[0].replace(/chr/gi, "");
-            if (chrom == region.chromosome) {// load only one chromosome on the cache
 
-                if (line.substr(0, 1) === "#") {
-                    if (line.substr(1, 1) === "#") {
-                        this.header += line.replace(/</gi, "&#60;").replace(/>/gi, "&#62;") + "<br>";
-                    } else {
-                        this.samples = fields.slice(9);
-                    }
+            var fields = line.split("\t");
+
+            if (line.substr(0, 1) === "#") {
+                if (line.substr(1, 1) === "#") {
+                    this.header += line.replace(/</gi, "&#60;").replace(/>/gi, "&#62;") + "<br>";
                 } else {
+                    this.samples = fields.slice(9);
+                }
+            } else {
+
+                var chrom = fields[0].replace(/chr/gi, "");
+                if (chrom == region.chromosome) {// load only one chromosome on the cache
+
                     //				_this.addQualityControl(fields[5]);
+
+                    var samples = [];
+                    if(fields[9]){
+                        samples = fields.slice(9);
+                    }
+
                     var feature = {
                         "chromosome": chrom,
                         "position": parseInt(fields[1]),
@@ -77,6 +85,7 @@ VCFDataAdapter.prototype.parse = function (data, region) {
                         "info": fields[7].replace(/;/gi, "<br>"),
                         "format": fields[8],
                         "sampleData": line,
+                        "samples": samples,
                         //						"record":		fields,
                         //						"label": 		fields[2] + " " +fields[3] + "/" + fields[4] + " Q:" + fields[5],
                         "featureType": "vcf"
