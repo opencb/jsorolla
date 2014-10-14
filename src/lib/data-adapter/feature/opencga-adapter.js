@@ -28,6 +28,8 @@ function OpencgaAdapter(args) {
     this.on(this.handlers);
 
     this.cache = {};
+    this.user = null;
+    this.sessionId = null;
 }
 
 OpencgaAdapter.prototype = {
@@ -111,10 +113,10 @@ OpencgaAdapter.prototype = {
                 if (chunksByRegion.cached.length > 0) {
                     _this.cache[combinedCacheId].getByRegions(chunksByRegion.cached, function (cachedChunks) {
                         var decryptedChunks = _this._decryptChunks(cachedChunks, "mypassword");
-                        _this.trigger('data:ready', {items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                         if (args.webServiceCallCount === 0) {
                             args.done();
                         }
+                        args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                     });
                 }
             });
@@ -148,13 +150,13 @@ OpencgaAdapter.prototype = {
         /** time log **/
         console.timeEnd(timeId);
 
-        if (chunks.length > 0) {
-            // if (data.encoded) {decrypt }
-            this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
-        }
 
         if (args.webServiceCallCount === 0) {
             args.done();
+        }
+        if (chunks.length > 0) {
+            // if (data.encoded) {decrypt }
+            args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         }
     },
 

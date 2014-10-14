@@ -88,7 +88,9 @@ AlignmentTrack.prototype.draw = function () {
             done: function () {
                 _this.setLoading(false);
             },
-            dataReady: _this.dataReady
+            dataReady: function(args){
+                _this.dataReady(args);
+            }
         });
 
         this.invalidZoomText.setAttribute("visibility", "hidden");
@@ -135,6 +137,9 @@ AlignmentTrack.prototype.move = function (disp) {
                     interval: this.interval
                 },
                 done: function () {
+                },
+                dataReady: function(args){
+                    _this.dataReady(args);
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -155,6 +160,9 @@ AlignmentTrack.prototype.move = function (disp) {
                     interval: this.interval
                 },
                 done: function () {
+                },
+                dataReady: function(args){
+                    _this.dataReady(args);
                 }
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
@@ -171,10 +179,11 @@ AlignmentTrack.prototype.dataReady = function (response) {
         _this.renderer = _this.histogramRenderer;
     } else {
         _this.renderer = _this.defaultRenderer;
+        // debugger
         features = _this.getFeaturesToRenderByChunk(response);
     }
     console.log(response);
-    debugger;
+    // debugger;
 //    response.items = features;    // why not?
 //    _this.renderer.render(response, {
     _this.renderer.render(features, {
