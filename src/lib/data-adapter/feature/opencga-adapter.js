@@ -65,14 +65,15 @@ OpencgaAdapter.prototype = {
 
         if (dataType == 'histogram') {  // coverage?
             // TODO ask only not cached
-            var queryParams = {histogram: true/*, interval: this.interval*/};
-            OpencgaManager.get({
-                    region: new Region(region).toString(),
-                    queryParams: queryParams,
-                    success: function (data) {
-                        _this._opencgaSuccess(data, dataType, combinedCacheId, args);
-                    }
-                });
+            var queryParams = {region: new Region(region).toString(), histogram: true/*, interval: this.interval*/};
+            var extraArgs = {success: function (data) {
+                _this._opencgaSuccess(data, dataType, combinedCacheId, args);
+            }};
+            OpencgaManager.get(OpencgaManager.resourceTypes.FILES
+                , "7"
+                , OpencgaManager.actions.FETCH
+                , queryParams
+                , extraArgs);
         } else {
             //Create one FeatureChunkCache by combinedCacheId
             if (_.isUndefined(this.cache[combinedCacheId])) {
@@ -95,19 +96,15 @@ OpencgaAdapter.prototype = {
 
                     for (var i = 0; i < queriesList.length; i++) {
                         args.webServiceCallCount++;
-//                        var cookie = $.cookie("bioinfo_sid");   // FIXME sense?
-//                        cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
-                        OpencgaManager.get({
-//                            accountId: _this.resource.account,
-//             //               sessionId: cookie,
-//                            bucketId: _this.resource.bucketId,
-//                            objectId: _this.resource.oid,
-                            region: queryRegionStrings[i],
-//                            queryParams: params = {histogram : true},
-                            success: function (data) {
-                                _this._opencgaSuccess(data, dataType, combinedCacheId, args);
-                            }
-                        });
+                        var queryParams = {region: queryRegionStrings[i]/*, interval: this.interval*/};
+                        var extraArgs = {success: function (data) {
+                            _this._opencgaSuccess(data, dataType, combinedCacheId, args);
+                        }};
+                        OpencgaManager.get(OpencgaManager.resourceTypes.FILES
+                            , "7"
+                            , OpencgaManager.actions.FETCH
+                            , queryParams
+                            , extraArgs);
                     }
                 }
                 if (chunksByRegion.cached.length > 0) {

@@ -109,7 +109,7 @@ var OpencgaManager = {
      * @param queryParams required: sid (sessionId)
      */
     get: function (resourceType, resourceId, action, queryParams, args) {
-        resourceId = "7";
+//        resourceId = "7";
         _.extend(queryParams, {
             sid: "RNk4P0ttFGHyqLA3YGS8",
             view_as_pairs: 'false',
@@ -138,12 +138,15 @@ var OpencgaManager = {
     },
 
     _call: function (resourceType, resourceId, action, queryParams, args) {
-        var url = this.url(resourceType, resourceId, action, queryParams, args);
+        var url = this._url(resourceType, resourceId, action, queryParams, args);
 
         if(typeof url === 'undefined' || url == null){
             return;
         }
         console.log(url);
+        var async = (_.isUndefined(args.async) || _.isNull(args.async) ) ? true : args.async;
+        var success = args.success;
+        var error = args.error;
 
         var d;
         $.ajax({
