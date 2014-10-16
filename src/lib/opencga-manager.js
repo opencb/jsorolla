@@ -165,8 +165,8 @@ var OpencgaManager = {
             host = args.request.host;
         }
         var version = OpencgaManager.version;
-        if (typeof version.request.host !== 'undefined' && version.request.host != null) {
-            host = version.request.host;
+        if (typeof args.request.version !== 'undefined' && args.request.version != null) {
+            version = args.request.version;
         }
         var id = '';
         if (args.path && typeof args.path.id !== 'undefined' && args.path.id != null) {
