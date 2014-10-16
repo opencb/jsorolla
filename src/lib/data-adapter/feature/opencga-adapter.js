@@ -122,7 +122,7 @@ OpencgaAdapter.prototype = {
 
     _opencgaSuccess: function (data, dataType, combinedCacheId, args) {
         args.webServiceCallCount--;
-        var timeId = this.resource + " save " + Utils.randomString(4);
+        var timeId = this.resource + " save " + data.response.length + " regions";
         console.time(timeId);
         /** time log **/
 

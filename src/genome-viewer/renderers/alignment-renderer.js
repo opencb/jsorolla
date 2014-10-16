@@ -66,7 +66,12 @@ AlignmentRenderer.prototype.render = function (features, args) {
 
     var chunkList = response.items;
 */
-    console.time("AligRender " + features.length + " features");
+    var numAlignments = 0;
+    for (var i = 0; i < features.length; i++) {
+        numAlignments += features[i].alignments.length;
+    }
+    var timeId = "AligRender " + features.length + " features with " + numAlignments + " alignments";
+    console.time(timeId);
     var viewAsPairs = false;
     var insertSizeMin = 100;
     var insertSizeMax = 250;
@@ -91,6 +96,8 @@ AlignmentRenderer.prototype.render = function (features, args) {
     });
 
     var drawCoverage = function (chunk) {
+        var timeIdCov = "alig render: coverage " + chunk.coverage.all.length;
+        console.time(timeIdCov);
         var coverageList = chunk.coverage.all;
         var coverageListA = chunk.coverage.a;
         var coverageListC = chunk.coverage.c;
@@ -194,6 +201,7 @@ AlignmentRenderer.prototype.render = function (features, args) {
         });
 
 
+        console.timeEnd(timeIdCov);
 //        args.trackSvgLayout.onMousePosition.addEventListener(function (sender, obj) {
 //            var pos = obj.mousePos - parseInt(chunk.start);
 //            //if(coverageList[pos]!=null){
@@ -461,6 +469,8 @@ AlignmentRenderer.prototype.render = function (features, args) {
         args.region = chunk.region;
         drawCoverage(chunk);
         var readList = chunk.alignments;
+        var timeIdReads = "alig render reads " + readList.length;
+        console.time(timeIdReads);
         for (var i = 0, li = readList.length; i < li; i++) {
             var read = readList[i];
             if (viewAsPairs) {
@@ -477,6 +487,7 @@ AlignmentRenderer.prototype.render = function (features, args) {
                 drawSingleRead(read);
             }
         }
+        console.timeEnd(timeIdReads);
     };
 
     //process features
@@ -491,5 +502,5 @@ AlignmentRenderer.prototype.render = function (features, args) {
         //TEST
 //        this.setHeight(200);
     }
-    console.timeEnd("AligRender " + features.length + " features");
+    console.timeEnd(timeId);
 };
