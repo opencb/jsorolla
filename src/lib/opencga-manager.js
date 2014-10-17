@@ -48,9 +48,7 @@
  * });
  *
  * OpencgaManager.users.login({
- *      path:{
- *          id:'user1'
- *      },
+ *      id:'user1',
  *      query:{
  *          password: 'password_one'
  *      },
@@ -65,9 +63,7 @@
  * });
  *
  * OpencgaManager.users.info({
- *      path:{
- *          id:'user1'
- *      },
+ *      id:'user1',
  *      query:{
  *          sid: Cookies('bioinfo_sid'),
  *          lastActivity: 'lastActivity'
@@ -92,70 +88,82 @@ var OpencgaManager = {
 
     users: {
         login: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'users', 'login'));
+            return OpencgaManager._doRequest(args, 'users', 'login');
         },
         logout: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'users', 'logout'));
+            return OpencgaManager._doRequest(args, 'users', 'logout');
         },
-        info: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'users', 'info'));
+        read: function (args) {
+            return OpencgaManager._doRequest(args, 'users', 'info');
         },
-        modify: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'users', 'modify'));
+        update: function (args) {
+            return OpencgaManager._doRequest(args, 'users', 'modify');
         },
-        changeEmail: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'users', 'change-email'));
+        updateEmail: function (args) {
+            return OpencgaManager._doRequest(args, 'users', 'change-email');
         },
-        changePassword: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'users', 'change-password'));
+        updatePassword: function (args) {
+            return OpencgaManager._doRequest(args, 'users', 'change-password');
         },
         resetPassword: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'users', 'reset-password'));
+            return OpencgaManager._doRequest(args, 'users', 'reset-password');
         },
         create: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'users', 'create'));
+            return OpencgaManager._doRequest(args, 'users', 'create');
+        },
+        delete: function (args) {
+            return OpencgaManager._doRequest(args, 'users', 'delete');
         }
     },
 
     projects: {
-        allProjects: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'projects', 'all-projects'));
+        list: function (args) {
+            return OpencgaManager._doRequest(args, 'projects', 'all-projects');
         },
-        info: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'projects', 'info'));
+        read: function (args) {
+            return OpencgaManager._doRequest(args, 'projects', 'info');
         },
-        modify: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'projects', 'modify'));
+        update: function (args) {
+            return OpencgaManager._doRequest(args, 'projects', 'modify');
         },
         create: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'projects', 'create'));
+            return OpencgaManager._doRequest(args, 'projects', 'create');
+        },
+        delete: function (args) {
+            return OpencgaManager._doRequest(args, 'projects', 'delete');
         }
     },
 
     studies: {
-        allProjects: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'studies', 'all-studies'));
+        list: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'all-studies');
         },
-        info: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'studies', 'info'));
+        read: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'info');
         },
-        modify: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'studies', 'modify'));
+        update: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'modify');
         },
         create: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'studies', 'create'));
+            return OpencgaManager._doRequest(args, 'studies', 'create');
+        },
+        delete: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'delete');
         }
     },
 
     files: {
-        fetch: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'files', 'fetch'));
-        },
-        info: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'files', 'info'));
-        },
         list: function (args) {
-            return OpencgaManager._checkRequest(args, OpencgaManager._url(args, 'files', 'list'));
+            return OpencgaManager._doRequest(args, 'files', 'list');
+        },
+        fetch: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'fetch');
+        },
+        read: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'info');
+        },
+        delete: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'delete');
         }
     },
 
@@ -169,49 +177,45 @@ var OpencgaManager = {
             version = args.request.version;
         }
         var id = '';
-        if (args.path && typeof args.path.id !== 'undefined' && args.path.id != null) {
-            id = '/' + args.path.id;
+        if (typeof args.id !== 'undefined' && args.id != null) {
+            id = '/' + args.id;
         }
 
         var url = host + '/' + api + id + '/' + action;
         url = Utils.addQueryParamtersToUrl(args.query, url);
         return url;
     },
-    _checkRequest: function (args, url) {
-        if (!args.request) {
-            console.log('Please provide Request config');
-            return;
-        }
+
+    _doRequest: function (args, api, action) {
+        var url = OpencgaManager._url(args, api, action);
         if (args.request.url === true) {
             return url;
         } else {
-            OpencgaManager._doRequest(args, url);
-        }
-    },
-    _doRequest: function (args, url) {
-        var method = 'GET';
-        if (typeof args.request.method !== 'undefined' && args.request.method != null) {
-            method = args.request.method;
-        }
-        var async = true;
-        if (typeof args.request.async !== 'undefined' && args.request.async != null) {
-            async = args.request.async;
-        }
-
-        var oReq = new XMLHttpRequest();
-        oReq.onload = function () {
-            var contentType = this.getResponseHeader('Content-Type');
-            if (contentType === 'application/json') {
-                args.request.success(JSON.parse(this.response), this);
-            } else {
-                args.request.success(this.response, this);
+            var method = 'GET';
+            if (typeof args.request.method !== 'undefined' && args.request.method != null) {
+                method = args.request.method;
             }
-        };
-        oReq.onerror = function () {
-            args.request.error(this);
-        };
-        oReq.open(method, url, async);
-        oReq.send();
+            var async = true;
+            if (typeof args.request.async !== 'undefined' && args.request.async != null) {
+                async = args.request.async;
+            }
+
+            var request = new XMLHttpRequest();
+            request.onload = function () {
+                var contentType = this.getResponseHeader('Content-Type');
+                if (contentType === 'application/json') {
+                    args.request.success(JSON.parse(this.response), this);
+                } else {
+                    args.request.success(this.response, this);
+                }
+            };
+            request.onerror = function () {
+                args.request.error(this);
+            };
+            request.open(method, url, async);
+            request.send();
+            return url;
+        }
     },
 
     /**/
