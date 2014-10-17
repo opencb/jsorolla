@@ -1,9 +1,9 @@
 <link rel="import" href="jso-login.html">
 <link rel="import" href="jso-signup.html">
 <link rel="import" href="jso-profile.html">
-<polymer-element name="jso-header" attributes="description selectedOption userData">
+<polymer-element name="jso-header" attributes="description selectedOption userData title description">
 <template>
-<link rel="stylesheet" href="jso-style.css">
+<link rel="stylesheet" href="../jso-style.css">
 <style>
     :host {
         display: block;
@@ -15,6 +15,7 @@
     }
 
     ul.help-menu,
+    ul.app-menu,
     ul.header {
         margin: 0;
         padding: 0;
@@ -44,7 +45,7 @@
 
     ul.header > li.title {
         font-size: 30px;
-        padding-left: 4vw;
+        margin-left: 4vw;
     }
 
     ul.header li.description {
@@ -97,12 +98,29 @@
         transition: all 0.2s;
     }
 
+    ul.app-menu {
+        line-height: 40px;
+        position: absolute;
+        z-index: 60000;
+        top: 60px;
+        left: -150px;
+        width: 150px;
+        visibility: hidden;
+        /*display:none;*/
+        border-top: 1px solid #c6d0da;
+        transition: all 0.2s;
+    }
 
     ul.help-menu-shown {
         visibility: visible !important;
         opacity: 1 !important;
     }
 
+    ul.app-menu-shown {
+        left: 0px !important;
+        visibility: visible !important;
+        /*display: block;*/
+    }
 
     ul.help-menu > li {
         border-bottom: 1px solid #c6d0da;
@@ -110,8 +128,29 @@
         padding: 0 10px;
     }
 
+    ul.app-menu > li {
+        border-bottom: 1px solid #c6d0da;
+        border-right: 1px solid #c6d0da;
+        padding: 0 10px;
+    }
+
+    ul.app-menu > li.active {
+        background: #d1d9e3;
+        color: #435f7a;
+    }
+
+    ul.app-menu > li:hover {
+        background: #d1d9e3;
+        color: #435f7a;
+    }
+
     #user {
         color: #8b0000;
+    }
+
+    .title:hover {
+        cursor: pointer;
+        text-decoration: underline;
     }
 
     [hide=true] {
@@ -127,15 +166,22 @@
     <!--<li id="appMenu" class="menu">&nbsp;<font-awesome icon="chevron-right"></font-awesome>&nbsp; <span class="">Menu</span>-->
     <!--</li>-->
     <li class="title" data-option="home" on-click="{{handleMenu}}">
-        <content></content>
+        {{title}}
     </li>
-    <li class="" data-option="home" on-click="{{handleMenu}}">
-        Home
-    </li>
+    <!--<li class="" data-option="home" on-click="{{handleMenu}}">-->
+    <!--Home-->
+    <!--</li>-->
 
     <li id="description" class="description">
         {{description}}
     </li>
+
+    <template repeat="{{option in options}}">
+        <li>
+            <!--TODO-->
+        </li>
+    </template>
+
 
     <li id="support" class="right" on-click="{{handleSupportMenu}}">
         &nbsp;
@@ -238,6 +284,7 @@
         ready: function () {
             if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
                 this.sessionInitiated();
+                this.logout();
             }
         },
         handleMenu: function (e) {
@@ -284,7 +331,6 @@
             /**END OPENCGA CHECK**/
             clearInterval(this.userInfoInterval);
             this.userInfoInterval = null;
-
         },
         getUserInfo: function () {
             var me = this;
@@ -297,11 +343,8 @@
                 console.log('cookie: bioinfo_user, is not set, session will be finished...');
                 this.sessionFinished();
             } else {
-                OpencgaManager.users.req({
-                    path: {
-                        id: user,
-                        action: 'info'
-                    },
+                OpencgaManager.users.read({
+                    id: user,
                     query: {
                         sid: Cookies('bioinfo_sid'),
                         lastActivity: lastActivity
@@ -312,6 +355,29 @@
                                 me.userData = response.response[0].result[0];
                                 console.log("userData has been modified since last call");
                             }
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        },
+        logout: function () {
+            var me = this;
+            var user = Cookies('bioinfo_user');
+            if (!user) {
+                console.log('cookie: bioinfo_user, is not set, session will be finished...');
+                this.sessionFinished();
+            } else {
+                OpencgaManager.users.logout({
+                    id: user,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        success: function (response) {
+                            console.log(response);
                         },
                         error: function () {
                             console.log('Server error, try again later.');

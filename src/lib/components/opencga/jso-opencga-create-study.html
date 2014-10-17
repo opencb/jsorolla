@@ -88,12 +88,9 @@
                 this.message = '';
 
                 if (this.$.form.checkValidity()) {
-                    OpencgaManager.studies.req({
-                        path: {
-                            action: 'create'
-                        },
+                    OpencgaManager.studies.create({
                         query: {
-                            sid: $.cookie('bioinfo_sid'),
+                            sid: Cookies('bioinfo_sid'),
                             name: this.name,
                             alias: this.alias,
                             description: this.description,

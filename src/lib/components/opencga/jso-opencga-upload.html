@@ -146,8 +146,8 @@
 
                     fileuploadWorker.postMessage({
                         'host': OPENCGA_HOST,
-                        'userId': $.cookie("bioinfo_user"),
-                        'sid': $.cookie("bioinfo_sid"),
+                        'userId': Cookies("bioinfo_user"),
+                        'sid': Cookies("bioinfo_sid"),
 
                         'projectId': this.selectedProject.id,
                         'studyId': this.selectedStudy.id,

@@ -59,13 +59,10 @@
                 this.message = '';
 
                 if (this.$.form.checkValidity()) {
-                    OpencgaManager.projects.req({
-                        path: {
-                            action: 'create'
-                        },
+                    OpencgaManager.projects.create({
                         query: {
-                            userId: $.cookie('bioinfo_user'),
-                            sid: $.cookie('bioinfo_sid'),
+                            userId: Cookies('bioinfo_user'),
+                            sid: Cookies('bioinfo_sid'),
                             name: this.name,
                             alias: this.alias,
                             description: this.description,

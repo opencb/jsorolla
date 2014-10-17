@@ -1,6 +1,6 @@
 <polymer-element name="jso-profile">
     <template>
-        <link rel="stylesheet" href="jso-style.css">
+        <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
                 display: block;
@@ -63,7 +63,7 @@
                 margin-top: 20px;
             }
 
-            #formEmail{
+            #formEmail {
                 margin-top: 40px;;
             }
         </style>
@@ -76,9 +76,12 @@
             </div>
         </div>
         <form id="formPassword" vertical layout>
-            <label>Old password</label> <input type="password" id="oldpassword" value="{{oldpassword}}" required pattern="[a-zA-Z0-9]+">
-            <label>New password</label> <input type="password" id="password" value="{{password}}" required pattern="[a-zA-Z0-9]+">
-            <label>Check password</label> <input type="password" id="check" value="{{check}}" required pattern="[a-zA-Z0-9]+">
+            <label>Old password</label> <input type="password" id="oldpassword" value="{{oldpassword}}" required
+                                               pattern="[a-zA-Z0-9]+">
+            <label>New password</label> <input type="password" id="password" value="{{password}}" required
+                                               pattern="[a-zA-Z0-9]+">
+            <label>Check password</label> <input type="password" id="check" value="{{check}}" required
+                                                 pattern="[a-zA-Z0-9]+">
 
             <div class="button" on-click="{{handleChangePasswordForm}}">Change password</div>
         </form>
@@ -107,11 +110,8 @@
                 this.message = '';
 
                 if (this.$.formPassword.checkValidity() && (this.password === this.check)) {
-                    OpencgaManager.users.req({
-                        path: {
-                            id: Cookies('bioinfo_user'),
-                            action: 'change-password'
-                        },
+                    OpencgaManager.users.updatePassword({
+                        id: Cookies('bioinfo_user'),
                         query: {
                             password: CryptoJS.SHA1(this.oldpassword).toString(),
                             npassword: CryptoJS.SHA1(this.password).toString(),
@@ -137,11 +137,8 @@
                 this.message = '';
 
                 if (this.$.formEmail.checkValidity()) {
-                    OpencgaManager.users.req({
-                        path: {
-                            id: Cookies('bioinfo_user'),
-                            action: 'change-email'
-                        },
+                    OpencgaManager.users.updateEmail({
+                        id: Cookies('bioinfo_user'),
                         query: {
                             nemail: this.email,
                             sid: Cookies('bioinfo_sid')
