@@ -96,9 +96,7 @@ OpencgaAdapter.prototype = {
                     var region = uncachedRegions[i];
 
                     OpencgaManager.files.fetch({
-                        path: {
-                            id: '7'
-                        },
+                        id: '7',
                         query: {
 //                            sid: '', //TODO add sid to queryParams;
                             region: region.toString(),
