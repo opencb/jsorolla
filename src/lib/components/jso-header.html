@@ -15,7 +15,6 @@
     }
 
     ul.help-menu,
-    ul.app-menu,
     ul.header {
         margin: 0;
         padding: 0;
@@ -98,50 +97,17 @@
         transition: all 0.2s;
     }
 
-    ul.app-menu {
-        line-height: 40px;
-        position: absolute;
-        z-index: 60000;
-        top: 60px;
-        left: -150px;
-        width: 150px;
-        visibility: hidden;
-        /*display:none;*/
-        border-top: 1px solid #c6d0da;
-        transition: all 0.2s;
-    }
 
     ul.help-menu-shown {
         visibility: visible !important;
         opacity: 1 !important;
     }
 
-    ul.app-menu-shown {
-        left: 0px !important;
-        visibility: visible !important;
-        /*display: block;*/
-    }
 
     ul.help-menu > li {
         border-bottom: 1px solid #c6d0da;
         border-left: 1px solid #c6d0da;
         padding: 0 10px;
-    }
-
-    ul.app-menu > li {
-        border-bottom: 1px solid #c6d0da;
-        border-right: 1px solid #c6d0da;
-        padding: 0 10px;
-    }
-
-    ul.app-menu > li.active {
-        background: #d1d9e3;
-        color: #435f7a;
-    }
-
-    ul.app-menu > li:hover {
-        background: #d1d9e3;
-        color: #435f7a;
     }
 
     #user {

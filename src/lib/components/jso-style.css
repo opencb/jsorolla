@@ -29,6 +29,7 @@ label.button > input[type=checkbox] {
     display: none;
 }
 
+textarea,
 div.button,
 input[type=text],
 input[type=email],
@@ -61,12 +62,14 @@ label.button > input[type=checkbox]:hover + span:hover {
     background-color: #ebebeb;
 }
 
+textarea,
 input[type=text],
 input[type=email],
 input[type=password] {
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 
+textarea:focus,
 input[type=text]:focus,
 input[type=email]:focus,
 input[type=password]:focus {
@@ -117,7 +120,7 @@ div.dropdown ul, ul.context {
     padding: 5px 0;
     box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
     /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
-    transition: all 0.35s;
+    transition: all 0.2s;
 }
 
 div.dropdown ul, ul.context ul {

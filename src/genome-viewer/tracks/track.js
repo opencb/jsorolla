@@ -90,6 +90,14 @@ Track.prototype = {
         this.visible = true;
         this.div.classList.remove('hidden');
     },
+    toggle: function () {
+        if (this.visible) {
+            this.hide();
+        } else {
+            this.show();
+
+        }
+    },
     hideContent: function () {
         this.contentVisible = false;
         this.svgdiv.classList.add('hidden');

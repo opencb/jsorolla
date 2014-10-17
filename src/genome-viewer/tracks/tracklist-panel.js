@@ -848,11 +848,6 @@ TrackListPanel.prototype = {
             var aboveTrack = this.tracks[i - 1];
             var underTrack = this.tracks[i];
 
-            var y = parseInt(aboveTrack.main.getAttribute("y"));
-            var h = parseInt(underTrack.main.getAttribute("height"));
-            aboveTrack.main.setAttribute("y", y + h);
-            underTrack.main.setAttribute("y", y);
-
             this.tracks[i] = aboveTrack;
             this.tracks[i - 1] = underTrack;
             this.tracksIndex[aboveTrack.id] = i;
@@ -874,11 +869,6 @@ TrackListPanel.prototype = {
         if (i + 1 < this.tracks.length) {
             var aboveTrack = this.tracks[i];
             var underTrack = this.tracks[i + 1];
-
-            var y = parseInt(aboveTrack.main.getAttribute("y"));
-            var h = parseInt(underTrack.main.getAttribute("height"));
-            aboveTrack.main.setAttribute("y", y + h);
-            underTrack.main.setAttribute("y", y);
 
             this.tracks[i] = underTrack;
             this.tracks[i + 1] = aboveTrack;
@@ -906,6 +896,22 @@ TrackListPanel.prototype = {
         this._updateTracksIndex();
 
         //update track div positions
+        this.refreshTracksDom();
+    },
+    swapTracks: function (t1, t2) {
+        if (!this.containsTrack((t1))) {
+            return false;
+        }
+        if (!this.containsTrack((t2))) {
+            return false;
+        }
+        var oldIndex1 = this.getTrackIndex(t1);
+        var oldIndex2 = this.getTrackIndex(t2);
+
+        this.tracks[oldIndex1] = t2;
+        this.tracks[oldIndex2] = t1;
+        this.tracksIndex[t1.id] = oldIndex2;
+        this.tracksIndex[t2.id] = oldIndex1;
         this.refreshTracksDom();
     },
 
