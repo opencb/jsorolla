@@ -1,165 +1,244 @@
 <link rel="import" href="jso-login.html">
 <link rel="import" href="jso-signup.html">
 <link rel="import" href="jso-profile.html">
-<polymer-element name="jso-header" attributes="description selectedOption userData title description">
+<polymer-element name="jso-header" attributes="description selectedOption userData title description options">
 <template>
 <link rel="stylesheet" href="../jso-style.css">
 <style>
-    :host {
-        display: block;
-        position: relative;
-        box-sizing: border-box;
-        background-color: #FFFFFF;
-        height: 60px;
-        cursor: default;
-    }
+:host {
+    display: block;
+    position: relative;
+    box-sizing: border-box;
+    background-color: #FFFFFF;
+    height: 60px;
+    cursor: default;
+}
 
-    ul.help-menu,
-    ul.app-menu,
-    ul.header {
-        margin: 0;
-        padding: 0;
-        background: white;
-        color: #435f7a;
-        list-style: none;
-        text-transform: none;
-        line-height: 60px;
-        font-size: 16px;
-    }
+ul.help-menu,
+ul.app-menu,
+ul.header {
+    margin: 0;
+    padding: 0;
+    background: white;
+    color: #435f7a;
+    list-style: none;
+    text-transform: none;
+    line-height: 60px;
+    font-size: 16px;
+}
 
-    ul.header > li {
-        display: block;
-        float: left;
-        /*border-right: 1px solid #c6d0da;*/
-        text-align: center;
-        padding: 0 1vw;
-    }
+ul.header > li {
+    display: block;
+    float: left;
+    /*border-right: 1px solid #c6d0da;*/
+    text-align: center;
+    padding: 0 1vw;
+}
 
-    ul.header > li#logout {
-        margin-right: 1.1vw;
-    }
+ul.header > li#logout {
+    margin-right: 1.1vw;
+}
 
-    ul.header > li#menu {
-        margin-left: 5vw;
-    }
+ul.header > li#menu {
+    margin-left: 5vw;
+}
 
-    ul.header > li.title {
-        font-size: 30px;
-        margin-left: 4vw;
-    }
+ul.header > li.title {
+    font-size: 30px;
+    margin-left: 4vw;
+}
 
-    ul.header li.description {
-        color: #6599FF;
-        font-size: 20px;
-    }
+ul.header li.description {
+    color: #6599FF;
+    font-size: 20px;
+}
 
-    ul.header > li.menu {
-        font-size: 16px;
-        padding: 0 1vw;
-    }
+ul.header > li.menu {
+    font-size: 16px;
+    padding: 0 1vw;
+}
 
-    ul.header > li.active {
-        color: #6599FF;
-    }
+ul.header > li.active {
+    color: #6599FF;
+}
 
-    ul.header > li.right {
-        float: right;
-        border-right: none;
-        /*border-left: 1px solid #c6d0da;*/
-    }
+ul.header > li.right {
+    float: right;
+    border-right: none;
+    /*border-left: 1px solid #c6d0da;*/
+}
 
-    ul.header > li.text:hover,
-    ul.header > li.title:hover {
-        background: none;
-        color: #435f7a;
-    }
+ul.header > li.text:hover,
+ul.header > li.title:hover {
+    background: none;
+    color: #435f7a;
+}
 
-    ul.header > li.description:hover {
-        background: white;
-        color: #6599FF;
-    }
+ul.header > li.description:hover {
+    background: white;
+    color: #6599FF;
+}
 
-    ul.help-menu > li:hover,
-    ul.header > li:hover {
-        background: #435f7a;
-        color: white;
-    }
+ul.help-menu > li:hover,
+ul.header > li:hover {
+    background: #435f7a;
+    color: white;
+}
 
-    ul.help-menu {
-        position: absolute;
-        z-index: 60000;
-        top: 60px;
-        right: 0px;
-        width: 200px;
-        visibility: hidden;
-        opacity: 0;
-        /*display:none;*/
-        border-top: 1px solid #c6d0da;
-        transition: all 0.2s;
-    }
+ul.help-menu {
+    position: absolute;
+    z-index: 60000;
+    top: 60px;
+    right: 0px;
+    width: 200px;
+    visibility: hidden;
+    opacity: 0;
+    /*display:none;*/
+    border-top: 1px solid #c6d0da;
+    transition: all 0.2s;
+}
 
-    ul.app-menu {
-        line-height: 40px;
-        position: absolute;
-        z-index: 60000;
-        top: 60px;
-        left: -150px;
-        width: 150px;
-        visibility: hidden;
-        /*display:none;*/
-        border-top: 1px solid #c6d0da;
-        transition: all 0.2s;
-    }
+ul.app-menu {
+    line-height: 40px;
+    position: absolute;
+    z-index: 60000;
+    top: 60px;
+    left: -150px;
+    width: 150px;
+    visibility: hidden;
+    /*display:none;*/
+    border-top: 1px solid #c6d0da;
+    transition: all 0.2s;
+}
 
-    ul.help-menu-shown {
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
+ul.help-menu-shown {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
 
-    ul.app-menu-shown {
-        left: 0px !important;
-        visibility: visible !important;
-        /*display: block;*/
-    }
+ul.app-menu-shown {
+    left: 0px !important;
+    visibility: visible !important;
+    /*display: block;*/
+}
 
-    ul.help-menu > li {
-        border-bottom: 1px solid #c6d0da;
-        border-left: 1px solid #c6d0da;
-        padding: 0 10px;
-    }
+ul.help-menu > li {
+    border-bottom: 1px solid #c6d0da;
+    border-left: 1px solid #c6d0da;
+    padding: 0 10px;
+}
 
-    ul.app-menu > li {
-        border-bottom: 1px solid #c6d0da;
-        border-right: 1px solid #c6d0da;
-        padding: 0 10px;
-    }
+ul.app-menu > li {
+    border-bottom: 1px solid #c6d0da;
+    border-right: 1px solid #c6d0da;
+    padding: 0 10px;
+}
 
-    ul.app-menu > li.active {
-        background: #d1d9e3;
-        color: #435f7a;
-    }
+ul.app-menu > li.active {
+    background: #d1d9e3;
+    color: #435f7a;
+}
 
-    ul.app-menu > li:hover {
-        background: #d1d9e3;
-        color: #435f7a;
-    }
+ul.app-menu > li:hover {
+    background: #d1d9e3;
+    color: #435f7a;
+}
 
-    #user {
-        color: #8b0000;
-    }
+#user {
+    color: #8b0000;
+}
 
-    .title:hover {
-        cursor: pointer;
-        text-decoration: underline;
-    }
+.title:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
 
-    [hide=true] {
-        display: none !important;
-    }
+[hide=true] {
+    display: none !important;
+}
 
-    [hide=false] {
-        display: initial !important;
-    }
+[hide=false] {
+    display: initial !important;
+}
+
+li.dropdown {
+    position: relative;
+    display: block;
+}
+
+li.dropdown ul {
+    box-sizing: border-box;
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    list-style: none;
+    text-decoration: none;
+    z-index: 100000;
+    border: 1px solid #afafaf;
+    background-color: #fff;
+    line-height: 22px;
+    min-width: 200px;
+    width: 100%;
+    margin: 1px 0 0 0;
+    padding: 5px 0;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
+    /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
+    transition: all 0.35s;
+}
+
+li.dropdown ul {
+    left: 0;
+    top: 100%;
+}
+
+li.dropdown ul ul {
+    top: 0;
+    left: 100%;
+}
+
+li.dropdown ul li {
+    position: relative;
+    text-align: left;
+    padding: 2px 30px 2px 15px;
+    white-space: nowrap;
+    color: #445D76;
+    background-color: #fff;
+}
+
+li.dropdown ul li[data-sub=true]:after{
+    font-family: 'FontAwesome';
+    content: '\f105'; /* > */
+    /*content:'\f0da';*/
+    position: absolute;
+    right: 10px;
+}
+
+li.dropdown ul li[data-text=true]{
+    padding: 8px 30px 0px 8px;
+    color:#666;
+}
+
+li.dropdown ul li[data-text=true]:hover{
+    background-color: inherit;
+    color:#666;
+}
+
+li.dropdown ul li:hover {
+    background-color: #445D76;
+    color: #fff;
+}
+
+li.dropdown > div {
+    outline: none;
+}
+
+li.dropdown > div:focus ~ ul,
+li.dropdown > div:focus ~ ul li:hover > ul {
+    visibility: visible;
+    opacity: 1;
+}
+
+
 </style>
 
 <ul class="header">
@@ -176,12 +255,32 @@
         {{description}}
     </li>
 
-    <template repeat="{{option in options}}">
-        <li>
-            <!--TODO-->
+    <template repeat="{{o in options}}">
+        <li data-option="{{o.option}}" on-click="{{handleMenu}}" class="dropdown">
+            <div tabindex="-1">
+                {{o.text}}
+            </div>
+            <template if="{{o.sub}}">
+                <ul>
+                    <template repeat="{{o2 in o.sub}}">
+                        <li data-option="{{o2.option}}" on-click="{{handleMenu}}" data-sub="{{o2.sub.length > 0}}" data-text="{{o2.option == 'none'}}">
+                            {{o2.text}}
+                            <template if="{{o2.sub}}">
+                                <ul>
+                                    <template repeat="{{o3 in o2.sub}}">
+                                        <li data-option="{{o2.option}}" on-click="{{handleMenu}}">
+                                            {{o3.text}}
+                                        </li>
+                                    </template>
+
+                                </ul>
+                            </template>
+                        </li>
+                    </template>
+                </ul>
+            </template>
         </li>
     </template>
-
 
     <li id="support" class="right" on-click="{{handleSupportMenu}}">
         &nbsp;
