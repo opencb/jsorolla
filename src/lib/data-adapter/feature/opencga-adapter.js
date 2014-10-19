@@ -27,7 +27,7 @@ function OpencgaAdapter(args) {
 
     this.on(this.handlers);
 
-    this.cache = new FeatureChunkCache();
+    this.cache = new FeatureChunkCache(this.cacheConfig);
     this.user = null;
     this.sessionId = null;
 }
@@ -48,7 +48,7 @@ OpencgaAdapter.prototype = {
 
         /** 2 category check **/
         //TODO define category
-        var category;
+        var categories = ['4']; // = args.categories;
 
         /** 3 dataType check **/
         var dataType = args.dataType;
@@ -58,7 +58,8 @@ OpencgaAdapter.prototype = {
 
         /** 4 chunkSize check **/
         //TODO define chunksize,  histogram is dynamic and features is fixed
-        var chunkSize;
+        var chunkSize = args.params.interval? args.params.interval : undefined;
+        chunkSize = 3000;
 
         /* TODO remove??????
          var params = {
@@ -79,43 +80,43 @@ OpencgaAdapter.prototype = {
          * by the Cache TODO????
          * Cached chunks will be returned by the args.dataReady Callback.
          */
-        this.cache.getUncachedRegionsAndCachedChunks(region, category, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
+        this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
 
+            var category = categories[0];
+            var categoriesName = "";
+            for (var j in categories) {
+                categoriesName += "," + categories[j];
+            }
+            categoriesName = categoriesName.slice(1);   // to remove first ','
             /**
              * Process uncached regions
              */
-            if (uncachedRegions.length > 0) {
+            // TODO check if OpenCGA allows multiple regions
+            var queriesList = _this._groupQueries(uncachedRegions[category]);
 
-                // TODO check if OpenCGA allows multiple regions
-//                var queriesList = this._groupQueries(uncachedRegions);
+            // TODO check how to manage multiple regions and multiple files ids
+            for (var i = 0; i < queriesList.length; i++) {
+                args.webServiceCallCount++;
+                var region = queriesList[i];
 
-                // TODO check how to manage multiple regions and multiple files ids
-                for (var i = 0; i < uncachedRegions.length; i++) {
-                    args.webServiceCallCount++;
-
-                    var region = uncachedRegions[i];
-
-                    OpencgaManager.files.fetch({
-                        id: '7',
-                        query: {
-//                            sid: '', //TODO add sid to queryParams;
-                            region: region.toString(),
-//                            interval: this.interval,
-                            histogram: (dataType == 'histogram')
+                OpencgaManager.files.fetch({
+                    id: categoriesName,
+                    query: {
+                        sid: 'RNk4P0ttFGHyqLA3YGS8', //TODO add sid to queryParams;
+                        region: region.toString(),
+                        interval: this.interval,
+                        histogram: (dataType == 'histogram')
+                    },
+                    request: {
+                        success: function (response) {
+                            //TODO check success
+                            _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
                         },
-                        request: {
-                            success: function (response) {
-                                //TODO check success
-                                _this._opencgaSuccess(response, dataType, combinedCacheId, args);
-                            },
-                            error: function () {
-                                console.log('Server error');
-                            }
+                        error: function () {
+                            console.log('Server error');
                         }
-                    });
-
-
-                }
+                    }
+                });
             }
 
             /**
@@ -189,14 +190,11 @@ OpencgaAdapter.prototype = {
 //        }
     },
 
-    _opencgaSuccess: function (data, dataType, combinedCacheId, args) {
+    _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
         args.webServiceCallCount--;
         var timeId = this.resource + " save " + data.response.length + " regions";
         console.time(timeId);
         /** time log **/
-
-        var chunkSize = this.cache[combinedCacheId].chunkSize;
-
 
         var chunks = [];
         var regions = [];
@@ -210,7 +208,8 @@ OpencgaAdapter.prototype = {
 //                console.log("unexpected data structure");
 //            }
         }
-        var items = this.cache[combinedCacheId].putByRegions(regions, chunks);
+
+        var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
 //        var decryptedChunks = this._decryptChunks(items, "mypassword");
         /** time log **/

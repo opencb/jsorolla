@@ -48,27 +48,40 @@ function IndexedDBStore(args) {
 //            window.alert("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
 //        }
     /*
-    this._getConnection(function (db) {
-        console.log("obtained initial IndexedDB connection for " + _this.cacheId);
-        console.log(db);
-    });
-    */
+     this._getConnection(function (db) {
+     console.log("obtained initial IndexedDB connection for " + _this.cacheId);
+     console.log(db);
+     });
+     */
 }
 
 IndexedDBStore.prototype = {
     _getConnection: function (objectStoreName, callback, version) {
         var _this = this;
-//        console.log(_this.cacheId + " opening? "+ _this.opening);
+        if (_this.debug) {
+            console.log(_this.cacheId + " opening? " + _this.opening);
+//        debugger
+        }
         if (_this.opening == true) {
-            console.log("Database " + _this.cacheId + " is already opening. To avoid block: waiting...");
+            if (_this.debug) {
+                console.log("Database " + _this.cacheId + " is already opening. To avoid block: waiting...");
+            }
             setTimeout(_this._getConnection.bind(_this), _this.timeout * (1 + Math.random()*0.25), objectStoreName, callback, version);
         } else if (_this.db && !_this.db.closed && _this.db.objectStoreNames.contains(objectStoreName)) {
+            if (_this.debug) {
+                console.log("Database already opened:" + _this.db);
+            }
             callback(_this.db);
         } else {
             try {
+                if (_this.debug) {
+                    console.log("trying opening Database:" + _this.cacheId);
+                }
                 var dbOpenRequest;
                 _this.opening = true;
-//                console.log("lock:"+_this.cacheId+" opening = "+ _this.opening);
+                if (_this.debug) {
+                    console.log("lock:"+_this.cacheId+" opening = "+ _this.opening);
+                }
                 if (!_.isUndefined(version)) {
                     dbOpenRequest = window.indexedDB.open(_this.cacheId, version); // second parameter is the version. increase to modify tables.
                 } else {
@@ -76,16 +89,20 @@ IndexedDBStore.prototype = {
                 }
                 dbOpenRequest.onsuccess = function (event) {
                     _this.opening = false;
-//                    console.log("unlock:"+_this.cacheId+" opening = "+ _this.opening);
-                    if (_this.db) {
-                        _this.db.close();
-                        _this.db.closed = true;
-                        _this.db = undefined;
+                    if (_this.debug) {
+                        console.log("unlock:" + _this.cacheId + " opening = " + _this.opening);
                     }
+//                    if (_this.db) {
+//                        _this.db.close();
+//                        _this.db.closed = true;
+//                        _this.db = undefined;
+//                    }
                     _this.db = event.target.result;
 
                     _this.db.onversionchange = function (e) {
-//                        console.log("Version change triggered, so closing database connection " + _this.cacheId + " (old version, new version, db, event)", e.oldVersion, e.newVersion, _this.db, e);
+                        if (_this.debug) {
+                            console.log("Version change triggered, so closing database connection " + _this.cacheId + " (old version, new version, db, event)", e.oldVersion, e.newVersion, _this.db, e);
+                        }
                         if (_this.db) {
                             _this.db.close();
                             _this.db.closed = true;
@@ -94,19 +111,23 @@ IndexedDBStore.prototype = {
                     };
 
                     if (!_this.db.objectStoreNames.contains(objectStoreName)) {
-//                        console.log("adding ObjectStore " + objectStore + " in " + _this.cacheId);
+                        if (_this.debug) {
+                            console.log("adding ObjectStore " + objectStoreName + " in " + _this.cacheId);
+                        }
                         iDBVersion = Math.max(iDBVersion, _this.db.version) + 1;
                         _this.db.close();
                         _this.db.closed = true;
                         _this.db = undefined;
                         _this.version = iDBVersion;
-                        _this._getConnection(callback, _this.version);
+                        _this._getConnection(objectStoreName, callback, _this.version);
                     } else {
                         callback(_this.db);
                     }
                 };
                 dbOpenRequest.onupgradeneeded = function (e) {
-//                    console.log("Database upgrade needed in " + _this.cacheId);
+                    if (_this.debug) {
+                        console.log("Database upgrade needed in " + _this.cacheId);
+                    }
                     _this.db = e.target.result;
 
                     if (!_this.db.objectStoreNames.contains(objectStoreName)) {
@@ -123,7 +144,7 @@ IndexedDBStore.prototype = {
 //                    if (_this.db) {
 //                        _this.db.close();
 //                    }
-                    _this._getConnection(callback)
+                    _this._getConnection(objectStoreName, callback)
                 };
             } catch (e) {
                 console.log("catch error:");
@@ -136,7 +157,7 @@ IndexedDBStore.prototype = {
 //        this.db.deleteObjectStore(this.cacheId);
 
         var _this = this;
-        _this._getConnection(function(){
+        _this._getConnection(objectStoreName, function(){
             var transaction = _this.db.transaction([objectStoreName], "readwrite");
             transaction.oncomplete = function(event) {
                 console.log("IndexedDB clear success!");
@@ -151,7 +172,7 @@ IndexedDBStore.prototype = {
 
     count: function (objectStoreName, callback) {
         var _this = this;
-        _this._getConnection(function(){
+        _this._getConnection(objectStoreName, function(){
             var transaction = _this.db.transaction([objectStoreName], "readwrite");
             var objectStore = transaction.objectStore(objectStoreName);
             var req = objectStore.count();
@@ -214,7 +235,7 @@ IndexedDBStore.prototype = {
             console.time(timeId);
         }
         var _this = this;
-        _this._getConnection(function () {
+        _this._getConnection(objectStoreName, function () {
             var transaction = _this.db.transaction([objectStoreName], "readonly");
             transaction.oncomplete = function(event) {
                 if (this.debug) {
@@ -253,7 +274,7 @@ IndexedDBStore.prototype = {
         var _this = this;
         var results = new Array(keyArray.length);
 
-        _this._getConnection(function () {
+        _this._getConnection(objectStoreName, function () {
             var transaction = _this.db.transaction([objectStoreName], "readonly");
             transaction.oncomplete = function(event) {
                 if (this.debug) {
@@ -291,7 +312,7 @@ IndexedDBStore.prototype = {
         }
         var _this = this;
 
-        _this._getConnection( function () {
+        _this._getConnection(objectStoreName, function () {
             var transaction = _this.db.transaction([objectStoreName], "readonly");
             transaction.onerror = function (event) {
                 console.log("There was an error in the transaction foreach (" + keyArray + ")");
@@ -315,7 +336,7 @@ IndexedDBStore.prototype = {
     add: function(objectStoreName, key, value) {
         var _this = this;
 
-        _this._getConnection(function() {
+        _this._getConnection(objectStoreName, function() {
             var transaction = _this.db.transaction([objectStoreName], "readwrite");
 
             transaction.onerror = function (event) {
@@ -336,7 +357,7 @@ IndexedDBStore.prototype = {
             console.time(timeId);
         }
 
-        _this._getConnection(function() {
+        _this._getConnection(objectStoreName, function() {
             var transaction = _this.db.transaction([objectStoreName], "readwrite");
             transaction.oncomplete = function(event) {
                 if (this.debug) {
@@ -367,7 +388,7 @@ IndexedDBStore.prototype = {
 
         var _this = this;
 
-        _this._getConnection(function() {
+        _this._getConnection(objectStoreName, function() {
             var transaction = _this.db.transaction([objectStoreName], "readwrite");
             transaction.oncomplete = function(event) {
                 if (this.debug) {
@@ -391,7 +412,7 @@ IndexedDBStore.prototype = {
     delete: function(objectStoreName, key) {
         var _this = this;
 
-        _this._getConnection(function() {
+        _this._getConnection(objectStoreName, function() {
             var transaction = _this.db.transaction([objectStoreName], "readwrite");
             transaction.onerror = function (event) {
                 console.log("There was an error in the transaction delete (" + key + ")");

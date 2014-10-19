@@ -228,8 +228,8 @@ var run = function () {
 
 
 
-
     tracks = [];
+ /*
     this.sequence = new SequenceTrack({
 //        title: 'Sequence',
         height: 30,
@@ -333,7 +333,7 @@ var run = function () {
     });
 
     tracks.push(this.snp);
-
+*/
     this.alignment = new AlignmentTrack({
         title: 'Alignments',
         featureType: 'Alignments',
@@ -344,10 +344,10 @@ var run = function () {
         renderer: new AlignmentRenderer(FEATURE_TYPES.bam),
 
         dataAdapter: new OpencgaAdapter({
-            resource: "alignment",
+            resource: "alignment",  // TODO needed?
             subResource: "file",
             cacheConfig: {
-                chunkSize: 1000,
+                defaultChunkSize: 1000,
                 cacheId: "opencga:alignment"
             }
         })

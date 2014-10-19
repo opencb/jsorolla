@@ -72,7 +72,7 @@ AlignmentTrack.prototype.draw = function () {
 
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
-        this.dataAdapter.getData({
+        this.dataAdapter.getData({  // TODO add categories, aka the multisample
             dataType: this.dataType,
             region: new Region({
                 chromosome: this.region.chromosome,
