@@ -59,7 +59,7 @@ OpencgaAdapter.prototype = {
         /** 4 chunkSize check **/
         //TODO define chunksize,  histogram is dynamic and features is fixed
         var chunkSize = args.params.interval? args.params.interval : undefined;
-        chunkSize = 3000;
+        chunkSize = 1500;
 
         /* TODO remove??????
          var params = {

@@ -229,7 +229,7 @@ var run = function () {
 
 
     tracks = [];
- /*
+
     this.sequence = new SequenceTrack({
 //        title: 'Sequence',
         height: 30,
@@ -246,7 +246,6 @@ var run = function () {
     });
 
     tracks.push(this.sequence);
-
     this.gene = new GeneTrack({
         title: 'Gene',
         minHistogramRegionSize: 20000000,
@@ -271,7 +270,7 @@ var run = function () {
                 exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence,chunkIds'
             },
             cacheConfig: {
-                chunkSize: 100000
+                defaultChunkSize: 100000
             }
         })
     });
@@ -303,10 +302,11 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                chunkSize: 100000
+                defaultChunkSize: 100000
             }
         })
     });
+
     genomeViewer.addOverviewTrack(gene);
 
     this.snp = new FeatureTrack({
@@ -327,12 +327,13 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                chunkSize: 10000
+                defaultChunkSize: 10000
             }
         })
     });
 
     tracks.push(this.snp);
+      /*
 */
     this.alignment = new AlignmentTrack({
         title: 'Alignments',
