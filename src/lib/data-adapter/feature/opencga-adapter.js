@@ -48,7 +48,7 @@ OpencgaAdapter.prototype = {
 
         /** 2 category check **/
         //TODO define category
-        var categories = ['4']; // = args.categories;
+        var categories = ['4']; // = args.categories;   // in this adapter each category is each file
 
         /** 3 dataType check **/
         var dataType = args.dataType;
@@ -97,13 +97,13 @@ OpencgaAdapter.prototype = {
             // TODO check how to manage multiple regions and multiple files ids
             for (var i = 0; i < queriesList.length; i++) {
                 args.webServiceCallCount++;
-                var region = queriesList[i];
+                var queryRegion = queriesList[i];
 
                 OpencgaManager.files.fetch({
                     id: categoriesName,
                     query: {
                         sid: 'RNk4P0ttFGHyqLA3YGS8', //TODO add sid to queryParams;
-                        region: region.toString(),
+                        region: queryRegion.toString(),
                         interval: this.interval,
                         histogram: (dataType == 'histogram')
                     },
@@ -122,72 +122,16 @@ OpencgaAdapter.prototype = {
             /**
              * Process Cached chunks
              */
-            if (cachedChunks.length > 0) {
-                var decryptedChunks = _this._decryptChunks(cachedChunks, "mypassword");
-                if (args.webServiceCallCount === 0) {
-                    args.done();
+            for (var k in categories) {
+                if (cachedChunks[categories[k]].length > 0) {
+                    var decryptedChunks = _this._decryptChunks(cachedChunks[categories[k]], "mypassword");
+                    if (args.webServiceCallCount === 0) {
+                        args.done();
+                    }
+                    args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                 }
-                args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
             }
-
         });
-
-
-//        if (dataType == 'histogram') {  // coverage?
-//            // TODO ask only not cached
-//            var queryParams = {region: new Region(region).toString(), histogram: true/*, interval: this.interval*/};
-//            var extraArgs = {success: function (data) {
-//                _this._opencgaSuccess(data, dataType, combinedCacheId, args);
-//            }};
-//            OpencgaManager.get(OpencgaManager.resourceTypes.FILES
-//                , "7"
-//                , OpencgaManager.actions.FETCH
-//                , queryParams
-//                , extraArgs);
-//        } else {
-//            //Create one FeatureChunkCache by combinedCacheId
-//            if (_.isUndefined(this.cache[combinedCacheId])) {
-//                this.cache[combinedCacheId] = new FeatureChunkCache(this.cacheConfig);
-//            }
-//            chunkSize = this.cache[combinedCacheId].chunkSize;
-//
-//            this.cache[combinedCacheId].getCachedByRegion(region, function (chunksByRegion) {
-//                if (chunksByRegion.notCached.length > 0) {
-//                    var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
-//                        return new Region(region).toString();
-//                    });
-//
-//                    //limit queries
-//                    var n = 50;
-//                    var lists = _.groupBy(queryRegionStrings, function (a, b) {
-//                        return Math.floor(b / n);
-//                    });
-//                    var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
-//
-//                    for (var i = 0; i < queriesList.length; i++) {
-//                        args.webServiceCallCount++;
-//                        var queryParams = {region: queryRegionStrings[i]/*, interval: this.interval*/};
-//                        var extraArgs = {success: function (data) {
-//                            _this._opencgaSuccess(data, dataType, combinedCacheId, args);
-//                        }};
-//                        OpencgaManager.get(OpencgaManager.resourceTypes.FILES
-//                            , "7"
-//                            , OpencgaManager.actions.FETCH
-//                            , queryParams
-//                            , extraArgs);
-//                    }
-//                }
-//                if (chunksByRegion.cached.length > 0) {
-//                    _this.cache[combinedCacheId].getByRegions(chunksByRegion.cached, function (cachedChunks) {
-//                        var decryptedChunks = _this._decryptChunks(cachedChunks, "mypassword");
-//                        if (args.webServiceCallCount === 0) {
-//                            args.done();
-//                        }
-//                        args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-//                    });
-//                }
-//            });
-//        }
     },
 
     _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
@@ -208,7 +152,6 @@ OpencgaAdapter.prototype = {
 //                console.log("unexpected data structure");
 //            }
         }
-
         var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
 //        var decryptedChunks = this._decryptChunks(items, "mypassword");

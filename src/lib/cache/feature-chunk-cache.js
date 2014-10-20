@@ -29,7 +29,7 @@ FeatureChunkCache.prototype = {
     /**
      *
      * @param region an object Region
-     * @param categories aproximately the table in the DB. May be an array
+     * @param categories approximately the table in the DB. May be an array
      * @param dataType another level of classification
      * @param chunkSize
      * @param callback receives two arguments: (cachedChunks, uncachedRegions) with this structure:
