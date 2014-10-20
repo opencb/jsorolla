@@ -83,7 +83,8 @@
  *    http://cafetal:8080/opencga/rest/files/17/fetch?sid=eUZtTdnA9EU89vjACyAe&region=20%3A80000-82000&view_as_pairs=false&include_coverage=true&process_differences=false
  */
 var OpencgaManager = {
-    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
+//    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
+    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080/opencga/rest' : OPENCGA_HOST,
     version: 'v3',
 
     users: {
@@ -200,6 +201,7 @@ var OpencgaManager = {
                 async = args.request.async;
             }
 
+            console.log(url);
             var request = new XMLHttpRequest();
             request.onload = function () {
                 var contentType = this.getResponseHeader('Content-Type');

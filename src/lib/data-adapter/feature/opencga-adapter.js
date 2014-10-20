@@ -27,14 +27,18 @@ function OpencgaAdapter(args) {
 
     this.on(this.handlers);
 
-    this.cache = {};
+    this.cache = new FeatureChunkCache(this.cacheConfig);
+    this.user = null;
+    this.sessionId = null;
 }
 
 OpencgaAdapter.prototype = {
     getData: function (args) {
         var _this = this;
-        /********/
 
+        args.webServiceCallCount = 0;
+
+        /** 1 region check **/
         var region = args.region;
         if (region.start > 300000000 || region.end < 1) {
             return;
@@ -42,238 +46,151 @@ OpencgaAdapter.prototype = {
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
-        var params = {species: Utils.getSpeciesCode(this.species.text)};
-        _.extend(params, this.params);
-        _.extend(params, args.params);
+        /** 2 category check **/
+        //TODO define category
+        var categories = ['4']; // = args.categories;   // in this adapter each category is each file
 
+        /** 3 dataType check **/
         var dataType = args.dataType;
         if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
-        var chunkSize;
-        /********/
 
-        if (dataType == 'histogram') {
+        /** 4 chunkSize check **/
+        //TODO define chunksize,  histogram is dynamic and features is fixed
+        var chunkSize = args.params.interval? args.params.interval : undefined;
+        chunkSize = 1500;
 
-        } else {
-            //Create one FeatureChunkCache by datatype
-            if (_.isUndefined(this.cache[dataType])) {
-                this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
+        /* TODO remove??????
+         var params = {
+         species: Utils.getSpeciesCode(this.species.text)
+         };
+         _.extend(params, this.params);
+         _.extend(params, args.params);
+
+         two levels of cache. In this adapter, default are: resource and subResource
+         this.cacheConfig.cacheId = this.resource;
+         this.cacheConfig.subCacheId = this.subResource;
+         var combinedCacheId = _this.cacheConfig.cacheId + "_" + _this.cacheConfig.subCacheId;
+         */
+
+        /**
+         * Get the uncached regions (uncachedRegions) and cached chunks (cachedChunks).
+         * Uncached regions will be used to query OpenCGA. The response data will be converted in chunks
+         * by the Cache TODO????
+         * Cached chunks will be returned by the args.dataReady Callback.
+         */
+        this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
+
+            var category = categories[0];
+            var categoriesName = "";
+            for (var j in categories) {
+                categoriesName += "," + categories[j];
             }
-            chunkSize = this.cache[dataType].chunkSize;
+            categoriesName = categoriesName.slice(1);   // to remove first ','
+            /**
+             * Process uncached regions
+             */
+            // TODO check if OpenCGA allows multiple regions
+            var queriesList = _this._groupQueries(uncachedRegions[category]);
 
-            this.cache[dataType].getCachedByRegion(region, function (chunksByRegion) {
-                if (chunksByRegion.notCached.length > 0) {
-                    var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
-                        return new Region(region).toString();
-                    });
+            // TODO check how to manage multiple regions and multiple files ids
+            for (var i = 0; i < queriesList.length; i++) {
+                args.webServiceCallCount++;
+                var queryRegion = queriesList[i];
 
-                    //limit queries
-                    var n = 50;
-                    var lists = _.groupBy(queryRegionStrings, function (a, b) {
-                        return Math.floor(b / n);
-                    });
-                    var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
-
-                    for (var i = 0; i < queriesList.length; i++) {
-                        var cookie = $.cookie("bioinfo_sid");
-                        cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
-                        OpencgaManager.region({
-                            accountId: _this.resource.account,
-                            sessionId: cookie,
-                            bucketId: _this.resource.bucketId,
-                            objectId: _this.resource.oid,
-                            region: queriesList[i],
-                            queryParams: params,
-                            success: function (data) {
-                                _this._opencgaSuccess(data, dataType);
-                            }
-                        });
-//                    CellBaseManager.get({
-//                        host: _this.host,
-//                        species: _this.species,
-//                        category: _this.category,
-//                        subCategory: _this.subCategory,
-//                        query: queriesList[i],
-//                        resource: _this.resource,
-//                        params: params,
-//                        success: function (data) {
-//                            _this._cellbaseSuccess(data, dataType);
-//                        }
-//                    });
+                OpencgaManager.files.fetch({
+                    id: categoriesName,
+                    query: {
+                        sid: 'RNk4P0ttFGHyqLA3YGS8', //TODO add sid to queryParams;
+                        region: queryRegion.toString(),
+                        interval: this.interval,
+                        histogram: (dataType == 'histogram')
+                    },
+                    request: {
+                        success: function (response) {
+                            //TODO check success
+                            _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                        },
+                        error: function () {
+                            console.log('Server error');
+                        }
                     }
+                });
+            }
+
+            /**
+             * Process Cached chunks
+             */
+            for (var k in categories) {
+                if (cachedChunks[categories[k]].length > 0) {
+                    var decryptedChunks = _this._decryptChunks(cachedChunks[categories[k]], "mypassword");
+                    if (args.webServiceCallCount === 0) {
+                        args.done();
+                    }
+                    args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
                 }
-                if (chunksByRegion.cached.length > 0) {
-                    _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
-                        _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-                    });
-                }
-            });
-        }
+            }
+        });
     },
 
-    _opencgaSuccess: function (data, dataType) {
-        var timeId = this.resource + " save " + Utils.randomString(4);
+    _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
+        args.webServiceCallCount--;
+        var timeId = this.resource + " save " + data.response.length + " regions";
         console.time(timeId);
         /** time log **/
 
-        var chunkSize = this.cache[dataType].chunkSize;
-
-        var regions = [];
         var chunks = [];
+        var regions = [];
         for (var i = 0; i < data.response.length; i++) {
             var queryResult = data.response[i];
-
             regions.push(new Region(queryResult.id));
             chunks.push(queryResult.result);
-        }
-        this.cache[dataType].putByRegions(regions, chunks);
 
+//            if (data.response[i].result.length == 1) {
+//            } else {
+//                console.log("unexpected data structure");
+//            }
+        }
+        var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
+
+//        var decryptedChunks = this._decryptChunks(items, "mypassword");
         /** time log **/
         console.timeEnd(timeId);
 
+
+        if (args.webServiceCallCount === 0) {
+            args.done();
+        }
         if (chunks.length > 0) {
-            this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
+            // if (data.encoded) {decrypt }
+            args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         }
-    }
-}
+    },
 
-
-OpencgaAdapter.prototype.getDataOld = function (args) {
-    debugger
-    var _this = this;
-    //region check
-
-    this.params["histogram"] = args.histogram;
-    this.params["histogramLogarithm"] = args.histogramLogarithm;
-    this.params["histogramMax"] = args.histogramMax;
-    this.params["interval"] = args.interval;
-    this.params["transcript"] = args.transcript;
-
-
-    if (args.start < 1) {
-        args.start = 1;
-    }
-    if (args.end > 300000000) {
-        args.end = 300000000;
-    }
-
-    var type = "data";
-    if (args.histogram) {
-        type = "histogram" + args.interval;
-    }
-
-    var firstChunk = this.featureCache._getChunk(args.start);
-    var lastChunk = this.featureCache._getChunk(args.end);
-
-    var chunks = [];
-    var itemList = [];
-    for (var i = firstChunk; i <= lastChunk; i++) {
-        var key = args.chromosome + ":" + i;
-        if (this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
-            chunks.push(i);
-        } else {
-            var items = this.featureCache.getFeatureChunk(key, type);
-            itemList = itemList.concat(items);
+    /**
+     * Transform the list on a list of lists, to limit the queries
+     * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
+     * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
+     */
+    _groupQueries: function (uncachedRegions) {
+        var groupSize = 50;
+        var queriesLists = [];
+        while (uncachedRegions.length > 0) {
+            queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
         }
-    }
-////	//notify all chunks
-//	if(itemList.length>0){
-//		this.onGetData.notify({data:itemList, params:this.params, cached:true});
-//	}
+        return queriesLists;
+    },
 
-
-    //CellBase data process
-    //TODO check host
-    var calls = 0;
-    var querys = [];
-    regionSuccess = function (data) {
-        console.timeEnd("dqs");
-        console.time("dqs-cache");
-        var type = "data";
-        if (data.params.histogram) {
-            type = "histogram" + data.params.interval;
-        }
-        _this.params["dataType"] = type;
-
-        var splitDots = data.query.split(":");
-        var splitDash = splitDots[1].split("-");
-        var query = {chromosome: splitDots[0], start: splitDash[0], end: splitDash[1]};
-
-        //check if features contains positon or start-end
-        if (data.result[0] != null && data.result[0]['position'] != null) {
-            for (var i = 0; i < data.result.length; i++) {
-                data.result[i]['start'] = data.result[i].position;
-                data.result[i]['end'] = data.result[i].position;
-            }
-        }
-
-        _this.featureCache.putFeaturesByRegion(data.result, query, _this.category, type);
-        var items = _this.featureCache.getFeatureChunksByRegion(query, type);
-        console.timeEnd("dqs-cache");
-        if (items != null) {
-            itemList = itemList.concat(items);
-        }
-        if (calls == querys.length) {
-//			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
-            _this.trigger('data:ready', {items: itemList, params: _this.params, cached: false, sender: _this});
-        }
-    };
-
-    var updateStart = true;
-    var updateEnd = true;
-    if (chunks.length > 0) {
-//		console.log(chunks);
-
+    _decryptChunks: function (chunks, password) {
+        var decryptedChunks = [];
         for (var i = 0; i < chunks.length; i++) {
-
-            if (updateStart) {
-                var chunkStart = parseInt(chunks[i] * this.featureCache.chunkSize);
-                updateStart = false;
-            }
-            if (updateEnd) {
-                var chunkEnd = parseInt((chunks[i] * this.featureCache.chunkSize) + this.featureCache.chunkSize - 1);
-                updateEnd = false;
-            }
-
-            if (chunks[i + 1] != null) {
-                if (chunks[i] + 1 == chunks[i + 1]) {
-                    updateEnd = true;
-                } else {
-                    var query = args.chromosome + ":" + chunkStart + "-" + chunkEnd;
-                    querys.push(query);
-                    updateStart = true;
-                    updateEnd = true;
-                }
+            if (chunks[i].enc == true) {
+                decryptedChunks.push(CryptoJS.AES.decrypt(chunks[i], password));
             } else {
-                var query = args.chromosome + ":" + chunkStart + "-" + chunkEnd;
-
-                querys.push(query);
-                updateStart = true;
-                updateEnd = true;
+                decryptedChunks.push(chunks[i]);
             }
         }
-//		console.log(querys)
-        for (var i = 0, li = querys.length; i < li; i++) {
-            console.time("dqs");
-            calls++;
-//			opencgaManager.region(this.category, this.resource, querys[i], this.params);
-            var cookie = $.cookie("bioinfo_sid");
-            cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
-            OpencgaManager.region({
-                accountId: this.resource.account,
-                sessionId: cookie,
-                bucketId: this.resource.bucketId,
-                objectId: this.resource.oid,
-                region: querys[i],
-                queryParams: this.params,
-                success: regionSuccess
-            });
-        }
-    } else {
-        if (itemList.length > 0) {
-            this.trigger('data:ready', {items: itemList, params: this.params, cached: false, sender: this});
-//			this.onGetData.notify({items:itemList, params:this.params});
-        }
+        return decryptedChunks;
     }
 };

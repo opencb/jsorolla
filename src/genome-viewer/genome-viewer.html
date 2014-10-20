@@ -36,16 +36,19 @@
     <script type="text/javascript" src="../lib/feature-binary-search-tree.js"></script>
     <script type="text/javascript" src="../lib/cellbase-manager.js"></script>
     <script type="text/javascript" src="../lib/ensembl-manager.js"></script>
+    <script type="text/javascript" src="../lib/opencga-manager.js"></script>
 
     <script type="text/javascript" src="../lib/cache/file-feature-cache.js"></script>
     <script type="text/javascript" src="../lib/cache/feature-chunk-cache.js"></script>
     <script type="text/javascript" src="../lib/cache/memory-store.js"></script>
     <script type="text/javascript" src="../lib/cache/indexedDB-store.js"></script>
+    <script type="text/javascript" src="../lib/cache/bam-cache.js"></script>
 
 
     <script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter.js"></script>
     <script type="text/javascript" src="../lib/data-adapter/feature/sequence-adapter.js"></script>
     <script type="text/javascript" src="../lib/data-adapter/feature/ensembl-adapter.js"></script>
+    <script type="text/javascript" src="../lib/data-adapter/feature/opencga-adapter.js"></script>
 
     <!--**-->
     <script type="text/javascript" src="../lib/data-adapter/feature/feature-data-adapter.js"></script>
@@ -83,6 +86,7 @@
     <script type="text/javascript" src="tracks/feature-track.js"></script>
     <script type="text/javascript" src="tracks/sequence-track.js"></script>
     <script type="text/javascript" src="tracks/gene-track.js"></script>
+    <script type="text/javascript" src="tracks/alignment-track.js"></script>
 
     <script type="text/javascript" src="renderers/renderer.js"></script>
     <script type="text/javascript" src="renderers/feature-renderer.js"></script>
@@ -90,6 +94,10 @@
     <script type="text/javascript" src="renderers/sequence-renderer.js"></script>
     <script type="text/javascript" src="renderers/histogram-renderer.js"></script>
     <script type="text/javascript" src="renderers/gene-renderer.js"></script>
+    <script type="text/javascript" src="renderers/alignment-renderer.js"></script>
+
+
+    <!--<script type="text/javascript" src="fakeBam.js"></script>-->
 
 
     <script type="text/javascript" src="genome-viewer.js"></script>
@@ -220,8 +228,8 @@ var run = function () {
 
 
 
-
     tracks = [];
+
     this.sequence = new SequenceTrack({
 //        title: 'Sequence',
         height: 30,
@@ -238,7 +246,6 @@ var run = function () {
     });
 
     tracks.push(this.sequence);
-
     this.gene = new GeneTrack({
         title: 'Gene',
         minHistogramRegionSize: 20000000,
@@ -263,7 +270,7 @@ var run = function () {
                 exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence,chunkIds'
             },
             cacheConfig: {
-                chunkSize: 100000
+                defaultChunkSize: 100000
             }
         })
     });
@@ -295,10 +302,11 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                chunkSize: 100000
+                defaultChunkSize: 100000
             }
         })
     });
+
     genomeViewer.addOverviewTrack(gene);
 
     this.snp = new FeatureTrack({
@@ -319,13 +327,35 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                chunkSize: 10000
+                defaultChunkSize: 10000
             }
         })
     });
 
     tracks.push(this.snp);
+      /*
+*/
+    this.alignment = new AlignmentTrack({
+        title: 'Alignments',
+        featureType: 'Alignments',
+        minHistogramRegionSize: 10000,
+        maxLabelRegionSize: 3000,
+        height: 100,
 
+        renderer: new AlignmentRenderer(FEATURE_TYPES.bam),
+
+        dataAdapter: new OpencgaAdapter({
+            resource: "alignment",  // TODO needed?
+            subResource: "file",
+            cacheConfig: {
+                defaultChunkSize: 1000,
+                cacheId: "opencga:alignment"
+            }
+        })
+
+    });
+
+    tracks.push(this.alignment);
 
 //    /***************************************/
 //    var geneEnsembl = new FeatureTrack({
