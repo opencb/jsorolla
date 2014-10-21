@@ -165,6 +165,9 @@ var OpencgaManager = {
         },
         delete: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'delete');
+        },
+        index: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'index');
         }
     },
 

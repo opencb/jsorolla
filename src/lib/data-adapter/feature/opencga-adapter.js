@@ -23,13 +23,14 @@ function OpencgaAdapter(args) {
 
     _.extend(this, Backbone.Events);
 
+    this.sid;
+    this.categories;
+
     _.extend(this, args);
 
     this.on(this.handlers);
 
     this.cache = new FeatureChunkCache(this.cacheConfig);
-    this.user = null;
-    this.sessionId = null;
 }
 
 OpencgaAdapter.prototype = {
@@ -48,7 +49,7 @@ OpencgaAdapter.prototype = {
 
         /** 2 category check **/
         //TODO define category
-        var categories = ['4']; // = args.categories;   // in this adapter each category is each file
+        var categories = this.categories; // = args.categories;   // in this adapter each category is each file
 
         /** 3 dataType check **/
         var dataType = args.dataType;
@@ -58,7 +59,7 @@ OpencgaAdapter.prototype = {
 
         /** 4 chunkSize check **/
         //TODO define chunksize,  histogram is dynamic and features is fixed
-        var chunkSize = args.params.interval? args.params.interval : undefined;
+        var chunkSize = args.params.interval ? args.params.interval : undefined;
         chunkSize = 1500;
 
         /* TODO remove??????
@@ -92,7 +93,8 @@ OpencgaAdapter.prototype = {
              * Process uncached regions
              */
             // TODO check if OpenCGA allows multiple regions
-            var queriesList = _this._groupQueries(uncachedRegions[category]);
+//            var queriesList = _this._groupQueries(uncachedRegions[category]);
+            var queriesList = uncachedRegions[category];
 
             // TODO check how to manage multiple regions and multiple files ids
             for (var i = 0; i < queriesList.length; i++) {
@@ -102,7 +104,7 @@ OpencgaAdapter.prototype = {
                 OpencgaManager.files.fetch({
                     id: categoriesName,
                     query: {
-                        sid: 'RNk4P0ttFGHyqLA3YGS8', //TODO add sid to queryParams;
+                        sid: _this.sid, //TODO add sid to queryParams;
                         region: queryRegion.toString(),
                         interval: this.interval,
                         histogram: (dataType == 'histogram')
@@ -113,6 +115,7 @@ OpencgaAdapter.prototype = {
                             _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
                         },
                         error: function () {
+                            args.done();
                             console.log('Server error');
                         }
                     }
