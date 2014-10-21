@@ -43,6 +43,7 @@ function AlignmentTrack(args) {
     this.species = this.dataAdapter.species;
 
     this.dataType = 'features';
+    this.samples = ['4'];
 };
 
 AlignmentTrack.prototype.render = function (targetId) {
@@ -72,7 +73,8 @@ AlignmentTrack.prototype.draw = function () {
 
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
-        this.dataAdapter.getData({  // TODO add categories, aka the multisample
+        this.dataAdapter.getData({
+            categories: this.samples,
             dataType: this.dataType,
             region: new Region({
                 chromosome: this.region.chromosome,
@@ -124,6 +126,7 @@ AlignmentTrack.prototype.move = function (disp) {
 
         if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             this.dataAdapter.getData({
+                categories: this.samples,
                 dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,
@@ -147,6 +150,7 @@ AlignmentTrack.prototype.move = function (disp) {
 
         if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
             this.dataAdapter.getData({
+                categories: this.samples,
                 dataType: this.dataType,
                 region: new Region({
                     chromosome: _this.region.chromosome,
@@ -183,7 +187,6 @@ AlignmentTrack.prototype.dataReady = function (response) {
         features = _this.getFeaturesToRenderByChunk(response);
     }
     console.log(response);
-    // debugger;
 //    response.items = features;    // why not?
 //    _this.renderer.render(response, {
     _this.renderer.render(features, {
@@ -198,7 +201,9 @@ AlignmentTrack.prototype.dataReady = function (response) {
         pixelPosition: _this.pixelPosition,
         resource: _this.resource,
         species: _this.species,
-        featureType: _this.featureType
+        featureType: _this.featureType,
+        sample: response.category
+        //, params: response.params
     });
     _this.updateHeight();
 };

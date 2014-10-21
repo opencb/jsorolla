@@ -128,7 +128,7 @@ OpencgaAdapter.prototype = {
                     if (args.webServiceCallCount === 0) {
                         args.done();
                     }
-                    args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                    args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this, category: categories[k]});
                 }
             }
         });
