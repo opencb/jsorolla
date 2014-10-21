@@ -93,10 +93,10 @@ GeneTrack.prototype.draw = function () {
     this.cleanSvg();
 
     var dataType = 'features';
-
+    /*
     if (!_.isUndefined(this.exclude)) {
         dataType = 'features' + this.exclude.replace(/[,.]/gi,'');
-    }
+    }*/
 
     if (this.histogram) {
         dataType = 'histogram';

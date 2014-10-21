@@ -48,7 +48,7 @@ OpencgaAdapter.prototype = {
 
         /** 2 category check **/
         //TODO define category
-        var categories = ['4']; // = args.categories;   // in this adapter each category is each file
+        var categories = args.categories;   // in this adapter each category is each file
 
         /** 3 dataType check **/
         var dataType = args.dataType;
