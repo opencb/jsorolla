@@ -31,7 +31,8 @@ function AlignmentRenderer(args) {
     this.toolTipfontClass = 'ocb-tooltip-font';
 
     // these are the subtracks. necessary to know at constructor to build the divs and svg groups.
-    this.samples = ["sample"];
+    // TODO: call in constructor to build the multisample divs.
+    this.samples = ["4", "7"];
 
     if (_.isObject(args)) {
         _.extend(this, args);
@@ -42,8 +43,14 @@ function AlignmentRenderer(args) {
     this.insertSizeMin = 100;
     this.insertSizeMax = 250;
     this.variantColor = 'orangered';
+    this.setSamples();
 };
 
+AlignmentRenderer.prototype.setSamples = function (samples) {
+    this.samples = samples;
+    this.svg = {};
+    // TODO set divs?
+};
 
 AlignmentRenderer.prototype.render = function (features, args) {
     var _this = this;
@@ -91,18 +98,22 @@ AlignmentRenderer.prototype.render = function (features, args) {
         e.preventDefault();
     });
 
-    this.aligSamplesGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
-        "class": "aligSamples",
-        "cursor": "pointer"
-    });
-    this.aligCoverGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
-        "class": "aligCoverage",
-        "cursor": "pointer"
-    });
-    this.aligReadGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
-        "class": "aligReads",
-        "cursor": "pointer"
-    });
+
+    if (this.svg[sample] == undefined) {
+        this.svg[sample] = SVG.addChild(args.svgCanvasFeatures, "g", {
+            "class": "sample_" + sample,
+            "cursor": "pointer"
+        });
+        args.aligCoverGroup = SVG.addChild(this.svg[sample], "g", {
+            "class": "aligCoverage",
+            "cursor": "pointer"
+        });
+        args.aligReadGroup = SVG.addChild(this.svg[sample], "g", {
+            "class": "aligReads",
+            "cursor": "pointer"
+        });
+    }
+
 
     //process features
     if (chunkList.length > 0) {
@@ -193,28 +204,28 @@ AlignmentRenderer.prototype._drawCoverage = function (chunk, args) {
     var firstPoint = args.pixelPosition + this.middle - ((args.position - parseInt(start)) * args.pixelBase) + baseMid;
     var lastPoint = args.pixelPosition + this.middle - ((args.position - parseInt(end)) * args.pixelBase) + baseMid;
 
-    var polA = SVG.addChild(this.aligCoverGroup, "polyline", {
+    var polA = SVG.addChild(args.aligCoverGroup, "polyline", {
         "points": firstPoint + ",0 " + lineA + lastPoint + ",0",
         //"opacity":"1",
         //"stroke-width":"1",
         //"stroke":"gray",
         "fill": "green"
     });
-    var polC = SVG.addChild(this.aligCoverGroup, "polyline", {
+    var polC = SVG.addChild(args.aligCoverGroup, "polyline", {
         "points": lineA + " " + rlineC,
         //"opacity":"1",
         //"stroke-width":"1",
         //"stroke":"black",
         "fill": "blue"
     });
-    var polG = SVG.addChild(this.aligCoverGroup, "polyline", {
+    var polG = SVG.addChild(args.aligCoverGroup, "polyline", {
         "points": lineC + " " + rlineG,
         //"opacity":"1",
         //"stroke-width":"1",
         //"stroke":"black",
         "fill": "gold"
     });
-    var polT = SVG.addChild(this.aligCoverGroup, "polyline", {
+    var polT = SVG.addChild(args.aligCoverGroup, "polyline", {
         "points": lineG + " " + rlineT,
         //"opacity":"1",
         //"stroke-width":"1",
@@ -231,7 +242,7 @@ AlignmentRenderer.prototype._drawCoverage = function (chunk, args) {
      "fill": "green"
      });
      */
-    var dummyRect = SVG.addChild(this.aligCoverGroup, "rect", {
+    var dummyRect = SVG.addChild(args.aligCoverGroup, "rect", {
         "x": args.pixelPosition + this.middle - ((args.position - start) * args.pixelBase),
         "y": 0,
         "width": pixelWidth,
@@ -306,18 +317,30 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
     var maxWidth = width;
 
     var rowHeight = 12;
-    var rowY = 70;
+    var rowsStart = 70;
+    var rowY = rowsStart;
+    for (var sample = 0; sample < this.samples.length; sample++) {
+        if (this.samples[sample] == args.sample) {
+            break;
+        } else {
+            rowY += rowsStart;
+        }
+    }
+//    var rowY = 70;
 //		var textY = 12+settings.height;
+    debugger
     while (true) {
         if (args.renderedArea[rowY] == null) {
             args.renderedArea[rowY] = new FeatureBinarySearchTree();
         }
         var enc = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
         if (enc) {
-            var featureGroup = SVG.addChild(this.aligReadGroup, "g", {'feature_id': feature.name});
+
+            var featureGroup = SVG.addChild(args.aligReadGroup, "g", {'feature_id': feature.name});
+            var borderWidth = 5;
             var points = {
-                "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + 5) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width - 5) + "," + (rowY + height) + " " + (x + 5) + "," + (rowY + height),
-                "Forward": x + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + x + "," + (rowY + height)
+                "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + borderWidth) + "," + rowY + " " + (x + width - borderWidth) + "," + rowY + " " + (x + width - borderWidth) + "," + (rowY + height) + " " + (x + borderWidth) + "," + (rowY + height),
+                "Forward": x + "," + rowY + " " + (x + width - borderWidth) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - borderWidth) + "," + (rowY + height) + " " + x + "," + (rowY + height)
             };
             var poly = SVG.addChild(featureGroup, "polygon", {
                 "points": points[strand],
@@ -436,11 +459,12 @@ AlignmentRenderer.prototype._drawPairedReads = function (read, mate, args) {
         if (enc) {
             var readEls = [];
             var mateEls = [];
+            var borderWidth = 5;
             var readPoints = {
-                "Reverse": readX + "," + (rowY + (readSettings.height / 2)) + " " + (readX + 5) + "," + rowY + " " + (readX + readWidth - 5) + "," + rowY + " " + (readX + readWidth - 5) + "," + (rowY + readSettings.height) + " " + (readX + 5) + "," + (rowY + readSettings.height),
-                "Forward": readX + "," + rowY + " " + (readX + readWidth - 5) + "," + rowY + " " + (readX + readWidth) + "," + (rowY + (readSettings.height / 2)) + " " + (readX + readWidth - 5) + "," + (rowY + readSettings.height) + " " + readX + "," + (rowY + readSettings.height)
+                "Reverse": readX + "," + (rowY + (readSettings.height / 2)) + " " + (readX + borderWidth) + "," + rowY + " " + (readX + readWidth - borderWidth) + "," + rowY + " " + (readX + readWidth - borderWidth) + "," + (rowY + readSettings.height) + " " + (readX + borderWidth) + "," + (rowY + readSettings.height),
+                "Forward": readX + "," + rowY + " " + (readX + readWidth - borderWidth) + "," + rowY + " " + (readX + readWidth) + "," + (rowY + (readSettings.height / 2)) + " " + (readX + readWidth - borderWidth) + "," + (rowY + readSettings.height) + " " + readX + "," + (rowY + readSettings.height)
             };
-            var readPoly = SVG.addChild(this.aligReadGroup, "polygon", {
+            var readPoly = SVG.addChild(args.aligReadGroup, "polygon", {
                 "points": readPoints[readStrand],
                 "stroke": readSettings.getStrokeColor(read),
                 "stroke-width": 1,
@@ -449,10 +473,10 @@ AlignmentRenderer.prototype._drawPairedReads = function (read, mate, args) {
             });
             readEls.push(readPoly);
             var matePoints = {
-                "Reverse": mateX + "," + (rowY + (mateSettings.height / 2)) + " " + (mateX + 5) + "," + rowY + " " + (mateX + mateWidth - 5) + "," + rowY + " " + (mateX + mateWidth - 5) + "," + (rowY + mateSettings.height) + " " + (mateX + 5) + "," + (rowY + mateSettings.height),
-                "Forward": mateX + "," + rowY + " " + (mateX + mateWidth - 5) + "," + rowY + " " + (mateX + mateWidth) + "," + (rowY + (mateSettings.height / 2)) + " " + (mateX + mateWidth - 5) + "," + (rowY + mateSettings.height) + " " + mateX + "," + (rowY + mateSettings.height)
+                "Reverse": mateX + "," + (rowY + (mateSettings.height / 2)) + " " + (mateX + borderWidth) + "," + rowY + " " + (mateX + mateWidth - borderWidth) + "," + rowY + " " + (mateX + mateWidth - borderWidth) + "," + (rowY + mateSettings.height) + " " + (mateX + borderWidth) + "," + (rowY + mateSettings.height),
+                "Forward": mateX + "," + rowY + " " + (mateX + mateWidth - borderWidth) + "," + rowY + " " + (mateX + mateWidth) + "," + (rowY + (mateSettings.height / 2)) + " " + (mateX + mateWidth - borderWidth) + "," + (rowY + mateSettings.height) + " " + mateX + "," + (rowY + mateSettings.height)
             };
-            var matePoly = SVG.addChild(this.aligReadGroup, "polygon", {
+            var matePoly = SVG.addChild(args.aligReadGroup, "polygon", {
                 "points": matePoints[mateStrand],
                 "stroke": mateSettings.getStrokeColor(mate),
                 "stroke-width": 1,
@@ -461,7 +485,7 @@ AlignmentRenderer.prototype._drawPairedReads = function (read, mate, args) {
             });
             mateEls.push(matePoly);
 
-            var line = SVG.addChild(this.aligReadGroup, "line", {
+            var line = SVG.addChild(args.aligReadGroup, "line", {
                 "x1": (readX + readWidth),
                 "y1": (rowY + (readSettings.height / 2)),
                 "x2": mateX,
@@ -474,14 +498,14 @@ AlignmentRenderer.prototype._drawPairedReads = function (read, mate, args) {
 
             if (args.regionSize < 400) {
                 if (readDiff != null) {
-                    var readPath = SVG.addChild(this.aligReadGroup, "path", {
+                    var readPath = SVG.addChild(args.aligReadGroup, "path", {
                         "d": Utils.genBamVariants(readDiff, _this.pixelBase, readX, rowY),
                         "fill": this.variantColor
                     });
                     readEls.push(readPath);
                 }
                 if (mateDiff != null) {
-                    var matePath = SVG.addChild(this.aligReadGroup, "path", {
+                    var matePath = SVG.addChild(args.aligReadGroup, "path", {
                         "d": Utils.genBamVariants(mateDiff, _this.pixelBase, mateX, rowY),
                         "fill": this.variantColor
                     });

@@ -85,7 +85,7 @@ CellBaseAdapter.prototype = {
 
             var category = categories[0];
             var categoriesName = "";
-            for (var j in categories) {
+            for (var j = 0; j < categories.length; j++) {
                 categoriesName += "," + categories[j];
             }
             categoriesName = categoriesName.slice(1);   // to remove first ','
@@ -140,7 +140,7 @@ CellBaseAdapter.prototype = {
 
         var regions = [];
         var chunks = [];
-        for (var i = 0; i < data.response.length; i++) {
+        for (var i = 0; i < data.response.length; i++) {    // TODO test what do several responses mean
             var queryResult = data.response[i];
             if (dataType == "histogram") {
                 for (var j = 0; j < queryResult.result.length; j++) {

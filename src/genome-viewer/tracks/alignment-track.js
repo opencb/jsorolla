@@ -43,7 +43,8 @@ function AlignmentTrack(args) {
     this.species = this.dataAdapter.species;
 
     this.dataType = 'features';
-    this.samples = ['4'];
+    this.samples = ['4', '7'];
+    // TODO this.renderer.setSamples(this.samples);
 };
 
 AlignmentTrack.prototype.render = function (targetId) {
@@ -186,7 +187,7 @@ AlignmentTrack.prototype.dataReady = function (response) {
         // debugger
         features = _this.getFeaturesToRenderByChunk(response);
     }
-    console.log(response);
+//    console.log(response);
 //    response.items = features;    // why not?
 //    _this.renderer.render(response, {
     _this.renderer.render(features, {

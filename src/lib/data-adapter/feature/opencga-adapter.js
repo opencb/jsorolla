@@ -84,7 +84,7 @@ OpencgaAdapter.prototype = {
 
             var category = categories[0];
             var categoriesName = "";
-            for (var j in categories) {
+            for (var j = 0; j < categories.length; j++) {
                 categoriesName += "," + categories[j];
             }
             categoriesName = categoriesName.slice(1);   // to remove first ','
@@ -122,7 +122,7 @@ OpencgaAdapter.prototype = {
             /**
              * Process Cached chunks
              */
-            for (var k in categories) {
+            for (var k = 0; k < categories.length; k++) {
                 if (cachedChunks[categories[k]].length > 0) {
                     var decryptedChunks = _this._decryptChunks(cachedChunks[categories[k]], "mypassword");
                     if (args.webServiceCallCount === 0) {
@@ -140,31 +140,40 @@ OpencgaAdapter.prototype = {
         console.time(timeId);
         /** time log **/
 
-        var chunks = [];
-        var regions = [];
-        for (var i = 0; i < data.response.length; i++) {
+        if (categories.length != data.response.length) {
+            console.log("ERROR: requested " + categories.length + "samples, but response has " + data.response.length);
+            console.log(data);
+            debugger;
+        }
+
+        var chunks;
+        var regions;
+        for (var i = 0; i < data.response.length; i++) {    // FIXME each response is a sample?
             var queryResult = data.response[i];
-            regions.push(new Region(queryResult.id));
-            chunks.push(queryResult.result);
+            chunks = [];
+            regions = [];
+            for (var j = 0; j < queryResult.result.length; j++) {
+                regions.push(new Region(queryResult.result[j]));
+            }
+            chunks = queryResult.result;
 
 //            if (data.response[i].result.length == 1) {
 //            } else {
 //                console.log("unexpected data structure");
 //            }
+            var items = this.cache.putByRegions(regions, chunks, categories[i], dataType, chunkSize);
+            if (chunks.length > 0) {
+                // if (data.encoded) {decrypt }
+                args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this, category: categories[i]});
+            }
         }
-        var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
 //        var decryptedChunks = this._decryptChunks(items, "mypassword");
         /** time log **/
         console.timeEnd(timeId);
 
-
         if (args.webServiceCallCount === 0) {
             args.done();
-        }
-        if (chunks.length > 0) {
-            // if (data.encoded) {decrypt }
-            args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         }
     },
 
