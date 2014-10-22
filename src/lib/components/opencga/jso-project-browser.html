@@ -4,7 +4,8 @@
 <link rel="import" href="jso-opencga-create-study.html">
 <link rel="import" href="jso-opencga-upload.html">
 
-<polymer-element name="jso-project-browser" constructor="JsoProjectBrowser" attributes="userData">
+<polymer-element name="jso-project-browser" constructor="JsoProjectBrowser"
+                 attributes="userData selectedProject selectedStudy">
 <template>
 <link rel="stylesheet" href="../jso-style.css">
 <style>
@@ -179,7 +180,9 @@
             </template>
         </div>
         <div flex horizontal layout end-justified>
-            <div id="searchIcon"><font-awesome icon="search"></font-awesome></div>
+            <div id="searchIcon">
+                <font-awesome icon="search"></font-awesome>
+            </div>
             <input id="search" type="text">
         </div>
     </div>
@@ -189,7 +192,8 @@
             <form>
                 <div class="navigation-title">Main</div>
                 <div class="navigation-item" data-content="browse" data-selected="{{selectedOption == 'browse'}}">
-                    <font-awesome icon="folder-open-o"></font-awesome> &nbsp; Projects
+                    <font-awesome icon="folder-open-o"></font-awesome>
+                    &nbsp; Projects
                 </div>
                 <!--<div class="navigation-item" data-content="browseStudies" data-selected="{{selectedOption == 'browseStudies'}}">-->
                 <!--<font-awesome icon="bar-chart-o"></font-awesome>&nbsp; Studies-->
@@ -197,25 +201,35 @@
                 <br>
 
                 <div class="navigation-title">Actions</div>
-                <div class="navigation-item" data-content="createProject" data-selected="{{selectedOption == 'createProject'}}">
-                    <font-awesome icon="folder-o"></font-awesome> &nbsp; Create project
+                <div class="navigation-item" data-content="createProject"
+                     data-selected="{{selectedOption == 'createProject'}}">
+                    <font-awesome icon="folder-o"></font-awesome>
+                    &nbsp; Create project
                 </div>
 
-                <div class="navigation-item" data-content="createStudy" data-selected="{{selectedOption == 'createStudy'}}">
-                    <font-awesome icon="pie-chart"></font-awesome> &nbsp; Create study
+                <div class="navigation-item" data-content="createStudy"
+                     data-selected="{{selectedOption == 'createStudy'}}">
+                    <font-awesome icon="pie-chart"></font-awesome>
+                    &nbsp; Create study
                 </div>
 
-                <div class="navigation-item" data-content="createExperiment" data-selected="{{selectedOption == 'createExperiment'}}">
-                    <font-awesome icon="flask"></font-awesome> &nbsp; Create experiment
+                <div class="navigation-item" data-content="createExperiment"
+                     data-selected="{{selectedOption == 'createExperiment'}}">
+                    <font-awesome icon="flask"></font-awesome>
+                    &nbsp; Create experiment
                 </div>
 
 
-                <div class="navigation-item" data-content="runAnalysis" data-selected="{{selectedOption == 'runAnalysis'}}">
-                    <font-awesome icon="cogs"></font-awesome> &nbsp; Run analysis
+                <div class="navigation-item" data-content="runAnalysis"
+                     data-selected="{{selectedOption == 'runAnalysis'}}">
+                    <font-awesome icon="cogs"></font-awesome>
+                    &nbsp; Run analysis
                 </div>
 
-                <div class="navigation-item" data-content="uploadFile" data-selected="{{selectedOption == 'uploadFile'}}">
-                    <font-awesome icon="cloud-upload"></font-awesome> &nbsp; Upload file
+                <div class="navigation-item" data-content="uploadFile"
+                     data-selected="{{selectedOption == 'uploadFile'}}">
+                    <font-awesome icon="cloud-upload"></font-awesome>
+                    &nbsp; Upload file
                 </div>
             </form>
         </div>
@@ -286,6 +300,9 @@
             this.userData;
             this.selectedOption;
             this.selectedOptionText;
+
+            this.selectedProject;
+            this.selectedStudy;
         },
         userDataChanged: function (oldValue, newValue) {
             if (newValue) {

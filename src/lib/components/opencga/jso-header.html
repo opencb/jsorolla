@@ -457,6 +457,9 @@ li.dropdown > div:focus ~ ul li:hover > ul {
                                 me.userData = response.response[0].result[0];
                                 console.log("userData has been modified since last call");
                             }
+                            if(response.response[0].errorMsg != null && response.response[0].errorMsg.indexOf('Invalid sessionId for user') !== -1){
+                                me.sessionFinished()
+                            }
                         },
                         error: function () {
                             console.log('Server error, try again later.');
