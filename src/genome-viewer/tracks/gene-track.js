@@ -41,9 +41,48 @@ function GeneTrack(args) {
     this.exclude;
 };
 
+
+GeneTrack.prototype.updateHeight = function () {
+    if (this.resizable && !this.histogram) {
+        var renderedHeight = Object.keys(this.renderedArea).length * 21;//this must be passed by config, 20 for test
+        this.main.setAttribute('height', renderedHeight);
+        this.svgCanvasFeatures.setAttribute('height', renderedHeight);
+    }
+    if (this.histogram) {
+        this.main.setAttribute('height', this.height);
+        this.svgCanvasFeatures.setAttribute('height', this.height);
+    }
+    this._updateHeight();
+};
+
+GeneTrack.prototype.clean = function () {
+//    console.time("-----------------------------------------empty");
+    while (this.svgCanvasFeatures.firstChild) {
+        this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
+    }
+//    console.timeEnd("-----------------------------------------empty");
+    this._clean();
+};
+
 GeneTrack.prototype.render = function (targetId) {
     var _this = this;
     this.initializeDom(targetId);
+    /* Internal svg structure */
+    this.main = SVG.addChild(this.contentDiv, 'svg', {
+        'id': this.id,
+        'class': 'trackSvg',
+        'x': 0,
+        'y': 0,
+        'width': this.width,
+        'height': this.height
+    });
+    this.svgCanvasFeatures = SVG.addChild(this.main, 'svg', {
+        'class': 'features',
+        'x': -this.pixelPosition,
+        'width': this.svgCanvasWidth,
+        'height': this.height
+    });
+    /**/
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
@@ -90,13 +129,13 @@ GeneTrack.prototype.draw = function () {
 
     this.updateTranscriptParams();
     this.updateHistogramParams();
-    this.cleanSvg();
+    this.clean();
 
     var dataType = 'features';
     /*
-    if (!_.isUndefined(this.exclude)) {
-        dataType = 'features' + this.exclude.replace(/[,.]/gi,'');
-    }*/
+     if (!_.isUndefined(this.exclude)) {
+     dataType = 'features' + this.exclude.replace(/[,.]/gi,'');
+     }*/
 
     if (this.histogram) {
         dataType = 'histogram';
@@ -124,9 +163,9 @@ GeneTrack.prototype.draw = function () {
             }
         });
 
-        this.invalidZoomText.setAttribute("visibility", "hidden");
+//        this.invalidZoomText.setAttribute("visibility", "hidden");
     } else {
-        this.invalidZoomText.setAttribute("visibility", "visible");
+//        this.invalidZoomText.setAttribute("visibility", "visible");
     }
     _this.updateHeight();
 };

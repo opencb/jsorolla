@@ -47,9 +47,25 @@ function AlignmentTrack(args) {
     // TODO this.renderer.setSamples(this.samples);
 };
 
+AlignmentTrack.prototype.updateHeight = function () {
+    //TODO if needed
+
+
+    this._updateHeight();
+};
+
+AlignmentTrack.prototype.clean = function () {
+    //TODO if needed
+
+
+    this._clean();
+};
+
 AlignmentTrack.prototype.render = function (targetId) {
     var _this = this;
     this.initializeDom(targetId);
+
+//    this.contentDiv; //TODO create custom dom structure inside
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
@@ -64,7 +80,7 @@ AlignmentTrack.prototype.draw = function () {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
 
     this.updateHistogramParams();
-    this.cleanSvg();
+    this.clean();
 
     this.dataType = 'features';
     if (this.histogram) {
@@ -91,7 +107,7 @@ AlignmentTrack.prototype.draw = function () {
             done: function () {
                 _this.setLoading(false);
             },
-            dataReady: function(args){
+            dataReady: function (args) {
                 _this.dataReady(args);
             }
         });
@@ -142,7 +158,7 @@ AlignmentTrack.prototype.move = function (disp) {
                 },
                 done: function () {
                 },
-                dataReady: function(args){
+                dataReady: function (args) {
                     _this.dataReady(args);
                 }
             });
@@ -166,7 +182,7 @@ AlignmentTrack.prototype.move = function (disp) {
                 },
                 done: function () {
                 },
-                dataReady: function(args){
+                dataReady: function (args) {
                     _this.dataReady(args);
                 }
             });

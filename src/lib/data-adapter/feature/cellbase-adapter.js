@@ -70,7 +70,7 @@ CellBaseAdapter.prototype = {
         }
 
         /** 4 chunkSize check **/
-        var chunkSize = args.params.interval? args.params.interval : this.cacheConfig.defaultChunkSize; // this.cache.defaultChunkSize should be the same
+        var chunkSize = args.params.interval? args.params.interval : this.cacheConfig.chunkSize; // this.cache.defaultChunkSize should be the same
         if (this.debug) {
             console.log(chunkSize);
         }
