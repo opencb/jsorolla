@@ -1,6 +1,8 @@
 <link rel="import" href="jso-login.html">
 <link rel="import" href="jso-signup.html">
 <link rel="import" href="jso-profile.html">
+<link rel="import" href="jso-remember.html">
+
 <polymer-element name="jso-header" attributes="description selectedOption userData title description options">
 <template>
 <link rel="stylesheet" href="../jso-style.css">
@@ -14,9 +16,7 @@
     cursor: default;
 }
 
-ul.help-menu,
-ul.app-menu,
-ul.header {
+ul.help-menu, ul.app-menu, ul.header {
     margin: 0;
     padding: 0;
     background: white;
@@ -68,8 +68,17 @@ ul.header > li.right {
     /*border-left: 1px solid #c6d0da;*/
 }
 
-ul.header > li.text:hover,
+ul.help-menu > li:hover, ul.header > li:hover {
+    background: #435f7a;
+    color: white;
+}
+
 ul.header > li.title:hover {
+    background-color: #ebeef3;
+    color: #435f7a;
+}
+
+ul.header > li.text:hover {
     background: none;
     color: #435f7a;
 }
@@ -77,12 +86,6 @@ ul.header > li.title:hover {
 ul.header > li.description:hover {
     background: white;
     color: #6599FF;
-}
-
-ul.help-menu > li:hover,
-ul.header > li:hover {
-    background: #435f7a;
-    color: white;
 }
 
 ul.help-menu {
@@ -146,11 +149,6 @@ ul.app-menu > li:hover {
 
 #user {
     color: #8b0000;
-}
-
-.title:hover {
-    cursor: pointer;
-    text-decoration: underline;
 }
 
 [hide=true] {
@@ -239,8 +237,6 @@ li.dropdown > div:focus ~ ul li:hover > ul {
     visibility: visible;
     opacity: 1;
 }
-
-
 </style>
 
 <ul class="header">
@@ -285,6 +281,11 @@ li.dropdown > div:focus ~ ul li:hover > ul {
         </li>
     </template>
 
+    <li id="apps" class="right" on-click="{{}}">
+        &nbsp;
+        <font-awesome icon="th"></font-awesome>
+        &nbsp;
+    </li>
     <li id="support" class="right" on-click="{{handleSupportMenu}}">
         &nbsp;
         <font-awesome icon="support"></font-awesome>
@@ -328,6 +329,7 @@ li.dropdown > div:focus ~ ul li:hover > ul {
     <li id="user" class="right text" hide="{{!isLogged}}">
         {{userText}}
     </li>
+
 </ul>
 <ul id="helpMenu" class="help-menu">
     <li id="homeHelp" class="right">
@@ -349,7 +351,7 @@ li.dropdown > div:focus ~ ul li:hover > ul {
 </ul>
 
 <template if="{{ selectedOption == 'login' }}">
-    <jso-login on-login="{{handleLogin}}"></jso-login>
+    <jso-login on-login="{{handleLogin}}" selectedOption="{{selectedOption}}"></jso-login>
 </template>
 
 <template if="{{ selectedOption == 'signup' }}">
@@ -358,6 +360,10 @@ li.dropdown > div:focus ~ ul li:hover > ul {
 
 <template if="{{ selectedOption == 'profile' }}">
     <jso-profile></jso-profile>
+</template>
+
+<template if="{{ selectedOption == 'rememberpassword' }}">
+    <jso-remember></jso-remember>
 </template>
 
 </template>
@@ -457,7 +463,7 @@ li.dropdown > div:focus ~ ul li:hover > ul {
                                 me.userData = response.response[0].result[0];
                                 console.log("userData has been modified since last call");
                             }
-                            if(response.response[0].errorMsg != null && response.response[0].errorMsg.indexOf('Invalid sessionId for user') !== -1){
+                            if (response.response[0].errorMsg != null && response.response[0].errorMsg.indexOf('Invalid sessionId for user') !== -1) {
                                 me.sessionFinished()
                             }
                         },
