@@ -397,6 +397,7 @@ li.dropdown > div:focus ~ ul li:hover > ul {
         ready: function () {
             if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
                 this.sessionInitiated();
+            } else {
                 this.logout();
             }
         },
