@@ -140,51 +140,37 @@ Track.prototype = {
         this.width = width;
 //        this.main.setAttribute("width", width);
     },
-    updateHeight:function(){
+    updateHeight: function () {
         this._updateHeight();
     },
-    _updateHeight: function (ignoreAutoHeight) {
-        if (this.autoHeight || ignoreAutoHeight) {
-            //        $(this.rrr).remove();
-//        delete this.rrr;
-//        this.rrr = SVG.addChild(this.svgCanvasFeatures, "rect", {
-//            'x': 0,
-//            'y': 0,
-//            'width': 0,
-//            'height': 18,
-//            'stroke': '#3B0B0B',
-//            'stroke-width': 1,
-//            'stroke-opacity': 1,
-//            'fill': 'black',
-//            'cursor': 'pointer'
-//        });
-            if (this.resizable) {
-                if (!this.histogram) {
-                    var x = this.pixelPosition;
-                    var width = this.width;
-                    var lastContains = 0;
-                    for (var i in this.renderedArea) {
-                        if (this.renderedArea[i].contains({start: x, end: x + width })) {
-                            lastContains = i;
-                        }
-                    }
-                    var divHeight = parseInt(lastContains) + 20;
-                    $(this.contentDiv).css({'height': divHeight + 25});
-//                this.rrr.setAttribute('x', x);
-//                this.rrr.setAttribute('y', divHeight);
-//                this.rrr.setAttribute('width', width);
-
-                }
-            }
-            if (this.histogram) {
-                $(this.contentDiv).css({'height': this.height + 10});
-            }
-
-        }
+    _updateHeight: function () {
+        $(this.contentDiv).css({'height': this.height});
     },
     enableAutoHeight: function () {
+        console.log('enable autoHeigth');
         this.autoHeight = true;
         this.updateHeight();
+    },
+    disableAutoHeight: function () {
+        console.log('disable autoHeigth');
+        this.autoHeight = false;
+        this.updateHeight();
+    },
+    toggleAutoHeight: function (bool) {
+        if (bool == true) {
+            this.enableAutoHeight();
+            return;
+        } else if (bool == false) {
+            this.disableAutoHeight();
+            return;
+        }
+        if (this.autoHeight == true) {
+            this.disableAutoHeight();
+            return;
+        } else if (this.autoHeight == false) {
+            this.enableAutoHeight();
+            return;
+        }
     },
     setTitle: function (title) {
         $(this.titleText).html(title);
@@ -231,8 +217,10 @@ Track.prototype = {
         this.chunksDisplayed = {};
         this.renderedArea = {};
     },
-
     initializeDom: function (targetId) {
+        this._initializeDom(targetId);
+    },
+    _initializeDom: function (targetId) {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
@@ -281,6 +269,15 @@ Track.prototype = {
         this.externalLinkEl = titleBardiv.querySelector('.ocb-gv-track-title-external-link');
 
         var contentDiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
+        $(contentDiv).css({
+            'position': 'relative',
+            'box-sizing': 'boder-box',
+            'z-index': 3,
+            'height': this.height,
+            'overflow-y': (this.resizable) ? 'auto' : 'hidden',
+            'overflow-x': 'hidden'
+        });
+
         var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
 
         $(targetId).addClass("unselectable");
@@ -322,9 +319,10 @@ Track.prototype = {
                 $('html').bind('mousemove.genomeViewer', function (event) {
                     var despY = (event.clientY - downY);
                     var actualHeight = $(contentDiv).outerHeight();
-                    $(contentDiv).css({height: actualHeight + despY});
+                    _this.height = actualHeight + despY;
+                    $(contentDiv).css({height: _this.height});
                     downY = event.clientY;
-                    _this.autoHeight = false;
+//                    _this.autoHeight = false;
                 });
             });
             $('html').bind('mouseup.genomeViewer', function (event) {
@@ -336,13 +334,6 @@ Track.prototype = {
             });
         }
 
-        /** svg div **/
-        $(contentDiv).css({
-            'z-index': 3,
-            'height': this.height,
-            'overflow-y': (this.resizable) ? 'auto' : 'hidden',
-            'overflow-x': 'hidden'
-        });
 
 //        var hoverRect = SVG.addChild(this.svgGroup, 'rect', {
 //            'x': 0,

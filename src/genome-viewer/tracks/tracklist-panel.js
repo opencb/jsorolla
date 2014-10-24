@@ -752,10 +752,10 @@ TrackListPanel.prototype = {
 //            _this.checkTracksReady();
 //        });
     },
-    enableAutoHeight: function () {
+    toggleAutoHeight: function (bool) {
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
-            track.enableAutoHeight();
+            track.toggleAutoHeight(bool);
         }
     },
     updateHeight: function () {

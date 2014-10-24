@@ -47,47 +47,67 @@ function FeatureTrack(args) {
 
 
 FeatureTrack.prototype.clean = function () {
+    this._clean();
+
 //    console.time("-----------------------------------------empty");
     while (this.svgCanvasFeatures.firstChild) {
         this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
     }
 //    console.timeEnd("-----------------------------------------empty");
-    this._clean();
 };
 
 FeatureTrack.prototype.updateHeight = function () {
-    if (this.resizable && !this.histogram) {
-        var renderedHeight = Object.keys(this.renderedArea).length * 21;//this must be passed by config, 20 for test
-        this.main.setAttribute('height', renderedHeight);
-        this.svgCanvasFeatures.setAttribute('height', renderedHeight);
-    }
+//    this._updateHeight();
+
     if (this.histogram) {
-        this.main.setAttribute('height', this.height);
-        this.svgCanvasFeatures.setAttribute('height', this.height);
+        $(this.contentDiv).css({'height': this.histogramRenderer.histogramHeight + 5});
+        this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
+        return;
     }
-    this._updateHeight();
+
+    var renderedHeight = this.svgCanvasFeatures.getBoundingClientRect().height;
+    this.main.setAttribute('height', renderedHeight);
+
+    if (this.resizable) {
+        if (this.autoHeight == false) {
+            $(this.contentDiv).css({'height': this.height});
+        } else if (this.autoHeight == true) {
+            var x = this.pixelPosition;
+            var width = this.width;
+            var lastContains = 0;
+            for (var i in this.renderedArea) {
+                if (this.renderedArea[i].contains({start: x, end: x + width })) {
+                    lastContains = i;
+                }
+            }
+            var visibleHeight = parseInt(lastContains) + 30;
+            $(this.contentDiv).css({'height': visibleHeight + 5});
+            this.main.setAttribute('height', visibleHeight);
+        }
+    }
 };
 
-FeatureTrack.prototype.render = function (targetId) {
-    var _this = this;
-    this.initializeDom(targetId);
+FeatureTrack.prototype.initializeDom = function (targetId) {
+    this._initializeDom(targetId);
 
-    /* Internal svg structure */
     this.main = SVG.addChild(this.contentDiv, 'svg', {
         'class': 'trackSvg',
         'x': 0,
         'y': 0,
-        'width': this.width,
-        'height': this.height
+        'width': this.width
     });
     this.svgCanvasFeatures = SVG.addChild(this.main, 'svg', {
         'class': 'features',
         'x': -this.pixelPosition,
-        'width': this.svgCanvasWidth,
-        'height': this.height
+        'width': this.svgCanvasWidth
     });
-    /**/
+    this.updateHeight();
+};
 
+FeatureTrack.prototype.render = function (targetId) {
+    var _this = this;
+
+    this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
@@ -227,7 +247,9 @@ FeatureTrack.prototype.move = function (disp) {
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
-
     }
 
+    if(this.autoHeight == true){
+        this.updateHeight();
+    }
 };

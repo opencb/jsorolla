@@ -146,7 +146,8 @@ NavigationBar.prototype = {
             '</div>' +
 
 
-            '<div id="autoheightButton" class="ocb-ctrl" style="margin-left: 5px;font-size:18px;"><i class="fa fa-compress"></i></div>' +
+//            '<div id="autoheightButton" class="ocb-ctrl" style="margin-left: 5px;font-size:18px;"><i class="fa fa-compress"></i></div>' +
+            '<label class="ocb-ctrl"><input type="checkbox" id="autoheightButton"><span style="margin-left: 5px;font-size:18px;"><i class="fa fa-compress"></i></span></label>' +
 //            '<div id="compactButton" class="ocb-ctrl" style="margin-left: 5px;font-size:18px;"><i class="fa fa-expand"></i></div>' +
 
 
@@ -269,8 +270,11 @@ NavigationBar.prototype = {
             _this._handleMoveRegion(-1);
         });
 
-        this.els.autoheightButton.addEventListener('click', function (e) {
-            _this.trigger('autoHeight-button:click', {clickEvent: e, sender: _this});
+//        this.els.autoheightButton.addEventListener('click', function (e) {
+//            _this.trigger('autoHeight-button:click', {clickEvent: e, sender: _this});
+//        });
+        this.els.autoheightButton.addEventListener('click', function () {
+            _this.trigger('autoHeight-button:change', {selected: this.checked, sender: _this});
         });
 
 //        this.els.compactButton.addEventListener('click', function (e) {
