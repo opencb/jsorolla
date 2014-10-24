@@ -3,7 +3,8 @@
 <link rel="import" href="jso-profile.html">
 <link rel="import" href="jso-remember.html">
 
-<polymer-element name="jso-header" attributes="description selectedOption userData title description options">
+<polymer-element name="jso-header"
+                 attributes="description selectedOption userData title description options allowLogin">
 <template>
 <link rel="stylesheet" href="../jso-style.css">
 <style>
@@ -292,15 +293,17 @@ li.dropdown > div:focus ~ ul li:hover > ul {
         &nbsp;
     </li>
 
-    <li id="signup" class="right" data-option="signup" on-click="{{handleMenu}}" hide="{{isLogged}}">
-        <font-awesome icon="pencil-square-o"></font-awesome>
-        &nbsp;sign up
-    </li>
+    <template if="{{allowLogin == true}}">
+        <li id="signup" class="right" data-option="signup" on-click="{{handleMenu}}" hide="{{isLogged}}">
+            <font-awesome icon="pencil-square-o"></font-awesome>
+            &nbsp;sign up
+        </li>
 
-    <li id="login" class="right" data-option="login" on-click="{{handleMenu}}" hide="{{isLogged}}">
-        <font-awesome icon="sign-in"></font-awesome>
-        &nbsp;log in
-    </li>
+        <li id="login" class="right" data-option="login" on-click="{{handleMenu}}" hide="{{isLogged}}">
+            <font-awesome icon="sign-in"></font-awesome>
+            &nbsp;log in
+        </li>
+    </template>
 
 
     <!--<li id="jobs" class="right" hide="{{!isLogged}}">-->
@@ -371,6 +374,8 @@ li.dropdown > div:focus ~ ul li:hover > ul {
 <script>
     Polymer({
         created: function () {
+            this.allowLogin = true;
+
             this.description = '';
             this.checkTimeInterval = 5000;
             this.version = '';
