@@ -23,8 +23,7 @@ function OpencgaAdapter(args) {
 
     _.extend(this, Backbone.Events);
 
-    this.sid;
-    this.categories;
+    this.sid = null;
 
     _.extend(this, args);
 
@@ -48,8 +47,7 @@ OpencgaAdapter.prototype = {
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
         /** 2 category check **/
-        //TODO define category
-        var categories = this.categories; // = args.categories;   // in this adapter each category is each file
+        var categories = args.categories;   // in this adapter each category is each file
 
         /** 3 dataType check **/
         var dataType = args.dataType;
@@ -58,9 +56,7 @@ OpencgaAdapter.prototype = {
         }
 
         /** 4 chunkSize check **/
-        //TODO define chunksize,  histogram is dynamic and features is fixed
-        var chunkSize = args.params.interval ? args.params.interval : undefined;
-        chunkSize = 1500;
+        var chunkSize = args.params.interval ? args.params.interval : this.cacheConfig.defaultChunkSize;
 
         /* TODO remove??????
          var params = {
@@ -92,9 +88,9 @@ OpencgaAdapter.prototype = {
             /**
              * Process uncached regions
              */
-            // TODO check if OpenCGA allows multiple regions
-//            var queriesList = _this._groupQueries(uncachedRegions[category]);
-            var queriesList = uncachedRegions[category];
+            // assumption: every sample has the same uncached regions.
+            var queriesList = _this._groupQueries(uncachedRegions[category]);
+//            var queriesList = uncachedRegions[category];
 
             // TODO check how to manage multiple regions and multiple files ids
             for (var i = 0; i < queriesList.length; i++) {
@@ -106,7 +102,7 @@ OpencgaAdapter.prototype = {
                     query: {
                         sid: _this.sid, //TODO add sid to queryParams;
                         region: queryRegion.toString(),
-                        interval: this.interval,
+                        interval: args.params.interval,
                         histogram: (dataType == 'histogram')
                     },
                     request: {
@@ -149,14 +145,15 @@ OpencgaAdapter.prototype = {
             debugger;
         }
 
+
         var chunks;
         var regions;
-        for (var i = 0; i < data.response.length; i++) {    // FIXME each response is a sample?
+        for (var i = 0; i < data.response.length; i++) {    // FIXME each response is a sample? in variant too?
             var queryResult = data.response[i];
             chunks = [];
             regions = [];
             for (var j = 0; j < queryResult.result.length; j++) {
-                regions.push(new Region(queryResult.result[j]));
+                regions.push(new Region(queryResult.result[j].region));
             }
             chunks = queryResult.result;
 

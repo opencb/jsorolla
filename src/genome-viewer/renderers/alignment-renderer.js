@@ -30,10 +30,6 @@ function AlignmentRenderer(args) {
     this.fontClass = 'ocb-font-roboto ocb-font-size-11';
     this.toolTipfontClass = 'ocb-tooltip-font';
 
-    // these are the subtracks. necessary to know at constructor to build the divs and svg groups.
-    // TODO: call in constructor to build the multisample divs.
-    this.samples = ["4", "7"];
-
     if (_.isObject(args)) {
         _.extend(this, args);
     }
@@ -43,13 +39,27 @@ function AlignmentRenderer(args) {
     this.insertSizeMin = 100;
     this.insertSizeMax = 250;
     this.variantColor = 'orangered';
-    this.setSamples();
+    this.samples = [];
 };
 
-AlignmentRenderer.prototype.setSamples = function (samples) {
-    this.samples = samples;
-    this.svg = {};
-    // TODO set divs?
+
+AlignmentRenderer.prototype.init = function (svgGroup, sample) {
+
+    this.samples.push(sample);
+    //Prevent browser context menu
+    $(svgGroup).contextmenu(function (e) {
+        console.log("right click");
+        e.preventDefault();
+    });
+
+    SVG.addChild(svgGroup, "g", {
+        "class": "aligCoverage-" + sample,
+        "cursor": "pointer"
+    });
+    SVG.addChild(svgGroup, "g", {
+        "class": "aligReads-" + sample,
+        "cursor": "pointer"
+    });
 };
 
 AlignmentRenderer.prototype.render = function (features, args) {
@@ -91,28 +101,8 @@ AlignmentRenderer.prototype.render = function (features, args) {
 
     var chunkList = features;
     this.middle = args.width /2;
-
-    //Prevent browser context menu
-    $(args.svgCanvasFeatures).contextmenu(function (e) {
-        console.log("right click");
-        e.preventDefault();
-    });
-
-
-    if (this.svg[sample] == undefined) {
-        this.svg[sample] = SVG.addChild(args.svgCanvasFeatures, "g", {
-            "class": "sample_" + sample,
-            "cursor": "pointer"
-        });
-        args.aligCoverGroup = SVG.addChild(this.svg[sample], "g", {
-            "class": "aligCoverage",
-            "cursor": "pointer"
-        });
-        args.aligReadGroup = SVG.addChild(this.svg[sample], "g", {
-            "class": "aligReads",
-            "cursor": "pointer"
-        });
-    }
+    args.aligCoverGroup = args.svgCanvasFeatures.children[0];
+    args.aligReadGroup = args.svgCanvasFeatures.children[1];
 
 
     //process features
@@ -328,7 +318,6 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
     }
 //    var rowY = 70;
 //		var textY = 12+settings.height;
-    debugger
     while (true) {
         if (args.renderedArea[rowY] == null) {
             args.renderedArea[rowY] = new FeatureBinarySearchTree();
@@ -363,7 +352,7 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
             //});
             //readEls.push(rect);
 
-            if (diff != null && args.regionSize < 400) {
+            if (diff != null && args.regionSize < 400) {    // TODO
                 //var	t = SVG.addChild(featureGroup,"text",{
                 //"x":x+1,
                 //"y":rowY+settings.height-1,

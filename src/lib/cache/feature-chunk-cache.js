@@ -95,12 +95,12 @@ FeatureChunkCache.prototype = {
      return this.store.get(chunkId);
      },*/
 
-    getChunk: function (chunkKey, callback) {
+    getChunk: function (category, chunkKey, callback) {
         if (!callback) {
             console.log("bad FeatureChunkCache usage: undefined callback");
         }
 
-        this.store.get(chunkKey, callback);
+        this.store.get(category, chunkKey, callback);
     },
 
     getChunks: function (category, chunkKeysArray, callback) {

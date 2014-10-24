@@ -44,6 +44,7 @@ function AlignmentTrack(args) {
 
     this.dataType = 'features';
     this.samples = ['4', '7'];
+    this.svgGroups = {};
     // TODO this.renderer.setSamples(this.samples);
 };
 
@@ -66,6 +67,21 @@ AlignmentTrack.prototype.render = function (targetId) {
     this.initializeDom(targetId);
 
 //    this.contentDiv; //TODO create custom dom structure inside
+    for (var i = 0; i < this.samples.length; i++) {
+        var sample = this.samples[i];
+        var sampleDiv = $('<div id="' + sample + '-svgdiv"></div>')[0];
+        $(this.contentDiv).append(sampleDiv);
+
+        /* Internal svg structure */
+        this.svgGroups[sample] = SVG.addChild(sampleDiv, 'svg', {
+            'class': 'trackSvg',
+            'x': 0,
+            'y': 0,
+            'width': this.width,
+            'height': this.height
+        });
+        this.renderer.init(this.svgGroups[sample], sample);
+    }
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
@@ -112,7 +128,7 @@ AlignmentTrack.prototype.draw = function () {
             }
         });
 
-        this.invalidZoomText.setAttribute("visibility", "hidden");
+//        this.invalidZoomText.setAttribute("visibility", "hidden");
     } else {
         this.invalidZoomText.setAttribute("visibility", "visible");
     }
@@ -132,9 +148,11 @@ AlignmentTrack.prototype.move = function (disp) {
     var pixelDisplacement = disp * _this.pixelBase;
     this.pixelPosition -= pixelDisplacement;
 
-    //parseFloat important
-    var move = parseFloat(this.svgCanvasFeatures.getAttribute("x")) + pixelDisplacement;
-    this.svgCanvasFeatures.setAttribute("x", move);
+    for (var sample in this.svgGroups) {
+        //parseFloat important
+        var move = parseFloat(this.svgGroups[sample].getAttribute("x")) + pixelDisplacement;
+        this.svgGroups[sample].setAttribute("x", move);
+    }
 
     var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
@@ -207,7 +225,7 @@ AlignmentTrack.prototype.dataReady = function (response) {
 //    response.items = features;    // why not?
 //    _this.renderer.render(response, {
     _this.renderer.render(features, {
-        svgCanvasFeatures: _this.svgCanvasFeatures,
+        svgCanvasFeatures: _this.svgGroups[response.category],
         featureTypes: _this.featureTypes,
         renderedArea: _this.renderedArea,
         pixelBase: _this.pixelBase,
@@ -224,4 +242,112 @@ AlignmentTrack.prototype.dataReady = function (response) {
     });
     _this.updateHeight();
 };
+
+
+AlignmentTrack.prototype.getFeaturesToRenderByChunk = function (response, filters) {
+    //Returns an array avoiding already drawn features in this.chunksDisplayed
+
+    var getChunkId = function (position) {
+        return Math.floor(position / response.chunkSize);
+    };
+    var getChunkKey = function (chromosome, chunkId) {
+        return response.category + "_" + chromosome + ":" + chunkId + "_" + response.dataType + "_" + response.chunkSize;
+    };
+
+    var chunks = response.items;
+    var chunksToRender = [];
+    var features = [];
+
+    var feature, displayed, featureFirstChunk, featureLastChunk;
+    for (var i = 0, leni = chunks.length; i < leni; i++) {
+        if (this.chunksDisplayed[response.category + "_" + chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
+            features = [];
+            for (var j = 0, lenj = chunks[i].value.alignments.length; j < lenj; j++) {
+                feature = chunks[i].value.alignments[j];
+
+                //check if any feature has been already displayed by another chunk
+                displayed = false;
+                featureFirstChunk = getChunkId(feature.start);
+                featureLastChunk = getChunkId(feature.end);
+                for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {
+                    var chunkKey = getChunkKey(feature.chromosome, chunkId);
+                    if (this.chunksDisplayed[chunkKey] == true) {
+                        displayed = true;
+                        break;
+                    }
+                }
+                if (!displayed) {
+                    features.push(feature);
+                }
+            }
+            this.chunksDisplayed[response.category + "_" + chunks[i].chunkKey] = true;
+            chunks[i].value.alignments = features;
+            chunksToRender.push(chunks[i].value);
+        }
+    }
+    return chunksToRender;
+};
+
+    /* when memoryStore is refactored to manage several categories
+AlignmentTrack.prototype.getFeaturesToRenderByChunk = function(response) {  // TODO test
+    var _this = this;
+
+    var chunks = response.items;
+    var chunksToRender = [];//Returns an array avoiding already drawn features in this.chunksDisplayed
+    var features, feature, displayed;
+
+    for (var i = 0, leni = chunks.length; i < leni; i++) {  // for each chunk
+        _this.chunksDisplayed.getChunks([chunks[i].chunkKey], function (iteration) {
+            return function (values) {
+                if (values[0].value != true) {//check if the chunk is already displayed and skip it
+                    features = [];
+                    for (var j = 0, lenj = chunks[iteration].value.alignments.length; j < lenj; j++) {
+                        feature = chunks[iteration].value.alignments[j];
+                        var region = new Region(feature);
+                        displayed = false;
+
+                        _this.chunksDisplayed.get(region, [response.category], response.chunkSize, function (cached, uncached) {
+                            for (var k = 0; k < cached.length; k++) {   // check if the feature is in any already displayed chunk
+                                if (cached[k].value == true) {
+                                    displayed = true;
+                                    break;
+                                }
+                            }
+                            if (!displayed) {
+                                features.push(feature);
+                            }
+                        });
+                    }
+                    _this.chunksDisplayed.putChunks(response.category, [values[0].chunkKey], [true]);   // mark it as displayed
+                    chunks[iteration].value.alignments = features;
+                    chunksToRender.push(chunks[iteration].value); // add to chunks to render
+                }
+            };
+        } (i));
+    }
+
+    return chunksToRender;
+};
+//    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

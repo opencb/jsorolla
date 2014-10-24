@@ -253,7 +253,7 @@ IndexedDBStore.prototype = {
                     console.timeEnd(timeId);
                 }
                 dbConnection.close();
-                callback(event.target.result);
+                callback(result);
             };
             transaction.onerror = function (event) {
                 console.log("There was an error in the transaction get (" + key + ")");
@@ -317,17 +317,29 @@ IndexedDBStore.prototype = {
 
     /**
      * Calls the callback with the value of each key. The callback is called keyArray.length times.
-     * @param callback (value, key) Receives as parameters the value and its key.
+     * @param callback (value, key, i) Receives as parameters the value, its key, and the position of the key in the keyArray.
+     * @param whenCompletedCallback Optional. Receives no arguments. it is called when all callbacks have finished.
      */
-    foreach: function(objectStoreName, keyArray, callback) {
+    foreach: function(objectStoreName, keyArray, callback, whenCompletedCallback) {
         if (!(keyArray instanceof Array) || !callback) {
             console.error("Bad use of IndexedDBStore: getCollection must receive an Array of keys and a callback function.");
             return;
         }
         var _this = this;
+        var timeId;
+        if (_this.debug) {
+            timeId = "IndexedDBStore.getAll " + objectStoreName + ", with " + keyArray.length + " keys.";
+            console.time(timeId);
+        }
 
         _this._getConnection(objectStoreName, function (dbConnection) {
             var transaction = dbConnection.transaction([objectStoreName], "readonly");
+            transaction.oncomplete = function(event) {
+                dbConnection.close();
+                if (whenCompletedCallback) {
+                    whenCompletedCallback();
+                }
+            };
             transaction.onerror = function (event) {
                 console.log("There was an error in the transaction foreach (" + keyArray + ")");
                 console.log(event);
@@ -340,7 +352,7 @@ IndexedDBStore.prototype = {
 
                 request.onsuccess = function (iteration) {
                     return function (event) {
-                        callback(event.target.result, keyArray[iteration]);
+                        callback(event.target.result, keyArray[iteration], iteration);
                     };
                 } (i);     // to force the closure to have each value of i, and not just the last one
             }
