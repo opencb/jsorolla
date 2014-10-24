@@ -23,7 +23,7 @@ function OpencgaAdapter(args) {
 
     _.extend(this, Backbone.Events);
 
-    this.sid = null;
+    this.sid = "RNk4P0ttFGHyqLA3YGS8";
 
     _.extend(this, args);
 

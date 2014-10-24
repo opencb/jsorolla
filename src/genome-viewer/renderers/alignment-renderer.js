@@ -308,12 +308,13 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
 
     var rowHeight = 12;
     var rowsStart = 70;
+    var rowsHeight = 120;
     var rowY = rowsStart;
     for (var sample = 0; sample < this.samples.length; sample++) {
         if (this.samples[sample] == args.sample) {
             break;
         } else {
-            rowY += rowsStart;
+            rowY += rowsHeight;
         }
     }
 //    var rowY = 70;

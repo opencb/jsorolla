@@ -35,6 +35,7 @@ function AlignmentTrack(args) {
     this.histogramRenderer = new HistogramRenderer(args);
 
     this.featureType = 'Feature';
+    this.samples = [];
     //set instantiation args, must be last
     _.extend(this, args);
 
@@ -43,7 +44,6 @@ function AlignmentTrack(args) {
     this.species = this.dataAdapter.species;
 
     this.dataType = 'features';
-    this.samples = ['4', '7'];
     this.svgGroups = {};
     // TODO this.renderer.setSamples(this.samples);
 };
@@ -72,12 +72,18 @@ AlignmentTrack.prototype.render = function (targetId) {
         var sampleDiv = $('<div id="' + sample + '-svgdiv"></div>')[0];
         $(this.contentDiv).append(sampleDiv);
 
-        /* Internal svg structure */
-        this.svgGroups[sample] = SVG.addChild(sampleDiv, 'svg', {
+        var sampleMainSvg = SVG.addChild(sampleDiv, 'svg', {
             'class': 'trackSvg',
             'x': 0,
             'y': 0,
             'width': this.width,
+            'height': this.height
+        });
+        /* Internal svg structure */
+        this.svgGroups[sample] = SVG.addChild(sampleMainSvg, 'svg', {
+            'class': 'features',
+            'x': -this.pixelPosition,
+            'width': this.svgCanvasWidth,
             'height': this.height
         });
         this.renderer.init(this.svgGroups[sample], sample);
