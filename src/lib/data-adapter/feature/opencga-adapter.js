@@ -89,10 +89,14 @@ OpencgaAdapter.prototype = {
              * Process uncached regions
              */
             // assumption: every sample has the same uncached regions.
-            var queriesList = _this._groupQueries(uncachedRegions[category]);
+            var queriesList;
+            if (dataType == "histogram") {
+                queriesList = [region];
+            } else {
+                queriesList = _this._groupQueries(uncachedRegions[category]);
+            }
 //            var queriesList = uncachedRegions[category];
 
-            // TODO check how to manage multiple regions and multiple files ids
             for (var i = 0; i < queriesList.length; i++) {
                 args.webServiceCallCount++;
                 var queryRegion = queriesList[i];
@@ -100,14 +104,13 @@ OpencgaAdapter.prototype = {
                 OpencgaManager.files.fetch({
                     id: categoriesName,
                     query: {
-                        sid: _this.sid, //TODO add sid to queryParams;
+                        sid: _this.sid, //TODO add sid to queryParams; resolved isn't it?
                         region: queryRegion.toString(),
                         interval: args.params.interval,
                         histogram: (dataType == 'histogram')
                     },
                     request: {
                         success: function (response) {
-                            //TODO check success
                             _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
                         },
                         error: function () {
@@ -145,6 +148,13 @@ OpencgaAdapter.prototype = {
             debugger;
         }
 
+        if (data.response[0] && data.response[0].result[0]) {
+            var inferredChunkSize = data.response[0].result[0].end - data.response[0].result[0].start;
+            if (inferredChunkSize != chunkSize) {
+                console.log("code smell: chunkSize requested: " + chunkSize + ", but obtained: " + inferredChunkSize);
+//                chunkSize = inferredChunkSize;
+            }
+        }
 
         var chunks;
         var regions;
@@ -153,7 +163,7 @@ OpencgaAdapter.prototype = {
             chunks = [];
             regions = [];
             for (var j = 0; j < queryResult.result.length; j++) {
-                regions.push(new Region(queryResult.result[j].region));
+                regions.push(new Region(queryResult.result[j]));
             }
             chunks = queryResult.result;
 

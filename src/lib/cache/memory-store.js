@@ -7,9 +7,9 @@
  */
 
 /**
- *
- * @param args
- * @constructor
+ * MemoryStore is a cache with items ordered with "least recently used" criterion (LRU). This allows to remove old data with the "shift" method.
+ * The parameter "category" should be a string, and it is used as another level of classification.
+ * "get", "getAll" and "foreach" methods can be used with callbacks or with return values.
  */
 function MemoryStore(args) {
 

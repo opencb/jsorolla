@@ -44,15 +44,56 @@ function AlignmentTrack(args) {
     this.species = this.dataAdapter.species;
 
     this.dataType = 'features';
-    this.svgGroups = {};
+
+    this.sampleDivs = {};   // <this.samples.length> children of contentdiv.
+    this.sampleMainSvgs = {};   // bijection 1 to 1 with sampleDivs
+    this.svgGroups = {};    // wrapper of renderer-related internal svgs.
     // TODO this.renderer.setSamples(this.samples);
 };
 
 AlignmentTrack.prototype.updateHeight = function () {
     //TODO if needed
+/*
+    if (this.histogram) {
+        $(this.contentDiv).css({'height': this.histogramRenderer.histogramHeight + 5});
+        this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
+        return;
+    }
+    */
+    console.log("alignmentTrack::updateHeight: this.height = " + this.height);
 
+    $(this.contentDiv).css({'height': this.height});
+    var sampleHeight = this.height/this.samples.length;
 
-    this._updateHeight();
+    for (var j = 0; j < this.samples.length; j++) {
+        var sample = this.samples[j];
+        $(this.sampleDivs[sample]).css({'height': sampleHeight});
+        // TODO this.sampleMainSvgs[sample].height = sampleHeight;
+        var renderedHeight = this.svgGroups[sample].getBoundingClientRect().height;
+        this.sampleMainSvgs[sample].setAttribute('height', renderedHeight);
+    }
+    /*
+
+    if (this.resizable) {   // TODO auto update on resize
+        if (this.autoHeight == false) {
+            $(this.contentDiv).css({'height': this.height});
+        } else if (this.autoHeight == true) {
+            var x = this.pixelPosition;
+            var width = this.width;
+            var lastContains = 0;
+            for (var i in this.renderedArea) {
+                if (this.renderedArea[i].contains({start: x, end: x + width })) {
+                    lastContains = i;
+                }
+            }
+            var visibleHeight = parseInt(lastContains) + 30;
+            $(this.contentDiv).css({'height': visibleHeight + 5});
+            this.main.setAttribute('height', visibleHeight);
+        }
+    }
+
+//    this._updateHeight();
+*/
 };
 
 AlignmentTrack.prototype.clean = function () {
@@ -67,31 +108,38 @@ AlignmentTrack.prototype.render = function (targetId) {
     this.initializeDom(targetId);
 
 //    this.contentDiv; //TODO create custom dom structure inside
+
+    console.log("alignmenttrack.render");
+    var sampleHeight = this.height/this.samples.length;
     for (var i = 0; i < this.samples.length; i++) {
         var sample = this.samples[i];
-        var sampleDiv = $('<div id="' + sample + '-svgdiv"></div>')[0];
-        $(this.contentDiv).append(sampleDiv);
+//        this.sampleDivs[sample] = $('<div id="' + sample + '-svgdiv" style="height:' + sampleHeight + 'px"></div>')[0];
+        _this.sampleDivs[sample] = $('<div id="' + sample + '-svgdiv"></div>')[0];
 
-        var sampleMainSvg = SVG.addChild(sampleDiv, 'svg', {
-            'class': 'trackSvg',
+        // TODO test $(this.contentDiv).css({'height': this.height});
+        $(_this.contentDiv).append(_this.sampleDivs[sample]);
+
+        _this.sampleMainSvgs[sample] = SVG.addChild(_this.sampleDivs[sample], 'svg', {
+            'class': 'sampleMainSvg',
             'x': 0,
             'y': 0,
             'width': this.width,
-            'height': this.height
+            'height': sampleHeight
         });
         /* Internal svg structure */
-        this.svgGroups[sample] = SVG.addChild(sampleMainSvg, 'svg', {
-            'class': 'features',
-            'x': -this.pixelPosition,
-            'width': this.svgCanvasWidth,
-            'height': this.height
+        _this.svgGroups[sample] = SVG.addChild(_this.sampleMainSvgs[sample], 'svg', {
+            'class': 'svgGroup',
+            'x': -_this.pixelPosition,
+            'width': _this.svgCanvasWidth,
+            'height': sampleHeight
         });
-        this.renderer.init(this.svgGroups[sample], sample);
+        _this.renderer.init(_this.svgGroups[sample], sample);
     }
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
-    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
+    this.updateHeight();
 };
 
 AlignmentTrack.prototype.draw = function () {
@@ -222,6 +270,8 @@ AlignmentTrack.prototype.dataReady = function (response) {
     var features;
     if (response.dataType == 'histogram') {
         _this.renderer = _this.histogramRenderer;
+        features = response.items;
+        debugger
     } else {
         _this.renderer = _this.defaultRenderer;
         // debugger

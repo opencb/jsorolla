@@ -306,18 +306,10 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
 //		}
     var maxWidth = width;
 
+//    console.log(args.svgCanvasFeatures);
+//    debugger
     var rowHeight = 12;
-    var rowsStart = 70;
-    var rowsHeight = 120;
-    var rowY = rowsStart;
-    for (var sample = 0; sample < this.samples.length; sample++) {
-        if (this.samples[sample] == args.sample) {
-            break;
-        } else {
-            rowY += rowsHeight;
-        }
-    }
-//    var rowY = 70;
+    var rowY = 70;
 //		var textY = 12+settings.height;
     while (true) {
         if (args.renderedArea[rowY] == null) {
