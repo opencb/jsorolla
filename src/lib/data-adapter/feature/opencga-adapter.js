@@ -107,7 +107,8 @@ OpencgaAdapter.prototype = {
                         sid: _this.sid, //TODO add sid to queryParams; resolved isn't it?
                         region: queryRegion.toString(),
                         interval: args.params.interval,
-                        histogram: (dataType == 'histogram')
+                        histogram: (dataType == 'histogram'),
+                        process_differences: false
                     },
                     request: {
                         success: function (response) {

@@ -97,10 +97,18 @@ AlignmentTrack.prototype.updateHeight = function () {
 };
 
 AlignmentTrack.prototype.clean = function () {
-    //TODO if needed
-
-
     this._clean();
+
+    console.time("-----------------------------------------empty");
+    for (var i = 0; i < this.samples.length; i++) {
+        var svgCanvasFeatures = this.svgGroups[this.samples[i]];
+        while (svgCanvasFeatures.firstChild) {
+            svgCanvasFeatures.removeChild(svgCanvasFeatures.firstChild);
+        }
+        this.renderedArea[this.samples[i]] = {};
+        this.renderer.init(svgCanvasFeatures, this.samples[i]);
+    }
+    console.timeEnd("-----------------------------------------empty");
 };
 
 AlignmentTrack.prototype.render = function (targetId) {
@@ -130,8 +138,8 @@ AlignmentTrack.prototype.render = function (targetId) {
         _this.svgGroups[sample] = SVG.addChild(_this.sampleMainSvgs[sample], 'svg', {
             'class': 'svgGroup',
             'x': -_this.pixelPosition,
-            'width': _this.svgCanvasWidth,
-            'height': sampleHeight
+            'width': _this.svgCanvasWidth
+//            'height': sampleHeight
         });
         _this.renderer.init(_this.svgGroups[sample], sample);
     }
@@ -186,7 +194,6 @@ AlignmentTrack.prototype.draw = function () {
     } else {
         this.invalidZoomText.setAttribute("visibility", "visible");
     }
-    _this.updateHeight();
 };
 
 
@@ -283,7 +290,7 @@ AlignmentTrack.prototype.dataReady = function (response) {
     _this.renderer.render(features, {
         svgCanvasFeatures: _this.svgGroups[response.category],
         featureTypes: _this.featureTypes,
-        renderedArea: _this.renderedArea,
+        renderedArea: _this.renderedArea[response.category],
         pixelBase: _this.pixelBase,
         position: _this.region.center(),
         regionSize: _this.region.length(),
@@ -314,6 +321,7 @@ AlignmentTrack.prototype.getFeaturesToRenderByChunk = function (response, filter
     var chunksToRender = [];
     var features = [];
 
+    debugger
     var feature, displayed, featureFirstChunk, featureLastChunk;
     for (var i = 0, leni = chunks.length; i < leni; i++) {
         if (this.chunksDisplayed[response.category + "_" + chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
