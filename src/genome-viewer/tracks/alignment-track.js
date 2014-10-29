@@ -60,7 +60,6 @@ AlignmentTrack.prototype.updateHeight = function () {
         return;
     }
     */
-    console.log("alignmentTrack::updateHeight: this.height = " + this.height);
 
     $(this.contentDiv).css({'height': this.height});
     var sampleHeight = this.height/this.samples.length;
@@ -72,28 +71,41 @@ AlignmentTrack.prototype.updateHeight = function () {
         var renderedHeight = this.svgGroups[sample].getBoundingClientRect().height;
         this.sampleMainSvgs[sample].setAttribute('height', renderedHeight);
     }
-    /*
 
-    if (this.resizable) {   // TODO auto update on resize
-        if (this.autoHeight == false) {
-            $(this.contentDiv).css({'height': this.height});
-        } else if (this.autoHeight == true) {
-            var x = this.pixelPosition;
-            var width = this.width;
-            var lastContains = 0;
-            for (var i in this.renderedArea) {
-                if (this.renderedArea[i].contains({start: x, end: x + width })) {
-                    lastContains = i;
+
+    if (this.resizable) {
+        if (this.autoHeight == true) {
+            var heightSum = 0;
+            for (var k = 0; k < this.samples.length; k++) {
+                var sample = this.samples[k];
+                /*
+                var x = this.pixelPosition;
+                var width = this.width;
+                var lastContains = 0;
+                for (var i in this.renderedArea[sample]) {
+                    if (this.renderedArea[sample][i].contains({start: x, end: x + width })) {
+                        lastContains = k;
+                    }
                 }
+                var visibleHeight = parseInt(lastContains) + 30;
+//                this.sampleMainSvgs[sample].setAttribute('height', visibleHeight);
+                heightSum += visibleHeight;
+                */
+
+                var renderedHeight = this.svgGroups[sample].getBoundingClientRect().height;
+                if (renderedHeight > 200) {
+                    renderedHeight = 200;
+                }
+                $(this.sampleDivs[sample]).css({'height': renderedHeight});
+                heightSum += renderedHeight;
+
             }
-            var visibleHeight = parseInt(lastContains) + 30;
-            $(this.contentDiv).css({'height': visibleHeight + 5});
-            this.main.setAttribute('height', visibleHeight);
+            $(this.contentDiv).css({'height': heightSum + 5});
         }
     }
 
 //    this._updateHeight();
-*/
+
 };
 
 AlignmentTrack.prototype.clean = function () {
@@ -117,12 +129,11 @@ AlignmentTrack.prototype.render = function (targetId) {
 
 //    this.contentDiv; //TODO create custom dom structure inside
 
-    console.log("alignmenttrack.render");
     var sampleHeight = this.height/this.samples.length;
     for (var i = 0; i < this.samples.length; i++) {
         var sample = this.samples[i];
 //        this.sampleDivs[sample] = $('<div id="' + sample + '-svgdiv" style="height:' + sampleHeight + 'px"></div>')[0];
-        _this.sampleDivs[sample] = $('<div id="' + sample + '-svgdiv"></div>')[0];
+        _this.sampleDivs[sample] = $('<div id="' + sample + '-svgdiv" style="overflow-y: scroll"></div>')[0];
 
         // TODO test $(this.contentDiv).css({'height': this.height});
         $(_this.contentDiv).append(_this.sampleDivs[sample]);
@@ -321,7 +332,6 @@ AlignmentTrack.prototype.getFeaturesToRenderByChunk = function (response, filter
     var chunksToRender = [];
     var features = [];
 
-    debugger
     var feature, displayed, featureFirstChunk, featureLastChunk;
     for (var i = 0, leni = chunks.length; i < leni; i++) {
         if (this.chunksDisplayed[response.category + "_" + chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it

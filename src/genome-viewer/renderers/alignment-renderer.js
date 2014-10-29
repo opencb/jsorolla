@@ -163,17 +163,19 @@ AlignmentRenderer.prototype._drawCoverage = function (chunk, args) {
     var baseMid = (args.pixelBase / 2) - 0.5;//4.5 cuando pixelBase = 10
 
     var x, y, p = parseInt(start);
-    //var lineAll = "";
+    var lineAll = "";
     var lineA = "", lineC = "", lineG = "", lineT = "";
     var coverageNorm = 200, covHeight = 50;
+
+    var logToPixel = covHeight / (Math.log(coverageNorm) + 1);
 
     for (var i = 0; i < coverageList.length; i++) {
         //x = _this.pixelPosition+this.middle-((_this.position-p)*_this.pixelBase)+baseMid;
         x = args.pixelPosition + this.middle - ((args.position - p) * args.pixelBase);
         xx = args.pixelPosition + this.middle - ((args.position - p) * args.pixelBase) + args.pixelBase;
-
-//            lineAll += x + "," + coverageList[i] / coverageNorm * covHeight + " ";
-//            lineAll += xx + "," + coverageList[i] / coverageNorm * covHeight + " ";
+/*
+        lineAll += x + "," + coverageList[i] / coverageNorm * covHeight + " ";
+        lineAll += xx + "," + coverageList[i] / coverageNorm * covHeight + " ";
         lineA += x + "," + coverageListA[i] / coverageNorm * covHeight + " ";
         lineA += xx + "," + coverageListA[i] / coverageNorm * covHeight + " ";
         lineC += x + "," + (coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
@@ -182,7 +184,28 @@ AlignmentRenderer.prototype._drawCoverage = function (chunk, args) {
         lineG += xx + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
         lineT += x + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
         lineT += xx + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) / coverageNorm * covHeight + " ";
+*/
 
+        var coverageLogarithm;
+        var combinedCoveragePixels;
+        var coverageToPixels;
+        if (coverageList[i] != 0) {
+            coverageLogarithm = Math.log(coverageList[i])+1;
+            combinedCoveragePixels = coverageLogarithm * logToPixel;
+            coverageToPixels = combinedCoveragePixels / coverageList[i];
+        } else {
+            coverageToPixels = 0;
+        }
+        lineAll += x + "," + combinedCoveragePixels + " ";
+        lineAll += xx + "," + combinedCoveragePixels + " ";
+        lineA += x + "," + coverageListA[i] * coverageToPixels + " ";
+        lineA += xx + "," + coverageListA[i] * coverageToPixels + " ";
+        lineC += x + "," + (coverageListC[i] + coverageListA[i]) * coverageToPixels + " ";
+        lineC += xx + "," + (coverageListC[i] + coverageListA[i]) * coverageToPixels + " ";
+        lineG += x + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) * coverageToPixels + " ";
+        lineG += xx + "," + (coverageListG[i] + coverageListC[i] + coverageListA[i]) * coverageToPixels + " ";
+        lineT += x + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) * coverageToPixels + " ";
+        lineT += xx + "," + (coverageListT[i] + coverageListG[i] + coverageListC[i] + coverageListA[i]) * coverageToPixels + " ";
         p++;
     }
 
@@ -273,6 +296,10 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
     var start = feature.unclippedStart;
     var end = feature.unclippedEnd;
     var length = (end - start) + 1;
+    if (end == 0) { // TODO better if flag&4 == true; i.e. read unmapped
+//        console.log("code smell: AlignmentRenderer.draw: alignment ends in position 0?", feature);
+        length = feature.length;
+    }
     var diff = feature.diff;
 
     //get feature render configuration
@@ -285,6 +312,7 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
     var strand = _.isFunction(_this.strand) ? _this.strand(feature) : _this.strand;
     var mateUnmappedFlag = _.isFunction(_this.mateUnmappedFlag) ? _this.mateUnmappedFlag(feature) : _this.mateUnmappedFlag;
     var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
+//    var unmappedFlag
 
     if (this.insertSizeMin != 0 && this.insertSizeMax != 0 && !mateUnmappedFlag) {
         if (Math.abs(feature.inferredInsertSize) > this.insertSizeMax) {
@@ -309,7 +337,7 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
 //    console.log(args.svgCanvasFeatures);
 //    debugger
     var rowHeight = 12;
-    var rowY = 70;
+    var rowY = 50;
 //		var textY = 12+settings.height;
     while (true) {
         if (args.renderedArea[rowY] == null) {
@@ -430,7 +458,7 @@ AlignmentRenderer.prototype._drawPairedReads = function (read, mate, args) {
     var mateX = _this.pixelPosition + this.middle - ((_this.position - mateStart) * _this.pixelBase);
 
     var rowHeight = 12;
-    var rowY = 70;
+    var rowY = 50;
 //		var textY = 12+settings.height;
 
     while (true) {
