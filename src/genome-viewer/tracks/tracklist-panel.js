@@ -786,9 +786,7 @@ TrackListPanel.prototype = {
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
             $(track.div).detach();
-            if (track.visible) {
-                $(this.tlTracksDiv).append(track.div);
-            }
+            $(this.tlTracksDiv).append(track.div);
         }
     },
     removeTrack: function (track) {

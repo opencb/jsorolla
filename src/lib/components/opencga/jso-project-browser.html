@@ -10,17 +10,16 @@
 <link rel="stylesheet" href="../jso-style.css">
 <style>
     :host {
+        position: relative;
+        display: block;
+        color: #444;
+        background-color: #ffffff;
         font-size: 16px;
         cursor: default;
-
-        display: block;
-        position: relative;
-        color: #444;
     }
 
-    #main {
-        height: 100%;
-        background-color: #ffffff;
+    #main{
+        height:100%;
     }
 
     #bar {
@@ -189,49 +188,47 @@
 
     <div horizontal layout flex>
         <div id="navigation" on-click="{{handleNavigationClick}}">
-            <form>
-                <div class="navigation-title">Main</div>
-                <div class="navigation-item" data-content="browse" data-selected="{{selectedOption == 'browse'}}">
-                    <font-awesome icon="folder-open-o"></font-awesome>
-                    &nbsp; Projects
-                </div>
-                <!--<div class="navigation-item" data-content="browseStudies" data-selected="{{selectedOption == 'browseStudies'}}">-->
-                <!--<font-awesome icon="bar-chart-o"></font-awesome>&nbsp; Studies-->
-                <!--</div>-->
-                <br>
+            <div class="navigation-title">Main</div>
+            <div class="navigation-item" data-content="browse" data-selected="{{selectedOption == 'browse'}}">
+                <font-awesome icon="folder-open-o"></font-awesome>
+                &nbsp; Projects
+            </div>
+            <!--<div class="navigation-item" data-content="browseStudies" data-selected="{{selectedOption == 'browseStudies'}}">-->
+            <!--<font-awesome icon="bar-chart-o"></font-awesome>&nbsp; Studies-->
+            <!--</div>-->
+            <br>
 
-                <div class="navigation-title">Actions</div>
-                <div class="navigation-item" data-content="createProject"
-                     data-selected="{{selectedOption == 'createProject'}}">
-                    <font-awesome icon="folder-o"></font-awesome>
-                    &nbsp; Create project
-                </div>
+            <div class="navigation-title">Actions</div>
+            <div class="navigation-item" data-content="createProject"
+                 data-selected="{{selectedOption == 'createProject'}}">
+                <font-awesome icon="folder-o"></font-awesome>
+                &nbsp; Create project
+            </div>
 
-                <div class="navigation-item" data-content="createStudy"
-                     data-selected="{{selectedOption == 'createStudy'}}">
-                    <font-awesome icon="pie-chart"></font-awesome>
-                    &nbsp; Create study
-                </div>
+            <div class="navigation-item" data-content="createStudy"
+                 data-selected="{{selectedOption == 'createStudy'}}">
+                <font-awesome icon="pie-chart"></font-awesome>
+                &nbsp; Create study
+            </div>
 
-                <div class="navigation-item" data-content="createExperiment"
-                     data-selected="{{selectedOption == 'createExperiment'}}">
-                    <font-awesome icon="flask"></font-awesome>
-                    &nbsp; Create experiment
-                </div>
+            <div class="navigation-item" data-content="createExperiment"
+                 data-selected="{{selectedOption == 'createExperiment'}}">
+                <font-awesome icon="flask"></font-awesome>
+                &nbsp; Create experiment
+            </div>
 
 
-                <div class="navigation-item" data-content="runAnalysis"
-                     data-selected="{{selectedOption == 'runAnalysis'}}">
-                    <font-awesome icon="cogs"></font-awesome>
-                    &nbsp; Run analysis
-                </div>
+            <div class="navigation-item" data-content="runAnalysis"
+                 data-selected="{{selectedOption == 'runAnalysis'}}">
+                <font-awesome icon="cogs"></font-awesome>
+                &nbsp; Run analysis
+            </div>
 
-                <div class="navigation-item" data-content="uploadFile"
-                     data-selected="{{selectedOption == 'uploadFile'}}">
-                    <font-awesome icon="cloud-upload"></font-awesome>
-                    &nbsp; Upload file
-                </div>
-            </form>
+            <div class="navigation-item" data-content="uploadFile"
+                 data-selected="{{selectedOption == 'uploadFile'}}">
+                <font-awesome icon="cloud-upload"></font-awesome>
+                &nbsp; Upload file
+            </div>
         </div>
         <div id="content" horizontal layout flex>
 
@@ -337,6 +334,7 @@
             } else {
                 this.selectedProject = e.target.project;
             }
+            this.selectedStudy = null;
         },
         handleStudyClick: function (e) {
             if (this.selectedStudy === e.target.study) {

@@ -1,4 +1,4 @@
-<polymer-element name="jso-login" attributes="selectedOption">
+<polymer-element name="jso-remember">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -62,34 +62,20 @@
             .message {
                 margin-top: 20px;
             }
-
-            #remember {
-                text-align: right;
-                color: #666;
-                cursor:pointer;
-            }
-
-            #remember:hover {
-                color: #445D76;
-                text-decoration: underline;
-            }
         </style>
         <div class="title">
             <div>
-                Log in with your user
+                Remember password
             </div>
             <div class="icon">
-                <font-awesome icon="sign-in"></font-awesome>
+                <font-awesome icon="life-ring"></font-awesome>
             </div>
         </div>
         <form id="form" vertical layout on-keypress="{{handleFormKey}}">
-            <label>User</label> <input type="text" id="user" value="{{user}}" required pattern="[a-zA-Z0-9]+">
-            <label>Password</label> <input type="password" id="password" value="{{password}}" required
-                                           pattern="[a-zA-Z0-9]+">
+            <label>User ID</label> <input type="text" id="user" value="{{user}}" required pattern="[a-zA-Z0-9]+">
+            <label>e-mail</label> <input type="email" id="email" value="{{email}}" required>
 
-            <div id="remember" on-click="{{handleRemember}}">Remember password...</div>
-
-            <div class="button" on-click="{{handleForm}}">Log in</div>
+            <div class="button" on-click="{{handleForm}}">Send email with new password</div>
         </form>
         <div class="message">{{message}}</div>
     </template>
@@ -98,39 +84,30 @@
         Polymer({
             created: function () {
                 this.user;
-                this.password;
+                this.email;
             },
             handleFormKey: function (e) {
                 if (e.which == 13) {
                     this.handleForm();
                 }
             },
-            handleRemember: function (e) {
-                this.selectedOption = "rememberpassword";
-            },
             handleForm: function (e) {
                 var me = this;
                 this.message = '';
 
-                if (this.$.form.checkValidity()) {
-
-                    OpencgaManager.users.login({
+                if (this.$.form.checkValidity() && (this.password === this.check)) {
+                    OpencgaManager.users.resetPassword({
                         id: this.user,
                         query: {
-                            password: CryptoJS.SHA1(this.password).toString()
+                            email: this.email
                         },
                         request: {
                             success: function (response) {
-                                console.log(response);
                                 if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                    Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
-                                    Cookies.set('bioinfo_user', response.response[0].result[0].userId);
-                                    me.fire('login', {status: true});
+                                    var userId = response.response[0].result[0].id;
+                                    me.message = 'An email was sent with a new password';
                                 } else {
                                     me.message = response.response[0].errorMsg;
-                                    //Delete all cookies
-                                    Cookies.expire('bioinfo_sid');
-                                    Cookies.expire('bioinfo_user');
                                 }
                             },
                             error: function () {
