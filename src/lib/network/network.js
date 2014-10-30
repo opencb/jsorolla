@@ -42,7 +42,7 @@ function Network(args) {
         {name: "Relation", type: "string", defaultValue: "none"}
     ];
 
-    this.vertexAttributeManager = new AttributeManagerStore({
+    this.vertexAttributeManager = new AttributeManagerMemory({
         attributes: vertexAttributes,
         handlers: {
             'change:attributes': function (e) {
@@ -50,7 +50,7 @@ function Network(args) {
             }
         }
     });
-    this.edgeAttributeManager = new AttributeManagerStore({
+    this.edgeAttributeManager = new AttributeManagerMemory({
         attributes: edgeAttributes,
         handlers: {
             'change:attributes': function (e) {
@@ -281,6 +281,10 @@ Network.prototype = {
         });
     },
     setVertexLabel: function (vertex, label) {
+        if (typeof vertex !== 'undefined') {
+            var vertexConfig = this.getVertexConfig(vertex);
+            vertexConfig.renderer.setLabelContent(label);
+        }
         this.vertexAttributeManager.setRecordAttributeById(vertex.id, 'Name', label);
     },
     setVertexLabelByAttribute: function (attributeName) {
@@ -298,6 +302,10 @@ Network.prototype = {
         }
     },
     setEdgeLabel: function (edge, label) {
+        if (typeof edge !== 'undefined') {
+            var edgeConfig = this.getEdgeConfig(edge);
+            edgeConfig.renderer.setLabelContent(label);
+        }
         this.edgeAttributeManager.setRecordAttributeById(edge.id, 'Name', label);
     },
     setEdgeLabelByAttribute: function (attributeName) {

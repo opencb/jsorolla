@@ -94,7 +94,9 @@ DefaultEdgeRenderer.prototype = {
         this._render();
     },
     remove: function () {
-        $(this.el).remove();
+        if (this.el && this.el.parentNode) {
+            this.el.parentNode.removeChild(this.el);
+        }
     },
     update: function () {
         this.edgeEl.setAttribute('stroke', this.color);
@@ -125,7 +127,7 @@ DefaultEdgeRenderer.prototype = {
     },
     setLabelContent: function (text) {
         this.labelText = text;
-        var textSvg = $(this.el).find('text[network-type="edge-label"]')[0];
+        var textSvg = this.el.querySelector('text[network-type="edge-label"]');
         var label = '';
         if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
             label = this.labelText;

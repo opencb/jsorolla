@@ -50,8 +50,9 @@ label.button > input[type=checkbox] + span {
 }
 
 div.button:hover {
-    border-color: #66afe9;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+    background-color: #ebebeb;
+    /*border-color: #66afe9;*/
+    /*box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);*/
 }
 
 div.action {
@@ -67,6 +68,7 @@ div.action:active {
     background-color: #d1d9e3;
 }
 
+div.button[data-checked=true],
 label.button > input[type=radio]:checked + span,
 label.button > input[type=checkbox]:checked + span {
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
@@ -141,7 +143,7 @@ div.dropdown ul, ul.context {
     background-color: #fff;
     line-height: 22px;
     min-width: 100px;
-    width: 100%;
+    /*width: 100%;*/
     margin: 1px 0 0 0;
     padding: 5px 0;
     box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
@@ -209,6 +211,10 @@ div.dropdown ul li[data-text]:hover,
 ul.context li[data-text]:hover {
     background-color: inherit;
     color: inherit;
+}
+div.dropdown ul li[data-divider]:hover,
+ul.context li[data-divider]:hover {
+    background-color: #DEDEDE;
 }
 
 div.dropdown > div.button:focus + ul,

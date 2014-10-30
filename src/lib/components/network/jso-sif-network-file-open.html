@@ -1,0 +1,131 @@
+<!--<link rel="import" href="../../../../bower_components/aha-table/dist/aha-table.html">-->
+<polymer-element name="jso-sif-network-file-open" attributes="">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
+
+                z-index: 50000;
+                top: 170px;
+
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+
+                width: 500px;
+                border: 0px solid #c6d0da;
+                border-width: 1px;
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            div.button {
+                height: 40px;
+                line-height: 40px;
+                margin-top: 30px;
+                text-align: center;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+        </style>
+
+        <form id="form" vertical layout>
+            <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+
+
+
+            <div class="button action" on-click="{{handleForm}}">OK</div>
+            <div class="button action" on-click="{{}}">Close</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.fileName = 'Choose file...';
+                this.message = '';
+            },
+            handleBrowseClick: function (e) {
+                this.$.fileInput.click();
+            },
+            handleInputChange: function (e) {
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name
+            },
+            handleForm: function (e) {
+                var me = this;
+                this.message = '';
+
+                if (this.$.form.checkValidity()) {
+                    var inputFile = this.$.fileInput.files[0];
+
+                    this.dataAdapter = new SIFNetworkDataAdapter({
+                        dataSource: new FileDataSource({file: inputFile}),
+                        handlers: {
+                            'data:load': function (event) {
+                                me.processData(event.graph);
+                            },
+                            'error:parse': function (event) {
+                                _this.infoLabel.setText('<span class="err">' + event.errorMsg + '</span>', false);
+                                _this.panel.setLoading(false);
+                            }
+                        }
+                    });
+                }
+            },
+            processData: function (graph) {
+                try {
+                    this.content = graph; //para el onOK.notify event
+                    var verticesLength = graph.vertices.length;
+                    var edgesLength = graph.edges.length;
+
+                    var edges = graph.edges;
+                    var storeData = [];
+                    for (var i = 0; i < edges.length; i++) {
+                        var edge = edges[i];
+                        storeData.push([edge.source.id, edge.relation, edge.target.id]);
+                    }
+                    this.gridStore.loadData(storeData);
+
+                    this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>', false);
+                    this.countLabel.setText('Vertices:<span class="info">' + verticesLength + '</span> edges:<span class="info">' + edgesLength + '</span>', false);
+
+                } catch (e) {
+                    this.infoLabel.setText('<span class="err">File not valid </span>' + e, false);
+                }
+                this.panel.setLoading(false);
+            }
+        });
+    </script>
+</polymer-element>
