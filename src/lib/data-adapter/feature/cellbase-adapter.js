@@ -126,7 +126,7 @@ CellBaseAdapter.prototype = {
                 if (args.webServiceCallCount === 0) {
                     args.done();
                 }
-                _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                _this.trigger('data:ready', {items: cachedChunks[category], dataType: dataType, chunkSize: chunkSize, sender: _this});
 //                args.dataReady({items: cachedChunks[category], dataType: dataType, chunkSize: chunkSize, sender: _this});
             }
         });

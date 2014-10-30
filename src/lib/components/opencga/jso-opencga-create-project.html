@@ -20,13 +20,6 @@
 
             .action {
                 margin-top: 30px;
-                background-color: #f5f5f5 !important;
-                text-align: center;
-            }
-
-            .action:active {
-                background-color: #445D76 !important;
-                color: #fff !important;
             }
 
             .message {
@@ -37,8 +30,10 @@
         <form id="form" vertical layout>
             <label>Name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9\s]+">
             <label>Alias</label> <input type="text" id="alias" value="{{alias}}" required pattern="[a-zA-Z0-9]+">
-            <label>Description</label> <input type="text" id="description" value="{{description}}" required pattern="[a-zA-Z0-9\s]+">
-            <label>Organization</label> <input type="text" id="organization" value="{{organization}}" required pattern="[a-zA-Z0-9\s]+">
+            <label>Description</label> <input type="text" id="description" value="{{description}}" required
+                                              pattern="[a-zA-Z0-9\s]+">
+            <label>Organization</label> <input type="text" id="organization" value="{{organization}}" required
+                                               pattern="[a-zA-Z0-9\s]+">
 
             <div class="button action" on-click="{{handleForm}}">Create</div>
         </form>
