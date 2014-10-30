@@ -30,6 +30,7 @@ function OpencgaAdapter(args) {
     this.on(this.handlers);
 
     this.cache = new FeatureChunkCache(this.cacheConfig);
+    this.minChunkSize = 200;
 }
 
 OpencgaAdapter.prototype = {
@@ -57,6 +58,12 @@ OpencgaAdapter.prototype = {
 
         /** 4 chunkSize check **/
         var chunkSize = args.params.interval ? args.params.interval : this.cacheConfig.defaultChunkSize;
+        if (chunkSize % this.minChunkSize != 0) {
+            chunkSize = Math.round(chunkSize / this.minChunkSize) * this.minChunkSize;  // round to this.minChunkSize multiple.
+        }
+        if (chunkSize <= 0) {
+            chunkSize = this.minChunkSize;
+        }
 
         /* TODO remove??????
          var params = {
@@ -106,7 +113,7 @@ OpencgaAdapter.prototype = {
                     query: {
                         sid: _this.sid, //TODO add sid to queryParams; resolved isn't it?
                         region: queryRegion.toString(),
-                        interval: args.params.interval,
+                        interval: chunkSize,
                         histogram: (dataType == 'histogram'),
                         process_differences: false
                     },
@@ -139,23 +146,24 @@ OpencgaAdapter.prototype = {
 
     _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
         args.webServiceCallCount--;
-        var timeId = this.resource + " save " + data.response.length + " regions";
+        var timeId = this.resource + " save " + data.response.length + " samples";
         console.time(timeId);
         /** time log **/
 
         if (categories.length != data.response.length) {
             console.log("ERROR: requested " + categories.length + "samples, but response has " + data.response.length);
             console.log(data);
-            debugger;
+//            debugger;
         }
 
         if (data.response[0] && data.response[0].result[0]) {
-            var inferredChunkSize = data.response[0].result[0].end - data.response[0].result[0].start;
+            var inferredChunkSize = data.response[0].result[0].end - data.response[0].result[0].start +1;
             if (inferredChunkSize != chunkSize) {
                 console.log("code smell: chunkSize requested: " + chunkSize + ", but obtained: " + inferredChunkSize);
 //                chunkSize = inferredChunkSize;
             }
         }
+//        debugger
 
         var chunks;
         var regions;

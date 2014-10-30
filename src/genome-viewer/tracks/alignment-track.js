@@ -32,7 +32,8 @@ function AlignmentTrack(args) {
     //save default render reference;
     this.defaultRenderer = this.renderer;
 //    this.histogramRenderer = new FeatureClusterRenderer();
-    this.histogramRenderer = new HistogramRenderer(args);
+    this.histogramRenderer = new HistogramRenderer(_.extend({histogramMaxFreqValue: 200,
+        height: args.height/args.samples.length}, args));
 
     this.featureType = 'Feature';
     this.samples = [];
@@ -53,16 +54,20 @@ function AlignmentTrack(args) {
 
 AlignmentTrack.prototype.updateHeight = function () {
     //TODO if needed
-/*
-    if (this.histogram) {
-        $(this.contentDiv).css({'height': this.histogramRenderer.histogramHeight + 5});
-        this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
-        return;
-    }
-    */
 
     $(this.contentDiv).css({'height': this.height});
     var sampleHeight = this.height/this.samples.length;
+
+    if (this.histogram) {
+        for (var j = 0; j < this.samples.length; j++) {
+            var sample = this.samples[j];
+//        $(this.contentDiv).css({'height': this.histogramRenderer.histogramHeight + 5});
+            $(this.sampleDivs[sample]).css({'height': sampleHeight});
+            this.sampleMainSvgs[sample].setAttribute('height', this.histogramRenderer.histogramHeight);
+            this.svgGroups[sample].setAttribute('height', this.histogramRenderer.histogramHeight);
+        }
+        return;
+    }
 
     for (var j = 0; j < this.samples.length; j++) {
         var sample = this.samples[j];
@@ -118,7 +123,8 @@ AlignmentTrack.prototype.clean = function () {
             svgCanvasFeatures.removeChild(svgCanvasFeatures.firstChild);
         }
         this.renderedArea[this.samples[i]] = {};
-        this.renderer.init(svgCanvasFeatures, this.samples[i]);
+
+        this.defaultRenderer.init(svgCanvasFeatures, this.samples[i]);
     }
     console.timeEnd("-----------------------------------------empty");
 };
@@ -289,7 +295,7 @@ AlignmentTrack.prototype.dataReady = function (response) {
     if (response.dataType == 'histogram') {
         _this.renderer = _this.histogramRenderer;
         features = response.items;
-        debugger
+//        debugger
     } else {
         _this.renderer = _this.defaultRenderer;
         // debugger
@@ -300,7 +306,7 @@ AlignmentTrack.prototype.dataReady = function (response) {
 //    _this.renderer.render(response, {
     _this.renderer.render(features, {
         svgCanvasFeatures: _this.svgGroups[response.category],
-        featureTypes: _this.featureTypes,
+        featureTypes: _this.featureTypes,   // FIXME
         renderedArea: _this.renderedArea[response.category],
         pixelBase: _this.pixelBase,
         position: _this.region.center(),
@@ -310,8 +316,9 @@ AlignmentTrack.prototype.dataReady = function (response) {
         pixelPosition: _this.pixelPosition,
         resource: _this.resource,
         species: _this.species,
-        featureType: _this.featureType,
-        sample: response.category
+        featureType: _this.featureType, // FIXME
+        sample: response.category,
+        height: _this.sampleDivs[response.category].offsetHeight
         //, params: response.params
     });
     _this.updateHeight();

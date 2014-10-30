@@ -134,7 +134,7 @@ CellBaseAdapter.prototype = {
 
     _cellbaseSuccess: function (data, categories, dataType, chunkSize, args) {
         args.webServiceCallCount--;
-        var timeId = Utils.randomString(4) + this.resource + " save " + timeId;
+        var timeId = Utils.randomString(4) + this.resource + " save";
         console.time(timeId);
         /** time log **/
 
