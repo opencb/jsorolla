@@ -167,7 +167,11 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'files', 'delete');
         }
     },
-
+    jobs: {
+        run: function (args) {
+            return OpencgaManager._doRequest(args, 'jobs', 'run');
+        }
+    },
     _url: function (args, api, action) {
         var host = OpencgaManager.host;
         if (typeof args.request.host !== 'undefined' && args.request.host != null) {
