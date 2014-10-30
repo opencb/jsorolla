@@ -115,7 +115,7 @@ IndexedDBStore.prototype = {
                         }
                     };
 
-                    if (!dbConnection.objectStoreNames.contains(objectStoreName)) {
+                    if (objectStoreName != "" && !dbConnection.objectStoreNames.contains(objectStoreName)) {
                         iDBVersion = Math.max(iDBVersion, dbConnection.version) + 1;
                         dbConnection.close();
                         dbConnection.closed = true;
@@ -192,6 +192,13 @@ IndexedDBStore.prototype = {
             req.onsuccess = function (event) {
                 callback(event.target.result);
             }
+        });
+    },
+
+    getObjectStoreNames: function (callback) {
+        var _this = this;
+        _this._getConnection("", function(dbConnection){
+            callback(dbConnection.objectStoreNames);
         });
     },
 
