@@ -20,6 +20,7 @@ var iDBVersion = 1;
 function IndexedDBStore(args) {
     var _this = this;
     this.debug = false;
+    this.profile = false;
 //debugger
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
@@ -170,7 +171,7 @@ IndexedDBStore.prototype = {
         _this._getConnection(objectStoreName, function(dbConnection){
             var transaction = dbConnection.transaction([objectStoreName], "readwrite");
             transaction.oncomplete = function(event) {
-                console.log("IndexedDB clear success!");
+                console.log("IndexedDB " + _this.cacheId + ", " + objectStoreName + " clear success!");
             };
             var objectStore = transaction.objectStore(objectStoreName);
             var req = objectStore.clear();
@@ -284,7 +285,7 @@ IndexedDBStore.prototype = {
     getAll: function(objectStoreName, keyArray, callback) {
         var _this = this;
         var timeId;
-        if (_this.debug) {
+        if (_this.profile || _this.debug) {
             timeId = "IndexedDBStore.getAll " + objectStoreName + ", with " + keyArray.length + " keys.";
             console.time(timeId);
         }
@@ -297,7 +298,7 @@ IndexedDBStore.prototype = {
         _this._getConnection(objectStoreName, function (dbConnection) {
             var transaction = dbConnection.transaction([objectStoreName], "readonly");
             transaction.oncomplete = function(event) {
-                if (_this.debug) {
+                if (_this.profile || _this.debug) {
                     console.timeEnd(timeId);
                 }
                 dbConnection.close();
@@ -334,7 +335,7 @@ IndexedDBStore.prototype = {
         }
         var _this = this;
         var timeId;
-        if (_this.debug) {
+        if (_this.profile || _this.debug) {
             timeId = "IndexedDBStore.getAll " + objectStoreName + ", with " + keyArray.length + " keys.";
             console.time(timeId);
         }
@@ -343,6 +344,9 @@ IndexedDBStore.prototype = {
             var transaction = dbConnection.transaction([objectStoreName], "readonly");
             transaction.oncomplete = function(event) {
                 dbConnection.close();
+                if (_this.profile || _this.debug) {
+                    console.timeEnd(timeId);
+                }
                 if (whenCompletedCallback) {
                     whenCompletedCallback();
                 }
@@ -412,7 +416,7 @@ IndexedDBStore.prototype = {
     putAll: function(objectStoreName, keyArray, valueArray) {
         var _this = this;
         var timeId;
-        if (_this.debug) {
+        if (_this.profile || _this.debug) {
             timeId = "IndexedDBStore.putAll " + objectStoreName + ", with " + keyArray.length;
             console.time(timeId);
         }
@@ -425,7 +429,7 @@ IndexedDBStore.prototype = {
         _this._getConnection(objectStoreName, function(dbConnection) {
             var transaction = dbConnection.transaction([objectStoreName], "readwrite");
             transaction.oncomplete = function(event) {
-                if (_this.debug) {
+                if (_this.profile || _this.debug) {
                     console.timeEnd(timeId);
                 }
                 dbConnection.close();

@@ -32,8 +32,9 @@ function AlignmentTrack(args) {
     //save default render reference;
     this.defaultRenderer = this.renderer;
 //    this.histogramRenderer = new FeatureClusterRenderer();
-    this.histogramRenderer = new HistogramRenderer(_.extend({histogramMaxFreqValue: 200,
-        height: args.height/args.samples.length}, args));
+    var histogramArgs = _.extend({}, args);
+    this.histogramRenderer = new HistogramRenderer(_.extend(histogramArgs, {histogramMaxFreqValue: 200,
+        height: args.height/args.samples.length}));
 
     this.featureType = 'Feature';
     this.samples = [];
@@ -317,8 +318,8 @@ AlignmentTrack.prototype.dataReady = function (response) {
         resource: _this.resource,
         species: _this.species,
         featureType: _this.featureType, // FIXME
-        sample: response.category,
-        height: _this.sampleDivs[response.category].offsetHeight
+        sample: response.category
+//        height: _this.sampleDivs[response.category].offsetHeight
         //, params: response.params
     });
     _this.updateHeight();

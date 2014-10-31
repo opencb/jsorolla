@@ -296,7 +296,7 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
     var start = feature.unclippedStart;
     var end = feature.unclippedEnd;
     var length = (end - start) + 1;
-    if (end == 0) { // TODO better if flag&4 == true; i.e. read unmapped
+    if (end == 0 || Math.abs(length) > 2000) { // TODO better if flag&4 == true; i.e. read unmapped
 //        console.log("code smell: AlignmentRenderer.draw: alignment ends in position 0?", feature);
         length = feature.length;
     }
@@ -398,11 +398,11 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
             });
 
 
-//                $(featureGroup).click(function (event) {
-//                    console.log(feature);
+                $(featureGroup).click(function (event) {
+                    console.log(feature);
 //                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent: event})
-////                    _this.showInfoWidget({query: feature[settings.infoWidgetId], feature: feature, featureType: feature.featureType, adapter: _this.trackData.adapter});
-//                });
+//                    _this.showInfoWidget({query: feature[settings.infoWidgetId], feature: feature, featureType: feature.featureType, adapter: _this.trackData.adapter});
+                });
             break;
         }
         rowY += rowHeight;

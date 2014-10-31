@@ -70,7 +70,6 @@ HistogramRenderer.prototype.updateScale = function(args) {
     }
     //this.multiplier = 7;
     this.multiplier = this.histogramHeight / this.maxValue;
-    console.log(this.multiplier);
 };
 
 HistogramRenderer.prototype.render = function (features, args) {
@@ -78,7 +77,7 @@ HistogramRenderer.prototype.render = function (features, args) {
     console.log(middle);
     var points = '';
 
-//    this.updateScale(args);
+    this.updateScale(args);
 
     if (features.length > 0) {
         var firstFeature = features[0].value;
