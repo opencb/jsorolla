@@ -240,7 +240,7 @@ AttributeManagerMemory.prototype = {
     eachRecord: function (eachFunction) {
         for (var i = 0; i < this.items.length; i++) {
             var item = this.items[i];
-            if(items){
+            if (items) {
                 eachFunction(item);
             }
         }
@@ -320,7 +320,9 @@ AttributeManagerMemory.prototype = {
 //        }
     },
     clean: function () {
-//        this.attributes = [];
+        this.attributes = [];
+        this.items = [];
+        this.itemsIndex = {};
 //        this.columnsGrid = [];
 //        this.attributes = [];
 //        this.filters = {};

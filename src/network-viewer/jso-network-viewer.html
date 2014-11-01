@@ -104,7 +104,7 @@
 Polymer({
     created: function () {
         this.backgroundColor = "#FFFFFF";
-        this.mode = "add";
+        this.mode = "select";
         this.scale;
         this.tx;
         this.ty;
@@ -614,6 +614,12 @@ Polymer({
             default :
                 console.log(option + " not defined");
         }
+    },
+    setGraph: function (graph) {
+        this.$.networkLayout.clean();
+
+        this.network.setGraph(graph);
+        this.network.draw(this.$.networkLayout.$.scaleFrontGroup);
     },
     __iliketomoveit: function () {
         this.setLayout('Force directed (simulation)')

@@ -1,14 +1,14 @@
-<!--<link rel="import" href="../../../../bower_components/aha-table/dist/aha-table.html">-->
-<polymer-element name="jso-sif-network-file-open" attributes="">
+<polymer-element name="jso-sif-network-file-open" attributes="selectedMenu">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
         <style>
             :host {
                 display: block;
                 position: absolute;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
-                padding: 30px 100px;
+                padding: 20px 60px;
 
                 z-index: 50000;
                 top: 170px;
@@ -18,7 +18,7 @@
                 margin-left: auto;
                 margin-right: auto;
 
-                width: 500px;
+                width: 50vw;
                 border: 0px solid #c6d0da;
                 border-width: 1px;
                 /*border-top-width: 1px;*/
@@ -29,7 +29,9 @@
             .title {
                 text-align: center;
                 font-size: 25px;
-                color: #666;
+                /*color: #666;*/
+                padding-bottom: 20px;
+                color: #445D76;
             }
 
             .icon {
@@ -39,6 +41,7 @@
 
             label {
                 display: inline-block;
+                width: 100px;
                 color: #666;
                 margin-top: 10px;
             }
@@ -47,49 +50,84 @@
                 content: ':'
             }
 
-            div.button {
+            .message {
+            }
+
+            .bbar {
                 height: 40px;
-                line-height: 40px;
-                margin-top: 30px;
+                box-sizing: border-box;
+                margin-top: 10px;
+            }
+
+            .bbar > * {
+                width: 100px;
+                float: right;
+                margin-left: 10px;
                 text-align: center;
             }
 
-            .message {
-                margin-top: 20px;
+            #table {
+                overflow-y: auto;
+                height: 300px;
+                margin: 10px 0px;
+                border: 1px solid #d3d3d3;
+            }
+
+            div.button {
+                display: inline-block;
+                min-width: 200px;
             }
         </style>
 
-        <form id="form" vertical layout>
+        <form id="form">
+            <div class="title">
+                Import a network SIF file
+            </div>
+
+            <label>Select SIF file</label>
+
             <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
             <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
 
+            <sortable-table id="table">
+                <sortable-column>Source node</sortable-column>
+                <sortable-column>Relation</sortable-column>
+                <sortable-column>Target node</sortable-column>
+            </sortable-table>
 
-
-            <div class="button action" on-click="{{handleForm}}">OK</div>
-            <div class="button action" on-click="{{}}">Close</div>
+            <div class="message">{{message}}</div>
+            <div class="bbar">
+                <div class="button" on-click="{{handleCancel}}">Cancel</div>
+                <div class="button" on-click="{{handleOk}}">OK</div>
+            </div>
         </form>
-        <div class="message">{{message}}</div>
     </template>
     <script>
         Polymer({
             created: function () {
                 this.fileName = 'Choose file...';
-                this.message = '';
+                this.message = ' ';
+                this.graph;
+            },
+            handleOk: function () {
+                if (this.graph) {
+                    this.selectedMenu = '';
+                    this.fire('graph', {graph: this.graph});
+                }
+            },
+            handleCancel: function () {
+                this.selectedMenu = '';
             },
             handleBrowseClick: function (e) {
                 this.$.fileInput.click();
             },
             handleInputChange: function (e) {
-                var inputFile = this.$.fileInput.files[0];
-                this.fileName = inputFile.name
-            },
-            handleForm: function (e) {
                 var me = this;
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name;
                 this.message = '';
 
                 if (this.$.form.checkValidity()) {
-                    var inputFile = this.$.fileInput.files[0];
-
                     this.dataAdapter = new SIFNetworkDataAdapter({
                         dataSource: new FileDataSource({file: inputFile}),
                         handlers: {
@@ -97,8 +135,7 @@
                                 me.processData(event.graph);
                             },
                             'error:parse': function (event) {
-                                _this.infoLabel.setText('<span class="err">' + event.errorMsg + '</span>', false);
-                                _this.panel.setLoading(false);
+                                me.message = event.errorMsg;
                             }
                         }
                     });
@@ -106,25 +143,26 @@
             },
             processData: function (graph) {
                 try {
-                    this.content = graph; //para el onOK.notify event
+//                    this.content = graph; //para el onOK.notify event
                     var verticesLength = graph.vertices.length;
                     var edgesLength = graph.edges.length;
 
                     var edges = graph.edges;
-                    var storeData = [];
+                    var data = [];
                     for (var i = 0; i < edges.length; i++) {
                         var edge = edges[i];
-                        storeData.push([edge.source.id, edge.relation, edge.target.id]);
+                        data.push([edge.source.id, edge.relation, edge.target.id]);
                     }
-                    this.gridStore.loadData(storeData);
 
-                    this.infoLabel.setText('<span class="ok">File loaded sucessfully</span>', false);
-                    this.countLabel.setText('Vertices:<span class="info">' + verticesLength + '</span> edges:<span class="info">' + edgesLength + '</span>', false);
+                    this.$.table.data = data;
 
+                    this.message = 'File loaded sucessfully, Vertices:' + verticesLength + ', edges:' + edgesLength + '';
+
+                    this.graph = graph;
                 } catch (e) {
-                    this.infoLabel.setText('<span class="err">File not valid </span>' + e, false);
+                    this.message = 'File not valid. ';
+                    console.log(e)
                 }
-                this.panel.setLoading(false);
             }
         });
     </script>

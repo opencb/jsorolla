@@ -4,7 +4,7 @@
 <link rel="import" href="jso-remember.html">
 
 <polymer-element name="jso-header"
-                 attributes="description selectedOption userData title description options allowLogin">
+                 attributes="description selectedOption userData appTitle description options allowLogin">
 <template>
 <link rel="stylesheet" href="../jso-style.css">
 <style>
@@ -244,7 +244,7 @@ li.dropdown > div:focus ~ ul li:hover > ul {
     <!--<li id="appMenu" class="menu">&nbsp;<font-awesome icon="chevron-right"></font-awesome>&nbsp; <span class="">Menu</span>-->
     <!--</li>-->
     <li class="title" data-option="home" on-click="{{handleMenu}}">
-        {{title}}
+        {{appTitle}}
     </li>
     <!--<li class="" data-option="home" on-click="{{handleMenu}}">-->
     <!--Home-->
