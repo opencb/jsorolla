@@ -101,7 +101,7 @@ AlignmentRenderer.prototype.render = function (features, args) {
 
     var chunkList = features;
     this.middle = args.width /2;
-    args.aligCoverGroup = args.svgCanvasFeatures.children[0];
+    args.aligCoverGroup = args.svgCanvasFeatures.children[0];   // FIXME can this fail?
     args.aligReadGroup = args.svgCanvasFeatures.children[1];
 
 

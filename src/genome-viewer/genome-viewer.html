@@ -95,6 +95,7 @@
     <script type="text/javascript" src="renderers/histogram-renderer.js"></script>
     <script type="text/javascript" src="renderers/gene-renderer.js"></script>
     <script type="text/javascript" src="renderers/alignment-renderer.js"></script>
+    <script type="text/javascript" src="renderers/variant-renderer.js"></script>
 
 
     <!--<script type="text/javascript" src="fakeBam.js"></script>-->
@@ -347,8 +348,9 @@ var run = function () {
         renderer: new AlignmentRenderer(FEATURE_TYPES.bam),
 
         dataAdapter: new OpencgaAdapter({
-            resource: "alignment",  // TODO needed?
-            subResource: "file",
+//            resource: "alignment",  // TODO needed?
+//            subResource: "file",    // TODO needed?
+            sid: "RNk4P0ttFGHyqLA3YGS8",
             cacheConfig: {
                 defaultChunkSize: 1500,
                 cacheId: "opencga:alignment"
@@ -356,8 +358,27 @@ var run = function () {
         })
 
     });
-
     tracks.push(this.alignment);
+
+    this.variant = new AlignmentTrack({
+        title: 'Variant',
+        featureType: 'vcf',
+        minHistogramRegionSize: 10000,
+        maxLabelRegionSize: 3000,
+        height: 100,
+        samples: ['32'],
+
+        renderer: new VariantRenderer(FEATURE_TYPES.vcf),
+
+        dataAdapter: new OpencgaAdapter({
+            sid: "RNk4P0ttFGHyqLA3YGS8",
+            cacheConfig: {
+                defaultChunkSize: 1500,
+                cacheId: "opencga:alignment"
+            }
+        })
+    });
+    tracks.push(this.variant);
 
 //    /***************************************/
 //    var geneEnsembl = new FeatureTrack({

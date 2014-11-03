@@ -344,8 +344,9 @@ AlignmentTrack.prototype.getFeaturesToRenderByChunk = function (response, filter
     for (var i = 0, leni = chunks.length; i < leni; i++) {
         if (this.chunksDisplayed[response.category + "_" + chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
             features = [];
-            for (var j = 0, lenj = chunks[i].value.alignments.length; j < lenj; j++) {
-                feature = chunks[i].value.alignments[j];
+            var featuresArray = chunks[i].value.alignments? chunks[i].value.alignments : chunks[i].value;
+            for (var j = 0, lenj = featuresArray.length; j < lenj; j++) {
+                feature = featuresArray[j];
 
                 //check if any feature has been already displayed by another chunk
                 displayed = false;
@@ -363,7 +364,11 @@ AlignmentTrack.prototype.getFeaturesToRenderByChunk = function (response, filter
                 }
             }
             this.chunksDisplayed[response.category + "_" + chunks[i].chunkKey] = true;
-            chunks[i].value.alignments = features;
+            if (chunks[i].value.alignments) {
+                chunks[i].value.alignments = features;
+            } else {
+                chunks[i].value = features;
+            }
             chunksToRender.push(chunks[i].value);
         }
     }

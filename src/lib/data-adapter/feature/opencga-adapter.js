@@ -23,7 +23,7 @@ function OpencgaAdapter(args) {
 
     _.extend(this, Backbone.Events);
 
-    this.sid = "RNk4P0ttFGHyqLA3YGS8";
+//    this.sid = "RNk4P0ttFGHyqLA3YGS8";
 
     _.extend(this, args);
 
@@ -146,7 +146,7 @@ OpencgaAdapter.prototype = {
 
     _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
         args.webServiceCallCount--;
-        var timeId = this.resource + " save " + data.response.length + " samples";
+        var timeId = this.cacheConfig.cacheId + " save " + data.response.length + " samples";
         console.time(timeId);
         /** time log **/
 
@@ -169,19 +169,8 @@ OpencgaAdapter.prototype = {
         var regions;
         for (var i = 0; i < data.response.length; i++) {    // FIXME each response is a sample? in variant too?
             var queryResult = data.response[i];
-            chunks = [];
-            regions = [];
-            for (var j = 0; j < queryResult.result.length; j++) {
-                regions.push(new Region(queryResult.result[j]));
-            }
-            chunks = queryResult.result;
-
-//            if (data.response[i].result.length == 1) {
-//            } else {
-//                console.log("unexpected data structure");
-//            }
-            var items = this.cache.putByRegions(regions, chunks, categories[i], dataType, chunkSize);
-            if (chunks.length > 0) {
+            var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
+            if (items.length > 0) {
                 // if (data.encoded) {decrypt }
                 args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this, category: categories[i]});
             }
@@ -220,5 +209,47 @@ OpencgaAdapter.prototype = {
             }
         }
         return decryptedChunks;
+    },
+
+    _adaptChunks: function (queryResult, category, dataType, chunkSize) {
+        var items = [];
+//        debugger
+        if (queryResult.resultType == "org.opencb.biodata.models.variant.Variant") {
+            var chunks = [];
+            var regions = [];
+            var keyToPair = {};
+            for (var i = 0; i < queryResult.result.length; i++) {
+                var variation = queryResult.result[i];
+                var chunkId = this.cache.getChunkId(variation.start, chunkSize);
+                var key = this.cache.getChunkKey(variation.chromosome,
+                    chunkId,
+                    dataType,
+                    chunkSize);
+
+                if (keyToPair[key] == undefined) {
+                    keyToPair[key] = chunks.length;
+                    regions.push(new Region({chromosome:variation.chromosome, start: chunkId*chunkSize, end: (chunkId+1)*chunkSize-1}));
+                    chunks.push([]);
+                }
+                chunks[keyToPair[key]].push(variation);
+            }
+
+//            debugger
+            items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
+        } else { //if(queryResult.resultType == "org.opencb.biodata.models.alignment.AlignmentRegion") {
+            var chunks = [];
+            var regions = [];
+            for (var j = 0; j < queryResult.result.length; j++) {
+                regions.push(new Region(queryResult.result[j]));
+            }
+            chunks = queryResult.result;
+
+//            if (data.response[i].result.length == 1) {
+//            } else {
+//                console.log("unexpected data structure");
+//            }
+            items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
+        }
+        return items;
     }
 };
