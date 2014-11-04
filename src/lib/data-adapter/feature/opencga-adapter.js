@@ -135,7 +135,7 @@ OpencgaAdapter.prototype = {
             for (var k = 0; k < categories.length; k++) {
                 if (cachedChunks[categories[k]].length > 0) {
                     var decryptedChunks = _this._decryptChunks(cachedChunks[categories[k]], "mypassword");
-                    if (args.webServiceCallCount === 0) {
+                    if (args.webServiceCallCount === 0) {   // in case no webserviceCalls were made
                         args.done();
                     }
                     args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this, category: categories[k]});
@@ -165,8 +165,6 @@ OpencgaAdapter.prototype = {
         }
 //        debugger
 
-        var chunks;
-        var regions;
         for (var i = 0; i < data.response.length; i++) {    // FIXME each response is a sample? in variant too?
             var queryResult = data.response[i];
             var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
@@ -212,11 +210,13 @@ OpencgaAdapter.prototype = {
     },
 
     _adaptChunks: function (queryResult, category, dataType, chunkSize) {
+        var chunks;
+        var regions;
         var items = [];
 //        debugger
         if (queryResult.resultType == "org.opencb.biodata.models.variant.Variant") {
-            var chunks = [];
-            var regions = [];
+            chunks = [];
+            regions = [];
             var keyToPair = {};
             for (var i = 0; i < queryResult.result.length; i++) {
                 var variation = queryResult.result[i];
@@ -237,8 +237,7 @@ OpencgaAdapter.prototype = {
 //            debugger
             items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
         } else { //if(queryResult.resultType == "org.opencb.biodata.models.alignment.AlignmentRegion") {
-            var chunks = [];
-            var regions = [];
+            regions = [];
             for (var j = 0; j < queryResult.result.length; j++) {
                 regions.push(new Region(queryResult.result[j]));
             }

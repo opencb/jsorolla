@@ -51,6 +51,8 @@ function AlignmentTrack(args) {
     this.sampleMainSvgs = {};   // bijection 1 to 1 with sampleDivs
     this.svgGroups = {};    // wrapper of renderer-related internal svgs.
     // TODO this.renderer.setSamples(this.samples);
+
+    this.chunksDisplayed = new FeatureChunkCache({storeType: "MemoryStore"});
 };
 
 AlignmentTrack.prototype.updateHeight = function () {
@@ -115,7 +117,10 @@ AlignmentTrack.prototype.updateHeight = function () {
 };
 
 AlignmentTrack.prototype.clean = function () {
-    this._clean();
+//    this._clean();
+
+    this.chunksDisplayed = new FeatureChunkCache({storeType: "MemoryStore"});
+    this.renderedArea = {};
 
     console.time("-----------------------------------------empty");
     for (var i = 0; i < this.samples.length; i++) {
@@ -325,7 +330,7 @@ AlignmentTrack.prototype.dataReady = function (response) {
     _this.updateHeight();
 };
 
-
+/*
 AlignmentTrack.prototype.getFeaturesToRenderByChunk = function (response, filters) {
     //Returns an array avoiding already drawn features in this.chunksDisplayed
 
@@ -374,8 +379,8 @@ AlignmentTrack.prototype.getFeaturesToRenderByChunk = function (response, filter
     }
     return chunksToRender;
 };
-
-    /* when memoryStore is refactored to manage several categories
+*/
+    /* when memoryStore is refactored to manage several categories*/
 AlignmentTrack.prototype.getFeaturesToRenderByChunk = function(response) {  // TODO test
     var _this = this;
 
@@ -384,18 +389,21 @@ AlignmentTrack.prototype.getFeaturesToRenderByChunk = function(response) {  // T
     var features, feature, displayed;
 
     for (var i = 0, leni = chunks.length; i < leni; i++) {  // for each chunk
-        _this.chunksDisplayed.getChunks([chunks[i].chunkKey], function (iteration) {
+        _this.chunksDisplayed.getChunks(response.category, [chunks[i].chunkKey], function (iteration) {
             return function (values) {
-                if (values[0].value != true) {//check if the chunk is already displayed and skip it
+                if (values[0] == undefined || values[0].value != true) {//check if the chunk is already displayed and skip it
                     features = [];
-                    for (var j = 0, lenj = chunks[iteration].value.alignments.length; j < lenj; j++) {
-                        feature = chunks[iteration].value.alignments[j];
+                    var featuresArray = chunks[iteration].value.alignments? chunks[iteration].value.alignments : chunks[iteration].value;
+                    for (var j = 0, lenj = featuresArray.length; j < lenj; j++) {
+                        feature = featuresArray[j];
+//                    for (var j = 0, lenj = chunks[iteration].value.alignments.length; j < lenj; j++) {
+//                        feature = chunks[iteration].value.alignments[j];
                         var region = new Region(feature);
                         displayed = false;
 
-                        _this.chunksDisplayed.get(region, [response.category], response.chunkSize, function (cached, uncached) {
-                            for (var k = 0; k < cached.length; k++) {   // check if the feature is in any already displayed chunk
-                                if (cached[k].value == true) {
+                        _this.chunksDisplayed.get(region, [response.category], response.dataType, response.chunkSize, function (cached, uncached) {
+                            for (var k = 0; k < cached[response.category].length; k++) {   // check if the feature is in any already displayed chunk
+                                if (cached[response.category][k].value == true) {
                                     displayed = true;
                                     break;
                                 }
@@ -405,8 +413,14 @@ AlignmentTrack.prototype.getFeaturesToRenderByChunk = function(response) {  // T
                             }
                         });
                     }
-                    _this.chunksDisplayed.putChunks(response.category, [values[0].chunkKey], [true]);   // mark it as displayed
-                    chunks[iteration].value.alignments = features;
+
+                    _this.chunksDisplayed.putChunks([chunks[iteration].chunkKey], [true], response.category);   // mark it as displayed
+//                    chunks[iteration].value.alignments = features;
+                    if (chunks[iteration].value.alignments) {
+                        chunks[iteration].value.alignments = features;
+                    } else {
+                        chunks[iteration].value = features;
+                    }
                     chunksToRender.push(chunks[iteration].value); // add to chunks to render
                 }
             };
