@@ -19,7 +19,14 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//any item with chromosome start end
+/**
+ * Stateless (or almost) object to render variants.
+ *
+ * If you have a svg element where you want to draw, pass it to VariantRenderer.init()
+ * and later, in each VariantRenderer.render() as args.svgCanvasFeatures.
+ *
+ * @type {Renderer}
+ */
 VariantRenderer.prototype = new Renderer({});
 
 function VariantRenderer(args) {
@@ -113,36 +120,43 @@ VariantRenderer.prototype.draw = function (feature, args) {
 
 //    debugger
 //    for (var i = 0, leni = feature.samples.length; i < leni; i++) {
+    var samplesCount = 0;
+//    var indices = [];
     for (var i in feature.files) {
-        args.renderedArea[ys] = new FeatureBinarySearchTree();
-        args.renderedArea[ys].add({start: xs, end: xe});
-        var genotype = Math.round(Math.random()) + "/" + Math.round(Math.random()); // FIXME put in real values
-//        var genotype = feature.files[i].attributes.src.split('\t')[0];
-        switch (genotype) {
-            case '0|0':
-            case '0/0':
-                d00 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                d00 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
-                break;
-            case '.|.':
-            case './.':
-                dDD += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                dDD += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
-                break;
-            case '1|1':
-            case '1/1':
-                d11 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                d11 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
-                break;
-            case '0|1':
-            case '0/1':
-            case '1|0':
-            case '1/0':
-                d01 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
-                d01 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
-                break;
+        for (var j in feature.files[i].samplesData) {
+//            indices.push(j);
+            args.renderedArea[ys] = new FeatureBinarySearchTree();
+            args.renderedArea[ys].add({start: xs, end: xe});
+//            var genotype = Math.round(Math.random()) + "/" + Math.round(Math.random()); // FIXME put in real values
+
+            var genotype = feature.files[i].samplesData[j].GT;
+            switch (genotype) {
+                case '0|0':
+                case '0/0':
+                    d00 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                    d00 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    break;
+                case '.|.':
+                case './.':
+                    dDD += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                    dDD += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    break;
+                case '1|1':
+                case '1/1':
+                    d11 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                    d11 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    break;
+                case '0|1':
+                case '0/1':
+                case '1|0':
+                case '1/0':
+                    d01 += 'M' + xs + ',' + ys + ' L' + xe + ',' + ys + ' ';
+                    d01 += 'L' + xe + ',' + (ys + yi) + ' L' + xs + ',' + (ys + yi) + ' z ';
+                    break;
+            }
+            samplesCount++;
+            ys += yi2;
         }
-        ys += yi2;
     }
     var featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {'feature_id': feature.id});
     var dummyRect = SVG.addChild(featureGroup, "rect", {
@@ -182,10 +196,11 @@ VariantRenderer.prototype.draw = function (feature, args) {
         });
     }
 
-
+//debugger
     var lastSampleIndex = 0;
     $(featureGroup).qtip({
-        content: {text: tooltipText + '<br>' + feature.files[lastSampleIndex], title: tooltipTitle},
+//        content: {text: tooltipText + '<br>' + feature.files[lastSampleIndex], title: tooltipTitle},
+        content: {text: tooltipText + '<br>' + samplesCount + " samples", title: tooltipTitle},
 //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
         position: {target: "mouse", adjust: {x: 25, y: 15}},
         style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
@@ -196,7 +211,19 @@ VariantRenderer.prototype.draw = function (feature, args) {
         var sampleIndex = parseInt(event.offsetY / yi2);
         if (sampleIndex != lastSampleIndex) {
             console.log(sampleIndex);
-            $(featureGroup).qtip('option', 'content.text', tooltipText + '<br>' + feature.files[sampleIndex]);
+            samplesCount = 0;
+            var sampleName = "";
+            var found = false;
+            for (var i in feature.files) {
+                for (var j in feature.files[i].samplesData) {   // better search it up than storing it? memory could be an issue.
+                    if (sampleIndex == samplesCount) {
+                        found = true;
+                        sampleName = j;
+                    }
+                    samplesCount++;
+                }
+            }
+            $(featureGroup).qtip('option', 'content.text', tooltipText + '<br>' + sampleName);
         }
         lastSampleIndex = sampleIndex;
     });
