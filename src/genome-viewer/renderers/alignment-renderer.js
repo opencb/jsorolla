@@ -23,6 +23,7 @@
 AlignmentRenderer.prototype = new Renderer({});
 
 function AlignmentRenderer(args) {
+    this.profile = false;
     Renderer.call(this, args);
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
@@ -70,8 +71,10 @@ AlignmentRenderer.prototype.render = function (features, args) {
     for (var i = 0; i < features.length; i++) {
         numAlignments += features[i].alignments.length;
     }
-    var timeId = "AligRender " + features.length + " features with " + numAlignments + " alignments";
-    console.time(timeId);
+    if (this.profile) {
+        var timeId = "AligRender " + features.length + " features with " + numAlignments + " alignments";
+        console.time(timeId);
+    }
     // all above is time measurement
 
     /* this code uses the old signature of AlignmentRenderer.render(response, args)
@@ -117,7 +120,9 @@ AlignmentRenderer.prototype.render = function (features, args) {
         //TEST
 //        this.setHeight(200);
     }
-    console.timeEnd(timeId);
+    if (this.profile) {
+        console.timeEnd(timeId);
+    }
 };
 
 
@@ -125,8 +130,11 @@ AlignmentRenderer.prototype._drawChunk = function (chunk, args) {
     args.region = chunk.region;
     this._drawCoverage(chunk, args);
     var readList = chunk.alignments;
-    var timeIdReads = "alig render reads " + readList.length;
-    console.time(timeIdReads);
+
+    if (this.profile) {
+        var timeIdReads = "alig render reads " + readList.length;
+        console.time(timeIdReads);
+    }
     for (var i = 0, li = readList.length; i < li; i++) {
         var read = readList[i];
         if (this.viewAsPairs) {
@@ -143,13 +151,18 @@ AlignmentRenderer.prototype._drawChunk = function (chunk, args) {
             this._drawSingleRead(read, args);
         }
     }
-    console.timeEnd(timeIdReads);
+
+    if (this.profile) {
+        console.timeEnd(timeIdReads);
+    }
 };
 
 AlignmentRenderer.prototype._drawCoverage = function (chunk, args) {
     var _this = this;
-    var timeIdCov = "alig render: coverage " + chunk.coverage.all.length;
-    console.time(timeIdCov);
+    if (this.profile) {
+        var timeIdCov = "alig render: coverage " + chunk.coverage.all.length;
+        console.time(timeIdCov);
+    }
     var coverageList = chunk.coverage.all;
     var coverageListA = chunk.coverage.a;
     var coverageListC = chunk.coverage.c;
@@ -275,7 +288,9 @@ AlignmentRenderer.prototype._drawCoverage = function (chunk, args) {
     });
 
 
-    console.timeEnd(timeIdCov);
+    if (this.profile) {
+        console.timeEnd(timeIdCov);
+    }
 //        args.trackSvgLayout.onMousePosition.addEventListener(function (sender, obj) {
 //            var pos = obj.mousePos - parseInt(chunk.start);
 //            //if(coverageList[pos]!=null){

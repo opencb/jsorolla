@@ -122,7 +122,7 @@ AlignmentTrack.prototype.clean = function () {
     this.chunksDisplayed = new FeatureChunkCache({storeType: "MemoryStore"});
     this.renderedArea = {};
 
-    console.time("-----------------------------------------empty");
+//    console.time("-----------------------------------------empty");
     for (var i = 0; i < this.samples.length; i++) {
         var svgCanvasFeatures = this.svgGroups[this.samples[i]];
         while (svgCanvasFeatures.firstChild) {
@@ -132,7 +132,7 @@ AlignmentTrack.prototype.clean = function () {
 
         this.defaultRenderer.init(svgCanvasFeatures, this.samples[i]);
     }
-    console.timeEnd("-----------------------------------------empty");
+//    console.timeEnd("-----------------------------------------empty");
 };
 
 AlignmentTrack.prototype.render = function (targetId) {

@@ -146,9 +146,9 @@ OpencgaAdapter.prototype = {
 
     _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
         args.webServiceCallCount--;
-        var timeId = this.cacheConfig.cacheId + " save " + data.response.length + " samples";
-        console.time(timeId);
-        /** time log **/
+//        var timeId = this.cacheConfig.cacheId + " save " + data.response.length + " samples";
+//        console.time(timeId);
+//        /** time log **/
 
         if (categories.length != data.response.length) {
             console.log("ERROR: requested " + categories.length + "samples, but response has " + data.response.length);
@@ -175,8 +175,9 @@ OpencgaAdapter.prototype = {
         }
 
 //        var decryptedChunks = this._decryptChunks(items, "mypassword");
-        /** time log **/
-        console.timeEnd(timeId);
+
+//        /** time log **/
+//        console.timeEnd(timeId);
 
         if (args.webServiceCallCount === 0) {
             args.done();

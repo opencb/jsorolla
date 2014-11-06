@@ -13,6 +13,7 @@ function FeatureChunkCache(args) {
     this.id = Utils.genId("FeatureChunkCache");
 
     this.defaultChunkSize = 50000;
+    this.defaultCategory = "defaultCategory";
     this.limit;
 
     _.extend(this, args);
@@ -101,13 +102,18 @@ FeatureChunkCache.prototype = {
         if (!callback) {
             console.log("bad FeatureChunkCache usage: undefined callback");
         }
-
+        if (!category) {
+            category = this.defaultCategory;
+        }
         this.store.get(category, chunkKey, callback);
     },
 
     getChunks: function (category, chunkKeysArray, callback) {
         if (!callback) {
             console.log("bad FeatureChunkCache usage: undefined callback");
+        }
+        if (!category) {
+            category = this.defaultCategory;
         }
         this.store.getAll(category, chunkKeysArray, callback);
     },
@@ -160,6 +166,9 @@ FeatureChunkCache.prototype = {
         var valueStoredArray = [];
         for (var i = 0; i < valueArray.length; i++) {
             valueStoredArray.push(this.createEntryValue(chunkKeyArray[i], valueArray[i], encoded));   // TODO add timestamp, last usage time, size, etc.
+        }
+        if (!category) {
+            category = this.defaultCategory;
         }
         this.store.putAll(category, chunkKeyArray, valueStoredArray);
         return valueStoredArray;

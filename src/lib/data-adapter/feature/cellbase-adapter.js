@@ -37,7 +37,7 @@ function CellBaseAdapter(args) {
     _.extend(this.cacheConfig, args.cacheConfig);
 
     this.cache = new FeatureChunkCache(this.cacheConfig);
-    this.debug = true;
+    this.debug = false;
 }
 
 CellBaseAdapter.prototype = {
