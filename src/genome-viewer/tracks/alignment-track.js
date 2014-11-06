@@ -43,14 +43,14 @@ function AlignmentTrack(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.renderers = [];
+    this.renderers = {};
     for (var i = 0; i < this.featureTypes.length; i++) {
         if (this.featureTypes[i] == this.ALIGNMENT_FEATURE && this.alignmentRenderer) {
-            this.renderers.push(this.alignmentRenderer);
+            this.renderers[this.samples[i]] = this.alignmentRenderer;
         } else if (this.featureTypes[i] == this.VARIANT_FEATURE && this.variantRenderer) {
-            this.renderers.push(this.variantRenderer);
+            this.renderers[this.samples[i]] = this.variantRenderer;
         } else {
-            this.renderers.push(null);
+            this.renderers[this.samples[i]] = null;
             console.log("no renderer provided for sample " + this.samples[i]);
         }
     }
@@ -143,8 +143,8 @@ AlignmentTrack.prototype.clean = function () {
         }
         this.renderedArea[this.samples[i]] = {};
 
-        if (this.renderers[i]) {
-            this.renderers[i].init(svgCanvasFeatures, this.samples[i]);
+        if (this.renderers[this.samples[i]]) {
+            this.renderers[this.samples[i]].init(svgCanvasFeatures, this.samples[i]);
         }
     }
 //    console.timeEnd("-----------------------------------------empty");
@@ -179,7 +179,7 @@ AlignmentTrack.prototype.render = function (targetId) {
             'width': _this.svgCanvasWidth
 //            'height': sampleHeight
         });
-        _this.renderers[i].init(_this.svgGroups[sample], sample);
+        _this.renderers[sample].init(_this.svgGroups[sample], sample);
     }
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -318,13 +318,7 @@ AlignmentTrack.prototype.dataReady = function (response) {
         features = response.items;
 //        debugger
     } else {
-
-        debugger
-        for (var i = 0; i < _this.samples.length; i++) {
-            if (response.category ==  _this.samples[i]) {
-                _this.renderer = _this.renderers[i];
-            }
-        }
+        _this.renderer = _this.renderers[response.category];
         // debugger
         features = _this.getFeaturesToRenderByChunk(response);
     }
