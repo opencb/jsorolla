@@ -28,9 +28,11 @@ function AlignmentTrack(args) {
     _.extend(this, Backbone.Events);
 
     //set default args
+    this.ALIGNMENT_FEATURE = 'alignments';
+    this.VARIANT_FEATURE = 'variants';
 
     //save default render reference;
-    this.defaultRenderer = this.renderer;
+    this.defaultRenderer = this.renderer;   // TODO deprecated?
 //    this.histogramRenderer = new FeatureClusterRenderer();
     var histogramArgs = _.extend({}, args);
     this.histogramRenderer = new HistogramRenderer(_.extend(histogramArgs, {histogramMaxFreqValue: 200,
@@ -41,6 +43,17 @@ function AlignmentTrack(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.renderers = [];
+    for (var i = 0; i < this.featureTypes.length; i++) {
+        if (this.featureTypes[i] == this.ALIGNMENT_FEATURE && this.alignmentRenderer) {
+            this.renderers.push(this.alignmentRenderer);
+        } else if (this.featureTypes[i] == this.VARIANT_FEATURE && this.variantRenderer) {
+            this.renderers.push(this.variantRenderer);
+        } else {
+            this.renderers.push(null);
+            console.log("no renderer provided for sample " + this.samples[i]);
+        }
+    }
 
     this.resource = this.dataAdapter.resource;
     this.species = this.dataAdapter.species;
@@ -130,7 +143,9 @@ AlignmentTrack.prototype.clean = function () {
         }
         this.renderedArea[this.samples[i]] = {};
 
-        this.defaultRenderer.init(svgCanvasFeatures, this.samples[i]);
+        if (this.renderers[i]) {
+            this.renderers[i].init(svgCanvasFeatures, this.samples[i]);
+        }
     }
 //    console.timeEnd("-----------------------------------------empty");
 };
@@ -164,7 +179,7 @@ AlignmentTrack.prototype.render = function (targetId) {
             'width': _this.svgCanvasWidth
 //            'height': sampleHeight
         });
-        _this.renderer.init(_this.svgGroups[sample], sample);
+        _this.renderers[i].init(_this.svgGroups[sample], sample);
     }
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -303,7 +318,13 @@ AlignmentTrack.prototype.dataReady = function (response) {
         features = response.items;
 //        debugger
     } else {
-        _this.renderer = _this.defaultRenderer;
+
+        debugger
+        for (var i = 0; i < _this.samples.length; i++) {
+            if (response.category ==  _this.samples[i]) {
+                _this.renderer = _this.renderers[i];
+            }
+        }
         // debugger
         features = _this.getFeaturesToRenderByChunk(response);
     }

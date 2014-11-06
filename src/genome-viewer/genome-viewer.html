@@ -231,6 +231,7 @@ var run = function () {
 
     tracks = [];
 
+    /*
     this.sequence = new SequenceTrack({
 //        title: 'Sequence',
         height: 30,
@@ -334,7 +335,6 @@ var run = function () {
     });
 
     tracks.push(this.snp);
-      /*
 */
     this.alignment = new AlignmentTrack({
         title: 'Alignments',
@@ -343,9 +343,10 @@ var run = function () {
         maxLabelRegionSize: 3000,
         height: 300,
         samples: ['34', '4'],
+        featureTypes: ['alignments', 'alignments'],
 //        autoHeight: true,
 
-        renderer: new AlignmentRenderer(FEATURE_TYPES.bam),
+        alignmentRenderer: new AlignmentRenderer(FEATURE_TYPES.bam),
 
         dataAdapter: new OpencgaAdapter({
 //            resource: "alignment",  // TODO needed?
@@ -367,8 +368,32 @@ var run = function () {
         maxLabelRegionSize: 3000,
         height: 100,
         samples: ['32', '87'],
+        featureTypes: ['variants', 'variants'],
 
-        renderer: new VariantRenderer(FEATURE_TYPES.opencgaVariant),
+        variantRenderer: new VariantRenderer(FEATURE_TYPES.opencgaVariant),
+
+        dataAdapter: new OpencgaAdapter({
+            sid: "RNk4P0ttFGHyqLA3YGS8",
+            cacheConfig: {
+                defaultChunkSize: 1500,
+                cacheId: "opencga:alignment"
+            }
+        })
+    });
+    tracks.push(this.variant);
+
+
+    this.variant = new AlignmentTrack({
+        title: 'Alignment+Variant',
+//        featureType: 'mixed',   // FIXME this can explode
+        minHistogramRegionSize: 10000,
+        maxLabelRegionSize: 3000,
+        height: 200,
+        samples: ['34', '87'],
+        featureTypes: ['alignments', 'variants'],
+
+        variantRenderer: new VariantRenderer(FEATURE_TYPES.opencgaVariant),
+        alignmentRenderer: new AlignmentRenderer(FEATURE_TYPES.bam),
 
         dataAdapter: new OpencgaAdapter({
             sid: "RNk4P0ttFGHyqLA3YGS8",
