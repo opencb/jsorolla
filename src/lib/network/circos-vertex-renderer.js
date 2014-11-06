@@ -113,7 +113,9 @@ CircosVertexRenderer.prototype = {
         this._render();
     },
     remove: function () {
-        $(this.groupEl).remove();
+        if (this.groupEl && this.groupEl.parentNode) {
+            this.groupEl.parentNode.removeChild(this.groupEl);
+        }
     },
     update: function () {
         this.remove();
@@ -148,7 +150,7 @@ CircosVertexRenderer.prototype = {
         }
     },
     select: function () {
-        $(this.groupEl).prepend(this.selectEl);
+        this.groupEl.insertBefore(this.selectEl, this.groupEl.firstChild);
         this.selected = true;
     },
     deselect: function () {
@@ -286,7 +288,9 @@ CircosVertexRenderer.prototype = {
         });
     },
     _removeSelect: function () {
-        $(this.groupEl).find('[network-type="select-vertex"]').remove();
+        if (this.selectEl && this.selectEl.parentNode) {
+            this.selectEl.parentNode.removeChild(this.selectEl);
+        }
     },
     _render: function () {
         if (this.complex === true) {

@@ -133,7 +133,7 @@
 //                    this.els.colorbox.addEventListener('click', function (e) {
 //                        me.toggleMenu();
 //                    });
-                    this.els.colorlist.addEventListener('click', function (e) {
+                    this.els.colorlist.addEventListener('mousedown', function (e) {
                         if (e.target.hasAttribute('data-color')) {
                             me.setColor(e.target.getAttribute('data-color'));
                         }
