@@ -31,17 +31,7 @@ function HistogramRenderer(args) {
 //    this.multiplier = 7;
 
     this.maxValue = 10;
-    if (args != null) {
-        if (args.height != null) {
-            this.histogramHeight = args.height * 0.95;
-        }
-        if (args.histogramMaxFreqValue != null) {
-            this.maxValue = args.histogramMaxFreqValue;
-        }
-    }
-    //this.multiplier = 7;
-    this.multiplier = this.histogramHeight / this.maxValue;
-
+    this.updateScale(args);
     //set instantiation args
     _.extend(this, args);
 
@@ -65,10 +55,29 @@ HistogramRenderer.prototype._checkFeatureValue = function (feature) {
 //        }
 }
 
+/**
+ * updates "this.multiplier" using "histogramMaxFreqValue" and "height"
+ * @param args
+ */
+HistogramRenderer.prototype.updateScale = function(args) {
+    if (args != null) {
+        if (args.height != null) {
+            this.histogramHeight = args.height * 0.95;
+        }
+        if (args.histogramMaxFreqValue != null) {
+            this.maxValue = args.histogramMaxFreqValue;
+        }
+    }
+    //this.multiplier = 7;
+    this.multiplier = this.histogramHeight / this.maxValue;
+};
+
 HistogramRenderer.prototype.render = function (features, args) {
     var middle = args.width / 2;
-    console.log(middle)
+    console.log(middle);
     var points = '';
+
+    this.updateScale(args);
 
     if (features.length > 0) {
         var firstFeature = features[0].value;
