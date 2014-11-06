@@ -19,9 +19,9 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-AlignmentTrack.prototype = new Track({});
+MultisampleTrack.prototype = new Track({});
 
-function AlignmentTrack(args) {
+function MultisampleTrack(args) {
     Track.call(this, args);
 
     // Using Underscore 'extend' function to extend and add Backbone Events
@@ -68,7 +68,7 @@ function AlignmentTrack(args) {
     this.chunksDisplayed = new FeatureChunkCache({storeType: "MemoryStore"});
 };
 
-AlignmentTrack.prototype.updateHeight = function () {
+MultisampleTrack.prototype.updateHeight = function () {
     //TODO if needed
 
     $(this.contentDiv).css({'height': this.height});
@@ -129,7 +129,7 @@ AlignmentTrack.prototype.updateHeight = function () {
 
 };
 
-AlignmentTrack.prototype.clean = function () {
+MultisampleTrack.prototype.clean = function () {
 //    this._clean();
 
     this.chunksDisplayed = new FeatureChunkCache({storeType: "MemoryStore"});
@@ -150,7 +150,7 @@ AlignmentTrack.prototype.clean = function () {
 //    console.timeEnd("-----------------------------------------empty");
 };
 
-AlignmentTrack.prototype.render = function (targetId) {
+MultisampleTrack.prototype.render = function (targetId) {
     var _this = this;
     this.initializeDom(targetId);
 
@@ -188,7 +188,7 @@ AlignmentTrack.prototype.render = function (targetId) {
     this.updateHeight();
 };
 
-AlignmentTrack.prototype.draw = function () {
+MultisampleTrack.prototype.draw = function () {
     var _this = this;
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -235,7 +235,7 @@ AlignmentTrack.prototype.draw = function () {
 };
 
 
-AlignmentTrack.prototype.move = function (disp) {
+MultisampleTrack.prototype.move = function (disp) {
     var _this = this;
 
     this.dataType = 'features';
@@ -310,7 +310,7 @@ AlignmentTrack.prototype.move = function (disp) {
 
 };
 
-AlignmentTrack.prototype.dataReady = function (response) {
+MultisampleTrack.prototype.dataReady = function (response) {
     var _this = this;
     var features;
     if (response.dataType == 'histogram') {
@@ -346,7 +346,7 @@ AlignmentTrack.prototype.dataReady = function (response) {
 };
 
 /*
-AlignmentTrack.prototype.getFeaturesToRenderByChunk = function (response, filters) {
+MultisampleTrack.prototype.getFeaturesToRenderByChunk = function (response, filters) {
     //Returns an array avoiding already drawn features in this.chunksDisplayed
 
     var getChunkId = function (position) {
@@ -396,7 +396,7 @@ AlignmentTrack.prototype.getFeaturesToRenderByChunk = function (response, filter
 };
 */
     /* when memoryStore is refactored to manage several categories*/
-AlignmentTrack.prototype.getFeaturesToRenderByChunk = function(response) {  // TODO test
+MultisampleTrack.prototype.getFeaturesToRenderByChunk = function(response) {  // TODO test
     var _this = this;
 
     var chunks = response.items;

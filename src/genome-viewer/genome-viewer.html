@@ -231,7 +231,6 @@ var run = function () {
 
     tracks = [];
 
-    /*
     this.sequence = new SequenceTrack({
 //        title: 'Sequence',
         height: 30,
@@ -335,8 +334,9 @@ var run = function () {
     });
 
     tracks.push(this.snp);
-*/
-    this.alignment = new AlignmentTrack({
+     /*
+*//*
+    this.alignment = new MultisampleTrack({
         title: 'Alignments',
         featureType: 'Alignments',
         minHistogramRegionSize: 10000,
@@ -361,7 +361,7 @@ var run = function () {
     });
     tracks.push(this.alignment);
 
-    this.variant = new AlignmentTrack({
+    this.variant = new MultisampleTrack({
         title: 'Variant',
         featureType: 'vcf',
         minHistogramRegionSize: 10000,
@@ -381,9 +381,9 @@ var run = function () {
         })
     });
     tracks.push(this.variant);
+*/
 
-
-    this.variant = new AlignmentTrack({
+    this.variant = new MultisampleTrack({
         title: 'Alignment+Variant',
 //        featureType: 'mixed',   // FIXME this can explode
         minHistogramRegionSize: 10000,
