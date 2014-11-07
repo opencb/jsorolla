@@ -1,0 +1,40 @@
+/*Used only for genome maps elements*/
+.panel {
+    border: 1px solid #d4d4d4;
+    position: relative;
+    box-sizing: border-box;
+    box-shadow: -4px 4px 4px rgba(0, 0, 0, 0.2);
+}
+
+.header, .container {
+    position: relative;
+}
+
+.header, .footer {
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+    background-repeat: repeat-x;
+    line-height: 24px;
+    color: #333;
+    padding: 0 5px;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+.header[data-collapsible=true][data-collapsed=true]:after {
+    font-family: FontAwesome;
+    content: "\f107";
+    position: absolute;
+    right: 10px;
+}
+
+.header[data-collapsible=true][data-collapsed=false]:after {
+    font-family: FontAwesome;
+    content: "\f106";
+    position: absolute;
+    right: 10px;
+}
+
+.header[data-collapsible=true][data-collapsed=true] + div {
+    display: none;
+}
+

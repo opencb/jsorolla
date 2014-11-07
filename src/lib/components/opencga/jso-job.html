@@ -1,0 +1,32 @@
+<polymer-element name="jso-job" attributes="jobItem">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+            /* LIST #2 */
+            #jobStyle {
+                width:320px;
+            }
+        </style>
+        <!--<font-awesome icon="pie-chart"></font-awesome> &nbsp; {{study.name}} &nbsp; <span class="id"> {{study.alias}} </span>-->
+        <div id="jobStyle">
+            <div>{{jobItem.toolName}}</div>
+            <div>{{jobItem.status}}</div>
+            <div>{{jobItem.visits}}</div>
+            <hr>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobItem;
+            }
+        });
+    </script>
+</polymer-element>
+
+

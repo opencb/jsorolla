@@ -1,0 +1,23 @@
+<polymer-element name="jso-job-view" attributes="jobItem">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+        </style>
+        <span>{{jobItem.id}}</span>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                console.log(this.jobItem)
+            }
+        });
+    </script>
+</polymer-element>
+
+

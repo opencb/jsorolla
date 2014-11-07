@@ -4,7 +4,7 @@
 <link rel="import" href="jso-remember.html">
 
 <polymer-element name="jso-header"
-                 attributes="description selectedOption userData title description options allowLogin">
+                 attributes="description selectedOption userData title description options allowLogin allowJobs showJobs">
 <template>
 <link rel="stylesheet" href="../jso-style.css">
 <style>
@@ -305,6 +305,12 @@ li.dropdown > div:focus ~ ul li:hover > ul {
         </li>
     </template>
 
+    <template if="{{allowJobs == true}}">
+        <li id="jobs" class="right" data-option="jobs" on-click="{{handleJobClick}}" hide="{{!isLogged}}">
+            <font-awesome icon="pencil-square-o"></font-awesome>
+            &nbsp;jobs
+        </li>
+    </template>
 
     <!--<li id="jobs" class="right" hide="{{!isLogged}}">-->
     <!--<font-awesome icon="tasks"></font-awesome> &nbsp;jobs-->
@@ -375,6 +381,7 @@ li.dropdown > div:focus ~ ul li:hover > ul {
     Polymer({
         created: function () {
             this.allowLogin = true;
+            this.allowJobs = true;
 
             this.description = '';
             this.checkTimeInterval = 5000;
@@ -407,6 +414,11 @@ li.dropdown > div:focus ~ ul li:hover > ul {
             if (option) {
                 this.selectedOption = option;
             }
+        },
+        handleJobClick: function (e) {
+            this.showJobs = !this.showJobs;
+
+
         },
         handleLogoutClick: function (e) {
             this.sessionFinished();
