@@ -27,15 +27,21 @@ function EnsemblAdapter(args) {
 
     this.on(this.handlers);
 
-    this.cache = {};
+    this.cache = new FeatureChunkCache(this.cacheConfig);
 }
 
 EnsemblAdapter.prototype = {
 
     getData: function (args) {
         var _this = this;
+        args.webServiceCallCount = 0;
 
-        /** Check region and parameters **/
+        var params = {};
+//                    histogram: (dataType == 'histogram')
+        _.extend(params, this.params);
+        _.extend(params, args.params);
+
+        /** 1 region check **/
         var region = args.region;
         if (region.start > 300000000 || region.end < 1) {
             return;
@@ -43,97 +49,89 @@ EnsemblAdapter.prototype = {
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
-
-        var params = {};
-        _.extend(params, this.params);
-        _.extend(params, args.params);
-
+        /** 3 dataType check **/
         var dataType = args.dataType;
         if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
-        var chunkSize;
 
+        /** 2 category check **/
+        var categories = [dataType];
 
-        /** Check dataType histogram  **/
-        if (dataType == 'histogram') {
-
-            /** Features: genes, snps ... **/
-        } else {
-            // Features will be saved using the dataType features
-            if (_.isUndefined(this.cache[dataType])) {
-                this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
-            }
-            chunkSize = this.cache[dataType].chunkSize;
-
-            // Get cached chunks and not cached chunk regions
-            //        --------------------             -> Region needed
-            // |----|----|----|----|----|----|----|    -> Logical chunk division
-            //      |----|----|----|----|----|         -> Chunks covered by needed region
-            //      |----|++++|++++|----|----|         -> + means the chunk is cached so its region will not be retrieved
-            this.cache[dataType].getCachedByRegion(region, function(chunksByRegion){
-                if (chunksByRegion.notCached.length > 0) {
-                    var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
-                        return new Region(region).toString();
-                    });
-
-                    for (var i = 0; i < queryRegionStrings.length; i++) {
-                        _this._get(queryRegionStrings[i], params, dataType);
-                    }
-                }
-                // Get chunks from cache
-                if (chunksByRegion.cached.length > 0) {
-                    _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
-                        _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-                    });
-                }
-            });
+        /** 4 chunkSize check **/
+        var chunkSize = args.params.interval? args.params.interval : this.cacheConfig.chunkSize; // this.cache.defaultChunkSize should be the same
+        if (this.debug) {
+            console.log(chunkSize);
         }
-    },
 
-    _get: function (query, params, dataType) {
-        var _this = this;
-        EnsemblManager.get({
-            host: this.host,
-            species: this.species,
-            category: this.category,
-            subCategory: this.subCategory,
-            query: query,
-            params: params,
-            success: function (data) {
-                var data = _this._transformResponse(data, query);
-                _this._success(data, dataType);
+        /**
+         * Get the uncached regions (uncachedRegions) and cached chunks (cachedChunks).
+         * Uncached regions will be used to query cellbase. The response data will be converted in chunks
+         * by the Cache TODO????
+         * Cached chunks will be returned by the args.dataReady Callback.
+         */
+        this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
+
+            if (uncachedRegions.length > 0) {
+                var queryRegionStrings = uncachedRegions;
+                for (var i = 0; i < queryRegionStrings.length; i++) {
+                    args.webServiceCallCount++;
+                    _this._get(queryRegionStrings[i], params, categories, chunkSize, args);
+                }
+            }
+            // Get chunks from cache
+            if (cachedChunks.length > 0) {
+                if (args.webServiceCallCount === 0) {
+                    args.done();
+                }
+                _this.trigger('data:ready', {items: cachedChunks[categories[0]], dataType: dataType, chunkSize: chunkSize, sender: _this});
             }
         });
     },
 
-    _success: function (data, dataType) {
-        var timeId = this.resource + " save " + Utils.randomString(4);
+    _get: function (query, params, categories, chunkSize, args) {
+        var _this = this;
+        EnsemblManager.get({
+            host: _this.host,
+            species: _this.species,
+            category: _this.category,
+            subCategory: _this.subCategory,
+            query: query,
+            params: params,
+            success: function (data) {
+                var transformedData = _this._transformResponse(data, query);
+                _this._success(transformedData, categories, undefined, chunkSize, args);
+            }
+        });
+    },
+
+    _success: function (data, categories, dataType, chunkSize, args) {
+        args.webServiceCallCount--;
+        var timeId = Utils.randomString(4) + this.resource + " save";
         console.time(timeId);
         /** time log **/
-
-        var chunkSize = this.cache[dataType].chunkSize;
 
         var regions = [];
         var chunks = [];
         for (var i = 0; i < data.response.length; i++) {
             var queryResult = data.response[i];
-
             regions.push(new Region(queryResult.id));
             chunks.push(queryResult.result);
         }
-        this.cache[dataType].putByRegions(regions, chunks);
+        var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
         /** time log **/
         console.timeEnd(timeId);
 
-
-        if (chunks.length > 0) {
-            this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
+        if (args.webServiceCallCount === 0) {
+            args.done();
         }
 
-
+        if (items.length > 0) {
+            this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: _this});
+        }
     },
+
     _transformResponse: function (data, query) {
 //        id: "ENSG00000189167"
 //        source: "Ensembl"
@@ -175,7 +173,7 @@ EnsemblAdapter.prototype = {
         var result = {
             id: query,
             result: data
-        }
+        };
         r.response.push(result);
         return  r;
     }

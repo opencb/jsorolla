@@ -446,6 +446,60 @@ FEATURE_TYPES = {
         height: 8,
         histogramColor: "gray"
     },
+
+    opencgaVariant: {
+        label: function (f) {
+            return f.id;
+            try {
+                var fields = f.sampleData.split("\t");
+            } catch (e) {
+                //Uncaught TypeError: Cannot call method 'split' of undefined
+                console.log(e)
+                debugger
+            }
+
+            if (fields.length > 10 || fields.length == 9)
+                return f.id + " " + f.ref + "/" + f.alt + "";
+            else {
+                var gt = fields[9].split(":")[0];
+                if (gt.indexOf(".") != -1 || gt.indexOf("-") != -1)
+                    return gt;
+                var label = "";
+                var alt = f.alt.split(",");
+                if (gt.charAt(0) == '0')
+                    label = f.ref;
+                else {
+                    var pos = gt.charAt(0) - 1
+                    label = alt[pos]
+                }
+                label += gt.charAt(1)
+                if (gt.charAt(2) == '0')
+                    label += f.ref;
+                else {
+                    var pos = gt.charAt(2) - 1
+                    label += alt[pos]
+                }
+
+                return label;
+            }
+        },
+        tooltipTitle: function (f) {
+            return 'VCF variant - <span class="ok">' + f.id + '</span>';
+        },
+        tooltipText: function (f) {
+            return 'alleles (ref/alt):&nbsp;<span class="emph">' + f.reference + "/" + f.alternate + '</span><br>' +
+                'type:&nbsp;<span class="emph">' + f.type + '</span><br>' +
+//                'quality:&nbsp;<span class="emph">' + f.quality + '</span><br>' +
+//                'filter:&nbsp;<span class="emph">' + f.filter + '</span><br>' +
+                FEATURE_TYPES.getTipCommons(f);
+        },
+        getColor: function (f) {
+            return "black";
+        },
+        infoWidgetId: "id",
+        height: 8,
+        histogramColor: "gray"
+    },
     gff2: {
         getLabel: function (f) {
             var str = "";

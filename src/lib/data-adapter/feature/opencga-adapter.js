@@ -23,14 +23,14 @@ function OpencgaAdapter(args) {
 
     _.extend(this, Backbone.Events);
 
-    this.sid;
-    this.categories;
+//    this.sid = "RNk4P0ttFGHyqLA3YGS8";
 
     _.extend(this, args);
 
     this.on(this.handlers);
 
     this.cache = new FeatureChunkCache(this.cacheConfig);
+    this.minChunkSize = 200;
 }
 
 OpencgaAdapter.prototype = {
@@ -48,8 +48,7 @@ OpencgaAdapter.prototype = {
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
         /** 2 category check **/
-        //TODO define category
-        var categories = this.categories; // = args.categories;   // in this adapter each category is each file
+        var categories = args.categories;   // in this adapter each category is each file
 
         /** 3 dataType check **/
         var dataType = args.dataType;
@@ -58,9 +57,13 @@ OpencgaAdapter.prototype = {
         }
 
         /** 4 chunkSize check **/
-        //TODO define chunksize,  histogram is dynamic and features is fixed
-        var chunkSize = args.params.interval ? args.params.interval : undefined;
-        chunkSize = 1500;
+        var chunkSize = args.params.interval ? args.params.interval : this.cacheConfig.defaultChunkSize;
+        if (chunkSize % this.minChunkSize != 0) {
+            chunkSize = Math.round(chunkSize / this.minChunkSize) * this.minChunkSize;  // round to this.minChunkSize multiple.
+        }
+        if (chunkSize <= 0) {
+            chunkSize = this.minChunkSize;
+        }
 
         /* TODO remove??????
          var params = {
@@ -85,18 +88,22 @@ OpencgaAdapter.prototype = {
 
             var category = categories[0];
             var categoriesName = "";
-            for (var j in categories) {
+            for (var j = 0; j < categories.length; j++) {
                 categoriesName += "," + categories[j];
             }
             categoriesName = categoriesName.slice(1);   // to remove first ','
             /**
              * Process uncached regions
              */
-            // TODO check if OpenCGA allows multiple regions
-//            var queriesList = _this._groupQueries(uncachedRegions[category]);
-            var queriesList = uncachedRegions[category];
+            // assumption: every sample has the same uncached regions.
+            var queriesList;
+            if (dataType == "histogram") {
+                queriesList = [region];
+            } else {
+                queriesList = _this._groupQueries(uncachedRegions[category]);
+            }
+//            var queriesList = uncachedRegions[category];
 
-            // TODO check how to manage multiple regions and multiple files ids
             for (var i = 0; i < queriesList.length; i++) {
                 args.webServiceCallCount++;
                 var queryRegion = queriesList[i];
@@ -104,14 +111,14 @@ OpencgaAdapter.prototype = {
                 OpencgaManager.files.fetch({
                     id: categoriesName,
                     query: {
-                        sid: _this.sid, //TODO add sid to queryParams;
+                        sid: _this.sid, //TODO add sid to queryParams; resolved isn't it?
                         region: queryRegion.toString(),
-                        interval: this.interval,
-                        histogram: (dataType == 'histogram')
+                        interval: chunkSize,
+                        histogram: (dataType == 'histogram'),
+                        process_differences: false
                     },
                     request: {
                         success: function (response) {
-                            //TODO check success
                             _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
                         },
                         error: function () {
@@ -125,13 +132,13 @@ OpencgaAdapter.prototype = {
             /**
              * Process Cached chunks
              */
-            for (var k in categories) {
+            for (var k = 0; k < categories.length; k++) {
                 if (cachedChunks[categories[k]].length > 0) {
                     var decryptedChunks = _this._decryptChunks(cachedChunks[categories[k]], "mypassword");
-                    if (args.webServiceCallCount === 0) {
+                    if (args.webServiceCallCount === 0) {   // in case no webserviceCalls were made
                         args.done();
                     }
-                    args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
+                    args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this, category: categories[k]});
                 }
             }
         });
@@ -139,35 +146,41 @@ OpencgaAdapter.prototype = {
 
     _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
         args.webServiceCallCount--;
-        var timeId = this.resource + " save " + data.response.length + " regions";
-        console.time(timeId);
-        /** time log **/
+//        var timeId = this.cacheConfig.cacheId + " save " + data.response.length + " samples";
+//        console.time(timeId);
+//        /** time log **/
 
-        var chunks = [];
-        var regions = [];
-        for (var i = 0; i < data.response.length; i++) {
-            var queryResult = data.response[i];
-            regions.push(new Region(queryResult.id));
-            chunks.push(queryResult.result);
-
-//            if (data.response[i].result.length == 1) {
-//            } else {
-//                console.log("unexpected data structure");
-//            }
+        if (categories.length != data.response.length) {
+            console.log("ERROR: requested " + categories.length + "samples, but response has " + data.response.length);
+            console.log(data);
+//            debugger;
         }
-        var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
+
+        if (data.response[0] && data.response[0].result[0]) {
+            var inferredChunkSize = data.response[0].result[0].end - data.response[0].result[0].start +1;
+            if (inferredChunkSize != chunkSize) {
+                console.log("code smell: chunkSize requested: " + chunkSize + ", but obtained: " + inferredChunkSize);
+//                chunkSize = inferredChunkSize;
+            }
+        }
+//        debugger
+
+        for (var i = 0; i < data.response.length; i++) {    // FIXME each response is a sample? in variant too?
+            var queryResult = data.response[i];
+            var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
+            if (items.length > 0) {
+                // if (data.encoded) {decrypt }
+                args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this, category: categories[i]});
+            }
+        }
 
 //        var decryptedChunks = this._decryptChunks(items, "mypassword");
-        /** time log **/
-        console.timeEnd(timeId);
 
+//        /** time log **/
+//        console.timeEnd(timeId);
 
         if (args.webServiceCallCount === 0) {
             args.done();
-        }
-        if (chunks.length > 0) {
-            // if (data.encoded) {decrypt }
-            args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
         }
     },
 
@@ -195,5 +208,48 @@ OpencgaAdapter.prototype = {
             }
         }
         return decryptedChunks;
+    },
+
+    _adaptChunks: function (queryResult, category, dataType, chunkSize) {
+        var chunks;
+        var regions;
+        var items = [];
+//        debugger
+        if (queryResult.resultType == "org.opencb.biodata.models.variant.Variant") {
+            chunks = [];
+            regions = [];
+            var keyToPair = {};
+            for (var i = 0; i < queryResult.result.length; i++) {
+                var variation = queryResult.result[i];
+                var chunkId = this.cache.getChunkId(variation.start, chunkSize);
+                var key = this.cache.getChunkKey(variation.chromosome,
+                    chunkId,
+                    dataType,
+                    chunkSize);
+
+                if (keyToPair[key] == undefined) {
+                    keyToPair[key] = chunks.length;
+                    regions.push(new Region({chromosome:variation.chromosome, start: chunkId*chunkSize, end: (chunkId+1)*chunkSize-1}));
+                    chunks.push([]);
+                }
+                chunks[keyToPair[key]].push(variation);
+            }
+
+//            debugger
+            items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
+        } else { //if(queryResult.resultType == "org.opencb.biodata.models.alignment.AlignmentRegion") {
+            regions = [];
+            for (var j = 0; j < queryResult.result.length; j++) {
+                regions.push(new Region(queryResult.result[j]));
+            }
+            chunks = queryResult.result;
+
+//            if (data.response[i].result.length == 1) {
+//            } else {
+//                console.log("unexpected data structure");
+//            }
+            items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
+        }
+        return items;
     }
 };

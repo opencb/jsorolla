@@ -444,8 +444,8 @@ GenomeViewer.prototype = {
                     event.region = _this.defaultRegion;
                     _this._regionChangeHandler(event);
                 },
-                'autoHeight-button:click': function (event) {
-                    _this.enableAutoHeight();
+                'autoHeight-button:change': function (event) {
+                    _this.toggleAutoHeight(event.selected);
                 },
                 'quickSearch:select': function (event) {
                     goFeature(event.item);
@@ -953,9 +953,9 @@ GenomeViewer.prototype = {
         navigationBar.render(this.getNavigationPanelId());
     },
 
-    enableAutoHeight: function () {
-        this.trackListPanel.enableAutoHeight();
-        this.overviewTrackListPanel.enableAutoHeight();
+    toggleAutoHeight: function (bool) {
+        this.trackListPanel.toggleAutoHeight(bool);
+        this.overviewTrackListPanel.toggleAutoHeight(bool);
     },
     updateHeight: function () {
         this.trackListPanel.updateHeight();
