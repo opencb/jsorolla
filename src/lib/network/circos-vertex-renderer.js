@@ -107,9 +107,9 @@ CircosVertexRenderer.prototype = {
     },
     render: function (args) {
         this.targetEl = args.target;
-        this.vertex = args.vertex;
-        this.coords = args.coords;
-        this.labelText = this.vertex.id;
+        //this.vertex = args.vertex;
+        //this.coords = args.coords;
+        //this.labelText = this.vertex.id;
         this._render();
     },
     remove: function () {

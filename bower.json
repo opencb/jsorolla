@@ -22,6 +22,7 @@
     "polymer-fontawesome": "~1.0.0-beta.2",
     "fontawesome": "~4.2.0",
     "d3": "~3.4.13",
-    "sortable-table": "~0.10.0"
+    "sortable-table": "~0.10.0",
+    "js-xlsx": "~0.7.11"
   }
 }

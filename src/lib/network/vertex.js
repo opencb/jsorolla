@@ -26,21 +26,32 @@ function Vertex(args) {
     this.edgesIndex = {};
 
     this.position = new Point();
-
+    this.renderer;
 
     //set instantiation args, must be last
     _.extend(this, args);
+
+    if(this.renderer){
+        this.renderer.coords = this.position;
+        this.renderer.vertex = this;
+    }
 }
 
 Vertex.prototype = {
     removeEdge: function (edge) {
-        for (var i = 0; i < this.edges.length; i++) {
-            if (this.edges[i].id === edge.id) {
-                this.edges.splice(i, 1);
-                delete this.edgesIndex[edge.id];
-                break;
-            }
+        var position = this.edgesIndex[edge.id];
+        if(position){
+            this.edges.splice(position, 1);
+            delete this.edgesIndex[edge.id];
         }
+        //
+        //for (var i = 0; i < this.edges.length; i++) {
+        //    if (this.edges[i].id === edge.id) {
+        //        this.edges.splice(i, 1);
+        //        delete this.edgesIndex[edge.id];
+        //        break;
+        //    }
+        //}
     },
     removeEdges: function () {
         this.edges = [];
@@ -58,6 +69,9 @@ Vertex.prototype = {
         } else {
             return false;
         }
+    },
+    render:function(args){
+        this.renderer.render(args)
     },
     toJSON: function () {
         return {

@@ -158,7 +158,6 @@
                 value: function (attr, oldVal, newVal) {
                     switch (attr) {
                         case 'color':
-                            console.log('attributechanged')
                             this._updateColorEls();
                             this.dispatchEvent(new CustomEvent("change", {"detail": {"color": this.getColor()}}));
                             break;

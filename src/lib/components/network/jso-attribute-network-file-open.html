@@ -1,0 +1,252 @@
+<polymer-element name="jso-attribute-network-file-open" attributes="selectedMenu type">
+<template>
+    <link rel="stylesheet" href="../jso-style.css">
+    <link rel="stylesheet" href="../sortable-table.css">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+            padding: 20px 60px;
+
+            z-index: 50000;
+            top: 170px;
+
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+
+            width: 50vw;
+            border: 0px solid #c6d0da;
+            border-width: 1px;
+            /*border-top-width: 1px;*/
+            transition: all 0.2s;
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+            /*color: #666;*/
+            padding-bottom: 20px;
+            color: #445D76;
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 130px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .message {
+        }
+
+        .bbar {
+            height: 40px;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        .bbar > * {
+            width: 100px;
+            float: right;
+            margin-left: 10px;
+            text-align: center;
+        }
+
+        #table {
+            overflow-y: auto;
+            height: 300px;
+            margin: 10px 0px;
+            border: 1px solid #d3d3d3;
+        }
+
+        div.button {
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .columns {
+            margin-right: 15px;
+        }
+
+        /*.columns input:first-child {*/
+        /*margin-right: 1px;*/
+        /*margin-left: 0px;*/
+        /*}*/
+
+        /*.columns input:last-child {*/
+        /*margin-right: 0px;*/
+        /*margin-left: 1px;*/
+        /*}*/
+        .columns > div {
+            position: relative;
+            margin: 0 1px;
+        }
+
+        .columns > div:first-of-type {
+            margin-right: 1px;
+            margin-left: 0px;
+        }
+
+        .columns > div:last-of-type {
+            margin-right: 0px;
+            margin-left: 1px;
+        }
+
+        .columns input {
+            width: 100%;
+        }
+
+        .columns input[type=checkbox] {
+            font-size: 1.2em;
+            margin-bottom: 4px;
+            outline: 0;
+        }
+
+        /*.columns input {*/
+        /*width:100%;*/
+        /*margin-right: 1px;*/
+        /*margin-left: 1px;*/
+        /*}*/
+
+    </style>
+
+    <form id="form">
+        <div class="title">
+            Import {{type}} attributes file
+        </div>
+
+        <label>Select attributes file:</label>
+
+        <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+        <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+
+        <br><br>
+
+        <div class="columns" horizontal layout>
+            <template repeat="{{column, index in columns}}">
+                <div vertical layout flex>
+                    <template if="{{column.name != 'id'}}">
+                        <input type="checkbox" checked="true" data-index="{{index}}"
+                               on-change="{{handleIgnoreColumn}}">
+                        <input type="text" value="{{columns[index].title}}">
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <sortable-table id="table" data="{{data}}" columns="{{columns}}">
+            <!--<template id="inputTemplate">-->
+            <!--<td class="edit">-->
+            <!--<input type="text" value="{{row[column.name]}}">-->
+            <!--</td>-->
+            <!--</template>-->
+        </sortable-table>
+
+
+        <div class="message">{{message}}</div>
+        <div class="bbar">
+            <div class="button" on-click="{{handleCancel}}">Cancel</div>
+            <div class="button" on-click="{{handleOk}}">OK</div>
+        </div>
+
+
+    </form>
+</template>
+<script>
+    Polymer({
+        created: function () {
+
+            this.data = [];
+            this.columns = [];
+
+            this.ignoreColumns = {};
+
+            this.json;
+
+            this.fileName = 'Choose file...';
+            this.message = ' ';
+        },
+        handleOk: function () {
+            var me = this;
+            new AttributeNetworkDataAdapter({
+                ignoreColumns: this.ignoreColumns,
+                dataSource: new FileDataSource({file: this.$.fileInput.files[0]}),
+                handlers: {
+                    'data:load': function (event) {
+                        var attributeManager = event.attributeManager;
+
+                        //TODO TEST rename attributes
+                        var renameMap = {};
+                        for (var i = 0; i < me.columns.length; i++) {
+                            var col = me.columns[i];
+                            renameMap[col.name] = col;
+                        }
+                        for (var i = 0; i < attributeManager.columns.length; i++) {
+                            var col = attributeManager.columns[i];
+                            if (renameMap[col.name].title != null && renameMap[col.name].title !== '') {
+                                col.name = renameMap[col.name].title;
+                            }
+                            col.cellTemplate = "inputTemplate";
+                        }
+
+                        me.selectedMenu = '';
+                        me.fire('open', {attributeManager: attributeManager});
+                    },
+                    'error:parse': function (event) {
+                        me.message = event.errorMsg;
+                    }
+                }
+            });
+
+        },
+        handleIgnoreColumn: function (e) {
+            this.ignoreColumns[e.currentTarget.dataset.index] = !e.currentTarget.checked;
+        },
+        handleCancel: function () {
+            this.selectedMenu = '';
+        },
+        handleBrowseClick: function (e) {
+            this.$.fileInput.click();
+        },
+        handleInputChange: function (e) {
+            var me = this;
+            this.fileName = this.$.fileInput.files[0].name;
+            this.message = '';
+
+            if (this.$.form.checkValidity()) {
+                this.adapter = new AttributeNetworkDataAdapter({
+                    dataSource: new FileDataSource({file: this.$.fileInput.files[0]}),
+                    handlers: {
+                        'data:load': function (event) {
+                            me.processData(event.attributeManager);
+                        },
+                        'error:parse': function (event) {
+                            me.message = event.errorMsg;
+                        }
+                    }
+                });
+            }
+        },
+        processData: function (attributeManager) {
+            this.ignoreColumns = {};
+            for (var i = 0; i < attributeManager.columns.length; i++) {
+                var column = attributeManager.columns[i];
+                column.title = column.name;
+                this.ignoreColumns[i] = false;
+            }
+            this.columns = attributeManager.columns;
+            this.data = attributeManager.data;
+        }
+    });
+</script>
+</polymer-element>
