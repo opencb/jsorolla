@@ -34,7 +34,7 @@ function NetworkViewer(args) {
     this.width;
     this.border = true;
     this.overviewScale = 0.2;
-    this.session;
+    this.session = new NetworkSession();
 
     //set instantiation args, must be last
     _.extend(this, args);

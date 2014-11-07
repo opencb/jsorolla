@@ -32,9 +32,38 @@ function SequenceTrack(args) {
     _.extend(this, args);
 };
 
+SequenceTrack.prototype.clean = function () {
+//    console.time("-----------------------------------------empty");
+    while (this.svgCanvasFeatures.firstChild) {
+        this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
+    }
+//    console.timeEnd("-----------------------------------------empty");
+    this._clean();
+};
+
 SequenceTrack.prototype.render = function (targetId) {
     var _this = this;
     this.initializeDom(targetId);
+    /* Internal svg structure */
+    this.main = SVG.addChild(this.contentDiv, 'svg', {
+        'id': this.id,
+        'class': 'trackSvg',
+        'x': 0,
+        'y': 0,
+        'width': this.width,
+        'height': this.height
+    });
+    this.svgGroup = SVG.addChild(this.main, "g", {
+
+    });
+    this.svgCanvasFeatures = SVG.addChild(this.svgGroup, 'svg', {
+        'class': 'features',
+        'x': -this.pixelPosition,
+        'width': this.svgCanvasWidth,
+        'height': this.height
+    });
+    /**/
+
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
@@ -58,7 +87,7 @@ SequenceTrack.prototype.draw = function () {
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
-    this.cleanSvg();
+    this.clean();
 
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
@@ -69,9 +98,9 @@ SequenceTrack.prototype.draw = function () {
                 end: this.region.end + this.svgCanvasOffset * 2
             })
         });
-        this.invalidZoomText.setAttribute("visibility", "hidden");
+//        this.invalidZoomText.setAttribute("visibility", "hidden");
     } else {
-        this.invalidZoomText.setAttribute("visibility", "visible");
+//        this.invalidZoomText.setAttribute("visibility", "visible");
     }
 
 

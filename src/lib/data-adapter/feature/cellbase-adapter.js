@@ -37,7 +37,7 @@ function CellBaseAdapter(args) {
     _.extend(this.cacheConfig, args.cacheConfig);
 
     this.cache = new FeatureChunkCache(this.cacheConfig);
-    this.debug = true;
+    this.debug = false;
 }
 
 CellBaseAdapter.prototype = {
@@ -70,7 +70,7 @@ CellBaseAdapter.prototype = {
         }
 
         /** 4 chunkSize check **/
-        var chunkSize = args.params.interval? args.params.interval : this.cacheConfig.defaultChunkSize; // this.cache.defaultChunkSize should be the same
+        var chunkSize = args.params.interval? args.params.interval : this.cacheConfig.chunkSize; // this.cache.defaultChunkSize should be the same
         if (this.debug) {
             console.log(chunkSize);
         }
@@ -85,7 +85,7 @@ CellBaseAdapter.prototype = {
 
             var category = categories[0];
             var categoriesName = "";
-            for (var j in categories) {
+            for (var j = 0; j < categories.length; j++) {
                 categoriesName += "," + categories[j];
             }
             categoriesName = categoriesName.slice(1);   // to remove first ','
@@ -134,13 +134,13 @@ CellBaseAdapter.prototype = {
 
     _cellbaseSuccess: function (data, categories, dataType, chunkSize, args) {
         args.webServiceCallCount--;
-        var timeId = Utils.randomString(4) + this.resource + " save " + timeId;
+        var timeId = Utils.randomString(4) + this.resource + " save";
         console.time(timeId);
         /** time log **/
 
         var regions = [];
         var chunks = [];
-        for (var i = 0; i < data.response.length; i++) {
+        for (var i = 0; i < data.response.length; i++) {    // TODO test what do several responses mean
             var queryResult = data.response[i];
             if (dataType == "histogram") {
                 for (var j = 0; j < queryResult.result.length; j++) {

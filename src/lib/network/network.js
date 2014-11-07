@@ -42,7 +42,7 @@ function Network(args) {
         {name: "Relation", type: "string", defaultValue: "none"}
     ];
 
-    this.vertexAttributeManager = new AttributeManagerStore({
+    this.vertexAttributeManager = new AttributeManagerMemory({
         attributes: vertexAttributes,
         handlers: {
             'change:attributes': function (e) {
@@ -50,7 +50,7 @@ function Network(args) {
             }
         }
     });
-    this.edgeAttributeManager = new AttributeManagerStore({
+    this.edgeAttributeManager = new AttributeManagerMemory({
         attributes: edgeAttributes,
         handlers: {
             'change:attributes': function (e) {
@@ -68,7 +68,7 @@ function Network(args) {
 Network.prototype = {
     setGraph: function (graph) {
         console.time('Network.setGraph');
-        this.batchStart();
+//        this.batchStart();
         this.clean();
         var edges = graph.edges;
         var vertices = graph.vertices;
@@ -94,7 +94,7 @@ Network.prototype = {
                 });
             }
         }
-        this.batchEnd();
+//        this.batchEnd();
         console.timeEnd('Network.setGraph');
     },
     getGraph: function () {
@@ -104,7 +104,7 @@ Network.prototype = {
         console.time('Network.draw');
         var parent = target.parentNode;
         parent.removeChild(target);
-        this.batchStart();
+//        this.batchStart();
         var edges = this.graph.edges;
         var vertices = this.graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
@@ -119,10 +119,10 @@ Network.prototype = {
                 this.renderEdge(edge, target);
             }
         }
-        this.batchEnd();
+//        this.batchEnd();
         console.timeEnd('Network.draw');
         parent.appendChild(target);
-        this.trigger('draw');
+//        this.trigger('draw');
     },
     addVertex: function (args) {
         var vertex = args.vertex;
@@ -281,6 +281,10 @@ Network.prototype = {
         });
     },
     setVertexLabel: function (vertex, label) {
+        if (typeof vertex !== 'undefined') {
+            var vertexConfig = this.getVertexConfig(vertex);
+            vertexConfig.renderer.setLabelContent(label);
+        }
         this.vertexAttributeManager.setRecordAttributeById(vertex.id, 'Name', label);
     },
     setVertexLabelByAttribute: function (attributeName) {
@@ -298,6 +302,10 @@ Network.prototype = {
         }
     },
     setEdgeLabel: function (edge, label) {
+        if (typeof edge !== 'undefined') {
+            var edgeConfig = this.getEdgeConfig(edge);
+            edgeConfig.renderer.setLabelContent(label);
+        }
         this.edgeAttributeManager.setRecordAttributeById(edge.id, 'Name', label);
     },
     setEdgeLabelByAttribute: function (attributeName) {
@@ -860,7 +868,7 @@ Network.prototype = {
         this.vertexAttributeManager.addAttributes(vertexAttributes);
         this.edgeAttributeManager.addAttributes(edgeAttributes);
 
-        this.trigger('clean');
+//        this.trigger('clean');
         console.timeEnd('Network.clean')
     },
 

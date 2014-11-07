@@ -95,6 +95,7 @@
     <script type="text/javascript" src="renderers/histogram-renderer.js"></script>
     <script type="text/javascript" src="renderers/gene-renderer.js"></script>
     <script type="text/javascript" src="renderers/alignment-renderer.js"></script>
+    <script type="text/javascript" src="renderers/variant-renderer.js"></script>
 
 
     <!--<script type="text/javascript" src="fakeBam.js"></script>-->
@@ -333,29 +334,76 @@ var run = function () {
     });
 
     tracks.push(this.snp);
-      /*
-*/
-    this.alignment = new AlignmentTrack({
+     /*
+*//*
+    this.alignment = new MultisampleTrack({
         title: 'Alignments',
         featureType: 'Alignments',
         minHistogramRegionSize: 10000,
         maxLabelRegionSize: 3000,
-        height: 100,
+        height: 300,
+        samples: ['34', '4'],
+        featureTypes: ['alignments', 'alignments'],
+//        autoHeight: true,
 
-        renderer: new AlignmentRenderer(FEATURE_TYPES.bam),
+        alignmentRenderer: new AlignmentRenderer(FEATURE_TYPES.bam),
 
         dataAdapter: new OpencgaAdapter({
-            resource: "alignment",  // TODO needed?
-            subResource: "file",
+//            resource: "alignment",  // TODO needed?
+//            subResource: "file",    // TODO needed?
+            sid: "RNk4P0ttFGHyqLA3YGS8",
             cacheConfig: {
-                defaultChunkSize: 1000,
+                defaultChunkSize: 1500,
                 cacheId: "opencga:alignment"
             }
         })
 
     });
-
     tracks.push(this.alignment);
+
+    this.variant = new MultisampleTrack({
+        title: 'Variant',
+        featureType: 'vcf',
+        minHistogramRegionSize: 10000,
+        maxLabelRegionSize: 3000,
+        height: 100,
+        samples: ['32', '87'],
+        featureTypes: ['variants', 'variants'],
+
+        variantRenderer: new VariantRenderer(FEATURE_TYPES.opencgaVariant),
+
+        dataAdapter: new OpencgaAdapter({
+            sid: "RNk4P0ttFGHyqLA3YGS8",
+            cacheConfig: {
+                defaultChunkSize: 1500,
+                cacheId: "opencga:alignment"
+            }
+        })
+    });
+    tracks.push(this.variant);
+*/
+
+    this.variant = new MultisampleTrack({
+        title: 'Alignment+Variant',
+//        featureType: 'mixed',   // FIXME this can explode
+        minHistogramRegionSize: 10000,
+        maxLabelRegionSize: 3000,
+        height: 200,
+        samples: ['34', '87'],
+        featureTypes: ['alignments', 'variants'],
+
+        variantRenderer: new VariantRenderer(FEATURE_TYPES.opencgaVariant),
+        alignmentRenderer: new AlignmentRenderer(FEATURE_TYPES.bam),
+
+        dataAdapter: new OpencgaAdapter({
+            sid: "RNk4P0ttFGHyqLA3YGS8",
+            cacheConfig: {
+                defaultChunkSize: 1500,
+                cacheId: "opencga:alignment"
+            }
+        })
+    });
+    tracks.push(this.variant);
 
 //    /***************************************/
 //    var geneEnsembl = new FeatureTrack({

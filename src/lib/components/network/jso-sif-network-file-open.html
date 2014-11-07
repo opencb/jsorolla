@@ -1,0 +1,169 @@
+<polymer-element name="jso-sif-network-file-open" attributes="selectedMenu">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 20px 60px;
+
+                z-index: 50000;
+                top: 170px;
+
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+
+                width: 50vw;
+                border: 0px solid #c6d0da;
+                border-width: 1px;
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                /*color: #666;*/
+                padding-bottom: 20px;
+                color: #445D76;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                display: inline-block;
+                width: 100px;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .message {
+            }
+
+            .bbar {
+                height: 40px;
+                box-sizing: border-box;
+                margin-top: 10px;
+            }
+
+            .bbar > * {
+                width: 100px;
+                float: right;
+                margin-left: 10px;
+                text-align: center;
+            }
+
+            #table {
+                overflow-y: auto;
+                height: 300px;
+                margin: 10px 0px;
+                border: 1px solid #d3d3d3;
+            }
+
+            div.button {
+                display: inline-block;
+                min-width: 200px;
+            }
+        </style>
+
+        <form id="form">
+            <div class="title">
+                Import a network SIF file
+            </div>
+
+            <label>Select SIF file</label>
+
+            <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+
+            <sortable-table id="table">
+                <sortable-column>Source node</sortable-column>
+                <sortable-column>Relation</sortable-column>
+                <sortable-column>Target node</sortable-column>
+            </sortable-table>
+
+            <div class="message">{{message}}</div>
+            <div class="bbar">
+                <div class="button" on-click="{{handleCancel}}">Cancel</div>
+                <div class="button" on-click="{{handleOk}}">OK</div>
+            </div>
+        </form>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.fileName = 'Choose file...';
+                this.message = ' ';
+                this.graph;
+            },
+            handleOk: function () {
+                if (this.graph) {
+                    this.selectedMenu = '';
+                    this.fire('graph', {graph: this.graph});
+                }
+            },
+            handleCancel: function () {
+                this.selectedMenu = '';
+            },
+            handleBrowseClick: function (e) {
+                this.$.fileInput.click();
+            },
+            handleInputChange: function (e) {
+                var me = this;
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name;
+                this.message = '';
+
+                if (this.$.form.checkValidity()) {
+                    this.dataAdapter = new SIFNetworkDataAdapter({
+                        dataSource: new FileDataSource({file: inputFile}),
+                        handlers: {
+                            'data:load': function (event) {
+                                me.processData(event.graph);
+                            },
+                            'error:parse': function (event) {
+                                me.message = event.errorMsg;
+                            }
+                        }
+                    });
+                }
+            },
+            processData: function (graph) {
+                try {
+//                    this.content = graph; //para el onOK.notify event
+                    var verticesLength = graph.vertices.length;
+                    var edgesLength = graph.edges.length;
+
+                    var edges = graph.edges;
+                    var data = [];
+                    for (var i = 0; i < edges.length; i++) {
+                        var edge = edges[i];
+                        data.push([edge.source.id, edge.relation, edge.target.id]);
+                    }
+
+                    this.$.table.data = data;
+
+                    this.message = 'File loaded sucessfully, Vertices:' + verticesLength + ', edges:' + edgesLength + '';
+
+                    this.graph = graph;
+                } catch (e) {
+                    this.message = 'File not valid. ';
+                    console.log(e)
+                }
+            }
+        });
+    </script>
+</polymer-element>
