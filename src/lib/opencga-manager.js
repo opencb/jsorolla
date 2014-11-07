@@ -168,9 +168,21 @@ var OpencgaManager = {
         },
         index: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'index');
+        },
+        search: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'search');
         }
     },
-
+    jobs: {
+        create: function (args) {
+            return OpencgaManager._doRequest(args, 'job', 'create');
+        }
+    },
+    analysis: {
+        jobs: function (args) {
+            return OpencgaManager._doRequest(args, 'analysis', 'jobs');
+        }
+    },
     _url: function (args, api, action) {
         var host = OpencgaManager.host;
         if (typeof args.request.host !== 'undefined' && args.request.host != null) {

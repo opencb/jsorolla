@@ -1,0 +1,69 @@
+<link rel="import" href="jso-job.html">
+<polymer-element name="jso-analysis-panel" attributes="showJobs selectedOption jobItem">
+    <template>
+        <link rel="stylesheet" href="../jso-panel.css">
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+            .id {
+            }
+        </style>
+        <div class="panel">
+            <div class="header"
+                 on-click="{{titleClick}}"
+                 data-collapsible="{{collapsible}}"
+                 data-collapsed="{{collapsed}}">
+                Analysis panel
+            </div>
+            <div class="container">
+                <template repeat="{{jobItemList in jobList}}">
+                    <jso-job jobItem="{{jobItemList}}" on-click="{{handleJobViewClick}}"></jso-job>
+                </template>
+            </div>
+        </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobList = ""
+                this.selected = false
+
+            },
+            showJobsChanged: function (oldV, newV) {
+
+                var me = this;
+                OpencgaManager.analysis.jobs({
+                    id: 1,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            var results;
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.jobList = response.response[0].result
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            handleJobViewClick: function (e) {
+                this.selectedOption = "jobView"
+                this.jobItem = e.target.jobItem
+                console.log(this.jobItem)
+            }
+
+        });
+    </script>
+</polymer-element>

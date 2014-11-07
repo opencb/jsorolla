@@ -1,0 +1,333 @@
+<polymer-element name="jso-network-miner" attributes="userData">
+<template>
+    <link rel="stylesheet" href="../jso-style.css">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+            padding: 30px 100px;
+
+            z-index: 50000;
+            top: 90px;
+
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+
+            width: 40vw;
+            border: 0px solid #c6d0da;
+            border-width: 1px;
+            /*border-top-width: 1px;*/
+            transition: all 0.2s;
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+            color: #666;
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        label {
+            display: inline-block;
+            color: #666;
+            margin-top: 3px;
+            /*width: 150px;*/
+        }
+
+        label::after {
+            content: ':'
+        }
+
+        .action {
+            /*margin-top: 30px;*/
+            background-color: #f5f5f5 !important;
+            text-align: center;
+        }
+
+        .action:active {
+            background-color: #445D76 !important;
+            color: #fff !important;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        div.button {
+            /*display: inline-block;*/
+            width: 300px
+        }
+        .inputListTextArea{
+            width: 300px;
+            height: 50px;
+        }
+        jso-file-browser{
+            width: 70%;
+        }
+    </style>
+    <div class="title">
+        <div>
+            Network Miner
+        </div>
+        <div class="icon">
+            <font-awesome icon="magic"></font-awesome>
+        </div>
+    </div>
+    <form id="form">
+        <h3>Examples</h3>
+
+        <div class="button action" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>
+
+        <h3>Input parameters</h3>
+        <label>Enter accession ranked list</label> <textarea id="rankedListArea" class="inputListTextArea" value="{{rankedListArea}}" required pattern="[a-zA-Z0-9]+"></textarea>
+        <template if="{{rankedListClickEnabled}}">
+            <jso-file-browser selectedFile="{{rankedListFileName}}" userData="{{userData}}"></jso-file-browser>
+        </template>
+        <label>Or, upload file</label>
+        <div class="button action" on-click="{{rankedListClick}}">{{rankedListFileName.name}}</div>
+        <!--<input type="file" hidden id="rankedListFileName" required on-change="{{rankedListFileNameChange}}">-->
+
+        <label>Enter accession seed list (optional)</label> <textarea id="seedListArea" class="inputListTextArea" value="{{seedListArea}}" required pattern="[a-zA-Z0-9]+"></textarea>
+        <label>Or, upload file</label>
+
+        <div class="button action" on-click="{{seedListClick}}">{{seedListFileName}}</div>
+        <input type="file" hidden id="seedListFileName" required on-change="{{seedListFileNameChange}}">
+
+        <label>List Nature</label>
+        <div class="dropdown">
+            <div tabindex="-1" class="button">
+                {{listTagsText}}
+            </div>
+            <ul  on-click="{{handleListTags}}">
+                <li data-value="gene">Gene</li>
+                <li data-value="ranked">Ranked</li>
+                <li data-value="protein">Protein</li>
+                <li data-value="transcript">Transcript</li>
+            </ul>
+        </div>
+
+        <label>Species</label>
+        <div class="dropdown">
+            <div tabindex="-1" class="button">
+                {{interactomeText}}
+            </div>
+            <ul  on-click="{{handleInteractome}}">
+                <li data-value="hsa">Homo sapiens</li>
+            </ul>
+        </div>
+
+        <label>Select interactome confidence</label>
+        <div class="dropdown">
+            <div tabindex="-1" class="button">
+                {{groupText}}
+            </div>
+            <ul  on-click="{{handleGroup}}">
+                <li data-value="all">Non curated</li>
+                <li data-value="curated">Curated (detected by at least two methods)</li>
+            </ul>
+        </div>
+
+        <label>Sort ranked list</label>
+        <div class="dropdown">
+            <div tabindex="-1" class="button">
+                {{orderText}}
+            </div>
+            <ul  on-click="{{handleOrder}}">
+                <li data-value="ascending">Ascending</li>
+                <li data-value="descending">Descending</li>
+            </ul>
+        </div>
+
+        <label>Allow one external intermediate in the subnetwork</label>
+        <div class="dropdown">
+            <div tabindex="-1" class="button">
+                {{intermediateText}}
+            </div>
+            <ul  on-click="{{handleIntermediate}}">
+                <li data-value=1>Yes</li>
+                <li data-value=0>No</li>
+            </ul>
+        </div>
+
+        <label>Allow one external intermediate in the subnetwork</label><input type="text" id="intermediate"
+                                                                               value="{{intermediate}}" required
+                                                                               pattern="[a-zA-Z0-9]+">
+
+        <h3>Job information</h3>
+        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+
+        <div class="button action" on-click="{{handleForm}}">Run</div>
+    </form>
+    <div class="message">{{message}}</div>
+</template>
+<script>
+    Polymer({
+        created: function () {
+            this.jobName = 'Job name'
+            this.toolName = "network-miner"
+            this.message = ''
+            this.rankedListFileName = {name:"Choose file"}
+            this.seedListFileName = "Choose file"
+            this.example = false
+
+            this.listTags = "gene"
+            this.listTagsText = "Gene"
+
+            this.interactome = "hsa"
+            this.interactomeText = "Homo sapiens"
+
+            this.significant_value = 0.05
+
+            this.group="all"
+            this.groupText="Non curated"
+
+            this.order="ascending"
+            this.orderText="Ascending"
+
+            this.intermediate=1
+            this.intermediateText="Yes"
+
+            this.rankedFile = "";
+
+
+        },
+
+        handleForm: function (e) {
+            var me = this;
+            this.message = '';
+
+            //if (this.$.form.checkValidity()) {
+            //me.message = "xx"
+            //var params = new Object()
+
+            OpencgaManager.jobs.create({
+                query: {
+                    //userId: 1,
+                    //projectId: 1,
+                    //studyId: 1,
+                    sid: Cookies("bioinfo_sid"),
+                    analysisId: 1,
+                    toolId: this.toolName,
+                    jobName: this.jobName,
+                    description: "description",
+                    list: 4,
+                    seedlist: 5,
+                    outdir: 6,
+                    interactome: this.interactome,
+                    "o-name": "result",
+                    intermediate: this.intermediate,
+                    group: this.group,
+                    order: this.order,
+                    "significant-value": 0.05,
+                    randoms: 500,
+                    components: false,
+                    "list-tags": this.listTags,
+                    example: this.example
+
+                    //ranked-list:
+                },
+                request: {
+                    //method: 'POST',
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            var userId = response.response[0].result[0].id;
+                            me.message = userId + ' created';
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            })
+            //}
+        },
+        loadExample1: function (e) {
+            var me = this;
+            this.message = '';
+            this.rankedListFileName = "BD-GWASplink.txt"
+            this.seedListFileName = "BD-associatedgenesUniprot.txt"
+            this.list = "gene"
+            this.interactome = "hsa"
+            this.group = "all"
+            this.order = "ascending"
+            this.intermediate = 1
+            this.significant_value = 0.05
+            this.jobName = "Example_1"
+            this.example = true
+            if (this.$.form.checkValidity()) {
+                //me.message = "xx"
+            }
+        },
+        rankedListClick: function (e) {
+            this.rankedListClickEnabled = !this.rankedListClickEnabled
+            //this.$.rankedListFileName.click();
+
+        },
+        seedListClick: function (e) {
+            this.$.seedListFileName.click();
+        },
+        rankedListFileNameChange: function (e) {
+            this.rankedListFileName = this.$.rankedListFileName.files[0];
+            //this.fileNameRanked = inputFile.name
+        },
+        seedListFileNameChange: function (e) {
+            this.seedListFileName = this.$.seedListFileName.files[0];
+            //this.fileNameRanked = inputFile.name
+        },
+        handleListTags: function(e){
+            this.listTags = e.target.dataset.value;
+            this.listTagsText = e.target.innerText;
+        },
+        handleInteractome: function(e){
+            this.interactome = e.target.dataset.value;
+            this.interactomeText = e.target.innerText;
+        },
+        handleGroup: function(e){
+            this.group = e.target.dataset.value;
+            this.groupText = e.target.innerText;
+        },
+        handleOrder: function(e){
+            this.order = e.target.dataset.value;
+            this.orderText = e.target.innerText;
+        },
+        handleIntermediate: function(e){
+            this.intermediate = e.target.dataset.value;
+            this.intermediateText = e.target.innerText;
+        }
+    });
+</script>
+</polymer-element>
+<polymer-element name="jso-opencga-list-item" attributes="item">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+            .id {
+                color: #888;
+            }
+        </style>
+        <!--<font-awesome icon="folder-o"></font-awesome>-->
+        &nbsp; {{item.name}} &nbsp; <span class="id"> {{item.name}} </span>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+            }
+        });
+    </script>
+</polymer-element>

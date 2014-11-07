@@ -1,0 +1,237 @@
+<link rel="import" href="jso-opencga-project.html">
+<link rel="import" href="jso-opencga-study.html">
+<link rel="import" href="jso-opencga-create-project.html">
+<link rel="import" href="jso-opencga-create-study.html">
+<link rel="import" href="jso-opencga-upload.html">
+
+
+<polymer-element name="jso-file-browser" attributes="userData selectedFile">
+<template>
+<link rel="stylesheet" href="../jso-style.css">
+<link rel="stylesheet" href="../jso-panel.css">
+<style>
+    :host {
+        display: block;
+        position: absolute;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        /*padding: 30px 10px;*/
+
+        z-index: 50000;
+        top: 200px;
+
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
+
+        /*width: 70%;*/
+        border: 0px solid #c6d0da;
+        /*border-width: 1px;*/
+        /*border-top-width: 1px;*/
+        transition: all 0.2s;
+        box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+    }
+    #projectsContent {
+        box-sizing: border-box;
+        overflow-y: auto;
+        width: 200px;
+        border: 0px solid #d3d3d3;
+        border-right-width: 1px;
+    }
+
+    #studiesContent {
+        box-sizing: border-box;
+        overflow-y: auto;
+        width: 200px;
+        border: 0px solid #d3d3d3;
+        border-right-width: 1px;
+    }
+
+    #study {
+        position: relative;
+    }
+
+    .project:hover {
+        background-color: #D1D9E3;
+    }
+
+    .project {
+        box-sizing: border-box;
+        padding: 5px 5px;
+        margin: 2px;
+    }
+
+    .project[data-selected=true] {
+        background-color: #D1D9E3;
+    }
+
+    .study:hover {
+        background-color: #D1D9E3;
+    }
+
+    .study {
+        box-sizing: border-box;
+        padding: 5px 5px;
+        margin: 2px;
+    }
+
+    .study[data-selected=true] {
+        background-color: #D1D9E3;
+    }
+</style>
+
+<div class="panel">
+    <div class="header">
+        Select file...
+    </div>
+
+    <div class="container" horizontal layout flex>
+        <div id="projectsContent">
+            <template repeat="{{project in userData.projects}}">
+                <jso-opencga-project
+                        class="project" project="{{project}}" data-selected="{{selectedProject == project}}"
+                        on-click="{{handleProjectClick}}">
+                </jso-opencga-project>
+            </template>
+        </div>
+        <template if="{{ selectedProject.studies.length > 0 }}">
+            <div id="studiesContent">
+                <template repeat="{{study in selectedProject.studies}}">
+                    <jso-opencga-study-card
+                            class="study" study="{{study}}" data-selected="{{selectedStudy == study}}"
+                            on-click="{{handleStudyClick}}">
+                    </jso-opencga-study-card>
+                </template>
+            </div>
+        </template>
+        <template if="{{ selectedProject.studies.length > 0 && selectedStudy }}">
+            <div id="study" flex>
+                <template repeat="{{fileItem in files}}">
+                    <jso-opencga-file-item file="{{fileItem}}" on-click="{{handleFileClick}}"
+                                           data-selected="{{fileSelected==fileItem}}" class="study">{{fileItem.name}}
+                    </jso-opencga-file-item>
+                </template>
+            </div>
+        </template>
+    </div>
+    <div class="footer">
+        <input type="button" value="OK" onclick="{{handleOkButton}}"><input type="button" value="Cancel">
+    </div>
+</div>
+</template>
+<script>
+    Polymer({
+        created: function () {
+
+            this.userData;
+            debugger
+            this.selectedOption;
+            this.selectedOptionText;
+
+            this.selectedProject;
+            this.selectedStudy;
+
+            this.selectedFile;
+
+            this.okButton = false;
+        },
+        userDataChanged: function (oldValue, newValue) {
+            if (newValue) {
+                var projects = newValue.projects;
+                if (this.selectedProject) {
+                    for (var i = 0; i < projects.length; i++) {
+                        var project = projects[i];
+                        if (this.selectedProject.id === project.id) {
+                            this.selectedProject = project;
+                            break;
+                        }
+                    }
+                }
+                if (this.selectedStudy) {
+                    for (var i = 0; i < this.selectedProject.studies.length; i++) {
+                        var study = this.selectedProject.studies[i];
+                        if (this.selectedStudy.id === study.id) {
+                            this.selectedStudy = study;
+                            break;
+                        }
+                    }
+                }
+            }
+        },
+        checkNavigtationSelected: function () {
+            return e.target.dataset['content'] === this.selectedNavigation;
+        },
+
+        handleProjectClick: function (e) {
+            if (this.selectedProject === e.target.project) {
+                this.selectedProject = null;
+            } else {
+                this.selectedProject = e.target.project;
+            }
+            this.selectedStudy = null;
+        },
+        handleStudyClick: function (e) {
+            if (this.selectedStudy === e.target.study) {
+                this.selectedStudy = null;
+            } else {
+                this.selectedStudy = e.target.study;
+            }
+            me = this
+            OpencgaManager.files.search({
+                query: {
+                    //userId: 1,
+                    //projectId: 1,
+                    //studyId: 1,
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    type: "file"
+                },
+                request: {
+                    //method: 'POST',
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            var userId = response.response[0].result[0].id;
+                            me.message = userId + ' created';
+                            me.files = response.response[0].result
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            })
+        },
+        handleFileClick: function (e) {
+            this.selectedFile = e.currentTarget.file;
+        },
+        handleOkClick: function (e) {
+            this.okButton = true
+        }
+    });
+</script>
+</polymer-element>
+<polymer-element name="jso-opencga-file-item" attributes="file">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+            .id {
+                color: #888;
+            }
+        </style>
+        {{file.name}}
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.file;
+            }
+        });
+    </script>
+</polymer-element>
