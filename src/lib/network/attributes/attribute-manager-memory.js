@@ -71,18 +71,54 @@ AttributeManagerMemory.prototype = {
             return;
         }
         var position = this.dataIndex[row.id];
-        delete this.dataIndex[row.id];
         var removedRow = this.data.splice(position, 1);
+        this._rebuildDataIndex();
 
         return removedRow;
     },
+    removeRows:function(rows){
+        for (var i = 0, l = rows.length; i < l; i++) {
+            var row = rows[i];
+            if (this.containsRow(row)) {
+                this.data[this.dataIndex[row.id]] = null;
+            }
+        }
+        this._rebuildData();
+    },
     removeRowById: function (id) {
         return this.removeRow(this.data[this.dataIndex[id]]);
+    },
+    removeRowsByIds: function (ids) {
+        for (var i = 0, l = ids.length; i < l; i++) {
+            var id = ids[i];
+            if (this.containsRowById(id)) {
+                this.data[this.dataIndex[id]] = null;
+            }
+        }
+        this._rebuildData();
     },
     getRow: function (id) {
         return this.data[this.dataIndex[id]]
     },
 
+    _rebuildData:function(){
+        var newData = [];
+        for (var i = 0, l = this.data.length; i < l; i++) {
+            var row = this.data[i];
+            if (row != null) {
+                newData.push(row);
+            }
+        }
+        this.data = newData;
+        this._rebuildDataIndex();
+    },
+    _rebuildDataIndex: function () {
+        this.dataIndex = {};
+        for (var i = 0, l = this.data.length; i < l; i++) {
+            var row = this.data[i];
+            this.dataIndex[row.id] = i;
+        }
+    },
     /*
      * Columns
      * */
@@ -114,13 +150,20 @@ AttributeManagerMemory.prototype = {
             return;
         }
         var position = this.columnsIndex[column.name];
-        delete this.columnsIndex[column.name];
-        var removeColumn = this.columns.splice(position, 1);
+        var removedColumn = this.columns.splice(position, 1);
+        this._rebuildColumnsIndex();
 
-        return removeColumn;
+        return removedColumn;
     },
     removeColumnByName: function (name) {
         return this.removeColumn(this.columns[this.columnsIndex[name]]);
+    },
+    _rebuildColumnsIndex: function () {
+        this.columnsIndex = {};
+        for (var i = 0, l = this.columns.length; i < l; i++) {
+            var col = this.columns[i];
+            this.columnsIndex[col.name] = i;
+        }
     },
 
     /* Selection */
@@ -158,22 +201,9 @@ AttributeManagerMemory.prototype = {
             }
         }
         this.selected = selected;
+    },
+    removeSelected:function(){
+        this.removeRows(this.selected);
+        this.deselectAll();
     }
-    /*
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     * OLD
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     * */
 };
