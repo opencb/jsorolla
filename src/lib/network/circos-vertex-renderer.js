@@ -157,7 +157,7 @@ CircosVertexRenderer.prototype = {
         this._removeSelect();
         this.selected = false;
     },
-    move: function (dispX, dispY) {
+    move: function () {
         this.groupEl.setAttribute('transform', "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")");
     },
     setLabelContent: function (text) {

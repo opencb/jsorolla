@@ -267,19 +267,20 @@
             },
 
             handleMoveSelectedVertices: function (e) {
-//        this._moveSelectedVertices(e.detail.dispX, e.detail.dispY);
+                this.moveSelectedVertices(e.detail.dispX, e.detail.dispY);
             },
             handleSelectArea: function (e) {
-//        this.selectByArea(e.detail.x, e.detail.y, e.detail.width, e.detail.height);
+                this.selectByArea(e.detail.x, e.detail.y, e.detail.width, e.detail.height);
             },
             handleCreateEdge: function (e) {
-//        var source = this.network.getVertexById(e.detail.sourceId);
-//        var target = this.network.getVertexById(e.detail.targetId);
-//        this.createEdge(source, target);
+                var source = this.graph.getVertexById(e.detail.sourceId);
+                var target = this.graph.getVertexById(e.detail.targetId);
+                this.createEdge(source, target);
+
             },
             handleRemoveVertex: function (e) {
-//        var vertex = this.network.getVertexById(e.detail.vertexId);
-//        this.removeVertex(vertex);
+                var vertex = this.graph.getVertexById(e.detail.vertexId);
+                this.removeVertex(vertex);
             },
             handleLeftClickVertex: function (e) {
 //        var vertex = this.network.getVertexById(e.detail.vertexId);
@@ -360,100 +361,136 @@
                 this.eAttr.deselectAll();
             },
 
-
             selectVerticesNeighbour: function () {
-//                this.selectedVertices = this.network.selectVerticesNeighbour(this.selectedVertices);
-//            this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-//            console.log('selectVertexNeighbour');
-//                var selectedVertices = [];
-//                var selectedVerticesMap = {};
                 for (var i = 0; i < this.vAttr.selected.length; i++) {
                     var row = this.vAttr.selected[i];
                     var vertex = this.graph.getVertexById(row.id);
-
                     for (var j = 0; j < vertex.edges.length; j++) {
                         var edge = vertex.edges[j];
                         if (!edge.source.renderer.selected) {
-                            edge.source.renderer.select();
+                            this.vAttr.addToSelection(edge.source.id);
                         }
                         if (!edge.target.renderer.selected) {
-                            edge.target.renderer.select();
+                            this.vAttr.addToSelection(edge.target.id);
                         }
                     }
-                this.vertexAttributeManager.selectByItems(selectedVertices);
-                return selectedVertices;
-            },
-            selectEdgesNeighbour: function () {
-                this.selectedEdges = this.network.selectEdgesNeighbour(this.selectedVertices);
-//            this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
-//            console.log('selectEdgesNeighbour');
-            },
-            selectVerticesInvert: function () {
-                this.selectedVertices = this.network.selectVerticesInvert();
-
-//            this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-//            console.log('selectVertexNeighbour');
-            },
-
-
-            _moveSelectedVertices: function (dispX, dispY) {
-                dispX /= this.scale;
-                dispY /= this.scale;
-                for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
-                    var vertex = this.selectedVertices[i];
-                    this.network.moveVertex(vertex, dispX, dispY);
                 }
             },
-            selectByArea: function (x, y, width, height) {
-                x -= this.tx;
-                y -= this.ty;
-                x /= this.scale;
-                y /= this.scale;
-
-                width /= this.scale;
-                height /= this.scale;
-
-                this._deselectAllVertices();
-                this._deselectAllEdges();
-                var selection = this.network.selectByArea(x, y, width, height);
-                this.selectedVertices = selection.vertices;
-                this.selectedEdges = selection.edges;
-//                this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-//                this.trigger('select:edges', {edges: this.selectedEdges, sender: this});
-//                console.log('selectVerticesByArea');
+            selectEdgesNeighbour: function () {
+                for (var i = 0; i < this.vAttr.selected.length; i++) {
+                    var row = this.vAttr.selected[i];
+                    var vertex = this.graph.getVertexById(row.id);
+                    for (var j = 0; j < vertex.edges.length; j++) {
+                        var edge = vertex.edges[j];
+                        if (!edge.renderer.selected) {
+                            this.eAttr.addToSelection(edge.id);
+                        }
+                    }
+                }
             },
+            selectVerticesInvert: function () {
+                var selected = [];
+                for (var i = 0; i < this.graph.vertices.length; i++) {
+                    var vertex = this.graph.vertices[i];
+                    if (!vertex.renderer.selected) {
+                        selected.push(this.vAttr.getRow(vertex.id));
+                    }
+                }
+                this.vAttr.selected = selected;
+            },
+            selectByArea: function (x, y, width, height) {
+                this.deselectAllVertices();
+                this.deselectAllEdges();
+                if (width > 0 && height > 0) {
+                    x -= this.tx;
+                    y -= this.ty;
+                    x /= this.scale;
+                    y /= this.scale;
+
+                    width /= this.scale;
+                    height /= this.scale;
+
+                    var vSelected = [];
+                    var eSelected = [];
+                    for (var i = 0; i < this.graph.vertices.length; i++) {
+                        var vertex = this.graph.vertices[i];
+                        if (vertex.position.x >= x && vertex.position.x <= x + width && vertex.position.y >= y && vertex.position.y <= y + height) {
+                            vSelected.push(this.vAttr.getRow(vertex.id));
+
+                            for (var j = 0; j < vertex.edges.length; j++) {
+                                var edge = vertex.edges[j];
+                                eSelected.push(this.eAttr.getRow(edge.id));
+                            }
+
+                        }
+                    }
+                    this.vAttr.selected = vSelected;
+                    this.eAttr.selected = eSelected;
+                }
+            },
+            _updateEdgeCoords: function (vertex) {
+                for (var i = 0; i < vertex.edges.length; i++) {
+                    var edge = vertex.edges[i];
+                    if (vertex === edge.source) {
+                        edge.renderer.move();
+                    }
+                    if (vertex === edge.target) {
+                        edge.renderer.move();
+                    }
+                }
+            },
+            moveSelectedVertices: function (dispX, dispY) {
+                dispX /= this.scale;
+                dispY /= this.scale;
+                for (var i = 0; i < this.vAttr.selected.length; i++) {
+                    var row = this.vAttr.selected[i];
+                    var vertex = this.graph.getVertexById(row.id);
+                    vertex.position.x += dispX;
+                    vertex.position.y += dispY;
+                    vertex.renderer.move();
+                    this._updateEdgeCoords(vertex);
+                }
+            },
+
             selectVerticesByIds: function (vertexIds) {
-                this._deselectAllVertices();
-                this.selectedVertices = this.network.selectVerticesByIds(vertexIds);
-//            this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-//            console.log('selectVerticesByIds');
+                this.deselectAllVertices();
+                this.vAttr.selectByIds(vertexIds);
             },
             selectVerticesByAttribute: function (attributeName, attributeValue) {
-                this._deselectAllVertices();
-                this.selectedVertices = this.network.selectVerticesByAttribute(attributeName, attributeValue);
-//            this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-//            console.log('selectVerticesByAttribute');
+                this.deselectAllVertices();
+                this.vAttr.selectByColumnValue(attributeName, attributeValue);
             },
             selectEdgesByAttribute: function (attributeName, attributeValue) {
                 this._deselectAllEdges();
-                this.selectedVertices = this.network.selectEdgesByAttribute(attributeName, attributeValue);
-//            this.trigger('select:vertices', {vertices: this.selectedVertices, sender: this});
-//            console.log('selectEdgesByAttribute');
+                this.eAttr.selectByColumnValue(attributeName, attributeValue);
             },
             setVertexCoords: function (vertexId, x, y) {
-                var vertex = this.network.getVertexById(vertexId);
-                this.network.setVertexCoords(vertex, x, y);
+                var vertex = this.graph.getVertexById(vertexId);
+                vertex.position.x = x;
+                vertex.position.y = y;
+                vertex.renderer.move();
+                this._updateEdgeCoords(vertex);
             },
             removeVertex: function (vertex) {
-                this.network.removeVertex(vertex);
-                this._deselectAllVertices();
+                for (var i = 0; i < vertex.edges.length; i++) {
+                    var edge = vertex.edges[i];
+                    edge.renderer.remove();
+                    this.eAttr.removeRowById(edge.id);
+                }
+                vertex.renderer.remove();
+                this.vAttr.removeRowById(vertex.id);
+                this.graph.removeVertex(vertex);
+                this.deselectAllVertices();
             },
             removeSelectedVertices: function () {
-                var vertices = this.selectedVertices;
-                this._deselectAllVertices();
-                this.network.removeVertices(vertices);
+                for (var i = 0; i < this.vAttr.selected.length; i++) {
+                    var row = this.vAttr.selected[i];
+                    var vertex = this.graph.getVertexById(row.id);
+                    this.removeVertex(vertex);
+                }
             },
             setSelectedVerticesDisplayAttr: function (displayAttr, value, updateEdges) {
+                //TODO
                 for (var i = 0, li = this.selectedVertices.length; i < li; i++) {
                     var vertex = this.selectedVertices[i];
                     if (typeof vertex !== 'undefined') {
@@ -487,7 +524,6 @@
                 x /= this.scale;
                 y /= this.scale;
 
-                console.log(this.scale);
                 /* vertex graph */
                 var vertex = new Vertex({
                     id: 'n' + '_' + Utils.randomString(7),
@@ -513,19 +549,23 @@
                     id: vertexSource.id + '_' + relation + '_' + vertexTarget.id,
                     relation: relation,
                     source: vertexSource,
-                    target: vertexTarget
+                    target: vertexTarget,
+                    renderer:new DefaultEdgeRenderer()
                 });
 
-                var edgeConfig = new EdgeConfig({
-                    rendererConfig: this.session.getEdgeDefaults()
-                });
+//                this.session.getEdgeDefaults()
 
-                this.network.addEdge({
-                    edge: edge,
-                    edgeConfig: edgeConfig,
-                    target: this.$.networkLayout.$.scaleFrontGroup
-                });
-//                this.trigger('change', {sender: this});
+                var added = this.graph.addEdge(edge);
+                if (added) {
+                    this.eAttr.addRow({
+                        'id': edge.id,
+                        'name': edge.id,
+                        'relation': edge
+                    });
+                    edge.render({
+                        target: this.$.networkLayout.$.scaleFrontGroup
+                    });
+                }
                 return edge;
             },
             removeBackGroundImage: function (imageEl) {

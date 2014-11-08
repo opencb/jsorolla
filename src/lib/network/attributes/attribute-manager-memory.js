@@ -76,8 +76,8 @@ AttributeManagerMemory.prototype = {
 
         return removedRow;
     },
-    removeById: function (id) {
-        return this.remove(this.data[this.dataIndex[id]]);
+    removeRowById: function (id) {
+        return this.removeRow(this.data[this.dataIndex[id]]);
     },
     getRow: function (id) {
         return this.data[this.dataIndex[id]]
@@ -141,7 +141,24 @@ AttributeManagerMemory.prototype = {
     deselectAll: function () {
         this.selected = [];
     },
-
+    selectByIds: function (ids) {
+        var selected = [];
+        for (var i = 0; i < ids.length; i++) {
+            var id = ids[i];
+            selected.push(this.getRow(id));
+        }
+        this.selected = selected;
+    },
+    selectByColumnValue: function (column, value) {
+        var selected = [];
+        for (var i = 0; i < this.data.length; i++) {
+            var row = this.data[i];
+            if (row[column] === value) {
+                selected.push(row);
+            }
+        }
+        this.selected = selected;
+    }
     /*
      *
      *

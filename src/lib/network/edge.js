@@ -30,9 +30,13 @@ function Edge(args) {
     this.directed;
     this.overlapCount;
 
+    this.renderer;
     //set instantiation args, must be last
     _.extend(this, args);
 
+    if(this.renderer){
+        this.renderer.edge = this;
+    }
 }
 
 Edge.prototype = {
@@ -47,6 +51,9 @@ Edge.prototype = {
     },
     setTarget: function (vertex) {
         this.target = vertex;
+    },
+    render:function(args){
+        this.renderer.render(args)
     },
     toJSON:function(){
         return {
