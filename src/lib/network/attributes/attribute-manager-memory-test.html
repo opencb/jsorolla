@@ -55,8 +55,12 @@
     for (var i = 0; i < testSize; i++) {
         rrows.push(rows[i]);
     }
-    console.time('removeRow');
+    console.time('removeRows');
     attr.removeRows(rrows);
+    console.timeEnd('removeRows');
+
+    console.time('removeRow');
+    attr.removeRow(rows[500000]);
     console.timeEnd('removeRow');
 
 </script>
