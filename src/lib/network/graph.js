@@ -19,43 +19,19 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function Graph(args) {
-    _.extend(this, Backbone.Events);
-    this.id = Utils.genId('Graph');
-
+function Graph() {
     this.vertices = [];
-    this.edges = [];
-
-    this.display = {
-        style: {
-
-        },
-        layouts: {
-
-        }
-    };
-
+    this.verticesIndex = {};
     this.numberOfVertices = 0;
+
+    this.edges = [];
+    this.edgesIndex = {};
     this.numberOfEdges = 0;
 
-    this.graphType = '';
-
-    //set instantiation args, must be last
-    _.extend(this, args);
-
-    this.verticesIndex = {};
-    this.edgesIndex = {};
-
     this.edgeDraw = {};
-
-
-    this.on(this.handlers);
 }
 
 Graph.prototype = {
-    setType: function (type) {
-        this.graphType = type;
-    },
     clean: function () {
         this.numberOfVertices = 0;
         this.numberOfEdges = 0;
@@ -67,7 +43,6 @@ Graph.prototype = {
         this.edgeDraw = {};
     },
     addEdge: function (edge) {
-        var _this = this;
         if (edge.source == null || edge.target == null) {
             return false
         }
@@ -78,8 +53,7 @@ Graph.prototype = {
 
         this.addVertex(edge.source);
         this.addVertex(edge.target);
-        var length = this.edges.push(edge);
-        var insertPosition = length - 1;
+        var insertPosition = this.edges.push(edge) - 1;
         this.edgesIndex[edge.id] = insertPosition;
 
         //update source edges
@@ -88,7 +62,6 @@ Graph.prototype = {
         if (edge.source !== edge.target) {
             edge.target.addEdge(edge);
         }
-        this.trigger('edge:add', {edge: edge, graph: this});
 
         /* count edges between same vertices */
         var stId = edge.source.id + edge.target.id;
@@ -118,11 +91,9 @@ Graph.prototype = {
             return false;
         }
         // Add the vertex
-        var length = this.vertices.push(vertex);
-        var insertPosition = length - 1;
+        var insertPosition = this.vertices.push(vertex) - 1;
         this.verticesIndex[vertex.id] = insertPosition;
 
-        this.trigger('vertex:add', {vertex: vertex, graph: this});
         this.numberOfVertices++;
         return true;
     },
@@ -139,23 +110,39 @@ Graph.prototype = {
         edge.source.removeEdge(edge);
         edge.target.removeEdge(edge);
 
-//      /* count edges between same vertices */
+        /* count edges between same vertices */
         var stId = edge.source.id + edge.target.id;
         var tsId = edge.target.id + edge.source.id;
         this.edgeDraw[stId]--;
         this.edgeDraw[tsId]--;
 
-
         var position = this.edgesIndex[edge.id];
-        delete this.edgesIndex[edge.id];
-        delete this.edges[position];
-//        this.edges.splice(position, 1);
-
-        this.trigger('edge:remove', {edge: edge, graph: this});
+        this.edges.splice(position, 1);
         this.numberOfEdges--;
 
-
+        this._rebuildEdgesIndex();
         return true;
+    },
+    removeEdges: function (edges) {
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            if (this.containsEdge(edge)) {
+
+                //remove edge from vertex
+                edge.source.removeEdge(edge);
+                edge.target.removeEdge(edge);
+
+                /* count edges between same vertices */
+                var stId = edge.source.id + edge.target.id;
+                var tsId = edge.target.id + edge.source.id;
+                this.edgeDraw[stId]--;
+                this.edgeDraw[tsId]--;
+
+                this.edges[this.edgesIndex[edge.id]] = null;
+                this.numberOfEdges--;
+            }
+        }
+        this._rebuildEdges();
     },
     removeVertex: function (vertex) {
         if (vertex == null) {
@@ -181,27 +168,90 @@ Graph.prototype = {
             this.edgeDraw[stId]--;
             this.edgeDraw[tsId]--;
 
+            this.edges[this.edgesIndex[edge.id]] = null;
 
-            var position = this.edgesIndex[edge.id];
-            delete this.edgesIndex[edge.id];
-            delete this.edges[position];
-//            this.edges.splice(position, 1);
-
-
-            this.trigger('edge:remove', {edge: edge, graph: this});
             this.numberOfEdges--;
         }
         vertex.removeEdges();
 
         var position = this.verticesIndex[vertex.id];
-        delete this.verticesIndex[vertex.id];
-        delete this.vertices[position];
-//        this.vertices.splice(position, 1);
-
-        this.trigger('vertex:remove', {vertex: vertex, graph: this});
+        this.vertices.splice(position, 1);
         this.numberOfVertices--;
+
+        this._rebuildEdges();
+        this._rebuildVerticesIndex();
         return true;
     },
+    removeVertices: function (vertices) {
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            if (this.containsVertex(vertex)) {
+
+                for (var j = 0; j < vertex.edges.length; j++) {
+                    var edge = vertex.edges[j];
+                    // remove edges from source or target
+                    if (edge.source !== vertex) {
+                        edge.source.removeEdge(edge);
+                    }
+                    if (edge.target !== vertex) {
+                        edge.target.removeEdge(edge);
+                    }
+
+                    var stId = edge.source.id + edge.target.id;
+                    var tsId = edge.target.id + edge.source.id;
+                    this.edgeDraw[stId]--;
+                    this.edgeDraw[tsId]--;
+
+                    this.edges[this.edgesIndex[edge.id]] = null;
+
+                    this.numberOfEdges--;
+                }
+                vertex.removeEdges();
+
+                this.vertices[this.verticesIndex[vertex.id]] = null;
+                this.numberOfVertices--;
+            }
+        }
+        this._rebuildEdges();
+        this._rebuildVertices();
+    },
+    _rebuildVertices: function () {
+        var newVertices = [];
+        for (var i = 0, l = this.vertices.length; i < l; i++) {
+            var vertex = this.vertices[i];
+            if (vertex != null) {
+                newVertices.push(vertex);
+            }
+        }
+        this.vertices = newVertices;
+        this._rebuildVerticesIndex();
+    },
+    _rebuildVerticesIndex: function () {
+        this.verticesIndex = {};
+        for (var i = 0, l = this.vertices.length; i < l; i++) {
+            var vertex = this.vertices[i];
+            this.verticesIndex[vertex.id] = i;
+        }
+    },
+    _rebuildEdges: function () {
+        var newEdges = [];
+        for (var i = 0, l = this.edges.length; i < l; i++) {
+            var edge = this.edges[i];
+            if (edge != null) {
+                newEdges.push(edge);
+            }
+        }
+        this.edges = newEdges;
+        this._rebuildEdgesIndex();
+    },
+    _rebuildEdgesIndex: function () {
+        this.edgesIndex = {};
+        for (var i = 0, l = this.edges.length; i < l; i++) {
+            var edge = this.edges[i];
+            this.edgesIndex[edge.id] = i;
+        }
+    },
+
     containsEdge: function (edge) {
         if (typeof this.edgesIndex[edge.id] !== 'undefined') {
             return true;
@@ -223,10 +273,7 @@ Graph.prototype = {
     getEdgeById: function (edgeId) {
         return this.edges[this.edgesIndex[edgeId]];
     },
-    /**/
-    addLayout: function (layout) {
-        this.display.layouts[layout.id] = layout;
-    },
+
 
     /**/
     getAsSIF: function (separator) {

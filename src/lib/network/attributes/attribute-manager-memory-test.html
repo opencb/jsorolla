@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>attribute-manager-memory test</title>
+
+    <script src="attribute-manager-memory.js"></script>
+
+</head>
+<body>
+
+<script>
+
+
+    var attr = new AttributeManagerMemory();
+    attr.addColumn({
+        defaultValue: "",
+        name: "id",
+        title: "Id",
+        type: "string"
+    });
+    attr.addColumn({
+        defaultValue: "",
+        name: "name",
+        title: "Name",
+        type: "string",
+        cellTemplate: "inputTemplate"
+    });
+
+
+    console.time('addRow');
+    var testSize = 1000000;
+    var rows = [];
+    for (var i = 0; i < testSize; i++) {
+        rows.push({id: 'n' + i, a: 'asdf', b: 'f59240jf9re', c: 'jru80fur', d: 'fndusaiofdjskalf', asdf: 'asdfdsafdhasjkgfasdjkfsdjafdsfsdafdsafdsafdafdsa'});
+    }
+
+    for (var i = 0; i < testSize; i++) {
+        attr.addRow(rows[i]);
+    }
+    console.timeEnd('addRow');
+
+
+//    console.time('removeRow');
+//    var testSize = 100000;
+//    var ids = [];
+//    for (var i = 0; i < testSize; i++) {
+//        ids.push('n' + i);
+//    }
+//    attr.removeRowsByIds(ids);
+//    console.timeEnd('removeRow');
+
+
+    var testSize = 100000;
+    var rrows = [];
+    for (var i = 0; i < testSize; i++) {
+        rrows.push(rows[i]);
+    }
+    console.time('removeRows');
+    attr.removeRows(rrows);
+    console.timeEnd('removeRows');
+
+    console.time('removeRow');
+    attr.removeRow(rows[500000]);
+    console.timeEnd('removeRow');
+
+</script>
+
+</body>
+</html>
+

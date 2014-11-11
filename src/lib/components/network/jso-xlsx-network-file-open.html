@@ -1,4 +1,4 @@
-<polymer-element name="jso-text-network-file-open" attributes="selectedMenu">
+<polymer-element name="jso-xlsx-network-file-open" attributes="selectedMenu">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <link rel="stylesheet" href="../sortable-table.css">
@@ -78,42 +78,31 @@
             min-width: 200px;
         }
 
-        #columns .dropdown:first-child {
-            margin-right: 1px;
-            margin-left: 0px;
-        }
-
-        #columns .dropdown:last-child {
-            margin-right: 0px;
-            margin-left: 1px;
-        }
-
         #columns .dropdown {
-            margin-right: 1px;
-            margin-left: 1px;
+            margin: 0 1px;
         }
     </style>
 
     <form id="form">
         <div class="title">
-            Import a network Text file
+            Import a network XLSX file
         </div>
 
-        <label>Select Text file</label>
+        <label>Select XLSX file</label>
 
         <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
         <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
         <br>
-        <label>Parse character</label>
+        <label>Select sheet</label>
 
         <div class="dropdown">
             <div tabindex="-1" class="button">
-                {{parseCharacterText}}
+                {{selectedSheet}}
             </div>
-            <ul on-click="{{handleCharacterMenu}}">
-                <li data-value="Tab">Tab</li>
-                <li data-value="Comma">Comma</li>
-                <li data-value="Semicolon">Semicolon</li>
+            <ul on-click="{{handleSheetMenu}}">
+                <template repeat="{{sheet in sheets}}">
+                    <li data-value="{{sheet}}">{{sheet}}</li>
+                </template>
             </ul>
         </div>
         <br> <br>
@@ -173,15 +162,10 @@
             this.message = ' ';
             this.graph;
             this.adapter;
+            this.textAdapter;
 
-            this.separators = {
-                "Tab": "\t",
-                "Comma": ",",
-                "Semicolon": ";"
-            };
-
-            this.parseCharacter = this.separators['Tab'];
-            this.parseCharacterText = 'Tab';
+            this.selectedSheet = 'Choose a sheet';
+            this.sheets;
 
             this.sourceColumnIndex = 'select';
             this.relationColumnIndex = 'none';
@@ -208,12 +192,13 @@
             this.message = '';
 
             if (this.$.form.checkValidity()) {
-                this.adapter = new TextNetworkDataAdapter({
-                    dataSource: new FileDataSource({file: inputFile}),
+                this.adapter = new XLSXNetworkDataAdapter({
+                    dataSource: new FileDataSource({file: inputFile, type: 'binary'}),
                     separator: this.parseCharacter,
                     handlers: {
                         'data:load': function (event) {
-                            me.processColumns();
+                            me.adapter = event.sender;
+                            me.processWorkbook(event.sender);
                         },
                         'error:parse': function (event) {
                             me.message = event.errorMsg;
@@ -222,20 +207,33 @@
                 });
             }
         },
-        handleCharacterMenu: function (e) {
-            this.parseCharacter = this.separators[e.target.dataset.value];
-            this.parseCharacterText = e.target.dataset.value;
 
-            this.adapter.separator = this.parseCharacter;
-            this.adapter.parse();
+        processWorkbook: function () {
+            this.sheets = Object.keys(this.adapter.xlsx.Sheets);
+        },
+        handleSheetMenu: function (e) {
+            var me = this;
+            this.selectedSheet = e.target.dataset.value;
 
             this.sourceColumnIndex = 'select';
             this.relationColumnIndex = 'none';
             this.targetColumnIndex = 'select';
-
-            this.processColumns();
             this.$.table.data = [];
 
+            var csv = this.adapter.parseSheet(this.selectedSheet);
+
+            var textAdapter = new TextNetworkDataAdapter({
+                dataSource: new StringDataSource(csv),
+                separator: ',',
+                handlers: {
+                    'data:load': function (event) {
+                        me.processColumns(event.sender);
+                    },
+                    'error:parse': function (event) {
+                        me.message = event.errorMsg;
+                    }
+                }
+            });
         },
         handleSourceColumnIndex: function (e) {
             if (e.target.dataset.value) {
@@ -256,14 +254,15 @@
                 this.processColumnNumbers();
             }
         },
-        processColumns: function () {
+        processColumns: function (textAdapter) {
+            this.textAdapter = textAdapter;
             this.columnsNumbers = [];
-            for (var i = 0; i < this.adapter.columnLength; i++) {
+            for (var i = 0; i < textAdapter.columnLength; i++) {
                 this.columnsNumbers.push(i + 1);
             }
         },
         processColumnNumbers: function () {
-            if (this.adapter) {
+            if (this.textAdapter) {
                 if (!(isNaN(this.sourceColumnIndex)) && !(isNaN(this.targetColumnIndex))) {
                     var relationDefaultName = 'none';
                     var columnIndex;
@@ -272,7 +271,7 @@
                     } else {
                         columnIndex = this.relationColumnIndex - 1;
                     }
-                    var graph = this.adapter.parseColumns(this.sourceColumnIndex - 1, this.targetColumnIndex - 1, columnIndex, relationDefaultName);
+                    var graph = this.textAdapter.parseColumns(this.sourceColumnIndex - 1, this.targetColumnIndex - 1, columnIndex, relationDefaultName);
                     this.processData(graph);
                 }
             }

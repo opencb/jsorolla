@@ -26,10 +26,15 @@ function Vertex(args) {
     this.edgesIndex = {};
 
     this.position = new Point();
-
+    this.renderer;
 
     //set instantiation args, must be last
     _.extend(this, args);
+
+    if (this.renderer) {
+        this.renderer.coords = this.position;
+        this.renderer.vertex = this;
+    }
 }
 
 Vertex.prototype = {
@@ -58,6 +63,9 @@ Vertex.prototype = {
         } else {
             return false;
         }
+    },
+    render: function (args) {
+        this.renderer.render(args)
     },
     toJSON: function () {
         return {

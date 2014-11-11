@@ -107,9 +107,9 @@ CircosVertexRenderer.prototype = {
     },
     render: function (args) {
         this.targetEl = args.target;
-        this.vertex = args.vertex;
-        this.coords = args.coords;
-        this.labelText = this.vertex.id;
+        //this.vertex = args.vertex;
+        //this.coords = args.coords;
+        //this.labelText = this.vertex.id;
         this._render();
     },
     remove: function () {
@@ -157,7 +157,7 @@ CircosVertexRenderer.prototype = {
         this._removeSelect();
         this.selected = false;
     },
-    move: function (dispX, dispY) {
+    move: function () {
         this.groupEl.setAttribute('transform', "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")");
     },
     setLabelContent: function (text) {

@@ -93,6 +93,7 @@
                 <sortable-column>Source node</sortable-column>
                 <sortable-column>Relation</sortable-column>
                 <sortable-column>Target node</sortable-column>
+                []
             </sortable-table>
 
             <div class="message">{{message}}</div>
@@ -128,7 +129,7 @@
                 this.message = '';
 
                 if (this.$.form.checkValidity()) {
-                    this.dataAdapter = new SIFNetworkDataAdapter({
+                    this.adapter = new SIFNetworkDataAdapter({
                         dataSource: new FileDataSource({file: inputFile}),
                         handlers: {
                             'data:load': function (event) {

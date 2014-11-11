@@ -1,0 +1,112 @@
+<polymer-element name="jso-attribute-edit" attributes="selectedMenu attributeManager type">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                z-index: 50000;
+                bottom: 31px;
+
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+
+                width: 100%;
+                /*border: 0px solid #c6d0da;*/
+                /*border-width: 1px;*/
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                /*box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);*/
+            }
+
+            .header > * {
+                float: left;
+            }
+
+            #close {
+                float: right;
+            }
+
+            #close:after {
+                font-family: FontAwesome;
+                content: '\f00d';
+            }
+
+            #close:hover {
+                color: #8b0000;
+            }
+
+            #table {
+                overflow-y: auto;
+                height: 300px;
+                /*border: 1px solid #d3d3d3;*/
+            }
+        </style>
+        <div class="panel">
+            <div class="header">
+                <div class="text">Edit {{type}} attributes</div>
+                <div class="button" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection</div>
+                <div id="close" class="text" on-click="{{handleClose}}"></div>
+            </div>
+            <div class="container">
+
+                <template if="{{!showSelected}}">
+                    <sortable-table id="table"
+                                    data="{{attributeManager.data}}"
+                                    columns="{{attributeManager.columns}}"
+                                    rowselection="{{rowSelection}}"
+                                    multiselect="{{multiSelect}}"
+                                    selected="{{attributeManager.selected}}"
+                            >
+                        <template id="inputTemplate">
+                            <td class="edit">
+                                <input type="text" value="{{row[column.name]}}">
+                            </td>
+                        </template>
+                    </sortable-table>
+                </template>
+
+                <template if="{{showSelected}}">
+                    <sortable-table id="table"
+                                    data="{{attributeManager.selected}}"
+                                    columns="{{attributeManager.columns}}"
+                            >
+                        <template id="inputTemplate">
+                            <td class="edit">
+                                <input type="text" value="{{row[column.name]}}">
+                            </td>
+                        </template>
+                    </sortable-table>
+                </template>
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.attributeManager;
+
+                this.rowSelection = true;
+                this.multiSelect = true;
+
+                this.showSelected = false;
+            },
+            ready: function () {
+            },
+            handleClose: function () {
+                this.selectedMenu = '';
+            },
+            handleShowSelected: function () {
+                this.showSelected = !this.showSelected;
+            }
+        });
+    </script>
+</polymer-element>

@@ -85,12 +85,12 @@ DefaultEdgeRenderer.prototype = {
         _.extend(this, args);
     },
     render: function (args) {
-        this.edge = args.edge;
+        //this.edge = args.edge;
         this.targetEl = args.target;
-        this.sourceCoords = args.sourceCoords;
-        this.targetCoords = args.targetCoords;
-        this.sourceRenderer = args.sourceRenderer;
-        this.targetRenderer = args.targetRenderer;
+        this.sourceCoords = this.edge.source.position;
+        this.targetCoords = this.edge.target.position;
+        this.sourceRenderer = this.edge.source.renderer;
+        this.targetRenderer = this.edge.target.renderer;
         this._render();
     },
     remove: function () {
@@ -169,7 +169,7 @@ DefaultEdgeRenderer.prototype = {
 //        text.setAttribute('y', y);
 //
 //    },
-    move: function (coords) {
+    move: function () {
         var val = this._calculateEdgePath();
         this.edgeEl.setAttribute('d', val.d);
         this.labelEl.setAttribute('x', val.xl);
