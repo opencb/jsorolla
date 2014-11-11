@@ -71,7 +71,7 @@
             height: 50px;
         }
         jso-file-browser{
-            width: 70%;
+            /*width: 70%;*/
         }
     </style>
     <div class="title">
@@ -87,20 +87,29 @@
 
         <div class="button action" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>
 
+        <h3>Output parameters</h3>
+        <jso-opencga-select-analysis projectList="{{userData.projects}}" output="{{analysisOut}}"></jso-opencga-select-analysis>
+
         <h3>Input parameters</h3>
         <label>Enter accession ranked list</label> <textarea id="rankedListArea" class="inputListTextArea" value="{{rankedListArea}}" required pattern="[a-zA-Z0-9]+"></textarea>
         <template if="{{rankedListClickEnabled}}">
-            <jso-file-browser selectedFile="{{rankedListFileName}}" userData="{{userData}}"></jso-file-browser>
+            <jso-file-browser userData="{{userData}}" output="{{rankedListFileOutput}}"></jso-file-browser>
         </template>
         <label>Or, upload file</label>
-        <div class="button action" on-click="{{rankedListClick}}">{{rankedListFileName.name}}</div>
+        <div class="button action" on-click="{{rankedListClick}}">{{rankedListUploadMsg}}</div>
         <!--<input type="file" hidden id="rankedListFileName" required on-change="{{rankedListFileNameChange}}">-->
 
         <label>Enter accession seed list (optional)</label> <textarea id="seedListArea" class="inputListTextArea" value="{{seedListArea}}" required pattern="[a-zA-Z0-9]+"></textarea>
         <label>Or, upload file</label>
+        <template if="{{seedListClickEnabled}}">
+            <jso-file-browser userData="{{userData}}" output="{{seedListFileOutput}}"></jso-file-browser>
+        </template>
+        <div class="button action" on-click="{{seedListClick}}">{{seedListUploadMsg}}</div>
 
-        <div class="button action" on-click="{{seedListClick}}">{{seedListFileName}}</div>
-        <input type="file" hidden id="seedListFileName" required on-change="{{seedListFileNameChange}}">
+        <!--<div class="button action" on-click="{{seedListClick}}">{{seedListFileName}}</div>-->
+        <!--<input type="file" hidden id="seedListFileName" required on-change="{{seedListFileNameChange}}">-->
+
+
 
         <label>List Nature</label>
         <div class="dropdown">
@@ -172,10 +181,10 @@
 <script>
     Polymer({
         created: function () {
-            this.jobName = 'Job name'
+            this.jobName = 'JobName'
             this.toolName = "network-miner"
             this.message = ''
-            this.rankedListFileName = {name:"Choose file"}
+//            this.rankedListFileName = {name:"Choose file"}
             this.seedListFileName = "Choose file"
             this.example = false
 
@@ -198,6 +207,13 @@
 
             this.rankedFile = "";
 
+            /** output widgets messages **/
+            this.rankedListUploadMsg = "Choose file"
+            this.seedListUploadMsg = "Choose file"
+
+            /**Enabled forms **/
+            this.rankedListClickEnabled = false
+            this.seedListClickEnabled = false
 
         },
 
@@ -208,7 +224,6 @@
             //if (this.$.form.checkValidity()) {
             //me.message = "xx"
             //var params = new Object()
-
             OpencgaManager.jobs.create({
                 query: {
                     //userId: 1,
@@ -219,9 +234,9 @@
                     toolId: this.toolName,
                     jobName: this.jobName,
                     description: "description",
-                    list: 4,
-                    seedlist: 5,
-                    outdir: 6,
+                    list: this.rankedListFileOutput.selectedFile.id,
+                    seedlist: this.seedListFileOutput.selectedFile.id,
+                    outdir: /*this.outdir*/22,
                     interactome: this.interactome,
                     "o-name": "result",
                     intermediate: this.intermediate,
@@ -275,7 +290,7 @@
 
         },
         seedListClick: function (e) {
-            this.$.seedListFileName.click();
+            this.seedListClickEnabled = !this.seedListClickEnabled
         },
         rankedListFileNameChange: function (e) {
             this.rankedListFileName = this.$.rankedListFileName.files[0];
@@ -304,6 +319,16 @@
         handleIntermediate: function(e){
             this.intermediate = e.target.dataset.value;
             this.intermediateText = e.target.innerText;
+        },
+        rankedListFileOutputChanged: function(e){
+            this.rankedListClickEnabled = false
+            this.rankedListUploadMsg = this.rankedListFileOutput.selectedFile.path
+
+        },
+        seedListFileOutputChanged: function(e){
+            this.seedListClickEnabled = false
+            this.seedListUploadMsg = this.seedListFileOutput.selectedFile.path
+
         }
     });
 </script>

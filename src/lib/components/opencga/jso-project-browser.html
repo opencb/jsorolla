@@ -2,6 +2,8 @@
 <link rel="import" href="jso-opencga-study.html">
 <link rel="import" href="jso-opencga-create-project.html">
 <link rel="import" href="jso-opencga-create-study.html">
+<link rel="import" href="jso-opencga-create-analysis.html">
+<link rel="import" href="jso-opencga-create-folder.html">
 <link rel="import" href="jso-opencga-upload.html">
 
 <polymer-element name="jso-project-browser" constructor="JsoProjectBrowser"
@@ -211,6 +213,16 @@
                 &nbsp; Create study
             </div>
 
+            <div class="navigation-item" data-content="createAnalysis"
+                 data-selected="{{selectedOption == 'createAnalysis'}}">
+                <font-awesome icon="pie-chart"></font-awesome>
+                &nbsp; Create analysis
+            </div>
+            <div class="navigation-item" data-content="createFolder"
+                 data-selected="{{selectedOption == 'createFolder'}}">
+                <font-awesome icon="pie-chart"></font-awesome>
+                &nbsp; Create folder
+            </div>
             <div class="navigation-item" data-content="createExperiment"
                  data-selected="{{selectedOption == 'createExperiment'}}">
                 <font-awesome icon="flask"></font-awesome>
@@ -269,6 +281,13 @@
 
             <template if="{{ selectedOption == 'createStudy' }}">
                 <jso-opencga-create-study projectList="{{userData.projects}}"></jso-opencga-create-study>
+            </template>
+            <template if="{{ selectedOption == 'createAnalysis' }}">
+                <jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>
+            </template>
+
+            <template if="{{ selectedOption == 'createFolder' }}">
+                <jso-opencga-create-folder projectList="{{userData.projects}}"></jso-opencga-create-folder>
             </template>
 
             <template if="{{ selectedOption == 'createExperiment' }}">

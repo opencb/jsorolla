@@ -5,7 +5,7 @@
 <link rel="import" href="jso-opencga-upload.html">
 
 
-<polymer-element name="jso-file-browser" attributes="userData selectedFile">
+<polymer-element name="jso-file-browser" attributes="userData output">
 <template>
 <link rel="stylesheet" href="../jso-style.css">
 <link rel="stylesheet" href="../jso-panel.css">
@@ -74,6 +74,9 @@
         box-sizing: border-box;
         padding: 5px 5px;
         margin: 2px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     .study[data-selected=true] {
@@ -109,14 +112,13 @@
             <div id="study" flex>
                 <template repeat="{{fileItem in files}}">
                     <jso-opencga-file-item file="{{fileItem}}" on-click="{{handleFileClick}}"
-                                           data-selected="{{fileSelected==fileItem}}" class="study">{{fileItem.name}}
-                    </jso-opencga-file-item>
+                                           data-selected="{{fileSelected==fileItem}}" class="study"></jso-opencga-file-item>
                 </template>
             </div>
         </template>
     </div>
     <div class="footer">
-        <input type="button" value="OK" onclick="{{handleOkButton}}"><input type="button" value="Cancel">
+        <input type="button" value="OK" on-click="{{handleOkClick}}"><input type="button" value="Cancel">
     </div>
 </div>
 </template>
@@ -125,7 +127,6 @@
         created: function () {
 
             this.userData;
-            debugger
             this.selectedOption;
             this.selectedOptionText;
 
@@ -134,7 +135,7 @@
 
             this.selectedFile;
 
-            this.okButton = false;
+            this.actionPerformed;
         },
         userDataChanged: function (oldValue, newValue) {
             if (newValue) {
@@ -191,8 +192,8 @@
                     //method: 'POST',
                     success: function (response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var userId = response.response[0].result[0].id;
-                            me.message = userId + ' created';
+//                            var userId = response.response[0].result[0].id;
+//                            me.message = userId + ' created';
                             me.files = response.response[0].result
                         } else {
                             me.message = response.response[0].errorMsg;
@@ -208,7 +209,7 @@
             this.selectedFile = e.currentTarget.file;
         },
         handleOkClick: function (e) {
-            this.okButton = true
+            this.output = {selectedFile: this.selectedFile, msg: "ok" }
         }
     });
 </script>
@@ -225,7 +226,7 @@
                 color: #888;
             }
         </style>
-        {{file.name}}
+        {{file.path}}
     </template>
     <script>
         Polymer({

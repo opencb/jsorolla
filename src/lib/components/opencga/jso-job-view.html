@@ -4,17 +4,118 @@
         <style>
             :host {
                 display: block;
-                position: relative;
+                /*position: relative;*/
+                background-color: white;
             }
 
         </style>
-        <span>{{jobItem.id}}</span>
+        <!--<span>{{jobItem.id}}</span>-->
+        <!--<span>{{jobItem.outDir}}</span>-->
+
+        <div id="result">
+            <h3>Input parameters</h3>
+
+            <div id="input"></div>
+            <h3>Output parameters</h3>
+
+            <div id="output"></div>
+        </div>
+        <!--<input type="button" value="Load" on-click="{{handleClick}}">-->
 
     </template>
     <script>
         Polymer({
             created: function () {
-                console.log(this.jobItem)
+                this.fileId = -1
+            },
+            jobItemChanged: function (oldV, newV) {
+                me = this;
+                me.$.output.innerHTML = ""
+                me.$.input.innerHTML = ""
+
+                OpencgaManager.files.filesByFolder({
+                    id: me.jobItem.outDirId,
+                    query: {
+                        //userId: 1,
+                        //projectId: 1,
+                        //studyId: 1,
+                        sid: Cookies("bioinfo_sid")
+                        //ranked-list:
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                results = response.response[0].result
+                                for (result in results) {
+
+                                    if (results[result].name == "result.xml") {
+                                        me.fileId = results[result].id
+                                        OpencgaManager.files.content({
+                                            id: me.fileId,
+                                            query: {
+                                                sid: Cookies("bioinfo_sid")
+                                            },
+                                            request: {
+                                                success: function (response) {
+                                                    var xml = response.response[0]
+                                                    if (window.DOMParser) {
+                                                        parser = new DOMParser();
+                                                        xmlDoc = parser.parseFromString(xml, "text/xml");
+                                                        /** Parse XML **/
+                                                        input = xmlDoc.getElementsByTagName("input")[0].children
+                                                        output = xmlDoc.getElementsByTagName("output")[0].children
+
+//                                                        inputHtml = document.getElementById("input")
+                                                        for (var i = 0; i < input.length; i++) {
+                                                            var childNode = input[i]
+                                                            var titleInput = childNode.getAttribute("title")
+                                                            var valueInput = childNode.firstChild.nodeValue
+                                                            var para = document.createElement("div");
+                                                            var node = document.createTextNode(titleInput + ": " + valueInput);
+                                                            para.appendChild(node);
+                                                            me.$.input.appendChild(para);
+
+                                                        }
+                                                        for (var i = 0; i < output.length; i++) {
+                                                            var childNode = output[i]
+                                                            var titleInput = childNode.getAttribute("title")
+                                                            var valueInput = childNode.firstChild.nodeValue
+                                                            var para = document.createElement("div");
+                                                            var node = document.createTextNode(titleInput + ": " + valueInput);
+                                                            para.appendChild(node);
+                                                            me.$.output.appendChild(para);
+
+                                                        }
+                                                        //xmlDoc.getElementsByTagName("input")[0].childNodes[1].getAttribute("type")
+
+                                                    }
+                                                    else // Internet Explorer
+                                                    {
+                                                        xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                                                        xmlDoc.async = false;
+                                                        xmlDoc.loadXML(xml);
+                                                    }
+                                                },
+                                                error: function () {
+                                                    me.message = 'Server error, try again later.';
+                                                }
+                                            }
+                                        })
+
+                                        break
+                                    }
+                                }
+                            }
+                            else {
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
             }
         });
     </script>

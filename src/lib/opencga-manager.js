@@ -150,6 +150,9 @@ var OpencgaManager = {
         },
         delete: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'delete');
+        },
+        analysis: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'analysis');
         }
     },
 
@@ -171,7 +174,17 @@ var OpencgaManager = {
         },
         search: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'search');
+        },
+        filesByFolder: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'files');
+        },
+        content: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'content');
+        },
+        createFolder: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'create-folder');
         }
+
     },
     jobs: {
         create: function (args) {
@@ -181,6 +194,9 @@ var OpencgaManager = {
     analysis: {
         jobs: function (args) {
             return OpencgaManager._doRequest(args, 'analysis', 'jobs');
+        },
+        create: function (args) {
+            return OpencgaManager._doRequest(args, 'analysis', 'create');
         }
     },
     _url: function (args, api, action) {
