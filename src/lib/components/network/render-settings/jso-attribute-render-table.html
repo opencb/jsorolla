@@ -64,20 +64,24 @@
                 margin-right: 0px;
             }
 
+
             core-list {
-                height: 300px;
+                height: 150px;
                 border: 1px solid #d3d3d3;
                 border-top-width: 0;
             }
 
             .item {
-                height: 25px;
+                height: 27px;
                 padding: 2px;
                 box-sizing: border-box;
             }
 
             .item > div {
-                padding: 2px 4px;
+                padding: 3px 4px;
+            }
+            .item > div.color-control {
+                padding: 0px;
             }
 
             .item > input {
@@ -176,7 +180,7 @@
                         <div flex>Attribute value</div>
                         <div flex>Render property value</div>
                     </div>
-                    <core-list data="{{uniqueData}}" height="25">
+                    <core-list data="{{uniqueData}}" height="27">
                         <template>
                             <div horizontal layout class="item">
                                 <div flex>{{model.attribute}}</div>
@@ -184,7 +188,10 @@
                                     <input flex type="number" value="{{model.render}}">
                                 </template>
                                 <template if="{{controlType == 'color'}}">
-                                    <!--<jso-color-picker flex color="{{model.render}}"></jso-color-picker>-->
+                                    <div flex horizontal layout class="color-control">
+                                        <input flex type="color" value="{{model.render}}">
+                                        <input flex type="text" value="{{model.render}}">
+                                    </div>
                                 </template>
                             </div>
                         </template>
@@ -249,7 +256,7 @@
                     var row = this.attributeManager.data[i];
                     if (!uniqueMap[row[this.attributeName]]) {
                         uniqueMap[row[this.attributeName]] = true;
-                        uniqueData.push({attribute: row[this.attributeName], render: ''});
+                        uniqueData.push({attribute: row[this.attributeName], render: this.defaultValue});
                         var attribute = parseFloat(row[this.attributeName]);
                         if (!max || attribute >= max) {
                             max = attribute;
