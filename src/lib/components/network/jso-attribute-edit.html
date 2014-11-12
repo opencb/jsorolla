@@ -45,46 +45,147 @@
 
             #table {
                 overflow-y: auto;
-                height: 300px;
+                height: 400px;
                 /*border: 1px solid #d3d3d3;*/
+            }
+
+            #edit {
+                border-right: 1px solid #d3d3d3;
+                width: 230px;
+            }
+
+            #edit > .panel {
+                border-width: 0px;
+                border-top-width: 1px;
+            }
+
+            #edit > .panel:first-child {
+                border-top-width: 0px;
+            }
+
+            #edit .header {
+                background-color: #f5f5f5;
+                background-image: none;
+            }
+
+            #edit .container {
+                padding: 0 5px;
+            }
+
+            #edit .container > * {
+                margin-top: 5px;
+                width: 100%;
+            }
+
+            #edit .action {
+                margin-left: auto;
+                /*margin-right: auto;*/
+                width: 100px;
             }
         </style>
         <div class="panel">
             <div class="header">
                 <div class="text">Edit {{type}} attributes</div>
-                <div class="button" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection</div>
+                <div class="button" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection
+                </div>
                 <div id="close" class="text" on-click="{{handleClose}}"></div>
             </div>
             <div class="container">
+                <div horizontal layout>
+                    <div id="edit" vertical layout>
+                        <div class="panel" flex>
+                            <div class="header">
+                                <div class="text">Edit multiple values</div>
+                            </div>
+                            <div class="container">
+                                <div class="dropdown">
+                                    <div tabindex="-1" class="button">
+                                        {{editSelected}}
+                                    </div>
+                                    <ul>
+                                        <template repeat="{{column in attributeManager.columns}}">
+                                            <li on-mousedown="{{handleEditSelect}}" data-name="{{column.name}}">
+                                                {{column.title}}
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                                <input type="text" value={{newValue}} placeholder="new value"/>
 
-                <template if="{{!showSelected}}">
-                    <sortable-table id="table"
-                                    data="{{attributeManager.data}}"
-                                    columns="{{attributeManager.columns}}"
-                                    rowselection="{{rowSelection}}"
-                                    multiselect="{{multiSelect}}"
-                                    selected="{{attributeManager.selected}}"
-                            >
-                        <template id="inputTemplate">
-                            <td class="edit">
-                                <input type="text" value="{{row[column.name]}}">
-                            </td>
-                        </template>
-                    </sortable-table>
-                </template>
+                                <div class="button action" on-click="{{handleEditApply}}">Apply</div>
+                            </div>
+                        </div>
+                        <div class="panel" flex>
+                            <div class="header">
+                                <div class="text">Add attribute</div>
+                            </div>
+                            <div class="container">
+                                <input type="text" value={{newColumnName}} placeholder="Attribute name"/>
 
-                <template if="{{showSelected}}">
-                    <sortable-table id="table"
-                                    data="{{attributeManager.selected}}"
-                                    columns="{{attributeManager.columns}}"
-                            >
-                        <template id="inputTemplate">
-                            <td class="edit">
-                                <input type="text" value="{{row[column.name]}}">
-                            </td>
+                                <div class="button action" on-click="{{handleAddApply}}">Apply</div>
+                            </div>
+                        </div>
+                        <div class="panel" flex>
+                            <div class="header">
+                                <div class="text">Remove attribute</div>
+                            </div>
+                            <div class="container">
+                                <div class="dropdown">
+                                    <div tabindex="-1" class="button">
+                                        {{removeSelected}}
+                                    </div>
+                                    <ul>
+                                        <template repeat="{{column in attributeManager.columns}}">
+                                            <li on-mousedown="{{handleRemoveSelect}}" data-name="{{column.name}}">
+                                                {{column.title}}
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                                <div class="button action" on-click="{{handleRemoveApply}}">Apply</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div flex>
+                        <template if="{{!showSelected}}">
+                            <sortable-table id="table"
+                                            data="{{attributeManager.data}}"
+                                            columns="{{attributeManager.columns}}"
+                                            rowselection="{{rowSelection}}"
+                                            multiselect="{{multiSelect}}"
+                                            selected="{{attributeManager.selected}}"
+
+                                            page="{{page}}"
+                                            pageSize="{{pageSize}}"
+                                            footerTemplate="defaultPager"
+
+                                    >
+                                <template id="inputTemplate">
+                                    <td class="edit">
+                                        <input type="text" value="{{row[column.name]}}">
+                                    </td>
+                                </template>
+                            </sortable-table>
                         </template>
-                    </sortable-table>
-                </template>
+
+                        <template if="{{showSelected}}">
+                            <sortable-table id="table"
+                                            data="{{attributeManager.selected}}"
+                                            columns="{{attributeManager.columns}}"
+
+                                            page="{{page}}"
+                                            pageSize="{{pageSize}}"
+                                            footerTemplate="defaultPager"
+                                    >
+                                <template id="inputTemplate">
+                                    <td class="edit">
+                                        <input type="text" value="{{row[column.name]}}">
+                                    </td>
+                                </template>
+                            </sortable-table>
+                        </template>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -92,12 +193,20 @@
     <script>
         Polymer({
             created: function () {
+                this.page = 0;
+                this.pageSize = 12;
+
                 this.attributeManager;
 
                 this.rowSelection = true;
                 this.multiSelect = true;
 
                 this.showSelected = false;
+
+                this.editSelected = 'Select attribute';
+                this.removeSelected = 'Select attribute to remove';
+                this.newColumnName = '';
+                this.newValue = '';
             },
             ready: function () {
             },
@@ -106,6 +215,29 @@
             },
             handleShowSelected: function () {
                 this.showSelected = !this.showSelected;
+            },
+            handleEditSelect: function (e) {
+                this.editSelected = e.currentTarget.dataset.name;
+            },
+            handleRemoveSelect: function (e) {
+                this.removeSelected = e.currentTarget.dataset.name;
+            },
+            handleEditApply: function (e) {
+                this.attributeManager.updateRowsColumn(this.attributeManager.selected, this.editSelected, this.newValue);
+            },
+            handleRemoveApply: function (e) {
+                this.attributeManager.removeColumnByName(this.removeSelected);
+            },
+            handleAddApply: function (e) {
+                if (this.newColumnName != '') {
+                    this.attributeManager.addColumn({
+                        defaultValue: "",
+                        name: this.newColumnName.toLowerCase(),
+                        title: this.newColumnName,
+                        type: "string",
+                        cellTemplate: "inputTemplate"
+                    });
+                }
             }
         });
     </script>

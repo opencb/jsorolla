@@ -18,10 +18,6 @@
             float: left;
         }
 
-        div.dropdown > div.button::after {
-            content: '';
-        }
-
         [hide=true] {
             display: none !important;
         }
@@ -44,7 +40,9 @@
                style="width: 70px; margin-left: 10px;">
 
         <div class="dropdown" style="margin-left: 10px">
-            <div tabindex="-1" id="vertexShapeButton" class="button"><i class="fa fa-star"></i></div>
+            <div tabindex="-1" id="vertexShapeButton" class="button">
+                <i class="fa fa-star"></i>
+            </div>
             <ul id="vertexShapeMenu">
                 <li on-click="{{handleVertexShape}}" data-value="circle">Circle</li>
                 <li on-click="{{handleVertexShape}}" data-value="square">Square</li>

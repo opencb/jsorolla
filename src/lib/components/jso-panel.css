@@ -6,7 +6,12 @@
 }
 
 .panel-shadow {
-    box-shadow: -4px 4px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.2);
+    /*box-shadow: -4px 4px 4px rgba(0, 0, 0, 0.2);*/
+}
+
+.header {
+    background-color: #E5E5E5;
 }
 
 .header, .container {
@@ -14,11 +19,11 @@
 }
 
 .header, .footer {
-    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
-    background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
-    background-repeat: repeat-x;
-    line-height: 32px;
-    height: 32px;
+    /*background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);*/
+    /*background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);*/
+    /*background-repeat: repeat-x;*/
+    line-height: 31px;
+    height: 31px;
     padding: 4px 5px;
     color: #333;
     box-sizing: border-box;
@@ -48,4 +53,3 @@
 .header[data-collapsible=true][data-collapsed=true] + div {
     display: none;
 }
-

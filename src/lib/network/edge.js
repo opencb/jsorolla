@@ -30,7 +30,7 @@ function Edge(args) {
     this.directed;
     this.overlapCount;
 
-    this.renderer;
+    this.renderer = new DefaultEdgeRenderer();
     //set instantiation args, must be last
     _.extend(this, args);
 

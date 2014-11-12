@@ -77,6 +77,10 @@
                 display: inline-block;
                 min-width: 200px;
             }
+
+            div.action {
+                min-width: 100px;
+            }
         </style>
 
         <form id="form">
@@ -89,7 +93,10 @@
             <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
             <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
 
-            <sortable-table id="table">
+            <sortable-table id="table"
+                            page="{{page}}"
+                            pageSize="{{pageSize}}"
+                            footerTemplate="defaultPager">
                 <sortable-column>Source node</sortable-column>
                 <sortable-column>Relation</sortable-column>
                 <sortable-column>Target node</sortable-column>
@@ -98,14 +105,17 @@
 
             <div class="message">{{message}}</div>
             <div class="bbar">
-                <div class="button" on-click="{{handleCancel}}">Cancel</div>
-                <div class="button" on-click="{{handleOk}}">OK</div>
+                <div class="button action" on-click="{{handleCancel}}">Cancel</div>
+                <div class="button action" on-click="{{handleOk}}">OK</div>
             </div>
         </form>
     </template>
     <script>
         Polymer({
             created: function () {
+                this.page = 0;
+                this.pageSize = 12;
+
                 this.fileName = 'Choose file...';
                 this.message = ' ';
                 this.graph;

@@ -1,0 +1,68 @@
+<polymer-element name="jso-attribute-edge-render" attributes="hideAttributeRender">
+    <template>
+        <link rel="stylesheet" href="../../jso-style.css">
+        <link rel="stylesheet" href="../../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                z-index: 50000;
+                top: 153px;
+
+                /*left: 0;*/
+                right: 250px;
+                /*margin-left: auto;*/
+                /*margin-right: auto;*/
+
+                width: 250px;
+                /*border: 0px solid #c6d0da;*/
+                /*border-width: 1px;*/
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                /*box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);*/
+            }
+
+            .header > * {
+                float: left;
+            }
+
+            #close {
+                float: right;
+            }
+
+            #close:after {
+                font-family: FontAwesome;
+                content: '\f00d';
+            }
+
+            #close:hover {
+                color: #8b0000;
+            }
+
+        </style>
+        <div class="panel">
+            <div class="header">
+                <div class="text">Edit edge attribute rendering</div>
+                <div id="close" class="text" on-click="{{handleClose}}"></div>
+            </div>
+            <div class="container">
+
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+            },
+            ready: function () {
+            },
+            handleClose: function () {
+                this.hideAttributeRender = true;
+            }
+        });
+    </script>
+</polymer-element>

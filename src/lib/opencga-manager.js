@@ -216,7 +216,7 @@ var OpencgaManager = {
                 async = args.request.async;
             }
 
-            console.log(url);
+            //console.log(url);
             var request = new XMLHttpRequest();
             request.onload = function () {
                 var contentType = this.getResponseHeader('Content-Type');
