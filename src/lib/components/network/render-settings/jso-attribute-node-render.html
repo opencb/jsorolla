@@ -1,28 +1,14 @@
-<polymer-element name="jso-attribute-node-render" attributes="attributeManager hideAttributeRender">
+<polymer-element name="jso-attribute-node-render" attributes="attributeManager hideFlag">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
         <link rel="stylesheet" href="../../jso-panel.css">
         <style>
             :host {
                 display: block;
-                position: absolute;
+                position: relative;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
-
-                z-index: 50000;
-                top: 153px;
-
-                left: 0px;
-                /*right: 0;*/
-                /*margin-left: auto;*/
-                /*margin-right: auto;*/
-
                 width: 250px;
-                /*border: 0px solid #c6d0da;*/
-                /*border-width: 1px;*/
-                /*border-top-width: 1px;*/
-                /*transition: all 0.2s;*/
-                /*box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);*/
             }
 
             .header > * {
@@ -65,8 +51,9 @@
 
         </style>
         <div class="panel panel-shadow">
-            <div id="headerpanel" class="header">
-                <div class="text">Edit node attribute rendering</div>
+            <div id="headerpanel" class="header" on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Simple node attribute rendering</div>
                 <div id="close" class="text" on-click="{{handleClose}}"></div>
             </div>
             <div class="container" vertical layout>
@@ -137,7 +124,8 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Color:</div>
-                    <jso-color-picker flex color="{{strokeColor}}"></jso-color-picker>
+
+                    <input flex type="color" value="{{color}}">
 
                     <div class="button">
                         <font-awesome icon="ellipsis-h"></font-awesome>
@@ -148,7 +136,7 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Stroke color:</div>
-                    <jso-color-picker flex color="{{strokeColor}}"></jso-color-picker>
+                    <input flex type="color" value="{{strokeColor}}">
 
                     <div class="button" on-click="{{handleSettingsClick}}" data-prop="strokeColor">
                         <font-awesome icon="ellipsis-h"></font-awesome>
@@ -184,24 +172,20 @@
         </div>
 
         <template if="{{displayProperty == 'size'}}">
-            <jso-attribute-render-table
-                    id="t1"
+            <jso-attribute-render-number-table
                     renderProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
-                    controlType="number"
                     defaultValue="{{size}}"
                     >
-            </jso-attribute-render-table>
+            </jso-attribute-render-number-table>
         </template>
         <template if="{{displayProperty == 'strokeColor'}}">
-            <jso-attribute-render-table
-                    id="t1"
+            <jso-attribute-render-color-table
                     renderProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
-                    controlType="color"
                     defaultValue="{{strokeColor}}"
                     >
-            </jso-attribute-render-table>
+            </jso-attribute-render-color-table>
         </template>
     </template>
     <script>
@@ -213,8 +197,8 @@
                 this.labelSize;
 
                 this.color;
-                this.strokeColor="#0000ee";
-                this.size=0;
+                this.strokeColor = "#0000ee";
+                this.size = 0;
                 this.strokeSize;
 
                 this.downX;
@@ -224,12 +208,17 @@
             ready: function () {
             },
 //            handleHeaderMouseDown: function (e) {
+//                var me = this;
+//                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+//                this.mouseMoveHandler = function (moveEvent) {
+//                    me.handleMouseMove(moveEvent);
+//                };
 //                this.downX = e.layerX;
 //                this.downY = e.layerY;
-//                this.addEventListener('mousemove', this.handleMouseMove, true);
+//                window.addEventListener('mousemove', this.mouseMoveHandler, true);
 //            },
-//            handleHederMouseUp: function () {
-//                this.removeEventListener('mousemove', this.handleMouseMove, true);
+//            handleHeaderMouseUp: function () {
+//                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
 //            },
 //            handleMouseMove: function (e) {
 //                this.style.left = (e.clientX - this.downX) + "px";
@@ -237,7 +226,7 @@
 //            },
 
             handleClose: function () {
-                this.hideAttributeRender = true;
+                this.hideFlag = true;
             },
 
             handleLabelSelect: function (e) {

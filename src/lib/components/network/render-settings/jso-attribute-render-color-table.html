@@ -1,5 +1,5 @@
-<polymer-element name="jso-attribute-render-table"
-                 attributes="renderProperty attributeManager controlType defaultValue">
+<polymer-element name="jso-attribute-render-color-table"
+                 attributes="renderProperty attributeManager defaultValue">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
         <link rel="stylesheet" href="../../jso-panel.css">
@@ -13,7 +13,7 @@
                 z-index: 50000;
                 top: 0px;
 
-                left: 250px;
+                right: 250px;
                 /*right: 0;*/
                 /*margin-left: auto;*/
                 /*margin-right: auto;*/
@@ -64,7 +64,6 @@
                 margin-right: 0px;
             }
 
-
             core-list {
                 height: 150px;
                 border: 1px solid #d3d3d3;
@@ -79,9 +78,6 @@
 
             .item > div {
                 padding: 3px 4px;
-            }
-            .item > div.color-control {
-                padding: 0px;
             }
 
             .item > input {
@@ -117,6 +113,12 @@
             .action {
                 width: 100px;
             }
+
+            #colorLegend {
+                border: 1px solid #d3d3d3;
+                width: 50px;
+                margin-top: 3px;
+            }
         </style>
         <div class="panel panel-shadow">
             <div class="header">
@@ -147,34 +149,30 @@
                         </ul>
                     </div>
                 </div>
-                <template if="{{attributeType == 'string'}}">
+                <div horizontal layout hidden?="{{attributeType != 'string'}}">
+                    <div class="button">Select all</div>
+                    <div class="button">Deselect all</div>
+                    <div class="button">Apply direct</div>
+                    <!--<div class="text">Selection:</div>-->
+                    <input flex type="color" value="{{defaultValue}}">
+                </div>
+                <div hidden?="{{attributeType != 'number'}}">
                     <div horizontal layout>
-                        <div class="button">Select all</div>
-                        <div class="button">Deselect all</div>
-                        <div class="button">Apply direct</div>
-                        <div class="text">Selection:</div>
-                        <template if="{{controlType == 'number'}}">
-                            <input flex type="number" value="{{defaultValue}}">
-                        </template>
-                        <template if="{{controlType == 'color'}}">
-                            <jso-color-picker flex color="{{defaultValue}}"></jso-color-picker>
-                        </template>
+                        <div class="button" on-click="{{handleAddPoint}}">Add point</div>
+                        <div class="button" on-click="{{handleApplyInterpolation}}">Apply</div>
                     </div>
-                </template>
-                <template if="{{attributeType == 'number'}}">
-                    <div vertical layout>
-                        <div horizontal layout>
-                            <div class="button" on-click="{{handleAddPoint}}">Add point</div>
-                            <div class="button" on-click="{{handleApplyInterpolation}}">Apply</div>
+                    <div horizontal layout>
+                        <div flex vertical layout>
+                            <template repeat="{{point, index in points}}">
+                                <jso-attribute-render-table-color-point
+                                        point="{{point}}" points="{{points}}" controlType="{{controlType}}"
+                                        allowRemove="{{index != 0 && index != points.length -1}}">
+                                </jso-attribute-render-table-color-point>
+                            </template>
                         </div>
-                        <template repeat="{{point, index in points}}">
-                            <jso-attribute-render-table-number-point
-                                    point="{{point}}" points="{{points}}"
-                                    allowRemove="{{index != 0 && index != points.length -1}}">
-                            </jso-attribute-render-table-number-point>
-                        </template>
+                        <div id="colorLegend"></div>
                     </div>
-                </template>
+                </div>
                 <div>
                     <div class="table-head" horizontal layout>
                         <div flex>Attribute value</div>
@@ -184,15 +182,7 @@
                         <template>
                             <div horizontal layout class="item">
                                 <div flex>{{model.attribute}}</div>
-                                <template if="{{controlType == 'number'}}">
-                                    <input flex type="number" value="{{model.render}}">
-                                </template>
-                                <template if="{{controlType == 'color'}}">
-                                    <div flex horizontal layout class="color-control">
-                                        <input flex type="color" value="{{model.render}}">
-                                        <input flex type="text" value="{{model.render}}">
-                                    </div>
-                                </template>
+                                <input flex type="color" value="{{model.render}}">
                             </div>
                         </template>
                     </core-list>
@@ -201,6 +191,7 @@
                     <div class="button action">OK</div>
                 </div>
             </div>
+        </div>
 
     </template>
     <script>
@@ -210,12 +201,12 @@
                 this.attributeType = 'number';
                 this.uniqueData = [];
 
-                this.points = [
-                    {value: 0, render: 0},
-                    {value: 0, render: 0}
-                ];
             },
             ready: function () {
+                this.points = [
+                    {value: 0, render: this.defaultValue},
+                    {value: 0, render: this.defaultValue}
+                ];
             },
 
             attributeNameChanged: function (oldValue, newValue) {
@@ -240,7 +231,7 @@
             },
             handleAddPoint: function () {
                 this.points.splice(this.points.length - 1, 0, {
-                    value: 0, render: 0
+                    value: 0, render: this.defaultValue
                 });
             },
             handleApplyInterpolation: function () {
@@ -268,12 +259,29 @@
                 }
                 this.points[0].value = min;
                 this.points[this.points.length - 1].value = max;
+                uniqueData.sort(function (a, b) {
+                    return parseFloat(a.attribute) - parseFloat(b.attribute);
+                });
                 this.uniqueData = uniqueData;
+                this._updateUniqueInterpolatedValues();
             },
             _updateUniqueInterpolatedValues: function () {
                 this.points.sort(function (a, b) {
-                    return a.value - b.value;
+                    return parseFloat(a.value) - parseFloat(b.value);
                 });
+
+                var totalDiff = this.points[this.points.length - 1].value - this.points[0].value;
+                var gradientValues = [this.points[0].render + " 0%"];
+                var percent = 0;
+                for (var i = 0, l = this.points.length - 1; i < l; i++) {
+                    var point = this.points[i];
+                    var nextPoint = this.points[i + 1];
+                    if (nextPoint) {
+                        percent += 100 * (nextPoint.value - point.value) / totalDiff;
+                        gradientValues.push(nextPoint.render + " " + Math.round(percent) + "%");
+                    }
+                }
+                this.$.colorLegend.style.background = "linear-gradient(to bottom, " + gradientValues.join(", ") + " )";
 
                 for (var i = 0, l = this.uniqueData.length; i < l; i++) {
                     var value = parseFloat(this.uniqueData[i].attribute);
@@ -282,14 +290,13 @@
                         var nextPoint = this.points[j + 1];
                         if (nextPoint) {
                             var pointValue = parseFloat(point.value);
-                            var pointRender = parseFloat(point.render);
+                            var pointRender = point.render;
                             var nextPointValue = parseFloat(nextPoint.value);
-                            var nextPointRender = parseFloat(nextPoint.render);
+                            var nextPointRender = nextPoint.render;
                             if (value >= pointValue && value <= nextPointValue) {
-                                var valueDiff = pointValue - nextPointValue;
-                                var renderDiff = pointRender - nextPointRender;
-                                var v = value - pointValue;
-                                this.uniqueData[i].render = (v * renderDiff / valueDiff) + pointRender;
+                                var interpolator = d3.interpolateRgb(pointRender, nextPointRender);
+                                var normalizedValue = (value - pointValue) / (nextPointValue - pointValue);
+                                this.uniqueData[i].render = interpolator(normalizedValue);
                             }
                         }
                     }
@@ -299,7 +306,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="jso-attribute-render-table-number-point"
+<polymer-element name="jso-attribute-render-table-color-point"
                  attributes="point points allowRemove">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
@@ -323,24 +330,25 @@
                 width: 100px;
             }
 
-            #remove::after {
+            .remove::after {
                 font-family: FontAwesome;
                 content: '\f00d';
             }
 
-            #remove[allowRemove] {
+            .remove[allowRemove] {
                 visibility: hidden
             }
 
-            #remove[allowRemove=true] {
+            .remove[allowRemove=true] {
                 visibility: inherit;
             }
         </style>
         <div horizontal layout>
             <input flex type="number" value="{{point.value}}">
-            <input flex type="number" value="{{point.render}}">
 
-            <div id="remove" class="button" allowRemove="{{allowRemove}}" on-click="{{handleRemove}}"></div>
+            <input flex type="color" value="{{point.render}}">
+
+            <div class="button remove" allowRemove="{{allowRemove}}" on-click="{{handleRemove}}"></div>
         </div>
     </template>
     <script>

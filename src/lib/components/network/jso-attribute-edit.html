@@ -6,24 +6,11 @@
         <style>
             :host {
                 display: block;
-                position: absolute;
+                position: relative;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
 
-                z-index: 50000;
-                bottom: 31px;
-
-                left: 0;
-                right: 0;
-                margin-left: auto;
-                margin-right: auto;
-
-                width: 100%;
-                /*border: 0px solid #c6d0da;*/
-                /*border-width: 1px;*/
-                /*border-top-width: 1px;*/
-                transition: all 0.2s;
-                /*box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);*/
+                width: 600px;
             }
 
             .header > * {
@@ -45,7 +32,7 @@
 
             #table {
                 overflow-y: auto;
-                height: 400px;
+                height: 408px;
                 /*border: 1px solid #d3d3d3;*/
             }
 
@@ -146,7 +133,7 @@
                             </div>
                         </div>
                     </div>
-                    <div flex>
+                    <div flex on-mousewheel="{{handleScroll}}">
                         <template if="{{!showSelected}}">
                             <sortable-table id="table"
                                             data="{{attributeManager.data}}"
@@ -157,7 +144,7 @@
 
                                             page="{{page}}"
                                             pageSize="{{pageSize}}"
-                                            footerTemplate="defaultPager"
+                                            footerTemplate="simplePager"
 
                                     >
                                 <template id="inputTemplate">
@@ -175,7 +162,7 @@
 
                                             page="{{page}}"
                                             pageSize="{{pageSize}}"
-                                            footerTemplate="defaultPager"
+                                            footerTemplate="simplePager"
                                     >
                                 <template id="inputTemplate">
                                     <td class="edit">
@@ -193,8 +180,8 @@
     <script>
         Polymer({
             created: function () {
-                this.page = 0;
-                this.pageSize = 12;
+                this.page = 1;
+                this.pageSize = 14;
 
                 this.attributeManager;
 
@@ -209,6 +196,9 @@
                 this.newValue = '';
             },
             ready: function () {
+            },
+            handleScroll: function (e) {
+                console.log(e);
             },
             handleClose: function () {
                 this.selectedMenu = '';

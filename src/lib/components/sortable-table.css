@@ -1,5 +1,6 @@
 sortable-table::shadow table {
     table-layout: fixed;
+    background-color: #f2f2f2;
 }
 
 sortable-table::shadow thead {
@@ -7,11 +8,12 @@ sortable-table::shadow thead {
 }
 
 sortable-table::shadow tbody {
-    border-right: 1px solid #d3d3d3;
 }
 
 sortable-table::shadow tfoot {
-    border-right: 1px solid #d3d3d3;
+    background-color: #fafafa;
+    color: #445D76;
+    border-top: 1px solid #d3d3d3;
 }
 
 sortable-table::shadow thead tr th {
@@ -20,9 +22,12 @@ sortable-table::shadow thead tr th {
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: left;
-    background-color: #f2f2f2;
     color: #666;
     border-right: 1px solid #d3d3d3;
+}
+
+sortable-table::shadow thead tr th:last-child {
+    border-right-width: 0px;
 }
 
 sortable-table::shadow thead tr th.sorted-column-asc:after {
@@ -51,6 +56,10 @@ sortable-table::shadow tbody tr:hover {
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
 }
 
+sortable-table::shadow tbody tr:nth-child(2n) {
+    background-color: #ffffff;
+}
+
 sortable-table::shadow tbody tr:nth-child(2n+1) {
     background-color: #f5f5f5;
 }
@@ -60,15 +69,34 @@ sortable-table::shadow tbody tr.selected-row {
     color: #fff;
 }
 
+sortable-table::shadow .simplePager {
+    padding-left: 5px;
+}
+
 sortable-table::shadow button {
+    cursor: pointer;
     outline: 0;
     box-sizing: border-box;
     line-height: 21px;
     border: 1px solid #d3d3d3;
     padding: 0px 5px;
-    color: inherit;
-    background-color: transparent;
+    margin-top: 1px;
+    background-color: #fafafa;
+    color: #445D76;
     font-size: inherit;
+    margin-left: 3px;
+    margin-right: 3px;
+    text-align: center;
+    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+sortable-table::shadow button:hover {
+    background-color: #ffffff;
+
+}
+
+sortable-table::shadow button:active {
+    background-color: #f5f5f5;
 }
 
 sortable-table::shadow input {
@@ -85,6 +113,7 @@ sortable-table::shadow input {
     font-size: inherit;
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
+
 sortable-table::shadow input[type=number] {
     border: 1px solid #d3d3d3;
     width: 50px !important;

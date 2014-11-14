@@ -50,8 +50,13 @@ label.button > input[type=checkbox] + span {
     font-size: inherit;
     user-select: none;
 }
-input[type=number]{
-    padding-right:0px;
+
+input[type=number] {
+    padding-right: 0px;
+}
+
+input[type=color] {
+    padding: 0px;
 }
 
 div.button:hover {
@@ -248,7 +253,7 @@ div.dropdown > div.button:focus + ul li:hover > ul {
 div.dropdown > div.button::after {
     font-family: 'FontAwesome';
     content: '\f107';
-    float:right;
+    float: right;
     line-height: 21px;
     padding: 0 2px 0 4px;
 }

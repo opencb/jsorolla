@@ -1,309 +1,316 @@
 <polymer-element name="jso-text-network-file-open" attributes="selectedMenu">
-<template>
-    <link rel="stylesheet" href="../jso-style.css">
-    <link rel="stylesheet" href="../sortable-table.css">
-    <style>
-        :host {
-            display: block;
-            position: absolute;
-            box-sizing: border-box;
-            background-color: #FFFFFF;
-            padding: 20px 60px;
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../core-list-table.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 20px 60px;
 
-            z-index: 50000;
-            top: 170px;
+                z-index: 50000;
+                top: 170px;
 
-            left: 0;
-            right: 0;
-            margin-left: auto;
-            margin-right: auto;
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
 
-            width: 50vw;
-            border: 0px solid #c6d0da;
-            border-width: 1px;
-            /*border-top-width: 1px;*/
-            transition: all 0.2s;
-            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
-        }
+                width: 50vw;
+                border: 0px solid #c6d0da;
+                border-width: 1px;
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            }
 
-        .title {
-            text-align: center;
-            font-size: 25px;
-            /*color: #666;*/
-            padding-bottom: 20px;
-            color: #445D76;
-        }
+            .title {
+                text-align: center;
+                font-size: 25px;
+                /*color: #666;*/
+                padding-bottom: 20px;
+                color: #445D76;
+            }
 
-        .icon {
-            color: #445D76;
-            font-size: 50px;
-        }
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
 
-        label {
-            display: inline-block;
-            width: 100px;
-            color: #666;
-            margin-top: 10px;
-        }
+            label {
+                display: inline-block;
+                width: 100px;
+                color: #666;
+                margin-top: 10px;
+            }
 
-        label::after {
-            content: ':'
-        }
+            label::after {
+                content: ':'
+            }
 
-        .message {
-        }
+            .message {
+            }
 
-        .bbar {
-            height: 40px;
-            box-sizing: border-box;
-            margin-top: 10px;
-        }
+            .bbar {
+                height: 40px;
+                box-sizing: border-box;
+                margin-top: 10px;
+            }
 
-        .bbar > * {
-            width: 100px;
-            float: right;
-            margin-left: 10px;
-            text-align: center;
-        }
+            .bbar > * {
+                width: 100px;
+                float: right;
+                margin-left: 10px;
+                text-align: center;
+            }
 
-        #table {
-            overflow-y: auto;
-            height: 300px;
-            margin: 2px 0 10px 0;
-            border: 1px solid #d3d3d3;
-        }
+            .table {
+                margin-top: 10px;
+            }
 
-        div.button, div.dropdown {
-            display: inline-block;
-            min-width: 200px;
-        }
-        div.action {
-            min-width: 100px;
-        }
+            .table-body {
+                height: 270px;
+            }
 
-        #columns .dropdown:first-child {
-            margin-right: 1px;
-            margin-left: 0px;
-        }
+            div.button, div.dropdown {
+                display: inline-block;
+                min-width: 200px;
+            }
 
-        #columns .dropdown:last-child {
-            margin-right: 0px;
-            margin-left: 1px;
-        }
+            div.action {
+                min-width: 100px;
+            }
 
-        #columns .dropdown {
-            margin-right: 1px;
-            margin-left: 1px;
-        }
-    </style>
+            #columns .dropdown:first-child {
+                margin-right: 1px;
+                margin-left: 0px;
+            }
 
-    <form id="form">
-        <div class="title">
-            Import a network Text file
-        </div>
+            #columns .dropdown:last-child {
+                margin-right: 20px;
+                margin-left: 1px;
+            }
 
-        <label>Select Text file</label>
+            #columns .dropdown {
+                margin-right: 1px;
+                margin-left: 1px;
+            }
+        </style>
 
-        <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
-        <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
-        <br>
-        <label>Parse character</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{parseCharacterText}}
+        <form id="form">
+            <div class="title">
+                Import a network Text file
             </div>
-            <ul on-click="{{handleCharacterMenu}}">
-                <li data-value="Tab">Tab</li>
-                <li data-value="Comma">Comma</li>
-                <li data-value="Semicolon">Semicolon</li>
-            </ul>
-        </div>
-        <br> <br>
 
-        <div id="columns" horizontal layout>
-            <div class="dropdown" flex horizontal layout>
-                <div tabindex="-1" class="button" flex>
-                    {{sourceColumnIndex}}
+            <label>Select Text file</label>
+
+            <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+            <br>
+            <label>Parse character</label>
+
+            <div class="dropdown">
+                <div tabindex="-1" class="button">
+                    {{parseCharacterText}}
                 </div>
-                <ul on-click="{{handleSourceColumnIndex}}">
-                    <template repeat="{{index in columnsNumbers}}">
-                        <li data-value="{{index}}">{{index}}</li>
-                    </template>
+                <ul on-click="{{handleCharacterMenu}}">
+                    <li data-value="Tab">Tab</li>
+                    <li data-value="Comma">Comma</li>
+                    <li data-value="Semicolon">Semicolon</li>
                 </ul>
             </div>
-            <div class="dropdown" flex horizontal layout>
-                <div tabindex="-1" class="button" flex>
-                    {{relationColumnIndex}}
+            <br> <br>
+
+            <div id="columns" horizontal layout>
+                <div class="dropdown" flex horizontal layout>
+                    <div tabindex="-1" class="button" flex>
+                        {{sourceColumnIndex}}
+                    </div>
+                    <ul on-click="{{handleSourceColumnIndex}}">
+                        <template repeat="{{index in columnsNumbers}}">
+                            <li data-value="{{index}}">{{index}}</li>
+                        </template>
+                    </ul>
                 </div>
-                <ul on-click="{{handleRelationColumnIndex}}">
-                    <li data-value="none">none</li>
-                    <template repeat="{{index in columnsNumbers}}">
-                        <li data-value="{{index}}">{{index}}</li>
-                    </template>
-                </ul>
-            </div>
-            <div class="dropdown" flex horizontal layout>
-                <div tabindex="-1" class="button" flex>
-                    {{targetColumnIndex}}
+                <div class="dropdown" flex horizontal layout>
+                    <div tabindex="-1" class="button" flex>
+                        {{relationColumnIndex}}
+                    </div>
+                    <ul on-click="{{handleRelationColumnIndex}}">
+                        <li data-value="none">none</li>
+                        <template repeat="{{index in columnsNumbers}}">
+                            <li data-value="{{index}}">{{index}}</li>
+                        </template>
+                    </ul>
                 </div>
-                <ul on-click="{{handleTargetColumnIndex}}">
-                    <template repeat="{{index in columnsNumbers}}">
-                        <li data-value="{{index}}">{{index}}</li>
-                    </template>
-                </ul>
+                <div class="dropdown" flex horizontal layout>
+                    <div tabindex="-1" class="button" flex>
+                        {{targetColumnIndex}}
+                    </div>
+                    <ul on-click="{{handleTargetColumnIndex}}">
+                        <template repeat="{{index in columnsNumbers}}">
+                            <li data-value="{{index}}">{{index}}</li>
+                        </template>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        <sortable-table id="table">
-            <sortable-column>Source node</sortable-column>
-            <sortable-column>Relation</sortable-column>
-            <sortable-column>Target node</sortable-column>
-            []
-        </sortable-table>
+            <div class="table">
+                <div class="table-head" horizontal layout>
+                    <div flex>Source</div>
+                    <div flex>Relation</div>
+                    <div flex>Target</div>
+                </div>
 
-        <div class="message">{{message}}</div>
-        <div class="bbar">
-            <div class="button action" on-click="{{handleCancel}}">Cancel</div>
-            <div class="button action" on-click="{{handleOk}}">OK</div>
-        </div>
-    </form>
-</template>
-<script>
-    Polymer({
-        created: function () {
-            this.fileName = 'Choose file...';
-            this.message = ' ';
-            this.graph;
-            this.adapter;
+                <core-list class="table-body" data="{{parsedData}}" height="27">
+                    <template>
+                        <div class="table-row" horizontal layout>
+                            <div flex type="text">{{model.source.id}}</div>
+                            <div flex type="text">{{model.relation}}</div>
+                            <div flex type="text">{{model.target.id}}</div>
+                        </div>
+                    </template>
+                </core-list>
+            </div>
 
-            this.separators = {
-                "Tab": "\t",
-                "Comma": ",",
-                "Semicolon": ";"
-            };
+            <div class="message">{{message}}&nbsp;</div>
+            <div class="bbar">
+                <div class="button action" on-click="{{handleOk}}">OK</div>
+                <div class="button action" on-click="{{handleCancel}}">Cancel</div>
+            </div>
+        </form>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.fileName = 'Choose file...';
+                this.message = ' ';
+                this.graph;
+                this.adapter;
 
-            this.parseCharacter = this.separators['Tab'];
-            this.parseCharacterText = 'Tab';
+                this.separators = {
+                    "Tab": "\t",
+                    "Comma": ",",
+                    "Semicolon": ";"
+                };
 
-            this.sourceColumnIndex = 'select';
-            this.relationColumnIndex = 'none';
-            this.targetColumnIndex = 'select';
+                this.parseCharacter = this.separators['Tab'];
+                this.parseCharacterText = 'Tab';
 
-            this.columnsNumbers = [];
-        },
-        handleOk: function () {
-            if (this.graph) {
+                this.sourceColumnIndex = 'select';
+                this.relationColumnIndex = 'none';
+                this.targetColumnIndex = 'select';
+
+                this.columnsNumbers = [];
+
+                this.parsedData = [];
+            },
+            handleOk: function () {
+                if (this.graph) {
+                    this.selectedMenu = '';
+                    this.fire('graph', {graph: this.graph});
+                }
+            },
+            handleCancel: function () {
                 this.selectedMenu = '';
-                this.fire('graph', {graph: this.graph});
-            }
-        },
-        handleCancel: function () {
-            this.selectedMenu = '';
-        },
-        handleBrowseClick: function (e) {
-            this.$.fileInput.click();
-        },
-        handleInputChange: function (e) {
-            var me = this;
-            var inputFile = this.$.fileInput.files[0];
-            this.fileName = inputFile.name;
-            this.message = '';
+            },
+            handleBrowseClick: function (e) {
+                this.$.fileInput.click();
+            },
+            handleInputChange: function (e) {
+                var me = this;
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name;
+                this.message = '';
 
-            if (this.$.form.checkValidity()) {
-                this.adapter = new TextNetworkDataAdapter({
-                    dataSource: new FileDataSource({file: inputFile}),
-                    separator: this.parseCharacter,
-                    handlers: {
-                        'data:load': function (event) {
-                            me.processColumns();
-                        },
-                        'error:parse': function (event) {
-                            me.message = event.errorMsg;
+                if (this.$.form.checkValidity()) {
+                    this.adapter = new TextNetworkDataAdapter({
+                        dataSource: new FileDataSource({file: inputFile}),
+                        separator: this.parseCharacter,
+                        handlers: {
+                            'data:load': function (event) {
+                                me.processColumns();
+                            },
+                            'error:parse': function (event) {
+                                me.message = event.errorMsg;
+                            }
                         }
-                    }
-                });
-            }
-        },
-        handleCharacterMenu: function (e) {
-            this.parseCharacter = this.separators[e.target.dataset.value];
-            this.parseCharacterText = e.target.dataset.value;
-
-            this.adapter.separator = this.parseCharacter;
-            this.adapter.parse();
-
-            this.sourceColumnIndex = 'select';
-            this.relationColumnIndex = 'none';
-            this.targetColumnIndex = 'select';
-
-            this.processColumns();
-            this.$.table.data = [];
-
-        },
-        handleSourceColumnIndex: function (e) {
-            if (e.target.dataset.value) {
-                this.sourceColumnIndex = parseInt(e.target.dataset.value);
-                this.processColumnNumbers();
-            }
-        },
-        handleRelationColumnIndex: function (e) {
-            if (e.target.dataset.value) {
-                this.relationColumnIndex = e.target.dataset.value;
-                this.processColumnNumbers();
-
-            }
-        },
-        handleTargetColumnIndex: function (e) {
-            if (e.target.dataset.value) {
-                this.targetColumnIndex = parseInt(e.target.dataset.value);
-                this.processColumnNumbers();
-            }
-        },
-        processColumns: function () {
-            this.columnsNumbers = [];
-            for (var i = 0; i < this.adapter.columnLength; i++) {
-                this.columnsNumbers.push(i + 1);
-            }
-        },
-        processColumnNumbers: function () {
-            if (this.adapter) {
-                if (!(isNaN(this.sourceColumnIndex)) && !(isNaN(this.targetColumnIndex))) {
-                    var relationDefaultName = 'none';
-                    var columnIndex;
-                    if (this.relationColumnIndex === 'none') {
-                        columnIndex = -1;
-                    } else {
-                        columnIndex = this.relationColumnIndex - 1;
-                    }
-                    var graph = this.adapter.parseColumns(this.sourceColumnIndex - 1, this.targetColumnIndex - 1, columnIndex, relationDefaultName);
-                    this.processData(graph);
+                    });
                 }
-            }
+            },
+            handleCharacterMenu: function (e) {
+                this.parseCharacter = this.separators[e.target.dataset.value];
+                this.parseCharacterText = e.target.dataset.value;
 
-        },
-        processData: function (graph) {
-            try {
-//                    this.content = graph; //para el onOK.notify event
-                var verticesLength = graph.vertices.length;
-                var edgesLength = graph.edges.length;
+                this.adapter.separator = this.parseCharacter;
+                this.adapter.parse();
 
-                var edges = graph.edges;
-                var data = [];
-                for (var i = 0; i < edges.length; i++) {
-                    var edge = edges[i];
-                    data.push([edge.source.id, edge.relation, edge.target.id]);
+                this.sourceColumnIndex = 'select';
+                this.relationColumnIndex = 'none';
+                this.targetColumnIndex = 'select';
+
+                this.processColumns();
+                this.$.table.data = [];
+
+            },
+            handleSourceColumnIndex: function (e) {
+                if (e.target.dataset.value) {
+                    this.sourceColumnIndex = parseInt(e.target.dataset.value);
+                    this.processColumnNumbers();
+                }
+            },
+            handleRelationColumnIndex: function (e) {
+                if (e.target.dataset.value) {
+                    this.relationColumnIndex = e.target.dataset.value;
+                    this.processColumnNumbers();
+
+                }
+            },
+            handleTargetColumnIndex: function (e) {
+                if (e.target.dataset.value) {
+                    this.targetColumnIndex = parseInt(e.target.dataset.value);
+                    this.processColumnNumbers();
+                }
+            },
+            processColumns: function () {
+                this.columnsNumbers = [];
+                for (var i = 0; i < this.adapter.columnLength; i++) {
+                    this.columnsNumbers.push(i + 1);
+                }
+            },
+            processColumnNumbers: function () {
+                if (this.adapter) {
+                    if (!(isNaN(this.sourceColumnIndex)) && !(isNaN(this.targetColumnIndex))) {
+                        var relationDefaultName = 'none';
+                        var columnIndex;
+                        if (this.relationColumnIndex === 'none') {
+                            columnIndex = -1;
+                        } else {
+                            columnIndex = this.relationColumnIndex - 1;
+                        }
+                        var graph = this.adapter.parseColumns(this.sourceColumnIndex - 1, this.targetColumnIndex - 1, columnIndex, relationDefaultName);
+                        this.processData(graph);
+                    }
                 }
 
-                this.$.table.data = data;
+            },
+            processData: function (graph) {
+                try {
+                    var verticesLength = graph.vertices.length;
+                    var edgesLength = graph.edges.length;
 
-                this.message = 'File loaded sucessfully, Vertices:' + verticesLength + ', edges:' + edgesLength + '';
+                    this.parsedData = graph.edges;
 
-                this.graph = graph;
-            } catch (e) {
-                this.message = 'File not valid. ';
-                console.log(e)
+                    this.message = 'File loaded sucessfully, Vertices:' + verticesLength + ', edges:' + edgesLength + '';
+
+                    this.graph = graph;
+                } catch (e) {
+                    this.message = 'File not valid. ';
+                    console.log(e)
+                }
             }
-        }
-    });
-</script>
+        });
+    </script>
 </polymer-element>

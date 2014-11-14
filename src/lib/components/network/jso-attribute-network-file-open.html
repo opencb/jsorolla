@@ -1,7 +1,7 @@
 <polymer-element name="jso-attribute-network-file-open" attributes="selectedMenu type">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../sortable-table.css">
+        <link rel="stylesheet" href="../core-list-table.css">
         <style>
             :host {
                 display: block;
@@ -62,11 +62,12 @@
                 text-align: center;
             }
 
-            #table {
-                overflow-y: auto;
-                height: 300px;
-                margin: 10px 0px;
-                border: 1px solid #d3d3d3;
+            .table {
+                margin-top: 10px;
+            }
+
+            .table-body {
+                height: 270px;
             }
 
             div.button {
@@ -78,31 +79,19 @@
                 min-width: 100px;
             }
 
-            .columns {
-                margin-right: 15px;
-            }
-
-            /*.columns input:first-child {*/
-            /*margin-right: 1px;*/
-            /*margin-left: 0px;*/
-            /*}*/
-
-            /*.columns input:last-child {*/
-            /*margin-right: 0px;*/
-            /*margin-left: 1px;*/
-            /*}*/
             .columns > div {
                 position: relative;
                 margin: 0 1px;
+                box-sizing: border-box;
             }
 
             .columns > div:first-of-type {
                 margin-right: 1px;
-                margin-left: 0px;
+                margin-left: 1px;
             }
 
             .columns > div:last-of-type {
-                margin-right: 0px;
+                margin-right: 20px;
                 margin-left: 1px;
             }
 
@@ -115,13 +104,6 @@
                 margin-bottom: 4px;
                 outline: 0;
             }
-
-            /*.columns input {*/
-            /*width:100%;*/
-            /*margin-right: 1px;*/
-            /*margin-left: 1px;*/
-            /*}*/
-
         </style>
 
         <form id="form">
@@ -148,21 +130,29 @@
                 </template>
             </div>
 
-            <sortable-table id="table" data="{{data}}" columns="{{columns}}">
-                <!--<template id="inputTemplate">-->
-                <!--<td class="edit">-->
-                <!--<input type="text" value="{{row[column.name]}}">-->
-                <!--</td>-->
-                <!--</template>-->
-            </sortable-table>
+            <div class="table">
+                <div class="table-head" horizontal layout>
+                    <template repeat="{{column in columns}}">
+                        <div flex>{{column.title}}</div>
+                    </template>
+                </div>
 
-
-            <div class="message">{{message}}</div>
-            <div class="bbar">
-                <div class="button action" on-click="{{handleCancel}}">Cancel</div>
-                <div class="button action" on-click="{{handleOk}}">OK</div>
+                <core-list class="table-body" data="{{data}}" height="27">
+                    <template>
+                        <div class="table-row" horizontal layout>
+                            <template repeat="{{column in columns}}">
+                                <div flex>{{model[column.name]}}</div>
+                            </template>
+                        </div>
+                    </template>
+                </core-list>
             </div>
 
+            <div class="message">{{message}}&nbsp;</div>
+            <div class="bbar">
+                <div class="button action" on-click="{{handleOk}}">OK</div>
+                <div class="button action" on-click="{{handleCancel}}">Cancel</div>
+            </div>
 
         </form>
     </template>
