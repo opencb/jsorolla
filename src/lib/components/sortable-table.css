@@ -1,5 +1,5 @@
 sortable-table::shadow table {
-    table-layout: fixed;
+    /*table-layout: fixed;*/
     background-color: #f2f2f2;
 }
 
@@ -24,6 +24,7 @@ sortable-table::shadow thead tr th {
     text-align: left;
     color: #666;
     border-right: 1px solid #d3d3d3;
+    min-width: 70px;
 }
 
 sortable-table::shadow thead tr th:last-child {
@@ -52,10 +53,6 @@ sortable-table::shadow tbody tr td.edit {
     padding: 0;
 }
 
-sortable-table::shadow tbody tr:hover {
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
-}
-
 sortable-table::shadow tbody tr:nth-child(2n) {
     background-color: #ffffff;
 }
@@ -65,38 +62,13 @@ sortable-table::shadow tbody tr:nth-child(2n+1) {
 }
 
 sortable-table::shadow tbody tr.selected-row {
-    background-color: #2F65F4;
+    /*background-color: #2F65F4;*/
+    background-color: #445D76;
     color: #fff;
 }
 
-sortable-table::shadow .simplePager {
-    padding-left: 5px;
-}
-
-sortable-table::shadow button {
-    cursor: pointer;
-    outline: 0;
-    box-sizing: border-box;
-    line-height: 21px;
-    border: 1px solid #d3d3d3;
-    padding: 0px 5px;
-    margin-top: 1px;
-    background-color: #fafafa;
-    color: #445D76;
-    font-size: inherit;
-    margin-left: 3px;
-    margin-right: 3px;
-    text-align: center;
-    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
-}
-
-sortable-table::shadow button:hover {
-    background-color: #ffffff;
-
-}
-
-sortable-table::shadow button:active {
-    background-color: #f5f5f5;
+sortable-table::shadow tbody tr:hover {
+    box-shadow: inset 0 0 1px 1px rgba(0, 0, 0, .075);
 }
 
 sortable-table::shadow input {
@@ -107,21 +79,22 @@ sortable-table::shadow input {
     box-sizing: border-box;
     line-height: 21px;
     border: 1px solid transparent;
+    background-color: transparent;
     padding: 0px 5px;
     color: inherit;
-    background-color: transparent;
     font-size: inherit;
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 
 sortable-table::shadow input[type=number] {
     border: 1px solid #d3d3d3;
-    width: 50px !important;
 }
-
+sortable-table::shadow input:hover {
+    border-color: darkgray;
+}
 sortable-table::shadow input:focus {
     border-color: #66afe9;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+    box-shadow: inset 0 0 3px 1px rgba(102, 175, 233, .5);
     color: #333;
     background-color: #ffffff;
 }

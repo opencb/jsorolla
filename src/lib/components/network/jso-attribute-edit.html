@@ -11,14 +11,20 @@
                 background-color: #FFFFFF;
 
                 width: 600px;
+                height: 420px;
             }
 
-            .header > * {
-                float: left;
+            #panel {
+                width: 100%;
+                height: 100%;
             }
 
-            #close {
-                float: right;
+            #header[horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #header[horizontal] > *:last-child {
+                margin-right: 0px;
             }
 
             #close:after {
@@ -30,147 +36,159 @@
                 color: #8b0000;
             }
 
-            #table {
-                overflow-y: auto;
-                height: 408px;
-                /*border: 1px solid #d3d3d3;*/
+            #expand:after {
+                font-family: FontAwesome;
+                content: '\f065';
+            }
+
+            #expand[expanded]:after {
+                content: '\f066';
+            }
+
+            #expand:hover {
+                color: #0081c2;
+            }
+
+            .remove::after {
+                font-family: FontAwesome;
+                content: '\f00d';
+                color: #c70804;
+            }
+
+            .newattr::after {
+                font-family: FontAwesome;
+                content: '\f067';
+                color: #00AA33;
+            }
+
+            .newvalue::after {
+                font-family: FontAwesome;
+                content: '\f061';
+                color: #0081c2;
             }
 
             #edit {
+                box-sizing: border-box;
+                padding: 2px 5px 5px 5px;
                 border-right: 1px solid #d3d3d3;
-                width: 230px;
+                width: 200px;
             }
 
-            #edit > .panel {
-                border-width: 0px;
-                border-top-width: 1px;
+            #edit[vertical] > * {
+                margin-top: 3px;
             }
 
-            #edit > .panel:first-child {
-                border-top-width: 0px;
+            #edit [horizontal] > * {
+                margin-right: 3px;
             }
 
-            #edit .header {
-                background-color: #f5f5f5;
-                background-image: none;
+            #edit [horizontal] > *:last-child {
+                margin-right: 0px;
             }
 
-            #edit .container {
-                padding: 0 5px;
+            [attributeselected] {
+                background-color: #445D76 !important;
+                color: #fff !important;
+                border-color: rgba(102, 175, 233, .5) !important;
             }
 
-            #edit .container > * {
-                margin-top: 5px;
-                width: 100%;
+            #tablewrap {
+                position: relative;
+                background-color: #FAFAFA;
             }
 
-            #edit .action {
-                margin-left: auto;
-                /*margin-right: auto;*/
-                width: 100px;
+            #table {
+                overflow-y: hidden;
+                overflow-x: auto;
+                margin-right: 5px;
+                border-right: 1px solid #d3d3d3;
+                background-color: #ffffff;
+            }
+
+            .customPager {
+                background-color: #fafafa;
+                box-sizing: border-box;
+                border-top: 1px solid #cccccc;
+                color: #445D76;
+                padding: 3px;
+            }
+
+            div.action {
+                line-height: 21px;
+            }
+
+            .customPagerScroll {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 5px;
+                background-color: #E5E5E5;
             }
         </style>
-        <div class="panel">
-            <div class="header">
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
                 <div class="text">Edit {{type}} attributes</div>
-                <div class="button" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection
+                <div horizontal end-justified layout flex>
+                    <div id="expand" class="text" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
+                    <div id="close" class="text" on-click="{{handleClose}}"></div>
                 </div>
-                <div id="close" class="text" on-click="{{handleClose}}"></div>
             </div>
-            <div class="container">
-                <div horizontal layout>
-                    <div id="edit" vertical layout>
-                        <div class="panel" flex>
-                            <div class="header">
-                                <div class="text">Edit multiple values</div>
-                            </div>
-                            <div class="container">
-                                <div class="dropdown">
-                                    <div tabindex="-1" class="button">
-                                        {{editSelected}}
-                                    </div>
-                                    <ul>
-                                        <template repeat="{{column in attributeManager.columns}}">
-                                            <li on-mousedown="{{handleEditSelect}}" data-name="{{column.name}}">
-                                                {{column.title}}
-                                            </li>
-                                        </template>
-                                    </ul>
-                                </div>
-                                <input type="text" value={{newValue}} placeholder="new value"/>
-
-                                <div class="button action" on-click="{{handleEditApply}}">Apply</div>
-                            </div>
-                        </div>
-                        <div class="panel" flex>
-                            <div class="header">
-                                <div class="text">Add attribute</div>
-                            </div>
-                            <div class="container">
-                                <input type="text" value={{newColumnName}} placeholder="Attribute name"/>
-
-                                <div class="button action" on-click="{{handleAddApply}}">Apply</div>
-                            </div>
-                        </div>
-                        <div class="panel" flex>
-                            <div class="header">
-                                <div class="text">Remove attribute</div>
-                            </div>
-                            <div class="container">
-                                <div class="dropdown">
-                                    <div tabindex="-1" class="button">
-                                        {{removeSelected}}
-                                    </div>
-                                    <ul>
-                                        <template repeat="{{column in attributeManager.columns}}">
-                                            <li on-mousedown="{{handleRemoveSelect}}" data-name="{{column.name}}">
-                                                {{column.title}}
-                                            </li>
-                                        </template>
-                                    </ul>
-                                </div>
-                                <div class="button action" on-click="{{handleRemoveApply}}">Apply</div>
-                            </div>
-                        </div>
+            <div class="container" flex horizontal layout>
+                <div id="edit" vertical layout>
+                    <div class="button action" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection</div>
+                    <div horizontal layout style="margin-bottom: 10px;">
+                        <div flex class="button action" on-click="{{handleSelectAll}}">Select all</div>
+                        <div flex class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
                     </div>
-                    <div flex on-mousewheel="{{handleScroll}}">
-                        <template if="{{!showSelected}}">
-                            <sortable-table id="table"
-                                            data="{{attributeManager.data}}"
-                                            columns="{{attributeManager.columns}}"
-                                            rowselection="{{rowSelection}}"
-                                            multiselect="{{multiSelect}}"
-                                            selected="{{attributeManager.selected}}"
+                    <div horizontal layout>
+                        <input flex type="text" value="{{newValue}}" placeholder="Batch selection edit">
 
-                                            page="{{page}}"
-                                            pageSize="{{pageSize}}"
-                                            footerTemplate="simplePager"
+                        <div class="button action newvalue" on-click="{{handleEditApply}}"></div>
+                    </div>
+                    <div horizontal layout style="margin-bottom: 10px;">
+                        <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
 
-                                    >
-                                <template id="inputTemplate">
-                                    <td class="edit">
-                                        <input type="text" value="{{row[column.name]}}">
-                                    </td>
-                                </template>
-                            </sortable-table>
+                        <div class="button action newattr" on-click="{{handleAddApply}}"></div>
+                    </div>
+                    <template repeat="{{column in attributeManager.columns}}">
+                        <template if="{{column.name != 'id'}}">
+                            <div horizontal layout>
+                                <div class="button" flex
+                                     attributeselected?="{{ editSelected == column.name}}"
+                                     data-name="{{column.name}}"
+                                     on-click="{{handleEditSelect}}">
+                                    {{column.title}}
+                                </div>
+                                <div class="button action remove" data-name="{{column.name}}" on-click="{{handleRemoveApply}}"></div>
+                            </div>
                         </template>
-
-                        <template if="{{showSelected}}">
-                            <sortable-table id="table"
-                                            data="{{attributeManager.selected}}"
-                                            columns="{{attributeManager.columns}}"
-
-                                            page="{{page}}"
-                                            pageSize="{{pageSize}}"
-                                            footerTemplate="simplePager"
-                                    >
-                                <template id="inputTemplate">
-                                    <td class="edit">
-                                        <input type="text" value="{{row[column.name]}}">
-                                    </td>
-                                </template>
-                            </sortable-table>
-                        </template>
+                    </template>
+                </div>
+                <div flex vertical layout>
+                    <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                        <sortable-table id="table" flex
+                                        data="{{!showSelected ? attributeManager.data : attributeManager.selected }}"
+                                        columns="{{attributeManager.columns}}"
+                                        rowselection="{{!showSelected}}"
+                                        multiselect="{{multiSelect}}"
+                                        selected="{{ !showSelected ? attributeManager.selected : [] }}"
+                                        page="{{page}}"
+                                        pageSize="{{pageSize}}">
+                            <template id="inputTemplate">
+                                <td class="edit">
+                                    <input type="text" value="{{row[column.name]}}">
+                                </td>
+                            </template>
+                        </sortable-table>
+                        <div class="customPagerScroll"
+                             style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
+                        <!--<div class="customPagerScroll"></div>-->
+                    </div>
+                    <div class="customPager" horizontal layout>
+                        <div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}</div>
+                        <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">&lt;</div>
+                        <div class="text"> {{table.page}} of {{table.lastPage}}</div>
+                        <div class="button action" disabled?="{{table.page>=table.lastPage}}" on-click="{{moveToNextPage}}">&gt;</div>
                     </div>
                 </div>
             </div>
@@ -180,55 +198,89 @@
     <script>
         Polymer({
             created: function () {
+                this.selectedAux;
+
                 this.page = 1;
-                this.pageSize = 14;
+                this.pageSize = 12;
 
                 this.attributeManager;
 
-                this.rowSelection = true;
                 this.multiSelect = true;
 
                 this.showSelected = false;
 
-                this.editSelected = 'Select attribute';
-                this.removeSelected = 'Select attribute to remove';
+                this.editSelected;
                 this.newColumnName = '';
                 this.newValue = '';
+                this.expanded = false;
             },
             ready: function () {
+                this.table = this.$.table;
             },
             handleScroll: function (e) {
-                console.log(e);
+                if (e.deltaY > 0) {
+                    this.moveToNextPage();
+                }
+                if (e.deltaY < 0) {
+                    this.moveToPreviousPage();
+                }
+            },
+            moveToNextPage: function () {
+                this.$.table.moveToNextPage();
+            },
+            moveToPreviousPage: function () {
+                this.$.table.moveToPreviousPage();
             },
             handleClose: function () {
                 this.selectedMenu = '';
+            },
+            handleExpand: function () {
+                this.expanded = !this.expanded;
+                if (this.expanded) {
+                    this.style.width = '100vw';
+                } else {
+                    this.style.width = '';
+                }
             },
             handleShowSelected: function () {
                 this.showSelected = !this.showSelected;
             },
             handleEditSelect: function (e) {
-                this.editSelected = e.currentTarget.dataset.name;
-            },
-            handleRemoveSelect: function (e) {
-                this.removeSelected = e.currentTarget.dataset.name;
+                if( this.editSelected == e.currentTarget.dataset.name){
+                    this.editSelected = null;
+                }else{
+                    this.editSelected = e.currentTarget.dataset.name;
+                }
             },
             handleEditApply: function (e) {
                 this.attributeManager.updateRowsColumn(this.attributeManager.selected, this.editSelected, this.newValue);
             },
             handleRemoveApply: function (e) {
-                this.attributeManager.removeColumnByName(this.removeSelected);
+                if (confirm('Delete this attribute?')) {
+                    this.attributeManager.removeColumnByName(e.currentTarget.dataset.name);
+                }
             },
             handleAddApply: function (e) {
                 if (this.newColumnName != '') {
-                    this.attributeManager.addColumn({
+                    var added = this.attributeManager.addColumn({
                         defaultValue: "",
                         name: this.newColumnName.toLowerCase(),
                         title: this.newColumnName,
                         type: "string",
                         cellTemplate: "inputTemplate"
                     });
+                    if (added) {
+                        this.newColumnName = '';
+                    }
                 }
+            },
+            handleSelectAll: function () {
+                this.attributeManager.selectAll();
+            },
+            handleDeselectAll: function () {
+                this.attributeManager.deselectAll();
             }
-        });
+        })
+        ;
     </script>
 </polymer-element>

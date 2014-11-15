@@ -60,18 +60,18 @@ input[type=color] {
 }
 
 div.button:hover {
+    cursor:pointer;
     background-color: #ebebeb;
     /*border-color: #66afe9;*/
 }
 
 div.action {
-    cursor: pointer;
     line-height: 28px;
     border: 1px solid #ddd;
     background-color: #fafafa;
     text-align: center;
     color: #445D76;
-    font-weight: bold;
+    /*font-weight: bold;*/
     box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.35s;
 }
