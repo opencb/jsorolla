@@ -45,30 +45,47 @@
                 color: #0081c2;
             }
 
-            #edit {
-                box-sizing: border-box;
-                padding: 2px 5px 5px 5px;
-                border-right: 1px solid #d3d3d3;
+            #left {
                 width: 200px;
+                border-right: 1px solid #d3d3d3;
+                box-sizing: border-box;
             }
 
-            #edit[vertical] > * {
-                margin-top: 3px;
-            }
-
-            #edit [horizontal] > * {
+            #left [horizontal] > * {
                 margin-right: 3px;
             }
 
-            #edit [horizontal] > *:last-child {
+            #left [horizontal] > *:last-child {
                 margin-right: 0px;
             }
 
-            [attributeselected] {
-                background-color: #445D76 !important;
-                color: #fff !important;
-                border-color: rgba(102, 175, 233, .5) !important;
+            #edit {
+                box-sizing: border-box;
+                padding: 0 5px;
             }
+
+            #edit > * {
+                margin-top: 3px;
+            }
+
+            #attributelist {
+                box-sizing: border-box;
+                padding: 0 5px;
+                overflow-y: auto;
+            }
+
+            #attributelist > * {
+                margin-top: 3px;
+                /*padding: 2px 5px 5px 5px;*/
+                /*box-sizing: border-box;*/
+                /*margin-top: 2px;*/
+            }
+
+            /*[attributeselected] {*/
+                /*background-color: #445D76 !important;*/
+                /*color: #fff !important;*/
+                /*border-color: rgba(102, 175, 233, .5) !important;*/
+            /*}*/
 
             #tablewrap {
                 position: relative;
@@ -109,35 +126,39 @@
                 </div>
             </div>
             <div class="container" flex horizontal layout>
-                <div id="edit" vertical layout>
-                    <div class="button action" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection</div>
-                    <div horizontal layout style="margin-bottom: 10px;">
-                        <div flex class="button action" on-click="{{handleSelectAll}}">Select all</div>
-                        <div flex class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
-                    </div>
-                    <div horizontal layout>
-                        <input flex type="text" value="{{newValue}}" placeholder="Batch selection edit">
+                <div id="left" vertical layout>
+                    <div id="edit" vertical layout>
+                        <div class="button action" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection</div>
+                        <div horizontal layout style="margin-bottom: 10px;">
+                            <div flex class="button action" on-click="{{handleSelectAll}}">Select all</div>
+                            <div flex class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
+                        </div>
+                        <div horizontal layout>
+                            <input flex type="text" value="{{newValue}}" placeholder="Batch selection edit">
 
-                        <div class="button action newvalue" on-click="{{handleEditApply}}"></div>
-                    </div>
-                    <div horizontal layout style="margin-bottom: 10px;">
-                        <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
+                            <div class="button action newvalue" on-click="{{handleEditApply}}"></div>
+                        </div>
+                        <div horizontal layout style="margin-bottom: 10px;">
+                            <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
 
-                        <div class="button action newattr" on-click="{{handleAddApply}}"></div>
+                            <div class="button action newattr" on-click="{{handleAddApply}}"></div>
+                        </div>
                     </div>
-                    <template repeat="{{column in attributeManager.columns}}">
-                        <template if="{{column.name != 'id'}}">
-                            <div horizontal layout>
-                                <div class="button" flex
-                                     attributeselected?="{{ editSelected == column.name}}"
-                                     data-name="{{column.name}}"
-                                     on-click="{{handleEditSelect}}">
-                                    {{column.title}}
+                    <div id="attributelist" flex>
+                        <template repeat="{{column in attributeManager.columns}}">
+                            <template if="{{column.name != 'id'}}">
+                                <div horizontal layout>
+                                    <div class="button action" flex
+                                         data-checked="{{ editSelected == column.name}}"
+                                         data-name="{{column.name}}"
+                                         on-click="{{handleEditSelect}}">
+                                        {{column.title}}
+                                    </div>
+                                    <div class="button action remove" data-name="{{column.name}}" on-click="{{handleRemoveApply}}"></div>
                                 </div>
-                                <div class="button action remove" data-name="{{column.name}}" on-click="{{handleRemoveApply}}"></div>
-                            </div>
+                            </template>
                         </template>
-                    </template>
+                    </div>
                 </div>
                 <div flex vertical layout>
                     <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
@@ -176,7 +197,8 @@
                 this.selectedAux;
 
                 this.page = 1;
-                this.pageSize = 12;
+                this.defaultPageSize = 12;
+                this.pageSize = this.defaultPageSize;
 
                 this.attributeManager;
 
@@ -213,8 +235,16 @@
                 this.expanded = !this.expanded;
                 if (this.expanded) {
                     this.style.width = '100vw';
+                    this.style.height = '100vh';
+                    this.style.position = 'fixed';
+                    this.style.top = '0';
+                    this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
                 } else {
                     this.style.width = '';
+                    this.style.height = '';
+                    this.style.position = '';
+                    this.style.top = '';
+                    this.pageSize = this.defaultPageSize;
                 }
             },
             handleShowSelected: function () {
@@ -232,6 +262,9 @@
             },
             handleRemoveApply: function (e) {
                 if (confirm('Delete this attribute?')) {
+                    if (this.editSelected == e.currentTarget.dataset.name) {
+                        this.editSelected = null;
+                    }
                     this.attributeManager.removeColumnByName(e.currentTarget.dataset.name);
                 }
             },

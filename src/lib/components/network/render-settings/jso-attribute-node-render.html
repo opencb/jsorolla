@@ -36,6 +36,23 @@
                 font-family: FontAwesome;
                 content: '\f06e';
             }
+            .remove:after {
+                font-family: FontAwesome;
+                content: '\f204';
+                color: #c70804;
+            }
+            .remove[data-enabled=true]:after {
+                font-family: FontAwesome;
+                content: '\f205';
+                color: #00AA33;
+            }
+
+            .configure:after {
+                font-family: FontAwesome;
+                content: '\f141';
+                color: #0081c2;
+            }
+
         </style>
         <div class="panel panel-shadow">
             <!--<div id="headerpanel" class="header" on-mousedown="{{handleHeaderMouseDown}}"-->
@@ -79,23 +96,15 @@
                     <div class="text">Label size:</div>
                     <input flex type="number" value={{labelSize}}>
 
-                    <div class="button action">
-                        <font-awesome icon="ellipsis-h"></font-awesome>
-                    </div>
-                    <div class="button action">
-                        <font-awesome icon="times"></font-awesome>
-                    </div>
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="labelSize"></div>
+                    <div class="button action remove"></div>
                 </div>
                 <div horizontal layout>
                     <div class="text">Opacity:</div>
                     <input flex type="number" value={{opacity}}>
 
-                    <div class="button action">
-                        <font-awesome icon="ellipsis-h"></font-awesome>
-                    </div>
-                    <div class="button action">
-                        <font-awesome icon="times"></font-awesome>
-                    </div>
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="opacity"></div>
+                    <div class="button action remove"></div>
                 </div>
                 <div horizontal layout>
                     <div class="text">Shape:</div>
@@ -111,69 +120,74 @@
                         </ul>
                     </div>
 
-                    <div class="button action">
-                        <font-awesome icon="ellipsis-h"></font-awesome>
-                    </div>
-                    <div class="button action">
-                        <font-awesome icon="times"></font-awesome>
-                    </div>
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="shape"></div>
+                    <div class="button remove" data-enabled="{{visualSets.shape != null}}" on-click="{{handleRemoveShapeVisualSet}}"></div>
                 </div>
                 <div horizontal layout>
                     <div class="text">Color:</div>
 
                     <input flex type="color" value="{{color}}">
 
-                    <div class="button action">
-                        <font-awesome icon="ellipsis-h"></font-awesome>
-                    </div>
-                    <div class="button action">
-                        <font-awesome icon="times"></font-awesome>
-                    </div>
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="color"></div>
+                    <div class="button action remove"></div>
                 </div>
                 <div horizontal layout>
                     <div class="text">Stroke color:</div>
                     <input flex type="color" value="{{strokeColor}}">
 
-                    <div class="button action" on-click="{{handleSettingsClick}}" data-prop="strokeColor">
-                        <font-awesome icon="ellipsis-h"></font-awesome>
-                    </div>
-                    <div class="button action">
-                        <font-awesome icon="times"></font-awesome>
-                    </div>
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="strokeColor"></div>
+                    <div class="button action remove"></div>
                 </div>
                 <div horizontal layout>
                     <div class="text">Size:</div>
                     <input flex type="number" value={{size}}>
 
-                    <div class="button action" on-click="{{handleSettingsClick}}" data-prop="size">
-                        <font-awesome icon="ellipsis-h"></font-awesome>
-                    </div>
-                    <div class="button action">
-                        <font-awesome icon="times"></font-awesome>
-                    </div>
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="size"></div>
+                    <div class="button action remove"></div>
                 </div>
                 <div horizontal layout>
                     <div class="text">Stroke size:</div>
                     <input flex type="number" value={{strokeSize}}>
 
-                    <div class="button action">
-                        <font-awesome icon="ellipsis-h"></font-awesome>
-                    </div>
-                    <div class="button action">
-                        <font-awesome icon="times"></font-awesome>
-                    </div>
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="strokeSize"></div>
+                    <div class="button action remove"></div>
                 </div>
 
             </div>
         </div>
 
-        <template if="{{displayProperty == 'size'}}">
+        <template if="{{displayProperty == 'labelSize'}}">
             <jso-attribute-render-number-table
                     renderProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
-                    defaultValue="{{size}}"
+                    defaultValue="{{labelSize}}"
                     >
             </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'opacity'}}">
+            <jso-attribute-render-number-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{opacity}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'shape'}}">
+            <jso-attribute-render-number-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{shape}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+
+        <template if="{{displayProperty == 'color'}}">
+            <jso-attribute-render-color-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{color}}"
+                    >
+            </jso-attribute-render-color-table>
         </template>
         <template if="{{displayProperty == 'strokeColor'}}">
             <jso-attribute-render-color-table
@@ -182,6 +196,22 @@
                     defaultValue="{{strokeColor}}"
                     >
             </jso-attribute-render-color-table>
+        </template>
+        <template if="{{displayProperty == 'size'}}">
+            <jso-attribute-render-number-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{size}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'strokeSize'}}">
+            <jso-attribute-render-number-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{strokeSize}}"
+                    >
+            </jso-attribute-render-number-table>
         </template>
     </template>
     <script>
@@ -200,6 +230,10 @@
                 this.downX;
                 this.downY;
 
+
+                this.visualSets = {
+                    shape:{}
+                }
             },
             ready: function () {
             },
@@ -233,6 +267,12 @@
             },
             handleSettingsClick: function (e) {
                 this.displayProperty = e.currentTarget.dataset.prop;
+            },
+
+
+            /*Visual sets*/
+            handleRemoveShapeVisualSet:function(){
+                this.visualSets.shape = null;
             }
         });
     </script>

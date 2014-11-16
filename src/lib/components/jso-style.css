@@ -65,21 +65,21 @@ div.button:hover {
 
 div.action {
     border: 1px solid #ddd;
-    background-color: #fafafa;
+    background-color: #FFFFFF;
     text-align: center;
     color: #445D76;
     /*font-weight: bold;*/
     box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.1);
-    transition: all 0.15s;
+    transition: background-color 0.15s;
 }
 
 div.action:hover {
-    background-color: #ebebeb;
+    background-color: #f5f5f5;
     /*background-color: #ebeef3;*/
 }
 
 div.action:active {
-    background-color: #f5f5f5;
+    background-color: #ebebeb;
 }
 
 div.button[data-checked=true],
