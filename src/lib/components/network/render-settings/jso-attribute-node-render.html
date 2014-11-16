@@ -11,23 +11,6 @@
                 width: 250px;
             }
 
-            .header > * {
-                float: left;
-            }
-
-            #close {
-                float: right;
-            }
-
-            #close:after {
-                font-family: FontAwesome;
-                content: '\f00d';
-            }
-
-            #close:hover {
-                color: #8b0000;
-            }
-
             .container {
                 box-sizing: border-box;
                 padding: 2px 5px 5px 5px;
@@ -49,15 +32,28 @@
                 margin-right: 0px;
             }
 
+            .showlabels:after{
+                font-family: FontAwesome;
+                content: '\f06e';
+            }
         </style>
         <div class="panel panel-shadow">
-            <div id="headerpanel" class="header" on-mousedown="{{handleHeaderMouseDown}}"
+            <!--<div id="headerpanel" class="header" on-mousedown="{{handleHeaderMouseDown}}"-->
+                 <!--on-mouseup="{{handleHeaderMouseUp}}">-->
+                <!--<div class="text">Simple node attribute rendering</div>-->
+                <!--<div id="close" class="text" on-click="{{handleClose}}"></div>-->
+            <!--</div>-->
+
+            <div class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
                  on-mouseup="{{handleHeaderMouseUp}}">
                 <div class="text">Simple node attribute rendering</div>
-                <div id="close" class="text" on-click="{{handleClose}}"></div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
             </div>
-            <div class="container" vertical layout>
 
+            <div class="container" vertical layout>
                 <div horizontal layout>
                     <div class="dropdown" flex>
                         <div tabindex="-1" class="button">
@@ -71,7 +67,7 @@
                             </template>
                         </ul>
                     </div>
-                    <label class="button"><input type="checkbox"/><span><font-awesome icon="eye"></font-awesome></span></label>
+                    <div class="button action showlabels" data-checked="{{showLabels}}" on-click="{{handleShowLabels}}"></div>
                 </div>
 
                 <div horizontal layout>
@@ -83,10 +79,10 @@
                     <div class="text">Label size:</div>
                     <input flex type="number" value={{labelSize}}>
 
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="ellipsis-h"></font-awesome>
                     </div>
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="times"></font-awesome>
                     </div>
                 </div>
@@ -94,10 +90,10 @@
                     <div class="text">Opacity:</div>
                     <input flex type="number" value={{opacity}}>
 
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="ellipsis-h"></font-awesome>
                     </div>
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="times"></font-awesome>
                     </div>
                 </div>
@@ -115,10 +111,10 @@
                         </ul>
                     </div>
 
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="ellipsis-h"></font-awesome>
                     </div>
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="times"></font-awesome>
                     </div>
                 </div>
@@ -127,10 +123,10 @@
 
                     <input flex type="color" value="{{color}}">
 
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="ellipsis-h"></font-awesome>
                     </div>
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="times"></font-awesome>
                     </div>
                 </div>
@@ -138,10 +134,10 @@
                     <div class="text">Stroke color:</div>
                     <input flex type="color" value="{{strokeColor}}">
 
-                    <div class="button" on-click="{{handleSettingsClick}}" data-prop="strokeColor">
+                    <div class="button action" on-click="{{handleSettingsClick}}" data-prop="strokeColor">
                         <font-awesome icon="ellipsis-h"></font-awesome>
                     </div>
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="times"></font-awesome>
                     </div>
                 </div>
@@ -149,10 +145,10 @@
                     <div class="text">Size:</div>
                     <input flex type="number" value={{size}}>
 
-                    <div class="button" on-click="{{handleSettingsClick}}" data-prop="size">
+                    <div class="button action" on-click="{{handleSettingsClick}}" data-prop="size">
                         <font-awesome icon="ellipsis-h"></font-awesome>
                     </div>
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="times"></font-awesome>
                     </div>
                 </div>
@@ -160,10 +156,10 @@
                     <div class="text">Stroke size:</div>
                     <input flex type="number" value={{strokeSize}}>
 
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="ellipsis-h"></font-awesome>
                     </div>
-                    <div class="button">
+                    <div class="button action">
                         <font-awesome icon="times"></font-awesome>
                     </div>
                 </div>

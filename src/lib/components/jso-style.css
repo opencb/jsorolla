@@ -14,7 +14,6 @@ div.label, div.text {
     line-height: 21px;
     border: 1px solid #ccc;
     padding: 0px 5px;
-    color: #333;
     background-color: #f2f2f2;
     font-size: inherit;
 }
@@ -45,7 +44,6 @@ label.button > input[type=checkbox] + span {
     line-height: 21px;
     border: 1px solid #ccc;
     padding: 0px 5px;
-    /*color: #333;*/
     background-color: #fff;
     font-size: inherit;
     user-select: none;
@@ -66,18 +64,17 @@ div.button:hover {
 }
 
 div.action {
-    line-height: 28px;
     border: 1px solid #ddd;
     background-color: #fafafa;
     text-align: center;
     color: #445D76;
     /*font-weight: bold;*/
-    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.1);
-    transition: all 0.35s;
+    box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.1);
+    transition: all 0.15s;
 }
 
 div.action:hover {
-    background-color: #ffffff;
+    background-color: #ebebeb;
     /*background-color: #ebeef3;*/
 }
 
@@ -139,7 +136,6 @@ textarea {
     outline: 0;
     box-sizing: border-box;
     border: 1px solid #ccc;
-    color: #333;
     background-color: #fff;
     font-size: inherit;
 }

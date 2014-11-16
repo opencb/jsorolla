@@ -27,28 +27,6 @@
                 margin-right: 0px;
             }
 
-            #close:after {
-                font-family: FontAwesome;
-                content: '\f00d';
-            }
-
-            #close:hover {
-                color: #8b0000;
-            }
-
-            #expand:after {
-                font-family: FontAwesome;
-                content: '\f065';
-            }
-
-            #expand[expanded]:after {
-                content: '\f066';
-            }
-
-            #expand:hover {
-                color: #0081c2;
-            }
-
             .remove::after {
                 font-family: FontAwesome;
                 content: '\f00d';
@@ -113,24 +91,21 @@
                 padding: 3px;
             }
 
-            div.action {
-                line-height: 21px;
-            }
-
             .customPagerScroll {
                 position: absolute;
                 top: 0;
                 right: 0;
                 width: 5px;
-                background-color: #E5E5E5;
+                background-color: #c5c5c5;
+                /*background-color: #3F3F3F;*/
             }
         </style>
         <div class="panel panel-shadow" id="panel" vertical layout>
             <div class="header" id="header" horizontal layout>
                 <div class="text">Edit {{type}} attributes</div>
-                <div horizontal end-justified layout flex>
-                    <div id="expand" class="text" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
-                    <div id="close" class="text" on-click="{{handleClose}}"></div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
             <div class="container" flex horizontal layout>
@@ -246,9 +221,9 @@
                 this.showSelected = !this.showSelected;
             },
             handleEditSelect: function (e) {
-                if( this.editSelected == e.currentTarget.dataset.name){
+                if (this.editSelected == e.currentTarget.dataset.name) {
                     this.editSelected = null;
-                }else{
+                } else {
                     this.editSelected = e.currentTarget.dataset.name;
                 }
             },

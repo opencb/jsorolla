@@ -1,8 +1,9 @@
 /*Used only for panel like elements*/
 .panel {
-    border: 1px solid #d4d4d4;
+    /*border: 1px solid #d4d4d4;*/
     position: relative;
     box-sizing: border-box;
+    /*background-color: #ECECEC;*/
 }
 
 .panel-shadow {
@@ -11,7 +12,31 @@
 }
 
 .header {
-    background-color: #E5E5E5;
+    /*background-color: #E5E5E5;*/
+    background-color: #3F3F3F;
+    /*background-color: #435F7A;*/
+    /*background-color: #314559;*/
+    color: #FFFFFF;
+    text-transform: capitalize;
+}
+
+.header > .headeractions > *:hover {
+    /*background-color: #7493b3;*/
+    background-color: #737373;
+}
+
+.header > .headeractions > .headerclose:after {
+    font-family: FontAwesome;
+    content: '\f00d';
+}
+
+.header > .headeractions > .headerexpand:after {
+    font-family: FontAwesome;
+    content: '\f065';
+}
+
+.header > .headeractions > .headerexpand[expanded]:after {
+    content: '\f066';
 }
 
 .header, .container {
@@ -25,7 +50,6 @@
     line-height: 31px;
     height: 31px;
     padding: 4px 5px;
-    color: #333;
     box-sizing: border-box;
     border-bottom: 1px solid #d4d4d4;
 }
