@@ -85,11 +85,12 @@ GraphLayout = {
         var x, y;
         for (var i = 0, l = vertices.length; i < l; i++) {
             var vertex = vertices[i];
-            if (typeof vertex !== 'undefined') {
-                x = this.getRandomArbitrary(0, width);
-                y = this.getRandomArbitrary(0, height);
-                network.setVertexCoords(vertex, x, y);
-            }
+            x = this.getRandomArbitrary(0, width);
+            y = this.getRandomArbitrary(0, height);
+            vertex.position.x = x;
+            vertex.position.y = y;
+            vertex.renderer.move();
+            network._updateEdgeCoords(vertex);
         }
     },
     circle: function (network, width, height, orderedVertices) {
@@ -103,16 +104,20 @@ GraphLayout = {
         var x, y;
         for (var i = 0, l = vertices.length; i < l; i++) {
             var vertex = vertices[i];
-            if (typeof vertex !== 'undefined') {
-                x = centerX + radius * Math.sin(i * 2 * Math.PI / vertices.length);
-                y = centerY + radius * Math.cos(i * 2 * Math.PI / vertices.length);
-                network.setVertexCoords(vertex, x, y);
-            }
+            x = centerX + radius * Math.sin(i * 2 * Math.PI / vertices.length);
+            y = centerY + radius * Math.cos(i * 2 * Math.PI / vertices.length);
+            vertex.position.x = x;
+            vertex.position.y = y;
+            vertex.renderer.move();
+            network._updateEdgeCoords(vertex);
         }
     },
     force: function (args) {
 
         var network = args.network;
+        var graph = args.network.graph;
+        var vAttr = args.network.vAttr;
+        var eAttr = args.network.eAttr;
         var width = args.width;
         var height = args.height;
         var friction = args.friction;
@@ -167,23 +172,21 @@ GraphLayout = {
         //set node and edge arrays for D3
         for (var i = 0, l = vertices.length; i < l; i++) {
             var vertex = vertices[i];
-            if (typeof vertex !== 'undefined') {
-                var vertexConfig = network.config.getVertexConfig(vertex);
-                var v = {
-                    id: vertex.id,
-                    index: i,
-                    x: vertexConfig.coords.x,
-                    y: vertexConfig.coords.y
-                };
-                verticesArray.push(v);
-                verticesMap[vertex.id] = v;
-            }
+            var v = {
+                id: vertex.id,
+                index: i,
+                x: vertex.position.x,
+                y: vertex.position.y
+            };
+            verticesArray.push(v);
+            verticesMap[vertex.id] = v;
         }
         force.nodes(verticesArray);
         for (var i = 0, l = edges.length; i < l; i++) {
             var edge = edges[i];
             if (typeof edge !== 'undefined') {
                 edgesArray.push({
+                    id: edge.id,
                     source: verticesMap[edge.source.id],
                     target: verticesMap[edge.target.id]
                 });
@@ -198,19 +201,17 @@ GraphLayout = {
                 force.linkDistance(linkDistance);
             } else {
                 //is and attributName
-                force.linkDistance(function (edge) {
-                    var sourceConfig = network.config.getVertexConfig(edge.source);
-                    var targetConfig = network.config.getVertexConfig(edge.target);
-                    var value = network.edgeAttributeManager.getValueByAttributeAndId(edge.id, linkDistance);
-                    var ld = isNaN(value) ? (sourceConfig.renderer.size + targetConfig.renderer.size) * 1.5 : value * multipliers.linkDistance;
+                force.linkDistance(function (e) {
+                    var edge = graph.getEdgeById(e.id);
+                    var value = vAttr.getRow(edge.id)[linkDistance];
+                    var ld = isNaN(value) ? (edge.source.renderer.size + edge.target.renderer.size) * 1.5 : value * multipliers.linkDistance;
                     return ld;
                 });
             }
         } else {
-            force.linkDistance(function (edge) {
-                var sourceConfig = network.config.getVertexConfig(edge.source);
-                var targetConfig = network.config.getVertexConfig(edge.target);
-                return sourceConfig.renderer.size + targetConfig.renderer.size * 1.5;
+            force.linkDistance(function (e) {
+                var edge = graph.getEdgeById(e.id);
+                return edge.source.renderer.size + edge.target.renderer.size * 1.5;
             })
         }
         //Link Strength
@@ -219,8 +220,8 @@ GraphLayout = {
                 force.linkStrength(linkStrength);
             } else {
                 //is and attributName
-                force.linkStrength(function (edge) {
-                    var value = network.edgeAttributeManager.getValueByAttributeAndId(edge.id, linkStrength);
+                force.linkStrength(function (e) {
+                    var value = vAttr.getRow(e.id)[linkStrength];
                     var ls = isNaN(value) ? 1 : value * multipliers.linkStrength;
                     return ls;
                 });
@@ -232,17 +233,17 @@ GraphLayout = {
                 force.charge(charge);
             } else {
                 //is and attributName
-                force.charge(function (node) {
-                    var vertexConfig = network.config.getVertexConfig(node);
-                    var value = parseFloat(network.vertexAttributeManager.getValueByAttributeAndId(vertex.id, charge));
-                    var c = isNaN(value) ? vertexConfig.renderer.getSize() * -10 : value * multipliers.charge;
-                    return  c;
+                force.charge(function (v) {
+                    var vertex = graph.getVertexById(v.id);
+                    var value = eAttr.getRow(vertex.id)[charge];
+                    var c = isNaN(value) ? vertex.renderer.getSize() * -10 : value * multipliers.charge;
+                    return c;
                 });
             }
         } else {
-            force.charge(function (node) {
-                var vertexConfig = network.config.getVertexConfig(node);
-                return  vertexConfig.renderer.getSize() * -10;
+            force.charge(function (v) {
+                var vertex = graph.getVertexById(v.id);
+                return vertex.renderer.getSize() * -10;
             });
         }
         console.timeEnd('Force directed preload');

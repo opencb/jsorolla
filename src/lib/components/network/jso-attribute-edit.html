@@ -6,85 +6,187 @@
         <style>
             :host {
                 display: block;
-                position: absolute;
+                position: relative;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
 
-                z-index: 50000;
-                bottom: 31px;
+                width: 600px;
+                height: 420px;
+            }
 
-                left: 0;
-                right: 0;
-                margin-left: auto;
-                margin-right: auto;
-
+            #panel {
                 width: 100%;
-                /*border: 0px solid #c6d0da;*/
-                /*border-width: 1px;*/
-                /*border-top-width: 1px;*/
-                transition: all 0.2s;
-                /*box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);*/
+                height: 100%;
             }
 
-            .header > * {
-                float: left;
+            #header[horizontal] > * {
+                margin-right: 3px;
             }
 
-            #close {
-                float: right;
+            #header[horizontal] > *:last-child {
+                margin-right: 0px;
             }
 
-            #close:after {
+            .remove::after {
                 font-family: FontAwesome;
                 content: '\f00d';
+                color: #c70804;
             }
 
-            #close:hover {
-                color: #8b0000;
+            .newattr::after {
+                font-family: FontAwesome;
+                content: '\f067';
+                color: #00AA33;
+            }
+
+            .newvalue::after {
+                font-family: FontAwesome;
+                content: '\f061';
+                color: #0081c2;
+            }
+
+            #left {
+                width: 200px;
+                border-right: 1px solid #d3d3d3;
+                box-sizing: border-box;
+            }
+
+            #left [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #left [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            #edit {
+                box-sizing: border-box;
+                padding: 0 5px;
+            }
+
+            #edit > * {
+                margin-top: 3px;
+            }
+
+            #attributelist {
+                box-sizing: border-box;
+                padding: 0 5px;
+                overflow-y: auto;
+            }
+
+            #attributelist > * {
+                margin-top: 3px;
+                /*padding: 2px 5px 5px 5px;*/
+                /*box-sizing: border-box;*/
+                /*margin-top: 2px;*/
+            }
+
+            /*[attributeselected] {*/
+                /*background-color: #445D76 !important;*/
+                /*color: #fff !important;*/
+                /*border-color: rgba(102, 175, 233, .5) !important;*/
+            /*}*/
+
+            #tablewrap {
+                position: relative;
+                background-color: #FAFAFA;
             }
 
             #table {
-                overflow-y: auto;
-                height: 300px;
-                /*border: 1px solid #d3d3d3;*/
+                overflow-y: hidden;
+                overflow-x: auto;
+                margin-right: 5px;
+                border-right: 1px solid #d3d3d3;
+                background-color: #ffffff;
+            }
+
+            .customPager {
+                background-color: #fafafa;
+                box-sizing: border-box;
+                border-top: 1px solid #cccccc;
+                color: #445D76;
+                padding: 3px;
+            }
+
+            .customPagerScroll {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 5px;
+                background-color: #c5c5c5;
+                /*background-color: #3F3F3F;*/
             }
         </style>
-        <div class="panel">
-            <div class="header">
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
                 <div class="text">Edit {{type}} attributes</div>
-                <div class="button" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection</div>
-                <div id="close" class="text" on-click="{{handleClose}}"></div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
             </div>
-            <div class="container">
+            <div class="container" flex horizontal layout>
+                <div id="left" vertical layout>
+                    <div id="edit" vertical layout>
+                        <div class="button action" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection</div>
+                        <div horizontal layout style="margin-bottom: 10px;">
+                            <div flex class="button action" on-click="{{handleSelectAll}}">Select all</div>
+                            <div flex class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
+                        </div>
+                        <div horizontal layout>
+                            <input flex type="text" value="{{newValue}}" placeholder="Batch selection edit">
 
-                <template if="{{!showSelected}}">
-                    <sortable-table id="table"
-                                    data="{{attributeManager.data}}"
-                                    columns="{{attributeManager.columns}}"
-                                    rowselection="{{rowSelection}}"
-                                    multiselect="{{multiSelect}}"
-                                    selected="{{attributeManager.selected}}"
-                            >
-                        <template id="inputTemplate">
-                            <td class="edit">
-                                <input type="text" value="{{row[column.name]}}">
-                            </td>
-                        </template>
-                    </sortable-table>
-                </template>
+                            <div class="button action newvalue" on-click="{{handleEditApply}}"></div>
+                        </div>
+                        <div horizontal layout style="margin-bottom: 10px;">
+                            <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
 
-                <template if="{{showSelected}}">
-                    <sortable-table id="table"
-                                    data="{{attributeManager.selected}}"
-                                    columns="{{attributeManager.columns}}"
-                            >
-                        <template id="inputTemplate">
-                            <td class="edit">
-                                <input type="text" value="{{row[column.name]}}">
-                            </td>
+                            <div class="button action newattr" on-click="{{handleAddApply}}"></div>
+                        </div>
+                    </div>
+                    <div id="attributelist" flex>
+                        <template repeat="{{column in attributeManager.columns}}">
+                            <template if="{{column.name != 'id'}}">
+                                <div horizontal layout>
+                                    <div class="button action" flex
+                                         data-checked="{{ editSelected == column.name}}"
+                                         data-name="{{column.name}}"
+                                         on-click="{{handleEditSelect}}">
+                                        {{column.title}}
+                                    </div>
+                                    <div class="button action remove" data-name="{{column.name}}" on-click="{{handleRemoveApply}}"></div>
+                                </div>
+                            </template>
                         </template>
-                    </sortable-table>
-                </template>
+                    </div>
+                </div>
+                <div flex vertical layout>
+                    <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                        <sortable-table id="table" flex
+                                        data="{{!showSelected ? attributeManager.data : attributeManager.selected }}"
+                                        columns="{{attributeManager.columns}}"
+                                        rowselection="{{!showSelected}}"
+                                        multiselect="{{multiSelect}}"
+                                        selected="{{ !showSelected ? attributeManager.selected : [] }}"
+                                        page="{{page}}"
+                                        pageSize="{{pageSize}}">
+                            <template id="inputTemplate">
+                                <td class="edit">
+                                    <input type="text" value="{{row[column.name]}}">
+                                </td>
+                            </template>
+                        </sortable-table>
+                        <div class="customPagerScroll"
+                             style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
+                        <!--<div class="customPagerScroll"></div>-->
+                    </div>
+                    <div class="customPager" horizontal layout>
+                        <div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}</div>
+                        <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">&lt;</div>
+                        <div class="text"> {{table.page}} of {{table.lastPage}}</div>
+                        <div class="button action" disabled?="{{table.page>=table.lastPage}}" on-click="{{moveToNextPage}}">&gt;</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -92,21 +194,101 @@
     <script>
         Polymer({
             created: function () {
+                this.selectedAux;
+
+                this.page = 1;
+                this.defaultPageSize = 12;
+                this.pageSize = this.defaultPageSize;
+
                 this.attributeManager;
 
-                this.rowSelection = true;
                 this.multiSelect = true;
 
                 this.showSelected = false;
+
+                this.editSelected;
+                this.newColumnName = '';
+                this.newValue = '';
+                this.expanded = false;
             },
             ready: function () {
+                this.table = this.$.table;
+            },
+            handleScroll: function (e) {
+                if (e.deltaY > 0) {
+                    this.moveToNextPage();
+                }
+                if (e.deltaY < 0) {
+                    this.moveToPreviousPage();
+                }
+            },
+            moveToNextPage: function () {
+                this.$.table.moveToNextPage();
+            },
+            moveToPreviousPage: function () {
+                this.$.table.moveToPreviousPage();
             },
             handleClose: function () {
                 this.selectedMenu = '';
             },
+            handleExpand: function () {
+                this.expanded = !this.expanded;
+                if (this.expanded) {
+                    this.style.width = '100vw';
+                    this.style.height = '100vh';
+                    this.style.position = 'fixed';
+                    this.style.top = '0';
+                    this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
+                } else {
+                    this.style.width = '';
+                    this.style.height = '';
+                    this.style.position = '';
+                    this.style.top = '';
+                    this.pageSize = this.defaultPageSize;
+                }
+            },
             handleShowSelected: function () {
                 this.showSelected = !this.showSelected;
+            },
+            handleEditSelect: function (e) {
+                if (this.editSelected == e.currentTarget.dataset.name) {
+                    this.editSelected = null;
+                } else {
+                    this.editSelected = e.currentTarget.dataset.name;
+                }
+            },
+            handleEditApply: function (e) {
+                this.attributeManager.updateRowsColumn(this.attributeManager.selected, this.editSelected, this.newValue);
+            },
+            handleRemoveApply: function (e) {
+                if (confirm('Delete this attribute?')) {
+                    if (this.editSelected == e.currentTarget.dataset.name) {
+                        this.editSelected = null;
+                    }
+                    this.attributeManager.removeColumnByName(e.currentTarget.dataset.name);
+                }
+            },
+            handleAddApply: function (e) {
+                if (this.newColumnName != '') {
+                    var added = this.attributeManager.addColumn({
+                        defaultValue: "",
+                        name: this.newColumnName.toLowerCase(),
+                        title: this.newColumnName,
+                        type: "string",
+                        cellTemplate: "inputTemplate"
+                    });
+                    if (added) {
+                        this.newColumnName = '';
+                    }
+                }
+            },
+            handleSelectAll: function () {
+                this.attributeManager.selectAll();
+            },
+            handleDeselectAll: function () {
+                this.attributeManager.deselectAll();
             }
-        });
+        })
+        ;
     </script>
 </polymer-element>

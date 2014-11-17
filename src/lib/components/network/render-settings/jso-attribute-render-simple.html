@@ -1,0 +1,75 @@
+<polymer-element name="jso-attribute-render-simple" attributes="attributeManager">
+    <template>
+        <link rel="stylesheet" href="../../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+            }
+            [vertical] > * {
+                margin-top: 3px;
+            }
+
+            [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+        </style>
+        <div horizontal layout>
+
+        </div>
+        <div class="panel">
+            <div class="header">
+                <div class="text">Edit node attribute rendering</div>
+                <div id="close" class="text" on-click="{{handleClose}}"></div>
+            </div>
+            <div class="container" vertical layout>
+
+                <div horizontal layout>
+                    <div class="dropdown" flex>
+                        <div tabindex="-1" class="button">
+                            {{labelValue}}
+                        </div>
+                        <ul>
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <li on-mousedown="{{handleLabelSelect}}" data-name="{{column.name}}">
+                                    {{column.title}}
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <label class="button"><input type="checkbox"/><span><font-awesome icon="eye"></font-awesome></span></label>
+                </div>
+
+
+                <div horizontal layout>
+                    <input type="number" value={{xLabel}} placeholder="x label"/>
+                    <input type="number" value={{yLabel}} placeholder="y label"/>
+                </div>
+
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.labelValue = 'attribute as label';
+            },
+            ready: function () {
+            },
+            handleClose: function () {
+                this.hideAttributeRender = true;
+            },
+
+            handleLabelSelect: function (e) {
+                this.labelValue = e.currentTarget.dataset.name;
+            }
+        });
+    </script>
+</polymer-element>

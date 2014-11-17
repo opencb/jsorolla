@@ -44,6 +44,12 @@
             ready: function () {
 
             },
+            removeDom:function(){
+                this.$.frontSvg.removeChild(this.$.scaleFrontGroup);
+            },
+            appendDom:function(){
+                this.$.frontSvg.appendChild(this.$.scaleFrontGroup);
+            },
             clean: function () {
                 this.tx = 0;
                 this.ty = 0;

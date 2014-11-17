@@ -26,7 +26,7 @@ function Vertex(args) {
     this.edgesIndex = {};
 
     this.position = new Point();
-    this.renderer;
+    this.renderer = new CircosVertexRenderer()
 
     //set instantiation args, must be last
     _.extend(this, args);

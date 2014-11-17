@@ -1,0 +1,280 @@
+<polymer-element name="jso-attribute-node-render" attributes="attributeManager hideFlag">
+    <template>
+        <link rel="stylesheet" href="../../jso-style.css">
+        <link rel="stylesheet" href="../../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                width: 250px;
+            }
+
+            .container {
+                box-sizing: border-box;
+                padding: 2px 5px 5px 5px;
+            }
+
+            .container .text {
+                width: 90px;
+            }
+
+            [vertical] > * {
+                margin-top: 3px;
+            }
+
+            [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .showlabels:after{
+                font-family: FontAwesome;
+                content: '\f06e';
+            }
+            .remove:after {
+                font-family: FontAwesome;
+                content: '\f204';
+                color: #c70804;
+            }
+            .remove[data-enabled=true]:after {
+                font-family: FontAwesome;
+                content: '\f205';
+                color: #00AA33;
+            }
+
+            .configure:after {
+                font-family: FontAwesome;
+                content: '\f141';
+                color: #0081c2;
+            }
+
+        </style>
+        <div class="panel panel-shadow">
+            <!--<div id="headerpanel" class="header" on-mousedown="{{handleHeaderMouseDown}}"-->
+                 <!--on-mouseup="{{handleHeaderMouseUp}}">-->
+                <!--<div class="text">Simple node attribute rendering</div>-->
+                <!--<div id="close" class="text" on-click="{{handleClose}}"></div>-->
+            <!--</div>-->
+
+            <div class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Simple node attribute rendering</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+
+            <div class="container" vertical layout>
+                <div horizontal layout>
+                    <div class="dropdown" flex>
+                        <div tabindex="-1" class="button">
+                            {{labelValue}}
+                        </div>
+                        <ul>
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <li on-mousedown="{{handleLabelSelect}}" data-name="{{column.name}}">
+                                    {{column.title}}
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div class="button action showlabels" data-checked="{{showLabels}}" on-click="{{handleShowLabels}}"></div>
+                </div>
+
+                <div horizontal layout>
+                    <input type="number" value={{xLabel}} placeholder="x label">
+                    <input type="number" value={{yLabel}} placeholder="y label">
+                </div>
+
+                <div horizontal layout>
+                    <div class="text">Label size:</div>
+                    <input flex type="number" value={{labelSize}}>
+
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="labelSize"></div>
+                    <div class="button action remove"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Opacity:</div>
+                    <input flex type="number" value={{opacity}}>
+
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="opacity"></div>
+                    <div class="button action remove"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Shape:</div>
+                    <div class="dropdown" flex>
+                        <div tabindex="-1" class="button">
+                            {{shape}} &nbsp;
+                        </div>
+                        <ul>
+                            <li on-mousedown="{{handleShapeSelect}}">circle</li>
+                            <li on-mousedown="{{handleShapeSelect}}">ellipse</li>
+                            <li on-mousedown="{{handleShapeSelect}}">square</li>
+                            <li on-mousedown="{{handleShapeSelect}}">rectangle</li>
+                        </ul>
+                    </div>
+
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="shape"></div>
+                    <div class="button remove" data-enabled="{{visualSets.shape != null}}" on-click="{{handleRemoveShapeVisualSet}}"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Color:</div>
+
+                    <input flex type="color" value="{{color}}">
+
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="color"></div>
+                    <div class="button action remove"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Stroke color:</div>
+                    <input flex type="color" value="{{strokeColor}}">
+
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="strokeColor"></div>
+                    <div class="button action remove"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Size:</div>
+                    <input flex type="number" value={{size}}>
+
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="size"></div>
+                    <div class="button action remove"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Stroke size:</div>
+                    <input flex type="number" value={{strokeSize}}>
+
+                    <div class="button action configure" on-click="{{handleSettingsClick}}" data-prop="strokeSize"></div>
+                    <div class="button action remove"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <template if="{{displayProperty == 'labelSize'}}">
+            <jso-attribute-render-number-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{labelSize}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'opacity'}}">
+            <jso-attribute-render-number-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{opacity}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'shape'}}">
+            <jso-attribute-render-number-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{shape}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+
+        <template if="{{displayProperty == 'color'}}">
+            <jso-attribute-render-color-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{color}}"
+                    >
+            </jso-attribute-render-color-table>
+        </template>
+        <template if="{{displayProperty == 'strokeColor'}}">
+            <jso-attribute-render-color-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{strokeColor}}"
+                    >
+            </jso-attribute-render-color-table>
+        </template>
+        <template if="{{displayProperty == 'size'}}">
+            <jso-attribute-render-number-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{size}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'strokeSize'}}">
+            <jso-attribute-render-number-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{strokeSize}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.labelValue = 'attribute as label';
+                this.shape;
+                this.opacity;
+                this.labelSize;
+
+                this.color;
+                this.strokeColor = "#0000ee";
+                this.size = 0;
+                this.strokeSize;
+
+                this.downX;
+                this.downY;
+
+
+                this.visualSets = {
+                    shape:{}
+                }
+            },
+            ready: function () {
+            },
+//            handleHeaderMouseDown: function (e) {
+//                var me = this;
+//                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+//                this.mouseMoveHandler = function (moveEvent) {
+//                    me.handleMouseMove(moveEvent);
+//                };
+//                this.downX = e.layerX;
+//                this.downY = e.layerY;
+//                window.addEventListener('mousemove', this.mouseMoveHandler, true);
+//            },
+//            handleHeaderMouseUp: function () {
+//                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+//            },
+//            handleMouseMove: function (e) {
+//                this.style.left = (e.clientX - this.downX) + "px";
+//                this.style.top = (e.clientY - this.downY) + "px";
+//            },
+
+            handleClose: function () {
+                this.hideFlag = true;
+            },
+
+            handleLabelSelect: function (e) {
+                this.labelValue = e.currentTarget.dataset.name;
+            },
+            handleShapeSelect: function (e) {
+                this.shape = e.currentTarget.innerText;
+            },
+            handleSettingsClick: function (e) {
+                this.displayProperty = e.currentTarget.dataset.prop;
+            },
+
+
+            /*Visual sets*/
+            handleRemoveShapeVisualSet:function(){
+                this.visualSets.shape = null;
+            }
+        });
+    </script>
+</polymer-element>
+

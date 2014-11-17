@@ -1,0 +1,300 @@
+<polymer-element name="jso-attribute-render-color-table"
+                 attributes="renderProperty attributeManager defaultValue">
+    <template>
+        <link rel="stylesheet" href="../../jso-style.css">
+        <link rel="stylesheet" href="../../jso-panel.css">
+        <link rel="stylesheet" href="../../core-list-table.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                top: 0px;
+
+                right: 250px;
+                /*right: 0;*/
+                /*margin-left: auto;*/
+                /*margin-right: auto;*/
+
+                width: 400px;
+                /*border: 0px solid #c6d0da;*/
+                /*border-width: 1px;*/
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                /*box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);*/
+            }
+
+            .container {
+                box-sizing: border-box;
+                padding: 2px 5px 5px 5px;
+            }
+
+            [vertical] > * {
+                margin-top: 3px;
+            }
+
+            [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            core-list {
+                height: 150px;
+                border: 1px solid #d3d3d3;
+                border-top-width: 0;
+                background-color: #FFFFFF;
+            }
+
+            #colorLegend {
+                border: 1px solid #d3d3d3;
+                width: 50px;
+                margin-top: 3px;
+            }
+        </style>
+        <div class="panel panel-shadow">
+            <div class="header">
+                <div class="text">{{renderProperty}} rendering configuration</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" vertical layout>
+                <div horizontal layout>
+                    <div class="dropdown" flex>
+                        <div tabindex="-1" class="button">
+                            {{attributeName}}
+                        </div>
+                        <ul>
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <li on-mousedown="{{handleAttributeNameSelect}}" data-name="{{column.name}}">
+                                    {{column.title}}
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div class="dropdown" flex>
+                        <div tabindex="-1" class="button">
+                            {{attributeType}}
+                        </div>
+                        <ul>
+                            <li on-mousedown="{{handleAttributeTypeSelect}}" data-name="string">String</li>
+                            <li on-mousedown="{{handleAttributeTypeSelect}}" data-name="number">Number</li>
+                        </ul>
+                    </div>
+                </div>
+                <div horizontal layout hidden?="{{attributeType != 'string'}}">
+                    <div class="button action">Select all</div>
+                    <div class="button action">Deselect all</div>
+                    <div class="button action">Apply direct</div>
+                    <!--<div class="text">Selection:</div>-->
+                    <input flex type="color" value="{{defaultValue}}">
+                </div>
+                <div hidden?="{{attributeType != 'number'}}">
+                    <div horizontal layout>
+                        <div class="button action" on-click="{{handleAddPoint}}">Add point</div>
+                        <div class="button action" on-click="{{handleApplyInterpolation}}">Apply</div>
+                    </div>
+                    <div horizontal layout>
+                        <div flex vertical layout>
+                            <template repeat="{{point, index in points}}">
+                                <jso-attribute-render-table-color-point
+                                        point="{{point}}" points="{{points}}" controlType="{{controlType}}"
+                                        allowRemove="{{index != 0 && index != points.length -1}}">
+                                </jso-attribute-render-table-color-point>
+                            </template>
+                        </div>
+                        <div id="colorLegend"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="table-head" horizontal layout>
+                        <div flex>Attribute value</div>
+                        <div flex>Render property value</div>
+                    </div>
+                    <core-list data="{{uniqueData}}" height="27">
+                        <template>
+                            <div horizontal layout class="table-row">
+                                <div flex>{{model.attribute}}</div>
+                                <input flex type="color" value="{{model.render}}">
+                            </div>
+                        </template>
+                    </core-list>
+                </div>
+                <div horizontal layout end-justified>
+                    <div class="button action" style="width: 100px;">OK</div>
+                </div>
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.attributeName = 'select attribute';
+                this.attributeType = 'number';
+                this.uniqueData = [];
+
+            },
+            ready: function () {
+                this.points = [
+                    {value: 0, render: this.defaultValue},
+                    {value: 0, render: this.defaultValue}
+                ];
+                this.handleApplyInterpolation();
+            },
+
+            attributeNameChanged: function (oldValue, newValue) {
+                this._updateUniqueValues();
+            },
+            /* Observers */
+            observe: {
+                'attributeManager.data': 'handleAttributeManagerChange'
+            },
+            handleAttributeManagerChange: function (oldValue, newValue) {
+                this._updateUniqueValues();
+            },
+
+            handleClose: function () {
+                this.renderProperty = null;
+            },
+            handleAttributeNameSelect: function (e) {
+                this.attributeName = e.currentTarget.dataset.name;
+            },
+            handleAttributeTypeSelect: function (e) {
+                this.attributeType = e.currentTarget.dataset.name;
+            },
+            handleAddPoint: function () {
+                this.points.splice(this.points.length - 1, 0, {
+                    value: 0, render: this.defaultValue
+                });
+            },
+            handleApplyInterpolation: function () {
+                this._updateUniqueInterpolatedValues();
+            },
+
+            _updateUniqueValues: function () {
+                var uniqueMap = {};
+                var uniqueData = [];
+                var max;
+                var min;
+                for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
+                    var row = this.attributeManager.data[i];
+                    if (!uniqueMap[row[this.attributeName]]) {
+                        uniqueMap[row[this.attributeName]] = true;
+                        uniqueData.push({attribute: row[this.attributeName], render: this.defaultValue});
+                        var attribute = parseFloat(row[this.attributeName]);
+                        if (!max || attribute >= max) {
+                            max = attribute;
+                        }
+                        if (!min || attribute <= min) {
+                            min = attribute;
+                        }
+                    }
+                }
+                this.points[0].value = min;
+                this.points[this.points.length - 1].value = max;
+                uniqueData.sort(function (a, b) {
+                    return parseFloat(a.attribute) - parseFloat(b.attribute);
+                });
+                this.uniqueData = uniqueData;
+                this._updateUniqueInterpolatedValues();
+            },
+            _updateUniqueInterpolatedValues: function () {
+                this.points.sort(function (a, b) {
+                    return parseFloat(a.value) - parseFloat(b.value);
+                });
+
+                var totalDiff = this.points[this.points.length - 1].value - this.points[0].value;
+                var gradientValues = [this.points[0].render + " 0%"];
+                var percent = 0;
+                for (var i = 0, l = this.points.length - 1; i < l; i++) {
+                    var point = this.points[i];
+                    var nextPoint = this.points[i + 1];
+                    if (nextPoint) {
+                        percent += 100 * (nextPoint.value - point.value) / totalDiff;
+                        gradientValues.push(nextPoint.render + " " + Math.round(percent) + "%");
+                    }
+                }
+                this.$.colorLegend.style.background = "linear-gradient(to bottom, " + gradientValues.join(", ") + " )";
+
+                for (var i = 0, l = this.uniqueData.length; i < l; i++) {
+                    var value = parseFloat(this.uniqueData[i].attribute);
+                    for (var j = 0; j < this.points.length; j++) {
+                        var point = this.points[j];
+                        var nextPoint = this.points[j + 1];
+                        if (nextPoint) {
+                            var pointValue = parseFloat(point.value);
+                            var pointRender = point.render;
+                            var nextPointValue = parseFloat(nextPoint.value);
+                            var nextPointRender = nextPoint.render;
+                            if (value >= pointValue && value <= nextPointValue) {
+                                var interpolator = d3.interpolateRgb(pointRender, nextPointRender);
+                                var normalizedValue = (value - pointValue) / (nextPointValue - pointValue);
+                                this.uniqueData[i].render = interpolator(normalizedValue);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="jso-attribute-render-table-color-point"
+                 attributes="point points allowRemove">
+    <template>
+        <link rel="stylesheet" href="../../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+            }
+
+            [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .text {
+                width: 100px;
+            }
+
+            .remove::after {
+                font-family: FontAwesome;
+                content: '\f00d';
+                color: #c70804;
+            }
+
+            .remove[allowRemove] {
+                visibility: hidden
+            }
+
+            .remove[allowRemove=true] {
+                visibility: inherit;
+            }
+        </style>
+        <div horizontal layout>
+            <input flex type="number" value="{{point.value}}">
+
+            <input flex type="color" value="{{point.render}}">
+
+            <div class="button action remove" allowRemove="{{allowRemove}}" on-click="{{handleRemove}}"></div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            handleRemove: function () {
+                this.points.splice(this.points.indexOf(this.point), 1);
+            }
+        });
+    </script>
+</polymer-element>

@@ -113,9 +113,11 @@
                 this.zoom = 25;
             },
             ready: function () {
+                this._init();
+            },
+            _init: function () {
                 this.vAttr = new AttributeManagerMemory();
                 this.eAttr = new AttributeManagerMemory();
-
                 this.vAttr.addColumn({
                     defaultValue: "",
                     name: "id",
@@ -150,10 +152,8 @@
                     type: "string",
                     cellTemplate: "inputTemplate"
                 });
-
                 this.graph = new Graph();
             },
-
             /* Observers */
             observe: {
                 'vAttr.selected': 'handleVertexSelected'
@@ -626,7 +626,7 @@
                 var me = this;
                 this.x = 0;
                 this.y = 0;
-                var graph = this.network.getGraph();
+                var graph = this.graph;
                 var dot = graph.getAsDOT();
                 var clientRect = this.$.networkLayout.getBoundingClientRect();
                 var width = clientRect.width;
@@ -634,39 +634,47 @@
                 switch (type) {
                     case "Circle":
                         if (e && typeof e.attributeName !== 'undefined') {
-                            GraphLayout.circle(this.network, width, height, this.network.getVerticesOrdered(e.attributeName));
+                            GraphLayout.circle(me, width, height, this.network.getVerticesOrdered(e.attributeName));
                         } else {
-                            GraphLayout.circle(this.network, width, height);
+                            GraphLayout.circle(me, width, height);
                         }
                         break;
                     case "Random":
-                        GraphLayout.random2d(this.network, width, height);
+                        GraphLayout.random2d(me, width, height);
                         break;
                     case "none":
                         break;
                     case "Force directed":
                         GraphLayout.force({
-                            network: this.network,
+                            network: me,
                             width: width,
                             height: height,
                             end: function (verticesArray) {
                                 for (var i = 0, l = verticesArray.length; i < l; i++) {
                                     var v = verticesArray[i];
-                                    me.setVertexCoords(v.id, v.x, v.y);
+                                    var vertex = me.graph.getVertexById(v.id);
+                                    vertex.position.x = v.x;
+                                    vertex.position.y = v.y;
+                                    vertex.renderer.move();
+                                    me._updateEdgeCoords(vertex);
                                 }
                             }
                         });
                         break;
                     case "Force directed (simulation)":
                         GraphLayout.force({
-                            network: this.network,
+                            network: me,
                             width: width,
                             height: height,
                             simulation: true,
                             end: function (verticesArray) {
                                 for (var i = 0, l = verticesArray.length; i < l; i++) {
                                     var v = verticesArray[i];
-                                    me.setVertexCoords(v.id, v.x, v.y);
+                                    var vertex = me.graph.getVertexById(v.id);
+                                    vertex.position.x = v.x;
+                                    vertex.position.y = v.y;
+                                    vertex.renderer.move();
+                                    me._updateEdgeCoords(vertex);
                                 }
                             }
                         });
@@ -728,19 +736,79 @@
             getAsSIF: function (separator) {
                 return this.network.getAsSIF(separator);
             },
+
             setGraph: function (graph) {
+                this._init();
                 this.$.networkLayout.clean();
+                this.graph = graph;
 
 
-//                this.network.setGraph(graph);
-//                this.network.draw(this.$.networkLayout.$.scaleFrontGroup);
+                this.$.networkLayout.removeDom();
+                var edges = this.graph.edges;
+                var vertices = this.graph.vertices;
+                for (var i = 0, l = vertices.length; i < l; i++) {
+                    var vertex = vertices[i];
+                    this.vAttr.addRow({
+                        'id': vertex.id,
+                        'name': vertex.id
+                    });
+                    vertex.render({
+                        target: this.$.networkLayout.$.scaleFrontGroup
+                    });
+                }
+                for (var i = 0, l = edges.length; i < l; i++) {
+                    var edge = edges[i];
+                    this.eAttr.addRow({
+                        'id': edge.id,
+                        'name': edge.id,
+                        'relation': edge
+                    });
+                    edge.render({
+                        target: this.$.networkLayout.$.scaleFrontGroup
+                    });
+                }
+                this.$.networkLayout.appendDom();
             },
 
             importVertexAttributeManager: function (attributeManager) {
-                this.network.importVertexAttributeManager(attributeManager);
+                var columns = attributeManager.columns;
+                var data = attributeManager.data;
+                for (var i = 0; i < columns.length; i++) {
+                    var column = columns[i];
+                    this.vAttr.addColumn(column);
+                }
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    if(this.graph.containsVertex({id:row.id})){
+                        var added = this.vAttr.addRow(row);
+                        if(added == false){
+                            var currentRow = this.vAttr.getRow(row.id);
+                            for(key in row){
+                                currentRow[key] = row[key];
+                            }
+                        }
+                    }
+                }
             },
             importEdgeAttributeManager: function (attributeManager) {
-                this.network.importEdgeAttributeManager(attributeManager);
+                var columns = attributeManager.columns;
+                var data = attributeManager.data;
+                for (var i = 0; i < columns.length; i++) {
+                    var column = columns[i];
+                    this.eAttr.addColumn(column);
+                }
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    if(this.graph.containsEdge({id:row.id})){
+                        var added = this.eAttr.addRow(row);
+                        if(added == false){
+                            var currentRow = this.eAttr.getRow(row.id);
+                            for(key in row){
+                                currentRow[key] = row[key];
+                            }
+                        }
+                    }
+                }
             },
             __iliketomoveit: function () {
                 this.setLayout('Force directed (simulation)')

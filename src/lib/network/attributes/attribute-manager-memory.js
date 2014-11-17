@@ -76,7 +76,7 @@ AttributeManagerMemory.prototype = {
 
         return removedRow;
     },
-    removeRows:function(rows){
+    removeRows: function (rows) {
         for (var i = 0, l = rows.length; i < l; i++) {
             var row = rows[i];
             if (this.containsRow(row)) {
@@ -101,7 +101,7 @@ AttributeManagerMemory.prototype = {
         return this.data[this.dataIndex[id]]
     },
 
-    _rebuildData:function(){
+    _rebuildData: function () {
         var newData = [];
         for (var i = 0, l = this.data.length; i < l; i++) {
             var row = this.data[i];
@@ -146,8 +146,8 @@ AttributeManagerMemory.prototype = {
         return true;
     },
     removeColumn: function (column) {
-        if (!this.containsRow(column)) {
-            return;
+        if (!this.containsColumn(column) || column.name == 'id') {
+            return false;
         }
         var position = this.columnsIndex[column.name];
         var removedColumn = this.columns.splice(position, 1);
@@ -202,8 +202,30 @@ AttributeManagerMemory.prototype = {
         }
         this.selected = selected;
     },
-    removeSelected:function(){
+    removeSelected: function () {
         this.removeRows(this.selected);
         this.deselectAll();
+    },
+
+    /* Edition */
+    updateRows: function (newRows) {
+        for (var i = 0, l = newRows.length; i < l; i++) {
+            var newRow = newRows[i];
+            var row = this.getRow(newRow.id);
+            if (row) {
+                for (key in newRows) {
+                    row[key] = newRows;
+                }
+            }
+        }
+    },
+    updateRowsColumn: function (rows, column, value) {
+        for (var i = 0, l = rows.length; i < l; i++) {
+            var row = this.getRow(rows[i].id);
+            if (row) {
+                row[column] = value;
+            }
+        }
     }
+
 };
