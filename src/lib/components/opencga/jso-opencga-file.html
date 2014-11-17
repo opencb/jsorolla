@@ -1,0 +1,28 @@
+<polymer-element name="jso-opencga-file-card" attributes="file">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                padding: 5px 5px;
+            }
+
+            #name {
+                text-transform: capitalize;
+            }
+        </style>
+        <div vertical layout>
+            <div id="name">
+                {{file.path}}
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.file;
+            }
+        });
+    </script>
+</polymer-element>
+

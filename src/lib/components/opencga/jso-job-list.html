@@ -1,5 +1,5 @@
 <link rel="import" href="jso-job.html">
-<polymer-element name="jso-analysis-panel" attributes="showJobs selectedOption jobItem">
+<polymer-element name="jso-job-list" attributes="showJobs selectedOption jobItem selectedStudy">
     <template>
         <link rel="stylesheet" href="../jso-panel.css">
         <link rel="stylesheet" href="../jso-style.css">
@@ -28,7 +28,6 @@
             </div>
         </div>
 
-        <div class="paco" id="roberto"></div>
 
         </div>
     </template>
@@ -40,10 +39,20 @@
 
             },
             showJobsChanged: function (oldV, newV) {
+                var me = this;
+                if (this.showJobs) {
+                    checkTimeInterval = 5000;
+                    this.getJobs();//first call
+                    setInterval(function () {
+                        me.getJobs();
+                    }, checkTimeInterval);
+                }
 
+            },
+            getJobs: function () {
                 var me = this;
                 OpencgaManager.analysis.jobs({
-                    id: 1,
+                    id: this.selectedStudy.analysis.id,
                     query: {
                         sid: Cookies("bioinfo_sid")
                     },

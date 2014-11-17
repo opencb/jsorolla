@@ -24,7 +24,9 @@
     box-sizing: border-box;
     border-bottom: 1px solid #d4d4d4;
 }
-
+.footer{
+    border-top: 1px solid #d4d4d4;
+}
 .header[data-collapsible=true][data-collapsed=true]:after {
     font-family: FontAwesome;
     content: "\f107";

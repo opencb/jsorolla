@@ -1,4 +1,4 @@
-<polymer-element name="jso-opencga-create-folder" attributes="projectList">
+<polymer-element name="jso-opencga-create-folder" attributes="selectedStudy">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -30,47 +30,8 @@
 
 
         <form id="form" vertical layout>
-
-            <label>Project</label>
-
-            <div class="dropdown">
-                <div tabindex="-1" class="button">
-                    <jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>
-                </div>
-                <ul>
-                    <template repeat="{{project in projectList}}">
-                        <li>
-                            <jso-opencga-project-item
-                                    project="{{project}}"
-                                    data-selected="{{selectedProject == project}}"
-                                    on-mousedown="{{handleProjectClick}}">
-                            </jso-opencga-project-item>
-                        </li>
-                    </template>
-                </ul>
-            </div>
-
-            <label>Study</label>
-            <div class="dropdown">
-                <div tabindex="-1" class="button">
-                    <jso-opencga-study-item study="{{selectedStudy}}"></jso-opencga-study-item>
-                </div>
-                <ul>
-                    <template repeat="{{study in selectedProject.studies}}">
-                        <li>
-                            <jso-opencga-study-item
-                                    study="{{study}}"
-                                    data-selected="{{selectedStudy == study}}"
-                                    on-mousedown="{{handleStudyClick}}">
-                            </jso-opencga-study-item>
-                        </li>
-                    </template>
-                </ul>
-            </div>
             <label>Name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9\s]+">
-
             <div class="button action" on-click="{{handleForm}}">Create</div>
-
         </form>
         <div class="message">{{message}}</div>
     </template>
@@ -84,18 +45,14 @@
 
                 this.selectedProject;
 
-
                 this.message = '';
-            },
-            handleProjectClick: function (e) {
-                this.selectedProject = e.target.project;
-            },
-            handleStudyClick: function (e) {
-                this.selectedStudy = e.target.study;
+                this.selectedStudy = "";
             },
             handleForm: function (e) {
                 var me = this;
                 this.message = '';
+
+
                 if (this.$.form.checkValidity()) {
                     OpencgaManager.files.createFolder({
                         query: {
@@ -108,6 +65,7 @@
                             success: function (response) {
                                 if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                     me.message = 'Folder created sucessfully.';
+//                                    me.getFiles();
                                 } else {
                                     me.message = response.response[0].errorMsg;
                                 }
@@ -118,6 +76,33 @@
                         }
                     });
                 }
+            },
+            getFiles: function (e) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        //userId: 1,
+                        //projectId: 1,
+                        //studyId: 1,
+                        sid: Cookies("bioinfo_sid"),
+                        studyId: this.study.id
+//                        type: "file"
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var files = response.response[0].result
+                                me.study.files = files
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
             }
         });
     </script>

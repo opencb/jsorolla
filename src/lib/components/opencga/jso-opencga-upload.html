@@ -1,4 +1,4 @@
-<polymer-element name="jso-opencga-upload" attributes="projectList">
+<polymer-element name="jso-opencga-upload" attributes="selectedProject selectedStudy">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -28,44 +28,24 @@
         </style>
 
         <form id="form" vertical layout>
-            <label>Project</label>
+            <!--<label>Project</label>-->
 
-            <div class="dropdown">
-                <div tabindex="-1" class="button">
-                    <jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>
-                </div>
-                <ul>
-                    <template repeat="{{project in projectList}}">
-                        <li>
-                            <jso-opencga-project-item
-                                    project="{{project}}"
-                                    data-selected="{{selectedProject == project}}"
-                                    on-mousedown="{{handleProjectClick}}">
-                            </jso-opencga-project-item>
-                        </li>
-                    </template>
-                </ul>
-            </div>
-
-            <label>Study</label>
-
-            <div class="dropdown">
-                <div tabindex="-1" class="button">
-                    <jso-opencga-study-item study="{{selectedStudy}}"></jso-opencga-study-item>
-                </div>
-                <ul>
-                    <template repeat="{{study in selectedProject.studies}}">
-                        <li>
-                            <jso-opencga-study-item
-                                    study="{{study}}"
-                                    data-selected="{{selectedStudy == study}}"
-                                    on-mousedown="{{handleStudyClick}}">
-                            </jso-opencga-study-item>
-                        </li>
-                    </template>
-                </ul>
-            </div>
-
+            <!--<div class="dropdown">-->
+                <!--<div tabindex="-1" class="button">-->
+                    <!--<jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>-->
+                <!--</div>-->
+                <!--<ul>-->
+                    <!--<template repeat="{{project in projectList}}">-->
+                        <!--<li>-->
+                            <!--<jso-opencga-project-item-->
+                                    <!--project="{{project}}"-->
+                                    <!--data-selected="{{selectedProject == project}}"-->
+                                    <!--on-mousedown="{{handleProjectClick}}">-->
+                            <!--</jso-opencga-project-item>-->
+                        <!--</li>-->
+                    <!--</template>-->
+                <!--</ul>-->
+            <!--</div>-->
 
             <label>File format</label> <input type="text" id="fileFormat" value="{{fileFormat}}" required pattern="[a-zA-Z0-9]+">
             <label>Bio format</label> <input class="button" type="text" id="bioFormat" value="{{bioFormat}}" required
@@ -96,13 +76,6 @@
 
                 this.uploading = false;
             },
-            handleProjectClick: function (e) {
-                this.selectedProject = e.target.project;
-                this.selectedStudy = null;
-            },
-            handleStudyClick: function (e) {
-                this.selectedStudy = e.target.study;
-            },
             handleBrowseClick: function (e) {
                 this.$.fileInput.click();
             },
@@ -113,7 +86,6 @@
             handleForm: function (e) {
                 var me = this;
                 this.message = '';
-
                 if (this.uploading == false && this.$.form.checkValidity() && this.selectedProject && this.selectedStudy) {
 
                     this.uploading = true;

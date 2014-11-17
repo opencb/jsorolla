@@ -1,9 +1,11 @@
 <link rel="import" href="jso-opencga-project.html">
+<link rel="import" href="jso-opencga-file.html">
 <!--<link rel="import" href="jso-opencga-study.html">-->
 <link rel="import" href="jso-opencga-create-project.html">
 <!--<link rel="import" href="jso-opencga-create-study.html">-->
 <!--<link rel="import" href="jso-opencga-create-analysis.html">-->
 <link rel="import" href="jso-opencga-create-folder.html">
+<link rel="import" href="jso-opencga-select-study.html">
 <link rel="import" href="jso-opencga-upload.html">
 
 <polymer-element name="jso-project-browser" constructor="JsoProjectBrowser"
@@ -20,8 +22,8 @@
         cursor: default;
     }
 
-    #main{
-        height:100%;
+    #main {
+        height: 100%;
     }
 
     #bar {
@@ -169,15 +171,9 @@
         <div id="breadcrums">
             <template if="{{ selectedOption }}">
                 <span>{{selectedOptionText}}</span>
-
-                <template if="{{ selectedOption == 'browse' && selectedProject }}">
-                    <span>{{selectedProject.name}}</span>
-
-                    <template if="{{ selectedOption == 'browse' && selectedStudy }}">
-                        <span>{{selectedStudy.name}}</span>
-                    </template>
+                <template if="{{ selectedOption == 'browse' && userData.selectedStudy }}">
+                    <span>{{userData.selectedStudy.name}}</span>
                 </template>
-
             </template>
         </div>
         <div flex horizontal layout end-justified>
@@ -193,48 +189,27 @@
             <div class="navigation-title">Main</div>
             <div class="navigation-item" data-content="browse" data-selected="{{selectedOption == 'browse'}}">
                 <font-awesome icon="folder-open-o"></font-awesome>
-                &nbsp; Projects
+                &nbsp; Studies
             </div>
-            <!--<div class="navigation-item" data-content="browseStudies" data-selected="{{selectedOption == 'browseStudies'}}">-->
-            <!--<font-awesome icon="bar-chart-o"></font-awesome>&nbsp; Studies-->
-            <!--</div>-->
             <br>
 
             <div class="navigation-title">Actions</div>
-            <div class="navigation-item" data-content="createProject"
-                 data-selected="{{selectedOption == 'createProject'}}">
-                <font-awesome icon="folder-o"></font-awesome>
-                &nbsp; Create project
+            <div class="navigation-item" data-content="selectStudy"
+                 data-selected="{{selectedOption == 'selectStudy'}}">
+                <font-awesome icon="pie-chart"></font-awesome>
+                &nbsp; Select study
             </div>
 
-            <!--<div class="navigation-item" data-content="createStudy"-->
-                 <!--data-selected="{{selectedOption == 'createStudy'}}">-->
-                <!--<font-awesome icon="pie-chart"></font-awesome>-->
-                <!--&nbsp; Create study-->
-            <!--</div>-->
-<!---->
-            <!--<div class="navigation-item" data-content="createAnalysis"-->
-                 <!--data-selected="{{selectedOption == 'createAnalysis'}}">-->
-                <!--<font-awesome icon="pie-chart"></font-awesome>-->
-                <!--&nbsp; Create analysis-->
-            <!--</div>-->
+            <div class="navigation-item" data-content="createStudy"
+                 data-selected="{{selectedOption == 'createStudy'}}">
+                <font-awesome icon="pie-chart"></font-awesome>
+                &nbsp; Create study
+            </div>
             <div class="navigation-item" data-content="createFolder"
                  data-selected="{{selectedOption == 'createFolder'}}">
                 <font-awesome icon="pie-chart"></font-awesome>
                 &nbsp; Create folder
             </div>
-            <!--<div class="navigation-item" data-content="createExperiment"-->
-                 <!--data-selected="{{selectedOption == 'createExperiment'}}">-->
-                <!--<font-awesome icon="flask"></font-awesome>-->
-                <!--&nbsp; Create experiment-->
-            <!--</div>-->
-
-
-            <!--<div class="navigation-item" data-content="runAnalysis"-->
-                 <!--data-selected="{{selectedOption == 'runAnalysis'}}">-->
-                <!--<font-awesome icon="cogs"></font-awesome>-->
-                <!--&nbsp; Run analysis-->
-            <!--</div>-->
 
             <div class="navigation-item" data-content="uploadFile"
                  data-selected="{{selectedOption == 'uploadFile'}}">
@@ -247,30 +222,23 @@
 
             <template if="{{ selectedOption == 'browse' }}">
                 <div horizontal layout flex>
-                    <div id="projectsContent">
-                        <template repeat="{{project in userData.projects}}">
-                            <jso-opencga-project
-                                    class="project" project="{{project}}" data-selected="{{selectedProject == project}}"
-                                    on-click="{{handleProjectClick}}">
-                            </jso-opencga-project>
+                    <div id="studiesContent">
+                        <template repeat="{{study in selectedProject.studies}}">
+                            <jso-opencga-study-card
+                                    class="study" study="{{study}}" data-selected="{{selectedStudy == study}}"
+                                    on-click="{{handleStudyClick}}">
+                            </jso-opencga-study-card>
                         </template>
                     </div>
-                    <template if="{{ selectedProject.studies.length > 0 }}">
-                        <div id="studiesContent">
-                            <template repeat="{{study in selectedProject.studies}}">
-                                <jso-opencga-study-card
-                                        class="study" study="{{study}}" data-selected="{{selectedStudy == study}}"
-                                        on-click="{{handleStudyClick}}">
-                                </jso-opencga-study-card>
+                    <template if="{{ files.length > 0 }}">
+                        <div id="filesContent">
+                            <template repeat="{{file in files}}">
+                                <jso-opencga-file-card
+                                        class="file" file="{{file}}">
+                                </jso-opencga-file-card>
                             </template>
                         </div>
                     </template>
-                    <template if="{{ selectedProject.studies.length > 0 && selectedStudy }}">
-                        <div id="study" flex>
-                            <jso-opencga-study study="{{selectedStudy}}"></jso-opencga-study>
-                        </div>
-                    </template>
-
                 </div>
             </template>
 
@@ -279,15 +247,18 @@
                 <jso-opencga-create-project></jso-opencga-create-project>
             </template>
 
+            <template if="{{ selectedOption == 'selectStudy' }}">
+                <jso-opencga-select-study studyList="{{selectedProject.studies}}" selectedStudy="{{selectedStudy}}" userData="{{userData}}"></jso-opencga-select-study>
+            </template>
             <template if="{{ selectedOption == 'createStudy' }}">
                 <jso-opencga-create-study projectList="{{userData.projects}}"></jso-opencga-create-study>
             </template>
-            <template if="{{ selectedOption == 'createAnalysis' }}">
-                <jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>
-            </template>
+            <!--<template if="{{ selectedOption == 'createAnalysis' }}">-->
+                <!--<jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>-->
+            <!--</template>-->
 
             <template if="{{ selectedOption == 'createFolder' }}">
-                <jso-opencga-create-folder projectList="{{userData.projects}}"></jso-opencga-create-folder>
+                <jso-opencga-create-folder selectedStudy="{{selectedStudy}}"></jso-opencga-create-folder>
             </template>
 
             <template if="{{ selectedOption == 'createExperiment' }}">
@@ -299,7 +270,7 @@
             </template>
 
             <template if="{{ selectedOption == 'uploadFile' }}">
-                <jso-opencga-upload projectList="{{userData.projects}}"></jso-opencga-upload>
+                <jso-opencga-upload selectedProject="{{selectedProject}}" selectedStudy="{{selectedStudy}}"></jso-opencga-upload>
             </template>
 
             <template if="{{ selectedOption == 'browseStudies' }}">
@@ -317,31 +288,35 @@
             this.selectedOption;
             this.selectedOptionText;
 
-            this.selectedProject;
             this.selectedStudy;
+
+        },
+        ready: function () {
+//            this.selectedStudy = this.userData.selectedStudy;
         },
         userDataChanged: function (oldValue, newValue) {
-            if (newValue) {
-                var projects = newValue.projects;
-                if (this.selectedProject) {
-                    for (var i = 0; i < projects.length; i++) {
-                        var project = projects[i];
-                        if (this.selectedProject.id === project.id) {
-                            this.selectedProject = project;
-                            break;
-                        }
-                    }
-                }
-                if (this.selectedStudy) {
-                    for (var i = 0; i < this.selectedProject.studies.length; i++) {
-                        var study = this.selectedProject.studies[i];
-                        if (this.selectedStudy.id === study.id) {
-                            this.selectedStudy = study;
-                            break;
-                        }
-                    }
-                }
-            }
+//            this.selectedProject = this.userData.projects[0]
+//            if (newValue) {
+//                var projects = newValue.projects;
+//                if (this.selectedProject) {
+//                    for (var i = 0; i < projects.length; i++) {
+//                        var project = projects[i];
+//                        if (this.selectedProject.id === project.id) {
+//                            this.selectedProject = project;
+//                            break;
+//                        }
+//                    }
+//                }
+//                if (this.selectedStudy) {
+//                    for (var i = 0; i < this.selectedProject.studies.length; i++) {
+//                        var study = this.selectedProject.studies[i];
+//                        if (this.selectedStudy.id === study.id) {
+//                            this.selectedStudy = study;
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
         },
         checkNavigtationSelected: function () {
             return e.target.dataset['content'] === this.selectedNavigation;
@@ -360,6 +335,7 @@
                 this.selectedStudy = null;
             } else {
                 this.selectedStudy = e.target.study;
+                this.getFilesByStudy(this.selectedStudy.id)
             }
         },
         handleNavigationClick: function (e) {
@@ -368,6 +344,29 @@
                 this.selectedOption = option;
                 this.selectedOptionText = e.target.innerText.trim();
             }
+        },
+        getFilesByStudy: function (studyId) {
+            var me = this;
+            this.message = '';
+            OpencgaManager.files.search({
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    studyId: studyId
+                },
+                request: {
+                    success: function (response) {
+                        console.log(response);
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            me.files = response.response[0].result
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            });
         }
     });
 </script>
