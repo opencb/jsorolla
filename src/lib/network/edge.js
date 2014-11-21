@@ -21,9 +21,9 @@
 
 function Edge(args) {
 
-    this.id = 'e'+Utils.genId();
+    this.id = 'e' + Utils.genId();
 
-    this.relation='';
+    this.relation = '';
     this.source;
     this.target;
     this.weight;
@@ -34,7 +34,7 @@ function Edge(args) {
     //set instantiation args, must be last
     _.extend(this, args);
 
-    if(this.renderer){
+    if (this.renderer) {
         this.renderer.edge = this;
     }
 }
@@ -52,17 +52,24 @@ Edge.prototype = {
     setTarget: function (vertex) {
         this.target = vertex;
     },
-    render:function(args){
+    render: function (args) {
         this.renderer.render(args)
     },
-    toJSON:function(){
+    setRenderer: function (renderer) {
+        if (renderer) {
+            this.renderer = renderer;
+            this.renderer.edge = this;
+        }
+    },
+    toJSON: function () {
         return {
-            id:this.id,
-            source:this.source,
-            target:this.target,
-            weight:this.weight,
-            directed:this.directed,
-            relation:this.relation
+            id: this.id,
+            source: this.source,
+            target: this.target,
+            weight: this.weight,
+            directed: this.directed,
+            relation: this.relation,
+            renderer: this.renderer
         }
     }
 }

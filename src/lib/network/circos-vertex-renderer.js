@@ -97,6 +97,12 @@ CircosVertexRenderer.prototype = {
             case 'strokeSize':
             case 'strokeColor':
             default:
+                this.size = parseInt(this.size);
+                this.strokeSize = parseInt(this.strokeSize);
+                this.opacity = parseFloat(this.opacity);
+                this.labelSize = parseInt(this.labelSize);
+                this.labelPositionX = parseInt(this.labelPositionX);
+                this.labelPositionY = parseInt(this.labelPositionY);
                 if (update !== false) {
                     this.update();
                 }
@@ -104,12 +110,25 @@ CircosVertexRenderer.prototype = {
     },
     setConfig: function (args) {
         _.extend(this, args);
+
+        this.size = parseInt(this.size);
+        this.strokeSize = parseInt(this.strokeSize);
+        this.opacity = parseFloat(this.opacity);
+        this.labelSize = parseInt(this.labelSize);
+        this.labelPositionX = parseInt(this.labelPositionX);
+        this.labelPositionY = parseInt(this.labelPositionY);
+
+        this.groupEl.setAttribute('opacity', this.opacity);
+        this.labelEl.setAttribute('font-size', this.labelSize);
+        this._updateLabelElPosition();
+        this.labelEl.setAttribute('x', this.labelX);
+        this.labelEl.setAttribute('y', this.labelY);
     },
     render: function (args) {
         this.targetEl = args.target;
         //this.vertex = args.vertex;
         //this.coords = args.coords;
-        //this.labelText = this.vertex.id;
+        this.labelText = this.vertex.id;
         this._render();
     },
     remove: function () {
@@ -134,12 +153,24 @@ CircosVertexRenderer.prototype = {
         this.donutSlices = slicesMap['donutSlices'];
         if (typeof this.pieSlices === 'undefined') {
             this.pieSlices = [
-                {size: defaults['pieSlices'].size, area: defaults['pieSlices'].area, color: defaults['pieSlices'].color, labelSize: this.labelSize, labelOffset: 0}
+                {
+                    size: defaults['pieSlices'].size,
+                    area: defaults['pieSlices'].area,
+                    color: defaults['pieSlices'].color,
+                    labelSize: this.labelSize,
+                    labelOffset: 0
+                }
             ];
         }
         if (typeof this.donutSlices === 'undefined') {
             this.donutSlices = [
-                {size: defaults['donutSlices'].size, area: defaults['donutSlices'].area, color: defaults['donutSlices'].color, labelSize: this.labelSize, labelOffset: 0}
+                {
+                    size: defaults['donutSlices'].size,
+                    area: defaults['donutSlices'].area,
+                    color: defaults['donutSlices'].color,
+                    labelSize: this.labelSize,
+                    labelOffset: 0
+                }
             ];
         }
         if (typeof slicesMap['pieSlices'] === 'undefined' && typeof slicesMap['donutSlices'] === 'undefined') {
@@ -558,7 +589,7 @@ CircosVertexRenderer.prototype = {
         d += SVG.describeArc(coords.x, coords.y, r, angleStart1, angleEnd1) + ' ';
         d += ['Q', coords.x, coords.y, coordsEnd2.x, coordsEnd2.y, ' '].join(' ');
         d += SVG.describeArc(coords.x, coords.y, r, angleStart2, angleEnd2) + ' ';
-        d += [ 'Q', coords.x, coords.y, coordsEnd1.x, coordsEnd1.y, ' '].join(' ');
+        d += ['Q', coords.x, coords.y, coordsEnd1.x, coordsEnd1.y, ' '].join(' ');
 
         var curve = SVG.addChild(targetSvg, 'path', {
             d: d,

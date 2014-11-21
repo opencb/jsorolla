@@ -21,123 +21,63 @@
 
 function NetworkSession() {
 
-    this.version = 1;
 
-    this.general = {
-        vertexDefaults: {
-            shape: 'circle',
-            size: 40,
+    this.version = 2;
+    this.itemKey = 'CELLMAPS_SESSION' + this.version;
+
+    this.vertexDefaults = {
+        shape: 'circle',
+        size: 40,
 //            color: '#9fc6e7',
-            color: '#fff',
-            strokeSize: 2,
+        color: '#fff',
+        strokeSize: 2,
 //            strokeColor: '#9fc6e7',
-            strokeColor: '#888888',
-            opacity: 0.8,
-            labelSize: 12,
-            labelColor: '#111111'
-        },
-        edgeDefaults: {
-            shape: 'undirected',
-            size: 1,
-            color: '#888888',
+        strokeColor: '#888888',
+        opacity: 0.8,
+        labelSize: 12,
+        labelColor: '#111111',
+        labelPositionX: 0,
+        labelPositionY: 0
+    };
+    this.edgeDefaults = {
+        shape: 'undirected',
+        size: 1,
+        color: '#888888',
 //            color: '#cccccc',
-            opacity: 1,
-            labelSize: 0,
-            labelColor: '#111111'
-        },
-        visualSets: {},
-        zoom: 25,
-        backgroundImages: [],
-        backgroundColor: '#FFF',
-        center: {
-            x: 0,
-            y: 0
-        }
+        opacity: 1,
+        labelSize: 0,
+        labelColor: '#111111'
     };
-    this.config = {
-        vertices: {},
-        edges: {}
+    this.visualSets = {};
+    this.zoom = 25;
+    this.backgroundImages = [];
+    this.backgroundColor = '#FFF';
+    this.center = {
+        x: 0,
+        y: 0
     };
-    this.graph = {
-        vertices: {},
-        edges: {}
-    };
-    this.attributes = {
-        vertices: {},
-        edges: {}
-    }
+    this.graph = new Graph();
+    this.vAttr = new AttributeManagerMemory();
+    this.eAttr = new AttributeManagerMemory();
 }
 
 NetworkSession.prototype = {
-    loadGraph: function (graph) {
-        this.graph = graph.toJSON();
+    loadLocalStorage: function () {
+        if (localStorage.getItem(this.itemKey) !== null) {
+            this.loadJSON(JSON.parse(localStorage.getItem(this.itemKey)));
+            return true;
+        }
+        return false;
     },
-    loadConfig: function (config) {
-        this.config = config;
-    },
-    loadVertexAttributes: function (attributeManager) {
-        this.attributes.vertices = attributeManager.toJSON();
-    },
-    loadEdgeAttributes: function (attributeManager) {
-        this.attributes.edges = attributeManager.toJSON();
-    },
-    getBackgroundImages: function () {
-        return this.general.backgroundImages;
-    },
-    setBackgroundImages: function (images) {
-        this.general.backgroundImages = images;
-    },
-    getBackgroundColor: function () {
-        return this.general.backgroundColor;
-    },
-    setBackgroundColor: function (color) {
-        this.general.backgroundColor = color;
-    },
-    setVertexDefault: function (key, value) {
-        this.general.vertexDefaults[key] = value;
-    },
-    setEdgeDefault: function (key, value) {
-        this.general.edgeDefaults[key] = value;
-    },
-    getVertexDefault: function (key) {
-        return this.general.vertexDefaults[key];
-    },
-    getEdgeDefault: function (key) {
-        return this.general.edgeDefaults[key];
-    },
-    getVertexDefaults: function () {
-        return this.general.vertexDefaults;
-    },
-    getEdgeDefaults: function () {
-        return this.general.edgeDefaults;
-    },
-    getVisualSets: function () {
-        return this.general.visualSets;
-    },
-    loadVisualSets: function (visualSets) {
-        this.general.visualSets = visualSets;
-    },
-    setVisualSet: function (key, value) {
-        this.general.visualSets[key] = value;
-    },
-    setCenter: function (center) {
-        this.general.center = center;
-    },
-    getCenter: function () {
-        return this.general.center;
-    },
-    getZoom: function () {
-        return this.general.zoom;
-    },
-    setZoom: function (zoom) {
-        this.general.zoom = zoom;
+    saveLocalStorage: function () {
+        localStorage.setItem(this.itemKey, JSON.stringify(this));
     },
     loadJSON: function (o) {
         if (o.version === this.version) {
             _.extend(this, o)
         } else {
             console.log('Could not load session, does not match with current version');
-            localStorage.removeItem('CELLMAPS_SESSION');
+            localStorage.removeItem('CELLMAPS_SESSION' + this.version);
         }
 //        this.config = o.config;
 //        this.graph = o.graph;

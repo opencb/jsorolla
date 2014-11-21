@@ -82,9 +82,9 @@
             }
 
             /*[attributeselected] {*/
-                /*background-color: #445D76 !important;*/
-                /*color: #fff !important;*/
-                /*border-color: rgba(102, 175, 233, .5) !important;*/
+            /*background-color: #445D76 !important;*/
+            /*color: #fff !important;*/
+            /*border-color: rgba(102, 175, 233, .5) !important;*/
             /*}*/
 
             #tablewrap {
@@ -128,7 +128,9 @@
             <div class="container" flex horizontal layout>
                 <div id="left" vertical layout>
                     <div id="edit" vertical layout>
-                        <div class="button action" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">Show selection</div>
+                        <div class="button action" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">
+                            Show selection
+                        </div>
                         <div horizontal layout style="margin-bottom: 10px;">
                             <div flex class="button action" on-click="{{handleSelectAll}}">Select all</div>
                             <div flex class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
@@ -154,7 +156,8 @@
                                          on-click="{{handleEditSelect}}">
                                         {{column.title}}
                                     </div>
-                                    <div class="button action remove" data-name="{{column.name}}" on-click="{{handleRemoveApply}}"></div>
+                                    <div class="button action remove" data-name="{{column.name}}"
+                                         on-click="{{handleRemoveApply}}"></div>
                                 </div>
                             </template>
                         </template>
@@ -182,9 +185,11 @@
                     </div>
                     <div class="customPager" horizontal layout>
                         <div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}</div>
-                        <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">&lt;</div>
+                        <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                            &lt;</div>
                         <div class="text"> {{table.page}} of {{table.lastPage}}</div>
-                        <div class="button action" disabled?="{{table.page>=table.lastPage}}" on-click="{{moveToNextPage}}">&gt;</div>
+                        <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                             on-click="{{moveToNextPage}}">&gt;</div>
                     </div>
                 </div>
             </div>
@@ -232,6 +237,7 @@
                 this.selectedMenu = '';
             },
             handleExpand: function () {
+                this.page = 1;
                 this.expanded = !this.expanded;
                 if (this.expanded) {
                     this.style.width = '100vw';

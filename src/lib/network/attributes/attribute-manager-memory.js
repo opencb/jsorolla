@@ -226,6 +226,16 @@ AttributeManagerMemory.prototype = {
                 row[column] = value;
             }
         }
+    },
+    fromJSON: function (json) {
+        for (var i = 0, l = json.columns.length; i < l; i++) {
+            this.addColumn(json.columns[i]);
+        }
+        for (var i = 0, l = json.data.length; i < l; i++) {
+            this.addRow(json.data[i]);
+        }
+    },
+    toJSON: function () {
+        return {columns: this.columns, data: this.data};
     }
-
 };
