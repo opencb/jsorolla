@@ -21,8 +21,6 @@
 
 function CircosVertexRenderer(args) {
     var _this = this;
-    _.extend(this, Backbone.Events);
-
 
     this.complex = false;
 
@@ -66,7 +64,11 @@ function CircosVertexRenderer(args) {
     this.labelY = 0;
 
     //set instantiation args, must be last
-    _.extend(this, args);
+    for (var prop in args) {
+        if (hasOwnProperty.call(args, prop)) {
+            this[prop] = args[prop];
+        }
+    }
 
 
 }

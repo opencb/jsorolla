@@ -29,7 +29,11 @@ function Vertex(args) {
     this.renderer = new CircosVertexRenderer();
 
     //set instantiation args, must be last
-    _.extend(this, args);
+    for (var prop in args) {
+        if (hasOwnProperty.call(args, prop)) {
+            this[prop] = args[prop];
+        }
+    }
 
     if (this.renderer) {
         this.renderer.coords = this.position;
