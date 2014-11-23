@@ -122,7 +122,26 @@
                          on-click="{{handleRemoveSet}}" data-prop="opacity"></div>
                 </div>
                 <div horizontal layout>
-                    <div class="text">Shape:</div>
+                    <div class="text">Shaft:</div>
+                    <div class="dropdown" flex>
+                        <div tabindex="-1" class="button">
+                            {{defaults.shaft}} &nbsp;
+                        </div>
+                        <ul>
+                            <li on-mousedown="{{handleShaftSelect}}">line</li>
+                            <li on-mousedown="{{handleShaftSelect}}">dashed</li>
+                        </ul>
+                    </div>
+
+                    <div class="button action configure" data-enabled="{{visualSets.shaft != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="shaft"></div>
+                    <div class="button action toggle" data-enabled="{{visualSets.shaft.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="shaft"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.shaft != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="shaft"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Head:</div>
                     <div class="dropdown" flex>
                         <div tabindex="-1" class="button">
                             {{defaults.shape}} &nbsp;
@@ -133,7 +152,6 @@
                             <li on-mousedown="{{handleShapeSelect}}">inhibited</li>
                             <li on-mousedown="{{handleShapeSelect}}">dot</li>
                             <li on-mousedown="{{handleShapeSelect}}">odot</li>
-                            <li on-mousedown="{{handleShapeSelect}}">dashed</li>
                         </ul>
                     </div>
 
@@ -188,13 +206,23 @@
                     >
             </jso-attribute-render-number-table>
         </template>
+        <template if="{{displayProperty == 'shaft'}}">
+            <jso-attribute-render-select-table
+                    renderProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.shaft}}"
+                    visualSet="{{visualSets.shaft}}"
+                    options="line,dashed"
+                    >
+            </jso-attribute-render-select-table>
+        </template>
         <template if="{{displayProperty == 'shape'}}">
             <jso-attribute-render-select-table
                     renderProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
                     defaultValue="{{defaults.shape}}"
                     visualSet="{{visualSets.shape}}"
-                    options="directed,undirected,inhibited,dot,odot,dashed"
+                    options="directed,undirected,inhibited,dot,odot"
                     >
             </jso-attribute-render-select-table>
         </template>
@@ -251,6 +279,9 @@
 
             handleLabelSelect: function (e) {
                 this.defaults.labelAttribute = e.currentTarget.dataset.name;
+            },
+            handleShaftSelect: function (e) {
+                this.defaults.shaft = e.currentTarget.innerHTML;
             },
             handleShapeSelect: function (e) {
                 this.defaults.shape = e.currentTarget.innerHTML;

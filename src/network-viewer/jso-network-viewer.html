@@ -140,6 +140,7 @@
                 };
                 this.edgeDefaults = {
                     shape: 'undirected',
+                    shaft: 'line',
                     size: 1,
                     color: '#888888',
 //            color: '#cccccc',
@@ -161,6 +162,7 @@
                     labelSize: null,
                     opacity: null,
                     shape: null,
+                    shaft: null,
                     color: null,
                     size: null
                 };
@@ -215,17 +217,19 @@
             ready: function () {
             },
             loadLocalStorage: function () {
-                if (localStorage.getItem(this.serializeKey) !== null) {
-                    this.loadJSON(JSON.parse(localStorage.getItem(this.serializeKey)));
+                var item = window.localStorage.getItem(this.serializeKey);
+                if (item !== null && item !== "null") {
+                    this.loadJSON(JSON.parse(window.localStorage.getItem(this.serializeKey)));
                     return true;
                 }
                 return false;
             },
             saveLocalStorage: function () {
-                localStorage.setItem(this.serializeKey, JSON.stringify(this));
+                window.localStorage.setItem(this.serializeKey, JSON.stringify(this));
                 console.log('saved');
             },
             deleteLocalStorage: function () {
+                window.localStorage.setItem(this.serializeKey, null);
                 localStorage.removeItem(this.serializeKey);
             },
             loadJSON: function (o) {
@@ -309,6 +313,10 @@
                 'edgeDefaults.opacity': 'handleEdgeOpacityProperty',
                 'edgeVisualSets.opacity': 'handleEdgeOpacityProperty',
                 'edgeVisualSets.opacity.enabled': 'handleEdgeOpacityProperty',
+
+                'edgeDefaults.shaft': 'handleEdgeShaftProperty',
+                'edgeVisualSets.shaft': 'handleEdgeShaftProperty',
+                'edgeVisualSets.shaft.enabled': 'handleEdgeShaftProperty',
 
                 'edgeDefaults.shape': 'handleEdgeShapeProperty',
                 'edgeVisualSets.shape': 'handleEdgeShapeProperty',
@@ -499,6 +507,9 @@
             },
             handleEdgeOpacityProperty: function (oldValue, newValue) {
                 this._handleEdgeDisplayProperty("opacity");
+            },
+            handleEdgeShaftProperty: function (oldValue, newValue) {
+                this._handleEdgeDisplayProperty("shaft");
             },
             handleEdgeShapeProperty: function (oldValue, newValue) {
                 this._handleEdgeDisplayProperty("shape");
@@ -917,7 +928,7 @@
                     this.eAttr.addRow({
                         'id': edge.id,
                         'name': edge.id,
-                        'relation': edge
+                        'relation': edge.relation
                     });
                     edge.render({
                         target: this.$.networkLayout.$.scaleFrontGroup

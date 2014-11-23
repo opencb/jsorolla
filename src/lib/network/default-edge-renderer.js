@@ -25,6 +25,7 @@ function DefaultEdgeRenderer(args) {
 
     //defaults
     this.shape = 'undirected';
+    this.shaft = 'line';
     this.size = 1;
     this.color = '#cccccc';
     this.strokeSize = 2;
@@ -70,6 +71,9 @@ DefaultEdgeRenderer.prototype = {
                 break;
             case "shape":
                 this.updateShape();
+                break;
+            case "shaft":
+                this.updateShaft();
                 break;
             case "labelSize":
                 this.labelEl.setAttribute('font-size', this.labelSize);
@@ -118,6 +122,7 @@ DefaultEdgeRenderer.prototype = {
         this.edgeEl.setAttribute('stroke', this.color);
         this.edgeEl.setAttribute('stroke-width', this.size);
         this.labelEl.setAttribute('font-size', this.labelSize);
+        this.updateShaft();
         this.updateShape();
     },
     updateShape: function () {
@@ -126,18 +131,22 @@ DefaultEdgeRenderer.prototype = {
         }
         if (this.shape === 'undirected') {
             this.edgeEl.removeAttribute('marker-end');
-        } else if (this.shape == 'dashed') {
-            this.edgeEl.removeAttribute('marker-end');
-            if (this.selected) {
-                this._renderSelect();
-            } else {
-                this._removeSelect();
-            }
         } else {
             this.edgeEl.setAttribute('marker-end', "url(" + this._getMarkerArrowId() + ")");
         }
 
         this.move();
+    },
+    updateShaft: function () {
+        if (!this.edgeEl) {
+            debugger
+        }
+        if (this.selected) {
+            this._renderSelect();
+        }
+        if (!this.selected) {
+            this._removeSelect();
+        }
     },
     select: function () {
         if (!this.selected) {
@@ -378,16 +387,16 @@ DefaultEdgeRenderer.prototype = {
     },
 
     _renderSelect: function () {
-        this.edgeEl.setAttribute('stroke-dasharray', '15, 2');
+        this.edgeEl.setAttribute('stroke-dasharray', '10, 5');
         //this.edgeEl.setAttribute('stroke-width', this.size + 1);
 
         this.selected = true;
     },
     _removeSelect: function () {
-        if (this.shape !== 'dashed') {
+        if (this.shaft !== 'dashed') {
             this.edgeEl.removeAttribute('stroke-dasharray');
-        }else{
-            this.edgeEl.setAttribute('stroke-dasharray', '5, 5');
+        } else {
+            this.edgeEl.setAttribute('stroke-dasharray', '3, 2');
         }
 //        this.edgeEl.removeAttribute('stroke-width', this.size);
         this.selected = false;
