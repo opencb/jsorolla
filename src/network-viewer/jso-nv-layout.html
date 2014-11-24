@@ -4,6 +4,7 @@
             :host {
                 display: block;
                 position: relative;
+                user-select: none;
             }
         </style>
         <svg id="svg"
@@ -316,9 +317,9 @@
                 this.$.selectHelp.setAttribute('width', 0);
                 this.$.selectHelp.setAttribute('height', 0);
             },
-            middleMouseDown: function (event) {
+            middleMouseDown: function (e) {
                 var me = this;
-                var targetEl = event.target;
+                var targetEl = e.target;
                 var targetElNetworkType = targetEl.getAttribute('network-type');
                 var downX = e.offsetX;
                 var downY = e.offsetY;

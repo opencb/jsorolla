@@ -305,20 +305,41 @@ Graph.prototype = {
         var dotText = "graph network {\n" + this.getAsSIF(' ') + "}";
         return dotText;
     },
-
+    fromJSON:function(json){
+        for (var i = 0, l = json.vertices.length; i < l; i++) {
+            var v = json.vertices[i];
+            var vertex = new Vertex({
+                id: v.id,
+                position: new Point(v.position.x, v.position.y, v.position.z),
+                renderer: new CircosVertexRenderer(v.renderer)
+            });
+            this.addVertex(vertex);
+        }
+        for (var i = 0, l = json.edges.length; i < l; i++) {
+            var e = json.edges[i];
+            var edge = new Edge({
+                id: e.id,
+                relation: e.relation,
+                source: this.getVertexById(e.source.id),
+                target: this.getVertexById(e.target.id),
+                renderer: new DefaultEdgeRenderer(e.renderer)
+            });
+            this.addEdge(edge);
+        }
+    },
     toJSON: function () {
-        var vertices = [];
-        for (var i = 0; i < this.vertices.length; i++) {
-            if (typeof this.vertices[i] !== 'undefined') {
-                vertices.push(this.vertices[i]);
-            }
-        }
-        var edges = [];
-        for (var i = 0; i < this.edges.length; i++) {
-            if (typeof this.edges[i] !== 'undefined') {
-                edges.push(this.edges[i]);
-            }
-        }
-        return {vertices: vertices, edges: edges};
+        //var vertices = [];
+        //for (var i = 0; i < this.vertices.length; i++) {
+        //    if (typeof this.vertices[i] !== 'undefined') {
+        //        vertices.push(this.vertices[i]);
+        //    }
+        //}
+        //var edges = [];
+        //for (var i = 0; i < this.edges.length; i++) {
+        //    if (typeof this.edges[i] !== 'undefined') {
+        //        edges.push(this.edges[i]);
+        //    }
+        //}
+        return {vertices: this.vertices, edges: this.edges};
     }
 }

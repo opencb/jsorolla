@@ -25,6 +25,7 @@ function DefaultEdgeRenderer(args) {
 
     //defaults
     this.shape = 'undirected';
+    this.shaft = 'line';
     this.size = 1;
     this.color = '#cccccc';
     this.strokeSize = 2;
@@ -71,6 +72,9 @@ DefaultEdgeRenderer.prototype = {
             case "shape":
                 this.updateShape();
                 break;
+            case "shaft":
+                this.updateShaft();
+                break;
             case "labelSize":
                 this.labelEl.setAttribute('font-size', this.labelSize);
                 break;
@@ -82,7 +86,23 @@ DefaultEdgeRenderer.prototype = {
         }
     },
     setConfig: function (args) {
+        if (args.size) {
+            args.size = parseInt(args.size);
+        }
+        if (args.opacity) {
+            args.opacity = parseFloat(args.opacity);
+        }
+        if (args.labelSize) {
+            args.labelSize = parseInt(args.labelSize);
+        }
+        if (args.labelPositionX) {
+            args.labelPositionX = parseInt(args.labelPositionX);
+        }
+        if (args.labelPositionY) {
+            args.labelPositionY = parseInt(args.labelPositionY);
+        }
         _.extend(this, args);
+        this.edgeEl.setAttribute('opacity', this.opacity);
     },
     render: function (args) {
         //this.edge = args.edge;
@@ -102,10 +122,11 @@ DefaultEdgeRenderer.prototype = {
         this.edgeEl.setAttribute('stroke', this.color);
         this.edgeEl.setAttribute('stroke-width', this.size);
         this.labelEl.setAttribute('font-size', this.labelSize);
+        this.updateShaft();
         this.updateShape();
     },
     updateShape: function () {
-        if(!this.edgeEl){
+        if (!this.edgeEl) {
             debugger
         }
         if (this.shape === 'undirected') {
@@ -113,7 +134,19 @@ DefaultEdgeRenderer.prototype = {
         } else {
             this.edgeEl.setAttribute('marker-end', "url(" + this._getMarkerArrowId() + ")");
         }
+
         this.move();
+    },
+    updateShaft: function () {
+        if (!this.edgeEl) {
+            debugger
+        }
+        if (this.selected) {
+            this._renderSelect();
+        }
+        if (!this.selected) {
+            this._removeSelect();
+        }
     },
     select: function () {
         if (!this.selected) {
@@ -129,8 +162,8 @@ DefaultEdgeRenderer.prototype = {
         this.labelText = text;
         var textSvg = this.el.querySelector('text[network-type="edge-label"]');
         var label = '';
-        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
-            label = this.labelText;
+        if (this.labelText && this.labelText.length > 0) {
+            label = this.labelText.toString();
         }
         textSvg.textContent = label;
     },
@@ -188,10 +221,10 @@ DefaultEdgeRenderer.prototype = {
 
             var rSize = this.sourceRenderer.getSize() / 2;
 
-            d = ['M', this.sourceCoords.x - rSize, this.sourceCoords.y ,
+            d = ['M', this.sourceCoords.x - rSize, this.sourceCoords.y,
                 'L', this.sourceCoords.x - length1, this.sourceCoords.y,
                 'C', this.sourceCoords.x - length2, this.sourceCoords.y, this.sourceCoords.x, this.sourceCoords.y - length2,
-                this.sourceCoords.x , this.sourceCoords.y - length1,
+                this.sourceCoords.x, this.sourceCoords.y - length1,
                 'L', this.targetCoords.x, this.targetCoords.y - rSize].join(' ');
         } else {
             //calculate bezier line
@@ -234,8 +267,8 @@ DefaultEdgeRenderer.prototype = {
         return {d: d, xl: labelX, yl: labelY};
     },
     _getPerimeterPositions: function (angle) {
-        // Calculate source and target points of the perimeter - TODO ellipse, square, rectangle
-        var sign = this.targetCoords.x > this.sourceCoords.x ? 1 : -1;
+        // Calculate source and target points of the perimeter
+        var sign = this.targetCoords.x >= this.sourceCoords.x ? 1 : -1;
         var srHalfSize = this.sourceRenderer.getSize() / 2;
 
         var offset = 0;
@@ -354,15 +387,18 @@ DefaultEdgeRenderer.prototype = {
     },
 
     _renderSelect: function () {
-        this.edgeEl.setAttribute('stroke-dasharray', '5, 2');
-//        this.edgeEl.setAttribute('stroke-width', this.size + 1);
+        this.edgeEl.setAttribute('stroke-dasharray', '10, 5');
+        //this.edgeEl.setAttribute('stroke-width', this.size + 1);
 
         this.selected = true;
     },
     _removeSelect: function () {
-        this.edgeEl.removeAttribute('stroke-dasharray');
+        if (this.shaft !== 'dashed') {
+            this.edgeEl.removeAttribute('stroke-dasharray');
+        } else {
+            this.edgeEl.setAttribute('stroke-dasharray', '3, 2');
+        }
 //        this.edgeEl.removeAttribute('stroke-width', this.size);
-
         this.selected = false;
     },
     /**/
@@ -371,7 +407,7 @@ DefaultEdgeRenderer.prototype = {
         // if not exists this marker, add new one to defs
         var markerArrowId = "arrow-" + this.shape + "-" + offset.toString().replace(".", "_") + '-' + this.size.toString().replace(".", "_") + '-' + this.color.replace('#', '');
         var markerArrowIdSel = '#' + markerArrowId;
-        if ($(markerArrowIdSel).length == 0) {
+        if (!this.targetEl.querySelector(markerArrowIdSel)) {
             this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId);
         }
         return markerArrowIdSel;
@@ -393,9 +429,8 @@ DefaultEdgeRenderer.prototype = {
 
         var halfSize = edgeSize / 2;
 
-        var defs = $(targetSvg).find('defs');
-        var defsEl = defs[0]
-        if (defs.length == 0) {
+        var defsEl = targetSvg.querySelector('defs');
+        if (!defsEl) {
             defsEl = SVG.addChild(targetSvg, "defs", {}, 0);
         }
         if (typeof color === 'undefined') {
@@ -437,7 +472,7 @@ DefaultEdgeRenderer.prototype = {
                 var arrow = SVG.addChild(marker, "path", {
 //                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "d": ['M', headHeight , 0, 'V', headHeight, 'L', headHeight / 2, headHeight, 'L', headHeight / 2, 0, 'Z'].join(' ')
+                    "d": ['M', headHeight, 0, 'V', headHeight, 'L', headHeight / 2, headHeight, 'L', headHeight / 2, 0, 'Z'].join(' ')
 //                    "x":0,
 //                    "y": 0,
 //                    "width": headWidth,

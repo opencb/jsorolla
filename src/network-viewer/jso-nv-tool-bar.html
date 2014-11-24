@@ -1,7 +1,6 @@
 <polymer-element name="jso-nv-tool-bar" attributes="backgroundColor mode zoom">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
-        <link rel="stylesheet" href="../../bower_components/fontawesome/css/font-awesome.min.css">
         <style>
             :host {
                 display: block;
@@ -23,22 +22,22 @@
 
         <div class="button" data-checked="{{mode == 'select'}}" data-mode="select" on-click="{{handleMode}}"
              style="border-right: none">
-            <i class="fa fa-hand-o-up"></i>
+            <font-awesome icon="hand-o-up"></font-awesome>
         </div>
         <div class="button" data-checked="{{mode == 'selectbackground'}}" data-mode="selectbackground"
              on-click="{{handleMode}}">
-            <i class="fa fa-image"></i>
+            <font-awesome icon="image"></font-awesome>
         </div>
         <div class="button" data-checked="{{mode == 'add'}}" data-mode="add" on-click="{{handleMode}}"
              style="margin-left: 3px;border-right: none">
-            <i class="fa fa-plus"></i>
+            <font-awesome icon="plus"></font-awesome>
         </div>
         <div class="button" data-checked="{{mode == 'join'}}" data-mode="join" on-click="{{handleMode}}"
              style="border-right: none">
-            <i class="fa fa-link"></i>
+            <font-awesome icon="link"></font-awesome>
         </div>
         <div class="button" data-checked="{{mode == 'delete'}}" data-mode="delete" on-click="{{handleMode}}">
-            <i class="fa fa-times"></i>
+            <font-awesome icon="times"></font-awesome>
         </div>
 
 
@@ -48,7 +47,7 @@
 
 
         <div class="dropdown" style="margin-left: 10px">
-            <div tabindex="-1" id="layoutButton" class="button"><i class="fa fa-share-alt"></i></div>
+            <div tabindex="-1" id="layoutButton" class="button"><font-awesome icon="share-alt"></font-awesome></div>
             <ul id="layoutMenu">
                 <li on-click="{{handleLayoutMenu}}" data-value="Force directed">Force directed</li>
                 <li on-click="{{handleLayoutMenu}}" data-value="Circle">Circle</li>
@@ -57,7 +56,7 @@
         </div>
 
         <div class="dropdown" title="Select" style="margin-left: 10px">
-            <div tabindex="-1" id="autoSelectButton" class="button"><i class="fa fa-dot-circle-o"></i></div>
+            <div tabindex="-1" id="autoSelectButton" class="button"><font-awesome icon="dot-circle-o"></font-awesome></div>
             <ul id="autoSelectMenu">
                 <li on-click="{{handleSelectMenu}}" data-value="All nodes">All nodes</li>
                 <li on-click="{{handleSelectMenu}}" data-value="First neighbour nodes">First neighbour nodes</li>
@@ -72,7 +71,7 @@
 
         <div style="margin-left: 10px" on-click={{handleBackgroundImage}} id="importBackgroundImageButton"
              class="button">
-            <i class="fa fa-file-image-o"></i>
+            <font-awesome icon="file-image-o"></font-awesome>
         </div>
         <input on-change={{handleBackgroundImageField}} id="importBackgroundImageField" type="file"
                style="display:none"/>
@@ -82,8 +81,8 @@
                           style="float:left;width:90px;margin-left: 2px;"></jso-color-picker>
 
         <div class="dropdown" title="Rotate" style="margin-left: 10px">
-            <div tabindex="-1" id="rotateButton" class="button" style="border-right: none"><i
-                    class="fa fa-rotate-right"></i></div>
+            <div tabindex="-1" id="rotateButton" class="button" style="border-right: none">
+                <font-awesome icon="rotate-right"></font-awesome></div>
             <ul id="rotateMenu">
                 <li on-click="{{handleRotateMenu}}" data-value="45">45</li>
                 <li on-click="{{handleRotateMenu}}" data-value="90">90</li>
@@ -97,13 +96,13 @@
         <input on-keyup="{{handleRotateField}}" id="rotateField" class="button" type="text" style="width: 50px;"
                placeholder="90&deg;" pattern="^-?\d+$">
 
-        <div id="zoomOutButton" on-click="{{handleZoomOutButton}}" class="button" style="margin-left: 10px"><span
-                class="fa fa-minus"></span></div>
+        <div id="zoomOutButton" on-click="{{handleZoomOutButton}}" class="button" style="margin-left: 10px">
+            <font-awesome icon="minus"></font-awesome></div>
         <div on-click="{{handleZoomSlider}}" id="progressBarCont" class="zoom-bar">
             <div id="progressBar" style="width:{{zoom}}%"></div>
         </div>
-        <div id="zoomInButton" on-click="{{handleZoomInButton}}" class="button"><span class="fa fa-plus"></span></div>
-
+        <div id="zoomInButton" on-click="{{handleZoomInButton}}" class="button">
+            <font-awesome icon="plus"></font-awesome></div>
         </div>
 
     </template>
