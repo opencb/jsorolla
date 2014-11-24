@@ -1,0 +1,238 @@
+<polymer-element name="jso-fatigo-result" attributes="jobItem">
+<template>
+    <link rel="stylesheet" href="../jso-style.css">
+    <link rel="stylesheet" href="../sortable-table.css">
+    <style>
+        :host {
+            display: block;
+            /*position: relative;*/
+            background-color: white;
+        }
+
+        sortable-table {
+            width: 1000px;
+        }
+
+    </style>
+    <!--<span>{{jobItem.id}}</span>-->
+    <!--<span>{{jobItem.outDir}}</span>-->
+
+    <div id="output">
+    </div>
+
+</template>
+<script>
+Polymer({
+    created: function () {
+        this.createdElements = {};
+    },
+    jobItemChanged: function (oldV, newV) {
+        var me = this;
+        me.pvalue = 0.05;
+
+        OpencgaManager.files.filesByFolder({
+            id: me.jobItem.outDirId,
+            query: {
+                sid: Cookies("bioinfo_sid")
+            },
+            request: {
+                success: function (response) {
+
+                    if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                        me.filesList = response.response[0].result;
+                        me.getFileContent(function (content) {
+                            var root = me.$.output;
+                            me.parseXML(content, root);
+                        }, "result.xml");
+                    }
+                },
+                error: function () {
+                    me.message = 'Server error, try again later.';
+                }
+            }
+        })
+    },
+    getFileContent: function (callback, fileName) {
+        var me = this;
+        var fileId = -1;
+        for (var result in this.filesList) {
+            if (this.filesList[result].name == fileName) {
+                fileId = this.filesList[result].id
+                break;
+            }
+        }
+        OpencgaManager.files.content({
+            id: fileId,
+            query: {
+                sid: Cookies("bioinfo_sid")
+            },
+            request: {
+                success: function (response) {
+//                    var content = response.response[0]
+                    /** I pass localDiv as parameter because I loose the div to render in a loop **/
+                    callback(response)
+                },
+                error: function () {
+                    this.message = 'Server error, try again later.';
+                }
+            }
+        })
+    },
+    prettyString: function (str) {
+        return  str.replace(/\s/g, "_").replace(/\(/g, "_").replace(/\)/g, "_");
+    },
+    createElement: function (parent, htmlType, htmlContent) {
+        var el = document.createElement(htmlType);
+        var node = document.createTextNode(htmlContent);
+        el.appendChild(node);
+        parent.appendChild(el);
+//        this.$.output.appendChild(father);
+    },
+    parseXML: function (xml) {
+        var me = this;
+        if (window.DOMParser) {
+            var parser = new DOMParser();
+            var xmlDoc = parser.parseFromString(xml, "text/xml");
+        }
+        else {
+            var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+            xmlDoc.async = false;
+            xmlDoc.loadXML(xml);
+        }
+        var output = xmlDoc.getElementsByTagName("output")[0].children
+
+        me.createStructure(output);
+        output.array().forEach(function (childNode) {
+
+            var nameInput = childNode.getAttribute("name");
+            var titleInput = childNode.getAttribute("title");
+            var typeInput = childNode.getAttribute("type");
+            var groupInput = childNode.getAttribute("group").split(".");
+            var tagsInput = childNode.getAttribute("tags");
+            var valueInput = childNode.firstChild.nodeValue;
+
+            var parentId = me.prettyString(groupInput[groupInput.length - 1]);
+            var parent = me.$.output.querySelector("#" + parentId);
+            valueInput = valueInput.replace("${pvalue}", me.pvalue);
+//console.log(valueInput)
+//                debugger
+            if (typeInput == "MESSAGE" || typeInput == "FILE" || typeInput == "TEXT") {
+                me.createElement(parent, "div", titleInput + ": " + valueInput);
+            }
+            if (nameInput == "annotations_per_db") {
+                var sortableTable = document.createElement('sortable-table');
+                parent.appendChild(sortableTable);
+                me.getFileContent(function (content) {
+                    var data = content.split("\n");
+                    var dataArray = new Array();
+                    for (var i = 1; i < data.length; i++) {
+                        if (data[i] == "") continue;
+                        dataArray.push(data[i].split("\t"))
+                    }
+                    sortableTable.columns = ["DB", "List1", "List2"];
+                    sortableTable.data = dataArray;
+                }, valueInput);
+            }
+            if (tagsInput.indexOf("SIGNIFICANT_COUNT_TABLE") > 0) {
+                var sortableTable = document.createElement('sortable-table');
+                parent.appendChild(sortableTable);
+                me.getFileContent(function (content) {
+                    var data = content.split("\n");
+                    var dataArray = new Array();
+                    for (var i = 1; i < data.length; i++) {
+                        if (data[i] == "") continue;
+                        dataArray.push(data[i].split("\t"))
+                    }
+                    sortableTable.columns = ["DB", "Number of significant terms"];
+                    sortableTable.data = dataArray;
+                }, valueInput);
+            }
+            if (tagsInput.indexOf("FATIGO_TABLE") > 0) {
+                var sortableTable = document.createElement('sortable-table');
+                parent.appendChild(sortableTable);
+                me.getFileContent(function (content) {
+
+                    var data = content.split("\n");
+                    var dataArray = new Array();
+                    for (var i = 1; i < data.length; i++) {
+                        if (data[i] == "") continue;
+                        dataArray.push(data[i].split("\t"))
+                    }
+                    sortableTable.pageSize = "10";
+                    sortableTable.footerTemplate = "simplePager";
+                    sortableTable.columns = ["Term", "Term size", "Term size (in genome)", "Term annotation % per list", "Annotated ids", "Odds ratio (loge)", "pvalue", "Adjusted pvalue"];
+                    sortableTable.data = dataArray;
+
+
+                }, valueInput);
+            }
+            if (typeInput == "IMAGE") {
+                var fileId = me.getFileId(valueInput);
+                var image = document.createElement('img');
+                var imageUrl = OpencgaManager.files.content({
+                    id: fileId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+
+                        url: true
+                    }
+                })
+
+                image.setAttribute("src", imageUrl);
+                parent.appendChild(image);
+            }
+
+        })
+    },
+    getFileId: function(fileName){
+        var fileId = -1;
+        for (var result in this.filesList) {
+            if (this.filesList[result].name == fileName) {
+                fileId = this.filesList[result].id
+                break;
+            }
+        }
+        return fileId;
+    },
+    createStructure: function (output) {
+        var me = this;
+        var createdElements = {};
+        output.array().forEach(function (childNode) {
+
+            var groupInput = childNode.getAttribute("group").split(".");
+            var parent = me.$.output;
+            var parentId = me.$.output.id;
+//                console.log(groupInput)
+            //              console.log(parent);
+            for (var idx = 0; idx < groupInput.length; idx++) {
+                var xx = groupInput[idx];
+                xx = me.prettyString(xx)
+                if (!(xx in createdElements)) {
+                    createdElements[xx] = true;
+                }
+                else
+                    continue;
+                if (idx != 0) {
+                    parentId = me.prettyString(groupInput.slice(idx - 1, idx).join());
+                    parent = me.$.output.querySelector("#" + parentId)
+                }
+
+                var el = document.createElement("div");
+                el.id = xx;
+
+                var elSon = document.createElement("h" + (idx + 1));
+                var node = document.createTextNode(groupInput[idx]);
+                elSon.appendChild(node);
+                parent.appendChild(elSon)
+
+                parent.appendChild(el);
+            }
+        });
+    }
+})
+</script>
+</polymer-element>
+
+

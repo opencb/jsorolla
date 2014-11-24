@@ -1,0 +1,479 @@
+<polymer-element name="jso-fatigo" attributes="userData selectedOption selectedStudy">
+<template>
+    <link rel="stylesheet" href="../jso-style.css">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+            padding: 30px 100px;
+
+            z-index: 50000;
+            top: 90px;
+
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+
+            width: 40vw;
+            border: 0px solid #c6d0da;
+            border-width: 1px;
+            /*border-top-width: 1px;*/
+            transition: all 0.2s;
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+            color: #666;
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        label {
+            display: inline-block;
+            color: #666;
+            margin-top: 3px;
+            /*width: 150px;*/
+        }
+
+        label::after {
+            content: ':'
+        }
+
+        .action {
+            /*margin-top: 30px;*/
+            background-color: #f5f5f5 !important;
+            text-align: center;
+        }
+
+        .action:active {
+            background-color: #445D76 !important;
+            color: #fff !important;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        div.button {
+            /*display: inline-block;*/
+            width: 300px
+        }
+
+        .inputListTextArea {
+            width: 300px;
+            height: 50px;
+        }
+
+        /*jso-file-browser {*/
+        /*width: 70%;*/
+        /*}*/
+
+        span {
+            border: 1px solid;
+        }
+    </style>
+    <div class="title">
+        <div>
+            Single enrichment analysis - Fatigo
+        </div>
+        <div class="icon">
+            <!--<font-awesome icon="magic"></font-awesome>-->
+        </div>
+    </div>
+    <form id="form">
+        <h3>Examples</h3>
+
+        <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+
+        <h3>Output parameters</h3>
+        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
+                                                   pattern="[a-zA-Z0-9]+">
+        <label>Or select output folder:</label>
+        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+
+        <h3>Define your comparison</h3>
+        <input type="radio" name="comparisonRadio" value="list2list" on-click="{{comparisonChange}}" checked>Id list vs
+        Id
+        list<br>
+        <input type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}">Id List vs Rest
+        of
+        genome<br>
+        <input type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">Id List vs Rest of
+        ids
+        contained in your annotations
+        (complementary list)<br>
+
+
+        <h3>Select your data</h3>
+
+        <div>
+            List 1:
+            <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
+            <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
+                              selectedFile="{{list1}}"></jso-file-browser>
+        </div>
+        List 2:
+        <div id="option1">
+            <div class="button action" on-click="{{list2Click}}">{{list2UploadMsg}}</div>
+            <jso-file-browser hidden="true" id="list2Html" fileList="{{selectedStudy.files}}"
+                              selectedFile="{{list2}}"></jso-file-browser>
+        </div>
+        <div id="option2" hidden>
+            <span>Rest of the genome</span>
+        </div>
+
+        <div id="option3" hidden>
+            <span>Rest of ids contained in your annotations (complementary list)</span>
+        </div>
+
+        <h3>Options</h3>
+        Fisher exact test
+        <div class="dropdown">
+            <div tabindex="-1" class="button">
+                {{fisherText}}
+            </div>
+            <ul on-click="{{handleFisher}}">
+                <li data-value="two-tailed">Two tailed</li>
+                <li data-value="greater">Over represented terms in list 1(genome comparison)</li>
+                <li data-value="less">Over represented terms in list 2</li>
+            </ul>
+        </div>
+        Remove duplicates?
+        <div class="dropdown">
+            <div tabindex="-1" class="button">
+                {{duplicatesText}}
+            </div>
+            <ul on-click="{{handleDuplicates}}">
+                <li data-value="never">Never</li>
+                <li data-value=each"">Remove on each list separately</li>
+                <li data-value="all">Remove on each list and common ids</li>
+                <li data-value="ref">Remove from list2 those appearing in list1 (complementary list)</li>
+            </ul>
+        </div>
+        <h3>Databases</h3>
+
+        <div class="dropdown">
+            <div tabindex="-1" class="button">
+                {{speciesText}}
+            </div>
+            <ul on-click="{{handleSpecies}}">
+                <li data-value="hsa">Human (homo sapiens)</li>
+                <li data-value="mmu">Mouse (mus musculus)</li>
+                <li data-value="rno">Rat (rattus norvegicus)</li>
+                <li data-value="dme">Fruitfly (drosophila melanogaster)</li>
+                <li data-value="bta">Cow (bos taurus)</li>
+                <li data-value="dre">Zebrafish (danio rerio)</li>
+                <li data-value="sce">Saccharomyces cerevisiae</li>
+                <li data-value="cel">Caenorhabditis elegans</li>
+                <li data-value="ath">Arabidopsis thaliana</li>
+            </ul>
+        </div>
+        <input name="go_bp" id="go_bp" type="checkbox" value="gobp" disabled> GO biological process <br>
+        <input name="go_mf" id="go_mf" type="checkbox" value="gomf" disabled>GO molecular function <br>
+        <input name="go_cc" id="go_cc" type="checkbox" value="gocc" disabled>GO cellular component <br>
+        <input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>
+        <input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>
+        <input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>
+        <input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>
+        <input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>
+        <input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>
+        <input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>
+        <input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>
+
+
+        <h3>Job information</h3>
+        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+
+        <div class="button action" on-click="{{handleForm}}">Run</div>
+    </form>
+    <div class="message">{{message}}</div>
+</template>
+<script>
+Polymer({
+    created: function () {
+        this.jobName = 'JobName';
+        this.toolName = "fatigo";
+        this.list1UploadMsg = "Select file...";
+        this.list2UploadMsg = "Select file...";
+        this.fisherText = "two-tailed";
+        this.duplicatesText = "Never";
+        this.speciesText = "Select an organism"
+
+
+        /** Tool input parameters **/
+        this.annotations = "";	//    --annotations <arg>              Your own annotations
+        this.biocarta = false;	//    --biocarta                       biocarta
+        this.biocarta_max_num_genes = 1000;	//    --biocarta-max-num-genes <arg>   biocarta max number of genes filter
+        this.biocarta_min_num_genes = 5;//    --biocarta-min-num-genes <arg>   biocarta min number of genes filter
+        this.biocarta_nannot_domain = false;//    --biocarta-nannot-domain         biocarta computes the number of annotated genes from all genome, otherwise from you input list
+        this.chromosomes = "";	//    --chromosomes <arg>              the chromosome region to compare with list #1. Use chromosome-start and chromosome-end options tp delimite the region within the chromosome
+        this.duplicates = "never";	//    --duplicates <arg>               to remove duplicated IDs, valid values: never, each, ref. By default, never
+        this.fisher = "two-tailed";	//    --fisher <arg>                   the Fisher test mode, valid values: less, greater, two-tailed. By default, two-tailed
+        this.genome = false;	//    --genome                         compares list #1 with the rest of genome
+        this.go_bp = false;	//    --go-bp                          GO biological process database
+        this.go_bp_keyword_filter = false;	//    --go-bp-keyword-filter           GO biological process, enables keywords filter
+        this.go_bp_keyword_list = false;	//    --go-bp-keyword-list <arg>       GO biological process, keywords filter
+        this.go_bp_keyword_operator = false;	//    --go-bp-keyword-operator <arg>   GO biological process, keywords filter logic: all or any
+        this.go_bp_max_level = 15;	//    --go-bp-max-level <arg>          GO biological process, max GO level to take into account, default 15
+        this.go_bp_max_num_genes = false;	//    --go-bp-max-num-genes <arg>      GO biological process, max number of genes filter
+        this.go_bp_min_level = 3;	//    --go-bp-min-level <arg>          GO biological process, min go level to take into account, default 3
+        this.go_bp_min_num_genes = false;	//    --go-bp-min-num-genes <arg>      GO biological process, min number of genes filter
+        this.go_bp_nannot_domain = false;	//    --go-bp-nannot-domain <arg>      GO biological process, computes the number of annotated genes from all genome, otherwise from your input list
+        this.go_bp_propagation = false;	//    --go-bp-propagation <arg>        GO biological process, direct vs propagated annotation
+        this.go_cc = false;	//    --go-cc                          GO cellular component database
+        this.go_cc_keyword_filter = false;	//    --go-cc-keyword-filter           GO cellular component, enables keywords filter
+        this.go_cc_keyword_list = false;	//    --go-cc-keyword-list <arg>       GO cellular component, keywords filter
+        this.go_cc_keyword_operator = false;	//    --go-cc-keyword-operator <arg>   GO cellular component, keywords filter logic: all or any
+        this.go_cc_max_level = false;	//    --go-cc-max-level <arg>          GO cellular component, max GO level to take into account, default 15
+        this.go_cc_max_num_genes = false;	//    --go-cc-max-num-genes <arg>      GO cellular component, max number of genes filter
+        this.go_cc_min_level = false;	//    --go-cc-min-level <arg>          GO cellular component, min go level to take into account, default 3
+        this.go_cc_min_num_genes = false;	//    --go-cc-min-num-genes <arg>      GO cellular component, min number of genes filter
+        this.go_cc_nannot_domain = false;	//    --go-cc-nannot-domain <arg>      GO cellular component, computes the number of annotated genes from all genome, otherwise from your input list
+        this.go_cc_propagation = false;	//    --go-cc-propagation <arg>        GO cellular component, direct vs propagated annotation
+        this.go_dag = false;	//    --go-dag <arg>                   Compute DAG for significant GO terms
+        this.go_mf = false;	//    --go-mf                          GO molecular function database
+        this.go_mf_keyword_filter = false;	//    --go-mf-keyword-filter           GO molecular function, enables keywords filter
+        this.go_mf_keyword_list = false;	//    --go-mf-keyword-list <arg>       GO molecular function, keywords filter
+        this.go_mf_keyword_operator = false;	//    --go-mf-keyword-operator <arg>   GO molecular function, keywords filter logic: all or any
+        this.go_mf_max_level = false;	//    --go-mf-max-level <arg>          GO molecular function, max GO level to take into account, default 15
+        this.go_mf_max_num_genes = false;	//    --go-mf-max-num-genes <arg>      GO molecular function, max number of genes filter
+        this.go_mf_min_level = false;	//    --go-mf-min-level <arg>          GO molecular function, min go level to take into account, default 3
+        this.go_mf_min_num_genes = false;	//    --go-mf-min-num-genes <arg>      GO molecular function, min number of genes filter
+        this.go_mf_nannot_domain = false;	//    --go-mf-nannot-domain <arg>      GO molecular function, computes the number of annotated genes from all genome, otherwise from your input list
+        this.go_mf_propagation = false;	//    --go-mf-propagation <arg>        GO molecular function, direct vs propagated annotation
+        this.go_slim = false;	//    --go-slim                        go-slim
+        this.go_slim_max_num_genes = false;	//    --go-slim-max-num-genes <arg>    go-slim max number of genes filter
+        this.go_slim_min_num_genes = false;	//    --go-slim-min-num-genes <arg>    go-slim min number of genes filter
+        this.go_slim_nannot_domain = false;	//    --go-slim-nannot-domain          go-slim computes the number of annotated genes from all genome, otherwise from you input list
+        this.interpro = false;	//    --interpro                       interpro
+        this.interpro_max_num_genes = false;	//    --interpro-max-num-genes <arg>   interpro max number of genes filter
+        this.interpro_min_num_genes = false;	//    --interpro-min-num-genes <arg>   interpro min number of genes filter
+        this.interpro_nannot_domain = false;	//    --interpro-nannot-domain         interpro computes the number of annotated genes from all genome, otherwise from you input list
+        this.jaspar = false;	//    --jaspar                         jaspar
+        this.jaspar_max_num_genes = false;	//    --jaspar-max-num-genes <arg>     jaspar max number of genes filter
+        this.jaspar_min_num_genes = false;	//    --jaspar-min-num-genes <arg>     jaspar min number of genes filter
+        this.jaspar_nannot_domain = false;	//    --jaspar-nannot-domain           jaspar computes the number of annotated genes from all genome, otherwise from you input list
+        this.kegg = false;	//    --kegg                           kegg
+        this.kegg_max_num_genes = false;	//    --kegg-max-num-genes <arg>       kegg max number of genes filter
+        this.kegg_min_num_genes = false;	//    --kegg-min-num-genes <arg>       kegg min number of genes filter
+        this.kegg_nannot_domain = false;	//    --kegg-nannot-domain             kegg computes the number of annotated genes from all genome, otherwise from you input list
+        this.list1 = false;	//    --list1 <arg>                    the feature data containig the list #1 of genes, or the feature data file
+        this.list2 = false;	//    --list2 <arg>                    the file containig the list #2 of genes, or the feature data file
+        this.mirna = false;	//    --mirna                          mirna
+        this.mirna_max_num_genes = false;	//    --mirna-max-num-genes <arg>      mirna max number of genes filter
+        this.mirna_min_num_genes = false;	//    --mirna-min-num-genes <arg>      mirna min number of genes filter
+        this.mirna_nannot_domain = false;	//    --mirna-nannot-domain            mirna computes the number of annotated genes from all genome, otherwise from you input list
+        this.outdir = false;	// -o,--outdir                         outdir to save the results
+        this.oreganno = false;	//    --oreganno                       oreganno
+        this.oreganno_max_num_genes = false;	//    --oreganno-max-num-genes <arg>   oreganno max number of genes filter
+        this.oreganno_min_num_genes = false;	//    --oreganno-min-num-genes <arg>   oreganno min number of genes filter
+        this.oreganno_nannot_domain = false;	//    --oreganno-nannot-domain         oreganno computes the number of annotated genes from all genome, otherwise from you input list
+        this.reactome = false;	//    --reactome                       reactome
+        this.reactome_max_num_genes = false;	//    --reactome-max-num-genes <arg>   reactome max number of genes filter
+        this.reactome_min_num_genes = false;	//    --reactome-min-num-genes <arg>   reactome min number of genes filter
+        this.reactome_nannot_domain = false;	//    --reactome-nannot-domain         reactome computes the number of annotated genes from all genome, otherwise from you input list
+        this.species = false;	//    --species <arg>                  The specie of the ids
+
+
+    },
+    list1Click: function (e) {
+        this.$.list1Html.hidden = false
+        //this.$.rankedListFileName.click();
+
+    },
+    list2Click: function (e) {
+        this.$.list2Html.hidden = false
+        //this.$.rankedListFileName.click();
+
+    },
+    list1Changed: function (oldV, newV) {
+        this.list1UploadMsg = this.list1.name
+    },
+    list2Changed: function (oldV, newV) {
+        this.list2UploadMsg = this.list2.name
+    },
+    comparisonChange: function () {
+        this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
+        this.list2 = false;
+        this.rest = false;
+        this.genome = false;
+        if (this.comparison == "list2list") {
+
+            this.$.option1.hidden = false;
+            this.$.option2.hidden = true;
+            this.$.option3.hidden = true;
+        }
+        if (this.comparison == "list2genome") {
+            this.genome = true;
+            this.$.option1.hidden = true
+            this.$.option2.hidden = false;
+            this.$.option3.hidden = true;
+        }
+        if (this.comparison == "list2rest") {
+            this.genome = true;
+            this.$.option1.hidden = true;
+            this.$.option2.hidden = true;
+            this.$.option3.hidden = false;
+        }
+
+    },
+    handleForm: function () {
+        var me = this;
+        this.message = '';
+        if (this.newFolderName && this.newFolderName != "") {
+            OpencgaManager.files.createFolder({
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    folder: this.newFolderName,
+                    studyId: this.selectedStudy.id
+
+                },
+                request: {
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                me.message = 'Folder created sucessfully.';
+                            var selectedFolderId = response.response[0].result[0].id;
+
+                            me.launchJob(selectedFolderId);
+                        } else {
+                            debugger
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        alert('Server error, try again later.');
+                    }
+                }
+            });
+        }
+        else {
+            me.launchJob(this.$.selectFolder.selectedFolder.id);
+        }
+    },
+    launchJob: function (selectedFolderId) {
+        var me = this;
+        OpencgaManager.jobs.create({
+            query: {
+                sid: Cookies("bioinfo_sid"),
+                analysisId: this.selectedStudy.analysis.id,
+                toolId: this.toolName,
+                jobName: this.jobName,
+                description: "description",
+                o: selectedFolderId,
+                list1: this.list1.id,
+                list2: this.list2.id,
+                duplicates: this.duplicates,
+//                "go-bp-keyword-operator": this.go_bp_keyword_operator,
+                "species": this.species,
+//                "go-bp-max-level": this.go_bp_max_level,
+                "go-bp": this.go_bp,
+//                "go-bp-propagation": this.go_bp_propagation,
+                "go-bp-min-num-genes": this.go_bp_min_num_genes,
+//                "annotations": this.annotations,
+//                "go-bp-nannot-domain ": this.go_bp_nannot_domain,
+                fisher: this.fisher,
+                "go-bp-max-num-genes": this.go_bp_max_num_genes,
+                "go-bp-min-level": this.go_bp_min_level
+            },
+            request: {
+                //method: 'POST',
+                success: function (response) {
+                    if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                        var userId = response.response[0].result[0].id;
+                        me.message = userId + ' created';
+                        me.selectedOption = "jobLaunched"
+                    } else {
+                        me.message = response.response[0].errorMsg;
+                    }
+                },
+                error: function () {
+                    me.message = 'Server error, try again later.';
+                }
+            }
+        })
+    },
+    loadExample1: function (e) {
+        this.$.go_bp.disabled = false;
+        this.$.go_bp.checked = true;
+        this.message = '';
+        this.newFolderName = "fatiresult_"+Math.floor((Math.random() * 100) + 1);
+        this.duplicates = "never";
+        this.go_bp_keyword_operator = "all";
+        this.species = "hsa";
+        this.go_bp_max_level = 9;
+        this.go_bp = "gobp";
+        this.go_bp_propagation = "propagate";
+        this.go_bp_min_num_genes = 5;
+        this.list1 = {id: "example_example.motor", name: "example.motor"};
+        this.list2 = {id: "example_example.apoptosis", name: "example.apoptosis"};
+        this.annotations = "none";
+        this.go_bp_nannot_domain = "genome";
+        this.fisher = "two-tailed";
+        this.go_bp_max_num_genes = 1000;
+        this.go_bp_min_level = 3;
+
+    },
+    handleFisher: function (e) {
+        this.fisher = e.target.dataset.value;
+        this.fisherText = e.target.innerText;
+    },
+    handleDuplicates: function (e) {
+        this.duplicates = e.target.dataset.value;
+        this.diplicatesText = e.target.innerText;
+    },
+    handleSpecies: function (e) {
+        this.species = e.target.dataset.value;
+        this.speciesText = e.target.innerText;
+        if (this.species == "hsa") {
+            this.$.go_bp.disabled = false;
+            this.$.go_bp.disabled = false;
+            this.$.go_mf.disabled = false;
+            this.$.go_cc.disabled = false;
+            this.$.go_slim.disabled = false;
+            this.$.interpro.disabled = false;
+            this.$.kegg.disabled = false;
+            this.$.reactome.disabled = false;
+            this.$.biocarta.disabled = false;
+            this.$.mirna.disabled = false;
+            this.$.jaspar.disabled = false;
+        }
+
+        if (this.species == "mmu" || this.species == "rno") {
+            this.$.go_bp.disabled = false;
+            this.$.go_bp.disabled = false;
+            this.$.go_mf.disabled = false;
+            this.$.go_cc.disabled = false;
+            this.$.go_slim.disabled = true;
+            this.$.interpro.disabled = false;
+            this.$.kegg.disabled = false;
+            this.$.reactome.disabled = true;
+            this.$.biocarta.disabled = true;
+            this.$.mirna.disabled = false;
+            this.$.jaspar.disabled = false;
+        }
+        if (this.species == "dme" || this.species == "bta" || this.species == "dre" || this.speces == "sce" || this.species == "cel" || this.species == "ath") {
+            this.$.go_bp.disabled = false;
+            this.$.go_bp.disabled = false;
+            this.$.go_mf.disabled = false;
+            this.$.go_cc.disabled = false;
+            this.$.go_slim.disabled = true;
+            this.$.interpro.disabled = false;
+            this.$.kegg.disabled = false;
+            this.$.reactome.disabled = true;
+            this.$.biocarta.disabled = true;
+            this.$.mirna.disabled = true;
+            this.$.jaspar.disabled = true;
+        }
+
+    }
+});
+</script>
+</polymer-element>

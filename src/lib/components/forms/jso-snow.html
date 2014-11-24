@@ -1,4 +1,4 @@
-<polymer-element name="jso-network-miner" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -78,7 +78,7 @@
     </style>
     <div class="title">
         <div>
-            Network Miner
+            Network enrichment analysis - Snow
         </div>
         <div class="icon">
             <!--<font-awesome icon="magic"></font-awesome>-->
@@ -87,7 +87,7 @@
     <form id="form">
         <h3>Examples</h3>
 
-        <div class="button action" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>
+        <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
 
         <h3>Output parameters</h3>
         <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
@@ -96,37 +96,25 @@
         <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
 
         <h3>Input parameters</h3>
-        <label>Enter accession ranked list</label> <textarea id="rankedListArea" class="inputListTextArea"
-                                                             value="{{rankedListArea}}" required
+        <label>Enter list</label> <textarea id="list1Area" class="inputListTextArea"
+                                                             value="{{list1Area}}" required
                                                              pattern="[a-zA-Z0-9]+"></textarea>
         <label>Or, Select file</label>
 
-        <div class="button action" on-click="{{rankedListClick}}">{{rankedListUploadMsg}}</div>
-        <jso-file-browser hidden="true" id="rankedListHtml" fileList="{{selectedStudy.files}}"
-                          selectedFile="{{rankedList}}"></jso-file-browser>
-
-
-        <label>Enter accession seed list (optional)</label> <textarea id="seedListArea" class="inputListTextArea"
-                                                                      value="{{seedListArea}}" required
-                                                                      pattern="[a-zA-Z0-9]+"></textarea>
-        <label>Or, upload file</label>
-
-        <div class="button action" on-click="{{seedListClick}}">{{seedListUploadMsg}}</div>
-        <jso-file-browser hidden="true" id="seedListHtml" fileList="{{selectedStudy.files}}"
-                          selectedFile="{{seedList}}"></jso-file-browser>
+        <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
+        <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
+                          selectedFile="{{list1}}"></jso-file-browser>
 
 
         <label>List Nature</label>
 
         <div class="dropdown">
             <div tabindex="-1" class="button">
-                {{listTagsText}}
+                {{typeText}}
             </div>
-            <ul on-click="{{handleListTags}}">
-                <li data-value="gene">Gene</li>
-                <li data-value="ranked">Ranked</li>
-                <li data-value="protein">Protein</li>
-                <li data-value="transcript">Transcript</li>
+            <ul on-click="{{handleType}}">
+                <li data-value="genes">Genes</li>
+                <li data-value="proteins">Proteins</li>
             </ul>
         </div>
 
@@ -153,15 +141,16 @@
             </ul>
         </div>
 
-        <label>Sort ranked list</label>
+        <label>Number of simulations</label>
 
         <div class="dropdown">
             <div tabindex="-1" class="button">
-                {{orderText}}
+                {{randoms}}
             </div>
-            <ul on-click="{{handleOrder}}">
-                <li data-value="ascending">Ascending</li>
-                <li data-value="descending">Descending</li>
+            <ul on-click="{{handleRandoms}}">
+                <li data-value="500">500</li>
+                <li data-value="1000">1000</li>
+                <li data-value="2000">2000</li>
             </ul>
         </div>
 
@@ -177,9 +166,6 @@
             </ul>
         </div>
 
-        <!--<label>Allow one external intermediate in the subnetwork</label><input type="text" id="intermediate"-->
-        <!--value="{{intermediate}}" required-->
-        <!--pattern="[a-zA-Z0-9]+">-->
 
         <h3>Job information</h3>
         <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
@@ -191,52 +177,47 @@
 <script>
     Polymer({
         created: function () {
-            this.jobName = 'JobName'
-            this.toolName = "network-miner"
-            this.message = ''
+            this.jobName = 'JobName';
+            this.toolName = "snow";
+            this.message = '';
 
-            this.rankedList = ""
-            this.seedList = ""
+            this.rankedList = "";
+            this.seedList = "";
 
-            this.example = false
+            this.example = false;
 
-            this.listTags = "gene"
-            this.listTagsText = "Gene"
+            this.type = "genes";
+            this.typeText = "Genes";
 
-            this.interactome = "hsa"
-            this.interactomeText = "Homo sapiens"
+            this.interactome = "hsa";
+            this.interactomeText = "Homo sapiens";
 
-            this.significant_value = 0.05
 
-            this.group = "all"
-            this.groupText = "Non curated"
+            this.group = "all";
+            this.groupText = "Non curated";
 
-            this.order = "ascending"
-            this.orderText = "Ascending"
+            this.order = "ascending";
+            this.orderText = "Ascending";
 
-            this.intermediate = 1
-            this.intermediateText = "Yes"
+            this.randoms = 500;
+
+            this.intermediate = 1;
+            this.intermediateText = "Yes";
 
             /** output widgets messages **/
-            this.rankedListUploadMsg = "Choose file"
-            this.seedListUploadMsg = "Choose file"
+            this.list1UploadMsg = "Choose file";
 
             /**Enabled forms **/
-            this.rankedListClickEnabled = false
-            this.seedListClickEnabled = false
+            this.list1ClickEnabled = false;
 
         },
-        rankedListChanged: function (oldV, newV) {
-            this.rankedListUploadMsg = this.rankedList.name
-        },
-        seedListChanged: function (oldV, newV) {
-            this.seedListUploadMsg = this.seedList.name
+        list1Changed: function (oldV, newV) {
+            this.list1UploadMsg = this.list1.name
         },
         handleForm: function () {
             var me = this;
             this.message = '';
-            if (this.newFolderName && this.newFolderName != "") {
-
+            if(this.newFolderName && this.newFolderName != ""){
                 OpencgaManager.files.createFolder({
                     query: {
                         sid: Cookies('bioinfo_sid'),
@@ -261,14 +242,16 @@
                     }
                 });
             }
-            else {
+            else{
                 me.launchJob(this.$.selectFolder.selectedFolder.id);
             }
 
 
+
+
             //}
         },
-        launchJob: function (selectedFolderId) {
+        launchJob: function(selectedFolderId){
             var me = this;
             OpencgaManager.jobs.create({
                 query: {
@@ -277,21 +260,18 @@
                     toolId: this.toolName,
                     jobName: this.jobName,
                     description: "description",
-                    list: this.rankedList.id,
-                    seedlist: this.seedList.id,
+                    list1: this.list1.id,
                     outdir: selectedFolderId,
                     interactome: this.interactome,
                     "o-name": "result",
                     intermediate: this.intermediate,
+                    type: this.type,
                     group: this.group,
-                    order: this.order,
-                    "significant-value": 0.05,
-                    randoms: 1000,
-                    components: false,
-                    "list-tags": this.listTags,
-                    example: this.example
-
-                    //ranked-list:
+                    components: true,
+                    randoms: this.randoms,
+                    side: "greater",
+                    images:"",
+                    json: 1
                 },
                 request: {
                     //method: 'POST',
@@ -315,8 +295,8 @@
             this.message = '';
             this.newFolderName = "bipolar_gwas" + Math.floor((Math.random() * 100) + 1);
 
-            this.rankedList = {id: "example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
-            this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name: "BD-associatedgenesUniprot.txt"};
+            this.rankedList= {id:"example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
+            this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name:"BD-associatedgenesUniprot.txt"};
 
             this.list = "gene"
             this.interactome = "hsa"
@@ -330,25 +310,18 @@
                 //me.message = "xx"
             }
         },
-        rankedListClick: function (e) {
-            this.$.rankedListHtml.hidden = false
+        list1Click: function (e) {
+            this.$.list1Html.hidden = false
             //this.$.rankedListFileName.click();
 
         },
-        seedListClick: function (e) {
-            this.$.seedListHtml.hidden = false
-        },
-        rankedListFileNameChange: function (e) {
-            this.rankedListFileName = this.$.rankedListFileName.files[0];
+        list1FileNameChange: function (e) {
+            this.list1FileName = this.$.list1FileName.files[0];
             //this.fileNameRanked = inputFile.name
         },
-        seedListFileNameChange: function (e) {
-            this.seedListFileName = this.$.seedListFileName.files[0];
-            //this.fileNameRanked = inputFile.name
-        },
-        handleListTags: function (e) {
-            this.listTags = e.target.dataset.value;
-            this.listTagsText = e.target.innerText;
+        handleType: function (e) {
+            this.type= e.target.dataset.value;
+            this.typeText = e.target.innerText;
         },
         handleInteractome: function (e) {
             this.interactome = e.target.dataset.value;
@@ -358,47 +331,18 @@
             this.group = e.target.dataset.value;
             this.groupText = e.target.innerText;
         },
-        handleOrder: function (e) {
-            this.order = e.target.dataset.value;
-            this.orderText = e.target.innerText;
-        },
         handleIntermediate: function (e) {
             this.intermediate = e.target.dataset.value;
             this.intermediateText = e.target.innerText;
         },
-        rankedListFileOutputChanged: function (e) {
-            this.rankedListClickEnabled = false
-            this.rankedListUploadMsg = this.$.rankedList.selectedFile.id;
-
+        handleRandoms: function (e) {
+            this.randoms = e.target.dataset.value;
         },
-        seedListFileOutputChanged: function (e) {
-            this.seedListClickEnabled = false
-            this.seedListUploadMsg = this.seedListFileOutput.selectedFile.path
+        list1FileOutputChanged: function (e) {
+            this.list1ClickEnabled = false
+            this.list1UploadMsg = this.$.list1.selectedFile.id;
 
         }
     });
 </script>
 </polymer-element>
-<!--<polymer-element name="jso-opencga-list-item" attributes="item">-->
-<!--<template>-->
-<!--<link rel="stylesheet" href="../jso-style.css">-->
-<!--<style>-->
-<!--:host {-->
-<!--display: block;-->
-<!--position: relative;-->
-<!--}-->
-
-<!--.id {-->
-<!--color: #888;-->
-<!--}-->
-<!--</style>-->
-<!--&lt;!&ndash;<font-awesome icon="folder-o"></font-awesome>&ndash;&gt;-->
-<!--&nbsp; {{item.name}} &nbsp; <span class="id"> {{item.name}} </span>-->
-<!--</template>-->
-<!--<script>-->
-<!--Polymer({-->
-<!--created: function () {-->
-<!--}-->
-<!--});-->
-<!--</script>-->
-<!--</polymer-element>-->

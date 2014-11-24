@@ -1,0 +1,211 @@
+<polymer-element name="jso-affy" attributes="userData selectedOption selectedStudy">
+<template>
+    <link rel="stylesheet" href="../jso-style.css">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+            padding: 30px 100px;
+
+            z-index: 50000;
+            top: 90px;
+
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+
+            width: 40vw;
+            border: 0px solid #c6d0da;
+            border-width: 1px;
+            /*border-top-width: 1px;*/
+            transition: all 0.2s;
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+            color: #666;
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        label {
+            display: inline-block;
+            color: #666;
+            margin-top: 3px;
+            /*width: 150px;*/
+        }
+
+        label::after {
+            content: ':'
+        }
+
+        .action {
+            /*margin-top: 30px;*/
+            background-color: #f5f5f5 !important;
+            text-align: center;
+        }
+
+        .action:active {
+            background-color: #445D76 !important;
+            color: #fff !important;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        div.button {
+            /*display: inline-block;*/
+            width: 300px
+        }
+
+        /*jso-file-browser {*/
+        /*width: 70%;*/
+        /*}*/
+
+        span {
+            border: 1px solid;
+        }
+    </style>
+    <div class="title">
+        <div>
+            Affy normalization
+        </div>
+        <div class="icon">
+            <!--<font-awesome icon="magic"></font-awesome>-->
+        </div>
+    </div>
+    <form id="form">
+        <h3>Examples</h3>
+
+        <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+
+        <h3>Output parameters</h3>
+        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
+                                                   pattern="[a-zA-Z0-9]+">
+        <label>Or select output folder:</label>
+        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+
+        <div>
+            List 1:
+            <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
+            <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
+                              selectedFile="{{compressed_file}}"></jso-file-browser>
+        </div>
+        <h3>Analysis</h3>
+
+        <input name="rma" id="rma" type="checkbox" checked> RMA <br>
+        <input name="plier" id="plier" type="checkbox"> Plier <br>
+        <input name="calls" id="calls" type="checkbox"> Present-absent calls<br>
+
+        <h3>Job information</h3>
+        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+
+        <div class="button action" on-click="{{handleForm}}">Run</div>
+    </form>
+    <div class="message">{{message}}</div>
+</template>
+<script>
+    Polymer({
+        created: function () {
+            this.jobName = 'JobName';
+            this.toolName = "affy-expression-normalization";
+        },
+        list1Click: function (e) {
+            this.$.list1Html.hidden = false
+            //this.$.rankedListFileName.click();
+
+        },
+        list1Changed: function (oldV, newV) {
+            this.list1UploadMsg = this.list1.name
+        },
+        handleForm: function () {
+            var me = this;
+            this.message = '';
+            if (this.newFolderName && this.newFolderName != "") {
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        folder: this.newFolderName,
+                        studyId: this.selectedStudy.id
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                me.message = 'Folder created sucessfully.';
+                                var selectedFolderId = response.response[0].result[0].id;
+
+                                me.launchJob(selectedFolderId);
+                            } else {
+                                debugger
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+            else {
+                me.launchJob(this.$.selectFolder.selectedFolder.id);
+            }
+        },
+        launchJob: function (selectedFolderId) {
+            var me = this;
+            var query = { sid: Cookies("bioinfo_sid"),
+                    analysisId: this.selectedStudy.analysis.id,
+                    toolId: this.toolName,
+                    outdir: selectedFolderId,
+                    jobName: this.jobName,
+                    description: this.description,
+                    "compressed-file": this.compressed_file.id,
+                    "compressed-file-tags": this.compressed_file_tags };
+
+            if(this.$.rma.checked) query["rma"] = this.$.rma.checked;
+            if(this.$.plier.checked) query["plier"] = this.$.plier.checked;
+            if(this.$.calls.checked) query["calls"] = this.$.calls.checked;
+            OpencgaManager.jobs.create({
+                query: query,
+                request: {
+                    //method: 'POST',
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            var userId = response.response[0].result[0].id;
+                            me.message = userId + ' created';
+                            me.selectedOption = "jobLaunched"
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            })
+        },
+        loadExample1: function (e) {
+            this.jobName = "affy_sample_1";
+            this.description = "just_an_affy_example";
+            this.rma = true;
+            this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
+            this.compressed_file = {id: "example_affymetrix.zip", name: "affymetrix.zip"};
+            this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+
+        },
+        handleFisher: function (e) {
+            this.fisher = e.target.dataset.value;
+            this.fisherText = e.target.innerText;
+        }
+    });
+</script>
+</polymer-element>

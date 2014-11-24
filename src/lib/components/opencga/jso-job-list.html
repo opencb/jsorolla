@@ -6,12 +6,13 @@
         <style>
             :host {
                 display: block;
-                position: relative;
-                margin-left: 10px;
-
+                position: absolute;
+                /*margin-left: 10px;*/
             }
 
-            .id {
+            .panel {
+                height: 500px;
+                overflow: auto;
             }
         </style>
         <div class="panel">
@@ -59,9 +60,9 @@
                     request: {
                         //method: 'POST',
                         success: function (response) {
-                            var results;
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 me.jobList = response.response[0].result
+                                me.jobList = me.jobList.reverse()
                             } else {
                                 me.message = response.response[0].errorMsg;
                             }
