@@ -1,4 +1,4 @@
-<polymer-element name="jso-job-view" attributes="jobItem">
+<polymer-element name="jso-nm-result" attributes="jobItem">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <link rel="stylesheet" href="../sortable-table.css">
@@ -28,40 +28,28 @@ Polymer({
     },
     jobItemChanged: function (oldV, newV) {
         var me = this;
-        me.$.output.innerHTML = ""
-        if (this.jobItem.toolName == "snow") {
-            var result = document.createElement('jso-snow-result');
-            result.jobItem = this.jobItem;
-            this.$.output.appendChild(result);
-        }
-        else if (this.jobItem.toolName == "fatigo" || this.jobItem.toolName == "affy-expression-normalization") {
-            var result = document.createElement('jso-fatigo-result');
-            result.jobItem = this.jobItem;
-            this.$.output.appendChild(result);
-        }
-        else {
-            OpencgaManager.files.filesByFolder({
-                id: me.jobItem.outDirId,
-                query: {
-                    sid: Cookies("bioinfo_sid")
-                },
-                request: {
-                    success: function (response) {
 
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            me.filesList = response.response[0].result;
-                            me.getFileContent(function (content) {
-                                var root = me.$.output;
-                                me.parseXML(content, root);
-                            }, "result.xml");
-                        }
-                    },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
+        OpencgaManager.files.filesByFolder({
+            id: me.jobItem.outDirId,
+            query: {
+                sid: Cookies("bioinfo_sid")
+            },
+            request: {
+                success: function (response) {
+
+                    if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                        me.filesList = response.response[0].result;
+                        me.getFileContent(function (content) {
+                            var root = me.$.output;
+                            me.parseXML(content, root);
+                        }, "result.xml");
                     }
+                },
+                error: function () {
+                    me.message = 'Server error, try again later.';
                 }
-            })
-        }
+            }
+        })
     },
     getFileContent: function (callback, fileName) {
         var me = this;
@@ -238,7 +226,7 @@ Polymer({
         return content;
 
     },
-    parseHighCharts: function(content, divId){
+    parseHighCharts: function (content, divId) {
         var json = JSON.parse(content);
 
         /** Create HTML elements **/
