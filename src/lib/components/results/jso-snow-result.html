@@ -223,7 +223,7 @@ Polymer({
                         var data = content.split("\n");
                         var dataArray = new Array();
                         for (var i = 1; i < data.length; i++) {
-                            if(data[i]=="") continue;
+                            if (data[i] == "") continue;
                             dataArray.push(data[i].split("\t"))
                         }
                         sortableTable.columns = ["Input", "Id", "Type", "Rank", "Betweenness", "Clustering", "Connections", "GOs", "KEEGs"];
@@ -277,20 +277,6 @@ Polymer({
             sortableTable.pageSize = "10"
             sortableTable.footerTemplate = "simplePager"
 
-//           var sortableTable = '<sortable-table id="table">'
-//                                        data="{{!showSelected ? attributeManager.data : attributeManager.selected }}"
-//                                        columns="{{attributeManager.columns}}"
-//                                        rowselection="{{!showSelected}}"
-//                                        multiselect="{{multiSelect}}"
-//                                        selected="{{ !showSelected ? attributeManager.selected : [] }}"
-//                                        page="{{page}}"
-//                                        pageSize="{{pageSize}}">
-//                            <template id="inputTemplate">
-//                                <td class="edit">
-//                                    <input type="text" value="{{row[column.name]}}">
-//                                </td>
-//                            </template>
-//            debugger
             this.$.output.querySelector("#" + divId).appendChild(sortableTable);
         }
         if (tags.indexOf("INTERACTOME_VIEWER") >= 0) {
@@ -315,7 +301,6 @@ Polymer({
 
     },
     parseImage: function (content, tags, divId) {
-
 
         if (tags.indexOf("NETWORKMINER_JSON") >= 0) {
             var json = JSON.parse(content);
