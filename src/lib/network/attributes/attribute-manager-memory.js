@@ -237,5 +237,31 @@ AttributeManagerMemory.prototype = {
     },
     toJSON: function () {
         return {columns: this.columns, data: this.data};
+    },
+    getAsFile: function (separator) {
+        if (!separator) {
+            separator = '\t';
+        }
+        // Attribute names
+        var text = '';
+
+        var lc = this.columns.length
+        text += '#';
+        for (var i = 0; i < lc; i++) {
+            var attrName = this.columns[i].name;
+            text += attrName + separator;
+        }
+        text += '\n';
+
+        var row, attr;
+        for (var i = 0, l = this.data.length; i < l; i++) {
+            row = this.data[i];
+            for (var j = 0; j < lc; j++) {
+                attr = this.columns[j].name;
+                text += row[attr] + separator;
+            }
+            text += '\n';
+        }
+        return text;
     }
 };

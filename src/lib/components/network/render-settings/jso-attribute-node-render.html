@@ -72,6 +72,92 @@
             }
 
         </style>
+        <datalist id="colors">
+            <option>#ad1e1e</option>
+            <option>#ad5a1e</option>
+            <option>#ad951e</option>
+            <option>#89ad1e</option>
+            <option>#4ead1e</option>
+            <option>#1ead2a</option>
+            <option>#1ead66</option>
+            <option>#1eada1</option>
+            <option>#1e7dad</option>
+            <option>#1e42ad</option>
+            <option>#361ead</option>
+            <option>#711ead</option>
+            <option>#da1f1f</option>
+            <option>#da6d1f</option>
+            <option>#dabb1f</option>
+            <option>#abda1f</option>
+            <option>#5dda1f</option>
+            <option>#1fda2e</option>
+            <option>#1fda7c</option>
+            <option>#1fdacb</option>
+            <option>#1f9cda</option>
+            <option>#1f4eda</option>
+            <option>#3e1fda</option>
+            <option>#8c1fda</option>
+            <option>#ea4242</option>
+            <option>#ea8842</option>
+            <option>#eace42</option>
+            <option>#c0ea42</option>
+            <option>#7aea42</option>
+            <option>#42ea50</option>
+            <option>#42ea96</option>
+            <option>#42eadc</option>
+            <option>#42b2ea</option>
+            <option>#426cea</option>
+            <option>#5e42ea</option>
+            <option>#a442ea</option>
+            <option>#f36c6c</option>
+            <option>#f3a46c</option>
+            <option>#f3dc6c</option>
+            <option>#d1f36c</option>
+            <option>#99f36c</option>
+            <option>#6cf377</option>
+            <option>#6cf3af</option>
+            <option>#6cf3e7</option>
+            <option>#6cc6f3</option>
+            <option>#6c8ef3</option>
+            <option>#836cf3</option>
+            <option>#bb6cf3</option>
+            <option>#f99494</option>
+            <option>#f9be94</option>
+            <option>#f9e894</option>
+            <option>#e0f994</option>
+            <option>#b6f994</option>
+            <option>#94f99c</option>
+            <option>#94f9c6</option>
+            <option>#94f9f0</option>
+            <option>#94d7f9</option>
+            <option>#94adf9</option>
+            <option>#a594f9</option>
+            <option>#cf94f9</option>
+            <option>#fdc3c3</option>
+            <option>#fddbc3</option>
+            <option>#fdf3c3</option>
+            <option>#eefdc3</option>
+            <option>#d6fdc3</option>
+            <option>#c3fdc8</option>
+            <option>#c3fde0</option>
+            <option>#c3fdf8</option>
+            <option>#c3eafd</option>
+            <option>#c3d1fd</option>
+            <option>#cdc3fd</option>
+            <option>#e5c3fd</option>
+            <option>#ffffff</option>
+            <option>#eaeaea</option>
+            <option>#d5d5d5</option>
+            <option>#c0c0c0</option>
+            <option>#aaaaaa</option>
+            <option>#959595</option>
+            <option>#808080</option>
+            <option>#6b6b6b</option>
+            <option>#555555</option>
+            <option>#404040</option>
+            <option>#2b2b2b</option>
+            <option>#161616</option>
+        </datalist>
         <div class="panel panel-shadow">
             <div class="header" horizontal layout
                  on-mousedown="{{handleHeaderMouseDown}}"
@@ -85,7 +171,7 @@
                 <div horizontal layout>
                     <div class="dropdown" flex>
                         <div tabindex="-1" class="button">
-                            {{defaults.labelAttribute}}
+                            {{labelColumnSelected.title || defaults.labelAttribute}} &nbsp;
                         </div>
                         <ul>
                             <template repeat="{{column in attributeManager.columns}}">
@@ -150,7 +236,7 @@
                 <div horizontal layout>
                     <div class="text">Color:</div>
 
-                    <input flex type="color" value="{{defaults.color}}">
+                    <input flex type="color" value="{{defaults.color}}" list="colors">
 
                     <div class="button action configure" data-enabled="{{visualSets.color != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="color"></div>
@@ -320,12 +406,12 @@
 //                this.style.left = (e.x - this.downX) + "px";
 //                this.style.top = (e.y - this.downY) + "px";
 //            },
-
             handleClose: function () {
                 this.hideFlag = true;
             },
 
             handleLabelSelect: function (e) {
+                this.labelColumnSelected = e.target.templateInstance.model.column;
                 this.defaults.labelAttribute = e.currentTarget.dataset.name;
             },
             handleXAttributeSelect: function (e) {

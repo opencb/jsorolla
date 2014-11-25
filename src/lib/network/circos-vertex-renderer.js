@@ -194,6 +194,9 @@ CircosVertexRenderer.prototype = {
         this.groupEl.setAttribute('transform', "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")");
     },
     setLabelContent: function (text) {
+        if(text == null){
+            text = '';
+        }
         this.labelText = text;
         if (this.labelEl) {
             this._updateLabelElPosition();

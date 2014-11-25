@@ -101,9 +101,9 @@ GraphLayout = {
         var radius = height / 2;
         var centerX = width / 2;
         var centerY = height / 2;
-        var x, y;
+        var x, y, vertex;
         for (var i = 0, l = vertices.length; i < l; i++) {
-            var vertex = vertices[i];
+            var vertex = network.graph.getVertexById(vertices[i].id);
             x = centerX + radius * Math.sin(i * 2 * Math.PI / vertices.length);
             y = centerY + radius * Math.cos(i * 2 * Math.PI / vertices.length);
             vertex.position.x = x;

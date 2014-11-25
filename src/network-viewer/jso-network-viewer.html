@@ -113,6 +113,14 @@
                 this.serializeVersion = 2;
                 this.serializeKey = 'NETWORKVIEWER' + this.serializeVersion;
 
+                this._init();
+
+                this.mode = "select";
+                this.scale;
+                this.tx;
+                this.ty;
+            },
+            _init: function () {
                 this.zoom = 25;
                 this.backgroundImages = [];
                 this.backgroundColor = '#FFF';
@@ -172,11 +180,6 @@
                 this.eAttr = new AttributeManagerMemory();
 
                 this._createAttrColumns();
-
-                this.mode = "select";
-                this.scale;
-                this.tx;
-                this.ty;
             },
             _createAttrColumns: function () {
                 this.vAttr.addColumn({
@@ -215,6 +218,12 @@
                 });
             },
             ready: function () {
+            },
+            startOver: function () {
+                this._init();
+                this.setGraph(this.graph);
+                this.deleteLocalStorage();
+                this.saveLocalStorage();
             },
             loadLocalStorage: function () {
                 var item = window.localStorage.getItem(this.serializeKey);
@@ -971,6 +980,42 @@
                     }
                 }
             },
+            getOrderedIdsByAttribute: function (attributeName) {
+                var type = 'float';
+                var checkType = true;
+                var values = [];
+                var row, value, l = this.vAttr.data.length;
+                for (var i = 0; i < l; i++) {
+                    row = this.vAttr.data[i];
+                    value = row[attributeName];
+                    if (!value) {
+                        value = '';
+                    }
+                    /* detect number or string */
+                    if (checkType) {
+                        var parseResult = parseFloat(value);
+                        if (isNaN(parseResult)) {
+                            var type = 'string';
+                            checkType = false;
+                        }
+                    }
+                    /* - - - - - - - - - - - - */
+                    values.push({id: row["id"], value: value});
+                }
+                switch (type) {
+                    case 'float':
+                        values.sort(function (a, b) {
+                            return parseFloat(a.value) - parseFloat(b.value);
+                        });
+                        break;
+                    /* string */
+                    default:
+                        values.sort(function (a, b) {
+                            return a.value.localeCompare(b.value);
+                        });
+                }
+                return values;
+            },
             setLayout: function (type, e) {
                 var me = this;
                 this.x = 0;
@@ -983,7 +1028,7 @@
                 switch (type) {
                     case "Circle":
                         if (e && typeof e.attributeName !== 'undefined') {
-                            GraphLayout.circle(me, width, height, this.network.getVerticesOrdered(e.attributeName));
+                            GraphLayout.circle(me, width, height, this.getOrderedIdsByAttribute(e.attributeName));
                         } else {
                             GraphLayout.circle(me, width, height);
                         }
@@ -1082,10 +1127,15 @@
                         console.log(option + " not defined");
                 }
             },
-            getAsSIF: function (separator) {
-                return this.network.getAsSIF(separator);
+            exportGraph: function (separator) {
+                return this.graph.getAsSIF(separator);
             },
-
+            exportVertexAttributes: function (separator) {
+                return this.vAttr.getAsFile(separator);
+            },
+            exportEdgeAttributes: function (separator) {
+                return this.eAttr.getAsFile(separator);
+            },
             setGraph: function (graph) {
                 this.graph = graph;
                 this.vAttr = new AttributeManagerMemory();
