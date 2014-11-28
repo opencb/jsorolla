@@ -83,25 +83,19 @@
             </div>
             <div class="container" vertical layout>
                 <div horizontal layout>
-                    <div class="dropdown" flex>
-                        <div tabindex="-1" class="button">
-                            {{defaults.labelAttribute}}
-                        </div>
-                        <ul>
-                            <template repeat="{{column in attributeManager.columns}}">
-                                <li on-mousedown="{{handleLabelSelect}}" data-name="{{column.name}}">
-                                    {{column.title}}
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
-                    <div class="button action showlabels" data-checked="{{showLabels}}"
-                         on-click="{{handleShowLabels}}"></div>
+                    <select flex value="{{defaults.labelAttribute}}" on-change="{{handleLabelAttribute}}">
+                        <template repeat="{{column in attributeManager.columns}}">
+                            <option value="{{column.name}}">{{column.title}}</option>
+                        </template>
+                    </select>
+
+                    <!--<div class="button action showlabels" data-checked="{{showLabels}}"-->
+                    <!--on-click="{{handleShowLabels}}"></div>-->
                 </div>
 
                 <div horizontal layout>
                     <div class="text">Label size:</div>
-                    <input flex type="number" min="0" max="16" value={{defaults.labelSize}}>
+                    <input flex type="number" min="0" max="50" value={{defaults.labelSize}} on-change="{{handleLabelSize}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.labelSize != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="labelSize"></div>
@@ -112,7 +106,7 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Opacity:</div>
-                    <input flex type="number" min="0" max="1" step="0.1" value={{defaults.opacity}}>
+                    <input flex type="number" min="0" max="1" step="0.1" value={{defaults.opacity}} on-change="{{handleOpacity}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.opacity != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="opacity"></div>
@@ -123,15 +117,10 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Shaft:</div>
-                    <div class="dropdown" flex>
-                        <div tabindex="-1" class="button">
-                            {{defaults.shaft}} &nbsp;
-                        </div>
-                        <ul>
-                            <li on-mousedown="{{handleShaftSelect}}">line</li>
-                            <li on-mousedown="{{handleShaftSelect}}">dashed</li>
-                        </ul>
-                    </div>
+                    <select flex value="{{defaults.shaft}}" on-change="{{handleShaft}}">
+                        <option value="solid">solid</option>
+                        <option value="dashed">dashed</option>
+                    </select>
 
                     <div class="button action configure" data-enabled="{{visualSets.shaft != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="shaft"></div>
@@ -142,18 +131,13 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Head:</div>
-                    <div class="dropdown" flex>
-                        <div tabindex="-1" class="button">
-                            {{defaults.shape}} &nbsp;
-                        </div>
-                        <ul>
-                            <li on-mousedown="{{handleShapeSelect}}">directed</li>
-                            <li on-mousedown="{{handleShapeSelect}}">undirected</li>
-                            <li on-mousedown="{{handleShapeSelect}}">inhibited</li>
-                            <li on-mousedown="{{handleShapeSelect}}">dot</li>
-                            <li on-mousedown="{{handleShapeSelect}}">odot</li>
-                        </ul>
-                    </div>
+                    <select flex value="{{defaults.shape}}" on-change="{{handleShape}}">
+                        <option value="directed">directed</option>
+                        <option value="undirected">undirected</option>
+                        <option value="inhibited">inhibited</option>
+                        <option value="dot">dot</option>
+                        <option value="odot">odot</option>
+                    </select>
 
                     <div class="button action configure" data-enabled="{{visualSets.shape != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="shape"></div>
@@ -163,9 +147,23 @@
                          on-click="{{handleRemoveSet}}" data-prop="shape"></div>
                 </div>
                 <div horizontal layout>
+                    <div class="text">Bidirectional:</div>
+                    <select flex value="{{defaults.bidirectional}}" on-change="{{handleBidirectional}}">
+                        <option value="true">true</option>
+                        <option value="false">false</option>
+                    </select>
+
+                    <div class="button action configure" data-enabled="{{visualSets.bidirectional != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="bidirectional"></div>
+                    <div class="button action toggle" data-enabled="{{visualSets.bidirectional.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="bidirectional"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.bidirectional != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="bidirectional"></div>
+                </div>
+                <div horizontal layout>
                     <div class="text">Color:</div>
 
-                    <input flex type="color" value="{{defaults.color}}">
+                    <input flex type="color" value="{{defaults.color}}" on-change="{{handleColor}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.color != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="color"></div>
@@ -176,7 +174,7 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Size:</div>
-                    <input flex type="number" min="1" max="200" value={{defaults.size}}>
+                    <input flex type="number" min="1" max="200" value={{defaults.size}} on-change="{{handleSize}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.size != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="size"></div>
@@ -190,7 +188,8 @@
 
         <template if="{{displayProperty == 'labelSize'}}">
             <jso-attribute-render-number-table
-                    renderProperty="{{displayProperty}}"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
                     defaultValue="{{defaults.labelSize}}"
                     visualSet="{{visualSets.labelSize}}"
@@ -199,7 +198,8 @@
         </template>
         <template if="{{displayProperty == 'opacity'}}">
             <jso-attribute-render-number-table
-                    renderProperty="{{displayProperty}}"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
                     defaultValue="{{defaults.opacity}}"
                     visualSet="{{visualSets.opacity}}"
@@ -208,17 +208,19 @@
         </template>
         <template if="{{displayProperty == 'shaft'}}">
             <jso-attribute-render-select-table
-                    renderProperty="{{displayProperty}}"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
                     defaultValue="{{defaults.shaft}}"
                     visualSet="{{visualSets.shaft}}"
-                    options="line,dashed"
+                    options="solid,dashed"
                     >
             </jso-attribute-render-select-table>
         </template>
         <template if="{{displayProperty == 'shape'}}">
             <jso-attribute-render-select-table
-                    renderProperty="{{displayProperty}}"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
                     defaultValue="{{defaults.shape}}"
                     visualSet="{{visualSets.shape}}"
@@ -226,9 +228,21 @@
                     >
             </jso-attribute-render-select-table>
         </template>
+        <template if="{{displayProperty == 'bidirectional'}}">
+            <jso-attribute-render-select-table
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.bidirectional}}"
+                    visualSet="{{visualSets.bidirectional}}"
+                    options="true,false"
+                    >
+            </jso-attribute-render-select-table>
+        </template>
         <template if="{{displayProperty == 'color'}}">
             <jso-attribute-render-color-table
-                    renderProperty="{{displayProperty}}"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
                     defaultValue="{{defaults.color}}"
                     visualSet="{{visualSets.color}}"
@@ -237,7 +251,8 @@
         </template>
         <template if="{{displayProperty == 'size'}}">
             <jso-attribute-render-number-table
-                    renderProperty="{{displayProperty}}"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
                     defaultValue="{{defaults.size}}"
                     visualSet="{{visualSets.size}}"
@@ -273,32 +288,53 @@
 //                this.style.top = (e.y - this.downY) + "px";
 //            },
 
-            handleClose: function () {
-                this.hideFlag = true;
+            handleLabelAttribute: function () {
+                this.fire('labelattribute');
+            },
+            handleLabelSize: function () {
+                this.fire('labelsize');
+            },
+            handleOpacity: function () {
+                this.fire('opacity');
+            },
+            handleShaft: function () {
+                this.fire('shaft');
+            },
+            handleShape: function () {
+                this.fire('shape');
+            },
+            handleBidirectional: function () {
+                this.fire('bidirectional');
+            },
+            handleColor: function () {
+                this.fire('color');
+            },
+            handleSize: function () {
+                this.fire('size');
             },
 
-            handleLabelSelect: function (e) {
-                this.defaults.labelAttribute = e.currentTarget.dataset.name;
-            },
-            handleShaftSelect: function (e) {
-                this.defaults.shaft = e.currentTarget.innerHTML;
-            },
-            handleShapeSelect: function (e) {
-                this.defaults.shape = e.currentTarget.innerHTML;
+
+            handleClose: function () {
+                this.hideFlag = true;
             },
             handleSettingsClick: function (e) {
                 this.displayProperty = e.currentTarget.dataset.prop;
             },
             /*Visual sets*/
             handleToggleSet: function (e) {
-                var renderProperty = e.currentTarget.dataset.prop;
-                if (this.visualSets[renderProperty]) {
-                    this.visualSets[renderProperty].enabled = !this.visualSets[renderProperty].enabled;
+                var displayProperty = e.currentTarget.dataset.prop;
+                if (this.visualSets[displayProperty]) {
+                    this.visualSets[displayProperty].enabled = !this.visualSets[displayProperty].enabled;
                 }
+                this.fire(displayProperty.toLowerCase());
+            },
+            handleOkSet: function (e) {
+                this.fire(e.detail.displayProperty.toLowerCase());
             },
             handleRemoveSet: function (e) {
-                var renderProperty = e.currentTarget.dataset.prop;
-                delete this.visualSets[renderProperty];
+                var displayProperty = e.currentTarget.dataset.prop;
+                delete this.visualSets[displayProperty];
+                this.fire(displayProperty.toLowerCase());
             }
         });
     </script>
