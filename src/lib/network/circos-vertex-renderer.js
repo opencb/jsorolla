@@ -88,6 +88,8 @@ CircosVertexRenderer.prototype = {
             case "labelSize":
             case "labelPositionY":
             case "labelPositionX":
+                this.labelPositionX = parseInt(this.labelPositionX);
+                this.labelPositionY = parseInt(this.labelPositionY);
                 this.labelEl.setAttribute('font-size', this.labelSize);
                 this._updateLabelElPosition();
                 this.labelEl.setAttribute('x', this.labelX);
@@ -110,22 +112,24 @@ CircosVertexRenderer.prototype = {
                 }
         }
     },
-    setConfig: function (args) {
-        _.extend(this, args);
-
-        this.size = parseInt(this.size);
-        this.strokeSize = parseInt(this.strokeSize);
-        this.opacity = parseFloat(this.opacity);
-        this.labelSize = parseInt(this.labelSize);
-        this.labelPositionX = parseInt(this.labelPositionX);
-        this.labelPositionY = parseInt(this.labelPositionY);
-
-        this.groupEl.setAttribute('opacity', this.opacity);
-        this.labelEl.setAttribute('font-size', this.labelSize);
-        this._updateLabelElPosition();
-        this.labelEl.setAttribute('x', this.labelX);
-        this.labelEl.setAttribute('y', this.labelY);
-    },
+    //setConfig: function (args) {
+    //    if(this.groupEl){
+    //        _.extend(this, args);
+    //
+    //        this.size = parseInt(this.size);
+    //        this.strokeSize = parseInt(this.strokeSize);
+    //        this.opacity = parseFloat(this.opacity);
+    //        this.labelSize = parseInt(this.labelSize);
+    //        this.labelPositionX = parseInt(this.labelPositionX);
+    //        this.labelPositionY = parseInt(this.labelPositionY);
+    //
+    //        this.groupEl.setAttribute('opacity', this.opacity);
+    //        this.labelEl.setAttribute('font-size', this.labelSize);
+    //        this._updateLabelElPosition();
+    //        this.labelEl.setAttribute('x', this.labelX);
+    //        this.labelEl.setAttribute('y', this.labelY);
+    //    }
+    //},
     render: function (args) {
         this.targetEl = args.target;
         //this.vertex = args.vertex;
@@ -194,6 +198,9 @@ CircosVertexRenderer.prototype = {
         this.groupEl.setAttribute('transform', "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")");
     },
     setLabelContent: function (text) {
+        if (text == null) {
+            text = '';
+        }
         this.labelText = text;
         if (this.labelEl) {
             this._updateLabelElPosition();

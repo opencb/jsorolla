@@ -1,5 +1,5 @@
 <polymer-element name="jso-attribute-render-number-table"
-                 attributes="renderProperty attributeManager defaultValue visualSet">
+                 attributes="displayProperty attributeManager defaultValue visualSet">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
         <link rel="stylesheet" href="../../jso-panel.css">
@@ -60,7 +60,7 @@
         </style>
         <div class="panel panel-shadow">
             <div class="header">
-                <div class="text">{{renderProperty}} rendering configuration</div>
+                <div class="text">{{displayProperty}} rendering configuration</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
@@ -181,7 +181,7 @@
             },
 
             handleClose: function () {
-                this.renderProperty = null;
+                this.displayProperty = null;
             },
             handleOk: function () {
                 var matches = {};
@@ -191,12 +191,13 @@
                 }
                 this.visualSet = {
                     attribute: this.attributeName,
-                    renderProperty: this.renderProperty,
+                    displayProperty: this.displayProperty,
                     type: this.attributeType,
                     matches: matches,
                     parse: this.attributeParse,
                     enabled: true
                 }
+                this.fire('ok',{displayProperty: this.displayProperty});
                 this.handleClose();
             },
             handleAttributeNameSelect: function (e) {
@@ -228,7 +229,9 @@
                         if (this.visualSet) {
                             render = this.visualSet.matches[row[this.attributeName]];
                         }
-                        uniqueData.push({attribute: row[this.attributeName], render: render});
+                        if(row[this.attributeName]){
+                            uniqueData.push({attribute: row[this.attributeName], render: render});
+                        }
 
                         var attribute = parseFloat(row[this.attributeName]);
                         if (!max || attribute >= max) {

@@ -173,7 +173,7 @@ TrackListPanel.prototype = {
 
 
         this.tlTracksDiv = $('<div id="tl-tracks"></div>')[0];
-        $(this.tlTracksDiv).css({ position: 'relative', 'z-index': 3});
+        $(this.tlTracksDiv).css({position: 'relative', 'z-index': 3});
 
 
         $(this.div).append(tlHeaderDiv);
@@ -308,7 +308,10 @@ TrackListPanel.prototype = {
 //
             var posOffset = (mid / _this.pixelBase) | 0;
             _this.mousePosition = centerPosition + rcX - posOffset;
-            _this.trigger('mousePosition:change', {mousePos: _this.mousePosition, baseHtml: _this.getMousePosition(_this.mousePosition)});
+            _this.trigger('mousePosition:change', {
+                mousePos: _this.mousePosition,
+                baseHtml: _this.getMousePosition(_this.mousePosition)
+            });
         });
 
         $(this.tlTracksDiv).dblclick(function (event) {
@@ -318,7 +321,11 @@ TrackListPanel.prototype = {
                 /**/
                 /**/
                 var halfLength = _this.region.length() / 2;
-                var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition - halfLength, end: _this.mousePosition + halfLength})
+                var mouseRegion = new Region({
+                    chromosome: _this.region.chromosome,
+                    start: _this.mousePosition - halfLength,
+                    end: _this.mousePosition + halfLength
+                })
                 _this.trigger('region:change', {region: mouseRegion, sender: _this});
                 /**/
                 /**/
@@ -416,7 +423,11 @@ TrackListPanel.prototype = {
                         _this.trigger('region:change', {region: _this.region, sender: _this});
                         moveX = null;
                     } else if (downX != null && moveX == null) {
-                        var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition, end: _this.mousePosition})
+                        var mouseRegion = new Region({
+                            chromosome: _this.region.chromosome,
+                            start: _this.mousePosition,
+                            end: _this.mousePosition
+                        })
                         _this.trigger('region:change', {region: mouseRegion, sender: _this});
                     }
                     break;
@@ -595,8 +606,9 @@ TrackListPanel.prototype = {
         this.trigger('track:draw', {sender: this});
     },
     _checkAllTrackStatus: function (status) {
-        for (var i in this.tracks) {
-            if (this.tracks[i].status != status) return false;
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            if (track.status != status) return false;
         }
         return true;
     },
@@ -992,7 +1004,11 @@ TrackListPanel.prototype = {
     getSequenceNucleotid: function (position) {
         var seqTrack = this.getSequenceTrack();
         if (seqTrack != null && this.visualRegion.length() <= seqTrack.visibleRegionSize) {
-            var nt = seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
+            var nt = seqTrack.dataAdapter.getNucleotidByPosition({
+                start: position,
+                end: position,
+                chromosome: this.region.chromosome
+            })
             return nt;
         }
         return '';
