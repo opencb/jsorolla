@@ -1,0 +1,474 @@
+<polymer-element name="jso-class-edit" attributes="contentFile">
+<template>
+<link rel="stylesheet" href="../sortable-table.css">
+<link rel="stylesheet" href="../jso-style.css">
+<link rel="stylesheet" href="../jso-panel.css">
+<style>
+    :host {
+        display: block;
+        position: relative;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+
+        width: 600px;
+        height: 420px;
+    }
+
+    #panel {
+        width: 100%;
+        height: 100%;
+    }
+
+    #header[horizontal] > * {
+        margin-right: 3px;
+    }
+
+    #header[horizontal] > *:last-child {
+        margin-right: 0px;
+    }
+
+    .remove::after {
+        font-family: FontAwesome;
+        content: '\f00d';
+        color: #c70804;
+    }
+
+    .newattr::after {
+        font-family: FontAwesome;
+        content: '\f067';
+        color: #00AA33;
+    }
+
+    .newvalue::after {
+        font-family: FontAwesome;
+        content: '\f061';
+        color: #0081c2;
+    }
+
+    #left {
+        width: 200px;
+        border-right: 1px solid #d3d3d3;
+        box-sizing: border-box;
+    }
+
+    #left [horizontal] > * {
+        margin-right: 3px;
+    }
+
+    #left [horizontal] > *:last-child {
+        margin-right: 0px;
+    }
+
+    #edit {
+        box-sizing: border-box;
+        padding: 0 5px;
+    }
+
+    #edit > * {
+        margin-top: 3px;
+    }
+
+    #attributelist {
+        box-sizing: border-box;
+        padding: 0 5px;
+        overflow-y: auto;
+    }
+
+    #attributelist > * {
+        margin-top: 3px;
+        /*padding: 2px 5px 5px 5px;*/
+        /*box-sizing: border-box;*/
+        /*margin-top: 2px;*/
+    }
+
+    /*[attributeselected] {*/
+    /*background-color: #445D76 !important;*/
+    /*color: #fff !important;*/
+    /*border-color: rgba(102, 175, 233, .5) !important;*/
+    /*}*/
+
+    #tablewrap {
+        position: relative;
+        background-color: #FAFAFA;
+    }
+
+    #table {
+        overflow-y: hidden;
+        overflow-x: auto;
+        margin-right: 5px;
+        border-right: 1px solid #d3d3d3;
+        background-color: #ffffff;
+    }
+
+    .customPager {
+        background-color: #fafafa;
+        box-sizing: border-box;
+        border-top: 1px solid #cccccc;
+        color: #445D76;
+        padding: 3px;
+    }
+
+    .customPagerScroll {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 5px;
+        background-color: #c5c5c5;
+        /*background-color: #3F3F3F;*/
+    }
+</style>
+<div class="panel panel-shadow" id="panel" vertical layout>
+    <div class="header" id="header" horizontal layout>
+        <div class="text">Edit attributes</div>
+        <!--<div class="headeractions" horizontal end-justified layout flex>-->
+        <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
+        <!--<div class="text headerclose" on-click="{{handleClose}}"></div>-->
+        <!--</div>-->
+    </div>
+    <div class="container" flex horizontal layout>
+        <div id="left" vertical layout>
+            <div id="edit" vertical layout>
+
+                <div horizontal layout style="margin-bottom: 10px;">
+                    <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
+
+                </div>
+                <div horizontal layout style="margin-bottom: 10px;">
+                    <select flex id="typeVar" type="text" on-change="{{changeCategoricalValue}}">
+                        <option id="item-0-CATEGORICAL" value="CATEGORICAL" selected="true">Categorical</option>
+                        <option id="item-0-NUMERIC" value="NUMERIC">Numeric</option>
+                        <option id="item-0-STRING" value="STRING">String</option>
+                    </select>
+                </div>
+                <!--<div horizontal layout style="margin-bottom: 10px;">-->
+                <!--<input flex id="categoricalValuesId" type="text" value="{{categoricalValues}}" placeholder="Add categorical values separated by comma">-->
+
+                <!--</div>-->
+                <div horizontal layout style="margin-bottom: 10px;">
+                    <div class="button action newattr" on-click="{{handleAddApply}}"></div>
+                </div>
+                <!--<div horizontal layout style="margin-bottom: 10px;">-->
+                <!--<input type="button" class="button action newattr" on-click="{{handleSave}}" value="Save">-->
+                <!--</div>-->
+            </div>
+            <div id="attributelist" flex>
+                <template repeat="{{column in columns}}">
+                    <template if="{{column.name != 'id'}}">
+                        <div horizontal layout>
+                            <div class="button action" flex
+                                 data-checked="{{ editSelected == column.name}}"
+                                 data-name="{{column.name}}"
+                                 on-click="{{handleEditSelect}}">
+                                {{column.title}}
+                            </div>
+                            <div class="button action remove" data-name="{{column.name}}"
+                                 on-click="{{handleRemoveApply}}"></div>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+        <div flex vertical layout>
+            <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                <sortable-table id="table" flex
+                                data="{{data}}"
+                                columns="{{columns}}"
+                                page="{{page}}"
+                                pageSize="{{pageSize}}">
+                    <template id="inputTemplate">
+                        <td class="edit">
+                            <input type="text" value="{{row[column.name]}}" required>
+                        </td>
+                    </template>
+
+                </sortable-table>
+                <div class="customPagerScroll"
+                     style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%">
+
+                </div>
+            </div>
+            <div class="customPager" horizontal layout>
+                <div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}
+                </div>
+                <div class="button action" disabled
+                ?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                &lt;</div>
+            <div class="text"> {{table.page}} of {{table.lastPage}}
+            </div>
+            <div class="button action" disabled
+            ?="{{table.page>=table.lastPage}}"
+            on-click="{{moveToNextPage}}" >&gt;
+        </div>
+    </div>
+</div>
+</div>
+
+</template>
+<script>
+Polymer({
+    created: function () {
+        this.selectedAux;
+
+        this.columns = [];
+        this.data = [];
+
+        /** variables to reset data **/
+        this.oriColumns = [];
+        this.oirData = [];
+
+        /** dataset header of the file **/
+        this.datasetHeader = {
+            "#NUMBER_FEATURES": "",
+            "#NUMBER_SAMPLES": "",
+            "#VARIABLE": new Array(),
+            "#NAMES": new Array()
+        };
+
+        this.page = 1;
+        this.defaultPageSize = 12;
+        this.pageSize = this.defaultPageSize;
+
+        this.newColumnName = '';
+        this.newValue = '';
+        this.expanded = false;
+
+    },
+    ready: function () {
+        this.table = this.$.table;
+    },
+    handleScroll: function (e) {
+        if (e.deltaY > 0) {
+            this.moveToNextPage();
+        }
+        if (e.deltaY < 0) {
+            this.moveToPreviousPage();
+        }
+    },
+    moveToNextPage: function () {
+        this.$.table.moveToNextPage();
+    },
+    moveToPreviousPage: function () {
+        this.$.table.moveToPreviousPage();
+    },
+    handleClose: function () {
+        this.selectedMenu = '';
+    },
+    handleExpand: function () {
+        this.page = 1;
+        this.expanded = !this.expanded;
+        if (this.expanded) {
+            this.style.width = '100vw';
+            this.style.height = '100vh';
+            this.style.position = 'fixed';
+            this.style.top = '0';
+            this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
+        } else {
+            this.style.width = '';
+            this.style.height = '';
+            this.style.position = '';
+            this.style.top = '';
+            this.pageSize = this.defaultPageSize;
+        }
+    },
+    handleRemoveApply: function (e) {
+        if (confirm('Delete this attribute?')) {
+            if (this.editSelected == e.currentTarget.dataset.name) {
+                this.editSelected = null;
+            }
+            var removeIdx = -1;
+            for (var idx = 0; idx < this.columns.length; idx++) {
+                console.log(this.columns[idx])
+                if (this.columns[idx].name == e.currentTarget.dataset.name) {
+                    var removeIdx = idx;
+                    break;
+                }
+            }
+            this.columns.splice(idx, 1);
+        }
+    },
+    handleAddApply: function (e) {
+        var cellTemplate = "inputTemplate";
+//            var type = this.$.typeVar.value;
+
+        if (this.newColumnName != '') {
+            var column = {
+                defaultValue: "",
+                name: this.newColumnName.toLowerCase(),
+                title: this.newColumnName,
+                type: this.$.typeVar.value,
+                cellTemplate: cellTemplate
+            };
+            this.columns.push(column);
+            this.newColumnName = '';
+        }
+//            if (type == "CATEGORICAL") {
+//                this.$.tablewrap.removeChild(this.$.table);
+//                this.categoricalValues = this.categoricalValues.split(",");
+//                cellTemplate = "newCellTemplate";
+//                var el = document.createElement("template");
+//                el.id = cellTemplate;
+//                var td = document.createElement("td");
+//                el.appendChild(td);
+////                var input = document.createElement("input");
+////                input.type = "text";
+////                input.value="hola";
+////                 td.appendChild(input);
+//
+//                var select = document.createElement("select");
+//                select.setAttribute("type", "text");
+//                td.appendChild(select);
+//                for (var i = 0; i < this.categoricalValues.length; i++) {
+//                    var option = document.createElement("option");
+//                    option.value = this.categoricalValues[i];
+//                    if(i == 0)
+//                        option.setAttribute("selected","true");
+//                    var text = document.createTextNode(this.categoricalValues[i]);
+//                    option.appendChild(text);
+//                    select.appendChild(option);
+//                }
+//
+////                var select
+//                debugger
+//                this.$.table.shadowRoot.appendChild(el);
+//
+//                column.cellTemplate = cellTemplate;
+//                this.$.tablewrap.appendChild(this.$.table)
+//
+//            }
+    },
+    changeCategoricalValue: function () {
+//        if (this.$.typeVar.value == "CATEGORICAL")
+//            this.$.categoricalValuesId.hidden = false;
+//        else
+//            this.$.categoricalValuesId.hidden = true
+    },
+    contentFileChanged: function (oldV, newV) {
+
+//        var lines = this.contentFile.split("\n");
+//        var featNumber = 0;
+//        var firstLine = 0;
+//        for (var i = 0; i < lines.length; i++) {
+//            var line = lines[i];
+//            if (line.trim() == "") {
+//                firstLine++;
+//                continue
+//            }
+//            if (line.indexOf("#") == 0) {
+//                var fields = line.split("\t");
+//                if (fields[0] == "#VARIABLE") {
+//                    var arr = this.datasetHeader[fields[0]]
+//                    arr.push(fields);
+//                    this.datasetHeader[fields[0]] = arr;
+//                }
+//            }
+//            else {
+//                featNumber++;
+//                /** Samples **/
+//                var fields = new Array();
+//                if (this.datasetHeader["#NAMES"].length == 0) {
+//                    if (i > firstLine) {
+//                        fields = lines[i - 1].split("\t");
+//                        this.datasetHeader["#NAMES"] = fields.slice(1);
+//                    }
+//                    else {
+//                        fields = lines[i].split("\t");
+//                        var names = new Array();
+//                        for (var z = 1; z < fields.length; z++) {
+//                            names.push("Sample" + z);
+//                        }
+//                        this.datasetHeader["#NAMES"] = names;
+//                    }
+//                }
+//            }
+//        }
+//        this.datasetHeader["#NUMBER_FEATURES"] = featNumber;
+//        this.datasetHeader["#NUMBER_SAMPLES"] = this.datasetHeader["#NAMES"].length;
+        var parseMatrix = new ParseMatrix(this.contentFile);
+        this.datasetHeader = parseMatrix.getDataset();
+        /** Add columns **/
+        var column = {
+            defaultValue: "",
+            name: "#NAMES",
+            title: "#NAMES",
+            type: "string",
+            cellTemplate: "inputTemplate"
+        };
+        this.columns.push(column);
+        for (var j = 0; j < this.datasetHeader["#VARIABLE"].length; j++) {
+            var variable = this.datasetHeader["#VARIABLE"][j];
+            var columnName = variable[1];
+            var type = variable[2].split("{")[0];
+            column = {
+                defaultValue: "",
+                name: columnName,
+                title: columnName,
+                type: type,
+                cellTemplate: "inputTemplate"
+            };
+            this.columns.push(column);
+        }
+        /** Fill sortable table data **/
+        for (var i = 0; i < this.datasetHeader["#NAMES"].length; i++) {
+            var dataItem = new Object();
+            dataItem["#NAMES"] = this.datasetHeader["#NAMES"][i];
+            for (var j = 0; j < this.datasetHeader["#VARIABLE"].length; j++) {
+                var variable = this.datasetHeader["#VARIABLE"][j];
+                var value = variable[3].replace("VALUES{", "").replace("}", "").split(",")[i];
+                dataItem[variable[1]] = value;
+            }
+            this.data.push(dataItem);
+        }
+        this.oriData = JSON.parse(JSON.stringify(this.data));
+        this.oriColumns = JSON.parse(JSON.stringify(this.columns));
+    },
+    resetChanges: function () {
+        this.data = [];
+        this.columns = [];
+
+        /** Hack for the sortable **/
+        for (var i = 0; i < this.oriColumns.length; i++)
+            this.columns.push(this.oriColumns[i]);
+        for (var i = 0; i < this.oriData.length; i++)
+            this.data.push(this.oriData[i]);
+//        this.columns = this.oriColumns;
+//        this.data = this.oriData;
+    },
+    parseTable: function () {
+        var strHeader = "";
+        strHeader = "#NUMBER_FEATURES\t" + this.datasetHeader["#NUMBER_FEATURES"] + "\n";
+        strHeader += "#NUMBER_SAMPLES\t" + this.datasetHeader["#NUMBER_SAMPLES"] + "\n";
+
+        for (var i = 0; i < this.columns.length; i++) {
+
+            var name = this.columns[i].name;
+            var type = this.columns[i].type;
+            if (name == "#NAMES")
+                continue;
+            strHeader += "#VARIABLE\t" + name + "\t" + type;
+            if (type != "NUMERIC")
+                strHeader += "{";
+
+            var dataBrackets = new Array();
+            var typeValues = {};
+            for (var j = 0; j < this.data.length; j++) {
+                var value = this.data[j][name];
+                typeValues[value] = "";
+                dataBrackets.push(value);
+            }
+            typeValues = Object.keys(typeValues).join(",");
+            dataBrackets = dataBrackets.join(",");
+            if (type != "NUMERIC")
+                strHeader += typeValues + "}";
+            strHeader += "\tVALUES{" + dataBrackets + "}\tDESCRIPTION{}\n";
+        }
+        dataBrackets = new Array();
+        for (var j = 0; j < this.data.length; j++) {
+            var value = this.data[j]["#NAMES"];
+            dataBrackets.push(value);
+        }
+        strHeader += "#NAMES\t" + dataBrackets.join("\t");
+        return strHeader;
+    }
+});
+</script>
+</polymer-element>

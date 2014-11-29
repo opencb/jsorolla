@@ -74,8 +74,11 @@
                 })
             },
             handleJobViewClick: function (e) {
-                this.selectedOption = "jobView"
-                this.jobItem = e.target.jobItem
+                this.jobItem = e.target.jobItem;
+                if(this.jobItem.status == "ready")
+                    this.selectedOption = "jobReady";
+                else
+                    this.selectedOption = "jobNoReady";
                 console.log(this.jobItem)
             }
 

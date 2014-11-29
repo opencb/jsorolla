@@ -6,104 +6,115 @@
 
 
 <polymer-element name="jso-file-browser" attributes="fileList selectedFile">
-<template>
-    <link rel="stylesheet" href="../jso-style.css">
-    <link rel="stylesheet" href="../jso-panel.css">
-    <style>
-        :host {
-            display: block;
-            position: absolute;
-            box-sizing: border-box;
-            background-color: #FFFFFF;
-            /*padding: 30px 10px;*/
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-panel.css">
+        <style>
+            :host {
+            }
+            .panel{
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                border: 1px solid #ccc;
+                z-index: 50000;
+                top: 200px;
 
-            z-index: 50000;
-            top: 200px;
+            }
+            .container {
+                height: 400px;
+                overflow: auto;
+            }
 
-            /*left: 0;*/
-            /*right: 0;*/
-            /*margin-left: auto;*/
-            /*margin-right: auto;*/
+            .fileClass {
+                position: relative;
+            }
 
-            /*width: 70%;*/
-            /*border: 0px solid #c6d0da;*/
-            /*border-width: 1px;*/
-            /*border-top-width: 1px;*/
-            /*transition: all 0.2s;*/
-            /*box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);*/
-        }
-        .container{
-            height: 400px;
-            overflow: auto;
-        }
-        .fileClass{
-            position: relative;
-        }
-        .fileClass:hover{
-            background-color: #D1D9E3;
-        }
+            .fileClass:hover {
+                background-color: #D1D9E3;
+            }
 
-        .fileClass{
-            box-sizing: border-box;
-            padding: 5px 5px;
-            margin: 2px;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-        }
+            .fileClass {
+                box-sizing: border-box;
+                padding: 5px 5px;
+                margin: 2px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
 
-        .fileClass[data-selected=true]{
-            background-color: #D1D9E3;
-        }
-        .footer{
+            .fileClass[data-selected=true] {
+                background-color: #D1D9E3;
+            }
 
-        }
-    </style>
+            .footer {
 
-    <div class="panel">
-        <div class="header">
-            Select file...
-        </div>
+            }
 
-        <div class="container" horizontal layout flex>
-            <div id="fileListDiv" flex>
-                <template repeat="{{fileItem in fileList}}">
-                    <template bind if="{{fileItem.type=='file'}}">
+        </style>
+        <div class="button action" on-click="{{handleClick}}" style="width: 400px">{{selectedFile.path}}</div>
+        <div id="panelFiles" class="panel" hidden="true">
+            <div class="header">
+                Select file...
+            </div>
 
-                        <jso-opencga-file-item class="fileClass"
-                                               file="{{fileItem}}"
-                                               on-click="{{handleFileClick}}"
-                                               data-selected="{{selectedTmpFile == fileItem}}"
-                                               ></jso-opencga-file-item>
+            <div class="container" horizontal layout flex>
+                <div id="fileListDiv" flex>
+                    <template repeat="{{fileItem in fileList}}">
+                        <template bind if="{{fileItem.type=='file'}}">
+                            <!--<div>{{fileItem.path}}</div>-->
+                            <jso-opencga-file-item class="fileClass"
+                                                   file="{{fileItem}}"
+                                                   on-click="{{handleFileClick}}"
+                                                   data-selected="{{selectedTmpFile == fileItem}}"
+                                    </jso-opencga-file-item>
+                        </template>
                     </template>
-                </template>
+                </div>
+            </div>
+            <div class="footer">
+                <input type="button" value="OK" on-click="{{handleOkClick}}">
+                <input type="button" value="Cancel" on-click="{{handleCancelClick}}">
             </div>
         </div>
-        <div class="footer">
-            <input type="button" value="OK" on-click="{{handleOkClick}}">
-            <input type="button" value="Cancel" on-click="{{handleCancelClick}}">
-        </div>
-    </div>
-</template>
-<script>
-    Polymer({
-        created: function () {
+    </template>
+    <script>
+        Polymer({
+            created: function () {
 //            this.selectedFile;
-            this.selectedTmpFile;
-        },
-        handleFileClick: function (e) {
+                this.selectedTmpFile;
+                this.selectedFile = {path: "browse server"};
+                this.filesListAux = new Array();
+            },
+            handleFileClick: function (e) {
 //            this.selectedFile = e.currentTarget.file;
-            this.selectedTmpFile = e.currentTarget.file;
-        },
-        handleOkClick: function (e) {
-            this.selectedFile = this.selectedTmpFile
-            this.hidden = true
-        },
-        handleCancelClick: function (e) {
-            this.hidden = true
-    }
-    });
-</script>
+                this.selectedTmpFile = e.currentTarget.file;
+            },
+            handleOkClick: function (e) {
+                this.selectedFile = this.selectedTmpFile;
+                this.$.panelFiles.hidden = true;
+            },
+            handleCancelClick: function (e) {
+                this.$.panelFiles.hidden = true;
+            },
+            handleClick: function (e) {
+                this.$.panelFiles.hidden = false;
+//                this.selectedFile = this.selectedTmpFile
+//                this.clickMessage = this.selectedFile.name;
+//                this.hidden = true
+            }
+//            fileListChanged: function (oldV, newV) {
+//                debugger
+//                for (var i = 0; i < newV.length; i++) {
+//                    if (newV[i].type == "file") {
+//                        this.filesListAux.push(newV[i])
+//                    }
+//                }
+//            }
+
+        });
+    </script>
 </polymer-element>
 <polymer-element name="jso-opencga-file-item" attributes="file">
     <template>
@@ -112,7 +123,6 @@
                 display: block;
                 position: relative;
             }
-
             .id {
                 color: #888;
             }

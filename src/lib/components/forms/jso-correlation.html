@@ -1,0 +1,252 @@
+<polymer-element name="jso-correlation" attributes="userData selectedOption selectedStudy">
+<template>
+    <link rel="stylesheet" href="../jso-style.css">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+            padding: 30px 100px;
+
+            z-index: 50000;
+            top: 90px;
+
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+
+            width: 40vw;
+            border: 0px solid #c6d0da;
+            border-width: 1px;
+            /*border-top-width: 1px;*/
+            transition: all 0.2s;
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+            color: #666;
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        label {
+            display: inline-block;
+            color: #666;
+            margin-top: 3px;
+            /*width: 150px;*/
+        }
+
+        label::after {
+            content: ':'
+        }
+
+        .action {
+            /*margin-top: 30px;*/
+            background-color: #f5f5f5 !important;
+            text-align: center;
+        }
+
+        .action:active {
+            background-color: #445D76 !important;
+            color: #fff !important;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        div.button {
+            /*display: inline-block;*/
+            width: 300px
+        }
+
+        /*jso-file-browser {*/
+        /*width: 70%;*/
+        /*}*/
+
+        span {
+            border: 1px solid;
+        }
+    </style>
+    <div class="title">
+        <div>
+            Differential expression: correlation
+        </div>
+        <div class="icon">
+            <!--<font-awesome icon="magic"></font-awesome>-->
+        </div>
+    </div>
+    <form id="form">
+        <h3>Examples</h3>
+
+        <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+
+        <h3>Output parameters</h3>
+        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
+                                                   pattern="[a-zA-Z0-9]+">
+        <label>Or select output folder:</label>
+        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <div>
+            <h3>Select your data</h3>
+
+            <div>
+                List 1:
+                <jso-file-browser fileList="{{selectedStudy.files}}" selectedFile="{{list1}}"></jso-file-browser>
+            </div>
+        </div>
+        <div>
+            <h3>Select the class to analyse</h3>
+            <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"
+                              loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}" childrenDisplay="false"></jso-class-viewer>
+        </div>
+        <div>
+            <h3>Select test</h3>
+            <input id="test_1" name="test" class="fc-radioitem" type="radio" value="pearson" checked="checked">Pearson's correlation <br>
+            <input id="test_2" name="test" class="fc-radioitem" type="radio" value="spearman">Spearman correlation<br>
+            <input id="test_3" name="test" class="fc-radioitem" type="radio" value="regression">Regression <br>
+        </div>
+        <div>
+            <h3>Select multiple-test correction</h3>
+            <input id="correction_1" name="correction" class="fc-radioitem" type="radio" value="fdr" checked="checked">Benjamini
+            and Hochberg (BH), FDR <br>
+            <input id="correction_2" name="correction" class="fc-radioitem" type="radio" value="by"> Benjamini and
+            Yekutieli (BY) <br>
+            <input id="correction_3" name="correction" class="fc-radioitem" type="radio" value="hochberg">Hochberg <br>
+            <input id="correction_4" name="correction" class="fc-radioitem" type="radio" value="holm">Holm <br>
+            <input id="correction_5" name="correction" class="fc-radioitem" type="radio"
+                   value="bonferroni">Bonferroni<br>
+        </div>
+
+        <div>
+            <h3>Select adjusted p-value</h3>
+            <label>Adj. p-value (0.0-1.0)</label><input name="p_value" id="p_value" class="fc-decimal fc-text"
+                                                        type="text" value="0.05">
+        </div>
+        <h3>Job information</h3>
+
+        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+
+        <div class="button action" on-click="{{handleForm}}">Run</div>
+    </form>
+    <div class="message">{{message}}</div>
+</template>
+<script>
+    Polymer({
+        created: function () {
+            this.jobName = 'correlation';
+            this.toolName = "correlation";
+            this.list1UploadMsg = "Select file...";
+        },
+        list1Changed: function (oldV, newV) {
+            if (typeof oldV != 'undefined') {
+                this.getContentFile(newV);
+            }
+        },
+        handleForm: function () {
+            var me = this;
+            this.message = '';
+            if (this.newFolderName && this.newFolderName != "") {
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        folder: this.newFolderName,
+                        studyId: this.selectedStudy.id
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                me.message = 'Folder created sucessfully.';
+                                var selectedFolderId = response.response[0].result[0].id;
+
+                                me.launchJob(selectedFolderId);
+                            } else {
+                                debugger
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+            else {
+                me.launchJob(this.$.selectFolder.selectedFolder.id);
+            }
+        },
+        launchJob: function (selectedFolderId) {
+            var me = this;
+            var query = { sid: Cookies("bioinfo_sid"),
+                analysisId: this.selectedStudy.analysis.id,
+                toolId: this.toolName,
+                outdir: selectedFolderId,
+                jobName: this.jobName,
+                description: this.description,
+                "compressed-file": this.compressed_file.id,
+                "compressed-file-tags": this.compressed_file_tags };
+
+            if (this.$.rma.checked) query["rma"] = this.$.rma.checked;
+            if (this.$.plier.checked) query["plier"] = this.$.plier.checked;
+            if (this.$.calls.checked) query["calls"] = this.$.calls.checked;
+            OpencgaManager.jobs.create({
+                query: query,
+                request: {
+                    //method: 'POST',
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            var userId = response.response[0].result[0].id;
+                            me.message = userId + ' created';
+                            me.selectedOption = "jobLaunched"
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            })
+        },
+        loadExample1: function (e) {
+            this.jobName = "affy_sample_1";
+            this.description = "just_an_affy_example";
+            this.rma = true;
+            this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
+            this.compressed_file = {id: "example_affymetrix.zip", name: "affymetrix.zip"};
+            this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+
+        },
+        getContentFile: function (file) {
+
+            var me = this;
+            if (String(file.id).indexOf("example_") >= 0) {
+                this.loadExampleFile(file.path);
+            } else {
+                OpencgaManager.files.content({
+                    id: file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            me.contentFile = response;
+                        },
+                        error: function () {
+                            var message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            }
+        }
+    });
+</script>
+</polymer-element>

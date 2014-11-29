@@ -268,7 +268,7 @@ li.dropdown > div:focus ~ ul li:hover > ul {
                             <template if="{{o2.sub}}">
                                 <ul>
                                     <template repeat="{{o3 in o2.sub}}">
-                                        <li data-option="{{o2.option}}" on-click="{{handleMenu}}">
+                                        <li data-option="{{o3.option}}" on-click="{{handleMenu}}">
                                             {{o3.text}}
                                         </li>
                                     </template>
@@ -410,7 +410,7 @@ li.dropdown > div:focus ~ ul li:hover > ul {
         },
         handleMenu: function (e) {
             var option = e.currentTarget.dataset['option'];
-            console.log(option);
+            console.log("option: "+option);
             if (option) {
                 this.selectedOption = option;
             }

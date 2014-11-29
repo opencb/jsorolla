@@ -90,100 +90,98 @@
         <div class="button action" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>
 
         <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
+        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}"
                                                    pattern="[a-zA-Z0-9]+">
         <label>Or select output folder:</label>
         <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
 
-        <h3>Input parameters</h3>
-        <label>Enter accession ranked list</label> <textarea id="rankedListArea" class="inputListTextArea"
-                                                             value="{{rankedListArea}}" required
-                                                             pattern="[a-zA-Z0-9]+"></textarea>
-        <label>Or, Select file</label>
+        <div>
+            <h3>Select your data</h3>
 
-        <div class="button action" on-click="{{rankedListClick}}">{{rankedListUploadMsg}}</div>
-        <jso-file-browser hidden="true" id="rankedListHtml" fileList="{{selectedStudy.files}}"
-                          selectedFile="{{rankedList}}"></jso-file-browser>
+            <div class="button action" on-click="{{rankedListClick}}">{{rankedListUploadMsg}}</div>
+            <jso-file-browser hidden="true" id="rankedListHtml" fileList="{{selectedStudy.files}}"
+                              selectedFile="{{rankedList}}"></jso-file-browser>
 
+        </div>
+        <div>
+            <h3>Select your seed datalist (optional)</h3>
 
-        <label>Enter accession seed list (optional)</label> <textarea id="seedListArea" class="inputListTextArea"
-                                                                      value="{{seedListArea}}" required
-                                                                      pattern="[a-zA-Z0-9]+"></textarea>
-        <label>Or, upload file</label>
-
-        <div class="button action" on-click="{{seedListClick}}">{{seedListUploadMsg}}</div>
-        <jso-file-browser hidden="true" id="seedListHtml" fileList="{{selectedStudy.files}}"
-                          selectedFile="{{seedList}}"></jso-file-browser>
-
-
-        <label>List Nature</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{listTagsText}}
-            </div>
-            <ul on-click="{{handleListTags}}">
-                <li data-value="gene">Gene</li>
-                <li data-value="ranked">Ranked</li>
-                <li data-value="protein">Protein</li>
-                <li data-value="transcript">Transcript</li>
-            </ul>
+            <div class="button action" on-click="{{seedListClick}}">{{seedListUploadMsg}}</div>
+            <jso-file-browser hidden="true" id="seedListHtml" fileList="{{selectedStudy.files}}"
+                              selectedFile="{{seedList}}"></jso-file-browser>
         </div>
 
-        <label>Species</label>
+        <div>
+            <h3>List Nature</h3>
 
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{interactomeText}}
-            </div>
-            <ul on-click="{{handleInteractome}}">
-                <li data-value="hsa">Homo sapiens</li>
-            </ul>
+            <select name="listTags" id="listTags" class="fc-combobox" type="text" value="gene">
+                <option name="listTags_1" id="listTags_1" class="fc-combobox-item" value="gene" selected="selected">
+                    Gene
+                </option>
+                <option name="listTags_4" id="listTags_4" class="fc-combobox-item" value="ranked">Ranked</option>
+                <option name="listTags_5" id="listTags_5" class="fc-combobox-item" value="protein">Protein</option>
+                <option name="listTags_6" id="listTags_6" class="fc-combobox-item" value="transcript">Transcript
+                </option>
+            </select>
+        </div>
+        <div>
+            <h3>Species</h3>
+
+            <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
+                <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="ath">Arabidopsis
+                    thaliana
+                </option>
+                <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="dme">Drosophila
+                    melanogaster
+                </option>
+                <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="eco">Escherichia coli
+                    (K12)
+                </option>
+                <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="hsa"
+                        selected="selected">Homo sapiens
+                </option>
+                <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="mmu">Mus musculus
+                </option>
+                <option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="sce">Saccharomyces
+                    cerevisiae
+                </option>
+            </select>
+
+        </div>
+        <div>
+            <h3>Select interactome confidence</h3>
+            <select name="group" id="group" class="fc-combobox" type="text" value="curated">
+                <option name="group_1" id="group_1" class="fc-combobox-item" value="curated" selected="selected">Curated
+                    (detected by at least two methods)
+                </option>
+                <option name="group_2" id="group_2" class="fc-combobox-item" value="all">Non curated</option>
+            </select>
         </div>
 
-        <label>Select interactome confidence</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{groupText}}
-            </div>
-            <ul on-click="{{handleGroup}}">
-                <li data-value="all">Non curated</li>
-                <li data-value="curated">Curated (detected by at least two methods)</li>
-            </ul>
+        <div>
+            <h3>Sort ranked list</h3>
+            <select name="order" id="order" class="fc-combobox" type="text" value="ascending">
+                <option name="order_1" id="order_1" class="fc-combobox-item" value="curated" selected="ascending">
+                    Ascending
+                    (detected by at least two methods)
+                </option>
+                <option name="order_2" id="order_2" class="fc-combobox-item" value="descending">Descending</option>
+            </select>
         </div>
+        <div>
+            <h3>Allow one external intermediate in the subnetwork</h3>
+            <select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">
+                <option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"
+                        selected="selected">0
+                </option>
+                <option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>
+            </select>
 
-        <label>Sort ranked list</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{orderText}}
-            </div>
-            <ul on-click="{{handleOrder}}">
-                <li data-value="ascending">Ascending</li>
-                <li data-value="descending">Descending</li>
-            </ul>
         </div>
-
-        <label>Allow one external intermediate in the subnetwork</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{intermediateText}}
-            </div>
-            <ul on-click="{{handleIntermediate}}">
-                <li data-value=1>Yes</li>
-                <li data-value=0>No</li>
-            </ul>
+        <div>
+            <h3>Job information</h3>
+            <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
         </div>
-
-        <!--<label>Allow one external intermediate in the subnetwork</label><input type="text" id="intermediate"-->
-        <!--value="{{intermediate}}" required-->
-        <!--pattern="[a-zA-Z0-9]+">-->
-
-        <h3>Job information</h3>
-        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
-
         <div class="button action" on-click="{{handleForm}}">Run</div>
     </form>
     <div class="message">{{message}}</div>
@@ -235,41 +233,45 @@
         handleForm: function () {
             var me = this;
             this.message = '';
-            if (this.newFolderName && this.newFolderName != "") {
+            if ((me.validForm())) {
+                if (this.newFolderName && this.newFolderName != "") {
+                    OpencgaManager.files.createFolder({
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            folder: this.newFolderName,
+                            studyId: this.selectedStudy.id
 
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.newFolderName,
-                        studyId: this.selectedStudy.id
-
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                var selectedFolderId = response.response[0].result[0].id;
-
-                                me.launchJob(selectedFolderId);
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
                         },
-                        error: function () {
-                            alert('Server error, try again later.');
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    var selectedFolderId = response.response[0].result[0].id;
+                                    me.launchJob(selectedFolderId);
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                alert('Server error, try again later.');
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                else {
+                    me.launchJob(this.$.selectFolder.selectedFolder.id);
+                }
             }
-            else {
-                me.launchJob(this.$.selectFolder.selectedFolder.id);
+        },
+        validForm: function () {
+            var valid = this.$.form.checkValidity();
+            if (typeof this.newFolderName == 'undefined' && typeof this.$.selectFolder.selectedFolder == 'undefined' && this.rankedList == '') {
+                valid = false;
             }
-
-
-            //}
+            return valid;
         },
         launchJob: function (selectedFolderId) {
             var me = this;
+
             OpencgaManager.jobs.create({
                 query: {
                     sid: Cookies("bioinfo_sid"),
@@ -326,9 +328,6 @@
 //            this.significant_value = 0.05
             this.jobName = "bipolar_gwas"
             this.example = true
-            if (this.$.form.checkValidity()) {
-                //me.message = "xx"
-            }
         },
         rankedListClick: function (e) {
             this.$.rankedListHtml.hidden = false

@@ -165,6 +165,16 @@
         color: #888;
     }
 
+    #filesContent {
+        width: 500px;
+        height: 500px;
+    }
+
+    core-list {
+        /*width: 200px;*/
+        height: 800px;
+    }
+
 </style>
 <div id="main" vertical layout>
     <div id="bar" horizontal layout>
@@ -218,43 +228,39 @@
             </div>
         </div>
         <div id="content" horizontal layout flex>
-
-
             <template if="{{ selectedOption == 'browse' }}">
                 <div horizontal layout flex>
                     <div id="studiesContent">
                         <template repeat="{{study in selectedProject.studies}}">
                             <jso-opencga-study-card
-                                    class="study" study="{{study}}" data-selected="{{selectedStudy == study}}"
+                                    class="study" study="{{study}}"
                                     on-click="{{handleStudyClick}}">
                             </jso-opencga-study-card>
                         </template>
                     </div>
-                    <template if="{{ files.length > 0 }}">
-                        <div id="filesContent">
-                            <template repeat="{{file in files}}">
-                                <jso-opencga-file-card
-                                        class="file" file="{{file}}">
-                                </jso-opencga-file-card>
+                    <div id="filesContent">
+                        <core-list id="list" data="{{filesStudy}}" height="10">
+                            <template>
+                                <div>{{ model.path }}</div>
                             </template>
-                        </div>
-                    </template>
+                        </core-list>
+                    </div>
                 </div>
             </template>
-
 
             <template if="{{ selectedOption == 'createProject' }}">
                 <jso-opencga-create-project></jso-opencga-create-project>
             </template>
 
             <template if="{{ selectedOption == 'selectStudy' }}">
-                <jso-opencga-select-study studyList="{{selectedProject.studies}}" selectedStudy="{{selectedStudy}}" userData="{{userData}}"></jso-opencga-select-study>
+                <jso-opencga-select-study studyList="{{selectedProject.studies}}" selectedStudy="{{selectedStudy}}"
+                                          userData="{{userData}}"></jso-opencga-select-study>
             </template>
             <template if="{{ selectedOption == 'createStudy' }}">
                 <jso-opencga-create-study projectList="{{userData.projects}}"></jso-opencga-create-study>
             </template>
             <!--<template if="{{ selectedOption == 'createAnalysis' }}">-->
-                <!--<jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>-->
+            <!--<jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>-->
             <!--</template>-->
 
             <template if="{{ selectedOption == 'createFolder' }}">
@@ -270,7 +276,8 @@
             </template>
 
             <template if="{{ selectedOption == 'uploadFile' }}">
-                <jso-opencga-upload selectedProject="{{selectedProject}}" selectedStudy="{{selectedStudy}}"></jso-opencga-upload>
+                <jso-opencga-upload selectedProject="{{selectedProject}}"
+                                    selectedStudy="{{selectedStudy}}"></jso-opencga-upload>
             </template>
 
             <template if="{{ selectedOption == 'browseStudies' }}">
@@ -284,11 +291,11 @@
 <script>
     Polymer({
         created: function () {
-            this.userData;
-            this.selectedOption;
-            this.selectedOptionText;
-
-            this.selectedStudy;
+//            this.userData;
+//            this.selectedOption;
+//            this.selectedOptionText;
+//
+//            this.selectedStudy;
 
         },
         ready: function () {
@@ -331,15 +338,35 @@
             this.selectedStudy = null;
         },
         handleStudyClick: function (e) {
-            if (this.selectedStudy === e.target.study) {
-                this.selectedStudy = null;
-            } else {
-                this.selectedStudy = e.target.study;
-                this.getFilesByStudy(this.selectedStudy.id)
-            }
+            var me = this;
+            this.message = '';
+            debugger
+            OpencgaManager.files.search({
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    studyId: e.target.study.id
+                },
+                request: {
+                    success: function (response) {
+                        console.log(response);
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            me.filesStudy = response.response[0].result
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            });
+        },
+        selectedStudyChanged: function (e) {
+            this.getFilesByStudy(this.selectedStudy.id)
         },
         handleNavigationClick: function (e) {
             var option = e.target.dataset['content'];
+            debugger
             if (option) {
                 this.selectedOption = option;
                 this.selectedOptionText = e.target.innerText.trim();

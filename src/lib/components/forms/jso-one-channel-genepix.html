@@ -80,25 +80,22 @@
             GenePix one-channel normalization
         </div>
         <div class="icon">
-            <!--<font-awesome icon="magic"></font-awesome>-->
         </div>
     </div>
     <form id="form">
         <h3>Examples</h3>
 
-        <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+        <div class="button action" on-click="{{loadExample1}}">genepix one-color normalization</div>
 
         <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                   pattern="[a-zA-Z0-9]+">
+        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}">
         <label>Or select output folder:</label>
         <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
 
         <div>
             List 1:
-            <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
-            <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{list1}}"></jso-file-browser>
+            <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}"
+                              selectedFile="{{compressed_file}}"></jso-file-browser>
         </div>
         <h3>Analysis</h3>
         Background correction:
@@ -123,7 +120,10 @@
         <input name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox" value="true">
         Check if true flagged spots will have a missing (NA) normalized value and A-value as well
         <h3>Job information</h3>
-        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+        <textarea id="description" required>
+            {{description}}
+        </textarea>
+        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required >
 
         <div class="button action" on-click="{{handleForm}}">Run</div>
     </form>
@@ -133,64 +133,75 @@
     Polymer({
         created: function () {
             this.jobName = 'JobName';
-            this.toolName = "affy-expression-normalization";
+            this.toolName = "genepix-expression-one-color-normalization";
             this.list1UploadMsg = "Select file...";
-        },
-        list1Click: function (e) {
-            this.$.list1Html.hidden = false
-            //this.$.rankedListFileName.click();
-
         },
         list1Changed: function (oldV, newV) {
             this.list1UploadMsg = this.list1.path
         },
+        validForm: function () {
+            var valid = this.$.form.checkValidity();
+            if (typeof this.newFolderName == 'undefined' && typeof this.$.selectFolder.selectedFolder == 'undefined') {
+                valid = false;
+            }
+            if (this.compressed_file == '') {
+                valid = false;
+            }
+            return valid;
+        },
         handleForm: function () {
             var me = this;
             this.message = '';
-            if (this.newFolderName && this.newFolderName != "") {
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.newFolderName,
-                        studyId: this.selectedStudy.id
+            if ((me.validForm())) {
 
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                var selectedFolderId = response.response[0].result[0].id;
+                if (this.newFolderName && this.newFolderName != "") {
+                    OpencgaManager.files.createFolder({
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            folder: this.newFolderName,
+                            studyId: this.selectedStudy.id
 
-                                me.launchJob(selectedFolderId);
-                            } else {
-                                debugger
-                                me.message = response.response[0].errorMsg;
-                            }
                         },
-                        error: function () {
-                            alert('Server error, try again later.');
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                me.message = 'Folder created sucessfully.';
+                                    var selectedFolderId = response.response[0].result[0].id;
+
+                                    me.launchJob(selectedFolderId);
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                alert('Server error, try again later.');
+                            }
                         }
-                    }
-                });
-            }
-            else {
-                me.launchJob(this.$.selectFolder.selectedFolder.id);
+                    });
+                }
+                else {
+
+                    me.launchJob(this.$.selectFolder.selectedFolder.id);
+                }
             }
         },
         launchJob: function (selectedFolderId) {
             var me = this;
-            var query = { sid: Cookies("bioinfo_sid"),
+            var query = {
+                sid: Cookies("bioinfo_sid"),
                 analysisId: this.selectedStudy.analysis.id,
                 toolId: this.toolName,
                 outdir: selectedFolderId,
                 jobName: this.jobName,
                 description: this.description,
                 "compressed-file": this.compressed_file.id,
-                "compressed-file-tags": this.compressed_file_tags };
+                "compressed-file-tags": this.compressed_file_tags,
+                "bg-correction": this.$.bg_correction.value,
+                "ba-normalization": this.$.ba_normalization.value
+            };
 
-            if (this.$.rma.checked) query["rma"] = this.$.rma.checked;
-            if (this.$.plier.checked) query["plier"] = this.$.plier.checked;
-            if (this.$.calls.checked) query["calls"] = this.$.calls.checked;
+            if (this.$.flags_no_fitted.checked) query["flags-no-fitted"] = "";
+            if (this.$.flags_as_missing.checked) query["flags-as-missing"] = "";
             OpencgaManager.jobs.create({
                 query: query,
                 request: {
@@ -211,17 +222,16 @@
             })
         },
         loadExample1: function (e) {
-            this.jobName = "affy_sample_1";
-            this.description = "just_an_affy_example";
-            this.rma = true;
-            this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
-            this.compressed_file = {id: "example_affymetrix.zip", name: "affymetrix.zip"};
-            this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+            this.jobName = "genepix one-color normalization";
+            this.description = "GenePix one-color normalization demo";
+            this.$.bg_correction.value = "normexp";
+            this.$.flags_no_fitted.checked = true;
+            this.$.flags_as_missing.checked = false;
+            this.$.ba_normalization.value = "quantiles";
+            this.compressed_file = {id: "example_onecolor_genepix_expression.zip", path: "onecolor_genepix_expression.zip"};
+            this.compressed_file_tags = "microarray,expression,one-channel,agilent";
+            this.newFolderName = "one_channel_genepix_" + Math.floor((Math.random() * 100) + 1);
 
-        },
-        handleFisher: function (e) {
-            this.fisher = e.target.dataset.value;
-            this.fisherText = e.target.innerText;
         }
     });
 </script>
