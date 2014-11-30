@@ -1,4 +1,4 @@
-<polymer-element name="jso-clustering" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-association" attributes="userData selectedOption selectedStudy">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -81,7 +81,7 @@
     </style>
     <div class="title">
         <div>
-            Clustering
+            Association analysis
         </div>
         <div class="icon">
             <!--<font-awesome icon="magic"></font-awesome>-->
@@ -90,7 +90,7 @@
     <form id="form">
         <h3>Examples</h3>
 
-        <div class="button action" on-click="{{loadExample1}}"> fibroblasts k-means clustering</div>
+        <div class="button action" on-click="{{loadExample1}}"> Association analysis: chi-square test</div>
 
         <h3>Output parameters</h3>
         <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
@@ -103,30 +103,18 @@
             <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}"
                               selectedFile="{{list1}}"></jso-file-browser>
         </div>
-        <h3>Select type of clustering: samples and/or genes</h3>
-        <input name="sample_clustering" id="sample_clustering" class="fc-checkbox" type="checkbox" value="true" checked="checked" on-click="{{clusteringTypeClick}}">
-        Clustering of samples
-        <br>
-        <input name="gene_clustering" id="gene_clustering" class="fc-checkbox" type="checkbox" value="true" on-click="{{clusteringTypeClick}}">
-        Clustering of genes
-
-        <div id="methodDiv">
-            <h3>Select method</h3>
-            <input id="method_1" name="method" class="fc-radioitem" type="radio" value="upgma" checked="checked" on-click="{{methodClick}}"> UPGMA <br>
-            <input id="method_2" name="method" class="fc-radioitem" type="radio" value="sota" on-click="{{methodClick}}"> SOTA<br>
-            <input id="method_3" name="method" class="fc-radioitem" type="radio" value="kmeans" on-click="{{methodClick}}"> K-menas<br>
+        <div id="testDiv">
+            <h3>Select the association test</h3>
+            <input id="test_1" name="test" class="fc-radioitem" type="radio" value="assoc" checked="checked">Chi-square case/control association test<br>
+            <input id="test_2" name="test" class="fc-radioitem" type="radio" value="fisher">Fisher's exact test (allelic association)<br>
+            <input id="test_3" name="test" class="fc-radioitem" type="radio" value="linear">Linear<br>
+            <input id="test_4" name="test" class="fc-radioitem" type="radio" value="logistic">Logistic<br>
+            <input id="test_5" name="test" class="fc-radioitem" type="radio" value="tdt">TDT (only for family-based analysis)
         </div>
-        <label>Number of sample-clusters (k-value)</label>
-        <input name="sample_kvalue" id="sample_kvalue" class="fc-int fc-text" type="text" value="{{sample_kvalue}}" disabled="true">
-        <label>Number of gene-clusters (k-value)</label>
-        <input name="gene_kvalue" id="gene_kvalue" class="fc-int fc-text" type="text" value="{{gene_kvalue}}" disabled="true">
-
-        <h3>Select distance</h3>
-        <input id="distance_1" name="distance" class="fc-radioitem" type="radio" value="euclidean" checked="checked">Euclidean (normal)<br>
-        <input id="distance_2" name="distance" class="fc-radioitem" type="radio" value="square"> Euclidean (square)<br>
-        <input id="distance_3" name="distance" class="fc-radioitem" type="radio" value="spearman"> Correlation coeff. (Spearman)<br>
-        <input id="distance_4" name="distance" class="fc-radioitem" type="radio" value="pearson">Pearson correlation coeff.
-
+        <div>
+            <h3>Minor allele frequency</h3>
+            <label>Select MAF value</label><input name="maf" id="maf" class="fc-int fc-text" type="text" value="{{maf}}" required>
+        </div>
         <h3>Job information</h3>
         <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
         <textarea required value="{{description}}"></textarea>
@@ -139,16 +127,10 @@
     Polymer({
         created: function () {
             this.jobName = 'JobName';
-            this.toolName = "clustering";
+            this.toolName = "association";
             this.list1UploadMsg = "Select file...";
             this.description = "Job description..."
-            this.sample_kvalue = 5;
-            this.gene_kvalue = 15;
-        },
-        list1Click: function (e) {
-            this.$.list1Html.hidden = false
-            //this.$.rankedListFileName.click();
-
+            this.maf = 0.02;
         },
         list1Changed: function (oldV, newV) {
             this.list1UploadMsg = this.list1.path
@@ -193,26 +175,11 @@
                 outdir: selectedFolderId,
                 jobName: this.jobName,
                 description: this.description,
-                dataset: this.list1.id,
-                method: this.$.methodDiv.querySelector('input[name="method"]:checked').value
+                "zip-file": this.list1.id,
+                maf: this.maf,
+                test: this.$.testDiv.querySelector('input[name="test"]:checked').value
             }
-            if (this.$.sample_clustering.checked) {
-                query["sample-clustering"] = true;
-            }
-            if (this.$.gene_clustering.checked) {
-                query["gene-clustering"] = true;
-            }
-            /** Validating clustering **/
-             if (!this.$.sample_clustering.checked && !this.$.gene_clustering.checked) {
-                alert("Not type of clustering selected");
-                 return;
-            }
-            if (this.$.sample_kvalue.disabled == false) {
-                query["sample-kvalue"] = this.sample_kvalue;
-            }
-            if (this.$.gene_kvalue.disabled == false) {
-                query["gene-kvalue"] = this.gene_kvalue;
-            }
+
 
             OpencgaManager.jobs.create({
                 query: query,
@@ -234,40 +201,14 @@
             })
         },
         loadExample1: function (e) {
-            this.jobName = "fibroblasts k-means clustering";
-            this.description = "Non-hierarchical clustering - K-means demo";
-            this.newFolderName = "clust_" + Math.floor((Math.random() * 100) + 1);
-            this.list1 = {id: "example_fibroblasts.txt", path: "fibroblasts.txt"};
-            this.$.sample_clustering.checked = true;
-            this.$.gene_clustering.checked = true;
-            this.$.gene_clustering.checked = true;
-            this.$.method_3.checked = true;
-            this.sample_kvalue = 5;
-            this.$.sample_kvalue.disabled = false;
-            this.gene_kvalue = 15;
-            this.$.gene_kvalue.disabled = false;
-            this.$.distance_2.checked = true;
+            this.jobName = "Association analysis: chi-square test";
+            this.description = "description...";
+            this.newFolderName = "asso" + Math.floor((Math.random() * 100) + 1);
+            this.list1 = {id: "example_association.zip", path: "association.zip"};
+            this.maf = 0.02;
+            this.$.test_1.checked = true;
 
-        },
-        methodClick: function (e) {
-
-            if (this.$.method_3.checked && this.$.sample_clustering.checked) {
-                this.$.sample_kvalue.disabled = false;
-            }
-            else {
-                this.$.sample_kvalue.disabled = true;
-            }
-            if (this.$.method_3.checked && this.$.gene_clustering.checked) {
-                this.$.gene_kvalue.disabled = false;
-            }
-            else {
-                this.$.gene_kvalue.disabled = true;
-            }
-        },
-        clusteringTypeClick: function (e) {
-            this.methodClick();
         }
-
     });
 </script>
 </polymer-element>

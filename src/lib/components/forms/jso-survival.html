@@ -98,34 +98,30 @@
 
             <div>
                 List 1:
-                <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
-                <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
-                                  selectedFile="{{list1}}"></jso-file-browser>
+                <jso-file-browser fileList="{{selectedStudy.files}}" selectedFile="{{list1}}"></jso-file-browser>
+
             </div>
         </div>
         <div>
             <h3>Select time and series variables</h3>
-            <label>Time variable name: </label>
-            <select name="time_class" id="time_class" class="fc-combobox" type="text" value="none">
-                <option name="time_class_1" id="time_class_1" class="fc-combobox-item" value="none" selected="selected">
-                    Select option
-                </option>
-            </select>
-            <label>Censored variable name</label>
-            <select name="censored_class" id="censored_class" class="fc-combobox" type="text" value="none">
-                <option name="censored_class_1" id="censored_class_1" class="fc-combobox-item" value="none"
-                        selected="selected">Select option
-                </option>
-            </select>
+            Time variable name:
+            <jso-class-viewer id="jsoClassViewerTime" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"
+                              loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}" childrenDisplay="false" variableTypes="NUMERIC"></jso-class-viewer>
+            Censored variable name:
+            <jso-class-viewer id="jsoClassViewerCensored" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"
+                              loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}" childrenDisplay="false"></jso-class-viewer>
+            </di
         </div>
-        <div>
+        <div id="testDiv">
             <h3>Select test</h3>
             <input id="test_1" name="test" class="fc-radioitem" type="radio" value="cox" checked="checked">Cox
         </div>
-        <div>
+        <div id="multipleTestCorrectionDiv">
             <h3>Select multiple-test correction</h3>
-            <input id="correction_1" name="correction" class="fc-radioitem" type="radio" value="fdr" checked="checked">Benjamini and Hochberg (BH), FDR <br>
-            <input id="correction_2" name="correction" class="fc-radioitem" type="radio" value="by"> Benjamini and Yekutieli (BY) <br>
+            <input id="correction_1" name="correction" class="fc-radioitem" type="radio" value="fdr" checked="checked">Benjamini
+            and Hochberg (BH), FDR <br>
+            <input id="correction_2" name="correction" class="fc-radioitem" type="radio" value="by"> Benjamini and
+            Yekutieli (BY) <br>
             <input id="correction_3" name="correction" class="fc-radioitem" type="radio" value="hochberg">Hochberg <br>
             <input id="correction_4" name="correction" class="fc-radioitem" type="radio" value="holm">Holm <br>
             <input id="correction_5" name="correction" class="fc-radioitem" type="radio" value="bonferroni">Bonferroni<br>
@@ -134,11 +130,12 @@
         <div>
             <h3>Select adjusted p-value</h3>
             <label>Adj. p-value (0.0-1.0)</label><input name="p_value" id="p_value" class="fc-decimal fc-text"
-                                                        type="text" value="0.05">
+                                                        type="text" value="{{p_value}}">
         </div>
         <h3>Job information</h3>
 
         <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+        <textarea required value="{{description}}"></textarea>
 
         <div class="button action" on-click="{{handleForm}}">Run</div>
     </form>
@@ -147,17 +144,20 @@
 <script>
     Polymer({
         created: function () {
-            this.jobName = 'JobName';
-            this.toolName = "affy-expression-normalization";
-            this.list1UploadMsg = "Select file...";
-        },
-        list1Click: function (e) {
-            this.$.list1Html.hidden = false
-            //this.$.rankedListFileName.click();
+            this.jobName = 'survival';
+            this.toolName = "survival";
+            this.description = "Job description";
 
+            this.censored_class = "";
+            this.correction = "";
+            this.p_value = 0.05;
+            this.test = "";
+            this.time_class = "";
         },
         list1Changed: function (oldV, newV) {
-            this.list1UploadMsg = this.list1.path
+            if (typeof oldV != 'undefined') {
+                this.getContentFile(newV);
+            }
         },
         handleForm: function () {
             var me = this;
@@ -175,10 +175,8 @@
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
 //                                me.message = 'Folder created sucessfully.';
                                 var selectedFolderId = response.response[0].result[0].id;
-
                                 me.launchJob(selectedFolderId);
                             } else {
-                                debugger
                                 me.message = response.response[0].errorMsg;
                             }
                         },
@@ -194,18 +192,25 @@
         },
         launchJob: function (selectedFolderId) {
             var me = this;
-            var query = { sid: Cookies("bioinfo_sid"),
+
+            this.censored_class = this.$.jsoClassViewerCensored.getMainSelect().value;
+            this.time_class = this.$.jsoClassViewerTime.getMainSelect().value;
+            this.test = this.$.testDiv.querySelector('input[name="test"]:checked').value;
+            this.correction = this.$.multipleTestCorrectionDiv.querySelector('input[name="correction"]:checked').value;
+            var query = {
+                sid: Cookies("bioinfo_sid"),
                 analysisId: this.selectedStudy.analysis.id,
                 toolId: this.toolName,
                 outdir: selectedFolderId,
                 jobName: this.jobName,
                 description: this.description,
-                "compressed-file": this.compressed_file.id,
-                "compressed-file-tags": this.compressed_file_tags };
-
-            if (this.$.rma.checked) query["rma"] = this.$.rma.checked;
-            if (this.$.plier.checked) query["plier"] = this.$.plier.checked;
-            if (this.$.calls.checked) query["calls"] = this.$.calls.checked;
+                "censored-class": this.censored_class,
+                "time-class": this.time_class,
+                dataset: this.list1.id,
+                test: this.test,
+                correction: this.correction,
+                "p-value": this.p_value
+            };
             OpencgaManager.jobs.create({
                 query: query,
                 request: {
@@ -213,7 +218,6 @@
                     success: function (response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             var userId = response.response[0].result[0].id;
-                            me.message = userId + ' created';
                             me.selectedOption = "jobLaunched"
                         } else {
                             me.message = response.response[0].errorMsg;
@@ -226,17 +230,67 @@
             })
         },
         loadExample1: function (e) {
-            this.jobName = "affy_sample_1";
-            this.description = "just_an_affy_example";
-            this.rma = true;
-            this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
-            this.compressed_file = {id: "example_affymetrix.zip", name: "affymetrix.zip"};
-            this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+            this.jobName = "Survival demo (Cox test)";
+            this.description = "Differential expression - Survival demo (Cox test)";
+            this.newFolderName = "surv_" + Math.floor((Math.random() * 100) + 1);
+            this.list1 = {id: "example_survival.txt", path: "survival.txt"};
+            this.p_value = 0.05;
+            this.$.test_1.checked = true;
+            this.$.correction_1.checked = true;
 
         },
-        handleFisher: function (e) {
-            this.fisher = e.target.dataset.value;
-            this.fisherText = e.target.innerText;
+        loadedMainSelectChanged: function (oldV, newV) {
+            /** This is mainly for the examples **/
+            var me = this;
+            if (newV == true) {
+                var selectCensored = this.$.jsoClassViewerCensored.getMainSelect();
+                var selectTime = this.$.jsoClassViewerTime.getMainSelect();
+                if (this.list1.id == "example_survival.txt") {
+                    selectCensored.value = "censored";
+                    selectTime.value = "time";
+                }
+            }
+        },
+        loadExampleFile: function (exampleFileName) {
+            var me = this;
+            OpencgaManager.files.contentExample({
+                query: {
+                    toolName: this.toolName,
+                    fileName: exampleFileName
+                },
+                request: {
+                    //method: 'POST',
+                    success: function (response) {
+                        me.contentFile = response;
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            })
+        },
+        getContentFile: function (file) {
+
+            var me = this;
+            if (String(file.id).indexOf("example_") >= 0) {
+                this.loadExampleFile(file.path);
+            } else {
+                OpencgaManager.files.content({
+                    id: file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            me.contentFile = response;
+                        },
+                        error: function () {
+                            var message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            }
         }
     });
 </script>

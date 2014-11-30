@@ -1,4 +1,4 @@
-<polymer-element name="jso-class-viewer" attributes="contentFile loadedMainSelect loadedChildrenSelect childrenDisplay">
+<polymer-element name="jso-class-viewer" attributes="contentFile loadedMainSelect loadedChildrenSelect childrenDisplay variableTypes">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-panel.css">
@@ -38,8 +38,12 @@
                 /** loaded is a variable to know if this component has create all the necessary elements**/
                 this.loadedMainSelect = false;
                 this.loadedChildrenSelect = false;
+
                 /** childrenDisplay is an attributes that indicates if we want a the childrens (another selects)  of the main select **/
                 this.childrenDisplay = true;
+
+                /** variableTypes is the type of variables that we want to display **/
+                this.variableTypes = "CATEGORICAL,NUMERIC,STRING";
             },
             contentFileChanged: function (oldV, newV) {
                 var me = this;
@@ -72,7 +76,8 @@
                     var variable = variables[i];
                     var name = variable[1];
                     var type = variable[2].split("{")[0];
-                    if (type == "CATEGORICAL") {
+                    if (this.variableTypes.indexOf(type) >= 0) {
+//                    if (type == "CATEGORICAL") {
                         var option = document.createElement("option");
                         option.value = name;
                         var text = document.createTextNode(name);

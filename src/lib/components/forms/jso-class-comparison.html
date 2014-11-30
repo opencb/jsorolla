@@ -144,9 +144,7 @@
         <h3>Job information</h3>
 
         <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
-        <textarea required value="{{description}}">
-
-        </textarea>
+        <textarea required value="{{description}}"></textarea>
 
         <div class="button action" on-click="{{handleForm}}">Run</div>
     </form>
@@ -282,7 +280,6 @@ Polymer({
             query["correction"] = this.$.multiple_test_correction_div.querySelector('input[name="correction"]:checked').value;
             query["p-value"] = this.p_value;
         }
-        debugger
         OpencgaManager.jobs.create({
             query: query,
             request: {
