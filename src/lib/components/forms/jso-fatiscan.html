@@ -1,0 +1,233 @@
+<polymer-element name="jso-fatiscan" attributes="userData selectedOption selectedStudy">
+<template>
+    <link rel="stylesheet" href="../jso-style.css">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+            padding: 30px 100px;
+
+            z-index: 50000;
+            top: 90px;
+
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+
+            width: 40vw;
+            border: 0px solid #c6d0da;
+            border-width: 1px;
+            /*border-top-width: 1px;*/
+            transition: all 0.2s;
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+            color: #666;
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        label {
+            display: inline-block;
+            color: #666;
+            margin-top: 3px;
+            /*width: 150px;*/
+        }
+
+        label::after {
+            content: ':'
+        }
+
+        .action {
+            /*margin-top: 30px;*/
+            background-color: #f5f5f5 !important;
+            text-align: center;
+        }
+
+        .action:active {
+            background-color: #445D76 !important;
+            color: #fff !important;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        div.button {
+            /*display: inline-block;*/
+            width: 300px
+        }
+
+        /*jso-file-browser {*/
+        /*width: 70%;*/
+        /*}*/
+
+        span {
+            border: 1px solid;
+        }
+
+        input[type="text"]:disabled {
+            background: #dddddd;
+        }
+    </style>
+    <div class="title">
+        <div>
+            Fatiscan
+        </div>
+        <div class="icon">
+            <!--<font-awesome icon="magic"></font-awesome>-->
+        </div>
+    </div>
+    <form id="form">
+        <h3>Examples</h3>
+
+        <div class="button action" on-click="{{loadExample1}}"> Diabetes dataset</div>
+
+        <h3>Output parameters</h3>
+        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
+                                                   pattern="[a-zA-Z0-9]+">
+        <label>Or select output folder:</label>
+        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <div>
+            <h3>Select your data</h3>
+            List 1:
+            <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}"
+                              selectedFile="{{list1}}"></jso-file-browser>
+            <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox" value="true">Remove duplicates
+        </div>
+        <h3>Databases</h3>
+
+        <div>
+            <h3>Databases</h3>
+            <select name="species" id="species" class="fc-combobox" type="text" value="none">
+                <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
+                <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">Human (homo sapiens)</option>
+                <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
+                <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
+                <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
+                <option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>
+                <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>
+                <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
+                <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+            </select>
+
+            <input name="go_bp" id="go_bp" type="checkbox" value="gobp" disabled> GO biological process <br>
+            <input name="go_mf" id="go_mf" type="checkbox" value="gomf" disabled>GO molecular function <br>
+            <input name="go_cc" id="go_cc" type="checkbox" value="gocc" disabled>GO cellular component <br>
+            <input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>
+            <input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>
+            <input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>
+            <input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>
+            <input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>
+            <input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>
+            <input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>
+            <input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>
+
+        </div>
+        <h3>Job information</h3>
+        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+        <textarea required value="{{description}}"></textarea>
+
+        <div class="button action" on-click="{{handleForm}}">Run</div>
+    </form>
+    <div class="message">{{message}}</div>
+</template>
+<script>
+    Polymer({
+        created: function () {
+            this.jobName = 'JobName';
+            this.toolName = "fatiscan";
+            this.description = "Job description...";
+            this.method = "method_1"; // logistic model
+
+
+        },
+        handleForm: function () {
+            var me = this;
+            this.message = '';
+            if (this.newFolderName && this.newFolderName != "") {
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        folder: this.newFolderName,
+                        studyId: this.selectedStudy.id
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                me.message = 'Folder created sucessfully.';
+                                var selectedFolderId = response.response[0].result[0].id;
+
+                                me.launchJob(selectedFolderId);
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+            else {
+                me.launchJob(this.$.selectFolder.selectedFolder.id);
+            }
+        },
+        launchJob: function (selectedFolderId) {
+            var me = this;
+            var query = { sid: Cookies("bioinfo_sid"),
+                analysisId: this.selectedStudy.analysis.id,
+                toolId: this.toolName,
+                outdir: selectedFolderId,
+                jobName: this.jobName,
+                description: this.description,
+                "ranked-list": this.list1.id,
+                method: this.method,
+                duplicates: this.$.remove_duplicates.checked,
+                species: this.$.species.value
+
+            };
+            OpencgaManager.jobs.create({
+                query: query,
+                request: {
+                    //method: 'POST',
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            var userId = response.response[0].result[0].id;
+                            me.message = userId + ' created';
+                            me.selectedOption = "jobLaunched"
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            })
+        },
+        loadExample1: function (e) {
+            this.jobName = "Diabetes_dataset";
+            this.description = "Diabetes_dataset";
+            this.newFolderName = "fatiscan_" + Math.floor((Math.random() * 100) + 1);
+            this.list1 = {id: "example_fatiscan_diabetesAff.txt", path: "fatiscan_diabetesAff.txt"};
+            this.$.remove_duplicates.checked = false;
+            this.$.species.value = "hsa";
+            this.$.go_bp.checked = true;
+            this.$.go_bp.disabled = false;
+
+        }
+    });
+</script>
+</polymer-element>
