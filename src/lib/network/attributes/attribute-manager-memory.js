@@ -173,6 +173,10 @@ AttributeManagerMemory.prototype = {
     addToSelection: function (id) {
         this.selected.push(this.getRow(id));
     },
+    removeFromSelection:function(id){
+        var index = this.selected.indexOf(this.getRow(id));
+        this.selected.splice(index, 1);
+    },
     selectAll: function () {
         var selection = [];
         for (var i = 0; i < this.data.length; i++) {

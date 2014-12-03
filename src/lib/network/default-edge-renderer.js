@@ -51,7 +51,11 @@ function DefaultEdgeRenderer(args) {
     this.targetRenderer;
 
     //set instantiation args, must be last
-    _.extend(this, args);
+    for (var prop in args) {
+        if (hasOwnProperty.call(args, prop)) {
+            this[prop] = args[prop];
+        }
+    }
 
 }
 
@@ -90,7 +94,7 @@ DefaultEdgeRenderer.prototype = {
         }
     },
     _getStrokeWidth: function () {
-        return 1 + (this.size / 4);
+        return 1 + (this.size / 2);
     },
     //setConfig: function (args) {
     //    if (args.size) {
@@ -315,54 +319,64 @@ DefaultEdgeRenderer.prototype = {
         // center + (cos(angle), sin(angle))*magnitude
 
         //Source
-        switch (this.sourceRenderer.shape) {
-            case 'square':
-                magnitudeCos = srHalfSize / absCosAngle;
-                magnitudeSin = srHalfSize / absSinAngle;
-                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
-                sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
-                break;
-            case 'rectangle':
-                magnitudeCos = srHalfSize * 1.5 / absCosAngle;
-                magnitudeSin = srHalfSize / absSinAngle;
-                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
-                sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
-                break;
-            case 'ellipse':
-                sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize * 1.5);
-                sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
-                break;
-            case 'circle':
-            default:
-                sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize);
-                sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+        if (this.sourceRenderer.complex == true) {
+            sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize);
+            sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+        } else {
+            switch (this.sourceRenderer.shape) {
+                case 'square':
+                    magnitudeCos = srHalfSize / absCosAngle;
+                    magnitudeSin = srHalfSize / absSinAngle;
+                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                    sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
+                    sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
+                    break;
+                case 'rectangle':
+                    magnitudeCos = srHalfSize * 1.5 / absCosAngle;
+                    magnitudeSin = srHalfSize / absSinAngle;
+                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                    sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
+                    sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
+                    break;
+                case 'ellipse':
+                    sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize * 1.5);
+                    sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+                    break;
+                case 'circle':
+                default:
+                    sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize);
+                    sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+            }
         }
         //Target
-        switch (this.targetRenderer.shape) {
-            case 'square':
-                magnitudeCos = trHalfSize / absCosAngle;
-                magnitudeSin = trHalfSize / absSinAngle;
-                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                tx = this.targetCoords.x - (sign * cosAngle * magnitude);
-                ty = this.targetCoords.y - (sign * sinAngle * magnitude);
-                break;
-            case 'rectangle':
-                magnitudeCos = trHalfSize * 1.5 / absCosAngle;
-                magnitudeSin = trHalfSize / absSinAngle;
-                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                tx = this.targetCoords.x - (sign * cosAngle * magnitude);
-                ty = this.targetCoords.y - (sign * sinAngle * magnitude);
-                break;
-            case 'ellipse':
-                tx = this.targetCoords.x - (sign * cosAngle * trHalfSize * 1.5);
-                ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
-                break;
-            case 'circle':
-            default:
-                tx = this.targetCoords.x - (sign * cosAngle * trHalfSize);
-                ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+        if (this.targetRenderer.complex == true) {
+            tx = this.targetCoords.x - (sign * cosAngle * trHalfSize);
+            ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+        } else {
+            switch (this.targetRenderer.shape) {
+                case 'square':
+                    magnitudeCos = trHalfSize / absCosAngle;
+                    magnitudeSin = trHalfSize / absSinAngle;
+                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                    tx = this.targetCoords.x - (sign * cosAngle * magnitude);
+                    ty = this.targetCoords.y - (sign * sinAngle * magnitude);
+                    break;
+                case 'rectangle':
+                    magnitudeCos = trHalfSize * 1.5 / absCosAngle;
+                    magnitudeSin = trHalfSize / absSinAngle;
+                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                    tx = this.targetCoords.x - (sign * cosAngle * magnitude);
+                    ty = this.targetCoords.y - (sign * sinAngle * magnitude);
+                    break;
+                case 'ellipse':
+                    tx = this.targetCoords.x - (sign * cosAngle * trHalfSize * 1.5);
+                    ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+                    break;
+                case 'circle':
+                default:
+                    tx = this.targetCoords.x - (sign * cosAngle * trHalfSize);
+                    ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+            }
         }
         return {sx: sx, sy: sy, tx: tx, ty: ty};
     },

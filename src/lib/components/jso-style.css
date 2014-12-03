@@ -159,7 +159,7 @@ div.dropdown {
     cursor: pointer;
 }
 
-div.dropdown ul, ul.context {
+div.dropdown ul{
     box-sizing: border-box;
     visibility: hidden;
     opacity: 0;
@@ -176,6 +176,22 @@ div.dropdown ul, ul.context {
     box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
     /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
     transition: all 0.35s;
+}
+ul.context {
+    box-sizing: border-box;
+    visibility: hidden;
+    opacity: 0;
+    position: fixed;
+    list-style: none;
+    text-decoration: none;
+    z-index: 100000;
+    border: 1px solid #afafaf;
+    background-color: #fff;
+    line-height: 22px;
+    margin: 1px 0 0 0;
+    padding: 5px 0;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.1s;
 }
 
 div.dropdown ul, ul.context ul {

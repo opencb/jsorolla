@@ -265,7 +265,7 @@
                         this._removeMouseMoveHandlers();
                         break;
                     case "select":
-                        if (this.selectArea) {
+                        if (this.selectArea && !event.ctrlKey) {
                             var x = parseFloat(this.$.selectHelp.getAttribute('x'));
                             var y = parseFloat(this.$.selectHelp.getAttribute('y'));
                             var width = parseFloat(this.$.selectHelp.getAttribute('width'));
@@ -413,7 +413,7 @@
                     this.addBackgroundImage(images[i]);
                 }
             },
-            getBackGroundImages: function () {
+            getBackgroundImages: function () {
                 var images = [];
                 var imageElements = this.$.scaleBackGroup.querySelectorAll('image[network-type="background-image"]');
                 for (var i = 0; i < imageElements.length; i++) {

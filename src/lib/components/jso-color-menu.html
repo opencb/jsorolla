@@ -1,0 +1,167 @@
+<polymer-element name="jso-color-menu"
+                 attributes="color preset">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+                padding: 5px;
+                width: 230px;
+                border: 1px solid #ccc;
+                background: white;
+                list-style: none;
+                text-transform: none;
+                box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
+                transition: opacity 0.1s, visibility 0.1s;
+            }
+
+            .colorItem {
+                display: block;
+                float: left;
+                width: 16px;
+                height: 18px;
+                margin: 0px;
+                border: 1px solid #ffffff;
+                background-color: rgba(255, 0, 0, 1.0);
+            }
+
+            .colorItem:hover {
+                cursor: pointer;
+                border-color: #000000;
+            }
+        </style>
+        <template repeat="{{color in colors}}">
+            <div class="colorItem" on-mousedown="{{handleColorClick}}" style="background-color: {{color}};"></div>
+        </template>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.preset = 'default';
+            },
+            ready: function () {
+                this.colors = this._generateColors();
+            },
+            handleColorClick: function (e) {
+                this.fire("color-click", {color: e.target.templateInstance.model.color});
+            },
+            _generateColors: function () {
+                var presetPalettes = {
+                    'default': {
+                        'saturation': [70.0, 100.0, 'rows'],
+                        'hue': [0.0, 300.0, 'cols'],
+                        'value': [40.0, 98.0, 'rows']
+                    },
+                    'warm': {
+                        'saturation': [70.0, 100.0, 'rows'],
+                        'hue': [0.0, 60.0, 'cols'],
+                        'value': [40.0, 98.0, 'rows']
+                    },
+                    'cool': {
+                        'saturation': [70.0, 100.0, 'rows'],
+                        'hue': [150.0, 280.0, 'cols'],
+                        'value': [40.0, 98.0, 'rows']
+                    },
+                    'moody': {
+                        'saturation': [80.0, 12.0, 'rows'],
+                        'hue': [0.0, 300.0, 'cols'],
+                        'value': [30.0, 70.0, 'rows']
+                    },
+                    'primary': {
+                        'saturation': [100.0, 100.0, 'rows'],
+                        'hue': [0.0, 300.0, 'cols'],
+                        'value': [50.0, 98.0, 'rows']
+                    },
+                    'pastel': {
+                        'saturation': [50.0, 90.0, 'rows'],
+                        'hue': [0.0, 300.0, 'cols'],
+                        'value': [70.0, 98.0, 'rows']
+                    }
+                };
+                var hslToRgb = function (h, s, l) {
+                    var r, g, b;
+
+                    // normalize hue orientation b/w 0 and 360 degrees
+                    h = h % 360;
+                    if (h < 0)
+                        h += 360;
+                    h = ~~h / 360;
+
+                    if (s < 0)
+                        s = 0;
+                    else if (s > 100)
+                        s = 100;
+                    s = ~~s / 100;
+
+                    if (l < 0)
+                        l = 0;
+                    else if (l > 100)
+                        l = 100;
+                    l = ~~l / 100;
+
+                    if (s === 0) {
+                        r = g = b = l; // achromatic
+                    } else {
+                        var q = l < 0.5 ?
+                        l * (1 + s) :
+                        l + s - l * s;
+                        var p = 2 * l - q;
+                        r = hueToRgb(p, q, h + 1 / 3);
+                        g = hueToRgb(p, q, h);
+                        b = hueToRgb(p, q, h - 1 / 3);
+                    }
+
+                    return [~~(r * 255), ~~(g * 255), ~~(b * 255)];
+                };
+
+                var hueToRgb = function (p, q, t) {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                };
+
+                var colors = [];
+                var settings = presetPalettes[this.preset];
+                settings.rows = 6;
+                settings.cols = 12;
+                var getComponent = function (component, col, row) {
+                    var axis = settings[component][2];
+                    var current = (axis == 'cols') ? col : row;
+                    var step = (settings[component][1] - settings[component][0]) / settings[axis];
+                    return parseInt((current * step) + settings[component][0]);
+                }
+                for (var r = 0; r < settings['rows']; r++) {
+                    for (var c = 0; c < settings['cols']; c++) {
+                        var h = getComponent('hue', c, r);
+                        var s = getComponent('saturation', c, r);
+                        var v = getComponent('value', c, r);
+                        var asRGB = hslToRgb(h, s, v);
+                        var redAsHex = asRGB[0].toString(16);
+                        var greenAsHex = asRGB[1].toString(16);
+                        var blueAsHex = asRGB[2].toString(16);
+                        var rgb = '#' +
+                                ((redAsHex.length == 1 ? '0' : '') + redAsHex) +
+                                ((greenAsHex.length == 1 ? '0' : '') + greenAsHex) +
+                                ((blueAsHex.length == 1 ? '0' : '') + blueAsHex);
+                        colors.push(rgb);
+                    }
+                }
+                var n = settings['cols'];
+                var interval = 255 / n;
+                for (var r = n; r > 0; r--) {
+                    var hex = Math.ceil(r * interval).toString(16);
+                    var rgb = '#' +
+                            ((hex.length == 1 ? '0' : '') + hex) +
+                            ((hex.length == 1 ? '0' : '') + hex) +
+                            ((hex.length == 1 ? '0' : '') + hex);
+                    colors.push(rgb);
+                }
+                return colors;
+            }
+        });
+    </script>
+</polymer-element>

@@ -70,9 +70,6 @@
             </div>
             <div class="container" horizontal layout>
                 <div id="left" vertical layout>
-                    <!--<div horizontal layout id="attributetype">-->
-                    <!--TODO string and list-->
-                    <!--</div>-->
                     <div id="attributelist" flex>
                         <template repeat="{{column in attributeManager.columns}}">
                             <div horizontal layout>
@@ -98,10 +95,10 @@
                         </select>
                     </div>
                     <div>
-                        <div class="table-head" horizontal layout>
-                            <div flex>Attribute value</div>
-                            <div flex>Render property value</div>
-                        </div>
+                        <!--<div class="table-head" horizontal layout>-->
+                            <!--<div flex>Attribute value</div>-->
+                            <!--<div flex>Render property value</div>-->
+                        <!--</div>-->
                         <core-list id="list" data="{{uniqueData}}" height="27">
                             <template>
                                 <div horizontal layout class="table-row">

@@ -22,8 +22,6 @@
 function CircosVertexRenderer(args) {
     var _this = this;
 
-    this.complex = false;
-
     //defaults
     this.shape = 'circle';
     this.size = 30;
@@ -36,8 +34,10 @@ function CircosVertexRenderer(args) {
     this.labelPositionX = 0;
     this.labelPositionY = 0;
     this.labelText = '';
-
-    this.sliceArea = 1;
+    this.area = 1;
+    this.strokeArea = 1;
+    this.xAttribute = 'x';
+    this.yAttribute = 'y';
 
     this.pieSlices = [
 //        {size: this.size, area: this.sliceArea, color: this.color, labelSize: this.labelSize, labelOffset: 0}
@@ -69,8 +69,6 @@ function CircosVertexRenderer(args) {
             this[prop] = args[prop];
         }
     }
-
-
 }
 
 
@@ -79,63 +77,209 @@ CircosVertexRenderer.prototype = {
         return this[attr];
     },
     set: function (attr, value, update) {
-        this.complex = false;
         this[attr] = value;
-        switch (attr) {
-            case 'opacity':
-                this.groupEl.setAttribute('opacity', this.opacity);
-                break;
-            case "labelSize":
-            case "labelPositionY":
-            case "labelPositionX":
-                this.labelPositionX = parseInt(this.labelPositionX);
-                this.labelPositionY = parseInt(this.labelPositionY);
-                this.labelEl.setAttribute('font-size', this.labelSize);
-                this._updateLabelElPosition();
-                this.labelEl.setAttribute('x', this.labelX);
-                this.labelEl.setAttribute('y', this.labelY);
-                break;
-            case "shape":
-            case 'size':
-            case 'color':
-            case 'strokeSize':
-            case 'strokeColor':
-            default:
-                this.size = parseInt(this.size);
-                this.strokeSize = parseInt(this.strokeSize);
-                this.opacity = parseFloat(this.opacity);
-                this.labelSize = parseInt(this.labelSize);
-                this.labelPositionX = parseInt(this.labelPositionX);
-                this.labelPositionY = parseInt(this.labelPositionY);
-                if (update !== false) {
-                    this.update();
-                }
+
+        if (this._checkListProperties()) {
+            this.complex = true;
+            this.update();
+        } else {
+            this.complex = false;
+            switch (attr) {
+                case 'opacity':
+                    this.opacity = parseFloat(this.opacity);
+                    this.groupEl.setAttribute('opacity', this.opacity);
+                    break;
+                case "labelSize":
+                case "labelPositionY":
+                case "labelPositionX":
+                    this.labelPositionX = parseInt(this.labelPositionX);
+                    this.labelPositionY = parseInt(this.labelPositionY);
+                    this.labelSize = parseInt(this.labelSize);
+                    this.labelEl.setAttribute('font-size', this.labelSize);
+                    this._updateLabelElPosition();
+                    this.labelEl.setAttribute('x', this.labelX);
+                    this.labelEl.setAttribute('y', this.labelY);
+                    break;
+                case "shape":
+                case 'color':
+                case 'strokeSize':
+                case 'size':
+                case 'strokeColor':
+                case 'area':
+                case 'strokeArea':
+                default:
+                    this.size = parseInt(this.size);
+                    this.strokeSize = parseInt(this.strokeSize);
+                    this.area = parseInt(this.area);
+                    this.strokeArea = parseInt(this.strokeArea);
+                    if (update !== false) {
+                        this.update();
+                    }
+            }
         }
+
     },
-    //setConfig: function (args) {
-    //    if(this.groupEl){
-    //        _.extend(this, args);
-    //
-    //        this.size = parseInt(this.size);
-    //        this.strokeSize = parseInt(this.strokeSize);
-    //        this.opacity = parseFloat(this.opacity);
-    //        this.labelSize = parseInt(this.labelSize);
-    //        this.labelPositionX = parseInt(this.labelPositionX);
-    //        this.labelPositionY = parseInt(this.labelPositionY);
-    //
-    //        this.groupEl.setAttribute('opacity', this.opacity);
-    //        this.labelEl.setAttribute('font-size', this.labelSize);
-    //        this._updateLabelElPosition();
-    //        this.labelEl.setAttribute('x', this.labelX);
-    //        this.labelEl.setAttribute('y', this.labelY);
-    //    }
-    //},
+    _checkListProperties: function () {
+        /** Detect array values **/
+        var minPieLength = 0;
+        var minDonutLength = 0;
+        if (Array.isArray(this.color)) {
+            if (minPieLength == 0) {
+                minPieLength = this.color.length;
+            }
+            if (this.color.length > 1) {
+                minPieLength = this.color.length;
+            }
+        }
+        if (Array.isArray(this.size)) {
+            if (minPieLength == 0) {
+                minPieLength = this.size.length;
+            }
+            if (this.size.length < minPieLength && this.size.length > 1) {
+                minPieLength = this.size.length;
+            }
+        }
+        if (Array.isArray(this.area)) {
+            if (minPieLength == 0) {
+                minPieLength = this.area.length;
+            }
+            if (this.area.length < minPieLength && this.area.length > 1) {
+                minPieLength = this.area.length;
+            }
+        }
+        if (Array.isArray(this.strokeColor)) {
+            if (minDonutLength == 0) {
+                minDonutLength = this.strokeColor.length;
+            }
+        }
+        if (Array.isArray(this.strokeSize)) {
+            if (minDonutLength == 0) {
+                minDonutLength = this.strokeSize.length;
+            }
+            if (this.strokeSize.length < minDonutLength && this.strokeSize.length > 1) {
+                minDonutLength = this.strokeSize.length;
+            }
+        }
+        if (Array.isArray(this.strokeArea)) {
+            if (minDonutLength == 0) {
+                minDonutLength = this.strokeArea.length;
+            }
+            if (this.strokeArea.length < minDonutLength && this.strokeArea.length > 1) {
+                minDonutLength = this.strokeArea.length;
+            }
+        }
+        this.pieSlices = [];
+        var slice;
+        if (minPieLength > 0) {
+            for (var i = 0; i < minPieLength; i++) {
+                slice = {};
+                if (Array.isArray(this.color)) {
+                    if (this.color.length == 1) {
+                        slice.color = this.color[0];
+                    } else {
+                        slice.color = this.color[i];
+                    }
+                } else {
+                    slice.color = this.color;
+                }
+                if (Array.isArray(this.size)) {
+                    if (this.size.length == 1) {
+                        slice.size = this.size[0];
+                    } else {
+                        slice.size = this.size[i];
+                    }
+                } else {
+                    slice.size = this.size;
+                }
+                if (Array.isArray(this.area)) {
+                    if (this.area.length == 1) {
+                        slice.area = this.area[0];
+                    } else {
+                        slice.area = this.area[i];
+                    }
+                } else {
+                    slice.area = this.area;
+                }
+                slice.labelSize = this.labelSize;
+                slice.labelOffset = 0;
+                this.pieSlices.push(slice);
+            }
+        }
+        this.donutSlices = [];
+        if (minDonutLength > 0) {
+            for (var i = 0; i < minDonutLength; i++) {
+                slice = {};
+                if (Array.isArray(this.strokeColor)) {
+                    if (this.strokeColor.length == 1) {
+                        slice.color = this.strokeColor[0];
+                    } else {
+                        slice.color = this.strokeColor[i];
+                    }
+                } else {
+                    slice.color = this.strokeColor;
+                }
+                if (Array.isArray(this.strokeSize)) {
+                    if (this.strokeSize.length == 1) {
+                        slice.size = this.strokeSize[0];
+                    } else {
+                        slice.size = this.strokeSize[i];
+                    }
+                } else {
+                    slice.size = this.strokeSize;
+                }
+                if (Array.isArray(this.strokeArea)) {
+                    if (this.strokeArea.length == 1) {
+                        slice.size = this.strokeArea[0];
+                    } else {
+                        slice.area = this.strokeArea[i];
+                    }
+                } else {
+                    slice.area = this.strokeArea;
+                }
+                slice.labelSize = this.labelSize;
+                slice.labelOffset = 0;
+                this.donutSlices.push(slice);
+            }
+        }
+        if (this.pieSlices.length != 0 || this.donutSlices.length != 0) {
+            if (this.pieSlices.length == 0) {
+                this.pieSlices.push({
+                    color: this.color,
+                    size: this.size,
+                    area: this.area,
+                    labelSize: this.labelSize,
+                    labelOffset: 0
+                });
+            }
+            if (this.donutSlices.length == 0) {
+                this.donutSlices.push({
+                    color: this.strokeColor,
+                    size: this.strokeSize,
+                    area: this.strokeArea,
+                    labelSize: this.labelSize,
+                    labelOffset: 0
+                });
+            }
+            return true;
+        } else {
+            return false;
+        }
+        /** **/
+    },
     render: function (args) {
+
         this.targetEl = args.target;
         //this.vertex = args.vertex;
         //this.coords = args.coords;
         this.labelText = this.vertex.id;
-        this._render();
+
+        if (this._checkListProperties()) {
+            this.complex = true;
+            this._render();
+        } else {
+            this._render();
+        }
+
     },
     remove: function () {
         if (this.groupEl && this.groupEl.parentNode) {
@@ -146,45 +290,6 @@ CircosVertexRenderer.prototype = {
         this.remove();
         this._render();
         console.log("update")
-    },
-    updateComplex: function (slicesMap, defaults) {
-        this.complex = true;
-        this.shape = 'circle';
-        this.color = defaults['pieSlices'].color;
-        this.size = defaults['pieSlices'].size;
-        this.strokeColor = defaults['donutSlices'].color;
-        this.strokeSize = defaults['donutSlices'].size;
-
-        this.pieSlices = slicesMap['pieSlices'];
-        this.donutSlices = slicesMap['donutSlices'];
-        if (typeof this.pieSlices === 'undefined') {
-            this.pieSlices = [
-                {
-                    size: defaults['pieSlices'].size,
-                    area: defaults['pieSlices'].area,
-                    color: defaults['pieSlices'].color,
-                    labelSize: this.labelSize,
-                    labelOffset: 0
-                }
-            ];
-        }
-        if (typeof this.donutSlices === 'undefined') {
-            this.donutSlices = [
-                {
-                    size: defaults['donutSlices'].size,
-                    area: defaults['donutSlices'].area,
-                    color: defaults['donutSlices'].color,
-                    labelSize: this.labelSize,
-                    labelOffset: 0
-                }
-            ];
-        }
-        if (typeof slicesMap['pieSlices'] === 'undefined' && typeof slicesMap['donutSlices'] === 'undefined') {
-            this.complex = false;
-            this.update();
-        } else {
-            this.update();
-        }
     },
     select: function () {
         this.groupEl.insertBefore(this.selectEl, this.groupEl.firstChild);
@@ -230,8 +335,9 @@ CircosVertexRenderer.prototype = {
             labelPositionX: this.labelPositionX,
             labelPositionY: this.labelPositionY,
             labelText: this.labelText,
+            area: this.area,
+            strokeArea: this.strokeArea,
             pieSlices: this.pieSlices,
-            donutSlices: this.donutSlices,
             donutSlices: this.donutSlices
         };
     },
@@ -244,11 +350,12 @@ CircosVertexRenderer.prototype = {
         this._updateLabelElPosition();
     },
     _updateComplexDrawParameters: function () {
-        var midSize = (this.size + (this.strokeSize));
-        this.mid = midSize / 2;
+        //var midSize = (this.size + (this.strokeSize));
+        //this.mid = midSize / 2;
         this.maxPieSize = this._slicesMax(this.pieSlices);
         this.maxDonutSize = this._slicesMax(this.donutSlices);
         this.figureSize = (this.maxPieSize + (this.maxDonutSize * 2));
+        this.mid = this.figureSize/2;
         this._updateLabelElPosition();
     },
     _updateLabelElPosition: function () {
@@ -555,14 +662,14 @@ CircosVertexRenderer.prototype = {
         var total = 0;
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            total += item.area;
+            total += parseFloat(item.area);
         }
         return total;
     },
     _slicesMax: function (items) {
         var max = 0;
         for (var i = 0; i < items.length; i++) {
-            max = Math.max(max, items[i].size);
+            max = Math.max(max, parseFloat(items[i].size));
         }
         return max;
     },

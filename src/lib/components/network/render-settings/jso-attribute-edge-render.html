@@ -76,7 +76,7 @@
             <div class="header" horizontal layout
                  on-mousedown="{{handleHeaderMouseDown}}"
                  on-mouseup="{{handleHeaderMouseUp}}">
-                <div class="text">Simple edge attribute rendering</div>
+                <div class="text">Edge attribute rendering</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
@@ -163,7 +163,8 @@
                 <div horizontal layout>
                     <div class="text">Color:</div>
 
-                    <input flex type="color" value="{{defaults.color}}" on-change="{{handleColor}}">
+                    <!--<input flex type="color" value="{{defaults.color}}" on-change="{{handleColor}}">-->
+                    <jso-color-picker flex color="{{defaults.color}}" on-change="{{handleColor}}"></jso-color-picker>
 
                     <div class="button action configure" data-enabled="{{visualSets.color != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="color"></div>
@@ -307,6 +308,7 @@
                 this.fire('bidirectional');
             },
             handleColor: function () {
+                this.defaults.color = e.detail.color
                 this.fire('color');
             },
             handleSize: function () {
