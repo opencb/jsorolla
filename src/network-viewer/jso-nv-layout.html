@@ -4,6 +4,12 @@
             :host {
                 display: block;
                 position: relative;
+
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
                 user-select: none;
             }
         </style>
@@ -26,7 +32,7 @@
 
                     <g id="scaleFrontGroup" font-family="Ubuntu Mono"
                        transform="translate({{tx}},{{ty}}) scale({{scale}})">
-                       </g>
+                    </g>
                 </svg>
             </svg>
         </svg>
@@ -45,10 +51,10 @@
             ready: function () {
 
             },
-            removeDom:function(){
+            removeDom: function () {
                 this.$.frontSvg.removeChild(this.$.scaleFrontGroup);
             },
-            appendDom:function(){
+            appendDom: function () {
                 this.$.frontSvg.appendChild(this.$.scaleFrontGroup);
             },
             clean: function () {
@@ -126,11 +132,9 @@
                 var me = this;
                 var targetEl = e.target;
                 var targetElNetworkType = targetEl.getAttribute('network-type');
-                var downX = e.offsetX;
-                var downY = e.offsetY;
-
-//                console.log(downX)
-//                console.log(downY)
+                var br = this.getBoundingClientRect();
+                var downX = e.clientX - br.left;
+                var downY = e.clientY - br.top;
                 switch (this.mode) {
                     case "add":
                         /* event coordinates */
@@ -143,15 +147,15 @@
                             case 'vertex':
                             case 'vertex-label':
                                 var vertexId = this.getVertexId(targetEl);
-                                this.fire('selectvertex', {vertexId: vertexId, addToSelection: event.ctrlKey});
+                                this.fire('selectvertex', {vertexId: vertexId, addToSelection: e.ctrlKey});
 
                                 var lastX = downX;
                                 var lastY = downY;
 
                                 var handler = function (moveEvent) {
                                     moveEvent.preventDefault();
-                                    var moveX = moveEvent.offsetX;
-                                    var moveY = moveEvent.offsetY;
+                                    var moveX = moveEvent.clientX - br.left;
+                                    var moveY = moveEvent.clientY - br.top;
                                     var dispX = moveX - lastX;
                                     var dispY = moveY - lastY;
 
@@ -172,8 +176,8 @@
                                 var lastX = 0, lastY = 0;
                                 var handler = function (moveEvent) {
                                     moveEvent.preventDefault();
-                                    var moveX = moveEvent.offsetX;
-                                    var moveY = moveEvent.offsetY;
+                                    var moveX = moveEvent.clientX - br.left;
+                                    var moveY = moveEvent.clientY - br.top;
                                     var dispX = moveX - downX;
                                     var dispY = moveY - downY;
                                     var x = (dispX >= 0) ? downX : downX - Math.abs(dispX);
@@ -202,8 +206,8 @@
                                 this.$.linkHelp.setAttribute('y2', downY);
                                 var handler = function (moveEvent) {
                                     moveEvent.preventDefault();
-                                    var moveX = moveEvent.offsetX;
-                                    var moveY = moveEvent.offsetY;
+                                    var moveX = moveEvent.clientX - br.left;
+                                    var moveY = moveEvent.clientY - br.top;
                                     me.$.linkHelp.setAttribute('x2', moveX);
                                     me.$.linkHelp.setAttribute('y2', moveY);
                                 };
@@ -229,8 +233,8 @@
                             var lastY = downY;
                             var handler = function (moveEvent) {
                                 moveEvent.preventDefault();
-                                var moveX = moveEvent.offsetX;
-                                var moveY = moveEvent.offsetY;
+                                var moveX = moveEvent.clientX - br.left;
+                                var moveY = moveEvent.clientY - br.top;
                                 var dispX = moveX - lastX;
                                 var dispY = moveY - lastY;
 
@@ -262,7 +266,6 @@
 
                 switch (this.mode) {
                     case "add":
-                        this._removeMouseMoveHandlers();
                         break;
                     case "select":
                         if (this.selectArea && !event.ctrlKey) {
@@ -289,17 +292,14 @@
                                 default:
                             }
                         }
-                        this._removeMouseMoveHandlers();
                         break;
                     case "selectbackground":
-                        this._removeMouseMoveHandlers();
                         break;
                     case "join":
                         if (!(targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label')) {
                             this.joinSourceVertex = null;
                         }
                         if (this.joinSourceVertex == null) {
-                            this._removeMouseMoveHandlers();
                             this.$.linkHelp.setAttribute('x1', 0);
                             this.$.linkHelp.setAttribute('y1', 0);
                             this.$.linkHelp.setAttribute('x2', 0);
@@ -316,13 +316,15 @@
                 this.$.selectHelp.setAttribute('y', 0);
                 this.$.selectHelp.setAttribute('width', 0);
                 this.$.selectHelp.setAttribute('height', 0);
+                this._removeMouseMoveHandlers();
             },
             middleMouseDown: function (e) {
                 var me = this;
                 var targetEl = e.target;
                 var targetElNetworkType = targetEl.getAttribute('network-type');
-                var downX = e.offsetX;
-                var downY = e.offsetY;
+                var br = this.getBoundingClientRect();
+                var downX = e.clientX - br.left;
+                var downY = e.clientY - br.top;
                 switch (this.mode) {
                     case "add":
                     case "join":
@@ -333,8 +335,8 @@
                         var lastY = downY;
                         var handler = function (moveEvent) {
                             moveEvent.preventDefault();
-                            var moveX = moveEvent.offsetX;
-                            var moveY = moveEvent.offsetY;
+                            var moveX = moveEvent.clientX - br.left;
+                            var moveY = moveEvent.clientY - br.top;
                             var dispX = moveX - lastX;
                             var dispY = moveY - lastY;
 
@@ -366,8 +368,9 @@
                 var me = this;
                 var targetEl = e.target;
                 var targetElNetworkType = targetEl.getAttribute('network-type');
-                var downX = e.offsetX;
-                var downY = e.offsetY;
+                var br = this.getBoundingClientRect();
+                var downX = e.clientX - br.left;
+                var downY = e.clientY - br.top;
                 switch (this.mode) {
                     case "add":
                     case "join":
