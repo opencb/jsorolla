@@ -140,7 +140,7 @@
 
                             <div class="button action newvalue" on-click="{{handleEditApply}}"></div>
                         </div>
-                        <div horizontal layout style="margin-bottom: 10px;">
+                        <div horizontal layout>
                             <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
 
                             <div class="button action newattr" on-click="{{handleAddApply}}"></div>
@@ -181,7 +181,6 @@
                         </sortable-table>
                         <div class="customPagerScroll"
                              style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
-                        <!--<div class="customPagerScroll"></div>-->
                     </div>
                     <div class="customPager" horizontal layout>
                         <div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}</div>

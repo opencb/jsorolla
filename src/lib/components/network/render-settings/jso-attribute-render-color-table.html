@@ -1,5 +1,5 @@
 <polymer-element name="jso-attribute-render-color-table"
-                 attributes="renderProperty attributeManager defaultValue visualSet">
+                 attributes="displayProperty attributeManager defaultValue visualSet allowListParse">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
         <link rel="stylesheet" href="../../jso-panel.css">
@@ -63,24 +63,43 @@
                 width: 50px;
                 margin-top: 3px;
             }
+
+            .colorbox {
+                outline: 0;
+                width: 20px;
+                border: 1px solid #d3d3d3;
+            }
+            jso-color-menu{
+                transition: opacity 0.1s, visibility 0.1s;
+            }
+            jso-color-menu[hide=true]{
+                visibility: hidden;
+                opacity: 0;
+            }
+            jso-color-menu[hide=false]{
+                visibility: visible;
+                opacity: 1;
+            }
         </style>
         <div class="panel panel-shadow">
             <div class="header">
-                <div class="text">{{renderProperty}} rendering configuration</div>
+                <div class="text">{{displayProperty}} rendering configuration</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
             <div class="container" horizontal layout>
                 <div id="left" vertical layout>
-                    <!--<div horizontal layout>-->
-                        <!--<div flex class="button action" data-checked="{{attributeParse == 'string'}}"-->
-                             <!--on-mousedown="{{handleAttributeParseSelect}}" data-name="string">String-->
-                        <!--</div>-->
-                        <!--<div flex class="button action" data-checked="{{attributeParse == 'list'}}"-->
-                             <!--on-mousedown="{{handleAttributeParseSelect}}" data-name="list">List-->
-                        <!--</div>-->
-                    <!--</div>-->
+                    <template if="{{allowListParse == 'true'}}">
+                        <div horizontal layout>
+                            <div flex class="button action" data-checked="{{attributeParse == 'string'}}"
+                                 on-mousedown="{{handleAttributeParseSelect}}" data-name="string">String
+                            </div>
+                            <div flex class="button action" data-checked="{{attributeParse == 'list'}}"
+                                 on-mousedown="{{handleAttributeParseSelect}}" data-name="list">List
+                            </div>
+                        </div>
+                    </template>
                     <div horizontal layout>
                         <div flex class="button action" data-checked="{{attributeType == 'discrete'}}"
                              on-mousedown="{{handleAttributeTypeSelect}}" data-name="discrete">Discrete
@@ -108,7 +127,8 @@
                         <!--<div class="button action">Deselect all</div>-->
                         <div class="button action" on-click="{{handleApplyDirect}}">Apply direct</div>
                         <!--<div class="text">Selection:</div>-->
-                        <input flex type="color" value="{{defaultValue}}">
+                        <!--<input flex type="color" value="{{defaultValue}}">-->
+                        <jso-color-picker flex color="{{defaultValue}}"></jso-color-picker>
                     </div>
                     <div hidden?="{{attributeType != 'continuous'}}">
                         <div horizontal layout>
@@ -128,15 +148,19 @@
                         </div>
                     </div>
                     <div>
-                        <div class="table-head" horizontal layout>
-                            <div flex>Attribute value</div>
-                            <div flex>Render property value</div>
-                        </div>
+                        <!--<div class="table-head" horizontal layout>-->
+                            <!--<div flex>Attribute value</div>-->
+                            <!--<div flex>Render property value</div>-->
+                        <!--</div>-->
                         <core-list id="list" data="{{uniqueData}}" height="27">
                             <template>
                                 <div horizontal layout class="table-row">
                                     <div flex>{{model.attribute}}</div>
-                                    <input flex type="color" value="{{model.render}}">
+                                    <div tabindex="-1" class="colorbox" style="background-color:{{model.render}};"
+                                         on-click="{{handleChangeFocusInUniqueColor}}"
+                                         on-focusout="{{handleChangeFocusOutUniqueColor}}"
+                                            ></div>
+                                    <input flex type="text" value="{{model.render}}">
                                 </div>
                             </template>
                         </core-list>
@@ -145,8 +169,8 @@
                         <div class="button action" style="width: 100px;" on-click="{{handleOk}}">OK</div>
                     </div>
                 </div>
-
             </div>
+            <jso-color-menu id="colormenu" hide="{{hideColorMenu}}" flex on-color-click="{{handleColorMenu}}"></jso-color-menu>
         </div>
 
     </template>
@@ -158,6 +182,10 @@
                 this.attributeParse = 'string';
 
                 this.uniqueData = [];
+
+                /**/
+                this.hideColorMenu = true;
+                this.lastUniqueModel;
             },
             ready: function () {
                 this.points = [
@@ -166,6 +194,21 @@
                 ];
                 this.handleApplyInterpolation();
             },
+            /** Color **/
+            handleChangeFocusInUniqueColor: function (e) {
+                this.lastUniqueModel = e.target.templateInstance.model.model;
+                this.$.colormenu.style.top = (22 + e.currentTarget.getBoundingClientRect().top) + "px";
+                this.$.colormenu.style.left = e.currentTarget.getBoundingClientRect().left + "px";
+                this.hideColorMenu = !this.hideColorMenu;
+            },
+            handleChangeFocusOutUniqueColor: function (e) {
+                this.hideColorMenu = true;
+            },
+            handleColorMenu: function (e) {
+                this.lastUniqueModel.render = e.detail.color;
+                this.hideColorMenu = true;
+            },
+
             defaultValueChanged: function (oldValue, newValue) {
                 for (var i = 0; i < this.uniqueData.length; i++) {
                     var data = this.uniqueData[i];
@@ -184,6 +227,9 @@
             attributeNameChanged: function (oldValue, newValue) {
                 this._updateUniqueValues();
             },
+            attributeParseChanged: function (oldValue, newValue) {
+                this._updateUniqueValues();
+            },
             attributeTypeChanged: function (oldValue, newValue) {
             },
             /* Observers */
@@ -193,9 +239,8 @@
             handleAttributeManagerChange: function (oldValue, newValue) {
                 this._updateUniqueValues();
             },
-
             handleClose: function () {
-                this.renderProperty = null;
+                this.displayProperty = null;
             },
             handleOk: function () {
                 var matches = {};
@@ -205,12 +250,13 @@
                 }
                 this.visualSet = {
                     attribute: this.attributeName,
-                    renderProperty: this.renderProperty,
+                    displayProperty: this.displayProperty,
                     type: this.attributeType,
                     matches: matches,
                     parse: this.attributeParse,
                     enabled: true
                 }
+                this.fire('ok', {displayProperty: this.displayProperty});
                 this.handleClose();
             },
             handleAttributeNameSelect: function (e) {
@@ -232,38 +278,61 @@
             },
 
             _updateUniqueValues: function () {
-                var uniqueMap = {};
-                var uniqueData = [];
-                var max;
-                var min;
-                for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
-                    var row = this.attributeManager.data[i];
-                    if (!uniqueMap[row[this.attributeName]]) {
-                        uniqueMap[row[this.attributeName]] = true;
+                var me = this;
+                if (this.attributeName != '') {
+                    var uniqueMap = {};
+                    var uniqueData = [];
+                    var max = 0;
+                    var min = 0;
 
-                        var render = this.defaultValue;
-                        if (this.visualSet && this.visualSet.attribute == this.attributeName) {
-                            render = this.visualSet.matches[row[this.attributeName]];
+                    var processValue = function (value) {
+                        if (value) {
+                            if (!uniqueMap[value]) {
+                                uniqueMap[value] = true;
+                                var render = me.defaultValue;
+                                if (me.visualSet && me.visualSet.attribute == me.attributeName) {
+                                    render = me.visualSet.matches[value];
+                                }
+                                uniqueData.push({attribute: value, render: render});
+                            }
+                            var attribute = parseFloat(value);
+                            if (attribute >= max) {
+                                max = attribute;
+                            }
+                            if (attribute <= min) {
+                                min = attribute;
+                            }
                         }
-                        uniqueData.push({attribute: row[this.attributeName], render: render});
+                    };
 
-                        var attribute = parseFloat(row[this.attributeName]);
-                        if (!max || attribute >= max) {
-                            max = attribute;
+                    var row;
+                    if (this.attributeParse == "list") {
+                        var splitStr = ",", values;
+                        for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
+                            row = this.attributeManager.data[i];
+                            values = row[this.attributeName].split(splitStr);
+                            for (var j = 0, lj = values.length; j < lj; j++) {
+                                processValue(values[j]);
+                            }
                         }
-                        if (!min || attribute <= min) {
-                            min = attribute;
+                    } else {
+                        for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
+                            row = this.attributeManager.data[i];
+                            processValue(row[this.attributeName]);
                         }
                     }
+
+                    this.points[0].value = min;
+                    this.points[this.points.length - 1].value = max;
+                    uniqueData.sort(function (a, b) {
+                        return parseFloat(a.attribute) - parseFloat(b.attribute);
+                    });
+                    this.uniqueData = uniqueData;
+                    this._updateUniqueInterpolatedValues();
+
                 }
-                this.points[0].value = min;
-                this.points[this.points.length - 1].value = max;
-                uniqueData.sort(function (a, b) {
-                    return parseFloat(a.attribute) - parseFloat(b.attribute);
-                });
-                this.uniqueData = uniqueData;
-                this._updateUniqueInterpolatedValues();
             },
+
             _updateUniqueInterpolatedValues: function () {
                 this.points.sort(function (a, b) {
                     return parseFloat(a.value) - parseFloat(b.value);
@@ -351,7 +420,9 @@
         <div horizontal layout>
             <input flex type="number" value="{{point.value}}">
 
-            <input flex type="color" value="{{point.render}}">
+            <!--<input flex type="color" value="{{point.render}}">-->
+            <jso-color-picker flex color="{{point.render}}"></jso-color-picker>
+
 
             <div class="button action remove" allowRemove="{{allowRemove}}" on-click="{{handleRemove}}"></div>
         </div>

@@ -1,5 +1,5 @@
 <polymer-element name="jso-attribute-render-select-table"
-                 attributes="renderProperty attributeManager defaultValue visualSet options">
+                 attributes="displayProperty attributeManager defaultValue visualSet options">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
         <link rel="stylesheet" href="../../jso-panel.css">
@@ -63,16 +63,13 @@
         </datalist>
         <div class="panel panel-shadow">
             <div class="header">
-                <div class="text">{{renderProperty}} rendering configuration</div>
+                <div class="text">{{displayProperty}} rendering configuration</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
             <div class="container" horizontal layout>
                 <div id="left" vertical layout>
-                    <!--<div horizontal layout id="attributetype">-->
-                    <!--TODO string and list-->
-                    <!--</div>-->
                     <div id="attributelist" flex>
                         <template repeat="{{column in attributeManager.columns}}">
                             <div horizontal layout>
@@ -98,10 +95,10 @@
                         </select>
                     </div>
                     <div>
-                        <div class="table-head" horizontal layout>
-                            <div flex>Attribute value</div>
-                            <div flex>Render property value</div>
-                        </div>
+                        <!--<div class="table-head" horizontal layout>-->
+                            <!--<div flex>Attribute value</div>-->
+                            <!--<div flex>Render property value</div>-->
+                        <!--</div>-->
                         <core-list id="list" data="{{uniqueData}}" height="27">
                             <template>
                                 <div horizontal layout class="table-row">
@@ -131,8 +128,6 @@
                 this.attributeParse = 'string';
 
                 this.uniqueData = [];
-                this.selectOptions = ['a', 'b'];
-
             },
             ready: function () {
                 this.selectOptions = this.options.split(",");
@@ -163,7 +158,7 @@
             },
 
             handleClose: function () {
-                this.renderProperty = null;
+                this.displayProperty = null;
             },
             handleOk: function () {
                 var matches = {};
@@ -173,11 +168,12 @@
                 }
                 this.visualSet = {
                     attribute: this.attributeName,
-                    renderProperty: this.renderProperty,
+                    displayProperty: this.displayProperty,
                     matches: matches,
                     parse: this.attributeParse,
                     enabled: true
                 }
+                this.fire('ok',{displayProperty: this.displayProperty});
                 this.handleClose();
             },
             handleAttributeNameSelect: function (e) {
@@ -195,7 +191,9 @@
                         if (this.visualSet) {
                             render = this.visualSet.matches[row[this.attributeName]];
                         }
-                        uniqueData.push({attribute: row[this.attributeName], render: render});
+                        if(row[this.attributeName]){
+                            uniqueData.push({attribute: row[this.attributeName], render: render});
+                        }
                     }
                 }
                 uniqueData.sort(function (a, b) {

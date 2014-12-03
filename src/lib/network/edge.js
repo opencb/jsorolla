@@ -32,7 +32,11 @@ function Edge(args) {
 
     this.renderer = new DefaultEdgeRenderer();
     //set instantiation args, must be last
-    _.extend(this, args);
+    for (var prop in args) {
+        if (hasOwnProperty.call(args, prop)) {
+            this[prop] = args[prop];
+        }
+    }
 
     if (this.renderer) {
         this.renderer.edge = this;

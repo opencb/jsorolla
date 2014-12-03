@@ -71,7 +71,7 @@ Vertex.prototype = {
     render: function (args) {
         this.renderer.render(args)
     },
-    setRenderer:function(renderer){
+    setRenderer: function (renderer) {
         if (renderer) {
             this.renderer = renderer;
             this.renderer.coords = this.position;
