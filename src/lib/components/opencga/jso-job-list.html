@@ -7,37 +7,138 @@
             :host {
                 display: block;
                 position: absolute;
-                /*margin-left: 10px;*/
+                transition: height 0.1s
             }
 
             .panel {
-                height: 500px;
-                overflow: auto;
+                height: 100%;
+            }
+
+            .container {
+                position: relative;
+                overflow-y: auto;
+            }
+
+            sortable-table::shadow thead {
+                display: none;
+            }
+
+            #tablewrap {
+                position: relative;
+                background-color: #FAFAFA;
+            }
+
+            #table {
+                overflow-y: hidden;
+                overflow-x: auto;
+                margin-right: 7px;
+                border-right: 1px solid #d3d3d3;
+                background-color: #ffffff;
+            }
+
+            .customPager {
+                background-color: #fafafa;
+                box-sizing: border-box;
+                border-bottom: 1px solid #cccccc;
+                color: #445D76;
+                padding: 3px;
+            }
+
+            .customPagerScroll {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 7px;
+                background-color: #c5c5c5;
+                /*background-color: #3F3F3F;*/
             }
         </style>
-        <div class="panel">
-            <div class="header"
-                 on-click="{{titleClick}}"
-                 data-collapsible="{{collapsible}}"
-                 data-collapsed="{{collapsed}}">
-                Analysis panel
+        <div class="panel panel-shadow" vertical layout>
+            <div class="header" horizontal layout>
+                <div class="text">Jobs</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
             </div>
-            <div class="container">
-                <template repeat="{{jobItemList in jobList}}">
-                    <jso-job jobItem="{{jobItemList}}" on-click="{{handleJobViewClick}}"></jso-job>
-                </template>
+            <div class="container" flex vertical layout>
+                <div class="customPager" horizontal layout>
+                    <div class="text">{{table.dataSize}} job{{table.dataSize != 1 ? 's' : ''}}</div>
+                    <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                        &lt;</div>
+                    <div class="text"> {{table.page}} of {{table.lastPage}}</div>
+                    <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                         on-click="{{moveToNextPage}}">&gt;</div>
+                </div>
+                <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                    <sortable-table id="table" flex
+                                    data="{{jobList}}"
+                                    page="{{page}}"
+                                    columns="{{columns}}"
+                                    pageSize="{{pageSize}}">
+                        <template id="jobTemplate">
+                            <jso-job jobItem="{{row}}" on-click="{{handleJobViewClick}}"></jso-job>
+                        </template>
+                    </sortable-table>
+                    <div class="customPagerScroll"
+                         style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
+                </div>
             </div>
-        </div>
 
-
+            <!--<template repeat="{{jobItemList in jobList}}">-->
+            <!--<jso-job jobItem="{{jobItemList}}" on-click="{{handleJobViewClick}}"></jso-job>-->
+            <!--</template>-->
         </div>
     </template>
     <script>
         Polymer({
             created: function () {
-                this.jobList = ""
-                this.selected = false
+                this.jobList = [];
+                this.selected = false;
+                this.page = 1;
+                this.pageSize = 10;
+                this.itemSize = 64;
+                this.columns = [{
+                    title: 'job',
+                    cellTemplate: 'jobTemplate'
+                }];
 
+            },
+            ready: function () {
+                var me = this;
+                this.addEventListener('transitionend', function () {
+                    me.handleResize();
+                });
+//                this.resizeHandler = function (e) {
+//                };
+//                window.addEventListener("resize", this.handleResize.call());
+                this.table = this.$.table;
+//                this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
+            },
+            domReady: function () {
+                console.log(this.getBoundingClientRect().height);
+                this.handleResize()
+            },
+            handleResize: function () {
+                this.page = 1;
+                this.pageSize = Math.floor(this.getBoundingClientRect().height / this.itemSize) - 1;
+//                console.log(this.getBoundingClientRect().height);
+            },
+            handleScroll: function (e) {
+                if (e.deltaY > 0) {
+                    this.moveToNextPage();
+                }
+                if (e.deltaY < 0) {
+                    this.moveToPreviousPage();
+                }
+            },
+            moveToNextPage: function () {
+                this.$.table.moveToNextPage();
+            },
+            moveToPreviousPage: function () {
+                this.$.table.moveToPreviousPage();
+            },
+            handleClose: function () {
+                this.showJobs = false;
             },
             showJobsChanged: function (oldV, newV) {
                 var me = this;
@@ -48,12 +149,12 @@
                         me.getJobs();
                     }, checkTimeInterval);
                 }
-
             },
             getJobs: function () {
                 var me = this;
                 OpencgaManager.analysis.jobs({
-                    id: this.selectedStudy.analysis.id,
+//                    id: this.selectedStudy.analysis.id,
+                    id: '1',
                     query: {
                         sid: Cookies("bioinfo_sid")
                     },
@@ -61,7 +162,10 @@
                         //method: 'POST',
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.jobList = response.response[0].result
+                                me.jobList = response.response[0].result;
+                                me.jobList.sort(function (a, b) {
+                                    return a.date.localeCompare(b.date);
+                                });
                                 me.jobList = me.jobList.reverse()
                             } else {
                                 me.message = response.response[0].errorMsg;
