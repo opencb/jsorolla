@@ -256,12 +256,16 @@
                         }
                     };
 
-                    var row;
+                    var row, value;
                     if (this.attributeParse == "list") {
                         var splitStr = ",", values;
                         for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
                             row = this.attributeManager.data[i];
-                            values = row[this.attributeName].split(splitStr);
+                            value = row[this.attributeName];
+                            if(value == null){
+                                value = "";
+                            }
+                            values = value.split(splitStr);
                             for (var j = 0, lj = values.length; j < lj; j++) {
                                 processValue(values[j]);
                             }

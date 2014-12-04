@@ -542,19 +542,20 @@
                             vertex = this.graph.vertices[i];
                             row = this.vAttr.getRow(vertex.id);
                             rowValue = row[visualSet.attribute];
-                            if (rowValue != null) {
-                                rowValues = rowValue.split(splitStr);
-                                rowRenderValues = [];
-                                for (var j = 0; j < rowValues.length; j++) {
-                                    rowRenderValue = visualSet.matches[rowValues[j]];
-                                    if (rowRenderValue != null) {
-                                        rowRenderValues.push(rowRenderValue);
-                                    } else {
-                                        rowRenderValues.push(value);
-                                    }
-                                }
-                                finalValues = rowRenderValues;
+                            if (rowValue == null) {
+                                rowValue = "";
                             }
+                            rowValues = rowValue.split(splitStr);
+                            rowRenderValues = [];
+                            for (var j = 0; j < rowValues.length; j++) {
+                                rowRenderValue = visualSet.matches[rowValues[j]];
+                                if (rowRenderValue != null) {
+                                    rowRenderValues.push(rowRenderValue);
+                                } else {
+                                    rowRenderValues.push(value);
+                                }
+                            }
+                            finalValues = rowRenderValues;
                             vertex.renderer.set(displayProperty, finalValues);
                             this._updateEdgeCoords(vertex);
                         }
