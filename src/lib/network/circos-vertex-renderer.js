@@ -69,6 +69,16 @@ function CircosVertexRenderer(args) {
             this[prop] = args[prop];
         }
     }
+
+    this.size = parseFloat(this.size);
+    this.strokeSize = parseFloat(this.strokeSize);
+    this.opacity = parseFloat(this.opacity);
+    this.labelSize = parseFloat(this.labelSize);
+    this.labelPositionX = parseFloat(this.labelPositionX);
+    this.labelPositionY = parseFloat(this.labelPositionY);
+    this.area = parseFloat(this.area);
+    this.strokeArea = parseFloat(this.strokeArea);
+
 }
 
 
@@ -127,23 +137,20 @@ CircosVertexRenderer.prototype = {
             if (minPieLength == 0) {
                 minPieLength = this.color.length;
             }
-            if (this.color.length > 1) {
-                minPieLength = this.color.length;
-            }
         }
         if (Array.isArray(this.size)) {
-            if (minPieLength == 0) {
+            if (minPieLength == 0 || minPieLength == 1) {
                 minPieLength = this.size.length;
             }
-            if (this.size.length < minPieLength && this.size.length > 1) {
+            if (this.size.length != 1 && this.size.length < minPieLength) {
                 minPieLength = this.size.length;
             }
         }
         if (Array.isArray(this.area)) {
-            if (minPieLength == 0) {
+            if (minPieLength == 0 || minPieLength == 1) {
                 minPieLength = this.area.length;
             }
-            if (this.area.length < minPieLength && this.area.length > 1) {
+            if (this.area.length != 1 && this.area.length < minPieLength) {
                 minPieLength = this.area.length;
             }
         }
@@ -153,19 +160,19 @@ CircosVertexRenderer.prototype = {
             }
         }
         if (Array.isArray(this.strokeSize)) {
-            if (minDonutLength == 0) {
-                minDonutLength = this.strokeSize.length;
+            if (minPieLength == 0 || minPieLength == 1) {
+                minPieLength = this.strokeSize.length;
             }
-            if (this.strokeSize.length < minDonutLength && this.strokeSize.length > 1) {
-                minDonutLength = this.strokeSize.length;
+            if (this.strokeSize.length != 1 && this.strokeSize.length < minPieLength) {
+                minPieLength = this.strokeSize.length;
             }
         }
         if (Array.isArray(this.strokeArea)) {
-            if (minDonutLength == 0) {
-                minDonutLength = this.strokeArea.length;
+            if (minPieLength == 0 || minPieLength == 1) {
+                minPieLength = this.strokeArea.length;
             }
-            if (this.strokeArea.length < minDonutLength && this.strokeArea.length > 1) {
-                minDonutLength = this.strokeArea.length;
+            if (this.strokeArea.length != 1 && this.strokeArea.length < minPieLength) {
+                minPieLength = this.strokeArea.length;
             }
         }
         this.pieSlices = [];
@@ -355,7 +362,7 @@ CircosVertexRenderer.prototype = {
         this.maxPieSize = this._slicesMax(this.pieSlices);
         this.maxDonutSize = this._slicesMax(this.donutSlices);
         this.figureSize = (this.maxPieSize + (this.maxDonutSize * 2));
-        this.mid = this.figureSize/2;
+        this.mid = this.figureSize / 2;
         this._updateLabelElPosition();
     },
     _updateLabelElPosition: function () {

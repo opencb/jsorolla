@@ -188,9 +188,14 @@
                         uniqueMap[row[this.attributeName]] = true;
 
                         var render = this.defaultValue;
-                        if (this.visualSet) {
-                            render = this.visualSet.matches[row[this.attributeName]];
+                        if (this.visualSet && this.visualSet.attribute == this.attributeName) {
+                            if (this.visualSet.matches[row[this.attributeName]] != null) {
+                                render = this.visualSet.matches[row[this.attributeName]];
+                            }
                         }
+//                        if (this.visualSet) {
+//                            render = this.visualSet.matches[row[this.attributeName]];
+//                        }
                         if(row[this.attributeName]){
                             uniqueData.push({attribute: row[this.attributeName], render: render});
                         }

@@ -266,6 +266,7 @@
 
                 switch (this.mode) {
                     case "add":
+                        this._removeMouseMoveHandlers();
                         break;
                     case "select":
                         if (this.selectArea && !event.ctrlKey) {
@@ -292,6 +293,7 @@
                                 default:
                             }
                         }
+                        this._removeMouseMoveHandlers();
                         break;
                     case "selectbackground":
                         break;
@@ -304,19 +306,20 @@
                             this.$.linkHelp.setAttribute('y1', 0);
                             this.$.linkHelp.setAttribute('x2', 0);
                             this.$.linkHelp.setAttribute('y2', 0);
+                            this._removeMouseMoveHandlers();
                         }
                         break;
                     case "delete":
                         if (targetElNetworkType !== 'vertex') {
 
                         }
+                        this._removeMouseMoveHandlers();
                         break;
                 }
                 this.$.selectHelp.setAttribute('x', 0);
                 this.$.selectHelp.setAttribute('y', 0);
                 this.$.selectHelp.setAttribute('width', 0);
                 this.$.selectHelp.setAttribute('height', 0);
-                this._removeMouseMoveHandlers();
             },
             middleMouseDown: function (e) {
                 var me = this;

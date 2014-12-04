@@ -113,7 +113,6 @@ GraphLayout = {
         }
     },
     force: function (args) {
-
         var network = args.network;
         var graph = args.network.graph;
         var vAttr = args.network.vAttr;

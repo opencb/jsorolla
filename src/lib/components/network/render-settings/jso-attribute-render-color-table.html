@@ -69,14 +69,17 @@
                 width: 20px;
                 border: 1px solid #d3d3d3;
             }
-            jso-color-menu{
+
+            jso-color-menu {
                 transition: opacity 0.1s, visibility 0.1s;
             }
-            jso-color-menu[hide=true]{
+
+            jso-color-menu[hide=true] {
                 visibility: hidden;
                 opacity: 0;
             }
-            jso-color-menu[hide=false]{
+
+            jso-color-menu[hide=false] {
                 visibility: visible;
                 opacity: 1;
             }
@@ -149,8 +152,8 @@
                     </div>
                     <div>
                         <!--<div class="table-head" horizontal layout>-->
-                            <!--<div flex>Attribute value</div>-->
-                            <!--<div flex>Render property value</div>-->
+                        <!--<div flex>Attribute value</div>-->
+                        <!--<div flex>Render property value</div>-->
                         <!--</div>-->
                         <core-list id="list" data="{{uniqueData}}" height="27">
                             <template>
@@ -291,7 +294,9 @@
                                 uniqueMap[value] = true;
                                 var render = me.defaultValue;
                                 if (me.visualSet && me.visualSet.attribute == me.attributeName) {
-                                    render = me.visualSet.matches[value];
+                                    if (me.visualSet.matches[value] != null) {
+                                        render = me.visualSet.matches[value];
+                                    }
                                 }
                                 uniqueData.push({attribute: value, render: render});
                             }
@@ -311,7 +316,7 @@
                         for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
                             row = this.attributeManager.data[i];
                             value = row[this.attributeName];
-                            if(value == null){
+                            if (value == null) {
                                 value = "";
                             }
                             values = value.split(splitStr);

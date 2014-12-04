@@ -85,7 +85,7 @@
             <input value="{{vertexSizeField}}" id="vertexSizeField" class="button" type="text" style="width: 50px;">
 
             <jso-color-picker id="vertexColorPicker" color="{{vertexColor}}"
-                              on-change="{{handleVertexColor}}"
+                              on-color-click="{{handleVertexColor}}"
                               style="float:left;width:90px;margin-left: 2px;"></jso-color-picker>
 
             <div class="dropdown" style="margin-left: 20px">
@@ -108,7 +108,7 @@
                    style="width: 50px;">
 
             <jso-color-picker id="vertexStrokeColorPicker" color="{{vertexStrokeColor}}"
-                              on-change="{{handleVertexStrokeColor}}"
+                              on-color-click="{{handleVertexStrokeColor}}"
                               style="float:left;width:90px;margin-left: 2px;"></jso-color-picker>
 
 
@@ -177,7 +177,7 @@
             <input id="edgeSizeField" class="button" type="text" style="width: 30px;">
 
             <jso-color-picker id="edgeColorPicker" style="float:left;width:90px;margin-left: 2px;"
-                              on-change="{{handleEdgeColor}}"
+                              on-color-click="{{handleEdgeColor}}"
                               color="#888888"></jso-color-picker>
 
 

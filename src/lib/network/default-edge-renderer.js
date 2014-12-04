@@ -57,6 +57,11 @@ function DefaultEdgeRenderer(args) {
         }
     }
 
+    this.size = parseFloat(this.size);
+    this.strokeSize = parseFloat(this.strokeSize);
+    this.opacity = parseFloat(this.opacity);
+    this.labelSize = parseFloat(this.labelSize);
+
 }
 
 DefaultEdgeRenderer.prototype = {

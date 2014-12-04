@@ -242,7 +242,9 @@
                                 uniqueMap[value] = true;
                                 var render = me.defaultValue;
                                 if (me.visualSet && me.visualSet.attribute == me.attributeName) {
-                                    render = me.visualSet.matches[value];
+                                    if (me.visualSet.matches[value] != null) {
+                                        render = me.visualSet.matches[value];
+                                    }
                                 }
                                 uniqueData.push({attribute: value, render: render});
                             }

@@ -85,7 +85,7 @@
         </style>
 
         <jso-nv-bar
-                columns="{{networkViewer.vAttr.columns}}"
+                columns="{{vAttr.columns}}"
 
                 on-session-start="{{handleSessionStartMenu}}"
                 on-session-open="{{handleSessionOpenMenu}}"
@@ -190,6 +190,8 @@
 
                 ></jso-nv-layout>
 
+        <jso-nv-status-bar></jso-nv-status-bar>
+
         <div class="right-side">
             <jso-attribute-node-render
                     hidden?="{{hideNodeSimpleRendering}}"
@@ -274,7 +276,6 @@
             </jso-attribute-network-file-open>
         </template>
 
-        <jso-nv-status-bar></jso-nv-status-bar>
 
 
         <ul id="imagecontextmenu" class="context">
@@ -452,7 +453,6 @@
             },
             loadJSON: function (o) {
                 this.startOver();
-                this.zoom = o.zoom;
                 this.backgroundImages = o.backgroundImages;
                 this.backgroundColor = o.backgroundColor;
                 this.center = o.center;
@@ -474,6 +474,7 @@
                 this.setVertexDefaultLabelAttribute(this.vertexDefaults.labelAttribute);
                 this.setEdgeDefaultLabelAttribute(this.edgeDefaults.labelAttribute);
                 this.$.networkLayout.addBackgroundImages(this.backgroundImages);
+                this.zoom = o.zoom;
             },
             toJSON: function () {
                 return {
@@ -1635,8 +1636,8 @@
                         }
                     }
                 }
-                this.handleVertexPositionX();
-                this.handleVertexPositionY();
+                this.setVertexDefaultPositionX();
+                this.setVertexDefaultPositionY();
             },
             importEdgeAttributeManager: function (attributeManager) {
                 var columns = attributeManager.columns;

@@ -139,7 +139,7 @@
                     <div class="text">Color:</div>
 
                     <!--<input flex type="color" value="{{defaults.color}}" list="colors" on-change="{{handleColor}}">-->
-                    <jso-color-picker flex color="{{defaults.color}}" on-change="{{handleColor}}"></jso-color-picker>
+                    <jso-color-picker flex color="{{defaults.color}}" on-color-click="{{handleColor}}"></jso-color-picker>
 
                     <div class="button action configure" data-enabled="{{visualSets.color != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="color"></div>
@@ -152,7 +152,7 @@
                     <div class="text">Stroke color:</div>
 
                     <!--<input flex type="color" value="{{defaults.strokeColor}}" on-change="{{handleStrokeColor}}">-->
-                    <jso-color-picker flex color="{{defaults.strokeColor}}" on-change="{{handleStrokeColor}}"></jso-color-picker>
+                    <jso-color-picker flex color="{{defaults.strokeColor}}" on-color-click="{{handleStrokeColor}}"></jso-color-picker>
 
                     <div class="button action configure" data-enabled="{{visualSets.strokeColor != null}}"
                          on-click="{{handleSettingsClick}}"
