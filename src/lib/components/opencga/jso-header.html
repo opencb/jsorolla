@@ -4,7 +4,7 @@
 <link rel="import" href="jso-remember.html">
 
 <polymer-element name="jso-header"
-                 attributes="description selectedOption userData appTitle description options allowLogin allowJobs showJobs">
+                 attributes="selectedOption userData options allowLogin allowJobs showJobs">
 <template>
 <link rel="stylesheet" href="../jso-style.css">
 <style>
@@ -244,14 +244,14 @@ li.dropdown > div:focus ~ ul li:hover > ul {
     <!--<li id="appMenu" class="menu">&nbsp;<font-awesome icon="chevron-right"></font-awesome>&nbsp; <span class="">Menu</span>-->
     <!--</li>-->
     <li class="title" data-option="home" on-click="{{handleMenu}}">
-        {{appTitle}}
+        <content select=".title"></content>
     </li>
     <!--<li class="" data-option="home" on-click="{{handleMenu}}">-->
     <!--Home-->
     <!--</li>-->
 
     <li id="description" class="description">
-        {{description}}
+        <content select=".description"></content>
     </li>
 
     <template repeat="{{o in options}}">
@@ -383,7 +383,6 @@ li.dropdown > div:focus ~ ul li:hover > ul {
             this.allowLogin = true;
             this.allowJobs = true;
 
-            this.description = '';
             this.checkTimeInterval = 5000;
             this.version = '';
 
@@ -417,8 +416,6 @@ li.dropdown > div:focus ~ ul li:hover > ul {
         },
         handleJobClick: function (e) {
             this.showJobs = !this.showJobs;
-
-
         },
         handleLogoutClick: function (e) {
             this.sessionFinished();
