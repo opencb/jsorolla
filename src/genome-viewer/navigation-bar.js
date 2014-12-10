@@ -381,18 +381,28 @@ NavigationBar.prototype = {
 
         //find species object
         var list = [];
-        for (var i in this.availableSpecies.items) {
-            for (var j in this.availableSpecies.items[i].items) {
+        for (var i = 0; i < this.availableSpecies.items.length; i++) {
+            for (var j = 0; j < this.availableSpecies.items[i].items.length; j++) {
                 var species = this.availableSpecies.items[i].items[j];
                 if (species.text === this.species.text) {
                     list = species.chromosomes;
                     break;
                 }
             }
+
         }
+        //for (var i in this.availableSpecies.items) {
+        //    for (var j in this.availableSpecies.items[i].items) {
+        //        var species = this.availableSpecies.items[i].items[j];
+        //        if (species.text === this.species.text) {
+        //            list = species.chromosomes;
+        //            break;
+        //        }
+        //    }
+        //}
 
         this.currentChromosomeList = list;
-        for (var i in list) {
+        for (var i = 0; i < list.length; i++) {
             var menuEntry = document.createElement('li');
             menuEntry.textContent = list[i];
             this.els.chromosomesMenu.appendChild(menuEntry);
@@ -405,7 +415,22 @@ NavigationBar.prototype = {
                 });
                 _this._triggerRegionChange({region: region, sender: _this})
             });
+
         }
+        //for (var i in list) {
+        //    var menuEntry = document.createElement('li');
+        //    menuEntry.textContent = list[i];
+        //    this.els.chromosomesMenu.appendChild(menuEntry);
+        //
+        //    menuEntry.addEventListener('click', function () {
+        //        var region = new Region({
+        //            chromosome: this.textContent,
+        //            start: _this.region.start,
+        //            end: _this.region.end
+        //        });
+        //        _this._triggerRegionChange({region: region, sender: _this})
+        //    });
+        //}
     },
 
 //    _setSpeciesMenu: function () {
