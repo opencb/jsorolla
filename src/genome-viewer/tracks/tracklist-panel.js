@@ -300,7 +300,8 @@ TrackListPanel.prototype = {
             var centerPosition = _this.region.center();
             var mid = _this.width / 2;
             var mouseLineOffset = _this.pixelBase / 2;
-            var offsetX = (event.clientX - $(_this.tlTracksDiv).offset().left);
+            var offsetX = (event.clientX - _this.tlTracksDiv.getBoundingClientRect().left);
+            //debugger
             var cX = offsetX - mouseLineOffset;
             var rcX = (cX / _this.pixelBase) | 0;
             var pos = (rcX * _this.pixelBase) + (mid % _this.pixelBase) - 1;
