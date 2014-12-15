@@ -4,515 +4,542 @@
 <link rel="import" href="jso-remember.html">
 
 <polymer-element name="jso-header"
-                 attributes="selectedOption userData options allowLogin allowJobs showJobs">
-<template>
-<link rel="stylesheet" href="../jso-style.css">
-<style>
-:host {
-    display: block;
-    position: relative;
-    box-sizing: border-box;
-    background-color: #FFFFFF;
-    height: 60px;
-    cursor: default;
-}
+                 attributes="selectedOption userData options allowLogin allowJobs showJobs homeLink helpLink tutorialLink">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                height: 60px;
+                cursor: default;
+            }
 
-ul.help-menu, ul.app-menu, ul.header {
-    margin: 0;
-    padding: 0;
-    background: white;
-    color: #435f7a;
-    list-style: none;
-    text-transform: none;
-    line-height: 60px;
-    font-size: 16px;
-}
+            ul.help-menu, ul.app-menu, ul.header {
+                margin: 0;
+                padding: 0;
+                background: white;
+                color: #435f7a;
+                list-style: none;
+                text-transform: none;
+                line-height: 60px;
+                font-size: 16px;
+            }
 
-ul.header > li {
-    display: block;
-    float: left;
-    /*border-right: 1px solid #c6d0da;*/
-    text-align: center;
-    padding: 0 1vw;
-}
+            ul.header > li {
+                display: block;
+                float: left;
+                /*border-right: 1px solid #c6d0da;*/
+                text-align: center;
+                padding: 0 1vw;
+            }
 
-ul.header > li#logout {
-    margin-right: 1.1vw;
-}
+            ul.header > li#logout {
+                margin-right: 1.1vw;
+            }
 
-ul.header > li#menu {
-    margin-left: 5vw;
-}
+            ul.header > li#menu {
+                margin-left: 5vw;
+            }
 
-ul.header > li.title {
-    font-size: 30px;
-    margin-left: 4vw;
-}
+            ul.header > li.title {
+                font-size: 30px;
+                margin-left: 4vw;
+            }
 
-ul.header li.description {
-    color: #6599FF;
-    font-size: 20px;
-}
+            ul.header li.description {
+                color: #6599FF;
+                font-size: 20px;
+            }
 
-ul.header > li.menu {
-    font-size: 16px;
-    padding: 0 1vw;
-}
+            ul.header > li.menu {
+                font-size: 16px;
+                padding: 0 1vw;
+            }
 
-ul.header > li.active {
-    color: #6599FF;
-}
+            ul.header > li.active {
+                color: #6599FF;
+            }
 
-ul.header > li.right {
-    float: right;
-    border-right: none;
-    /*border-left: 1px solid #c6d0da;*/
-}
+            ul.header > li.right {
+                float: right;
+                border-right: none;
+                /*border-left: 1px solid #c6d0da;*/
+            }
 
-ul.help-menu > li:hover, ul.header > li:hover {
-    background: #435f7a;
-    color: white;
-}
+            ul.help-menu > li:hover, ul.header > li:hover {
+                background: #435f7a;
+                color: white;
+            }
 
-ul.header > li.title:hover {
-    background-color: #ebeef3;
-    color: #435f7a;
-}
+            ul.header > li.title:hover {
+                background-color: #ebeef3;
+                color: #435f7a;
+            }
 
-ul.header > li.text:hover {
-    background: none;
-    color: #435f7a;
-}
+            ul.header > li.text:hover {
+                background: none;
+                color: #435f7a;
+            }
 
-ul.header > li.description:hover {
-    background: white;
-    color: #6599FF;
-}
+            ul.header > li.description:hover {
+                background: white;
+                color: #6599FF;
+            }
 
-ul.help-menu {
-    position: absolute;
-    z-index: 60000;
-    top: 60px;
-    right: 0px;
-    width: 200px;
-    visibility: hidden;
-    opacity: 0;
-    /*display:none;*/
-    border-top: 1px solid #c6d0da;
-    transition: all 0.2s;
-}
+            ul.help-menu {
+                position: absolute;
+                z-index: 60000;
+                top: 60px;
+                right: 0px;
+                width: 200px;
+                visibility: hidden;
+                opacity: 0;
+                /*display:none;*/
+                border-top: 1px solid #c6d0da;
+                transition: all 0.2s;
+            }
 
-ul.app-menu {
-    line-height: 40px;
-    position: absolute;
-    z-index: 60000;
-    top: 60px;
-    left: -150px;
-    width: 150px;
-    visibility: hidden;
-    /*display:none;*/
-    border-top: 1px solid #c6d0da;
-    transition: all 0.2s;
-}
+            ul.app-menu {
+                line-height: 40px;
+                position: absolute;
+                z-index: 60000;
+                top: 60px;
+                left: -150px;
+                width: 150px;
+                visibility: hidden;
+                /*display:none;*/
+                border-top: 1px solid #c6d0da;
+                transition: all 0.2s;
+            }
 
-ul.help-menu-shown {
-    visibility: visible !important;
-    opacity: 1 !important;
-}
+            ul.help-menu-shown {
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
 
-ul.app-menu-shown {
-    left: 0px !important;
-    visibility: visible !important;
-    /*display: block;*/
-}
+            ul.app-menu-shown {
+                left: 0px !important;
+                visibility: visible !important;
+                /*display: block;*/
+            }
 
-ul.help-menu > li {
-    border-bottom: 1px solid #c6d0da;
-    border-left: 1px solid #c6d0da;
-    padding: 0 10px;
-}
+            ul.help-menu > li {
+                border-bottom: 1px solid #c6d0da;
+                border-left: 1px solid #c6d0da;
+                padding: 0 10px;
+            }
 
-ul.app-menu > li {
-    border-bottom: 1px solid #c6d0da;
-    border-right: 1px solid #c6d0da;
-    padding: 0 10px;
-}
+            ul.app-menu > li {
+                border-bottom: 1px solid #c6d0da;
+                border-right: 1px solid #c6d0da;
+                padding: 0 10px;
+            }
 
-ul.app-menu > li.active {
-    background: #d1d9e3;
-    color: #435f7a;
-}
+            ul.app-menu > li.active {
+                background: #d1d9e3;
+                color: #435f7a;
+            }
 
-ul.app-menu > li:hover {
-    background: #d1d9e3;
-    color: #435f7a;
-}
+            ul.app-menu > li:hover {
+                background: #d1d9e3;
+                color: #435f7a;
+            }
 
-#user {
-    color: #8b0000;
-}
+            #user {
+                color: #8b0000;
+            }
 
-[hide=true] {
-    display: none !important;
-}
+            [hide=true] {
+                display: none !important;
+            }
 
-[hide=false] {
-    display: initial !important;
-}
+            [hide=false] {
+                display: initial !important;
+            }
 
-ul.header > li.dropdown {
-    position: relative;
-    display: block;
-    padding: 0px 0px;
-}
+            ul.header > li.dropdown {
+                position: relative;
+                display: block;
+                padding: 0px 0px;
+            }
 
-li.dropdown ul {
-    box-sizing: border-box;
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    list-style: none;
-    text-decoration: none;
-    z-index: 100000;
-    border: 1px solid #afafaf;
-    background-color: #fff;
-    line-height: 22px;
-    min-width: 200px;
-    width: 100%;
-    margin: 1px 0 0 0;
-    padding: 5px 0;
-    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
-    /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
-    transition: all 0.35s;
-}
+            li.dropdown ul {
+                box-sizing: border-box;
+                visibility: hidden;
+                opacity: 0;
+                position: absolute;
+                list-style: none;
+                text-decoration: none;
+                z-index: 100000;
+                border: 1px solid #afafaf;
+                background-color: #fff;
+                line-height: 22px;
+                min-width: 200px;
+                width: 100%;
+                margin: 1px 0 0 0;
+                padding: 5px 0;
+                box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
+                /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
+                transition: all 0.35s;
+            }
 
-li.dropdown ul {
-    left: 0;
-    top: 100%;
-}
+            li.dropdown ul {
+                left: 0;
+                top: 100%;
+            }
 
-li.dropdown ul ul {
-    top: 0;
-    left: 100%;
-}
+            li.dropdown ul ul {
+                top: 0;
+                left: 100%;
+            }
 
-li.dropdown ul li {
-    position: relative;
-    text-align: left;
-    padding: 2px 30px 2px 15px;
-    white-space: nowrap;
-    color: #445D76;
-    background-color: #fff;
-}
+            li.dropdown ul li {
+                position: relative;
+                text-align: left;
+                padding: 2px 30px 2px 15px;
+                white-space: nowrap;
+                color: #445D76;
+                background-color: #fff;
+            }
 
-li.dropdown ul li[data-sub=true]:after {
-    font-family: 'FontAwesome';
-    content: '\f105'; /* > */
-    /*content:'\f0da';*/
-    position: absolute;
-    right: 10px;
-}
+            li.dropdown ul li[data-sub=true]:after {
+                font-family: 'FontAwesome';
+                content: '\f105'; /* > */
+                /*content:'\f0da';*/
+                position: absolute;
+                right: 10px;
+            }
 
-li.dropdown ul li[data-text=true] {
-    padding: 8px 30px 0px 8px;
-    color: #666;
-}
+            li.dropdown ul li[data-text=true] {
+                padding: 8px 30px 0px 8px;
+                color: #666;
+            }
 
-li.dropdown ul li[data-text=true]:hover {
-    background-color: inherit;
-    color: #666;
-}
+            li.dropdown ul li[data-text=true]:hover {
+                background-color: inherit;
+                color: #666;
+            }
 
-li.dropdown ul li:hover {
-    background-color: #445D76;
-    color: #fff;
-}
+            li.dropdown ul li:hover {
+                background-color: #445D76;
+                color: #fff;
+            }
 
-li.dropdown > div {
-    outline: none;
-    padding: 0 1vw;
-}
+            li.dropdown > div {
+                outline: none;
+                padding: 0 1vw;
+            }
 
-li.dropdown > div:focus ~ ul,
-li.dropdown > div:focus ~ ul li:hover > ul {
-    visibility: visible;
-    opacity: 1;
-}
-</style>
+            li.dropdown > div:focus ~ ul,
+            li.dropdown > div:focus ~ ul li:hover > ul {
+                visibility: visible;
+                opacity: 1;
+            }
+        </style>
 
-<ul class="header">
-    <!--<li id="appMenu" class="menu">&nbsp;<font-awesome icon="chevron-right"></font-awesome>&nbsp; <span class="">Menu</span>-->
-    <!--</li>-->
-    <li class="title" data-option="home" on-click="{{handleMenu}}">
-        <content select=".title"></content>
-    </li>
-    <!--<li class="" data-option="home" on-click="{{handleMenu}}">-->
-    <!--Home-->
-    <!--</li>-->
+        <ul class="header">
+            <!--<li id="appMenu" class="menu">&nbsp;<font-awesome icon="chevron-right"></font-awesome>&nbsp; <span class="">Menu</span>-->
+            <!--</li>-->
+            <li class="title" data-option="home" on-click="{{handleMenu}}">
+                <content select=".title"></content>
+            </li>
+            <!--<li class="" data-option="home" on-click="{{handleMenu}}">-->
+            <!--Home-->
+            <!--</li>-->
 
-    <li id="description" class="description">
-        <content select=".description"></content>
-    </li>
+            <li id="description" class="description">
+                <content select=".description"></content>
+            </li>
 
-    <template repeat="{{o in options}}">
-        <li data-option="{{o.option}}" on-click="{{handleMenu}}" class="dropdown">
-            <div tabindex="-1">
-                {{o.text}}
-            </div>
-            <template if="{{o.sub}}">
-                <ul>
-                    <template repeat="{{o2 in o.sub}}">
-                        <li data-option="{{o2.option}}" on-click="{{handleMenu}}" data-sub="{{o2.sub.length > 0}}"
-                            data-text="{{o2.option == 'none'}}">
-                            {{o2.text}}
-                            <template if="{{o2.sub}}">
-                                <ul>
-                                    <template repeat="{{o3 in o2.sub}}">
-                                        <li data-option="{{o2.option}}" on-click="{{handleMenu}}">
-                                            {{o3.text}}
-                                        </li>
+            <template repeat="{{o in options}}">
+                <li data-option="{{o.option}}" on-click="{{handleMenu}}" class="dropdown">
+                    <div tabindex="-1">
+                        {{o.text}}
+                    </div>
+                    <template if="{{o.sub}}">
+                        <ul>
+                            <template repeat="{{o2 in o.sub}}">
+                                <li data-option="{{o2.option}}" on-click="{{handleMenu}}"
+                                    data-sub="{{o2.sub.length > 0}}"
+                                    data-text="{{o2.option == 'none'}}">
+                                    {{o2.text}}
+                                    <template if="{{o2.sub}}">
+                                        <ul>
+                                            <template repeat="{{o3 in o2.sub}}">
+                                                <li data-option="{{o2.option}}" on-click="{{handleMenu}}">
+                                                    {{o3.text}}
+                                                </li>
+                                            </template>
+
+                                        </ul>
                                     </template>
-
-                                </ul>
+                                </li>
                             </template>
-                        </li>
+                        </ul>
                     </template>
-                </ul>
+                </li>
             </template>
-        </li>
+
+            <li id="apps" class="right" on-click="{{}}">
+                &nbsp;
+                <font-awesome icon="th"></font-awesome>
+                &nbsp;
+            </li>
+            <li id="support" class="right" on-click="{{handleSupportMenu}}">
+                &nbsp;
+                <font-awesome icon="support"></font-awesome>
+                &nbsp;
+            </li>
+
+            <template if="{{allowLogin == true}}">
+                <li id="signup" class="right" data-option="signup" on-click="{{handleMenu}}" hide="{{isLogged}}">
+                    <font-awesome icon="pencil-square-o"></font-awesome>
+                    &nbsp;sign up
+                </li>
+
+                <li id="login" class="right" data-option="login" on-click="{{handleMenu}}" hide="{{isLogged}}">
+                    <font-awesome icon="sign-in"></font-awesome>
+                    &nbsp;log in
+                </li>
+            </template>
+
+            <template if="{{allowJobs == true}}">
+                <li id="jobs" class="right" data-option="jobs" on-click="{{handleJobClick}}" hide="{{!isLogged}}">
+                    <font-awesome icon="pencil-square-o"></font-awesome>
+                    &nbsp;jobs
+                </li>
+            </template>
+
+            <!--<li id="jobs" class="right" hide="{{!isLogged}}">-->
+            <!--<font-awesome icon="tasks"></font-awesome> &nbsp;jobs-->
+            <!--</li>-->
+
+            <li id="profile" class="right" data-option="profile" on-click="{{handleMenu}}" hide="{{!isLogged}}">
+                <font-awesome icon="user"></font-awesome>
+                &nbsp;profile
+            </li>
+
+            <!--<li id="upload" class="right" hide="{{!isLogged}}">-->
+            <!--<font-awesome icon="cloud-upload"></font-awesome> &nbsp;upload & manage-->
+            <!--</li>-->
+
+            <li id="projects" class="right" data-option="projects" on-click="{{handleMenu}}" hide="{{!isLogged}}">
+                <font-awesome icon="folder"></font-awesome>
+                &nbsp;projects
+            </li>
+
+            <li id="logout" class="right" hide="{{!isLogged}}" on-click="{{handleLogoutClick}}">
+                <font-awesome icon="sign-out"></font-awesome>
+                &nbsp;logout
+            </li>
+
+            <li id="user" class="right text" hide="{{!isLogged}}">
+                {{userText}}
+            </li>
+
+        </ul>
+        <ul id="helpMenu" class="help-menu">
+            <li id="homeHelp" class="right" on-click="{{ handleHomeHelp }}">
+                <font-awesome icon="home"></font-awesome>
+                &nbsp;home
+            </li>
+            <li id="documentation" class="right" on-click="{{ handleDocumentation }}">
+                <font-awesome icon="book"></font-awesome>
+                &nbsp;documentation
+            </li>
+            <li id="tutorial" class="right" on-click="{{ handleTutorial }}">
+                <font-awesome icon="list-alt"></font-awesome>
+                &nbsp;tutorial
+            </li>
+            <li id="about" class="right" on-click="{{ handleAbout }}">
+                <font-awesome icon="info"></font-awesome>
+                &nbsp; about
+            </li>
+        </ul>
+
+        <template if="{{ selectedOption == 'login' }}">
+            <jso-login on-login="{{handleLogin}}" selectedOption="{{selectedOption}}"></jso-login>
+        </template>
+
+        <template if="{{ selectedOption == 'signup' }}">
+            <jso-signup></jso-signup>
+        </template>
+
+        <template if="{{ selectedOption == 'profile' }}">
+            <jso-profile></jso-profile>
+        </template>
+
+        <template if="{{ selectedOption == 'rememberpassword' }}">
+            <jso-remember></jso-remember>
+        </template>
+
     </template>
 
-    <li id="apps" class="right" on-click="{{}}">
-        &nbsp;
-        <font-awesome icon="th"></font-awesome>
-        &nbsp;
-    </li>
-    <li id="support" class="right" on-click="{{handleSupportMenu}}">
-        &nbsp;
-        <font-awesome icon="support"></font-awesome>
-        &nbsp;
-    </li>
+    <script>
+        Polymer({
+            created: function () {
+                this.allowLogin = true;
+                this.allowJobs = true;
 
-    <template if="{{allowLogin == true}}">
-        <li id="signup" class="right" data-option="signup" on-click="{{handleMenu}}" hide="{{isLogged}}">
-            <font-awesome icon="pencil-square-o"></font-awesome>
-            &nbsp;sign up
-        </li>
+                this.checkTimeInterval = 5000;
+                this.version = '';
 
-        <li id="login" class="right" data-option="login" on-click="{{handleMenu}}" hide="{{isLogged}}">
-            <font-awesome icon="sign-in"></font-awesome>
-            &nbsp;log in
-        </li>
-    </template>
+                this.homeLink = "";
+                this.helpLink = "";
+                this.tutorialLink = "";
+                this.aboutHTML = "";
 
-    <template if="{{allowJobs == true}}">
-        <li id="jobs" class="right" data-option="jobs" on-click="{{handleJobClick}}" hide="{{!isLogged}}">
-            <font-awesome icon="pencil-square-o"></font-awesome>
-            &nbsp;jobs
-        </li>
-    </template>
+                this.userData;
 
-    <!--<li id="jobs" class="right" hide="{{!isLogged}}">-->
-    <!--<font-awesome icon="tasks"></font-awesome> &nbsp;jobs-->
-    <!--</li>-->
+                this.userText;
+                this.selectedOption;
+                this.userInfoInterval;
+                this.checkTimeInterval = 5000;
 
-    <li id="profile" class="right" data-option="profile" on-click="{{handleMenu}}" hide="{{!isLogged}}">
-        <font-awesome icon="user"></font-awesome>
-        &nbsp;profile
-    </li>
-
-    <!--<li id="upload" class="right" hide="{{!isLogged}}">-->
-    <!--<font-awesome icon="cloud-upload"></font-awesome> &nbsp;upload & manage-->
-    <!--</li>-->
-
-    <li id="projects" class="right" data-option="projects" on-click="{{handleMenu}}" hide="{{!isLogged}}">
-        <font-awesome icon="folder"></font-awesome>
-        &nbsp;projects
-    </li>
-
-    <li id="logout" class="right" hide="{{!isLogged}}" on-click="{{handleLogoutClick}}">
-        <font-awesome icon="sign-out"></font-awesome>
-        &nbsp;logout
-    </li>
-
-    <li id="user" class="right text" hide="{{!isLogged}}">
-        {{userText}}
-    </li>
-
-</ul>
-<ul id="helpMenu" class="help-menu">
-    <li id="homeHelp" class="right">
-        <font-awesome icon="home"></font-awesome>
-        &nbsp;home
-    </li>
-    <li id="documentation" class="right">
-        <font-awesome icon="book"></font-awesome>
-        &nbsp;documentation
-    </li>
-    <li id="tutorial" class="right">
-        <font-awesome icon="list-alt"></font-awesome>
-        &nbsp;tutorial
-    </li>
-    <li id="about" class="right">
-        <font-awesome icon="info"></font-awesome>
-        &nbsp; about
-    </li>
-</ul>
-
-<template if="{{ selectedOption == 'login' }}">
-    <jso-login on-login="{{handleLogin}}" selectedOption="{{selectedOption}}"></jso-login>
-</template>
-
-<template if="{{ selectedOption == 'signup' }}">
-    <jso-signup></jso-signup>
-</template>
-
-<template if="{{ selectedOption == 'profile' }}">
-    <jso-profile></jso-profile>
-</template>
-
-<template if="{{ selectedOption == 'rememberpassword' }}">
-    <jso-remember></jso-remember>
-</template>
-
-</template>
-
-<script>
-    Polymer({
-        created: function () {
-            this.allowLogin = true;
-            this.allowJobs = true;
-
-            this.checkTimeInterval = 5000;
-            this.version = '';
-
-            this.homeLink = ".";
-            this.helpLink = ".";
-            this.tutorialLink = ".";
-            this.aboutHTML = ".";
-
-            this.userData;
-
-            this.userText;
-            this.selectedOption;
-            this.userInfoInterval;
-            this.checkTimeInterval = 5000;
-
-            this.isLogged = false;
-        },
-        ready: function () {
-            if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
-                this.sessionInitiated();
-            } else {
-                this.logout();
-            }
-        },
-        handleMenu: function (e) {
-            var option = e.currentTarget.dataset['option'];
-            console.log(option);
-            if (option) {
-                this.selectedOption = option;
-            }
-        },
-        handleJobClick: function (e) {
-            this.showJobs = !this.showJobs;
-        },
-        handleLogoutClick: function (e) {
-            this.sessionFinished();
-        },
-        handleSupportMenu: function (e) {
-            this.$.helpMenu.classList.toggle('help-menu-shown');
-        },
-        handleLogin: function (e) {
-            if (e.detail.status) {
-                this.sessionInitiated();
-            } else {
+                this.isLogged = false;
+            },
+            ready: function () {
+                if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
+                    this.sessionInitiated();
+                } else {
+                    this.logout();
+                }
+            },
+            handleMenu: function (e) {
+                var option = e.currentTarget.dataset['option'];
+                console.log(option);
+                if (option) {
+                    this.selectedOption = option;
+                }
+            },
+            handleJobClick: function (e) {
+                this.showJobs = !this.showJobs;
+            },
+            handleLogoutClick: function (e) {
                 this.sessionFinished();
-            }
-        },
-        sessionInitiated: function (e) {
-            var me = this;
+            },
+            handleSupportMenu: function (e) {
+                this.$.helpMenu.classList.toggle('help-menu-shown');
+            },
+            handleLogin: function (e) {
+                if (e.detail.status) {
+                    this.sessionInitiated();
+                } else {
+                    this.sessionFinished();
+                }
+            },
+            sessionInitiated: function (e) {
+                var me = this;
 
-            this.isLogged = true;
-            this.selectedOption = 'home';
-            this.userText = Cookies('bioinfo_user');
+                this.isLogged = true;
+                this.selectedOption = 'home';
+                this.userText = Cookies('bioinfo_user');
 
-            /**START OPENCGA CHECK**/
-            if (!this.userInfoInterval) {
-                this.getUserInfo();//first call
-                this.userInfoInterval = setInterval(function () {
-                    me.getUserInfo();
-                }, this.checkTimeInterval);
-            }
-        },
-        sessionFinished: function (e) {
-            this.selectedOption = 'home';
-            this.isLogged = false;
-            Cookies.expire('bioinfo_sid');
-            Cookies.expire('bioinfo_user');
+                /**START OPENCGA CHECK**/
+                if (!this.userInfoInterval) {
+                    this.getUserInfo();//first call
+                    this.userInfoInterval = setInterval(function () {
+                        me.getUserInfo();
+                    }, this.checkTimeInterval);
+                }
+            },
+            sessionFinished: function (e) {
+                this.selectedOption = 'home';
+                this.isLogged = false;
+                Cookies.expire('bioinfo_sid');
+                Cookies.expire('bioinfo_user');
 
-            /**END OPENCGA CHECK**/
-            clearInterval(this.userInfoInterval);
-            this.userInfoInterval = null;
-        },
-        getUserInfo: function () {
-            var me = this;
-            var lastActivity = null;
-            if (this.userData != null) {
-                lastActivity = this.userData.lastActivity;
-            }
-            var user = Cookies('bioinfo_user');
-            if (!user) {
-                console.log('cookie: bioinfo_user, is not set, session will be finished...');
-                this.sessionFinished();
-            } else {
-                OpencgaManager.users.read({
-                    id: user,
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        lastActivity: lastActivity
-                    },
-                    request: {
-                        success: function (response) {
-                            if ((response.response[0].errorMsg === '' || response.response[0].errorMsg == null) && response.response[0].result.length > 0) {
-                                me.userData = response.response[0].result[0];
-                                console.log("userData has been modified since last call");
-                            }
-                            if (response.response[0].errorMsg != null && response.response[0].errorMsg.indexOf('Invalid sessionId for user') !== -1) {
-                                me.sessionFinished()
-                            }
+                /**END OPENCGA CHECK**/
+                clearInterval(this.userInfoInterval);
+                this.userInfoInterval = null;
+            },
+            getUserInfo: function () {
+                var me = this;
+                var lastActivity = null;
+                if (this.userData != null) {
+                    lastActivity = this.userData.lastActivity;
+                }
+                var user = Cookies('bioinfo_user');
+                if (!user) {
+                    console.log('cookie: bioinfo_user, is not set, session will be finished...');
+                    this.sessionFinished();
+                } else {
+                    OpencgaManager.users.read({
+                        id: user,
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            lastActivity: lastActivity
                         },
-                        error: function () {
-                            console.log('Server error, try again later.');
+                        request: {
+                            success: function (response) {
+                                if ((response.response[0].errorMsg === '' || response.response[0].errorMsg == null) && response.response[0].result.length > 0) {
+                                    me.userData = response.response[0].result[0];
+                                    console.log("userData has been modified since last call");
+                                }
+                                if (response.response[0].errorMsg != null && response.response[0].errorMsg.indexOf('Invalid sessionId for user') !== -1) {
+                                    me.sessionFinished()
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
                         }
-                    }
-                });
-            }
-        },
-        logout: function () {
-            var me = this;
-            var user = Cookies('bioinfo_user');
-            if (!user) {
-                console.log('cookie: bioinfo_user, is not set, session will be finished...');
-                this.sessionFinished();
-            } else {
-                OpencgaManager.users.logout({
-                    id: user,
-                    query: {
-                        sid: Cookies('bioinfo_sid')
-                    },
-                    request: {
-                        success: function (response) {
-                            console.log(response);
+                    });
+                }
+            },
+            logout: function () {
+                var me = this;
+                var user = Cookies('bioinfo_user');
+                if (!user) {
+                    console.log('cookie: bioinfo_user, is not set, session will be finished...');
+                    this.sessionFinished();
+                } else {
+                    OpencgaManager.users.logout({
+                        id: user,
+                        query: {
+                            sid: Cookies('bioinfo_sid')
                         },
-                        error: function () {
-                            console.log('Server error, try again later.');
+                        request: {
+                            success: function (response) {
+                                console.log(response);
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
                         }
-                    }
-                });
-            }
-        }
+                    });
+                }
+            },
+            handleHomeHelp: function (event) {
+                if (this.homeLink != '') {
+                    window.open(this.homeLink);
+                } else {
+                    alert("Home is not defined!");
+                }
 
-    });
-</script>
+            },
+            handleDocumentation: function (event) {
+                if (this.helpLink != '') {
+                    window.open(this.helpLink);
+                } else {
+                    alert("Help is not defined!");
+                }
+
+            }, handleTutorial: function (event) {
+                if (this.tutorialLink != '') {
+                    window.open(this.tutorialLink);
+                } else {
+                    alert("Tutorial is not defined!");
+                }
+
+            }, handleAbout: function (event) {
+                alert("About is not defined!");
+
+            }
+
+        });
+    </script>
 </polymer-element>
