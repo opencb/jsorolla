@@ -30,6 +30,7 @@ function FormPanel(args) {
     this.title;
     this.collapsible = false;
     this.titleCollapse = false;
+    this.submitButtonId = 'submit-btn';
     this.submitButtonText = 'Search';
     this.clearButtonText = 'Clear';
     this.barItems = [];
@@ -118,6 +119,7 @@ FormPanel.prototype = {
             },
             {
                 xtype: 'button',
+                id:this.submitButtonId,
                 text: this.submitButtonText,
                 tooltip: this.submitButtonText,
                 formBind: true,
