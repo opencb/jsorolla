@@ -463,7 +463,7 @@
                     query: {
                         sid: Cookies('bioinfo_sid'),
                         folder: "pathivar-" + Utils.randomString(20),
-                        studyId: 1
+                        studyId: this.selectedStudy.id
                     },
                     request: {
                         async: false,
@@ -522,7 +522,7 @@
                 for (var i = 0; i < this.pathwaysSet.length; i++) {
                     var pathway = this.pathwaysSet[i];
                     if (pathway.selected) {
-                        this.pathways.push('hsa'+pathway.value);
+                        this.pathways.push('hsa' + pathway.value);
                     }
                 }
                 this.ctypes = [];
@@ -563,6 +563,14 @@
                     this.treshold += ':' + this.tresholdCons
                 }
 
+                this.tissueSet;
+                if (this.tissues == this.humanProteinAtlasTissues) {
+                    this.tissueSet = 'hpa';
+                }
+                if (this.tissues == this.expressionAtlasTissues) {
+                    this.tissueSet = 'ea';
+                }
+
                 console.log(this.$.form.checkValidity())
 
                 if (this.$.form.checkValidity() &&
@@ -573,7 +581,8 @@
                         this.ctypes.length > 0 &&
                         this.tissue &&
                         this.methodscore != '' &&
-                        this.treshold != ''
+                        this.treshold != '' &&
+                        this.tissueSet != null
                 ) {
                     var outputFolder = this.generateRandomFolder();
 
@@ -582,13 +591,14 @@
                         comhom = this.comhom;
                     }
 
+
                     OpencgaManager.jobs.create({
                         query: {
                             sid: Cookies("bioinfo_sid"),
                             execution: this.execution,
-                            analysisId: this.analysisId,
+                            studyId: this.selectedStudy.id,
                             toolId: this.toolName,
-                            jobName: this.jobName,
+                            name: this.jobName,
                             description: this.description,
                             outdir: outputFolder.id,
 
@@ -601,7 +611,8 @@
                             model: this.model,
                             comhom: comhom,
                             methodscore: this.methodscore,
-                            treshold: this.treshold
+                            treshold: this.treshold,
+                            tissueSet: this.tissueSet
                         },
                         request: {
                             //method: 'POST',

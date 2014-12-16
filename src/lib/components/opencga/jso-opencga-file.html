@@ -12,7 +12,8 @@
                 text-overflow: ellipsis;
             }
         </style>
-        <font-awesome icon="{{iconMap[file.type]}}"></font-awesome> {{file.name}}
+        <font-awesome icon="{{iconMap[file.type]}}"></font-awesome>
+        {{file.name}}
     </template>
     <script>
         Polymer({
@@ -20,9 +21,10 @@
                 this.file;
 
 
-                this.iconMap={
-                    file:'file-o',
-                    folder:'folder'
+                this.iconMap = {
+                    FILE: 'file-o',
+                    FOLDER: 'folder',
+                    INDEX: 'file'
                 }
             },
             handleClick: function (e) {

@@ -184,9 +184,8 @@
             },
             getJobs: function () {
                 var me = this;
-                OpencgaManager.analysis.jobs({
-//                    id: this.selectedStudy.analysis.id,
-                    id: '1',
+                OpencgaManager.studies.job({
+                    id: this.selectedStudy.id,
                     query: {
                         sid: Cookies("bioinfo_sid")
                     },

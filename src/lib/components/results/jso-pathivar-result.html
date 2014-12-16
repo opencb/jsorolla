@@ -71,7 +71,8 @@
                     <div class="button action" on-click="{{handlePathwayClick}}">{{pathwaysMap[pathway]}}</div>
                 </template>
             </div>
-            <jso-network-viewer id="networkViewer" flex hideBar="true" hideToolBar="false" hideEditionBar="false"></jso-network-viewer>
+            <jso-network-viewer id="networkViewer" flex hideBar="false" hideToolBar="false"
+                                hideEditionBar="false"></jso-network-viewer>
         </div>
         <div class="message">{{message}}</div>
     </template>
@@ -215,7 +216,7 @@
                 return content;
             },
             _applyVertexAttributes: function () {
-                this.networkViewer.vertexDefaults.labelAttribute = "pathway";
+                this.networkViewer.vertexDefaults.labelAttribute = "name";
                 this.networkViewer.handleVertexDefaultLabelAttribute();
 
                 this.networkViewer.hideNodeSimpleRendering = false;

@@ -50,10 +50,28 @@
                 <!--</ul>-->
             <!--</div>-->
 
-            <label>File format</label> <input type="text" id="fileFormat" value="{{fileFormat}}" required pattern="[a-zA-Z0-9]+">
-            <label>Bio format</label> <input class="button" type="text" id="bioFormat" value="{{bioFormat}}" required
-                                             pattern="[a-zA-Z0-9]+">
-            <label>Description</label> <input type="text" id="description" value="{{description}}" required pattern="[a-zA-Z0-9\s]+">
+            <label>File format</label>
+            <!--<input type="text" id="fileFormat" value="{{fileFormat}}" required pattern="[a-zA-Z0-9]+">-->
+            <select value="{{fileFormat}}" required>
+                <option value="PLAIN">PLAIN</option>
+                <option value="GZIP">GZIP</option>
+                <option value="BINARY">BINARY</option>
+                <option value="BINARY">EXECUTABLE</option>
+                <option value="EXECUTABLE">IMAGE</option>
+            </select>
+
+
+            <label>Bio format</label>
+            <!--<input class="button" type="text" id="bioFormat" value="{{bioFormat}}" required pattern="[a-zA-Z0-9]+">-->
+            <select value="{{bioFormat}}" required>
+                <option value="VARIANT">VARIANT</option>
+                <option value="ALIGNMENT">ALIGNMENT</option>
+                <option value="SEQUENCE">SEQUENCE</option>
+                <option value="NONE">NONE</option>
+            </select>
+            <label>Description</label>
+            <input type="text" id="description" value="{{description}}" pattern="[a-zA-Z0-9\s]+">
+
             <br>
             <div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>
             <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
@@ -65,8 +83,8 @@
     <script>
         Polymer({
             created: function () {
-                this.fileFormat = '';
-                this.bioFormat = '';
+                this.fileFormat = 'PLAIN';
+                this.bioFormat = 'NONE';
                 this.description = '';
 
 

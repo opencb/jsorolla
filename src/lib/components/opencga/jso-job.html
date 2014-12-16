@@ -20,21 +20,33 @@
 
             }
 
-            .queued {
+            .capitalize {
+                text-transform: capitalize;
+            }
+
+            .PREPARED {
                 color: #ff8c00;
             }
 
-            .running {
+            .ERROR {
+                color: #b30000;
+            }
+
+            .QUEUED {
+                color: #ff8c00;
+            }
+
+            .RUNNING {
                 color: #298c63;
             }
 
-            .ready {
+            .DONE {
                 color: #0068cc;
-
             }
 
-            .error {
-                color: #b30000;
+            .READY {
+                color: #0068cc;
+
             }
 
             .date {
@@ -42,25 +54,26 @@
                 font-size: 0.9em;
             }
         </style>
+
         <!--<font-awesome icon="pie-chart"></font-awesome> &nbsp; {{study.name}} &nbsp; <span class="id"> {{study.alias}} </span>-->
         <div id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">
             <div>
                 <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.visits > 0}}"
                               icon="exclamation"></font-awesome>
-                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'ready'}}"
+                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'READY'}}"
                               icon="check"></font-awesome>
-                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'error'}}"
+                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'ERROR'}}"
                               icon="times"></font-awesome>
-                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'queued'}}"
+                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'QUEUED'}}"
                               icon="clock-o"></font-awesome>
-                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'running'}}" icon="circle-o-notch"
+                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'RUNNING'}}" icon="circle-o-notch"
                               animation="spin"></font-awesome>
                 {{jobItem.id}} {{jobItem.name}}
             </div>
             <div>{{jobItem.toolName}}</div>
 
             <div>
-                <span class="{{jobItem.status}}">{{jobItem.status}}</span>
+                <span class="capitalize {{jobItem.status}}">{{computeStatus()}}</span>
                 <span class="date">{{computeDate()}}</span>
             </div>
         </div>
@@ -69,6 +82,9 @@
         Polymer({
             computeDate: function () {
                 return Utils.parseDate(this.jobItem.date);
+            },
+            computeStatus: function () {
+                return this.jobItem.status.toLowerCase();
             },
             created: function () {
                 this.jobItem;

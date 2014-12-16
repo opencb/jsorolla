@@ -449,7 +449,7 @@
                 this.selectedFile = file;
                 this.fire('file-select', {file: this.selectedFile});
                 this.breadcrums.push(file.name);
-                if (file.type == "folder") {
+                if (file.type == "FOLDER") {
                     OpencgaManager.files.list({
                         id: file.id,
                         query: {

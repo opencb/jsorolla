@@ -156,6 +156,9 @@ var OpencgaManager = {
         },
         analysis: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'analysis');
+        },
+        job:function(args){
+            return OpencgaManager._doRequest(args, 'studies', 'job');
         }
     },
 
@@ -205,14 +208,14 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'job', 'create');
         }
     },
-    analysis: {
-        jobs: function (args) {
-            return OpencgaManager._doRequest(args, 'analysis', 'jobs');
-        },
-        create: function (args) {
-            return OpencgaManager._doRequest(args, 'analysis', 'create');
-        }
-    },
+    //analysis: {
+    //    jobs: function (args) {
+    //        return OpencgaManager._doRequest(args, 'analysis', 'jobs');
+    //    },
+    //    create: function (args) {
+    //        return OpencgaManager._doRequest(args, 'analysis', 'create');
+    //    }
+    //},
     _url: function (args, api, action) {
         var host = OpencgaManager.host;
         if (typeof args.request.host !== 'undefined' && args.request.host != null) {

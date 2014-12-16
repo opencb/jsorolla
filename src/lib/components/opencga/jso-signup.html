@@ -182,9 +182,8 @@
                 request: {
                     success: function (response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            me.message = 'Project created sucessfully.';
+//                            me.message = 'Project created sucessfully.';
                             me.projectId = response.response[0].result[0].id;
-                            debugger
                             me.createStudy()
 
                         } else {
@@ -207,19 +206,18 @@
                     alias: "defaultSt",
                     description: "default",
                     organization: "default",
-                    type: "default",
+//                    type: "default",
                     projectId: me.projectId
 
                 },
                 request: {
                     success: function (response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            me.message = 'Study created sucessfully.';
+//                            me.message = 'Study created sucessfully.';
                             me.studyId = response.response[0].result[0].id;
-                            me.createAnalysis();
+//                            me.createAnalysis();
 
                         } else {
-                            debugger
                             me.message = response.response[0].errorMsg;
                         }
                     },
@@ -229,32 +227,32 @@
                 }
             });
         },
-        createAnalysis: function (e) {
-            var me = this;
-            this.message = '';
-            OpencgaManager.analysis.create({
-                query: {
-                    sid: me.sid,
-                    name: "default",
-                    alias: "default",
-                    description: "default",
-                    studyId: me.studyId
-
-                },
-                request: {
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            me.message = 'Analysis created sucessfully.';
-                        } else {
-                            me.message = response.response[0].errorMsg;
-                        }
-                    },
-                    error: function () {
-                        alert('Server error, try again later.');
-                    }
-                }
-            });
-        }
+//        createAnalysis: function (e) {
+//            var me = this;
+//            this.message = '';
+//            OpencgaManager.analysis.create({
+//                query: {
+//                    sid: me.sid,
+//                    name: "default",
+//                    alias: "default",
+//                    description: "default",
+//                    studyId: me.studyId
+//
+//                },
+//                request: {
+//                    success: function (response) {
+//                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                            me.message = 'Analysis created sucessfully.';
+//                        } else {
+//                            me.message = response.response[0].errorMsg;
+//                        }
+//                    },
+//                    error: function () {
+//                        alert('Server error, try again later.');
+//                    }
+//                }
+//            });
+//        }
     });
 </script>
 </polymer-element>
