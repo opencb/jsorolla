@@ -1,17 +1,15 @@
-<polymer-element name="jso-opencga-upload" attributes="selectedProject selectedStudy">
+<polymer-element name="jso-opencga-upload" attributes="folder study">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
                 display: block;
-                padding-left: 30px;
-                padding-top: 10px;
+                background-color: #fafafa;
             }
 
             label {
                 display: inline-block;
                 color: #666;
-                margin-top: 10px;
             }
 
             label::after {
@@ -19,11 +17,16 @@
             }
 
             .action {
-                margin-top: 30px;
+                margin-top: 5px;
             }
 
             .message {
-                margin-top: 20px;
+                margin-top: 5px;
+            }
+            .filetext{
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         </style>
 
@@ -51,10 +54,8 @@
             <label>Bio format</label> <input class="button" type="text" id="bioFormat" value="{{bioFormat}}" required
                                              pattern="[a-zA-Z0-9]+">
             <label>Description</label> <input type="text" id="description" value="{{description}}" required pattern="[a-zA-Z0-9\s]+">
-
-            <label>Browse</label>
-
-            <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+            <br>
+            <div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>
             <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
 
             <div class="button action" on-click="{{handleForm}}">Upload</div>
@@ -68,8 +69,6 @@
                 this.bioFormat = '';
                 this.description = '';
 
-                this.selectedProject;
-                this.selectedStudy;
 
                 this.fileName = 'Choose file...';
                 this.message = '';
@@ -86,13 +85,12 @@
             handleForm: function (e) {
                 var me = this;
                 this.message = '';
-                if (this.uploading == false && this.$.form.checkValidity() && this.selectedProject && this.selectedStudy) {
+                if (this.uploading == false && this.$.form.checkValidity() && this.folder && this.study) {
 
                     this.uploading = true;
 
                     var inputFile = this.$.fileInput.files[0];
-                    var dir = ''; //TODO
-                    var relativeFilePath = dir + inputFile.name;
+                    var relativeFilePath = this.folder.path + inputFile.name;
 
                     var fileuploadWorker = new Worker(WORKERS_PATH + 'worker-fileupload.js');
 
@@ -105,6 +103,7 @@
                         if (res.finished == true) {
                             me.message = 'Done';
                             me.uploading = false;
+                            me.fire('file-uploaded');
                         }
                     };
 
@@ -114,8 +113,7 @@
                         'userId': Cookies("bioinfo_user"),
                         'sid': Cookies("bioinfo_sid"),
 
-                        'projectId': this.selectedProject.id,
-                        'studyId': this.selectedStudy.id,
+                        'studyId': this.study.id,
                         'file': inputFile,
                         'fileFormat': this.fileFormat,
                         'bioFormat': this.bioFormat,

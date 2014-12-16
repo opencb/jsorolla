@@ -24,7 +24,6 @@ var res = {finished: false};
 var resumeInfo = {};
 var host = '';
 var userId = '';
-var projectId = '';
 var studyId = '';
 var relativeFilePath = '';
 var sid = '';
@@ -100,7 +99,6 @@ self.onmessage = function (e) {
     userId = e.data.userId;
     sid = e.data.sid;
 
-    projectId = e.data.projectId;
     studyId = e.data.studyId;
     relativeFilePath = e.data.relativeFilePath;
     description = e.data.description;
@@ -111,7 +109,7 @@ self.onmessage = function (e) {
     var file = e.data.file;
     var resume = e.data.resume;
 
-    const BYTES_PER_CHUNK = 7 * 1024 * 1024;
+    const BYTES_PER_CHUNK = 2 * 1024 * 1024;
     const SIZE = file.size;
     const NUM_CHUNKS = Math.ceil(SIZE / BYTES_PER_CHUNK);
     var start = 0;
@@ -124,7 +122,6 @@ self.onmessage = function (e) {
         resumeFormData.append('resume_upload', 'true');
         resumeFormData.append('filename', file.name);
         resumeFormData.append('userId', userId);
-        resumeFormData.append('projectId', projectId);
         resumeFormData.append('studyId', studyId);
         resumeFormData.append('relativeFilePath', relativeFilePath);
         resumeInfo = getResumeInfo(resumeFormData);
@@ -144,7 +141,6 @@ self.onmessage = function (e) {
 //                formData.append('chunk_hash', hash);
             formData.append("filename", file.name);
             formData.append('userId', userId);
-            formData.append('projectId', projectId);
             formData.append('studyId', studyId);
             formData.append('relativeFilePath', relativeFilePath);
 //            formData.append('chunk_gzip', );

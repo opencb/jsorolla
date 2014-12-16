@@ -93,13 +93,16 @@
                 </div>
 
                 <div horizontal layout>
-                    <input type="number" value={{defaults.labelPositionX}} placeholder="x label" on-change="{{handleLabelPositionX}}">
-                    <input type="number" value={{defaults.labelPositionY}} placeholder="y label" on-change="{{handleLabelPositionY}}">
+                    <input type="number" value={{defaults.labelPositionX}} placeholder="x label"
+                           on-change="{{handleLabelPositionX}}">
+                    <input type="number" value={{defaults.labelPositionY}} placeholder="y label"
+                           on-change="{{handleLabelPositionY}}">
                 </div>
 
                 <div horizontal layout>
                     <div class="text">Label size:</div>
-                    <input flex type="number" min="0" max="50" value={{defaults.labelSize}} on-change="{{handleLabelSize}}">
+                    <input flex type="number" min="0" max="50" value={{defaults.labelSize}}
+                           on-change="{{handleLabelSize}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.labelSize != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="labelSize"></div>
@@ -110,7 +113,8 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Opacity:</div>
-                    <input flex type="number" min="0" max="1" step="0.1" value={{defaults.opacity}} on-change="{{handleOpacity}}">
+                    <input flex type="number" min="0" max="1" step="0.1" value={{defaults.opacity}}
+                           on-change="{{handleOpacity}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.opacity != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="opacity"></div>
@@ -121,7 +125,7 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Shape:</div>
-                    <select flex value="{{defaults.shape}}" on-change="{{handleShape}}" on-change="{{handleShape}}">
+                    <select flex value="{{defaults.shape}}" on-change="{{handleShape}}">
                         <option value="circle">circle</option>
                         <option value="ellipse">ellipse</option>
                         <option value="square">square</option>
@@ -139,7 +143,8 @@
                     <div class="text">Color:</div>
 
                     <!--<input flex type="color" value="{{defaults.color}}" list="colors" on-change="{{handleColor}}">-->
-                    <jso-color-picker flex color="{{defaults.color}}" on-color-click="{{handleColor}}"></jso-color-picker>
+                    <jso-color-picker flex color="{{defaults.color}}"
+                                      on-color-click="{{handleColor}}"></jso-color-picker>
 
                     <div class="button action configure" data-enabled="{{visualSets.color != null}}"
                          on-click="{{handleSettingsClick}}" data-prop="color"></div>
@@ -152,7 +157,8 @@
                     <div class="text">Stroke color:</div>
 
                     <!--<input flex type="color" value="{{defaults.strokeColor}}" on-change="{{handleStrokeColor}}">-->
-                    <jso-color-picker flex color="{{defaults.strokeColor}}" on-color-click="{{handleStrokeColor}}"></jso-color-picker>
+                    <jso-color-picker flex color="{{defaults.strokeColor}}"
+                                      on-color-click="{{handleStrokeColor}}"></jso-color-picker>
 
                     <div class="button action configure" data-enabled="{{visualSets.strokeColor != null}}"
                          on-click="{{handleSettingsClick}}"
@@ -175,7 +181,8 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Stroke size:</div>
-                    <input flex type="number" min="1" max="20" value={{defaults.strokeSize}} on-change="{{handleStrokeSize}}">
+                    <input flex type="number" min="1" max="20" value={{defaults.strokeSize}}
+                           on-change="{{handleStrokeSize}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.strokeSize != null}}"
                          on-click="{{handleSettingsClick}}"
@@ -187,7 +194,8 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Area:</div>
-                    <input flex type="number" max="1" min="0"  step="0.01" value={{defaults.area}} on-change="{{handleArea}}">
+                    <input flex type="number" max="1" min="0" step="0.01" value={{defaults.area}}
+                           on-change="{{handleArea}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.area != null}}"
                          on-click="{{handleSettingsClick}}"
@@ -199,7 +207,8 @@
                 </div>
                 <div horizontal layout>
                     <div class="text">Stroke area:</div>
-                    <input flex type="number" max="1" min="0"  step="0.01" value={{defaults.strokeArea}} on-change="{{handleStrokeArea}}">
+                    <input flex type="number" max="1" min="0" step="0.01" value={{defaults.strokeArea}}
+                           on-change="{{handleStrokeArea}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.area != null}}"
                          on-click="{{handleSettingsClick}}"
@@ -229,103 +238,121 @@
             </div>
         </div>
 
-        <template if="{{displayProperty == 'labelSize'}}">
-            <jso-attribute-render-number-table
-                    on-ok="{{handleOkSet}}"
-                    displayProperty="{{displayProperty}}"
-                    attributeManager="{{attributeManager}}"
-                    defaultValue="{{defaults.labelSize}}"
-                    visualSet="{{visualSets.labelSize}}"
-                    >
-            </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'opacity'}}">
-            <jso-attribute-render-number-table
-                    on-ok="{{handleOkSet}}"
-                    displayProperty="{{displayProperty}}"
-                    attributeManager="{{attributeManager}}"
-                    defaultValue="{{defaults.opacity}}"
-                    visualSet="{{visualSets.opacity}}"
-                    >
-            </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'shape'}}">
-            <jso-attribute-render-select-table
-                    on-ok="{{handleOkSet}}"
-                    displayProperty="{{displayProperty}}"
-                    attributeManager="{{attributeManager}}"
-                    defaultValue="{{defaults.shape}}"
-                    visualSet="{{visualSets.shape}}"
-                    options="circle,ellipse,square,rectangle"
-                    >
-            </jso-attribute-render-select-table>
-        </template>
-        <template if="{{displayProperty == 'color'}}">
-            <jso-attribute-render-color-table
-                    on-ok="{{handleOkSet}}"
-                    displayProperty="{{displayProperty}}"
-                    attributeManager="{{attributeManager}}"
-                    defaultValue="{{defaults.color}}"
-                    visualSet="{{visualSets.color}}"
-                    allowListParse="true"
-                    >
-            </jso-attribute-render-color-table>
-        </template>
-        <template if="{{displayProperty == 'strokeColor'}}">
-            <jso-attribute-render-color-table
-                    on-ok="{{handleOkSet}}"
-                    displayProperty="{{displayProperty}}"
-                    attributeManager="{{attributeManager}}"
-                    defaultValue="{{defaults.strokeColor}}"
-                    visualSet="{{visualSets.strokeColor}}"
-                    allowListParse="true"
-                    >
-            </jso-attribute-render-color-table>
-        </template>
-        <template if="{{displayProperty == 'size'}}">
-            <jso-attribute-render-number-table
-                    on-ok="{{handleOkSet}}"
-                    displayProperty="{{displayProperty}}"
-                    attributeManager="{{attributeManager}}"
-                    defaultValue="{{defaults.size}}"
-                    visualSet="{{visualSets.size}}"
-                    allowListParse="true"
-                    >
-            </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'strokeSize'}}">
-            <jso-attribute-render-number-table
-                    on-ok="{{handleOkSet}}"
-                    displayProperty="{{displayProperty}}"
-                    attributeManager="{{attributeManager}}"
-                    defaultValue="{{defaults.strokeSize}}"
-                    visualSet="{{visualSets.strokeSize}}"
-                    allowListParse="true"
-                    >
-            </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'area'}}">
-            <jso-attribute-render-number-table
-                    on-ok="{{handleOkSet}}"
-                    displayProperty="{{displayProperty}}"
-                    attributeManager="{{attributeManager}}"
-                    defaultValue="{{defaults.area}}"
-                    visualSet="{{visualSets.area}}"
-                    allowListParse="true"
-                    >
-            </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'strokeArea'}}">
-            <jso-attribute-render-number-table
-                    on-ok="{{handleOkSet}}"
-                    displayProperty="{{displayProperty}}"
-                    attributeManager="{{attributeManager}}"
-                    defaultValue="{{defaults.strokeArea}}"
-                    visualSet="{{visualSets.strokeArea}}"
-                    allowListParse="true"
-                    >
-            </jso-attribute-render-number-table>
-        </template>
+        <!--<template if="{{displayProperty == 'labelSize'}}">-->
+        <jso-attribute-render-number-table
+                id="labelSize"
+                hidden?="{{displayProperty != 'labelSize'}}"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.labelSize}}"
+                visualSet="{{visualSets.labelSize}}"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'opacity'}}">-->
+        <jso-attribute-render-number-table
+                id="opacity"
+                hidden?="{{displayProperty != 'opacity'}}"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.opacity}}"
+                visualSet="{{visualSets.opacity}}"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'shape'}}">-->
+        <jso-attribute-render-select-table
+                id="shape"
+                hidden?="{{displayProperty != 'shape'}}"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.shape}}"
+                visualSet="{{visualSets.shape}}"
+                options="circle,ellipse,square,rectangle"
+                >
+        </jso-attribute-render-select-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'color'}}">-->
+        <jso-attribute-render-color-table
+                id="color"
+                hidden?="{{displayProperty != 'color'}}"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.color}}"
+                visualSet="{{visualSets.color}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-color-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'strokeColor'}}">-->
+        <jso-attribute-render-color-table
+                id="strokeColor"
+                hidden?="{{displayProperty != 'strokeColor'}}"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.strokeColor}}"
+                visualSet="{{visualSets.strokeColor}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-color-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'size'}}">-->
+        <jso-attribute-render-number-table
+                id="size"
+                hidden?="{{displayProperty != 'size'}}"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.size}}"
+                visualSet="{{visualSets.size}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'strokeSize'}}">-->
+        <jso-attribute-render-number-table
+                id="strokeSize"
+                hidden?="{{displayProperty != 'strokeSize'}}"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.strokeSize}}"
+                visualSet="{{visualSets.strokeSize}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'area'}}">-->
+        <jso-attribute-render-number-table
+                id="area"
+                hidden?="{{displayProperty != 'area'}}"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.area}}"
+                visualSet="{{visualSets.area}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'strokeArea'}}">-->
+        <jso-attribute-render-number-table
+                id="strokeArea"
+                hidden?="{{displayProperty != 'strokeArea'}}"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.strokeArea}}"
+                visualSet="{{visualSets.strokeArea}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
     </template>
     <script>
         Polymer({
@@ -418,7 +445,7 @@
             },
             handleRemoveSet: function (e) {
                 var displayProperty = e.currentTarget.dataset.prop;
-                if(this.visualSets[displayProperty]){
+                if (this.visualSets[displayProperty]) {
                     delete this.visualSets[displayProperty];
                     this.fire(displayProperty.toLowerCase());
                 }

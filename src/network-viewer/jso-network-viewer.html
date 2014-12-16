@@ -51,7 +51,7 @@
 
 <!-- /build -->
 <polymer-element name="jso-network-viewer"
-                 attributes="">
+                 attributes="hideBar hideToolBar hideEditionBar">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
@@ -85,6 +85,7 @@
         </style>
 
         <jso-nv-bar
+                hidden?="{{hideBar == 'true'}}"
                 columns="{{vAttr.columns}}"
 
                 on-session-start="{{handleSessionStartMenu}}"
@@ -133,6 +134,7 @@
         </jso-nv-bar>
 
         <jso-nv-tool-bar
+                hidden?="{{hideToolBar == 'true'}}"
                 backgroundColor="{{backgroundColor}}"
                 mode="{{mode}}"
                 zoom="{{zoom}}"
@@ -144,6 +146,7 @@
                 ></jso-nv-tool-bar>
 
         <jso-nv-edition-bar
+                hidden?="{{hideEditionBar == 'true'}}"
                 id="editionBar"
 
                 on-vertexshape="{{handleVertexShape}}"
@@ -277,7 +280,6 @@
         </template>
 
 
-
         <ul id="imagecontextmenu" class="context">
             <li on-click="{{handleContextRemoveBackGroundImage}}">Remove</li>
         </ul>
@@ -285,7 +287,9 @@
         <ul id="vertexcontextmenu" class="context">
             <li on-click="{{handleContextRemoveVertex}}">Delete</li>
             <li data-divider hidden?="{{ vAttr.selected.length < 2 }}"></li>
-            <li on-click="{{handleContextRemoveSelectedVertices}}" hidden?="{{ vAttr.selected.length < 2 }}">Delete Selected</li>
+            <li on-click="{{handleContextRemoveSelectedVertices}}" hidden?="{{ vAttr.selected.length < 2 }}">Delete
+                Selected
+            </li>
             <li data-divider></li>
             <li on-click="{{handleContextSelectVerticesNeighbour}}">Select first neighbour nodes</li>
             <li on-click="{{handleContextSelectEdgesNeighbour}}">Select Adjacent edges</li>
@@ -306,10 +310,10 @@
 
 
                 /*MENUS*/
-                this.selectedMenu = 'nodes-edit';
-//                this.selectedMenu = '';
-                this.hideNodeSimpleRendering = false;
-                this.hideEdgeSimpleRendering = false;
+//                this.selectedMenu = 'nodes-edit';
+                this.selectedMenu = '';
+                this.hideNodeSimpleRendering = true;
+                this.hideEdgeSimpleRendering = true;
                 this.hideNodeListRendering = true;//TODO remove
 
                 this.hideCellbaseAttributeImport = true;
@@ -588,6 +592,7 @@
                 this._calculateVertexAttributeNormalization(attribute, "x", "width", false);
             },
             _calculateVertexAttributeNormalization: function (coordAttr, coord, measure, invertAxis) {
+                var margin = 100, midMargin = margin / 2;
                 var max, min, c;
                 var row, vertex;
                 for (var i = 0; i < this.graph.vertices.length; i++) {
@@ -604,7 +609,7 @@
                     }
                 }
                 var range = (max === min) ? 1 : max - min;
-                var measure = this.$.networkLayout.getBoundingClientRect()[measure];
+                var measure = this.$.networkLayout.getBoundingClientRect()[measure] - margin;
 
                 var row, vertex, c;
                 for (var i = 0; i < this.graph.vertices.length; i++) {
@@ -616,7 +621,7 @@
                         c = measure - c;
                     }
                     if (!isNaN(c)) {
-                        vertex.position[coord] = c;
+                        vertex.position[coord] = c + midMargin;
                         vertex.renderer.move();
                         this._updateEdgeCoords(vertex);
                     }
@@ -1636,8 +1641,8 @@
                         }
                     }
                 }
-                this.setVertexDefaultPositionX();
-                this.setVertexDefaultPositionY();
+                this.handleVertexDefaultXAttribute();
+                this.handleVertexDefaultYAttribute();
             },
             importEdgeAttributeManager: function (attributeManager) {
                 var columns = attributeManager.columns;

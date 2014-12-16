@@ -132,6 +132,9 @@ var OpencgaManager = {
         },
         delete: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'delete');
+        },
+        studies: function (args) {
+            return OpencgaManager._doRequest(args, 'projects', 'studies');
         }
     },
 
@@ -166,6 +169,9 @@ var OpencgaManager = {
         read: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'info');
         },
+        info: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'info');
+        },
         delete: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'delete');
         },
@@ -180,6 +186,9 @@ var OpencgaManager = {
         },
         content: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'content');
+        },
+        contentGrep: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'content-grep');
         },
         createFolder: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'create-folder');

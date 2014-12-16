@@ -1,260 +1,258 @@
 <link rel="import" href="jso-opencga-project.html">
 <link rel="import" href="jso-opencga-file.html">
-<!--<link rel="import" href="jso-opencga-study.html">-->
+<link rel="import" href="jso-opencga-study.html">
 <link rel="import" href="jso-opencga-create-project.html">
-<!--<link rel="import" href="jso-opencga-create-study.html">-->
+<link rel="import" href="jso-opencga-create-study.html">
 <!--<link rel="import" href="jso-opencga-create-analysis.html">-->
 <link rel="import" href="jso-opencga-create-folder.html">
 <link rel="import" href="jso-opencga-select-study.html">
 <link rel="import" href="jso-opencga-upload.html">
 
-<polymer-element name="jso-project-browser" constructor="JsoProjectBrowser"
-                 attributes="userData selectedProject selectedStudy">
-<template>
-<link rel="stylesheet" href="../jso-style.css">
-<style>
-    :host {
-        position: relative;
-        display: block;
-        color: #444;
-        background-color: #ffffff;
-        font-size: 16px;
-        cursor: default;
-    }
+<polymer-element name="jso-project-browser" attributes="userData selectedProject selectedStudy studies">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                position: relative;
+                display: block;
+                color: #444;
+                background-color: #ffffff;
+                font-size: 16px;
+                cursor: default;
+            }
 
-    #main {
-        height: 100%;
-    }
+            #bar {
+                box-sizing: border-box;
+                background-color: #FAFAFA;
+                height: 32px;
+                line-height: 30px;
+                border: 0px solid #d3d3d3;
+                border-top-width: 1px;
+                border-bottom-width: 1px;
+            }
 
-    #bar {
-        box-sizing: border-box;
-        background-color: #FAFAFA;
-        height: 32px;
-        line-height: 26px;
-        border: 0px solid #d3d3d3;
-        border-top-width: 1px;
-        border-bottom-width: 1px;
-    }
+            #main {
+                position: relative;
+                height: calc(100% - 32px);
+                width: 100%;
+            }
 
-    #navigation {
-        box-sizing: border-box;
-        width: 200px;
-        border: 0px solid #d3d3d3;
-        border-right-width: 1px;
-        background-color: #f5f5f5;
-    }
+            #studiesList {
+                float: left;
+                position: relative;
+                box-sizing: border-box;
+                overflow-y: auto;
+                width: 200px;
+                height: 100%;
+                border-right: 1px solid #d3d3d3;
+                background-color: #f5f5f5;
+            }
 
-    .navigation-title {
-        box-sizing: border-box;
-        text-transform: uppercase;
-        font-weight: bold;
-        font-size: 12px;
-        color: #5f83a6;
-        padding: 5px 10px;
-    }
+            #foldersMain {
+                height: 100%;
+                margin-left: 200px;
+                white-space: nowrap;
+                font-size: 0;
+                overflow-x: scroll;
+            }
 
-    .navigation-item {
-        box-sizing: border-box;
-        color: #314559;
-        padding: 5px 20px;
-        user-select: none;
-    }
+            #foldersMain > jso-project-browser-folder-list {
+                display: inline-block;
+                margin: 0;
+            }
 
-    .navigation-item:hover {
-        background-color: #D1D9E3;
-    }
+            #navigation {
+                box-sizing: border-box;
+                width: 200px;
+                height: 100%;
+                border-right: 1px solid #d3d3d3;
+                background-color: #f5f5f5;
+            }
 
-    .navigation-item[data-selected=true] {
-        background-color: #445D76;
-        color: #ffffff;
-    }
+            .navigation-title {
+                box-sizing: border-box;
+                text-transform: uppercase;
+                font-weight: bold;
+                font-size: 12px;
+                color: #5f83a6;
+                padding: 5px 10px;
+            }
 
-    #content {
-        font-size: 14px;
-        position: relative;
-    }
+            .navigation-item {
+                box-sizing: border-box;
+                color: #314559;
+                padding: 5px 20px;
+                user-select: none;
+                margin: 0 1px;
+            }
 
-    #browse {
-        box-sizing: border-box;
-        overflow-x: auto;
-        overflow-y: auto;
-    }
+            .navigation-item:hover {
+                background-color: #D1D9E3;
+            }
 
-    #projectsContent {
-        box-sizing: border-box;
-        overflow-y: auto;
-        width: 200px;
-        border: 0px solid #d3d3d3;
-        border-right-width: 1px;
-    }
+            .navigation-item[data-selected=true] {
+                background-color: #445D76;
+                color: #ffffff;
+            }
 
-    #studiesContent {
-        box-sizing: border-box;
-        overflow-y: auto;
-        width: 200px;
-        border: 0px solid #d3d3d3;
-        border-right-width: 1px;
-    }
+            #browse {
+                box-sizing: border-box;
+                overflow-x: auto;
+                overflow-y: auto;
+            }
 
-    #study {
-        position: relative;
-    }
+            #study {
+                position: relative;
+            }
 
-    .project:hover {
-        background-color: #D1D9E3;
-    }
+            .project:hover {
+                background-color: #D1D9E3;
+            }
 
-    .project {
-        box-sizing: border-box;
-        padding: 5px 5px;
-        margin: 2px;
-    }
+            .project {
+                box-sizing: border-box;
+                padding: 5px 5px;
+                margin: 2px;
+            }
 
-    .project[data-selected=true] {
-        background-color: #D1D9E3;
-    }
+            .project[data-selected=true] {
+                background-color: #D1D9E3;
+            }
 
-    .study:hover {
-        background-color: #D1D9E3;
-    }
+            .study:hover {
+                background-color: #D1D9E3;
+            }
 
-    .study {
-        box-sizing: border-box;
-        padding: 5px 5px;
-        margin: 2px;
-    }
+            .study {
+                box-sizing: border-box;
+                padding: 5px 5px;
+                margin: 2px;
+            }
 
-    .study[data-selected=true] {
-        background-color: #D1D9E3;
-    }
+            .study[data-selected=true] {
+                background-color: #D1D9E3;
+            }
 
-    #search {
-        margin: 2px 4px;
-        display: block;
-        outline: 0;
-        box-sizing: border-box;
-        line-height: 21px;
-        border: 1px solid #ccc;
-        padding: 0px 5px;
-        color: #333;
-        background-color: #fff;
-        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-    }
+            #search {
+                margin: 2px 4px;
+                display: block;
+                outline: 0;
+                box-sizing: border-box;
+                border: 1px solid #ccc;
+                padding: 0px 5px;
+                color: #333;
+                background-color: #fff;
+                transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            }
 
-    #search:focus {
-        border-color: #66afe9;
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
-    }
+            #search:focus {
+                border-color: #66afe9;
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+            }
 
-    #searchIcon {
-        color: #666;
-        margin: 0px 5px;
-    }
+            #searchIcon {
+                color: #666;
+                margin: 0px 5px;
+            }
 
-    #breadcrums {
-        color: #314559;
-        box-sizing: border-box;
-        padding-left: 20px;
-    }
+            #breadcrums {
+                color: #314559;
+                box-sizing: border-box;
+                padding-left: 20px;
+            }
 
-    #breadcrums > span:not(:last-of-type)::after {
-        font-family: 'FontAwesome';
-        content: '\f105';
-        margin-left: 5px;
-        margin-right: 5px;
-        color: #888;
-    }
+            #breadcrums > span:first-of-type {
+                text-transform: capitalize;
+            }
 
-</style>
-<div id="main" vertical layout>
-    <div id="bar" horizontal layout>
-        <div id="breadcrums">
-            <template if="{{ selectedOption }}">
-                <span>{{selectedOptionText}}</span>
-                <template if="{{ selectedOption == 'browse' && userData.selectedStudy }}">
-                    <span>{{userData.selectedStudy.name}}</span>
+            #breadcrums > span:not(:last-of-type)::after {
+                font-family: 'FontAwesome';
+                content: '\f105';
+                margin-left: 5px;
+                color: #888;
+            }
+        </style>
+        <div id="bar" horizontal layout>
+            <div id="breadcrums">
+                <template repeat="{{bread in breadcrums}}">
+                    <span>{{bread}}</span>
                 </template>
-            </template>
+            </div>
+            <!--<div flex horizontal layout end-justified>-->
+            <!--<div id="searchIcon">-->
+            <!--<font-awesome icon="search"></font-awesome>-->
+            <!--</div>-->
+            <!--<input id="search" type="text" placeholder="search">-->
+            <!--</div>-->
         </div>
-        <div flex horizontal layout end-justified>
-            <div id="searchIcon">
-                <font-awesome icon="search"></font-awesome>
+
+        <div id="main">
+            <!--<div id="navigation" on-click="{{handleNavigationClick}}">-->
+            <!--<div class="navigation-title">Main</div>-->
+            <!--<div class="navigation-item" data-content="browse" data-selected="{{selectedOption == 'browse'}}">-->
+            <!--<font-awesome icon="pie-chart"></font-awesome>-->
+            <!--&nbsp; Studies-->
+            <!--</div>-->
+            <!--<br>-->
+
+            <!--<div class="navigation-title">Actions</div>-->
+            <!--<div class="navigation-item" data-content="selectStudy"-->
+            <!--data-selected="{{selectedOption == 'selectStudy'}}">-->
+            <!--<font-awesome icon="pie-chart"></font-awesome>-->
+            <!--&nbsp; Select study-->
+            <!--</div>-->
+
+            <!--<div class="navigation-item" data-content="createStudy"-->
+            <!--data-selected="{{selectedOption == 'createStudy'}}">-->
+            <!--<font-awesome icon="pie-chart"></font-awesome>-->
+            <!--&nbsp; Create study-->
+            <!--</div>-->
+            <!--&lt;!&ndash;<div class="navigation-item" data-content="createFolder"&ndash;&gt;-->
+            <!--&lt;!&ndash;data-selected="{{selectedOption == 'createFolder'}}">&ndash;&gt;-->
+            <!--&lt;!&ndash;<font-awesome icon="folder"></font-awesome>&ndash;&gt;-->
+            <!--&lt;!&ndash;&nbsp; Create folder&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+            <!--&lt;!&ndash;<div class="navigation-item" data-content="uploadFile"&ndash;&gt;-->
+            <!--&lt;!&ndash;data-selected="{{selectedOption == 'uploadFile'}}">&ndash;&gt;-->
+            <!--&lt;!&ndash;<font-awesome icon="cloud-upload"></font-awesome>&ndash;&gt;-->
+            <!--&lt;!&ndash;&nbsp; Upload file&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--</div>-->
+            <!--<template if="{{ selectedOption == 'browse' }}">-->
+            <!--</template>-->
+            <div id="studiesList" class="contentList">
+                <div class="navigation-title">Studies</div>
+                <template repeat="{{study in studies}}">
+                    <jso-opencga-study-card
+                            class="navigation-item" study="{{study}}" data-selected="{{selectedStudy == study}}"
+                            on-click="{{handleStudyClick}}">
+                    </jso-opencga-study-card>
+                </template>
             </div>
-            <input id="search" type="text">
-        </div>
-    </div>
-
-    <div horizontal layout flex>
-        <div id="navigation" on-click="{{handleNavigationClick}}">
-            <div class="navigation-title">Main</div>
-            <div class="navigation-item" data-content="browse" data-selected="{{selectedOption == 'browse'}}">
-                <font-awesome icon="folder-open-o"></font-awesome>
-                &nbsp; Studies
+            <div id="foldersMain">
+                <template id="firstLevel" if="{{ files.length > 0 }}">
+                    <jso-project-browser-folder-list
+                            files="{{files}}"
+                            folder="{{firstFolder}}"
+                            study="{{selectedStudy}}"
+                            on-file-click="{{getFilesInFolder}}"></jso-project-browser-folder-list>
+                </template>
             </div>
-            <br>
-
-            <div class="navigation-title">Actions</div>
-            <div class="navigation-item" data-content="selectStudy"
-                 data-selected="{{selectedOption == 'selectStudy'}}">
-                <font-awesome icon="pie-chart"></font-awesome>
-                &nbsp; Select study
-            </div>
-
-            <div class="navigation-item" data-content="createStudy"
-                 data-selected="{{selectedOption == 'createStudy'}}">
-                <font-awesome icon="pie-chart"></font-awesome>
-                &nbsp; Create study
-            </div>
-            <div class="navigation-item" data-content="createFolder"
-                 data-selected="{{selectedOption == 'createFolder'}}">
-                <font-awesome icon="pie-chart"></font-awesome>
-                &nbsp; Create folder
-            </div>
-
-            <div class="navigation-item" data-content="uploadFile"
-                 data-selected="{{selectedOption == 'uploadFile'}}">
-                <font-awesome icon="cloud-upload"></font-awesome>
-                &nbsp; Upload file
-            </div>
-        </div>
-        <div id="content" horizontal layout flex>
-
-
-            <template if="{{ selectedOption == 'browse' }}">
-                <div horizontal layout flex>
-                    <div id="studiesContent">
-                        <template repeat="{{study in selectedProject.studies}}">
-                            <jso-opencga-study-card
-                                    class="study" study="{{study}}" data-selected="{{selectedStudy == study}}"
-                                    on-click="{{handleStudyClick}}">
-                            </jso-opencga-study-card>
-                        </template>
-                    </div>
-                    <template if="{{ files.length > 0 }}">
-                        <div id="filesContent">
-                            <template repeat="{{file in files}}">
-                                <jso-opencga-file-card
-                                        class="file" file="{{file}}">
-                                </jso-opencga-file-card>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-
-            <template if="{{ selectedOption == 'createProject' }}">
-                <jso-opencga-create-project></jso-opencga-create-project>
-            </template>
+            <!--<template if="{{ selectedOption == 'createProject' }}">-->
+            <!--<jso-opencga-create-project></jso-opencga-create-project>-->
+            <!--</template>-->
 
             <template if="{{ selectedOption == 'selectStudy' }}">
-                <jso-opencga-select-study studyList="{{selectedProject.studies}}" selectedStudy="{{selectedStudy}}" userData="{{userData}}"></jso-opencga-select-study>
+                <jso-opencga-select-study studyList="{{studies}}"
+                                          selectedStudy="{{selectedStudy}}"
+                                          userData="{{userData}}"></jso-opencga-select-study>
             </template>
             <template if="{{ selectedOption == 'createStudy' }}">
                 <jso-opencga-create-study projectList="{{userData.projects}}"></jso-opencga-create-study>
             </template>
             <!--<template if="{{ selectedOption == 'createAnalysis' }}">-->
-                <!--<jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>-->
+            <!--<jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>-->
             <!--</template>-->
 
             <template if="{{ selectedOption == 'createFolder' }}">
@@ -270,33 +268,42 @@
             </template>
 
             <template if="{{ selectedOption == 'uploadFile' }}">
-                <jso-opencga-upload selectedProject="{{selectedProject}}" selectedStudy="{{selectedStudy}}"></jso-opencga-upload>
+                <jso-opencga-upload selectedProject="{{selectedProject}}"
+                                    selectedStudy="{{selectedStudy}}"></jso-opencga-upload>
             </template>
 
             <template if="{{ selectedOption == 'browseStudies' }}">
 
             </template>
         </div>
-    </div>
-</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.userData;
+                this.selectedOption;
+                this.selectedOptionText;
 
-</template>
-<script>
-    Polymer({
-        created: function () {
-            this.userData;
-            this.selectedOption;
-            this.selectedOptionText;
+                this.selectedStudy;
+                this.selectedOption = 'browse';
 
-            this.selectedStudy;
+                this.breadcrums = [];
 
-        },
-        ready: function () {
-//            this.selectedStudy = this.userData.selectedStudy;
-        },
-        userDataChanged: function (oldValue, newValue) {
+                this.selectedFile;
+            },
+            ready: function () {
+            },
+            attached: function (oldValue, newValue) {
+                if (this.studies) {
+                    this.selectStudy(this.studies[0]);
+                }
+            },
+            studiesChanged: function (oldValue, newValue) {
+                this.selectStudy(this.studies[0]);
+            },
+            userDataChanged: function (oldValue, newValue) {
 //            this.selectedProject = this.userData.projects[0]
-//            if (newValue) {
+//            if (newValue) {!=
 //                var projects = newValue.projects;
 //                if (this.selectedProject) {
 //                    for (var i = 0; i < projects.length; i++) {
@@ -317,57 +324,307 @@
 //                    }
 //                }
 //            }
-        },
-        checkNavigtationSelected: function () {
-            return e.target.dataset['content'] === this.selectedNavigation;
-        },
+            },
+            checkNavigtationSelected: function () {
+                return e.target.dataset['content'] === this.selectedNavigation;
+            },
 
-        handleProjectClick: function (e) {
-            if (this.selectedProject === e.target.project) {
-                this.selectedProject = null;
-            } else {
-                this.selectedProject = e.target.project;
-            }
-            this.selectedStudy = null;
-        },
-        handleStudyClick: function (e) {
-            if (this.selectedStudy === e.target.study) {
+            handleProjectClick: function (e) {
+                if (this.selectedProject === e.target.project) {
+                    this.selectedProject = null;
+                } else {
+                    this.selectedProject = e.target.project;
+                }
                 this.selectedStudy = null;
-            } else {
-                this.selectedStudy = e.target.study;
-                this.getFilesByStudy(this.selectedStudy.id)
-            }
-        },
-        handleNavigationClick: function (e) {
-            var option = e.target.dataset['content'];
-            if (option) {
-                this.selectedOption = option;
-                this.selectedOptionText = e.target.innerText.trim();
-            }
-        },
-        getFilesByStudy: function (studyId) {
-            var me = this;
-            this.message = '';
-            OpencgaManager.files.search({
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                    studyId: studyId
-                },
-                request: {
-                    success: function (response) {
-                        console.log(response);
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            me.files = response.response[0].result
-                        } else {
-                            me.message = response.response[0].errorMsg;
-                        }
+            },
+            handleStudyClick: function (e) {
+                this.selectStudy(e.target.study);
+            },
+            selectStudy: function (study) {
+                this._cleanAllFolderLists();
+//
+//                if (this.selectedStudy === study) {
+//                    this.selectedStudy = null;
+//                    this.breadcrums = [];
+//                } else {
+                this.selectedStudy = study;
+                this.getFilesByStudy(this.selectedStudy.id);
+                this.breadcrums = [this.selectedStudy.name];
+//                }
+            },
+            handleNavigationClick: function (e) {
+                var option = e.target.dataset['content'];
+                if (option) {
+                    this.selectedOption = option;
+                    this.selectedOptionText = e.target.innerText.trim();
+                }
+            },
+            _getStudyFolderId: function (studyId) {
+                var me = this;
+                this.message = '';
+                var id = -1;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: studyId,
+                        name: '.'
                     },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.firstFolder = response.response[0].result[0];
+                                id = me.firstFolder.id;
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+                return id;
+            },
+            getFilesByStudy: function (studyId) {
+                var me = this;
+                var folderId = this._getStudyFolderId(studyId);
+                this.selectedFile = this.firstFolder;
+                this.fire('file-select', {file: this.selectedFile});
+                if (folderId != -1) {
+                    OpencgaManager.files.list({
+                        id: folderId,
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            studyId: studyId
+                        },
+                        request: {
+                            success: function (response) {
+                                console.log(response);
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.files = response.response[0].result
+                                } else {
+                                    console.log(response.response[0].errorMsg);
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    });
+                }
+            },
+            _cleanSiblingFolderLists: function (element) {
+                this.breadcrums = [this.selectedStudy.name];
+                var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list');
+                var found = false;
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    if (found) {
+                        this.$.foldersMain.removeChild(el);
+                    } else {
+                        if (el.classList.contains('folderList')) {
+                            this.breadcrums.push(el.folder.name);
+                        }
+                    }
+                    if (el == element) {
+                        found = true;
                     }
                 }
-            });
-        }
-    });
-</script>
+            },
+            _cleanAllFolderLists: function () {
+                var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list.folderList');
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    this.$.foldersMain.removeChild(el);
+                }
+            },
+            getFilesInFolder: function (e) {
+                /** remove all next siblings **/
+                this._cleanSiblingFolderLists(e.target);
+
+                var me = this;
+                var file = e.detail.file;
+                this.selectedFile = file;
+                this.fire('file-select', {file: this.selectedFile});
+                this.breadcrums.push(file.name);
+                if (file.type == "folder") {
+                    OpencgaManager.files.list({
+                        id: file.id,
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            studyId: this.selectedStudy.id
+                        },
+                        request: {
+                            success: function (response) {
+                                console.log(response);
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    var files = response.response[0].result
+                                    var folderList = document.createElement('jso-project-browser-folder-list');
+                                    folderList.classList.add('folderList');
+                                    folderList.files = files;
+                                    folderList.folder = file;
+                                    folderList.study = me.selectedStudy;
+                                    folderList.addEventListener('file-click', function (e) {
+                                        me.getFilesInFolder(e);
+                                    });
+                                    me.$.foldersMain.appendChild(folderList);
+                                    me.$.foldersMain.scrollLeft = me.$.foldersMain.scrollWidth;
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                me.message = 'Server error, try again later.';
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 </polymer-element>
+
+<polymer-element name="jso-project-browser-folder-list" attributes="folder files study">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                width: 200px;
+                height: 100%;
+                border: 0px solid #d3d3d3;
+                border-right-width: 1px;
+                font-size: 13px;
+            }
+
+            jso-opencga-file-card:hover {
+                background-color: #D1D9E3;
+            }
+
+            .bar {
+                box-sizing: border-box;
+                height: 30px;
+                background-color: #fafafa;
+                border-bottom: 1px solid #d3d3d3;
+                padding: 3px;
+            }
+
+            .bar > * {
+                margin-left: 3px;
+            }
+
+            .foot {
+                box-sizing: border-box;
+                height: 25px;
+                line-height: 25px;
+                background-color: #fafafa;
+                border-top: 1px solid #d3d3d3;
+                padding: 0 4px;
+            }
+
+            .list {
+                box-sizing: border-box;
+                overflow-y: auto;
+                height: calc(100% - 55px);
+                /*padding: 2px;*/
+            }
+
+            jso-opencga-create-folder, jso-opencga-upload {
+                box-sizing: border-box;
+                position: absolute;
+                padding: 15px;
+                width: 100%;
+                top: 30px;
+                border-bottom: 1px solid #d3d3d3;
+            }
+        </style>
+        <div class="bar" horizontal layout>
+            <div class="button action" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
+                <font-awesome icon="cloud-upload"></font-awesome>
+            </div>
+            <div class="button action" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
+                <font-awesome icon="folder-o"></font-awesome>
+                +
+            </div>
+            <!--<input type="text" flex placeholder="filter">-->
+        </div>
+        <div class="list">
+            <core-list data="{{files}}" height="27" style="height:100%;">
+                <template>
+                    <jso-opencga-file-card checked="{{model.checked}}"
+                                           on-click="{{handleFileClick}}"
+                                           file="{{model}}">
+                    </jso-opencga-file-card>
+                </template>
+            </core-list>
+        </div>
+        <div class="foot">
+            {{files.length}} item{{files.length != 1 ? 's' : ''}}
+        </div>
+        <jso-opencga-create-folder
+                folder="{{folder}}"
+                study="{{study}}"
+                on-folder-created="{{handleFolderCreated}}"
+                hidden?="{{hideCreateFolder}}"></jso-opencga-create-folder>
+        <jso-opencga-upload
+                folder="{{folder}}"
+                study="{{study}}"
+                on-file-uploaded="{{handleFolderCreated}}"
+                hidden?="{{hideUploadFile}}"></jso-opencga-upload>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.folder;
+                this.files;
+                this.hideCreateFolder = true;
+                this.hideUploadFile = true;
+            },
+            handleFileClick: function (e) {
+                this.fire('file-click', {file: e.target.file});
+            },
+            handleCreateFolder: function (e) {
+                this.hideCreateFolder = !this.hideCreateFolder;
+            },
+            handleFolderCreated: function (e) {
+                this.refreshFolder();
+                this.hideCreateFolder = true;
+            },
+            handleUploadFile: function (e) {
+                this.hideUploadFile = !this.hideUploadFile;
+            },
+            handleFileUploaded: function (e) {
+                this.refreshFolder();
+                this.hideUploadFile = true;
+            },
+            refreshFolder: function () {
+                var me = this;
+                OpencgaManager.files.list({
+                    id: this.folder.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: this.study.id
+                    },
+                    request: {
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.files = response.response[0].result;
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</polymer-element>
+

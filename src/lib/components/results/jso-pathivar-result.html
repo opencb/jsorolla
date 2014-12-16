@@ -1,0 +1,318 @@
+<polymer-element name="jso-pathivar-result" attributes="jobItem">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 10px 20px;
+
+                top: 80px;
+
+                left: 0;
+                right: 0;
+                margin-left: 20px;
+                margin-right: 20px;
+
+                /*width: 1200px;*/
+                border: 1px solid #c6d0da;
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            jso-network-viewer {
+                border: 1px solid #d3d3d3;
+                height: 900px;
+            }
+
+            #resultpathways {
+                margin-right: 10px;
+            }
+        </style>
+        <div class="title">
+            <div>
+                PATHiVAR Result
+            </div>
+        </div>
+        <br>
+
+        <div horizontal layout>
+            <div id="resultpathways">
+                <template repeat="{{pathway in pathwayNames}}">
+                    <div class="button action" on-click="{{handlePathwayClick}}">{{pathwaysMap[pathway]}}</div>
+                </template>
+            </div>
+            <jso-network-viewer id="networkViewer" flex hideBar="true" hideToolBar="false" hideEditionBar="false"></jso-network-viewer>
+        </div>
+        <div class="message">{{message}}</div>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.jobItem;
+                this.outputFiles = [];
+                this.pathwayNames = [];
+            },
+            ready: function () {
+                this.networkViewer = this.$.networkViewer;
+            },
+            jobItemChanged: function () {
+                this.getFileInfo(this.jobItem.output.toString(','));
+                this.getPathwaysNames();
+            },
+            getPathwaysNames: function () {
+                var split1 = this.jobItem.commandLine.split('--pathways');
+                var split2 = split1[1].split(" ");
+                this.pathwayNames = split2[1].split(',');
+            },
+            handlePathwayClick: function (e) {
+                var me = this;
+                var sifContent, nodeAttrContent, edgeAttrContent;
+                var pathway = e.target.templateInstance.model.pathway;
+                for (var i = 0; i < this.outputFiles.length; i++) {
+                    var file = this.outputFiles[i];
+                    if (file.name.indexOf(pathway) != -1) {
+                        if (file.name.indexOf('sif') != -1) {
+                            sifContent = this.getFileContent(file.id);
+                        }
+                        if (file.name.indexOf('nodes') != -1) {
+                            nodeAttrContent = this.getFileContent(file.id);
+                        }
+                        if (file.name.indexOf('edges') != -1) {
+                            edgeAttrContent = this.getFileContent(file.id);
+                        }
+                    }
+                }
+                /**  SIF **/
+                var graph, vAttr, eAttr;
+                var adapter = new SIFNetworkDataAdapter({
+                    dataSource: new StringDataSource(sifContent),
+                    handlers: {
+                        'data:load': function (event) {
+                            graph = event.graph;
+                            new AttributeNetworkDataAdapter({
+                                dataSource: new StringDataSource(nodeAttrContent),
+                                handlers: {
+                                    'data:load': function (event) {
+                                        vAttr = event.attributeManager;
+                                        new AttributeNetworkDataAdapter({
+                                            dataSource: new StringDataSource(edgeAttrContent),
+                                            handlers: {
+                                                'data:load': function (event) {
+                                                    eAttr = event.attributeManager;
+
+                                                    me.networkViewer.startOver();
+                                                    me.networkViewer.setGraph(graph);
+                                                    me.networkViewer.importVertexAttributeManager(vAttr);
+                                                    me.networkViewer.importEdgeAttributeManager(eAttr);
+
+                                                    me._applyVertexAttributes();
+                                                    me._applyEdgeAttributes();
+
+                                                    me.networkViewer.zoom = me.networkViewer.zoom - 2;
+                                                    me.networkViewer.zoom = me.networkViewer.zoom + 2;
+
+                                                },
+                                                'error:parse': function (event) {
+                                                    console.log("Error loading Edge Attributes");
+                                                    console.log(event.errorMsg);
+                                                }
+                                            }
+                                        });
+                                    },
+                                    'error:parse': function (event) {
+                                        console.log("Error loading Node Attributes");
+                                        console.log(event.errorMsg);
+                                    }
+                                }
+                            });
+                        },
+                        'error:parse': function (event) {
+                            console.log("Error loading SIF");
+                            console.log(event.errorMsg);
+                        }
+                    }
+                });
+
+                /**  Node Attr **/
+
+                /**  Edge Attr **/
+
+            },
+            getFileInfo: function (fileIds) {
+                var me = this;
+                OpencgaManager.files.info({
+                    id: fileIds,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.outputFiles = [];
+                                for (var i = 0; i < response.response.length; i++) {
+                                    var res = response.response[i];
+                                    me.outputFiles.push(res.result[0]);
+                                }
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+            getFileContent: function (fileId) {
+                var content;
+                OpencgaManager.files.content({
+                    id: fileId,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            content = response;
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+                return content;
+            },
+            _applyVertexAttributes: function () {
+                this.networkViewer.vertexDefaults.labelAttribute = "pathway";
+                this.networkViewer.handleVertexDefaultLabelAttribute();
+
+                this.networkViewer.hideNodeSimpleRendering = false;
+                var nodeRender = this.networkViewer.shadowRoot.querySelector('jso-attribute-node-render');
+
+                nodeRender.displayProperty = 'shape';
+                nodeRender.$.shape.attributeName = "shape";
+                nodeRender.$.shape._updateUniqueValues();
+                nodeRender.$.shape.handleApplyDirect();
+                nodeRender.$.shape.handleOk();
+
+                nodeRender.displayProperty = 'color';
+                nodeRender.$.color.attributeName = "color";
+                nodeRender.$.color._updateUniqueValues();
+                nodeRender.$.color.handleApplyDirect();
+                nodeRender.$.color.handleOk();
+
+                nodeRender.displayProperty = 'strokeColor';
+                nodeRender.$.strokeColor.attributeName = "stroke color";
+                nodeRender.$.strokeColor._updateUniqueValues();
+                nodeRender.$.strokeColor.handleApplyDirect();
+                nodeRender.$.strokeColor.handleOk();
+
+                nodeRender.displayProperty = 'size';
+                nodeRender.$.size.attributeName = "size";
+                nodeRender.$.size._updateUniqueValues();
+                nodeRender.$.size.handleApplyDirect();
+                nodeRender.$.size.handleOk();
+
+                nodeRender.displayProperty = 'strokeSize';
+                nodeRender.$.strokeSize.attributeName = "stroke size";
+                nodeRender.$.strokeSize._updateUniqueValues();
+                nodeRender.$.strokeSize.handleApplyDirect();
+                nodeRender.$.strokeSize.handleOk();
+
+                nodeRender.displayProperty = null;
+                this.networkViewer.hideNodeSimpleRendering = true;
+            },
+            _applyEdgeAttributes: function () {
+                this.networkViewer.hideEdgeSimpleRendering = false;
+                var edgeRender = this.networkViewer.shadowRoot.querySelector('jso-attribute-edge-render');
+
+                edgeRender.displayProperty = 'shape';
+                edgeRender.$.shape.attributeName = "head";
+                edgeRender.$.shape._updateUniqueValues();
+                edgeRender.$.shape.handleApplyDirect();
+                edgeRender.$.shape.handleOk();
+
+                edgeRender.displayProperty = 'color';
+                edgeRender.$.color.attributeName = "color";
+                edgeRender.$.color._updateUniqueValues();
+                edgeRender.$.color.handleApplyDirect();
+                edgeRender.$.color.handleOk();
+
+                edgeRender.displayProperty = 'opacity';
+                edgeRender.$.opacity.attributeName = "opacity";
+                edgeRender.$.opacity._updateUniqueValues();
+                edgeRender.$.opacity.handleApplyDirect();
+                edgeRender.$.opacity.handleOk();
+
+                edgeRender.displayProperty = 'shaft';
+                edgeRender.$.shaft.attributeName = "shaft";
+                edgeRender.$.shaft._updateUniqueValues();
+                edgeRender.$.shaft.handleApplyDirect();
+                edgeRender.$.shaft.handleOk();
+
+                edgeRender.displayProperty = null;
+                this.networkViewer.hideEdgeSimpleRendering = true;
+            },
+            pathwaysMap: {
+                hsa03320: "PPAR SIGNALING PATHWAY",
+                hsa04012: "ERBB SIGNALING PATHWAY",
+                hsa04020: "CALCIUM SIGNALING PATHWAY",
+                hsa04060: "CYTOKINE-CYTOKINE RECEPTOR",
+                hsa04080: "NEUROACTIVE LIGAND-RECEPTOR INTERACTION",
+                hsa04115: "p53 SIGNALING PATHWAY",
+                hsa04150: "mTOR SIGNALING PATHWAY",
+                hsa04210: "APOPTOSIS",
+                hsa04310: "WNT SIGNALING PATHWAY",
+                hsa04330: "NOTCH SIGNALING PATHWAY",
+                hsa04340: "HEDGEHOG SIGNALING PATHWAY",
+                hsa04370: "VEGF SIGNALING PATHWAY",
+                hsa04512: "ECM-RECEPTOR INTERACTION",
+                hsa04514: "CELL ADHESION MOLECULES",
+                hsa04530: "TIGH JUNCTION",
+                hsa04540: "GAP JUNCTION",
+                hsa04612: "ANTIGEN PROCESING AND PRESENTATION",
+                hsa04620: "TOLL-LIKE RECEPTOR SIGNALING PATHWAY",
+                hsa04630: "JAK-STAT SIGNALING PATHWAY",
+                hsa04660: "T CELL RECPTOR SIGNALING PATHWAY",
+                hsa04662: "B CELL RECEPTOR SIGNALING PATHWAY",
+                hsa04664: "Fc EPSILON RI SIGNALING PATHWAY",
+                hsa04910: "INSULIN SIGNALING PATHWAY",
+                hsa04912: "GnRH SIGNALING PATHWAY",
+                hsa04916: "MELANOGENESIS",
+                hsa04920: "ADIPOCYTOKINE SIGNALING PATHWAY"
+            }
+        });
+    </script>
+</polymer-element>
