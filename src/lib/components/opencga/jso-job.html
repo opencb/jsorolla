@@ -5,6 +5,15 @@
             :host {
                 display: block;
                 position: relative;
+                box-sizing: border-box;
+                padding: 3px;
+                margin: 2px 2px 0 2px;
+                border: 1px solid transparent;
+            }
+
+            :host(:hover) {
+                border-color: #d3d3d3;
+                background-color: #f5f5f5;
             }
 
             .job {
@@ -23,113 +32,49 @@
                 color: #0068cc;
 
             }
-            .date{
-                color: #696969;font-size:0.9em;
+
+            .error {
+                color: #b30000;
+            }
+
+            .date {
+                color: #696969;
+                font-size: 0.9em;
             }
         </style>
         <!--<font-awesome icon="pie-chart"></font-awesome> &nbsp; {{study.name}} &nbsp; <span class="id"> {{study.alias}} </span>-->
-        <div id="job" on-mouseenter="{{handleMouseEnter}}">
-            <!--'<div style="color:#596F8F">{[ this.getNewIcon(values) ]} {name}</div>',-->
-            <!--'<div> ' +-->
-            <!--'<span class="{[ this.getClass(values) ]}">{toolName}{execution} </span> ' +-->
-            <!--'</div>',-->
-            <!--'<div>' +-->
-            <!--'<span style="color: {[ this.getStatusColor(values) ]};">{status}</span> ' +-->
-            <!--'<span style="color: dimgray;font-size:12px;"> &nbsp; &nbsp; {date} </span> ' +-->
-
-
+        <div id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">
             <div>
-                <font-awesome hidden?="{{jobItem.visits > 0}}" icon="exclamation-circle"></font-awesome>
+                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.visits > 0}}"
+                              icon="exclamation"></font-awesome>
+                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'ready'}}"
+                              icon="check"></font-awesome>
+                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'error'}}"
+                              icon="times"></font-awesome>
+                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'queued'}}"
+                              icon="clock-o"></font-awesome>
+                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'running'}}" icon="circle-o-notch"
+                              animation="spin"></font-awesome>
                 {{jobItem.id}} {{jobItem.name}}
             </div>
             <div>{{jobItem.toolName}}</div>
 
             <div>
                 <span class="{{jobItem.status}}">{{jobItem.status}}</span>
-                <span class="date">{{jobItem.date}}</span>
+                <span class="date">{{computeDate()}}</span>
             </div>
         </div>
     </template>
     <script>
         Polymer({
+            computeDate: function () {
+                return Utils.parseDate(this.jobItem.date);
+            },
             created: function () {
-                this.RUNING_COLOR = '#298c63';
-                this.QUEUED_COLOR = 'Darkorange';
-                this.FINISHED_COLOR = '#0068cc';
-                this.ERROR_COLOR = '#b30000';
-
                 this.jobItem;
-                /***********************/
-                /***********************/
-                /***********************/
-                /***********************/
-                /***********************/
-                /***********************/
-
-//
-//                '<div style="color:#596F8F">{[ this.getNewIcon(values) ]} {name}</div>',
-//                '<div> ' +
-//                '<span class="{[ this.getClass(values) ]}">{toolName}{execution} </span> ' +
-//                '</div>',
-//                '<div>' +
-//                '<span style="color: {[ this.getStatusColor(values) ]};">{status}</span> ' +
-//                '<span style="color: dimgray;font-size:12px;"> &nbsp; &nbsp; {date} </span> ' +
-//                '</div>',
-//                        '</div>',
-//                        '</tpl>',
-//                {
-//                    getStatusColor: function (item) {
-//                        var color = '#000000';
-//                        switch (item.status) {
-//                            case 'running':
-//                                color = _this.RUNING_COLOR;
-//                                break;
-//                            case 'finished':
-//                                color = _this.FINISHED_COLOR;
-//                                break;
-//                            case 'queued':
-//                                color = _this.QUEUED_COLOR;
-//                                break;
-//                            case 'execution_error':
-//                            case 'queue_error':
-//                                color = _this.ERROR_COLOR;
-//                                break;
-//                        }
-//                        return color;
-//                    }
-//                },
-//                {
-//                    getNewIcon: function (item) {
-//                        var html = '';
-//                        if (item.visites === 0) {
-//                            html += '<i style="color:' + _this.FINISHED_COLOR + '" class="fa fa-exclamation-circle"></i> ';
-//                        }
-//                        switch (item.status) {
-//                            case 'running':
-//                                html += '<i style="color:' + _this.RUNING_COLOR + '" class="fa fa-cog"></i>';
-//                                break;
-//                            case 'queued':
-//                                html += '<i style="color:' + _this.QUEUED_COLOR + '" class="fa fa-clock-o"></i>';
-//                                break;
-//                            case 'finished':
-//                                html += '<i style="color:' + _this.FINISHED_COLOR + '" class="fa fa-check-circle"></i>';
-//                                break;
-//                            case 'execution_error':
-//                            case 'queue_error':
-//                                html += '<i style="color:' + _this.ERROR_COLOR + '" class="fa fa-times-circle"></i>';
-//                                break;
-//                        }
-//                        return html;
-//                    }
-//                },
-//                {
-//                    getClass: function (item) {
-//                        return item.toolName.replace('.', '_');
-//                    }
-//                }
             },
             handleMouseEnter: function () {
-                console.log(this.jobItem)
+//                console.log(this.jobItem)
             }
         });
     </script>

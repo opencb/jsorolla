@@ -1,26 +1,32 @@
-<polymer-element name="jso-opencga-file-card" attributes="file">
+<polymer-element name="jso-opencga-file-card" attributes="file"
+                 on-click="{{handleClick}}">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
                 display: block;
                 padding: 5px 5px;
-            }
 
-            #name {
-                text-transform: capitalize;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         </style>
-        <div vertical layout>
-            <div id="name">
-                {{file.path}}
-            </div>
-        </div>
+        <font-awesome icon="{{iconMap[file.type]}}"></font-awesome> {{file.name}}
     </template>
     <script>
         Polymer({
             created: function () {
                 this.file;
+
+
+                this.iconMap={
+                    file:'file-o',
+                    folder:'folder'
+                }
+            },
+            handleClick: function (e) {
+                console.log(this.file)
             }
         });
     </script>

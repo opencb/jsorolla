@@ -1,17 +1,15 @@
-<polymer-element name="jso-opencga-create-folder" attributes="selectedStudy">
+<polymer-element name="jso-opencga-create-folder" attributes="folder study">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
                 display: block;
-                padding-left: 30px;
-                padding-top: 10px;
+                background-color: #fafafa;
             }
 
             label {
                 display: inline-block;
                 color: #666;
-                margin-top: 10px;
             }
 
             label::after {
@@ -19,18 +17,19 @@
             }
 
             .action {
-                margin-top: 30px;
+                margin-top: 5px;
             }
 
             .message {
-                margin-top: 20px;
+                margin-top: 5px;
             }
 
         </style>
 
 
         <form id="form" vertical layout>
-            <label>Name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9\s]+">
+            <label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9\s]+">
+
             <div class="button action" on-click="{{handleForm}}">Create</div>
         </form>
         <div class="message">{{message}}</div>
@@ -46,7 +45,6 @@
                 this.selectedProject;
 
                 this.message = '';
-                this.selectedStudy = "";
             },
             handleForm: function (e) {
                 var me = this;
@@ -57,15 +55,16 @@
                     OpencgaManager.files.createFolder({
                         query: {
                             sid: Cookies('bioinfo_sid'),
-                            folder: this.name,
-                            studyId: this.selectedStudy.id
+                            folder: this.folder.path + this.name,
+                            studyId: this.study.id
 
                         },
                         request: {
                             success: function (response) {
                                 if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                    me.message = 'Folder created sucessfully.';
-//                                    me.getFiles();
+                                    me.message = '';
+                                    me.name = '';
+                                    me.fire('folder-created');
                                 } else {
                                     me.message = response.response[0].errorMsg;
                                 }

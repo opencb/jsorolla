@@ -239,16 +239,18 @@
                 this.page = 1;
                 this.expanded = !this.expanded;
                 if (this.expanded) {
-                    this.style.width = '100vw';
-                    this.style.height = '100vh';
+                    this.style.width = '100%';
+                    this.style.height = '100%';
                     this.style.position = 'fixed';
                     this.style.top = '0';
+                    this.style.left = '0';
                     this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
                 } else {
                     this.style.width = '';
                     this.style.height = '';
                     this.style.position = '';
                     this.style.top = '';
+                    this.style.left = '';
                     this.pageSize = this.defaultPageSize;
                 }
             },

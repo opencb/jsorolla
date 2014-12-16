@@ -1,5 +1,5 @@
 sortable-table::shadow table {
-    /*table-layout: fixed;*/
+    table-layout: fixed;
     background-color: #f2f2f2;
 }
 
@@ -33,13 +33,13 @@ sortable-table::shadow thead tr th:last-child {
 
 sortable-table::shadow thead tr th.sorted-column-asc:after {
     font-family: 'FontAwesome';
-    content: ' \f107'; /* > */
+    content: ' \f107';  >
 
 }
 
 sortable-table::shadow thead tr th.sorted-column-desc:after {
     font-family: 'FontAwesome';
-    content: ' \f106'; /* > */
+    content: ' \f106';  >
 }
 
 sortable-table::shadow tbody tr td {
@@ -62,7 +62,7 @@ sortable-table::shadow tbody tr:nth-child(2n+1) {
 }
 
 sortable-table::shadow tbody tr.selected-row {
-    /*background-color: #2F65F4;*/
+    background-color: #2F65F4;
     background-color: #445D76;
     color: #fff;
 }

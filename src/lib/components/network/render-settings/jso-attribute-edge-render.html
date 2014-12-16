@@ -187,8 +187,10 @@
             </div>
         </div>
 
-        <template if="{{displayProperty == 'labelSize'}}">
+        <!--<template if="{{displayProperty == 'labelSize'}}">-->
             <jso-attribute-render-number-table
+                    id="labelSize"
+                    hidden?="{{displayProperty != 'labelSize'}}"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -196,9 +198,11 @@
                     visualSet="{{visualSets.labelSize}}"
                     >
             </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'opacity'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'opacity'}}">-->
             <jso-attribute-render-number-table
+                    id="opacity"
+                    hidden?="{{displayProperty != 'opacity'}}"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -206,9 +210,11 @@
                     visualSet="{{visualSets.opacity}}"
                     >
             </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'shaft'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'shaft'}}">-->
             <jso-attribute-render-select-table
+                    id="shaft"
+                    hidden?="{{displayProperty != 'shaft'}}"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -217,9 +223,11 @@
                     options="solid,dashed"
                     >
             </jso-attribute-render-select-table>
-        </template>
-        <template if="{{displayProperty == 'shape'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'shape'}}">-->
             <jso-attribute-render-select-table
+                    id="shape"
+                    hidden?="{{displayProperty != 'shape'}}"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -228,9 +236,11 @@
                     options="directed,undirected,inhibited,dot,odot"
                     >
             </jso-attribute-render-select-table>
-        </template>
-        <template if="{{displayProperty == 'bidirectional'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'bidirectional'}}">-->
             <jso-attribute-render-select-table
+                    id="bidirectional"
+                    hidden?="{{displayProperty != 'bidirectional'}}"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -239,9 +249,11 @@
                     options="true,false"
                     >
             </jso-attribute-render-select-table>
-        </template>
-        <template if="{{displayProperty == 'color'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'color'}}">-->
             <jso-attribute-render-color-table
+                    id="color"
+                    hidden?="{{displayProperty != 'color'}}"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -249,9 +261,11 @@
                     visualSet="{{visualSets.color}}"
                     >
             </jso-attribute-render-color-table>
-        </template>
-        <template if="{{displayProperty == 'size'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'size'}}">-->
             <jso-attribute-render-number-table
+                    id="size"
+                    hidden?="{{displayProperty != 'size'}}"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -259,7 +273,7 @@
                     visualSet="{{visualSets.size}}"
                     >
             </jso-attribute-render-number-table>
-        </template>
+        <!--</template>-->
     </template>
     <script>
         Polymer({

@@ -21,10 +21,16 @@
     text-transform: capitalize;
 }
 
+.header > .headeractions > *[data-checked] {
+    background-color: #636363;
+}
+
 .header > .headeractions > *:hover {
     /*background-color: #7493b3;*/
     background-color: #737373;
 }
+
+
 
 .header > .headeractions > .headerclose:after {
     font-family: FontAwesome;
