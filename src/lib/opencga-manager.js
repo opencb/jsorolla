@@ -192,8 +192,13 @@ var OpencgaManager = {
         },
         createFolder: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'create-folder');
+        },
+        setHeader: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'set-header');
+        },
+        contentExample: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'content-example');
         }
-
     },
     jobs: {
         create: function (args) {

@@ -77,7 +77,7 @@
     </style>
     <div class="title">
         <div>
-            Agilent one-channel normalization
+            Class prediction (Prophet)
         </div>
         <div class="icon">
             <!--<font-awesome icon="magic"></font-awesome>-->
@@ -86,7 +86,7 @@
     <form id="form">
         <h3>Examples</h3>
 
-        <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+        <div class="button action" on-click="{{loadExample1}}">A leukemia data example</div>
 
         <h3>Output parameters</h3>
         <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
@@ -94,61 +94,65 @@
         <label>Or select output folder:</label>
         <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
 
-        <h3>Select your data</h3>
-        <input id="work_1" name="work" class="fc-radioitem" type="radio" value="train" checked="checked"> Train <br>
-        <input id="work_2" name="work" class="fc-radioitem" type="radio" value="trainandtest"> Train and test
+        <h3>Select train data</h3>
+
         <div>
             Train data (expression matrix):
-            <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
-            <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{list1}}"></jso-file-browser>
-            <select>
-            </select>
+            <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}" selectedFile="{{list1}}"></jso-file-browser>
+            <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"
+                              loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}" childrenDisplay="false"></jso-class-viewer>
+        </div>
+        <div>
+            <h3>Select test data (Optional)</h3>
             Test data (expression matrix)
-            <div class="button action" on-click="{{list2Click}}">{{list2UploadMsg}}</div>
-            <jso-file-browser hidden="true" id="list2Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{list2}}"></jso-file-browser>
+            <jso-file-browser id="list2Html" fileList="{{selectedStudy.files}}" selectedFile="{{list2}}"></jso-file-browser>
         </div>
         <h3>Algorithms</h3>
-        <input name="svm" id="svm" class="fc-checkbox" type="checkbox" value="true" checked="checked"> SVM <br>
-        <input name="knn" id="knn" class="fc-checkbox" type="checkbox" value="true"> KNN <br>
-        <input name="random_forest" id="random_forest" class="fc-checkbox" type="checkbox" value="true"> Random forest
 
+        <div id="algorithmsDiv">
+            <input name="svm" id="svm" class="fc-checkbox" type="checkbox" value="true" checked="checked"> SVM <br>
+            <input name="knn" id="knn" class="fc-checkbox" type="checkbox" value="true"> KNN <br>
+            <input name="random_forest" id="random_forest" class="fc-checkbox" type="checkbox" value="true"> Random forest
+        </div>
         <h3>Error stimation</h3>
         <label>Validations</label>
         <br>
-        <input id="validation_1" name="validation" class="fc-radioitem" type="radio" value="loo"> Leave-one-out <br>
-        <input id="validation_2" name="validation" class="fc-radioitem" type="radio" value="kfold" checked="checked">
-        KFold<br>
-        <label>repeats</label>
-        <select name="repeats" id="repeats" class="fc-combobox" type="text" value="10">
-            <option name="repeats_1" id="repeats_1" class="fc-combobox-item" value="5">5</option>
-            <option name="repeats_2" id="repeats_2" class="fc-combobox-item" value="10" selected="selected">10</option>
-            <option name="repeats_3" id="repeats_3" class="fc-combobox-item" value="15">15</option>
-            <option name="repeats_4" id="repeats_4" class="fc-combobox-item" value="20">20</option>
-            <option name="repeats_5" id="repeats_5" class="fc-combobox-item" value="30">30</option>
-        </select>
-        <br>
-        <label>folds</label>
-        <select name="folds" id="folds" class="fc-combobox" type="text" value="5">
-            <option name="folds_1" id="folds_1" class="fc-combobox-item" value="5" selected="selected">5</option>
-            <option name="folds_2" id="folds_2" class="fc-combobox-item" value="10">10</option>
-            <option name="folds_3" id="folds_3" class="fc-combobox-item" value="15">15</option>
-            <option name="folds_4" id="folds_4" class="fc-combobox-item" value="20">20</option>
-            <option name="folds_5" id="folds_5" class="fc-combobox-item" value="30">30</option>
-        </select>
+        <input id="validation_1" name="validation" class="fc-radioitem" type="radio" value="loo" on-click="{{errorStimationClick}}"> Leave-one-out <br>
+        <input id="validation_2" name="validation" class="fc-radioitem" type="radio" value="kfold" on-click="{{errorStimationClick}}" checked="checked">KFold<br>
+
+        <div id="kfoldProp">
+            <label>repeats</label>
+            <select name="repeats" id="repeats" class="fc-combobox" type="text" value="10">
+                <option name="repeats_1" id="repeats_1" class="fc-combobox-item" value="5">5</option>
+                <option name="repeats_2" id="repeats_2" class="fc-combobox-item" value="10" selected="selected">10</option>
+                <option name="repeats_3" id="repeats_3" class="fc-combobox-item" value="15">15</option>
+                <option name="repeats_4" id="repeats_4" class="fc-combobox-item" value="20">20</option>
+                <option name="repeats_5" id="repeats_5" class="fc-combobox-item" value="30">30</option>
+            </select>
+            <br>
+            <label>folds</label>
+            <select name="folds" id="folds" class="fc-combobox" type="text" value="5">
+                <option name="folds_1" id="folds_1" class="fc-combobox-item" value="5" selected="selected">5</option>
+                <option name="folds_2" id="folds_2" class="fc-combobox-item" value="10">10</option>
+                <option name="folds_3" id="folds_3" class="fc-combobox-item" value="15">15</option>
+                <option name="folds_4" id="folds_4" class="fc-combobox-item" value="20">20</option>
+                <option name="folds_5" id="folds_5" class="fc-combobox-item" value="30">30</option>
+            </select>
+        </div>
 
         <h3>Gene subset selection</h3>
         <label>Subset selection method</label><br>
-        <input id="feature_selection_1" name="feature_selection" class="fc-radioitem" type="radio" value="cfs">Correlation-based
-        Feature Selection (CFS) <br>
-        <input id="feature_selection_2" name="feature_selection" class="fc-radioitem" type="radio" value="pca">Principal
-        Component Analysis (PCA) <br>
-        <input id="feature_selection_3" name="feature_selection" class="fc-radioitem" type="radio" value="none"
-               checked="checked"> None
 
+        <div id="featureSelectionDiv">
+            <input id="feature_selection_1" name="feature_selection" class="fc-radioitem" type="radio" value="cfs">Correlation-based
+            Feature Selection (CFS) <br>
+            <input id="feature_selection_2" name="feature_selection" class="fc-radioitem" type="radio" value="pca">Principal
+            Component Analysis (PCA) <br>
+            <input id="feature_selection_3" name="feature_selection" class="fc-radioitem" type="radio" value="none" checked="checked"> None
+        </div>
         <h3>Job information</h3>
         <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+        <textarea required value="{{description}}"></textarea>
 
         <div class="button action" on-click="{{handleForm}}">Run</div>
     </form>
@@ -158,21 +162,36 @@
     Polymer({
         created: function () {
             this.jobName = 'JobName';
-            this.toolName = "affy-expression-normalization";
-            this.list1UploadMsg = "Select file...";
-            this.list2UploadMsg = "Select file...";
-        },
-        list1Click: function (e) {
-            this.$.list1Html.hidden = false
+            this.toolName = "class-prediction";
+            this.description = "Job description";
         },
         list1Changed: function (oldV, newV) {
-            this.list1UploadMsg = this.list1.path
+            if (typeof oldV != 'undefined') {
+                this.getContentFile(newV);
+            }
         },
-        list2Click: function (e) {
-            this.$.list2Html.hidden = false
-        },
-        list2Changed: function (oldV, newV) {
-            this.list2UploadMsg = this.list1.path
+        getContentFile: function (file) {
+
+            var me = this;
+            if (String(file.id).indexOf("example_") >= 0) {
+                this.loadExampleFile(file.path);
+            } else {
+                OpencgaManager.files.content({
+                    id: file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            me.contentFile = response;
+                        },
+                        error: function () {
+                            var message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            }
         },
         handleForm: function () {
             var me = this;
@@ -209,18 +228,35 @@
         },
         launchJob: function (selectedFolderId) {
             var me = this;
+            this.knn = this.$.knn.checked;
+            this.svm = this.$.svm.checked;
+            this.random_forest = this.$.random_forest.checked;
             var query = { sid: Cookies("bioinfo_sid"),
                 analysisId: this.selectedStudy.analysis.id,
                 toolId: this.toolName,
                 outdir: selectedFolderId,
                 jobName: this.jobName,
                 description: this.description,
-                "compressed-file": this.compressed_file.id,
-                "compressed-file-tags": this.compressed_file_tags };
+                dataset: this.list1.id,
+                "class": this.$.jsoClassViewer.getMainSelect().value,
+                knn: this.$.knn.checked,
+                svm: this.$.svm.checked,
+                "random-forest": this.$.random_forest.checked,
+                "feature-selection": this.$.featureSelectionDiv.querySelector('input[name="feature_selection"]:checked').value
+            };
 
-            if (this.$.rma.checked) query["rma"] = this.$.rma.checked;
-            if (this.$.plier.checked) query["plier"] = this.$.plier.checked;
-            if (this.$.calls.checked) query["calls"] = this.$.calls.checked;
+            if (this.list2.id != null) {
+                query["test"] = this.list2.id
+            }
+            if (this.$.validation_1.checked) {
+                query["loo"] = "";
+            }
+            if (this.$.validation_2.checked) {
+                query["kfold"] = "";
+                query["repeats"] = this.$.repeats.value;
+                query["folds"] = this.$.folds.value;
+            }
+
             OpencgaManager.jobs.create({
                 query: query,
                 request: {
@@ -241,17 +277,54 @@
             })
         },
         loadExample1: function (e) {
-            this.jobName = "affy_sample_1";
-            this.description = "just_an_affy_example";
-            this.rma = true;
-            this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
-            this.compressed_file = {id: "example_affymetrix.zip", name: "affymetrix.zip"};
-            this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+            this.jobName = "A leukemia data example";
+            this.description = "A leukemia train dataset";
+            this.newFolderName = "pred_" + Math.floor((Math.random() * 100) + 1);
+            this.list1 = {id: "example_data_train_leukemia.txt", path: "data_train_leukemia.txt"};
+            this.$.knn.checked = true;
+            this.$.svm.checked = false;
+            this.$.random_forest.checked = false;
+            this.$.validation_2.checked = true;
+            this.$.repeats.value = 10;
+            this.$.folds.value = 5;
+            this.$.feature_selection_1.checked = true;
 
         },
-        handleFisher: function (e) {
-            this.fisher = e.target.dataset.value;
-            this.fisherText = e.target.innerText;
+        loadedMainSelectChanged: function (oldV, newV) {
+            /** This is mainly for the examples **/
+            var me = this;
+            if (newV == true) {
+                var select = this.$.jsoClassViewer.getMainSelect();
+                if (this.list1.id == "example_data_train_leukemia.txt") {
+                    select.value = "TUMOR";
+                }
+            }
+        },
+        errorStimationClick: function (e) {
+            if (this.$.validation_1.checked) {
+                this.$.kfoldProp.hidden = true;
+            }
+            else {
+                this.$.kfoldProp.hidden = false;
+            }
+        },
+        loadExampleFile: function (exampleFileName) {
+            var me = this;
+            OpencgaManager.files.contentExample({
+                query: {
+                    toolName: this.toolName,
+                    fileName: exampleFileName
+                },
+                request: {
+                    //method: 'POST',
+                    success: function (response) {
+                        me.contentFile = response;
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            })
         }
     });
 </script>

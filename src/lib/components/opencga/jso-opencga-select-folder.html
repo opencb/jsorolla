@@ -27,84 +27,47 @@
             .message {
                 margin-top: 20px;
             }
+
+            core-list {
+                /*width: 200px;*/
+                height: 300px;
+                padding: 2px;
+                border: 1px solid #ccc;
+            }
+
+            .selected {
+                background: silver;
+            }
         </style>
 
-        <form id="form" vertical layout>
-            <!--<label>Project</label>-->
-
-            <!--<div class="dropdown">-->
-                <!--<div tabindex="-1" class="button">-->
-                    <!--<jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>-->
-                <!--</div>-->
-                <!--<ul>-->
-                    <!--<template repeat="{{project in projectList}}">-->
-                        <!--<li>-->
-                            <!--<jso-opencga-project-item-->
-                                    <!--project="{{project}}"-->
-                                    <!--data-selected="{{selectedProject == project}}"-->
-                                    <!--on-mousedown="{{handleProjectClick}}">-->
-                            <!--</jso-opencga-project-item>-->
-                        <!--</li>-->
-                    <!--</template>-->
-                <!--</ul>-->
-            <!--</div>-->
-
-            <!--<label>Study</label>-->
-
-            <!--<div class="dropdown">-->
-                <!--<div tabindex="-1" class="button">-->
-                    <!--<jso-opencga-study-item study="{{selectedStudy}}"></jso-opencga-study-item>-->
-                <!--</div>-->
-                <!--<ul>-->
-                    <!--<template repeat="{{study in selectedProject.studies}}">-->
-                        <!--<li>-->
-                            <!--<jso-opencga-study-item-->
-                                    <!--study="{{study}}"-->
-                                    <!--data-selected="{{selectedStudy == study}}"-->
-                                    <!--on-mousedown="{{handleStudyClick}}">-->
-                            <!--</jso-opencga-study-item>-->
-                        <!--</li>-->
-                    <!--</template>-->
-                <!--</ul>-->
-            <!--</div>-->
-
-            <!--<label>Analysis</label>-->
-            <!--<div class="dropdown">-->
-                <!--<div tabindex="-1" class="button">-->
-                    <!--<jso-opencga-analysis-item analysis="{{selectedAnalysis}}"></jso-opencga-analysis-item>-->
-                <!--</div>-->
-                <!--<ul>-->
-                    <!--<template repeat="{{analysis in analysisList}}">-->
-                        <!--<li>-->
-                            <!--<jso-opencga-analysis-item-->
-                                    <!--analysis="{{analysis}}"-->
-                                    <!--data-selected="{{selectedAnalysis == analysis}}"-->
-                                    <!--on-mousedown="{{handleAnalysisClick}}">-->
-                            <!--</jso-opencga-analysis-item>-->
-                        <!--</li>-->
-                    <!--</template>-->
-                <!--</ul>-->
-            <!--</div>-->
-            <!--<label>Folder</label>-->
-            <div class="dropdown">
-                <div tabindex="-1" class="button">
-                    <jso-opencga-folder-item folder="{{selectedFolder}}"></jso-opencga-folder-item>
+        <core-list id="list" data="{{folderListAux}}" selectionEnabled="true" selection="{{selection}}" height="10">
+            <template>
+                <div class="item {{ {selected: selected} | tokenList }}">
+                    <div> {{model.path}}</div>
                 </div>
-                <ul>
-                    <template repeat="{{folder in folderList}}">
-                        <template bind if="{{folder.type=='folder'}}">
-                        <li>
-                            <jso-opencga-folder-item
-                                    folder="{{folder}}"
-                                    data-selected="{{selectedFolder == folder}}"
-                                    on-mousedown="{{handleFolderClick}}">
-                            </jso-opencga-folder-item>
-                        </li>
-                        </template>
-                    </template>
-                </ul>
-            </div>
-        </form>
+            </template>
+        </core-list>
+
+        <!--<form id="form" vertical layout>-->
+        <!--<div class="dropdown">-->
+        <!--<div tabindex="-1" class="button">-->
+        <!--<jso-opencga-folder-item folder="{{selectedFolder}}"></jso-opencga-folder-item>-->
+        <!--</div>-->
+        <!--<ul>-->
+        <!--<template repeat="{{folder in folderList}}">-->
+        <!--<template bind if="{{folder.type=='folder'}}">-->
+        <!--<li>-->
+        <!--<jso-opencga-folder-item-->
+        <!--folder="{{folder}}"-->
+        <!--data-selected="{{selectedFolder == folder}}"-->
+        <!--on-mousedown="{{handleFolderClick}}">-->
+        <!--</jso-opencga-folder-item>-->
+        <!--</li>-->
+        <!--</template>-->
+        <!--</template>-->
+        <!--</ul>-->
+        <!--</div>-->
+        <!--</form>-->
     </template>
     <script>
         Polymer({
@@ -117,9 +80,20 @@
 
                 this.fileName = 'Choose file...';
                 this.message = '';
+                this.folderListAux = new Array();
             },
-            handleFolderClick: function (e) {
-                this.selectedFolder = e.target.folder;
+//            handleFolderClick: function (e) {
+//                this.selectedFolder = e.target.folder;
+//            },
+            folderListChanged: function (oldV, newV) {
+                for (var i = 0; i < newV.length; i++) {
+                    if (newV[i].type == "folder") {
+                        this.folderListAux.push(newV[i])
+                    }
+                }
+            },
+            selectionChanged:function (oldV, newV) {
+                this.selectedFolder = newV;
             }
         });
     </script>

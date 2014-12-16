@@ -170,6 +170,14 @@
                 this.jobItem = jobItem;
                 this.fire('job-item-click',{jobItem:this.jobItem});
                 console.log(this.jobItem)
+
+//                this.jobItem = e.target.jobItem;
+//                if(this.jobItem.status == "ready")
+//                    this.selectedOption = "jobReady";
+//                else
+//                    this.selectedOption = "jobNoReady";
+//                console.log(this.jobItem)
+
             },
             selectedChanged: function (oldValue, newValue) {
                 this.handleJobViewClick(newValue);

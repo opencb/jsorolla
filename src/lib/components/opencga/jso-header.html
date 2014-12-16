@@ -264,15 +264,15 @@
                             <template repeat="{{o2 in o.sub}}">
                                 <li data-option="{{o2.option}}" on-click="{{handleMenu}}"
                                     data-sub="{{o2.sub.length > 0}}"
-                                    data-text="{{o2.option == 'none'}}">
-                                    {{o2.text}}
-                                    <template if="{{o2.sub}}">
-                                        <ul>
-                                            <template repeat="{{o3 in o2.sub}}">
-                                                <li data-option="{{o2.option}}" on-click="{{handleMenu}}">
-                                                    {{o3.text}}
-                                                </li>
-                                            </template>
+                            data-text="{{o2.option == 'none'}}">
+                            {{o2.text}}
+                            <template if="{{o2.sub}}">
+                                <ul>
+                                    <template repeat="{{o3 in o2.sub}}">
+                                        <li data-option="{{o3.option}}" on-click="{{handleMenu}}">
+                                            {{o3.text}}
+                                        </li>
+                                    </template>
 
                                         </ul>
                                     </template>

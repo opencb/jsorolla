@@ -1,0 +1,161 @@
+<polymer-element name="jso-edit" attributes="userData selectedOption selectedStudy">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
+
+                z-index: 50000;
+                top: 90px;
+
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+
+                width: 40vw;
+                border: 0px solid #c6d0da;
+                border-width: 1px;
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 3px;
+                /*width: 150px;*/
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .action {
+                /*margin-top: 30px;*/
+                background-color: #f5f5f5 !important;
+                text-align: center;
+            }
+
+            .action:active {
+                background-color: #445D76 !important;
+                color: #fff !important;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            div.button {
+                /*display: inline-block;*/
+                width: 300px
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+            span {
+                border: 1px solid;
+            }
+        </style>
+        <div class="title">
+            <div>
+                Edit data
+            </div>
+
+        </div>
+        <h3>Examples</h3>
+
+        <div>
+            List 1:
+            <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}"
+                              selectedFile="{{compressed_file}}"></jso-file-browser>
+        </div>
+        <div id="editData" hidden>
+            <h3>Edit data</h3>
+            <jso-class-edit id="classEdit" contentFile="{{contentFile}}"></jso-class-edit>
+            <div horizontal layout style="margin-top: 10px;">
+                <input type="button" class="button action newattr" on-click="{{handleSave}}" value="Save attributes">
+                <input type="button" class="button action newattr" on-click="{{resetChanges}}" value="Reset changes">
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+            },
+            getContentFile: function () {
+                var me = this;
+                OpencgaManager.files.content({
+                    id: this.compressed_file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            me.contentFile = response;
+                            me.$.editData.hidden = false;
+                        },
+                        error: function () {
+                            var message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            compressed_fileChanged: function (oldV, newV) {
+                if (typeof this.compressed_file.id != 'undefined')
+                    this.getContentFile();
+            },
+            handleSave: function () {
+                var strHeader = this.$.classEdit.parseTable();
+                this.saveInServer(strHeader);
+
+            },
+            saveInServer: function (strHeader) {
+                var me = this;
+                OpencgaManager.files.setHeader({
+                    id:this.compressed_file.id,
+                    query: {
+                        sid: Cookies("bioinfo_sid"),
+                        header: encodeURIComponent(strHeader)
+                        //ranked-list:
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+//                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                debugger
+//                            } else {
+//                                me.message = response.response[0].errorMsg;
+//                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            resetChanges: function () {
+                this.$.classEdit.resetChanges();
+            }
+        });
+    </script>
+</polymer-element>
