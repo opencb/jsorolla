@@ -9,21 +9,55 @@
                 position: relative;
             }
 
-            sortable-table {
-                width: 100px;
-            }
+            /*sortable-table {*/
+            /*width: 100px;*/
+            /*}*/
 
-            #output {
+            .output {
                 margin: 10px;
-                width: 1000px;
+                /*width: 1000px;*/
                 background-color: white;
                 border-radius: 5px;
+                padding: 20px;
             }
 
+            .data {
+                margin-left: 20px;
+            }
+
+            .level-0 {
+                /*border: 1px solid grey;*/
+                padding: 20px;
+
+            }
+
+            .level-0 > .headerTitle {
+                font-size: 15pt;
+                font-weight: bold;
+                padding: 5px;
+            }
+
+            .level-1 {
+                margin: 20px 20px 20px 40px;
+            }
+
+            .level-1 > .headerTitle {
+                font-size: 13pt;
+                font-weight: bold;
+                /*background-color: blue;*/
+            }
+
+            .level-2 {
+                margin: 20px 20px 20px 40px;
+            }
+
+            .level-2 > .headerTitle {
+                font-size: 12pt;
+                /*background-color: blue;*/
+            }
         </style>
 
-        <div id="output" vertical layout center-justified>
-        </div>
+        <div id="output" class="output" horizontal layout center-justified></div>
 
     </template>
     <script>
@@ -34,7 +68,9 @@
             jobItemChanged: function (oldV, newV) {
                 var me = this;
 
-                me.$.output.innerHTML = ""
+                while (this.$.output.firstChild) {
+                    this.$.output.removeChild(this.$.output.firstChild);
+                }
                 me.pvalue = 0.05;
 
                 OpencgaManager.files.filesByFolder({
@@ -126,17 +162,23 @@
                 var mainDiv = document.createElement("div");
                 for (var i = 0; i < elements.length; i++) {
                     var elem = elements[i];
-                    mainDiv.appendChild(this._renderJsonElement(elem));
+                    var divElem = this._renderJsonElement(elem, 0);
+                    mainDiv.appendChild(divElem);
+
                 }
                 return mainDiv;
             },
-            _renderJsonElement: function (element) {
+            _renderJsonElement: function (element, level) {
 
                 var mainDiv = document.createElement("div");
                 var titleDiv = document.createElement("div");
                 var dataDiv = document.createElement("div");
                 var childDiv = document.createElement("div");
 
+
+                mainDiv.classList.add("level-" + level);
+
+                titleDiv.classList.add("headerTitle");
                 titleDiv.innerHTML = element.group;
 
                 for (var i = 0; i < element.data.length; i++) {
@@ -148,12 +190,16 @@
                     dataDiv.appendChild(dataElementDiv);
                 }
 
+                dataDiv.classList.add("data");
+
                 for (var i = 0; i < element.children.length; i++) {
                     var childElement = element.children[i];
-                    var childElementDiv = this._renderJsonElement(childElement);
+                    var childElementDiv = this._renderJsonElement(childElement, level + 1);
 
                     childDiv.appendChild(childElementDiv);
                 }
+
+                childDiv.classList.add("children");
 
                 mainDiv.appendChild(titleDiv);
                 mainDiv.appendChild(dataDiv);
