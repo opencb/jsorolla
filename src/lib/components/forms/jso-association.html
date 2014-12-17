@@ -1,4 +1,4 @@
-<polymer-element name="jso-association" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-association" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -170,10 +170,10 @@
         launchJob: function (selectedFolderId) {
             var me = this;
             var query = { sid: Cookies("bioinfo_sid"),
-                analysisId: this.selectedStudy.analysis.id,
+                studyId: this.selectedStudy.id,
                 toolId: this.toolName,
-                outdir: selectedFolderId,
-                jobName: this.jobName,
+                outdir: this.$.outdir.selectedFile.id,
+                name: this.jobName,
                 description: this.description,
                 "zip-file": this.list1.id,
                 maf: this.maf,

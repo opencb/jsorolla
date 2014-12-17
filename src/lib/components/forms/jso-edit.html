@@ -1,4 +1,4 @@
-<polymer-element name="jso-edit" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-edit" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -104,7 +104,7 @@
             getContentFile: function () {
                 var me = this;
                 OpencgaManager.files.content({
-                    id: this.compressed_file.id,
+                    id: this.$.inputFile.selectedFile.id,
                     query: {
                         sid: Cookies('bioinfo_sid')
                     },
@@ -121,7 +121,7 @@
                 })
             },
             compressed_fileChanged: function (oldV, newV) {
-                if (typeof this.compressed_file.id != 'undefined')
+                if (typeof this.$.inputFile.selectedFile.id != 'undefined')
                     this.getContentFile();
             },
             handleSave: function () {
@@ -132,7 +132,7 @@
             saveInServer: function (strHeader) {
                 var me = this;
                 OpencgaManager.files.setHeader({
-                    id:this.compressed_file.id,
+                    id:this.$.inputFile.selectedFile.id,
                     query: {
                         sid: Cookies("bioinfo_sid"),
                         header: encodeURIComponent(strHeader)
