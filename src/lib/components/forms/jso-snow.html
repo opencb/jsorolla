@@ -1,4 +1,4 @@
-<polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -75,6 +75,14 @@
         jso-file-browser {
             /*width: 70%;*/
         }
+
+        jso-project-browser {
+            height: 400px;
+            border: 1px solid #d3d3d3;
+            border-top-width: 0px;
+            margin-top: 10px;
+        }
+
     </style>
     <div class="title">
         <div>
@@ -90,21 +98,31 @@
         <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
 
         <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                   pattern="[a-zA-Z0-9]+">
         <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <jso-project-browser
+                on-file-select="{{handleFolderSelect}}"
+                studies="{{studies}}"
+                selectedStudy="{{selectedStudy}}"
+                >
+        </jso-project-browser>
+
+        <!--<jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>-->
 
         <h3>Input parameters</h3>
         <!--<label>Enter list</label> <textarea id="list1Area" class="inputListTextArea"-->
-                                                             <!--value="{{list1Area}}" required-->
-                                                             <!--pattern="[a-zA-Z0-9]+"></textarea>-->
+        <!--value="{{list1Area}}" required-->
+        <!--pattern="[a-zA-Z0-9]+"></textarea>-->
         <label>Or, Select file</label>
 
-        <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
-        <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
-                          selectedFile="{{list1}}"></jso-file-browser>
-
+        <!--<div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>-->
+        <!--<jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"-->
+        <!--selectedFile="{{list1}}"></jso-file-browser>-->
+        <jso-project-browser
+                on-file-select="{{handleFileSelect}}"
+                studies="{{studies}}"
+                selectedStudy="{{selectedStudy}}"
+                >
+        </jso-project-browser>
 
         <label>List Nature</label>
 
@@ -211,57 +229,23 @@
             this.list1ClickEnabled = false;
 
         },
-        list1Changed: function (oldV, newV) {
-            this.list1UploadMsg = this.list1.name
-        },
         handleForm: function () {
             var me = this;
             this.message = '';
-            if(this.newFolderName && this.newFolderName != ""){
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.newFolderName,
-                        studyId: this.selectedStudy.id
+            me.launchJob();
 
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                var selectedFolderId = response.response[0].result[0].id;
-
-                                me.launchJob(selectedFolderId);
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
-                        }
-                    }
-                });
-            }
-            else{
-                me.launchJob(this.$.selectFolder.selectedFolder.id);
-            }
-
-
-
-
-            //}
         },
-        launchJob: function(selectedFolderId){
+        launchJob: function () {
             var me = this;
             OpencgaManager.jobs.create({
                 query: {
                     sid: Cookies("bioinfo_sid"),
-                    analysisId: this.selectedStudy.analysis.id,
+                    studyId: this.selectedStudy.id,
                     toolId: this.toolName,
-                    jobName: this.jobName,
+                    name: this.jobName,
                     description: "description",
                     list1: this.list1.id,
-                    outdir: selectedFolderId,
+                    outdir: this.outdir.id,
                     interactome: this.interactome,
                     "o-name": "result",
                     intermediate: this.intermediate,
@@ -270,7 +254,7 @@
                     components: true,
                     randoms: this.randoms,
                     side: "greater",
-                    images:"",
+                    images: "",
                     json: 1
                 },
                 request: {
@@ -295,32 +279,29 @@
             this.message = '';
             this.newFolderName = "bipolar_gwas" + Math.floor((Math.random() * 100) + 1);
 
-            this.rankedList= {id:"example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
-            this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name:"BD-associatedgenesUniprot.txt"};
+            this.rankedList = {id: "example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
+            this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name: "BD-associatedgenesUniprot.txt"};
 
-            this.list = "gene"
-            this.interactome = "hsa"
-            this.group = "all"
-            this.order = "ascending"
-            this.intermediate = 1
+            this.list = "gene";
+            this.interactome = "hsa";
+            this.group = "all";
+            this.order = "ascending";
+            this.intermediate = 1;
 //            this.significant_value = 0.05
-            this.jobName = "bipolar_gwas"
-            this.example = true
+            this.jobName = "bipolar_gwas";
+            this.example = true;
             if (this.$.form.checkValidity()) {
                 //me.message = "xx"
             }
         },
-        list1Click: function (e) {
-            this.$.list1Html.hidden = false
-            //this.$.rankedListFileName.click();
-
+        handleFileSelect: function (e) {
+            this.list1 =  e.detail.file;
         },
-        list1FileNameChange: function (e) {
-            this.list1FileName = this.$.list1FileName.files[0];
-            //this.fileNameRanked = inputFile.name
+        handleFolderSelect: function (e) {
+            this.outdir =  e.detail.file;
         },
         handleType: function (e) {
-            this.type= e.target.dataset.value;
+            this.type = e.target.dataset.value;
             this.typeText = e.target.innerText;
         },
         handleInteractome: function (e) {
@@ -337,12 +318,8 @@
         },
         handleRandoms: function (e) {
             this.randoms = e.target.dataset.value;
-        },
-        list1FileOutputChanged: function (e) {
-            this.list1ClickEnabled = false
-            this.list1UploadMsg = this.$.list1.selectedFile.id;
-
         }
+
     });
 </script>
 </polymer-element>

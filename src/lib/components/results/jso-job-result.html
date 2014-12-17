@@ -30,12 +30,12 @@ Polymer({
         var me = this;
 
         me.$.output.innerHTML = ""
-        if (this.jobItem.toolName == "snow") {
-            var result = document.createElement('jso-snow-result');
-            result.jobItem = this.jobItem;
-            this.$.output.appendChild(result);
-        }
-        else if (this.jobItem.toolName == "network-miner") {
+//        if (this.jobItem.toolName == "snow") {
+//            var result = document.createElement('jso-snow-result');
+//            result.jobItem = this.jobItem;
+//            this.$.output.appendChild(result);
+//        }
+        if (this.jobItem.toolName == "network-miner") {
             var result = document.createElement('jso-nm-result');
             result.jobItem = this.jobItem;
             this.$.output.appendChild(result);
