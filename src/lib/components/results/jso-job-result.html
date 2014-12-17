@@ -1,252 +1,558 @@
 <polymer-element name="jso-job-result" attributes="jobItem">
-<template>
-    <link rel="stylesheet" href="../jso-style.css">
-    <link rel="stylesheet" href="../sortable-table.css">
-    <style>
-        :host {
-            display: block;
-            /*position: relative;*/
-            background-color: white;
-        }
-
-        sortable-table {
-            width: 1000px;
-        }
-
-    </style>
-    <!--<span>{{jobItem.id}}</span>-->
-    <!--<span>{{jobItem.outDir}}</span>-->
-
-    <div id="output">
-    </div>
-
-</template>
-<script>
-Polymer({
-    created: function () {
-        this.createdElements = {};
-    },
-    jobItemChanged: function (oldV, newV) {
-        var me = this;
-
-        me.$.output.innerHTML = ""
-//        if (this.jobItem.toolName == "snow") {
-//            var result = document.createElement('jso-snow-result');
-//            result.jobItem = this.jobItem;
-//            this.$.output.appendChild(result);
-//        }
-        if (this.jobItem.toolName == "network-miner") {
-            var result = document.createElement('jso-nm-result');
-            result.jobItem = this.jobItem;
-            this.$.output.appendChild(result);
-        }
-        else {
-            me.pvalue = 0.05;
-
-            OpencgaManager.files.filesByFolder({
-                id: me.jobItem.outDirId,
-                query: {
-                    sid: Cookies("bioinfo_sid")
-                },
-                request: {
-                    success: function (response) {
-
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            me.filesList = response.response[0].result;
-                            me.getFileContent(function (content) {
-                                var root = me.$.output;
-                                me.parseXML(content, root);
-                            }, "result.xml");
-                        }
-                    },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
-                    }
-                }
-            })
-        }
-    },
-    getFileContent: function (callback, fileName) {
-        var me = this;
-        var fileId = -1;
-        for (var result in this.filesList) {
-            if (this.filesList[result].name == fileName) {
-                fileId = this.filesList[result].id
-                break;
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                box-sizing: border-box;
+                position: relative;
             }
-        }
-        OpencgaManager.files.content({
-            id: fileId,
-            query: {
-                sid: Cookies("bioinfo_sid")
+
+            sortable-table {
+                width: 100px;
+            }
+
+            #output {
+                margin: 10px;
+                width: 1000px;
+                background-color: white;
+                border-radius: 5px;
+            }
+
+        </style>
+
+        <div id="output" vertical layout center-justified>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.createdElements = {};
             },
-            request: {
-                success: function (response) {
-//                    var content = response.response[0]
-                    /** I pass localDiv as parameter because I loose the div to render in a loop **/
-                    callback(response)
-                },
-                error: function () {
-                    this.message = 'Server error, try again later.';
+            jobItemChanged: function (oldV, newV) {
+                var me = this;
+
+                me.$.output.innerHTML = ""
+                me.pvalue = 0.05;
+
+                OpencgaManager.files.filesByFolder({
+                    id: me.jobItem.outDirId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function (response) {
+
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.filesList = response.response[0].result;
+                                me.getFileContent(function (content) {
+                                    var root = me.$.output;
+                                    me.parseXML(content, root);
+                                }, "result.xml");
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            getFileContent: function (callback, fileName) {
+                var me = this;
+                var fileId = -1;
+                for (var result in this.filesList) {
+                    if (this.filesList[result].name == fileName) {
+                        fileId = this.filesList[result].id
+                        break;
+                    }
                 }
-            }
-        })
-    },
-    prettyString: function (str) {
-        return  str.replace(/\s/g, "_").replace(/\(/g, "_").replace(/\)/g, "_");
-    },
-    createElement: function (parent, htmlType, htmlContent) {
-        var el = document.createElement(htmlType);
-        var node = document.createTextNode(htmlContent);
-        el.appendChild(node);
-        parent.appendChild(el);
-//        this.$.output.appendChild(father);
-    },
-    parseXML: function (xml) {
-        var me = this;
-        if (window.DOMParser) {
-            var parser = new DOMParser();
-            var xmlDoc = parser.parseFromString(xml, "text/xml");
-        }
-        else {
-            var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-            xmlDoc.async = false;
-            xmlDoc.loadXML(xml);
-        }
-        var output = xmlDoc.getElementsByTagName("output")[0].children
-
-        me.createStructure(output);
-        output.array().forEach(function (childNode) {
-
-            var nameInput = childNode.getAttribute("name");
-            var titleInput = childNode.getAttribute("title");
-            var typeInput = childNode.getAttribute("type");
-            var groupInput = childNode.getAttribute("group").split(".");
-            var tagsInput = childNode.getAttribute("tags");
-            var valueInput = childNode.firstChild.nodeValue;
-
-            var parentId = me.prettyString(groupInput[groupInput.length - 1]);
-            var parent = me.$.output.querySelector("#" + parentId);
-            valueInput = valueInput.replace("${pvalue}", me.pvalue);
-//console.log(valueInput)
-//                debugger
-            if (typeInput == "MESSAGE" || typeInput == "FILE" || typeInput == "TEXT") {
-                me.createElement(parent, "div", titleInput + ": " + valueInput);
-            }
-            if (nameInput == "annotations_per_db") {
-                var sortableTable = document.createElement('sortable-table');
-                parent.appendChild(sortableTable);
-                me.getFileContent(function (content) {
-                    var data = content.split("\n");
-                    var dataArray = new Array();
-                    for (var i = 1; i < data.length; i++) {
-                        if (data[i] == "") continue;
-                        dataArray.push(data[i].split("\t"))
-                    }
-                    sortableTable.columns = ["DB", "List1", "List2"];
-                    sortableTable.data = dataArray;
-                }, valueInput);
-            }
-            if (tagsInput.indexOf("SIGNIFICANT_COUNT_TABLE") > 0) {
-                var sortableTable = document.createElement('sortable-table');
-                parent.appendChild(sortableTable);
-                me.getFileContent(function (content) {
-                    var data = content.split("\n");
-                    var dataArray = new Array();
-                    for (var i = 1; i < data.length; i++) {
-                        if (data[i] == "") continue;
-                        dataArray.push(data[i].split("\t"))
-                    }
-                    sortableTable.columns = ["DB", "Number of significant terms"];
-                    sortableTable.data = dataArray;
-                }, valueInput);
-            }
-            if (tagsInput.indexOf("FATIGO_TABLE") > 0) {
-                var sortableTable = document.createElement('sortable-table');
-                parent.appendChild(sortableTable);
-                me.getFileContent(function (content) {
-
-                    var data = content.split("\n");
-                    var dataArray = new Array();
-                    for (var i = 1; i < data.length; i++) {
-                        if (data[i] == "") continue;
-                        dataArray.push(data[i].split("\t"))
-                    }
-                    sortableTable.pageSize = "10";
-                    sortableTable.footerTemplate = "simplePager";
-                    sortableTable.columns = ["Term", "Term size", "Term size (in genome)", "Term annotation % per list", "Annotated ids", "Odds ratio (loge)", "pvalue", "Adjusted pvalue"];
-                    sortableTable.data = dataArray;
-
-
-                }, valueInput);
-            }
-            if (typeInput == "IMAGE") {
-                var fileId = me.getFileId(valueInput);
-                var image = document.createElement('img');
-                var imageUrl = OpencgaManager.files.content({
+                OpencgaManager.files.content({
                     id: fileId,
                     query: {
                         sid: Cookies("bioinfo_sid")
                     },
                     request: {
-
-                        url: true
+                        success: function (response) {
+//                    var content = response.response[0]
+                            /** I pass localDiv as parameter because I loose the div to render in a loop **/
+                            callback(response)
+                        },
+                        error: function () {
+                            this.message = 'Server error, try again later.';
+                        }
                     }
                 })
+            },
+            prettyString: function (str) {
+                return str.replace(/\s/g, "_").replace(/\(/g, "_").replace(/\)/g, "_");
+            },
+            createElement: function (parent, htmlType, htmlContent) {
+                var el = document.createElement(htmlType);
+                var node = document.createTextNode(htmlContent);
+                el.appendChild(node);
+                parent.appendChild(el);
+            },
+            parseXML: function (xml) {
+                var me = this;
+                if (window.DOMParser) {
+                    var parser = new DOMParser();
+                    var xmlDoc = parser.parseFromString(xml, "text/xml");
+                }
+                else {
+                    var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                    xmlDoc.async = false;
+                    xmlDoc.loadXML(xml);
+                }
+                var output = xmlDoc.getElementsByTagName("output")[0].children
 
-                image.setAttribute("src", imageUrl);
-                parent.appendChild(image);
+//                me.createStructure(output);
+                var elementsJSON = me.parseOutput(output);
+
+                var divsJSON = me._renderJSON(elementsJSON);
+                me.$.output.appendChild(divsJSON);
+            },
+            parseOutput: function (output) {
+                var elements = [];
+
+                for (var i = 0; i < output.length; i++) {
+                    var elemXML = output[i];
+                    this._parseElem(elemXML, elements);
+                }
+                return elements;
+            },
+            _renderJSON: function (elements) {
+                var mainDiv = document.createElement("div");
+                for (var i = 0; i < elements.length; i++) {
+                    var elem = elements[i];
+                    mainDiv.appendChild(this._renderJsonElement(elem));
+                }
+                return mainDiv;
+            },
+            _renderJsonElement: function (element) {
+
+                var mainDiv = document.createElement("div");
+                var titleDiv = document.createElement("div");
+                var dataDiv = document.createElement("div");
+                var childDiv = document.createElement("div");
+
+                titleDiv.innerHTML = element.group;
+
+                for (var i = 0; i < element.data.length; i++) {
+                    var dataElement = element.data[i];
+                    var dataElementDiv = document.createElement("div");
+
+                    dataElementDiv = this._renderValue(dataElement);
+
+                    dataDiv.appendChild(dataElementDiv);
+                }
+
+                for (var i = 0; i < element.children.length; i++) {
+                    var childElement = element.children[i];
+                    var childElementDiv = this._renderJsonElement(childElement);
+
+                    childDiv.appendChild(childElementDiv);
+                }
+
+                mainDiv.appendChild(titleDiv);
+                mainDiv.appendChild(dataDiv);
+                mainDiv.appendChild(childDiv);
+
+                return mainDiv;
+            },
+            _getFileId: function (fileName) {
+                var fileId = -1;
+                for (var result in this.filesList) {
+                    if (this.filesList[result].name == fileName) {
+                        fileId = this.filesList[result].id
+                        break;
+                    }
+                }
+                return fileId;
+            },
+            _renderValue: function (element) {
+
+                var me = this;
+                var res = document.createElement("div");
+                switch (element.type) {
+                    case "IMAGE":
+
+                        if (element.tags.indexOf("NETWORKMINER_JSON") >= 0) {
+                            var divHC = document.createElement("div");
+                            divHC.setAttribute("id", "nm-json-highChart");
+
+                            this.getFileContent(function (content) {
+                                me.parseHighCharts(content, divHC.getAttribute("id"));
+
+                            }, element.value);
+                            res.appendChild(divHC);
+                            break;
+                        }
+
+                        var fileId = this._getFileId(element.value);
+                        res = document.createElement("img");
+
+                        var imageUrl = OpencgaManager.files.content({
+                            id: fileId,
+                            query: {
+                                sid: Cookies("bioinfo_sid")
+                            },
+                            request: {
+
+                                url: true
+                            }
+                        })
+                        res.setAttribute("src", imageUrl);
+                        break;
+                    case "MESSAGE":
+                        var label = document.createElement("label");
+                        label.innerHTML = element.title;
+                        var div = document.createElement("div");
+                        div.innerHTML = element.value;
+
+                        res.setAttribute("horizontal", "");
+                        res.setAttribute("layout", "");
+
+                        res.appendChild(label);
+                        res.appendChild(div);
+                        break;
+                    case "FILE":
+                        var label = document.createElement("label");
+                        label.innerHTML = element.title;
+                        res.appendChild(label);
+
+                        var fileId = this._getFileId(element.value);
+
+                        var fileURL = OpencgaManager.files.content({
+                            id: fileId,
+                            query: {
+                                sid: Cookies("bioinfo_sid")
+                            },
+                            request: {
+
+                                url: true
+                            }
+                        })
+
+                        var a = document.createElement("a");
+                        a.innerHTML = element.value;
+                        a.setAttribute("href", fileURL);
+
+                        res.appendChild(a);
+
+
+                        if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0 || element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
+                            this.getFileContent(function (content) {
+                                var data = content.split("\n");
+
+                                for (var i = 1; i < data.length; i++) {
+                                    dataArray.push(data[i].split("\t"))
+                                }
+
+
+                            }, element.value);
+
+                            var sortableTable = document.createElement('sortable-table');
+                            sortableTable.setAttribute("id", "tableId");
+                            var dataArray = new Array();
+                            sortableTable.columns = ["Input", "Id", "Type", "Rank", "Betweenness", "Clustering", "Connections", "GOs", "KEEGs"];
+                            sortableTable.data = dataArray;
+                            sortableTable.pageSize = "10";
+                            sortableTable.footerTemplate = "simplePager";
+
+                            res.appendChild(sortableTable);
+
+                        }
+
+                        if (element.tags.indexOf("INTERACTOME_VIEWER") >= 0) {
+                            var networkViewer = document.createElement('jso-network-viewer');
+                            networkViewer.setAttribute("id", "networkId");
+
+                            this.getFileContent(function (content) {
+                                var adapter = new SIFNetworkDataAdapter({
+                                    dataSource: new StringDataSource(content),
+                                    handlers: {
+                                        'data:load': function (event) {
+                                            //me.processData(event.graph);
+                                            networkViewer.setGraph(event.graph);
+                                            networkViewer.setLayout("Force directed");
+                                            me.$.output.querySelector("#" + divId).appendChild(networkViewer);
+                                        },
+                                        'error:parse': function (event) {
+                                            console.log("ERRORRRR");
+                                        }
+                                    }
+                                });
+                            }, element.value);
+
+
+                            res.appendChild(networkViewer);
+                        }
+
+
+                }
+
+                return res;
+
+            },
+            parseHighCharts: function (content, divId) {
+                var json = JSON.parse(content);
+                var chartWidth = 600;
+
+                /** Create HTML elements **/
+                var elSizeAvg = document.createElement("div");
+                elSizeAvg.id = divId + "_avg";
+                this.$.output.querySelector("#" + divId).appendChild(elSizeAvg);
+
+                var elSizeScore = document.createElement("div");
+                elSizeScore.id = divId + "_score";
+                this.$.output.querySelector("#" + divId).appendChild(elSizeScore);
+
+                /** Create data for charts **/
+                var sizeAvgList = new Array();
+                var sizeAvgListSig = new Array();
+
+                var sizeScoreList = new Array();
+                var sizeScoreListSig = new Array();
+
+                for (var idx = 0; idx < json.length; idx++) {
+                    var j = json[idx];
+                    var nodesLength = j.nodes.length;
+                    var rawValue = j.rawValue;
+                    var score = j.score;
+                    var itemsSizeAvg = new Array();
+                    var itemsSizeScore = new Array();
+
+                    itemsSizeAvg.push(nodesLength);
+                    itemsSizeAvg.push(rawValue);
+
+                    itemsSizeScore.push(nodesLength);
+                    itemsSizeScore.push(score);
+
+                    if (!j.significant) {
+                        sizeAvgList.push(itemsSizeAvg);
+                        sizeScoreList.push(itemsSizeScore);
+                    }
+                    else {
+                        sizeAvgListSig.push(itemsSizeAvg);
+                        sizeScoreListSig.push(itemsSizeScore);
+                    }
+                }
+                new Highcharts.Chart({
+                    chart: {
+                        renderTo: this.$.output.querySelector("#" + elSizeAvg.id),
+                        type: 'scatter',
+                        zoomType: 'xy',
+                        width: chartWidth
+                    },
+                    title: {
+                        text: 'Size vs. Avg. node per component'
+                    },
+                    xAxis: {
+                        title: {
+                            enabled: true,
+                            text: 'Size'
+                        },
+                        startOnTick: true,
+                        endOnTick: true,
+                        showLastLabel: true
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Avg. node per component'
+                        }
+                    },
+                    plotOptions: {
+                        scatter: {
+                            marker: {
+                                radius: 5,
+                                states: {
+                                    hover: {
+                                        enabled: true,
+                                        lineColor: 'rgb(100,100,100)'
+                                    }
+                                }
+                            },
+                            states: {
+                                hover: {
+                                    marker: {
+                                        enabled: false
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                headerFormat: '<b>{series.name}</b><br>',
+                                pointFormat: '{point.x} , {point.y} '
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Size / Avg. node per component',
+                            color: 'rgba(119, 152, 191, .5)',
+                            data: sizeAvgList
+                        },
+                        {
+                            name: 'Selected',
+                            color: 'rgba(223, 83, 83, .5)',
+                            data: sizeAvgListSig
+
+                        }
+                    ]
+                });
+                new Highcharts.Chart({
+                    chart: {
+                        renderTo: this.$.output.querySelector("#" + elSizeScore.id),
+                        type: 'scatter',
+                        zoomType: 'xy',
+                        width: chartWidth
+                    },
+                    title: {
+                        text: 'Size vs. Score'
+                    },
+                    xAxis: {
+                        title: {
+                            enabled: true,
+                            text: 'Size'
+                        },
+                        startOnTick: true,
+                        endOnTick: true,
+                        showLastLabel: true
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Score'
+                        }
+                    },
+                    plotOptions: {
+                        scatter: {
+                            marker: {
+                                radius: 5,
+                                states: {
+                                    hover: {
+                                        enabled: true,
+                                        lineColor: 'rgb(100,100,100)'
+                                    }
+                                }
+                            },
+                            states: {
+                                hover: {
+                                    marker: {
+                                        enabled: false
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                headerFormat: '<b>{series.name}</b><br>',
+                                pointFormat: '{point.x} , {point.y} '
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Size / Score',
+                            color: 'rgba(119, 152, 191, .5)',
+                            data: sizeScoreList
+                        },
+                        {
+                            name: 'Selected',
+                            color: 'rgba(223, 83, 83, .5)',
+                            data: sizeScoreListSig
+
+                        }
+                    ]
+                });
+
+
+            }
+            ,
+            _parseElem: function (elemXML, elements) {
+                var groups = elemXML.getAttribute("group").split(".");
+                if (groups.length == 1) { // Final Group
+                    var group = groups[0];
+
+                    var nameInput = elemXML.getAttribute("name");
+                    var titleInput = elemXML.getAttribute("title");
+                    var typeInput = elemXML.getAttribute("type");
+                    var groupInput = elemXML.getAttribute("group").split(".");
+                    var tagsInput = elemXML.getAttribute("tags");
+                    var valueInput = elemXML.innerHTML;
+
+                    var value = {
+                        name: nameInput,
+                        title: titleInput,
+                        type: typeInput,
+                        tags: tagsInput,
+                        value: valueInput
+                    }
+
+                    if (this._containsGroup(elements, group)) {
+                        this._addValueToGroup(elements, group, value);
+
+                    } else {
+                        elements.push({
+                            group: group,
+                            data: [value],
+                            children: []
+                        });
+                    }
+                } else { // nested Group
+                    var mainGroup = groups[0];
+                    var newGroups = groups.slice(0);
+                    newGroups.shift();
+
+                    var newElem = {};
+                    if (this._containsGroup(elements, mainGroup)) {
+                        newElem = this._getGroup(elements, mainGroup);
+                    }
+                    else {
+                        newElem.group = mainGroup;
+                        newElem.data = [];
+                        newElem.children = [];
+                        elements.push(newElem);
+                    }
+                    var newGroupJoin = newGroups.join(".");
+                    var newNode = elemXML.cloneNode(true);
+
+                    newNode.setAttribute("group", newGroupJoin);
+                    this._parseElem(newNode, newElem.children);
+
+                }
+            }
+            ,
+            _getGroup: function (elements, group) {
+                for (var i = 0; i < elements.length; i++) {
+                    var elem = elements[i];
+                    if (elem.group == group) {
+                        return elem;
+                    }
+
+                }
+                return {};
+            }
+            ,
+            _containsGroup: function (elements, group) {
+                for (var i = 0; i < elements.length; i++) {
+                    var elem = elements[i];
+                    if (elem.group == group) {
+                        return true;
+                    }
+
+                }
+                return false;
+            }
+            ,
+            _addValueToGroup: function (elements, group, value) {
+                for (var i = 0; i < elements.length; i++) {
+                    var elem = elements[i];
+                    if (elem.group == group) {
+                        elem.data.push(value);
+                    }
+
+                }
             }
 
         })
-    },
-    getFileId: function (fileName) {
-        var fileId = -1;
-        for (var result in this.filesList) {
-            if (this.filesList[result].name == fileName) {
-                fileId = this.filesList[result].id
-                break;
-            }
-        }
-        return fileId;
-    },
-    createStructure: function (output) {
-        var me = this;
-        var createdElements = {};
-        output.array().forEach(function (childNode) {
-
-            var groupInput = childNode.getAttribute("group").split(".");
-            var parent = me.$.output;
-            var parentId = me.$.output.id;
-//                console.log(groupInput)
-            //              console.log(parent);
-            for (var idx = 0; idx < groupInput.length; idx++) {
-                var xx = groupInput[idx];
-                xx = me.prettyString(xx)
-                if (!(xx in createdElements)) {
-                    createdElements[xx] = true;
-                }
-                else
-                    continue;
-                if (idx != 0) {
-                    parentId = me.prettyString(groupInput.slice(idx - 1, idx).join());
-                    parent = me.$.output.querySelector("#" + parentId)
-                }
-
-                var el = document.createElement("div");
-                el.id = xx;
-
-                var elSon = document.createElement("h" + (idx + 1));
-                var node = document.createTextNode(groupInput[idx]);
-                elSon.appendChild(node);
-                parent.appendChild(elSon)
-
-                parent.appendChild(el);
-            }
-        });
-    }
-})
-</script>
+    </script>
 </polymer-element>
-
-
