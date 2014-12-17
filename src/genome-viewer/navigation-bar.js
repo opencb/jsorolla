@@ -238,7 +238,9 @@ NavigationBar.prototype = {
             _this._handleZoomSlider(0);
         });
         this.els.progressBarCont.addEventListener('click', function (e) {
-            var zoom = 100 / parseInt(getComputedStyle(this).width) * e.offsetX;
+            var br = this.getBoundingClientRect();
+            var offsetX = e.clientX - br.left;
+            var zoom = 100 / parseInt(getComputedStyle(this).width) * offsetX;
             _this._handleZoomSlider(zoom);
         });
 
