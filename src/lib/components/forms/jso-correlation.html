@@ -88,19 +88,15 @@
 
         <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
 
-        <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                   pattern="[a-zA-Z0-9]+">
-        <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <div>
+            <h3>Output parameters</h3>
+            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+        </div>
         <div>
             <h3>Select your data</h3>
-
-            <div>
-                List 1:
-                <jso-file-browser fileList="{{selectedStudy.files}}" selectedFile="{{list1}}"></jso-file-browser>
-            </div>
+            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" on-file-select="{{handleFileSelect}}"></jso-project-browser>
         </div>
+
         <div>
             <h3>Select the class to analyse</h3>
             <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"
@@ -150,43 +146,21 @@
             this.p_value = 0.05;
             this.test = "";
         },
-        list1Changed: function (oldV, newV) {
-            if (typeof oldV != 'undefined') {
-                this.getContentFile(newV);
-            }
+//        list1Changed: function (oldV, newV) {
+//            if (typeof oldV != 'undefined') {
+//                this.getContentFile(newV);
+//            }
+//        },
+        handleFileSelect: function(e){
+            var file = e.detail.file;
+            if(file.type == "FILE")
+                this.getContentFile(file);
         },
         handleForm: function () {
-            var me = this;
-            this.message = '';
-            if (this.newFolderName && this.newFolderName != "") {
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.newFolderName,
-                        studyId: this.selectedStudy.id
 
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                var selectedFolderId = response.response[0].result[0].id;
-                                me.launchJob(selectedFolderId);
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
-                        }
-                    }
-                });
-            }
-            else {
-                me.launchJob(this.$.selectFolder.selectedFolder.id);
-            }
+            this.launchJob();
         },
-        launchJob: function (selectedFolderId) {
+        launchJob: function () {
             var me = this;
 
             this.class_name = this.$.jsoClassViewer.getMainSelect().value;
@@ -200,7 +174,7 @@
                 name: this.jobName,
                 description: this.description,
                 "class-name": this.class_name,
-                dataset: this.list1.id,
+                dataset: this.$.inputFile.selectedFile.id,
                 test: this.test,
                 correction: this.correction,
                 "p-value": this.p_value
@@ -238,9 +212,9 @@
             var me = this;
             if (newV == true) {
                 var select = this.$.jsoClassViewer.getMainSelect();
-                if (this.list1.id == "example_correlation.txt") {
-                    select.value = "indep";
-                }
+//                if (this.list1.id == "example_correlation.txt") {
+//                    select.value = "indep";
+//                }
             }
         },
         loadExampleFile: function (exampleFileName) {

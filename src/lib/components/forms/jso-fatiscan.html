@@ -92,14 +92,14 @@
 
         <div class="button action" on-click="{{loadExample1}}"> Diabetes dataset</div>
 
-        <h3>Output parameters</h3>
-        <label>Select output folder:</label>
-        <jso-project-browser id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-
-        <h3>Input parameters</h3>
-        <label>Or, Select file</label>
-        <jso-project-browser id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-
+        <div>
+            <h3>Output parameters</h3>
+            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+        </div>
+        <div>
+            <h3>Select your data</h3>
+            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+        </div>
         <h3>Databases</h3>
 
         <div>

@@ -88,16 +88,15 @@
 
         <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
 
-        <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}">
-        <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
-
         <div>
-            List 1:
-            <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{compressed_file}}"></jso-file-browser>
+            <h3>Output parameters</h3>
+            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
         </div>
+        <div>
+            <h3>Select your data</h3>
+            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+        </div>
+
         <h3>Analysis</h3>
         Background correction:
         <select name="bg_correction" id="bg_correction" type="text" value="none">
@@ -124,9 +123,7 @@
         <h3>Job information</h3>
         <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
         <label>Description</label>
-        <textarea id="description" required>
-            {{description}}
-        </textarea>
+        <textarea required value="{{description}}"></textarea>
         <br>
 
         <div class="button action" on-click="{{handleForm}}">Run</div>
@@ -140,6 +137,7 @@
             this.toolName = "agilent-expression-one-color-normalization";
             this.list1UploadMsg = "Select file...";
             this.description = "Job info...";
+            this.compressed_file_tags = "microarray,expression,one-channel,agilent";
         },
         list1Click: function (e) {
             this.$.list1Html.hidden = false
@@ -149,53 +147,11 @@
         list1Changed: function (oldV, newV) {
             this.list1UploadMsg = this.list1.path
         },
-        validForm: function () {
-            var valid = this.$.form.checkValidity();
-            if (typeof this.newFolderName == 'undefined' && typeof this.$.selectFolder.selectedFolder == 'undefined') {
-                valid = false;
-            }
-            if (this.compressed_file == '') {
-                valid = false;
-            }
-            return valid;
-        },
         handleForm: function () {
-            var me = this;
-            this.message = '';
-            if ((me.validForm())) {
-                
-                if (this.newFolderName && this.newFolderName != "") {
-                    OpencgaManager.files.createFolder({
-                        query: {
-                            sid: Cookies('bioinfo_sid'),
-                            folder: this.newFolderName,
-                            studyId: this.selectedStudy.id
-
-                        },
-                        request: {
-                            success: function (response) {
-                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                    var selectedFolderId = response.response[0].result[0].id;
-
-                                    me.launchJob(selectedFolderId);
-                                } else {
-                                    me.message = response.response[0].errorMsg;
-                                }
-                            },
-                            error: function () {
-                                alert('Server error, try again later.');
-                            }
-                        }
-                    });
-                }
-                else {
-                    
-                    me.launchJob(this.$.selectFolder.selectedFolder.id);
-                }
-            }
+            this.launchJob();
         },
-        launchJob: function (selectedFolderId) {
+        launchJob: function () {
+            debugger
             var me = this;
             var query = {
                 sid: Cookies("bioinfo_sid"),
