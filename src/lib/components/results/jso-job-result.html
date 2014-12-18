@@ -95,6 +95,10 @@
             .image {
                 margin-top: 20px;
             }
+
+            .error {
+                color: red !important;
+            }
         </style>
 
         <div id="output" class="output"></div>
@@ -217,7 +221,6 @@
 
 
                 mainDiv.classList.add("level-" + level);
-
                 titleDiv.classList.add("headerTitle");
                 titleDiv.innerHTML = element.group;
 
@@ -302,8 +305,13 @@
                         res.setAttribute("horizontal", "");
                         res.setAttribute("layout", "");
 
+                        if (element.tags.indexOf("ERROR") >= 0) {
+                            res.classList.add("error");
+                        }
+
                         res.appendChild(label);
                         res.appendChild(div);
+
 
                         break;
                     case "FILE":
