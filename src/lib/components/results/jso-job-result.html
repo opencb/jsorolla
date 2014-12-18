@@ -9,10 +9,6 @@
                 position: relative;
             }
 
-            /*sortable-table {*/
-            /*width: 100px;*/
-            /*}*/
-
             .output {
                 margin: 10px;
                 /*width: 1000px;*/
@@ -55,9 +51,57 @@
                 font-size: 12pt;
                 /*background-color: blue;*/
             }
+
+            jso-network-viewer {
+                max-width: 1000px;
+                height: 800px;
+
+                border-color: rgb(217, 217, 217);
+                border-style: solid;
+                border-width: 1px;
+            }
+
+            sortable-table {
+                max-width: 1000px;
+                margin-top: 10px;
+            }
+
+            .message > label {
+                margin-right: 10px;
+            }
+
+            .message > label:after {
+                content: ':';
+            }
+
+            .message > .messageValue {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+            }
+
+            .file > label {
+                margin-right: 10px;
+            }
+
+            .file > a {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+            }
+
+            .image {
+                margin-top: 20px;
+            }
+
+            .error {
+                color: red !important;
+            }
         </style>
 
-        <div id="output" class="output" horizontal layout center-justified></div>
+        <div id="output" class="output"></div>
 
     </template>
     <script>
@@ -177,16 +221,13 @@
 
 
                 mainDiv.classList.add("level-" + level);
-
                 titleDiv.classList.add("headerTitle");
                 titleDiv.innerHTML = element.group;
 
                 for (var i = 0; i < element.data.length; i++) {
                     var dataElement = element.data[i];
                     var dataElementDiv = document.createElement("div");
-
                     dataElementDiv = this._renderValue(dataElement);
-
                     dataDiv.appendChild(dataElementDiv);
                 }
 
@@ -225,48 +266,62 @@
                     case "IMAGE":
 
                         if (element.tags.indexOf("NETWORKMINER_JSON") >= 0) {
-                            var divHC = document.createElement("div");
-                            divHC.setAttribute("id", "nm-json-highChart");
+                            res.setAttribute("id", "nm-json-highChart");
+                            res.classList.add("networkminer");
 
                             this.getFileContent(function (content) {
-                                me.parseHighCharts(content, divHC.getAttribute("id"));
+                                me.parseHighCharts(content, res.getAttribute("id"));
 
                             }, element.value);
-                            res.appendChild(divHC);
-                            break;
+                        } else {
+                            var fileId = this._getFileId(element.value);
+                            res = document.createElement("img");
+                            res.classList.add("image");
+
+                            var imageUrl = OpencgaManager.files.content({
+                                id: fileId,
+                                query: {
+                                    sid: Cookies("bioinfo_sid")
+                                },
+                                request: {
+
+                                    url: true
+                                }
+                            })
+                            res.setAttribute("src", imageUrl);
                         }
 
-                        var fileId = this._getFileId(element.value);
-                        res = document.createElement("img");
-
-                        var imageUrl = OpencgaManager.files.content({
-                            id: fileId,
-                            query: {
-                                sid: Cookies("bioinfo_sid")
-                            },
-                            request: {
-
-                                url: true
-                            }
-                        })
-                        res.setAttribute("src", imageUrl);
                         break;
                     case "MESSAGE":
+                        res.classList.add("message");
+
                         var label = document.createElement("label");
                         label.innerHTML = element.title;
+
                         var div = document.createElement("div");
                         div.innerHTML = element.value;
+                        div.classList.add("messageValue");
 
                         res.setAttribute("horizontal", "");
                         res.setAttribute("layout", "");
 
+                        if (element.tags.indexOf("ERROR") >= 0) {
+                            res.classList.add("error");
+                        }
+
                         res.appendChild(label);
                         res.appendChild(div);
+
+
                         break;
                     case "FILE":
+
+                        var file = document.createElement("div");
+                        file.classList.add("file");
+
                         var label = document.createElement("label");
                         label.innerHTML = element.title;
-                        res.appendChild(label);
+                        file.appendChild(label);
 
                         var fileId = this._getFileId(element.value);
 
@@ -284,9 +339,11 @@
                         var a = document.createElement("a");
                         a.innerHTML = element.value;
                         a.setAttribute("href", fileURL);
+                        a.setAttribute("target", "_blank");
 
-                        res.appendChild(a);
+                        file.appendChild(a);
 
+                        res.appendChild(file);
 
                         if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0 || element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
                             this.getFileContent(function (content) {
