@@ -99,6 +99,8 @@
             .error {
                 color: red !important;
             }
+
+
         </style>
 
         <div id="output" class="output"></div>
@@ -154,6 +156,7 @@
                         sid: Cookies("bioinfo_sid")
                     },
                     request: {
+                        async: false,
                         success: function (response) {
 //                    var content = response.response[0]
                             /** I pass localDiv as parameter because I loose the div to render in a loop **/
@@ -185,13 +188,29 @@
                     xmlDoc.async = false;
                     xmlDoc.loadXML(xml);
                 }
-                var output = xmlDoc.getElementsByTagName("output")[0].children
+                this.resultXML = me.parseResultXML(xmlDoc);
 
-//                me.createStructure(output);
-                var elementsJSON = me.parseOutput(output);
-
-                var divsJSON = me._renderJSON(elementsJSON);
+                var divsJSON = me._renderJSON();
                 me.$.output.appendChild(divsJSON);
+            },
+            parseResultXML: function (xmlDoc) {
+
+                var me = this;
+
+                var result = {
+                    input: [], output: []
+                };
+                var output = xmlDoc.getElementsByTagName("output")[0].children;
+                var input = xmlDoc.getElementsByTagName("input")[0].children;
+
+                var outputElementsJson = me.parseOutput(output);
+                var inputElementsJson = me.parseInput(input);
+
+                result.output = outputElementsJson;
+                result.input = inputElementsJson;
+                return result;
+
+
             },
             parseOutput: function (output) {
                 var elements = [];
@@ -202,10 +221,31 @@
                 }
                 return elements;
             },
-            _renderJSON: function (elements) {
+            parseInput: function (input) {
+                var elements = [];
+
+
+                for (var i = 0; i < input.length; i++) {
+                    var xmlElem = input[i];
+
+                    var jsonElem = {
+                        name: xmlElem.getAttribute("name"),
+                        title: xmlElem.getAttribute("title"),
+                        type: xmlElem.getAttribute("type"),
+                        tags: xmlElem.getAttribute("tags"),
+                        style: xmlElem.getAttribute("style"),
+                        group: xmlElem.getAttribute("context"),
+                        value: xmlElem.innerHTML
+                    };
+                    elements.push(jsonElem);
+                }
+
+                return elements;
+            },
+            _renderJSON: function () {
                 var mainDiv = document.createElement("div");
-                for (var i = 0; i < elements.length; i++) {
-                    var elem = elements[i];
+                for (var i = 0; i < this.resultXML.output.length; i++) {
+                    var elem = this.resultXML.output[i];
                     var divElem = this._renderJsonElement(elem, 0);
                     mainDiv.appendChild(divElem);
 
@@ -393,10 +433,246 @@
                             res.appendChild(networkViewer);
                         }
 
+                        if (element.tags.indexOf("DIFF_EXPRESSION_VIEWER") >= 0) {
+                            console.log("DIFF_EXPRESSION_VIEWER");
 
+                            var json = JSON.parse(element.value.replace(/\\/g, ''))
+
+                            var dataArray = [];
+                            var columns = [];
+                            var sortableTable = document.createElement('sortable-table');
+                            sortableTable.setAttribute("id", "tableId");
+
+                            this.getFileContent(function (content) {
+                                var data = content.split("\n");
+
+                                for (var i = 1; i < data.length; i++) {
+                                    var line = data[i];
+
+                                    if (line.indexOf("#NAMES") >= 0) {
+                                        var splits = data[i].split("\t");
+                                        for (var j = 0; j < splits.length; j++) {
+                                            var elem = splits[j];
+                                            columns.push(elem);
+                                        }
+
+                                    } else if (line.indexOf("#") < 0) {
+                                        if (data[i].length > 0)
+                                            dataArray.push(data[i].split("\t"))
+                                    }
+
+                                }
+
+                            }, json.testfilename);
+
+                            sortableTable.columns = columns;
+                            sortableTable.data = dataArray;
+                            sortableTable.pageSize = "10";
+                            sortableTable.footerTemplate = "simplePager";
+
+                            res.appendChild(sortableTable);
+
+                            var statisticData = new Array();
+
+                            this.getFileContent(function (content) {
+                                var data = content.split("\n");
+                                for (var i = 0; i < data.length; i++) {
+                                    var line = data[i];
+                                    if (line.length > 0 && line.indexOf("#") < 0) {
+                                        var splits = line.split("\t");
+                                        statisticData[splits[0]] = splits[1];
+                                    }
+                                }
+                            }, "t_significative_table.txt");
+
+                            var sigDatasetData = new Array();
+                            var sigDatasetCols = [];
+                            var sigDatasetRows = [];
+
+                            this.getFileContent(function (content) {
+
+                                var data = content.split("\n");
+                                var prevLine = null;
+                                var b = true;
+                                var rowCount = 0;
+                                var max = -1;
+                                var min = 9999999999;
+
+                                for (var i = 0; i < data.length; i++) {
+                                    var line = data[i];
+
+                                    if (line.indexOf("#") < 0) {
+                                        if (b) { // PrevLine == last line of the header
+                                            var splits = prevLine.split("\t");
+                                            for (var j = 1; j < splits.length; j++) {
+                                                sigDatasetCols.push(splits[j]);
+                                            }
+                                            b = false;
+                                        }
+
+                                        var lineData = line.split("\t");
+
+                                        sigDatasetData[rowCount] = new Array();
+                                        sigDatasetRows.push(lineData[0]);
+
+                                        var rowMean = 0;
+                                        var count = 0;
+                                        var sum = 0;
+
+
+                                        for (var j = 1; j < lineData.length; j++) {
+                                            var lineElem = lineData[j];
+                                            sum += Number(lineElem);
+                                            count++;
+
+                                        }
+                                        rowMean = sum / count;
+
+                                        sum = 0;
+                                        count = 0;
+
+                                        for (var j = 1; j < lineData.length; j++) {
+                                            var lineElem = lineData[j];
+                                            var value = Number(lineElem);
+                                            sum += ((value - rowMean) * ( value - rowMean));
+                                            count++;
+                                        }
+
+                                        var variance = sum / (count - 1 );
+                                        var std_var = Math.sqrt(variance);
+
+
+                                        for (var j = 1; j < lineData.length; j++) {
+                                            var lineElem = lineData[j];
+                                            var val = (Number(lineElem) - rowMean) / std_var;
+
+                                            max = (val > max) ? val : max;
+                                            min = (val < min) ? val : min;
+
+                                            sigDatasetData[rowCount][j - 1] = val;
+                                        }
+                                        rowCount++;
+                                    }
+
+                                    prevLine = line;
+                                }
+
+                            }, "t_significative_dataset.txt");
+
+                            Object.keys(statisticData).forEach(function (key) {
+                                var index = sigDatasetRows.indexOf(key);
+                                sigDatasetData[index][sigDatasetCols.length] = Number(statisticData[key]);
+                            });
+
+
+                            var indices = new Array(sigDatasetRows.length);
+                            for (var i = 0; i < sigDatasetRows.length; i++) indices[i] = i;
+
+                            indices.sort(function (a, b) {
+                                return sigDatasetData[b][sigDatasetCols.length] - sigDatasetData[a][sigDatasetCols.length];
+                            });
+
+                            sigDatasetData.sort(function (a, b) {
+                                return b[sigDatasetCols.length] - a[sigDatasetCols.length];
+                            });
+
+                            var aux = new Array(sigDatasetRows.length);
+
+                            for (var i = 0; i < indices.length; i++) {
+                                var index = indices[i];
+                                aux[i] = sigDatasetRows[index];
+                            }
+
+
+                            sigDatasetRows = aux;
+                            sigDatasetData.reverse();
+                            sigDatasetRows.reverse();
+
+
+                            var heatMapData = me.prepareHMData(sigDatasetData);
+//                            sigDatasetRows = Object.keys(heatMapData);
+
+                            var heatMapDiv = document.createElement("div");
+                            heatMapDiv.setAttribute("id", "heatMapDEV");
+
+                            me.createHeatMap(heatMapData, sigDatasetCols, sigDatasetRows, heatMapDiv);
+                            res.appendChild(heatMapDiv);
+                        }
                 }
-
                 return res;
+            },
+            prepareHMData: function (data) {
+                var res = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    for (var j = 0; j < row.length - 1; j++) {
+                        var elem = data[i][j];
+                        res.push([j, i, elem]);
+                    }
+                }
+                return res;
+            },
+
+            createHeatMap: function (data, cols, rows, div) {
+
+                console.log(cols);
+                console.log(rows);
+                var heatMap = new Highcharts.Chart({
+                    chart: {
+                        renderTo: div,
+                        type: 'heatmap',
+                        marginTop: 100,
+                        marginBottom: 40,
+                        height: 1000,
+                        width: 1000
+                    },
+                    title: {
+                        text: 'Heat Map'
+                    },
+
+                    xAxis: {
+                        categories: cols,
+                        opposite: true,
+                        labels: {
+                            rotation: -90,
+                            style: {
+                                fontSize: '10px'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        categories: rows,
+                        title: null
+                    },
+                    plotOptions: {
+                        heatmap: {
+                            turboThreshold: data.length + 1
+                        }
+                    },
+                    colorAxis: {
+//                        stops: [
+//                            [min, '#0000ff'],
+//                            [mean, '#ffffff'],
+//                            [max, '#ff0000']
+//                        ]
+                        minColor: '#0000ff',
+                        maxColor: '#ff0000',
+                        stops: [
+                            [0, '#0000ff'],
+                            [0.5, '#ffffff'],
+                            [1, '#ff0000']
+                        ]
+                    },
+                    series: [{
+                        name: 'DATA',
+                        borderWidth: 1,
+                        data: 'Sales per employee',
+                        borderWidth: 1,
+                        data: data
+                    }]
+
+                });
 
             },
             parseHighCharts: function (content, divId) {
@@ -636,14 +912,11 @@
             }
             ,
             _containsGroup: function (elements, group) {
-                for (var i = 0; i < elements.length; i++) {
-                    var elem = elements[i];
-                    if (elem.group == group) {
-                        return true;
-                    }
 
-                }
-                return false;
+                var passed = elements.some(function (elem, index, array) {
+                    return elem.group == group;
+                })
+                return passed;
             }
             ,
             _addValueToGroup: function (elements, group, value) {
