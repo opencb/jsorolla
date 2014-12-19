@@ -1,4 +1,4 @@
-<polymer-element name="jso-survival" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-survival" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -88,29 +88,25 @@
 
         <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
 
-        <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                   pattern="[a-zA-Z0-9]+">
-        <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <div>
+            <h3>Output parameters</h3>
+            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+        </div>
         <div>
             <h3>Select your data</h3>
-
-            <div>
-                List 1:
-                <jso-file-browser fileList="{{selectedStudy.files}}" selectedFile="{{list1}}"></jso-file-browser>
-
-            </div>
+            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" on-file-select="{{handleFileSelect}}"></jso-project-browser>
         </div>
+
         <div>
             <h3>Select time and series variables</h3>
             Time variable name:
             <jso-class-viewer id="jsoClassViewerTime" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"
-                              loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}" childrenDisplay="false" variableTypes="NUMERIC"></jso-class-viewer>
+                              loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}" childrenDisplay="false"
+                              variableTypes="NUMERIC"></jso-class-viewer>
             Censored variable name:
             <jso-class-viewer id="jsoClassViewerCensored" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"
                               loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}" childrenDisplay="false"></jso-class-viewer>
-            </di
+
         </div>
         <div id="testDiv">
             <h3>Select test</h3>
@@ -154,43 +150,16 @@
             this.test = "";
             this.time_class = "";
         },
-        list1Changed: function (oldV, newV) {
-            if (typeof oldV != 'undefined') {
-                this.getContentFile(newV);
-            }
+        handleFileSelect: function(e){
+            var file = e.detail.file;
+            if(file.type == "FILE")
+                this.getContentFile(file);
         },
         handleForm: function () {
-            var me = this;
-            this.message = '';
-            if (this.newFolderName && this.newFolderName != "") {
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.newFolderName,
-                        studyId: this.selectedStudy.id
 
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                var selectedFolderId = response.response[0].result[0].id;
-                                me.launchJob(selectedFolderId);
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
-                        }
-                    }
-                });
-            }
-            else {
-                me.launchJob(this.$.selectFolder.selectedFolder.id);
-            }
+            this.launchJob();
         },
-        launchJob: function (selectedFolderId) {
+        launchJob: function () {
             var me = this;
 
             this.censored_class = this.$.jsoClassViewerCensored.getMainSelect().value;
@@ -199,14 +168,14 @@
             this.correction = this.$.multipleTestCorrectionDiv.querySelector('input[name="correction"]:checked').value;
             var query = {
                 sid: Cookies("bioinfo_sid"),
-                analysisId: this.selectedStudy.analysis.id,
+                studyId: this.selectedStudy.id,
                 toolId: this.toolName,
-                outdir: selectedFolderId,
-                jobName: this.jobName,
+                outdir: this.$.outdir.selectedFile.id,
+                name: this.jobName,
                 description: this.description,
                 "censored-class": this.censored_class,
                 "time-class": this.time_class,
-                dataset: this.list1.id,
+                dataset: this.$.inputFile.selectedFile.id,
                 test: this.test,
                 correction: this.correction,
                 "p-value": this.p_value
@@ -245,10 +214,10 @@
             if (newV == true) {
                 var selectCensored = this.$.jsoClassViewerCensored.getMainSelect();
                 var selectTime = this.$.jsoClassViewerTime.getMainSelect();
-                if (this.list1.id == "example_survival.txt") {
-                    selectCensored.value = "censored";
-                    selectTime.value = "time";
-                }
+//                if (this.list1.id == "example_survival.txt") {
+//                    selectCensored.value = "censored";
+//                    selectTime.value = "time";
+//                }
             }
         },
         loadExampleFile: function (exampleFileName) {

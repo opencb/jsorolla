@@ -1,4 +1,4 @@
-<polymer-element name="jso-edit" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-edit" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -84,9 +84,8 @@
         <h3>Examples</h3>
 
         <div>
-            List 1:
-            <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{compressed_file}}"></jso-file-browser>
+            <h3>Select your data</h3>
+            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
         </div>
         <div id="editData" hidden>
             <h3>Edit data</h3>
@@ -104,7 +103,7 @@
             getContentFile: function () {
                 var me = this;
                 OpencgaManager.files.content({
-                    id: this.compressed_file.id,
+                    id: this.$.inputFile.selectedFile.id,
                     query: {
                         sid: Cookies('bioinfo_sid')
                     },
@@ -121,7 +120,7 @@
                 })
             },
             compressed_fileChanged: function (oldV, newV) {
-                if (typeof this.compressed_file.id != 'undefined')
+                if (typeof this.$.inputFile.selectedFile.id != 'undefined')
                     this.getContentFile();
             },
             handleSave: function () {
@@ -132,7 +131,7 @@
             saveInServer: function (strHeader) {
                 var me = this;
                 OpencgaManager.files.setHeader({
-                    id:this.compressed_file.id,
+                    id:this.$.inputFile.selectedFile.id,
                     query: {
                         sid: Cookies("bioinfo_sid"),
                         header: encodeURIComponent(strHeader)

@@ -1,6 +1,7 @@
 <polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
+
     <style>
         :host {
             display: block;
@@ -72,16 +73,11 @@
             height: 50px;
         }
 
-        jso-file-browser {
+        /*jso-file-browser {*/
             /*width: 70%;*/
-        }
+        /*}*/
 
-        jso-project-browser {
-            height: 400px;
-            border: 1px solid #d3d3d3;
-            border-top-width: 0px;
-            margin-top: 10px;
-        }
+
 
     </style>
     <div class="title">
@@ -98,31 +94,11 @@
         <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
 
         <h3>Output parameters</h3>
-        <label>Or select output folder:</label>
-        <jso-project-browser
-                on-file-select="{{handleFolderSelect}}"
-                studies="{{studies}}"
-                selectedStudy="{{selectedStudy}}"
-                >
-        </jso-project-browser>
-
-        <!--<jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>-->
-
+        <label>Select output folder:</label>
+        <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}"  selectedStudy="{{selectedStudy}}"></jso-project-browser>
         <h3>Input parameters</h3>
-        <!--<label>Enter list</label> <textarea id="list1Area" class="inputListTextArea"-->
-        <!--value="{{list1Area}}" required-->
-        <!--pattern="[a-zA-Z0-9]+"></textarea>-->
         <label>Or, Select file</label>
-
-        <!--<div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>-->
-        <!--<jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"-->
-        <!--selectedFile="{{list1}}"></jso-file-browser>-->
-        <jso-project-browser
-                on-file-select="{{handleFileSelect}}"
-                studies="{{studies}}"
-                selectedStudy="{{selectedStudy}}"
-                >
-        </jso-project-browser>
+        <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
 
         <label>List Nature</label>
 
@@ -244,8 +220,8 @@
                     toolId: this.toolName,
                     name: this.jobName,
                     description: "description",
-                    list1: this.list1.id,
-                    outdir: this.outdir.id,
+                    list1: this.$.inputFile.selectedFile.id,
+                    outdir: this.$.outdir.selectedFile.id,
                     interactome: this.interactome,
                     "o-name": "result",
                     intermediate: this.intermediate,
@@ -293,12 +269,6 @@
             if (this.$.form.checkValidity()) {
                 //me.message = "xx"
             }
-        },
-        handleFileSelect: function (e) {
-            this.list1 =  e.detail.file;
-        },
-        handleFolderSelect: function (e) {
-            this.outdir =  e.detail.file;
         },
         handleType: function (e) {
             this.type = e.target.dataset.value;
