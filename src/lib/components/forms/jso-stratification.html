@@ -1,201 +1,172 @@
-<polymer-element name="jso-stratification" attributes="userData selectedOption selectedStudy">
-<template>
-    <link rel="stylesheet" href="../jso-style.css">
-    <style>
-        :host {
-            display: block;
-            position: absolute;
-            box-sizing: border-box;
-            background-color: #FFFFFF;
-            padding: 30px 100px;
+<polymer-element name="jso-stratification" attributes="userData selectedOption selectedStudy studies">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
 
-            z-index: 50000;
-            top: 90px;
+                z-index: 50000;
+                top: 90px;
 
-            left: 0;
-            right: 0;
-            margin-left: auto;
-            margin-right: auto;
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
 
-            width: 40vw;
-            border: 0px solid #c6d0da;
-            border-width: 1px;
-            /*border-top-width: 1px;*/
-            transition: all 0.2s;
-            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
-        }
+                width: 40vw;
+                border: 0px solid #c6d0da;
+                border-width: 1px;
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            }
 
-        .title {
-            text-align: center;
-            font-size: 25px;
-            color: #666;
-        }
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
 
-        .icon {
-            color: #445D76;
-            font-size: 50px;
-        }
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
 
-        label {
-            display: inline-block;
-            color: #666;
-            margin-top: 3px;
-            /*width: 150px;*/
-        }
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 3px;
+                /*width: 150px;*/
+            }
 
-        label::after {
-            content: ':'
-        }
+            label::after {
+                content: ':'
+            }
 
-        .action {
-            /*margin-top: 30px;*/
-            background-color: #f5f5f5 !important;
-            text-align: center;
-        }
+            .action {
+                /*margin-top: 30px;*/
+                background-color: #f5f5f5 !important;
+                text-align: center;
+            }
 
-        .action:active {
-            background-color: #445D76 !important;
-            color: #fff !important;
-        }
+            .action:active {
+                background-color: #445D76 !important;
+                color: #fff !important;
+            }
 
-        .message {
-            margin-top: 20px;
-        }
+            .message {
+                margin-top: 20px;
+            }
 
-        div.button {
-            /*display: inline-block;*/
-            width: 300px
-        }
+            div.button {
+                /*display: inline-block;*/
+                width: 300px
+            }
 
-        /*jso-file-browser {*/
-        /*width: 70%;*/
-        /*}*/
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
 
-        span {
-            border: 1px solid;
-        }
+            span {
+                border: 1px solid;
+            }
 
-        input[type="text"]:disabled {
-            background: #dddddd;
-        }
-    </style>
-    <div class="title">
-        <div>
-            Genotype stratification
+            input[type="text"]:disabled {
+                background: #dddddd;
+            }
+        </style>
+        <div class="title">
+            <div>
+                Genotype stratification
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
         </div>
-        <div class="icon">
-            <!--<font-awesome icon="magic"></font-awesome>-->
-        </div>
-    </div>
-    <form id="form">
-        <h3>Examples</h3>
+        <form id="form">
+            <h3>Examples</h3>
 
-        <div class="button action" on-click="{{loadExample1}}"> No example</div>
+            <div class="button action" on-click="{{loadExample1}}"> No example</div>
 
-        <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                   pattern="[a-zA-Z0-9]+">
-        <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
-        <div>
-            <h3>Select your data</h3>
-            List 1:
-            <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{list1}}"></jso-file-browser>
-        </div>
-        <div id="optionsDiv">
-            <h3>Select options</h3>
-            <input name="ibs_test" id="ibs_test" class="fc-checkbox" type="checkbox" value="true">Check if there are group differences in this metric with respect to a binary
-            phenotype<br>
-            <label>Pairwise population concordance (PPC)</label><input name="ppc" id="ppc" class="fc-decimal fc-text" type="text" value="{{ppc}}"><br>
-            <label>Maximum cluster size (enter 0 to not apply)</label><input name="mc" id="mc" class="fc-int fc-text" type="text" value="{{mc}}">
-        </div>
-        <h3>Job information</h3>
-        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
-        <textarea required value="{{description}}"></textarea>
+            <div>
+                <h3>Output parameters</h3>
+                <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            </div>
+            <div>
+                <h3>Select your data</h3>
+                <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            </div>
 
-        <div class="button action" on-click="{{handleForm}}">Run</div>
-    </form>
-    <div class="message">{{message}}</div>
-</template>
-<script>
-    Polymer({
-        created: function () {
-            this.jobName = 'JobName';
-            this.toolName = "stratification";
-            this.description = "Job description..."
-            this.ppc = 0.0001;
-            this.mc = 0;
-            this.test = "ibs-cluster";
 
-        },
-        handleForm: function () {
-            var me = this;
-            this.message = '';
-            if (this.newFolderName && this.newFolderName != "") {
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.newFolderName,
-                        studyId: this.selectedStudy.id
+            <div id="optionsDiv">
+                <h3>Select options</h3>
+                <input name="ibs_test" id="ibs_test" class="fc-checkbox" type="checkbox" value="true">Check if there are group differences in this metric with respect to a binary
+                phenotype<br>
+                <label>Pairwise population concordance (PPC)</label><input name="ppc" id="ppc" class="fc-decimal fc-text" type="text" value="{{ppc}}"><br>
+                <label>Maximum cluster size (enter 0 to not apply)</label><input name="mc" id="mc" class="fc-int fc-text" type="text" value="{{mc}}">
+            </div>
+            <h3>Job information</h3>
+            <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+            <textarea required value="{{description}}"></textarea>
 
-                    },
+            <div class="button action" on-click="{{handleForm}}">Run</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "stratification";
+                this.description = "Job description..."
+                this.ppc = 0.0001;
+                this.mc = 0;
+                this.test = "ibs-cluster";
+
+            },
+            handleForm: function () {
+
+                this.launchJob();
+            },
+            launchJob: function () {
+                var me = this;
+                var query = { sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description,
+                    "zip-file": this.$.inputFile.selectedFile.id,
+                    ppc: this.ppc,
+                    mc: this.mc,
+                    test: this.test
+                };
+                if (this.$.ibs_test.checked)
+                    query["ibs-test"] = "";
+                OpencgaManager.jobs.create({
+                    query: query,
                     request: {
+                        //method: 'POST',
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                var selectedFolderId = response.response[0].result[0].id;
-
-                                me.launchJob(selectedFolderId);
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
                             } else {
                                 me.message = response.response[0].errorMsg;
                             }
                         },
                         error: function () {
-                            alert('Server error, try again later.');
+                            me.message = 'Server error, try again later.';
                         }
                     }
-                });
-            }
-            else {
-                me.launchJob(this.$.selectFolder.selectedFolder.id);
-            }
-        },
-        launchJob: function (selectedFolderId) {
-            var me = this;
-            var query = { sid: Cookies("bioinfo_sid"),
-                analysisId: this.selectedStudy.analysis.id,
-                toolId: this.toolName,
-                outdir: selectedFolderId,
-                jobName: this.jobName,
-                description: this.description,
-                "zip-file": this.list1.id,
-                ppc: this.ppc,
-                mc: this.mc,
-                test: this.test
-            };
-            if (this.$.ibs_test.checked)
-                query["ibs-test"] = "";
-            OpencgaManager.jobs.create({
-                query: query,
-                request: {
-                    //method: 'POST',
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var userId = response.response[0].result[0].id;
-                            me.message = userId + ' created';
-                            me.selectedOption = "jobLaunched"
-                        } else {
-                            me.message = response.response[0].errorMsg;
-                        }
-                    },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
-                    }
-                }
-            })
-        },
-        loadExample1: function (e) {
+                })
+            },
+            loadExample1: function (e) {
 //            this.jobName = "Association analysis: chi-square test";
 //            this.description = "description...";
 //            this.newFolderName = "asso" + Math.floor((Math.random() * 100) + 1);
@@ -203,7 +174,7 @@
 //            this.maf = 0.02;
 //            this.$.test_1.checked = true;
 
-        }
-    });
-</script>
+            }
+        });
+    </script>
 </polymer-element>

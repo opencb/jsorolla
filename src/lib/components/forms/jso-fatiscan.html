@@ -1,4 +1,4 @@
-<polymer-element name="jso-fatiscan" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-fatiscan" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -92,17 +92,13 @@
 
         <div class="button action" on-click="{{loadExample1}}"> Diabetes dataset</div>
 
-        <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                   pattern="[a-zA-Z0-9]+">
-        <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <div>
+            <h3>Output parameters</h3>
+            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+        </div>
         <div>
             <h3>Select your data</h3>
-            List 1:
-            <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{list1}}"></jso-file-browser>
-            <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox" value="true">Remove duplicates
+            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
         </div>
         <h3>Databases</h3>
 
@@ -155,44 +151,17 @@
         handleForm: function () {
             var me = this;
             this.message = '';
-            if (this.newFolderName && this.newFolderName != "") {
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.newFolderName,
-                        studyId: this.selectedStudy.id
-
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                var selectedFolderId = response.response[0].result[0].id;
-
-                                me.launchJob(selectedFolderId);
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
-                        }
-                    }
-                });
-            }
-            else {
-                me.launchJob(this.$.selectFolder.selectedFolder.id);
-            }
+            me.launchJob();
         },
-        launchJob: function (selectedFolderId) {
+        launchJob: function () {
             var me = this;
             var query = { sid: Cookies("bioinfo_sid"),
-                analysisId: this.selectedStudy.analysis.id,
+                studyId: this.selectedStudy.id,
                 toolId: this.toolName,
-                outdir: selectedFolderId,
-                jobName: this.jobName,
+                name: this.jobName,
                 description: this.description,
-                "ranked-list": this.list1.id,
+                "ranked-list": this.$.inputFile.selectedFile.id,
+                outdir: this.$.outdir.selectedFile.id,
                 method: this.method,
                 duplicates: this.$.remove_duplicates.checked,
                 species: this.$.species.value

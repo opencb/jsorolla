@@ -294,6 +294,13 @@ div.dropdown > div.button::after {
     transition: all 0.2s;
 }
 
+.input-project-browser {
+    height: 400px;
+    border: 1px solid #d3d3d3;
+    border-top-width: 0px;
+    margin-top: 10px;
+}
+
 /*
 END CONTROLS
 */
