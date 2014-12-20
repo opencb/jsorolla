@@ -242,7 +242,7 @@
                         <div class="text" on-click="{{handleDeselectAllPw}}">Deselect all</div>
                     </div>
                 </div>
-                <div class="container check-list">
+                <div class="check-list">
                     <template repeat="{{item in pathwaysSet}}">
                         <div horizontal layout>
                             <div class="button action checkbox" data-checked?="{{ item.selected }}"
@@ -261,7 +261,7 @@
                             <div class="text" on-click="{{handleDeselectAllCt}}">Deselect all</div>
                         </div>
                     </div>
-                    <div class="container check-list">
+                    <div class="check-list">
                         <template repeat="{{item in consequenceTypes}}">
                             <div horizontal layout>
                                 <div class="button action checkbox" data-checked?="{{ item.selected }}"
@@ -284,7 +284,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="container check-list">
+                    <div class="check-list">
                         <template repeat="{{item in tissues}}">
                             <div horizontal layout>
                                 <div class="button action checkbox" data-checked?="{{ item.selected }}"

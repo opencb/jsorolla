@@ -1,4 +1,4 @@
-<polymer-element name="jso-fatigo" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-fatigo" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -93,11 +93,11 @@
 
         <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
 
-        <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                   pattern="[a-zA-Z0-9]+">
-        <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <div>
+            <h3>Output parameters</h3>
+            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+        </div>
+
 
         <h3>Define your comparison</h3>
         <input type="radio" name="comparisonRadio" value="list2list" on-click="{{comparisonChange}}" checked>Id list vs
@@ -115,16 +115,17 @@
         <h3>Select your data</h3>
 
         <div>
-            List 1:
-            <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
-            <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{list1}}"></jso-file-browser>
+
+            <div>
+                <h3>List 1</h3>
+                <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            </div>
+
         </div>
-        List 2:
-        <div id="option1">
-            <div class="button action" on-click="{{list2Click}}">{{list2UploadMsg}}</div>
-            <jso-file-browser hidden="true" id="list2Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{list2}}"></jso-file-browser>
+
+        <div>
+            <h3>List 2</h3>
+            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
         </div>
         <div id="option2" hidden>
             <span>Rest of the genome</span>
@@ -326,48 +327,20 @@ Polymer({
 
     },
     handleForm: function () {
-        var me = this;
-        this.message = '';
-        if (this.newFolderName && this.newFolderName != "") {
-            OpencgaManager.files.createFolder({
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                    folder: this.newFolderName,
-                    studyId: this.selectedStudy.id
 
-                },
-                request: {
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                            var selectedFolderId = response.response[0].result[0].id;
+        this.launchJob();
 
-                            me.launchJob(selectedFolderId);
-                        } else {
-                            debugger
-                            me.message = response.response[0].errorMsg;
-                        }
-                    },
-                    error: function () {
-                        alert('Server error, try again later.');
-                    }
-                }
-            });
-        }
-        else {
-            me.launchJob(this.$.selectFolder.selectedFolder.id);
-        }
     },
-    launchJob: function (selectedFolderId) {
+    launchJob: function () {
         var me = this;
         OpencgaManager.jobs.create({
             query: {
                 sid: Cookies("bioinfo_sid"),
-                analysisId: this.selectedStudy.analysis.id,
+                studyId: this.selectedStudy.id,
                 toolId: this.toolName,
-                jobName: this.jobName,
+                name: this.jobName,
                 description: "description",
-                outdir: selectedFolderId,
+                outdir: this.$.outdir.selectedFile.id,
                 list1: this.list1.id,
                 list2: this.list2.id,
                 duplicates: this.duplicates,
@@ -404,7 +377,7 @@ Polymer({
         this.$.go_bp.disabled = false;
         this.$.go_bp.checked = true;
         this.message = '';
-        this.newFolderName = "fatiresult_"+Math.floor((Math.random() * 100) + 1);
+        this.newFolderName = "fatiresult_" + Math.floor((Math.random() * 100) + 1);
         this.duplicates = "never";
         this.go_bp_keyword_operator = "all";
         this.species = "hsa";

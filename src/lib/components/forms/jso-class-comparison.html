@@ -1,4 +1,4 @@
-<polymer-element name="jso-class-comparison" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-class-comparison" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -88,18 +88,13 @@
 
         <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
 
-        <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                   pattern="[a-zA-Z0-9]+">
-        <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <div>
+            <h3>Output parameters</h3>
+            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}" ></jso-project-browser>
+        </div>
         <div>
             <h3>Select your data</h3>
-
-            <div>
-                List 1:
-                <jso-file-browser fileList="{{selectedStudy.files}}" selectedFile="{{list1}}"></jso-file-browser>
-            </div>
+            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" on-file-select="{{handleFileSelect}}"></jso-project-browser>
         </div>
         <div>
             <h3>Select the class to analyse</h3>
@@ -173,6 +168,11 @@ Polymer({
     ready: function () {
 //        debugger
     },
+    handleFileSelect: function(e){
+        var file = e.detail.file;
+        if(file.type == "FILE")
+            this.getContentFile(file);
+    },
     loadExampleFile: function (exampleFileName) {
         var me = this;
         OpencgaManager.files.contentExample({
@@ -215,46 +215,17 @@ Polymer({
         }
     },
 
-    list1Changed: function (oldV, newV) {
-
-        if (typeof oldV != 'undefined') {
-            this.getContentFile(newV);
-        }
-    },
+//    list1Changed: function (oldV, newV) {
+//
+//        if (typeof oldV != 'undefined') {
+//            this.getContentFile(newV);
+//        }
+//    },
     handleForm: function () {
-        var me = this;
-        this.message = '';
-        if (this.newFolderName && this.newFolderName != "") {
-            OpencgaManager.files.createFolder({
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                    folder: this.newFolderName,
-                    studyId: this.selectedStudy.id
+        this.launchJob();
 
-                },
-                request: {
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                            var selectedFolderId = response.response[0].result[0].id;
-
-                            me.launchJob(selectedFolderId);
-                        } else {
-
-                            me.message = response.response[0].errorMsg;
-                        }
-                    },
-                    error: function () {
-                        alert('Server error, try again later.');
-                    }
-                }
-            });
-        }
-        else {
-            me.launchJob(this.$.selectFolder.selectedFolder.id);
-        }
     },
-    launchJob: function (selectedFolderId) {
+    launchJob: function () {
         var me = this;
 
         this.test = this.getSelectedTest();
@@ -262,14 +233,14 @@ Polymer({
         this.class_values = this.getClassValues();
         var query = {
             sid: Cookies("bioinfo_sid"),
-            analysisId: this.selectedStudy.analysis.id,
+            studyId: this.selectedStudy.id,
             toolId: this.toolName,
-            outdir: selectedFolderId,
-            jobName: this.jobName,
+            outdir: this.$.outdir.selectedFile.id,
+            name: this.jobName,
             description: this.description,
             "class-name": this.class_name,
             "class-values": this.class_values,
-            dataset: this.list1.id,
+            dataset: this.$.inputFile.selectedFile.id,
 //            "fold-change-value": this.fold_change_value,
 //            "p-value": this.p_value,
             test: this.test
@@ -319,10 +290,10 @@ Polymer({
                 me.manageClass()
             });
 
-            if (this.list1.id == "example_correlation.txt") {
-                select.value = "indep";
-                this.$.jsoClassViewer.selectChange();
-            }
+//            if (this.list1.id == "example_correlation.txt") {
+//                select.value = "indep";
+//                this.$.jsoClassViewer.selectChange();
+//            }
         }
     },
     loadedChildrenSelectChanged: function (oldV, newV) {
@@ -336,20 +307,20 @@ Polymer({
                 });
             }
             /** This is mainly for the examples **/
-            if (this.list1.id == "example_correlation.txt") {
-                childrenSelect[0].value = 1;
-                childrenSelect[1].value = 3;
-                childrenSelect[2].value = 5;
-                childrenSelect[3].value = 7;
-                childrenSelect[4].value = 9;
-
-                this.$.one_rg_1.disabled = true;
-                this.$.two_rg_1.disabled = true;
-                this.$.two_rg_2.disabled = true;
-                this.$.two_rg_3.disabled = true;
-                this.$.multi_rg_1.disabled = false;
-                this.$.multi_rg_2.disabled = false;
-            }
+//            if (this.list1.id == "example_correlation.txt") {
+//                childrenSelect[0].value = 1;
+//                childrenSelect[1].value = 3;
+//                childrenSelect[2].value = 5;
+//                childrenSelect[3].value = 7;
+//                childrenSelect[4].value = 9;
+//
+//                this.$.one_rg_1.disabled = true;
+//                this.$.two_rg_1.disabled = true;
+//                this.$.two_rg_2.disabled = true;
+//                this.$.two_rg_3.disabled = true;
+//                this.$.multi_rg_1.disabled = false;
+//                this.$.multi_rg_2.disabled = false;
+//            }
         }
     },
     manageClass: function () {

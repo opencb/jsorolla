@@ -1,4 +1,4 @@
-<polymer-element name="jso-preprocessing-matrix" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-preprocessing-matrix" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -146,6 +146,7 @@
         <div>
             <h3>Filter genes by names</h3>
             <input name="gene_file_filter_action" id="gene_file_filter_action" class="fc-button" type="button" value="browse server">
+
             <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
             <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
                               selectedFile="{{compressed_file}}"></jso-file-browser>
@@ -198,47 +199,19 @@
             this.list1UploadMsg = this.list1.name
         },
         handleForm: function () {
-            var me = this;
-            this.message = '';
-            if (this.newFolderName && this.newFolderName != "") {
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.newFolderName,
-                        studyId: this.selectedStudy.id
 
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                var selectedFolderId = response.response[0].result[0].id;
+            this.launchJob();
 
-                                me.launchJob(selectedFolderId);
-                            } else {
-                                debugger
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
-                        }
-                    }
-                });
-            }
-            else {
-                me.launchJob(this.$.selectFolder.selectedFolder.id);
-            }
         },
-        launchJob: function (selectedFolderId) {
+        launchJob: function () {
             var me = this;
             var query = { sid: Cookies("bioinfo_sid"),
-                analysisId: this.selectedStudy.analysis.id,
+                studyId: this.selectedStudy.id,
                 toolId: this.toolName,
-                outdir: selectedFolderId,
-                jobName: this.jobName,
+                outdir: this.$.outdir.selectedFile.id,
+                name: this.jobName,
                 description: this.description,
-                "compressed-file": this.compressed_file.id,
+                "compressed-file": this.$.inputFile.selectedFile.id,
                 "compressed-file-tags": this.compressed_file_tags };
 
             if (this.$.rma.checked) query["rma"] = this.$.rma.checked;

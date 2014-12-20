@@ -1,4 +1,4 @@
-<polymer-element name="jso-network-miner" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-network-miner" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -89,26 +89,17 @@
 
         <div class="button action" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>
 
-        <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}"
-                                                   pattern="[a-zA-Z0-9]+">
-        <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <label>Select output folder:</label>
+        <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
 
         <div>
             <h3>Select your data</h3>
-
-            <div class="button action" on-click="{{rankedListClick}}">{{rankedListUploadMsg}}</div>
-            <jso-file-browser hidden="true" id="rankedListHtml" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{rankedList}}"></jso-file-browser>
+            <jso-project-browser class="input-project-browser" id="rankedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
 
         </div>
         <div>
             <h3>Select your seed datalist (optional)</h3>
-
-            <div class="button action" on-click="{{seedListClick}}">{{seedListUploadMsg}}</div>
-            <jso-file-browser hidden="true" id="seedListHtml" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{seedList}}"></jso-file-browser>
+            <jso-project-browser class="input-project-browser" id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
         </div>
 
         <div>
@@ -232,56 +223,22 @@
         },
         handleForm: function () {
             var me = this;
-            this.message = '';
-            if ((me.validForm())) {
-                if (this.newFolderName && this.newFolderName != "") {
-                    OpencgaManager.files.createFolder({
-                        query: {
-                            sid: Cookies('bioinfo_sid'),
-                            folder: this.newFolderName,
-                            studyId: this.selectedStudy.id
+            me.launchJob();
+        },
 
-                        },
-                        request: {
-                            success: function (response) {
-                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                    var selectedFolderId = response.response[0].result[0].id;
-                                    me.launchJob(selectedFolderId);
-                                } else {
-                                    me.message = response.response[0].errorMsg;
-                                }
-                            },
-                            error: function () {
-                                alert('Server error, try again later.');
-                            }
-                        }
-                    });
-                }
-                else {
-                    me.launchJob(this.$.selectFolder.selectedFolder.id);
-                }
-            }
-        },
-        validForm: function () {
-            var valid = this.$.form.checkValidity();
-            if (typeof this.newFolderName == 'undefined' && typeof this.$.selectFolder.selectedFolder == 'undefined' && this.rankedList == '') {
-                valid = false;
-            }
-            return valid;
-        },
         launchJob: function (selectedFolderId) {
             var me = this;
 
             OpencgaManager.jobs.create({
                 query: {
                     sid: Cookies("bioinfo_sid"),
-                    analysisId: this.selectedStudy.analysis.id,
+                    studyId: this.selectedStudy.id,
                     toolId: this.toolName,
-                    jobName: this.jobName,
+                    name: this.jobName,
                     description: "description",
-                    list: this.rankedList.id,
-                    seedlist: this.seedList.id,
-                    outdir: selectedFolderId,
+                    list: this.$.rankedList.selectedFile.id,
+                    seedlist: this.$.seedList.selectedFile.id,
+                    outdir: this.$.outdir.selectedFile.id,
                     interactome: this.interactome,
                     "o-name": "result",
                     intermediate: this.intermediate,

@@ -1,4 +1,4 @@
-<polymer-element name="jso-clustering" attributes="userData selectedOption selectedStudy">
+<polymer-element name="jso-clustering" attributes="userData selectedOption selectedStudy studies">
 <template>
     <link rel="stylesheet" href="../jso-style.css">
     <style>
@@ -92,17 +92,15 @@
 
         <div class="button action" on-click="{{loadExample1}}"> fibroblasts k-means clustering</div>
 
-        <h3>Output parameters</h3>
-        <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                   pattern="[a-zA-Z0-9]+">
-        <label>Or select output folder:</label>
-        <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+        <div>
+            <h3>Output parameters</h3>
+            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+        </div>
         <div>
             <h3>Select your data</h3>
-            List 1:
-            <jso-file-browser id="list1Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{list1}}"></jso-file-browser>
+            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
         </div>
+
         <h3>Select type of clustering: samples and/or genes</h3>
         <input name="sample_clustering" id="sample_clustering" class="fc-checkbox" type="checkbox" value="true" checked="checked" on-click="{{clusteringTypeClick}}">
         Clustering of samples
@@ -154,46 +152,17 @@
             this.list1UploadMsg = this.list1.path
         },
         handleForm: function () {
-            var me = this;
-            this.message = '';
-            if (this.newFolderName && this.newFolderName != "") {
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.newFolderName,
-                        studyId: this.selectedStudy.id
-
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Folder created sucessfully.';
-                                var selectedFolderId = response.response[0].result[0].id;
-
-                                me.launchJob(selectedFolderId);
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
-                        }
-                    }
-                });
-            }
-            else {
-                me.launchJob(this.$.selectFolder.selectedFolder.id);
-            }
+            this.launchJob();
         },
         launchJob: function (selectedFolderId) {
             var me = this;
             var query = { sid: Cookies("bioinfo_sid"),
-                analysisId: this.selectedStudy.analysis.id,
+                studyId: this.selectedStudy.id,
                 toolId: this.toolName,
-                outdir: selectedFolderId,
-                jobName: this.jobName,
+                outdir: this.$.outdir.selectedFile.id,
+                name: this.jobName,
                 description: this.description,
-                dataset: this.list1.id,
+                dataset: this.$.inputFile.selectedFile.id,
                 method: this.$.methodDiv.querySelector('input[name="method"]:checked').value
             }
             if (this.$.sample_clustering.checked) {
@@ -203,9 +172,9 @@
                 query["gene-clustering"] = true;
             }
             /** Validating clustering **/
-             if (!this.$.sample_clustering.checked && !this.$.gene_clustering.checked) {
+            if (!this.$.sample_clustering.checked && !this.$.gene_clustering.checked) {
                 alert("Not type of clustering selected");
-                 return;
+                return;
             }
             if (this.$.sample_kvalue.disabled == false) {
                 query["sample-kvalue"] = this.sample_kvalue;
