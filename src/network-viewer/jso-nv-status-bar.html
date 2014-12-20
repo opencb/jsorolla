@@ -1,5 +1,6 @@
-<polymer-element name="jso-nv-status-bar">
+<polymer-element name="jso-nv-status-bar" attributes="networkViewer">
     <template>
+        <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
             :host {
                 display: block;
@@ -14,8 +15,22 @@
             :host > * {
                 float: left;
             }
+
+            label {
+                display: inline;
+                color: #666;
+                margin: 5px;
+            }
+
+            label::after {
+                content: ':'
+            }
         </style>
 
+        <div horizontal layout>
+            <div class="text"><label>Nodes</label> {{networkViewer.vAttr.data.length}}</div>
+            <div class="text"><label>Edges</label> {{networkViewer.eAttr.data.length}}</div>
+        </div>
     </template>
     <script>
         Polymer({

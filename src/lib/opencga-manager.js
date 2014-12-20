@@ -208,6 +208,11 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'job', 'create');
         }
     },
+    util: {
+        proxy: function (args) {
+            return OpencgaManager._doRequest(args, 'util', 'proxy');
+        }
+    },
     //analysis: {
     //    jobs: function (args) {
     //        return OpencgaManager._doRequest(args, 'analysis', 'jobs');

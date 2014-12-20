@@ -1,0 +1,333 @@
+<polymer-element name="jso-intact-import" attributes="networkViewer hideFlag">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 680px;
+                height: 420px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+                /*background-color: #FFFFFF;*/
+            }
+
+            #header[horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #header[horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .attributelist {
+                box-sizing: border-box;
+                padding: 0 5px 5px 5px;
+                overflow-y: auto;
+            }
+
+            .attributelist > * {
+                margin-top: 3px;
+            }
+
+            .checkbox {
+                width: 25px;
+            }
+
+            .checkbox::after {
+                font-family: 'FontAwesome';
+                content: ' \00a0'
+            }
+
+            .checkbox[data-checked]::after {
+                content: '\f00c'
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin: 5px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            textarea {
+                resize: none;
+                margin: 3px;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
+                <div class="text">Import IntAct</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" flex horizontal layout>
+
+                <div vertical layout style="border-right: 1px solid #d3d3d3;width:230px;">
+                    <label>Species</label>
+
+                    <div class="attributelist" flex style="border-bottom: 1px solid #d3d3d3">
+                        <template repeat="{{spe in species}}">
+                            <div horizontal layout>
+                                <div class="button action checkbox"
+                                     data-checked?="{{ speciesSelected == spe }}"
+                                     on-click="{{handleSpeciesSelect}}"></div>
+                                <div flex class="text">{{spe.name}}</div>
+                            </div>
+                        </template>
+                    </div>
+                    <label>Attributes</label>
+
+                    <div class="attributelist" flex>
+                        <template repeat="{{column in networkViewer.vAttr.columns}}">
+                            <div horizontal layout>
+                                <div class="button action checkbox"
+                                     data-checked?="{{ editSelected == column.name }}"
+                                     on-click="{{handleEditSelect}}"></div>
+                                <div flex class="text">{{column.title}}</div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div flex vertical layout>
+                    <div horizontal layout style="padding:3px;">
+                        <div class="button action" style="padding:0 10px;margin-right:2px;"
+                             data-checked="{{selectedMode == 'nodes'}}"
+                             on-click="{{handleSelectNodesList}}">Network nodes
+                        </div>
+                        <div class="button action"
+                             data-checked="{{selectedMode == 'selection'}}"
+                             on-click="{{handleSelectSelectionList}}">Network selection
+                        </div>
+                        <div class="button action" style="padding:0 10px;margin-left:2px;"
+                             data-checked="{{selectedMode == 'text'}}"
+                             on-click="{{handleSelectTextList}}">List from text
+                        </div>
+                        <div class="button action" style="padding:0 10px;margin-left:2px;"
+                             data-checked="{{selectedMode == 'file'}}"
+                             on-click="{{handleSelectFileList}}">List from file ...
+                        </div>
+                    </div>
+                    <textarea id="textarea" flex></textarea>
+                </div>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div horizontal end-justified layout flex>
+                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
+                </div>
+            </div>
+            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.species = [
+                    {name: "Homo sapiens", value: "hsapiens"},
+                    {name: "Mus musculus", value: "mmusculus"},
+                    {name: "Rattus norvegicus", value: "rnorvegicus"},
+                    {name: "Bos taurus", value: "btaurus"},
+                    {name: "Gallus gallus", value: "ggallus"},
+                    {name: "Sus scrofa", value: "sscrofa"},
+                    {name: "Canis familiaris", value: "cfamiliaris"},
+                    {name: "Drosophila melanogaster", value: "dmelanogaster"},
+                    {name: "Caenorhabditis elegans", value: "celegans"},
+                    {name: "Saccharomyces cerevisiae", value: "scerevisiae"},
+                    {name: "Danio rerio", value: "drerio"},
+                    {name: "Schizosaccharomyces pombe", value: "spombe"},
+                    {name: "Escherichia coli", value: "ecoli"},
+                    {name: "Human immunodeficiency virus 1", value: "hiv-1"},
+                    {name: "Influenza A virus", value: "flu-a"},
+                    {name: "Clostridium botulinum", value: "cbotulinum"},
+                    {name: "Arabidopsis thaliana", value: "athaliana"},
+                    {name: "Plasmodium falciparum", value: "pfalciparum"},
+                    {name: "Dictyostelium discoideum", value: "ddiscoideum"},
+                    {name: "Mycobacterium tuberculosis", value: "mtuberculosis"},
+                    {name: "Neisseria meningitidis serogroup B", value: "nmeningitidis"},
+                    {name: "Chlamydia trachomatis", value: "ctrachomatis"},
+                    {name: "Oryza sativa", value: "osativa"},
+                    {name: "Toxoplasma gondii", value: "tgondii"},
+                    {name: "Xenopus tropicalis", value: "xtropicalis"},
+                    {name: "Salmonella typhimurium", value: "styphimurium"},
+                    {name: "Taeniopygia guttata", value: "tguttata"},
+                    {name: "Staphylococcus aureus N315", value: "saureus"}
+                ];
+
+                this.speciesSelected = this.species[0];
+                this.editSelected = "id";
+
+                this.selectedMode = 'text';
+            },
+            observe: {
+                'networkViewer.vAttr.selected': 'handleSelectionChange',
+                'networkViewer.vAttr.data': 'handleNodesChange'
+            },
+
+            handleClose: function () {
+                this.hideFlag = true;
+            },
+            handleExpand: function () {
+                this.expanded = !this.expanded;
+                if (this.expanded) {
+                    this.style.width = '100vw';
+                    this.style.height = '100vh';
+                    this.style.position = 'fixed';
+                    this.style.top = '0';
+                } else {
+                    this.style.width = '';
+                    this.style.height = '';
+                    this.style.position = '';
+                    this.style.top = '';
+                }
+            },
+            handleEditSelect: function (e) {
+                this.editSelected = e.target.templateInstance.model.column.name;
+            },
+            handleSpeciesSelect: function (e) {
+                this.speciesSelected = e.target.templateInstance.model.spe;
+            },
+            handleItemSelect: function (e) {
+                var item = e.target.templateInstance.model.item;
+                item.selected = !item.selected;
+            },
+            handleSelectNodesList: function () {
+                this.selectedMode = 'nodes';
+                var value = '';
+                for (var i = 0; i < this.networkViewer.vAttr.data.length; i++) {
+                    var row = this.networkViewer.vAttr.data[i];
+                    value += row[this.editSelected] + '\n';
+                }
+                this.$.textarea.value = value;
+            },
+            handleNodesChange: function () {
+                if (this.selectedMode == 'nodes') {
+                    this.handleSelectNodesList();
+                }
+            },
+            handleSelectSelectionList: function () {
+                this.selectedMode = 'selection';
+                var value = '';
+                for (var i = 0; i < this.networkViewer.vAttr.selected.length; i++) {
+                    var row = this.networkViewer.vAttr.selected[i];
+                    value += row[this.editSelected] + '\n';
+                }
+                this.$.textarea.value = value;
+            },
+            handleSelectionChange: function () {
+                if (this.selectedMode == 'selection') {
+                    this.handleSelectSelectionList();
+                }
+            },
+            handleSelectTextList: function () {
+                this.$.textarea.value = '';
+                this.selectedMode = 'text';
+            },
+            handleSelectFileList: function () {
+                this.$.inputFile.click();
+            },
+            handleInputFileChange: function (e) {
+                var me = this;
+                var file = this.$.inputFile.files[0];
+                var reader = new FileReader();
+                reader.onload = function (evt) {
+                    me.selectedMode = 'file';
+                    var content = evt.target.result;
+                    me.$.textarea.value = content;
+                };
+                reader.readAsText(file);
+                e.currentTarget.value = null;
+            },
+            handleGo: function () {
+                this.retrieveData();
+            },
+            retrieveData: function () {
+                var me = this;
+
+                var queryStr = this.$.textarea.value.split('\n').join(',');
+                if (queryStr.length <= 0) {
+                    return;
+                }
+
+
+                var graph = this.networkViewer;
+//                _this.progress.updateProgress(0.1, 'Requesting data');
+                CellBaseManager.get({
+                    species: this.speciesSelected.value,
+                    category: 'network',
+                    subCategory: 'protein',
+                    resource: 'all',
+                    params: {
+                        interactor: queryStr,
+                        include: "interactorA.id,interactorB.id"
+                    },
+                    success: function (data) {
+//            var verticesMap = {};
+//            var edgesMap = {};
+                        console.log(data)
+                        var interactions = data.response.result;
+//                        _this.progress.updateProgress(0.4, 'Processing data');
+
+
+//                        var graph = _this.cellMaps.networkViewer.network.graph;
+//                        var network = this.cellMaps.networkViewer.network;
+//                        network.batchStart();
+                        for (var j = 0; j < interactions.length; j++) {
+                            var interaction = interactions[j];
+                            var sourceName = interaction.interactorA.id;
+                            var edgeRelation = 'pp';
+                            var targetName = interaction.interactorB.id;
+
+
+                            var sourceVertex = me.networkViewer.createVertex(0, 0, sourceName);
+                            var targetVertex = me.networkViewer.createVertex(0, 0, targetName);
+                            me.networkViewer.createEdge(sourceVertex, targetVertex, edgeRelation);
+
+//                            //TODO
+//                            /** create source vertex **/
+//                            var sourceVertex = new Vertex({
+//                                id: sourceName
+//                            });
+//                            graph.addVertex({vertex: sourceVertex});
+//
+//                            /** create target vertex **/
+//                            var targetVertex = new Vertex({
+//                                id: targetName
+//                            });
+//                            graph.addVertex({vertex: targetVertex});
+//
+//                            /** create edge **/
+//                            var edgeId = sourceName + '_' + edgeName + '_' + targetName;
+//                            var edge = new Edge({
+//                                id: edgeId,
+//                                relation: edgeName,
+//                                source: me.graph.getVertexById(sourceName),
+//                                target: me.graph.getVertexById(targetName),
+//                                weight: 1,
+//                                directed: true
+//                            });
+//                            network.addEdge({edge: edge});
+                        }
+//                        _this.cellMaps.networkViewer.refreshNetwork();
+//                        network.batchEnd();
+//                        _this.progress.updateProgress(1, 'Complete!');
+                        me.networkViewer.setLayout('Force directed');
+                    }
+                });
+            }
+        });
+    </script>
+</polymer-element>

@@ -1,0 +1,235 @@
+<polymer-element name="jso-kegg" attributes="networkViewer hideFlag">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 500px;
+                height: 350px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+                background-color: #FFFFFF;
+            }
+
+            #header[horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #header[horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .attributelist {
+                box-sizing: border-box;
+                padding: 0 5px 5px 5px;
+                overflow-y: auto;
+            }
+
+            .attributelist > * {
+                margin-top: 3px;
+            }
+
+            .checkbox, .radiobox {
+                width: 25px;
+            }
+
+            .checkbox::after, .radiobox::after {
+                font-family: 'FontAwesome';
+                content: ' \00a0'
+            }
+
+            .radiobox[data-checked]::after {
+                content: '\f10c'
+            }
+
+            .checkbox[data-checked]::after {
+                content: '\f00c'
+            }
+
+            .parameter {
+                margin-left: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin: 5px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            textarea {
+                resize: none;
+                margin: 3px;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
+                <div class="text">Kegg import</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" horizontal layout flex>
+
+                <div class="attributelist" flex>
+                    <template repeat="{{item in pathwayList}}">
+                        <div horizontal layout>
+                            <div class="button action radiobox" data-checked?="{{ item.selected }}"
+                                 on-click="{{handleItemSelect}}"></div>
+                            <div class="text">{{item.text}}</div>
+                        </div>
+                    </template>
+                </div>
+
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div horizontal end-justified layout flex>
+                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
+                </div>
+            </div>
+            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.pathwayList = [];
+
+                this.shapeConvert = {
+                    roundrectangle: 'ellipse',
+                    rectangle: 'rectangle',
+                    circle: 'circle',
+                    square: 'square'
+                };
+            },
+            domReady: function () {
+                this.getPathwayList();
+            },
+            handleItemSelect: function (e) {
+                for (var i = 0; i < this.pathwayList.length; i++) {
+                    var pw = this.pathwayList[i];
+                    pw.selected = false;
+                }
+                var item = e.target.templateInstance.model.item;
+                item.selected = !item.selected;
+                this.getPathway(item);
+            },
+            handleClose: function () {
+                this.hideFlag = true;
+            },
+            handleGo: function () {
+                this.retrieveData();
+            },
+            getPathwayList: function () {
+//                http://rest.kegg.jp/list/organism
+
+
+                var me = this;
+                OpencgaManager.util.proxy({
+                    query: {
+                        url: 'http://rest.kegg.jp/list/pathway/hsa'
+                    },
+                    request: {
+                        success: function (response) {
+                            var lines = response.split("\n");
+                            var line;
+                            for (var i = 0; i < lines.length; i++) {
+                                line = lines[i];
+                                if (line !== "") {
+                                    var split0 = line.split("\t");
+                                    var split1 = split0[0].split(":");
+                                    var split2 = split0[1].split(" - ");
+                                    me.pathwayList.push({name: split1[1], text: split2[0], selected: false});
+                                }
+                            }
+                        },
+                        error: function (response) {
+
+                        }
+                    }
+                });
+            },
+            getPathway: function (pathway) {
+//                http://rest.kegg.jp/get/hsa03320/kgml
+                var me = this;
+                console.log(pathway)
+                OpencgaManager.util.proxy({
+                    query: {
+                        url: 'http://rest.kegg.jp/get/' + pathway.name + '/kgml'
+                    },
+                    request: {
+                        success: function (response) {
+
+                            var parser = new DOMParser();
+                            var doc = parser.parseFromString(response, "application/xml");
+                            console.log(doc);
+                            var entries = doc.querySelectorAll("entry");
+                            var relations = doc.querySelectorAll("relation");
+                            var graph = new Graph();
+                            for (var i = 0; i < entries.length; i++) {
+                                var entry = entries[i];
+                                var graphics = entry.querySelector("graphics");
+                                var x = parseFloat(graphics.getAttribute("x"));
+                                var y = parseFloat(graphics.getAttribute("y"));
+                                var color = graphics.getAttribute("bgcolor");
+                                var shape = graphics.getAttribute("type");
+                                var size = graphics.getAttribute("width");
+//                                console.log(x)
+//                                console.log(y)
+//                                console.log(shape)
+                                var vertex = new Vertex({
+                                    id: entry.getAttribute("id"),
+                                    position: new Point(x, y),
+                                    renderer: new CircosVertexRenderer({
+                                        color: color,
+                                        shape: me.shapeConvert[shape],
+                                        size: size
+                                    })
+                                });
+                                graph.addVertex(vertex);
+                            }
+                            for (var i = 0; i < relations.length; i++) {
+                                var relation = relations[i];
+                                var sourceId = relation.getAttribute("entry1");
+                                var targetId = relation.getAttribute("entry2");
+                                var type = relation.getAttribute("type");
+                                var edgeId = sourceId + "_" + type + "_" + targetId;
+
+                                /** create edge **/
+                                var edge = new Edge({
+                                    id: edgeId,
+                                    relation: type,
+                                    source: graph.getVertexById(sourceId),
+                                    target: graph.getVertexById(targetId),
+                                    weight: 1,
+                                    directed: true
+                                });
+                                graph.addEdge(edge);
+                            }
+                            me.networkViewer.setGraph(graph);
+//                            me.networkViewer.setLayout("Force directed");
+                        },
+                        error: function (response) {
+
+                        }
+                    }
+                });
+            },
+            retrieveData: function () {
+                var me = this;
+            }
+        });
+    </script>
+</polymer-element>

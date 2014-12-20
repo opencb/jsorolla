@@ -1,0 +1,300 @@
+<polymer-element name="jso-reactome" attributes="networkViewer hideFlag">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 800px;
+                height: 550px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+                background-color: #FFFFFF;
+            }
+
+            #header[horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #header[horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .attributelist {
+                box-sizing: border-box;
+                padding: 0 5px 5px 5px;
+                overflow-y: auto;
+            }
+
+            .attributelist .item {
+                margin-top: 3px;
+            }
+
+            .checkbox, .radiobox, .collapsebox {
+                width: 25px;
+            }
+
+            .checkbox::after, .radiobox::after {
+                font-family: 'FontAwesome';
+                content: ' \00a0'
+            }
+
+            .radiobox[data-checked]::after {
+                content: '\f10c'
+            }
+
+            .checkbox[data-checked]::after {
+                content: '\f00c'
+            }
+
+            .collapsebox::after {
+                font-family: 'FontAwesome';
+                content: ' \f067'
+            }
+
+            .collapsebox[data-checked]::after {
+                content: '\f068'
+            }
+
+            .parameter {
+                margin-left: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin: 5px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            textarea {
+                resize: none;
+                margin: 3px;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
+                <div class="text">Reactome import</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" flex horizontal layout>
+
+                <div class="attributelist" flex>
+                    <template repeat="{{items}}" id="itemsTemplate">
+                        <div horizontal layout class="item">
+                            <div class="button action collapsebox"
+                                 data-checked?="{{ selected }}"
+                                 on-click="{{handlePathwaySelect}}"></div>
+                            <img src="{{images[]}}">
+                            <div flex class="text">{{displayName}}</div>
+                        </div>
+                        <div style="margin-left:10px;">
+                            <template if="{{selected}}">
+                                <template ref="itemsTemplate" repeat="{{items}}"></template>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div horizontal end-justified layout flex>
+                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
+                </div>
+            </div>
+            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+//                <template if="{{pathway.selected }}">
+//                <template repeat="{{pathwayEvent in pathway.hasEvent}}">
+//                <div horizontal layout>
+//                <div>pwE</div>
+//                <div flex class="text">{{pathwayEvent.displayName}}</div>
+//            </div>
+//            </template>
+//            </template>
+//                this.species = [];
+//                this.pathways = [];
+//                this.nodes = [{nodeName:"asdf"}];
+                this.items = [];
+
+            },
+            domReady: function () {
+//                <label>Species</label>
+//
+//                <div class="attributelist" flex>
+//                <template repeat="{{spe in species}}">
+//                <div horizontal layout>
+//                <div class="button action radiobox"
+//                data-checked?="{{ speciesSelected == spe }}"
+//                        on-click="{{handleSpeciesSelect}}"></div>
+//                        <div flex class="text">{{spe.name}}</div>
+//            </div>
+//            </template>
+//            </div>
+//                this._getSpecies();
+
+
+                this._getSpeciesPathways({value: 'Homo+sapiens'});
+            },
+            handleClose: function () {
+                this.hideFlag = true;
+            },
+            handleSpeciesSelect: function (e) {
+                this.speciesSelected = e.target.templateInstance.model.spe;
+                this._getSpeciesPathways(this.speciesSelected);
+            },
+            handlePathwaySelect: function (e) {
+                var item = e.target.templateInstance.model;
+                item.selected = !item.selected;
+            },
+            handlePathwayEventSelect: function (e) {
+                this.pathwayEventSelected = e.target.templateInstance.model.pathwayEvent;
+                this._getSpeciesPathways(this.speciesSelected);
+            },
+//            _getSpecies: function () {
+//                var me = this;
+//                OpencgaManager.util.proxy({
+//                    query: {
+//                        url: 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/speciesList'
+//                    },
+//                    request: {
+//                        success: function (response) {
+//                            me.species = [];
+//                            for (var i = 0; i < response.length; i++) {
+//                                var species = response[i];
+//                                me.species.push({
+//                                    name: species.displayName,
+//                                    value: species.displayName.replace(/ /gi, "+")
+//                                });
+//                            }
+//
+//                        }
+//                    }
+//
+//                });
+//            },
+
+            _processNode: function (node) {
+                var item = {type: node.nodeName, selected: false, items: []};
+                for (var i = 0; i < node.attributes.length; i++) {
+                    var attribute = node.attributes[i];
+                    item[attribute.name] = attribute.value;
+                }
+                var childNodes = node.querySelectorAll(":scope > Pathway, :scope > Reaction, :scope > BlackBoxEvent");
+                if (childNodes.length > 0) {
+                    for (var i = 0; i < childNodes.length; i++) {
+                        var childNode = childNodes[i];
+                        item.items.push(this._processNode(childNode))
+                    }
+                }
+                return item;
+            },
+            _getSpeciesPathways: function (species) {
+                var me = this;
+                OpencgaManager.util.proxy({
+                    query: {
+                        url: 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/pathwayHierarchy/' + species.value
+                    },
+                    request: {
+                        success: function (response) {
+
+                            var parser = new DOMParser();
+                            var doc = parser.parseFromString(response, "application/xml");
+
+                            var pathways = doc.querySelector("Pathways");
+                            var item = me._processNode(pathways);
+                            me.items = item.items;
+                        }
+                    }
+
+                });
+            },
+            _getContainedEventIds: function (pathwayEvent) {
+                http://www.reactome.org/ReactomeRESTfulAPI/RESTfulWS/getContainedEventIds/3000480
+                        var me = this;
+                OpencgaManager.util.proxy({
+                    query: {
+                        url: 'http://www.reactome.org/ReactomeRESTfulAPI/RESTfulWS/detailedView/DatabaseObject/' + pathwayEvent.dbId
+                    },
+                    request: {
+                        success: function (response) {
+                            debugger
+                        }
+                    }
+
+                });
+            },
+
+            retrieveData: function () {
+
+//
+
+                var me = this;
+                var sif;
+                if (this.selectedWeighted === 'T') {
+                    sif = this.networkViewer.getAsSIFCustomRelation('\t', this.columnSelected);
+                } else {
+                    sif = this.networkViewer.graph.getAsSIF();
+                }
+                console.log(sif)
+
+                var data = {
+                    sif: sif,
+                    directed: this.selectedDirected,
+                    weighted: this.selectedWeighted
+                }
+
+                debugger
+                $.ajax({
+                    type: "POST",
+                    url: OpencgaManager.host + '/util/network/community',
+                    data: data,
+                    dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+                    success: function (data, textStatus, jqXHR) {
+                        debugger
+                        if (typeof data.response.error === 'undefined') {
+                            var attributeNetworkDataAdapter = new AttributeNetworkDataAdapter({
+                                dataSource: new StringDataSource(data.response.attributes),
+                                handlers: {
+                                    'data:load': function (event) {
+                                        _this.progress.updateProgress(0.4, 'processing data');
+                                        var json = event.sender.getAttributesJSON();
+                                        json.attributes[1].name = "Community id";
+                                        json.attributes[2].name = "Community color";
+                                        console.log(json)
+                                        _this.progress.updateProgress(0.7, 'creating attributes');
+                                        _this.cellMaps.networkViewer.importVertexWithAttributes({content: json});
+                                        _this.progress.updateProgress(1, 'Community structure detected successfully');
+                                        _this.resultContainer.show()
+                                    }
+                                }
+                            });
+                            _this.results.update(Utils.htmlTable(data.response.results));
+                        } else {
+                            _this.progress.updateProgress(0, 'Error');
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log('error')
+                    }
+                });
+            }
+        });
+    </script>
+</polymer-element>
