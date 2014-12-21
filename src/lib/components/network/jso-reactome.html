@@ -9,8 +9,8 @@
                 box-sizing: border-box;
                 background-color: #FFFFFF;
 
-                width: 800px;
-                height: 550px;
+                width: 500px;
+                height: 350px;
             }
 
             #panel {
@@ -56,11 +56,15 @@
 
             .collapsebox::after {
                 font-family: 'FontAwesome';
-                content: ' \f067'
+                content: ' \f054'
             }
 
             .collapsebox[data-checked]::after {
-                content: '\f068'
+                content: '\f078'
+            }
+
+            [data-leaf]::after {
+                content: '\f06c' !important;
             }
 
             .parameter {
@@ -81,6 +85,10 @@
                 resize: none;
                 margin: 3px;
             }
+
+            .selected {
+                text-decoration: underline;
+            }
         </style>
         <div class="panel panel-shadow" id="panel" vertical layout>
             <div class="header" id="header" horizontal layout>
@@ -92,19 +100,26 @@
             <div class="container" flex horizontal layout>
 
                 <div class="attributelist" flex>
-                    <template repeat="{{items}}" id="itemsTemplate">
-                        <div horizontal layout class="item">
-                            <div class="button action collapsebox"
-                                 data-checked?="{{ selected }}"
-                                 on-click="{{handlePathwaySelect}}"></div>
-                            <img src="{{images[]}}">
-                            <div flex class="text">{{displayName}}</div>
-                        </div>
-                        <div style="margin-left:10px;">
-                            <template if="{{selected}}">
-                                <template ref="itemsTemplate" repeat="{{items}}"></template>
-                            </template>
-                        </div>
+                    <template bind="{{imgs as images}}">
+                        <template repeat="{{items}}" id="itemsTemplate">
+                            <div horizontal layout class="item">
+                                <div class="button action collapsebox"
+                                     data-checked?="{{ open }}"
+                                     data-leaf?="{{items <= 0}}"
+                                     on-click="{{handleOpenNode}}"></div>
+                                <div class="button action radiobox" style="margin-left:5px;"
+                                     data-checked?="{{ selected }}"
+                                     on-click="{{handleItemSelect}}"></div>
+                                <img src="{{imgsrc}}" style="margin:0 5px;">
+
+                                <div class="text {{selected ? 'selected': ''}}" on-click="{{handleItemSelect}}">{{displayName}}</div>
+                            </div>
+                            <div style="margin-left:10px;">
+                                <template if="{{open}}">
+                                    <template ref="itemsTemplate" repeat="{{items}}"></template>
+                                </template>
+                            </div>
+                        </template>
                     </template>
                 </div>
 
@@ -132,6 +147,14 @@
 //                this.pathways = [];
 //                this.nodes = [{nodeName:"asdf"}];
                 this.items = [];
+                this.root = [];
+
+                this.images = {
+                    Reaction: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANklEQVR42mNgGCzgPxRTbADZBiFr/I9FjmTDGCgx5D8BcYLe/E8kpq0LqBoG/ymNRvonpCEGAFWvKtY210w0AAAAAElFTkSuQmCC",
+                    BlackBoxEvent: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAARklEQVR42mNgGAVgICkp+R+Enz179h+XPCH1IAZeA5ANwWsAsmIYGxkjqyHZBTB5DAOICQNkOazqQRxcBmATx6d+FNAbAABzKWs7aCV9SQAAAABJRU5ErkJggg==",
+                    Pathway: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAVklEQVR42tVSQQoAIAza0/a0/bwuLUZJaJ0SPGSbSGZW4O5t5UnfMC4mqwHSocFTgkRENEWHg0l0pnG9KMX+szqYSqku020GLKGB0gJlIL8B2w4N9h90t4HQjSs2eNAAAAAASUVORK5CYII="
+
+                };
 
             },
             domReady: function () {
@@ -159,9 +182,25 @@
                 this.speciesSelected = e.target.templateInstance.model.spe;
                 this._getSpeciesPathways(this.speciesSelected);
             },
-            handlePathwaySelect: function (e) {
+            handleOpenNode: function (e) {
+                var item = e.target.templateInstance.model;
+                item.open = !item.open;
+            },
+            handleItemSelect: function (e) {
+                this._deselectAllItems();
                 var item = e.target.templateInstance.model;
                 item.selected = !item.selected;
+                this._getReactomeSbml(item);
+            },
+            _deselectAllItems: function () {
+                this._deselectItem(this.root);
+            },
+            _deselectItem: function (item) {
+                item.selected = false;
+                for (var i = 0; i < item.items.length; i++) {
+                    var it = item.items[i];
+                    this._deselectItem(it);
+                }
             },
             handlePathwayEventSelect: function (e) {
                 this.pathwayEventSelected = e.target.templateInstance.model.pathwayEvent;
@@ -191,7 +230,13 @@
 //            },
 
             _processNode: function (node) {
-                var item = {type: node.nodeName, selected: false, items: []};
+                var item = {
+                    type: node.nodeName,
+                    selected: false,
+                    open: false,
+                    items: [],
+                    imgsrc: this.images[node.nodeName]
+                };
                 for (var i = 0; i < node.attributes.length; i++) {
                     var attribute = node.attributes[i];
                     item[attribute.name] = attribute.value;
@@ -218,83 +263,213 @@
                             var doc = parser.parseFromString(response, "application/xml");
 
                             var pathways = doc.querySelector("Pathways");
-                            var item = me._processNode(pathways);
-                            me.items = item.items;
+                            me.root = me._processNode(pathways);
+                            me.items = me.root.items;
                         }
                     }
 
                 });
             },
-            _getContainedEventIds: function (pathwayEvent) {
-                http://www.reactome.org/ReactomeRESTfulAPI/RESTfulWS/getContainedEventIds/3000480
-                        var me = this;
+            _getReactomeSbml: function (item) {
+                var me = this;
+
+                var renderMap = {
+                    "macromolecule": {
+                        color: "#CCFFCC",
+                        strokeColor: '#111111',
+                        strokeSize: 2,
+                        shape: 'rectangle'
+                    },
+                    "unspecified entity": {
+                        color: "#CCFFFF",
+                        strokeColor: '#111111',
+                        strokeSize: 5,
+                        shape: 'rectangle'
+                    },
+                    "complex multimer": {
+                        color: "#CCFFFF",
+                        strokeColor: '#444444',
+                        strokeSize: 2,
+                        shape: 'rectangle'
+                    },
+                    "complex": {
+                        color: "#CCFFFF",
+                        strokeColor: '#444444',
+                        strokeSize: 2,
+                        shape: 'rectangle'
+                    },
+                    "annotation": {
+                        color: "#00FF00",
+                        strokeColor: '#FFFFFF',
+                        strokeSize: 5,
+                        shape: 'circle'
+                    },
+                    "unit of information": {
+                        color: "#0FF000",
+                        strokeColor: '#FFFFFF',
+                        strokeSize: 5,
+                        shape: 'circle'
+                    },
+                    "simple chemical": {
+                        color: "#CCFFCC",
+                        strokeColor: '#222222',
+                        strokeSize: 1,
+                        shape: 'ellipse'
+                    },
+                    "process": {
+                        color: "#FFFFFF",
+                        strokeColor: '#111111',
+                        strokeSize: 1,
+                        shape: 'square'
+                    }
+                }
+
+                var queryStr = [
+                    "glyph.macromolecule",
+                    "glyph.unspecified.entity",
+                    "glyph.complex",
+//                    "glyph.annotation",
+//                    "glyph.unit.of.information",
+                    "glyph.simple.chemical",
+                    "glyph.process"
+                ].join(",");
+
                 OpencgaManager.util.proxy({
                     query: {
-                        url: 'http://www.reactome.org/ReactomeRESTfulAPI/RESTfulWS/detailedView/DatabaseObject/' + pathwayEvent.dbId
+                        url: 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/sbmlExporter/' + item.dbId
                     },
                     request: {
                         success: function (response) {
-                            debugger
+                            var parser = new DOMParser();
+
+                            var doc = parser.parseFromString(response, "application/xml");
+                            var map = doc.querySelector("map[language='process description']");
+                            var glyphs = doc.querySelectorAll(queryStr);
+                            var arcs = doc.querySelectorAll("arc");
+
+                            var graph = new Graph();
+                            var map = {};
+                            for (var i = 0; i < glyphs.length; i++) {
+                                var glyph = glyphs[i];
+                                var id = glyph.getAttribute("id");
+                                var name = "";
+                                var label = glyph.querySelector("label");
+                                if (label) {
+                                    var name = label.getAttribute("text");
+                                }
+                                var bbox = glyph.querySelector("bbox");
+                                var x = parseFloat(bbox.getAttribute("x"));
+                                var y = -parseFloat(bbox.getAttribute("y"));
+                                var size = bbox.getAttribute("h");
+                                if (glyph.className == "process") {
+                                    size = 10;
+                                }
+                                var vertex = new Vertex({
+                                    id: id,
+                                    position: new Point(x, y),
+                                    renderer: new CircosVertexRenderer({
+                                        color: renderMap[glyph.className].color,
+                                        strokeColor: renderMap[glyph.className].strokeColor,
+                                        strokeSize: renderMap[glyph.className].strokeSize,
+                                        shape: renderMap[glyph.className].shape,
+                                        size: size
+                                    })
+                                });
+                                var ports = glyph.querySelectorAll("port");
+                                for (var j = 0; j < ports.length; j++) {
+                                    var port = ports[j];
+                                    var pId = port.getAttribute("id");
+                                    var px = parseFloat(port.getAttribute("x"));
+                                    var py = -parseFloat(port.getAttribute("y"));
+                                    var portVertex = new Vertex({
+                                        id: pId,
+                                        position: new Point(px, py),
+                                        renderer: new CircosVertexRenderer({
+                                            color: renderMap[glyph.className].color,
+                                            strokeColor: renderMap[glyph.className].strokeColor,
+                                            strokeSize: renderMap[glyph.className].strokeSize,
+                                            shape: renderMap[glyph.className].shape,
+                                            size: 10
+                                        })
+                                    });
+                                    graph.addVertex(portVertex);
+                                    map[pId] = {
+                                        name: name,
+                                        x: px,
+                                        y: py
+                                    };
+                                    var edge = new Edge({
+                                        id: vertex.id + "_" + "process" + "_" + portVertex.id,
+                                        source: vertex,
+                                        target: portVertex,
+                                        renderer: new DefaultEdgeRenderer({
+                                            color: '#111111',
+                                            head: 'directed'
+                                        })
+                                    });
+                                    graph.addEdge(edge);
+                                }
+
+                                graph.addVertex(vertex);
+                                map[id] = {
+                                    name: name,
+                                    x: x,
+                                    y: y
+                                };
+                            }
+                            for (var i = 0; i < arcs.length; i++) {
+                                var arc = arcs[i];
+                                var source = graph.getVertexById(arc.getAttribute("source"));
+                                var target = graph.getVertexById(arc.getAttribute("target"));
+                                var id = source.id + "_" + arc.getAttribute("id") + "_" + target.id
+                                var edge = new Edge({
+                                    id: id,
+                                    source: source,
+                                    target: target,
+                                    renderer: new DefaultEdgeRenderer({
+                                        color: '#111111',
+                                        shape: 'directed'
+                                    })
+                                });
+                                graph.addEdge(edge);
+                            }
+                            me.networkViewer.setGraph(graph);
+                            var vAttr = me.networkViewer.vAttr;
+                            vAttr.addColumn({
+                                defaultValue: "",
+                                name: "x",
+                                title: "x",
+                                type: "string",
+                                cellTemplate: "inputTemplate"
+                            });
+                            vAttr.addColumn({
+                                defaultValue: "",
+                                name: "y",
+                                title: "y",
+                                type: "string",
+                                cellTemplate: "inputTemplate"
+                            });
+                            for (var i = 0; i < vAttr.data.length; i++) {
+                                var row = vAttr.data[i];
+                                row["name"] = map[row["id"]].name;
+                                row["x"] = map[row["id"]].x;
+                                row["y"] = map[row["id"]].y;
+                            }
+                            me.networkViewer.vertexDefaults.labelAttribute = "name";
+                            me.networkViewer.handleVertexDefaultLabelAttribute();
+
+                            me.networkViewer.handleVertexDefaultXAttribute();
+                            me.networkViewer.handleVertexDefaultYAttribute();
+                            me.networkViewer.setLayout("Force directed");
                         }
                     }
 
                 });
             },
+            _processMacromolecule: function () {
 
-            retrieveData: function () {
-
-//
-
-                var me = this;
-                var sif;
-                if (this.selectedWeighted === 'T') {
-                    sif = this.networkViewer.getAsSIFCustomRelation('\t', this.columnSelected);
-                } else {
-                    sif = this.networkViewer.graph.getAsSIF();
-                }
-                console.log(sif)
-
-                var data = {
-                    sif: sif,
-                    directed: this.selectedDirected,
-                    weighted: this.selectedWeighted
-                }
-
-                debugger
-                $.ajax({
-                    type: "POST",
-                    url: OpencgaManager.host + '/util/network/community',
-                    data: data,
-                    dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
-                    success: function (data, textStatus, jqXHR) {
-                        debugger
-                        if (typeof data.response.error === 'undefined') {
-                            var attributeNetworkDataAdapter = new AttributeNetworkDataAdapter({
-                                dataSource: new StringDataSource(data.response.attributes),
-                                handlers: {
-                                    'data:load': function (event) {
-                                        _this.progress.updateProgress(0.4, 'processing data');
-                                        var json = event.sender.getAttributesJSON();
-                                        json.attributes[1].name = "Community id";
-                                        json.attributes[2].name = "Community color";
-                                        console.log(json)
-                                        _this.progress.updateProgress(0.7, 'creating attributes');
-                                        _this.cellMaps.networkViewer.importVertexWithAttributes({content: json});
-                                        _this.progress.updateProgress(1, 'Community structure detected successfully');
-                                        _this.resultContainer.show()
-                                    }
-                                }
-                            });
-                            _this.results.update(Utils.htmlTable(data.response.results));
-                        } else {
-                            _this.progress.updateProgress(0, 'Error');
-                        }
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.log('error')
-                    }
-                });
             }
+
         });
     </script>
 </polymer-element>

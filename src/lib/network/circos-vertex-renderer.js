@@ -66,7 +66,7 @@ function CircosVertexRenderer(args) {
     //set instantiation args, must be last
     for (var prop in args) {
         if (hasOwnProperty.call(args, prop)) {
-            if(args[prop]!=null){
+            if (args[prop] != null) {
                 this[prop] = args[prop];
             }
         }

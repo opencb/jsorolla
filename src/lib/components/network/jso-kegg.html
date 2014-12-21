@@ -177,7 +177,9 @@
                             console.log(doc);
                             var entries = doc.querySelectorAll("entry");
                             var relations = doc.querySelectorAll("relation");
+                            var reactions = doc.querySelectorAll("reaction");
                             var graph = new Graph();
+                            var map = {};
                             for (var i = 0; i < entries.length; i++) {
                                 var entry = entries[i];
                                 var graphics = entry.querySelector("graphics");
@@ -185,12 +187,12 @@
                                 var y = parseFloat(graphics.getAttribute("y"));
                                 var color = graphics.getAttribute("bgcolor");
                                 var shape = graphics.getAttribute("type");
-                                var size = graphics.getAttribute("width");
-//                                console.log(x)
-//                                console.log(y)
-//                                console.log(shape)
+//                                var size = graphics.getAttribute("width");
+                                var size = graphics.getAttribute("height");
+                                var id = entry.getAttribute("id");
+                                var name = entry.getAttribute("name");
                                 var vertex = new Vertex({
-                                    id: entry.getAttribute("id"),
+                                    id: id,
                                     position: new Point(x, y),
                                     renderer: new CircosVertexRenderer({
                                         color: color,
@@ -199,6 +201,11 @@
                                     })
                                 });
                                 graph.addVertex(vertex);
+                                map[id] = {
+                                    name: name,
+                                    x: x,
+                                    y: y
+                                };
                             }
                             for (var i = 0; i < relations.length; i++) {
                                 var relation = relations[i];
@@ -218,7 +225,53 @@
                                 });
                                 graph.addEdge(edge);
                             }
+                            for (var i = 0; i < reactions.length; i++) {
+                                var reaction = reactions[i];
+                                var sourceId = reaction.querySelector("substrate").getAttribute("id");
+                                var targetId = reaction.querySelector("product").getAttribute("id");
+                                var type = "reaction"
+                                var edgeId = sourceId + "_" + type+reaction.getAttribute("id") + "_" + targetId;
+
+                                /** create edge **/
+                                var edge = new Edge({
+                                    id: edgeId,
+                                    relation: type,
+                                    source: graph.getVertexById(sourceId),
+                                    target: graph.getVertexById(targetId),
+                                });
+                                graph.addEdge(edge);
+                            }
                             me.networkViewer.setGraph(graph);
+
+
+                            var vAttr = me.networkViewer.vAttr;
+                            vAttr.addColumn({
+                                defaultValue: "",
+                                name: "x",
+                                title: "x",
+                                type: "string",
+                                cellTemplate: "inputTemplate"
+                            });
+                            vAttr.addColumn({
+                                defaultValue: "",
+                                name: "y",
+                                title: "y",
+                                type: "string",
+                                cellTemplate: "inputTemplate"
+                            });
+                            for (var i = 0; i < vAttr.data.length; i++) {
+                                var row = vAttr.data[i];
+                                row["name"] = map[row["id"]].name;
+                                row["x"] = map[row["id"]].x;
+                                row["y"] = map[row["id"]].y;
+                            }
+
+                            me.networkViewer.vertexDefaults.labelAttribute = "name";
+                            me.networkViewer.handleVertexDefaultLabelAttribute();
+
+//                            me.networkViewer.handleVertexDefaultXAttribute();
+//                            me.networkViewer.handleVertexDefaultYAttribute();
+
 //                            me.networkViewer.setLayout("Force directed");
                         },
                         error: function (response) {
