@@ -1,254 +1,252 @@
 <polymer-element name="jso-preprocessing-matrix" attributes="userData selectedOption selectedStudy studies">
-<template>
-    <link rel="stylesheet" href="../jso-style.css">
-    <style>
-        :host {
-            display: block;
-            position: absolute;
-            box-sizing: border-box;
-            background-color: #FFFFFF;
-            padding: 30px 100px;
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
 
-            z-index: 50000;
-            top: 90px;
+                z-index: 50000;
+                top: 90px;
 
-            left: 0;
-            right: 0;
-            margin-left: auto;
-            margin-right: auto;
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
 
-            width: 40vw;
-            border: 0px solid #c6d0da;
-            border-width: 1px;
-            /*border-top-width: 1px;*/
-            transition: all 0.2s;
-            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
-        }
+                width: 40vw;
+                border: 0px solid #c6d0da;
+                border-width: 1px;
+                /*border-top-width: 1px;*/
+                transition: all 0.2s;
+                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            }
 
-        .title {
-            text-align: center;
-            font-size: 25px;
-            color: #666;
-        }
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
 
-        .icon {
-            color: #445D76;
-            font-size: 50px;
-        }
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
 
-        label {
-            display: inline-block;
-            color: #666;
-            margin-top: 3px;
-            /*width: 150px;*/
-        }
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 3px;
+                /*width: 150px;*/
+            }
 
-        label::after {
-            content: ':'
-        }
+            label::after {
+                content: ':'
+            }
 
-        .action {
-            /*margin-top: 30px;*/
-            background-color: #f5f5f5 !important;
-            text-align: center;
-        }
+            .action {
+                /*margin-top: 30px;*/
+                background-color: #f5f5f5 !important;
+                text-align: center;
+            }
 
-        .action:active {
-            background-color: #445D76 !important;
-            color: #fff !important;
-        }
+            .action:active {
+                background-color: #445D76 !important;
+                color: #fff !important;
+            }
 
-        .message {
-            margin-top: 20px;
-        }
+            .message {
+                margin-top: 20px;
+            }
 
-        div.button {
-            /*display: inline-block;*/
-            width: 300px
-        }
+            div.button {
+                /*display: inline-block;*/
+                width: 300px
+            }
 
-        /*jso-file-browser {*/
-        /*width: 70%;*/
-        /*}*/
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
 
-        span {
-            border: 1px solid;
-        }
-    </style>
-    <div class="title">
-        <div>
-            Normalized data preprocesing
+            span {
+                border: 1px solid;
+            }
+        </style>
+        <div class="title">
+            <div>
+                Normalized data preprocesing
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
         </div>
-        <div class="icon">
-            <!--<font-awesome icon="magic"></font-awesome>-->
-        </div>
-    </div>
-    <form id="form">
-        <h3>Examples</h3>
+        <form id="form">
+            <h3>Examples</h3>
 
-        <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
-        <div>
-            <h3>Output parameters</h3>
-            <label>Create output folder</label> <input type="text" id="createFolder" value="{{newFolderName}}" required
-                                                       pattern="[a-zA-Z0-9]+">
-            <label>Or select output folder:</label>
-            <jso-opencga-select-folder id="selectFolder" folderList="{{selectedStudy.files}}"></jso-opencga-select-folder>
+            <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
 
             <div>
-                List 1:
+                <h3>Output parameters</h3>
+                <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            </div>
+            <div>
+                <h3>Select your data</h3>
+                <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            </div>
+            <div>
+                <h3>Log-transform</h3>
+                <input id="logarithm_base_1" name="logarithm_base" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
+                <input id="logarithm_base_2" name="logarithm_base" class="fc-radioitem" type="radio" value="2">Log 2<br>
+                <input id="logarithm_base_3" name="logarithm_base" class="fc-radioitem" type="radio" value="e">Log e<br>
+                <input id="logarithm_base_4" name="logarithm_base" class="fc-radioitem" type="radio" value="10">Log 10<br>
+
+            </div>
+            <div>
+                <h3>Exponential function</h3>
+                <input id="exp_1" name="exp" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
+                <input id="exp_2" name="exp" class="fc-radioitem" type="radio" value="2">2<br>
+                <input id="exp_3" name="exp" class="fc-radioitem" type="radio" value="e">e<br>
+                <input id="exp_4" name="exp" class="fc-radioitem" type="radio" value="10">10<br>
+            </div>
+            <div>
+                <h3>Merge replicates</h3>
+                <input id="merge_replicates_1" name="merge_replicates" class="fc-radioitem" type="radio" value="none" checked="checked">none <br>
+                <input id="merge_replicates_2" name="merge_replicates" class="fc-radioitem" type="radio" value="mean">Average<br>
+                <input id="merge_replicates_3" name="merge_replicates" class="fc-radioitem" type="radio" value="median">Median<br>
+
+            </div>
+            <div>
+                <h3>Filter missing values</h3>
+                <input name="filter_missing_bool" id="filter_missing_bool" class="fc-checkbox" type="checkbox" value="true">Check to apply this filter<br>
+                <label>Minimum percentage of existing values (%)</label>
+                <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" value="70">
+
+            </div>
+            <div>
+                <h3>Impute missing values</h3>
+                <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none" checked="checked"> Do not impute <br>
+                <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn">KNN imputation <br>
+                <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean">Row mean imputation <br>
+                <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median">Row median imputation <br>
+                <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero">Impute with zeros<br>
+                <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text" value="15">
+            </div>
+            <div>
+                <h3>Extract IDs from dataset and save into a file</h3>
+                <input name="extract_ids" id="extract_ids" class="fc-checkbox" type="checkbox" value="true">Check to extract IDs
+            </div>
+            <div>
+                <h3>Filter genes by names</h3>
+                <input name="gene_file_filter_action" id="gene_file_filter_action" class="fc-button" type="button" value="browse server">
+
                 <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
                 <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
                                   selectedFile="{{compressed_file}}"></jso-file-browser>
             </div>
-        </div>
-        <div>
-            <h3>Log-transform</h3>
-            <input id="logarithm_base_1" name="logarithm_base" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
-            <input id="logarithm_base_2" name="logarithm_base" class="fc-radioitem" type="radio" value="2">Log 2<br>
-            <input id="logarithm_base_3" name="logarithm_base" class="fc-radioitem" type="radio" value="e">Log e<br>
-            <input id="logarithm_base_4" name="logarithm_base" class="fc-radioitem" type="radio" value="10">Log 10<br>
+            <div>
+                <h3>Convert IDs from dataset</h3>
+                <input id="convert_ids_1" name="convert_ids" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
+                <input id="convert_ids_2" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_gene">Ensembl gene<br>
+                <input id="convert_ids_3" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_transcript">Ensembl transcript <br>
+                <label>Organism</label>
+                <select name="species" id="species" class="fc-combobox" type="text" value="hsa">
+                    <option name="species_1" id="species_1" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>
+                    <option name="species_2" id="species_2" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
+                    <option name="species_3" id="species_3" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
+                    <option name="species_4" id="species_4" class="fc-combobox-item" value="gga">Chicken (gallus gallus)</option>
+                    <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
+                    <option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>
+                    <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>
+                    <option name="species_8" id="species_8" class="fc-combobox-item" value="aga">Anopheles gambiae</option>
+                    <option name="species_9" id="species_9" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                    <option name="species_10" id="species_10" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
+                    <option name="species_11" id="species_11" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                </select>
+                <label>Select method to merge the replicated result IDs</label>
+                <input id="convert_ids_merge_1" name="convert_ids_merge" class="fc-radioitem" type="radio" value="mean" checked="checked">Average <br>
+                <input id="convert_ids_merge_2" name="convert_ids_merge" class="fc-radioitem" type="radio" value="median">Median<br>
+            </div>
+            <div>
+                <h3>Job information</h3>
+                <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
 
-        </div>
-        <div>
-            <h3>Exponential function</h3>
-            <input id="exp_1" name="exp" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
-            <input id="exp_2" name="exp" class="fc-radioitem" type="radio" value="2">2<br>
-            <input id="exp_3" name="exp" class="fc-radioitem" type="radio" value="e">e<br>
-            <input id="exp_4" name="exp" class="fc-radioitem" type="radio" value="10">10<br>
-        </div>
-        <div>
-            <h3>Merge replicates</h3>
-            <input id="merge_replicates_1" name="merge_replicates" class="fc-radioitem" type="radio" value="none" checked="checked">none <br>
-            <input id="merge_replicates_2" name="merge_replicates" class="fc-radioitem" type="radio" value="mean">Average<br>
-            <input id="merge_replicates_3" name="merge_replicates" class="fc-radioitem" type="radio" value="median">Median<br>
+                <div class="button action" on-click="{{handleForm}}">Run</div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "preprocessing";
+                this.list1UploadMsg = "Select file..."
+            },
+            list1Click: function (e) {
+                this.$.list1Html.hidden = false
+                //this.$.rankedListFileName.click();
 
-        </div>
-        <div>
-            <h3>Filter missing values</h3>
-            <input name="filter_missing_bool" id="filter_missing_bool" class="fc-checkbox" type="checkbox" value="true">Check to apply this filter<br>
-            <label>Minimum percentage of existing values (%)</label>
-            <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" value="70">
+            },
+            list1Changed: function (oldV, newV) {
+                this.list1UploadMsg = this.list1.name
+            },
+            handleForm: function () {
 
-        </div>
-        <div>
-            <h3>Impute missing values</h3>
-            <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none" checked="checked"> Do not impute <br>
-            <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn">KNN imputation <br>
-            <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean">Row mean imputation <br>
-            <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median">Row median imputation <br>
-            <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero">Impute with zeros<br>
-            <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text" value="15">
-        </div>
-        <div>
-            <h3>Extract IDs from dataset and save into a file</h3>
-            <input name="extract_ids" id="extract_ids" class="fc-checkbox" type="checkbox" value="true">Check to extract IDs
-        </div>
-        <div>
-            <h3>Filter genes by names</h3>
-            <input name="gene_file_filter_action" id="gene_file_filter_action" class="fc-button" type="button" value="browse server">
+                this.launchJob();
 
-            <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
-            <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
-                              selectedFile="{{compressed_file}}"></jso-file-browser>
-        </div>
-        <div>
-            <h3>Convert IDs from dataset</h3>
-            <input id="convert_ids_1" name="convert_ids" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
-            <input id="convert_ids_2" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_gene">Ensembl gene<br>
-            <input id="convert_ids_3" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_transcript">Ensembl transcript <br>
-            <label>Organism</label>
-            <select name="species" id="species" class="fc-combobox" type="text" value="hsa">
-                <option name="species_1" id="species_1" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>
-                <option name="species_2" id="species_2" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
-                <option name="species_3" id="species_3" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
-                <option name="species_4" id="species_4" class="fc-combobox-item" value="gga">Chicken (gallus gallus)</option>
-                <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
-                <option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>
-                <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>
-                <option name="species_8" id="species_8" class="fc-combobox-item" value="aga">Anopheles gambiae</option>
-                <option name="species_9" id="species_9" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
-                <option name="species_10" id="species_10" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
-                <option name="species_11" id="species_11" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
-            </select>
-            <label>Select method to merge the replicated result IDs</label>
-            <input id="convert_ids_merge_1" name="convert_ids_merge" class="fc-radioitem" type="radio" value="mean" checked="checked">Average <br>
-            <input id="convert_ids_merge_2" name="convert_ids_merge" class="fc-radioitem" type="radio" value="median">Median<br>
-        </div>
-        <div>
-            <h3>Job information</h3>
-            <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
+            },
+            launchJob: function () {
+                var me = this;
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description
+                };
+                if (this.$.logarithm_base.value != "none")
+                    query["logarithm-base"] = this.$.logarithm_base.value;
+                if (this.$.exp.value != "none")
+                    query["exp"] = this.$.exp.value;
+                if (this.$.merge_replicates.value != "none")
+                    query["merge-replicates"] = this.$.merge_replicates.value;
 
-            <div class="button action" on-click="{{handleForm}}">Run</div>
-        </div>
-    </form>
-    <div class="message">{{message}}</div>
-</template>
-<script>
-    Polymer({
-        created: function () {
-            this.jobName = 'JobName';
-            this.toolName = "affy-expression-normalization";
-            this.list1UploadMsg = "Select file..."
-        },
-        list1Click: function (e) {
-            this.$.list1Html.hidden = false
-            //this.$.rankedListFileName.click();
-
-        },
-        list1Changed: function (oldV, newV) {
-            this.list1UploadMsg = this.list1.name
-        },
-        handleForm: function () {
-
-            this.launchJob();
-
-        },
-        launchJob: function () {
-            var me = this;
-            var query = { sid: Cookies("bioinfo_sid"),
-                studyId: this.selectedStudy.id,
-                toolId: this.toolName,
-                outdir: this.$.outdir.selectedFile.id,
-                name: this.jobName,
-                description: this.description,
-                "compressed-file": this.$.inputFile.selectedFile.id,
-                "compressed-file-tags": this.compressed_file_tags };
-
-            if (this.$.rma.checked) query["rma"] = this.$.rma.checked;
-            if (this.$.plier.checked) query["plier"] = this.$.plier.checked;
-            if (this.$.calls.checked) query["calls"] = this.$.calls.checked;
-            OpencgaManager.jobs.create({
-                query: query,
-                request: {
-                    //method: 'POST',
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var userId = response.response[0].result[0].id;
-                            me.message = userId + ' created';
-                            me.selectedOption = "jobLaunched"
-                        } else {
-                            me.message = response.response[0].errorMsg;
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
                         }
-                    },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
                     }
-                }
-            })
-        },
-        loadExample1: function (e) {
-            this.jobName = "affy_sample_1";
-            this.description = "just_an_affy_example";
-            this.rma = true;
-            this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
-            this.compressed_file = {id: "example_affymetrix.zip", name: "affymetrix.zip"};
-            this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "affy_sample_1";
+                this.description = "just_an_affy_example";
+                this.rma = true;
+                this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
+                this.compressed_file = {id: "example_affymetrix.zip", name: "affymetrix.zip"};
+                this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
 
-        },
-        handleFisher: function (e) {
-            this.fisher = e.target.dataset.value;
-            this.fisherText = e.target.innerText;
-        }
-    });
-</script>
+            },
+            handleFisher: function (e) {
+                this.fisher = e.target.dataset.value;
+                this.fisherText = e.target.innerText;
+            }
+        });
+    </script>
 </polymer-element>
