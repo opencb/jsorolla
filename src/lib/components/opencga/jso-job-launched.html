@@ -4,14 +4,44 @@
         <style>
             :host {
                 display: block;
-                position: relative;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
+                z-index: 50000;
+
+                left: 0;
+                right: 0;
+                margin-top: 90px;
+                margin-left: auto;
+                margin-right: auto;
+
+                width: 500px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
             }
 
-            .id {
-                color: #888;
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
             }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
         </style>
-<h1>Job launched</h1>
+        <div class="title">
+            <div>
+                Job launched
+            </div>
+            <div class="icon">
+                <font-awesome icon="rocket"></font-awesome>
+            </div>
+        </div>
     </template>
     <script>
         Polymer({
