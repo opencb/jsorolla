@@ -28,8 +28,8 @@ label.button > input[type=checkbox] {
     display: none;
 }
 
-select{
-    cursor:pointer;
+select {
+    cursor: pointer;
 }
 
 div.button,
@@ -64,7 +64,7 @@ input[type=color] {
 }
 
 div.button:hover {
-    cursor:pointer;
+    cursor: pointer;
     background-color: #ebebeb;
     /*border-color: #66afe9;*/
 }
@@ -159,7 +159,7 @@ div.dropdown {
     cursor: pointer;
 }
 
-div.dropdown ul{
+div.dropdown ul {
     box-sizing: border-box;
     visibility: hidden;
     opacity: 0;
@@ -177,6 +177,7 @@ div.dropdown ul{
     /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
     transition: all 0.35s;
 }
+
 ul.context {
     box-sizing: border-box;
     visibility: hidden;
@@ -299,6 +300,29 @@ div.dropdown > div.button::after {
     border: 1px solid #d3d3d3;
     border-top-width: 0px;
     margin-top: 10px;
+}
+
+.formbox {
+    border: 1px solid #d3d3d3;
+    box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.30);
+    margin: 0 5px 10px 5px;
+    background-color: #FFFFFF;
+}
+
+.formtitle {
+    border-bottom: 1px solid #dfdfdf;
+    padding: 8px 10px;
+    font-size: 16px;
+    color: #000;
+    background-color: #f5f5f5;
+}
+
+.formtitle > * {
+    margin-left: 5px;
+}
+
+.formcontent {
+    padding: 8px 10px;
 }
 
 /*

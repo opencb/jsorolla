@@ -180,49 +180,9 @@
                     <span>{{bread}}</span>
                 </template>
             </div>
-            <!--<div flex horizontal layout end-justified>-->
-            <!--<div id="searchIcon">-->
-            <!--<font-awesome icon="search"></font-awesome>-->
-            <!--</div>-->
-            <!--<input id="search" type="text" placeholder="search">-->
-            <!--</div>-->
         </div>
 
         <div id="main">
-            <!--<div id="navigation" on-click="{{handleNavigationClick}}">-->
-            <!--<div class="navigation-title">Main</div>-->
-            <!--<div class="navigation-item" data-content="browse" data-selected="{{selectedOption == 'browse'}}">-->
-            <!--<font-awesome icon="pie-chart"></font-awesome>-->
-            <!--&nbsp; Studies-->
-            <!--</div>-->
-            <!--<br>-->
-
-            <!--<div class="navigation-title">Actions</div>-->
-            <!--<div class="navigation-item" data-content="selectStudy"-->
-            <!--data-selected="{{selectedOption == 'selectStudy'}}">-->
-            <!--<font-awesome icon="pie-chart"></font-awesome>-->
-            <!--&nbsp; Select study-->
-            <!--</div>-->
-
-            <!--<div class="navigation-item" data-content="createStudy"-->
-            <!--data-selected="{{selectedOption == 'createStudy'}}">-->
-            <!--<font-awesome icon="pie-chart"></font-awesome>-->
-            <!--&nbsp; Create study-->
-            <!--</div>-->
-            <!--&lt;!&ndash;<div class="navigation-item" data-content="createFolder"&ndash;&gt;-->
-            <!--&lt;!&ndash;data-selected="{{selectedOption == 'createFolder'}}">&ndash;&gt;-->
-            <!--&lt;!&ndash;<font-awesome icon="folder"></font-awesome>&ndash;&gt;-->
-            <!--&lt;!&ndash;&nbsp; Create folder&ndash;&gt;-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-
-            <!--&lt;!&ndash;<div class="navigation-item" data-content="uploadFile"&ndash;&gt;-->
-            <!--&lt;!&ndash;data-selected="{{selectedOption == 'uploadFile'}}">&ndash;&gt;-->
-            <!--&lt;!&ndash;<font-awesome icon="cloud-upload"></font-awesome>&ndash;&gt;-->
-            <!--&lt;!&ndash;&nbsp; Upload file&ndash;&gt;-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-            <!--</div>-->
-            <!--<template if="{{ selectedOption == 'browse' }}">-->
-            <!--</template>-->
             <div id="studiesList" class="contentList">
                 <div class="navigation-title">Studies</div>
                 <template repeat="{{study in studies}}">
@@ -301,7 +261,9 @@
                 }
             },
             studiesChanged: function (oldValue, newValue) {
-                this.selectStudy(this.studies[0]);
+                if (this.selectedStudy.id !== this.studies[0].id) {
+                    this.selectStudy(this.studies[0]);
+                }
             },
             userDataChanged: function (oldValue, newValue) {
 //            this.selectedProject = this.userData.projects[0]
