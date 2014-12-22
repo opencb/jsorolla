@@ -4,26 +4,20 @@
         <style>
             :host {
                 display: block;
-                position: absolute;
+                position: relative;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
                 padding: 30px 100px;
 
                 z-index: 50000;
-                top: 90px;
+                margin: 0px auto 0px auto;
 
-                left: 0;
-                right: 0;
-                margin-left: auto;
-                margin-right: auto;
-
-                width: 40vw;
-                border: 0px solid #c6d0da;
-                border-width: 1px;
-                /*border-top-width: 1px;*/
+                width: 50%;
+                border: 1px solid #c6d0da;
                 transition: all 0.2s;
-                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
             }
+
 
             .title {
                 text-align: center;
@@ -82,6 +76,7 @@
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
             </div>
+
         </div>
         <form id="form">
             <h3>Examples</h3>
@@ -120,7 +115,7 @@
             </div>
             <div>
                 <h3>Filter missing values</h3>
-                <input name="filter_missing_bool" id="filter_missing_bool" class="fc-checkbox" type="checkbox" value="true">Check to apply this filter<br>
+                <!--<input name="filter_missing_bool" id="filter_missing_bool" class="fc-checkbox" type="checkbox" value="true">Check to apply this filter<br>-->
                 <label>Minimum percentage of existing values (%)</label>
                 <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" value="70">
 
@@ -140,11 +135,7 @@
             </div>
             <div>
                 <h3>Filter genes by names</h3>
-                <input name="gene_file_filter_action" id="gene_file_filter_action" class="fc-button" type="button" value="browse server">
-
-                <div class="button action" on-click="{{list1Click}}">{{list1UploadMsg}}</div>
-                <jso-file-browser hidden="true" id="list1Html" fileList="{{selectedStudy.files}}"
-                                  selectedFile="{{compressed_file}}"></jso-file-browser>
+                <jso-project-browser class="input-project-browser" id="gene_file_filter" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
             </div>
             <div>
                 <h3>Convert IDs from dataset</h3>
@@ -165,7 +156,7 @@
                     <option name="species_10" id="species_10" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
                     <option name="species_11" id="species_11" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
                 </select>
-                <label>Select method to merge the replicated result IDs</label>
+                <label>Select method to merge the replicated result IDs</label><br>
                 <input id="convert_ids_merge_1" name="convert_ids_merge" class="fc-radioitem" type="radio" value="mean" checked="checked">Average <br>
                 <input id="convert_ids_merge_2" name="convert_ids_merge" class="fc-radioitem" type="radio" value="median">Median<br>
             </div>
@@ -183,20 +174,9 @@
             created: function () {
                 this.jobName = 'JobName';
                 this.toolName = "preprocessing";
-                this.list1UploadMsg = "Select file..."
-            },
-            list1Click: function (e) {
-                this.$.list1Html.hidden = false
-                //this.$.rankedListFileName.click();
-
-            },
-            list1Changed: function (oldV, newV) {
-                this.list1UploadMsg = this.list1.name
             },
             handleForm: function () {
-
                 this.launchJob();
-
             },
             launchJob: function () {
                 var me = this;
@@ -205,6 +185,7 @@
                     studyId: this.selectedStudy.id,
                     toolId: this.toolName,
                     outdir: this.$.outdir.selectedFile.id,
+                    dataset: this.$.inputFile.selectedFile.id,
                     name: this.jobName,
                     description: this.description
                 };
@@ -214,7 +195,24 @@
                     query["exp"] = this.$.exp.value;
                 if (this.$.merge_replicates.value != "none")
                     query["merge-replicates"] = this.$.merge_replicates.value;
-
+                if (this.$.filter_missing.value != "")
+                    query["filter-missing"] = this.$.filter_missing.value;
+                if (this.$.impute_missing.value != "none"){
+                    query["impute-missing"] = this.$.impute_missing.value;
+                    if(this.$.impute_missing.value != "knn")
+                        query["kvalue"] = this.$.kvalue.value;
+                }
+                if (this.$.extract_ids.checked){
+                    query["extract-ids"] = this.$.extract_ids.checked;
+                }
+                if (this.$.gene_file_filter.selectedFile.type == "FILE"){
+                    query["gene_file_filter"] = this.$.gene_file_filter.selectedFile.id;
+                }
+                if (this.$.convert_ids.value != "none") {
+                    query["convert-ids"] = this.$.convert_ids.value;
+                    query["species"] = this.$.species.value;
+                    query["merge-replicates"] = this.$.merge_replicates.value;
+                }
                 OpencgaManager.jobs.create({
                     query: query,
                     request: {
@@ -235,18 +233,14 @@
                 })
             },
             loadExample1: function (e) {
-                this.jobName = "affy_sample_1";
-                this.description = "just_an_affy_example";
-                this.rma = true;
-                this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
-                this.compressed_file = {id: "example_affymetrix.zip", name: "affymetrix.zip"};
-                this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+//                this.jobName = "affy_sample_1";
+//                this.description = "just_an_affy_example";
+//                this.rma = true;
+//                this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
+//                this.compressed_file = {id: "example_affymetrix.zip", name: "affymetrix.zip"};
+//                this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
 
             },
-            handleFisher: function (e) {
-                this.fisher = e.target.dataset.value;
-                this.fisherText = e.target.innerText;
-            }
         });
     </script>
 </polymer-element>
