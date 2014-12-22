@@ -8,21 +8,18 @@
                 box-sizing: border-box;
                 background-color: #FFFFFF;
                 padding: 30px 100px;
-
                 z-index: 50000;
-                top: 90px;
 
                 left: 0;
                 right: 0;
+                margin-top: 90px;
                 margin-left: auto;
                 margin-right: auto;
 
                 width: 500px;
-                border: 0px solid #c6d0da;
-                border-width: 1px;
-                /*border-top-width: 1px;*/
+                border: 1px solid #c6d0da;
                 transition: all 0.2s;
-                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
             }
 
             .title {
@@ -47,16 +44,9 @@
             }
 
             div.button {
-                height: 40px;
-                line-height: 40px;
                 margin-top: 30px;
-                background-color: #f5f5f5;
-                text-align: center;
-            }
-
-            div.button:active {
-                background-color: #445D76;
-                color: #fff !important;
+                padding:10px !important;
+                font-size:16px;
             }
 
             .message {
@@ -89,7 +79,7 @@
 
             <div id="remember" on-click="{{handleRemember}}">Remember password...</div>
 
-            <div class="button" on-click="{{handleForm}}">Log in</div>
+            <div class="button action" on-click="{{handleForm}}">Log in</div>
         </form>
         <div class="message">{{message}}</div>
     </template>

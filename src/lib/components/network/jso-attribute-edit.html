@@ -219,6 +219,7 @@
                 this.table = this.$.table;
             },
             handleScroll: function (e) {
+                e.preventDefault();
                 if (e.deltaY > 0) {
                     this.moveToNextPage();
                 }

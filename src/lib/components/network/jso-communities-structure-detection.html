@@ -1,0 +1,309 @@
+<polymer-element name="jso-communities-structure-detection" attributes="networkViewer hideFlag">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 350px;
+                height: 350px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+                background-color: #FFFFFF;
+            }
+
+            #header[horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #header[horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .attributelist {
+                box-sizing: border-box;
+                padding: 0 5px 5px 5px;
+                overflow-y: auto;
+            }
+
+            .attributelist > * {
+                margin-top: 3px;
+            }
+
+            .checkbox, .radiobox {
+                width: 25px;
+            }
+
+            .checkbox::after, .radiobox::after {
+                font-family: 'FontAwesome';
+                content: ' \00a0'
+            }
+
+            .radiobox[data-checked]::after {
+                content: '\f10c'
+            }
+
+            .checkbox[data-checked]::after {
+                content: '\f00c'
+            }
+
+            .parameter {
+                margin-left: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin: 5px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            textarea {
+                resize: none;
+                margin: 3px;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
+                <div class="text">Network analysis: Communities structure detection</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" flex vertical layout>
+
+                <label>Community detection method</label>
+
+                <div class="parameter" horizontal layout>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedMethod == 'fastgreedy' }}"
+                             on-click="{{handleMethodFastGreedySelect}}"></div>
+                        <div flex class="text">Fastgreedy</div>
+                    </div>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedMethod == 'walktrap' }}"
+                             on-click="{{handleMethodWalktrapSelect}}"></div>
+                        <div flex class="text">Walktrap</div>
+                    </div>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedMethod == 'infomap' }}"
+                             on-click="{{handleMethodInfomapSelect}}"></div>
+                        <div flex class="text">Infomap</div>
+                    </div>
+                </div>
+                <label>Consider network as directed</label>
+
+                <div class="parameter" horizontal layout>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedDirected == 'T' }}"
+                             on-click="{{handleDirectedYes}}"></div>
+                        <div flex class="text">Yes</div>
+                    </div>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedDirected == 'F' }}"
+                             on-click="{{handleDirectedNo}}"></div>
+                        <div flex class="text">No</div>
+                    </div>
+                </div>
+                <label>Consider network as weighted</label>
+
+
+                <div class="parameter" horizontal layout>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedWeighted == 'T' }}"
+                             on-click="{{handleWeightedYes}}"></div>
+                        <div flex class="text">Yes</div>
+                    </div>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedWeighted == 'F' }}"
+                             on-click="{{handleWeightedNo}}"></div>
+                        <div flex class="text">No</div>
+                    </div>
+                </div>
+
+
+                <div vertical layout flex hidden?="{{selectedWeighted != 'T'}}">
+                    <label>Use column for weight</label>
+
+                    <div class="attributelist parameter" flex>
+                        <template repeat="{{column in networkViewer.vAttr.columns}}">
+                            <div horizontal layout>
+                                <div class="button action checkbox"
+                                     data-checked?="{{ columnSelected == column.name }}"
+                                     on-click="{{handleEditSelect}}"></div>
+                                <div flex class="text">{{column.title}}</div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <template if="{{results}}">
+                    <label>Results</label>
+
+                    <label>A color has been assigned to the top communities.</label>
+
+                    <div class="button action" on-click="{{handleApplyColor}}" style="width:100px;">Apply</div>
+
+                    <div>Global modularity: {{results['Global modularity']}}</div>
+                    <div>Number of communities with more than 2 nodes: {{results['Number of communities with more than 2 nodes']}}</div>
+                    <div>Total number of communities: {{results['Total number of communities']}}</div>
+                </template>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div horizontal end-justified layout flex>
+                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
+                </div>
+            </div>
+            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.selectedMethod = 'fastgreedy';
+                this.selectedDirected = 'F';
+                this.selectedWeighted = 'F';
+
+                this.columnSelected = 'id';
+
+                this.results;
+            },
+            handleClose: function () {
+                this.hideFlag = true;
+            },
+            handleGo: function () {
+                this.retrieveData();
+            },
+            handleMethodFastGreedySelect: function () {
+                this.selectedMethod = 'fastgreedy';
+            },
+            handleMethodWalktrapSelect: function () {
+                this.selectedMethod = 'walktrap';
+            },
+            handleMethodInfomapSelect: function () {
+                this.selectedMethod = 'infomap';
+            },
+            handleDirectedYes: function () {
+                this.selectedDirected = 'T';
+            },
+            handleDirectedNo: function () {
+                this.selectedDirected = 'F';
+            },
+            handleWeightedYes: function () {
+                this.selectedWeighted = 'T';
+            },
+            handleWeightedNo: function () {
+                this.selectedWeighted = 'F';
+            },
+            handleEditSelect: function (e) {
+                this.columnSelected = e.target.templateInstance.model.column.name;
+            },
+            retrieveData: function () {
+                var me = this;
+                this.results = null;
+                var sif;
+                if (this.selectedWeighted === 'T') {
+                    sif = this.networkViewer.getAsSIFCustomRelation('\t', this.columnSelected);
+                } else {
+                    sif = this.networkViewer.graph.getAsSIF();
+                }
+                console.log(sif)
+
+
+                var formData = new FormData();
+                formData.append("sif", sif);
+                formData.append("directed", this.selectedDirected);
+                formData.append("weighted", this.selectedWeighted);
+                formData.append("method", this.selectedMethod);
+
+
+                var request = new XMLHttpRequest();
+                request.onload = function () {
+                    var response;
+                    var contentType = this.getResponseHeader('Content-Type');
+                    if (contentType === 'application/json') {
+                        response = JSON.parse(this.response);
+                    } else {
+                        response = this.response;
+                    }
+                    if (response.error === "") {
+                        me.results = response.response[0].results;
+
+                        var vAttr = me.networkViewer.vAttr;
+                        vAttr.addColumn({
+                            defaultValue: "",
+                            name: "community",
+                            title: "Community",
+                            type: "string",
+                            cellTemplate: "inputTemplate"
+                        });
+                        vAttr.addColumn({
+                            defaultValue: "",
+                            name: "communityColor",
+                            title: "Community color",
+                            type: "string",
+                            cellTemplate: "inputTemplate"
+                        });
+
+                        var lines = response.response[0].attributes.split("\n");
+                        var line, fields;
+                        var row;
+                        for (var i = 0; i < lines.length; i++) {
+                            line = lines[i];
+                            if (line !== "") {
+                                fields = line.split("\t");
+                                row = vAttr.getRow(fields[0]);
+                                row["community"] = fields[1];
+                                row["communityColor"] = fields[2];
+                            }
+                        }
+
+                    }
+                };
+                request.onerror = function () {
+                    console.log("request error");
+                };
+                request.open("POST", OpencgaManager.host + '/util/network/community', true);
+                request.send(formData);
+            },
+            handleApplyColor: function () {
+                this._applyVertexAttributes();
+            },
+            _applyVertexAttributes: function () {
+                this.networkViewer.vertexDefaults.labelAttribute = "name";
+                this.networkViewer.handleVertexDefaultLabelAttribute();
+
+                var shown = this.networkViewer.hideNodeSimpleRendering;
+                this.networkViewer.hideNodeSimpleRendering = false;
+                var nodeRender = this.networkViewer.shadowRoot.querySelector('jso-attribute-node-render');
+
+                nodeRender.displayProperty = 'color';
+                nodeRender.$.color.attributeName = "communityColor";
+                nodeRender.$.color._updateUniqueValues();
+                nodeRender.$.color.handleApplyDirect();
+                nodeRender.$.color.handleOk();
+
+                nodeRender.displayProperty = null;
+                this.networkViewer.hideNodeSimpleRendering = shown;
+            }
+        });
+    </script>
+</polymer-element>

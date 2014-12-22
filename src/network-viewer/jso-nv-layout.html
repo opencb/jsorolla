@@ -56,6 +56,7 @@
             },
             appendDom: function () {
                 this.$.frontSvg.appendChild(this.$.scaleFrontGroup);
+                this.zoomChanged();
             },
             clean: function () {
                 this.tx = 0;

@@ -1,0 +1,266 @@
+<polymer-element name="jso-topological-study" attributes="networkViewer hideFlag">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 350px;
+                height: 350px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+                background-color: #FFFFFF;
+            }
+
+            #header[horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #header[horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .attributelist {
+                box-sizing: border-box;
+                padding: 0 5px 5px 5px;
+                overflow-y: auto;
+            }
+
+            .attributelist > * {
+                margin-top: 3px;
+            }
+
+            .checkbox, .radiobox {
+                width: 25px;
+            }
+
+            .checkbox::after, .radiobox::after {
+                font-family: 'FontAwesome';
+                content: ' \00a0'
+            }
+
+            .radiobox[data-checked]::after {
+                content: '\f10c'
+            }
+
+            .checkbox[data-checked]::after {
+                content: '\f00c'
+            }
+
+            .parameter {
+                margin-left: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin: 5px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            textarea {
+                resize: none;
+                margin: 3px;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
+                <div class="text">Network analysis: Topological study</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" flex vertical layout>
+                <label>Consider network as directed</label>
+
+                <div class="parameter" horizontal layout>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedDirected == 'T' }}"
+                             on-click="{{handleDirectedYes}}"></div>
+                        <div flex class="text">Yes</div>
+                    </div>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedDirected == 'F' }}"
+                             on-click="{{handleDirectedNo}}"></div>
+                        <div flex class="text">No</div>
+                    </div>
+                </div>
+                <label>Consider network as weighted</label>
+
+
+                <div class="parameter" horizontal layout>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedWeighted == 'T' }}"
+                             on-click="{{handleWeightedYes}}"></div>
+                        <div flex class="text">Yes</div>
+                    </div>
+                    <div horizontal layout>
+                        <div class="button action radiobox"
+                             data-checked?="{{ selectedWeighted == 'F' }}"
+                             on-click="{{handleWeightedNo}}"></div>
+                        <div flex class="text">No</div>
+                    </div>
+                </div>
+
+
+                <div vertical layout flex hidden?="{{selectedWeighted != 'T'}}">
+                    <label>Use column for weight</label>
+
+                    <div class="attributelist parameter" flex>
+                        <template repeat="{{column in networkViewer.vAttr.columns}}">
+                            <div horizontal layout>
+                                <div class="button action checkbox"
+                                     data-checked?="{{ columnSelected == column.name }}"
+                                     on-click="{{handleEditSelect}}"></div>
+                                <div flex class="text">{{column.title}}</div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <template if="{{results}}">
+                    <label>Results</label>
+
+                    <div>Average nodes per component: {{results['Average nodes per component']}}</div>
+                    <div>Average shorthest path length: {{results['Average shorthest path length']}}</div>
+                    <div>Clustering coefficient: {{results['Clustering coefficient']}}</div>
+                    <div>Diameter: {{results['Diameter']}}</div>
+                    <div>Number of components: {{results['Number of components']}}</div>
+                    <div>Number of edges: {{results['Number of edges']}}</div>
+                    <div>Number of nodes: {{results['Number of nodes']}}</div>
+                </template>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div horizontal end-justified layout flex>
+                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
+                </div>
+            </div>
+            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.selectedDirected = 'F';
+                this.selectedWeighted = 'F';
+
+                this.columnSelected = 'id';
+            },
+            handleClose: function () {
+                this.hideFlag = true;
+            },
+            handleGo: function () {
+                this.retrieveData();
+            },
+            handleDirectedYes: function () {
+                this.selectedDirected = 'T';
+            },
+            handleDirectedNo: function () {
+                this.selectedDirected = 'F';
+            },
+            handleWeightedYes: function () {
+                this.selectedWeighted = 'T';
+            },
+            handleWeightedNo: function () {
+                this.selectedWeighted = 'F';
+            },
+            handleEditSelect: function (e) {
+                this.columnSelected = e.target.templateInstance.model.column.name;
+            },
+            retrieveData: function () {
+                var me = this;
+                var sif;
+                if (this.selectedWeighted === 'T') {
+                    sif = this.networkViewer.getAsSIFCustomRelation('\t', this.columnSelected);
+                } else {
+                    sif = this.networkViewer.graph.getAsSIF();
+                }
+                console.log(sif)
+
+                var formData = new FormData();
+                formData.append("sif", sif);
+                formData.append("directed", this.selectedDirected);
+                formData.append("weighted", this.selectedWeighted);
+
+
+                var request = new XMLHttpRequest();
+                request.onload = function () {
+                    var response;
+                    var contentType = this.getResponseHeader('Content-Type');
+                    if (contentType === 'application/json') {
+                        response = JSON.parse(this.response);
+                    } else {
+                        response = this.response;
+                    }
+                    if (response.error === "") {
+                        me.results = response.response[0].global;
+
+                        var vAttr = me.networkViewer.vAttr;
+                        vAttr.addColumn({
+                            defaultValue: "",
+                            name: "degree",
+                            title: "Degree",
+                            type: "string",
+                            cellTemplate: "inputTemplate"
+                        });
+                        vAttr.addColumn({
+                            defaultValue: "",
+                            name: "betweenness",
+                            title: "Betweenness",
+                            type: "string",
+                            cellTemplate: "inputTemplate"
+                        });
+                        vAttr.addColumn({
+                            defaultValue: "",
+                            name: "closenessCentrality",
+                            title: "Closeness centrality",
+                            type: "string",
+                            cellTemplate: "inputTemplate"
+                        });
+                        vAttr.addColumn({
+                            defaultValue: "",
+                            name: "clusteringCoefficient",
+                            title: "Clustering coefficient",
+                            type: "string",
+                            cellTemplate: "inputTemplate"
+                        });
+
+                        var lines = response.response[0].local.split("\n");
+                        var line, fields;
+                        var row;
+                        for (var i = 0; i < lines.length; i++) {
+                            line = lines[i];
+                            if (line !== "" && line.charAt(0) !== '#') {
+                                fields = line.split("\t");
+                                row = vAttr.getRow(fields[0]);
+                                row["degree"] = fields[1];
+                                row["betweenness"] = fields[2];
+                                row["closenessCentrality"] = fields[3];
+                                row["clusteringCoefficient"] = fields[4];
+                            }
+                        }
+                    }
+                };
+                request.onerror = function () {
+                    console.log("request error");
+                };
+                request.open("POST", OpencgaManager.host + '/util/network/topological-study', true);
+                request.send(formData);
+            }
+        });
+    </script>
+</polymer-element>

@@ -42,14 +42,18 @@
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-color-table.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-select-table.html">
 
-<link rel="import" href="../lib/components/jso-cellbase-attribute-import.html">
+<link rel="import" href="../lib/components/network/jso-cellbase-attribute-import.html">
+<link rel="import" href="../lib/components/network/jso-intact-import.html">
+<link rel="import" href="../lib/components/network/jso-communities-structure-detection.html">
+<link rel="import" href="../lib/components/network/jso-topological-study.html">
+<link rel="import" href="../lib/components/network/jso-kegg.html">
+<link rel="import" href="../lib/components/network/jso-reactome.html">
 
 <script src="../lib/cellbase-manager.js"></script>
 
 
 <script src="../../bower_components/d3/d3.min.js"></script>
 
-<!-- /build -->
 <polymer-element name="jso-network-viewer"
                  attributes="hideBar hideToolBar hideEditionBar">
     <template>
@@ -128,6 +132,20 @@
                 on-node-list-rendering="{{handleNodeListRenderingMenu}}"
                 on-edge-simple-rendering="{{handleEdgeSimpleRenderingMenu}}"
 
+                on-reactome="{{handleReactomeMenu}}"
+                on-kegg="{{handleKeggMenu}}"
+                on-intact="{{handleIntactMenu}}"
+
+                on-communities-structure-detection="{{handleCommunitiesMenu}}"
+                on-topological-study="{{handleTopologicalMenu}}"
+
+
+                on-reactome-fi-microarray="{{handleReactomeFiMenu}}"
+
+                on-snow="{{handleSnowMenu}}"
+                on-network-miner="{{handleNetworkMinerMenu}}"
+                on-fatigo="{{handleFatigoMenu}}"
+
                 on-save="{{handleSave}}"
                 on-configure="{{}}"
                 >
@@ -193,7 +211,7 @@
 
                 ></jso-nv-layout>
 
-        <jso-nv-status-bar></jso-nv-status-bar>
+        <jso-nv-status-bar networkViewer="{{}}"></jso-nv-status-bar>
 
         <div class="right-side">
             <jso-attribute-node-render
@@ -246,11 +264,41 @@
                     selectedMenu="{{selectedMenu}}" attributeManager="{{eAttr}}" type="edge">
             </jso-attribute-edit>
             <jso-cellbase-attribute-import
-                    hidden?="{{hideCellbaseAttributeImport}}"
-                    hideFlag="{{hideCellbaseAttributeImport}}"
+                    hidden?="{{hideCellbase}}"
+                    hideFlag="{{hideCellbase}}"
                     attributeManager="{{vAttr}}"
                     >
             </jso-cellbase-attribute-import>
+            <jso-intact-import
+                    hidden?="{{hideIntact}}"
+                    hideFlag="{{hideIntact}}"
+                    networkViewer="{{}}"
+                    >
+            </jso-intact-import>
+            <jso-communities-structure-detection
+                    hidden?="{{hideCommunities}}"
+                    hideFlag="{{hideCommunities}}"
+                    networkViewer="{{}}"
+                    >
+            </jso-communities-structure-detection>
+            <jso-topological-study
+                    hidden?="{{hideTopological}}"
+                    hideFlag="{{hideTopological}}"
+                    networkViewer="{{}}"
+                    >
+            </jso-topological-study>
+            <jso-reactome
+                    hidden?="{{hideReactome}}"
+                    hideFlag="{{hideReactome}}"
+                    networkViewer="{{}}"
+                    >
+            </jso-reactome>
+            <jso-kegg
+                    hidden?="{{hideKegg}}"
+                    hideFlag="{{hideKegg}}"
+                    networkViewer="{{}}"
+                    >
+            </jso-kegg>
         </div>
 
         <!--Menu file-->
@@ -308,7 +356,6 @@
                 this.mode = "select";
                 this.scale;
 
-
                 /*MENUS*/
 //                this.selectedMenu = 'nodes-edit';
                 this.selectedMenu = '';
@@ -316,8 +363,21 @@
                 this.hideEdgeSimpleRendering = true;
                 this.hideNodeListRendering = true;//TODO remove
 
-                this.hideCellbaseAttributeImport = true;
-//                this.hideCellbaseAttributeImport = false;
+                this.hideCellbase = true;
+
+                this.hideNodeSimpleRendering = false;
+                this.hideNodeListRendering = false;
+                this.hideEdgeSimpleRendering = false;
+
+                this.hideReactome = false;
+                this.hideKegg = false;
+                this.hideIntact = true;
+                this.hideCommunities = true;
+                this.hideTopological = true;
+                this.hideReactomeFi = false;
+                this.hideSnow = false;
+                this.hideNetworkMiner = false;
+                this.hideFatigo = false;
 
             },
             _init: function () {
@@ -739,6 +799,7 @@
 
 
             handleWheel: function (e) {
+                e.preventDefault();
                 if (e.deltaY < 0) {
                     this.zoom = Math.min(100, this.zoom + 2);
                 } else {
@@ -755,7 +816,7 @@
                 this.selectedMenu = 'edges-edit';
             },
             handleCellbaseMenu: function (e) {
-                this.hideCellbaseAttributeImport = false;
+                this.hideCellbase = false;
             },
             handleSessionStartMenu: function (e) {
                 if (confirm('All changes will be lost. Are you sure?')) {
@@ -888,6 +949,38 @@
             handleEdgeSimpleRenderingMenu: function (e) {
                 this.hideEdgeSimpleRendering = false;
             },
+
+            handleReactomeMenu: function (e) {
+                this.hideReactome = false;
+            },
+            handleKeggMenu: function (e) {
+                this.hideKegg = false;
+            },
+            handleIntactMenu: function (e) {
+                this.hideIntact = false;
+            },
+
+            handleCommunitiesMenu: function (e) {
+                this.hideCommunities = false;
+            },
+            handleTopologicalMenu: function (e) {
+                this.hideTopological = false;
+            },
+
+            handleReactomeFiMenu: function (e) {
+                this.hideReactomeFi = false;
+            },
+
+            handleSnowMenu: function (e) {
+                this.hideSnow = false;
+            },
+            handleNetworkMinerMenu: function (e) {
+                this.hideNetworkMiner = false;
+            },
+            handleFatigoMenu: function (e) {
+                this.hideFatigo = false;
+            },
+
 
             /**/
             handleImportSif: function (e) {
@@ -1343,17 +1436,19 @@
 //                    this.network.setEdgeLabel(edge, label);
 //                }
             },
-            createVertex: function (x, y) {
+            createVertex: function (x, y, id) {
                 x -= this.center.x;
                 y -= this.center.y;
                 x /= this.scale;
                 y /= this.scale;
 
-                var id = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+                if (id == null) {
+                    id = 'n' + Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+                }
 
                 /* vertex graph */
                 var vertex = new Vertex({
-                    id: 'n' + id,
+                    id: id,
                     position: new Point(x, y),
                     renderer: new CircosVertexRenderer(this.vertexDefaults)
                 });
@@ -1366,21 +1461,24 @@
                     vertex.render({
                         target: this.$.networkLayout.$.scaleFrontGroup
                     });
+                } else {
+                    vertex = this.graph.getVertexById(id);
                 }
                 return vertex;
             },
-            createEdge: function (vertexSource, vertexTarget) {
-                var relation = 'i';
+            createEdge: function (vertexSource, vertexTarget, relation) {
+                if (relation == null) {
+                    relation = 'i';
+                }
+                var id = vertexSource.id + '_' + relation + '_' + vertexTarget.id
                 /* edge graph */
                 var edge = new Edge({
-                    id: vertexSource.id + '_' + relation + '_' + vertexTarget.id,
+                    id: id,
                     relation: relation,
                     source: vertexSource,
                     target: vertexTarget,
                     renderer: new DefaultEdgeRenderer(this.edgeDefaults)
                 });
-
-//                this.session.getEdgeDefaults()
 
                 var added = this.graph.addEdge(edge);
                 if (added) {
@@ -1392,6 +1490,9 @@
                     edge.render({
                         target: this.$.networkLayout.$.scaleFrontGroup
                     });
+                }
+                else {
+                    edge = this.graph.getEdgeById(id);
                 }
                 return edge;
             },
@@ -1579,6 +1680,33 @@
             },
             exportGraph: function (separator) {
                 return this.graph.getAsSIF(separator);
+            },
+            getAsSIFCustomRelation: function (separator, relationColumn) {
+                if (typeof separator === 'undefined') {
+                    separator = '\t';
+                }
+
+                var vertices = this.graph.vertices;
+                var edges = this.graph.edges;
+
+                var sifText = '', edge, line, row;
+                for (var i = 0; i < edges.length; i++) {
+                    edge = edges[i];
+                    line = "";
+                    row = this.eAttr.getRow(edge.id);
+                    line = edge.source.id + separator + row[relationColumn] + separator + edge.target.id + "\n";
+                    sifText += line;
+                }
+                var vertex;
+                for (var i = 0; i < vertices.length; i++) {
+                    vertex = vertices[i];
+                    line = "";
+                    if (vertex.edges.length == 0) {
+                        line = vertex.id + separator + separator + "\n";
+                    }
+                    sifText += line;
+                }
+                return sifText;
             },
             exportVertexAttributes: function (separator) {
                 return this.vAttr.getAsFile(separator);

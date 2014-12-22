@@ -53,7 +53,9 @@ function DefaultEdgeRenderer(args) {
     //set instantiation args, must be last
     for (var prop in args) {
         if (hasOwnProperty.call(args, prop)) {
-            this[prop] = args[prop];
+            if (args[prop] != null) {
+                this[prop] = args[prop];
+            }
         }
     }
 

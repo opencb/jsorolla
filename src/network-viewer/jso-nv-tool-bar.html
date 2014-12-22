@@ -71,8 +71,7 @@
              class="button">
             <font-awesome icon="file-image-o"></font-awesome>
         </div>
-        <input on-change={{handleBackgroundImageField}} id="importBackgroundImageField" type="file"
-               style="display:none"/>
+        <input on-change={{handleBackgroundImageField}} id="importBackgroundImageField" type="file" hidden>
 
         <jso-color-picker id="backgroundColorPicker" color="{{backgroundColor}}"
                           on-color-click="{{handleBackgroundColorPicker}}"
