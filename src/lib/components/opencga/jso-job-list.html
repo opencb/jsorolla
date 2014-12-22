@@ -8,6 +8,7 @@
                 display: block;
                 position: absolute;
                 transition: height 0.1s;
+                z-index: 60000;
                 box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
             }
 
@@ -127,6 +128,15 @@
                 clearInterval(this.interval);
                 this.interval = null;
             },
+            attached: function () {
+                var me = this;
+                if (this.interval == null) {
+                    this.getJobs();//first call
+                    this.interval = setInterval(function () {
+                        me.getJobs();
+                    }, this.checkTimeInterval);
+                }
+            },
             domReady: function () {
                 console.log(this.getBoundingClientRect().height);
                 this.handleResize()
@@ -154,26 +164,15 @@
             handleClose: function () {
 //                this.showJobs = false;
             },
-            showJobsChanged: function (oldV, newV) {
-                var me = this;
-                if (this.showJobs) {
-                    if (this.interval == null) {
-                        this.getJobs();//first call
-                        this.interval = setInterval(function () {
-                            me.getJobs();
-                        }, this.checkTimeInterval);
-                    }
-                }
-            },
             handleJobViewClick: function (jobItem) {
                 this.selectedOption = "jobView"
 //                this.jobItem = e.target.jobItem
                 this.jobItem = jobItem;
-                this.fire('job-item-click',{jobItem:this.jobItem});
+                this.fire('job-item-click', {jobItem: this.jobItem});
                 console.log(this.jobItem)
 
 //                this.jobItem = e.target.jobItem;
-                if(this.jobItem.status == "READY")
+                if (this.jobItem.status == "READY")
                     this.selectedOption = "jobReady";
                 else
                     this.selectedOption = "jobNoReady";

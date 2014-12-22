@@ -5,23 +5,18 @@
         <style>
             :host {
                 display: block;
-                position: absolute;
+                position: relative;
                 box-sizing: border-box;
-                background-color: #FFFFFF;
-                padding: 10px 20px;
+                padding: 15px 40px;
 
-                top: 80px;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-                left: 0;
-                right: 0;
-                margin-left: 20px;
-                margin-right: 20px;
-
-                /*width: 1200px;*/
+                min-width: 600px;
                 border: 1px solid #c6d0da;
-                /*border-top-width: 1px;*/
                 transition: all 0.2s;
-                box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
             }
 
             .title {
@@ -58,12 +53,12 @@
                 margin-right: 10px;
             }
         </style>
-        <div class="title">
-            <div>
-                PATHiVAR Result
-            </div>
-        </div>
-        <br>
+        <!--<div class="title">-->
+            <!--<div>-->
+                <!--PATHiVAR Result-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<br>-->
 
         <div horizontal layout>
             <div id="resultpathways">
@@ -71,7 +66,7 @@
                     <div class="button action" on-click="{{handlePathwayClick}}">{{pathwaysMap[pathway]}}</div>
                 </template>
             </div>
-            <jso-network-viewer id="networkViewer" flex hideBar="false" hideToolBar="false"
+            <jso-network-viewer id="networkViewer" flex hideBar="true" hideToolBar="false"
                                 hideEditionBar="false"></jso-network-viewer>
         </div>
         <div class="message">{{message}}</div>
