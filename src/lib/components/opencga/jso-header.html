@@ -12,16 +12,23 @@
                 display: block;
                 position: relative;
                 box-sizing: border-box;
-                background-color: #FFFFFF;
+                /*background-color: #FFFFFF;*/
+                /*background-color: #435f7a;*/
+                background-color: #314559;
                 height: 60px;
                 cursor: default;
+                z-index: 1000000;
+                box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
             }
 
             ul.help-menu, ul.app-menu, ul.header {
+                color: #CCCCCC;
                 margin: 0;
                 padding: 0;
-                background: white;
-                color: #435f7a;
+                /*background: white;*/
+                background-color: #314559;
+                /*color: #435f7a;*/
+                /*color: white;*/
                 list-style: none;
                 text-transform: none;
                 line-height: 60px;
@@ -50,7 +57,8 @@
             }
 
             ul.header li.description {
-                color: #6599FF;
+                /*color: #6599FF;*/
+                color: #ffad76;
                 font-size: 20px;
             }
 
@@ -70,14 +78,21 @@
             }
 
             ul.help-menu > li:hover, ul.header > li:hover {
-                background: #435f7a;
+                /*background: #435f7a;*/
                 color: white;
+                cursor: pointer;
             }
 
-            ul.header > li.title:hover {
-                background-color: #ebeef3;
-                color: #435f7a;
+            ul.help-menu > li:hover{
+                color: white;
+                cursor: pointer;
+                background-color: #435f7a;
             }
+
+            /*ul.header > li.title:hover {*/
+            /*background-color: #ebeef3;*/
+            /*color: #435f7a;*/
+            /*}*/
 
             ul.header > li.text:hover {
                 background: none;
@@ -85,8 +100,7 @@
             }
 
             ul.header > li.description:hover {
-                background: white;
-                color: #6599FF;
+                color: #ffad76;
             }
 
             ul.help-menu {
@@ -98,8 +112,9 @@
                 visibility: hidden;
                 opacity: 0;
                 /*display:none;*/
-                border-top: 1px solid #c6d0da;
+                /*border-top: 1px solid #c6d0da;*/
                 transition: all 0.2s;
+                box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.3);
             }
 
             ul.app-menu {
@@ -127,8 +142,6 @@
             }
 
             ul.help-menu > li {
-                border-bottom: 1px solid #c6d0da;
-                border-left: 1px solid #c6d0da;
                 padding: 0 10px;
             }
 
@@ -149,7 +162,8 @@
             }
 
             #user {
-                color: #8b0000;
+                color: #ffad76;
+                /*color: #8b0000;*/
             }
 
             [hide=true] {
@@ -264,15 +278,15 @@
                             <template repeat="{{o2 in o.sub}}">
                                 <li data-option="{{o2.option}}" on-click="{{handleMenu}}"
                                     data-sub="{{o2.sub.length > 0}}"
-                            data-text="{{o2.option == 'none'}}">
-                            {{o2.text}}
-                            <template if="{{o2.sub}}">
-                                <ul>
-                                    <template repeat="{{o3 in o2.sub}}">
-                                        <li data-option="{{o3.option}}" on-click="{{handleMenu}}">
-                                            {{o3.text}}
-                                        </li>
-                                    </template>
+                                    data-text="{{o2.option == 'none'}}">
+                                    {{o2.text}}
+                                    <template if="{{o2.sub}}">
+                                        <ul>
+                                            <template repeat="{{o3 in o2.sub}}">
+                                                <li data-option="{{o3.option}}" on-click="{{handleMenu}}">
+                                                    {{o3.text}}
+                                                </li>
+                                            </template>
 
                                         </ul>
                                     </template>
@@ -283,11 +297,11 @@
                 </li>
             </template>
 
-            <li id="apps" class="right" on-click="{{}}">
-                &nbsp;
-                <font-awesome icon="th"></font-awesome>
-                &nbsp;
-            </li>
+            <!--<li id="apps" class="right" on-click="{{}}">-->
+            <!--&nbsp;-->
+            <!--<font-awesome icon="th"></font-awesome>-->
+            <!--&nbsp;-->
+            <!--</li>-->
             <li id="support" class="right" on-click="{{handleSupportMenu}}">
                 &nbsp;
                 <font-awesome icon="support"></font-awesome>
@@ -341,7 +355,7 @@
             </li>
 
         </ul>
-        <ul id="helpMenu" class="help-menu">
+        <ul id="helpMenu" class="help-menu" on-mouseleave="{{handleHelpMenuMouseOut}}">
             <li id="homeHelp" class="right" on-click="{{ handleHomeHelp }}">
                 <font-awesome icon="home"></font-awesome>
                 &nbsp;home
@@ -423,6 +437,9 @@
             },
             handleSupportMenu: function (e) {
                 this.$.helpMenu.classList.toggle('help-menu-shown');
+            },
+            handleHelpMenuMouseOut: function () {
+                this.$.helpMenu.classList.remove('help-menu-shown');
             },
             handleLogin: function (e) {
                 if (e.detail.status) {
