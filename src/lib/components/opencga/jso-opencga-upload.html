@@ -108,6 +108,7 @@
                     this.uploading = true;
 
                     var inputFile = this.$.fileInput.files[0];
+//                    var relativeFilePath = this.folder.path + inputFile.name.replace(/[^a-z0-9]/gi, '_');
                     var relativeFilePath = this.folder.path + inputFile.name;
 
                     var fileuploadWorker = new Worker(WORKERS_PATH + 'worker-fileupload.js');
