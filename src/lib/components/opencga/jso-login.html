@@ -45,8 +45,8 @@
 
             div.button {
                 margin-top: 30px;
-                padding:10px !important;
-                font-size:16px;
+                padding: 10px !important;
+                font-size: 16px;
             }
 
             .message {
@@ -99,36 +99,39 @@
                 this.selectedOption = "rememberpassword";
             },
             handleForm: function (e) {
-                var me = this;
                 this.message = '';
-
                 if (this.$.form.checkValidity()) {
-
-                    OpencgaManager.users.login({
-                        id: this.user,
-                        query: {
-                            password: CryptoJS.SHA1(this.password).toString()
-                        },
-                        request: {
-                            success: function (response) {
-                                console.log(response);
-                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                    Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
-                                    Cookies.set('bioinfo_user', response.response[0].result[0].userId);
-                                    me.fire('login', {status: true});
-                                } else {
-                                    me.message = response.response[0].errorMsg;
-                                    //Delete all cookies
-                                    Cookies.expire('bioinfo_sid');
-                                    Cookies.expire('bioinfo_user');
-                                }
-                            },
-                            error: function () {
-                                me.message = 'Server error, try again later.';
-                            }
-                        }
-                    });
+                    this._login();
                 }
+            },
+            _login: function () {
+                var me = this;
+                OpencgaManager.users.login({
+                    id: this.user,
+                    query: {
+                        password: CryptoJS.SHA1(this.password).toString()
+                    },
+                    request: {
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
+                                Cookies.set('bioinfo_user', response.response[0].result[0].userId);
+                                me.fire('login', {status: true});
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                                //Delete all cookies
+                                Cookies.expire('bioinfo_sid');
+                                Cookies.expire('bioinfo_user');
+                            }
+                            me.user = null;
+                            me.password = null;
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
             }
         });
     </script>

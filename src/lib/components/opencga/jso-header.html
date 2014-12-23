@@ -83,7 +83,7 @@
                 cursor: pointer;
             }
 
-            ul.help-menu > li:hover{
+            ul.help-menu > li:hover {
                 color: white;
                 cursor: pointer;
                 background-color: #435f7a;
@@ -374,9 +374,11 @@
             </li>
         </ul>
 
-        <template if="{{ selectedOption == 'login' }}">
-            <jso-login on-login="{{handleLogin}}" selectedOption="{{selectedOption}}"></jso-login>
-        </template>
+        <jso-login id="jsoLogin"
+                   hidden?="{{ selectedOption != 'login' }}"
+                   on-login="{{handleLogin}}"
+                   selectedOption="{{selectedOption}}">
+        </jso-login>
 
         <template if="{{ selectedOption == 'signup' }}">
             <jso-signup></jso-signup>
@@ -447,6 +449,12 @@
                 } else {
                     this.sessionFinished();
                 }
+                this.fire('session-change');
+            },
+            demoLogin: function () {
+                this.$.jsoLogin.user = "demo";
+                this.$.jsoLogin.password = "demo";
+                this.$.jsoLogin._login();
             },
             sessionInitiated: function (e) {
                 var me = this;
