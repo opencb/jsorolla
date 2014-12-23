@@ -117,7 +117,7 @@
                 <h3>Filter missing values</h3>
                 <!--<input name="filter_missing_bool" id="filter_missing_bool" class="fc-checkbox" type="checkbox" value="true">Check to apply this filter<br>-->
                 <label>Minimum percentage of existing values (%)</label>
-                <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" value="70">
+                <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" value="">
 
             </div>
             <div>
@@ -189,27 +189,32 @@
                     name: this.jobName,
                     description: this.description
                 };
-                if (this.$.logarithm_base.value != "none")
-                    query["logarithm-base"] = this.$.logarithm_base.value;
-                if (this.$.exp.value != "none")
-                    query["exp"] = this.$.exp.value;
-                if (this.$.merge_replicates.value != "none")
-                    query["merge-replicates"] = this.$.merge_replicates.value;
+                if (this.shadowRoot.querySelector('input[name="logarithm_base"]:checked').value != "none")
+                    query["logarithm-base"] =  this.shadowRoot.querySelector('input[name="logarithm_base"]:checked').value;
+
+                if ( this.shadowRoot.querySelector('input[name="exp"]:checked').value != "none")
+                    query["exp"] =  this.shadowRoot.querySelector('input[name="exp"]:checked').value;
+
+                if ( this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value != "none")
+                    query["merge-replicates"] =  this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value;
+
                 if (this.$.filter_missing.value != "")
                     query["filter-missing"] = this.$.filter_missing.value;
-                if (this.$.impute_missing.value != "none"){
-                    query["impute-missing"] = this.$.impute_missing.value;
-                    if(this.$.impute_missing.value != "knn")
+
+                if ( this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value != "none"){
+                    query["impute-missing"] =  this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value;
+                    if( this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value == "knn")
                         query["kvalue"] = this.$.kvalue.value;
                 }
+
                 if (this.$.extract_ids.checked){
                     query["extract-ids"] = this.$.extract_ids.checked;
                 }
                 if (this.$.gene_file_filter.selectedFile.type == "FILE"){
                     query["gene_file_filter"] = this.$.gene_file_filter.selectedFile.id;
                 }
-                if (this.$.convert_ids.value != "none") {
-                    query["convert-ids"] = this.$.convert_ids.value;
+                if ( this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value != "none") {
+                    query["convert-ids"] =  this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value;
                     query["species"] = this.$.species.value;
                     query["merge-replicates"] = this.$.merge_replicates.value;
                 }
