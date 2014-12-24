@@ -92,6 +92,8 @@
         <div>
             <h3>Select your data</h3>
             <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            <br>
+            <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox" value="true">Remove duplicates
         </div>
         <h3>Databases</h3>
 
@@ -110,7 +112,7 @@
                 <!--<option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>-->
             </select>
 
-            <input name="go_bp" id="go_bp" type="checkbox" value="gobp" disabled> GO biological process <br>
+            <input name="go_bp" id="go_bp" type="checkbox" value="gobp"> GO biological process <br>
             <!--<input name="go_mf" id="go_mf" type="checkbox" value="gomf" disabled>GO molecular function <br>-->
             <!--<input name="go_cc" id="go_cc" type="checkbox" value="gocc" disabled>GO cellular component <br>-->
             <!--<input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>-->
@@ -160,6 +162,11 @@
                 species: this.$.species.value
 
             };
+             if (this.$.go_bp.checked) {
+                    query["go-bp"] = "";
+//                    query["go-bp-min-num-genes"] = this.go_bp_min_num_genes;
+//                    query["go-bp-max-num-genes"] = this.go_bp_max_num_genes;
+                }
             OpencgaManager.jobs.create({
                 query: query,
                 request: {
