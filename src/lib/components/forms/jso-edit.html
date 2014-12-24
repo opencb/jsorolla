@@ -74,18 +74,23 @@
             </div>
 
         </div>
-        <h3>Examples</h3>
-
-        <div>
-            <h3>Select your data</h3>
-            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-        </div>
-        <div id="editData" hidden>
-            <h3>Edit data</h3>
-            <jso-class-edit id="classEdit" contentFile="{{contentFile}}"></jso-class-edit>
-            <div horizontal layout style="margin-top: 10px;">
-                <input type="button" class="button action newattr" on-click="{{handleSave}}" value="Save attributes">
-                <input type="button" class="button action newattr" on-click="{{resetChanges}}" value="Reset changes">
+        <div class="formbox">
+            <div class="formtitle">Select your data</div>
+            <div class="formcontent">
+                <jso-project-browser
+                        class="input-project-browser"
+                        id="inputFile" studies="{{studies}}"
+                        selectedStudy="{{selectedStudy}}"
+                        on-file-select="{{handleBrowseSelect}}">
+                </jso-project-browser>
+                <div id="editData">
+                    <h3>Edit data</h3>
+                    <jso-class-edit id="classEdit" contentFile="{{contentFile}}"></jso-class-edit>
+                    <div horizontal layout style="margin-top: 10px;">
+                        <input type="button" class="button action newattr" on-click="{{handleSave}}" value="Save attributes">
+                        <input type="button" class="button action newattr" on-click="{{resetChanges}}" value="Reset changes">
+                    </div>
+                </div>
             </div>
         </div>
     </template>
@@ -112,8 +117,12 @@
                     }
                 })
             },
-            compressed_fileChanged: function (oldV, newV) {
-                if (typeof this.$.inputFile.selectedFile.id != 'undefined')
+//            compressed_fileChanged: function (oldV, newV) {
+//                if (typeof this.$.inputFile.selectedFile.id != 'undefined')
+//                    this.getContentFile();
+//            },
+            handleBrowseSelect: function (e) {
+                if (this.$.inputFile.selectedFile.type == "FILE")
                     this.getContentFile();
             },
             handleSave: function () {
@@ -124,7 +133,7 @@
             saveInServer: function (strHeader) {
                 var me = this;
                 OpencgaManager.files.setHeader({
-                    id:this.$.inputFile.selectedFile.id,
+                    id: this.$.inputFile.selectedFile.id,
                     query: {
                         sid: Cookies("bioinfo_sid"),
                         header: encodeURIComponent(strHeader)

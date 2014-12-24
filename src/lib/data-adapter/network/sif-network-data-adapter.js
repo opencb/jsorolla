@@ -65,7 +65,7 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
 //        console.log('SIFParse number lines: ' + lines.length);
 //        console.log(lines);
         for (var i = 0; i < lines.length; i++) {
-            var line = lines[i].replace(/^\s+|\s+$/g, "");
+            var line = lines[i];
             if ((line != null) && (line.length > 0)) {
                 var fields = line.split(this.separator);
                 if (fields[0].substr(0, 1) != "#") {

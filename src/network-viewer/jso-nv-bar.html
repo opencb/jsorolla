@@ -59,7 +59,7 @@
                 Network
             </div>
             <ul id="networkMenu" on-click="{{handleClick}}">
-                <li data-value="network-edit">Edit network...</li>
+                <!--<li data-value="network-edit">Edit network...</li>-->
                 <li data-sub>Select
                     <ul>
                         <li data-value="nodes-select-all">All nodes</li>
@@ -74,11 +74,12 @@
                 </li>
                 <li data-sub>Layout
                     <ul>
-                        <li data-value="layout-force-directed" data-sub>Force directed
-                            <ul>
-                                <li data-value="layout-force-directed">Default</li>
-                                <li data-value="layout-configure-force-directed">Configure...</li>
-                            </ul>
+                        <!--<li data-value="layout-force-directed" data-sub>Force directed-->
+                        <li data-value="layout-force-directed">Force directed
+                            <!--<ul>-->
+                                <!--<li data-value="layout-force-directed">Default</li>-->
+                                <!--<li data-value="layout-configure-force-directed">Configure...</li>-->
+                            <!--</ul>-->
                         </li>
                         <li data-value="layout-circle" data-sub>Circle
                             <ul id="circleAttributesMenu">
@@ -103,8 +104,8 @@
                 <li data-value="nodes-edit">Edit nodes...</li>
                 <li data-value="edges-edit">Edit edges...</li>
                 <li data-divider>
-                <li data-value="node-simple-rendering">Node attribute rendering</li>
-                <li data-value="edge-simple-rendering">Edge attribute rendering</li>
+                <li data-value="node-simple-rendering">Node render by attribute</li>
+                <li data-value="edge-simple-rendering">Edge render by attribute</li>
                 <li data-divider>
                 <li data-value="cellbase">Cellbase...</li>
             </ul>

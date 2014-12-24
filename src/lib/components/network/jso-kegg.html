@@ -108,7 +108,7 @@
                 this.pathwayList = [];
 
                 this.shapeConvert = {
-                    roundrectangle: 'ellipse',
+                    roundrectangle: 'rectangle',
                     rectangle: 'rectangle',
                     circle: 'circle',
                     square: 'square'
@@ -269,8 +269,8 @@
                             me.networkViewer.vertexDefaults.labelAttribute = "name";
                             me.networkViewer.handleVertexDefaultLabelAttribute();
 
-//                            me.networkViewer.handleVertexDefaultXAttribute();
-//                            me.networkViewer.handleVertexDefaultYAttribute();
+                            me.networkViewer.handleVertexDefaultXAttribute();
+                            me.networkViewer.handleVertexDefaultYAttribute();
 
 //                            me.networkViewer.setLayout("Force directed");
                         },

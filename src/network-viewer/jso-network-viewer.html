@@ -49,6 +49,10 @@
 <link rel="import" href="../lib/components/network/jso-kegg.html">
 <link rel="import" href="../lib/components/network/jso-reactome.html">
 
+<link rel="import" href="../lib/components/forms/jso-snow.html">
+<link rel="import" href="../lib/components/forms/jso-network-miner.html">
+<link rel="import" href="../lib/components/forms/jso-fatigo.html">
+
 <script src="../lib/cellbase-manager.js"></script>
 
 
@@ -86,6 +90,16 @@
             .context {
                 width: 200px;
             }
+
+            jso-snow, jso-network-viewer, jso-fatigo{
+                position:absolute;
+                top:130px;
+                bottom:40px;
+                overflow-y: scroll;
+                left: 0;
+                right: 0;
+            }
+
         </style>
 
         <jso-nv-bar
@@ -145,6 +159,8 @@
                 on-snow="{{handleSnowMenu}}"
                 on-network-miner="{{handleNetworkMinerMenu}}"
                 on-fatigo="{{handleFatigoMenu}}"
+
+                on-example="{{handleLoadExampleMenu}}"
 
                 on-save="{{handleSave}}"
                 on-configure="{{}}"
@@ -325,6 +341,36 @@
             <jso-attribute-network-file-open selectedMenu="{{selectedMenu}}" on-open="{{handleImportEdgeAttr}}"
                                              type="edge">
             </jso-attribute-network-file-open>
+        </template>
+
+
+        <template if="{{selectedOption == 'networkminer'}}">
+            <jso-network-miner
+                    selectedOption="{{selectedOption}}"
+                    userData="{{userData}}"
+                    selectedStudy="{{selectedStudy}}"
+                    studies="{{studies}}"
+                    ></jso-network-miner>
+        </template>
+
+        <template if="{{selectedMenu == 'snow'}}">
+            <jso-snow
+                    selectedOption="{{selectedOption}}"
+                    userData="{{userData}}"
+                    selectedStudy="{{selectedStudy}}"
+                    studies="{{studies}}"
+                    >
+            </jso-snow>
+        </template>
+        <template if="{{selectedOption == 'fatigo'}}">
+            <jso-fatigo
+                    selectedOption="{{selectedOption}}"
+                    userData="{{userData}}"
+                    selectedStudy="{{selectedStudy}}"
+                    studies="{{studies}}"
+                    >
+
+            </jso-fatigo>
         </template>
 
 
@@ -971,13 +1017,13 @@
             },
 
             handleSnowMenu: function (e) {
-                this.hideSnow = false;
+                this.selectedMenu = "snow";
             },
             handleNetworkMinerMenu: function (e) {
-                this.hideNetworkMiner = false;
+                this.selectedMenu = "networkminer";
             },
             handleFatigoMenu: function (e) {
-                this.hideFatigo = false;
+                this.selectedMenu = "fatigo";
             },
 
 
@@ -1793,6 +1839,36 @@
             },
             __iliketomoveit: function () {
                 this.setLayout('Force directed (simulation)')
+            },
+            handleLoadExampleMenu: function (e) {
+                var me = this;
+                if (e.detail.subvalue == 1) {
+                    $.ajax({
+                        url: './example-files/ppi_histone_network.json',
+                        dataType: 'json',
+                        success: function (data) {
+                            me.loadJSON(data);
+                        }
+                    })
+                }
+                if (e.detail.subvalue == 2) {
+                    $.ajax({
+                        url: './example-files/reactome_network.json',
+                        dataType: 'json',
+                        success: function (data) {
+                            me.loadJSON(data);
+                        }
+                    })
+                }
+                if (e.detail.subvalue == 3) {
+                    $.ajax({
+                        url: './example-files/ppi_network.json',
+                        dataType: 'json',
+                        success: function (data) {
+                            me.loadJSON(data);
+                        }
+                    })
+                }
             }
         });
     </script>

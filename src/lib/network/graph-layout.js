@@ -98,7 +98,8 @@ GraphLayout = {
         if (typeof orderedVertices !== 'undefined') {
             vertices = orderedVertices;
         }
-        var radius = height / 2;
+
+        var radius = (height - 100) / 2;
         var centerX = width / 2;
         var centerY = height / 2;
         var x, y, vertex;
