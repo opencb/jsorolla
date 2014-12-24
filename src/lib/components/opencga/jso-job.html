@@ -70,7 +70,7 @@
                               animation="spin"></font-awesome>
                 {{jobItem.id}} {{jobItem.name}}
             </div>
-            <div>{{jobItem.toolName}}</div>
+            <div>{{computeToolName()}}</div>
 
             <div>
                 <span class="capitalize {{jobItem.status}}">{{computeStatus()}}</span>
@@ -85,6 +85,12 @@
             },
             computeStatus: function () {
                 return this.jobItem.status.toLowerCase();
+            },
+            computeToolName: function () {
+                if(this.jobItem.toolName.toLowerCase() == "pathiways"){
+                    return "PATHiVAR";
+                }
+                return this.jobItem.toolName;
             },
             created: function () {
                 this.jobItem;

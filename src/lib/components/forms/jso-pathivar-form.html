@@ -12,8 +12,7 @@
                 z-index: 50000;
                 margin: 0px auto 0px auto;
 
-                width: 70%;
-                min-width: 600px;
+                width: 1170px;
                 border: 1px solid #c6d0da;
                 transition: all 0.2s;
                 box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
@@ -22,7 +21,7 @@
 
             .title {
                 text-align: center;
-                font-size: 25px;
+                font-size: 20px;
                 color: #666;
             }
 
@@ -55,7 +54,7 @@
                 overflow-y: auto;
                 height: 300px;
                 /*padding-left: 5px;*/
-                padding: 5px;
+                /*padding: 5px;*/
             }
 
             .check-name {
@@ -94,25 +93,31 @@
                 box-shadow: none;
             }
 
-            .message {
+            .errmsg {
                 color: #8b0000;
+                margin-bottom: 5px;
             }
+
+
         </style>
         <form id="form" on-keypress="{{handleFormKey}}">
             <div class="title">
                 <div>
-                    <font-awesome icon="rocket" class="icon"></font-awesome>
-                    &nbsp; PATHiVAR form
+                    <!--<font-awesome icon="rocket" class="icon"></font-awesome>-->
+                    PATHiVAR input parameters
                 </div>
-                <div class="icon">
-                    <!--<font-awesome icon="rocket" animation="spin"></font-awesome>-->
-                </div>
+                <!--<div class="icon">-->
+                <!--<font-awesome icon="rocket" animation="spin"></font-awesome>-->
+                <!--</div>-->
             </div>
             <br>
 
-            <div class="button action" style="margin-bottom:20px;width:150px;" on-click="{{runExample}}">
-                <font-awesome icon="rocket"></font-awesome>
-                &nbsp; Run example
+
+            <div horizontal layout center-justified>
+                <div class="button action" style="margin-bottom:20px;width:150px;" on-click="{{runExample}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Run example
+                </div>
             </div>
 
             <div class="formbox">
@@ -124,7 +129,13 @@
 
                     <div class="button action" style="width:150px;" on-click="{{handleSelectFile}}">Select VCF file...
                     </div>
-                    <div style="margin-top:5px;">{{selectedStudy.name}}/{{vcfFile.path}}</div>
+                    <div style="margin-top:5px;">
+                        {{selectedStudy.name}}
+                        <template if="{{selectedStudy}}">
+                            /
+                        </template>
+                        {{vcfFile.path}}
+                    </div>
                     <template if="{{ showBrowser }}">
                         <jso-project-browser
                                 on-file-select="{{handleBrowseSelect}}"
@@ -192,8 +203,7 @@
                     Method for including scores
                 </div>
                 <div class="formcontent">
-                    <span class="message">{{methodScoreMessage}}</span>
-
+                    <div class="errmsg">{{methodScoreMessage}}</div>
                     <div horizontal layout style="line-height: 25px;">
                         <div class="button action checkbox" data-checked?="{{ siftSelected }}"
                              on-click="{{handleSiftSelect}}"></div>
@@ -246,13 +256,15 @@
             </div>
 
             <div horizontal layout>
-                <div class="formbox" flex>
+                <div class="formbox" style="width:400px;">
                     <div class="formtitle" horizontal layout>
                         <div flex>Pathways</div>
-                        <div class="button" on-click="{{handleSelectAllPw}}">Select all</div>
-                        <div class="button" on-click="{{handleDeselectAllPw}}">Deselect all</div>
+                        <div style="font-size:13px;" class="button" on-click="{{handleSelectAllPw}}">Select all</div>
+                        <div style="font-size:13px;" class="button" on-click="{{handleDeselectAllPw}}">Deselect all
+                        </div>
                     </div>
                     <div class="formcontent">
+                        <div class="errmsg">{{pathwayMessage}}</div>
                         <div class="check-list">
                             <template repeat="{{item in pathwaysSet}}">
                                 <div horizontal layout>
@@ -266,19 +278,21 @@
                 </div>
 
 
-                <div class="formbox" flex>
+                <div class="formbox" style="width:320px;">
                     <div class="formtitle" horizontal layout>
                         <div flex>Consequence types</div>
-                        <div class="button" on-click="{{handleSelectAllCt}}">Select all</div>
-                        <div class="button" on-click="{{handleDeselectAllCt}}">Deselect all</div>
+                        <div style="font-size:13px;" class="button" on-click="{{handleSelectAllCt}}">Select all</div>
+                        <div style="font-size:13px;" class="button" on-click="{{handleDeselectAllCt}}">Deselect all
+                        </div>
                     </div>
                     <div class="formcontent">
+                        <div class="errmsg">{{consequenceTypeMessage}}</div>
                         <div class="check-list">
                             <template repeat="{{item in consequenceTypes}}">
                                 <div horizontal layout>
                                     <div class="button action checkbox" data-checked?="{{ item.selected }}"
                                          on-click="{{handleItemSelect}}"></div>
-                                    <div class="check-name">{{item.name}}</div>
+                                    <div class="check-name" style="text-transform: capitalize">{{item.text}}</div>
                                 </div>
                             </template>
                         </div>
@@ -288,14 +302,17 @@
                 <div class="formbox" flex>
                     <div class="formtitle" horizontal layout>
                         <div flex>Tissues</div>
-                        <!--<div class="button" data-checked?="{{tissues == humanProteinAtlasTissues}}"-->
-                        <!--on-click="{{handleHumanProteinTissues}}">Human protein atlas-->
-                        <!--</div>-->
-                        <!--<div class="button" data-checked?="{{tissues == expressionAtlasTissues}}"-->
-                        <!--on-click="{{handleExpressionTissues}}">Expression atlas-->
-                        <!--</div>-->
+                        <div style="font-size:13px;" class="button"
+                             data-checked?="{{tissues == expressionAtlasTissues}}"
+                             on-click="{{handleExpressionTissues}}">Expression atlas
+                        </div>
+                        <div style="font-size:13px;" class="button"
+                             data-checked?="{{tissues == humanProteinAtlasTissues}}"
+                             on-click="{{handleHumanProteinTissues}}">Human protein atlas
+                        </div>
                     </div>
                     <div class="formcontent">
+                        <div class="errmsg">{{tissueMessage}}</div>
                         <div class="check-list">
                             <template repeat="{{item in tissues}}">
                                 <div horizontal layout>
@@ -310,7 +327,10 @@
             </div>
 
 
-            <div class="botbar" horizontal layout end-justified>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="text" style="color:#666">Job name:</div>
+                <input type="text" value="{{jobName}}" style="width: 150px;margin-right:10px;">
+
                 <div class="button action" style="width: 150px;" on-click="{{launchJob}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
@@ -335,7 +355,7 @@
                 this.analysisId = 1;
                 this.outdirId = 1222;
 
-                this.jobName = 'jobName';
+                this.jobName = 'Pathivar job';
                 this.description = 'Description';
 
 
@@ -502,13 +522,13 @@
                         execution: this.execution,
                         studyId: this.selectedStudy.id,
                         toolId: this.toolName,
-                        name: this.jobName,
+                        name: "Pathivar example",
                         description: this.description,
                         outdir: outputFolder.id,
 
-                        annotvcf: "/tmp/pv/annotvcf.vpa",
+                        annotvcf: "/opt/opencga/analysis/pathiways/bin/examples/annotvcf1000g.vpa",
                         ctypes: "splice_acceptor_variant,splice_donor_variant,stop_gained,stop_lost,non_synonymous_codon,exon_variant",
-                        samplecol: "muestra_A",
+                        samplecol: "NA19600",
                         pathways: "hsa04012,hsa04020,hsa04080,hsa04210",
                         tissue: "lung",
                         model: "recessive",
@@ -578,6 +598,12 @@
                         this.pathways.push('hsa' + pathway.value);
                     }
                 }
+                if (this.pathways.length > 0) {
+                    this.pathwayMessage = '';
+                } else {
+                    this.pathwayMessage = 'Please select at least one';
+                }
+
                 this.ctypes = [];
                 for (var i = 0; i < this.consequenceTypes.length; i++) {
                     var ct = this.consequenceTypes[i];
@@ -585,21 +611,32 @@
                         this.ctypes.push(ct.name);
                     }
                 }
+                if (this.ctypes.length > 0) {
+                    this.consequenceTypeMessage = '';
+                } else {
+                    this.consequenceTypeMessage = 'Please select at least one';
+                }
 
                 var tissues = [];
                 for (var i = 0; i < this.humanProteinAtlasTissues.length; i++) {
                     var t = this.humanProteinAtlasTissues[i];
                     if (t.selected) {
-                        tissues.push(t.name);
+                        tissues.push(t.name.replace(/ /gi, "_"));
                     }
                 }
                 for (var i = 0; i < this.expressionAtlasTissues.length; i++) {
                     var t = this.expressionAtlasTissues[i];
                     if (t.selected) {
-                        tissues.push(t.name);
+                        tissues.push(t.name.replace(/ /gi, "_"));
                     }
                 }
                 this.tissue = tissues[0];
+
+                if (this.tissue) {
+                    this.tissueMessage = '';
+                } else {
+                    this.tissueMessage = 'Please select one';
+                }
 
                 this.methodscore = '';
                 this.treshold = '';
@@ -615,6 +652,10 @@
                     this.methodscore += 'cons';
                     this.treshold += ':' + this.tresholdCons
                 }
+                if (this.methodscore == '') {
+                    this.methodscore = "none"
+                }
+
 
                 this.tissueSet;
                 if (this.tissues == this.humanProteinAtlasTissues) {
@@ -633,8 +674,8 @@
                         this.pathways.length > 0 &&
                         this.ctypes.length > 0 &&
                         this.tissue &&
-                        this.methodscore != '' &&
-                        this.treshold != '' &&
+//                        this.methodscore != '' &&
+//                        this.treshold != '' &&
                         this.tissueSet != null
                 ) {
                     var outputFolder = this.generateRandomFolder();
@@ -643,7 +684,9 @@
                     if (this.model == 'recessive') {
                         comhom = this.comhom;
                     }
-
+                    if (this.jobName == '') {
+                        this.jobName = 'Pathivar job';
+                    }
 
                     OpencgaManager.jobs.create({
                         query: {
@@ -738,32 +781,32 @@
                     {name: 'ADIPOCYTOKINE SIGNALING PATHWAY', selected: false, value: '04920'}
                 ];
                 this.consequenceTypes = [
-                    {name: "splice_acceptor_variant", selected: false},
-                    {name: "splice_donor_variant", selected: false},
-                    {name: "stop_gained", selected: false},
-                    {name: "stop_lost", selected: false},
-                    {name: "non_synonymous_codon", selected: false},
-                    {name: "splice_region_variant", selected: false},
-                    {name: "synonymous_codon", selected: false},
-                    {name: "exon_variant", selected: false},
-                    {name: "coding_sequence_variant", selected: false},
-                    {name: "5_prime_UTR_variant", selected: false},
-                    {name: "3_prime_UTR_variant", selected: false},
-                    {name: "intron_variant", selected: false},
-                    {name: "NMD_transcript_variant", selected: false},
-                    {name: "nc_transcript_variant", selected: false},
-                    {name: "5KB_upstream_variant", selected: false},
-                    {name: "5KB_downstream_variant", selected: false},
-                    {name: "TF_binding_site_variant", selected: false},
-                    {name: "regulatory_region_variant", selected: false},
-                    {name: "DNAseI_hypersensitive_site", selected: false},
-                    {name: "RNA_polymerase_promoter", selected: false},
-                    {name: "miRNA_target_site", selected: false},
-                    {name: "miRNA", selected: false},
-                    {name: "lincRNA", selected: false},
-                    {name: "pseudogene", selected: false},
-                    {name: "SNPe", selected: false},
-                    {name: "intergenic_variant", selected: false}
+                    {name: "splice_acceptor_variant", text: "splice acceptor variant", selected: false},
+                    {name: "splice_donor_variant", text: "splice donor variant", selected: false},
+                    {name: "stop_gained", text: "stop gained", selected: false},
+                    {name: "stop_lost", text: "stop lost", selected: false},
+                    {name: "non_synonymous_codon", text: "non synonymous codon", selected: false},
+                    {name: "splice_region_variant", text: "splice region variant", selected: false},
+                    {name: "synonymous_codon", text: "synonymous codon", selected: false},
+                    {name: "exon_variant", text: "exon variant", selected: false},
+                    {name: "coding_sequence_variant", text: "coding sequence variant", selected: false},
+                    {name: "5_prime_UTR_variant", text: "5 prime UTR variant", selected: false},
+                    {name: "3_prime_UTR_variant", text: "3 prime UTR variant", selected: false},
+                    {name: "intron_variant", text: "intron variant", selected: false},
+                    {name: "NMD_transcript_variant", text: "NMD transcript variant", selected: false},
+                    {name: "nc_transcript_variant", text: "nc transcript variant", selected: false},
+                    {name: "5KB_upstream_variant", text: "5KB upstream variant", selected: false},
+                    {name: "5KB_downstream_variant", text: "5KB downstream variant", selected: false},
+                    {name: "TF_binding_site_variant", text: "TF binding site variant", selected: false},
+                    {name: "regulatory_region_variant", text: "regulatory region variant", selected: false},
+                    {name: "DNAseI_hypersensitive_site", text: "DNAseI hypersensitive site", selected: false},
+                    {name: "RNA_polymerase_promoter", text: "RNA polymerase promoter", selected: false},
+                    {name: "miRNA_target_site", text: "miRNA target site", selected: false},
+                    {name: "miRNA", text: "miRNA", selected: false},
+                    {name: "lincRNA", text: "lincRNA", selected: false},
+                    {name: "pseudogene", text: "pseudogene", selected: false},
+                    {name: "SNPe", text: "SNPe", selected: false},
+                    {name: "intergenic_variant", text: "intergenic variant", selected: false}
                 ];
 
                 this.humanProteinAtlasTissues = [
