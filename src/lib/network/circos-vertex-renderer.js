@@ -25,9 +25,9 @@ function CircosVertexRenderer(args) {
     //defaults
     this.shape = 'circle';
     this.size = 30;
-    this.color = '#9fc6e7';
-    this.strokeSize = 1;
-    this.strokeColor = '#9fc6e7';
+    this.color = '#FAFAFA';
+    this.strokeSize = 2;
+    this.strokeColor = '#888888';
     this.opacity = 0.8;
     this.labelSize = 12;
     this.labelColor = '#111111';

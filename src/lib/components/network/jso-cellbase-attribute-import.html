@@ -65,7 +65,7 @@
             <div class="header" id="header" horizontal layout>
                 <div class="text">Import Cellbase attributes</div>
                 <div class="headeractions" horizontal end-justified layout flex>
-                    <div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
+                    <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
@@ -309,10 +309,10 @@
             handleExpand: function () {
                 this.expanded = !this.expanded;
                 if (this.expanded) {
-                    this.style.width = '100vw';
-                    this.style.height = '100vh';
+                    this.style.width = '100%';
+                    this.style.height = 'calc(100% - 60px)';
                     this.style.position = 'fixed';
-                    this.style.top = '0';
+                    this.style.top = '60px';
                 } else {
                     this.style.width = '';
                     this.style.height = '';

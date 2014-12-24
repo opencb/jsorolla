@@ -241,9 +241,9 @@
                 this.expanded = !this.expanded;
                 if (this.expanded) {
                     this.style.width = '100%';
-                    this.style.height = '100%';
+                    this.style.height = 'calc(100% - 60px)';
                     this.style.position = 'fixed';
-                    this.style.top = '0';
+                    this.style.top = '60px';
                     this.style.left = '0';
                     this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
                 } else {

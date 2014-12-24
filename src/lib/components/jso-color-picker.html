@@ -86,7 +86,7 @@
 
 
         <div tabindex="0" id="colorbox" on-focus="{{handleColorBoxClick}}" style="background-color:{{color}};"></div>
-        <input id="colorinput" type="text" value="{{color}}">
+        <input id="colorinput" type="text" value="{{color}}" on-keypress="{{handleKeyPress}}">
         <ul id="colorlist">
             <template repeat="{{c in colors}}">
                 <li data-color="{{c}}" on-mousedown="{{handleColorClick}}" style="background-color:{{c}};"></li>
@@ -125,6 +125,11 @@
                 var color = e.target.templateInstance.model.c;
                 this.color = color;
                 this.fire("color-click", {color: color});
+            },
+            handleKeyPress: function (e) {
+                if (e.keyCode == 13) {
+                    this.fire("color-click", {color: this.color});
+                }
             },
             handleColorBoxClick: function (e) {
                 this._updatePosition();
