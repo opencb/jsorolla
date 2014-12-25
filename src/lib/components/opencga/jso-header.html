@@ -4,7 +4,8 @@
 <link rel="import" href="jso-remember.html">
 
 <polymer-element name="jso-header"
-                 attributes="selectedOption userData options allowLogin allowJobs showJobs homeLink helpLink tutorialLink">
+                 attributes="selectedOption userData options allowLogin allowJobs showJobs
+                 homeLink helpLink tutorialLink hideHomeLink">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -356,7 +357,7 @@
 
         </ul>
         <ul id="helpMenu" class="help-menu" on-mouseleave="{{handleHelpMenuMouseOut}}">
-            <li id="homeHelp" class="right" on-click="{{ handleHomeHelp }}">
+            <li id="homeHelp" class="right" on-click="{{ handleHomeHelp }}" hidden?="{{hideHomeLink}}">
                 <font-awesome icon="home"></font-awesome>
                 &nbsp;home
             </li>
@@ -368,10 +369,10 @@
                 <font-awesome icon="list-alt"></font-awesome>
                 &nbsp;tutorial
             </li>
-            <li id="about" class="right" on-click="{{ handleAbout }}">
-                <font-awesome icon="info"></font-awesome>
-                &nbsp; about
-            </li>
+            <!--<li id="about" class="right" on-click="{{ handleAbout }}">-->
+                <!--<font-awesome icon="info"></font-awesome>-->
+                <!--&nbsp; about-->
+            <!--</li>-->
         </ul>
 
         <jso-login id="jsoLogin"
@@ -451,8 +452,8 @@
                 }
                 this.fire('session-change');
             },
-            demoLogin: function () {
-                this.$.jsoLogin.user = "demo";
+            demoLogin: function (username) {
+                this.$.jsoLogin.user = username;
                 this.$.jsoLogin.password = "demo";
                 this.$.jsoLogin._login();
             },
@@ -472,6 +473,7 @@
                 }
             },
             sessionFinished: function (e) {
+                this.showJobs = false;
                 this.selectedOption = 'home';
                 this.isLogged = false;
                 Cookies.expire('bioinfo_sid');
