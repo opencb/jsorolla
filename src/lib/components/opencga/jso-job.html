@@ -55,7 +55,6 @@
             }
         </style>
 
-        <!--<font-awesome icon="pie-chart"></font-awesome> &nbsp; {{study.name}} &nbsp; <span class="id"> {{study.alias}} </span>-->
         <div id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">
             <div>
                 <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.visits > 0}}"
@@ -68,7 +67,6 @@
                               icon="clock-o"></font-awesome>
                 <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'RUNNING'}}" icon="circle-o-notch"
                               animation="spin"></font-awesome>
-                <!--{{jobItem.id}}-->
                 {{jobItem.name}}
             </div>
             <div>{{computeToolName()}}</div>
