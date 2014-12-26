@@ -7,12 +7,12 @@
                 display: block;
                 position: relative;
                 box-sizing: border-box;
-                padding: 15px 40px;
+                padding: 15px 20px;
 
                 z-index: 50000;
                 margin: 0px auto 0px auto;
 
-                min-width: 600px;
+                max-width: 800px;
                 border: 1px solid #c6d0da;
                 transition: all 0.2s;
                 box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
@@ -21,13 +21,18 @@
 
             .title {
                 text-align: center;
-                font-size: 25px;
+                font-size: 20px;
+                margin-bottom: 5px;
                 color: #666;
             }
 
             .icon {
                 color: #445D76;
                 font-size: 50px;
+            }
+
+            #resultpathways > * {
+                margin: 1px;
             }
 
             label {
@@ -49,10 +54,6 @@
                 height: 900px;
             }
 
-            #resultpathways {
-                margin-right: 10px;
-            }
-
             .legend {
                 width: 350px;
                 margin: 10px;
@@ -63,35 +64,27 @@
                 margin: 3px;
                 color: #8b0000;
                 font-size: 14px;
-                padding: 15px;
+                padding: 5px 0;
             }
         </style>
-        <!--<div class="title">-->
-        <!--<div>-->
-        <!--PATHiVAR Result-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--<br>-->
-
-        <div horizontal layout>
-            <div vertical layout>
-                <img class="legend" src="{{legendImageSrc}}">
-                <div class="warning">
-                    {{warningMessage}}
-                </div>
-                <div id="resultpathways">
-                    <template repeat="{{pathway in pathwayNames}}">
-                        <div class="button action" on-click="{{handlePathwayClick}}"
-                             data-checked="{{pathwaysMap[pathway].selected}}">
-                            {{pathwaysMap[pathway].text}}
-                        </div>
-                    </template>
-                </div>
-            </div>
-            <jso-network-viewer id="networkViewer" flex hideBar="false" hideToolBar="false"
-                                hideEditionBar="false"></jso-network-viewer>
+        <div class="title">
+            PATHiVAR Result
         </div>
-        <div class="message">{{message}}</div>
+
+        <div id="resultpathways" horizontal layout wrap>
+            <template repeat="{{pathway in pathwayNames}}">
+                <div class="button action" on-click="{{handlePathwayClick}}"
+                     data-checked="{{pathwaysMap[pathway].selected}}">
+                    {{pathwaysMap[pathway].text}}
+                </div>
+            </template>
+        </div>
+        <div class="warning">
+            {{warningMessage}}
+        </div>
+        <jso-network-viewer id="networkViewer" hideBar="false" hideToolBar="false"
+                            hideEditionBar="false"></jso-network-viewer>
+        <img class="legend" src="{{legendImageSrc}}">
     </template>
 
     <script>

@@ -12,7 +12,7 @@
                 z-index: 50000;
                 margin: 0px auto 0px auto;
 
-                width: 1170px;
+                max-width: 800px;
                 border: 1px solid #c6d0da;
                 transition: all 0.2s;
                 box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
@@ -175,7 +175,7 @@
 
             <div class="formbox">
                 <div class="formtitle">
-                    Type of model
+                    Inheritance pattern
                 </div>
                 <div class="formcontent">
                     <div>
@@ -186,7 +186,7 @@
                         </select>
 
                         <div hidden?="{{model == 'dominant'}}">
-                            <label>Should compound homocygotes be included?</label>
+                            <label>Should compound heterozygotes be included?</label>
                             <span class="message">{{comhomMessage}}</span>
                             <select flex value="{{comhom}}">
                                 <option value="Y">Yes</option>
@@ -255,8 +255,8 @@
                 </div>
             </div>
 
-            <div horizontal layout>
-                <div class="formbox" style="width:400px;">
+            <div vertical layout>
+                <div class="formbox">
                     <div class="formtitle" horizontal layout>
                         <div flex>Pathways</div>
                         <div style="font-size:13px;" class="button" on-click="{{handleSelectAllPw}}">Select all</div>
@@ -278,7 +278,7 @@
                 </div>
 
 
-                <div class="formbox" style="width:320px;">
+                <div class="formbox">
                     <div class="formtitle" horizontal layout>
                         <div flex>Consequence types</div>
                         <div style="font-size:13px;" class="button" on-click="{{handleSelectAllCt}}">Select all</div>
@@ -292,14 +292,14 @@
                                 <div horizontal layout>
                                     <div class="button action checkbox" data-checked?="{{ item.selected }}"
                                          on-click="{{handleItemSelect}}"></div>
-                                    <div class="check-name" style="text-transform: capitalize">{{item.text}}</div>
+                                    <div class="check-name">{{item.text}}</div>
                                 </div>
                             </template>
                         </div>
                     </div>
                 </div>
 
-                <div class="formbox" flex>
+                <div class="formbox">
                     <div class="formtitle" horizontal layout>
                         <div flex>Tissues</div>
                         <div style="font-size:13px;" class="button"
@@ -780,12 +780,13 @@
                     {name: 'MELANOGENESIS', selected: false, value: '04916'},
                     {name: 'ADIPOCYTOKINE SIGNALING PATHWAY', selected: false, value: '04920'}
                 ];
+
                 this.consequenceTypes = [
-                    {name: "splice_acceptor_variant", text: "splice acceptor variant", selected: false},
-                    {name: "splice_donor_variant", text: "splice donor variant", selected: false},
-                    {name: "stop_gained", text: "stop gained", selected: false},
-                    {name: "stop_lost", text: "stop lost", selected: false},
-                    {name: "non_synonymous_codon", text: "non synonymous codon", selected: false},
+                    {name: "splice_acceptor_variant", text: "splice acceptor variant", selected: true},
+                    {name: "splice_donor_variant", text: "splice donor variant", selected: true},
+                    {name: "stop_gained", text: "stop gained", selected: true},
+                    {name: "stop_lost", text: "stop lost", selected: true},
+                    {name: "non_synonymous_codon", text: "non synonymous codon", selected: true},
                     {name: "splice_region_variant", text: "splice region variant", selected: false},
                     {name: "synonymous_codon", text: "synonymous codon", selected: false},
                     {name: "exon_variant", text: "exon variant", selected: false},

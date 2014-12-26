@@ -3,8 +3,13 @@
 <link rel="import" href="jso-profile.html">
 <link rel="import" href="jso-remember.html">
 
+<link rel="import" href="jso-job-list.html">
+<link rel="import" href="jso-job-launched.html">
+
 <polymer-element name="jso-header"
-                 attributes="selectedOption userData options allowLogin allowJobs showJobs homeLink helpLink tutorialLink hideHomeLink">
+                 attributes="selectedOption options allowLogin allowJobs showJobs
+                 userData jobItem selectedStudy allowedTools
+                 homeLink helpLink tutorialLink hideHomeLink">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -12,13 +17,29 @@
                 display: block;
                 position: relative;
                 box-sizing: border-box;
+                cursor: default;
+                z-index: 70000;
+            }
+
+            .main {
+                position: relative;
+                z-index: 60000;
+                height: 60px;
+                box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
                 /*background-color: #FFFFFF;*/
                 /*background-color: #435f7a;*/
                 background-color: #314559;
-                height: 60px;
-                cursor: default;
-                z-index: 1000000;
-                box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
+            }
+
+            .content {
+                /*margin-top: 20px;*/
+                /*margin-bottom: 25px;*/
+                position: relative;
+                background-color: #435f7a;
+            }
+
+            .content > * {
+                min-height: calc(100vh - 160px);
             }
 
             ul.help-menu, ul.app-menu, ul.header {
@@ -252,146 +273,172 @@
                 visibility: visible;
                 opacity: 1;
             }
+
+            jso-job-list {
+                height: calc(100vh - 60px);
+                width: 250px;
+                right:0px;
+                top:0px;
+            }
         </style>
 
-        <ul class="header">
-            <!--<li id="appMenu" class="menu">&nbsp;<font-awesome icon="chevron-right"></font-awesome>&nbsp; <span class="">Menu</span>-->
-            <!--</li>-->
-            <li class="title" data-option="home" on-click="{{handleMenu}}">
-                <content select=".title"></content>
-            </li>
-            <!--<li class="" data-option="home" on-click="{{handleMenu}}">-->
-            <!--Home-->
-            <!--</li>-->
-
-            <li id="description" class="description">
-                <content select=".description"></content>
-            </li>
-
-            <template repeat="{{o in options}}">
-                <li data-option="{{o.option}}" on-click="{{handleMenu}}" class="dropdown">
-                    <div tabindex="-1">
-                        {{o.text}}
-                    </div>
-                    <template if="{{o.sub}}">
-                        <ul>
-                            <template repeat="{{o2 in o.sub}}">
-                                <li data-option="{{o2.option}}" on-click="{{handleMenu}}"
-                                    data-sub="{{o2.sub.length > 0}}"
-                                    data-text="{{o2.option == 'none'}}">
-                                    {{o2.text}}
-                                    <template if="{{o2.sub}}">
-                                        <ul>
-                                            <template repeat="{{o3 in o2.sub}}">
-                                                <li data-option="{{o3.option}}" on-click="{{handleMenu}}">
-                                                    {{o3.text}}
-                                                </li>
-                                            </template>
-
-                                        </ul>
-                                    </template>
-                                </li>
-                            </template>
-                        </ul>
-                    </template>
+        <div class="main">
+            <ul class="header">
+                <!--<li id="appMenu" class="menu">&nbsp;<font-awesome icon="chevron-right"></font-awesome>&nbsp; <span class="">Menu</span>-->
+                <!--</li>-->
+                <li class="title" data-option="home" on-click="{{handleMenu}}">
+                    <content select=".title"></content>
                 </li>
-            </template>
+                <!--<li class="" data-option="home" on-click="{{handleMenu}}">-->
+                <!--Home-->
+                <!--</li>-->
 
-            <!--<li id="apps" class="right" on-click="{{}}">-->
-            <!--&nbsp;-->
-            <!--<font-awesome icon="th"></font-awesome>-->
-            <!--&nbsp;-->
-            <!--</li>-->
-            <li id="support" class="right" on-click="{{handleSupportMenu}}">
-                &nbsp;
-                <font-awesome icon="support"></font-awesome>
-                &nbsp;
-            </li>
-
-            <template if="{{allowLogin == true}}">
-                <li id="signup" class="right" data-option="signup" on-click="{{handleMenu}}" hide="{{isLogged}}">
-                    <font-awesome icon="pencil-square-o"></font-awesome>
-                    &nbsp;sign up
+                <li id="description" class="description">
+                    <content select=".description"></content>
                 </li>
 
-                <li id="login" class="right" data-option="login" on-click="{{handleMenu}}" hide="{{isLogged}}">
-                    <font-awesome icon="sign-in"></font-awesome>
-                    &nbsp;log in
+                <template repeat="{{o in options}}">
+                    <li data-option="{{o.option}}" on-click="{{handleMenu}}" class="dropdown">
+                        <div tabindex="-1">
+                            {{o.text}}
+                        </div>
+                        <template if="{{o.sub}}">
+                            <ul>
+                                <template repeat="{{o2 in o.sub}}">
+                                    <li data-option="{{o2.option}}" on-click="{{handleMenu}}"
+                                        data-sub="{{o2.sub.length > 0}}"
+                                        data-text="{{o2.option == 'none'}}">
+                                        {{o2.text}}
+                                        <template if="{{o2.sub}}">
+                                            <ul>
+                                                <template repeat="{{o3 in o2.sub}}">
+                                                    <li data-option="{{o3.option}}" on-click="{{handleMenu}}">
+                                                        {{o3.text}}
+                                                    </li>
+                                                </template>
+
+                                            </ul>
+                                        </template>
+                                    </li>
+                                </template>
+                            </ul>
+                        </template>
+                    </li>
+                </template>
+
+                <!--<li id="apps" class="right" on-click="{{}}">-->
+                <!--&nbsp;-->
+                <!--<font-awesome icon="th"></font-awesome>-->
+                <!--&nbsp;-->
+                <!--</li>-->
+                <li id="support" class="right" on-click="{{handleSupportMenu}}">
+                    &nbsp;
+                    <font-awesome icon="support"></font-awesome>
+                    &nbsp;
                 </li>
-            </template>
 
-            <template if="{{allowJobs == true}}">
-                <li id="jobs" class="right" data-option="jobs" on-click="{{handleJobClick}}" hide="{{!isLogged}}">
-                    <font-awesome icon="pencil-square-o"></font-awesome>
-                    &nbsp;jobs
+                <template if="{{allowLogin == true}}">
+                    <li id="signup" class="right" data-option="signup" on-click="{{handleMenu}}" hide="{{isLogged}}">
+                        <font-awesome icon="pencil-square-o"></font-awesome>
+                        &nbsp;sign up
+                    </li>
+
+                    <li id="login" class="right" data-option="login" on-click="{{handleMenu}}" hide="{{isLogged}}">
+                        <font-awesome icon="sign-in"></font-awesome>
+                        &nbsp;log in
+                    </li>
+                </template>
+
+                <template if="{{allowJobs == true}}">
+                    <li id="jobs" class="right" data-option="jobs" on-click="{{handleJobClick}}" hide="{{!isLogged}}">
+                        <font-awesome icon="pencil-square-o"></font-awesome>
+                        &nbsp;jobs
+                    </li>
+                </template>
+
+                <!--<li id="jobs" class="right" hide="{{!isLogged}}">-->
+                <!--<font-awesome icon="tasks"></font-awesome> &nbsp;jobs-->
+                <!--</li>-->
+
+                <li id="profile" class="right" data-option="profile" on-click="{{handleMenu}}" hide="{{!isLogged}}">
+                    <font-awesome icon="user"></font-awesome>
+                    &nbsp;profile
                 </li>
-            </template>
 
-            <!--<li id="jobs" class="right" hide="{{!isLogged}}">-->
-            <!--<font-awesome icon="tasks"></font-awesome> &nbsp;jobs-->
-            <!--</li>-->
+                <!--<li id="upload" class="right" hide="{{!isLogged}}">-->
+                <!--<font-awesome icon="cloud-upload"></font-awesome> &nbsp;upload & manage-->
+                <!--</li>-->
 
-            <li id="profile" class="right" data-option="profile" on-click="{{handleMenu}}" hide="{{!isLogged}}">
-                <font-awesome icon="user"></font-awesome>
-                &nbsp;profile
-            </li>
+                <li id="projects" class="right" data-option="projects" on-click="{{handleMenu}}" hide="{{!isLogged}}">
+                    <font-awesome icon="pie-chart"></font-awesome>
+                    &nbsp;studies
+                </li>
 
-            <!--<li id="upload" class="right" hide="{{!isLogged}}">-->
-            <!--<font-awesome icon="cloud-upload"></font-awesome> &nbsp;upload & manage-->
-            <!--</li>-->
+                <li id="logout" class="right" hide="{{!isLogged}}" on-click="{{handleLogoutClick}}">
+                    <font-awesome icon="sign-out"></font-awesome>
+                    &nbsp;logout
+                </li>
 
-            <li id="projects" class="right" data-option="projects" on-click="{{handleMenu}}" hide="{{!isLogged}}">
-                <font-awesome icon="pie-chart"></font-awesome>
-                &nbsp;studies
-            </li>
+                <li id="user" class="right text" hide="{{!isLogged}}">
+                    {{userText}}
+                </li>
 
-            <li id="logout" class="right" hide="{{!isLogged}}" on-click="{{handleLogoutClick}}">
-                <font-awesome icon="sign-out"></font-awesome>
-                &nbsp;logout
-            </li>
-
-            <li id="user" class="right text" hide="{{!isLogged}}">
-                {{userText}}
-            </li>
-
-        </ul>
-        <ul id="helpMenu" class="help-menu" on-mouseleave="{{handleHelpMenuMouseOut}}">
-            <li id="homeHelp" class="right" on-click="{{ handleHomeHelp }}" hidden?="{{hideHomeLink}}">
-                <font-awesome icon="home"></font-awesome>
-                &nbsp;home
-            </li>
-            <li id="documentation" class="right" on-click="{{ handleDocumentation }}">
-                <font-awesome icon="book"></font-awesome>
-                &nbsp;documentation
-            </li>
-            <li id="tutorial" class="right" on-click="{{ handleTutorial }}">
-                <font-awesome icon="list-alt"></font-awesome>
-                &nbsp;tutorial
-            </li>
-            <!--<li id="about" class="right" on-click="{{ handleAbout }}">-->
+            </ul>
+            <ul id="helpMenu" class="help-menu" on-mouseleave="{{handleHelpMenuMouseOut}}">
+                <li id="homeHelp" class="right" on-click="{{ handleHomeHelp }}" hidden?="{{hideHomeLink}}">
+                    <font-awesome icon="home"></font-awesome>
+                    &nbsp;home
+                </li>
+                <li id="documentation" class="right" on-click="{{ handleDocumentation }}">
+                    <font-awesome icon="book"></font-awesome>
+                    &nbsp;documentation
+                </li>
+                <li id="tutorial" class="right" on-click="{{ handleTutorial }}">
+                    <font-awesome icon="list-alt"></font-awesome>
+                    &nbsp;tutorial
+                </li>
+                <!--<li id="about" class="right" on-click="{{ handleAbout }}">-->
                 <!--<font-awesome icon="info"></font-awesome>-->
                 <!--&nbsp; about-->
-            <!--</li>-->
-        </ul>
+                <!--</li>-->
+            </ul>
+        </div>
+        <div class="content">
+            <jso-login id="jsoLogin"
+                       hidden?="{{ selectedOption != 'login' }}"
+                       on-login="{{handleLogin}}"
+                       selectedOption="{{selectedOption}}">
+            </jso-login>
 
-        <jso-login id="jsoLogin"
-                   hidden?="{{ selectedOption != 'login' }}"
-                   on-login="{{handleLogin}}"
-                   selectedOption="{{selectedOption}}">
-        </jso-login>
+            <template if="{{ selectedOption == 'signup' }}">
+                <jso-signup></jso-signup>
+            </template>
 
-        <template if="{{ selectedOption == 'signup' }}">
-            <jso-signup></jso-signup>
-        </template>
+            <template if="{{ selectedOption == 'profile' }}">
+                <jso-profile></jso-profile>
+            </template>
 
-        <template if="{{ selectedOption == 'profile' }}">
-            <jso-profile></jso-profile>
-        </template>
+            <template if="{{ selectedOption == 'rememberpassword' }}">
+                <jso-remember></jso-remember>
+            </template>
 
-        <template if="{{ selectedOption == 'rememberpassword' }}">
-            <jso-remember></jso-remember>
-        </template>
 
+            <template if="{{ selectedOption == 'jobLaunched' }}">
+                <jso-job-launched></jso-job-launched>
+            </template>
+
+            <template if="{{ showJobs }}">
+                <jso-job-list
+                        jobItem="{{jobItem}}"
+                        on-job-item-click="{{handleJobItemClick}}"
+                        userData="{{userData}}"
+                        selectedOption="{{selectedOption}}"
+                        selectedStudy="{{selectedStudy}}"
+                        allowedTools="{{allowedTools}}"
+                        showJobs="{{showJobs}}"></jso-job-list>
+            </template>
+
+        </div>
     </template>
 
     <script>
@@ -565,8 +612,10 @@
             },
             handleAbout: function (event) {
                 alert("About is not defined!");
+            },
+            handleJobItemClick: function (e) {
+                this.showJobs = false;
             }
-
         });
     </script>
 </polymer-element>
