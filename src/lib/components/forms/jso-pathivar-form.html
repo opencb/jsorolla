@@ -197,10 +197,31 @@
                 </div>
             </div>
 
+            <div class="formbox">
+                <div class="formtitle" horizontal layout>
+                    <div flex>Consequence types</div>
+                    <div style="font-size:13px;" class="button" on-click="{{handleSelectAllCt}}">Select all</div>
+                    <div style="font-size:13px;" class="button" on-click="{{handleDeselectAllCt}}">Deselect all
+                    </div>
+                </div>
+                <div class="formcontent">
+                    <div class="errmsg">{{consequenceTypeMessage}}</div>
+                    <div class="check-list">
+                        <template repeat="{{item in consequenceTypes}}">
+                            <div horizontal layout>
+                                <div class="button action checkbox" data-checked?="{{ item.selected }}"
+                                     on-click="{{handleItemSelect}}"></div>
+                                <div class="check-name">{{item.text}}</div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
 
             <div class="formbox">
                 <div class="formtitle">
-                    Method for including scores
+                    Deleteriousness indexes
                 </div>
                 <div class="formcontent">
                     <div class="errmsg">{{methodScoreMessage}}</div>
@@ -276,26 +297,6 @@
                 </div>
 
 
-                <div class="formbox">
-                    <div class="formtitle" horizontal layout>
-                        <div flex>Consequence types</div>
-                        <div style="font-size:13px;" class="button" on-click="{{handleSelectAllCt}}">Select all</div>
-                        <div style="font-size:13px;" class="button" on-click="{{handleDeselectAllCt}}">Deselect all
-                        </div>
-                    </div>
-                    <div class="formcontent">
-                        <div class="errmsg">{{consequenceTypeMessage}}</div>
-                        <div class="check-list">
-                            <template repeat="{{item in consequenceTypes}}">
-                                <div horizontal layout>
-                                    <div class="button action checkbox" data-checked?="{{ item.selected }}"
-                                         on-click="{{handleItemSelect}}"></div>
-                                    <div class="check-name">{{item.text}}</div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="formbox">
                     <div class="formtitle" horizontal layout>
