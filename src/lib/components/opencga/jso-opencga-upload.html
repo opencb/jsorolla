@@ -50,6 +50,7 @@
                 <!--</ul>-->
             <!--</div>-->
 
+            <div hidden>
             <label>File format</label>
             <!--<input type="text" id="fileFormat" value="{{fileFormat}}" required pattern="[a-zA-Z0-9]+">-->
             <select value="{{fileFormat}}" required>
@@ -73,6 +74,7 @@
             <input type="text" id="description" value="{{description}}" pattern="[a-zA-Z0-9\s]+">
 
             <br>
+            </div>
             <div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>
             <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
 

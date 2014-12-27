@@ -113,7 +113,7 @@
             <br>
 
 
-            <div horizontal layout center-justified>
+            <div horizontal layout end-justified style="margin-right:5px;">
                 <div class="button action" style="margin-bottom:20px;width:150px;" on-click="{{runExample}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Run example
@@ -125,7 +125,7 @@
                     VCF file
                 </div>
                 <div class="formcontent">
-                    <span class="message">{{vcfFileMessage}}</span>
+                    <span class="errmsg">{{vcfFileMessage}}</span>
 
                     <div class="button action" style="width:150px;" on-click="{{handleSelectFile}}">Select VCF file...
                     </div>
@@ -215,9 +215,7 @@
                             <input type="number" step="0.01" max="1" min="0" value="{{tresholdSift}}"
                                    required?="{{ siftSelected }}">
 
-                            <div style="color:#666">&nbsp; Less than 0.05 means DAMAGE, higher than 0.05 means
-                                TOLERANT
-                            </div>
+                            <div style="color:#666">&nbsp; Values below the threshold (0.05 default) predict protein DAMAGE</div>
                         </div>
                     </div>
 
@@ -233,7 +231,7 @@
                             <input type="number" step="0.01" max="1" min="0" value="{{tresholdPolyphen}}"
                                    required?="{{ polyphenSelected }}">
 
-                            <div style="color:#666">&nbsp; Higher values means more DAMAGE</div>
+                            <div style="color:#666">&nbsp; Values over the threshold (0.95 default) predict protein DAMAGE</div>
                         </div>
                     </div>
 
@@ -247,7 +245,7 @@
                                 <div class="lbl">treshold: &nbsp;</div>
                                 <input type="number" max="1000" min="0" value="{{tresholdCons}}" required>
 
-                                <div style="color:#666">&nbsp; Higher values means more CONSERVATION</div>
+                                <div style="color:#666">&nbsp; Values over the threshold (200 default) predict DAMAGE</div>
                             </div>
                         </template>
 

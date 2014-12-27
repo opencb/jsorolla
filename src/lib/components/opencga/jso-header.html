@@ -277,8 +277,8 @@
             jso-job-list {
                 height: calc(100vh - 60px);
                 width: 250px;
-                right:0px;
-                top:0px;
+                right: 0px;
+                top: 0px;
             }
         </style>
 
@@ -410,9 +410,10 @@
                        selectedOption="{{selectedOption}}">
             </jso-login>
 
-            <template if="{{ selectedOption == 'signup' }}">
-                <jso-signup></jso-signup>
-            </template>
+            <jso-signup id="jsoSignup"
+                        hidden?="{{ selectedOption != 'signup' }}"
+                        on-login="{{handleLogin}}">
+            </jso-signup>
 
             <template if="{{ selectedOption == 'profile' }}">
                 <jso-profile></jso-profile>
@@ -427,7 +428,7 @@
                 <jso-job-launched></jso-job-launched>
             </template>
 
-            <template if="{{ showJobs }}">
+            <template if="{{ showJobs ||  selectedOption == 'jobLaunched' }}">
                 <jso-job-list
                         jobItem="{{jobItem}}"
                         on-job-item-click="{{handleJobItemClick}}"
@@ -503,12 +504,19 @@
                 this.$.jsoLogin.password = "demo";
                 this.$.jsoLogin._login();
             },
+            anonymousSign: function () {
+                this.$.jsoSignup.user = "anonymous" + Utils.randomString(40);
+                this.$.jsoSignup.name = "anonymous";
+                this.$.jsoSignup.email = "anonymous@anonymous.anonymous";
+                this.$.jsoSignup.organization = "none";
+                this.$.jsoSignup.password = "anonymous";
+                this.$.jsoSignup._signup();
+            },
             sessionInitiated: function (e) {
                 var me = this;
 
                 this.isLogged = true;
                 this.selectedOption = 'home';
-                this.userText = Cookies('bioinfo_user');
 
                 /**START OPENCGA CHECK**/
                 if (!this.userInfoInterval) {
@@ -550,6 +558,7 @@
                             success: function (response) {
                                 if ((response.response[0].errorMsg === '' || response.response[0].errorMsg == null) && response.response[0].result.length > 0) {
                                     me.userData = response.response[0].result[0];
+                                    me.userText = me.userData.name;
                                     console.log("userData has been modified since last call");
                                 }
                                 if (response.response[0].errorMsg != null && response.response[0].errorMsg.indexOf('Invalid sessionId for user') !== -1) {
