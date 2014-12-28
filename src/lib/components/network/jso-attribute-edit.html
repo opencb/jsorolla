@@ -127,7 +127,7 @@
             </div>
             <div class="container" flex horizontal layout>
                 <div id="left" vertical layout>
-                    <div id="edit" vertical layout>
+                    <div id="edit" vertical layout style="margin-bottom: 5px;">
                         <div class="button action" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">
                             Show selection
                         </div>
@@ -135,13 +135,20 @@
                             <div flex class="button action" on-click="{{handleSelectAll}}">Select all</div>
                             <div flex class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
                         </div>
-                        <div horizontal layout  style="margin-bottom: 10px;">
+                        <div horizontal layout style="margin-bottom: 10px;">
                             <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
 
                             <div class="button action newattr" on-click="{{handleAddApply}}"></div>
                         </div>
                         <div horizontal layout>
-                            <input flex type="text" value="{{newValue}}" placeholder="Batch selection edit">
+                            <select flex id="selectEdit">
+                                <template repeat="{{column in attributeManager.columns}}">
+                                    <template if="{{column.name != 'id'}}">
+                                        <option value="{{column.name}}">{{column.title}}</option>
+                                    </template>
+                                </template>
+                            </select>
+                            <input flex type="text" value="{{newValue}}" placeholder="Batch edit">
 
                             <div class="button action newvalue" on-click="{{handleEditApply}}"></div>
                         </div>
@@ -151,9 +158,7 @@
                             <template if="{{column.name != 'id'}}">
                                 <div horizontal layout>
                                     <div class="button action" flex
-                                         data-checked="{{ editSelected == column.name}}"
-                                         data-name="{{column.name}}"
-                                         on-click="{{handleEditSelect}}">
+                                         data-name="{{column.name}}">
                                         {{column.title}}
                                     </div>
                                     <div class="button action remove" data-name="{{column.name}}"
@@ -210,13 +215,17 @@
 
                 this.showSelected = false;
 
-                this.editSelected;
+//                this.editSelected;
                 this.newColumnName = '';
                 this.newValue = '';
                 this.expanded = false;
             },
             ready: function () {
                 this.table = this.$.table;
+            },
+            /* Observers */
+            observe: {
+                'attributeManager.columns': 'handleColumnsChanged'
             },
             handleScroll: function (e) {
                 e.preventDefault();
@@ -258,21 +267,21 @@
             handleShowSelected: function () {
                 this.showSelected = !this.showSelected;
             },
-            handleEditSelect: function (e) {
-                if (this.editSelected == e.currentTarget.dataset.name) {
-                    this.editSelected = null;
-                } else {
-                    this.editSelected = e.currentTarget.dataset.name;
-                }
-            },
+//            handleEditSelect: function (e) {
+//                if (this.editSelected == e.currentTarget.dataset.name) {
+//                    this.editSelected = null;
+//                } else {
+//                    this.editSelected = e.currentTarget.dataset.name;
+//                }
+//            },
             handleEditApply: function (e) {
-                this.attributeManager.updateRowsColumn(this.attributeManager.selected, this.editSelected, this.newValue);
+                this.attributeManager.updateRowsColumn(this.attributeManager.selected, this.$.selectEdit.value, this.newValue);
             },
             handleRemoveApply: function (e) {
                 if (confirm('Delete this attribute?')) {
-                    if (this.editSelected == e.currentTarget.dataset.name) {
-                        this.editSelected = null;
-                    }
+//                    if (this.editSelected == e.currentTarget.dataset.name) {
+//                        this.editSelected = null;
+//                    }
                     this.attributeManager.removeColumnByName(e.currentTarget.dataset.name);
                 }
             },
