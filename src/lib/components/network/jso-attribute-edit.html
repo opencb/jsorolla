@@ -131,19 +131,19 @@
                         <div class="button action" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">
                             Show selection
                         </div>
-                        <div horizontal layout style="margin-bottom: 10px;">
+                        <div horizontal layout>
                             <div flex class="button action" on-click="{{handleSelectAll}}">Select all</div>
                             <div flex class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
+                        </div>
+                        <div horizontal layout  style="margin-bottom: 10px;">
+                            <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
+
+                            <div class="button action newattr" on-click="{{handleAddApply}}"></div>
                         </div>
                         <div horizontal layout>
                             <input flex type="text" value="{{newValue}}" placeholder="Batch selection edit">
 
                             <div class="button action newvalue" on-click="{{handleEditApply}}"></div>
-                        </div>
-                        <div horizontal layout>
-                            <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
-
-                            <div class="button action newattr" on-click="{{handleAddApply}}"></div>
                         </div>
                     </div>
                     <div id="attributelist" flex>

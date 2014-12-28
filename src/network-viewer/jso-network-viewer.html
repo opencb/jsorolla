@@ -411,8 +411,8 @@
 
                 this.hideCellbase = true;
 
-                this.hideNodeSimpleRendering = true;
-                this.hideEdgeSimpleRendering = true;
+                this.hideNodeSimpleRendering = false;
+                this.hideEdgeSimpleRendering = false;
 
                 this.hideReactome = true;
                 this.hideKegg = true;
@@ -564,7 +564,8 @@
                 this.startOver();
                 this.backgroundImages = o.backgroundImages;
                 this.backgroundColor = o.backgroundColor;
-                this.center = o.center;
+                this.center.x = o.center.x;
+                this.center.y = o.center.y;
                 this.vertexDefaults = o.vertexDefaults;
                 this.edgeDefaults = o.edgeDefaults;
                 this.vertexVisualSets = o.vertexVisualSets;
@@ -1866,6 +1867,7 @@
                         dataType: 'json',
                         success: function (data) {
                             me.loadJSON(data);
+                            me.setLayout("Force directed");
                         }
                     })
                 }
