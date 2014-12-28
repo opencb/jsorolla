@@ -104,7 +104,11 @@
             mouseDownHandler: function (e) {
                 switch (e.which) {
                     case 1: //left click
-                        this.leftMouseDown(e);
+                        if (event.shiftKey == true && event.ctrlKey == true) {
+                            this.middleMouseDown(e);
+                        } else {
+                            this.leftMouseDown(e);
+                        }
                         break;
                     case 2: //middle click
                         this.middleMouseDown(e);
