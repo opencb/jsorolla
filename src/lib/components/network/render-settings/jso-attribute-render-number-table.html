@@ -51,8 +51,17 @@
                 margin-right: 0px;
             }
 
+            label {
+                display: inline-block;
+                color: #666;
+            }
+
+            label::after {
+                content: ':'
+            }
+
             core-list {
-                height: 150px;
+                height: 250px;
                 border: 1px solid #d3d3d3;
                 border-top-width: 0;
                 background-color: #FFFFFF;
@@ -60,13 +69,14 @@
         </style>
         <div class="panel panel-shadow">
             <div class="header">
-                <div class="text">{{displayProperty}} rendering configuration</div>
+                <div class="text">{{displayProperty}} render configuration</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
             <div class="container" horizontal layout>
                 <div id="left" vertical layout>
+                    <label>Select parse mode</label>
                     <template if="{{allowListParse == 'true'}}">
                         <div horizontal layout>
                             <div flex class="button action" data-checked="{{attributeParse == 'string'}}"
@@ -77,14 +87,19 @@
                             </div>
                         </div>
                     </template>
+
+                    <label style="margin-top:8px;">Select data type</label>
+
                     <div horizontal layout id="attributetype">
                         <div flex class="button action" data-checked="{{attributeType == 'discrete'}}"
-                             on-mousedown="{{handleAttributeTypeSelect}}" data-name="discrete">Discrete
+                             on-mousedown="{{handleAttributeTypeSelect}}" data-name="discrete">Categorical
                         </div>
                         <div flex class="button action" data-checked="{{attributeType == 'continuous'}}"
                              on-mousedown="{{handleAttributeTypeSelect}}" data-name="continuous">Continuous
                         </div>
                     </div>
+                    <label style="margin-top:8px;">Select attribute</label>
+
                     <div id="attributelist" flex>
                         <template repeat="{{column in attributeManager.columns}}">
                             <div horizontal layout>
@@ -99,17 +114,19 @@
                     </div>
                 </div>
                 <div vertical layout flex>
+                    <label hidden?="{{attributeType != 'discrete'}}">Default render value</label>
+                    <label hidden?="{{attributeType != 'continuous'}}">Continous mapping</label>
+
                     <div horizontal layout hidden?="{{attributeType != 'discrete'}}">
                         <!--<div class="button action">Select all</div>-->
                         <!--<div class="button action">Deselect all</div>-->
-                        <div class="button action" on-click="{{handleApplyDirect}}">Apply direct</div>
                         <!--<div class="text">Selection:</div>-->
                         <input flex type="number" value="{{defaultValue}}">
                     </div>
                     <div hidden?="{{attributeType != 'continuous'}}">
                         <div horizontal layout>
                             <div class="button action" on-click="{{handleAddPoint}}">Add point</div>
-                            <div class="button action" on-click="{{handleApplyInterpolation}}">Apply</div>
+                            <div class="button action" on-click="{{handleApplyInterpolation}}">Apply mapping</div>
                         </div>
                         <div flex vertical layout>
                             <template repeat="{{point, index in points}}">
@@ -120,11 +137,13 @@
                             </template>
                         </div>
                     </div>
+                    <label style="margin-top:8px;">Unique attribute values</label>
+
                     <div>
-                        <!--<div class="table-head" horizontal layout>-->
-                            <!--<div flex>Attribute value</div>-->
-                            <!--<div flex>Render property value</div>-->
-                        <!--</div>-->
+                        <div class="table-head" horizontal layout>
+                            <div flex>Attribute value</div>
+                            <div flex>Render value</div>
+                        </div>
                         <core-list id="list" data="{{uniqueData}}" height="27">
                             <template>
                                 <div horizontal layout class="table-row">
@@ -135,6 +154,7 @@
                         </core-list>
                     </div>
                     <div horizontal layout end-justified>
+                        <div class="button action" on-click="{{handleApplyDirect}}">Apply attributes directly</div>
                         <div class="button action" style="width: 100px;" on-click="{{handleOk}}">OK</div>
                     </div>
                 </div>
@@ -172,6 +192,7 @@
                     this.attributeType = this.visualSet.type;
                     this.attributeName = this.visualSet.attribute;
                     this.attributeParse = this.visualSet.parse;
+                    this.points = this.visualSet.points;
                 }
             },
             attributeNameChanged: function (oldValue, newValue) {
@@ -191,7 +212,7 @@
             },
 
             handleClose: function () {
-                this.displayProperty = null;
+                this.displayProperty = '';
             },
             handleOk: function () {
                 var matches = {};
@@ -205,9 +226,10 @@
                     type: this.attributeType,
                     matches: matches,
                     parse: this.attributeParse,
+                    points: this.points,
                     enabled: true
                 }
-                this.fire('ok',{displayProperty: this.displayProperty});
+                this.fire('ok', {displayProperty: this.displayProperty});
                 this.handleClose();
             },
             handleAttributeNameSelect: function (e) {
@@ -233,8 +255,8 @@
                 if (this.attributeName != '') {
                     var uniqueMap = {};
                     var uniqueData = [];
-                    var max=0;
-                    var min=0;
+                    var max = 0;
+                    var min = 0;
 
                     var processValue = function (value) {
                         if (value) {
@@ -264,7 +286,7 @@
                         for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
                             row = this.attributeManager.data[i];
                             value = row[this.attributeName];
-                            if(value == null){
+                            if (value == null) {
                                 value = "";
                             }
                             values = value.split(splitStr);
@@ -279,14 +301,16 @@
                         }
                     }
 
-                    this.points[0].value = min;
-                    this.points[this.points.length - 1].value = max;
+                    if (this.points.length == 0) {
+                        this.points[0].value = min;
+                        this.points[this.points.length - 1].value = max;
+                    }
+
                     uniqueData.sort(function (a, b) {
                         return parseFloat(a.attribute) - parseFloat(b.attribute);
                     });
                     this.uniqueData = uniqueData;
                     this._updateUniqueInterpolatedValues();
-
                 }
             },
 

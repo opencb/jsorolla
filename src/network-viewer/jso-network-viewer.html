@@ -231,6 +231,7 @@
 
         <div class="right-side">
             <jso-attribute-node-render
+                    id="nodeRender"
                     hidden?="{{hideNodeSimpleRendering}}"
                     hideFlag="{{hideNodeSimpleRendering}}"
                     attributeManager="{{vAttr}}"
@@ -254,6 +255,7 @@
             </jso-attribute-node-render>
 
             <jso-attribute-edge-render
+                    id="edgeRender"
                     hidden?="{{hideEdgeSimpleRendering}}"
                     hideFlag="{{hideEdgeSimpleRendering}}"
                     attributeManager="{{eAttr}}"
@@ -463,7 +465,7 @@
                     opacity: 1,
                     labelSize: 0,
                     labelColor: '#111111',
-                    labelAttribute: 'id'
+                    labelAttribute: 'relation'
                 };
                 this.vertexVisualSets = {
                     labelSize: null,

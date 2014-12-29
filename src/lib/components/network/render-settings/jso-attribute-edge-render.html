@@ -191,7 +191,7 @@
         <!--<template if="{{displayProperty == 'labelSize'}}">-->
             <jso-attribute-render-number-table
                     id="labelSize"
-                    hidden?="{{displayProperty != 'labelSize'}}"
+                    style="visibility:{{displayProperty != 'labelSize' ? 'hidden' : 'visible'}};"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -203,7 +203,7 @@
         <!--<template if="{{displayProperty == 'opacity'}}">-->
             <jso-attribute-render-number-table
                     id="opacity"
-                    hidden?="{{displayProperty != 'opacity'}}"
+                    style="visibility:{{displayProperty != 'opacity' ? 'hidden' : 'visible'}};"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -215,7 +215,7 @@
         <!--<template if="{{displayProperty == 'shaft'}}">-->
             <jso-attribute-render-select-table
                     id="shaft"
-                    hidden?="{{displayProperty != 'shaft'}}"
+                    style="visibility:{{displayProperty != 'shaft' ? 'hidden' : 'visible'}};"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -228,7 +228,7 @@
         <!--<template if="{{displayProperty == 'shape'}}">-->
             <jso-attribute-render-select-table
                     id="shape"
-                    hidden?="{{displayProperty != 'shape'}}"
+                    style="visibility:{{displayProperty != 'shape' ? 'hidden' : 'visible'}};"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -241,7 +241,7 @@
         <!--<template if="{{displayProperty == 'bidirectional'}}">-->
             <jso-attribute-render-select-table
                     id="bidirectional"
-                    hidden?="{{displayProperty != 'bidirectional'}}"
+                    style="visibility:{{displayProperty != 'bidirectional' ? 'hidden' : 'visible'}};"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -254,7 +254,7 @@
         <!--<template if="{{displayProperty == 'color'}}">-->
             <jso-attribute-render-color-table
                     id="color"
-                    hidden?="{{displayProperty != 'color'}}"
+                    style="visibility:{{displayProperty != 'color' ? 'hidden' : 'visible'}};"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
@@ -266,7 +266,7 @@
         <!--<template if="{{displayProperty == 'size'}}">-->
             <jso-attribute-render-number-table
                     id="size"
-                    hidden?="{{displayProperty != 'size'}}"
+                    style="visibility:{{displayProperty != 'size' ? 'hidden' : 'visible'}};"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
                     attributeManager="{{attributeManager}}"
