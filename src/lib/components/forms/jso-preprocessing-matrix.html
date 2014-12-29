@@ -18,7 +18,6 @@
                 box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
             }
 
-
             .title {
                 text-align: center;
                 font-size: 25px;
@@ -79,93 +78,121 @@
 
         </div>
         <form id="form">
-            <h3>Examples</h3>
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Output folder</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Log-transform</div>
+                <div class="formcontent">
+                    <input id="logarithm_base_1" name="logarithm_base" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
+                    <input id="logarithm_base_2" name="logarithm_base" class="fc-radioitem" type="radio" value="2">Log 2<br>
+                    <input id="logarithm_base_3" name="logarithm_base" class="fc-radioitem" type="radio" value="e">Log e<br>
+                    <input id="logarithm_base_4" name="logarithm_base" class="fc-radioitem" type="radio" value="10">Log 10<br>
+                    </h3>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Exponential function</div>
+                <div class="formcontent">
+                    <input id="exp_1" name="exp" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
+                    <input id="exp_2" name="exp" class="fc-radioitem" type="radio" value="2">2<br>
+                    <input id="exp_3" name="exp" class="fc-radioitem" type="radio" value="e">e<br>
+                    <input id="exp_4" name="exp" class="fc-radioitem" type="radio" value="10">10<br>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Merge replicates</div>
+                <div class="formcontent">
+                    <input id="merge_replicates_1" name="merge_replicates" class="fc-radioitem" type="radio" value="none" checked="checked">none <br>
+                    <input id="merge_replicates_2" name="merge_replicates" class="fc-radioitem" type="radio" value="mean">Average<br>
+                    <input id="merge_replicates_3" name="merge_replicates" class="fc-radioitem" type="radio" value="median">Median<br>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Filter missing values</div>
+                <div class="formcontent">
+                    <!--<input name="filter_missing_bool" id="filter_missing_bool" class="fc-checkbox" type="checkbox" value="true">Check to apply this filter<br>-->
+                    <label>Minimum percentage of existing values (%)</label>
+                    <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" value="">
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Impute missing values</div>
+                <div class="formcontent">
+                    <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none" checked="checked"> Do not impute <br>
+                    <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn">KNN imputation <br>
+                    <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean">Row mean imputation <br>
+                    <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median">Row median imputation <br>
+                    <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero">Impute with zeros<br>
+                    <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text" value="15">
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Extract IDs from dataset and save into a file</div>
+                <div class="formcontent">
+                    <input name="extract_ids" id="extract_ids" class="fc-checkbox" type="checkbox" value="true">Check to extract IDs
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Filter genes by names</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="gene_file_filter" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Convert IDs from dataset</div>
+                <div class="formcontent">
+                    <input id="convert_ids_1" name="convert_ids" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
+                    <input id="convert_ids_2" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_gene">Ensembl gene<br>
+                    <input id="convert_ids_3" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_transcript">Ensembl transcript <br>
+                    <label>Organism</label>
+                    <select name="species" id="species" class="fc-combobox" type="text" value="hsa">
+                        <option name="species_1" id="species_1" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>
+                        <option name="species_2" id="species_2" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
+                        <option name="species_3" id="species_3" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
+                        <option name="species_4" id="species_4" class="fc-combobox-item" value="gga">Chicken (gallus gallus)</option>
+                        <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
+                        <option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>
+                        <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>
+                        <option name="species_8" id="species_8" class="fc-combobox-item" value="aga">Anopheles gambiae</option>
+                        <option name="species_9" id="species_9" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                        <option name="species_10" id="species_10" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
+                        <option name="species_11" id="species_11" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                    </select>
+                    <label>Select method to merge the replicated result IDs</label><br>
+                    <input id="convert_ids_merge_1" name="convert_ids_merge" class="fc-radioitem" type="radio" value="mean" checked="checked">Average <br>
+                    <input id="convert_ids_merge_2" name="convert_ids_merge" class="fc-radioitem" type="radio" value="median">Median<br>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
 
-            <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+            <div class="button action" on-click="{{handleForm}}">Run</div>
 
-            <div>
-                <h3>Output parameters</h3>
-                <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-            </div>
-            <div>
-                <h3>Select your data</h3>
-                <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-            </div>
-            <div>
-                <h3>Log-transform</h3>
-                <input id="logarithm_base_1" name="logarithm_base" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
-                <input id="logarithm_base_2" name="logarithm_base" class="fc-radioitem" type="radio" value="2">Log 2<br>
-                <input id="logarithm_base_3" name="logarithm_base" class="fc-radioitem" type="radio" value="e">Log e<br>
-                <input id="logarithm_base_4" name="logarithm_base" class="fc-radioitem" type="radio" value="10">Log 10<br>
-
-            </div>
-            <div>
-                <h3>Exponential function</h3>
-                <input id="exp_1" name="exp" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
-                <input id="exp_2" name="exp" class="fc-radioitem" type="radio" value="2">2<br>
-                <input id="exp_3" name="exp" class="fc-radioitem" type="radio" value="e">e<br>
-                <input id="exp_4" name="exp" class="fc-radioitem" type="radio" value="10">10<br>
-            </div>
-            <div>
-                <h3>Merge replicates</h3>
-                <input id="merge_replicates_1" name="merge_replicates" class="fc-radioitem" type="radio" value="none" checked="checked">none <br>
-                <input id="merge_replicates_2" name="merge_replicates" class="fc-radioitem" type="radio" value="mean">Average<br>
-                <input id="merge_replicates_3" name="merge_replicates" class="fc-radioitem" type="radio" value="median">Median<br>
-
-            </div>
-            <div>
-                <h3>Filter missing values</h3>
-                <!--<input name="filter_missing_bool" id="filter_missing_bool" class="fc-checkbox" type="checkbox" value="true">Check to apply this filter<br>-->
-                <label>Minimum percentage of existing values (%)</label>
-                <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" value="">
-
-            </div>
-            <div>
-                <h3>Impute missing values</h3>
-                <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none" checked="checked"> Do not impute <br>
-                <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn">KNN imputation <br>
-                <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean">Row mean imputation <br>
-                <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median">Row median imputation <br>
-                <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero">Impute with zeros<br>
-                <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text" value="15">
-            </div>
-            <div>
-                <h3>Extract IDs from dataset and save into a file</h3>
-                <input name="extract_ids" id="extract_ids" class="fc-checkbox" type="checkbox" value="true">Check to extract IDs
-            </div>
-            <div>
-                <h3>Filter genes by names</h3>
-                <jso-project-browser class="input-project-browser" id="gene_file_filter" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-            </div>
-            <div>
-                <h3>Convert IDs from dataset</h3>
-                <input id="convert_ids_1" name="convert_ids" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
-                <input id="convert_ids_2" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_gene">Ensembl gene<br>
-                <input id="convert_ids_3" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_transcript">Ensembl transcript <br>
-                <label>Organism</label>
-                <select name="species" id="species" class="fc-combobox" type="text" value="hsa">
-                    <option name="species_1" id="species_1" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>
-                    <option name="species_2" id="species_2" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
-                    <option name="species_3" id="species_3" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
-                    <option name="species_4" id="species_4" class="fc-combobox-item" value="gga">Chicken (gallus gallus)</option>
-                    <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
-                    <option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>
-                    <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>
-                    <option name="species_8" id="species_8" class="fc-combobox-item" value="aga">Anopheles gambiae</option>
-                    <option name="species_9" id="species_9" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
-                    <option name="species_10" id="species_10" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
-                    <option name="species_11" id="species_11" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
-                </select>
-                <label>Select method to merge the replicated result IDs</label><br>
-                <input id="convert_ids_merge_1" name="convert_ids_merge" class="fc-radioitem" type="radio" value="mean" checked="checked">Average <br>
-                <input id="convert_ids_merge_2" name="convert_ids_merge" class="fc-radioitem" type="radio" value="median">Median<br>
-            </div>
-            <div>
-                <h3>Job information</h3>
-                <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
-
-                <div class="button action" on-click="{{handleForm}}">Run</div>
-            </div>
         </form>
         <div class="message">{{message}}</div>
     </template>
@@ -190,31 +217,31 @@
                     description: this.description
                 };
                 if (this.shadowRoot.querySelector('input[name="logarithm_base"]:checked').value != "none")
-                    query["logarithm-base"] =  this.shadowRoot.querySelector('input[name="logarithm_base"]:checked').value;
+                    query["logarithm-base"] = this.shadowRoot.querySelector('input[name="logarithm_base"]:checked').value;
 
-                if ( this.shadowRoot.querySelector('input[name="exp"]:checked').value != "none")
-                    query["exp"] =  this.shadowRoot.querySelector('input[name="exp"]:checked').value;
+                if (this.shadowRoot.querySelector('input[name="exp"]:checked').value != "none")
+                    query["exp"] = this.shadowRoot.querySelector('input[name="exp"]:checked').value;
 
-                if ( this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value != "none")
-                    query["merge-replicates"] =  this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value;
+                if (this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value != "none")
+                    query["merge-replicates"] = this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value;
 
                 if (this.$.filter_missing.value != "")
                     query["filter-missing"] = this.$.filter_missing.value;
 
-                if ( this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value != "none"){
-                    query["impute-missing"] =  this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value;
-                    if( this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value == "knn")
+                if (this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value != "none") {
+                    query["impute-missing"] = this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value;
+                    if (this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value == "knn")
                         query["kvalue"] = this.$.kvalue.value;
                 }
 
-                if (this.$.extract_ids.checked){
+                if (this.$.extract_ids.checked) {
                     query["extract-ids"] = this.$.extract_ids.checked;
                 }
-                if (this.$.gene_file_filter.selectedFile.type == "FILE"){
+                if (this.$.gene_file_filter.selectedFile.type == "FILE") {
                     query["gene_file_filter"] = this.$.gene_file_filter.selectedFile.id;
                 }
-                if ( this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value != "none") {
-                    query["convert-ids"] =  this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value;
+                if (this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value != "none") {
+                    query["convert-ids"] = this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value;
                     query["species"] = this.$.species.value;
                     query["merge-replicates"] = this.$.merge_replicates.value;
                 }

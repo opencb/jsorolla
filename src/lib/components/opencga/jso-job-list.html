@@ -130,6 +130,7 @@
             },
             attached: function () {
                 var me = this;
+                this.checkTimeInterval = 50000;
                 if (this.interval == null) {
                     this.getJobs();//first call
                     this.interval = setInterval(function () {
@@ -184,6 +185,7 @@
             },
             getJobs: function () {
                 var me = this;
+                console.log("this.selectedStudy.id: "+this.selectedStudy.id)
                 OpencgaManager.studies.job({
                     id: this.selectedStudy.id,
                     query: {

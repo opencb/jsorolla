@@ -81,30 +81,47 @@
             </div>
         </div>
         <form id="form">
-            <h3>Examples</h3>
-
-            <div class="button action" on-click="{{loadExample1}}"> No example</div>
-
-            <div>
-                <h3>Output parameters</h3>
-                <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                </div>
             </div>
-            <div>
-                <h3>Select your data</h3>
-                <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            <div class="formbox">
+                <div class="formtitle">Output folder</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                </div>
             </div>
 
-
-            <div id="optionsDiv">
-                <h3>Select options</h3>
-                <input name="ibs_test" id="ibs_test" class="fc-checkbox" type="checkbox" value="true">Check if there are group differences in this metric with respect to a binary
-                phenotype<br>
-                <label>Pairwise population concordance (PPC)</label><input name="ppc" id="ppc" class="fc-decimal fc-text" type="text" value="{{ppc}}"><br>
-                <label>Maximum cluster size (enter 0 to not apply)</label><input name="mc" id="mc" class="fc-int fc-text" type="text" value="{{mc}}">
+            <div class="formbox">
+                <div class="formtitle">Select options</div>
+                <div class="formcontent">
+                    <div id="optionsDiv">
+                        <input name="ibs_test" id="ibs_test" class="fc-checkbox" type="checkbox" value="true">Check if there are group differences in this metric with respect to a
+                        binary
+                        phenotype<br>
+                        <label>Pairwise population concordance (PPC)</label><input name="ppc" id="ppc" class="fc-decimal fc-text" type="text" value="{{ppc}}"><br>
+                        <label>Maximum cluster size (enter 0 to not apply)</label><input name="mc" id="mc" class="fc-int fc-text" type="text" value="{{mc}}">
+                    </div>
+                </div>
             </div>
-            <h3>Job information</h3>
-            <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
-            <textarea required value="{{description}}"></textarea>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
 
             <div class="button action" on-click="{{handleForm}}">Run</div>
         </form>
@@ -127,7 +144,8 @@
             },
             launchJob: function () {
                 var me = this;
-                var query = { sid: Cookies("bioinfo_sid"),
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
                     toolId: this.toolName,
                     outdir: this.$.outdir.selectedFile.id,

@@ -1,198 +1,213 @@
 <polymer-element name="jso-one-channel-agilent" attributes="userData selectedOption selectedStudy studies">
-<template>
-    <link rel="stylesheet" href="../jso-style.css">
-    <style>
-        :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            background-color: #FFFFFF;
-            padding: 30px 100px;
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 50%;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-        }
+                width: 50%;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            }
 
-        .title {
-            text-align: center;
-            font-size: 25px;
-            color: #666;
-        }
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
 
-        .icon {
-            color: #445D76;
-            font-size: 50px;
-        }
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
 
-        label {
-            display: inline-block;
-            color: #666;
-            margin-top: 3px;
-            /*width: 150px;*/
-        }
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 3px;
+                /*width: 150px;*/
+            }
 
-        label::after {
-            content: ':'
-        }
+            label::after {
+                content: ':'
+            }
 
-        .action {
-            /*margin-top: 30px;*/
-            background-color: #f5f5f5 !important;
-            text-align: center;
-        }
+            .action {
+                /*margin-top: 30px;*/
+                background-color: #f5f5f5 !important;
+                text-align: center;
+            }
 
-        .action:active {
-            background-color: #445D76 !important;
-            color: #fff !important;
-        }
+            .action:active {
+                background-color: #445D76 !important;
+                color: #fff !important;
+            }
 
-        .message {
-            margin-top: 20px;
-        }
+            .message {
+                margin-top: 20px;
+            }
 
-        div.button {
-            /*display: inline-block;*/
-            width: 300px
-        }
+            div.button {
+                /*display: inline-block;*/
+                width: 300px
+            }
 
-        /*jso-file-browser {*/
-        /*width: 70%;*/
-        /*}*/
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
 
-        span {
-            border: 1px solid;
-        }
-    </style>
-    <div class="title">
-        <div>
-            Agilent one-channel normalization
+            span {
+                border: 1px solid;
+            }
+        </style>
+        <div class="title">
+            <div>
+                Agilent one-channel normalization
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
         </div>
-        <div class="icon">
-            <!--<font-awesome icon="magic"></font-awesome>-->
-        </div>
-    </div>
-    <form id="form">
-        <h3>Examples</h3>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                </div>
+            </div>
 
-        <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+            <div class="formbox">
+                <div class="formtitle">Output folder</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Analysis</div>
+                <div class="formcontent">
+                    Background correction:
+                    <select name="bg_correction" id="bg_correction" type="text" value="none">
+                        <option name="bg_correction_1" id="bg_correction_1" value="agilent" selected="selected">agilent</option>
+                        <option name="bg_correction_2" id="bg_correction_2" value="normexp">normexp</option>
+                        <option name="bg_correction_3" id="bg_correction_3" value="rma">rma</option>
+                        <option name="bg_correction_4" id="bg_correction_4" value="half">half</option>
+                        <option name="bg_correction_5" id="bg_correction_5" value="subtract">subtract</option>
+                        <option name="bg_correction_6" id="bg_correction_6" value="none">none</option>
+                    </select>
+                    <br>
+                    Between arrays normalization:
+                    <select name="ba_normalization" id="ba_normalization" type="text" value="quantiles">
+                        <option name="ba_normalization_1" id="ba_normalization_1" value="quantiles" selected="selected">quantiles</option>
+                        <option name="ba_normalization_2" id="ba_normalization_2" value="scale">scale</option>
+                        <option name="ba_normalization_3" id="ba_normalization_3" value="none">none</option>
+                    </select>
+                    <br>
+                    <input name="flags_no_fitted" id="flags_no_fitted" type="checkbox" value="true" checked="checked">
+                    Check if flagged spots will not be used in the fitting of the parameters of the normalization steps
+                    <br>
+                    <input name="flags_as_missing" id="flags_as_missing" type="checkbox" value="true">
+                    Check if flagged spots will have a missing (NA) normalized value and A-value as well
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
 
-        <div>
-            <h3>Output parameters</h3>
-            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-        </div>
-        <div>
-            <h3>Select your data</h3>
-            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-        </div>
+            <div class="button action" on-click="{{handleForm}}">Run</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "agilent-expression-one-color-normalization";
+                this.list1UploadMsg = "Select file...";
+                this.description = "Job info...";
+                this.compressed_file_tags = "microarray,expression,one-channel,agilent";
+            },
+            list1Click: function (e) {
+                this.$.list1Html.hidden = false
+                //this.$.rankedListFileName.click();
 
-        <h3>Analysis</h3>
-        Background correction:
-        <select name="bg_correction" id="bg_correction" type="text" value="none">
-            <option name="bg_correction_1" id="bg_correction_1" value="agilent" selected="selected">agilent</option>
-            <option name="bg_correction_2" id="bg_correction_2" value="normexp">normexp</option>
-            <option name="bg_correction_3" id="bg_correction_3" value="rma">rma</option>
-            <option name="bg_correction_4" id="bg_correction_4" value="half">half</option>
-            <option name="bg_correction_5" id="bg_correction_5" value="subtract">subtract</option>
-            <option name="bg_correction_6" id="bg_correction_6" value="none">none</option>
-        </select>
-        <br>
-        Between arrays normalization:
-        <select name="ba_normalization" id="ba_normalization" type="text" value="quantiles">
-            <option name="ba_normalization_1" id="ba_normalization_1" value="quantiles" selected="selected">quantiles</option>
-            <option name="ba_normalization_2" id="ba_normalization_2" value="scale">scale</option>
-            <option name="ba_normalization_3" id="ba_normalization_3" value="none">none</option>
-        </select>
-        <br>
-        <input name="flags_no_fitted" id="flags_no_fitted" type="checkbox" value="true" checked="checked">
-        Check if flagged spots will not be used in the fitting of the parameters of the normalization steps
-        <br>
-        <input name="flags_as_missing" id="flags_as_missing" type="checkbox" value="true">
-        Check if flagged spots will have a missing (NA) normalized value and A-value as well
-        <h3>Job information</h3>
-        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
-        <label>Description</label>
-        <textarea required value="{{description}}"></textarea>
-        <br>
+            },
+            list1Changed: function (oldV, newV) {
+                this.list1UploadMsg = this.list1.path
+            },
+            handleForm: function () {
+                this.launchJob();
+            },
+            launchJob: function () {
+                debugger
+                var me = this;
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description,
+                    "compressed-file": this.$.inputFile.selectedFile.id,
+                    "compressed-file-tags": this.compressed_file_tags,
+                    "bg-correction": this.$.bg_correction.value,
+                    "ba-normalization": this.$.ba_normalization.value
+                };
 
-        <div class="button action" on-click="{{handleForm}}">Run</div>
-    </form>
-    <div class="message">{{message}}</div>
-</template>
-<script>
-    Polymer({
-        created: function () {
-            this.jobName = 'JobName';
-            this.toolName = "agilent-expression-one-color-normalization";
-            this.list1UploadMsg = "Select file...";
-            this.description = "Job info...";
-            this.compressed_file_tags = "microarray,expression,one-channel,agilent";
-        },
-        list1Click: function (e) {
-            this.$.list1Html.hidden = false
-            //this.$.rankedListFileName.click();
-
-        },
-        list1Changed: function (oldV, newV) {
-            this.list1UploadMsg = this.list1.path
-        },
-        handleForm: function () {
-            this.launchJob();
-        },
-        launchJob: function () {
-            debugger
-            var me = this;
-            var query = {
-                sid: Cookies("bioinfo_sid"),
-                studyId: this.selectedStudy.id,
-                toolId: this.toolName,
-                outdir: this.$.outdir.selectedFile.id,
-                name: this.jobName,
-                description: this.description,
-                "compressed-file": this.$.inputFile.selectedFile.id,
-                "compressed-file-tags": this.compressed_file_tags,
-                "bg-correction": this.$.bg_correction.value,
-                "ba-normalization": this.$.ba_normalization.value
-            };
-
-            if (this.$.flags_no_fitted.checked) query["flags-no-fitted"] = "";
-            if (this.$.flags_as_missing.checked) query["flags-as-missing"] = "";
-            OpencgaManager.jobs.create({
-                query: query,
-                request: {
-                    //method: 'POST',
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var userId = response.response[0].result[0].id;
-                            me.message = userId + ' created';
-                            me.selectedOption = "jobLaunched"
-                        } else {
-                            me.message = response.response[0].errorMsg;
+                if (this.$.flags_no_fitted.checked) query["flags-no-fitted"] = "";
+                if (this.$.flags_as_missing.checked) query["flags-as-missing"] = "";
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
                         }
-                    },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
                     }
-                }
-            })
-        },
-        loadExample1: function (e) {
-            this.jobName = "agilentOneChannelNormalizationExample";
-            this.description = "just_an_demo_to_normalize_agilent_one_channel_expression_data";
-            this.$.bg_correction.value = "agilent";
-            this.$.flags_no_fitted.checked = true;
-            this.$.flags_as_missing.checked = false;
-            this.$.ba_normalization.value = "quantiles";
-            this.compressed_file = {id: "example_agilent_one_color_expression.zip", path: "agilent_one_color_expression.zip"};
-            this.compressed_file_tags = "microarray,expression,one-channel,agilent";
-            this.newFolderName = "one_channel_agilent_" + Math.floor((Math.random() * 100) + 1);
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "agilentOneChannelNormalizationExample";
+                this.description = "just_an_demo_to_normalize_agilent_one_channel_expression_data";
+                this.$.bg_correction.value = "agilent";
+                this.$.flags_no_fitted.checked = true;
+                this.$.flags_as_missing.checked = false;
+                this.$.ba_normalization.value = "quantiles";
+                this.compressed_file = {id: "example_agilent_one_color_expression.zip", path: "agilent_one_color_expression.zip"};
+                this.compressed_file_tags = "microarray,expression,one-channel,agilent";
+                this.newFolderName = "one_channel_agilent_" + Math.floor((Math.random() * 100) + 1);
 
 
-        }
-    });
-</script>
+            }
+        });
+    </script>
 </polymer-element>

@@ -1,202 +1,218 @@
 <polymer-element name="jso-fatiscan" attributes="userData selectedOption selectedStudy studies">
-<template>
-    <link rel="stylesheet" href="../jso-style.css">
-    <style>
-        :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            background-color: #FFFFFF;
-            padding: 30px 100px;
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 50%;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-        }
+                width: 50%;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            }
 
-        .title {
-            text-align: center;
-            font-size: 25px;
-            color: #666;
-        }
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
 
-        .icon {
-            color: #445D76;
-            font-size: 50px;
-        }
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
 
-        label {
-            display: inline-block;
-            color: #666;
-            margin-top: 3px;
-            /*width: 150px;*/
-        }
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 3px;
+                /*width: 150px;*/
+            }
 
-        label::after {
-            content: ':'
-        }
+            label::after {
+                content: ':'
+            }
 
-        .action {
-            /*margin-top: 30px;*/
-            background-color: #f5f5f5 !important;
-            text-align: center;
-        }
+            .action {
+                /*margin-top: 30px;*/
+                background-color: #f5f5f5 !important;
+                text-align: center;
+            }
 
-        .action:active {
-            background-color: #445D76 !important;
-            color: #fff !important;
-        }
+            .action:active {
+                background-color: #445D76 !important;
+                color: #fff !important;
+            }
 
-        .message {
-            margin-top: 20px;
-        }
+            .message {
+                margin-top: 20px;
+            }
 
-        div.button {
-            /*display: inline-block;*/
-            width: 300px
-        }
+            div.button {
+                /*display: inline-block;*/
+                width: 300px
+            }
 
-        /*jso-file-browser {*/
-        /*width: 70%;*/
-        /*}*/
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
 
-        span {
-            border: 1px solid;
-        }
+            span {
+                border: 1px solid;
+            }
 
-        input[type="text"]:disabled {
-            background: #dddddd;
-        }
-    </style>
-    <div class="title">
-        <div>
-            Fatiscan
+            input[type="text"]:disabled {
+                background: #dddddd;
+            }
+        </style>
+        <div class="title">
+            <div>
+                Fatiscan
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
         </div>
-        <div class="icon">
-            <!--<font-awesome icon="magic"></font-awesome>-->
-        </div>
-    </div>
-    <form id="form">
-        <h3>Examples</h3>
-
-        <div class="button action" on-click="{{loadExample1}}"> Diabetes dataset</div>
-
-        <div>
-            <h3>Output parameters</h3>
-            <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-        </div>
-        <div>
-            <h3>Select your data</h3>
-            <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-            <br>
-            <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox" value="true">Remove duplicates
-        </div>
-        <h3>Databases</h3>
-
-        <div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Output folder</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder"></jso-project-browser-window>
+                </div>
+            </div>
+            <div>
+                <div class="formbox">
+                    <div class="formtitle">Select your data</div>
+                    <div class="formcontent">
+                        <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                        <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox" value="true">Remove duplicates
+                    </div>
+                </div>
+            </div>
             <h3>Databases</h3>
-            <select name="species" id="species" class="fc-combobox" type="text" value="none">
-                <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
-                <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">Human (homo sapiens)</option>
-                <!--<option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>-->
-                <!--<option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>-->
-                <!--<option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>-->
-                <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
-                <!--<option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>-->
-                <!--<option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>-->
-                <!--<option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>-->
-                <!--<option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>-->
-            </select>
 
-            <input name="go_bp" id="go_bp" type="checkbox" value="gobp"> GO biological process <br>
-            <!--<input name="go_mf" id="go_mf" type="checkbox" value="gomf" disabled>GO molecular function <br>-->
-            <!--<input name="go_cc" id="go_cc" type="checkbox" value="gocc" disabled>GO cellular component <br>-->
-            <!--<input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>-->
-            <!--<input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>-->
-            <!--<input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>-->
-            <!--<input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>-->
-            <!--<input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>-->
-            <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
-            <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
-            <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
+            <div class="formbox">
+                <div class="formtitle">Databases</div>
+                <div class="formcontent">
+                    <select name="species" id="species" class="fc-combobox" type="text" value="none">
+                        <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
+                        <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">Human (homo sapiens)</option>
+                        <!--<option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>-->
+                        <!--<option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>-->
+                        <!--<option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>-->
+                        <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
+                        <!--<option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>-->
+                        <!--<option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>-->
+                        <!--<option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>-->
+                        <!--<option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>-->
+                    </select>
 
-        </div>
-        <h3>Job information</h3>
-        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
-        <textarea required value="{{description}}"></textarea>
+                    <input name="go_bp" id="go_bp" type="checkbox" value="gobp"> GO biological process <br>
+                    <!--<input name="go_mf" id="go_mf" type="checkbox" value="gomf" disabled>GO molecular function <br>-->
+                    <!--<input name="go_cc" id="go_cc" type="checkbox" value="gocc" disabled>GO cellular component <br>-->
+                    <!--<input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>-->
+                    <!--<input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>-->
+                    <!--<input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>-->
+                    <!--<input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>-->
+                    <!--<input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>-->
+                    <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
+                    <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
+                    <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
 
-        <div class="button action" on-click="{{handleForm}}">Run</div>
-    </form>
-    <div class="message">{{message}}</div>
-</template>
-<script>
-    Polymer({
-        created: function () {
-            this.jobName = 'JobName';
-            this.toolName = "fatiscan";
-            this.description = "Job description...";
-            this.method = "logistic"; // logistic model
+            <div class="button action" on-click="{{handleForm}}">Run</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "fatiscan";
+                this.description = "Job description...";
+                this.method = "logistic"; // logistic model
 
 
-        },
-        handleForm: function () {
-            var me = this;
-            this.message = '';
-            me.launchJob();
-        },
-        launchJob: function () {
-            var me = this;
-            var query = { sid: Cookies("bioinfo_sid"),
-                studyId: this.selectedStudy.id,
-                toolId: this.toolName,
-                name: this.jobName,
-                description: this.description,
-                "ranked-list": this.$.inputFile.selectedFile.id,
-                outdir: this.$.outdir.selectedFile.id,
-                method: this.method,
-                duplicates: this.$.remove_duplicates.checked,
-                species: this.$.species.value
+            },
+            handleForm: function () {
+                var me = this;
+                this.message = '';
+                me.launchJob();
+            },
+            launchJob: function () {
+                var me = this;
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    name: this.jobName,
+                    description: this.description,
+                    "ranked-list": this.$.inputFile.selectedFile.id,
+                    outdir: this.$.outdir.selectedFile.id,
+                    method: this.method,
+                    duplicates: this.$.remove_duplicates.checked,
+                    species: this.$.species.value
 
-            };
-             if (this.$.go_bp.checked) {
+                };
+                if (this.$.go_bp.checked) {
                     query["go-bp"] = "";
 //                    query["go-bp-min-num-genes"] = this.go_bp_min_num_genes;
 //                    query["go-bp-max-num-genes"] = this.go_bp_max_num_genes;
                 }
-            OpencgaManager.jobs.create({
-                query: query,
-                request: {
-                    //method: 'POST',
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var userId = response.response[0].result[0].id;
-                            me.message = userId + ' created';
-                            me.selectedOption = "jobLaunched"
-                        } else {
-                            me.message = response.response[0].errorMsg;
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
                         }
-                    },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
                     }
-                }
-            })
-        },
-        loadExample1: function (e) {
-            this.jobName = "Diabetes_dataset";
-            this.description = "Diabetes_dataset";
-            this.newFolderName = "fatiscan_" + Math.floor((Math.random() * 100) + 1);
-            this.list1 = {id: "example_fatiscan_diabetesAff.txt", path: "fatiscan_diabetesAff.txt"};
-            this.$.remove_duplicates.checked = false;
-            this.$.species.value = "hsa";
-            this.$.go_bp.checked = true;
-            this.$.go_bp.disabled = false;
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "Diabetes_dataset";
+                this.description = "Diabetes_dataset";
+                this.newFolderName = "fatiscan_" + Math.floor((Math.random() * 100) + 1);
+                this.list1 = {id: "example_fatiscan_diabetesAff.txt", path: "fatiscan_diabetesAff.txt"};
+                this.$.remove_duplicates.checked = false;
+                this.$.species.value = "hsa";
+                this.$.go_bp.checked = true;
+                this.$.go_bp.disabled = false;
 
-        }
-    });
-</script>
+            }
+        });
+    </script>
 </polymer-element>

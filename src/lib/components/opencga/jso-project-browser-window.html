@@ -1,0 +1,28 @@
+<polymer-element name="jso-project-browser-window" attributes="userData selectedProject selectedStudy studies selectionMode">
+    <template>
+        <style>
+            .labelSelection{
+             margin-left: 10px;
+            }
+        </style>
+        <link rel="stylesheet" href="../jso-style.css">
+        <div horizontal layout>
+            <div class="button action" style="width:150px;" on-click="{{buttonHandler}}">File browser</div>
+            <div id="selection" class="labelSelection"> {{selectedStudy.name}}/{{selectedFile.path}}</div>
+        </div>
+        <jso-project-browser id="jsoProjectBrowser" class="input-project-browser" studies="{{studies}}" selectedProject="{{selectedProject}}" selectedStudy="{{selectedStudy}}"
+                             selectionMode="{{selectionMode}}" on-file-select="{{selectHandler}}"></jso-project-browser>
+    </template>
+    <script>
+        Polymer({
+            ready: function () {
+            },
+            buttonHandler: function () {
+                this.$.jsoProjectBrowser.hidden = !this.$.jsoProjectBrowser.hidden;
+            },
+            selectHandler: function (e) {
+                this.selectedFile = e.detail.file;
+            }
+        });
+    </script>
+</polymer-element>

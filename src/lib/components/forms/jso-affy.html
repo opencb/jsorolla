@@ -77,31 +77,43 @@
             </div>
         </div>
         <form id="form">
-            <h3>Examples</h3>
-
-            <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
-            <div>
-                <h3>Output parameters</h3>
-                <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" on-click="{{loadExample1}}">Affy sample 1</div>
+                </div>
             </div>
-            <div>
-                <h3>Select your data</h3>
-                <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+            <div class="formbox">
+                <div class="formtitle">Output folder</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder"></jso-project-browser-window>
+                </div>
             </div>
-            <h3>Analysis</h3>
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                </div>
+            </div>
 
-            <input name="rma" id="rma" type="checkbox" checked> RMA <br>
-            <input name="plier" id="plier" type="checkbox"> Plier <br>
-            <input name="calls" id="calls" type="checkbox"> Present-absent calls<br>
-
-            <h3>Job information</h3>
-            <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
-            <label>Description</label>
-            <textarea required>
-                {{description}}
-            </textarea>
-            <br>
-
+            <div class="formbox">
+                <div class="formtitle">Analysis</div>
+                <div class="formcontent">
+                    <input name="rma" id="rma" type="checkbox" checked> RMA <br>
+                    <input name="plier" id="plier" type="checkbox"> Plier <br>
+                    <input name="calls" id="calls" type="checkbox"> Present-absent calls<br>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
             <div class="button action" on-click="{{handleForm}}">Run</div>
         </form>
         <div class="message">{{message}}</div>
@@ -123,7 +135,8 @@
             },
             launchJob: function () {
                 var me = this;
-                var query = { sid: Cookies("bioinfo_sid"),
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
                     toolId: this.toolName,
                     outdir: this.$.outdir.selectedFile.id,
@@ -161,13 +174,55 @@
                 this.description = "just_an_affy_example";
                 this.rma = true;
                 this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
-                this.compressed_file = {id: "example_affymetrix.zip", path: "affymetrix.zip"};
+                this.$.inputFile.selectedFile = {id: "example_affymetrix.zip", path: "affymetrix.zip"};
                 this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+                var exampleFolder = "affy_sample_1";
+                this.createExampleFolder(exampleFolder);
 
             },
-            handleFisher: function (e) {
-                this.fisher = e.target.dataset.value;
-                this.fisherText = e.target.innerText;
+            createExampleFolder: function (exampleFolder) {
+                /** Create example folder **/
+                var me = this;
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: this.$.outdir.selectedStudy.id,
+                        folder: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                            } else {
+                                /** if folder exists, we get its id **/
+                                OpencgaManager.files.search({
+                                    query: {
+                                        sid: Cookies('bioinfo_sid'),
+                                        studyId: me.$.outdir.selectedStudy.id,
+                                        name: exampleFolder
+
+                                    },
+                                    request: {
+                                        success: function (response) {
+                                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                            } else {
+                                                me.message = response.response[0].errorMsg;
+                                            }
+                                        },
+                                        error: function () {
+                                            alert('Server error, try again later.');
+                                        }
+                                    }
+                                });
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
             }
         });
     </script>

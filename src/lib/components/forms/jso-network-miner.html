@@ -1,332 +1,355 @@
 <polymer-element name="jso-network-miner" attributes="userData selectedOption selectedStudy studies">
-<template>
-    <link rel="stylesheet" href="../jso-style.css">
-    <style>
-        :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            background-color: #FFFFFF;
-            padding: 30px 100px;
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 50%;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-        }
+                width: 50%;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            }
 
-        .title {
-            text-align: center;
-            font-size: 25px;
-            color: #666;
-        }
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
 
-        .icon {
-            color: #445D76;
-            font-size: 50px;
-        }
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
 
-        label {
-            display: inline-block;
-            color: #666;
-            margin-top: 3px;
-            /*width: 150px;*/
-        }
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 3px;
+                /*width: 150px;*/
+            }
 
-        label::after {
-            content: ':'
-        }
+            label::after {
+                content: ':'
+            }
 
-        .action {
-            /*margin-top: 30px;*/
-            background-color: #f5f5f5 !important;
-            text-align: center;
-        }
+            .action {
+                /*margin-top: 30px;*/
+                background-color: #f5f5f5 !important;
+                text-align: center;
+            }
 
-        .action:active {
-            background-color: #445D76 !important;
-            color: #fff !important;
-        }
+            .action:active {
+                background-color: #445D76 !important;
+                color: #fff !important;
+            }
 
-        .message {
-            margin-top: 20px;
-        }
+            .message {
+                margin-top: 20px;
+            }
 
-        div.button {
-            /*display: inline-block;*/
-            width: 300px
-        }
+            div.button {
+                /*display: inline-block;*/
+                width: 300px
+            }
 
-        .inputListTextArea {
-            width: 300px;
-            height: 50px;
-        }
+            .inputListTextArea {
+                width: 300px;
+                height: 50px;
+            }
 
-        jso-file-browser {
-            /*width: 70%;*/
-        }
-    </style>
-    <div class="title">
-        <div>
-            Network Miner
+            jso-file-browser {
+                /*width: 70%;*/
+            }
+        </style>
+        <div class="title">
+            <div>
+                Network Miner
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
         </div>
-        <div class="icon">
-            <!--<font-awesome icon="magic"></font-awesome>-->
-        </div>
-    </div>
-    <form id="form">
-        <h3>Examples</h3>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Output folder</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your seed list (optional)</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                </div>
+            </div>
 
-        <div class="button action" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>
+            <div class="formbox">
+                <div class="formtitle">List nature</div>
+                <div class="formcontent">
 
-        <label>Select output folder:</label>
-        <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+                    <select name="listTags" id="listTags" class="fc-combobox" type="text" value="gene">
+                        <option name="listTags_1" id="listTags_1" class="fc-combobox-item" value="gene" selected="selected">
+                            Gene
+                        </option>
+                        <option name="listTags_4" id="listTags_4" class="fc-combobox-item" value="ranked">Ranked</option>
+                        <option name="listTags_5" id="listTags_5" class="fc-combobox-item" value="protein">Protein</option>
+                        <option name="listTags_6" id="listTags_6" class="fc-combobox-item" value="transcript">Transcript
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Species</div>
+                <div class="formcontent">
 
-        <div>
-            <h3>Select your data</h3>
-            <jso-project-browser class="input-project-browser" id="rankedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+                    <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
+                        <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="ath">Arabidopsis
+                            thaliana
+                        </option>
+                        <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="dme">Drosophila
+                            melanogaster
+                        </option>
+                        <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="eco">Escherichia coli
+                            (K12)
+                        </option>
+                        <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="hsa"
+                                selected="selected">Homo sapiens
+                        </option>
+                        <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="mmu">Mus musculus
+                        </option>
+                        <option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="sce">Saccharomyces
+                            cerevisiae
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select interactome confidence</div>
+                <div class="formcontent">
+                    <select name="group" id="group" class="fc-combobox" type="text" value="curated">
+                        <option name="group_1" id="group_1" class="fc-combobox-item" value="curated" selected="selected">Curated
+                            (detected by at least two methods)
+                        </option>
+                        <option name="group_2" id="group_2" class="fc-combobox-item" value="all">Non curated</option>
+                    </select>
+                </div>
+            </div>
 
-        </div>
-        <div>
-            <h3>Select your seed datalist (optional)</h3>
-            <jso-project-browser class="input-project-browser" id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-        </div>
+            <div class="formbox">
+                <div class="formtitle">Sort ranked list</div>
+                <div class="formcontent">
+                    <select name="order" id="order" class="fc-combobox" type="text" value="ascending">
+                        <option name="order_1" id="order_1" class="fc-combobox-item" value="curated" selected="ascending">
+                            Ascending
+                            (detected by at least two methods)
+                        </option>
+                        <option name="order_2" id="order_2" class="fc-combobox-item" value="descending">Descending</option>
+                    </select>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Allow one external intermediate in the subnetwork</div>
+                <div class="formcontent">
+                    <select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">
+                        <option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"
+                                selected="selected">0
+                        </option>
+                        <option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>
+                    </select>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+            <div class="button action" on-click="{{handleForm}}">Run</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName'
+                this.toolName = "network-miner"
+                this.message = ''
 
-        <div>
-            <h3>List Nature</h3>
+                this.rankedList = ""
+                this.seedList = ""
 
-            <select name="listTags" id="listTags" class="fc-combobox" type="text" value="gene">
-                <option name="listTags_1" id="listTags_1" class="fc-combobox-item" value="gene" selected="selected">
-                    Gene
-                </option>
-                <option name="listTags_4" id="listTags_4" class="fc-combobox-item" value="ranked">Ranked</option>
-                <option name="listTags_5" id="listTags_5" class="fc-combobox-item" value="protein">Protein</option>
-                <option name="listTags_6" id="listTags_6" class="fc-combobox-item" value="transcript">Transcript
-                </option>
-            </select>
-        </div>
-        <div>
-            <h3>Species</h3>
+                this.example = false
 
-            <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
-                <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="ath">Arabidopsis
-                    thaliana
-                </option>
-                <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="dme">Drosophila
-                    melanogaster
-                </option>
-                <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="eco">Escherichia coli
-                    (K12)
-                </option>
-                <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="hsa"
-                        selected="selected">Homo sapiens
-                </option>
-                <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="mmu">Mus musculus
-                </option>
-                <option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="sce">Saccharomyces
-                    cerevisiae
-                </option>
-            </select>
+                this.listTags = "gene"
+                this.listTagsText = "Gene"
 
-        </div>
-        <div>
-            <h3>Select interactome confidence</h3>
-            <select name="group" id="group" class="fc-combobox" type="text" value="curated">
-                <option name="group_1" id="group_1" class="fc-combobox-item" value="curated" selected="selected">Curated
-                    (detected by at least two methods)
-                </option>
-                <option name="group_2" id="group_2" class="fc-combobox-item" value="all">Non curated</option>
-            </select>
-        </div>
+                this.interactome = "hsa"
+                this.interactomeText = "Homo sapiens"
 
-        <div>
-            <h3>Sort ranked list</h3>
-            <select name="order" id="order" class="fc-combobox" type="text" value="ascending">
-                <option name="order_1" id="order_1" class="fc-combobox-item" value="curated" selected="ascending">
-                    Ascending
-                    (detected by at least two methods)
-                </option>
-                <option name="order_2" id="order_2" class="fc-combobox-item" value="descending">Descending</option>
-            </select>
-        </div>
-        <div>
-            <h3>Allow one external intermediate in the subnetwork</h3>
-            <select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">
-                <option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"
-                        selected="selected">0
-                </option>
-                <option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>
-            </select>
+                this.significant_value = 0.05
 
-        </div>
-        <div>
-            <h3>Job information</h3>
-            <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
-        </div>
-        <div class="button action" on-click="{{handleForm}}">Run</div>
-    </form>
-    <div class="message">{{message}}</div>
-</template>
-<script>
-    Polymer({
-        created: function () {
-            this.jobName = 'JobName'
-            this.toolName = "network-miner"
-            this.message = ''
+                this.group = "all"
+                this.groupText = "Non curated"
 
-            this.rankedList = ""
-            this.seedList = ""
+                this.order = "ascending"
+                this.orderText = "Ascending"
 
-            this.example = false
+                this.intermediate = 1
+                this.intermediateText = "Yes"
 
-            this.listTags = "gene"
-            this.listTagsText = "Gene"
+                /** output widgets messages **/
+                this.rankedListUploadMsg = "Choose file"
+                this.seedListUploadMsg = "Choose file"
 
-            this.interactome = "hsa"
-            this.interactomeText = "Homo sapiens"
+                /**Enabled forms **/
+                this.rankedListClickEnabled = false
+                this.seedListClickEnabled = false
 
-            this.significant_value = 0.05
+            },
+            rankedListChanged: function (oldV, newV) {
+                this.rankedListUploadMsg = this.rankedList.name
+            },
+            seedListChanged: function (oldV, newV) {
+                this.seedListUploadMsg = this.seedList.name
+            },
+            handleForm: function () {
+                var me = this;
+                me.launchJob();
+            },
 
-            this.group = "all"
-            this.groupText = "Non curated"
+            launchJob: function (selectedFolderId) {
+                var me = this;
 
-            this.order = "ascending"
-            this.orderText = "Ascending"
+                OpencgaManager.jobs.create({
+                    query: {
+                        sid: Cookies("bioinfo_sid"),
+                        studyId: this.selectedStudy.id,
+                        toolId: this.toolName,
+                        name: this.jobName,
+                        description: "description",
+                        list: this.$.rankedList.selectedFile.id,
+                        seedlist: this.$.seedList.selectedFile.id,
+                        outdir: this.$.outdir.selectedFile.id,
+                        interactome: this.interactome,
+                        "o-name": "result",
+                        intermediate: this.intermediate,
+                        group: this.group,
+                        order: this.order,
+                        "significant-value": 0.05,
+                        randoms: 1000,
+                        components: false,
+                        "list-tags": this.listTags,
+                        example: this.example
 
-            this.intermediate = 1
-            this.intermediateText = "Yes"
-
-            /** output widgets messages **/
-            this.rankedListUploadMsg = "Choose file"
-            this.seedListUploadMsg = "Choose file"
-
-            /**Enabled forms **/
-            this.rankedListClickEnabled = false
-            this.seedListClickEnabled = false
-
-        },
-        rankedListChanged: function (oldV, newV) {
-            this.rankedListUploadMsg = this.rankedList.name
-        },
-        seedListChanged: function (oldV, newV) {
-            this.seedListUploadMsg = this.seedList.name
-        },
-        handleForm: function () {
-            var me = this;
-            me.launchJob();
-        },
-
-        launchJob: function (selectedFolderId) {
-            var me = this;
-
-            OpencgaManager.jobs.create({
-                query: {
-                    sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
-                    toolId: this.toolName,
-                    name: this.jobName,
-                    description: "description",
-                    list: this.$.rankedList.selectedFile.id,
-                    seedlist: this.$.seedList.selectedFile.id,
-                    outdir: this.$.outdir.selectedFile.id,
-                    interactome: this.interactome,
-                    "o-name": "result",
-                    intermediate: this.intermediate,
-                    group: this.group,
-                    order: this.order,
-                    "significant-value": 0.05,
-                    randoms: 1000,
-                    components: false,
-                    "list-tags": this.listTags,
-                    example: this.example
-
-                    //ranked-list:
-                },
-                request: {
-                    //method: 'POST',
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var userId = response.response[0].result[0].id;
-                            me.message = userId + ' created';
-                            me.selectedOption = "jobLaunched"
-                        } else {
-                            me.message = response.response[0].errorMsg;
-                        }
+                        //ranked-list:
                     },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
                     }
-                }
-            })
-        },
-        loadExample1: function (e) {
-            var me = this;
-            this.message = '';
-            this.newFolderName = "bipolar_gwas" + Math.floor((Math.random() * 100) + 1);
+                })
+            },
+            loadExample1: function (e) {
+                var me = this;
+                this.message = '';
+                this.newFolderName = "bipolar_gwas" + Math.floor((Math.random() * 100) + 1);
 
-            this.rankedList = {id: "example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
-            this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name: "BD-associatedgenesUniprot.txt"};
+                this.rankedList = {id: "example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
+                this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name: "BD-associatedgenesUniprot.txt"};
 
-            this.list = "gene"
-            this.interactome = "hsa"
-            this.group = "all"
-            this.order = "ascending"
-            this.intermediate = 1
+                this.list = "gene"
+                this.interactome = "hsa"
+                this.group = "all"
+                this.order = "ascending"
+                this.intermediate = 1
 //            this.significant_value = 0.05
-            this.jobName = "bipolar_gwas"
-            this.example = true
-        },
-        rankedListClick: function (e) {
-            this.$.rankedListHtml.hidden = false
-            //this.$.rankedListFileName.click();
+                this.jobName = "bipolar_gwas"
+                this.example = true
+            },
+            rankedListClick: function (e) {
+                this.$.rankedListHtml.hidden = false
+                //this.$.rankedListFileName.click();
 
-        },
-        seedListClick: function (e) {
-            this.$.seedListHtml.hidden = false
-        },
-        rankedListFileNameChange: function (e) {
-            this.rankedListFileName = this.$.rankedListFileName.files[0];
-            //this.fileNameRanked = inputFile.name
-        },
-        seedListFileNameChange: function (e) {
-            this.seedListFileName = this.$.seedListFileName.files[0];
-            //this.fileNameRanked = inputFile.name
-        },
-        handleListTags: function (e) {
-            this.listTags = e.target.dataset.value;
-            this.listTagsText = e.target.innerText;
-        },
-        handleInteractome: function (e) {
-            this.interactome = e.target.dataset.value;
-            this.interactomeText = e.target.innerText;
-        },
-        handleGroup: function (e) {
-            this.group = e.target.dataset.value;
-            this.groupText = e.target.innerText;
-        },
-        handleOrder: function (e) {
-            this.order = e.target.dataset.value;
-            this.orderText = e.target.innerText;
-        },
-        handleIntermediate: function (e) {
-            this.intermediate = e.target.dataset.value;
-            this.intermediateText = e.target.innerText;
-        },
-        rankedListFileOutputChanged: function (e) {
-            this.rankedListClickEnabled = false
-            this.rankedListUploadMsg = this.$.rankedList.selectedFile.id;
+            },
+            seedListClick: function (e) {
+                this.$.seedListHtml.hidden = false
+            },
+            rankedListFileNameChange: function (e) {
+                this.rankedListFileName = this.$.rankedListFileName.files[0];
+                //this.fileNameRanked = inputFile.name
+            },
+            seedListFileNameChange: function (e) {
+                this.seedListFileName = this.$.seedListFileName.files[0];
+                //this.fileNameRanked = inputFile.name
+            },
+            handleListTags: function (e) {
+                this.listTags = e.target.dataset.value;
+                this.listTagsText = e.target.innerText;
+            },
+            handleInteractome: function (e) {
+                this.interactome = e.target.dataset.value;
+                this.interactomeText = e.target.innerText;
+            },
+            handleGroup: function (e) {
+                this.group = e.target.dataset.value;
+                this.groupText = e.target.innerText;
+            },
+            handleOrder: function (e) {
+                this.order = e.target.dataset.value;
+                this.orderText = e.target.innerText;
+            },
+            handleIntermediate: function (e) {
+                this.intermediate = e.target.dataset.value;
+                this.intermediateText = e.target.innerText;
+            },
+            rankedListFileOutputChanged: function (e) {
+                this.rankedListClickEnabled = false
+                this.rankedListUploadMsg = this.$.rankedList.selectedFile.id;
 
-        },
-        seedListFileOutputChanged: function (e) {
-            this.seedListClickEnabled = false
-            this.seedListUploadMsg = this.seedListFileOutput.selectedFile.path
+            },
+            seedListFileOutputChanged: function (e) {
+                this.seedListClickEnabled = false
+                this.seedListUploadMsg = this.seedListFileOutput.selectedFile.path
 
-        }
-    });
-</script>
+            }
+        });
+    </script>
 </polymer-element>
 <!--<polymer-element name="jso-opencga-list-item" attributes="item">-->
 <!--<template>-->

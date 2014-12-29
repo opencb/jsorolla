@@ -1,288 +1,320 @@
 <polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies">
-<template>
-    <link rel="stylesheet" href="../jso-style.css">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
 
-    <style>
-        :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            background-color: #FFFFFF;
-            padding: 30px 100px;
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                padding: 30px 100px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 50%;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-        }
-
-        .title {
-            text-align: center;
-            font-size: 25px;
-            color: #666;
-        }
-
-        .icon {
-            color: #445D76;
-            font-size: 50px;
-        }
-
-        label {
-            display: inline-block;
-            color: #666;
-            margin-top: 3px;
-            /*width: 150px;*/
-        }
-
-        label::after {
-            content: ':'
-        }
-
-        .action {
-            /*margin-top: 30px;*/
-            background-color: #f5f5f5 !important;
-            text-align: center;
-        }
-
-        .action:active {
-            background-color: #445D76 !important;
-            color: #fff !important;
-        }
-
-        .message {
-            margin-top: 20px;
-        }
-
-        div.button {
-            /*display: inline-block;*/
-            width: 300px
-        }
-
-        .inputListTextArea {
-            width: 300px;
-            height: 50px;
-        }
-
-        /*jso-file-browser {*/
-            /*width: 70%;*/
-        /*}*/
-
-
-
-    </style>
-    <div class="title">
-        <div>
-            Network enrichment analysis - Snow
-        </div>
-        <div class="icon">
-            <!--<font-awesome icon="magic"></font-awesome>-->
-        </div>
-    </div>
-    <form id="form">
-        <h3>Examples</h3>
-
-        <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
-
-        <h3>Output parameters</h3>
-        <label>Select output folder:</label>
-        <jso-project-browser class="input-project-browser" id="outdir" studies="{{studies}}"  selectedStudy="{{selectedStudy}}"></jso-project-browser>
-        <h3>Input parameters</h3>
-        <label>Or, Select file</label>
-        <jso-project-browser class="input-project-browser" id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
-
-        <label>List Nature</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{typeText}}
-            </div>
-            <ul on-click="{{handleType}}">
-                <li data-value="genes">Genes</li>
-                <li data-value="proteins">Proteins</li>
-            </ul>
-        </div>
-
-        <label>Species</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{interactomeText}}
-            </div>
-            <ul on-click="{{handleInteractome}}">
-                <li data-value="hsa">Homo sapiens</li>
-            </ul>
-        </div>
-
-        <label>Select interactome confidence</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{groupText}}
-            </div>
-            <ul on-click="{{handleGroup}}">
-                <li data-value="all">Non curated</li>
-                <li data-value="curated">Curated (detected by at least two methods)</li>
-            </ul>
-        </div>
-
-        <label>Number of simulations</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{randoms}}
-            </div>
-            <ul on-click="{{handleRandoms}}">
-                <li data-value="500">500</li>
-                <li data-value="1000">1000</li>
-                <li data-value="2000">2000</li>
-            </ul>
-        </div>
-
-        <label>Allow one external intermediate in the subnetwork</label>
-
-        <div class="dropdown">
-            <div tabindex="-1" class="button">
-                {{intermediateText}}
-            </div>
-            <ul on-click="{{handleIntermediate}}">
-                <li data-value=1>Yes</li>
-                <li data-value=0>No</li>
-            </ul>
-        </div>
-
-
-        <h3>Job information</h3>
-        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required pattern="[a-zA-Z0-9]+">
-
-        <div class="button action" on-click="{{handleForm}}">Run</div>
-    </form>
-    <div class="message">{{message}}</div>
-</template>
-<script>
-    Polymer({
-        created: function () {
-            this.jobName = 'JobName';
-            this.toolName = "snow";
-            this.message = '';
-
-            this.rankedList = "";
-            this.seedList = "";
-
-            this.example = false;
-
-            this.type = "genes";
-            this.typeText = "Genes";
-
-            this.interactome = "hsa";
-            this.interactomeText = "Homo sapiens";
-
-
-            this.group = "all";
-            this.groupText = "Non curated";
-
-            this.order = "ascending";
-            this.orderText = "Ascending";
-
-            this.randoms = 500;
-
-            this.intermediate = 1;
-            this.intermediateText = "Yes";
-
-            /** output widgets messages **/
-            this.list1UploadMsg = "Choose file";
-
-            /**Enabled forms **/
-            this.list1ClickEnabled = false;
-
-        },
-        handleForm: function () {
-            var me = this;
-            this.message = '';
-            me.launchJob();
-
-        },
-        launchJob: function () {
-            var me = this;
-            OpencgaManager.jobs.create({
-                query: {
-                    sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
-                    toolId: this.toolName,
-                    name: this.jobName,
-                    description: "description",
-                    list1: this.$.inputFile.selectedFile.id,
-                    outdir: this.$.outdir.selectedFile.id,
-                    interactome: this.interactome,
-                    "o-name": "result",
-                    intermediate: this.intermediate,
-                    type: this.type,
-                    group: this.group,
-                    components: true,
-                    randoms: this.randoms,
-                    side: "greater",
-                    images: "",
-                    json: 1
-                },
-                request: {
-                    //method: 'POST',
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var userId = response.response[0].result[0].id;
-                            me.message = userId + ' created';
-                            me.selectedOption = "jobLaunched"
-                        } else {
-                            me.message = response.response[0].errorMsg;
-                        }
-                    },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
-                    }
-                }
-            })
-        },
-        loadExample1: function (e) {
-            var me = this;
-            this.message = '';
-            this.newFolderName = "bipolar_gwas" + Math.floor((Math.random() * 100) + 1);
-
-            this.rankedList = {id: "example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
-            this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name: "BD-associatedgenesUniprot.txt"};
-
-            this.list = "gene";
-            this.interactome = "hsa";
-            this.group = "all";
-            this.order = "ascending";
-            this.intermediate = 1;
-//            this.significant_value = 0.05
-            this.jobName = "bipolar_gwas";
-            this.example = true;
-            if (this.$.form.checkValidity()) {
-                //me.message = "xx"
+                width: 50%;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
             }
-        },
-        handleType: function (e) {
-            this.type = e.target.dataset.value;
-            this.typeText = e.target.innerText;
-        },
-        handleInteractome: function (e) {
-            this.interactome = e.target.dataset.value;
-            this.interactomeText = e.target.innerText;
-        },
-        handleGroup: function (e) {
-            this.group = e.target.dataset.value;
-            this.groupText = e.target.innerText;
-        },
-        handleIntermediate: function (e) {
-            this.intermediate = e.target.dataset.value;
-            this.intermediateText = e.target.innerText;
-        },
-        handleRandoms: function (e) {
-            this.randoms = e.target.dataset.value;
-        }
 
-    });
-</script>
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 3px;
+                /*width: 150px;*/
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .action {
+                /*margin-top: 30px;*/
+                background-color: #f5f5f5 !important;
+                text-align: center;
+            }
+
+            .action:active {
+                background-color: #445D76 !important;
+                color: #fff !important;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            div.button {
+                /*display: inline-block;*/
+                width: 300px
+            }
+
+            .inputListTextArea {
+                width: 300px;
+                height: 50px;
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+
+        </style>
+        <div class="title">
+            <div>
+                Network enrichment analysis - Snow
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Output folder</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">List nature</div>
+                <div class="formcontent">
+
+                    <div class="dropdown">
+                        <div tabindex="-1" class="button">
+                            {{typeText}}
+                        </div>
+                        <ul on-click="{{handleType}}">
+                            <li data-value="genes">Genes</li>
+                            <li data-value="proteins">Proteins</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Species</div>
+                <div class="formcontent">
+
+                    <div class="dropdown">
+                        <div tabindex="-1" class="button">
+                            {{interactomeText}}
+                        </div>
+                        <ul on-click="{{handleInteractome}}">
+                            <li data-value="hsa">Homo sapiens</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select interactome confidence</div>
+                <div class="formcontent">
+
+                    <div class="dropdown">
+                        <div tabindex="-1" class="button">
+                            {{groupText}}
+                        </div>
+                        <ul on-click="{{handleGroup}}">
+                            <li data-value="all">Non curated</li>
+                            <li data-value="curated">Curated (detected by at least two methods)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Number of simulations</div>
+                <div class="formcontent">
+
+                    <div class="dropdown">
+                        <div tabindex="-1" class="button">
+                            {{randoms}}
+                        </div>
+                        <ul on-click="{{handleRandoms}}">
+                            <li data-value="500">500</li>
+                            <li data-value="1000">1000</li>
+                            <li data-value="2000">2000</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Allow one external intermediate in the subnetwork</div>
+                <div class="formcontent">
+
+                    <div class="dropdown">
+                        <div tabindex="-1" class="button">
+                            {{intermediateText}}
+                        </div>
+                        <ul on-click="{{handleIntermediate}}">
+                            <li data-value=1>Yes</li>
+                            <li data-value=0>No</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="button action" on-click="{{handleForm}}">Run</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "snow";
+                this.message = '';
+
+                this.rankedList = "";
+                this.seedList = "";
+
+                this.example = false;
+
+                this.type = "genes";
+                this.typeText = "Genes";
+
+                this.interactome = "hsa";
+                this.interactomeText = "Homo sapiens";
+
+
+                this.group = "all";
+                this.groupText = "Non curated";
+
+                this.order = "ascending";
+                this.orderText = "Ascending";
+
+                this.randoms = 500;
+
+                this.intermediate = 1;
+                this.intermediateText = "Yes";
+
+                /** output widgets messages **/
+                this.list1UploadMsg = "Choose file";
+
+                /**Enabled forms **/
+                this.list1ClickEnabled = false;
+
+            },
+            handleForm: function () {
+                var me = this;
+                this.message = '';
+                me.launchJob();
+
+            },
+            launchJob: function () {
+                var me = this;
+                OpencgaManager.jobs.create({
+                    query: {
+                        sid: Cookies("bioinfo_sid"),
+                        studyId: this.selectedStudy.id,
+                        toolId: this.toolName,
+                        name: this.jobName,
+                        description: "description",
+                        list1: this.$.inputFile.selectedFile.id,
+                        outdir: this.$.outdir.selectedFile.id,
+                        interactome: this.interactome,
+                        "o-name": "result",
+                        intermediate: this.intermediate,
+                        type: this.type,
+                        group: this.group,
+                        components: true,
+                        randoms: this.randoms,
+                        side: "greater",
+                        images: "",
+                        json: 1
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                var me = this;
+                this.message = '';
+                this.newFolderName = "bipolar_gwas" + Math.floor((Math.random() * 100) + 1);
+
+                this.rankedList = {id: "example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
+                this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name: "BD-associatedgenesUniprot.txt"};
+
+                this.list = "gene";
+                this.interactome = "hsa";
+                this.group = "all";
+                this.order = "ascending";
+                this.intermediate = 1;
+//            this.significant_value = 0.05
+                this.jobName = "bipolar_gwas";
+                this.example = true;
+                if (this.$.form.checkValidity()) {
+                    //me.message = "xx"
+                }
+            },
+            handleType: function (e) {
+                this.type = e.target.dataset.value;
+                this.typeText = e.target.innerText;
+            },
+            handleInteractome: function (e) {
+                this.interactome = e.target.dataset.value;
+                this.interactomeText = e.target.innerText;
+            },
+            handleGroup: function (e) {
+                this.group = e.target.dataset.value;
+                this.groupText = e.target.innerText;
+            },
+            handleIntermediate: function (e) {
+                this.intermediate = e.target.dataset.value;
+                this.intermediateText = e.target.innerText;
+            },
+            handleRandoms: function (e) {
+                this.randoms = e.target.dataset.value;
+            }
+
+        });
+    </script>
 </polymer-element>
