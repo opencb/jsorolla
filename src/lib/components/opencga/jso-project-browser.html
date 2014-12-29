@@ -8,7 +8,7 @@
 <link rel="import" href="jso-opencga-select-study.html">
 <link rel="import" href="jso-opencga-upload.html">
 
-<polymer-element name="jso-project-browser" attributes="userData selectedProject selectedStudy studies">
+<polymer-element name="jso-project-browser" attributes="userData selectedProject selectedStudy studies selectionMode">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -33,9 +33,20 @@
                 border-bottom-width: 1px;
             }
 
+            #bottombar {
+                box-sizing: border-box;
+                background-color: #FAFAFA;
+                border: 0px solid #d3d3d3;
+                border-top-width: 1px;
+                border-bottom-width: 1px;
+                font-size: 13px;
+                padding: 5px;
+                height: 32px;
+            }
+
             #main {
                 position: relative;
-                height: calc(100% - 32px);
+                height: calc(100% - 64px);
                 width: 100%;
             }
 
@@ -237,6 +248,15 @@
             <template if="{{ selectedOption == 'browseStudies' }}">
 
             </template>
+
+            <div id="bottombar" horizontal layout>
+                <template if="{{selectionMode != ''}}">
+                    <div flex horizontal layout end-justified>
+                        <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
+                        <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK</div>
+                    </div>
+                </template>
+            </div>
         </div>
     </template>
     <script>
@@ -252,6 +272,7 @@
                 this.breadcrums = [];
 
                 this.selectedFile;
+                this.selectionMode = '';
             },
             ready: function () {
             },
