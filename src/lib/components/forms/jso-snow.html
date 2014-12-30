@@ -1,7 +1,6 @@
 <polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
-
         <style>
             :host {
                 display: block;
@@ -22,12 +21,15 @@
             .title {
                 text-align: center;
                 font-size: 25px;
-                color: #666;
+                color: #445D76;
+                margin-bottom: 10px;
             }
 
-            .icon {
-                color: #445D76;
-                font-size: 50px;
+            .close {
+                color: #aaa;
+            }
+            .close:hover {
+                color: #ffad76;
             }
 
             label {
@@ -72,11 +74,12 @@
 
 
         </style>
-        <div class="title">
-            <div>
+        <div class="title" horizontal layout>
+            <div flex>
                 Network enrichment analysis - Snow
             </div>
-            <div class="icon">
+            <div class="close" on-click="{{handleCancel}}">
+                <font-awesome icon="times"></font-awesome>
                 <!--<font-awesome icon="magic"></font-awesome>-->
             </div>
         </div>
@@ -229,6 +232,9 @@
                 /**Enabled forms **/
                 this.list1ClickEnabled = false;
 
+            },
+            handleCancel: function () {
+                this.selectedOption = '';
             },
             handleForm: function () {
                 var me = this;

@@ -325,6 +325,17 @@ div.dropdown > div.button::after {
     padding: 8px 10px;
 }
 
+label {
+    display: inline-block;
+    color: #666;
+    line-height: 21px;
+    margin-right: 5px;
+}
+
+label::after {
+    content: ':'
+}
+
 /*
 END CONTROLS
 */

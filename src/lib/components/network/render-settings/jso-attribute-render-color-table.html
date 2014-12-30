@@ -22,37 +22,32 @@
                 padding: 2px 5px 5px 5px;
             }
 
+            .footer > * {
+                margin-left: 5px;
+            }
+
             #left {
                 width: 165px;
+                margin-right: 10px;
             }
 
-            #left > * {
-                padding-right: 5px;
-            }
-
-            #attributelist {
+            .selbox {
                 box-sizing: border-box;
                 overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
             }
 
-            #attributelist > * {
-                margin-bottom: 3px;
+            .selitem {
+                padding: 2px 5px;
             }
 
-            [vertical] > * {
-                margin-top: 3px;
-            }
-
-            [horizontal] > * {
-                margin-right: 3px;
-            }
-
-            [horizontal] > *:last-child {
-                margin-right: 0px;
+            .selitem[data-checked=true] {
+                background-color: #ddd;
             }
 
             core-list {
-                height: 150px;
+                height: 175px;
                 border: 1px solid #d3d3d3;
                 border-top-width: 0;
                 background-color: #FFFFFF;
@@ -68,6 +63,7 @@
                 outline: 0;
                 width: 20px;
                 border: 1px solid #d3d3d3;
+                border-right: 0;
             }
 
             jso-color-menu {
@@ -93,28 +89,13 @@
             </div>
             <div class="container" horizontal layout>
                 <div id="left" vertical layout>
-                    <template if="{{allowListParse == 'true'}}">
-                        <div horizontal layout>
-                            <div flex class="button action" data-checked="{{attributeParse == 'string'}}"
-                                 on-mousedown="{{handleAttributeParseSelect}}" data-name="string">String
-                            </div>
-                            <div flex class="button action" data-checked="{{attributeParse == 'list'}}"
-                                 on-mousedown="{{handleAttributeParseSelect}}" data-name="list">List
-                            </div>
-                        </div>
-                    </template>
-                    <div horizontal layout>
-                        <div flex class="button action" data-checked="{{attributeType == 'discrete'}}"
-                             on-mousedown="{{handleAttributeTypeSelect}}" data-name="discrete">Categorical
-                        </div>
-                        <div flex class="button action" data-checked="{{attributeType == 'continuous'}}"
-                             on-mousedown="{{handleAttributeTypeSelect}}" data-name="continuous">Continuous
-                        </div>
-                    </div>
-                    <div id="attributelist" flex>
+
+                    <label>Attribute name</label>
+
+                    <div class="selbox" style="height: 100px;">
                         <template repeat="{{column in attributeManager.columns}}">
                             <div horizontal layout>
-                                <div class="button action" flex
+                                <div class="selitem" flex
                                      data-checked="{{ attributeName == column.name}}"
                                      data-name="{{column.name}}"
                                      on-click="{{handleAttributeNameSelect}}">
@@ -123,22 +104,43 @@
                             </div>
                         </template>
                     </div>
+
+                    <label style="margin-top:8px;">Data type</label>
+
+                    <div class="selbox">
+                        <div flex class="selitem" data-checked="{{attributeType == 'discrete'}}"
+                             on-mousedown="{{handleAttributeTypeSelect}}" data-name="discrete">Categorical
+                        </div>
+                        <div flex class="selitem" data-checked="{{attributeType == 'continuous'}}"
+                             on-mousedown="{{handleAttributeTypeSelect}}" data-name="continuous">Continuous
+                        </div>
+                    </div>
+
+                    <template if="{{allowListParse == 'true'}}">
+                        <label style="margin-top:8px;">Parse data as</label>
+
+                        <div class="selbox">
+                            <div flex class="selitem" data-checked="{{attributeParse == 'string'}}"
+                                 on-mousedown="{{handleAttributeParseSelect}}" data-name="string">String
+                            </div>
+                            <div flex class="selitem" data-checked="{{attributeParse == 'list'}}"
+                                 on-mousedown="{{handleAttributeParseSelect}}" data-name="list">List
+                            </div>
+                        </div>
+                    </template>
+
                 </div>
                 <div vertical layout flex>
-                    <div horizontal layout hidden?="{{attributeType != 'discrete'}}">
-                        <!--<div class="button action">Select all</div>-->
-                        <!--<div class="button action">Deselect all</div>-->
-                        <div class="button action" on-click="{{handleApplyDirect}}">Apply direct</div>
-                        <!--<div class="text">Selection:</div>-->
-                        <!--<input flex type="color" value="{{defaultValue}}">-->
-                        <jso-color-picker flex color="{{defaultValue}}"></jso-color-picker>
-                    </div>
+
+
+                    <label hidden?="{{attributeType != 'continuous'}}">Continous mapping</label>
+
                     <div hidden?="{{attributeType != 'continuous'}}">
-                        <div horizontal layout>
-                            <div class="button action" on-click="{{handleAddPoint}}">Add point</div>
-                            <div class="button action" on-click="{{handleApplyInterpolation}}">Apply</div>
+                        <div horizontal layout style="margin-bottom:3px;">
+                            <div class="button action" style="margin-right:3px" on-click="{{handleAddPoint}}">Add point</div>
+                            <div class="button action" on-click="{{handleApplyInterpolation}}">Apply mapping</div>
                         </div>
-                        <div horizontal layout>
+                        <div flex horizontal layout style="margin-bottom:5px;">
                             <div flex vertical layout>
                                 <template repeat="{{point, index in points}}">
                                     <jso-attribute-render-color-point
@@ -147,14 +149,17 @@
                                     </jso-attribute-render-color-point>
                                 </template>
                             </div>
-                            <div id="colorLegend"></div>
+                            <div style="margin-left:3px" id="colorLegend"></div>
                         </div>
                     </div>
+
+                    <label>Assign render values to attributes</label>
+
                     <div>
-                        <!--<div class="table-head" horizontal layout>-->
-                        <!--<div flex>Attribute value</div>-->
-                        <!--<div flex>Render property value</div>-->
-                        <!--</div>-->
+                        <div class="table-head" horizontal layout>
+                            <div flex>Attribute value</div>
+                            <div flex>Render property value</div>
+                        </div>
                         <core-list id="list" data="{{uniqueData}}" height="27">
                             <template>
                                 <div horizontal layout class="table-row">
@@ -168,10 +173,20 @@
                             </template>
                         </core-list>
                     </div>
-                    <div horizontal layout end-justified>
-                        <div class="button action" style="width: 100px;" on-click="{{handleOk}}">OK</div>
+
+
+                    <div horizontal layout hidden?="{{attributeType != 'discrete'}}" style="margin-top:8px;">
+                        <label>Edit default</label>
+                        <!--<div class="button action">Select all</div>-->
+                        <!--<div class="button action">Deselect all</div>-->
+                        <!--<div class="text">Selection:</div>-->
+                        <jso-color-picker flex color="{{defaultValue}}"></jso-color-picker>
                     </div>
                 </div>
+            </div>
+            <div class="footer" horizontal layout end-justified>
+                <div class="button action" on-click="{{handleApplyDirect}}">Apply attribute value directly</div>
+                <div class="button action" style="width: 100px;" on-click="{{handleOk}}">OK</div>
             </div>
             <jso-color-menu id="colormenu" hide="{{hideColorMenu}}" flex on-color-click="{{handleColorMenu}}"></jso-color-menu>
         </div>
@@ -225,6 +240,7 @@
                     this.attributeType = this.visualSet.type;
                     this.attributeName = this.visualSet.attribute;
                     this.attributeParse = this.visualSet.parse;
+                    this.points = this.visualSet.points;
                 }
             },
             attributeNameChanged: function (oldValue, newValue) {
@@ -257,6 +273,7 @@
                     type: this.attributeType,
                     matches: matches,
                     parse: this.attributeParse,
+                    points: this.points,
                     enabled: true
                 }
                 this.fire('ok', {displayProperty: this.displayProperty});
@@ -331,8 +348,11 @@
                         }
                     }
 
-                    this.points[0].value = min;
-                    this.points[this.points.length - 1].value = max;
+                    if (this.points.length == 0) {
+                        this.points[0].value = min;
+                        this.points[this.points.length - 1].value = max;
+                    }
+
                     uniqueData.sort(function (a, b) {
                         return parseFloat(a.attribute) - parseFloat(b.attribute);
                     });
@@ -398,6 +418,7 @@
                 display: block;
                 position: relative;
                 box-sizing: border-box;
+                margin: 1px 0;
             }
 
             [horizontal] > * {

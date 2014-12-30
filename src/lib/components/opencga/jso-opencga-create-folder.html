@@ -28,7 +28,7 @@
 
 
         <form id="form" vertical layout>
-            <label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9\s]+">
+            <label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9]+">
 
             <div class="button action" on-click="{{handleForm}}">Create</div>
         </form>
@@ -74,6 +74,8 @@
                             }
                         }
                     });
+                }else{
+                    this.message = 'Only alphanumeric values';
                 }
             },
             getFiles: function (e) {

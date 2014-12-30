@@ -80,6 +80,9 @@
 
             <div class="button action" on-click="{{handleForm}}">Upload</div>
         </form>
+        <template if="{{uploading}}">
+            <font-awesome icon="spinner" animation="spin"></font-awesome>
+        </template>
         <div class="message">{{message}}</div>
     </template>
     <script>
@@ -114,6 +117,8 @@
                     var relativeFilePath = this.folder.path + inputFile.name;
 
                     var fileuploadWorker = new Worker(WORKERS_PATH + 'worker-fileupload.js');
+
+                    me.message = '0%, uploading...';
 
                     fileuploadWorker.onmessage = function (e) {
                         var res = e.data;
