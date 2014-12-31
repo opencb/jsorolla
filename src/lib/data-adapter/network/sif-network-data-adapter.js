@@ -59,9 +59,11 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
 
     try {
         console.time("SIFParse");
+        data = data.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        var lines = data.split(/\n/);
+        var lines = data.split(/\n/);
         this.addedVertex = {};
         this.addedEdges = {};
-        var lines = data.split(/[\r\n]/);
 //        console.log('SIFParse number lines: ' + lines.length);
 //        console.log(lines);
         for (var i = 0; i < lines.length; i++) {
@@ -70,8 +72,8 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
                 var fields = line.split(this.separator);
                 if (fields[0].substr(0, 1) != "#") {
 
-                    var sourceName = fields[0];
-                    var edgeName = fields[1];
+                    var sourceName = fields[0].trim();
+                    var edgeName = fields[1].trim();
                     var targetName;
 
                     /** create source vertex **/
@@ -85,7 +87,7 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
 
                     // multiple targets
                     for (var j = 2, len = fields.length; j < len; j++) {
-                        targetName = fields[j];
+                        targetName = fields[j].trim();
 
                         /** create target vertex **/
                         if (typeof this.addedVertex[targetName] === 'undefined') {

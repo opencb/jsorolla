@@ -77,15 +77,18 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
 //    }
 
     try {
-        var lines = data.split(/[\r\n]/);
-        var firstLine = lines[0].replace(/^\s+|\s+$/g, "");
+        data = data.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        var lines = data.split(/\n/);
+
+
+        var firstLine = lines[0].trim();
         var columnNames = [];
         if (firstLine.substr(0, 1) === "#") {
             columnNames = firstLine.split(/\t/);
 
             //search for first non header line "#"
             for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].replace(/^\s+|\s+$/g, "");
+                var line = lines[i].trim();
                 if (line.substr(0, 1) !== "#") {
                     firstLine = line;
                     break;
@@ -115,14 +118,14 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
         //ignore attributes
         if (Object.keys(this.ignoreColumns).length > 0) {
             for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].replace(/^\s+|\s+$/g, "");
+                var line = lines[i].trim();
                 if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
                     var fields = line.split("\t");
 
                     var row = {};
                     for (var j = 0; j < fields.length; j++) {
                         if (this.ignoreColumns[j] !== true) {
-                            row[finalColumnNames[j]] = fields[j];
+                            row[finalColumnNames[j]] = fields[j].trim();
                         }
                     }
                     this.attributeManager.addRow(row);
@@ -130,13 +133,13 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
             }
         } else {
             for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].replace(/^\s+|\s+$/g, "");
+                var line = lines[i].trim();
                 if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
                     var fields = line.split("\t");
 
                     var row = {};
                     for (var j = 0; j < fields.length; j++) {
-                        row[finalColumnNames[j]] = fields[j];
+                        row[finalColumnNames[j]] = fields[j].trim();
                     }
                     this.attributeManager.addRow(row);
                 }

@@ -61,12 +61,11 @@ TextNetworkDataAdapter.prototype.getGraph = function () {
 
 TextNetworkDataAdapter.prototype.parse = function (data) {
     try {
-        debugger
         if (typeof data === 'undefined') {
             data = this.rawData;
         }
-
-        var lines = data.split(/[\r\n]/);
+        data = data.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        var lines = data.split(/\n/);
         this.lines = [];
         this.columnLength = 0;
         var firstLineColumnLength = 0;
@@ -103,13 +102,13 @@ TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, targetInd
     for (var i = 0; i < this.lines.length; i++) {
         var fields = this.lines[i];
 
-        var sourceName = fields[sourceIndex];
-        var targetName = fields[targetIndex];
+        var sourceName = fields[sourceIndex].trim();
+        var targetName = fields[targetIndex].trim();
         var edgeName;
         if(relationIndex < 0){
             edgeName = relationDefaultName;
         }else{
-            edgeName = fields[relationIndex];
+            edgeName = fields[relationIndex].trim();
         }
 
         /** create source vertex **/
