@@ -25,7 +25,7 @@ function TextNetworkDataAdapter(args) {
     this.dataSource;
     this.async = true;
 
-    this.separator = "\t";
+    this.separator = /\t/;
     this.graph = new Graph();
 
 
@@ -60,13 +60,13 @@ TextNetworkDataAdapter.prototype.getGraph = function () {
 };
 
 TextNetworkDataAdapter.prototype.parse = function (data) {
-
     try {
+        debugger
         if (typeof data === 'undefined') {
             data = this.rawData;
         }
 
-        var lines = data.split("\n");
+        var lines = data.split(/[\r\n]/);
         this.lines = [];
         this.columnLength = 0;
         var firstLineColumnLength = 0;

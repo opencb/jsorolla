@@ -60,6 +60,13 @@
                     Network
                 </div>
                 <ul id="networkMenu" on-click="{{handleClick}}">
+                    <li data-sub>Import network
+                        <ul>
+                            <li data-value="reactome">Reactome...</li>
+                            <li data-value="kegg">Kegg...</li>
+                            <li data-value="intact">Intact...</li>
+                        </ul>
+                    </li>
                     <!--<li data-value="network-edit">Edit network...</li>-->
                     <li data-sub>Select
                         <ul>
@@ -122,16 +129,9 @@
             <!--</div>-->
             <div class="dropdown" style="margin-left: 10px">
                 <div tabindex="-1" id="pluginsButton" class="button" style="border-width:0;">
-                    Plugins
+                    Analysis
                 </div>
                 <ul id="pluginsMenu" on-click="{{handleClick}}">
-                    <li data-sub>Import network
-                        <ul>
-                            <li data-value="reactome">Reactome...</li>
-                            <li data-value="kegg">Kegg...</li>
-                            <li data-value="intact">Intact...</li>
-                        </ul>
-                    </li>
                     <li data-sub>Network analysis
                         <ul>
                             <li data-value="communities-structure-detection">Communities structure detection</li>
@@ -145,9 +145,9 @@
                     <!--</li>-->
                     <li data-sub>Functional analysis
                         <ul>
-                            <li data-value="snow">Network enrichment analysis - SNOW</li>
-                            <li data-value="network-miner">Network set enrichment analysis - Network Miner</li>
-                            <li data-value="fatigo">Fatigo</li>
+                            <li data-value="snow">Network enrichment analysis</li>
+                            <li data-value="network-miner">Network set enrichment analysis</li>
+                            <li data-value="fatigo">GO enrichment</li>
                         </ul>
                     </li>
                 </ul>

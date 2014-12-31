@@ -61,7 +61,7 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
         console.time("SIFParse");
         this.addedVertex = {};
         this.addedEdges = {};
-        var lines = data.split("\n");
+        var lines = data.split(/[\r\n]/);
 //        console.log('SIFParse number lines: ' + lines.length);
 //        console.log(lines);
         for (var i = 0; i < lines.length; i++) {

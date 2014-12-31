@@ -140,6 +140,11 @@
                             <div class="button action" style="margin-right:3px" on-click="{{handleAddPoint}}">Add point</div>
                             <div class="button action" on-click="{{handleApplyInterpolation}}">Apply mapping</div>
                         </div>
+                        <div horizontal layout style="margin-bottom:1px;">
+                            <label flex>Attribute value</label>
+                            <label flex>Render value</label>
+                            <label style="width: 60px;text-align: right">Gradient</label>
+                        </div>
                         <div flex horizontal layout style="margin-bottom:5px;">
                             <div flex vertical layout>
                                 <template repeat="{{point, index in points}}">

@@ -79,7 +79,7 @@
         </style>
         <div class="title" horizontal layout>
             <div flex>
-                Network Miner
+                Network set enrichment analysis
             </div>
             <div class="close" on-click="{{handleCancel}}">
                 <font-awesome icon="times"></font-awesome>
@@ -259,7 +259,7 @@
                         toolId: this.toolName,
                         name: this.jobName,
                         description: "description",
-                        list: this.$.inputFile.selectedFile.id,
+                        list: this.$.rankedList.selectedFile.id,
                         seedlist: this.$.seedList.selectedFile.id,
                         outdir: this.$.outdir.selectedFile.id,
                         "o-name": "result",
@@ -294,7 +294,7 @@
             loadExample1: function (e) {
                 this.message = '';
 
-                this.$.inputFile.selectedFile = {id: "example_BD-GWASplink.txt", path: "BD-GWASplink.txt"};
+                this.$.rankedList.selectedFile = {id: "example_BD-GWASplink.txt", path: "BD-GWASplink.txt"};
                 this.$.seedList.selectedFile = {id: "example_BD-associatedgenesUniprot.txt", path: "BD-associatedgenesUniprot.txt"};
                 this.$.listTags_4.selected = true;
                 this.$.interactome.value = "hsa";

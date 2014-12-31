@@ -120,6 +120,8 @@
                     <div style="margin:5px 10px;">
                         <label>Results</label>
 
+                        <div>Topology results are available as node attributes</div>
+                        <br>
                         <div>Average nodes per component: {{results['Average nodes per component']}}</div>
                         <div>Average shorthest path length: {{results['Average shorthest path length']}}</div>
                         <div>Clustering coefficient: {{results['Clustering coefficient']}}</div>
@@ -139,7 +141,7 @@
                     <div>{{message}}</div>
                 </div>
                 <div horizontal end-justified layout>
-                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
+                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Go</div>
                 </div>
             </div>
             <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>

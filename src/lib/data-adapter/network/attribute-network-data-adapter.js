@@ -77,11 +77,11 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
 //    }
 
     try {
-        var lines = data.split("\n");
+        var lines = data.split(/[\r\n]/);
         var firstLine = lines[0].replace(/^\s+|\s+$/g, "");
         var columnNames = [];
         if (firstLine.substr(0, 1) === "#") {
-            columnNames = firstLine.split("\t");
+            columnNames = firstLine.split(/\t/);
 
             //search for first non header line "#"
             for (var i = 0; i < lines.length; i++) {
@@ -95,7 +95,7 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
 
 
         var finalColumnNames = [];
-        var numColumns = firstLine.split("\t").length;
+        var numColumns = firstLine.split(/\t/).length;
         for (var i = 0; i < numColumns; i++) {
             finalColumnNames[i] = (columnNames[i]) ? columnNames[i] : "Column" + i;
             if (i == 0) {
