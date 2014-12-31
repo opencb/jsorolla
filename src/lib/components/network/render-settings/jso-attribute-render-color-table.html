@@ -136,10 +136,7 @@
                     <label hidden?="{{attributeType != 'continuous'}}">Continous mapping</label>
 
                     <div hidden?="{{attributeType != 'continuous'}}">
-                        <div horizontal layout style="margin-bottom:3px;">
-                            <div class="button action" style="margin-right:3px" on-click="{{handleAddPoint}}">Add point</div>
-                            <div class="button action" on-click="{{handleApplyInterpolation}}">Apply mapping</div>
-                        </div>
+                        <div class="button action" on-click="{{handleAddPoint}}" style="margin:0 3px 3px 0;width:150px;">Add point</div>
                         <div horizontal layout style="margin-bottom:1px;">
                             <label flex>Attribute value</label>
                             <label flex>Render value</label>
@@ -156,8 +153,8 @@
                             </div>
                             <div style="margin-left:3px" id="colorLegend"></div>
                         </div>
+                        <div class="button action" on-click="{{handleApplyInterpolation}}" style="margin-bottom:5px;width:150px;">Apply mapping</div>
                     </div>
-
                     <label>Assign render values to attributes</label>
 
                     <div>
