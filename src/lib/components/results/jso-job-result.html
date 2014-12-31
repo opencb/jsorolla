@@ -70,6 +70,11 @@
                 border-width: 1px;
             }
 
+            /*TODO temporal fix*/
+            jso-network-viewer::shadow jso-nv-layout {
+                height: calc(100% - 96px);
+            }
+
             sortable-table {
                 max-width: 1000px;
                 margin-top: 10px;
@@ -109,9 +114,18 @@
                 color: red !important;
             }
 
+            .loading{
+                font-size:20px;
+                margin:20px 50px;
+            }
 
         </style>
-
+        <template if="{{loading}}">
+            <div class="loading">
+                <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                Loading result...
+            </div>
+        </template>
         <div id="output" class="output"></div>
 
     </template>
@@ -123,6 +137,7 @@
             jobItemChanged: function (oldV, newV) {
                 var me = this;
 
+                this.loading = true;
                 while (this.$.output.firstChild) {
                     this.$.output.removeChild(this.$.output.firstChild);
                 }
@@ -141,6 +156,7 @@
                                 me.getFileContent(function (content) {
                                     var root = me.$.output;
                                     me.parseXML(content, root);
+                                    me.loading = false;
                                 }, "result.xml");
                             }
                         },
@@ -423,6 +439,12 @@
                         if (element.tags.indexOf("INTERACTOME_VIEWER") >= 0) {
                             var networkViewer = document.createElement('jso-network-viewer');
                             networkViewer.setAttribute("id", "networkId");
+
+                            //TODO temporal fix
+                            networkViewer.setAttribute("hideBar", "true");
+                            networkViewer.hideNodeSimpleRendering = true;
+                            networkViewer.hideEdgeSimpleRendering = true;
+
 
                             this.getFileContent(function (content) {
                                 var adapter = new SIFNetworkDataAdapter({

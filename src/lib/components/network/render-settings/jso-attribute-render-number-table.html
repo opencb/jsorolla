@@ -111,6 +111,11 @@
                             <div class="button action" style="margin-right:3px" on-click="{{handleAddPoint}}">Add point</div>
                             <div class="button action" on-click="{{handleApplyInterpolation}}">Apply mapping</div>
                         </div>
+                        <div horizontal layout style="margin-bottom:1px;">
+                            <label flex>Attribute value</label>
+                            <label flex>Render value</label>
+                            <div style="width: 10px;"></div>
+                        </div>
                         <div flex vertical layout style="margin-bottom:5px;">
                             <template repeat="{{point, index in points}}">
                                 <jso-attribute-render-number-point
