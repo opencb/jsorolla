@@ -9,7 +9,7 @@
 <polymer-element name="jso-header"
                  attributes="selectedOption options allowLogin allowJobs showJobs
                  userData jobItem selectedStudy allowedTools
-                 homeLink helpLink tutorialLink hideHomeLink">
+                 homeLink helpLink tutorialLink workedExamplesLink hideHomeLink hideWorkedExamplesLink">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -387,7 +387,7 @@
 
             </ul>
             <ul id="helpMenu" class="help-menu" on-mouseleave="{{handleHelpMenuMouseOut}}">
-                <li id="homeHelp" class="right" on-click="{{ handleHomeHelp }}" hidden?="{{hideHomeLink}}">
+                <li id="homeHelp" class="right" on-click="{{ handleHomeHelp }}" hidden?="{{hideHomeLink != null}}">
                     <font-awesome icon="home"></font-awesome>
                     &nbsp;home
                 </li>
@@ -399,6 +399,11 @@
                     <font-awesome icon="list-alt"></font-awesome>
                     &nbsp;tutorial
                 </li>
+                <li id="workedExamplesLink" class="right" on-click="{{ handleWorkedExamples }}" hidden?="{{hideWorkedExamplesLink}}">
+                    <font-awesome icon="magic"></font-awesome>
+                    &nbsp; worked examples
+                </li>
+
                 <!--<li id="about" class="right" on-click="{{ handleAbout }}">-->
                 <!--<font-awesome icon="info"></font-awesome>-->
                 <!--&nbsp; about-->
@@ -618,6 +623,14 @@
                     window.open(this.tutorialLink);
                 } else {
                     alert("Tutorial is not defined!");
+                }
+
+            },
+            handleWorkedExamples: function (event) {
+                if (this.tutorialLink != '') {
+                    window.open(this.workedExamplesLink);
+                } else {
+                    alert("worked examples is not defined!");
                 }
 
             },
