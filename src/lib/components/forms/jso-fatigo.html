@@ -76,6 +76,10 @@
             span {
                 border: 1px solid;
             }
+
+            .botbar {
+                margin-top: 10px;
+            }
         </style>
         <div class="title" horizontal layout>
             <div flex>
@@ -209,7 +213,12 @@
                 </div>
             </div>
 
-            <div class="button action" on-click="{{handleForm}}">Run</div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="width: 150px;" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
         </form>
         <div class="message">{{message}}</div>
     </template>
@@ -334,8 +343,8 @@
                     name: this.jobName,
                     description: "description",
                     outdir: this.$.outdir.selectedFile.id,
-                    list1: this.$.inputFile1.selectedFile.id,
-//                    list2: this.$.inputFile2.selectedFile.id,
+                    list1: this.$.inputFile.selectedFile.id,
+                    list2: this.$.inputFile2.selectedFile.id,
                     duplicates: this.$.duplicates.value,
                     "species": this.$.species.value,
                     fisher: this.$.fisher.value

@@ -59,7 +59,7 @@
 <script src="../../bower_components/d3/d3.min.js"></script>
 
 <polymer-element name="jso-network-viewer"
-                 attributes="hideBar hideToolBar hideEditionBar userData selectedStudy studies">
+                 attributes="hideBar hideToolBar hideEditionBar userData selectedStudy studies  jsoHeader">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
@@ -1020,13 +1020,22 @@
             },
 
             handleSnowMenu: function (e) {
-                this.selectedMenu = "snow";
+                if (this.jsoHeader) {
+                    this.jsoHeader.anonymousSign();
+                    this.selectedMenu = "snow";
+                }
             },
             handleNetworkMinerMenu: function (e) {
-                this.selectedMenu = "networkminer";
+                if (this.jsoHeader) {
+                    this.jsoHeader.anonymousSign();
+                    this.selectedMenu = "networkminer";
+                }
             },
             handleFatigoMenu: function (e) {
-                this.selectedMenu = "fatigo";
+                if (this.jsoHeader) {
+                    this.jsoHeader.anonymousSign();
+                    this.selectedMenu = "fatigo";
+                }
             },
 
 

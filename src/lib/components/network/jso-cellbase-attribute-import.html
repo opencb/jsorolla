@@ -19,24 +19,6 @@
                 /*background-color: #FFFFFF;*/
             }
 
-            #header[horizontal] > * {
-                margin-right: 3px;
-            }
-
-            #header[horizontal] > *:last-child {
-                margin-right: 0px;
-            }
-
-            .attributelist {
-                box-sizing: border-box;
-                padding: 0 5px 5px 5px;
-                overflow-y: auto;
-            }
-
-            .attributelist > * {
-                margin-top: 3px;
-            }
-
             .checkbox {
                 width: 25px;
             }
@@ -50,15 +32,24 @@
                 content: '\f00c'
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin: 5px;
+            .selbox {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
             }
 
-            label::after {
-                content: ':'
+            .selitem {
+                padding: 2px 5px;
             }
+
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+                /*background-color: #435f7a;*/
+                /*background-color: #f07746;*/
+                /*color: #fff;*/
+            }
+
 
         </style>
         <div class="panel panel-shadow" id="panel" vertical layout>
@@ -71,35 +62,32 @@
             </div>
             <div class="container" flex horizontal layout>
 
-                <div vertical layout style="border-right: 1px solid #d3d3d3;width:230px;">
-                    <label>Species</label>
+                <div vertical layout style="width:230px;padding:5px;">
+                    <label style="margin-top: 5px;">Species</label>
 
-                    <div class="attributelist" flex style="border-bottom: 1px solid #d3d3d3">
+                    <div class="selbox" flex>
                         <template repeat="{{spe in species}}">
-                            <div horizontal layout>
-                                <div class="button action checkbox"
-                                     data-checked?="{{ speciesSelected == spe }}"
-                                     on-click="{{handleSpeciesSelect}}"></div>
-                                <div flex class="text">{{spe.name}}</div>
+                            <div class="selitem"
+                                 data-checked="{{ speciesSelected == spe }}"
+                                 on-click="{{handleSpeciesSelect}}">{{spe.name}}
                             </div>
                         </template>
                     </div>
-                    <label>Attributes</label>
 
-                    <div class="attributelist" flex>
+                    <label style="margin-top: 10px;">Attributes</label>
+
+                    <div class="selbox" flex>
                         <template repeat="{{column in attributeManager.columns}}">
-                            <div horizontal layout>
-                                <div class="button action checkbox"
-                                     data-checked?="{{ editSelected == column }}"
-                                     on-click="{{handleEditSelect}}"></div>
-                                <div flex class="text">{{column.title}}</div>
+                            <div class="selitem"
+                                 data-checked="{{ columnSelected == column }}"
+                                 on-click="{{handleEditSelect}}">{{column.title}}
                             </div>
                         </template>
                     </div>
                 </div>
 
-                <div flex vertical layout>
-                    <div horizontal layout style="padding:3px;">
+                <div flex vertical layout style="margin:5px;">
+                    <div horizontal layout>
                         <div class="button action" style="padding:0 10px;margin-right:2px;"
                              data-checked="{{selectedList == 'ext'}}"
                              on-click="{{handleSelectExtList}}">External references
@@ -113,11 +101,11 @@
                              on-click="{{handleSelectRepoList}}">Repositories
                         </div>
                     </div>
-                    <div class="attributelist" flex>
+                    <div class="selbox" flex style="margin-top:3px;">
                         <template if="{{selectedList == 'ext'}}">
                             <div class="attributelist">
                                 <template repeat="{{item in extList}}">
-                                    <div horizontal layout>
+                                    <div horizontal layout style="padding:2px;">
                                         <div class="button action checkbox"
                                              data-checked?="{{ item.selected }}"
                                              on-click="{{handleItemSelect}}"></div>
@@ -130,7 +118,7 @@
                         <template if="{{selectedList == 'func'}}">
                             <div class="attributelist">
                                 <template repeat="{{item in funcList}}">
-                                    <div horizontal layout>
+                                    <div horizontal layout style="padding:2px;">
                                         <div class="button action checkbox"
                                              data-checked?="{{ item.selected }}"
                                              on-click="{{handleItemSelect}}"></div>
@@ -143,7 +131,7 @@
                         <template if="{{selectedList == 'repo'}}">
                             <div class="attributelist">
                                 <template repeat="{{item in repoList}}">
-                                    <div horizontal layout>
+                                    <div horizontal layout style="padding:2px;">
                                         <div class="button action checkbox"
                                              data-checked?="{{ item.selected }}"
                                              on-click="{{handleItemSelect}}"></div>
@@ -157,7 +145,13 @@
 
             </div>
             <div class="footer" horizontal layout>
-                <div horizontal end-justified layout flex>
+                <div class="text" horizontal layout flex>
+                    <template if="{{loading}}">
+                        <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                    </template>
+                    <div>{{message}}</div>
+                </div>
+                <div horizontal end-justified layout>
                     <div class="button action" on-click="{{handleGo}}" style="width:100px;">Go</div>
                 </div>
             </div>
@@ -297,31 +291,31 @@
 
                 this.attributeManager;
 
-                this.editSelected;
+                this.columnSelected;
                 this.speciesSelected = this.species[0];
 
                 this.selectedList = 'ext';
-
+                this.message = '';
             },
             handleClose: function () {
                 this.hideFlag = true;
             },
-            handleExpand: function () {
-                this.expanded = !this.expanded;
-                if (this.expanded) {
-                    this.style.width = '100%';
-                    this.style.height = 'calc(100% - 60px)';
-                    this.style.position = 'fixed';
-                    this.style.top = '60px';
-                } else {
-                    this.style.width = '';
-                    this.style.height = '';
-                    this.style.position = '';
-                    this.style.top = '';
-                }
-            },
+//            handleExpand: function () {
+//                this.expanded = !this.expanded;
+//                if (this.expanded) {
+//                    this.style.width = '100%';
+//                    this.style.height = 'calc(100% - 60px)';
+//                    this.style.position = 'fixed';
+//                    this.style.top = '60px';
+//                } else {
+//                    this.style.width = '';
+//                    this.style.height = '';
+//                    this.style.position = '';
+//                    this.style.top = '';
+//                }
+//            },
             handleEditSelect: function (e) {
-                this.editSelected = e.target.templateInstance.model.column;
+                this.columnSelected = e.target.templateInstance.model.column;
             },
             handleSpeciesSelect: function (e) {
                 this.speciesSelected = e.target.templateInstance.model.spe;
@@ -344,97 +338,116 @@
             },
             retrieveData: function () {
                 var me = this;
+                if (this.columnSelected != null && this.speciesSelected != null) {
 
-                var columns = [];
-                var columnsMap = {};
-                var dbnamesMap = {};
+                    var columns = [];
+                    var columnsMap = {};
+                    var dbnamesMap = {};
 
-                var processCheckBoxes = function (item) {
-                    if (item.selected) {
-                        var label = item.boxLabel;
-                        var columnId = item.inputValue.db + item.inputValue.field;
-                        var column = {
-                            defaultValue: "",
-                            name: columnId,
-                            title: label,
-                            type: "string"
-                        }
-                        var idx = columns.push(column) - 1;
-                        columnsMap[columnId] = idx;
+                    var databasesSelectedFlag = false;
 
-                        if (!dbnamesMap[item.inputValue.db]) {
-                            dbnamesMap[item.inputValue.db] = true;
+                    var processCheckBoxes = function (item) {
+                        if (item.selected) {
+                            databasesSelectedFlag = true;
+                            var label = item.boxLabel;
+                            var columnId = item.inputValue.db + item.inputValue.field;
+                            var column = {
+                                defaultValue: "",
+                                name: columnId,
+                                title: label,
+                                type: "string"
+                            }
+                            var idx = columns.push(column) - 1;
+                            columnsMap[columnId] = idx;
+
+                            if (!dbnamesMap[item.inputValue.db]) {
+                                dbnamesMap[item.inputValue.db] = true;
+                            }
                         }
                     }
-                }
-                this.extList.forEach(processCheckBoxes);
-                this.funcList.forEach(processCheckBoxes);
-                this.repoList.forEach(processCheckBoxes);
+                    this.extList.forEach(processCheckBoxes);
+                    this.funcList.forEach(processCheckBoxes);
+                    this.repoList.forEach(processCheckBoxes);
 
-//
-                var queries = [];
-                for (var i = 0; i < this.attributeManager.data.length; i++) {
-                    var row = this.attributeManager.data[i];
-                    queries.push(row[this.editSelected.name]);
-                }
+                    if (databasesSelectedFlag) {
+                        var queries = [];
+                        for (var i = 0; i < this.attributeManager.data.length; i++) {
+                            var row = this.attributeManager.data[i];
+                            queries.push(row[this.columnSelected.name]);
+                        }
 
 
-                if (queries.length > 0) {
+                        if (queries.length > 0) {
 
-                    CellBaseManager.get({
-                        species: this.speciesSelected.value,
-                        category: 'feature',
-                        subCategory: 'id',
-                        query: queries.toString(),
-                        resource: 'xref',
-                        params: {
-                            dbname: Object.keys(dbnamesMap)
-                        },
-                        success: function (data) {
-                            var row;
-                            for (var r = 0; r < data.response.length; r++) {
-                                var response = data.response[r];
-                                var xrefs = response.result;
-                                row = me.attributeManager.data[r];
-                                if (xrefs.length > 0) {
-                                    for (var i = 0; i < xrefs.length; i++) {
-                                        var xref = xrefs[i];
+                            this.loading = true;
+                            this.message = "Retrieving data...";
 
-                                        var mapId1 = xref.dbName + 'id';
-                                        var mapId2 = xref.dbName + 'description';
+                            CellBaseManager.get({
+                                species: this.speciesSelected.value,
+                                category: 'feature',
+                                subCategory: 'id',
+                                query: queries.toString(),
+                                resource: 'xref',
+                                params: {
+                                    dbname: Object.keys(dbnamesMap)
+                                },
+                                success: function (data) {
+                                    var row;
+                                    for (var r = 0; r < data.response.length; r++) {
+                                        var response = data.response[r];
+                                        var xrefs = response.result;
+                                        row = me.attributeManager.data[r];
+                                        if (xrefs.length > 0) {
+                                            for (var i = 0; i < xrefs.length; i++) {
+                                                var xref = xrefs[i];
 
-                                        var index1 = columnsMap[mapId1];
-                                        var index2 = columnsMap[mapId2];
+                                                var mapId1 = xref.dbName + 'id';
+                                                var mapId2 = xref.dbName + 'description';
 
-                                        if (index1 != null) {
-                                            if (!row[mapId1]) {
-                                                row[mapId1] = '';
-                                            }
-                                            if (row[mapId1] === '') {
-                                                row[mapId1] += xref.id;
-                                            } else {
-                                                row[mapId1] += ',' + xref.id;
-                                            }
-                                        }
-                                        if (index2 != null) {
-                                            if (!row[mapId2]) {
-                                                row[mapId2] = '';
-                                            }
-                                            if (row[mapId2] === '') {
-                                                row[mapId2] += xref.description;
-                                            } else {
-                                                row[mapId2] += ',' + xref.description;
+                                                var index1 = columnsMap[mapId1];
+                                                var index2 = columnsMap[mapId2];
+
+                                                if (index1 != null) {
+                                                    if (!row[mapId1]) {
+                                                        row[mapId1] = '';
+                                                    }
+                                                    if (row[mapId1] === '') {
+                                                        row[mapId1] += xref.id;
+                                                    } else {
+                                                        row[mapId1] += ',' + xref.id;
+                                                    }
+                                                }
+                                                if (index2 != null) {
+                                                    if (!row[mapId2]) {
+                                                        row[mapId2] = '';
+                                                    }
+                                                    if (row[mapId2] === '') {
+                                                        row[mapId2] += xref.description;
+                                                    } else {
+                                                        row[mapId2] += ',' + xref.description;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
+                                    for (var i = 0; i < columns.length; i++) {
+                                        var column = columns[i];
+                                        me.attributeManager.addColumn(column);
+                                    }
+
+                                    me.loading = false;
+                                    me.message = "Information has been saved as attributes";
                                 }
-                            }
-                            for (var i = 0; i < columns.length; i++) {
-                                var column = columns[i];
-                                me.attributeManager.addColumn(column);
-                            }
+                            });
+                        } else {
+                            this.message = "Node list is empty";
                         }
-                    });
+                    } else {
+                        this.message = "Please select at least one database";
+
+                    }
+                } else {
+                    this.message = "Please select one species and one attribute";
                 }
             }
         });

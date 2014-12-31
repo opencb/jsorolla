@@ -68,6 +68,9 @@
                 height: 50px;
             }
 
+            .botbar {
+                margin-top: 10px;
+            }
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
@@ -192,7 +195,12 @@
                 </div>
             </div>
 
-            <div class="button action" on-click="{{handleForm}}">Run</div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="width: 150px;" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
         </form>
         <div class="message">{{message}}</div>
     </template>
