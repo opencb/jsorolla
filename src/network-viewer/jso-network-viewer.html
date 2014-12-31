@@ -95,7 +95,7 @@
                 min-width: 800px;
                 position: absolute;
                 top: 0px;
-                bottom: 40px;
+                bottom: 30px;
                 overflow-y: scroll;
                 left: 0;
                 right: 0;
@@ -184,6 +184,9 @@
         <jso-nv-edition-bar
                 hidden?="{{hideEditionBar == 'true'}}"
                 id="editionBar"
+
+                vAttr="{{vAttr}}"
+                eAttr="{{eAttr}}"
 
                 on-vertexshape="{{handleVertexShape}}"
                 on-vertexopacity="{{handleVertexOpacity}}"
@@ -1152,7 +1155,7 @@
                 this.setSelectedVerticesDisplayAttr('labelSize', e.detail.value);
             },
             handleVertexSearch: function (e) {
-                this.selectVerticesByAttribute('name', e.detail.value);
+                this.selectVerticesByAttribute(e.detail.columnName, e.detail.value);
             },
             handleVertexNameField: function (e) {
                 this.setVertexLabel(e.detail.value);
@@ -1172,7 +1175,7 @@
                 this.setSelectedEdgesDisplayAttr('labelSize', e.detail.value);
             },
             handleEdgeSearch: function (e) {
-                this.selectEdgesByAttribute('name', e.detail.value);
+                this.selectEdgesByAttribute(e.detail.columnName, e.detail.value);
             },
             handleEdgeNameField: function (e) {
                 this.setEdgeLabel(e.detail.value);
@@ -1417,7 +1420,7 @@
                 this.vAttr.selectByColumnValue(attributeName, attributeValue);
             },
             selectEdgesByAttribute: function (attributeName, attributeValue) {
-                this._deselectAllEdges();
+                this.deselectAllEdges();
                 this.eAttr.selectByColumnValue(attributeName, attributeValue);
             },
             setVertexCoords: function (vertexId, x, y) {

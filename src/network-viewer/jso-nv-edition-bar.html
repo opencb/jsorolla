@@ -1,5 +1,5 @@
 <link rel="import" href="../lib/components/jso-color-picker.html">
-<polymer-element name="jso-nv-edition-bar" attributes="">
+<polymer-element name="jso-nv-edition-bar" attributes="vAttr eAttr">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
@@ -12,12 +12,13 @@
                 background-color: #FAFAFA;
                 border-bottom: 1px solid #D9D9D9;
             }
-            #bar{
-                width:860px;
+
+            #bar {
+                width: 900px;
             }
 
             /*:host > *, #vertexToolbar > *, #edgeToolbar > * {*/
-                /*float: left;*/
+            /*float: left;*/
             /*}*/
 
             [hide=true] {
@@ -66,7 +67,8 @@
 
                 <div class="dropdown" style="margin-left: 20px">
                     <div tabindex="-1" id="vertexSizeButton" class="button" style="border-right: none">
-                        <font-awesome icon="circle"></font-awesome></div>
+                        <font-awesome icon="circle"></font-awesome>
+                    </div>
                     <ul id="vertexSizeMenu">
                         <li on-click="{{handleVertexSize}}" data-value="10">10</li>
                         <li on-click="{{handleVertexSize}}" data-value="20">20</li>
@@ -91,7 +93,8 @@
 
                 <div class="dropdown" style="margin-left: 20px">
                     <div tabindex="-1" id="vertexStrokeSizeButton" class="button" style="border-right: none">
-                        <font-awesome icon="circle-o"></font-awesome></div>
+                        <font-awesome icon="circle-o"></font-awesome>
+                    </div>
                     <ul id="vertexStrokeSizeMenu">
                         <li on-click="{{handleVertexStrokeSize}}" data-value="1">1</li>
                         <li on-click="{{handleVertexStrokeSize}}" data-value="2">2</li>
@@ -129,11 +132,16 @@
                 </div>
 
 
-                <div class="dropdown" style="margin-left: 10px">
-                    <div tabindex="-1" id="vertexSearchButton" class="button" style="border-right: none;">
-                        <font-awesome icon="search"></font-awesome></div>
-                    <ul id="vertexSearchMenu"></ul>
-                </div>
+                <!--<div class="dropdown" style="margin-left: 10px">-->
+                <!--<div tabindex="-1" id="vertexSearchButton" class="button" style="border-right: none;">-->
+                <!--<font-awesome icon="search"></font-awesome></div>-->
+                <!--<ul id="vertexSearchMenu"></ul>-->
+                <!--</div>-->
+                <select id="nodeSearchSelect" style="width:70px;margin-left: 10px;border-right-width: 0;">
+                    <template repeat="{{column in vAttr.columns}}">
+                        <option value="{{column.name}}">{{column.title}}</option>
+                    </template>
+                </select>
                 <input on-keypress="{{handleVertexSearch}}" id="vertexSearchField" class="button" type="text"
                        placeholder="Search" style="width: 80px;">
 
@@ -161,7 +169,8 @@
 
                 <div class="dropdown" style="margin-left: 10px">
                     <div tabindex="-1" id="edgeSizeButton" class="button" style="border-right: none">
-                        <font-awesome icon="minus"></font-awesome></div>
+                        <font-awesome icon="minus"></font-awesome>
+                    </div>
                     <ul id="edgeSizeMenu">
                         <li on-click="{{handleEdgeSize}}" data-value="1">1</li>
                         <li on-click="{{handleEdgeSize}}" data-value="2">2</li>
@@ -184,7 +193,7 @@
 
                 <div class="dropdown" style="margin-left: 10px">
                     <div tabindex="-1" id="edgeLabelSizeButton" class="button">
-                        <font-awesome icon="height"></font-awesome>
+                        <font-awesome icon="text-height"></font-awesome>
                     </div>
                     <ul id="edgeLabelSizeMenu">
                         <li on-click="{{handleEdgeLabelSize}}" data-value="0">None</li>
@@ -197,19 +206,25 @@
                     </ul>
                 </div>
 
-                <div class="dropdown" style="margin-left: 10px">
-                    <div tabindex="-1" id="edgeSearchButton" class="button" style="border-right: none;">
-                        <font-awesome icon="search"></font-awesome></div>
-                    <ul id="edgeSearchMenu"></ul>
-                </div>
-                <input on-keypress="{{handleEdgeSearch}}" id="edgeSearchField" class="button" type="text"
+                <!--<div class="dropdown" style="margin-left: 10px">-->
+                    <!--<div tabindex="-1" id="edgeSearchButton" class="button" style="border-right: none;">-->
+                        <!--<font-awesome icon="search"></font-awesome>-->
+                    <!--</div>-->
+                    <!--<ul id="edgeSearchMenu"></ul>-->
+                <!--</div>-->
+                <select hidden id="edgeSearchSelect" style="width:70px;margin-left: 10px;border-right-width: 0;">
+                    <template repeat="{{column in eAttr.columns}}">
+                        <option value="{{column.name}}">{{column.title}}</option>
+                    </template>
+                </select>
+                <input hidden on-keypress="{{handleEdgeSearch}}" id="edgeSearchField" class="button" type="text"
                        placeholder="Search"
                        style="width: 80px;">
+
 
             </div>
 
         </div>
-
 
 
     </template>
@@ -255,7 +270,7 @@
             },
             handleVertexSearch: function (e) {
                 if (e.which == 13) {
-                    this.fire('vertexsearch', {value: e.currentTarget.value});
+                    this.fire('vertexsearch', {value: e.currentTarget.value, columnName: this.$.nodeSearchSelect.value});
                 }
             },
             handleVertexNameField: function (e) {
@@ -279,7 +294,7 @@
             },
             handleEdgeSearch: function (e) {
                 if (e.which == 13) {
-                    this.fire('edgesearch', {value: e.currentTarget.value});
+                    this.fire('edgesearch', {value: e.currentTarget.value, columnName: this.$.edgeSearchSelect.value});
                 }
             },
             handleEdgeNameField: function (e) {
