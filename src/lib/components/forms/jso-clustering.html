@@ -84,7 +84,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                    <div class="button action" on-click="{{loadExample1}}"> fibroblasts k-means clustering</div>
                 </div>
             </div>
 
@@ -130,10 +130,12 @@
             <div class="formbox">
                 <div class="formtitle">Select distance</div>
                 <div class="formcontent">
-                    <input id="distance_1" name="distance" class="fc-radioitem" type="radio" value="euclidean" checked="checked">Euclidean (normal)<br>
-                    <input id="distance_2" name="distance" class="fc-radioitem" type="radio" value="square"> Euclidean (square)<br>
-                    <input id="distance_3" name="distance" class="fc-radioitem" type="radio" value="spearman"> Correlation coeff. (Spearman)<br>
-                    <input id="distance_4" name="distance" class="fc-radioitem" type="radio" value="pearson">Pearson correlation coeff.
+                    <div id="distanceDiv">
+                        <input id="distance_1" name="distance" class="fc-radioitem" type="radio" value="euclidean" checked="checked">Euclidean (normal)<br>
+                        <input id="distance_2" name="distance" class="fc-radioitem" type="radio" value="square"> Euclidean (square)<br>
+                        <input id="distance_3" name="distance" class="fc-radioitem" type="radio" value="spearman"> Correlation coeff. (Spearman)<br>
+                        <input id="distance_4" name="distance" class="fc-radioitem" type="radio" value="pearson">Pearson correlation coeff.
+                    </div>
                 </div>
             </div>
             <div class="formbox">
@@ -180,7 +182,8 @@
                     name: this.jobName,
                     description: this.description,
                     dataset: this.$.inputFile.selectedFile.id,
-                    method: this.$.methodDiv.querySelector('input[name="method"]:checked').value
+                    method: this.$.methodDiv.querySelector('input[name="method"]:checked').value,
+                    distance: this.$.distanceDiv.querySelector('input[name="distance"]:checked').value
                 }
                 if (this.$.sample_clustering.checked) {
                     query["sample-clustering"] = true;
@@ -222,8 +225,7 @@
             loadExample1: function (e) {
                 this.jobName = "fibroblasts k-means clustering";
                 this.description = "Non-hierarchical clustering - K-means demo";
-                this.newFolderName = "clust_" + Math.floor((Math.random() * 100) + 1);
-                this.list1 = {id: "example_fibroblasts.txt", path: "fibroblasts.txt"};
+                this.$.inputFile.selectedFile = {id: "example_fibroblasts.txt", path: "fibroblasts.txt"};
                 this.$.sample_clustering.checked = true;
                 this.$.gene_clustering.checked = true;
                 this.$.gene_clustering.checked = true;
@@ -234,6 +236,51 @@
                 this.$.gene_kvalue.disabled = false;
                 this.$.distance_2.checked = true;
 
+                var exampleFolder = "fibroblast_example";
+                this.createExampleFolder(exampleFolder);
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
             },
             methodClick: function (e) {
 

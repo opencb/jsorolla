@@ -80,7 +80,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                    <div class="button action" on-click="{{loadExample1}}"> Differential expression - Two-classes demo (t-test)</div>
                 </div>
             </div>
             <div class="formbox">
@@ -183,9 +183,6 @@
                 this.test = "";
 
             },
-            ready: function () {
-//        debugger
-            },
             handleFileSelect: function (e) {
                 var file = e.detail.file;
                 if (file.type == "FILE")
@@ -210,7 +207,6 @@
                 })
             },
             getContentFile: function (file) {
-
                 var me = this;
                 if (String(file.id).indexOf("example_") >= 0) {
                     this.loadExampleFile(file.path);
@@ -292,12 +288,58 @@
 
                 this.jobName = "Differential expression - Class comparison demo (correlation.txt)";
                 this.description = "Just a differencial expression demo";
-                this.newFolderName = "de_" + Math.floor((Math.random() * 100) + 1);
-                this.list1 = {id: "example_correlation.txt", path: "correlation.txt"};
+                this.$.inputFile.selectedFile = {id: "example_correlation.txt", path: "correlation.txt"};
                 this.p_value = 0.05;
                 this.$.multi_rg_1.checked = true;
                 this.$.correction_1.checked = true;
 
+                this.getContentFile(this.$.inputFile.selectedFile);
+                var exampleFolder = "diff_expression_correlation";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
             },
             loadedMainSelectChanged: function (oldV, newV) {
                 /** This is mainly for the examples **/
@@ -308,10 +350,10 @@
                         me.manageClass()
                     });
 
-//            if (this.list1.id == "example_correlation.txt") {
-//                select.value = "indep";
-//                this.$.jsoClassViewer.selectChange();
-//            }
+                    if (this.$.inputFile.selectedFile.id == "example_correlation.txt") {
+                        select.value = "indep";
+                        this.$.jsoClassViewer.selectChange();
+                    }
                 }
             },
             loadedChildrenSelectChanged: function (oldV, newV) {
@@ -325,20 +367,21 @@
                         });
                     }
                     /** This is mainly for the examples **/
-//            if (this.list1.id == "example_correlation.txt") {
-//                childrenSelect[0].value = 1;
-//                childrenSelect[1].value = 3;
-//                childrenSelect[2].value = 5;
-//                childrenSelect[3].value = 7;
-//                childrenSelect[4].value = 9;
-//
-//                this.$.one_rg_1.disabled = true;
-//                this.$.two_rg_1.disabled = true;
-//                this.$.two_rg_2.disabled = true;
-//                this.$.two_rg_3.disabled = true;
-//                this.$.multi_rg_1.disabled = false;
-//                this.$.multi_rg_2.disabled = false;
-//            }
+                    if (this.$.inputFile.selectedFile.id == "example_correlation.txt") {
+
+                        childrenSelect[0].value = 1;
+                        childrenSelect[1].value = 3;
+                        childrenSelect[2].value = 5;
+                        childrenSelect[3].value = 7;
+                        childrenSelect[4].value = 9;
+
+                        this.$.one_rg_1.disabled = true;
+                        this.$.two_rg_1.disabled = true;
+                        this.$.two_rg_2.disabled = true;
+                        this.$.two_rg_3.disabled = true;
+                        this.$.multi_rg_1.disabled = false;
+                        this.$.multi_rg_2.disabled = false;
+                    }
                 }
             },
             manageClass: function () {

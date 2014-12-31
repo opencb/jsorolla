@@ -173,49 +173,47 @@
                 this.jobName = "affy_sample_1";
                 this.description = "just_an_affy_example";
                 this.rma = true;
-                this.newFolderName = "affy_" + Math.floor((Math.random() * 100) + 1);
                 this.$.inputFile.selectedFile = {id: "example_affymetrix.zip", path: "affymetrix.zip"};
                 this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
-                var exampleFolder = "affy_sample_1";
+                var exampleFolder = "affy_sample_1vv";
                 this.createExampleFolder(exampleFolder);
 
             },
             createExampleFolder: function (exampleFolder) {
-                /** Create example folder **/
                 var me = this;
-                OpencgaManager.files.createFolder({
+                OpencgaManager.files.search({
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        studyId: this.$.outdir.selectedStudy.id,
-                        folder: exampleFolder
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
 
                     },
                     request: {
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 me.$.outdir.selectedFile = response.response[0].result[0];
-                            } else {
-                                /** if folder exists, we get its id **/
-                                OpencgaManager.files.search({
-                                    query: {
-                                        sid: Cookies('bioinfo_sid'),
-                                        studyId: me.$.outdir.selectedStudy.id,
-                                        name: exampleFolder
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
 
-                                    },
-                                    request: {
-                                        success: function (response) {
-                                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                                me.$.outdir.selectedFile = response.response[0].result[0];
-                                            } else {
-                                                me.message = response.response[0].errorMsg;
-                                            }
                                         },
-                                        error: function () {
-                                            alert('Server error, try again later.');
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
                         },
                         error: function () {

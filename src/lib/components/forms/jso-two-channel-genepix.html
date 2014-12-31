@@ -80,7 +80,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                    <div class="button action" on-click="{{loadExample1}}">genepix two-channels normalization</div>
                 </div>
             </div>
             <div class="formbox">
@@ -205,9 +205,54 @@
                 this.$.flags_as_missing.checked = false;
                 this.$.ba_normalization.value = "quantiles";
                 this.$.wa_normalization.value = "printtiploess";
-                this.compressed_file = {id: "example_twocolor_genepix_expression.zip", path: "twocolor_genepix_expression.zip"};
+                this.$.inputFile.selectedFile = {id: "example_twocolor_genepix_expression.zip", path: "twocolor_genepix_expression.zip"};
                 this.compressed_file_tags = "microarray,expression,one-channel,genepix";
-                this.newFolderName = "two_channels_genepix_" + Math.floor((Math.random() * 100) + 1);
+                var exampleFolder = "genepix_two_channel";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
             }
         });
     </script>

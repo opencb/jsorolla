@@ -143,12 +143,15 @@
             },
             getFileContent: function (callback, fileName) {
                 var me = this;
-                var fileId = -1;
+                var fileId = null;
                 for (var result in this.filesList) {
                     if (this.filesList[result].name == fileName) {
                         fileId = this.filesList[result].id
                         break;
                     }
+                }
+                if (fileId == null) {
+                    debugger
                 }
                 OpencgaManager.files.content({
                     id: fileId,
@@ -386,6 +389,7 @@
                         res.appendChild(file);
 
                         if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0 || element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
+                            var dataArray = new Array();
                             this.getFileContent(function (content) {
                                 var data = content.split("\n");
 
@@ -398,7 +402,6 @@
 
                             var sortableTable = document.createElement('sortable-table');
                             sortableTable.setAttribute("id", "tableId");
-                            var dataArray = new Array();
                             sortableTable.columns = ["Input", "Id", "Type", "Rank", "Betweenness", "Clustering", "Connections", "GOs", "KEEGs"];
                             sortableTable.data = dataArray;
                             sortableTable.pageSize = "10";
@@ -437,7 +440,6 @@
                             console.log("DIFF_EXPRESSION_VIEWER");
 
                             var json = JSON.parse(element.value.replace(/\\/g, ''))
-
                             var dataArray = [];
                             var columns = [];
                             var sortableTable = document.createElement('sortable-table');
@@ -473,7 +475,7 @@
                             res.appendChild(sortableTable);
 
                             var statisticData = new Array();
-
+                            var test = json.testfilename.replace(".txt", "")
                             this.getFileContent(function (content) {
                                 var data = content.split("\n");
                                 for (var i = 0; i < data.length; i++) {
@@ -483,7 +485,7 @@
                                         statisticData[splits[0]] = splits[1];
                                     }
                                 }
-                            }, "t_significative_table.txt");
+                            }, test + "_significative_table.txt");
 
                             var sigDatasetData = new Array();
                             var sigDatasetCols = [];
@@ -557,7 +559,7 @@
                                     prevLine = line;
                                 }
 
-                            }, "t_significative_dataset.txt");
+                            }, test + "_significative_dataset.txt");
 
                             Object.keys(statisticData).forEach(function (key) {
                                 var index = sigDatasetRows.indexOf(key);
@@ -598,6 +600,143 @@
                             me.createHeatMap(heatMapData, sigDatasetCols, sigDatasetRows, heatMapDiv);
                             res.appendChild(heatMapDiv);
                         }
+                        if (element.tags.indexOf("PREDICTOR_FEATURE_SELECTION_TABLE") >= 0) {
+                            var dataArray = new Array();
+                            this.getFileContent(function (content) {
+                                var data = content.split("\n");
+                                for (var i = 1; i < data.length; i++) {
+                                    if (data[i] == "") continue;
+                                    dataArray.push(data[i].split("\t"))
+                                }
+
+                            }, element.value);
+
+                            var sortableTable = document.createElement('sortable-table');
+                            sortableTable.setAttribute("id", "tableId");
+
+                            sortableTable.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Confusion matrix", "Selected genes"];
+                            sortableTable.data = dataArray;
+                            sortableTable.pageSize = "10";
+                            sortableTable.footerTemplate = "simplePager";
+
+                            res.appendChild(sortableTable);
+                        }
+                        if (element.tags.indexOf("TABLE,NO_LINK") >= 0) {
+                            var dataArray = new Array();
+                            var columns = new Array();
+                            this.getFileContent(function (content) {
+                                var data = content.split("\n");
+
+                                for (var i = 0; i < data.length; i++) {
+                                    if (i == 0) {
+                                        columns = data[i].split("\t");
+                                        continue;
+                                    }
+                                    if (data[i] == "") continue;
+                                    dataArray.push(data[i].split("\t"))
+                                }
+
+                            }, element.value);
+
+                            var sortableTable = document.createElement('sortable-table');
+                            sortableTable.setAttribute("id", "tableId");
+//                            sortableTable.setAttribute("cellTemplate", "html");
+
+                            sortableTable.columns = columns;
+                            sortableTable.data = dataArray;
+                            sortableTable.pageSize = "10";
+                            sortableTable.footerTemplate = "simplePager";
+
+                            res.appendChild(sortableTable);
+                        }
+                        if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+                            var dataArray = new Array();
+                            var columns = new Array();
+                            this.getFileContent(function (content) {
+                                var data = content.split("\n");
+
+                                for (var i = 0; i < data.length; i++) {
+                                    if (i == 0) {
+                                        columns = data[i].split("\t");
+                                        continue;
+                                    }
+                                    if (data[i] == "") continue;
+                                    dataArray.push(data[i].split("\t"))
+                                }
+
+                            }, element.value);
+
+                            var sortableTable = document.createElement('sortable-table');
+                            sortableTable.setAttribute("id", "tableId");
+//                            sortableTable.setAttribute("cellTemplate", "html");
+
+                            sortableTable.columns = columns;
+                            sortableTable.data = dataArray;
+                            sortableTable.pageSize = "10";
+                            sortableTable.footerTemplate = "simplePager";
+
+                            res.appendChild(sortableTable);
+                        }
+
+
+                        if (element.tags.indexOf("SUMMARY_TABLE") >= 0) {
+                            if (element.tags.indexOf("SIGNIFICANT_COUNT_TABLE") >= 0) {
+                                var dataArray = new Array();
+                                var columns = new Array();
+                                this.getFileContent(function (content) {
+                                    var data = content.split("\n");
+
+                                    for (var i = 0; i < data.length; i++) {
+                                        if (i == 0) {
+                                            columns = data[i].split("\t");
+                                            continue;
+                                        }
+                                        if (data[i] == "") continue;
+                                        dataArray.push(data[i].split("\t"))
+                                    }
+
+                                }, element.value.replace("${pvalue}", me.pvalue));
+
+                                var sortableTable = document.createElement('sortable-table');
+                                sortableTable.setAttribute("id", "tableId");
+//                            sortableTable.setAttribute("cellTemplate", "html");
+
+                                sortableTable.columns = columns;
+                                sortableTable.data = dataArray;
+                                sortableTable.pageSize = "10";
+                                sortableTable.footerTemplate = "simplePager";
+
+                                res.appendChild(sortableTable);
+                            }
+                            else {
+                                var dataArray = new Array();
+                                var columns = new Array();
+                                this.getFileContent(function (content) {
+                                    var data = content.split("\n");
+
+                                    for (var i = 0; i < data.length; i++) {
+                                        if (i == 0) {
+                                            columns = data[i].split("\t");
+                                            continue;
+                                        }
+                                        if (data[i] == "") continue;
+                                        dataArray.push(data[i].split("\t"))
+                                    }
+
+                                }, element.value);
+
+                                var sortableTable = document.createElement('sortable-table');
+                                sortableTable.setAttribute("id", "tableId");
+//                            sortableTable.setAttribute("cellTemplate", "html");
+
+                                sortableTable.columns = columns;
+                                sortableTable.data = dataArray;
+                                sortableTable.pageSize = "10";
+                                sortableTable.footerTemplate = "simplePager";
+
+                                res.appendChild(sortableTable);
+                            }
+                        }
                 }
                 return res;
             },
@@ -616,15 +755,17 @@
 
             createHeatMap: function (data, cols, rows, div) {
 
-                console.log(cols);
-                console.log(rows);
+//                console.log(cols);
+//                console.log(rows);
+//original height / original width x new width = new height
+                var z = rows.length / cols.length * 1000;
                 var heatMap = new Highcharts.Chart({
                     chart: {
                         renderTo: div,
                         type: 'heatmap',
                         marginTop: 100,
                         marginBottom: 40,
-                        height: 1000,
+                        height: z,
                         width: 1000
                     },
                     title: {

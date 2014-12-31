@@ -80,7 +80,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                    <div class="button action" on-click="{{loadExample1}}">A leukemia data example</div>
                 </div>
             </div>
 
@@ -104,7 +104,8 @@
                 <div class="formtitle">Select test data (Optional)</div>
                 <div class="formcontent">
                     Test data (expression matrix)
-                    <jso-project-browser class="input-project-browser" id="testInputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"></jso-project-browser>
+                    <jso-project-browser-window id="testInputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
                 </div>
             </div>
             <div class="formbox">
@@ -150,6 +151,7 @@
                 <div class="formtitle">Gene subset selection</div>
                 <div class="formcontent">
                     <label>Subset selection method</label><br>
+
                     <div id="featureSelectionDiv">
                         <input id="feature_selection_1" name="feature_selection" class="fc-radioitem" type="radio" value="cfs">Correlation-based
                         Feature Selection (CFS) <br>
@@ -277,7 +279,7 @@
                 this.jobName = "A leukemia data example";
                 this.description = "A leukemia train dataset";
                 this.newFolderName = "pred_" + Math.floor((Math.random() * 100) + 1);
-                this.list1 = {id: "example_data_train_leukemia.txt", path: "data_train_leukemia.txt"};
+                this.$.inputFile.selectedFile = {id: "example_data_train_leukemia.txt", path: "data_train_leukemia.txt"};
                 this.$.knn.checked = true;
                 this.$.svm.checked = false;
                 this.$.random_forest.checked = false;
@@ -286,15 +288,62 @@
                 this.$.folds.value = 5;
                 this.$.feature_selection_1.checked = true;
 
+                this.getContentFile(this.$.inputFile.selectedFile);
+                var exampleFolder = "leukemia_example";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
             },
             loadedMainSelectChanged: function (oldV, newV) {
                 /** This is mainly for the examples **/
                 var me = this;
                 if (newV == true) {
                     var select = this.$.jsoClassViewer.getMainSelect();
-//                if (this.list1.id == "example_data_train_leukemia.txt") {
-//                    select.value = "TUMOR";
-//                }
+                if (this.$.inputFile.selectedFile.id == "example_data_train_leukemia.txt") {
+                    select.value = "TUMOR";
+                }
                 }
             },
             errorStimationClick: function (e) {

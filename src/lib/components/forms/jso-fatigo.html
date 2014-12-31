@@ -85,7 +85,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                    <div class="button action" on-click="{{loadExample1}}">motor vs apoptosis</div>
                 </div>
             </div>
             <div class="formbox">
@@ -115,7 +115,7 @@
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                    <jso-project-browser-window id="inputFile1" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
                 </div>
             </div>
@@ -210,6 +210,7 @@
             created: function () {
                 this.jobName = 'JobName';
                 this.toolName = "fatigo";
+                this.description= "Description";
 
                 /** Tool input parameters **/
                 this.annotations = "";	//    --annotations <arg>              Your own annotations
@@ -329,6 +330,7 @@
                     "species": this.$.species.value,
                     fisher: this.$.fisher.value
                 };
+                this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
                 if (this.comparison == "list2list") {
                     query["list2"] = this.$.inputFile2.selectedFile.id;
                 }
@@ -370,19 +372,65 @@
                 this.newFolderName = "fatiresult_" + Math.floor((Math.random() * 100) + 1);
                 this.duplicates = "never";
                 this.go_bp_keyword_operator = "all";
-                this.species = "hsa";
+                this.$.species.value = "hsa";
                 this.go_bp_max_level = 9;
                 this.go_bp = "gobp";
                 this.go_bp_propagation = "propagate";
                 this.go_bp_min_num_genes = 5;
-                this.list1 = {id: "example_example.motor", name: "example.motor"};
-                this.list2 = {id: "example_example.apoptosis", name: "example.apoptosis"};
+                this.$.inputFile1.selectedFile = {id: "example_example.motor", path: "example.motor"};
+                this.$.inputFile2.selectedFile = {id: "example_example.apoptosis", path: "example.apoptosis"};
                 this.annotations = "none";
                 this.go_bp_nannot_domain = "genome";
                 this.fisher = "two-tailed";
                 this.go_bp_max_num_genes = 1000;
                 this.go_bp_min_level = 3;
 
+                var exampleFolder = "fati_motor_apop";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
             },
 
             handleSpecies: function (e) {

@@ -84,7 +84,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                    <div class="button action" on-click="{{loadExample1}}">Association analysis: chi-square test</div>
                 </div>
             </div>
 
@@ -184,11 +184,55 @@
             loadExample1: function (e) {
                 this.jobName = "Association analysis: chi-square test";
                 this.description = "description...";
-                this.newFolderName = "asso" + Math.floor((Math.random() * 100) + 1);
-                this.list1 = {id: "example_association.zip", path: "association.zip"};
+                this.$.inputFile.selectedFile = {id: "example_association.zip", path: "association.zip"};
                 this.maf = 0.02;
                 this.$.test_1.checked = true;
+                var exampleFolder = "assoc_chi_square";
+                this.createExampleFolder(exampleFolder);
 
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
             }
         });
     </script>

@@ -81,7 +81,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                    <div class="button action" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>
                 </div>
             </div>
             <div class="formbox">
@@ -124,25 +124,13 @@
             <div class="formbox">
                 <div class="formtitle">Species</div>
                 <div class="formcontent">
-
                     <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
-                        <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="ath">Arabidopsis
-                            thaliana
-                        </option>
-                        <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="dme">Drosophila
-                            melanogaster
-                        </option>
-                        <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="eco">Escherichia coli
-                            (K12)
-                        </option>
-                        <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="hsa"
-                                selected="selected">Homo sapiens
-                        </option>
-                        <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="mmu">Mus musculus
-                        </option>
-                        <option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="sce">Saccharomyces
-                            cerevisiae
-                        </option>
+                        <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                        <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="dme">Drosophila melanogaster</option>
+                        <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="eco">Escherichia coli (K12)</option>
+                        <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="hsa" selected="selected">Homo sapiens</option>
+                        <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="mmu">Mus musculus</option>
+                        <option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
                     </select>
                 </div>
             </div>
@@ -198,7 +186,8 @@
             created: function () {
                 this.jobName = 'JobName'
                 this.toolName = "network-miner"
-                this.message = ''
+                this.message = '';
+                this.description = "JobDescription"
 
                 this.rankedList = ""
                 this.seedList = ""
@@ -252,20 +241,19 @@
                         toolId: this.toolName,
                         name: this.jobName,
                         description: "description",
-                        list: this.$.rankedList.selectedFile.id,
+                        list: this.$.inputFile.selectedFile.id,
                         seedlist: this.$.seedList.selectedFile.id,
                         outdir: this.$.outdir.selectedFile.id,
-                        interactome: this.interactome,
                         "o-name": "result",
-                        intermediate: this.intermediate,
-                        group: this.group,
-                        order: this.order,
-                        "significant-value": 0.05,
+                        interactome: this.$.interactome.value,
+                        intermediate: this.$.intermediate.value,
+                        group: this.$.group.value,
+                        components: true,
                         randoms: 1000,
-                        components: false,
-                        "list-tags": this.listTags,
-                        example: this.example
-
+                        order: this.$.order.value,
+                        "significant-value": 0.05,
+//                        components: false,
+                        "list-tags": this.$.listTags.value
                         //ranked-list:
                     },
                     request: {
@@ -286,68 +274,108 @@
                 })
             },
             loadExample1: function (e) {
-                var me = this;
                 this.message = '';
-                this.newFolderName = "bipolar_gwas" + Math.floor((Math.random() * 100) + 1);
 
-                this.rankedList = {id: "example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
-                this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name: "BD-associatedgenesUniprot.txt"};
-
-                this.list = "gene"
-                this.interactome = "hsa"
-                this.group = "all"
-                this.order = "ascending"
-                this.intermediate = 1
-//            this.significant_value = 0.05
-                this.jobName = "bipolar_gwas"
-                this.example = true
-            },
-            rankedListClick: function (e) {
-                this.$.rankedListHtml.hidden = false
-                //this.$.rankedListFileName.click();
+                this.$.inputFile.selectedFile = {id: "example_BD-GWASplink.txt", path: "BD-GWASplink.txt"};
+                this.$.seedList.selectedFile = {id: "example_BD-associatedgenesUniprot.txt", path: "BD-associatedgenesUniprot.txt"};
+                this.$.listTags_4.selected = true;
+                this.$.interactome.value = "hsa";
+                this.$.group.value = "curated";
+                this.$.intermediate.value = 1;
+                this.$.order_1.selected = true;
+                var exampleFolder = "nm_gwas";
+                this.createExampleFolder(exampleFolder);
 
             },
-            seedListClick: function (e) {
-                this.$.seedListHtml.hidden = false
-            },
-            rankedListFileNameChange: function (e) {
-                this.rankedListFileName = this.$.rankedListFileName.files[0];
-                //this.fileNameRanked = inputFile.name
-            },
-            seedListFileNameChange: function (e) {
-                this.seedListFileName = this.$.seedListFileName.files[0];
-                //this.fileNameRanked = inputFile.name
-            },
-            handleListTags: function (e) {
-                this.listTags = e.target.dataset.value;
-                this.listTagsText = e.target.innerText;
-            },
-            handleInteractome: function (e) {
-                this.interactome = e.target.dataset.value;
-                this.interactomeText = e.target.innerText;
-            },
-            handleGroup: function (e) {
-                this.group = e.target.dataset.value;
-                this.groupText = e.target.innerText;
-            },
-            handleOrder: function (e) {
-                this.order = e.target.dataset.value;
-                this.orderText = e.target.innerText;
-            },
-            handleIntermediate: function (e) {
-                this.intermediate = e.target.dataset.value;
-                this.intermediateText = e.target.innerText;
-            },
-            rankedListFileOutputChanged: function (e) {
-                this.rankedListClickEnabled = false
-                this.rankedListUploadMsg = this.$.rankedList.selectedFile.id;
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
 
-            },
-            seedListFileOutputChanged: function (e) {
-                this.seedListClickEnabled = false
-                this.seedListUploadMsg = this.seedListFileOutput.selectedFile.path
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
 
-            }
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+//            rankedListClick: function (e) {
+//                this.$.rankedListHtml.hidden = false
+//                //this.$.rankedListFileName.click();
+//
+//            },
+//            seedListClick: function (e) {
+//                this.$.seedListHtml.hidden = false
+//            },
+//            rankedListFileNameChange: function (e) {
+//                this.rankedListFileName = this.$.rankedListFileName.files[0];
+//                //this.fileNameRanked = inputFile.name
+//            },
+//            seedListFileNameChange: function (e) {
+//                this.seedListFileName = this.$.seedListFileName.files[0];
+//                //this.fileNameRanked = inputFile.name
+//            },
+//            handleListTags: function (e) {
+//                this.listTags = e.target.dataset.value;
+//                this.listTagsText = e.target.innerText;
+//            },
+//            handleInteractome: function (e) {
+//                this.interactome = e.target.dataset.value;
+//                this.interactomeText = e.target.innerText;
+//            },
+//            handleGroup: function (e) {
+//                this.group = e.target.dataset.value;
+//                this.groupText = e.target.innerText;
+//            },
+//            handleOrder: function (e) {
+//                this.order = e.target.dataset.value;
+//                this.orderText = e.target.innerText;
+//            },
+//            handleIntermediate: function (e) {
+//                this.intermediate = e.target.dataset.value;
+//                this.intermediateText = e.target.innerText;
+//            },
+//            rankedListFileOutputChanged: function (e) {
+//                this.rankedListClickEnabled = false
+//                this.rankedListUploadMsg = this.$.rankedList.selectedFile.id;
+//
+//            },
+//            seedListFileOutputChanged: function (e) {
+//                this.seedListClickEnabled = false
+//                this.seedListUploadMsg = this.seedListFileOutput.selectedFile.path
+//
+//            }
         });
     </script>
 </polymer-element>

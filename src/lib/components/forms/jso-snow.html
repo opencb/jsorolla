@@ -84,7 +84,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Load example 1</div>
+                    <div class="button action" on-click="{{loadExample1}}">Downregulated in fibroblasts from old individuals, compared to young</div>
                 </div>
             </div>
 
@@ -106,15 +106,10 @@
             <div class="formbox">
                 <div class="formtitle">List nature</div>
                 <div class="formcontent">
-
-                    <div class="dropdown">
-                        <div tabindex="-1" class="button">
-                            {{typeText}}
-                        </div>
-                        <ul on-click="{{handleType}}">
-                            <li data-value="genes">Genes</li>
-                            <li data-value="proteins">Proteins</li>
-                        </ul>
+                    <div id="typeDiv">
+                        <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">Transcripts
+                        <input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>Proteins
+                        <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes" >Genes
                     </div>
                 </div>
             </div>
@@ -122,29 +117,25 @@
             <div class="formbox">
                 <div class="formtitle">Species</div>
                 <div class="formcontent">
-
-                    <div class="dropdown">
-                        <div tabindex="-1" class="button">
-                            {{interactomeText}}
-                        </div>
-                        <ul on-click="{{handleInteractome}}">
-                            <li data-value="hsa">Homo sapiens</li>
-                        </ul>
+                    <div id="interactomeDiv">
+                        <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
+                            <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="hsa" selected="selected">Homo sapiens</option>
+                            <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="mmu">Mus musculus</option>
+                            <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="dme">Drosophila melanogaster</option>
+                            <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                            <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                            <option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="eco">Escherichia coli (K12)</option>
+                            <option name="interactome_7" id="interactome_7" class="fc-combobox-item" value="own">Own</option>
+                        </select>
                     </div>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Select interactome confidence</div>
                 <div class="formcontent">
-
-                    <div class="dropdown">
-                        <div tabindex="-1" class="button">
-                            {{groupText}}
-                        </div>
-                        <ul on-click="{{handleGroup}}">
-                            <li data-value="all">Non curated</li>
-                            <li data-value="curated">Curated (detected by at least two methods)</li>
-                        </ul>
+                    <div id="groupDiv">
+                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked"> all ppis
+                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">curated
                     </div>
                 </div>
             </div>
@@ -152,15 +143,12 @@
                 <div class="formtitle">Number of simulations</div>
                 <div class="formcontent">
 
-                    <div class="dropdown">
-                        <div tabindex="-1" class="button">
-                            {{randoms}}
-                        </div>
-                        <ul on-click="{{handleRandoms}}">
-                            <li data-value="500">500</li>
-                            <li data-value="1000">1000</li>
-                            <li data-value="2000">2000</li>
-                        </ul>
+                    <div id="randomsDiv">
+                        <select name="randoms" id="randoms" class="fc-combobox" type="text" value="500">
+                            <option name="randoms_1" id="randoms_1" class="fc-combobox-item" value="500" selected="selected">500</option>
+                            <option name="randoms_2" id="randoms_2" class="fc-combobox-item" value="1000">1000</option>
+                            <option name="randoms_3" id="randoms_3" class="fc-combobox-item" value="2000">2000</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -168,14 +156,11 @@
                 <div class="formtitle">Allow one external intermediate in the subnetwork</div>
                 <div class="formcontent">
 
-                    <div class="dropdown">
-                        <div tabindex="-1" class="button">
-                            {{intermediateText}}
-                        </div>
-                        <ul on-click="{{handleIntermediate}}">
-                            <li data-value=1>Yes</li>
-                            <li data-value=0>No</li>
-                        </ul>
+                    <div id="intermediateDiv">
+                        <select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="1">
+                            <option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0">0</option>
+                            <option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1" selected="selected">1</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -247,13 +232,13 @@
                         description: "description",
                         list1: this.$.inputFile.selectedFile.id,
                         outdir: this.$.outdir.selectedFile.id,
-                        interactome: this.interactome,
                         "o-name": "result",
-                        intermediate: this.intermediate,
-                        type: this.type,
-                        group: this.group,
+                        interactome: this.$.interactome.value,
+                        intermediate: this.$.intermediate.value,
+                        type: this.$.typeDiv.querySelector('input[name="type"]:checked').value,
+                        group: this.$.groupDiv.querySelector('input[name="group"]:checked').value,
                         components: true,
-                        randoms: this.randoms,
+                        randoms: this.$.randoms.value,
                         side: "greater",
                         images: "",
                         json: 1
@@ -276,24 +261,61 @@
                 })
             },
             loadExample1: function (e) {
-                var me = this;
                 this.message = '';
-                this.newFolderName = "bipolar_gwas" + Math.floor((Math.random() * 100) + 1);
+                this.jobName = "Downregulated";
+                this.description = "Description downregulated"
+                this.$.inputFile.selectedFile = {id: "example_oldage_dn.txt", path: "oldage_dn.txt"};
+                this.$.interactome.value = "hsa";
+                this.$.type_3.checked = true;
+                this.$.group_2.checked = true;
+                this.$.randoms.value = 500;
+                this.$.intermediate.value = 1;
+                var exampleFolder = "snow_downregulated";
+                this.createExampleFolder(exampleFolder);
 
-                this.rankedList = {id: "example_BD-GWASplink.txt", name: "BD-GWASplink.txt"};
-                this.seedList = {id: "example_BD-associatedgenesUniprot.txt", name: "BD-associatedgenesUniprot.txt"};
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
 
-                this.list = "gene";
-                this.interactome = "hsa";
-                this.group = "all";
-                this.order = "ascending";
-                this.intermediate = 1;
-//            this.significant_value = 0.05
-                this.jobName = "bipolar_gwas";
-                this.example = true;
-                if (this.$.form.checkValidity()) {
-                    //me.message = "xx"
-                }
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
             },
             handleType: function (e) {
                 this.type = e.target.dataset.value;
