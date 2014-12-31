@@ -60,6 +60,13 @@
                     Network
                 </div>
                 <ul id="networkMenu" on-click="{{handleClick}}">
+                    <li data-sub>Import network
+                        <ul>
+                            <li data-value="reactome">Reactome...</li>
+                            <li data-value="kegg">Kegg...</li>
+                            <li data-value="intact">Intact...</li>
+                        </ul>
+                    </li>
                     <!--<li data-value="network-edit">Edit network...</li>-->
                     <li data-sub>Select
                         <ul>
@@ -125,13 +132,6 @@
                     Analysis
                 </div>
                 <ul id="pluginsMenu" on-click="{{handleClick}}">
-                    <li data-sub>Import network
-                        <ul>
-                            <li data-value="reactome">Reactome...</li>
-                            <li data-value="kegg">Kegg...</li>
-                            <li data-value="intact">Intact...</li>
-                        </ul>
-                    </li>
                     <li data-sub>Network analysis
                         <ul>
                             <li data-value="communities-structure-detection">Communities structure detection</li>
