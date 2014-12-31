@@ -21,12 +21,16 @@
             .title {
                 text-align: center;
                 font-size: 25px;
-                color: #666;
+                color: #445D76;
+                margin-bottom: 10px;
             }
 
-            .icon {
-                color: #445D76;
-                font-size: 50px;
+            .close {
+                color: #aaa;
+            }
+
+            .close:hover {
+                color: #ffad76;
             }
 
             label {
@@ -72,12 +76,17 @@
             span {
                 border: 1px solid;
             }
+
+            .botbar {
+                margin-top: 10px;
+            }
         </style>
-        <div class="title">
-            <div>
+        <div class="title" horizontal layout>
+            <div flex>
                 Single enrichment analysis - Fatigo
             </div>
-            <div class="icon">
+            <div class="close" on-click="{{handleCancel}}">
+                <font-awesome icon="times"></font-awesome>
                 <!--<font-awesome icon="magic"></font-awesome>-->
             </div>
         </div>
@@ -146,7 +155,9 @@
                         <label>Fisher exact test</label>
                         <select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
                             <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two tailed</option>
-                            <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">Over-represented terms in list 1 (genome comparison)</option>
+                            <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">Over-represented terms in list 1 (genome
+                                comparison)
+                            </option>
                             <option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented terms in list 2</option>
                         </select>
                         <label>Remove duplicates</label>
@@ -154,7 +165,8 @@
                             <option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">Never</option>
                             <option name="duplicates_2" id="duplicates_2" class="fc-combobox-item" value="each">Remove on each list separately</option>
                             <option name="duplicates_3" id="duplicates_3" class="fc-combobox-item" value="all">Remove on each list and common ids</option>
-                            <option name="duplicates_4" id="duplicates_4" class="fc-combobox-item" value="ref">Remove from list2 those appearing in list1 (complementary list)
+                            <option name="duplicates_4" id="duplicates_4" class="fc-combobox-item" value="ref">Remove from list2 those appearing in list1
+                                (complementary list)
                             </option>
                         </select>
                     </div>
@@ -201,7 +213,12 @@
                 </div>
             </div>
 
-            <div class="button action" on-click="{{handleForm}}">Run</div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="width: 150px;" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
         </form>
         <div class="message">{{message}}</div>
     </template>
@@ -312,6 +329,9 @@
                 }
 
             },
+            handleCancel: function () {
+                this.selectedOption = '';
+            },
             handleForm: function () {
                 this.launchJob();
             },
@@ -324,8 +344,8 @@
                     name: this.jobName,
                     description: "description",
                     outdir: this.$.outdir.selectedFile.id,
-                    list1: this.$.inputFile1.selectedFile.id,
-//                    list2: this.$.inputFile2.selectedFile.id,
+                    list1: this.$.inputFile.selectedFile.id,
+                    list2: this.$.inputFile2.selectedFile.id,
                     duplicates: this.$.duplicates.value,
                     "species": this.$.species.value,
                     fisher: this.$.fisher.value

@@ -21,12 +21,16 @@
             .title {
                 text-align: center;
                 font-size: 25px;
-                color: #666;
+                color: #445D76;
+                margin-bottom: 10px;
             }
 
-            .icon {
-                color: #445D76;
-                font-size: 50px;
+            .close {
+                color: #aaa;
+            }
+
+            .close:hover {
+                color: #ffad76;
             }
 
             label {
@@ -68,12 +72,17 @@
             jso-file-browser {
                 /*width: 70%;*/
             }
+
+            .botbar {
+                margin-top: 10px;
+            }
         </style>
-        <div class="title">
-            <div>
+        <div class="title" horizontal layout>
+            <div flex>
                 Network Miner
             </div>
-            <div class="icon">
+            <div class="close" on-click="{{handleCancel}}">
+                <font-awesome icon="times"></font-awesome>
                 <!--<font-awesome icon="magic"></font-awesome>-->
             </div>
         </div>
@@ -94,7 +103,7 @@
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                    <jso-project-browser-window id="rankedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
                 </div>
             </div>
@@ -177,7 +186,13 @@
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
-            <div class="button action" on-click="{{handleForm}}">Run</div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="width: 150px;" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
         </form>
         <div class="message">{{message}}</div>
     </template>
@@ -225,6 +240,9 @@
             },
             seedListChanged: function (oldV, newV) {
                 this.seedListUploadMsg = this.seedList.name
+            },
+            handleCancel: function () {
+                this.selectedOption = '';
             },
             handleForm: function () {
                 var me = this;

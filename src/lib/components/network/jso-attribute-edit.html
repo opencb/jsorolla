@@ -49,6 +49,7 @@
                 width: 200px;
                 border-right: 1px solid #d3d3d3;
                 box-sizing: border-box;
+                padding:5px;
             }
 
             #left [horizontal] > * {
@@ -68,24 +69,20 @@
                 margin-top: 3px;
             }
 
-            #attributelist {
+            .selbox {
                 box-sizing: border-box;
-                padding: 0 5px;
                 overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
             }
 
-            #attributelist > * {
-                margin-top: 3px;
-                /*padding: 2px 5px 5px 5px;*/
-                /*box-sizing: border-box;*/
-                /*margin-top: 2px;*/
+            .selitem {
+                padding: 2px 5px;
             }
 
-            /*[attributeselected] {*/
-            /*background-color: #445D76 !important;*/
-            /*color: #fff !important;*/
-            /*border-color: rgba(102, 175, 233, .5) !important;*/
-            /*}*/
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+            }
 
             #tablewrap {
                 position: relative;
@@ -116,6 +113,27 @@
                 /*background-color: #c5c5c5;*/
                 background-color: #A9A9A9;
             }
+
+            .checkbox {
+                width: 25px;
+                border: 1px solid gray;
+                margin: 1px;
+            }
+
+            .checkbox::after {
+                font-family: 'FontAwesome';
+                content: ' \00a0'
+            }
+
+            .checkbox[data-checked]::after {
+                content: '\f00c'
+            }
+
+            .check-name {
+                line-height: 25px;
+                margin-left: 5px;
+            }
+
         </style>
         <div class="panel panel-shadow" id="panel" vertical layout>
             <div class="header" id="header" horizontal layout>
@@ -127,45 +145,55 @@
             </div>
             <div class="container" flex horizontal layout>
                 <div id="left" vertical layout>
-                    <div id="edit" vertical layout style="margin-bottom: 5px;">
-                        <div class="button action" data-checked="{{showSelected}}" on-click="{{handleShowSelected}}">
-                            Show selection
-                        </div>
-                        <div horizontal layout>
-                            <div flex class="button action" on-click="{{handleSelectAll}}">Select all</div>
-                            <div flex class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
-                        </div>
-                        <div horizontal layout style="margin-bottom: 10px;">
-                            <input flex type="text" value="{{newColumnName}}" placeholder="Add new attribute">
+                    <div horizontal layout>
+                        <div flex class="button action" on-click="{{handleSelectAll}}">Select all</div>
+                        <div flex class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
+                    </div>
 
-                            <div class="button action newattr" on-click="{{handleAddApply}}"></div>
-                        </div>
-                        <div horizontal layout>
-                            <select flex id="selectEdit">
-                                <template repeat="{{column in attributeManager.columns}}">
-                                    <template if="{{column.name != 'id'}}">
-                                        <option value="{{column.name}}">{{column.title}}</option>
-                                    </template>
+                    <div horizontal layout style="margin-top: 5px;">
+                        <div class="button action checkbox" data-checked?="{{ showSelected }}"
+                             on-click="{{handleShowSelected}}"></div>
+                        <div class="check-name">Show only selected {{type}}s</div>
+                    </div>
+
+
+                    <label style="margin-top: 10px;">Edit selected</label>
+
+                    <div vertical layout>
+                        <select id="selectEdit">
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <template if="{{column.name != 'id'}}">
+                                    <option value="{{column.name}}">{{column.title}}</option>
                                 </template>
-                            </select>
-                            <input flex type="text" value="{{newValue}}" placeholder="Batch edit">
+                            </template>
+                        </select>
+
+                        <div horizontal layout style="margin-top: 3px;">
+                            <input flex type="text" value="{{newValue}}" placeholder="Attribute value">
 
                             <div class="button action newvalue" on-click="{{handleEditApply}}"></div>
                         </div>
                     </div>
-                    <div id="attributelist" flex>
-                        <template repeat="{{column in attributeManager.columns}}">
-                            <template if="{{column.name != 'id'}}">
-                                <div horizontal layout>
-                                    <div class="button action" flex
-                                         data-name="{{column.name}}">
-                                        {{column.title}}
-                                    </div>
-                                    <div class="button action remove" data-name="{{column.name}}"
-                                         on-click="{{handleRemoveApply}}"></div>
-                                </div>
+
+                    <label style="margin-top: 10px;">Add new attribute</label>
+
+                    <div horizontal layout>
+                        <input flex type="text" value="{{newColumnName}}" placeholder="Attribute name">
+
+                        <div class="button action newattr" on-click="{{handleAddApply}}"></div>
+                    </div>
+
+                    <label style="margin-top:10px;">Delete attribute</label>
+
+                    <div horizontal layout>
+                        <select id="selectDelete" flex>
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <template if="{{column.name != 'id'}}">
+                                    <option value="{{column.name}}">{{column.title}}</option>
+                                </template>
                             </template>
-                        </template>
+                        </select>
+                        <div class="button remove"  on-click="{{handleRemoveApply}}"></div>
                     </div>
                 </div>
                 <div flex vertical layout>
@@ -282,7 +310,8 @@
 //                    if (this.editSelected == e.currentTarget.dataset.name) {
 //                        this.editSelected = null;
 //                    }
-                    this.attributeManager.removeColumnByName(e.currentTarget.dataset.name);
+
+                    this.attributeManager.removeColumnByName(this.$.selectDelete.value);
                 }
             },
             handleAddApply: function (e) {

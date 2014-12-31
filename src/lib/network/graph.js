@@ -301,6 +301,31 @@ Graph.prototype = {
         }
         return sifText;
     },
+    getAsSIFNoRelation: function (separator) {
+        if (typeof separator === 'undefined') {
+            separator = '\t';
+        }
+        var sifText = "";
+        for (var i = 0; i < this.edges.length; i++) {
+            var edge = this.edges[i];
+            if (typeof edge !== 'undefined') {
+                var line = "";
+                line = edge.source.id + separator + "r" + separator + edge.target.id + "\n";
+                sifText += line;
+            }
+        }
+        for (var i = 0; i < this.vertices.length; i++) {
+            var vertex = this.vertices[i];
+            if (typeof vertex !== 'undefined') {
+                var line = "";
+                if (vertex.edges.length == 0) {
+                    line = vertex.id + separator + separator + "\n";
+                }
+                sifText += line;
+            }
+        }
+        return sifText;
+    },
     getAsDOT: function () {
         var dotText = "graph network {\n" + this.getAsSIF(' ') + "}";
         return dotText;

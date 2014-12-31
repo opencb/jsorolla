@@ -59,7 +59,7 @@
 <script src="../../bower_components/d3/d3.min.js"></script>
 
 <polymer-element name="jso-network-viewer"
-                 attributes="hideBar hideToolBar hideEditionBar">
+                 attributes="hideBar hideToolBar hideEditionBar userData selectedStudy studies  jsoHeader">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
@@ -91,13 +91,15 @@
                 width: 200px;
             }
 
-            jso-snow, jso-network-viewer, jso-fatigo{
-                position:absolute;
-                top:130px;
-                bottom:40px;
+            jso-snow, jso-network-miner, jso-fatigo {
+                min-width: 800px;
+                position: absolute;
+                top: 0px;
+                bottom: 40px;
                 overflow-y: scroll;
                 left: 0;
                 right: 0;
+                padding: 20px 40px;
             }
 
         </style>
@@ -346,32 +348,30 @@
         </template>
 
 
-        <template if="{{selectedOption == 'networkminer'}}">
+        <template if="{{selectedMenu == 'networkminer'}}">
             <jso-network-miner
-                    selectedOption="{{selectedOption}}"
+                    selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"
                     selectedStudy="{{selectedStudy}}"
                     studies="{{studies}}"
                     ></jso-network-miner>
         </template>
-
         <template if="{{selectedMenu == 'snow'}}">
             <jso-snow
-                    selectedOption="{{selectedOption}}"
+                    selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"
                     selectedStudy="{{selectedStudy}}"
                     studies="{{studies}}"
                     >
             </jso-snow>
         </template>
-        <template if="{{selectedOption == 'fatigo'}}">
+        <template if="{{selectedMenu == 'fatigo'}}">
             <jso-fatigo
-                    selectedOption="{{selectedOption}}"
+                    selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"
                     selectedStudy="{{selectedStudy}}"
                     studies="{{studies}}"
                     >
-
             </jso-fatigo>
         </template>
 
@@ -1020,13 +1020,22 @@
             },
 
             handleSnowMenu: function (e) {
-                this.selectedMenu = "snow";
+                if (this.jsoHeader) {
+                    this.jsoHeader.anonymousSign();
+                    this.selectedMenu = "snow";
+                }
             },
             handleNetworkMinerMenu: function (e) {
-                this.selectedMenu = "networkminer";
+                if (this.jsoHeader) {
+                    this.jsoHeader.anonymousSign();
+                    this.selectedMenu = "networkminer";
+                }
             },
             handleFatigoMenu: function (e) {
-                this.selectedMenu = "fatigo";
+                if (this.jsoHeader) {
+                    this.jsoHeader.anonymousSign();
+                    this.selectedMenu = "fatigo";
+                }
             },
 
 

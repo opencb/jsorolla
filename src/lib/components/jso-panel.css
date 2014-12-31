@@ -61,6 +61,7 @@
 }
 .footer{
     border-top: 1px solid #d4d4d4;
+    background-color: #EDEDED;
 }
 .header[data-collapsible=true][data-collapsed=true]:after {
     font-family: FontAwesome;

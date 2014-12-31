@@ -1,7 +1,6 @@
 <polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
-
         <style>
             :host {
                 display: block;
@@ -22,12 +21,15 @@
             .title {
                 text-align: center;
                 font-size: 25px;
-                color: #666;
+                color: #445D76;
+                margin-bottom: 10px;
             }
 
-            .icon {
-                color: #445D76;
-                font-size: 50px;
+            .close {
+                color: #aaa;
+            }
+            .close:hover {
+                color: #ffad76;
             }
 
             label {
@@ -66,17 +68,21 @@
                 height: 50px;
             }
 
+            .botbar {
+                margin-top: 10px;
+            }
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
 
 
         </style>
-        <div class="title">
-            <div>
+        <div class="title" horizontal layout>
+            <div flex>
                 Network enrichment analysis - Snow
             </div>
-            <div class="icon">
+            <div class="close" on-click="{{handleCancel}}">
+                <font-awesome icon="times"></font-awesome>
                 <!--<font-awesome icon="magic"></font-awesome>-->
             </div>
         </div>
@@ -174,7 +180,12 @@
                 </div>
             </div>
 
-            <div class="button action" on-click="{{handleForm}}">Run</div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="width: 150px;" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
         </form>
         <div class="message">{{message}}</div>
     </template>
@@ -214,6 +225,9 @@
                 /**Enabled forms **/
                 this.list1ClickEnabled = false;
 
+            },
+            handleCancel: function () {
+                this.selectedOption = '';
             },
             handleForm: function () {
                 var me = this;

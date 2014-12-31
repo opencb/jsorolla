@@ -19,24 +19,6 @@
                 /*background-color: #FFFFFF;*/
             }
 
-            #header[horizontal] > * {
-                margin-right: 3px;
-            }
-
-            #header[horizontal] > *:last-child {
-                margin-right: 0px;
-            }
-
-            .attributelist {
-                box-sizing: border-box;
-                padding: 0 5px 5px 5px;
-                overflow-y: auto;
-            }
-
-            .attributelist > * {
-                margin-top: 3px;
-            }
-
             .checkbox {
                 width: 25px;
             }
@@ -50,14 +32,22 @@
                 content: '\f00c'
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin: 5px;
+            .selbox {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
             }
 
-            label::after {
-                content: ':'
+            .selitem {
+                padding: 2px 5px;
+            }
+
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+                /*background-color: #435f7a;*/
+                /*background-color: #f07746;*/
+                /*color: #fff;*/
             }
 
             textarea {
@@ -69,34 +59,31 @@
             <div class="header" id="header" horizontal layout>
                 <div class="text">Import IntAct</div>
                 <div class="headeractions" horizontal end-justified layout flex>
-                    <div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
+                    <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
             <div class="container" flex horizontal layout>
 
-                <div vertical layout style="border-right: 1px solid #d3d3d3;width:230px;">
-                    <label>Species</label>
+                <div vertical layout style="width:230px;padding:5px;">
+                    <label style="margin-top: 5px;">Species</label>
 
-                    <div class="attributelist" flex style="border-bottom: 1px solid #d3d3d3">
+                    <div class="selbox" flex>
                         <template repeat="{{spe in species}}">
-                            <div horizontal layout>
-                                <div class="button action checkbox"
-                                     data-checked?="{{ speciesSelected == spe }}"
-                                     on-click="{{handleSpeciesSelect}}"></div>
-                                <div flex class="text">{{spe.name}}</div>
+                            <div class="selitem"
+                                 data-checked="{{ speciesSelected == spe }}"
+                                 on-click="{{handleSpeciesSelect}}">{{spe.name}}
                             </div>
                         </template>
                     </div>
-                    <label>Attributes</label>
 
-                    <div class="attributelist" flex>
+                    <label style="margin-top: 10px;">Attributes</label>
+
+                    <div class="selbox" flex>
                         <template repeat="{{column in networkViewer.vAttr.columns}}">
-                            <div horizontal layout>
-                                <div class="button action checkbox"
-                                     data-checked?="{{ editSelected == column.name }}"
-                                     on-click="{{handleEditSelect}}"></div>
-                                <div flex class="text">{{column.title}}</div>
+                            <div class="selitem"
+                                 data-checked="{{ columnSelected == column.name }}"
+                                 on-click="{{handleEditSelect}}">{{column.title}}
                             </div>
                         </template>
                     </div>
@@ -125,8 +112,15 @@
                 </div>
 
             </div>
+
             <div class="footer" horizontal layout>
-                <div horizontal end-justified layout flex>
+                <div class="text" horizontal layout flex>
+                    <template if="{{loading}}">
+                        <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                    </template>
+                    <div>{{message}}</div>
+                </div>
+                <div horizontal end-justified layout>
                     <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
                 </div>
             </div>
@@ -168,7 +162,7 @@
                 ];
 
                 this.speciesSelected = this.species[0];
-                this.editSelected = "id";
+                this.columnSelected = "id";
 
                 this.selectedMode = 'text';
             },
@@ -180,22 +174,22 @@
             handleClose: function () {
                 this.hideFlag = true;
             },
-            handleExpand: function () {
-                this.expanded = !this.expanded;
-                if (this.expanded) {
-                    this.style.width = '100vw';
-                    this.style.height = '100vh';
-                    this.style.position = 'fixed';
-                    this.style.top = '0';
-                } else {
-                    this.style.width = '';
-                    this.style.height = '';
-                    this.style.position = '';
-                    this.style.top = '';
-                }
-            },
+//            handleExpand: function () {
+//                this.expanded = !this.expanded;
+//                if (this.expanded) {
+//                    this.style.width = '100vw';
+//                    this.style.height = '100vh';
+//                    this.style.position = 'fixed';
+//                    this.style.top = '0';
+//                } else {
+//                    this.style.width = '';
+//                    this.style.height = '';
+//                    this.style.position = '';
+//                    this.style.top = '';
+//                }
+//            },
             handleEditSelect: function (e) {
-                this.editSelected = e.target.templateInstance.model.column.name;
+                this.columnSelected = e.target.templateInstance.model.column.name;
             },
             handleSpeciesSelect: function (e) {
                 this.speciesSelected = e.target.templateInstance.model.spe;
@@ -209,7 +203,7 @@
                 var value = '';
                 for (var i = 0; i < this.networkViewer.vAttr.data.length; i++) {
                     var row = this.networkViewer.vAttr.data[i];
-                    value += row[this.editSelected] + '\n';
+                    value += row[this.columnSelected] + '\n';
                 }
                 this.$.textarea.value = value;
             },
@@ -223,7 +217,7 @@
                 var value = '';
                 for (var i = 0; i < this.networkViewer.vAttr.selected.length; i++) {
                     var row = this.networkViewer.vAttr.selected[i];
-                    value += row[this.editSelected] + '\n';
+                    value += row[this.columnSelected] + '\n';
                 }
                 this.$.textarea.value = value;
             },
@@ -257,44 +251,49 @@
             retrieveData: function () {
                 var me = this;
 
-                var queryStr = this.$.textarea.value.split('\n').join(',');
-                if (queryStr.length <= 0) {
-                    return;
-                }
+                if (this.columnSelected != null && this.speciesSelected != null) {
+
+                    var queryStr = this.$.textarea.value.split('\n').join(',');
+                    if (queryStr.length <= 0) {
+                        return;
+                    }
 
 
-                var graph = this.networkViewer;
+                    var graph = this.networkViewer;
 //                _this.progress.updateProgress(0.1, 'Requesting data');
-                CellBaseManager.get({
-                    species: this.speciesSelected.value,
-                    category: 'network',
-                    subCategory: 'protein',
-                    resource: 'all',
-                    params: {
-                        interactor: queryStr,
-                        include: "interactorA.id,interactorB.id"
-                    },
-                    success: function (data) {
+
+                    this.loading = true;
+                    this.message = "Retrieving data...";
+                    CellBaseManager.get({
+                        species: this.speciesSelected.value,
+                        category: 'network',
+                        subCategory: 'protein',
+                        resource: 'all',
+                        params: {
+                            interactor: queryStr,
+                            include: "interactorA.id,interactorB.id"
+                        },
+                        success: function (data) {
 //            var verticesMap = {};
 //            var edgesMap = {};
-                        console.log(data)
-                        var interactions = data.response.result;
+                            console.log(data)
+                            var interactions = data.response.result;
 //                        _this.progress.updateProgress(0.4, 'Processing data');
 
 
 //                        var graph = _this.cellMaps.networkViewer.network.graph;
 //                        var network = this.cellMaps.networkViewer.network;
 //                        network.batchStart();
-                        for (var j = 0; j < interactions.length; j++) {
-                            var interaction = interactions[j];
-                            var sourceName = interaction.interactorA.id;
-                            var edgeRelation = 'pp';
-                            var targetName = interaction.interactorB.id;
+                            for (var j = 0; j < interactions.length; j++) {
+                                var interaction = interactions[j];
+                                var sourceName = interaction.interactorA.id;
+                                var edgeRelation = 'pp';
+                                var targetName = interaction.interactorB.id;
 
 
-                            var sourceVertex = me.networkViewer.createVertex(0, 0, sourceName);
-                            var targetVertex = me.networkViewer.createVertex(0, 0, targetName);
-                            me.networkViewer.createEdge(sourceVertex, targetVertex, edgeRelation);
+                                var sourceVertex = me.networkViewer.createVertex(0, 0, sourceName);
+                                var targetVertex = me.networkViewer.createVertex(0, 0, targetName);
+                                me.networkViewer.createEdge(sourceVertex, targetVertex, edgeRelation);
 
 //                            //TODO
 //                            /** create source vertex **/
@@ -320,14 +319,20 @@
 //                                directed: true
 //                            });
 //                            network.addEdge({edge: edge});
-                        }
+                            }
 //                        _this.cellMaps.networkViewer.refreshNetwork();
 //                        network.batchEnd();
 //                        _this.progress.updateProgress(1, 'Complete!');
-                        me.networkViewer.setLayout('Force directed');
-                    }
-                });
+                            me.networkViewer.setLayout('Force directed');
+                            me.loading = false;
+                            me.message = "Information has been saved as nodes and edges";
+                        }
+                    });
+                } else {
+                    this.message = "Please select one species and one attribute";
+                }
             }
+
         });
     </script>
 </polymer-element>

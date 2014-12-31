@@ -7,7 +7,6 @@
                 display: block;
                 position: relative;
                 box-sizing: border-box;
-                background-color: #FFFFFF;
 
                 width: 500px;
                 height: 350px;
@@ -16,15 +15,6 @@
             #panel {
                 width: 100%;
                 height: 100%;
-                background-color: #FFFFFF;
-            }
-
-            #header[horizontal] > * {
-                margin-right: 3px;
-            }
-
-            #header[horizontal] > *:last-child {
-                margin-right: 0px;
             }
 
             .attributelist {
@@ -54,19 +44,6 @@
                 content: '\f00c'
             }
 
-            .parameter {
-                margin-left: 50px;
-            }
-
-            label {
-                display: inline-block;
-                color: #666;
-                margin: 5px;
-            }
-
-            label::after {
-                content: ':'
-            }
 
             textarea {
                 resize: none;
@@ -95,8 +72,14 @@
 
             </div>
             <div class="footer" horizontal layout>
-                <div horizontal end-justified layout flex>
-                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
+                <div class="text" horizontal layout flex>
+                    <template if="{{loading}}">
+                        <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                    </template>
+                    <div>{{message}}</div>
+                </div>
+                <div horizontal end-justified layout>
+                    <!--<div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>-->
                 </div>
             </div>
             <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
@@ -134,7 +117,8 @@
             },
             getPathwayList: function () {
 //                http://rest.kegg.jp/list/organism
-
+                this.loading = true;
+                this.message = "Querying KEGG WS Server...";
 
                 var me = this;
                 OpencgaManager.util.proxy({
@@ -154,6 +138,8 @@
                                     me.pathwayList.push({name: split1[1], text: split2[0], selected: false});
                                 }
                             }
+                            me.message = "Human pathways ready.";
+                            me.loading = false;
                         },
                         error: function (response) {
 
@@ -165,6 +151,8 @@
 //                http://rest.kegg.jp/get/hsa03320/kgml
                 var me = this;
                 console.log(pathway)
+                this.loading = true;
+                this.message = "Querying KEGG WS Server...";
                 OpencgaManager.util.proxy({
                     query: {
                         url: 'http://rest.kegg.jp/get/' + pathway.name + '/kgml'
@@ -273,6 +261,9 @@
                             me.networkViewer.handleVertexDefaultYAttribute();
 
 //                            me.networkViewer.setLayout("Force directed");
+
+                            me.message = "Pathway loaded.";
+                            me.loading = false;
                         },
                         error: function (response) {
 
