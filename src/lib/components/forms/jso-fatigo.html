@@ -80,6 +80,12 @@
             .botbar {
                 margin-top: 10px;
             }
+
+            .db_options {
+                margin: 5px;
+                border: 1px solid;
+                padding: 5px
+            }
         </style>
         <div class="title" horizontal layout>
             <div flex>
@@ -129,16 +135,19 @@
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select your data(List 2)</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
-                </div>
-            </div>
+            <!--<div class="formbox">-->
+            <!--<div class="formtitle">Select your data(List 2)</div>-->
+            <!--<div class="formcontent">-->
+            <!---->
+            <!--</div>-->
+            <!--</div>-->
             <div class="formbox">
                 <div class="formtitle">List 2</div>
                 <div class="formcontent">
+                    <div id="option1">
+                        <jso-project-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                    </div>
                     <div id="option2" hidden>
                         <span>Rest of the genome</span>
                     </div>
@@ -179,27 +188,103 @@
                         <select name="species" id="species" class="fc-combobox" type="text" value="none">
                             <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
                             <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">Human (homo sapiens)</option>
-                            <!--<option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>-->
-                            <!--<option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>-->
-                            <!--<option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>-->
+                            <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
+                            <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
+                            <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
                             <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
-                            <!--<option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>-->
-                            <!--<option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>-->
-                            <!--<option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>-->
-                            <!--<option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>-->
+                            <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>
+                            <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                            <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
+                            <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
                         </select>
 
-                        <input name="go_bp" id="go_bp" type="checkbox" value="gobp"> GO biological process <br>
-                        <!--<input name="go_mf" id="go_mf" type="checkbox" value="gomf" disabled>GO molecular function <br>-->
-                        <!--<input name="go_cc" id="go_cc" type="checkbox" value="gocc" disabled>GO cellular component <br>-->
-                        <!--<input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>-->
-                        <!--<input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>-->
+                        <input name="go_bp" id="go_bp" type="checkbox" value="gobp"> GO biological process
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{bpOptionsFunction}}">options</div>
+                        <div id="bpOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_bp_keyword_list" id="go_bp_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_bp_keyword_operator_1" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_bp_keyword_operator_2" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="go_mf" id="go_mf" type="checkbox" value="gomf">GO molecular function <br>
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{mfOptionsFunction}}">options</div>
+                        <div id="mfOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_mf_keyword_list" id="go_mf_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_mf_keyword_operator_1" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_mf_keyword_operator_2" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="go_cc" id="go_cc" type="checkbox" value="gocc">GO cellular component <br>
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{ccOptionsFunction}}">options</div>
+                        <div id="ccOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_cc_keyword_list" id="go_cc_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_cc_keyword_operator_1" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_cc_keyword_operator_2" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{slimOptionsFunction}}">options</div>
+                        <div id="slimOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="go_slim_min_num_genes" id="go_slim_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="go_slim_max_num_genes" id="go_slim_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_slim_keyword_list" id="go_slim_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_slim_keyword_operator_1" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_slim_keyword_operator_2" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{interproOptionsFunction}}">options</div>
+                        <div id="interproOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="interpro_min_num_genes" id="interpro_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="interpro_max_num_genes" id="interpro_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_interpro_keyword_list" id="go_interpro_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_interpro_keyword_operator_1" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_interpro_keyword_operator_2" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="recon" id="recon" type="checkbox" value="recon" disabled>Recon <br>
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{reconOptionsFunction}}">options</div>
+                        <div id="reconOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="recon_min_num_genes" id="recon_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="recon_max_num_genes" id="recon_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="recon_keyword_list" id="recon_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="recon_keyword_operator_1" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="recon_keyword_operator_2" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
                         <!--<input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>-->
                         <!--<input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>-->
                         <!--<input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>-->
                         <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
                         <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
                         <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
+                        Your annotations
+                        <jso-project-browser-window id="annotationsFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
 
                     </div>
                 </div>
@@ -227,81 +312,7 @@
             created: function () {
                 this.jobName = 'JobName';
                 this.toolName = "fatigo";
-                this.description= "Description";
-
-                /** Tool input parameters **/
-                this.annotations = "";	//    --annotations <arg>              Your own annotations
-                this.biocarta = false;	//    --biocarta                       biocarta
-                this.biocarta_max_num_genes = 1000;	//    --biocarta-max-num-genes <arg>   biocarta max number of genes filter
-                this.biocarta_min_num_genes = 5;//    --biocarta-min-num-genes <arg>   biocarta min number of genes filter
-                this.biocarta_nannot_domain = false;//    --biocarta-nannot-domain         biocarta computes the number of annotated genes from all genome, otherwise from you input list
-                this.chromosomes = "";	//    --chromosomes <arg>              the chromosome region to compare with list #1. Use chromosome-start and chromosome-end options tp delimite the region within the chromosome
-                this.duplicates = "never";	//    --duplicates <arg>               to remove duplicated IDs, valid values: never, each, ref. By default, never
-                this.fisher = "two-tailed";	//    --fisher <arg>                   the Fisher test mode, valid values: less, greater, two-tailed. By default, two-tailed
-                this.genome = false;	//    --genome                         compares list #1 with the rest of genome
-                this.go_bp = false;	//    --go-bp                          GO biological process database
-                this.go_bp_keyword_filter = false;	//    --go-bp-keyword-filter           GO biological process, enables keywords filter
-                this.go_bp_keyword_list = false;	//    --go-bp-keyword-list <arg>       GO biological process, keywords filter
-                this.go_bp_keyword_operator = false;	//    --go-bp-keyword-operator <arg>   GO biological process, keywords filter logic: all or any
-                this.go_bp_max_level = 15;	//    --go-bp-max-level <arg>          GO biological process, max GO level to take into account, default 15
-                this.go_bp_max_num_genes = 1000;	//    --go-bp-max-num-genes <arg>      GO biological process, max number of genes filter
-                this.go_bp_min_level = 3;	//    --go-bp-min-level <arg>          GO biological process, min go level to take into account, default 3
-                this.go_bp_min_num_genes = 5;	//    --go-bp-min-num-genes <arg>      GO biological process, min number of genes filter
-                this.go_bp_nannot_domain = false;	//    --go-bp-nannot-domain <arg>      GO biological process, computes the number of annotated genes from all genome, otherwise from your input list
-                this.go_bp_propagation = false;	//    --go-bp-propagation <arg>        GO biological process, direct vs propagated annotation
-                this.go_cc = false;	//    --go-cc                          GO cellular component database
-                this.go_cc_keyword_filter = false;	//    --go-cc-keyword-filter           GO cellular component, enables keywords filter
-                this.go_cc_keyword_list = false;	//    --go-cc-keyword-list <arg>       GO cellular component, keywords filter
-                this.go_cc_keyword_operator = false;	//    --go-cc-keyword-operator <arg>   GO cellular component, keywords filter logic: all or any
-                this.go_cc_max_level = false;	//    --go-cc-max-level <arg>          GO cellular component, max GO level to take into account, default 15
-                this.go_cc_max_num_genes = false;	//    --go-cc-max-num-genes <arg>      GO cellular component, max number of genes filter
-                this.go_cc_min_level = false;	//    --go-cc-min-level <arg>          GO cellular component, min go level to take into account, default 3
-                this.go_cc_min_num_genes = false;	//    --go-cc-min-num-genes <arg>      GO cellular component, min number of genes filter
-                this.go_cc_nannot_domain = false;	//    --go-cc-nannot-domain <arg>      GO cellular component, computes the number of annotated genes from all genome, otherwise from your input list
-                this.go_cc_propagation = false;	//    --go-cc-propagation <arg>        GO cellular component, direct vs propagated annotation
-                this.go_dag = false;	//    --go-dag <arg>                   Compute DAG for significant GO terms
-                this.go_mf = false;	//    --go-mf                          GO molecular function database
-                this.go_mf_keyword_filter = false;	//    --go-mf-keyword-filter           GO molecular function, enables keywords filter
-                this.go_mf_keyword_list = false;	//    --go-mf-keyword-list <arg>       GO molecular function, keywords filter
-                this.go_mf_keyword_operator = false;	//    --go-mf-keyword-operator <arg>   GO molecular function, keywords filter logic: all or any
-                this.go_mf_max_level = false;	//    --go-mf-max-level <arg>          GO molecular function, max GO level to take into account, default 15
-                this.go_mf_max_num_genes = false;	//    --go-mf-max-num-genes <arg>      GO molecular function, max number of genes filter
-                this.go_mf_min_level = false;	//    --go-mf-min-level <arg>          GO molecular function, min go level to take into account, default 3
-                this.go_mf_min_num_genes = false;	//    --go-mf-min-num-genes <arg>      GO molecular function, min number of genes filter
-                this.go_mf_nannot_domain = false;	//    --go-mf-nannot-domain <arg>      GO molecular function, computes the number of annotated genes from all genome, otherwise from your input list
-                this.go_mf_propagation = false;	//    --go-mf-propagation <arg>        GO molecular function, direct vs propagated annotation
-                this.go_slim = false;	//    --go-slim                        go-slim
-                this.go_slim_max_num_genes = false;	//    --go-slim-max-num-genes <arg>    go-slim max number of genes filter
-                this.go_slim_min_num_genes = false;	//    --go-slim-min-num-genes <arg>    go-slim min number of genes filter
-                this.go_slim_nannot_domain = false;	//    --go-slim-nannot-domain          go-slim computes the number of annotated genes from all genome, otherwise from you input list
-                this.interpro = false;	//    --interpro                       interpro
-                this.interpro_max_num_genes = false;	//    --interpro-max-num-genes <arg>   interpro max number of genes filter
-                this.interpro_min_num_genes = false;	//    --interpro-min-num-genes <arg>   interpro min number of genes filter
-                this.interpro_nannot_domain = false;	//    --interpro-nannot-domain         interpro computes the number of annotated genes from all genome, otherwise from you input list
-                this.jaspar = false;	//    --jaspar                         jaspar
-                this.jaspar_max_num_genes = false;	//    --jaspar-max-num-genes <arg>     jaspar max number of genes filter
-                this.jaspar_min_num_genes = false;	//    --jaspar-min-num-genes <arg>     jaspar min number of genes filter
-                this.jaspar_nannot_domain = false;	//    --jaspar-nannot-domain           jaspar computes the number of annotated genes from all genome, otherwise from you input list
-                this.kegg = false;	//    --kegg                           kegg
-                this.kegg_max_num_genes = false;	//    --kegg-max-num-genes <arg>       kegg max number of genes filter
-                this.kegg_min_num_genes = false;	//    --kegg-min-num-genes <arg>       kegg min number of genes filter
-                this.kegg_nannot_domain = false;	//    --kegg-nannot-domain             kegg computes the number of annotated genes from all genome, otherwise from you input list
-                this.list1 = false;	//    --list1 <arg>                    the feature data containig the list #1 of genes, or the feature data file
-                this.list2 = false;	//    --list2 <arg>                    the file containig the list #2 of genes, or the feature data file
-                this.mirna = false;	//    --mirna                          mirna
-                this.mirna_max_num_genes = false;	//    --mirna-max-num-genes <arg>      mirna max number of genes filter
-                this.mirna_min_num_genes = false;	//    --mirna-min-num-genes <arg>      mirna min number of genes filter
-                this.mirna_nannot_domain = false;	//    --mirna-nannot-domain            mirna computes the number of annotated genes from all genome, otherwise from you input list
-                this.outdir = false;	// -o,--outdir                         outdir to save the results
-                this.oreganno = false;	//    --oreganno                       oreganno
-                this.oreganno_max_num_genes = false;	//    --oreganno-max-num-genes <arg>   oreganno max number of genes filter
-                this.oreganno_min_num_genes = false;	//    --oreganno-min-num-genes <arg>   oreganno min number of genes filter
-                this.oreganno_nannot_domain = false;	//    --oreganno-nannot-domain         oreganno computes the number of annotated genes from all genome, otherwise from you input list
-                this.reactome = false;	//    --reactome                       reactome
-                this.reactome_max_num_genes = false;	//    --reactome-max-num-genes <arg>   reactome max number of genes filter
-                this.reactome_min_num_genes = false;	//    --reactome-min-num-genes <arg>   reactome min number of genes filter
-                this.reactome_nannot_domain = false;	//    --reactome-nannot-domain         reactome computes the number of annotated genes from all genome, otherwise from you input list
-                this.species = false;	//    --species <arg>                  The specie of the ids
+                this.description = "Description";
 
 
             },
@@ -311,19 +322,19 @@
                 this.rest = false;
                 this.genome = false;
                 if (this.comparison == "list2list") {
-                    this.$.inputFile2.hidden = false;
+                    this.$.option1.hidden = false;
                     this.$.option2.hidden = true;
                     this.$.option3.hidden = true;
                 }
                 if (this.comparison == "list2genome") {
                     this.genome = true;
-                    this.$.inputFile2.hidden = true;
+                    this.$.option1.hidden = true;
                     this.$.option2.hidden = false;
                     this.$.option3.hidden = true;
                 }
                 if (this.comparison == "list2rest") {
                     this.genome = true;
-                    this.$.inputFile2.hidden = true;
+                    this.$.option1.hidden = true;
                     this.$.option2.hidden = true;
                     this.$.option3.hidden = false;
                 }
@@ -345,7 +356,6 @@
                     description: "description",
                     outdir: this.$.outdir.selectedFile.id,
                     list1: this.$.inputFile1.selectedFile.id,
-                    list2: this.$.inputFile2.selectedFile.id,
                     duplicates: this.$.duplicates.value,
                     "species": this.$.species.value,
                     fisher: this.$.fisher.value
@@ -358,12 +368,41 @@
                     query["genome"] = "";
                 }
                 else if (this.comparison == "list2rest") {
-
+                    if (this.$.annotationsFile.selectedFile.type != "FILE") {
+                        alert("no annotation file selected")
+                        return;
+                    }
+                    query["annotations"] = this.$.annotationsFile.selectedFile.id;
                 }
                 if (this.$.go_bp.checked) {
                     query["go-bp"] = "";
-                    query["go-bp-min-num-genes"] = this.go_bp_min_num_genes;
-                    query["go-bp-max-num-genes"] = this.go_bp_max_num_genes;
+                    query["go-bp-min-num-genes"] = this.$.go_bp_min_num_genes;
+                    query["go-bp-max-num-genes"] = this.$.go_bp_max_num_genes;
+                }
+                if (this.$.go_cc.checked) {
+                    query["go-cc"] = "";
+                    query["go-cc-min-num-genes"] = this.$.go_cc_min_num_genes;
+                    query["go-cc-max-num-genes"] = this.$.go_cc_max_num_genes;
+                }
+                if (this.$.go_mf.checked) {
+                    query["go-mf"] = "";
+                    query["go-mf-min-num-genes"] = this.$.go_mf_min_num_genes;
+                    query["go-mf-max-num-genes"] = this.$.go_mf_max_num_genes;
+                }
+                if (this.$.go_slim.checked) {
+                    query["go-slim"] = "";
+                    query["go-slim-min-num-genes"] = this.$.go_slim_min_num_genes;
+                    query["go-slim-max-num-genes"] = this.$.go_slim_max_num_genes;
+                }
+                if (this.$.interpro.checked) {
+                    query["interpro"] = "";
+                    query["interpro-min-num-genes"] = this.$.interpro_min_num_genes;
+                    query["interpro-max-num-genes"] = this.$.interpro_max_num_genes;
+                }
+                if (this.$.recon.checked) {
+                    query["recon"] = "";
+                    query["recon-min-num-genes"] = this.$.recon_min_num_genes;
+                    query["recon-max-num-genes"] = this.$.recon_max_num_genes;
                 }
                 OpencgaManager.jobs.create({
                     query: query,
@@ -497,6 +536,15 @@
                     this.$.jaspar.disabled = true;
                 }
 
+            },
+            bpOptionsFunction: function(){
+                this.$.bpOptions.hidden = !this.$.bpOptions.hidden;
+            },
+            ccOptionsFunction: function(){
+                this.$.ccOptions.hidden = !this.$.ccOptions.hidden;
+            },
+            mfOptionsFunction: function(){
+                this.$.mfOptions.hidden = !this.$.mfOptions.hidden;
             }
         });
     </script>

@@ -252,28 +252,32 @@
             launchJob: function (selectedFolderId) {
                 var me = this;
 
-                OpencgaManager.jobs.create({
-                    query: {
-                        sid: Cookies("bioinfo_sid"),
-                        studyId: this.selectedStudy.id,
-                        toolId: this.toolName,
-                        name: this.jobName,
-                        description: "description",
-                        list: this.$.rankedList.selectedFile.id,
-                        seedlist: this.$.seedList.selectedFile.id,
-                        outdir: this.$.outdir.selectedFile.id,
-                        "o-name": "result",
-                        interactome: this.$.interactome.value,
-                        intermediate: this.$.intermediate.value,
-                        group: this.$.group.value,
-                        components: true,
-                        randoms: 1000,
-                        order: this.$.order.value,
-                        "significant-value": 0.05,
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    name: this.jobName,
+                    description: "description",
+                    list: this.$.rankedList.selectedFile.id,
+                    outdir: this.$.outdir.selectedFile.id,
+                    "o-name": "result",
+                    interactome: this.$.interactome.value,
+                    intermediate: this.$.intermediate.value,
+                    group: this.$.group.value,
+                    components: true,
+                    randoms: 1000,
+                    order: this.$.order.value,
+                    "significant-value": 0.05,
 //                        components: false,
-                        "list-tags": this.$.listTags.value
-                        //ranked-list:
-                    },
+                    "list-tags": this.$.listTags.value
+                    //ranked-list:
+                };
+                if (this.$.seedList.selectedFile.type == "FILE") {
+                    query["seedlist"] = this.$.seedList.selectedFile.id;
+                }
+                OpencgaManager.jobs.create({
+                    query: query,
+
                     request: {
                         //method: 'POST',
                         success: function (response) {

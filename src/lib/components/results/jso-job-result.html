@@ -177,6 +177,7 @@
                 }
                 if (fileId == null) {
                     debugger
+                    return;
                 }
                 OpencgaManager.files.content({
                     id: fileId,
@@ -338,7 +339,7 @@
                             res.classList.add("networkminer");
 
                             this.getFileContent(function (content) {
-                                me.parseHighCharts(content, res.getAttribute("id"));
+                                me.parseHighCharts(content, res);
 
                             }, element.value);
                         } else {
@@ -847,19 +848,19 @@
                 });
 
             },
-            parseHighCharts: function (content, divId) {
+            parseHighCharts: function (content, div) {
                 var json = JSON.parse(content);
                 var chartWidth = 600;
 
                 /** Create HTML elements **/
                 var elSizeAvg = document.createElement("div");
-                elSizeAvg.id = divId + "_avg";
-                this.$.output.querySelector("#" + divId).appendChild(elSizeAvg);
-
+                elSizeAvg.id = div.id + "_avg";
+//                this.$.output.querySelector("#" + divId).appendChild(elSizeAvg);
+                div.appendChild(elSizeAvg);
                 var elSizeScore = document.createElement("div");
-                elSizeScore.id = divId + "_score";
-                this.$.output.querySelector("#" + divId).appendChild(elSizeScore);
-
+                elSizeScore.id = div.id + "_score";
+//                this.$.output.querySelector("#" + divId).appendChild(elSizeScore);
+                div.appendChild(elSizeScore);
                 /** Create data for charts **/
                 var sizeAvgList = new Array();
                 var sizeAvgListSig = new Array();
@@ -892,7 +893,8 @@
                 }
                 new Highcharts.Chart({
                     chart: {
-                        renderTo: this.$.output.querySelector("#" + elSizeAvg.id),
+//                        renderTo: this.$.output.querySelector("#" + elSizeAvg.id),
+                        renderTo: elSizeAvg,
                         type: 'scatter',
                         zoomType: 'xy',
                         width: chartWidth
@@ -954,7 +956,7 @@
                 });
                 new Highcharts.Chart({
                     chart: {
-                        renderTo: this.$.output.querySelector("#" + elSizeScore.id),
+                        renderTo: elSizeScore,
                         type: 'scatter',
                         zoomType: 'xy',
                         width: chartWidth
