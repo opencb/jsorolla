@@ -87,14 +87,14 @@
                 <div class="formtitle">Output folder</div>
                 <div class="formcontent">
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder"></jso-project-browser-window>
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="VARIANT"></jso-project-browser-window>
                 </div>
             </div>
 

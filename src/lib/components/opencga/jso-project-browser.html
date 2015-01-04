@@ -8,7 +8,7 @@
 <link rel="import" href="jso-opencga-select-study.html">
 <link rel="import" href="jso-opencga-upload.html">
 
-<polymer-element name="jso-project-browser" attributes="userData selectedProject selectedStudy studies selectionMode">
+<polymer-element name="jso-project-browser" attributes="userData selectedProject selectedStudy studies selectionMode bioformat">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -209,7 +209,8 @@
                             files="{{files}}"
                             folder="{{firstFolder}}"
                             study="{{selectedStudy}}"
-                            on-file-click="{{getFilesInFolder}}"></jso-project-browser-folder-list>
+                            on-file-click="{{getFilesInFolder}}"
+                            bioformat="{{bioformat}}"></jso-project-browser-folder-list>
                 </template>
             </div>
             <!--<template if="{{ selectedOption == 'createProject' }}">-->
@@ -252,6 +253,9 @@
             <div id="bottombar" horizontal layout>
                 <template if="{{selectionMode != ''}}">
                     <div flex horizontal layout end-justified>
+                        <template if="{{bioformat != ''}}">
+                            <div>Accepted bioformats:{{bioformat}}</div>
+                        </template>
                         <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
                         <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK</div>
                     </div>
@@ -273,6 +277,8 @@
 
                 this.selectedFile;
                 this.selectionMode = '';
+                this.files = new Array();
+                this.bioformat = "";
             },
             ready: function () {
             },
@@ -388,7 +394,9 @@
                             success: function (response) {
                                 console.log(response);
                                 if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                    me.files = response.response[0].result
+                                me.files = me.getFilesWithBioformat(response.response[0].result);
+
+
                                 } else {
                                     console.log(response.response[0].errorMsg);
                                 }
@@ -399,6 +407,24 @@
                         }
                     });
                 }
+            },
+            getFilesWithBioformat: function(files){
+            var filesToDisplay = new Array();
+                                    for(var i=0; i < files.length; i++){
+                                        var file = files[i];
+                                        var bioformats = this.bioformat.split(",");
+                                        if(file.type=="FOLDER")
+                                            filesToDisplay.push(file);
+                                        else if(this.bioformat=="")
+                                           filesToDisplay.push(file);
+                                        else{
+                                            for(var j=0; j<bioformats.length; j++){
+                                                if(file.bioformat==bioformats[j])
+                                                    filesToDisplay.push(file);
+                                            }
+                                        }
+                                    }
+                                    return filesToDisplay;
             },
             _cleanSiblingFolderLists: function (element) {
                 this.breadcrums = [this.selectedStudy.name];
@@ -445,12 +471,13 @@
                             success: function (response) {
                                 console.log(response);
                                 if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                    var files = response.response[0].result
+                                    var files = me.getFilesWithBioformat(response.response[0].result);
                                     var folderList = document.createElement('jso-project-browser-folder-list');
                                     folderList.classList.add('folderList');
                                     folderList.files = files;
                                     folderList.folder = file;
                                     folderList.study = me.selectedStudy;
+                                    folderList.bioformat = me.bioformat;
                                     folderList.addEventListener('file-click', function (e) {
                                         me.getFilesInFolder(e);
                                     });
@@ -471,13 +498,13 @@
                 this.hidden = true;
             },
             handleCancel: function(){
-
+                this.hidden = true;
             }
         });
     </script>
 </polymer-element>
 
-<polymer-element name="jso-project-browser-folder-list" attributes="folder files study">
+<polymer-element name="jso-project-browser-folder-list" attributes="folder files study bioformat">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -575,6 +602,7 @@
                 this.files;
                 this.hideCreateFolder = true;
                 this.hideUploadFile = true;
+                this.bioformat="";
             },
             handleFileClick: function (e) {
                 this.fire('file-click', {file: e.target.file});
@@ -607,7 +635,8 @@
                         success: function (response) {
                             console.log(response);
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.files = response.response[0].result;
+                                me.files = me.getFilesWithBioformatRefresh(response.response[0].result);
+
                             } else {
                                 console.log(response.response[0].errorMsg);
                             }
@@ -617,7 +646,25 @@
                         }
                     }
                 });
-            }
+            },
+             getFilesWithBioformatRefresh: function(files){
+            var filesToDisplay = new Array();
+                                    for(var i=0; i < files.length; i++){
+                                        var file = files[i];
+                                        var bioformats = this.bioformat.split(",");
+                                        if(file.type=="FOLDER")
+                                            filesToDisplay.push(file);
+                                        else if(this.bioformat=="")
+                                           filesToDisplay.push(file);
+                                        else{
+                                            for(var j=0; j<bioformats.length; j++){
+                                                if(file.bioformat==bioformats[j])
+                                                    filesToDisplay.push(file);
+                                            }
+                                        }
+                                    }
+                                    return filesToDisplay;
+            },
         });
     </script>
 </polymer-element>
