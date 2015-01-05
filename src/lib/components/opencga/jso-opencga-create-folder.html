@@ -28,7 +28,8 @@
 
 
         <form id="form" vertical layout>
-            <label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9]+">
+            <!--<label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9]+">-->
+            <label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9_-]+">
 
             <div class="button action" on-click="{{handleForm}}">Create</div>
         </form>
@@ -49,7 +50,6 @@
             handleForm: function (e) {
                 var me = this;
                 this.message = '';
-
 
                 if (this.$.form.checkValidity()) {
                     OpencgaManager.files.createFolder({
@@ -75,7 +75,7 @@
                         }
                     });
                 }else{
-                    this.message = 'Only alphanumeric values';
+                    this.message = 'Only letters, numbers or slash(-,_) admitted';
                 }
             },
             getFiles: function (e) {

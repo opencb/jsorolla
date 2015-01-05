@@ -114,9 +114,9 @@
                 color: red !important;
             }
 
-            .loading{
-                font-size:20px;
-                margin:20px 50px;
+            .loading {
+                font-size: 20px;
+                margin: 20px 50px;
             }
 
         </style>
@@ -332,6 +332,11 @@
                 var me = this;
                 var res = document.createElement("div");
                 switch (element.type) {
+//                    case "TEXT":
+//                        if (element.tags.indexOf("REDIRECTION") >= 0) {
+//
+//                        }
+//                        break;
                     case "IMAGE":
 
                         if (element.tags.indexOf("NETWORKMINER_JSON") >= 0) {
@@ -482,7 +487,6 @@
 
                                 for (var i = 1; i < data.length; i++) {
                                     var line = data[i];
-
                                     if (line.indexOf("#NAMES") >= 0) {
                                         var splits = data[i].split("\t");
                                         for (var j = 0; j < splits.length; j++) {
@@ -491,8 +495,17 @@
                                         }
 
                                     } else if (line.indexOf("#") < 0) {
-                                        if (data[i].length > 0)
-                                            dataArray.push(data[i].split("\t"))
+                                        if (data[i].length > 0) {
+                                            var localData = data[i].split("\t");
+                                            var localArray = new Array();
+                                            for (var z = 0; z < localData.length; z++) {
+                                                var value = localData[z];
+                                                if (isFinite(value))
+                                                    value = parseFloat(value).toFixed(3);
+                                                localArray.push(value);
+                                            }
+                                            dataArray.push(localArray);
+                                        }
                                     }
 
                                 }
