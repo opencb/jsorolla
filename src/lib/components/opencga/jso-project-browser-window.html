@@ -1,12 +1,14 @@
 <polymer-element name="jso-project-browser-window" attributes="userData selectedProject selectedStudy studies selectionMode bioformat">
     <template>
         <style>
-            :host{
+            :host {
             }
+
             .labelSelection {
                 margin-left: 10px;
             }
-            jso-project-browser{
+
+            jso-project-browser {
                 font-size: 13px;
             }
         </style>
@@ -18,13 +20,13 @@
         <template if="{{ showBrowser }}">
             <jso-project-browser
                     id="jsoProjectBrowser"
-                             class="input-project-browser"
-                             studies="{{studies}}"
-                             selectedProject="{{selectedProject}}"
-                             selectedStudy="{{selectedStudy}}"
-                             selectionMode="{{selectionMode}}"
-                             on-file-select="{{selectHandler}}"
-                             bioformat="{{bioformat}}"
+                    class="input-project-browser"
+                    studies="{{studies}}"
+                    selectedProject="{{selectedProject}}"
+                    selectedStudy="{{selectedStudy}}"
+                    selectionMode="{{selectionMode}}"
+                    on-file-select="{{selectHandler}}"
+                    bioformat="{{bioformat}}"
                     >
             </jso-project-browser>
         </template>
@@ -33,8 +35,8 @@
     <script>
         Polymer({
             ready: function () {
-            this.showBrowser = false;
-            //this.bioformat = "";
+                this.showBrowser = false;
+                //this.bioformat = "";
             },
             buttonHandler: function () {
                 //this.$.jsoProjectBrowser.hidden = !this.$.jsoProjectBrowser.hidden;

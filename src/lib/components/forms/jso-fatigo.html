@@ -212,6 +212,7 @@
                             <!--<input id="go_bp_keyword_operator_2" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
                         <input name="go_mf" id="go_mf" type="checkbox" value="gomf">GO molecular function <br>
+
                         <div class="button action" style="width: 60px; margin: 5px" on-click="{{mfOptionsFunction}}">options</div>
                         <div id="mfOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -225,6 +226,7 @@
                             <!--<input id="go_mf_keyword_operator_2" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
                         <input name="go_cc" id="go_cc" type="checkbox" value="gocc">GO cellular component <br>
+
                         <div class="button action" style="width: 60px; margin: 5px" on-click="{{ccOptionsFunction}}">options</div>
                         <div id="ccOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -238,6 +240,7 @@
                             <!--<input id="go_cc_keyword_operator_2" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
                         <input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>
+
                         <div class="button action" style="width: 60px; margin: 5px" on-click="{{slimOptionsFunction}}">options</div>
                         <div id="slimOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -251,6 +254,7 @@
                             <!--<input id="go_slim_keyword_operator_2" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
                         <input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>
+
                         <div class="button action" style="width: 60px; margin: 5px" on-click="{{interproOptionsFunction}}">options</div>
                         <div id="interproOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -264,6 +268,7 @@
                             <!--<input id="go_interpro_keyword_operator_2" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
                         <input name="recon" id="recon" type="checkbox" value="recon" disabled>Recon <br>
+
                         <div class="button action" style="width: 60px; margin: 5px" on-click="{{reconOptionsFunction}}">options</div>
                         <div id="reconOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -368,41 +373,43 @@
                     query["genome"] = "";
                 }
                 else if (this.comparison == "list2rest") {
-                    if (this.$.annotationsFile.selectedFile.type != "FILE") {
-                        alert("no annotation file selected")
-                        return;
+                    if (this.$.annotationsFile.selectedFile !== undefined) {
+                        if (this.$.annotationsFile.selectedFile.type != "FILE") {
+                            alert("no annotation file selected")
+                            return;
+                        }
                     }
                     query["annotations"] = this.$.annotationsFile.selectedFile.id;
                 }
                 if (this.$.go_bp.checked) {
                     query["go-bp"] = "";
-                    query["go-bp-min-num-genes"] = this.$.go_bp_min_num_genes;
-                    query["go-bp-max-num-genes"] = this.$.go_bp_max_num_genes;
+                    query["go-bp-min-num-genes"] = this.$.go_bp_min_num_genes.value;
+                    query["go-bp-max-num-genes"] = this.$.go_bp_max_num_genes.value;
                 }
                 if (this.$.go_cc.checked) {
                     query["go-cc"] = "";
-                    query["go-cc-min-num-genes"] = this.$.go_cc_min_num_genes;
-                    query["go-cc-max-num-genes"] = this.$.go_cc_max_num_genes;
+                    query["go-cc-min-num-genes"] = this.$.go_cc_min_num_genes.value;
+                    query["go-cc-max-num-genes"] = this.$.go_cc_max_num_genes.value;
                 }
                 if (this.$.go_mf.checked) {
                     query["go-mf"] = "";
-                    query["go-mf-min-num-genes"] = this.$.go_mf_min_num_genes;
-                    query["go-mf-max-num-genes"] = this.$.go_mf_max_num_genes;
+                    query["go-mf-min-num-genes"] = this.$.go_mf_min_num_genes.value;
+                    query["go-mf-max-num-genes"] = this.$.go_mf_max_num_genes.value;
                 }
                 if (this.$.go_slim.checked) {
                     query["go-slim"] = "";
-                    query["go-slim-min-num-genes"] = this.$.go_slim_min_num_genes;
-                    query["go-slim-max-num-genes"] = this.$.go_slim_max_num_genes;
+                    query["go-slim-min-num-genes"] = this.$.go_slim_min_num_genes.value;
+                    query["go-slim-max-num-genes"] = this.$.go_slim_max_num_genes.value;
                 }
                 if (this.$.interpro.checked) {
                     query["interpro"] = "";
-                    query["interpro-min-num-genes"] = this.$.interpro_min_num_genes;
-                    query["interpro-max-num-genes"] = this.$.interpro_max_num_genes;
+                    query["interpro-min-num-genes"] = this.$.interpro_min_num_genes.value;
+                    query["interpro-max-num-genes"] = this.$.interpro_max_num_genes.value;
                 }
                 if (this.$.recon.checked) {
                     query["recon"] = "";
-                    query["recon-min-num-genes"] = this.$.recon_min_num_genes;
-                    query["recon-max-num-genes"] = this.$.recon_max_num_genes;
+                    query["recon-min-num-genes"] = this.$.recon_min_num_genes.value;
+                    query["recon-max-num-genes"] = this.$.recon_max_num_genes.value;
                 }
                 OpencgaManager.jobs.create({
                     query: query,
@@ -537,13 +544,13 @@
                 }
 
             },
-            bpOptionsFunction: function(){
+            bpOptionsFunction: function () {
                 this.$.bpOptions.hidden = !this.$.bpOptions.hidden;
             },
-            ccOptionsFunction: function(){
+            ccOptionsFunction: function () {
                 this.$.ccOptions.hidden = !this.$.ccOptions.hidden;
             },
-            mfOptionsFunction: function(){
+            mfOptionsFunction: function () {
                 this.$.mfOptions.hidden = !this.$.mfOptions.hidden;
             }
         });

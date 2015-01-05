@@ -89,7 +89,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Diabetes dataset</div>
+                    <div class="button action" on-click="{{loadExample1}}">Fluorouridine dataset</div>
                 </div>
             </div>
             <div class="formbox">
@@ -112,67 +112,114 @@
             <div class="formbox">
                 <div class="formtitle">Databases</div>
                 <div class="formcontent">
-                    <select name="species" id="species" class="fc-combobox" type="text" value="none">
-                        <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
-                        <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">Human (homo sapiens)</option>
-                        <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
-                        <!--<option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>-->
-                        <!--<option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>-->
-                        <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
-                        <!--<option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>-->
-                        <!--<option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>-->
-                        <!--<option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>-->
-                        <!--<option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>-->
-                    </select>
+                    <div id="databases">
+                        <select name="species" id="species" class="fc-combobox" type="text" value="none">
+                            <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
+                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">Human (homo sapiens)</option>
+                            <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
+                            <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
+                            <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
+                            <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
+                            <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>
+                            <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                            <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
+                            <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                        </select>
 
-                    <input name="go_bp" id="go_bp" type="checkbox" value="gobp"> GO biological process
-                    <div class="button action" style="width: 60px; margin: 5px" on-click="{{bpOptionsFunction}}">options</div>
-                    <div id="bpOptions" class="db_options" hidden>
-                        Filter terms by number of annotated ids in DB<br>
-                        <label>Minimum</label>
-                        <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
-                        <label>Maximum</label>
-                        <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
-                        <!--Filter terms by keywords-->
-                        <!--<input name="go_bp_keyword_list" id="go_bp_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
-                        <!--<input id="go_bp_keyword_operator_1" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
-                        <!--<input id="go_bp_keyword_operator_2" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        <input name="go_bp" id="go_bp" type="checkbox" value="gobp"> GO biological process
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{bpOptionsFunction}}">options</div>
+                        <div id="bpOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_bp_keyword_list" id="go_bp_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_bp_keyword_operator_1" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_bp_keyword_operator_2" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="go_mf" id="go_mf" type="checkbox" value="gomf">GO molecular function <br>
+
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{mfOptionsFunction}}">options</div>
+                        <div id="mfOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_mf_keyword_list" id="go_mf_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_mf_keyword_operator_1" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_mf_keyword_operator_2" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="go_cc" id="go_cc" type="checkbox" value="gocc">GO cellular component <br>
+
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{ccOptionsFunction}}">options</div>
+                        <div id="ccOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_cc_keyword_list" id="go_cc_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_cc_keyword_operator_1" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_cc_keyword_operator_2" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>
+
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{slimOptionsFunction}}">options</div>
+                        <div id="slimOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="go_slim_min_num_genes" id="go_slim_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="go_slim_max_num_genes" id="go_slim_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_slim_keyword_list" id="go_slim_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_slim_keyword_operator_1" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_slim_keyword_operator_2" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>
+
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{interproOptionsFunction}}">options</div>
+                        <div id="interproOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="interpro_min_num_genes" id="interpro_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="interpro_max_num_genes" id="interpro_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="go_interpro_keyword_list" id="go_interpro_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="go_interpro_keyword_operator_1" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="go_interpro_keyword_operator_2" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <input name="recon" id="recon" type="checkbox" value="recon" disabled>Recon <br>
+
+                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{reconOptionsFunction}}">options</div>
+                        <div id="reconOptions" class="db_options" hidden>
+                            Filter terms by number of annotated ids in DB<br>
+                            <label>Minimum</label>
+                            <input name="recon_min_num_genes" id="recon_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <label>Maximum</label>
+                            <input name="recon_max_num_genes" id="recon_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
+                            <!--Filter terms by keywords-->
+                            <!--<input name="recon_keyword_list" id="recon_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                            <!--<input id="recon_keyword_operator_1" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                            <!--<input id="recon_keyword_operator_2" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                        </div>
+                        <!--<input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>-->
+                        <!--<input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>-->
+                        <!--<input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>-->
+                        <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
+                        <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
+                        <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
+                        Your annotations
+                        <jso-project-browser-window id="annotationsFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+
                     </div>
-                    <input name="go_mf" id="go_mf" type="checkbox" value="gomf">GO molecular function <br>
-                    <div class="button action" style="width: 60px; margin: 5px" on-click="{{mfOptionsFunction}}">options</div>
-                    <div id="mfOptions" class="db_options" hidden>
-                        Filter terms by number of annotated ids in DB<br>
-                        <label>Minimum</label>
-                        <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
-                        <label>Maximum</label>
-                        <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
-                        <!--Filter terms by keywords-->
-                        <!--<input name="go_mf_keyword_list" id="go_mf_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
-                        <!--<input id="go_mf_keyword_operator_1" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
-                        <!--<input id="go_mf_keyword_operator_2" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
-                    </div>
-                    <input name="go_cc" id="go_cc" type="checkbox" value="gocc">GO cellular component <br>
-                    <div class="button action" style="width: 60px; margin: 5px" on-click="{{ccOptionsFunction}}">options</div>
-                    <div id="ccOptions" class="db_options" hidden>
-                        Filter terms by number of annotated ids in DB<br>
-                        <label>Minimum</label>
-                        <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
-                        <label>Maximum</label>
-                        <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="fc-int fc-text" type="text" value="1000" size="10">
-                        <!--Filter terms by keywords-->
-                        <!--<input name="go_cc_keyword_list" id="go_cc_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
-                        <!--<input id="go_cc_keyword_operator_1" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
-                        <!--<input id="go_cc_keyword_operator_2" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
-                    </div>
-                    <!--<input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>-->
-                    <!--<input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>-->
-                    <!--<input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>-->
-                    <!--<input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>-->
-                    <!--<input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>-->
-                    <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
-                    <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
-                    Your annotations<jso-project-browser-window id="annotationsFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
                 </div>
             </div>
             <div class="formbox">
@@ -220,21 +267,39 @@
                 };
                 if (this.$.go_bp.checked) {
                     query["go-bp"] = "";
-                    query["go-bp-min-num-genes"] = this.$.go_bp_min_num_genes;
-                    query["go-bp-max-num-genes"] = this.$.go_bp_max_num_genes;
+                    query["go-bp-min-num-genes"] = this.$.go_bp_min_num_genes.value;
+                    query["go-bp-max-num-genes"] = this.$.go_bp_max_num_genes.value;
                 }
                 if (this.$.go_cc.checked) {
                     query["go-cc"] = "";
-                    query["go-cc-min-num-genes"] = this.$.go_cc_min_num_genes;
-                    query["go-cc-max-num-genes"] = this.$.go_cc_max_num_genes;
+                    query["go-cc-min-num-genes"] = this.$.go_cc_min_num_genes.value;
+                    query["go-cc-max-num-genes"] = this.$.go_cc_max_num_genes.value;
                 }
                 if (this.$.go_mf.checked) {
                     query["go-mf"] = "";
-                    query["go-mf-min-num-genes"] = this.$.go_mf_min_num_genes;
-                    query["go-mf-max-num-genes"] = this.$.go_mf_max_num_genes;
+                    query["go-mf-min-num-genes"] = this.$.go_mf_min_num_genes.value;
+                    query["go-mf-max-num-genes"] = this.$.go_mf_max_num_genes.value;
                 }
-                if (this.$.annotationsFile.selectedFile.type == "FILE") {
-                    query["annotations"] = this.$.annotationsFile.selectedFile.id;
+                if (this.$.go_slim.checked) {
+                    query["go-slim"] = "";
+                    query["go-slim-min-num-genes"] = this.$.go_slim_min_num_genes.value;
+                    query["go-slim-max-num-genes"] = this.$.go_slim_max_num_genes.value;
+                }
+                if (this.$.interpro.checked) {
+                    query["interpro"] = "";
+                    query["interpro-min-num-genes"] = this.$.interpro_min_num_genes.value;
+                    query["interpro-max-num-genes"] = this.$.interpro_max_num_genes.value;
+                }
+                if (this.$.recon.checked) {
+                    query["recon"] = "";
+                    query["recon-min-num-genes"] = this.$.recon_min_num_genes.value;
+                    query["recon-max-num-genes"] = this.$.recon_max_num_genes.value;
+                }
+
+                if (this.$.annotationsFile.selectedFile !== undefined) {
+                    if (this.$.annotationsFile.selectedFile.type == "FILE") {
+                        query["annotations"] = this.$.annotationsFile.selectedFile.id;
+                    }
                 }
                 OpencgaManager.jobs.create({
                     query: query,
@@ -256,15 +321,15 @@
                 })
             },
             loadExample1: function (e) {
-                this.jobName = "Diabetes_dataset";
-                this.description = "Diabetes_dataset";
-                this.$.inputFile.selectedFile = {id: "example_fatiscan_diabetesAffy.txt", path: "fatiscan_diabetesAffy.txt"};
+                this.jobName = "fluorouridine_dataset";
+                this.description = "fluorouridine_dataset";
+                this.$.inputFile.selectedFile = {id: "example_fluorouridine.txt", path: "fluorouridine.txt"};
                 this.$.remove_duplicates.checked = false;
                 this.$.species.value = "hsa";
                 this.$.go_bp.checked = true;
                 this.$.go_bp.disabled = false;
 
-                var exampleFolder = "logistic_diabetes";
+                var exampleFolder = "logistic_fluorouridine";
                 this.createExampleFolder(exampleFolder);
 
             },
