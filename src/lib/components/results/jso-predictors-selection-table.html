@@ -1,0 +1,96 @@
+<polymer-element name="jso-predictors-selection-table" attributes="content">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+          /*  sortable-table {
+            max-width: 1000px;
+            margin-top: 10px;
+            }*/
+        </style>
+        <sortable-table id="table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}">
+            <template id="inputTemplate">
+                <td>
+                    <span title="{{row[column.name]}}">{{row[column.name]}}</span>
+                </td>
+            </template>
+
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+
+            },
+            contentChanged: function(){
+
+                var data = this.content.split("\n");
+                for (var i = 1; i < data.length; i++) {
+                     if (data[i] == "") continue;
+                          var localData = data[i].split("\t");
+                          var obj = {
+                          "#index": localData[0],
+                          "Classifier":localData[1],
+                          "Parameters":localData[2],
+                          "Accuracy":localData[3],
+                          "MCC":localData[4],
+                          "RMSE":localData[5],
+                          "AUC":localData[6],
+                           "Selected genes":localData[8]}
+                         this.data.push(obj)
+                  }
+
+                  //this.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Selected genes"];
+                 this.columns=[
+                        {
+                            name: "#index"
+
+                        },
+                        {
+                            name: "Classifier"
+                        },
+                        {
+                            name: "Parameters"
+                        },
+                        {
+                        name: "Accuracy",
+                        formula: function(value){
+                                return parseFloat(value).toFixed(3);
+                            }
+                        },
+                        {
+                            name: "MCC",
+                        formula: function(value){
+                                return parseFloat(value).toFixed(3);
+                            }
+                        },
+                        {
+                            name: "RMSE",
+                        formula: function(value){
+                                return parseFloat(value).toFixed(3);
+                            }
+                        },
+                        {
+                            name: "AUC",
+                        formula: function(value){
+                                return parseFloat(value).toFixed(3);
+                            }
+                        },
+                        {
+                            name:  "Selected genes",
+                            cellTemplate: "inputTemplate"
+                        }
+                 ];
+                  this.pageSize = "10";
+                  this.footerTemplate = "simplePager";
+
+            }
+        })
+    </script>
+</polymer-element>
+

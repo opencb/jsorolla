@@ -84,17 +84,10 @@
                 </div>
             </div>
             <div class="formbox">
-                <div class="formtitle">Output folder</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                </div>
-            </div>
-            <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="VARIANT"></jso-project-browser-window>
+                    //<jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="VARIANT"></jso-project-browser-window>
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat=""></jso-project-browser-window>
                 </div>
             </div>
 
@@ -109,6 +102,9 @@
             <div class="formbox">
                 <div class="formtitle">Job information</div>
                 <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>

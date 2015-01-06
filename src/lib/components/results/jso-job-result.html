@@ -1,4 +1,4 @@
-<polymer-element name="jso-job-result" attributes="jobItem">
+<polymer-element name="jso-job-result" attributes="jobItem selectedOption">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
@@ -133,6 +133,7 @@
         Polymer({
             created: function () {
                 this.createdElements = {};
+                this.selectedOption = "";
             },
             jobItemChanged: function (oldV, newV) {
                 var me = this;
@@ -332,11 +333,16 @@
                 var me = this;
                 var res = document.createElement("div");
                 switch (element.type) {
-//                    case "TEXT":
-//                        if (element.tags.indexOf("REDIRECTION") >= 0) {
-//
-//                        }
-//                        break;
+                    case "TEXT":
+                        if (element.tags.indexOf("REDIRECTION") >= 0) {
+                            var fileRedirection = element.tags.split("(")[1].split(":")[0];
+                            this.getFileContent(function (content) {
+                                var lines = content.split("\n");
+
+
+                            }, fileRedirection);
+                        }
+                        break;
                     case "IMAGE":
 
                         if (element.tags.indexOf("NETWORKMINER_JSON") >= 0) {
@@ -605,7 +611,6 @@
                                 }
 
                             }, test + "_significative_dataset.txt");
-
                             Object.keys(statisticData).forEach(function (key) {
                                 var index = sigDatasetRows.indexOf(key);
                                 sigDatasetData[index][sigDatasetCols.length] = Number(statisticData[key]);
@@ -615,7 +620,7 @@
                             var indices = new Array(sigDatasetRows.length);
                             for (var i = 0; i < sigDatasetRows.length; i++) indices[i] = i;
 
-                            indices.sort(function (a, b) {
+                           /* indices.sort(function (a, b) {
                                 return sigDatasetData[b][sigDatasetCols.length] - sigDatasetData[a][sigDatasetCols.length];
                             });
 
@@ -631,10 +636,9 @@
                             }
 
 
-                            sigDatasetRows = aux;
+                            sigDatasetRows = aux;*/
                             sigDatasetData.reverse();
                             sigDatasetRows.reverse();
-
 
                             var heatMapData = me.prepareHMData(sigDatasetData);
 //                            sigDatasetRows = Object.keys(heatMapData);
@@ -646,12 +650,16 @@
                             res.appendChild(heatMapDiv);
                         }
                         if (element.tags.indexOf("PREDICTOR_FEATURE_SELECTION_TABLE") >= 0) {
-                            var dataArray = new Array();
+                            /*var dataArray = new Array();
                             this.getFileContent(function (content) {
                                 var data = content.split("\n");
                                 for (var i = 1; i < data.length; i++) {
                                     if (data[i] == "") continue;
-                                    dataArray.push(data[i].split("\t"))
+                                    var localData = data[i].split("\t");
+                                    var aux = localData[8];
+                                    localData = localData.slice(0,7);
+                                    localData.push(aux);
+                                    dataArray.push(localData)
                                 }
 
                             }, element.value);
@@ -659,26 +667,41 @@
                             var sortableTable = document.createElement('sortable-table');
                             sortableTable.setAttribute("id", "tableId");
 
-                            sortableTable.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Confusion matrix", "Selected genes"];
+                           // sortableTable.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Confusion matrix", "Selected genes"];
+                            sortableTable.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Selected genes"];
                             sortableTable.data = dataArray;
                             sortableTable.pageSize = "10";
                             sortableTable.footerTemplate = "simplePager";
 
+                            res.appendChild(sortableTable);*/
+                            var sortableTable = document.createElement('jso-predictors-selection-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
                             res.appendChild(sortableTable);
+
                         }
                         if (element.tags.indexOf("TABLE,NO_LINK") >= 0) {
                             var dataArray = new Array();
                             var columns = new Array();
                             this.getFileContent(function (content) {
                                 var data = content.split("\n");
-
                                 for (var i = 0; i < data.length; i++) {
                                     if (i == 0) {
                                         columns = data[i].split("\t");
                                         continue;
                                     }
                                     if (data[i] == "") continue;
-                                    dataArray.push(data[i].split("\t"))
+                                    var localData = data[i].split("\t");
+                                    var localArray = new Array();
+                                    for(var j = 0; j < localData.length; j++){
+                                        var aux = localData[j].split(">");
+                                        if(aux.length >1)
+                                            aux = aux[1].split("<")[0];
+                                         localArray.push(aux);
+                                    }
+                                    dataArray.push(localArray)
                                 }
 
                             }, element.value);
@@ -803,15 +826,15 @@
 //                console.log(cols);
 //                console.log(rows);
 //original height / original width x new width = new height
-                var z = rows.length / cols.length * 1000;
+ //               var z = rows.length / cols.length * 1000;
                 var heatMap = new Highcharts.Chart({
                     chart: {
                         renderTo: div,
                         type: 'heatmap',
-                        marginTop: 100,
-                        marginBottom: 40,
-                        height: z,
-                        width: 1000
+                      //  marginTop: 100,
+                        //marginBottom: 40,
+                        height: rows.length * 15,
+                        width: cols.length * 15
                     },
                     title: {
                         text: 'Heat Map'
