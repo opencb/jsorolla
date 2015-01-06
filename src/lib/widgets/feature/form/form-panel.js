@@ -114,7 +114,7 @@ FormPanel.prototype = {
                 tooltip: this.clearButtonText,
                 handler: function () {
                     _this.clear();
-                    Utils.msg('Clear', 'Sucessful');
+                    Utils.msg('Clear', 'Successful');
                 }
             },
             {
