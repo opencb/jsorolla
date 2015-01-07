@@ -70,10 +70,14 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
             var line = lines[i];
             if ((line != null) && (line.length > 0)) {
                 var fields = line.split(this.separator);
+                for (var j = 0; j < fields.length; j++) {
+                    fields[j] = fields[j].trim();
+                }
+
                 if (fields[0].substr(0, 1) != "#") {
 
-                    var sourceName = fields[0].trim();
-                    var edgeName = fields[1].trim();
+                    var sourceName = fields[0];
+                    var edgeName = fields[1];
                     var targetName;
 
                     /** create source vertex **/
@@ -87,7 +91,7 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
 
                     // multiple targets
                     for (var j = 2, len = fields.length; j < len; j++) {
-                        targetName = fields[j].trim();
+                        targetName = fields[j];
 
                         /** create target vertex **/
                         if (typeof this.addedVertex[targetName] === 'undefined') {

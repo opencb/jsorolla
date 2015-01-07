@@ -101,14 +101,18 @@ TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, targetInd
 
     for (var i = 0; i < this.lines.length; i++) {
         var fields = this.lines[i];
+        for (var j = 0; j < fields.length; j++) {
+            fields[j] = fields[j].trim();
+        }
 
-        var sourceName = fields[sourceIndex].trim();
-        var targetName = fields[targetIndex].trim();
+
+        var sourceName = fields[sourceIndex];
+        var targetName = fields[targetIndex];
         var edgeName;
         if(relationIndex < 0){
             edgeName = relationDefaultName;
         }else{
-            edgeName = fields[relationIndex].trim();
+            edgeName = fields[relationIndex];
         }
 
         /** create source vertex **/

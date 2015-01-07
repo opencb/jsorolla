@@ -53,27 +53,46 @@
                 color: #696969;
                 font-size: 0.9em;
             }
+
+            .bar {
+                width: 15px;
+            }
+
+            .bar > * {
+                margin: 1px;
+                color: #d3d3d3;
+            }
+
+            .bar > *:hover {
+                color: #000;
+                cursor: pointer;
+            }
         </style>
 
-        <div id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">
-            <div>
-                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.visits > 0}}"
-                              icon="exclamation"></font-awesome>
-                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'READY'}}"
-                              icon="check"></font-awesome>
-                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'ERROR'}}"
-                              icon="times"></font-awesome>
-                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'QUEUED'}}"
-                              icon="clock-o"></font-awesome>
-                <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'RUNNING'}}" icon="circle-o-notch"
-                              animation="spin"></font-awesome>
-                {{jobItem.name}}
-            </div>
-            <div>{{computeToolName()}}</div>
+        <div horizontal layout>
+            <div flex id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">
+                <div>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.visits > 0}}"
+                                  icon="exclamation"></font-awesome>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'READY'}}"
+                                  icon="check"></font-awesome>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'ERROR'}}"
+                                  icon="times"></font-awesome>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'QUEUED'}}"
+                                  icon="clock-o"></font-awesome>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'RUNNING'}}" icon="circle-o-notch"
+                                  animation="spin"></font-awesome>
+                    {{jobItem.name}}
+                </div>
+                <div>{{computeToolName()}}</div>
 
-            <div>
-                <span class="capitalize {{jobItem.status}}">{{computeStatus()}}</span>
-                <span class="date">{{computeDate()}}</span>
+                <div>
+                    <span class="capitalize {{jobItem.status}}">{{computeStatus()}}</span>
+                    <span class="date">{{computeDate()}}</span>
+                </div>
+            </div>
+            <div vertical layout class="bar" on-click="{{handleBarClick}}">
+                <font-awesome icon="times" on-click="{{handleDeleteJob}}"></font-awesome>
             </div>
         </div>
     </template>
@@ -86,7 +105,7 @@
                 return this.jobItem.status.toLowerCase();
             },
             computeToolName: function () {
-                if(this.jobItem.toolName.toLowerCase() == "pathiways"){
+                if (this.jobItem.toolName.toLowerCase() == "pathiways") {
                     return "PATHiVAR";
                 }
                 return this.jobItem.toolName;
@@ -96,6 +115,13 @@
             },
             handleMouseEnter: function () {
 //                console.log(this.jobItem)
+            },
+            handleBarClick: function (e) {
+                e.stopPropagation();
+            },
+            handleDeleteJob: function (e) {
+                e.stopPropagation();
+
             }
         });
     </script>
