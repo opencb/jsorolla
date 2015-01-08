@@ -126,7 +126,14 @@
                 Loading result...
             </div>
         </template>
-        <div id="output" class="output"></div>
+        <template if="{{jobItem.toolName == 'rnaseq-norm'}}">
+            <jso-rnaseq-norm-result jobItem="{{jobItem}}"></jso-rnaseq-norm-result>
+        </template>
+        <template if="{{jobItem.toolName == 'rnaseq-diffexpr'}}">
+            <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
+        </template>
+        <div id="output" class="output">
+        </div>
 
     </template>
     <script>
@@ -142,6 +149,15 @@
                 while (this.$.output.firstChild) {
                     this.$.output.removeChild(this.$.output.firstChild);
                 }
+                if (this.jobItem.toolName == "rnaseq-norm") {
+                    this.loading = false;
+                    return;
+                }
+                if (this.jobItem.toolName == "rnaseq-diffexpr") {
+                    this.loading = false;
+                    return;
+                }
+
                 me.pvalue = 0.05;
 
                 OpencgaManager.files.filesByFolder({
@@ -459,6 +475,7 @@
 
 
                             this.getFileContent(function (content) {
+                                debugger
                                 var adapter = new SIFNetworkDataAdapter({
                                     dataSource: new StringDataSource(content),
                                     handlers: {
@@ -620,23 +637,23 @@
                             var indices = new Array(sigDatasetRows.length);
                             for (var i = 0; i < sigDatasetRows.length; i++) indices[i] = i;
 
-                           /* indices.sort(function (a, b) {
-                                return sigDatasetData[b][sigDatasetCols.length] - sigDatasetData[a][sigDatasetCols.length];
-                            });
+                            /* indices.sort(function (a, b) {
+                             return sigDatasetData[b][sigDatasetCols.length] - sigDatasetData[a][sigDatasetCols.length];
+                             });
 
-                            sigDatasetData.sort(function (a, b) {
-                                return b[sigDatasetCols.length] - a[sigDatasetCols.length];
-                            });
+                             sigDatasetData.sort(function (a, b) {
+                             return b[sigDatasetCols.length] - a[sigDatasetCols.length];
+                             });
 
-                            var aux = new Array(sigDatasetRows.length);
+                             var aux = new Array(sigDatasetRows.length);
 
-                            for (var i = 0; i < indices.length; i++) {
-                                var index = indices[i];
-                                aux[i] = sigDatasetRows[index];
-                            }
+                             for (var i = 0; i < indices.length; i++) {
+                             var index = indices[i];
+                             aux[i] = sigDatasetRows[index];
+                             }
 
 
-                            sigDatasetRows = aux;*/
+                             sigDatasetRows = aux;*/
                             sigDatasetData.reverse();
                             sigDatasetRows.reverse();
 
@@ -651,29 +668,29 @@
                         }
                         if (element.tags.indexOf("PREDICTOR_FEATURE_SELECTION_TABLE") >= 0) {
                             /*var dataArray = new Array();
-                            this.getFileContent(function (content) {
-                                var data = content.split("\n");
-                                for (var i = 1; i < data.length; i++) {
-                                    if (data[i] == "") continue;
-                                    var localData = data[i].split("\t");
-                                    var aux = localData[8];
-                                    localData = localData.slice(0,7);
-                                    localData.push(aux);
-                                    dataArray.push(localData)
-                                }
+                             this.getFileContent(function (content) {
+                             var data = content.split("\n");
+                             for (var i = 1; i < data.length; i++) {
+                             if (data[i] == "") continue;
+                             var localData = data[i].split("\t");
+                             var aux = localData[8];
+                             localData = localData.slice(0,7);
+                             localData.push(aux);
+                             dataArray.push(localData)
+                             }
 
-                            }, element.value);
+                             }, element.value);
 
-                            var sortableTable = document.createElement('sortable-table');
-                            sortableTable.setAttribute("id", "tableId");
+                             var sortableTable = document.createElement('sortable-table');
+                             sortableTable.setAttribute("id", "tableId");
 
-                           // sortableTable.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Confusion matrix", "Selected genes"];
-                            sortableTable.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Selected genes"];
-                            sortableTable.data = dataArray;
-                            sortableTable.pageSize = "10";
-                            sortableTable.footerTemplate = "simplePager";
+                             // sortableTable.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Confusion matrix", "Selected genes"];
+                             sortableTable.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Selected genes"];
+                             sortableTable.data = dataArray;
+                             sortableTable.pageSize = "10";
+                             sortableTable.footerTemplate = "simplePager";
 
-                            res.appendChild(sortableTable);*/
+                             res.appendChild(sortableTable);*/
                             var sortableTable = document.createElement('jso-predictors-selection-table');
                             this.getFileContent(function (content) {
                                 sortableTable.content = content;
@@ -695,11 +712,11 @@
                                     if (data[i] == "") continue;
                                     var localData = data[i].split("\t");
                                     var localArray = new Array();
-                                    for(var j = 0; j < localData.length; j++){
+                                    for (var j = 0; j < localData.length; j++) {
                                         var aux = localData[j].split(">");
-                                        if(aux.length >1)
+                                        if (aux.length > 1)
                                             aux = aux[1].split("<")[0];
-                                         localArray.push(aux);
+                                        localArray.push(aux);
                                     }
                                     dataArray.push(localArray)
                                 }
@@ -718,31 +735,38 @@
                             res.appendChild(sortableTable);
                         }
                         if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
-                            var dataArray = new Array();
-                            var columns = new Array();
-                            this.getFileContent(function (content) {
-                                var data = content.split("\n");
+//                            var dataArray = new Array();
+//                            var columns = new Array();
+//                            this.getFileContent(function (content) {
+//                                var data = content.split("\n");
+//
+//                                for (var i = 0; i < data.length; i++) {
+//                                    if (i == 0) {
+//                                        columns = data[i].split("\t");
+//                                        continue;
+//                                    }
+//                                    if (data[i] == "") continue;
+//                                    dataArray.push(data[i].split("\t"))
+//                                }
+//
+//                            }, element.value);
+//
+//                            var sortableTable = document.createElement('sortable-table');
+//                            sortableTable.setAttribute("id", "tableId");
+////                            sortableTable.setAttribute("cellTemplate", "html");
+//
+//                            sortableTable.columns = columns;
+//                            sortableTable.data = dataArray;
+//                            sortableTable.pageSize = "10";
+//                            sortableTable.footerTemplate = "simplePager";
+//
+//                            res.appendChild(sortableTable);
 
-                                for (var i = 0; i < data.length; i++) {
-                                    if (i == 0) {
-                                        columns = data[i].split("\t");
-                                        continue;
-                                    }
-                                    if (data[i] == "") continue;
-                                    dataArray.push(data[i].split("\t"))
-                                }
+                            var sortableTable = document.createElement('jso-fatigo-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
 
                             }, element.value);
-
-                            var sortableTable = document.createElement('sortable-table');
-                            sortableTable.setAttribute("id", "tableId");
-//                            sortableTable.setAttribute("cellTemplate", "html");
-
-                            sortableTable.columns = columns;
-                            sortableTable.data = dataArray;
-                            sortableTable.pageSize = "10";
-                            sortableTable.footerTemplate = "simplePager";
-
                             res.appendChild(sortableTable);
                         }
 
@@ -826,12 +850,12 @@
 //                console.log(cols);
 //                console.log(rows);
 //original height / original width x new width = new height
- //               var z = rows.length / cols.length * 1000;
+                //               var z = rows.length / cols.length * 1000;
                 var heatMap = new Highcharts.Chart({
                     chart: {
                         renderTo: div,
                         type: 'heatmap',
-                      //  marginTop: 100,
+                        //  marginTop: 100,
                         //marginBottom: 40,
                         height: rows.length * 15,
                         width: cols.length * 15

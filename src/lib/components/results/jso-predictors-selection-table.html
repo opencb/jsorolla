@@ -3,10 +3,15 @@
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
-          /*  sortable-table {
-            max-width: 1000px;
-            margin-top: 10px;
-            }*/
+            sortable-table {
+            /*max-width: 1000px;*/
+            /*margin-top: 10px;*/
+                border: 1px solid #d3d3d3;
+            }
+          sortable-table::shadow .column-selected_genes{
+              width: 600px;
+
+          }
         </style>
         <sortable-table id="table"
                         data="{{data}}"
@@ -41,14 +46,14 @@
                           "MCC":localData[4],
                           "RMSE":localData[5],
                           "AUC":localData[6],
-                           "Selected genes":localData[8]}
+                           "selected_genes":localData[8]}
                          this.data.push(obj)
                   }
 
                   //this.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Selected genes"];
                  this.columns=[
                         {
-                            name: "#index"
+                            name: "#index",
 
                         },
                         {
@@ -82,7 +87,8 @@
                             }
                         },
                         {
-                            name:  "Selected genes",
+                            name:  "selected_genes",
+                            title:  "Selected genes",
                             cellTemplate: "inputTemplate"
                         }
                  ];
