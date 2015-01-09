@@ -103,9 +103,11 @@
                 <div class="formtitle">Normalization method</div>
                 <div class="formcontent">
                     <div id="methodDiv">
-                        <input id="none" name="method" type="radio" value="NONE" checked="checked" on-click="{{radioTestClicked}}">None
-                        <input id="tmm" name="method" type="radio" value="TMM" checked="checked" on-click="{{radioTestClicked}}">TMM
-                        <input id="rpkm" name="method" type="radio" value="RPKM" on-click="{{radioTestClicked}}">RPKM
+                        <input id="chooseAuto" name="chooseMethod" type="radio" value="Auto" checked="checked" on-click="{{chooseClicked}}">Choose automatically the
+                        normalization method<br>
+                        <input id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="{{chooseClicked}}">Choose manually the normalization method<br>
+                        <input id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}" style="margin-left: 20px">TMM<br>
+                        <input id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="{{radioTestClicked}}" style="margin-left: 20px">RPKM
                     </div>
                 </div>
             </div>
@@ -150,9 +152,12 @@
                     "glfile": this.$.glFile.selectedFile.id,
                     description: this.description
                 };
-                var method = this.$.methodDiv.querySelector('input[name="method"]:checked').value;
-                if (method != "NONE")
-                    query["method"] = method;
+                if (this.$.chooseMan.checked) {
+                    query["method"] = this.$.methodDiv.querySelector('input[name="method"]:checked').value;
+                }
+                else{
+                    query["method"] = this.$.methodDiv.querySelector('input[name="chooseMethod"]:checked').value;
+                }
 
                 OpencgaManager.jobs.create({
                     query: query,
@@ -225,6 +230,17 @@
                         }
                     }
                 });
+            },
+            chooseClicked: function () {
+                if (this.$.chooseAuto.checked) {
+                    this.$.tmm.disabled = true;
+                    this.$.rpkm.disabled = true;
+                }
+                else {
+                    this.$.tmm.disabled = false;
+                    this.$.tmm.checked = true;
+                    this.$.rpkm.disabled = false;
+                }
             }
         });
     </script>

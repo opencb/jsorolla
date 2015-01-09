@@ -22,7 +22,7 @@
             }
 
             .main {
-                min-width:970px;
+                min-width: 970px;
                 position: relative;
                 z-index: 60000;
                 height: 60px;
@@ -297,34 +297,35 @@
                 <li id="description" class="description">
                     <content select=".description"></content>
                 </li>
+                <template if="{{isLogged}}">
+                    <template repeat="{{o in options}}">
+                        <li data-option="{{o.option}}" on-click="{{handleMenu}}" class="dropdown">
+                            <div tabindex="-1">
+                                {{o.text}}
+                            </div>
+                            <template if="{{o.sub}}">
+                                <ul>
+                                    <template repeat="{{o2 in o.sub}}">
+                                        <li data-option="{{o2.option}}" on-click="{{handleMenu}}"
+                                            data-sub="{{o2.sub.length > 0}}"
+                                            data-text="{{o2.option == 'none'}}">
+                                            {{o2.text}}
+                                            <template if="{{o2.sub}}">
+                                                <ul>
+                                                    <template repeat="{{o3 in o2.sub}}">
+                                                        <li data-option="{{o3.option}}" on-click="{{handleMenu}}">
+                                                            {{o3.text}}
+                                                        </li>
+                                                    </template>
 
-                <template repeat="{{o in options}}">
-                    <li data-option="{{o.option}}" on-click="{{handleMenu}}" class="dropdown">
-                        <div tabindex="-1">
-                            {{o.text}}
-                        </div>
-                        <template if="{{o.sub}}">
-                            <ul>
-                                <template repeat="{{o2 in o.sub}}">
-                                    <li data-option="{{o2.option}}" on-click="{{handleMenu}}"
-                                        data-sub="{{o2.sub.length > 0}}"
-                                        data-text="{{o2.option == 'none'}}">
-                                        {{o2.text}}
-                                        <template if="{{o2.sub}}">
-                                            <ul>
-                                                <template repeat="{{o3 in o2.sub}}">
-                                                    <li data-option="{{o3.option}}" on-click="{{handleMenu}}">
-                                                        {{o3.text}}
-                                                    </li>
-                                                </template>
-
-                                            </ul>
-                                        </template>
-                                    </li>
-                                </template>
-                            </ul>
-                        </template>
-                    </li>
+                                                </ul>
+                                            </template>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                        </li>
+                    </template>
                 </template>
 
                 <!--<li id="apps" class="right" on-click="{{}}">-->

@@ -234,8 +234,10 @@
                 if (this.$.extract_ids.checked) {
                     query["extract-ids"] = this.$.extract_ids.checked;
                 }
-                if (this.$.gene_file_filter.selectedFile.type == "FILE") {
-                    query["gene_file_filter"] = this.$.gene_file_filter.selectedFile.id;
+                if (this.$.gene_file_filter.selectedFile !== undefined) {
+                    if (this.$.gene_file_filter.selectedFile.type == "FILE") {
+                        query["gene_file_filter"] = this.$.gene_file_filter.selectedFile.id;
+                    }
                 }
                 if (this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value != "none") {
                     query["convert-ids"] = this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value;

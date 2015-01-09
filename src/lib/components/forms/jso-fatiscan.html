@@ -79,7 +79,7 @@
         </style>
         <div class="title">
             <div>
-                Fatiscan
+                Gene set enrichment
             </div>
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
@@ -106,9 +106,9 @@
                 <div class="formtitle">Databases</div>
                 <div class="formcontent">
                     <div id="databases">
-                        <select name="species" id="species" class="fc-combobox" type="text" value="none">
-                            <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
-                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">Human (homo sapiens)</option>
+                        <select name="species" id="species" class="fc-combobox" type="text" value="none" on-change="{{handleSpecies}}">
+                            <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>-->
+                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>
                             <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
                             <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
                             <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
@@ -371,6 +371,30 @@
                         }
                     }
                 });
+            },
+            handleSpecies: function (e) {
+                this.species = this.$.species.value;
+                if (this.species == "hsa") {
+                    this.$.go_slim.disabled = false;
+                    this.$.interpro.disabled = false;
+                    this.$.recon.disabled = false;
+                }
+                if (this.species == "ath") {
+                    this.$.go_slim.disabled = true;
+                    this.$.interpro.disabled = true;
+                    this.$.recon.disabled = true;
+                }
+                if (this.species == "cel") {
+                    this.$.go_slim.disabled = true;
+                    this.$.interpro.disabled = false;
+                    this.$.recon.disabled = true;
+                }
+                if (this.species == "dme" || this.species == "dre" || this.species == "mmu" || this.species == "rno" || this.species == "sce") {
+                    this.$.go_slim.disabled = false;
+                    this.$.interpro.disabled = false;
+                    this.$.recon.disabled = true;
+                }
+
             },
             bpOptionsFunction: function(){
                 this.$.bpOptions.hidden = !this.$.bpOptions.hidden;

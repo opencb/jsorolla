@@ -7,15 +7,46 @@
               max-width: 1000px;
               margin-top: 10px;
               }*/
+            sortable-table {
+                border: 1px solid #d3d3d3;
+            }
+            sortable-table::shadow thead tr th {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+            sortable-table::shadow tbody tr td {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+            sortable-table::shadow .column-term_size,
+            sortable-table::shadow .column-term_size_genome,
+            sortable-table::shadow .column-term_size_genome,
+            sortable-table::shadow .column-term_annotations_list1_perc,
+            sortable-table::shadow .column-term_annotations_list2_perc,
+            sortable-table::shadow .column-odds_ratio,
+            sortable-table::shadow .column-pvalue,
+            sortable-table::shadow .column-adj_pvalue{
+                width: 70px;
+                /*white-space: nowrap;*/
+            }
+
         </style>
         <sortable-table id="table"
                         data="{{data}}"
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
                         pageSize="{{pageSize}}">
-            <template id="inputTemplate">
+            <template id="listTemplate">
                 <td>
-                    <span title="{{row[column.name]}}">{{row[column.name]}}</span>
+                    <span title="{{row[column.name]}}">List 1: {{row[column.name].list1}}</span>
+                    <br>
+                    <span title="{{row[column.name]}}">List 2: {{row[column.name].list2}}</span>
                 </td>
             </template>
 
@@ -33,17 +64,19 @@
                 for (var i = 1; i < data.length; i++) {
                     if (data[i] == "") continue;
                     var localData = data[i].split("\t");
+                    debugger
+                    var listObj = {list1:localData[9],list2:localData[10]}
                     var obj = {
                         "term": localData[0],
                         "term_size": localData[1],
                         "term_size_genome": localData[2],
                         "term_annotations_list1_perc": localData[5],
                         "term_annotations_list2_perc": localData[8],
-                        "annotated_ids_list1": localData[9],
-                        "annotated_ids_list2": localData[10],
-                        "odds_ratio": localData[11],
-                        "pvalue": localData[12],
-                        "adj_pvalue": localData[13]
+                        "annotated_ids_list":listObj,
+//                        "annotated_ids_list2": localData[10],
+                        "odds_ratio":  parseFloat(localData[11]).toFixed(3),
+                        "pvalue": parseFloat(localData[12]).toFixed(3),
+                        "adj_pvalue": parseFloat(localData[13]).toFixed(3)
                     };
                     this.data.push(obj)
                 }
@@ -73,13 +106,14 @@
 
                     },
                     {
-                        name: "annotated_ids_list1",
-                        title: "Annotated ids list1"
+                        name: "annotated_ids_list",
+                        title: "Annotated ids list",
+                        cellTemplate: "listTemplate"
                     },
-                    {
-                        name: "annotated_ids_list2",
-                        title: "Annotated ids list2"
-                    },
+//                    {
+//                        name: "annotated_ids_list2",
+//                        title: "Annotated ids list2"
+//                    },
                     {
                         name: "odds_ratio",
                         title: "Odds ratio (log e)"

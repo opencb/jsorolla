@@ -89,7 +89,7 @@
         </style>
         <div class="title" horizontal layout>
             <div flex>
-                Go enrichment analysis
+                Single enrichment analysis
             </div>
             <div class="close" on-click="{{handleCancel}}">
                 <font-awesome icon="times"></font-awesome>
@@ -178,9 +178,9 @@
                 <div class="formtitle">Databases</div>
                 <div class="formcontent">
                     <div id="databases">
-                        <select name="species" id="species" class="fc-combobox" type="text" value="none">
-                            <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
-                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">Human (homo sapiens)</option>
+                        <select name="species" id="species" class="fc-combobox" type="text" value="none" on-change="{{handleSpecies}}">
+                            <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</option>-->
+                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>
                             <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
                             <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
                             <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
@@ -232,7 +232,7 @@
                             <!--<input id="go_cc_keyword_operator_1" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
                             <!--<input id="go_cc_keyword_operator_2" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
-                        <input name="go_slim" id="go_slim" type="checkbox" value="go-slim" disabled>GOSlim GOA <br>
+                        <input name="go_slim" id="go_slim" type="checkbox" value="go-slim">GOSlim GOA <br>
 
                         <div class="button action" style="width: 60px; margin: 5px" on-click="{{slimOptionsFunction}}">options</div>
                         <div id="slimOptions" class="db_options" hidden>
@@ -246,7 +246,7 @@
                             <!--<input id="go_slim_keyword_operator_1" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
                             <!--<input id="go_slim_keyword_operator_2" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
-                        <input name="interpro" id="interpro" type="checkbox" value="interpro" disabled>Interpro <br>
+                        <input name="interpro" id="interpro" type="checkbox" value="interpro">Interpro <br>
 
                         <div class="button action" style="width: 60px; margin: 5px" on-click="{{interproOptionsFunction}}">options</div>
                         <div id="interproOptions" class="db_options" hidden>
@@ -260,7 +260,7 @@
                             <!--<input id="go_interpro_keyword_operator_1" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
                             <!--<input id="go_interpro_keyword_operator_2" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
-                        <input name="recon" id="recon" type="checkbox" value="recon" disabled>Recon <br>
+                        <input name="recon" id="recon" type="checkbox" value="recon">Recon <br>
 
                         <div class="button action" style="width: 60px; margin: 5px" on-click="{{reconOptionsFunction}}">options</div>
                         <div id="reconOptions" class="db_options" hidden>
@@ -431,7 +431,6 @@
                 this.$.go_bp.disabled = false;
                 this.$.go_bp.checked = true;
                 this.message = '';
-                this.newFolderName = "fatiresult_" + Math.floor((Math.random() * 100) + 1);
                 this.duplicates = "never";
                 this.go_bp_keyword_operator = "all";
                 this.$.species.value = "hsa";
@@ -496,47 +495,26 @@
             },
 
             handleSpecies: function (e) {
-                this.species = e.target.dataset.value;
-                this.speciesText = e.target.innerText;
+                this.species = this.$.species.value;
                 if (this.species == "hsa") {
-                    this.$.go_bp.disabled = false;
-                    this.$.go_bp.disabled = false;
-                    this.$.go_mf.disabled = false;
-                    this.$.go_cc.disabled = false;
                     this.$.go_slim.disabled = false;
                     this.$.interpro.disabled = false;
-                    this.$.kegg.disabled = false;
-                    this.$.reactome.disabled = false;
-                    this.$.biocarta.disabled = false;
-                    this.$.mirna.disabled = false;
-                    this.$.jaspar.disabled = false;
+                    this.$.recon.disabled = false;
                 }
-
-                if (this.species == "mmu" || this.species == "rno") {
-                    this.$.go_bp.disabled = false;
-                    this.$.go_bp.disabled = false;
-                    this.$.go_mf.disabled = false;
-                    this.$.go_cc.disabled = false;
+                if (this.species == "ath") {
+                    this.$.go_slim.disabled = true;
+                    this.$.interpro.disabled = true;
+                    this.$.recon.disabled = true;
+                }
+                if (this.species == "cel") {
                     this.$.go_slim.disabled = true;
                     this.$.interpro.disabled = false;
-                    this.$.kegg.disabled = false;
-                    this.$.reactome.disabled = true;
-                    this.$.biocarta.disabled = true;
-                    this.$.mirna.disabled = false;
-                    this.$.jaspar.disabled = false;
+                    this.$.recon.disabled = true;
                 }
-                if (this.species == "dme" || this.species == "bta" || this.species == "dre" || this.speces == "sce" || this.species == "cel" || this.species == "ath") {
-                    this.$.go_bp.disabled = false;
-                    this.$.go_bp.disabled = false;
-                    this.$.go_mf.disabled = false;
-                    this.$.go_cc.disabled = false;
-                    this.$.go_slim.disabled = true;
+                if (this.species == "dme" || this.species == "dre" || this.species == "mmu" || this.species == "rno" || this.species == "sce") {
+                    this.$.go_slim.disabled = false;
                     this.$.interpro.disabled = false;
-                    this.$.kegg.disabled = false;
-                    this.$.reactome.disabled = true;
-                    this.$.biocarta.disabled = true;
-                    this.$.mirna.disabled = true;
-                    this.$.jaspar.disabled = true;
+                    this.$.recon.disabled = true;
                 }
 
             },

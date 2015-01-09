@@ -1,0 +1,94 @@
+<polymer-element name="jso-biotype" attributes="">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            .firstLevel {
+                margin-left: 10px
+            }
+
+            .secondLevel {
+                margin-left: 20px
+            }
+
+            .thirdLevel {
+                margin-left: 30px
+            }
+
+            .parent {
+                background: white;
+                border: 1px solid #ddd;
+                box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.1);
+                padding: 4px;;
+            }
+        </style>
+        Select format
+        <div id="biotypes" class="parent">
+
+            <div>
+                Microarray
+                <div class="firstLevel">Expression
+                    <div class="secondLevel">One channel
+                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX">Affymetrix<br></div>
+                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT">Agilent<br></div>
+                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX">Genepix<br></div>
+                    </div>
+                    <div class="secondLevel">Two channels
+                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT">Agilent<br></div>
+                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX">Genepix<br></div>
+                    </div>
+                </div>
+            </div>
+            <div>Data matrix
+                <div class="firstLevel">
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="DATAMATRIX_EXPRESSION">Expression<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="DATAMATRIX_SNP">SNP<br></div>
+
+                </div>
+            </div>
+            <div>ID list
+                <div class="firstLevel">
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_GENE">Gene<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_TRANSCRIPT">Transcript<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_PROTEIN">Protein<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_SNP">SNP<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_FUNCTIONALTERMS">Functional terms<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_RANKED">ranked<br></div>
+                </div>
+            </div>
+            <div>Annotation
+                <div class="firstLevel">
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="ANNOTATION_GENEVSANNOTATION">Gene vs annotation<br></div>
+                    <!--<div class="thirdLevel"><input type="radio" name="biotype" value="idlist_extendedannotation">Extended annotation<br></div>-->
+                </div>
+            </div>
+            <div>Other
+                <div class="firstLevel">
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_NEWICK">Newick<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_BLAST">Blast<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_INTERACTION">Interaction<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_GENOTYPE">PED_MAP zipped<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_PLINK">Plink association<br></div>
+                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_VCF">VCF 4.0<br></div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.bioformat = "";
+            },
+            getSelected: function () {
+                var radioButton = this.$.biotypes.querySelector('input[name="biotype"]:checked');
+                if(radioButton == null)
+                    this.bioformat = ""
+                else
+                    this.bioformat = radioButton.value;
+                return this.bioformat;
+            }
+
+
+        });
+    </script>
+</polymer-element>

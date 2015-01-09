@@ -51,50 +51,53 @@
             <!--</div>-->
 
             <!--<div hidden>-->
+            <div>
+                <jso-biotype id="bioformat"></jso-biotype>
+            </div>
             <div hidden>
-                <label>File format</label>
-                <!--<input type="text" id="fileFormat" value="{{fileFormat}}" required pattern="[a-zA-Z0-9]+">-->
-                <select value="{{fileFormat}}" required>
-                    <option value="PLAIN">PLAIN</option>
-                    <option value="GZIP">GZIP</option>
-                    <option value="BINARY">BINARY</option>
-                    <option value="BINARY">EXECUTABLE</option>
-                    <option value="EXECUTABLE">IMAGE</option>
-                </select>
+                <!--<label>File format</label>-->
+                <!--&lt;!&ndash;<input type="text" id="fileFormat" value="{{fileFormat}}" required pattern="[a-zA-Z0-9]+">&ndash;&gt;-->
+                <!--<select value="{{fileFormat}}" required>-->
+                    <!--<option value="PLAIN">PLAIN</option>-->
+                    <!--<option value="GZIP">GZIP</option>-->
+                    <!--<option value="BINARY">BINARY</option>-->
+                    <!--<option value="BINARY">EXECUTABLE</option>-->
+                    <!--<option value="EXECUTABLE">IMAGE</option>-->
+                <!--</select>-->
 
 
-                <label>Bio format</label>
-                <!--<input class="button" type="text" id="bioFormat" value="{{bioFormat}}" required pattern="[a-zA-Z0-9]+">-->
-                <select value="{{bioFormat}}" required>
-                    <option value="VARIANT">VARIANT</option>
-                    <option value="ALIGNMENT">ALIGNMENT</option>
-                    <option value="SEQUENCE">SEQUENCE</option>
-                    <option value="MICROARRAY">MICROARRAY</option>
-                    <option value="ONECHANNEL">ONECHANNEL</option>
-                    <option value="TWOCHANNEL">TWOCHANNEL</option>
-                    <option value="AFFYMETRIX">AFFYMETRIX</option>
-                    <option value="AGILENT">AGILENT</option>
-                    <option value="GENEPIX">GENEPIX</option>
-                    <option value="DATAMATRIX">DATAMATRIX</option>
-                    <option value="SNP">SNP</option>
-                    <option value="IDLIST">IDLIST</option>
-                    <option value="GENE">GENE</option>
-                    <option value="TRANSCRIPT">TRANSCRIPT</option>
-                    <option value="PROTEIN">PROTEIN</option>
-                    <option value="FUNCTIONALTERM">FUNCTIONALTERM</option>
-                    <option value="RANKED">RANKED</option>
-                    <option value="ANNOTATION">ANNOTATION</option>
-                    <option value="GENEVSANNOTATION">GENEVSANNOTATION</option>
-                    <option value="EXTENDEDANNOTATION">EXTENDEDANNOTATION</option>
-                    <option value="OTHER">OTHER</option>
-                    <option value="NEWICK">NEWICK</option>
-                    <option value="BLAST">BLAST</option>
-                    <option value="INTERACTION">INTERACTION</option>
-                    <option value="GENOTYPE">GENOTYPE</option>
-                    <option value="PLINKASSOCIATION">PLINKASSOCIATION</option>
-                    <option value="VCF4">VCF4</option>
-                    <option value="NONE">NONE</option>
-                </select>
+                <!--<label>Bio format</label>-->
+                <!--&lt;!&ndash;<input class="button" type="text" id="bioFormat" value="{{bioFormat}}" required pattern="[a-zA-Z0-9]+">&ndash;&gt;-->
+                <!--<select value="{{bioFormat}}" required>-->
+                    <!--<option value="VARIANT">VARIANT</option>-->
+                    <!--<option value="ALIGNMENT">ALIGNMENT</option>-->
+                    <!--<option value="SEQUENCE">SEQUENCE</option>-->
+                    <!--<option value="MICROARRAY">MICROARRAY</option>-->
+                    <!--<option value="ONECHANNEL">ONECHANNEL</option>-->
+                    <!--<option value="TWOCHANNEL">TWOCHANNEL</option>-->
+                    <!--<option value="AFFYMETRIX">AFFYMETRIX</option>-->
+                    <!--<option value="AGILENT">AGILENT</option>-->
+                    <!--<option value="GENEPIX">GENEPIX</option>-->
+                    <!--<option value="DATAMATRIX">DATAMATRIX</option>-->
+                    <!--<option value="SNP">SNP</option>-->
+                    <!--<option value="IDLIST">IDLIST</option>-->
+                    <!--<option value="GENE">GENE</option>-->
+                    <!--<option value="TRANSCRIPT">TRANSCRIPT</option>-->
+                    <!--<option value="PROTEIN">PROTEIN</option>-->
+                    <!--<option value="FUNCTIONALTERM">FUNCTIONALTERM</option>-->
+                    <!--<option value="RANKED">RANKED</option>-->
+                    <!--<option value="ANNOTATION">ANNOTATION</option>-->
+                    <!--<option value="GENEVSANNOTATION">GENEVSANNOTATION</option>-->
+                    <!--<option value="EXTENDEDANNOTATION">EXTENDEDANNOTATION</option>-->
+                    <!--<option value="OTHER">OTHER</option>-->
+                    <!--<option value="NEWICK">NEWICK</option>-->
+                    <!--<option value="BLAST">BLAST</option>-->
+                    <!--<option value="INTERACTION">INTERACTION</option>-->
+                    <!--<option value="GENOTYPE">GENOTYPE</option>-->
+                    <!--<option value="PLINKASSOCIATION">PLINKASSOCIATION</option>-->
+                    <!--<option value="VCF4">VCF4</option>-->
+                    <!--<option value="NONE">NONE</option>-->
+                <!--</select>-->
                 <label>Description</label>
                 <input type="text" id="description" value="{{description}}" pattern="[a-zA-Z0-9\s]+">
 
@@ -133,6 +136,11 @@
             handleForm: function (e) {
                 var me = this;
                 this.message = '';
+                this.bioFormat = this.$.bioformat.getSelected();
+                if(this.bioFormat == "" ){
+                    this.message = "Error: Please select a format";
+                    return;
+                }
                 if (this.uploading == false && this.$.form.checkValidity() && this.folder && this.study) {
 
                     this.uploading = true;
